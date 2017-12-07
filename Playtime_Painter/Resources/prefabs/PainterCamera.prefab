@@ -1,0 +1,248 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1448749756403976}
+  m_IsPrefabParent: 1
+--- !u!1 &1338627483454682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4292789059950116}
+  - component: {fileID: 33049184892865822}
+  - component: {fileID: 23720358429516104}
+  - component: {fileID: 114658260336127396}
+  m_Layer: 30
+  m_Name: RenderCameraBrush
+  m_TagString: toolComponent
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1448749756403976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4003975465315076}
+  - component: {fileID: 114624070626548024}
+  - component: {fileID: 20914243665981438}
+  - component: {fileID: 114462804155251438}
+  m_Layer: 0
+  m_Name: PainterCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4003975465315076
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1448749756403976}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3000, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4292789059950116}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4292789059950116
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1338627483454682}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 61.76468, y: -6.8944855, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4003975465315076}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &20914243665981438
+Camera:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1448749756403976}
+  m_Enabled: 0
+  serializedVersion: 2
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 1
+  orthographic size: 128
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 1073741824
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+  m_StereoMirrorMode: 0
+--- !u!23 &23720358429516104
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1338627483454682}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 36be934dcfd18c34bb8b5f711f6d518a, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &33049184892865822
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1338627483454682}
+  m_Mesh: {fileID: 0}
+--- !u!114 &114462804155251438
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1448749756403976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d996056c288ed0e4ca999aaccd93f267, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: {fileID: 0}
+  verts:
+  - {x: -64, y: 64.00005, z: 0}
+  - {x: 64, y: 64.00005, z: 0}
+  - {x: -64, y: 0.00005, z: 0}
+  - {x: 64, y: 0.00005, z: 0}
+  - {x: -64, y: -0.00005, z: 0}
+  - {x: 64, y: -0.00005, z: 0}
+  - {x: -64, y: -64.00005, z: 0}
+  - {x: 64, y: -64.00005, z: 0}
+  uv:
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  - {x: 0, y: 0.5}
+  - {x: 1, y: 0.5}
+  - {x: 0, y: 0.5}
+  - {x: 1, y: 0.5}
+  - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  tris: 000000000100000002000000020000000100000003000000020000000300000004000000040000000300000005000000040000000500000006000000060000000500000007000000
+  quad: {fileID: 0}
+  rebuild: 0
+  width: 1
+  size: 15
+  pos1: {x: 0, y: 0, z: 0}
+  pos2: {x: 0, y: 0, z: 0}
+--- !u!114 &114624070626548024
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1448749756403976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d12a17cafa5c145a6a83e8c6f744ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  texturesToCopyFrom:
+  - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
+  - {fileID: 2800000, guid: 319e4c66e8837cc4486d5c61f4a93cc0, type: 3}
+  masks:
+  - {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
+  - {fileID: 0}
+  decals:
+  - decalName: Rocks
+    type: 0
+    heightMap: {fileID: 2800000, guid: 740fe187dd334be4b9699871910b9ae5, type: 3}
+    overlay: {fileID: 2800000, guid: 2545000fc9616a345af5d536bc52515a, type: 3}
+  - decalName: footPrint
+    type: 1
+    heightMap: {fileID: 2800000, guid: c3f2e2b10399a06449c1285401647f91, type: 3}
+    overlay: {fileID: 2800000, guid: e0dcd6bc6bfb9a34ab4fab040b0fbb3c, type: 3}
+  - decalName: bulletHole
+    type: 1
+    heightMap: {fileID: 2800000, guid: 76136d73e52d979449e6ae5df36b3e30, type: 3}
+    overlay: {fileID: 2800000, guid: 2656c92f14669ff49bcf3065c9fdf450, type: 3}
+  rtcam: {fileID: 20914243665981438}
+  myLayer: 30
+  brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
+    type: 2}
+  br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
+  br_TerrainPreview: {fileID: 4800000, guid: c1cb62d252575ca49bcb6f05474bda7b, type: 3}
+  paintBuffers:
+  - {fileID: 0}
+  - {fileID: 0}
+  secondBufferDebug: {fileID: 0}
+  parameterTarget: _MainTex
+  painterTarget: {fileID: 0}
+  autodisabledBufferTarget: {fileID: 0}
+--- !u!114 &114658260336127396
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1338627483454682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a4e34f1478688479020caf8c573659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshRendy: {fileID: 23720358429516104}
+  meshFilter: {fileID: 33049184892865822}
+  modifiedMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  modifiedBound:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 5, y: 1.110223e-16, z: 5}
