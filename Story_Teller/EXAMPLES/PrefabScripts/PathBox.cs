@@ -100,6 +100,8 @@ namespace StoryTriggerData {
 			return Mathf.Max(Mathf.Max( Mathf.Abs(pos.x), Mathf.Abs(pos.y)), Mathf.Abs(pos.z));
 		}
 
+		
+
 		public bool TryManageVelocity (Actor actor){
 			if (actor.managedBy != this){
 				if ((actor.transform.position-transform.position).magnitude < transform.lossyScale.magnitude*1.1f){
@@ -110,9 +112,9 @@ namespace StoryTriggerData {
 					if (Inside(localPos+localVelocity)){
 						actor.transform.position+=actor.velocity;
 						actor.velocity = Vector3.zero;
-						actor.unmanagedTime = 0;  // If actor was unmanaged for some time, 
-													//lerp him back to managing path or nearest path if managing path was removed.
-						if (actor.managedBy == null) 
+									  	// If actor was unmanaged for some time, 
+									  	//lerp him back to managing path or nearest path if managing path was removed.
+						if (actor.unmanagedTime > 0) 	// Can only be added bu filed management or null management
 							Manage(actor);
 					} else {
 						
@@ -125,19 +127,39 @@ namespace StoryTriggerData {
 				Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
 			
 				if (Inside(localPos)){
-					Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
-				
+					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
+					//Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
+					
+					bool sameDirection = (localPos.x>0 && localVelocity.x>0);
+					
+					if (sameDirection){
+					
+						float xFromWallDistance = (1-Mathf.Abs(localPos.x))*localScale.x;
+						const float wallThickness = 0.3f;
+						float existingInsideWall = Mathf.Max(0, wallThickness-xFromWallDistance); 
+						if (existingInsideWall<wallThickness){
+							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
+							stretchedInsideWall+= Mathf.Abs(localVelocity.x);
+							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
+							float usedPortion = newInsideWall - existingInsideWall;
+							localVelocity.x*= usedPortion/ Mathf.Abs(localVelocity.x);
+						}
+						
+						
+					} else {
+						localPos.x+=localVelocity.x;
+						localVelocity.x = 0;
+					}
+					
+					actor.velocity = transform.TransformVector(localVelocity);
 					actor.unmanagedTime = 0;
-				
-				} else if (actor.unmanagedTime>2) 
-				actor.transform.position = Vector3.Lerp(actor.transform.position, transform.position, Time.deltaTime);
+					
+				} else {
+					if (actor.unmanagedTime>2) 
+						actor.transform.position = Vector3.Lerp(actor.transform.position, transform.position, Time.deltaTime);
+					actor.unmanagedTime += Time.deltaTime; // Also do this when managed by is null;
+				}
 			}
 		}
-
-       
-        void Update() {
-			// We will manually manage actor's velocity.
-         
-        }
     }
 }
