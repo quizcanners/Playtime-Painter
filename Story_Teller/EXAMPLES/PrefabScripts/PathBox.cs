@@ -23,14 +23,12 @@ namespace StoryTriggerData {
         }
     }
 # endif
-
   
     [TagName(PathBox.tagName)]
     [ExecuteInEditMode]
     public class PathBox : STD_Object {
 
         VariablesWeb conditions;
-
 
         public const string tagName = "path";
 
@@ -59,7 +57,6 @@ namespace StoryTriggerData {
             return cody;
         }
 
-
         public static STD_Pool StoryPoolController;
         public override void SetStaticPoolController(STD_Pool inst) {
             StoryPoolController = inst;
@@ -68,7 +65,6 @@ namespace StoryTriggerData {
         public override string getDefaultTagName() {
             return tagName;
         }
-
 
         public override void PEGI() {
             "Path pegi".nl();
@@ -80,25 +76,67 @@ namespace StoryTriggerData {
             base.PEGI();
         }
 
-  
-
-        // Use this for initialization
-        void Start() {
-
-        }
-
-
         void OnDrawGizmosSelected() {
             transform.DrawTransformedCubeGizmo(Color.green);
         }
 
-        // Update is called once per frame
+		public override OnDeactivate(){
+			base.OnDeactivate();
+			foreach (var a in managedActors)
+				a.managedBy = null;
+				managedActors.Clear();
+		}
+
+		public List<Actor> managedActors = new List<Actor>();
+
+		void Manage(Actor a){
+			a.managedBy = this;
+			managedActors.Add(a);
+		}
+
+		float Inside (Vector3 pos ){
+			 // Actor velocity will be in worldspace.
+
+			return Mathf.Max(Mathf.Max( Mathf.Abs(pos.x), Mathf.Abs(pos.y)), Mathf.Abs(pos.z));
+		}
+
+		public bool TryManageVelocity (Actor actor){
+			if (actor.managedBy != this){
+				if ((actor.transform.position-transform.position).magnitude < transform.lossyScale.magnitude*1.1f){
+					
+					Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
+					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
+					
+					if (Inside(localPos+localVelocity)){
+						actor.transform.position+=actor.velocity;
+						actor.velocity = Vector3.zero;
+						actor.unmanagedTime = 0;  // If actor was unmanaged for some time, 
+													//lerp him back to managing path or nearest path if managing path was removed.
+						if (actor.managedBy == null) 
+							Manage(actor);
+					} else {
+						
+						
+						
+					}
+				}
+			} else {
+			
+				Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
+			
+				if (Inside(localPos)){
+					Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
+				
+					actor.unmanagedTime = 0;
+				
+				} else if (actor.unmanagedTime>2) 
+				actor.transform.position = Vector3.Lerp(actor.transform.position, transform.position, Time.deltaTime);
+			}
+		}
+
+       
         void Update() {
-
-           
-
-
-
+			// We will manually manage actor's velocity.
          
         }
     }
