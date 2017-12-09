@@ -80,8 +80,8 @@ namespace StoryTriggerData {
             transform.DrawTransformedCubeGizmo(Color.green);
         }
 
-		public override OnDeactivate(){
-			base.OnDeactivate();
+		public void OnDeactivate(){
+			
 			foreach (var a in managedActors)
 				a.managedBy = null;
 				managedActors.Clear();
@@ -92,6 +92,7 @@ namespace StoryTriggerData {
 		void Manage(Actor a){
 			a.managedBy = this;
 			managedActors.Add(a);
+            a.insideBoxLocalPosition = transform.InverseTransformPoint(a.transform.position);
 		}
 
 		float Inside (Vector3 pos ){
@@ -102,14 +103,15 @@ namespace StoryTriggerData {
 
 		
 
-		public bool TryManageVelocity (Actor actor){
+		public void TryManageVelocity (Actor actor){
+            
 			if (actor.managedBy != this){
 				if ((actor.transform.position-transform.position).magnitude < transform.lossyScale.magnitude*1.1f){
 					
 					Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
 					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
 					
-					if (Inside(localPos+localVelocity)){
+					if (Inside(localPos+localVelocity)<1){
 						actor.transform.position+=actor.velocity;
 						actor.velocity = Vector3.zero;
 									  	// If actor was unmanaged for some time, 
@@ -123,10 +125,10 @@ namespace StoryTriggerData {
 					}
 				}
 			} else {
+
+                Vector3 localPos = actor.insideBoxLocalPosition; //transform.InverseTransformPoint(actor.transform.position);
 			
-				Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
-			
-				if (Inside(localPos)){
+				if (Inside(localPos)<1) {
 					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
 					//Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
 					
@@ -134,7 +136,7 @@ namespace StoryTriggerData {
 					
 					if (sameDirection){
 					
-						float xFromWallDistance = (1-Mathf.Abs(localPos.x))*localScale.x;
+						float xFromWallDistance = (1-Mathf.Abs(localPos.x))*transform.localScale.x;
 						const float wallThickness = 0.3f;
 						float existingInsideWall = Mathf.Max(0, wallThickness-xFromWallDistance); 
 						if (existingInsideWall<wallThickness){
@@ -159,6 +161,9 @@ namespace StoryTriggerData {
 						actor.transform.position = Vector3.Lerp(actor.transform.position, transform.position, Time.deltaTime);
 					actor.unmanagedTime += Time.deltaTime; // Also do this when managed by is null;
 				}
+
+                actor.insideBoxLocalPosition = localPos;
+                actor.transform.position = transform.TransformPoint(localPos);
 			}
 		}
     }

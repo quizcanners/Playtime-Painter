@@ -28,8 +28,10 @@ namespace StoryTriggerData {
         public const string tagName = "actor";
 
         public bool controlledByPlayer;
+        public PathBox managedBy;
+        public float unmanagedTime;
+        public Vector3 insideBoxLocalPosition;
 
-    
         public Rigidbody[] allRigidbodies;
         public Collider[] allColliders;
         MeshRenderer[] allRenderers;
