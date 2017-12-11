@@ -45,6 +45,20 @@ namespace StoryTriggerData {
     public class UniverseLength : abstract_STD {
         public static UniverseLength one = new UniverseLength(1);
 
+        public float spM;
+        public float spKM;
+        public float spLM;
+        public float spLY;
+        public float spMP;
+ 
+    public void Multiply (UniverseLength o) {
+        spM *= o.spM;
+        spKM *= o.spKM;
+        spLM *= o.spLM;
+        spLY *= o.spLY;
+        spMP *= spMP;
+    }
+
         public override void Decode(string tag, string data) {
 
             switch (tag) {
@@ -148,12 +162,7 @@ namespace StoryTriggerData {
             spMP = sd.spMP;
         }
 
-        public float spM;
-        public float spKM;
-        public float spLM;
-        public float spLY;
-        public float spMP;
-
+ 
         public void Zero() {
             spM = 0;
             spKM = 0;
@@ -260,6 +269,9 @@ namespace StoryTriggerData {
         public Vector3 posKM; // kilometers
         public Vector3 posM; // meters / tyles
 
+        
+
+
         public bool expand = false;
 
         public override string ToString() {
@@ -359,7 +371,6 @@ namespace StoryTriggerData {
             float distance01 = 1;
             float farPlane = MaxFarPlane;
 
-
             Vector3 tmp = upos.CalculateDistAndVectorTo(dist, this);
 
             isInside = size.biggerThen(dist);
@@ -399,7 +410,7 @@ namespace StoryTriggerData {
 
             // Uncomment and provide Quaternion to rotate the universe around center. (If you want to rotate stars around planet, for example.) 
             // tmp = universeRotation * tmp;  
-
+            
 
 
             tmp = tmp.normalized * farPlane * distance01;
@@ -407,7 +418,7 @@ namespace StoryTriggerData {
         }
 
 
-        public Vector3 CalculateVectorTo(UniversePosition o) {
+        public Vector3 DirectionTo(UniversePosition o) {
 
             Vector3 diffMP = o.posMP - posMP;
 
@@ -441,7 +452,7 @@ namespace StoryTriggerData {
         }
 
 
-        public Vector3 CalculateDistAndVectorTo(UniverseLength sd, UniversePosition o) {
+        public Vector3 DistAndDirectionTo(UniverseLength sd, UniversePosition o) {
             sd.Zero();
 
             Vector3 dir = new Vector3();
