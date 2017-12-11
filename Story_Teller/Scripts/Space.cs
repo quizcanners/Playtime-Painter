@@ -56,51 +56,46 @@ namespace StoryTriggerData {
    //   public static float L_Speed_KMperMIN = 299792;        //2458; 
    //   public static float tylesInKilometer = 1000;          //299792458; // meters
  
+    public void Divide (float val){
+        spM/=val;
+        spKM/=val;
+        spLM/=val;
+        spLY/=val;
+        spMP/=val;
+    }
+
+ 
     public void Divide (UniverseLength o) { 
-    
-        //accuracyLimit
-    
-        double div = (o.spMP*lightYearsInMegaparsec+o.spLY);
-        spLY += spMP*lightYearsInMegaparsec;
-        spMP = 0;
+   
+      double div = (o.spMP*lightYearsInMegaparsec+o.spLY);
       
       if (div < accuracyLimit){
-      
-      float divided = spLY/(div>1?div:1);
-      
-        if (divided < accuracyLimit){
-            div = (div*minutesInYear + o.spLM);
-            spLM = (spLY*minutesInYear/(o.spLM>1 ? o.spLM) 
-            +spLM/ (div > 1 ? div : 1));
-            spLY = 0;
-            if (div<accuracyLimit){
+        div = (div*minutesInYear + o.spLM);
+        if (div<accuracyLimit){
+            div = (div*L_Speed_KMperMIN + o.spKM);
             
-            }
-            
-      } else {
-      // Distance is over the accuracy, bigger then divisor
-      
-      
-      div = (div*minutesInYear + o.spLM);
-      sp.LM = 0;
-      sp.KM = 0; sp.M = 0;
-      
-      }
-    } else {
-       spM = divided;
-       spLY = 0; spLM = 0;  spKM = 0; 
-      
-    }
-      
-      
-      AdjustValues();
-        
+           // if (div<accuracyLimit){
+             
+                div = (div*tylesInKilometer + o.spM);
+                Divide(div);
+           
+           
+         } else {
+            spM = spMP*lightYearsInMegaparsec/div*minutesInYear +  (spLY*minutesInYear + spLM)/div;
+            spMP=spLY=spLM=spKM = 0;
+         }
+       } else {
+            spM = (spMP*lightYearsInMegaparsec+spLY)/div;
+            spMP=spLY=spLM=spKM = 0;
+       }
   
         /*spM /= o.spM;
         spKM /= o.spKM;
         spLM /= o.spLM;
         spLY /= o.spLY;
         spMP /= spMP;*/
+        
+               AdjustValues();
     }
 
     
