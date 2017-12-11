@@ -101,6 +101,30 @@ namespace StoryTriggerData {
 		}
 
 		
+void ManageSoftMovement (ref float localPos, ref float localVelocity, float localScale){
+
+bool sameDirection = ((localPos>0) == (localVelocity>0));
+					
+					if (sameDirection){
+					
+						float fromWallDistance = (1-Mathf.Abs(localPos))*localScale;
+						const float wallThickness = 0.3f;
+						float existingInsideWall = Mathf.Max(0, wallThickness-fromWallDistance); 
+						if (existingInsideWall<wallThickness){
+							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
+							stretchedInsideWall+= Mathf.Abs(localVelocity);
+							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
+							float usedPortion = newInsideWall - existingInsideWall;
+							localVelocity *= usedPortion/ Mathf.Abs(localVelocity);
+						}
+						
+						
+					} else {
+						localPos+=localVelocity;
+						localVelocity = 0;
+					}
+
+}
 
 		public bool TryManageVelocity (Actor actor){
 			if (actor.managedBy != this){
@@ -130,26 +154,12 @@ namespace StoryTriggerData {
 					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
 					//Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
 					
-					bool sameDirection = (localPos.x>0 && localVelocity.x>0);
+					//float posX = localPos.x;
+					//float velX = localVelocity.x;
+					ManageSoftMovement (ref localPos.x, ref localVelocity.x, localScale.x);
 					
-					if (sameDirection){
-					
-						float xFromWallDistance = (1-Mathf.Abs(localPos.x))*localScale.x;
-						const float wallThickness = 0.3f;
-						float existingInsideWall = Mathf.Max(0, wallThickness-xFromWallDistance); 
-						if (existingInsideWall<wallThickness){
-							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
-							stretchedInsideWall+= Mathf.Abs(localVelocity.x);
-							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
-							float usedPortion = newInsideWall - existingInsideWall;
-							localVelocity.x*= usedPortion/ Mathf.Abs(localVelocity.x);
-						}
-						
-						
-					} else {
-						localPos.x+=localVelocity.x;
-						localVelocity.x = 0;
-					}
+					// localPos = new Vector3(posX, posY, posZ);
+					// localVelocity = new Vector3....
 					
 					actor.velocity = transform.TransformVector(localVelocity);
 					actor.unmanagedTime = 0;
