@@ -141,9 +141,15 @@ bool sameDirection = ((localPos>0) == (localVelocity>0));
 						if (actor.unmanagedTime > 0) 	// Can only be added bu filed management or null management
 							Manage(actor);
 					} else {
+					
+						if (Inside(localPos+localVelocity*Vector3.right))
+							localPos += localVelocity.x;
 						
-						
-						
+						if (Inside(localPos+localVelocity*Vector3.up))
+							localPos += localVelocity.y;
+							
+						if (Inside(localPos+localVelocity*Vector3.forward))
+							localPos += localVelocity.z;
 					}
 				}
 			} else {
@@ -157,7 +163,8 @@ bool sameDirection = ((localPos>0) == (localVelocity>0));
 					//float posX = localPos.x;
 					//float velX = localVelocity.x;
 					ManageSoftMovement (ref localPos.x, ref localVelocity.x, localScale.x);
-					
+					ManageSoftMovement (ref localPos.z, ref localVelocity.z, localScale.z);
+					ManageSoftMovement (ref localPos.y, ref localVelocity.y, localScale.y);
 					// localPos = new Vector3(posX, posY, posZ);
 					// localVelocity = new Vector3....
 					
