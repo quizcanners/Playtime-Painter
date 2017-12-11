@@ -51,13 +51,42 @@ namespace StoryTriggerData {
         public float spLY;
         public float spMP;
  
-    public void Multiply (UniverseLength o) {
-        spM *= o.spM;
-        spKM *= o.spKM;
-        spLM *= o.spLM;
-        spLY *= o.spLY;
-        spMP *= spMP;
+   //   public static float lightYearsInMegaparsec = 3260000;
+   //   public static float minutesInYear = 525600;        //31536000;
+   //   public static float L_Speed_KMperMIN = 299792;        //2458; 
+   //   public static float tylesInKilometer = 1000;          //299792458; // meters
+ 
+    public void Divide (UniverseLength o) { 
+    
+        //accuracyLimit
+    
+        double div = (o.spMP*lightYearsInMegaparsec+o.spLY);
+        spLY = (spMP*lightYearsInMegaparsec + spLY)/(div>1 ? div : 1);
+        spMP = 0;
+      
+      if (div< accuracyLimit){
+        if (spLY< accuracyLimit){
+            div = (div*minutesInYear + o.spLM);
+            spLM = (spLY*minutesInYear/(o.spLM>1 ? o.spLM) 
+            +spLM/ (div > 1 ? div : 1));
+            spLY = 0;
+            if (div<accuracyLimit){
+            
+            }
+        } else {    spLM = 0; sp.KM = 0; sp.M = 0;}
+      } else { spLM = 0; sp.KM = 0; sp.M = 0;}
+      
+      AdjustValues();
+        
+  
+        spM /= o.spM;
+        spKM /= o.spKM;
+        spLM /= o.spLM;
+        spLY /= o.spLY;
+        spMP /= spMP;
     }
+
+    
 
         public override void Decode(string tag, string data) {
 
@@ -248,7 +277,7 @@ namespace StoryTriggerData {
 
         public static float lightYearsInMegaparsec = 3260000;
         public static float minutesInYear = 525600;        //31536000;
-        public static float L_Speed_KMperMIN = 299792;        //2458; // meters
+        public static float L_Speed_KMperMIN = 299792;        //2458; 
         public static float tylesInKilometer = 1000;          //299792458; // meters
 
         public static UniversePosition playerPosition = new UniversePosition();
