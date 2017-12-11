@@ -61,11 +61,14 @@ namespace StoryTriggerData {
         //accuracyLimit
     
         double div = (o.spMP*lightYearsInMegaparsec+o.spLY);
-        spLY = (spMP*lightYearsInMegaparsec + spLY)/(div>1 ? div : 1);
+        spLY += spMP*lightYearsInMegaparsec;
         spMP = 0;
       
-      if (div< accuracyLimit){
-        if (spLY< accuracyLimit){
+      if (div < accuracyLimit){
+      
+      float divided = spLY/(div>1?div:1);
+      
+        if (divided < accuracyLimit){
             div = (div*minutesInYear + o.spLM);
             spLM = (spLY*minutesInYear/(o.spLM>1 ? o.spLM) 
             +spLM/ (div > 1 ? div : 1));
@@ -73,17 +76,31 @@ namespace StoryTriggerData {
             if (div<accuracyLimit){
             
             }
-        } else {    spLM = 0; sp.KM = 0; sp.M = 0;}
-      } else { spLM = 0; sp.KM = 0; sp.M = 0;}
+            
+      } else {
+      // Distance is over the accuracy, bigger then divisor
+      
+      
+      div = (div*minutesInYear + o.spLM);
+      sp.LM = 0;
+      sp.KM = 0; sp.M = 0;
+      
+      }
+    } else {
+       spM = divided;
+       spLY = 0; spLM = 0;  spKM = 0; 
+      
+    }
+      
       
       AdjustValues();
         
   
-        spM /= o.spM;
+        /*spM /= o.spM;
         spKM /= o.spKM;
         spLM /= o.spLM;
         spLY /= o.spLY;
-        spMP /= spMP;
+        spMP /= spMP;*/
     }
 
     
