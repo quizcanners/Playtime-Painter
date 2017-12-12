@@ -189,7 +189,7 @@ Transform:
   m_LocalScale: {x: 50, y: 50, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: -28.228, y: -5.5400004, z: 60.165005}
 --- !u!64 &51085399
 MeshCollider:
@@ -593,8 +593,8 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0, y: 0}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.5020287, y: 0.09829386}
-    posTo: {x: 10.238778, y: 34.108807, z: 7.0018816}
+    uvTo: {x: 0.12347555, y: 0.40721512}
+    posTo: {x: 9.3405485, y: 34.293835, z: 6.476049}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
     mouseDwn: 0
@@ -814,8 +814,8 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.5462, y: 0.0858}
     posFrom: {x: 27.8833, y: 35.109, z: 3.6591}
-    uvTo: {x: 0.5396527, y: 0.0003108928}
-    posTo: {x: 7.324115, y: 36.467167, z: 7.7201896}
+    uvTo: {x: 0.9051255, y: 0.5595854}
+    posTo: {x: 7.167651, y: 37.2886, z: 8.762399}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.0006639566
     mouseDwn: 0
@@ -863,7 +863,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4521163024986834, guid: a1753be11079a254f852b73741414d30, type: 2}
       propertyPath: m_RootOrder
-      value: 10
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1177238647334156, guid: a1753be11079a254f852b73741414d30, type: 2}
       propertyPath: m_IsActive
@@ -1095,7 +1095,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4855301043233920, guid: c7ec0cf439a55fa47bb3d344c1d4616c, type: 2}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1022140375493792, guid: c7ec0cf439a55fa47bb3d344c1d4616c, type: 2}
       propertyPath: m_IsActive
@@ -1635,7 +1635,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &679607306
 MonoBehaviour:
@@ -1678,8 +1678,8 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.5064709, y: 0.4266441}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.4341519, y: 0.35298175}
-    posTo: {x: -136.3963, y: -11.72126, z: -146.43658}
+    uvTo: {x: 0.45925322, y: 0.8311938}
+    posTo: {x: -86.1936, y: 58.820423, z: 809.98755}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.0008587268
     mouseDwn: 0
@@ -1789,7 +1789,7 @@ MonoBehaviour:
   painter: {fileID: 679607306}
   terrain: {fileID: 679607304}
   lightTexture: {fileID: 2800000, guid: b8432e0e7ec51b649af38d31e6b884d2, type: 3}
-  updateTextures: 0
+  needToUpdateTextures: 0
 --- !u!1001 &694741981
 Prefab:
   m_ObjectHideFlags: 0
@@ -2248,8 +2248,8 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.18019399, y: 0.22577128}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.55960447, y: 0.70040894}
-    posTo: {x: -121.70716, y: -5.81519, z: -147.29555}
+    uvTo: {x: 0.6878122, y: 0.671628}
+    posTo: {x: -129.2375, y: -7.746172, z: -148.51842}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.0011247839
     mouseDwn: 0
@@ -2386,8 +2386,8 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0, y: 0}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.770125, y: 0.73116064}
-    posTo: {x: -8.655539, y: 33.70308, z: 38.873524}
+    uvTo: {x: 0.123023555, y: 0.74330115}
+    posTo: {x: 1.4056735, y: 37.649208, z: 64.29237}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
     mouseDwn: 0
@@ -2571,13 +2571,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isLinearColorSpace: 1
-  texturesToCopyFrom:
-  - {fileID: 2800000, guid: 319e4c66e8837cc4486d5c61f4a93cc0, type: 3}
-  - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
-  - {fileID: 0}
+  sourceTextures: []
   masks:
   - {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
   - {fileID: 2800000, guid: 3130d10873306a14e9c7e09c42ee242f, type: 3}
+  forCombinedMaps: []
   decals:
   - decalName: Rocks
     type: 0
@@ -2608,13 +2606,14 @@ MonoBehaviour:
   br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
   TerrainPreview: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  testString: _test
   BigRT_pair:
   - {fileID: 1350488891}
   - {fileID: 2082962290}
   secondBufferDebug: {fileID: 0}
   parameterTarget: _MainTex
   painterTarget: {fileID: 234831643}
-  autodisabledBufferTarget: {fileID: 0}
+  autodisabledBufferTarget: {fileID: 234831643}
 --- !u!4 &1057100342
 Transform:
   m_ObjectHideFlags: 0
@@ -2887,7 +2886,7 @@ MonoBehaviour:
   meshFilter: {fileID: 1219904147}
   meshCollider: {fileID: 1219904144}
   terrainHeightTexture: {fileID: 0}
-  nameHolder: unnamed
+  nameHolder: spaceship
   selectedMaterial: 0
   usePreviewShader: 0
   enableUNDO: 0
@@ -3048,7 +3047,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: d9808401c68af274a8edfbed3d1b53c7, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: d9808401c68af274a8edfbed3d1b53c7, type: 3}
       propertyPath: m_Name
@@ -3961,8 +3960,8 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1885912081}
-  m_Text: "Draw on the cube. You can DISABLE TOOL, \n or LOCK EDITING for selected
-    object."
+  m_Text: "Picture on the right has no tool attached. \n Select it in the hierarchy
+    and \n Click 'Add Component'->'Mesh'->'TextureEditor'"
   m_OffsetZ: 0
   m_CharacterSize: 0.13
   m_LineSpacing: 1
@@ -4035,7 +4034,7 @@ MonoBehaviour:
   text: {fileID: 1885912082}
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: 2.1922095
+  timer: -2.5312734
 --- !u!1 &1908155622
 GameObject:
   m_ObjectHideFlags: 0
@@ -4329,7 +4328,7 @@ Transform:
   m_Children:
   - {fileID: 325702051}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -2.91, y: 371.64, z: 0}
 --- !u!114 &2020219817
 MonoBehaviour:
@@ -4342,8 +4341,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd9686030c1c6a4dbb95895ac7e6ebd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 100
-  sensitivity: 10
+  speed: 10
+  sensitivity: 5
   camOrbit: {x: 0, y: 0}
   SpinCenter: {x: 0, y: 0, z: 0}
   OrbitDistance: 0

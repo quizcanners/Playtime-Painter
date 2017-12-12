@@ -38,6 +38,8 @@ public class PlaytimeToolComponent : MonoBehaviour {
 
 	public virtual void OnGUI() {
 
+        //Debug.Log("Selected: "+selectedInPlaytime);
+
 		if (selectedInPlaytime == null)
 			selectedInPlaytime = this;
 
@@ -45,8 +47,9 @@ public class PlaytimeToolComponent : MonoBehaviour {
 			windowPosition.Render(PEGI, playtimeWindowName);
 	}
 
-	public virtual void PEGI(){
+	public virtual bool PEGI(){
 		pegi.write ("Override PEGI with your functions");
+        return false;
 	}
 		
 	public static PlaytimeToolComponent selectedInPlaytime = null;

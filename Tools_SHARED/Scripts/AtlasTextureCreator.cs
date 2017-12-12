@@ -237,6 +237,7 @@ public class AtlasTextureCreator : MonoBehaviour {
 
     public void PEGI() {
 
+#if UNITY_EDITOR
         pegi.write("Name:", 60);
         pegi.edit(ref atlas.name);
         pegi.newLine();
@@ -261,7 +262,10 @@ public class AtlasTextureCreator : MonoBehaviour {
 
             for (int i = 0; i < max; i++)
             {
-                atlas.Textures[i] = (Texture2D)EditorGUILayout.ObjectField(atlas.Textures[i], typeof(Texture2D), true);
+                Texture2D t = atlas.Textures[i];
+                if (pegi.edit(ref t))
+                    atlas.Textures[i] = t;
+                // = (Texture2D)EditorGUILayout.ObjectField(atlas.Textures[i], typeof(Texture2D), true);
                 pegi.newLine();
             }
         }
@@ -285,6 +289,8 @@ public class AtlasTextureCreator : MonoBehaviour {
             pegi.write("Atlas At " + AssetDatabase.GetAssetPath(atlas.a_texture));
             EditorGUILayout.ObjectField(atlas.a_texture, typeof(Texture2D), false);
         }
+
+#endif
 
         pegi.newLine();
 

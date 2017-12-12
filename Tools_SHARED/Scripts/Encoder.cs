@@ -310,6 +310,17 @@ namespace StoryTriggerData {
             return false;
         }
 
+        public bool AddIfNotOne(string tag, Vector3 v3)
+        {
+
+            if (v3.Equals(Vector3.one)) {
+                AddText(tag, v3.Encode());
+                return true;
+            }
+
+            return false;
+        }
+
 
         public bool AddIfNotZero(string tag, Vector2 v2) {
 

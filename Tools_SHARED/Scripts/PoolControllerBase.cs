@@ -14,8 +14,8 @@ public class PoolableBase : MonoBehaviour {
         poolIndex = my_ind;
     }
 
-	public virtual void PEGI (){
-	
+	public virtual bool PEGI (){
+        return false;
 	}
 
     public void OnDestroy() {

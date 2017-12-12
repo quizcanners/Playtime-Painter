@@ -11,8 +11,8 @@ namespace StoryTriggerData {
         public List<WebBranch> branches;
 
 
-        public override void PEGI() {
-            this.PEGI(null);
+        public override bool PEGI() {
+            return this.PEGI(null);
         }
 
         public override string getDefaultTagName() {

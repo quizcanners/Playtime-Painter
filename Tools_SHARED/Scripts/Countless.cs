@@ -115,7 +115,8 @@ public abstract class CountlessBase {
     protected int[] pathInd;
     protected VariableBranch br;
 
-    public virtual void PEGI() {
+    public virtual bool PEGI() {
+        return false;
     }
 
     public CountlessBase() {

@@ -81,7 +81,9 @@ namespace StoryTriggerData
 
         public static List<int> browsingBranch = new List<int>();
 
-        public static void PEGI(this VariablesWeb tree, STD_Values so) {
+        public static bool PEGI(this VariablesWeb tree, STD_Values so) {
+
+            bool changed = false;
 
                 if (tree != lastTree) 
                     browsingBranch.Clear();
@@ -124,11 +126,15 @@ namespace StoryTriggerData
 
                 for (int i = 0; i < wb.branches.Count; i++) {
                 int index = wb.branches[i];
-               
+
                 if (icon.Delete.Click(20))
+                {
                     tree.DeleteBranch(index);
-                else {
-                    pegi.edit(ref tree.branches[index].description);
+                    changed = true;
+                }
+                else
+                {
+                    changed |= pegi.edit(ref tree.branches[index].description);
                     if (icon.Edit.Click(20))
                         browsingBranch.Add(index);
                 }
@@ -141,7 +147,7 @@ namespace StoryTriggerData
               
              
                 pegi.newLine();
-
+            return changed;
             }
 
         public static Condition Add(this List<Condition> lst) {
@@ -316,9 +322,7 @@ namespace StoryTriggerData
 
 
         public static bool unfoldPegi;
-        public void PEGI() {
-            
-        }
+      
 
         public override string ToString()
         {

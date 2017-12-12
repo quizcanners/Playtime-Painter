@@ -63,10 +63,14 @@ public static class SentenceEditorExtensions {
 			return "txt";
 	}
 
-    public override void PEGI() {
+    public override bool PEGI()
+    {
         string tmp = ToString();
-        pegi.editBig(ref tmp);
-        setTranslation(tmp);  
+        if (pegi.editBig(ref tmp)) { 
+            setTranslation(tmp);
+            return true;
+        }
+        return false;
     }
 
     public override string ToString() {

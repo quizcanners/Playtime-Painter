@@ -175,9 +175,7 @@ public class BrushConfig : abstract_STD
         return changed;
     }
 
-    public override void PEGI() {
-        base.PEGI();
-    }
+  
 
 	public bool ColorSliders_PEGI()  {
 		bool changed = false;

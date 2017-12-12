@@ -278,8 +278,8 @@ namespace StoryTriggerData {
 
 
 
-        public override void PEGI() {
-            base.PEGI();
+        public override bool PEGI() {
+            bool changed =  base.PEGI();
 
             if ((stdValues == null) || (!stdValues.browsing_interactions)) {
                 "Controlled by player: ".toggle(ref controlledByPlayer).nl();
@@ -287,6 +287,8 @@ namespace StoryTriggerData {
                 pegi.ClickToEditScript();
 
             }
+
+            return changed;
         }
 
 

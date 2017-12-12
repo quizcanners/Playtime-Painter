@@ -163,8 +163,7 @@ namespace StoryTriggerData
         public static bool showOnEnter;
         public static int exploredResult = -1;
  
-        public void PEGI() {
-        }
+    
 
         public bool PEGI(int index, ref int DeleteNo, STD_Values so) {
            

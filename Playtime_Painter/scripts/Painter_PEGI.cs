@@ -107,7 +107,7 @@ namespace TextureEditor {
             if (painter.terrain != null) {
 
                 if ((painter.curImgData != null) && ((painter.isTerrainHeightTexture())) && (painter.originalShader == null))
-                    pegi.writeHint(" You need to use Preview Shader to see changes", UnityEditor.MessageType.Warning);
+                    pegi.writeWarning(" You need to use Preview Shader to see changes");
 
                 pegi.newLine();
 
@@ -200,8 +200,9 @@ namespace TextureEditor {
                 }
         
                 bool gotDefine = pegi.GetDefine(painterConfig.enablePainterForBuild);
-                if ("Enable texture editor for build".toggle(ref gotDefine).nl())
-                    pegi.SetDefine(painterConfig.enablePainterForBuild, gotDefine);
+            if ("Enable texture editor for build".toggle(ref gotDefine).nl())
+                pegi.SetDefine(painterConfig.enablePainterForBuild, gotDefine);
+            
 
 
             "Disable Non-Mesh Colliders in Play Mode:".toggle(ref cfg.disableNonMeshColliderInPlayMode).nl();

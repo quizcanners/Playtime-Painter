@@ -66,7 +66,7 @@ namespace StoryTriggerData {
             return tagName;
         }
 
-        public override void PEGI() {
+        public override bool PEGI() {
             "Path pegi".nl();
           
             pegi.ClickToEditScript();
@@ -74,6 +74,7 @@ namespace StoryTriggerData {
             conditions.PEGI();
 
             base.PEGI();
+            return false;
         }
 
         void OnDrawGizmosSelected() {
@@ -102,6 +103,30 @@ namespace StoryTriggerData {
 		}
 
 		
+void ManageSoftMovement (ref float localPos, ref float localVelocity, float localScale){
+
+bool sameDirection = ((localPos>0) == (localVelocity>0));
+					
+					if (sameDirection){
+					
+						float fromWallDistance = (1-Mathf.Abs(localPos))*localScale;
+						const float wallThickness = 0.3f;
+						float existingInsideWall = Mathf.Max(0, wallThickness-fromWallDistance); 
+						if (existingInsideWall<wallThickness){
+							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
+							stretchedInsideWall+= Mathf.Abs(localVelocity);
+							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
+							float usedPortion = newInsideWall - existingInsideWall;
+							localVelocity *= usedPortion/ Mathf.Abs(localVelocity);
+						}
+						
+						
+					} else {
+						localPos+=localVelocity;
+						localVelocity = 0;
+					}
+
+}
 
 		public void TryManageVelocity (Actor actor){
             
@@ -119,9 +144,15 @@ namespace StoryTriggerData {
 						if (actor.unmanagedTime > 0) 	// Can only be added bu filed management or null management
 							Manage(actor);
 					} else {
+					
+						if (Inside(localPos+Vector3.Scale(localVelocity, Vector3.right))<1)
+							localPos.x += localVelocity.x;
 						
-						
-						
+						if (Inside(localPos+Vector3.Scale(localVelocity, Vector3.up)) < 1)
+							localPos.y += localVelocity.y;
+							
+						if (Inside(localPos+Vector3.Scale(localVelocity,Vector3.forward))<1)
+							localPos.z += localVelocity.z;
 					}
 				}
 			} else {
@@ -132,6 +163,7 @@ namespace StoryTriggerData {
 					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
 					//Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
 					
+
 					bool sameDirection = (localPos.x>0 && localVelocity.x>0);
 					
 					if (sameDirection){
@@ -152,6 +184,15 @@ namespace StoryTriggerData {
 						localPos.x+=localVelocity.x;
 						localVelocity.x = 0;
 					}
+
+					//float posX = localPos.x;
+					//float velX = localVelocity.x;
+					ManageSoftMovement (ref localPos.x, ref localVelocity.x, transform.localScale.x);
+					ManageSoftMovement (ref localPos.z, ref localVelocity.z, transform.localScale.z);
+					ManageSoftMovement (ref localPos.y, ref localVelocity.y, transform.localScale.y);
+					// localPos = new Vector3(posX, posY, posZ);
+					// localVelocity = new Vector3....
+
 					
 					actor.velocity = transform.TransformVector(localVelocity);
 					actor.unmanagedTime = 0;

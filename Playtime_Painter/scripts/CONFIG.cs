@@ -104,9 +104,8 @@ public class painterConfig  {
 
             if (_inst.recordingNames == null)
                 _inst.recordingNames = new List<string>();
-
-
-            UnityHelperFunctions.getResourcesAddIfNew(ref _inst.recordingNames, _inst.texturesFolderName,_inst.vectorsFolderName);
+            
+             _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
 
     }
 

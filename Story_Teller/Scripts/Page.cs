@@ -25,8 +25,9 @@ namespace StoryTriggerData{
         UniverseLength distance;
         [NonSerialized]
         public float sceneScale;
-        public UniversePosition pos = new UniversePosition();
-        public UniverseLength radius = new UniverseLength();
+        public UniversePosition sPOS = new UniversePosition();
+        public UniverseLength uReach = new UniverseLength();
+        public UniverseLength uSize = new UniverseLength(1);
         bool objectsLoaded;
         public string OriginBook;
 
@@ -55,11 +56,9 @@ namespace StoryTriggerData{
 
             linkedObjects = new List<STD_Object>();
 
-            //if (dist == null)
-            distance = new UniverseLength();
-
-            pos = new UniversePosition();
-            radius = new UniverseLength(10);
+            sPOS = new UniversePosition();
+            uSize = new UniverseLength(1);
+            uReach = new UniverseLength(10);
 
             //Debug.Log("Rebooting page");
 
@@ -73,8 +72,9 @@ namespace StoryTriggerData{
                 case "name": gameObject.name = data; break;
                 case "origin": OriginBook = data; break;
                 case "URL": anotherBook = data; break;
-                case "size": radius = new UniverseLength(data);  break;
-                case UniversePosition.storyTag: pos.Reboot(data); break;
+                case "size": uSize = new UniverseLength(data);  break;
+                case "radius": uReach = new UniverseLength(data); break;
+                case UniversePosition.storyTag: sPOS.Reboot(data); break;
                 default:
                     STD_Object storyObject = STD_Pool.getOne(tag);
 
@@ -91,8 +91,12 @@ namespace StoryTriggerData{
             cody.AddText("origin", OriginBook);
             cody.AddText("name", gameObject.name);
             cody.AddIfNotEmpty("URL", anotherBook);
-            cody.AddIfNotNull(pos);
-            cody.Add("size", radius);
+            cody.AddIfNotNull(sPOS);
+            if (!uSize.Equals(10))
+            cody.Add("size", uSize);
+            if (!uReach.Equals(1))
+            cody.Add("radius", uReach);
+
         }
 
 
@@ -132,7 +136,7 @@ namespace StoryTriggerData{
     }
 
     public void RenamePage(string newName) {
-            
+#if UNITY_EDITOR
             bool duplicate = false;
             foreach (Page p in Book.HOMEpages) {
                 if ((p.gameObject.name == gameObject.name) && (p.gameObject != this.gameObject)) { duplicate = true; break; } //
@@ -146,7 +150,8 @@ namespace StoryTriggerData{
             UnityEditor.AssetDatabase.RenameAsset(path + gameObject.name + ResourceSaver.fileType, newName + ResourceSaver.fileType);
             
             gameObject.name = newName;
-    }
+#endif
+        }
 
 	public override void Deactivate (){
 
@@ -179,14 +184,18 @@ namespace StoryTriggerData{
                 linkedObjects[i].Deactivate ();
 
              linkedObjects = new List<STD_Object> ();
+
+            objectsLoaded = false;
 		}
 
     public static Page browsedPage;
 	int exploredObject = -1;
 
 
-	public override void PEGI () {
-            
+	public override bool PEGI () {
+
+            bool changed = false;
+
 			browsedPage = this;
 
             if (exploredObject >= 0) {
@@ -262,9 +271,14 @@ namespace StoryTriggerData{
                     
                     pegi.newLine();
                 }
+
+                if (sPOS.ExtendedPEGI(uSize, uReach))
+                    Update();
             } 
             pegi.newLine();
-	}
+            return changed;
+
+    }
 
 
        
@@ -273,11 +287,13 @@ namespace StoryTriggerData{
         void Update() {
             float scale;
 
-            transform.position = pos.toV3(radius, out scale, distance);
+            transform.position = sPOS.ToV3(uSize, uReach, out scale);
             transform.localScale = Vector3.one * scale;
 
-            if (!objectsLoaded) // will also check distance to load/unload
+            if ((!objectsLoaded) && (UniversePosition.isInReach)) // will also check distance to load/unload
                 LoadContent();
+            else if (objectsLoaded && (!UniversePosition.isInReach))
+                clearPage();
         }
 
         public static PoolController<Page> myPoolController;

@@ -102,8 +102,9 @@ namespace StoryTriggerData {
             Loaded = true;
         }
 
-        public void SaveChanges() {
 
+        public void SaveChanges() {
+#if UNITY_EDITOR
             TriggerGroups.Save();
 
             foreach (Page p in Page.myPoolController.scripts)
@@ -112,6 +113,7 @@ namespace StoryTriggerData {
             
             inst.SaveToResources(TriggerGroups.StoriesFolderName, gameObject.name, storyTag);
             AssetDatabase.Refresh();
+#endif
         }
 
 
@@ -178,6 +180,8 @@ namespace StoryTriggerData {
         string nameGold;
 
     public void RenameBook(string newName) {
+#if UNITY_EDITOR
+
             string path = "Assets" + TriggerGroups.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources/";
 
             foreach (Page p in HOMEpages)
@@ -189,12 +193,13 @@ namespace StoryTriggerData {
             gameObject.name = newName;
             OnDisable();
             LoadOrInit();
-    }
+#endif
+        }
 
 
         bool unfoldTriggerGroup = false;
-	public override void PEGI(){
-
+	public override bool PEGI(){
+            bool changed = false;
             PoolController<Page> pool = Page.myPoolController;
 
             if (browsedPage >= pool.Max)
@@ -277,8 +282,10 @@ namespace StoryTriggerData {
                 else
                 pool.scripts[browsedPage].PEGI();
             }
-                
-		}
+
+            return changed;
+
+        }
 
 
         // *********************** TIMED EVENTS MONItORING

@@ -80,7 +80,8 @@ namespace StoryTriggerData {
         public static STD_Object browsedForCalls;
         public static STD_Call edited;
 
-        public override void PEGI() {
+        public override bool PEGI() {
+            bool changed = false;
             pegi.newLine();
             pegi.write(getDescription());
             pegi.newLine();
@@ -95,12 +96,13 @@ namespace StoryTriggerData {
                     if (browsedForCalls.Call_PEGI()) {
                         tag = returnTag;
                         _data = returnData;
+                        changed = true;
                     }
                     
                 } else {
 
                     pegi.write("Search:", 70);
-                    pegi.edit(ref objectSearch);
+                    changed |= pegi.edit(ref objectSearch);
                     pegi.newLine();
 
                     int maxToShow = 20;
@@ -123,6 +125,7 @@ namespace StoryTriggerData {
                             break;
                     }
                 }
+            return changed;
             }
     }
 

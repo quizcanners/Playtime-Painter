@@ -681,12 +681,7 @@ public class RenderTexturePainter : MonoBehaviour
     }
 
 
-        public void CancelAllPlaybacks() {
-            foreach (var p in PlaytimePainter.playbackPainters) 
-                p.playbackVectors.Clear();
-            
-            PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
-        }
+    
 
     public void combinedUpdate() {
 
@@ -724,7 +719,15 @@ public class RenderTexturePainter : MonoBehaviour
     }
 #endif
 
-    private void Awake()
+        public void CancelAllPlaybacks()
+        {
+            foreach (var p in PlaytimePainter.playbackPainters)
+                p.playbackVectors.Clear();
+
+            PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
+        }
+
+        private void Awake()
     {
         _inst = this;
     }
@@ -744,9 +747,11 @@ public class RenderTexturePainter : MonoBehaviour
 
             if (rtcam == null) { "no camera".nl(); return; }
 
+#if UNITY_EDITOR
             "Using layer:".nl();
             myLayer = EditorGUILayout.LayerField(myLayer);
-            ef.newLine();
+#endif
+            pegi.newLine();
             "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
             "testValue: ".edit(() => testString).nl();

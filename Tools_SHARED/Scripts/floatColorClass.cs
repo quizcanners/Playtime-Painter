@@ -25,8 +25,7 @@ public class linearColor : abstract_STD  {
     }
 
    
-    public override void PEGI() {
-    }
+
     public override void Decode(string tag, string data) {
 
         switch (tag) {

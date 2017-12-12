@@ -387,8 +387,10 @@ namespace StoryTriggerData
         }
 
         int browsedBranch = -1;
-        public void PEGI(STD_Values so) {
-            
+        public bool PEGI(STD_Values so) {
+
+            bool changed = false;
+
             EditorSelectedInteraction = Mathf.Min(EditorSelectedInteraction, interactions.Count - 1);
 
             if (EditorSelectedInteraction != -1) {
@@ -404,15 +406,10 @@ namespace StoryTriggerData
 
                 if (browsedBranch == -1) {
                     pegi.newLine();
-
                     pegi.Space();
 
-                    pegi.write(" Branch:  " + name);
-
-                    pegi.newLine();
-
-                    //pegi.write();
-
+                    (" Branch:  " + name).nl();
+                    
                     if (pegi.foldout("Condition Tree: ", ref Condition.unfoldPegi)) {
                         Interaction.unfoldPegi = false;
                         pegi.newLine();
@@ -443,11 +440,9 @@ namespace StoryTriggerData
                             else
                                 Idata[i].Texts[0].PEGI();
 
-                            if (icon.Edit.Click(20))
+                            if (icon.Edit.Click(20).nl())
                                 EditorSelectedInteraction = i;
-
-                            pegi.newLine();
-
+                            
                         }
 
                         pegi.newLine();
@@ -473,10 +468,9 @@ namespace StoryTriggerData
 
                             pegi.write(ig.getShortDescription(), 35);
 
-                            if (icon.Edit.Click("Edit Interaction Sub Branch", 20))
+                            if (icon.Edit.Click("Edit Interaction Sub Branch", 20).nl())
                                 browsedBranch = j;
-
-                            pegi.newLine();
+                            
                         }
 
                         if (delete != -1)
@@ -486,15 +480,14 @@ namespace StoryTriggerData
                     pegi.newLine();
                    
                 } else {
-                    if (pegi.Click("<"+name))
+                    if (("<"+name).Click())
                         browsedBranch = -1;
                     else
                         interactionBranches[browsedBranch].PEGI(so);
                 }
                 
-              
-               
             }
+            return changed;
         }
 
     }

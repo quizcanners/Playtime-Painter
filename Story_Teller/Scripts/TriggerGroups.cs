@@ -138,10 +138,10 @@ namespace StoryTriggerData {
                 s.SaveToAssets(s.GetAssePath(), triggersFileName);
         }
 
-        public override void PEGI() {
+        public override bool PEGI() {
             Trigger.search_PEGI();
 
-            PEGI(null);
+           return PEGI(null);
         }
 
         public bool PEGI(STD_Values so) {

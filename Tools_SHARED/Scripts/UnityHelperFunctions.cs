@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -17,6 +18,16 @@ using UnityEditor;
 
 public static class UnityHelperFunctions {
 
+
+    public static string ToStringShort(this Vector3 v) {
+        StringBuilder sb = new StringBuilder();
+
+        if (v.x != 0) sb.Append("x:" + ((int)v.x));
+        if (v.y != 0) sb.Append(" y:" + ((int)v.y));
+        if (v.z != 0) sb.Append(" z:" + ((int)v.z));
+
+        return sb.ToString();
+    }
 
     public static void LineTo(this Vector3 v3a, Vector3 v3b, Color col) {
         Gizmos.color = col;
@@ -60,11 +71,13 @@ public static class UnityHelperFunctions {
     public static Vector4 ToVector4(this Color col) {
         return new Vector4(col.r,col.g, col.b, col.a);
     }
-
-    public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName) {
+#if UNITY_EDITOR
+    public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
+    {
         string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
         AssetDatabase.CopyAsset(path + oldName + ResourceSaver.fileType, path + newName + ResourceSaver.fileType);
     }
+#endif
 
     public static void DeleteResource(string assetFolder, string insideAssetFolderAndName) {
        
@@ -82,19 +95,21 @@ public static class UnityHelperFunctions {
 #endif
     }
 
-    public static void getResourcesAddIfNew(ref List<string> l, string assetFolder, string insideAssetsFolder) {
+    public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder) {
 
 #if UNITY_EDITOR
 
-      
-
         try {
-            DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + "/" + assetFolder 
-                                                                 + "/Resources"+insideAssetsFolder.AddPreSlashIfNotEmpty());
+            string path = Application.dataPath + "/" + assetFolder
+                                                                 + "/Resources" + insideAssetsFolder.AddPreSlashIfNotEmpty();
 
-            if (levelDirectoryPath == null) return;
+            if (!Directory.Exists(path)) return;
 
-            FileInfo[] fileInfo = levelDirectoryPath.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+
+            if (dirInfo == null) return;
+
+            FileInfo[] fileInfo = dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly);
 
             l = new List<string>();
 
@@ -102,7 +117,6 @@ public static class UnityHelperFunctions {
                 string name = file.Name.Substring(0, file.Name.Length - ResourceSaver.fileType.Length);
                 if ((file.Extension == ResourceSaver.fileType) && (!l.Contains(name))) {
                     l.Add(name);
-                    //Debug.Log("Added "+name);
                 }
             }
 

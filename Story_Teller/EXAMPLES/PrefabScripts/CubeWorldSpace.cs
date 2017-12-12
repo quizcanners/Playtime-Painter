@@ -39,7 +39,7 @@ namespace StoryTriggerData {
             cody.AddIfNotZero("pos", transform.position);
             if (strokeData != null) 
                 cody.AddText("playVectors", strokeData );
-
+            cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotNull(stdValues);
             return cody;
         }
@@ -49,6 +49,7 @@ namespace StoryTriggerData {
                 case "name": gameObject.name = data; break;
                 case "pos": transform.position = data.ToVector3(); break;
                 case "playVectors": strokeData = data; painter.PlayStrokeData(data); break;
+                case "scale": transform.localScale = data.ToVector3(); break;
                 case STD_Values.storyTag: stdValues.Reboot(data); break;
             }
         }
@@ -58,13 +59,13 @@ namespace StoryTriggerData {
                 painter = GetComponent<PlaytimePainter>();
 
             stdValues = new STD_Values();
-
+            transform.localScale = Vector3.one;
             transform.position = Vector3.zero;
         }
 
      
-        public override void PEGI() {
-
+        public override bool PEGI() {
+            bool changed = false;
             base.PEGI();
 
             if (!stdValues.browsing_interactions) {
@@ -85,6 +86,8 @@ namespace StoryTriggerData {
 
                 pegi.newLine();
             }
+
+            return changed;
         }
 
  

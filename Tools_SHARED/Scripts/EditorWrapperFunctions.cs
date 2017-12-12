@@ -528,6 +528,16 @@ public static class ef {
         return false;
     }
 
+    public static bool edit(string label, ref float val)
+    {
+        checkLine();
+        float before = val;
+        val = EditorGUILayout.FloatField(label, val);
+        return (val != before);
+    }
+
+
+
     public static bool edit(ref float val) {
         checkLine();
         float before = val;
@@ -653,9 +663,7 @@ public static class ef {
     public static bool edit(ref Vector3 val) {
         checkLine();
         bool modified = false;
-        modified |= ef.edit(ref val.x);
-        modified |= ef.edit(ref val.y);
-        modified |= ef.edit(ref val.z);
+        modified |= "X".edit(ref val.x).nl() | "Y".edit(ref val.y).nl() | "Z".edit(ref val.z).nl();
         return modified;
     }
 

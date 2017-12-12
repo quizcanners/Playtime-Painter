@@ -40,7 +40,7 @@ namespace StoryTriggerData {
 
 
 
-        public void PEGI() {
+        public override bool PEGI() {
             bool changed = false;
            
 
@@ -61,7 +61,7 @@ namespace StoryTriggerData {
             } else if (icon.Close.Click(20))
                 Trigger.edited = null;
 
-    
+            return false;
         }
 
         public void Decode(string tag, string data) {
@@ -126,6 +126,11 @@ namespace StoryTriggerData {
 
         public static Trigger selectedTrig;
         public static Argument selected;
+
+        public virtual bool PEGI()
+        {
+            return false;
+        }
 
         public static string focusName;
         public static STD_Values editedSo;

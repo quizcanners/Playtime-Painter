@@ -116,10 +116,6 @@ namespace TextureEditor {
             
         }
 
-        public override void PEGI() {
-        }
-
-
         public const string storyTag = "s";
 
         public override string getDefaultTagName() {

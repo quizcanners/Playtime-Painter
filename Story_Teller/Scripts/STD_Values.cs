@@ -170,7 +170,9 @@ namespace StoryTriggerData {
 
         public bool browsing_interactions = false;
 
-        public void PEGI() {
+        public bool PEGI() {
+
+            bool changed = false;
 
             if (!browsing_interactions) {
                 
@@ -246,7 +248,7 @@ namespace StoryTriggerData {
 
             } else {
 
-                if (pegi.Click("<"+STD_Object.browsed.gameObject.name, 40))
+                if (("<"+STD_Object.browsed.gameObject.name).Click(40))
                     browsing_interactions = false;
                 else {
                     pegi.newLine();
@@ -254,6 +256,7 @@ namespace StoryTriggerData {
                 }
             }
 
+            return changed;
         }
 
 

@@ -21,20 +21,25 @@ namespace PlayerAndEditorGUI {
             public windowFunction funk;
             public Rect windowRect;
 
+        
+
             public void drawFunction(int windowID) {
                 start();
                 paintingPlayAreaGUI = true;
 
 
-
-                write(GUI.tooltip);
-                newLine();
+                GUI.backgroundColor = Color.white;
+             
 
                 funk();
 
                 newLine();
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
                 paintingPlayAreaGUI = false;
+                newLine();
+                GUI.color = Color.white;
+                ("Tip:" + GUI.tooltip).nl();
+
             }
 
 
@@ -55,7 +60,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
-        public delegate void windowFunction();
+        public delegate bool windowFunction();
         //int windowID
         // This class is an attempt to enable creation of component inspectors that can also render to the screen. 
         static int elementIndex;
@@ -676,6 +681,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
+        // Foldouts        
         public static bool foldout(this string txt, ref bool state) {
 
 #if UNITY_EDITOR
@@ -696,10 +702,6 @@ namespace PlayerAndEditorGUI {
 
                 return isFoldedOut;
             }
-        }
-
-        public static void foldIn() {
-            selectedFold = -1;
         }
 
         public static bool foldout(this string txt, ref int selected, int current) {
@@ -728,7 +730,6 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-
         public static bool foldout(this string txt) {
 
 
@@ -749,7 +750,10 @@ namespace PlayerAndEditorGUI {
 
         }
 
-
+        public static void foldIn()
+        {
+            selectedFold = -1;
+        }
 
         public static void Space() {
 
@@ -773,11 +777,66 @@ namespace PlayerAndEditorGUI {
             tabIndex++;
         }
 
+        public static bool ClickUnfocus(this string text, int width)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                if (ef.Click(text, width)) {
+                    FocusControl("_");
+                    return true;
+                }
+                 return false;
+            }
+            else
+#endif
+
+            {
+                checkLine();
+                if ( GUILayout.Button(text, GUILayout.MaxWidth(width)))
+                {
+                    FocusControl("_");
+                    return true;
+                }
+                return false;
+            }
+
+        }
+
+        public static bool ClickUnfocus(this string text)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                if (ef.Click(text))
+                {
+                    FocusControl("_");
+                    return true;
+                }
+                return false;
+            }
+            else
+#endif
+
+            {
+                checkLine();
+                if (GUILayout.Button(text))
+                {
+                    FocusControl("_");
+                    return true;
+                }
+                return false;
+            }
+
+        }
+
         public static bool Click(this string text, int width) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
-                return ef.Click(text);
+                return ef.Click(text, width);
             } else
 #endif
 
@@ -994,9 +1053,7 @@ namespace PlayerAndEditorGUI {
         {
                 checkLine();
                 bool modified = false;
-                modified |= edit(ref val.x);
-                modified |= edit(ref val.y);
-                modified |= edit(ref val.z);
+                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z);
                 return modified;
             }
         }
@@ -1118,6 +1175,21 @@ namespace PlayerAndEditorGUI {
                     return true;
                 }
                 return false;
+            }
+        }
+
+        public static bool edit(this string label, ref float val)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+              return  label.edit(ref val);
             }
         }
 
@@ -1332,9 +1404,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(ref int current) {
             return select(ref current, typeof(T));
         }
-
-
-
+        
         public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object {
             write(label);
             return edit(ref field);
@@ -1377,7 +1447,7 @@ namespace PlayerAndEditorGUI {
             write(label);
             return edit(ref val);
         }
-
+        
         public static bool edit(this string label, ref float val, float min, float max) {
             write(label);
             return edit(ref val, min, max);
@@ -1669,18 +1739,17 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void writeHint(string text, MessageType type) {
+        public static void writeWarning(string text) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
-                ef.writeHint(text, type);
+                ef.writeHint(text, MessageType.Warning);
             } else
 #endif
-        {
+            {
                 checkLine();
                 GUILayout.Label(text);
             }
-
         }
 
         public static void writeHint(string text) {
@@ -1720,15 +1789,17 @@ namespace PlayerAndEditorGUI {
 
         public static bool GetDefine(string define) {
 
-#if UNTIY_EDITOR
+#if UNITY_EDITOR
         return ef.GetDefine(define);
+#else
+        return true;
 #endif
-            return true;
         }
 
         public static void SetDefine(string val, bool to) {
 
-#if UNTIY_EDITOR
+#if UNITY_EDITOR
+          
         ef.SetDefine(val, to);
 #endif
         }
@@ -1750,7 +1821,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression) {
             
             bool changes = false;
-              #if UNITY_EDITOR
+#if UNITY_EDITOR
 
          
 
@@ -1788,7 +1859,7 @@ namespace PlayerAndEditorGUI {
               
 
             }
-            #endif
+#endif
             return changes;
         }
 

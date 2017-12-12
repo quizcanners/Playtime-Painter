@@ -1273,24 +1273,31 @@ namespace TextureEditor{
     static void InstantiatePainterCamera() {
         RenderTexturePainter r = RenderTexturePainter.inst;
     }
+#endif
 
-    [MenuItem("Tools/" + painterConfig.ToolName + "/Manual")]
-	public static void openDocumentation() {
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + painterConfig.ToolName + "/Manual")]
+#endif
+        public static void openDocumentation() {
 		Application.OpenURL("https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing");
 	}
 
-    [MenuItem("Tools/" + painterConfig.ToolName + "/Forum")]
-    public static void openForum() {
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + painterConfig.ToolName + "/Forum")]
+#endif
+        public static void openForum() {
         Application.OpenURL("https://www.quizcanners.com/forum/texture-editor");
     }
 
-    [MenuItem("Tools/" + painterConfig.ToolName + "/Report a bug")]
-    public static void openEmail() {
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + painterConfig.ToolName + "/Report a bug")]
+#endif
+        public static void openEmail() {
         Application.OpenURL("mailto:quizcanners@gmail.com");
     }
 
 
-	#endif
+	
 
     public override void OnDestroy() {
 		base.OnDestroy ();
@@ -1468,17 +1475,17 @@ namespace TextureEditor{
 
 #if !BUILD_WITH_PAINTER
         public override void OnGUI() {
-            
+            //Debug.Log("Not building with painter");
         }
 #endif
 
-        public override string playtimeWindowName {
+    public override string playtimeWindowName {
 		get {
 			return gameObject.name+" "+getMaterialTextureName();
 		}
 	}
 
-        public bool ifGotTexture_PEGI() {
+    public bool ifGotTexture_PEGI() {
             bool brushChanged = false;
             pegi.toggle(ref config.showConfig, icon.Close.getIcon(), icon.Config.getIcon(), "Settings", 25);
 
@@ -1524,41 +1531,38 @@ namespace TextureEditor{
             return brushChanged;
         }
 
-	public override void PEGI () {
-
+	public override bool PEGI () {
+            bool changed = false;
+            
         ToolManagementPEGI (); 
 
 		if (!isCurrentTool())
-                return;
-
-		bool brushChanged = false;
+                return changed;
+        
 		if (pegi.toggle (ref LockEditing, icon.Lock.getIcon (), icon.Unlock.getIcon (), 
 			         "Lock/Unlock editing of this abject.", 35))
 			CheckPreviewShader ();
 
 		if (LockEditing) 
-			return;
+			return changed;
 
 
-            brushChanged |= ifGotTexture_PEGI();
+            changed |= ifGotTexture_PEGI().nl();
 
-        if (curImgData != null) {
 
-         
 
-            brushChanged |= this.SelectTexture_PEGI();
-
-            if (brushChanged)
-                Update_Brush_Parameters_For_Preview_Shader();
-        
-                this.config_PEGI ();
-		}
+            changed |= this.SelectTexture_PEGI();
 
             pegi.newLine();
             this.NewTextureOptions_PEGI();
             pegi.newLine();
 
-    }
+
+            if ((curImgData != null) && (changed))
+                    Update_Brush_Parameters_For_Preview_Shader();
+
+            return changed;
+        }
 
 //#endif
 

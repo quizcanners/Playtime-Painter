@@ -32,10 +32,11 @@ public static class ResourceLoader {
     public static string LoadStoryFromResource(string resourceFolderLocation, string insideResourceFolder, string name) {
 
         string resourceName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
+        string data = null;
 
 #if UNITY_EDITOR
         string path = Application.dataPath +resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources/"  + resourceName + ResourceSaver.fileType;
-        string data = null;
+       
         //Debug.Log("Trying to load " + path);
         if (File.Exists(path)) {
             try {

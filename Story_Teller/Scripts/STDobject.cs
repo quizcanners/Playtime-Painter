@@ -101,8 +101,10 @@ namespace StoryTriggerData {
         }
 
         public static STD_Object browsed;
-        public override void PEGI() {
+        public override bool PEGI() {
             browsed = this;
+
+            bool changed = false;
 
             if ((stdValues == null) || (!stdValues.browsing_interactions)) {
                 pegi.newLine();
@@ -133,6 +135,8 @@ namespace StoryTriggerData {
 
             if (stdValues!= null)
                 stdValues.PEGI();
+
+            return changed;
         }
     }
 }

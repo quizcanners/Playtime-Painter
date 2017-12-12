@@ -102,8 +102,8 @@ namespace StoryTriggerData {
             return storyTag_Trg;
         }
 
-        public override void PEGI() {
-            TriggerUsage.select_PEGI(ref usage);
+        public override bool PEGI() {
+            return TriggerUsage.select_PEGI(ref usage);
         }
 
     }

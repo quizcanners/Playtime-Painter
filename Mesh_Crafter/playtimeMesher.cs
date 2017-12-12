@@ -113,11 +113,12 @@ public class playtimeMesher : PlaytimeToolComponent {
             MeshManager.inst().DRAW_LINES();
     }
 		
-	public override void PEGI(){
+	public override bool PEGI(){
 		ToolSelector ();
 		ToolManagementPEGI ();
 
         "Mesh Editor".nl();
+        return false;
 	}
 		
 
