@@ -127,7 +127,7 @@ namespace StoryTriggerData {
             switch (tag) {
                 case "p": controlledByPlayer = true; break;
                 case "n": gameObject.name = data; break;
-
+                default: Unrecognized(tag, data); break;
             }
 
         }
@@ -141,7 +141,9 @@ namespace StoryTriggerData {
             }
 
             cody.AddText("n", gameObject.name);
-
+            
+            SaveUnrecognized(cody);
+            
             return cody;
         }
 
