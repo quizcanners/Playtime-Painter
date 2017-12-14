@@ -31,6 +31,7 @@ namespace StoryTriggerData {
         public static Trigger edited;
 
         public string name = "";
+        public bool isStatic;
         public Dictionary<int, string> enm;
 
         public string this[int index] {
@@ -77,6 +78,7 @@ namespace StoryTriggerData {
             cody.AddText("n", name);
             cody.Add("u", usage);
             cody.AddIfNotEmpty("e", enm);
+            cody.Add ("s", isStatic);
             return cody;
         }
 
@@ -86,6 +88,7 @@ namespace StoryTriggerData {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
                 case "e": enm = data.ToDictionaryIntString_STD(); break;
+                case "s": isStatic = data.ToBoolean(); break;
             }
 
         }
@@ -94,6 +97,7 @@ namespace StoryTriggerData {
         public Trigger() {
             if (enm == null)
                 enm = new Dictionary<int, string>();
+                isStatic = true;
         }
 
         public const string storyTag_Trg = "Trg";
