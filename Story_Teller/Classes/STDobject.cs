@@ -27,17 +27,17 @@ namespace StoryTriggerData {
        
 #endif
 
-         protected Unrecognized(string tag, string data){
+         protected void Unrecognized(string tag, string data){
          #if UNITY_EDITOR
             unrecognizedTags.Add(tag);
             unrecognizedData.Add(data);
             #endif
         }
         
-         protected SaveUnrecognized(stdEncoder cody){
+         protected void SaveUnrecognized(stdEncoder cody){
          #if UNITY_EDITOR
          for (int i=0; i<unrecognizedTags.Count; i++)
-            cody.Add(unrecognizedTags[i], unrecognizedData[i]);
+            cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
          #endif
         }
         

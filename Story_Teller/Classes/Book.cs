@@ -39,6 +39,8 @@ namespace StoryTriggerData {
 
         static Book _inst;
 
+        public STD_Values stdValues = new STD_Values();
+
         public const string storyTag = "HOME";
 
 
@@ -95,7 +97,7 @@ namespace StoryTriggerData {
             return cody;
         }
 
-        public static string PrefabsResourceFolder = "UnilinkPrefabs";
+        public static string PrefabsResourceFolder = "stdPrefabs";
 
         public void LoadOrInit() {
             Reboot(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, gameObject.name, storyTag));

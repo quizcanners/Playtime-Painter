@@ -88,7 +88,7 @@ namespace StoryTriggerData {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
                 case "e": enm = data.ToDictionaryIntString_STD(); break;
-                case "s": isStatic = data.ToBoolean(); break;
+                case "s": isStatic = data.ToBool(); break;
             }
 
         }
