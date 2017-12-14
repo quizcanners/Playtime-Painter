@@ -10,7 +10,7 @@ using PlayerAndEditorGUI;
 namespace StoryTriggerData {
 
 
-    public class TaggedTarget: Argument, iSTD {
+    public class TaggedTarget: Argument, iSTD {  // if there are zero
       
         public int targValue; // if zero - we are talking about bool target
 
@@ -24,6 +24,14 @@ namespace StoryTriggerData {
             return cody;
         }
 
+       public void Decode(string tag, string data) {
+            switch (tag) {
+                case "g" : groupIndex = data.ToInt(); break;
+                case "t": triggerIndex = data.ToInt(); break;
+                case "v": targValue = data.ToInt(); break;
+            }
+        }
+        
         public override bool isBoolean() {
             return targValue == 0;
         }
@@ -43,7 +51,6 @@ namespace StoryTriggerData {
         public override bool PEGI() {
             bool changed = false;
            
-
             if (Trigger.edited != trig) {
                 if (icon.Edit.Click(20))
                     Trigger.edited = trig;
@@ -64,13 +71,7 @@ namespace StoryTriggerData {
             return false;
         }
 
-        public void Decode(string tag, string data) {
-            switch (tag) {
-                case "g" : groupIndex = data.ToInt(); break;
-                case "t": triggerIndex = data.ToInt(); break;
-                case "v": targValue = data.ToInt(); break;
-            }
-        }
+     
 
         public const string stdTag_TagTar = "tagTar";
         public string getDefaultTagName() {
