@@ -20,6 +20,28 @@ namespace StoryTriggerData {
 
         public Page parentPage;
 
+#if UNITY_EDITOR
+        protected List<string> unrecognizedTags = new List<string>();
+        protected List<string> unrecognizedData = new List<string>();
+        // In editor we will store unrecognized data for debug and not to loose it due to prefab mismatch
+       
+#endif
+
+         protected Unrecognized(string tag, string data){
+         #if UNITY_EDITOR
+            unrecognizedTags.Add(tag);
+            unrecognizedData.Add(data);
+            #endif
+        }
+        
+         protected SaveUnrecognized(stdEncoder cody){
+         #if UNITY_EDITOR
+         for (int i=0; i<unrecognizedTags.Count; i++)
+            cody.Add(unrecognizedTags[i], unrecognizedData[i]);
+         #endif
+        }
+        
+
         public abstract void Reboot();
 
         public virtual void Reboot(string data) {
@@ -27,9 +49,13 @@ namespace StoryTriggerData {
             gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
 
             gameObject.name = "new " + getDefaultTagName();
-
+            
             Reboot();
-
+            
+     #if UNITY_EDITOR       
+            unrecognizedTags = new List<string>();
+            unrecognizedData = new List<string>();
+     #endif    
             new stdDecoder(data).DecodeTagsFor(this);
         }
 
@@ -117,6 +143,20 @@ namespace StoryTriggerData {
 
                     pegi.newLine();
 
+                    if (unrecognizedTags.Count>0){
+                        "Unrecognized Tags:".nl();
+                        for (int i=0; i<unrecognizedTags.Count; i++){
+                            if (icon.Delete.Click(20)) {
+                                    unrecognizedTags.RemoveAt(i);
+                                    unrecognizedData.RemoveAt(i);
+                                    } else 
+                                    (unrecognizedTags[i] + " | " + unrecognizedData[i]).nl();
+                        }
+                    }
+                    
+                    pegi.newLine();
+
+
                     if ((parentPage != null) && (pegi.Click("Test Conversion"))) {
                         Debug.Log("Debug Testing conversion");
                         var encode = Encode();
@@ -124,6 +164,9 @@ namespace StoryTriggerData {
                         Deactivate();
                         pg.Decode(getDefaultTagName(), encode.ToString());
                     }
+                    
+                 
+                    
                 }
 
                 if (stdValues!= null)
