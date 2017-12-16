@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
  
 
-namespace TextureEditor{
+namespace Painter{
 
 	public static class RecentTextureExtensions {
 	

@@ -252,8 +252,9 @@ namespace StoryTriggerData
             }
         }
 
-        public void Reboot(string data) {
+        public iSTD Reboot(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
+            return this;
         }
 
         public void ForceConditionTrue(STD_Values st) {

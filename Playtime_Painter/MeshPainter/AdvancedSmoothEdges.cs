@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace MeshEditingTools
+namespace Painter
 {
 
     public class AdvancedSmoothEdges : VertexDataType  {

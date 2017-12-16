@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace TextureEditor {
+namespace Painter {
 
     [CustomEditor(typeof(PainterBall))]
     public class PainterBallEditor : Editor  {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace TextureEditor{
+namespace Painter{
 
 [Serializable]
 public class painterConfig  {

@@ -5,13 +5,13 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 
 
-namespace TextureEditor{
+namespace Painter{
 
 	public abstract class BlitMode  : IeditorDropdown  {
 
 		private static List<BlitMode> _allModes;
 
-		protected RenderTexturePainter rt {get{ return RenderTexturePainter.inst;}}
+		protected PainterManager rt {get{ return PainterManager.inst;}}
 
 		protected static PlaytimePainter painter;
         public static BrushConfig pegibrush;

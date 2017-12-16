@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TextureEditor{
+namespace Painter{
 
 [ExecuteInEditMode]
 public class RenderBrush : MonoBehaviour {
 
-		public static RenderTexturePainter rtp {get {return RenderTexturePainter.inst;}}
+		public static PainterManager rtp {get {return PainterManager.inst;}}
 
     public MeshRenderer meshRendy;
     public MeshFilter meshFilter;
@@ -16,7 +16,7 @@ public class RenderBrush : MonoBehaviour {
 
     public void RestoreBounds() {
         modifiedMesh.bounds = modifiedBound;
-            transform.parent = RenderTexturePainter.inst.transform;
+            transform.parent = PainterManager.inst.transform;
     }
 
     public void CopyAllFrom (GameObject go, Mesh mesh) {
@@ -31,7 +31,7 @@ public class RenderBrush : MonoBehaviour {
         meshFilter.sharedMesh = mesh;
 
 
-        Transform camTransform = RenderTexturePainter.inst.transform;
+        Transform camTransform = PainterManager.inst.transform;
         Vector3 center = camTransform.position + camTransform.forward * 100;
         float extremeBound = 500.0f;
         modifiedBound = meshFilter.sharedMesh.bounds;
@@ -51,7 +51,7 @@ public class RenderBrush : MonoBehaviour {
 
 
 		public void PrepareForFullCopyOf (Texture tex){
-			float size = RenderTexturePainter.orthoSize * 2;
+			float size = PainterManager.orthoSize * 2;
 			float aspectRatio = (float)tex.width / (float)tex.height;
 			transform.localScale = new Vector3(size * aspectRatio, size, 0);
 			transform.localPosition = Vector3.forward * 10;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TextureEditor{
+namespace Painter{
 
 [ExecuteInEditMode]
 public class brushMeshGenerator : MonoBehaviour {

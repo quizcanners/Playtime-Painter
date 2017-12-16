@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace TextureEditor {
+namespace Painter {
 
     public static class PainterPEGI_Extensions {
 
         static painterConfig cfg { get { return painterConfig.inst(); } }
-        static RenderTexturePainter rtp { get { return RenderTexturePainter.inst; } }
+        static PainterManager rtp { get { return PainterManager.inst; } }
 
 
         public static bool Mode_Type_PEGI(this BrushConfig brush, bool cpuBlit) {
@@ -77,7 +77,7 @@ namespace TextureEditor {
 
             changed |= painter.PreviewShaderToggle_PEGI();
 
-            if ((RenderTexturePainter.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null)) {
+            if ((PainterManager.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null)) {
                 if (pegi.Click(cpuBlit ? icon.CPU.getIcon() : icon.GPU.getIcon(),
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45)) {
                     painter.updateOrChangeDestination(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);

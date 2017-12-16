@@ -8,19 +8,19 @@ using UnityEditor.SceneManagement;
 using System;
 using PlayerAndEditorGUI;
 
-namespace TextureEditor{
+namespace Painter{
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(RenderTexturePainter))]
+    [CustomEditor(typeof(PainterManager))]
     public class RenderTexturePainterEditor : Editor {
 
-        RenderTexturePainter rtp;
+        PainterManager rtp;
 
         public static int testValue = 1;
 
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
-            ((RenderTexturePainter)target).PEGI();
+            ((PainterManager)target).PEGI();
         }
 
     }
@@ -29,15 +29,21 @@ namespace TextureEditor{
 
 
     [ExecuteInEditMode]
-public class RenderTexturePainter : MonoBehaviour
+public class PainterManager : MonoBehaviour
 {
-    static RenderTexturePainter _inst;
-        public static RenderTexturePainter inst {
+    static PainterManager _inst;
+        public static PainterManager inst {
             get {
                 if (_inst == null)
-                    _inst = GameObject.FindObjectOfType<RenderTexturePainter>();
-                if (_inst == null) {
-                    _inst = PlaytimePainter.InstantiateRenderTexturePainter();
+                {
+                    _inst = GameObject.FindObjectOfType<PainterManager>();
+                    if (_inst == null)
+                    
+                        _inst = PlaytimePainter.InstantiateRenderTexturePainter();
+
+                    if (_inst.meshManager == null)
+                        _inst.meshManager = new MeshManager();
+
                 }
 
                 return _inst;
@@ -81,7 +87,7 @@ public class RenderTexturePainter : MonoBehaviour
     public RenderBrush brushRendy = null;
 
 
-	
+    public MeshManager meshManager;
 
 
     // Brush shaders
@@ -507,9 +513,22 @@ public class RenderTexturePainter : MonoBehaviour
     }
 
     private void OnEnable() {
+
+
+
+            meshManager.OnEnable();
+
+
+
+
+
+
+
+
         rtcam.cullingMask = 1 << myLayer;
 
-        
+            if (meshManager == null)
+                meshManager = new MeshManager();
 
 
 		if (PlaytimeToolComponent.enabledTool == null)
@@ -641,12 +660,17 @@ public class RenderTexturePainter : MonoBehaviour
 
 		recentTextures.RemoveEmpty();
 #if UNITY_EDITOR
-            TakeAwayRT();
+        TakeAwayRT();
 #endif
 
-      
+            playtimeMesherSaveData.SaveChanges();
+#if UNITY_EDITOR
+            EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
+            EditorApplication.update -= meshManager.editingUpdate;
+#endif
 
-    }
+
+        }
 
 #if UNITY_EDITOR
 
@@ -678,6 +702,8 @@ public class RenderTexturePainter : MonoBehaviour
     public void Update() {
         if (Application.isPlaying)
             combinedUpdate();
+
+            meshManager.Update();
     }
 
 
@@ -727,21 +753,31 @@ public class RenderTexturePainter : MonoBehaviour
             PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
         }
 
-        private void Awake()
-    {
+        private void Awake() {
         _inst = this;
-    }
 
-    void OnApplicationQuit()
+            meshManager.Awake();
+        }
+
+        private void Start()
+        {
+            meshManager.Start();
+
+        }
+
+        void OnApplicationQuit()
     {
 
 #if !UNITY_EDITOR && BUILD_WITH_PAINTER
             painterConfig.SaveChanges();
+            playtimeMesherSaveData.SaveChanges();
 #endif
-    }
+        }
 
 
         public void PEGI() {
+
+
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 

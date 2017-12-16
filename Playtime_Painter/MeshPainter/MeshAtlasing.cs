@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MeshEditingTools
+namespace Painter
 {
 
     [System.Serializable]
@@ -18,7 +18,7 @@ namespace MeshEditingTools
         public AtlasMergeConfig[] a_configs;
 
 #if UNITY_EDITOR
-        public void ConvertToAtlased(playtimeMesher m) {
+        public void ConvertToAtlased(MeshPainter m) {
             Material mat = m._meshRenderer.sharedMaterial;
             List<string> tfields = mat.getTextures();
 
@@ -30,13 +30,13 @@ namespace MeshEditingTools
 
                 if (texture == null)
                 {
-                    Debug.Log(m.name + " no " + field + " texture.");
+                    Debug.Log(m.p.name + " no " + field + " texture.");
                     continue;
                 }
 
                 if (texture.GetType() != typeof(Texture2D))
                 {
-                    Debug.Log(m.name + " is not using a Texture2D on " + field);
+                    Debug.Log(m.p.name + " is not using a Texture2D on " + field);
                     continue;
                 }
 
@@ -64,14 +64,14 @@ namespace MeshEditingTools
 
                         if (index != -1) {
 
-                            Debug.Log("Assigning " + m.gameObject.name + " to Atlas index " + index);
+                            Debug.Log("Assigning " + m.p.gameObject.name + " to Atlas index " + index);
 
                             m.Edit();
                             VertexAtlasTool.inst.SetAllTrianglesTextureTo(index, 0);
                             MeshManager.inst().Redraw(); //m.RegenerateMesh();
 
                         } else {
-                            Debug.Log("Could not find space for " + m.name + " texture: " + field);
+                            Debug.Log("Could not find space for " + m.p.name + " texture: " + field);
                         }
 
                     }

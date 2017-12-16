@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace TextureEditor {
+namespace Painter {
 
 
     public class TextureBackup {
@@ -41,7 +41,7 @@ namespace TextureEditor {
 
 		public void Set (imgData from, int globalOrder){
           
-            RenderTexturePainter.inst.Render(from.currentRenderTexture(), rt);
+            PainterManager.inst.Render(from.currentRenderTexture(), rt);
 
             SetB(from, globalOrder);
 
@@ -66,7 +66,7 @@ namespace TextureEditor {
 
 	
 	public class BackupsLineup {
-		public static RenderTexturePainter rtp { get { return RenderTexturePainter.inst; } }
+		public static PainterManager rtp { get { return PainterManager.inst; } }
         public bool isUndo;
 		public int order = 0;
 
@@ -163,7 +163,7 @@ namespace TextureEditor {
 					id.texture2D.CopyFrom (rtBackup.rt);
                     id.PixelsFromTexture2D (id.texture2D);
 
-                if ((RenderTexturePainter.inst.isLinearColorSpace) && (!rtBackup.exclusive))
+                if ((PainterManager.inst.isLinearColorSpace) && (!rtBackup.exclusive))
                     id.pixelsToGamma();
                 //else
                  //   id.pixelsToLinear();

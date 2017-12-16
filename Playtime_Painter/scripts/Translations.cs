@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace TextureEditor
+namespace Painter
 {
 
     // Add new lines of text to enum:

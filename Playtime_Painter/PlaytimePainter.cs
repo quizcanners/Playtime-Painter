@@ -12,7 +12,7 @@ using StoryTriggerData;
 using PlayerAndEditorGUI;
 
 
-namespace TextureEditor{
+namespace Painter{
 
     [AddComponentMenu("Mesh/Texture Editor")]
     [ExecuteInEditMode]
@@ -20,11 +20,17 @@ namespace TextureEditor{
 
         public static bool isCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
 
+        public MeshPainter meshPainter;
+
+    
+
+        public bool meshPainting = false;
+
         public static painterConfig config { get { return painterConfig.inst(); } }
 
         public static BrushConfig brush { get { return painterConfig.inst().brushConfig; } }
 
-        public static RenderTexturePainter rtp { get { return RenderTexturePainter.inst; } }
+        public static PainterManager rtp { get { return PainterManager.inst; } }
 
         public override string ToolName() { return painterConfig.ToolName; }
 
@@ -252,8 +258,9 @@ namespace TextureEditor{
     }
 
 
-    public void Reboot(string data) {
+    public iSTD Reboot(string data) {
         new stdDecoder(data).DecodeTagsFor(this);
+            return this;
     }
 
     public const string storyTag = "painter";
@@ -299,6 +306,11 @@ namespace TextureEditor{
 	public void OnMouseOver() {
 
         if (!isCurrentTool()) return;
+
+        if (meshPainting) {
+                meshPainter.OnMouseOver();
+                return;
+            }
 
 			last_MouseOver_Object = this;
 
@@ -728,7 +740,7 @@ namespace TextureEditor{
 		if (curImgData == null)
 			Debug.Log ("Change texture destroyed curigdata");
 		if (previous!= null) 
-			RenderTexturePainter.inst.Render (previous.currentTexture(), curImgData);
+			PainterManager.inst.Render (previous.currentTexture(), curImgData);
 
 		updateOrChangeDestination (texTarget.RenderTexture);
 
@@ -1263,7 +1275,7 @@ namespace TextureEditor{
 				DestroyImmediate(ip);
 		}
 
-		RenderTexturePainter rtp = UnityEngine.Object.FindObjectOfType<RenderTexturePainter>();
+		PainterManager rtp = UnityEngine.Object.FindObjectOfType<PainterManager>();
 		if (rtp != null)
 			DestroyImmediate(rtp.gameObject);
 
@@ -1271,7 +1283,7 @@ namespace TextureEditor{
 
     [MenuItem("Tools/" + painterConfig.ToolName + "/Instantiate Painter Camera")]
     static void InstantiatePainterCamera() {
-        RenderTexturePainter r = RenderTexturePainter.inst;
+        PainterManager r = PainterManager.inst;
     }
 #endif
 
@@ -1319,7 +1331,10 @@ namespace TextureEditor{
     void OnDisable() {
         SetOriginalShader();
         inited = false;
-    }
+
+            if (MeshManager.inst()._target == meshPainter)
+                MeshManager.inst().DisconnectMesh();
+        }
 
     public override void OnEnable() {
 		
@@ -1399,15 +1414,15 @@ namespace TextureEditor{
         }
     }
 			
-    public static RenderTexturePainter InstantiateRenderTexturePainter() {
+    public static PainterManager InstantiateRenderTexturePainter() {
 		
-        RenderTexturePainter find = GameObject.FindObjectOfType<RenderTexturePainter>();
+        PainterManager find = GameObject.FindObjectOfType<PainterManager>();
         if (find != null)
             find.gameObject.SetActive(true);
         else {
 #if UNITY_EDITOR
             GameObject go = Resources.Load("prefabs/"+ painterConfig.PainterCameraName) as GameObject;
-            find = Instantiate(go).GetComponent<RenderTexturePainter>();
+            find = Instantiate(go).GetComponent<PainterManager>();
             find.name = painterConfig.PainterCameraName;
 #endif
         }
@@ -1465,7 +1480,7 @@ namespace TextureEditor{
     public void Update_MousePosition_Check_Preview_Shader(Vector3 uv, Vector3 hitPos, bool hide) {
                 CheckPreviewShader();
             if (originalShader!= null)
-                RenderTexturePainter.Shader_Pos_Update(uv, hitPos, hide, brush.Size(isPaintingInWorldSpace(brush)));
+                PainterManager.Shader_Pos_Update(uv, hitPos, hide, brush.Size(isPaintingInWorldSpace(brush)));
     }
 
     public void Update_Brush_Parameters_For_Preview_Shader() {
@@ -1564,18 +1579,29 @@ namespace TextureEditor{
             return changed;
         }
 
-//#endif
+        //#endif
 
 #if UNITY_EDITOR
+        
 
-    void OnDrawGizmosSelected()  {
-    
-			if ((!LockEditing) && (originalShader == null) && (last_MouseOver_Object == this) && (isCurrentTool()) && isPaintingInWorldSpace(brush)) 
-            Gizmos.DrawWireSphere(stroke.posTo, brush.Size(true)*0.5f);
+        void OnDrawGizmosSelected()  {
+
+            if (!LockEditing) {
+                if (meshPainting)
+                    MeshManager.inst().DRAW_LINES();
+                else
+                if ((originalShader == null) && (last_MouseOver_Object == this) && isCurrentTool() && isPaintingInWorldSpace(brush)) 
+            Gizmos.DrawWireSphere(stroke.posTo, brush.Size(true) * 0.5f);
+            }
         
     }
 
 #endif
 
-}
+        public PlaytimePainter()
+        {
+            meshPainter = new MeshPainter(this);
+        }
+
+    }
 }

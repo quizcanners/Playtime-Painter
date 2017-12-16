@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
-using MeshEditingTools;
+using Painter;
 
 [CustomEditor(typeof(MeshAtlasing))]
 public class MeshAtlasingEditor : Editor

@@ -11,7 +11,7 @@ namespace StoryTriggerData {
 
     public interface iSTD {
         stdEncoder Encode();
-        void Reboot(string data);
+        iSTD Reboot(string data);
         void Decode(string tag, string data);
         bool PEGI();
         string getDefaultTagName();
@@ -21,9 +21,9 @@ namespace StoryTriggerData {
     public abstract class abstract_STD : iSTD {
 
         public abstract stdEncoder Encode();
-        public virtual void Reboot(string data) {
+        public virtual iSTD Reboot(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
-
+            return this;
         }
         public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl(); return false; }
         public abstract void Decode(string tag, string data);
@@ -37,9 +37,10 @@ namespace StoryTriggerData {
         public abstract stdEncoder Encode();
         public abstract void Reboot();
         public virtual bool PEGI() { return false; }
-        public virtual void Reboot(string data) {
+        public virtual iSTD Reboot(string data) {
             Reboot();
             new stdDecoder(data).DecodeTagsFor(this);
+            return this;
         }
         public abstract void Decode(string tag, string data);
         public abstract string getDefaultTagName();

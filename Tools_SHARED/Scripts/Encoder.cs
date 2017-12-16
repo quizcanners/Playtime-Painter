@@ -247,18 +247,33 @@ namespace StoryTriggerData {
             return false;
         }
 
-        public bool AddIfNotEmpty(string tag, Dictionary<int, string> dic) {
-            if (dic.Count > 0) {
+        public bool AddIfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
+        {
+
+            if (val.Count > 0) {
 
                 stdEncoder sub = new stdEncoder();
 
-                foreach (var e in dic) {
-                    sub.AddText(e.Key.ToString(), e.Value);
-                }
-
-                //Debug.Log("Adding dic " + dic.Count);
+                foreach (var l in val)
+                    sub.AddIfNotEmpty("e",l);
 
                 AddText(tag, sub.ToString());
+                return true;
+            }
+
+            return false;
+        }
+
+
+        public bool AddIfNotEmpty(string tag, Dictionary<int, string> dic) {
+            if (dic.Count > 0) {
+
+                var sub = new stdEncoder();
+
+                foreach (var e in dic) 
+                    sub.AddText(e.Key.ToString(), e.Value);
+                
+                Add(tag, sub);
                 return true;
             }
             return false;
@@ -293,6 +308,55 @@ namespace StoryTriggerData {
 
             return false;
         }
+
+
+        public void Add (string tag, Matrix4x4 m) {
+
+            stdEncoder sub = new stdEncoder();
+            sub.Add("00", m.m00);
+            sub.Add("01", m.m01);
+            sub.Add("02", m.m02);
+            sub.Add("03", m.m03);
+
+            sub.Add("10", m.m10);
+            sub.Add("11", m.m11);
+            sub.Add("12", m.m12);
+            sub.Add("13", m.m13);
+
+            sub.Add("20", m.m20);
+            sub.Add("21", m.m21);
+            sub.Add("22", m.m22);
+            sub.Add("23", m.m23);
+
+            sub.Add("30", m.m30);
+            sub.Add("31", m.m31);
+            sub.Add("32", m.m32);
+            sub.Add("33", m.m33);
+
+            Add(tag, sub);
+
+        }
+
+        public void Add( string tag, BoneWeight bw) {
+
+            
+                var cody = new stdEncoder();
+
+                cody.Add("i0",bw.boneIndex0);
+                cody.Add("w0", bw.weight0);
+
+                cody.Add("i1", bw.boneIndex1);
+                cody.Add("w1", bw.weight1);
+
+                cody.Add("i2", bw.boneIndex2);
+                cody.Add("w2", bw.weight2);
+
+                cody.Add("i3", bw.boneIndex3);
+                cody.Add("w3", bw.weight3);
+
+                
+        }
+
 
         public void Add(string tag, Vector4 v4) { AddText(tag, v4.Encode()); }
         public void Add(string tag, Vector3 v3) { AddText(tag, v3.Encode()); }
@@ -331,6 +395,8 @@ namespace StoryTriggerData {
 
             return false;
         }
+
+        
 
     }
 

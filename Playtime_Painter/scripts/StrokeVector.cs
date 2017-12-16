@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using StoryTriggerData;
 
-namespace TextureEditor {
+namespace Painter {
 
 [Serializable]
     public class StrokeVector : abstract_STD {
@@ -133,7 +133,7 @@ namespace TextureEditor {
         }
 
 	public Vector3 brushWorldPositionFrom (Vector2 uv) {  
-				Vector2 v2 = ((uv)*2 - Vector2.one) * RenderTexturePainter.orthoSize;
+				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterManager.orthoSize;
 
 				return new Vector3 (v2.x, v2.y, 10);
     }

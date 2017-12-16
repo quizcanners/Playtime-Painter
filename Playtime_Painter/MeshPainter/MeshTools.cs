@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-namespace MeshEditingTools
+namespace Painter
 {
 
     public enum MeshTool { vertices, uv, VertexAnimation, VertColor, VertexShadow, AtlasTexture }
@@ -132,7 +132,7 @@ namespace MeshEditingTools
 
          
             if (pegi.Click("Mirror Agains Center")) {
-                GridNavigator.onGridPos = mgm._target.transform.position;
+                GridNavigator.onGridPos = mgm._target.p.transform.position;
                 mgm.UpdateLocalSpaceV3s();
                 mgm._Mesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
             }

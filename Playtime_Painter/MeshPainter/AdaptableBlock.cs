@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using MeshEditingTools;
+using Painter;
 
 public class AdaptableBlock : MonoBehaviour {
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TextureEditor;
+using Painter;
 
 
 [ExecuteInEditMode]
@@ -32,7 +32,7 @@ public class HintController : MonoBehaviour {
             case hintStage.addTexture:
                 ntext = "Ship on the left has no texture. Select him with " +mb+ " and click 'Create Texture'"; break;
             case hintStage.renderTexture:
-                int size = RenderTexturePainter.renderTextureSize;
+                int size = PainterManager.renderTextureSize;
                 ntext = "Change MODE to Render Texture. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n" +
                     "When using Render Texture to edit different texture2D, \n pixels will be updated at previous one."; break;
             }

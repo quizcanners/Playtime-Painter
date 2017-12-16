@@ -16,11 +16,11 @@ public static class MeshAnaliser {
                 return 0;
             }
 
-
-                    int[] hittedTriangle = new int[] {
+                int[] hittedTriangle = new int[] {
 				m.triangles[hitIndex * 3],
 				m.triangles[hitIndex * 3 + 1],
 				m.triangles[hitIndex * 3 + 2] };
+
 
                     for (int i = 0; i < m.subMeshCount; i++) {
 

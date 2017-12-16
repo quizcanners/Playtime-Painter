@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
-using TextureEditor;
+using Painter;
 
 public static class CombineMapsExtensions {
     public static bool UpdateBumpGloss(this List<channelSetsForCombinedMaps> mergeSubmasks) {

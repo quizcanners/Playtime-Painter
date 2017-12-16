@@ -76,14 +76,14 @@ namespace StoryTriggerData {
             Loaded = false;
         }
 
-        public override void Reboot(string data) {
+        public override iSTD Reboot(string data) {
             Reboot();
 
             var cody = new stdDecoder(data);
 
             while (cody.gotData)
                 Decode(cody.getTag(), cody.getData());
-
+            return this;
         }
 
         public override stdEncoder Encode() {

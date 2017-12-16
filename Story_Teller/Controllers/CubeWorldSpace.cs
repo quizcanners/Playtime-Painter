@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Linq;
-using TextureEditor;
+using Painter;
 using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {

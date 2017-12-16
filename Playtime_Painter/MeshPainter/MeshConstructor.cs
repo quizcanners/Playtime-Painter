@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 
-namespace MeshEditingTools {
+namespace Painter {
 
 
     [Serializable]
@@ -24,11 +24,16 @@ namespace MeshEditingTools {
         public Vector3[] normals;
         public Vector3[] sharpNormals;
 
+        BoneWeight[] boneWeights;
+        Matrix4x4[] bindPoses;
+        BlendFrame[] blendShapes;
+
         public float[] weight;
 
         public Vector4[] FirstNormal;
         public Vector4[] SecondNormal;
         public Vector4[] ThirdNormal;
+
 
 
         Color[] colors;
@@ -51,6 +56,8 @@ namespace MeshEditingTools {
             if (edMesh.triangles.Count == 0)
                 return;
 
+         
+
             vertsCount = edMesh.AssignIndexes();
             tris = new int[edMesh.triangles.Count * 3];
             verts = new Vector3[vertsCount];
@@ -64,6 +71,8 @@ namespace MeshEditingTools {
             ThirdNormal = new Vector4[vertsCount];
             edMesh.NumberVerticlesInTangentsW();
 
+          
+
             bool[] NormalForced = new bool[vertsCount];
 
             for (int i = 0; i < edMesh.vertices.Count; i++) {
@@ -73,7 +82,7 @@ namespace MeshEditingTools {
 
                 for (int u = 0; u < vp.uv.Count; u++) {
                     UVpoint uvi = vp.uv[u];
-                    int index = uvi.index;
+                    int index = uvi.finalIndex;
                     verts[index] = vp.pos;  
                     normals[index] = Vector3.zero;
                     sharpNormals[index] = Vector3.zero;
@@ -91,7 +100,7 @@ namespace MeshEditingTools {
                 nom = i * 3;
 
                 for (int j = 0; j < 3; j++) {
-                    inds[j] = tri.uvpnts[j].index;
+                    inds[j] = tri.uvpnts[j].finalIndex;
                     tris[nom + j] = inds[j];
                 }
 
@@ -144,7 +153,7 @@ namespace MeshEditingTools {
                 tri = edMesh.triangles[i];
                 nom = i * 3;
                 for (int j = 0; j < 3; j++) {
-                    inds[j] = tri.uvpnts[j].index;
+                    inds[j] = tri.uvpnts[j].finalIndex;
                 }
 
                 // get normal of the line
@@ -164,15 +173,14 @@ namespace MeshEditingTools {
                 if (vp.SmoothNormal) {
                     vp.normal = vp.normal.normalized;
                     foreach (UVpoint uv in vp.uv)
-                        normals[uv.index] = vp.normal;
+                        normals[uv.finalIndex] = vp.normal;
 
                 }
             }
 
-
+          
 
         }
-
 
         public Color[] _colors {
             get {
@@ -180,12 +188,11 @@ namespace MeshEditingTools {
                     colors = new Color[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            colors[uvi.index] = uvi._color.ToColor();
+                            colors[uvi.finalIndex] = uvi._color.ToColor();
                 }
                 return colors;
             }
         }
-
 
         public Vector4[] _shadowBake {
             get {
@@ -193,7 +200,7 @@ namespace MeshEditingTools {
                     shadowBake = new Vector4[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            shadowBake[uvi.index] = vp.shadowBake;
+                            shadowBake[uvi.finalIndex] = vp.shadowBake;
                 }
                 return shadowBake;
             }
@@ -204,7 +211,7 @@ namespace MeshEditingTools {
                 uvs = new Vector2[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            uvs[uvi.index] = uvi.getUV(0);
+                            uvs[uvi.finalIndex] = uvi.getUV(0);
                 }
                 return uvs;
             }
@@ -216,12 +223,11 @@ namespace MeshEditingTools {
                     uvs2 = new Vector2[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            uvs2[uvi.index] = uvi.getUV(0);
+                            uvs2[uvi.finalIndex] = uvi.getUV(0);
                 }
                 return uvs2;
             }
         }
-
 
         public Vector4[] _trisTextures {
             get{
@@ -231,7 +237,7 @@ namespace MeshEditingTools {
 
                     foreach (var tri in edMesh.triangles){
                         for (int no = 0; no < 3; no++) 
-                            perVertexTrisTexture[tri.uvpnts[no].index] = tri.textureNo;
+                            perVertexTrisTexture[tri.uvpnts[no].finalIndex] = tri.textureNo;
                         
                     }
                 }
@@ -239,7 +245,6 @@ namespace MeshEditingTools {
                 return perVertexTrisTexture;
             }
         }
-
 
         public Countless<vertexAnimationFrame> _anim {  get { if (anims == null) {
 
@@ -261,8 +266,8 @@ namespace MeshEditingTools {
             }
         }
 
-
-        public MeshConstructor(EditableMesh edmesh, MeshSolutionProfile solution, Mesh fmesh ) {
+        public MeshConstructor(EditableMesh edmesh, MeshSolutionProfile solution, Mesh fmesh)
+        {
             profile = solution;
             edMesh = edmesh;
             mesh = fmesh;
@@ -271,6 +276,49 @@ namespace MeshEditingTools {
 
             GeneratePreConstructionData();
             profile.StartPacking(this);
+
+            if (edMesh.gotBindPos) {
+                bindPoses = new Matrix4x4[vertsCount];
+                for (int i = 0; i < edMesh.vertices.Count; i++)
+                    bindPoses[i] = edMesh.vertices[i].bindPoses;
+                mesh.bindposes = bindPoses;
+            }
+
+            if (edMesh.gotBoneWeights) {
+                boneWeights = new BoneWeight[vertsCount];
+                for (int i = 0; i < edMesh.vertices.Count; i++)
+                    boneWeights[i] = edMesh.vertices[i].boneWeight;
+                mesh.boneWeights = boneWeights;
+            }
+
+            int vCnt = mesh.vertices.Length;
+
+            for (int s=0; s<edMesh.shapes.Count; s++){
+                var name = edMesh.shapes[s];
+                int frames = edMesh.vertices[0].shapes[s].Count;
+                
+                for (int f=0; f<frames; f++) {
+                    
+                    var pos = new Vector3[vCnt];
+                    var nrm = new Vector3[vCnt];
+                    var tng = new Vector3[vCnt];
+
+                    for (int v=0; v<vCnt; v++) {
+                        BlendFrame bf = edMesh.uvsByFinalIndex[v].vert.shapes[s][f];
+
+                        pos[v] = bf.deltaPosition;
+                        nrm[v] = bf.deltaNormal;
+                        tng[v] = bf.deltaTangent;
+
+                    }
+                    mesh.AddBlendShapeFrame(name, edMesh.blendWeights[s][f],pos,nrm,tng);
+                }
+
+
+            }
+
+            // TODO: Add a function that will return blend shapes to where they should be
+
         }
 
         public void CopyMeshTo(ref Mesh other) {

@@ -10,20 +10,14 @@ using UnityEditor;
 //using TextureEditor;
 using StoryTriggerData;
 
-namespace MeshEditingTools
+namespace Painter
 {
-
-   
-
     public class UVpoint : abstract_STD {
 
-
-       
         public override string getDefaultTagName() {
             return stdTag_uv;
         }
         public const string stdTag_uv = "uv";
-
 
         protected EditableMesh mesh { get { return MeshManager.inst()._Mesh; } }
 
@@ -42,7 +36,7 @@ namespace MeshEditingTools
         }
 
         int uvIndex;
-        public int index;
+        public int finalIndex;
         public linearColor _color;
 
         public bool tmpMark;
@@ -55,7 +49,7 @@ namespace MeshEditingTools
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.Add("i", index);
+            cody.Add("i", finalIndex);
             cody.Add("uvi", uvIndex);
             cody.Add("col", _color);
 
@@ -65,7 +59,7 @@ namespace MeshEditingTools
 
         public override void Decode(string tag, string data) {
             switch (tag) {
-                case "i": index = data.ToInt(); mesh.indexedUVs[index] = this; break;
+                case "i": finalIndex = data.ToInt(); mesh.uvsByFinalIndex[finalIndex] = this; break;
                 case "uvi": uvIndex = data.ToInt(); break;
                 case "col": _color = data.ToLinearColor(); break;
             }
@@ -74,7 +68,7 @@ namespace MeshEditingTools
         public UVpoint DeepCopyTo(vertexpointDta nvert)
         {
             UVpoint tmp = new UVpoint(nvert, getUV(0), getUV(1));
-            tmp.index = index;
+            tmp.finalIndex = finalIndex;
             tmp.uvIndex = uvIndex;
             tmp._color.CopyFrom(_color);
 
@@ -233,6 +227,53 @@ namespace MeshEditingTools
         }
     }
 
+    public class BlendFrame : abstract_STD
+    {
+        public Vector3 deltaPosition;
+        public Vector3 deltaTangent;
+        public Vector3 deltaNormal;
+
+        public override void Decode(string tag, string data) {
+            switch (tag) {
+                case "p": deltaPosition = data.ToVector3(); break;
+                case "t": deltaTangent = data.ToVector3(); break;
+                case "n": deltaNormal = data.ToVector3(); break;
+            }
+        }
+
+        public override stdEncoder Encode() {
+            var cody = new stdEncoder(); 
+
+            cody.AddIfNotZero("p", deltaPosition);
+            cody.AddIfNotZero("t", deltaTangent);
+            cody.AddIfNotZero("n", deltaNormal);
+
+            return cody;
+        }
+
+        public override string getDefaultTagName()
+        {
+            return tagName_bs;
+        }
+
+        public BlendFrame()
+        {
+
+        }
+
+        public BlendFrame(Vector3 pos, Vector3 norm, Vector3 tang)
+        {
+            deltaPosition = pos;
+            deltaNormal = norm;
+            deltaTangent = tang;
+        }
+
+        public const string tagName_bs = "bs";    
+  
+    } 
+
+
+
     public class vertexpointDta : abstract_STD
     {
         protected EditableMesh mesh { get { return MeshManager.inst()._Mesh; } }
@@ -251,6 +292,10 @@ namespace MeshEditingTools
         public bool SmoothNormal;
         public Vector4 shadowBake;
         public Countless<Vector3> anim;
+        public BoneWeight boneWeight;
+        public Matrix4x4 bindPoses;
+        public List<List<BlendFrame>> shapes; // not currently working
+        public int submeshIndex;
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -269,6 +314,16 @@ namespace MeshEditingTools
 
             cody.Add("shad", shadowBake);
 
+            cody.Add("bw", boneWeight);
+
+            //if (bindPoses != null)
+                cody.Add("biP", bindPoses);
+
+            if (shapes != null)
+                cody.AddIfNotEmpty("bl",shapes);
+
+            cody.AddIfNotZero("sub", submeshIndex);
+
             return cody;
         }
        
@@ -282,6 +337,10 @@ namespace MeshEditingTools
                 case "pos": pos = data.ToVector3(); break;
                 case "smth": SmoothNormal = true; break;
                 case "shad": shadowBake = data.ToVector4(); break;
+                case "bw": boneWeight = data.ToBoneWeight(); break;
+                case "biP": bindPoses = data.ToMatrix4x4(); break;
+                case BlendFrame.tagName_bs: shapes = data.ToListOfList_STD<BlendFrame>(); break;
+                case "sub": submeshIndex = data.ToInt(); break;
             }
         }
 
@@ -310,7 +369,7 @@ namespace MeshEditingTools
 
         public void AnimateTo(Vector3 dest) {
             dest -= pos;
-            int no = MeshManager.inst()._target.GetVertexAnimationNumber();
+            int no = 0;// MeshManager.inst()._target.GetVertexAnimationNumber();
             if (dest.magnitude > 0)
                 anim[no] = dest;
             else anim[no] = Vector3.zero;
@@ -319,19 +378,20 @@ namespace MeshEditingTools
         }
 
         public Vector3 getWorldPos()  {
-            
-            playtimeMesher emc = MeshManager.inst()._target;
-            if (emc.AnimatedVertices())  {
-                int animNo = emc.GetVertexAnimationNumber();
-                return emc.transform.TransformPoint(pos + anim[animNo]);
-            }
 
-            return emc.transform.TransformPoint(pos);
+              MeshPainter emc = MeshManager.inst()._target;
+              if (emc.AnimatedVertices())  {
+                  int animNo = emc.GetVertexAnimationNumber();
+                  return emc.p.transform.TransformPoint(pos + anim[animNo]);
+              }
+
+              return emc.p.transform.TransformPoint(pos);
+           
         }
 
         public void SetFromWorldSpace(Vector3 wPos)
         {
-            pos = MeshManager.inst()._target.transform.InverseTransformPoint(wPos);
+            pos = MeshManager.inst()._target.p.transform.InverseTransformPoint(wPos);
         }
 
         public vertexpointDta() {
@@ -555,7 +615,7 @@ namespace MeshEditingTools
             var cody = new stdEncoder();
 
             for (int i = 0; i < 3; i++)
-                cody.Add(i.ToString(),uvpnts[i].index);
+                cody.Add(i.ToString(),uvpnts[i].finalIndex);
 
             cody.Add("tex", textureNo);
 
@@ -566,7 +626,7 @@ namespace MeshEditingTools
 
             switch (tag) {
                 case "tex": textureNo = data.ToVector4(); break;
-                default: uvpnts[tag.ToInt()] = mesh.indexedUVs[data.ToInt()]; break;
+                default: uvpnts[tag.ToInt()] = mesh.uvsByFinalIndex[data.ToInt()]; break;
             }
 
         }

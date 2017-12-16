@@ -2,7 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
-using MeshEditingTools;
+using Painter;
 
 public enum BlockSetting { Any, Empty, Full }
 
@@ -91,7 +91,7 @@ public class AddCubeCfg {
       //  Debug.Log("Original: ");
        // WriteCubeCfg(w);
 
-        AddCubeCfg tmp = MeshEditingTools.MeshManager.inst().tmpCubeCfg;
+        AddCubeCfg tmp = Painter.MeshManager.inst().tmpCubeCfg;
        // tmp.p[13] = BlockSetting.Full;
         //p[13] = BlockSetting.Full;
         tmp.CopyFrom(this);

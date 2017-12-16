@@ -4,30 +4,24 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace MeshEditingTools
+namespace Painter
 {
  
     //  public enum meshSHaderMode { lit = "MESH_PREVIEW_LIT",  MESH_PREVIEW_NORMAL MESH_PREVIEW_VERTCOLOR MESH_PREVIEW_PROJECTION }
 
     [ExecuteInEditMode]
-    public class MeshManager : MonoBehaviour
-    {
+    public class MeshManager {
 
         public static MeshManager inst() {
-            if (_inst == null)
-                _inst = FindObjectOfType<MeshManager>();
-
-            if (_inst == null) {
-                _inst = ((GameObject)Instantiate(Resources.Load("MeshManager"))).GetComponent<MeshManager>();
-                Debug.Log("Instantiating Mesh Manager");
-            }
-
-            return _inst;
+            return PainterManager.inst.meshManager;
         }
+
+        public static Transform transform { get { return PainterManager.inst.transform; } }
 
         static MeshManager _inst;
         public static float animTextureSize = 128;
@@ -59,7 +53,7 @@ namespace MeshEditingTools
         }
       
 
-        public playtimeMesher _target;
+        public MeshPainter _target;
 
         [NonSerialized]
         public EditableMesh _Mesh = new EditableMesh();
@@ -109,8 +103,8 @@ namespace MeshEditingTools
 
         public void UpdateLocalSpaceV3s() {
             if (_target != null) {
-                onGridLocal = _target.transform.InverseTransformPoint(GridNavigator.onGridPos);
-                collisionPosLocal = _target.transform.InverseTransformPoint(GridNavigator.collisionPos);
+                onGridLocal = _target.p.transform.InverseTransformPoint(GridNavigator.onGridPos);
+                collisionPosLocal = _target.p.transform.InverseTransformPoint(GridNavigator.collisionPos);
             }
         }
 
@@ -118,9 +112,9 @@ namespace MeshEditingTools
             _PreviewMeshGen.CopyFrom(_Mesh);
             _PreviewMeshGen.AddTextureAnimDisplacement();
             MeshConstructor con = new MeshConstructor(_Mesh, cfg.meshProfiles[0], null);
-            con.AssignMeshAsCollider(_target._meshCollider);
+            con.AssignMeshAsCollider(_target.p.meshCollider );
         }
-        public void EditMesh(playtimeMesher p)
+        public void EditMesh(MeshPainter p)
         {
             if ((p == null) || (p == _target))
                 return;
@@ -129,12 +123,11 @@ namespace MeshEditingTools
                 DisconnectMesh();
 
             _target = p;
-            p.UpdateComponents();
 
             if (p.saveMeshDta != null)
                 _Mesh.Reboot(p.saveMeshDta);
             else
-                _Mesh.BreakMesh(p._meshFilter.sharedMesh);
+                _Mesh.BreakMesh(p.p.meshFilter.sharedMesh);
 
             // MeshConstructionData mc = new MeshConstructionData(_Mesh, cfg.meshProfiles[0]);
             Redraw();
@@ -156,7 +149,7 @@ namespace MeshEditingTools
 #if UNITY_EDITOR
         public void SaveGeneratedMeshAsAsset()
         {
-            AssetDatabase.CreateAsset(_target._meshFilter.mesh, "Assets/Models/" + _target.gameObject.name + "_export.asset");
+            AssetDatabase.CreateAsset(_target.p.meshFilter.mesh, "Assets/Models/" + _target.p.gameObject.name + "_export.asset");
             AssetDatabase.SaveAssets();
         }
 #endif
@@ -179,8 +172,8 @@ namespace MeshEditingTools
         {
             _Mesh.Dirty = false;
             if (_target != null) {
-                MeshConstructor mc = new MeshConstructor(_Mesh, cfg.meshProfiles[0], _target._meshFilter.sharedMesh);
-                _target._meshFilter.sharedMesh = mc.mesh;
+                MeshConstructor mc = new MeshConstructor(_Mesh, cfg.meshProfiles[0], _target.p.meshFilter.sharedMesh);
+                _target.p.meshFilter.sharedMesh = mc.mesh;
             }
 
                 // _Mesh.GenerateMeshAndAssign();//_target.saveMeshDta);
@@ -1194,10 +1187,8 @@ namespace MeshEditingTools
                     Vector3 worldPos = vpoint.getWorldPos();
                     float tmpScale;
                     tmpScale = Vector3.Distance(worldPos,
-                        gameObject.tryGetCameraTransform().position) / scaling;
-
-
-
+                        transform.gameObject.tryGetCameraTransform().position) / scaling;
+                        
                     if (GetPointedVert() == vpoint)
                     {
                         mrkr = pointedVertex; tmpScale *= 2;
@@ -1209,12 +1200,12 @@ namespace MeshEditingTools
 
                     mrkr.go.ActiveUpdate(true);
                     mrkr.go.transform.position = worldPos;
-                    mrkr.go.transform.rotation = gameObject.tryGetCameraTransform().rotation;
+                    mrkr.go.transform.rotation = transform.gameObject.tryGetCameraTransform().rotation;
                     mrkr.go.transform.localScale = new Vector3((isInTrisSet(vpoint) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
 
                     Ray tmpRay = new Ray();
                     RaycastHit hit;
-                    tmpRay.origin = gameObject.tryGetCameraTransform().position;
+                    tmpRay.origin = transform.gameObject.tryGetCameraTransform().position;
                     tmpRay.direction = mrkr.go.transform.position - tmpRay.origin;
 
                     if ((Physics.Raycast(tmpRay, out hit, cfg.MaxDistanceForTransformPosition)) && (hit.transform.tag != "VertexEd"))
@@ -1307,7 +1298,7 @@ namespace MeshEditingTools
             }
         }
 
-        void Awake()
+        public void Awake()
         {
             _inst = this;
 
@@ -1331,14 +1322,14 @@ namespace MeshEditingTools
 
 			PlaytimeToolComponent.CheckRefocus();
 
-			showGrid = ((_target != null) && (playtimeMesher.isCurrent_Tool()) && ((_meshTool() == MeshTool.vertices) || (_meshTool() == MeshTool.VertexAnimation) || ((_meshTool() == MeshTool.uv) && GridToUVon)));
+			showGrid = ((_target != null) && (_target.enabled) && ((_meshTool() == MeshTool.vertices) || (_meshTool() == MeshTool.VertexAnimation) || ((_meshTool() == MeshTool.uv) && GridToUVon)));
 
             GridNavigator.inst().SetEnabled(showGrid, playtimeMesherSaveData.inst().SnapToGrid && showGrid);
 
             if (_target == null)
                 return;
 
-			if (!playtimeMesher.isCurrent_Tool())
+			if (!_target.enabled)
             {
                 DisconnectMesh();
                 return;
@@ -1427,9 +1418,10 @@ namespace MeshEditingTools
             PROCESS_KEYS();
 
             if (Input.GetMouseButton(2))
-                UnityHelperFunctions.SpinAround(GridNavigator.collisionPos, gameObject.tryGetCameraTransform());
+                UnityHelperFunctions.SpinAround(GridNavigator.collisionPos, transform.gameObject.tryGetCameraTransform());
         }
 
+        // Not redirected yet
         public void editingUpdate()
         {
             if ((Application.isPlaying == false)) // && (_target != null ) && (UnityHelperFunctions.getFocused() == _target))
@@ -1512,7 +1504,7 @@ namespace MeshEditingTools
         public void DrowLinesAroundTargetPiece()
         {
 
-            Vector3 piecePos = _target.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
+            Vector3 piecePos = _target.p.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
             Vector3 projected = GridNavigator.inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
@@ -1528,7 +1520,7 @@ namespace MeshEditingTools
             Debug.DrawLine(new Vector3(GridMask.x, projected.y, GridMask.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
             Debug.DrawLine(new Vector3(GridMask.x, GridMask.y, projected.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
 
-            MyDebugClasses.DrawTransformedCubeDebug(_target.transform, Color.blue);
+            MyDebugClasses.DrawTransformedCubeDebug(_target.p.transform, Color.blue);
 
 
         }
@@ -1554,33 +1546,30 @@ namespace MeshEditingTools
                 {
                     MarkerWithText v = new MarkerWithText();
                     verts[i] = v;
-                    v.go = Instantiate(vertPrefab);
-                    v.go.transform.parent = this.transform;
+                    v.go = GameObject.Instantiate(vertPrefab);
+                    v.go.transform.parent = transform;
                     v.init();
                 }
             }
-
-
+            
             pointedVertex.init();
             selectedVertex.init();
 
 #if UNITY_EDITOR
             EditorApplication.update -= editingUpdate;
-            if (!this.ApplicationIsAboutToEnterPlayMode())
+            if (!PainterManager.inst.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += editingUpdate;
 #endif
         }
 
-        private void OnEnable()
+        public void OnEnable()
         {
-			if (PlaytimeToolComponent.enabledTool == null)
-				PlaytimeToolComponent.GetPrefs();
 
             InitVertsIfNUll();
 
             if (_target != null)
             {
-                playtimeMesher pm = _target;
+                MeshPainter pm = _target;
                 DisconnectMesh();
                 EditMesh(pm);
             }
@@ -1591,23 +1580,116 @@ namespace MeshEditingTools
             EditorApplication.playmodeStateChanged += playtimeMesherSaveData.SaveChanges;
 #endif
         }
-
-        private void OnDisable()
+ 
+        public bool PEGI()
         {
-			if (playtimeMesher.isCurrent_Tool())
-				PlaytimeToolComponent.SetPrefs();
-            playtimeMesherSaveData.SaveChanges();
-#if UNITY_EDITOR
-            EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
-            EditorApplication.update -= editingUpdate;
-#endif
+            bool changed = false;
+
+    
+            foreach (meshSHaderMode m in meshSHaderMode.allModes)
+            {
+                pegi.newLine();
+                if ((!m.isSelected) && (m.ToString().Click().nl()))
+                    m.Apply();
+
+            }
+
+            "Function for G Button:".write();
+            quickMeshFunctionsExtensions.current = (quickMeshFunctionForG)pegi.editEnum(quickMeshFunctionsExtensions.current);
+
+            if (quickMeshFunctionForG.MakeOutline.selected())
+                outlineWidth = EditorGUILayout.FloatField("Width", outlineWidth);
+
+            if (!quickMeshFunctionForG.Nothing.selected())
+                (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
+
+            int before = (int)MeshManager._meshTool();
+            playtimeMesherSaveData.inst()._meshTool = (MeshTool)EditorGUILayout.EnumPopup(MeshManager._meshTool());
+            if (MeshManager._meshTool() == MeshTool.VertColor)
+            {
+
+                if ((before != (int)MeshManager._meshTool()) && (MeshManager.inst()._target != null))
+                    MeshManager.inst().UpdateVertColor();
+            }
+
+            if (quickMeshFunctionForG.Path.selected())
+            {
+
+                if (selectedLine == null) "Select Line".nl();
+                else
+                {
+
+                    if ("Set path start on selected".Click())
+                        SetPathStart();
+
+                    if (G_toolDta.updated == false)
+                        "Select must be a Quad with shared uvs".nl();
+                    else
+                    {
+                        if (selectedLine == null)
+                            G_toolDta.updated = false;
+                        else
+                        {
+
+                            "Mode".write();
+                            G_toolDta.mode = (gtoolPathConfig)pegi.editEnum(G_toolDta.mode);
+                            "G to extend".nl();
+
+
+                        }
+                    }
+                }
+            }
+
+
+
+            pegi.writeHint(playtimeMesherSaveData.inst()._meshTool.Process().tooltip);
+
+            pegi.newLine();
+
+            playtimeMesherSaveData.inst()._meshTool.Process().tool_pegi();
+
+            UpdateVertColor();
+
+            switch (playtimeMesherSaveData.inst()._meshTool)
+            {
+                case MeshTool.vertices:
+                    /* EditorGUILayout.LabelField(" Alt+LMB     - Add vert on grid .");
+                     EditorGUILayout.LabelField(" Alt+R_MB    - Select, move vert to grid.");
+                     EditorGUILayout.LabelField(" Ctrl+R_MB   - Select, don't change grid.");
+                     EditorGUILayout.LabelField(" Ctrl+LMB (on tris)    - Break triangle in 3 with 3 unique UVs");
+                     EditorGUILayout.LabelField(" Ctrl+LMB (on grid)    - Add vert, don't connect");
+                     EditorGUILayout.LabelField(" Ctrl+Delete - Delete vert, heal triangle");
+                     EditorGUILayout.LabelField(" N - Make verticles share normal");*/
+                    break;
+                case MeshTool.VertColor:
+                    " 1234 on Line - apply RGBA for Border.".nl();
+                    break;
+                case MeshTool.AtlasTexture:
+                    "Select Texture and click on triangles".nl();
+                    break;
+            }
+
+ 
+            if (!Application.isPlaying)  {
+
+                "vertexPointMaterial".write(vertexPointMaterial);
+                "vertexPrefab".edit(ref vertPrefab);
+                "Max Vert Markers ".edit(ref vertsShowMax);
+                "pointedVertex".edit(ref pointedVertex.go);
+                "SelectedVertex".edit(ref selectedVertex.go);
+
+            }
+
+            return changed;
         }
 
-        void OnApplicationQuit()
-        {
-#if !UNITY_EDITOR
-        playtimeMesherSaveData.SaveChanges();
-#endif
-        }
+
+   
+
+      
+
+       
+
     }
 }

@@ -109,11 +109,12 @@ namespace StoryTriggerData
             return cody;
         }
 
-        public void Reboot(string data) {
+        public iSTD Reboot(string data) {
             if (data == null) {
                 groupIndex = TriggerGroups.browsed.GetHashCode();
             } else
             new stdDecoder(data).DecodeTagsFor(this);
+            return this;
         }
 
         public void apply(STD_Values so) {

@@ -10,8 +10,61 @@ using System.Globalization;
 namespace StoryTriggerData {
 
     public static class DecodeExtensions {
-        
-  
+
+        public static BoneWeight ToBoneWeight(this string data) {
+            var cody = new stdDecoder(data);
+            var b = new BoneWeight();
+
+            while (cody.gotData)
+                switch (cody.getTag()) {
+                    case "i0": b.boneIndex0 = data.ToInt(); break;
+                    case "w0": b.weight0 = data.ToFloat(); break;
+
+                    case "i1": b.boneIndex1 = data.ToInt(); break;
+                    case "w1": b.weight1 = data.ToFloat(); break;
+
+                    case "i2": b.boneIndex2 = data.ToInt(); break;
+                    case "w2": b.weight2 = data.ToFloat(); break;
+
+                    case "i3": b.boneIndex3 = data.ToInt(); break;
+                    case "w3": b.weight3 = data.ToFloat(); break;
+                }
+            return b;
+        }
+
+        public static Matrix4x4 ToMatrix4x4 (this string data) {
+            var cody = new stdDecoder(data);
+            var m = new Matrix4x4();
+
+            while (cody.gotData) 
+                switch (cody.getTag()) {
+
+                    case "00": m.m00 = data.ToFloat(); break;
+                    case "01": m.m01 = data.ToFloat(); break;
+                    case "02": m.m02 = data.ToFloat(); break;
+                    case "03": m.m03 = data.ToFloat(); break;
+
+                    case "10": m.m10 = data.ToFloat(); break;
+                    case "11": m.m11 = data.ToFloat(); break;
+                    case "12": m.m12 = data.ToFloat(); break;
+                    case "13": m.m13 = data.ToFloat(); break;
+
+                    case "20": m.m20 = data.ToFloat(); break;
+                    case "21": m.m21 = data.ToFloat(); break;
+                    case "22": m.m22 = data.ToFloat(); break;
+                    case "23": m.m23 = data.ToFloat(); break;
+
+                    case "30": m.m30 = data.ToFloat(); break;
+                    case "31": m.m31 = data.ToFloat(); break;
+                    case "32": m.m32 = data.ToFloat(); break;
+                    case "33": m.m33 = data.ToFloat(); break;
+
+                    default: Debug.Log("Uncnown component: " + cody.GetType()); break;
+                }
+
+            return m;
+        }
+
         public static Vector4 ToVector4(this string data) {
 
             stdDecoder cody = new stdDecoder(data);
@@ -24,6 +77,7 @@ namespace StoryTriggerData {
                     case "y": v4.y = cody.getData().ToFloat(); break;
                     case "z": v4.z = cody.getData().ToFloat(); break;
                     case "w": v4.w = cody.getData().ToFloat(); break;
+                    default: Debug.Log("Uncnown component: "+cody.GetType()); break;
                 }
             }
             return v4;
@@ -104,6 +158,20 @@ namespace StoryTriggerData {
 
 
         // ToSlistOfStorySaveable
+
+        public static List<List<T>> ToListOfList_STD<T>(this string data) where T : iSTD, new()
+        {
+            List<List<T>> l = new List<List<T>>();
+
+            var cody = new stdDecoder(data);
+
+            while (cody.gotData) {
+                cody.getTag();
+                l.Add(cody.getData().ToListOf_STD<T>());
+            }
+
+            return l;
+        }
 
         public static List<T> ToListOf_STD<T>(this string data) where T : iSTD, new() {
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace MeshEditingTools {
+namespace Painter {
 
     [Serializable]
     public class playtimeMesherSaveData

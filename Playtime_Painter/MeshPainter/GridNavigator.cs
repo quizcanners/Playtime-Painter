@@ -7,17 +7,20 @@ using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using MeshEditingTools;
+using Painter;
 
 public enum Gridside { xz, xy, zy }
 
 public class GridNavigator : MonoBehaviour {
     public static GridNavigator inst()
     {
-        if (_inst == null)
+        if (_inst == null) {
             _inst = FindObjectOfType<GridNavigator>();
-        if (_inst == null)
-            _inst = MeshManager.inst().GetComponent<GridNavigator>();
+            if (_inst == null) 
+                _inst = new GameObject().AddComponent<GridNavigator>();
+
+            _inst.transform.parent = PainterManager.inst.transform;
+         }
         return _inst;
     }
 

@@ -133,9 +133,10 @@ public class STDCountlessBase : CountlessBase, iSTD {
 
     public virtual stdEncoder Encode() { return null; }
 
-    public virtual void Reboot(string data) {
+    public virtual iSTD Reboot(string data) {
         Clear();
         new stdDecoder(data).DecodeTagsFor(this);
+        return this;
     }
 
     public virtual void Decode(string subtag, string data) { }

@@ -79,9 +79,10 @@ namespace StoryTriggerData {
             }
         }
 
-        public void Reboot(string data) {
+        public iSTD Reboot(string data) {
             Reboot();
             new stdDecoder(data).DecodeTagsFor(this);
+            return this;
         }
 
         public void Reboot() {

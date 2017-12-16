@@ -78,9 +78,9 @@ namespace StoryTriggerData {
             return stdTag_TagTar;
         }
 
-        public void Reboot(string data) {
+        public iSTD Reboot(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
-
+            return this;
         }
 
         public TaggedTarget(string data) {

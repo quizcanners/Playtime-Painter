@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TextureEditor{
+namespace Painter{
 
 
 public delegate void blitModeFunction(ref Color dst);

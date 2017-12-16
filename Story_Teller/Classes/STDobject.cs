@@ -44,7 +44,7 @@ namespace StoryTriggerData {
 
         public abstract void Reboot();
 
-        public virtual void Reboot(string data) {
+        public virtual iSTD Reboot(string data) {
 
             gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
 
@@ -57,6 +57,8 @@ namespace StoryTriggerData {
             unrecognizedData = new List<string>();
      #endif    
             new stdDecoder(data).DecodeTagsFor(this);
+
+            return this;
         }
 
         public override void Deactivate() {

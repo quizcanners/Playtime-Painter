@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace TextureEditor {
+namespace Painter {
 
 	public class paintingCollision {
 		public StrokeVector vector;

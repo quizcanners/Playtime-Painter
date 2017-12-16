@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace TextureEditor{
+namespace Painter{
 
 public static class BlitModeExtensions {
 	public static void KeywordSet (string name, bool to){
@@ -25,7 +25,7 @@ public static class BlitModeExtensions {
 
 public abstract class BrushType : IeditorDropdown {
 
-	protected RenderTexturePainter rtp {get{ return RenderTexturePainter.inst;}}
+	protected PainterManager rtp {get{ return PainterManager.inst;}}
 	protected Transform rtbrush { get { return rtp.brushRendy.transform; } }
 	protected Mesh brushMesh { set { rtp.brushRendy.meshFilter.mesh = value; } }
 
@@ -116,9 +116,9 @@ public abstract class BrushType : IeditorDropdown {
 		
             bool change = false;
 		pegi.newLine();
-		if (RenderTexturePainter.inst.masks.Length > 0) {
+		if (PainterManager.inst.masks.Length > 0) {
 
-			brush.selectedSourceMask = Mathf.Clamp(brush.selectedSourceMask, 0,RenderTexturePainter.inst.masks.Length-1); 
+			brush.selectedSourceMask = Mathf.Clamp(brush.selectedSourceMask, 0,PainterManager.inst.masks.Length-1); 
 				
 			pegi.Space();
 			pegi.newLine();
@@ -129,7 +129,7 @@ public abstract class BrushType : IeditorDropdown {
 
 			if (brush.useMask) {
 				
-				pegi.selectOrAdd(ref brush.selectedSourceMask, ref RenderTexturePainter.inst.masks);
+				pegi.selectOrAdd(ref brush.selectedSourceMask, ref PainterManager.inst.masks);
 
 				pegi.newLine();
 
@@ -209,7 +209,7 @@ public abstract class BrushType : IeditorDropdown {
 
 				rtp.brushRendy.RestoreBounds();
 
-				if ((RenderTexturePainter.GotBuffers ()) && (id.currentRenderTexture () == rtp.BigRT_pair [0])) {
+				if ((PainterManager.GotBuffers ()) && (id.currentRenderTexture () == rtp.BigRT_pair [0])) {
 					rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
 					rtp.UpdateBufferTwo ();
 				}
@@ -297,10 +297,10 @@ public class BrushTypeDecal : BrushType {
 		public override bool PEGI (BrushConfig br) {
 		
 		bool brushChanged_RT = false;
-		brushChanged_RT |= pegi.select<VolumetricDecal>(ref br.selectedDecal, RenderTexturePainter.inst.decals);
+		brushChanged_RT |= pegi.select<VolumetricDecal>(ref br.selectedDecal, PainterManager.inst.decals);
 		pegi.newLine();
 
-		if (RenderTexturePainter.inst.GetDecal(br.selectedDecal) == null)
+		if (PainterManager.inst.GetDecal(br.selectedDecal) == null)
 			pegi.write("Select valid decal; Assign to Painter Camera.");
 		pegi.newLine();
 
@@ -414,7 +414,7 @@ public class BrushTypeLazy : BrushType {
                         st.uvTo = st.uvFrom + delta_uv.normalized * trackPortion;
 				}
 			}
-				RenderTexturePainter r = rtp;
+				PainterManager r = rtp;
 			//RenderTexturePainter.inst.RenderLazyBrush(painter.Previous_uv, uv, brush.speed * 0.05f, painter.curImgData, brush, painter.LmouseUP, smooth );
 				if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
 
@@ -504,7 +504,7 @@ public class BrushTypeSphere : BrushType {
 
 
 
-               if ((RenderTexturePainter.GotBuffers()) && (id.currentRenderTexture() == rtp.BigRT_pair[0])) {
+               if ((PainterManager.GotBuffers()) && (id.currentRenderTexture() == rtp.BigRT_pair[0])) {
                     rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
                     rtp.UpdateBufferTwo();
                // Debug.Log("Painting sphere");

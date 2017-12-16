@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PlayerAndEditorGUI;
 
-namespace MeshEditingTools
+namespace Painter
 {
 
     public abstract class VertexDataTarget
@@ -156,6 +157,65 @@ namespace MeshEditingTools
 
         public VertexDataValue[] vals;
 
+        public bool PEGI()
+        {
+            (target.name() + ":").toggle(80, ref enabled);
+
+            if (enabled)
+            {
+
+                List<VertexDataType> tps = MeshSolutions.getTypesBySize(vals.Length);
+                string[] nms = new string[tps.Count + 1];
+
+                for (int i = 0; i < tps.Count; i++)
+                    nms[i] = tps[i].ToString();
+
+                nms[tps.Count] = "Other";
+
+                int selected = tps.Count;
+
+                if (sameSizeValue != null)
+                    for (int i = 0; i < tps.Count; i++)
+                        if (tps[i] == sameSizeValue)
+                        {
+                            selected = i;
+                            break;
+                        }
+
+                pegi.select(ref selected, nms).nl();
+
+                if (selected >= tps.Count) sameSizeDataIndex = -1;
+                else
+                    sameSizeDataIndex = tps[selected].myIndex;
+
+                string[] allDataNames = MeshSolutions.getAllTypesNames();
+
+                if (sameSizeValue == null)
+                {
+                    for (int i = 0; i < vals.Length; i++)
+                    {
+                        VertexDataValue v = vals[i];
+
+                        target.getFieldName(i).select(40, ref v.typeIndex, allDataNames);
+
+                        string[] typeFields = new string[v.vertDataType.chanelsNeed];
+
+                        for (int j = 0; j < typeFields.Length; j++)
+                            typeFields[j] = v.vertDataType.getFieldName(j);
+
+                        pegi.select(ref v.valueIndex, typeFields).nl();
+                    }
+                }
+                "**************************************************".nl();
+            }
+
+            return false;
+        }
+
+
+
+
+
         public VertexSolution(VertexDataTarget ntrg)
         {
             target = ntrg;
@@ -254,10 +314,24 @@ namespace MeshEditingTools
 
         }
     }
+
+
+
+
+
     [Serializable]
     public class MeshSolutionProfile
     {
         public VertexSolution[] sln;
+
+        public bool PEGI()
+        {
+            bool changed = false;
+            for (int i = 0; i < sln.Length; i++)
+                changed |= sln[i].PEGI();
+
+            return changed;
+        }
 
         public void StartPacking(MeshConstructor sm) {
 

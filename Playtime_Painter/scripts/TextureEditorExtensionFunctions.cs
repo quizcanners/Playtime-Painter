@@ -10,7 +10,7 @@ using UnityEditor;
 
 using StoryTriggerData;
 
-namespace TextureEditor{
+namespace Painter{
 
 public static class TextureEditorExtensionFunctions  {
 
@@ -72,7 +72,7 @@ public static class TextureEditorExtensionFunctions  {
 		}
 
 		public static float strokeWidth (this BrushConfig br, float pixWidth, bool world){
-			return br.Size(world) / (pixWidth) * 2 * RenderTexturePainter.orthoSize;
+			return br.Size(world) / (pixWidth) * 2 * PainterManager.orthoSize;
 		}
 
 		public static BrushType currentBrushTypeRT(this BrushConfig cfg) { return BrushType.allTypes [cfg.brushType_rt]; }

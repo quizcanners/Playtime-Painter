@@ -11,14 +11,21 @@ using UnityEditor;
 
 
 
-namespace MeshEditingTools {
+namespace Painter {
 
     //#if UNITY_EDITOR
 
     [Serializable]
     public class EditableMesh : abstract_STD {
         public bool Dirty;
-      
+
+        public bool gotColors;
+        public bool gotBoneWeights;
+        public bool gotBindPos;
+
+        public List<string> shapes;
+        public Countless<Countless<float>> blendWeights = new Countless<Countless<float>>();
+
         public List<vertexpointDta> vertices = new List<vertexpointDta>();
         public List<trisDta> triangles = new List<trisDta>();
 
@@ -100,12 +107,12 @@ namespace MeshEditingTools {
         }
 
         public int AssignIndexes() {
-            indexedUVs.Clear();
+            uvsByFinalIndex.Clear();
             int index = 0;
             for (int i = 0; i < vertices.Count; i++) {
                 for (int u = 0; u < vertices[i].uv.Count; u++) {
-                    vertices[i].uv[u].index = index;
-                    indexedUVs[index] = vertices[i].uv[u];
+                    vertices[i].uv[u].finalIndex = index;
+                    uvsByFinalIndex[index] = vertices[i].uv[u];
                     index++;
                 }
             }
@@ -117,7 +124,7 @@ namespace MeshEditingTools {
             MeshManager m = MeshManager.inst();
             if (m._target != null)
             {
-                playtimeMesher em = m._target;
+                MeshPainter em = m._target;
                 if (em == null) return;
                 int y = em.GetAnimationUVy();
                 foreach (vertexpointDta v in vertices)
@@ -133,7 +140,7 @@ namespace MeshEditingTools {
 
         List<vertexpointDta> sortVertsClose = new List<vertexpointDta>();
         List<vertexpointDta> sortVertsFar = new List<vertexpointDta>();
-        public CountlessSTD<UVpoint> indexedUVs = new CountlessSTD<UVpoint>();
+        public CountlessSTD<UVpoint> uvsByFinalIndex = new CountlessSTD<UVpoint>();
 
 
         public void SortAround(Vector3 center, bool forceRecalculate)  {
@@ -407,8 +414,7 @@ namespace MeshEditingTools {
 
         }
 
-        public void BreakMesh(Mesh Nmesh)
-        {
+        public void BreakMesh(Mesh Nmesh) {
 
             mesh = Nmesh;
 
@@ -417,18 +423,56 @@ namespace MeshEditingTools {
 
             vertices = new List<vertexpointDta>();
             Vector3[] vrts = mesh.vertices;
-            bool gotUV1 = (mesh.uv != null) && (mesh.uv.Length == mesh.vertices.Length);
-            bool gotUV2 = (mesh.uv2 != null) && (mesh.uv2.Length == mesh.vertices.Length);
-            bool gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
+            bool gotUV1 = (mesh.uv != null) && (mesh.uv.Length == vCnt);
+            bool gotUV2 = (mesh.uv2 != null) && (mesh.uv2.Length == vCnt);
+             gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
+             gotBoneWeights = (mesh.boneWeights != null) && (mesh.boneWeights.Length == vCnt);
+             gotBindPos = (mesh.bindposes != null) && (mesh.bindposes.Length == vCnt);
+
+            
+
             for (int i = 0; i < vCnt; i++) {
-                vertices.Add(new vertexpointDta(vrts[i]));
+                var v = new vertexpointDta(vrts[i]);
+                vertices.Add(v);
                 UVpoint uv = new UVpoint(vertices[i], gotUV1 ? mesh.uv[i] : Vector2.zero, gotUV2 ? mesh.uv2[i] : Vector2.zero);
                 if (gotColors)
                     uv._color.From(mesh.colors[i]);
-
+                if (gotBoneWeights)
+                    v.boneWeight = mesh.boneWeights[i];
+                if (gotBindPos)
+                    v.bindPoses = mesh.bindposes[i];
             }
 
-            //Debug.Log("Triangles");
+            if (mesh.subMeshCount > 1) 
+                for (int s=0; s<mesh.subMeshCount; s++) 
+                    for (uint i= mesh.GetIndexStart(s); i<mesh.GetIndexCount(s); i++) 
+                        vertices[(int)i].submeshIndex = s;
+ 
+            shapes = new List<string>();
+
+            for (int s=0; s<mesh.blendShapeCount; s++) {
+
+                for (int v = 0; v < vCnt; v++)
+                    vertices[v].shapes.Add(new List<BlendFrame>());
+
+                shapes.Add(mesh.GetBlendShapeName(s));
+
+            
+
+                for (int f=0; f<mesh.GetBlendShapeFrameCount(s); f++) {
+
+                    blendWeights[s][f] = mesh.GetBlendShapeFrameWeight(s, f);
+
+                    Vector3[] nrms = new Vector3[vCnt];
+                    Vector3[] pos = new Vector3[vCnt];
+                    Vector3[] tng = new Vector3[vCnt];
+                    mesh.GetBlendShapeFrameVertices(s, f, pos, nrms, tng);
+
+                for (int v = 0; v < vCnt; v++) 
+                    vertices[v].shapes.last().Add(new BlendFrame(pos[v], nrms[v], tng[v]));
+                
+                }
+            }
 
             int tCnt = mesh.triangles.Length / 3;
             triangles = new List<trisDta>();
@@ -452,7 +496,7 @@ namespace MeshEditingTools {
                 vertexpointDta main = vertices[i];
                 for (int j = i + 1; j < vCnt; j++)
                 {
-                    if ((vertices[j].pos - main.pos).magnitude < 0.0001f)
+                    if ((vertices[j].pos - main.pos).magnitude < float.Epsilon)
                     {
                         MergeVertices(i, j);
                         j--;
@@ -565,7 +609,7 @@ namespace MeshEditingTools {
             UVpoint[] tmp = new UVpoint[3];
             foreach (trisDta t in from.triangles) {
                 for (int i = 0; i < 3; i++) {
-                    tmp[i] = indexedUVs[t.uvpnts[i].index];
+                    tmp[i] = uvsByFinalIndex[t.uvpnts[i].finalIndex];
                 }
                 triangles.Add(new trisDta(tmp));
             }

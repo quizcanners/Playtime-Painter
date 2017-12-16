@@ -270,9 +270,10 @@ namespace StoryTriggerData {
             Reboot(data);
         }
 
-        public override void Reboot(string data) {
+        public override iSTD Reboot(string data) {
             Zero();
             base.Reboot(data);
+            return this;
         }
 
         public UniverseLength(int T) {
@@ -302,9 +303,10 @@ namespace StoryTriggerData {
 
         }
 
-        public override void Reboot(string data) {
+        public override iSTD Reboot(string data) {
             Zero();
             base.Reboot(data);
+            return this;
         }
 
         public override stdEncoder Encode() {

@@ -8,7 +8,7 @@ using UnityEditor;
 using System;
 using PlayerAndEditorGUI;
 
-namespace TextureEditor {
+namespace Painter {
 
     public enum texTarget { RenderTexture, Texture2D }
 
@@ -39,7 +39,7 @@ namespace TextureEditor {
         }
 
         public static bool isBigRenderTexturePair(this Texture tex) {
-            return ((tex != null) && RenderTexturePainter.GotBuffers() && ((tex == RenderTexturePainter.inst.BigRT_pair[0])));
+            return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.inst.BigRT_pair[0])));
         }
 
         public static bool Contains(this Texture texture, Texture another) {
@@ -74,7 +74,7 @@ namespace TextureEditor {
         public static RenderTexture currentRenderTexture(this imgData id) {
             if (id == null)
                 return null;
-            return id.renderTexture == null ? RenderTexturePainter.inst.BigRT_pair[0] : id.renderTexture;
+            return id.renderTexture == null ? PainterManager.inst.BigRT_pair[0] : id.renderTexture;
         }
 
         public static Texture exclusiveTexture(this imgData id) {
@@ -94,7 +94,7 @@ namespace TextureEditor {
                 return null;
             switch (id.destination) {
                 case texTarget.RenderTexture:
-                    return id.renderTexture == null ? RenderTexturePainter.inst.BigRT_pair[0] : id.renderTexture;
+                    return id.renderTexture == null ? PainterManager.inst.BigRT_pair[0] : id.renderTexture;
                 case texTarget.Texture2D:
                     return id.texture2D;
             }
@@ -202,12 +202,12 @@ namespace TextureEditor {
 
         public void Texture2D_To_RenderTexture() {
             if (texture2D != null)
-                RenderTexturePainter.inst.Render(texture2D, this);
+                PainterManager.inst.Render(texture2D, this);
         }
 
         public void RenderTexture_To_Texture2D(Texture2D tex) {
 
-            RenderTexture rt = renderTexture == null ? RenderTexturePainter.inst.painterRT_toBuffer(width, height)
+            RenderTexture rt = renderTexture == null ? PainterManager.inst.painterRT_toBuffer(width, height)
                 : renderTexture;
 
             tex.CopyFrom(rt);
@@ -252,7 +252,7 @@ namespace TextureEditor {
 
           //  Debug.Log("We are linear: "+RenderTexturePainter.inst.isLinearColorSpace + " tex is sRGB: "+tex.isColorTexturee());
 
-            if ((RenderTexturePainter.inst.isLinearColorSpace) && (!tex.isColorTexturee())) {
+            if ((PainterManager.inst.isLinearColorSpace) && (!tex.isColorTexturee())) {
                 pixelsToLinear();
                  //pixelsToGamma();
                 //Debug.Log("Pixels to gamma");
@@ -301,8 +301,8 @@ namespace TextureEditor {
 
             Debug.Log("Sampling Render Texture");
 
-            RenderTexturePainter rtp = RenderTexturePainter.inst;
-            int size = RenderTexturePainter.renderTextureSize / 4;
+            PainterManager rtp = PainterManager.inst;
+            int size = PainterManager.renderTextureSize / 4;
             RenderTexture.active = (renderTexture == null) ? rtp.painterRT_toBuffer(size, size) : renderTexture;
 
             if (sampler == null) sampler = new Texture2D(8, 8);
@@ -323,7 +323,7 @@ namespace TextureEditor {
 
         public void TextureToRenderTexture(Texture2D tex) {
             if (tex != null)
-                RenderTexturePainter.inst.Render(tex, this);
+                PainterManager.inst.Render(tex, this);
         }
 
         public void PixelsFromTexture2D(Texture2D tex) {
@@ -340,14 +340,14 @@ namespace TextureEditor {
 
                 if (changeTo == texTarget.RenderTexture) {
                     if (renderTexture == null)
-                        RenderTexturePainter.inst.changeBufferTarget(this, mat, parameter, painter);
+                        PainterManager.inst.changeBufferTarget(this, mat, parameter, painter);
 
                     TextureToRenderTexture(texture2D);
                 } else {
                     RenderTexture_To_Texture2D(texture2D);
                   
                     if (renderTexture == null)
-                        RenderTexturePainter.inst.EmptyBufferTarget();
+                        PainterManager.inst.EmptyBufferTarget();
 
                 }
                 destination = changeTo;
