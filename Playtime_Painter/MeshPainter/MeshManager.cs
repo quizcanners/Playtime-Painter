@@ -23,7 +23,8 @@ namespace Painter
 
         public static Transform transform { get { return PainterManager.inst.transform; } }
 
-        static MeshManager _inst;
+        public static GridNavigator grid { get { return GridNavigator.inst(); } }
+
         public static float animTextureSize = 128;
 
         public const string ToolName = "Mesh_Editor";
@@ -72,11 +73,7 @@ namespace Painter
         bool SelectingUVbyNumber = false;
         public bool GridToUVon = false;
 
-        public Material vertexPointMaterial;
-        public GameObject vertPrefab;
-        public MarkerWithText[] verts;
-        public MarkerWithText pointedVertex;
-        public MarkerWithText selectedVertex;
+      
 
         [NonSerialized]
         public UVpoint selectedUV;
@@ -141,7 +138,7 @@ namespace Painter
         public void DisconnectMesh()
         {
             _target = null;
-            Deactivateverts();
+            grid.Deactivateverts();
             GridNavigator.inst().SetEnabled(false, false);
 
         }
@@ -154,26 +151,13 @@ namespace Painter
         }
 #endif
 
-        public void UpdateVertColor()
-        {
-            Color col = Color.gray;
-
-            switch (_meshTool())
-            {
-                case MeshTool.vertices: col = Color.yellow; break;
-                case MeshTool.uv: col = Color.magenta; break;
-                case MeshTool.VertColor: col = Color.white; break;
-            }
-
-            vertexPointMaterial.SetColor("_Color", col);
-        }
-
         public void Redraw()
         {
             _Mesh.Dirty = false;
             if (_target != null) {
                 MeshConstructor mc = new MeshConstructor(_Mesh, cfg.meshProfiles[0], _target.p.meshFilter.sharedMesh);
                 _target.p.meshFilter.sharedMesh = mc.mesh;
+                mc.AssignMeshAsCollider(_target.p.meshCollider);
             }
 
                 // _Mesh.GenerateMeshAndAssign();//_target.saveMeshDta);
@@ -197,7 +181,6 @@ namespace Painter
             //  Debug.Log("Redraw ");
         }
 
-
         public static Vector2 RoundUVs(Vector2 source, float accuracy)
         {
             Vector2 uv = source * accuracy;
@@ -206,7 +189,6 @@ namespace Painter
             uv /= accuracy;
             return uv;
         }
-
 
         public void AddToTrisSet(UVpoint nuv)
         {
@@ -1160,7 +1142,7 @@ namespace Painter
 
         void SORT_AND_UPDATE_UI() {
 
-            if (verts[0].go == null)
+            if (grid.verts[0].go == null)
                 InitVertsIfNUll();
 
             if (_meshTool() == MeshTool.vertices)
@@ -1172,16 +1154,16 @@ namespace Painter
 
             float scaling = 16;
 
-            selectedVertex.go.ActiveUpdate(false);
-            pointedVertex.go.ActiveUpdate(false);
+            grid.selectedVertex.go.ActiveUpdate(false);
+            grid.pointedVertex.go.ActiveUpdate(false);
 
             for (int i = 0; i < vertsShowMax; i++)
-                verts[i].go.ActiveUpdate(false);
+                grid.verts[i].go.ActiveUpdate(false);
 
             if (tool.showVertices)
             for (int i = 0; i < vertsShowMax; i++)
                 if (_Mesh.vertices.Count > i)  {
-                    MarkerWithText mrkr = verts[i];
+                    MarkerWithText mrkr = grid.verts[i];
                     vertexpointDta vpoint = _Mesh.vertices[i];
 
                     Vector3 worldPos = vpoint.getWorldPos();
@@ -1191,11 +1173,11 @@ namespace Painter
                         
                     if (GetPointedVert() == vpoint)
                     {
-                        mrkr = pointedVertex; tmpScale *= 2;
+                        mrkr = grid.pointedVertex; tmpScale *= 2;
                     }
                     else if (GetSelectedVert() == _Mesh.vertices[i])
                     {
-                        mrkr = selectedVertex; tmpScale *= 1.5f;
+                        mrkr = grid.selectedVertex; tmpScale *= 1.5f;
                     }
 
                     mrkr.go.ActiveUpdate(true);
@@ -1298,9 +1280,7 @@ namespace Painter
             }
         }
 
-        public void Awake()
-        {
-            _inst = this;
+        public void Awake()  {
 
 #if UNITY_EDITOR
             EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
@@ -1319,9 +1299,7 @@ namespace Painter
 
         public void CombinedUpdate()
         {
-
-			PlaytimeToolComponent.CheckRefocus();
-
+            
 			showGrid = ((_target != null) && (_target.enabled) && ((_meshTool() == MeshTool.vertices) || (_meshTool() == MeshTool.VertexAnimation) || ((_meshTool() == MeshTool.uv) && GridToUVon)));
 
             GridNavigator.inst().SetEnabled(showGrid, playtimeMesherSaveData.inst().SnapToGrid && showGrid);
@@ -1525,35 +1503,27 @@ namespace Painter
 
         }
 
-        void Deactivateverts()
-        {
-            for (int i = 0; i < vertsShowMax; i++)
-                verts[i].go.SetActive(false);
-
-            pointedVertex.go.SetActive(false);
-            selectedVertex.go.SetActive(false);
-            // for (int i = 0; i < uvMarker.Count; i++ )
-            //     uvMarker[i].SetActive(false);
-        }
-
         void InitVertsIfNUll()
         {
-            if ((verts == null) || (verts.Length == 0) || (verts[0].go == null))
+            if (grid.vertPrefab == null)
+                grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
+
+            if ((grid.verts == null) || (grid.verts.Length == 0) || (grid.verts[0].go == null))
             {
-                verts = new MarkerWithText[vertsShowMax];
+                grid.verts = new MarkerWithText[vertsShowMax];
 
                 for (int i = 0; i < vertsShowMax; i++)
                 {
                     MarkerWithText v = new MarkerWithText();
-                    verts[i] = v;
-                    v.go = GameObject.Instantiate(vertPrefab);
-                    v.go.transform.parent = transform;
+                    grid.verts[i] = v;
+                    v.go = GameObject.Instantiate(grid.vertPrefab);
+                    v.go.transform.parent = grid.transform;
                     v.init();
                 }
             }
-            
-            pointedVertex.init();
-            selectedVertex.init();
+
+            grid.pointedVertex.init();
+            grid.selectedVertex.init();
 
 #if UNITY_EDITOR
             EditorApplication.update -= editingUpdate;
@@ -1609,7 +1579,7 @@ namespace Painter
             {
 
                 if ((before != (int)MeshManager._meshTool()) && (MeshManager.inst()._target != null))
-                    MeshManager.inst().UpdateVertColor();
+                    grid.UpdateVertColor();
             }
 
             if (quickMeshFunctionForG.Path.selected())
@@ -1649,7 +1619,7 @@ namespace Painter
 
             playtimeMesherSaveData.inst()._meshTool.Process().tool_pegi();
 
-            UpdateVertColor();
+            grid.UpdateVertColor();
 
             switch (playtimeMesherSaveData.inst()._meshTool)
             {
@@ -1673,23 +1643,16 @@ namespace Painter
  
             if (!Application.isPlaying)  {
 
-                "vertexPointMaterial".write(vertexPointMaterial);
-                "vertexPrefab".edit(ref vertPrefab);
+                "vertexPointMaterial".write(grid.vertexPointMaterial);
+                "vertexPrefab".edit(ref grid.vertPrefab);
                 "Max Vert Markers ".edit(ref vertsShowMax);
-                "pointedVertex".edit(ref pointedVertex.go);
-                "SelectedVertex".edit(ref selectedVertex.go);
+                "pointedVertex".edit(ref grid.pointedVertex.go);
+                "SelectedVertex".edit(ref grid.selectedVertex.go);
 
             }
 
             return changed;
         }
-
-
-   
-
-      
-
-       
 
     }
 }

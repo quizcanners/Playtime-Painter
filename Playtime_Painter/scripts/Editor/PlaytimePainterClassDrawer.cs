@@ -131,7 +131,6 @@ namespace Painter {
             if (!PlaytimePainter.isCurrent_Tool()) {
                 if (pegi.Click(icon.Off, "Click to Enable Tool", 25)) {
                     PlaytimeToolComponent.enabledTool = typeof(PlaytimePainter);//  customTools.Painter;
-                    PainterManager r = PainterManager.inst;
                     CloseAllButThis(painter);
                     painter.CheckPreviewShader();
                 }

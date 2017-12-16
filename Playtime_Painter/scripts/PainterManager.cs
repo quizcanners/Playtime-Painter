@@ -87,7 +87,7 @@ public class PainterManager : MonoBehaviour
     public RenderBrush brushRendy = null;
 
 
-    public MeshManager meshManager;
+        public MeshManager meshManager = new MeshManager();
 
 
     // Brush shaders
@@ -515,14 +515,10 @@ public class PainterManager : MonoBehaviour
     private void OnEnable() {
 
 
+            if (meshManager == null)
+                meshManager = new MeshManager();
 
             meshManager.OnEnable();
-
-
-
-
-
-
 
 
         rtcam.cullingMask = 1 << myLayer;
@@ -722,6 +718,8 @@ public class PainterManager : MonoBehaviour
 
         forCombinedMaps.UpdateBumpGloss();
 
+ 
+
 		PlaytimeToolComponent.CheckRefocus();
         if ((painterConfig.inst().disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
             RaycastHit hit;
@@ -775,9 +773,8 @@ public class PainterManager : MonoBehaviour
         }
 
 
+        bool meshEditorConfig = false;
         public void PEGI() {
-
-
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
@@ -798,6 +795,12 @@ public class PainterManager : MonoBehaviour
             "Masks".edit(() => masks).nl();
             "Decals".edit(() => decals).nl();
             "For combined maps".edit(() => forCombinedMaps).nl();
+
+            if ("Mesh Painter".foldout(ref meshEditorConfig).nl()) 
+                meshManager.PEGI();
+
+          
+
         }
 
 }

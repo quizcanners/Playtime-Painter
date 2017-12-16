@@ -12,19 +12,26 @@ using Painter;
 public enum Gridside { xz, xy, zy }
 
 public class GridNavigator : MonoBehaviour {
-    public static GridNavigator inst()
-    {
+    public static GridNavigator inst()  {
         if (_inst == null) {
             _inst = FindObjectOfType<GridNavigator>();
             if (_inst == null) 
-                _inst = new GameObject().AddComponent<GridNavigator>();
+                _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
 
             _inst.transform.parent = PainterManager.inst.transform;
          }
         return _inst;
     }
 
+    public Material vertexPointMaterial;
+    public GameObject vertPrefab;
+    public MarkerWithText[] verts;
+    public MarkerWithText pointedVertex;
+    public MarkerWithText selectedVertex;
+
     static GridNavigator _inst;
+
+
 
     public static Plane xzPlane = new Plane(Vector3.up, 0);
     public static Plane zyPlane = new Plane(Vector3.right, 0);
@@ -49,9 +56,30 @@ public class GridNavigator : MonoBehaviour {
 
 
 
-  
+    public void UpdateVertColor()
+    {
+        Color col = Color.gray;
 
+        switch (MeshManager._meshTool())
+        {
+            case MeshTool.vertices: col = Color.yellow; break;
+            case MeshTool.uv: col = Color.magenta; break;
+            case MeshTool.VertColor: col = Color.white; break;
+        }
 
+        vertexPointMaterial.SetColor("_Color", col);
+    }
+
+   public  void Deactivateverts()
+    {
+        for (int i = 0; i < MeshManager.inst().vertsShowMax; i++)
+            verts[i].go.SetActive(false);
+
+        pointedVertex.go.SetActive(false);
+        selectedVertex.go.SetActive(false);
+        // for (int i = 0; i < uvMarker.Count; i++ )
+        //     uvMarker[i].SetActive(false);
+    }
 
     public void SetEnabled(bool gridEn, bool dotEn) {
         //if (grid.enabled != gridEn)

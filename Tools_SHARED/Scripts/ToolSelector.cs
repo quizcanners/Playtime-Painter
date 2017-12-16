@@ -153,16 +153,7 @@ public class PlaytimeToolComponent : MonoBehaviour {
 			enabledTool = null;
 	}
 
-
-
-
 	public const string ToolsFolder = "Tools";
-
-
-
-	/*
-     Use this class to make sure different tools don't interfear with each other.
-     */
 	
 	public static void SetPrefs() {
 		PlayerPrefs.SetInt("Tool", getToolIndex(enabledTool));
