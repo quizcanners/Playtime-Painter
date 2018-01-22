@@ -23,26 +23,43 @@ namespace Painter {
 		public List<paintingCollision> paintingOn = new List<paintingCollision>();
         public BrushConfig brush = new BrushConfig();
 
-        void TryAddPainterFrom( GameObject go) {
+        paintingCollision TryAddPainterFrom( GameObject go) {
             PlaytimePainter target = go.GetComponent<PlaytimePainter>();
 
             if (target != null)   {
-               
                 paintingCollision col = new paintingCollision(target);
                 paintingOn.Add(col);
                 col.vector.posFrom = transform.position;
                 col.vector.firstStroke = true;
                 target.updateOrChangeDestination(texTarget.RenderTexture);
+
+                return col;
             }
+
+            return null;
         }
 
-        public void OnCollisionEnter(Collision collision)
-        {
-            TryAddPainterFrom(collision.gameObject);
+        public void OnCollisionEnter(Collision collision) {
+            //var pcol = 
+                TryAddPainterFrom(collision.gameObject);
+          /*  if (pcol != null) {
+
+                    var cp = collision.contacts[0];
+                    RaycastHit hit;
+                    Ray ray = new Ray(cp.point - cp.normal * 0.05f, cp.normal);
+                    if (cp.otherCollider.Raycast(ray, out hit, 0.1f))
+                        pcol.vector.uvFrom = hit.textureCoord;
+                    
+                
+            }*/
+
         }
+
+
 
         public void OnTriggerEnter(Collider collider) {
             TryAddPainterFrom(collider.gameObject);
+         
         }
 
 
@@ -83,15 +100,14 @@ namespace Painter {
 			foreach (paintingCollision col in paintingOn){
 				PlaytimePainter p = col.painter;
 				if (p.isPaintingInWorldSpace(brush)) {
-                   
                     StrokeVector v = col.vector;
-
                     v.posTo = transform.position;
 					p.Paint (v, brush);
+                    //Debug.Log("Painting");
                     v.posFrom = v.posTo;
                     v.firstStroke = false;
 				}
-                else Debug.Log("not in world space");
+
             }
         }
 

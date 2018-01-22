@@ -19,6 +19,8 @@ public class GridNavigator : MonoBehaviour {
                 _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
 
             _inst.transform.parent = PainterManager.inst.transform;
+            _inst.name = "grid";
+            _inst.gameObject.hideFlags = HideFlags.DontSave;
          }
         return _inst;
     }
@@ -30,9 +32,7 @@ public class GridNavigator : MonoBehaviour {
     public MarkerWithText selectedVertex;
 
     static GridNavigator _inst;
-
-
-
+    
     public static Plane xzPlane = new Plane(Vector3.up, 0);
     public static Plane zyPlane = new Plane(Vector3.right, 0);
     public static Plane xyPlane = new Plane(Vector3.forward, 0);
@@ -60,7 +60,7 @@ public class GridNavigator : MonoBehaviour {
     {
         Color col = Color.gray;
 
-        switch (MeshManager._meshTool())
+        switch (MeshManager._meshTool)
         {
             case MeshTool.vertices: col = Color.yellow; break;
             case MeshTool.uv: col = Color.magenta; break;
@@ -87,10 +87,6 @@ public class GridNavigator : MonoBehaviour {
         //if (dot.enabled != dotEn)
             dot.EnabledUpdate(dotEn);
     }
-
-
-
-   
 
     float AngleClamp(Quaternion ang)
     {
@@ -225,7 +221,7 @@ public class GridNavigator : MonoBehaviour {
 
 
     public void UpdatePositions() {
-        playtimeMesherSaveData sd = MeshManager.cfg;
+        painterConfig sd = painterConfig.inst;
 
         if (sd.SnapToGridSize <= 0) sd.SnapToGridSize = 1;
 

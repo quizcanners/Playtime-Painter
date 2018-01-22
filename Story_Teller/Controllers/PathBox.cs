@@ -34,6 +34,7 @@ namespace StoryTriggerData {
 
         public override void Decode(string tag, string data) {
             switch (tag) {
+                case "n": gameObject.name = data; break;
                 case "size": transform.localScale = data.ToVector3(); break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
@@ -44,12 +45,13 @@ namespace StoryTriggerData {
         public override void Reboot() {
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
-            transform.rotation = Quaternion.identity;
+            transform.localRotation = Quaternion.identity;
             conditions = new VariablesWeb(null);
         }
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
+            cody.AddText("n", name);
             cody.Add("size", transform.localScale);
             cody.AddIfNotZero("pos", transform.localPosition);
             cody.Add("rot", transform.localRotation.eulerAngles);
@@ -68,7 +70,15 @@ namespace StoryTriggerData {
 
         public override bool PEGI() {
             "Path pegi".nl();
-          
+
+            if (managedActors.Count > 0)
+            {
+                "Managed Actors:".nl();
+                foreach (var actor in managedActors)
+                    actor.name.nl();
+            }
+
+
             pegi.ClickToEditScript();
 
             conditions.PEGI();
@@ -77,9 +87,21 @@ namespace StoryTriggerData {
             return false;
         }
 
-        void OnDrawGizmosSelected() {
-            transform.DrawTransformedCubeGizmo(Color.green);
+        void OnDrawGizmos() {
+            transform.DrawTransformedCubeGizmo(managedActors.Count>0 ?  Color.green : Color.white);
+
+          /*  for (int i=0; i< StoryPoolController.pool.Max; i++) {
+                var path = StoryPoolController.pool.getScript(i);
+                if ((path != null) && (path != this) && (path.gameObject.activeSelf))
+                    path.transform.DrawTransformedCubeGizmo(Color.white);
+            }*/
+                
+
         }
+
+
+
+
 
 		public void OnDeactivate(){
 			
@@ -91,121 +113,182 @@ namespace StoryTriggerData {
 		public List<Actor> managedActors = new List<Actor>();
 
 		void Manage(Actor a){
+            Debug.Log("Starting to manage: "+name);
+            if (a.managedBy != null) a.managedBy.managedActors.Remove(a);
 			a.managedBy = this;
 			managedActors.Add(a);
-            a.insideBoxLocalPosition = transform.InverseTransformPoint(a.transform.position);
 		}
 
-		float Inside (Vector3 pos ){
+		float Max (Vector3 pos ){
 			 // Actor velocity will be in worldspace.
 
 			return Mathf.Max(Mathf.Max( Mathf.Abs(pos.x), Mathf.Abs(pos.y)), Mathf.Abs(pos.z));
 		}
 
-		
-void ManageSoftMovement (ref float localPos, ref float localVelocity, float localScale){
+        void ManageSoftMovement (ref float localPos, ref float localVelocity, float localScale){
 
-bool sameDirection = ((localPos>0) == (localVelocity>0));
+            if (localVelocity == 0) return;
+
+         
+
+                    bool sameDirection = ((localPos>0) == (localVelocity>0));
 					
-					if (sameDirection){
-					
+					if (sameDirection) {
+
+                     
+
 						float fromWallDistance = (1-Mathf.Abs(localPos))*localScale;
-						const float wallThickness = 0.3f;
-						float existingInsideWall = Mathf.Max(0, wallThickness-fromWallDistance); 
-						if (existingInsideWall<wallThickness){
-							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
-							stretchedInsideWall+= Mathf.Abs(localVelocity);
-							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
-							float usedPortion = newInsideWall - existingInsideWall;
-							localVelocity *= usedPortion/ Mathf.Abs(localVelocity);
-						}
+						const float wallThickness_A = 0.2999f;
+						
+
+                if (wallThickness_A < fromWallDistance) {
+                    float portion = Mathf.Min(fromWallDistance - wallThickness_A, Mathf.Abs(localVelocity)) / Mathf.Abs(localVelocity);
+                    localPos += portion * localVelocity;
+                    localVelocity *= (1 - portion);
+
+                    fromWallDistance = (1 - Mathf.Abs(localPos)) * localScale;
+
+                    if (localVelocity.isNaN())
+                        Debug.Log("Pre Wall created to Nan");
+
+                }
+
+                const float wallThickness_B = 0.3f;
+
+                if (wallThickness_B >= fromWallDistance) {
+
+                    float existingInsideWall = wallThickness_B - fromWallDistance;
+
+                    float risk = wallThickness_B - existingInsideWall;
+                    
+                    float stretchedInsideWall = 1 /  risk;
+                    stretchedInsideWall += Mathf.Abs(localVelocity);
+                    float newInsideWall = wallThickness_B - 1 /  stretchedInsideWall;
+                    float usedAmount = newInsideWall - existingInsideWall;
+                    float signedAmount = localVelocity > 0 ? usedAmount : -usedAmount;
+
+                    localPos += signedAmount;
+                    localVelocity -= signedAmount;
+
+                    if (localVelocity.isNaN())
+                        Debug.Log("In Wall turned to Nan");
+
+                }
+
 						
 						
 					} else {
+
+                
 						localPos+=localVelocity;
 						localVelocity = 0;
 					}
 
-}
+        }
 
-		public void TryManageVelocity (Actor actor){
-            
-			if (actor.managedBy != this){
-				if ((actor.transform.position-transform.position).magnitude < transform.lossyScale.magnitude*1.1f){
-					
-					Vector3 localPos = transform.InverseTransformPoint(actor.transform.position);
-					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
-					
-					if (Inside(localPos+localVelocity)<1){
-						actor.transform.position+=actor.velocity;
-						actor.velocity = Vector3.zero;
-									  	// If actor was unmanaged for some time, 
-									  	//lerp him back to managing path or nearest path if managing path was removed.
-						if (actor.unmanagedTime > 0) 	// Can only be added bu filed management or null management
+        public float nearestDistance(Vector3 to) {
+            Vector3 localPos = transform.InverseTransformPoint(to);
+            return Mathf.Max(Mathf.Max(Mathf.Max(
+                Mathf.Abs(localPos.x) - transform.localScale.x,
+                 Mathf.Abs(localPos.y) - transform.localScale.y),
+                  Mathf.Abs(localPos.z) - transform.localScale.z
+                 ), 0);
+
+
+        }
+
+
+        
+
+        Vector3 localVelocity = Vector3.zero;
+        Vector3 localPos = Vector3.zero;
+        public void TryManageVelocity (Actor actor){
+
+            bool inited = false;
+           
+
+            if (actor.managedBy != this)  {
+                if ((actor.transform.position-transform.position).magnitude < transform.lossyScale.magnitude*1.1f) {
+
+                    localVelocity = transform.InverseTransformVector(actor.transform.parent.TransformVector(actor.toMove));
+                    localPos = transform.InverseTransformPoint(actor.transform.position);
+
+                    if (Max(localPos+localVelocity)<1) {
+
+                        Debug.Log("Fully ");
+
+                        localPos += localVelocity;
+                        localVelocity = Vector3.zero;
+                        inited = true;
+
+                        if (localVelocity.IsNaN())
+                            Debug.Log("After fully " + localPos + " local velocity " + localVelocity);
+
+                        if (actor.unmanagedTime > 0.1f) 	// Can only be added bu filed management or null management
 							Manage(actor);
 					} else {
-					
-						if (Inside(localPos+Vector3.Scale(localVelocity, Vector3.right))<1)
-							localPos.x += localVelocity.x;
+
+                        Debug.Log("Partially ");
+
+                        if (Max(localPos + Vector3.Scale(localVelocity, Vector3.right)) < 1) {
+                            localPos.x += localVelocity.x;
+                            localVelocity.x = 0;
+                            inited = true;
+                        }
 						
-						if (Inside(localPos+Vector3.Scale(localVelocity, Vector3.up)) < 1)
+						if (Max(localPos+Vector3.Scale(localVelocity, Vector3.up)) < 1) { 
 							localPos.y += localVelocity.y;
-							
-						if (Inside(localPos+Vector3.Scale(localVelocity,Vector3.forward))<1)
-							localPos.z += localVelocity.z;
-					}
-				}
-			} else {
+                            localVelocity.y = 0;
+                            inited = true;
+                        }
 
-                Vector3 localPos = actor.insideBoxLocalPosition; //transform.InverseTransformPoint(actor.transform.position);
-			
-				if (Inside(localPos)<1) {
-					Vector3 localVelocity = transform.InverseTransformVector(actor.velocity);
-					//Vector3 localDirection = transform.InverseTransformDirection(actor.velocity);
-					
+                    if (Max(localPos + Vector3.Scale(localVelocity, Vector3.forward)) < 1) {
+                        localPos.z += localVelocity.z;
+                        localVelocity.z = 0;
+                            inited = true;
+                    }
+                    
 
-					bool sameDirection = (localPos.x>0 && localVelocity.x>0);
-					
-					if (sameDirection){
-					
-						float xFromWallDistance = (1-Mathf.Abs(localPos.x))*transform.localScale.x;
-						const float wallThickness = 0.3f;
-						float existingInsideWall = Mathf.Max(0, wallThickness-xFromWallDistance); 
-						if (existingInsideWall<wallThickness){
-							float stretchedInsideWall = 1/(wallThickness - existingInsideWall);
-							stretchedInsideWall+= Mathf.Abs(localVelocity.x);
-							float newInsideWall = wallThickness - 1/(stretchedInsideWall);
-							float usedPortion = newInsideWall - existingInsideWall;
-							localVelocity.x*= usedPortion/ Mathf.Abs(localVelocity.x);
-						}
-						
-						
-					} else {
-						localPos.x+=localVelocity.x;
-						localVelocity.x = 0;
-					}
+                    }
 
-					//float posX = localPos.x;
-					//float velX = localVelocity.x;
-					ManageSoftMovement (ref localPos.x, ref localVelocity.x, transform.localScale.x);
+                    actor.toMove = actor.transform.parent.InverseTransformVector(transform.TransformVector(localVelocity));
+                    actor.transform.position = transform.TransformPoint(localPos);
+                }
+                
+            } else {
+
+            
+
+                 localPos = transform.InverseTransformPoint(actor.transform.position);
+
+                if (Max(localPos)<1) {
+
+                    
+
+                    localVelocity = transform.InverseTransformVector(actor.transform.parent.TransformVector(actor.toMove));
+     
+                    ManageSoftMovement (ref localPos.x, ref localVelocity.x, transform.localScale.x);
 					ManageSoftMovement (ref localPos.z, ref localVelocity.z, transform.localScale.z);
 					ManageSoftMovement (ref localPos.y, ref localVelocity.y, transform.localScale.y);
-					// localPos = new Vector3(posX, posY, posZ);
-					// localVelocity = new Vector3....
 
-					
-					actor.velocity = transform.TransformVector(localVelocity);
-					actor.unmanagedTime = 0;
-					
-				} else {
-					if (actor.unmanagedTime>2) 
-						actor.transform.position = Vector3.Lerp(actor.transform.position, transform.position, Time.deltaTime);
-					actor.unmanagedTime += Time.deltaTime; // Also do this when managed by is null;
-				}
+                 
 
-                actor.insideBoxLocalPosition = localPos;
-                actor.transform.position = transform.TransformPoint(localPos);
+                    actor.unmanagedTime = 0;
+                    inited = true;
+                   
+                }
 			}
+
+
+            if (inited) {
+                if (localVelocity.IsNaN()) Debug.Log("Local vel is nan");
+                else
+                actor.toMove = actor.transform.parent.InverseTransformVector(transform.TransformVector(localVelocity));
+                if (localPos.IsNaN()) Debug.Log("Local pos is Nan");
+                else
+                actor.transform.position = transform.TransformPoint(localPos);
+            }
+
 		}
     }
 }

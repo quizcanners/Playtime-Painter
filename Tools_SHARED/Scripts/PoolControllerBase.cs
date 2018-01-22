@@ -18,7 +18,7 @@ public class PoolableBase : MonoBehaviour {
         return false;
 	}
 
-    public void OnDestroy() {
+    public virtual void OnDestroy() {
        
         if (poolController!= null)
             poolController.OnDuringDestroy(poolIndex);

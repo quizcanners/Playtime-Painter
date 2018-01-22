@@ -54,12 +54,12 @@ public class CharacterFeetScript : MonoBehaviour {
         public void DistantUpdate(Transform holder) {
            
             float legLength = feetToKnee + kneeToAss;
-        
 
-        //    Debug.Log("ll " + legLength + " a t f " + assToFloor + " ss "+stepSize);
-        
 
-            assVelocity = (assVelocity  + (ass.position - assPreviousPosition) / Time.deltaTime) / 2;
+            //    Debug.Log("ll " + legLength + " a t f " + assToFloor + " ss "+stepSize);
+            Transform parent = holder.parent;
+
+            assVelocity = (assVelocity  + (parent.InverseTransformPoint(ass.position) - assPreviousPosition) / Time.deltaTime) / 2;
 
 
             assToFloor = legLength * Mathf.Clamp(1- assVelocity.magnitude/ legLength*0.05f, 0.5f,0.95f);
@@ -82,8 +82,8 @@ public class CharacterFeetScript : MonoBehaviour {
 
             dest = Mathf.Min(stepSize, assVelocity.magnitude * 2) * (assVelocity.magnitude > 0 ? assVelocity.normalized : Vector3.zero)
 
-                   + (holder.right.normalized * (turn == feetside.right ? 1 : -1) * assSize)
-                   + ass.position - ass.up * assToFloor;
+                   + parent.InverseTransformPoint((holder.right.normalized * (turn == feetside.right ? 1 : -1) * assSize)
+                   + (ass.position) - ass.up * assToFloor);
 
 
 
@@ -113,17 +113,19 @@ public class CharacterFeetScript : MonoBehaviour {
             }
 
             if ((stepDistanceHalf<stepDistanceLeft) || (turn == feetside.left))
-                lfoot.position = feet[(int)feetside.left].position;
+                lfoot.position = parent.TransformPoint(feet[(int)feetside.left].position);
             if ((stepDistanceHalf < stepDistanceLeft) || (turn == feetside.right))
-                rfoot.position = feet[(int)feetside.right].position;
+                rfoot.position = parent.TransformPoint(feet[(int)feetside.right].position);
 
 
-
+            // Stopping inversion:
 
             Vector3 deButt = ass.right * assSize;
 
-            Vector3 lhalfButtPosition = ass.position - deButt;
-            Vector3 rhalfButtPosition = ass.position + deButt;
+            Vector3 AssPos = ass.position;
+
+            Vector3 lhalfButtPosition = AssPos - deButt;
+            Vector3 rhalfButtPosition = AssPos + deButt;
 
             Vector3 lfootToButt = lfoot.position - lhalfButtPosition;
             Vector3 rfootToButt = rfoot.position - rhalfButtPosition;
@@ -136,7 +138,7 @@ public class CharacterFeetScript : MonoBehaviour {
             if (lfootToButt.magnitude > legLength * 0.9f)
             {
                 lfootToButt = lfootToButt.normalized * legLength * 0.9f;
-                lfoot.position = lhalfButtPosition + lfootToButt;
+                lfoot.position = parent.TransformPoint( lhalfButtPosition + lfootToButt);
             }
 
             float lbase = lfootToButt.magnitude;
@@ -160,7 +162,7 @@ public class CharacterFeetScript : MonoBehaviour {
             rknee.LookAt(Vector3.Cross(rkneeUpVec, ass.right).normalized + rknee.position, rkneeUpVec);
 
             feet[(int)feetside.left].kneePosition = lknee.position;
-            feet[(int)feetside.right].kneePosition = rknee.position;
+            feet[(int)feetside.right].kneePosition =  rknee.position;
 
             Vector3 lthizeUpVector = lhalfButtPosition - lknee.position;
             Vector3 rthizeUpVector = rhalfButtPosition - rknee.position;
@@ -175,13 +177,16 @@ public class CharacterFeetScript : MonoBehaviour {
             lknee.position = feet[(int)feetside.left].kneePosition;
             rknee.position = feet[(int)feetside.right].kneePosition;
 
-            lfoot.position = feet[(int)feetside.left].position;
-            rfoot.position = feet[(int)feetside.right].position;
+            // Back to transforming
+            lfoot.position = parent.InverseTransformPoint(feet[(int)feetside.left].position);
+            rfoot.position = parent.InverseTransformPoint(feet[(int)feetside.right].position);
 
-            assPreviousPosition = ass.position;
+            Vector3 itAss = parent.InverseTransformPoint(ass.position);
 
-            if ((lastDisposition - ass.position).magnitude > stepSize * 0.3f) {
-                lastDisposition = ass.position;
+            assPreviousPosition = itAss;
+
+            if ((lastDisposition - itAss).magnitude > stepSize * 0.3f) {
+                lastDisposition = itAss;
                 finalizingSteps = 2;
             }
 
@@ -189,17 +194,18 @@ public class CharacterFeetScript : MonoBehaviour {
 
 
 
-        public void Init() {
+        public void Init(Transform holder) {
+            Transform parent = holder.parent;
             assVelocity = Vector3.zero;
-            lastDisposition = ass.position;
-            assPreviousPosition = ass.position;
+            lastDisposition = parent.InverseTransformPoint(ass.position);
+            assPreviousPosition = lastDisposition;
             if ((feet == null) || (feet.Length == 0)) {
                 feet = new foot[2];
                 feet[0] = new foot();
                 feet[1] = new foot();
             }
-            feet[(int)feetside.left].position = lfoot.position;
-            feet[(int)feetside.right].position = rfoot.position;
+            feet[(int)feetside.left].position = parent.InverseTransformPoint(lfoot.position);
+            feet[(int)feetside.right].position = parent.InverseTransformPoint(rfoot.position);
         }
 
     }
@@ -209,16 +215,6 @@ public class CharacterFeetScript : MonoBehaviour {
     public feetTracking feettracking;
 
 
-
-
-	// Use this for initialization
-	void Start () {
-
-        if (Application.isPlaying) {
-            
-            feettracking.Init();
-        }
-    }
 	
 	// Update is called once per frame
 	public void DistantUpdate () {

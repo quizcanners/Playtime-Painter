@@ -46,7 +46,10 @@ namespace StoryTriggerData {
 
         public virtual iSTD Reboot(string data) {
 
-            gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
+            //gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
+            //gameObject.hideFlags &= ~(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
+            gameObject.SetFlagsOnItAndChildren(HideFlags.DontSave);//AddFlagsOnItAndChildren(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
+            //colors &= ~(Blah.BLUE | Blah.RED)
 
             gameObject.name = "new " + getDefaultTagName();
             
@@ -182,6 +185,18 @@ namespace StoryTriggerData {
                 stdValues.PEGI();
 
             return changed;
+        }
+
+       /* public override void OnDestroy()
+        {
+            base.OnDestroy();
+            this.transform.Clear();
+         
+        }*/
+
+
+        public virtual void PostPositionUpdate() {
+
         }
     }
 }

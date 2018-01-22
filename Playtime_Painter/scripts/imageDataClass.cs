@@ -105,7 +105,7 @@ namespace Painter {
 
     public class imgData {
 
-        painterConfig cfg { get { return painterConfig.inst(); } }
+        painterConfig cfg { get { return painterConfig.inst; } }
 
 
         const float bytetocol = 1f / 255f;

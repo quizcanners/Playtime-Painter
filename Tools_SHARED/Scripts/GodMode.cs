@@ -4,6 +4,21 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 
 
+#if UNITY_EDITOR
+using UnityEditor;
+
+[CustomEditor(typeof(GodMode))]
+public class GodModeDrawer : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        ef.start(serializedObject);
+        ((GodMode)target).PEGI();
+        pegi.newLine();
+    }
+}
+# endif
+
 
 [ExecuteInEditMode]
 public class GodMode : MonoBehaviour {
@@ -11,6 +26,7 @@ public class GodMode : MonoBehaviour {
     public static GodMode inst;
     public float speed = 100;
     public float sensitivity = 5;
+    public static bool disableRotation = false;
 
     public static string PrefSpeed = "GodSpeed";
     public static string PrefSens = "GodSensitivity";
@@ -28,10 +44,13 @@ public class GodMode : MonoBehaviour {
     }
 
     // Update is called once per frame
-    float rotationY;
+    protected float rotationY;
 
+    public virtual void DistantUpdate() {
 
-    void Update () {
+    }
+
+    public virtual void Update () {
 
         Vector3 add = Vector3.zero;
 
@@ -46,36 +65,39 @@ public class GodMode : MonoBehaviour {
 
         transform.position += add*speed * Time.deltaTime;
 
+        if  ( (Application.isPlaying) && (!disableRotation))
+        {
 
-        if (Input.GetMouseButton(1) )   {
-            float rotationX =transform.localEulerAngles.y;
-            rotationY = transform.localEulerAngles.x;
-
-
-
-            rotationX += Input.GetAxis("Mouse X") * sensitivity;
-            rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
-
-            if (rotationY < 120 )
-                rotationY = Mathf.Min(rotationY, 85);
-            else
-                rotationY = Mathf.Max(rotationY, 270);
+            if (Input.GetMouseButton(1))
+            {
+                float rotationX = transform.localEulerAngles.y;
+                rotationY = transform.localEulerAngles.x;
 
 
-            transform.localEulerAngles = new Vector3(rotationY, rotationX, 0);
 
+                rotationX += Input.GetAxis("Mouse X") * sensitivity;
+                rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
+
+                if (rotationY < 120)
+                    rotationY = Mathf.Min(rotationY, 85);
+                else
+                    rotationY = Mathf.Max(rotationY, 270);
+
+
+                transform.localEulerAngles = new Vector3(rotationY, rotationX, 0);
+
+            }
+
+           
+                SpinAround();
         }
-
-        if (Application.isPlaying)
-            SpinAround();
-
     }
 
 
 
     public Vector2 camOrbit = new Vector2();
     public Vector3 SpinCenter;
-    public float OrbitDistance = 0;
+    protected float OrbitDistance = 0;
     public bool OrbitingFocused;
     public float SpinStartTime = 0;
 

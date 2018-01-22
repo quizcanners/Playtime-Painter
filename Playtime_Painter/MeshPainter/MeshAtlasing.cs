@@ -1,25 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PlayerAndEditorGUI;
 
 namespace Painter
 {
 
     [System.Serializable]
-    public class AtlasMergeConfig {
+    public class FieldAtlas {
         public string targetField;
         public AtlasTextureCreator atlasCreator;
     }
 
-    public class MeshAtlasing : MonoBehaviour  {
-        public static List<MeshAtlasing> all = new List<MeshAtlasing>();
+    public class MaterialAtlases  {
+        public static List<MaterialAtlases> all = new List<MaterialAtlases>();
 
         public Material terget;
-        public AtlasMergeConfig[] a_configs;
+        public FieldAtlas[] fields;
 
 #if UNITY_EDITOR
-        public void ConvertToAtlased(MeshPainter m) {
-            Material mat = m._meshRenderer.sharedMaterial;
+        public void ConvertToAtlased(PlaytimePainter m) {
+            Material mat = m.meshRenderer.sharedMaterial;
             List<string> tfields = mat.getTextures();
 
             int index = -1;
@@ -30,20 +31,20 @@ namespace Painter
 
                 if (texture == null)
                 {
-                    Debug.Log(m.p.name + " no " + field + " texture.");
+                    Debug.Log(m.name + " no " + field + " texture.");
                     continue;
                 }
 
                 if (texture.GetType() != typeof(Texture2D))
                 {
-                    Debug.Log(m.p.name + " is not using a Texture2D on " + field);
+                    Debug.Log(m.name + " is not using a Texture2D on " + field);
                     continue;
                 }
 
-                foreach (AtlasMergeConfig aConfig in a_configs)
+                foreach (FieldAtlas aConfig in fields)
                     if (field.Equals(aConfig.targetField))
                     {
-                        List<Texture2D> aTexes = aConfig.atlasCreator.atlas.Textures;
+                        List<Texture2D> aTexes = aConfig.atlasCreator.Textures;
 
                         if (index == -1)
                             for (int i = 0; i < aTexes.Count; i++)
@@ -64,20 +65,18 @@ namespace Painter
 
                         if (index != -1) {
 
-                            Debug.Log("Assigning " + m.p.gameObject.name + " to Atlas index " + index);
-
-                            m.Edit();
+                            Debug.Log("Assigning " + m.gameObject.name + " to Atlas index " + index);
+                            MeshManager.inst().EditMesh(m, false);
                             VertexAtlasTool.inst.SetAllTrianglesTextureTo(index, 0);
-                            MeshManager.inst().Redraw(); //m.RegenerateMesh();
-
+                            MeshManager.inst().Redraw(); 
                         } else {
-                            Debug.Log("Could not find space for " + m.p.name + " texture: " + field);
+                            Debug.Log("Could not find space for " + m.name + " texture: " + field);
                         }
 
                     }
             }
 
-            m._meshRenderer.sharedMaterial = terget;
+            m.meshRenderer.sharedMaterial = terget;
 
         }
 #endif
@@ -94,12 +93,12 @@ namespace Painter
 
 #if UNITY_EDITOR
         public void OnChangeTargetMaterial (){
-			if ((terget != null) && (a_configs.Length == 0)){
+			if ((terget != null) && (fields.Length == 0)){
 				List<string> tnames = terget.getTextures ();
-				a_configs = new AtlasMergeConfig[tnames.Count];
-				for (int i = 0; i < a_configs.Length; i++) {
-					AtlasMergeConfig ac = new AtlasMergeConfig ();
-					a_configs [i] = ac;
+				fields = new FieldAtlas[tnames.Count];
+				for (int i = 0; i < fields.Length; i++) {
+					FieldAtlas ac = new FieldAtlas ();
+					fields [i] = ac;
 					ac.targetField = tnames [i];
 
 
@@ -110,7 +109,9 @@ namespace Painter
 #endif
 
         public void EditorPEGI() {
-			
+
+            pegi.write("Material:");
+            pegi.edit(ref terget);
 
 
         }

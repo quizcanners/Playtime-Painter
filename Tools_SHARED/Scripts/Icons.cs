@@ -8,7 +8,7 @@ public enum icon {
     save, NewMaterial, NewTexture, On, Off, Lock, Unlock, GPU, CPU, Round,
     Square, PreviewShader, OriginalShader, saveAsNew, Undo, Redo, Painter,
     UndoDisabled, RedoDisabled, Play, Record, Delete, Done, Edit, Close, Add,
-    Script, Config, Load, Pause
+    Script, Config, Load, Pause, mesh
 }
 
 public static class Icons_MGMT {
@@ -77,6 +77,7 @@ public static class Icons_MGMT {
                 case icon.Config: managementIcons[ind] = Resources.Load("icons/Config") as Texture2D; break;
                 case icon.Load: managementIcons[ind] = Resources.Load("icons/Load") as Texture2D; break;
                 case icon.Pause: managementIcons[ind] = Resources.Load("icons/Pause") as Texture2D; break;
+                case icon.mesh: managementIcons[ind] = Resources.Load("icons/mesh") as Texture2D; break;
             }
         }
 

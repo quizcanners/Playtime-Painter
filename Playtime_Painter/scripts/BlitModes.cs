@@ -17,7 +17,7 @@ namespace Painter{
         public static BrushConfig pegibrush;
 
 		public static BlitMode getCurrentBlitModeForPainter (PlaytimePainter inspectedPainter) 
-		{ painter = inspectedPainter; return painterConfig.inst().brushConfig.currentBlitMode(); }
+		{ painter = inspectedPainter; return painterConfig.inst.brushConfig.currentBlitMode(); }
 
         public static List<BlitMode> allModes {  get {
 				if (_allModes == null)

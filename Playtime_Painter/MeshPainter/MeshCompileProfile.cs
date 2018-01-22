@@ -126,11 +126,8 @@ namespace Painter
     {
         public VertexDataType vertDataType { get { return MeshSolutions.types[typeIndex]; } }
 
-        public float[] getDataArray()
-        {
-
+        public float[] getDataArray() {
             vertDataType.GenerateIfNull();
-
             return vertDataType.getValue(valueIndex);
         }
 
@@ -211,9 +208,6 @@ namespace Painter
 
             return false;
         }
-
-
-
 
 
         public VertexSolution(VertexDataTarget ntrg)
@@ -320,17 +314,24 @@ namespace Painter
 
 
     [Serializable]
-    public class MeshSolutionProfile
-    {
+    public class MeshSolutionProfile {
         public VertexSolution[] sln;
+
+        public string name = "";
 
         public bool PEGI()
         {
+            "Name: ".edit(40, ref name);
+
             bool changed = false;
             for (int i = 0; i < sln.Length; i++)
-                changed |= sln[i].PEGI();
+                changed |= sln[i].PEGI().nl();
 
             return changed;
+        }
+
+        public override string ToString() {
+            return name;
         }
 
         public void StartPacking(MeshConstructor sm) {
@@ -354,7 +355,7 @@ namespace Painter
         public MeshSolutionProfile() {
             VertexDataTarget[] trgs = MeshSolutions.targets;
             sln = new VertexSolution[trgs.Length];
-
+            name = "unnamed";
             for (int i = 0; i < trgs.Length; i++)
                 sln[i] = new VertexSolution(trgs[i]);
         }
@@ -1075,6 +1076,59 @@ namespace Painter
             }
         }
 
+        public class vertexEdge : VertexDataType
+        {
+            public static vertexEdge inst;
+            const int dataSize = 4;
+
+            Vector4[] edges;
+
+            public override void GenerateIfNull()
+            {
+
+                if (edges == null)
+                    edges = curMeshDta._edgeData;
+                
+            }
+
+            public override Vector4[] getV4(VertexDataTarget trg) {
+                return edges;
+            }
+
+            public override float[] getValue(int no)
+            {
+                for (int i = 0; i < vcnt; i++)
+                    chanelMedium[i] = edges[i][no];
+
+                return chanelMedium;
+            }
+
+            public override string ToString()
+            {
+                return "Edge";
+            }
+
+            public override string getFieldName(int ind)
+            {
+                switch (ind)
+                {
+                    case 0: return "x";
+                    case 1: return "y";
+                    case 2: return "z";
+                    case 3: return "Strength";
+                }
+                return "Error";
+            }
+
+            public vertexEdge(int index) : base(dataSize, index)
+            {
+                inst = this;
+            }
+            public override void Clear()
+            {
+                edges = null;
+            }
+        }
 
 
         public static VertexDataType[] types = {
@@ -1083,7 +1137,7 @@ namespace Painter
 
         new vertexTangent(4), new vertexSharpNormal(5), new vertexColor(6), new vertexIndex(7),
 
-        new vertexShadow(8), new vertexAtlasedTextures(9),  new vertexNull(10)
+        new vertexShadow(8), new vertexAtlasedTextures(9),  new vertexNull(10), new vertexEdge(11)
 
     };
 

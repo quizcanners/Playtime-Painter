@@ -632,7 +632,7 @@ public static class ef {
     public static bool editDelayed(ref int val, int width) {
         checkLine();
 
-        if (KeyCode.Return.KeyDown() && (elementIndex == editedIntegerIndex)) {
+        if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex)) {
             EditorGUILayout.IntField(val, GUILayout.Width(width));
             val = editedInteger;
             elementIndex++;
@@ -673,7 +673,7 @@ public static class ef {
         checkLine();
 
 
-        if (KeyCode.Return.KeyDown() && (text.GetHashCode().ToString() == editedHash)) {
+        if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash)) {
             EditorGUILayout.TextField(text);
             text = editedText;
             return true;
@@ -693,7 +693,7 @@ public static class ef {
     public static bool editDelayed(ref string text, int width) {
         checkLine();
 
-        if (KeyCode.Return.KeyDown() && (text.GetHashCode().ToString() == editedHash)) {
+        if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash)) {
             EditorGUILayout.TextField(text);
             text = editedText;
             return true;

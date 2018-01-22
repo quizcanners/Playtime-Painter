@@ -19,8 +19,7 @@ using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {
 
-
-
+   
     [ExecuteInEditMode]
     public class Book : ComponentSTD {
 
@@ -55,7 +54,9 @@ namespace StoryTriggerData {
 
 
         // *********************** SAVING/LOADING  MGMT
-        public bool Loaded;
+        [NonSerialized]
+        bool Loaded;
+      
 
         public override void Decode(string tag, string data) {
 
@@ -73,6 +74,8 @@ namespace StoryTriggerData {
 
         public override void Reboot() {
             HOMEpages = new List<Page>();
+            if (!Application.isPlaying)
+                STD_Pool.DestroyAll();
             Loaded = false;
         }
 
@@ -107,14 +110,16 @@ namespace StoryTriggerData {
 
         public void SaveChanges() {
 #if UNITY_EDITOR
-            TriggerGroups.Save();
+            if (Loaded) {
+                TriggerGroups.Save();
 
-            foreach (Page p in Page.myPoolController.scripts)
-                if ((p != null) && (p.gameObject.activeSelf))
-                    p.SavePageContent();
-            
-            inst.SaveToResources(TriggerGroups.StoriesFolderName, gameObject.name, storyTag);
-            AssetDatabase.Refresh();
+                foreach (Page p in Page.myPoolController.scripts)
+                    if ((p != null) && (p.gameObject.activeSelf))
+                        p.SavePageContent();
+
+                inst.SaveToResources(TriggerGroups.StoriesFolderName, gameObject.name, storyTag);
+                AssetDatabase.Refresh();
+            }
 #endif
         }
 
@@ -122,19 +127,16 @@ namespace StoryTriggerData {
 
 
         public void OnDisable() {
-            if (!Application.isPlaying) {
                 UnityHelperFunctions.FocusOn(this.gameObject);
+            if (!Application.isPlaying)
                 SaveChanges();
-                ClearAll();
-            }
+                Reboot();
+            
         }
 
-        void ClearAll() {
-            STD_Pool.DestroyAll();
-            HOMEpages = new List<Page>();
-        }
+      
 
-    public void OnEnable() {
+        public void OnEnable() {
 
             _inst = this;
 
@@ -143,6 +145,10 @@ namespace StoryTriggerData {
             LoadOrInit();
 
 #if UNITY_EDITOR
+
+            EditorApplication.update -= CombinedUpdate;
+            if (!Application.isPlaying)
+                EditorApplication.update += CombinedUpdate;
 
             try {
                 DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + TriggerGroups.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources");
@@ -179,7 +185,7 @@ namespace StoryTriggerData {
         // *********************** COMPONENT MGMT
 
     int browsedPage = -1;
-        string nameGold;
+        string nameHold;
 
     public void RenameBook(string newName) {
 #if UNITY_EDITOR
@@ -236,7 +242,7 @@ namespace StoryTriggerData {
                 }
 
 
-
+                if (Loaded) { 
                 pegi.write("Pages :");
 
                 if (icon.Add.Click(25).nl()) {
@@ -267,14 +273,14 @@ namespace StoryTriggerData {
                 if (Delete != -1)
                     HOMEpages[Delete].Deactivate();
 
-
-
-                if ("Clear All".Click()) ClearAll();
-
-                if ("Save And Close".Click()) OnDisable();
-
-                if ("Load All".Click().nl()) LoadOrInit();
                 
+                    if ("Clear All".Click()) Reboot();
+
+                    if ("Save And Clear".Click()) OnDisable();
+                } else 
+                if ("Load All".Click()) LoadOrInit();
+
+                pegi.newLine();
 
                 UniversePosition.playerPosition.PEGI();
 
@@ -302,7 +308,27 @@ namespace StoryTriggerData {
             waiting = true;
         }
 
-        void Update() {
+
+        public Page lerpTarget;
+        [NonSerialized]
+        public UniversePosition lerpPosition;
+
+        void CombinedUpdate() {
+
+            if (lerpTarget != null)
+            {
+                //   "Lerpong".Log();
+
+                if ((lerpTarget.enabled == false) || (SpaceValues.playerPosition.LerpTo(lerpTarget.sPOS, lerpTarget.uReach, Application.isPlaying ? Time.deltaTime : 0.5f) < 1)) lerpTarget = null;
+
+
+            }
+            else if (lerpPosition != null)
+            {
+                if (SpaceValues.playerPosition.LerpTo(lerpPosition, UniverseLength.one, Application.isPlaying ? Time.deltaTime : 0.5f) < 1) lerpPosition = null;
+            }
+            
+
             if (waiting) {
                 timeToWait -= Time.deltaTime;
                 if (timeToWait < 0) {
@@ -310,8 +336,20 @@ namespace StoryTriggerData {
                     STD_Values.AddQuestVersion();
                 }
             }
-
         }
+
+        void Update() {
+
+            if (StoryGodMode.inst != null)
+                StoryGodMode.inst.DistantUpdate();
+
+            if (Application.isPlaying)
+                CombinedUpdate();
+            foreach (var p in HOMEpages)
+                p.PostPositionUpdate();
+        }
+
+    
 
         public static int RealTimeOnStartUp = 0;
         public void Awake() {

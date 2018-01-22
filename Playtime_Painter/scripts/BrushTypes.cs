@@ -34,7 +34,7 @@ public abstract class BrushType : IeditorDropdown {
 	protected static PlaytimePainter painter;
 
 	public static BrushType getCurrentBrushTypeForPainter (PlaytimePainter inspectedPainter) 
-		{ painter = inspectedPainter; return painterConfig.inst().brushConfig.currentBrushTypeRT(); } 
+		{ painter = inspectedPainter; return painterConfig.inst.brushConfig.currentBrushTypeRT(); } 
 
 	public static List<BrushType> allTypes {  get {  initIfNull(); return _allTypes; } 
 	} 
@@ -157,7 +157,7 @@ public abstract class BrushType : IeditorDropdown {
 
                     pegi.newLine();
 
-                    if (painterConfig.inst().moreOptions || brush.flipMaskAlpha)
+                    if (painterConfig.inst.moreOptions || brush.flipMaskAlpha)
                         change |= pegi.toggle(ref brush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
 
                     pegi.newLine();
@@ -356,8 +356,7 @@ public class BrushTypeLazy : BrushType {
             float trackPortion = (delta_uv.magnitude - width * 0.5f) * 0.25f;
 
             if ((trackPortion > 0) || (st.mouseUp)) {
-
-               
+                
 
 				if (st.firstStroke) {
 				previousDirectionLazy = st.previousDelta =  delta_uv;
@@ -474,6 +473,8 @@ public class BrushTypeSphere : BrushType {
 	}
 
         public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)  {
+
+           
 
             painter = pntr;
 

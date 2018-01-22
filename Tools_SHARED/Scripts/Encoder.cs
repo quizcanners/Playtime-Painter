@@ -70,7 +70,17 @@ namespace StoryTriggerData {
             return cody.ToString();
         }
 
+        public static string Encode(this Color col) {
 
+            stdEncoder cody = new stdEncoder();
+
+            cody.AddIfNotZero("r", col.r.RoundTo6Dec());
+            cody.AddIfNotZero("g", col.g.RoundTo6Dec());
+            cody.AddIfNotZero("b", col.b.RoundTo6Dec());
+            cody.AddIfNotZero("a", col.a.RoundTo6Dec());
+
+            return cody.ToString();
+        }
     }
 
 
@@ -313,27 +323,30 @@ namespace StoryTriggerData {
         public void Add (string tag, Matrix4x4 m) {
 
             stdEncoder sub = new stdEncoder();
-            sub.Add("00", m.m00);
-            sub.Add("01", m.m01);
-            sub.Add("02", m.m02);
-            sub.Add("03", m.m03);
 
-            sub.Add("10", m.m10);
-            sub.Add("11", m.m11);
-            sub.Add("12", m.m12);
-            sub.Add("13", m.m13);
+            sub.AddIfNotZero("00", m.m00);
+            sub.AddIfNotZero("01", m.m01);
+            sub.AddIfNotZero("02", m.m02);
+            sub.AddIfNotZero("03", m.m03);
 
-            sub.Add("20", m.m20);
-            sub.Add("21", m.m21);
-            sub.Add("22", m.m22);
-            sub.Add("23", m.m23);
+            sub.AddIfNotZero("10", m.m10);
+            sub.AddIfNotZero("11", m.m11);
+            sub.AddIfNotZero("12", m.m12);
+            sub.AddIfNotZero("13", m.m13);
 
-            sub.Add("30", m.m30);
-            sub.Add("31", m.m31);
-            sub.Add("32", m.m32);
-            sub.Add("33", m.m33);
+            sub.AddIfNotZero("20", m.m20);
+            sub.AddIfNotZero("21", m.m21);
+            sub.AddIfNotZero("22", m.m22);
+            sub.AddIfNotZero("23", m.m23);
 
-            Add(tag, sub);
+            sub.AddIfNotZero("30", m.m30);
+            sub.AddIfNotZero("31", m.m31);
+            sub.AddIfNotZero("32", m.m32);
+            sub.AddIfNotZero("33", m.m33);
+
+            string data = sub.ToString();
+
+            AddText(tag, data);
 
         }
 
@@ -364,6 +377,10 @@ namespace StoryTriggerData {
         public void Add(string tag, Vector3 v3, int percision) { AddText(tag, v3.Encode(percision)); }
         public void Add(string tag, Vector2 v2, int percision) { AddText(tag, v2.Encode(percision)); }
 
+        public void Add(string tag, Color col) {
+            AddText(tag, col.Encode());
+        }
+
         public bool AddIfNotZero(string tag, Vector3 v3) {
 
             if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) {
@@ -377,7 +394,7 @@ namespace StoryTriggerData {
         public bool AddIfNotOne(string tag, Vector3 v3)
         {
 
-            if (v3.Equals(Vector3.one)) {
+            if (!v3.Equals(Vector3.one)) {
                 AddText(tag, v3.Encode());
                 return true;
             }

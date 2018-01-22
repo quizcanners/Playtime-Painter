@@ -7,7 +7,7 @@ namespace Painter {
 
     public static class PainterPEGI_Extensions {
 
-        static painterConfig cfg { get { return painterConfig.inst(); } }
+        static painterConfig cfg { get { return painterConfig.inst; } }
         static PainterManager rtp { get { return PainterManager.inst; } }
 
 
@@ -147,18 +147,54 @@ namespace Painter {
             return changed;
         }
 
+
+        static bool showAtlases = false;
+        static int browsedAtlas = -1;
         public static bool config_PEGI(this PlaytimePainter painter) {
 
-            BrushConfig brush = painterConfig.inst().brushConfig;
+            BrushConfig brush = painterConfig.inst.brushConfig;
             imgData id = painter.curImgData;
+            bool changed = false;
 
+            if ("Atlases".foldout(ref showAtlases)) {
+
+                if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
+                    browsedAtlas = -1;
+
+                if (browsedAtlas > -1) {
+                    if (icon.Close.Click(25))
+                        browsedAtlas = -1;
+                    else
+                        rtp.atlases[browsedAtlas].PEGI();
+                } else {
+                    pegi.newLine();
+                    for (int i=0; i<rtp.atlases.Count; i++) {
+                        if (icon.Delete.Click(25))
+                            rtp.atlases.RemoveAt(i);
+                        else {
+                            pegi.edit(ref rtp.atlases[i].name);
+                            if (icon.Edit.Click(25).nl()) browsedAtlas = i;
+                        }
+                    }
+
+                    if (icon.Add.Click(30))
+                        rtp.atlases.Add(new AtlasTextureCreator());
+                }
+
+                
+
+
+                return changed;
+            }
+
+            pegi.newLine();
 
             if ("More options".toggle(80, ref cfg.moreOptions).nl())
                 cfg.showConfig = false;
 
             (rtp.isLinearColorSpace ? "Project is Linear Color Space" : "Project is in Gamma Color Space").nl();
 
-            bool changed = false;
+          
 
             "repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
 
@@ -298,7 +334,7 @@ namespace Painter {
 
                             changed = true;
                         }
-                        painterConfig.inst().brushConfig.MaskSet(BrushMask.A, true);
+                        painterConfig.inst.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.getImgData() != null)
                         if ((painter.originalShader == null) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45)))

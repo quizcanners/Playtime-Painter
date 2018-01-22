@@ -181,6 +181,22 @@ namespace PlayerAndEditorGUI {
             return select(ref value, array);
         }
 
+        public static bool select<T>(this string text, int width, ref T value, List<T> array) {
+            write(text, width);
+            return select(ref value, array);
+        }
+
+        public static bool select<T>(this string text, ref int ind, List<T> lst) {
+            write(text);
+            return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, int width, ref int ind, List<T> lst)
+        {
+            write(text, width);
+            return select(ref ind, lst);
+        }
+
         public static bool select(ref int no, List<string> from) {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1259,7 +1275,7 @@ namespace PlayerAndEditorGUI {
 
                 checkLine();
 
-                if ((KeyCode.Return.KeyDown() && (val.GetHashCode().ToString() == editedHash))) {
+                if ((KeyCode.Return.isDown() && (val.GetHashCode().ToString() == editedHash))) {
                     GUILayout.TextField(val);
 
 
@@ -1289,7 +1305,7 @@ namespace PlayerAndEditorGUI {
 
                 checkLine();
 
-                if ((KeyCode.Return.KeyDown() && (val.GetHashCode().ToString() == editedHash))) {
+                if ((KeyCode.Return.isDown() && (val.GetHashCode().ToString() == editedHash))) {
                     GUILayout.TextField(val);
 
 
@@ -1309,6 +1325,11 @@ namespace PlayerAndEditorGUI {
         }
 
 
+        public static bool editDelayed(this string txt, ref int val, int width) {
+            write(txt);
+            return editDelayed(ref val, width);
+        }
+
         static int editedInteger;
         static int editedIntegerIndex;
         public static bool editDelayed(ref int val, int width) {
@@ -1324,7 +1345,7 @@ namespace PlayerAndEditorGUI {
 
                 int tmp = val;
 
-                if (KeyCode.Return.KeyDown() && (elementIndex == editedIntegerIndex)) {
+                if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex)) {
                     edit(ref tmp);
                     val = editedInteger;
                     elementIndex++;
@@ -1757,11 +1778,14 @@ namespace PlayerAndEditorGUI {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
                 ef.writeHint(text, MessageType.Info);
+                ef.newLine();
             } else
 #endif
         {
                 checkLine();
                 GUILayout.Label(text);
+
+                pegi.newLine();
             }
 
         }

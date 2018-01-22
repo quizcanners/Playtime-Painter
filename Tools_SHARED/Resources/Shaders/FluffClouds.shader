@@ -164,6 +164,8 @@ col.rgb = col.rgb*(alpha)+ unity_FogColor.rgb*(1 - alpha);
 col.rgb = col.rgb*(alpha)+ unity_AmbientEquator.rgb*(1 - alpha);
 #endif
 
+//col.rgb -= max(0, i.viewDir.y-0.1)*128;
+
 
 #if	MODIFY_BRIGHTNESS
 col.rgb *= _lightControl.a;

@@ -18,6 +18,50 @@ using UnityEditor;
 
 public static class UnityHelperFunctions {
 
+    public static bool IsNaN(this Vector3  q)
+    {
+        return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
+    }
+
+    public static bool isNaN(this float f)
+    {
+        return float.IsNaN(f);
+    }
+
+    public static GameObject SetFlagsOnItAndChildren(this GameObject go, HideFlags flags) {
+
+        foreach (Transform child in go.transform)
+        {
+            child.gameObject.hideFlags = flags;
+            child.gameObject.AddFlagsOnItAndChildren(flags);
+        }
+
+        return go;
+    }
+
+    public static GameObject AddFlagsOnItAndChildren(this GameObject go, HideFlags flags) {
+
+        foreach (Transform child in go.transform)
+        {
+            child.gameObject.hideFlags |= flags;
+            child.gameObject.AddFlagsOnItAndChildren(flags);
+        }
+
+        return go;
+    }
+
+    public static Transform Clear(this Transform transform)
+    {
+      
+
+        if (Application.isPlaying) {
+            foreach (Transform child in transform) {
+                Debug.Log("Destroying "+child.name);
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+        return transform;
+    }
 
     public static string ToStringShort(this Vector3 v) {
         StringBuilder sb = new StringBuilder();
@@ -193,14 +237,47 @@ public static class UnityHelperFunctions {
 #endif
     }
 
-    public static bool KeyDown(this KeyCode k) {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns>Return -1 if no numeric key was pressed</returns>
+    public static int NumericKeyDown (this Event e) {
+
+        if ((Application.isPlaying) && (!Input.anyKeyDown)) return -1;
+
+        if ((!Application.isPlaying) && (e.type != EventType.KeyDown)) return -1;
+
+        if (KeyCode.Alpha0.isDown()) return 0;
+        if (KeyCode.Alpha1.isDown()) return 1;
+        if (KeyCode.Alpha2.isDown()) return 2;
+        if (KeyCode.Alpha3.isDown()) return 3;
+        if (KeyCode.Alpha4.isDown()) return 4;
+        if (KeyCode.Alpha5.isDown()) return 5;
+        if (KeyCode.Alpha6.isDown()) return 6;
+        if (KeyCode.Alpha7.isDown()) return 7;
+        if (KeyCode.Alpha8.isDown()) return 8;
+        if (KeyCode.Alpha9.isDown()) return 9;
+
+        return -1;
+    }
+
+    public static bool isDown(this KeyCode k) {
         if (Application.isPlaying)
             return Input.GetKeyDown(k);
         else
             return (Event.current.isKey && Event.current.type == EventType.keyDown && Event.current.keyCode == k);
     }
 
-	public static void Focus(this GameObject go) {
+    public static bool isUp(this KeyCode k)
+    {
+        if (Application.isPlaying)
+            return Input.GetKeyUp(k);
+        else
+            return (Event.current.isKey && Event.current.type == EventType.keyUp && Event.current.keyCode == k);
+    }
+
+    public static void Focus(this GameObject go) {
 #if UNITY_EDITOR
 		GameObject[] tmp = new GameObject[1];
 		tmp[0] = go;

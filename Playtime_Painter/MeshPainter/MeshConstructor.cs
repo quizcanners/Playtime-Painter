@@ -33,10 +33,11 @@ namespace Painter {
         public Vector4[] FirstNormal;
         public Vector4[] SecondNormal;
         public Vector4[] ThirdNormal;
-
+   
 
 
         Color[] colors;
+        Vector4[] edgeData;
         Vector4[] shadowBake;
         Countless<vertexAnimationFrame> anims; // outer tree - animation no, inner - vertices
         public int[] originalIndex;
@@ -188,7 +189,7 @@ namespace Painter {
                     colors = new Color[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            colors[uvi.finalIndex] = uvi._color.ToColor();
+                            colors[uvi.finalIndex] = uvi._color;
                 }
                 return colors;
             }
@@ -246,6 +247,28 @@ namespace Painter {
             }
         }
 
+        public Vector4[] _edgeData
+        {
+            get
+            {
+                if (edgeData == null)
+                {
+
+                    edgeData = new Vector4[vertsCount];
+                    
+                    foreach (var tri in edMesh.triangles) {
+                        for (int no = 0; no < 3; no++) {
+                            UVpoint up = tri.uvpnts[no];
+                            edgeData[up.finalIndex] = new Vector4(no == 0 ? 0 : 1, no == 1 ? 0 : 1, no == 2 ? 0 : 1,  up.vert.edgeStrength);
+                        }
+                    }
+
+                }
+
+                return edgeData;
+            }
+        }
+
         public Countless<vertexAnimationFrame> _anim {  get { if (anims == null) {
 
                     List<int> frameInds = edMesh.hasFrame.GetItAll();
@@ -277,6 +300,8 @@ namespace Painter {
             GeneratePreConstructionData();
             profile.StartPacking(this);
 
+           // vertsCount = edMesh.vertices.Count;
+
             if (edMesh.gotBindPos) {
                 bindPoses = new Matrix4x4[vertsCount];
                 for (int i = 0; i < edMesh.vertices.Count; i++)
@@ -288,11 +313,13 @@ namespace Painter {
                 boneWeights = new BoneWeight[vertsCount];
                 for (int i = 0; i < edMesh.vertices.Count; i++)
                     boneWeights[i] = edMesh.vertices[i].boneWeight;
+               // Debug.Log("verts "+vertsCount+"  actual " + mesh.vertices.Length);
                 mesh.boneWeights = boneWeights;
             }
 
             int vCnt = mesh.vertices.Length;
 
+            if (edMesh.shapes!= null)
             for (int s=0; s<edMesh.shapes.Count; s++){
                 var name = edMesh.shapes[s];
                 int frames = edMesh.vertices[0].shapes[s].Count;
@@ -313,10 +340,9 @@ namespace Painter {
                     }
                     mesh.AddBlendShapeFrame(name, edMesh.blendWeights[s][f],pos,nrm,tng);
                 }
-
-
             }
 
+            mesh.name = edmesh.meshName;
             // TODO: Add a function that will return blend shapes to where they should be
 
         }

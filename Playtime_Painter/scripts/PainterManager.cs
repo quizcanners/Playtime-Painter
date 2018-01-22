@@ -31,6 +31,8 @@ namespace Painter{
     [ExecuteInEditMode]
 public class PainterManager : MonoBehaviour
 {
+        static painterConfig cfg { get { return painterConfig.inst; } }
+
     static PainterManager _inst;
         public static PainterManager inst {
             get {
@@ -68,14 +70,16 @@ public class PainterManager : MonoBehaviour
 
     public List<channelSetsForCombinedMaps> forCombinedMaps;
 
+    public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
+
     public VolumetricDecal[] decals;
 
     public VolumetricDecal GetDecal(int no)
     {
 		return ((decals.Length > no) && (decals[no].showInDropdown())) ? decals[no] : null;
     }
-
-	[NonSerialized]
+        
+    [NonSerialized]
 	public Dictionary<string, List<Texture>> recentTextures = new Dictionary<string, List<Texture>> ();
 
     public Camera rtcam;
@@ -85,11 +89,9 @@ public class PainterManager : MonoBehaviour
 	//[NonSerialized]
 	public bool DebugDisableSecondBufferUpdate;
     public RenderBrush brushRendy = null;
-
-
-        public MeshManager meshManager = new MeshManager();
-
-
+        
+    public MeshManager meshManager = new MeshManager();
+        
     // Brush shaders
 	public Shader br_Blit = null;
 	public Shader br_Add = null;
@@ -213,7 +215,7 @@ public class PainterManager : MonoBehaviour
 
     public void UpdateBuffersState() {
 
-        painterConfig cfg = painterConfig.inst();
+        painterConfig cfg = painterConfig.inst;
 
         rtcam.cullingMask = 1 << myLayer;
 
@@ -391,7 +393,7 @@ public class PainterManager : MonoBehaviour
         blitMode.setKeyword ();
 		blitMode.SetGlobalShaderParameters ();
 
-		BlitModeExtensions.SetShaderToggle (painterConfig.inst ().previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+		BlitModeExtensions.SetShaderToggle (painterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
 
 		BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "PREVIEW_FILTER_PIXEL");
 		
@@ -514,6 +516,8 @@ public class PainterManager : MonoBehaviour
 
     private void OnEnable() {
 
+
+            _inst = this;
 
             if (meshManager == null)
                 meshManager = new MeshManager();
@@ -658,10 +662,8 @@ public class PainterManager : MonoBehaviour
 #if UNITY_EDITOR
         TakeAwayRT();
 #endif
-
-            playtimeMesherSaveData.SaveChanges();
+            
 #if UNITY_EDITOR
-            EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
             EditorApplication.update -= meshManager.editingUpdate;
 #endif
 
@@ -721,7 +723,7 @@ public class PainterManager : MonoBehaviour
  
 
 		PlaytimeToolComponent.CheckRefocus();
-        if ((painterConfig.inst().disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
+        if ((painterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
                 Collider c = hit.collider;
@@ -735,7 +737,7 @@ public class PainterManager : MonoBehaviour
 					PlaytimePainter.currently_Painted_Object = null;
             }
             else {	
-				p.Paint(p.stroke, painterConfig.inst().brushConfig);
+				p.Paint(p.stroke, painterConfig.inst.brushConfig);
                 p.Update();
             }
         }
@@ -751,11 +753,7 @@ public class PainterManager : MonoBehaviour
             PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
         }
 
-        private void Awake() {
-        _inst = this;
-
-            meshManager.Awake();
-        }
+       
 
         private void Start()
         {

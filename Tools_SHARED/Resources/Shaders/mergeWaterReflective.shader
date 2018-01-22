@@ -87,7 +87,7 @@
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
 			
 			
-			float2 waterUV = i.wpos.xz*0.02;
+			float2 waterUV = (i.wpos.xz- _mergeTeraPosition.xz)*0.02;
 			float2 waterUV2 = waterUV.yx;//*0.01;
 
 

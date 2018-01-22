@@ -215,7 +215,7 @@ namespace StoryTriggerData {
 
             Trigger.searchMatchesFound = 0;
 
-            if (KeyCode.Return.KeyDown()){
+            if (KeyCode.Return.isDown()){
                 pegi.FocusControl("none");
                 changed = true;
             }

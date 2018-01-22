@@ -8,63 +8,64 @@ using System.Linq;
 using Painter;
 using PlayerAndEditorGUI;
 
-namespace StoryTriggerData {
+namespace StoryTriggerData
+{
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     using UnityEditor;
 
-    [CustomEditor(typeof(CubeWorldSpace))]
-    public class CubeWorldSpaceDrawer : Editor {
-        public override void OnInspectorGUI() {
+    [ExecuteInEditMode]
+    [CustomEditor(typeof(Terra))]
+    public class TerraDrawer : Editor
+    {
+        public override void OnInspectorGUI()
+        {
             ef.start(serializedObject);
-            ((CubeWorldSpace)target).PEGI();
+            ((Terra)target).PEGI();
             pegi.newLine();
         }
     }
 # endif
 
     [ExecuteInEditMode]
-    [TagName(CubeWorldSpace.tagName)]
-    public class CubeWorldSpace : STD_Object {
-
+    [TagName(Terra.tagName)]
+    public class Terra : STD_Object {
 
         string strokeData;
         PlaytimePainter painter;
-
-
-        public override stdEncoder Encode() {
+        public override stdEncoder Encode()
+        {
             var cody = new stdEncoder();
+
 
             if (painter.meshEditEnabled)
                 MeshManager.inst().DisconnectMesh();
 
             cody.AddText("name", gameObject.name);
             cody.AddIfNotZero("pos", transform.localPosition);
-            if (strokeData != null) 
-                cody.AddText("playVectors", strokeData );
-            if ((painter.saveMeshDta != null) && (painter.saveMeshDta.Length > 0))
-                cody.AddText("mesh", painter.saveMeshDta);
+            if (strokeData != null)
+                cody.AddText("playVectors", strokeData);
 
             cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
-            cody.AddIfNotNull(stdValues);
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
-            switch (tag) {
+        public override void Decode(string tag, string data)
+        {
+            switch (tag)
+            {
                 case "name": gameObject.name = data; break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
                 case "playVectors": strokeData = data; painter.PlayStrokeData(data); break;
-                case "mesh": painter.TryLoadMesh(data); break;
                 case "scale": transform.localScale = data.ToVector3();  break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
-                case STD_Values.storyTag: stdValues.Reboot(data); break;
             }
         }
 
-        public override void Reboot() {
-            if (painter == null) 
+        public override void Reboot()
+        {
+            if (painter == null)
                 painter = GetComponent<PlaytimePainter>();
 
             stdValues = new STD_Values();
@@ -73,12 +74,14 @@ namespace StoryTriggerData {
             transform.localRotation = Quaternion.Euler(Vector3.zero);
         }
 
-     
-        public override bool PEGI() {
+
+        public override bool PEGI()
+        {
             bool changed = false;
             base.PEGI();
 
-            if (!stdValues.browsing_interactions) {
+            if (!stdValues.browsing_interactions)
+            {
 
                 pegi.ClickToEditScript();
 
@@ -86,12 +89,13 @@ namespace StoryTriggerData {
 
                 string recordName = pcfg.recordingNames.Count > 0 ? pcfg.recordingNames[pcfg.browsedRecord] : null;
 
-                if ((recordName != null) && (pegi.Click("Copy recording " + recordName))) {
+                if ((recordName != null) && (pegi.Click("Copy recording " + recordName)))
+                {
                     strokeData = String.Copy(pcfg.GetRecordingData(recordName));
                     painter.PlayStrokeData(strokeData);
                 }
 
-                if ((strokeData != null) && (icon.Delete.Click("Delete Recording",20))) 
+                if ((strokeData != null) && (icon.Delete.Click("Delete Recording", 20)))
                     strokeData = null;
 
                 pegi.newLine();
@@ -100,16 +104,27 @@ namespace StoryTriggerData {
             return changed;
         }
 
- 
 
-        public const string tagName = "cube";
 
-        public override string getDefaultTagName() {
+        public const string tagName = "tera";
+
+        public override string getDefaultTagName()
+        {
             return tagName;
         }
 
+
+
+        public override void PostPositionUpdate()
+        {
+        
+
+            painter.UpdateTerrainPosition();
+        }
+
         public static STD_Pool StoryPoolController;
-        public override void SetStaticPoolController(STD_Pool inst) {
+        public override void SetStaticPoolController(STD_Pool inst)
+        {
             StoryPoolController = inst;
         }
     }

@@ -10,31 +10,60 @@ namespace Painter {
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : SceneViewEditable<PlaytimePainter> {
 
-        static painterConfig cfg { get { return painterConfig.inst(); } }
+        static painterConfig cfg { get { return painterConfig.inst; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
-            return (targ != null) && (targ.LockEditing == false) && ((targ.curImgData != null) || (targ.meshPainting));
+            return (targ != null) && (targ.LockEditing == false) && ((targ.curImgData != null) || (targ.meshEditing));
         }
-
+        
         public override bool OnEditorRayHit(RaycastHit hit, Ray ray) {
 
             Transform tf = hit.transform;
             PlaytimePainter p = tf == null ? null : tf.GetComponent<PlaytimePainter>();
             Event e = Event.current;
 
-            if ((p!= null) && (p.meshPainting)) 
-                return OnEditorRayHitMesh(hit, ray, p.meshPainter);
+            if ((painter != null) && (painter.meshEditing)) {
+
+                PlaytimePainter edited = MeshManager.inst()._target;
+                
+                bool allowRefocusing = false;
+
+                if (p != null) {
+
+                    if ((p != edited) && (p.LockEditing == false) && (p.saveMeshDta != null) && L_mouseDwn && (e.button == 0)) {
+                        MeshManager.inst().EditMesh(p, false);
+                        allowRefocusing = true;
+                    }
+
+                    if ((edited == null) || (edited != p))
+                        allowRefocusing = true;
+                    
+                }
+
+                if ((((e.button == 1) && (!MeshManager.inst().draggingSelected)) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+                    navigating = true;
+
+              //  if (allowRefocusing)
+                //  Debug.Log("Allowing refocus");
+
+                return allowRefocusing;
+            }
 
             if (L_mouseDwn) PlaytimePainter.currently_Painted_Object = null;
 
             if (p != null) {
-                StrokeVector st = p.stroke;
-                st.mouseUp = L_mouseUp;
-                st.mouseDwn = L_mouseDwn;
-                st.uvTo = hit.textureCoord;
-                st.posTo = hit.point;
+
+                if (!p.meshEditing) {
+                    StrokeVector st = p.stroke;
+                    st.mouseUp = L_mouseUp;
+                    st.mouseDwn = L_mouseDwn;
+                    st.uvTo = hit.textureCoord;
+                    st.posTo = hit.point;
+                }
 
                 p.OnMouseOver_SceneView(hit, e);
+
+               
             }
 
             if (L_mouseUp) PlaytimePainter.currently_Painted_Object = null;
@@ -46,11 +75,11 @@ namespace Painter {
         }
 
         public override void getEvents(Event e, Ray ray) {
-            if ((painter!= null) && (painter.meshPainting))
+            if ((painter!= null) && (painter.meshEditing))
             MeshManager.inst().UpdateInputEditorTime(e, ray, L_mouseUp, L_mouseDwn);
         
 
-            if ((e.type == EventType.keyDown) && (painter != null) && (painter.meshPainting == false)) {
+            if ((e.type == EventType.keyDown) && (painter != null) && (painter.meshEditing == false)) {
                 imgData id = painter.curImgData;
                 if (id != null) {
                     if ((e.keyCode == KeyCode.Z) && (id.cache.undo.gotData()))
@@ -60,36 +89,7 @@ namespace Painter {
                 }
             }
         }
-
-        public bool OnEditorRayHitMesh(RaycastHit hit, Ray ray, MeshPainter pm)
-        {
-            Transform tf = hit.transform;
-            MeshPainter edited = MeshManager.inst()._target;
-
-            Event e = Event.current;
-
-            bool allowRefocusing = false;
-
-            if ((pm != edited) && (pm.p.LockEditing == false) && L_mouseDwn && (e.button == 0))
-            {
-                MeshManager.inst().EditMesh(pm);
-                allowRefocusing = true;
-            }
-
-            if ((edited == null) || (edited != pm))
-                allowRefocusing = true;
-
-            // if ((tf != null) && (tf.tag != "VertexEd"))
-            //   allowRefocusing = true;
-
-            if ((((e.button == 1) && (!MeshManager.inst().draggingSelected)) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
-                navigating = true;
-
-            return allowRefocusing;
-        }
-
-
-
+        
         public override void GridUpdate(SceneView sceneview) {
 
             base.GridUpdate(sceneview);
@@ -105,33 +105,22 @@ namespace Painter {
         const int range = 9;
         const int minPow = 4;
 
-        public int selectedSize() {
-            return (int)Mathf.Pow(2, painterConfig.inst().selectedSize + minPow);
-        }
-
-        public static bool textureSizeSelect() {
-
-            if ((texSizes == null) || (texSizes.Length != range)) {
-                texSizes = new string[range];
-                for (int i = 0; i < range; i++)
-                    texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
-            }
-
-            return ef.select(ref painterConfig.inst().selectedSize, texSizes, 60);
 
 
-        }
-
+      
 
         public override void OnInspectorGUI() {
 
             ef.start(serializedObject);
             painter = (PlaytimePainter)target;
 
+   
+
             if (!PlaytimePainter.isCurrent_Tool()) {
                 if (pegi.Click(icon.Off, "Click to Enable Tool", 25)) {
                     PlaytimeToolComponent.enabledTool = typeof(PlaytimePainter);//  customTools.Painter;
                     CloseAllButThis(painter);
+                 
                     painter.CheckPreviewShader();
                 }
                 pegi.newLine();
@@ -141,6 +130,7 @@ namespace Painter {
                 if ((isCurrentTool() && (painter.terrain != null) && (Application.isPlaying == false) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter.terrain) == true)) ||
                     (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 25))) {
                     PlaytimeToolComponent.enabledTool = null; //customTools.Disabled;
+                    MeshManager.inst().DisconnectMesh();
                     painter.SetOriginalShader();
                 }
             }
@@ -149,18 +139,21 @@ namespace Painter {
 
 
 
-            if (painter.meshPainting)
-            {
-                if ("Texture".Click())
-                    painter.meshPainting = false;
+            if (painter.meshEditing) {
+                if (icon.Painter.Click("Edit Texture", 25))
+                {
+                    painter.meshEditing = false;
+                    MeshManager.inst().DisconnectMesh();
+                }
                 else
-                    painter.meshPainter.PEGI();
+                    painter.meshPEGI();
 
                 return;
             }
-            else if ("Mesh".Click())
-                painter.meshPainting = true;
-
+            else if  (icon.mesh.Click("Edit Mesh", 25)) {
+                painter.meshEditing = true;
+                return;
+            }
 
             PainterManager rtp = PainterManager.inst;
 
@@ -206,7 +199,7 @@ namespace Painter {
 
                             if (image.texture2D != null) {
 
-                                string Dest = painter.GenerateSavePath();
+                                string Dest = painter.GenerateTextureSavePath();
                                 bool existsAtDestination = painter.textureExistsAtDestinationPath();
                                 bool originalExists = (Orig != null);
                                 bool sameTarget = originalExists && (Orig.Equals(Dest));
@@ -293,7 +286,9 @@ namespace Painter {
                         bool isTerrainHeight = painter.isTerrainHeightTexture();
 
                         int texScale = (!isTerrainHeight) ?
-                            selectedSize() : (painter.terrain.terrainData.heightmapResolution - 1);
+                             ((int)Mathf.Pow(2, painterConfig.inst.selectedSize + minPow))
+                            
+                            : (painter.terrain.terrainData.heightmapResolution - 1);
 
                         List<string> texNames = painter.getMaterialTextureNames();
 
@@ -342,7 +337,14 @@ namespace Painter {
                         if (!isTerrainHeight) {
                             "Color:".toggle("Will the new texture be a Color Texture", 40, ref cfg.newTextureIsColor);
                             ef.write("Size:", "Size of the new Texture", 40);
-                            textureSizeSelect();
+                            if ((texSizes == null) || (texSizes.Length != range))
+                            {
+                                texSizes = new string[range];
+                                for (int i = 0; i < range; i++)
+                                    texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
+                            }
+
+                            ef.select(ref painterConfig.inst.selectedSize, texSizes, 60);
                         }
                         ef.newLine();
                     }

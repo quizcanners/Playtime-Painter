@@ -9,9 +9,9 @@ using PlayerAndEditorGUI;
 
 
 namespace StoryTriggerData{
-	
+
     [TagName(Page.storyTag)]
-	[ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class Page : STD_Object {
 
         List<STD_Object> linkedObjects;
@@ -21,50 +21,52 @@ namespace StoryTriggerData{
 
         [NonSerialized]
         public string anotherBook;
-        [NonSerialized]
-        UniverseLength distance;
+
         [NonSerialized]
         public float sceneScale;
         public UniversePosition sPOS = new UniversePosition();
         public UniverseLength uReach = new UniverseLength();
         public UniverseLength uSize = new UniverseLength(1);
         bool objectsLoaded;
+        public bool noClamping;
         public string OriginBook;
 
 
-	public override string getDefaultTagName(){
-		return storyTag;
-	}
+        public override string getDefaultTagName() {
+            return storyTag;
+        }
 
         public string GerResourcePath() {
-            if ((anotherBook!= null) && (anotherBook.Length > 0))
+            if ((anotherBook != null) && (anotherBook.Length > 0))
                 return anotherBook;  // Another book or web address
 
             if (parentPage == null)
                 return OriginBook; // this book
             else
                 return parentPage.GerResourcePath() + "/" + parentPage.gameObject.name;
-       }
+        }
 
-    public override void Reboot() {
+        public override void Reboot() {
             if (poolController == null)
                 myPoolController.AddToPool(this.gameObject);
-            
-            gameObject.hideFlags = HideFlags.DontSave;
+
+             gameObject.hideFlags = HideFlags.DontSave;
+            //gameObject.AddFlagsOnItAndChildren(HideFlags.DontSave);
 
             anotherBook = "";
 
             linkedObjects = new List<STD_Object>();
 
+            noClamping = false;
+
             sPOS = new UniversePosition();
             uSize = new UniverseLength(1);
             uReach = new UniverseLength(10);
 
-            //Debug.Log("Rebooting page");
-
+            transform.localScale = Vector3.one;
 
             objectsLoaded = false;
-    }
+        }
 
         public override void Decode(string tag, string data) {
 
@@ -72,9 +74,10 @@ namespace StoryTriggerData{
                 case "name": gameObject.name = data; break;
                 case "origin": OriginBook = data; break;
                 case "URL": anotherBook = data; break;
-                case "size": uSize = new UniverseLength(data);  break;
+                case "size": uSize = new UniverseLength(data); break;
                 case "radius": uReach = new UniverseLength(data); break;
                 case UniversePosition.storyTag: sPOS.Reboot(data); break;
+                case "noClamp": noClamping = data.ToBool(); break;
                 default:
                     STD_Object storyObject = STD_Pool.getOne(tag);
 
@@ -87,55 +90,56 @@ namespace StoryTriggerData{
             }
         }
 
-    void encodeMeta(stdEncoder cody) {
+        void encodeMeta(stdEncoder cody) {
             cody.AddText("origin", OriginBook);
             cody.AddText("name", gameObject.name);
             cody.AddIfNotEmpty("URL", anotherBook);
             cody.AddIfNotNull(sPOS);
             if (!uSize.Equals(10))
-            cody.Add("size", uSize);
+                cody.Add("size", uSize);
             if (!uReach.Equals(1))
-            cody.Add("radius", uReach);
-
+                cody.Add("radius", uReach);
+            if (noClamping) cody.Add("noClamp", noClamping);
         }
 
 
 
-    public override stdEncoder Encode (){ // Page and it's full content is saved in a saparate file
-		
-			var cody = new stdEncoder();
-
-            encodeMeta(cody);
-
-            return cody;
-	}
-
-      
-
-    public stdEncoder EncodeContent() {
+        public override stdEncoder Encode() { // Page and it's full content is saved in a saparate file
 
             var cody = new stdEncoder();
 
             encodeMeta(cody);
 
-            foreach (STD_Object sc in linkedObjects) 
-              cody.AddIfNotNull (sc);
+            return cody;
+        }
+
+
+        public stdEncoder EncodeContent() {
+
+            var cody = new stdEncoder();
+
+            //encodeMeta(cody);
+
+            foreach (STD_Object sc in linkedObjects)
+                cody.AddIfNotNull(sc);
 
             return cody;
-    }
+        }
 
-    
 
-    public void SavePageContent() {
-            ResourceSaver.SaveToResources(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
-    }
 
-    public void LoadContent() {
-            new stdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
+        public void SavePageContent() {
+            if (objectsLoaded)
+                ResourceSaver.SaveToResources(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
+        }
+
+        public void LoadContent() {
+            if (!objectsLoaded)
+                new stdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
             objectsLoaded = true;
-    }
+        }
 
-    public void RenamePage(string newName) {
+        public void RenamePage(string newName) {
 #if UNITY_EDITOR
             bool duplicate = false;
             foreach (Page p in Book.HOMEpages) {
@@ -147,27 +151,28 @@ namespace StoryTriggerData{
             if (duplicate)
                 UnityHelperFunctions.DuplicateResource(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
             else
-            UnityEditor.AssetDatabase.RenameAsset(path + gameObject.name + ResourceSaver.fileType, newName + ResourceSaver.fileType);
-            
+                UnityEditor.AssetDatabase.RenameAsset(path + gameObject.name + ResourceSaver.fileType, newName + ResourceSaver.fileType);
+
             gameObject.name = newName;
 #endif
         }
 
-	public override void Deactivate (){
+        public override void Deactivate() {
 
             if (Application.isPlaying == false)
                 SavePageContent();
 
-			clearPage ();
+            clearPage();
             if (parentPage == null)
                 Book.HOMEpages.Remove(this);
-			base.Deactivate ();
-	}
+            base.Deactivate();
+        }
 
-    public void Unlink(STD_Object sb) {
+        public void Unlink(STD_Object sb) {
             if (linkedObjects.Remove(sb)) {
                 sb.parentPage = null;
-                sb.transform.parent = null;
+                if (!STD_Pool.DestroyingAll)
+                    sb.transform.parent = null;
             }
         }
 
@@ -176,34 +181,34 @@ namespace StoryTriggerData{
                 sb.parentPage.Unlink(sb);
             sb.transform.parent = transform;
             sb.parentPage = this;
-            linkedObjects.Add(sb);  
+            linkedObjects.Add(sb);
         }
 
-		public void clearPage(){
-            for (int i = linkedObjects.Count-1; i >=0 ; i--)
-                linkedObjects[i].Deactivate ();
+        public void clearPage() {
+            for (int i = linkedObjects.Count - 1; i >= 0; i--)
+                linkedObjects[i].Deactivate();
 
-             linkedObjects = new List<STD_Object> ();
+            linkedObjects = new List<STD_Object>();
 
             objectsLoaded = false;
-		}
+        }
 
-    public static Page browsedPage;
-	int exploredObject = -1;
+        public static Page browsedPage;
+        int exploredObject = -1;
 
-
-	public override bool PEGI () {
+        static bool notsafeCFG = false;
+        public override bool PEGI() {
 
             bool changed = false;
 
-			browsedPage = this;
+            browsedPage = this;
 
             if (exploredObject >= 0) {
 
                 if ((linkedObjects.Count <= exploredObject) || ("< Pools".Click(35)))
                     exploredObject = -1;
                 else
-                linkedObjects[exploredObject].PEGI();
+                    linkedObjects[exploredObject].PEGI();
 
             }
 
@@ -212,88 +217,123 @@ namespace StoryTriggerData{
                 pegi.newLine();
 
                 if (parentPage == null)
-                    pegi.write(gameObject.name+":HOME page ");
+                    pegi.write(gameObject.name + ":HOME page ");
                 else {
-                    pegi.write(gameObject.name+" is child of:",60);
+                    pegi.write(gameObject.name + " is child of:", 60);
                     pegi.write(parentPage);
                 }
 
                 (objectsLoaded ? "loaded" : "not loaded").nl(60);
 
-             
-                if ("Location: ".edit(60,ref anotherBook).nl()) {
+
+                if ("Location: ".edit(60, ref anotherBook).nl()) {
                     if (anotherBook[anotherBook.Length - 1] == '/')
                         anotherBook = anotherBook.Substring(0, anotherBook.Length - 1);
                 }
-               
-            
-                if ("Clear".Click())
-                    clearPage();
 
-                if ("Load".Click()) {
-                    clearPage();
-                    LoadContent();
+
+                if ("config".foldout(ref notsafeCFG)) {
+
+                    if ("Clear".Click().nl())
+                        clearPage();
+
+                    if ("Don't scale: ".toggle(ref noClamping).nl())
+                        transform.localScale = Vector3.one;
+
                 }
 
-                if ("Save".Click().nl())
+                pegi.newLine();
+
+                if ((!objectsLoaded) && ("Load".Click()))
+                    Book.inst.lerpTarget = this; 
+                
+
+                if ((objectsLoaded) && ("Save".Click()))
                     SavePageContent();
 
+                pegi.newLine();
 
-                for(int i = 0; i < STD_Pool.all.Length; i++) {
-                    STD_Pool up = STD_Pool.all[i];
+                if (objectsLoaded)
+                    for (int i = 0; i < STD_Pool.all.Length; i++) {
+                        STD_Pool up = STD_Pool.all[i];
 
-                    pegi.write(up.storyTag, 35);
-                    pegi.write(up.pool.prefab);
+                        pegi.write(up.storyTag, 35);
+                        pegi.write(up.pool.prefab);
 
-                    if (icon.Add.Click(20))
-                        STD_Pool.all[i].pool.getFreeGO().GetComponent<STD_Object>().LinkTo(this).Reboot(null);
+                        if (icon.Add.Click(20))
+                            STD_Pool.all[i].pool.getFreeGO().GetComponent<STD_Object>().LinkTo(this).Reboot(null);
 
-                    int Delete = -1;
+                        int Delete = -1;
 
-                    for (int o = 0; o < linkedObjects.Count; o++)  {
+                        for (int o = 0; o < linkedObjects.Count; o++) {
 
-                        STD_Object obj = linkedObjects[o];
-                        if (obj.poolController == up.pool) {
-                            pegi.newLine();
+                            STD_Object obj = linkedObjects[o];
+                            if (obj.poolController == up.pool) {
+                                pegi.newLine();
 
-                            if (icon.Delete.Click(20))
-                                Delete = o;
+                                if (icon.Delete.Click(20))
+                                    Delete = o;
 
-                            pegi.edit(linkedObjects[o].gameObject);
+                                pegi.edit(linkedObjects[o].gameObject);
 
-                            if (pegi.Click(icon.Edit, "Edit object", 20))
-                                exploredObject = o;
+                                if (pegi.Click(icon.Edit, "Edit object", 20))
+                                    exploredObject = o;
+                            }
                         }
+
+                        if (Delete != -1)
+                            linkedObjects[Delete].Deactivate();
+
+                        pegi.newLine();
                     }
 
-                    if (Delete != -1)
-                        linkedObjects[Delete].Deactivate();
-                    
-                    pegi.newLine();
-                }
-
                 if (sPOS.ExtendedPEGI(uSize, uReach))
-                    Update();
-            } 
+                    PostPositionUpdate();
+            }
             pegi.newLine();
             return changed;
 
-    }
+        }
 
 
-       
+       void OnDrawGizmosSelected() {
+            if (!objectsLoaded) {
+                UniverseLength rng = SpaceValues.tmpRange;
+                rng.CopyFrom(uReach).Divide(SpaceValues.universeScale).MultiplyBy(scale);
+              
+                Gizmos.DrawWireSphere(this.transform.position, rng.Meters+rng.KM*SpaceValues.meters_In_Kilometer);
+            }
+        }
+
+        float scale;
+        UniverseLength dist = new UniverseLength();
+     
+        public override void PostPositionUpdate() {
 
 
-        void Update() {
-            float scale;
 
-            transform.position = sPOS.ToV3(uSize, uReach, out scale);
-            transform.localScale = Vector3.one * scale;
+            if (noClamping)
+                transform.position = sPOS.ToV3unclamped(uReach);
+            else {
+                transform.position = sPOS.ToV3(uSize, uReach, out scale);
+                transform.localScale = Vector3.one * scale;
+            }
 
-            if ((!objectsLoaded) && (UniversePosition.isInReach)) // will also check distance to load/unload
+            if (!UniversePosition.isInReach)
+                dist.CopyFrom(SpaceValues.tmpDist);
+
+            if ((!objectsLoaded) && (UniversePosition.isInReach))
                 LoadContent();
-            else if (objectsLoaded && (!UniversePosition.isInReach))
+            else if (objectsLoaded && (!UniversePosition.isInReach)) {
+                if (Application.isPlaying == false)
+                    SavePageContent();
                 clearPage();
+            }
+
+
+
+            for (int i = linkedObjects.Count - 1; i >= 0; i--)
+                linkedObjects[i].PostPositionUpdate();
         }
 
         public static PoolController<Page> myPoolController;

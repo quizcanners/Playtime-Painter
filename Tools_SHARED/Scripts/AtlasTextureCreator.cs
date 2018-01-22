@@ -10,294 +10,261 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using PlayerAndEditorGUI;
 
-[Serializable]
-public class AtlasTexture {
+namespace Painter {
 
-    public int AtlasSize = 2048;
+    [Serializable]
+    public class AtlasTextureCreator {
 
-    public int textureSize = 512;
+        static painterConfig cfg { get { return painterConfig.inst; } }
 
-    public bool sRGB = true;
+        public int AtlasSize = 2048;
 
-    public string name = "_MainTex";
+        public int textureSize = 512;
 
-    public Texture2D a_texture;
+        public bool sRGB = true;
 
-    public List<Texture2D> Textures = new List<Texture2D>();
+        public string name = "_MainTex";
 
-	public override string ToString (){
-		return name;
-	}
+        public Texture2D a_texture;
 
-    public void adjustListSize() {
-        int ntc = TextureCount;
-        while (Textures.Count < ntc)
-            Textures.Add(null);
-    }
+        public List<Texture2D> Textures = new List<Texture2D>();
 
-    public int TextureCount {  get {
-            int row = AtlasSize / textureSize;
-
-            return row * row;
-        }
-    }
-
-    public void TextureToAtlas(Texture2D tex, int x, int y) {
-#if UNITY_EDITOR
-        tex.Reimport_IfNotReadale();
-#endif
-
-        Color[] from = tex.GetPixels(textureSize, textureSize);
-
-        a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, from);
-
-    }
-
-    public void smoothBorders(Texture2D atlas, int miplevel) {
-        Color[] col = atlas.GetPixels(miplevel);
-
-        int aSize = AtlasSize;
-        int tSize = textureSize;
-
-        for (int i=0; i<miplevel; i++) {
-            aSize /= 2;
-            tSize /= 2;
+        public override string ToString()
+        {
+            return name;
         }
 
-        if (tSize == 0)
-            return;
+        public void adjustListSize()
+        {
+            int ntc = TextureCount;
+            while (Textures.Count < ntc)
+                Textures.Add(null);
+        }
 
-       // AtlasSize = AtlasSize
+        public int TextureCount
+        {
+            get
+            {
+                int row = AtlasSize / textureSize;
 
-        int cnt = aSize / tSize;
-
-        linearColor tmp = new linearColor();
-
-
-        for (int ty = 0; ty < cnt; ty++) {
-            int startY = ty * tSize * aSize;
-            int lastY = (ty * tSize + tSize - 1)* aSize;
-            // Debug.Log("Processing Y "+ (ty * tSize) +" line ");
-            for (int tx = 0; tx < cnt; tx++) {
-                int startX = tx * tSize;
-                int lastX = startX + tSize - 1;
-
-                //   Debug.Log("Processing X " + (tx * tSize) + " line ");
-
-                tmp.Zero();
-                tmp.Add(col[startY + startX]);
-                tmp.Add(col[startY + lastX]);
-                tmp.Add(col[lastY + startX]);
-                tmp.Add(col[lastY + lastX]);
-
-                tmp.MultiplyBy(0.25f);
-
-                Color tmpC = tmp.ToColor();
-
-
-                col[startY + startX] = tmpC;
-                col[startY + lastX] = tmpC;
-                col[lastY + startX] = tmpC;
-                col[lastY + lastX] = tmpC;
-
-
-                for (int x= startX+1; x<lastX; x++) {
-                    tmp.Zero();
-                    tmp.Add(col[startY + x]);
-                    tmp.Add(col[lastY + x]);
-                    tmp.MultiplyBy(0.5f);
-                    tmpC = tmp.ToColor();
-                    col[startY + x] = tmpC;
-                    col[lastY + x] = tmpC;
-                }
-
-                for (int y = startY + aSize; y < lastY; y+= aSize) {
-                    tmp.Zero();
-                    tmp.Add(col[y + startX]);
-                    tmp.Add(col[y + lastX]);
-                    tmp.MultiplyBy(0.5f);
-                    tmpC = tmp.ToColor();
-                    col[y + startX] = tmpC;
-                    col[y + lastX] = tmpC;
-                }
-
+                return row * row;
             }
         }
 
-        atlas.SetPixels(col, miplevel);
-    }
+        public void TextureToAtlas(Texture2D tex, int x, int y)
+        {
+#if UNITY_EDITOR
+            tex.Reimport_IfNotReadale();
+#endif
 
-    public void ReconstructAtlas() {
+            Color[] from = tex.GetPixels(textureSize, textureSize);
 
-        if ((a_texture != null) && (a_texture.width != AtlasSize)) {
-            GameObject.DestroyImmediate (a_texture);
-            a_texture = null;
+            a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, from);
+
         }
 
-        if (a_texture == null)
-            a_texture = new Texture2D(AtlasSize, AtlasSize, TextureFormat.ARGB32, true, !sRGB);
+        public void smoothBorders(Texture2D atlas, int miplevel)
+        {
+            Color[] col = atlas.GetPixels(miplevel);
 
-        int texesInRow = AtlasSize / textureSize;
+            int aSize = AtlasSize;
+            int tSize = textureSize;
+
+            for (int i = 0; i < miplevel; i++)
+            {
+                aSize /= 2;
+                tSize /= 2;
+            }
+
+            if (tSize == 0)
+                return;
+
+            // AtlasSize = AtlasSize
+
+            int cnt = aSize / tSize;
+
+            linearColor tmp = new linearColor();
 
 
-        int curIndex = 0;
+            for (int ty = 0; ty < cnt; ty++)
+            {
+                int startY = ty * tSize * aSize;
+                int lastY = (ty * tSize + tSize - 1) * aSize;
+                // Debug.Log("Processing Y "+ (ty * tSize) +" line ");
+                for (int tx = 0; tx < cnt; tx++)
+                {
+                    int startX = tx * tSize;
+                    int lastX = startX + tSize - 1;
 
-        for (int i=0; i<texesInRow; i++) 
-           for (int j =0; j<texesInRow; j++) {
-              
+                    //   Debug.Log("Processing X " + (tx * tSize) + " line ");
+
+                    tmp.Zero();
+                    tmp.Add(col[startY + startX]);
+                    tmp.Add(col[startY + lastX]);
+                    tmp.Add(col[lastY + startX]);
+                    tmp.Add(col[lastY + lastX]);
+
+                    tmp.MultiplyBy(0.25f);
+
+                    Color tmpC = tmp.ToColor();
+
+
+                    col[startY + startX] = tmpC;
+                    col[startY + lastX] = tmpC;
+                    col[lastY + startX] = tmpC;
+                    col[lastY + lastX] = tmpC;
+
+
+                    for (int x = startX + 1; x < lastX; x++)
+                    {
+                        tmp.Zero();
+                        tmp.Add(col[startY + x]);
+                        tmp.Add(col[lastY + x]);
+                        tmp.MultiplyBy(0.5f);
+                        tmpC = tmp.ToColor();
+                        col[startY + x] = tmpC;
+                        col[lastY + x] = tmpC;
+                    }
+
+                    for (int y = startY + aSize; y < lastY; y += aSize)
+                    {
+                        tmp.Zero();
+                        tmp.Add(col[y + startX]);
+                        tmp.Add(col[y + lastX]);
+                        tmp.MultiplyBy(0.5f);
+                        tmpC = tmp.ToColor();
+                        col[y + startX] = tmpC;
+                        col[y + lastX] = tmpC;
+                    }
+
+                }
+            }
+
+            atlas.SetPixels(col, miplevel);
+        }
+
+        public void ReconstructAtlas()
+        {
+
+            if ((a_texture != null) && (a_texture.width != AtlasSize))
+            {
+                GameObject.DestroyImmediate(a_texture);
+                a_texture = null;
+            }
+
+            if (a_texture == null)
+                a_texture = new Texture2D(AtlasSize, AtlasSize, TextureFormat.ARGB32, true, !sRGB);
+
+            int texesInRow = AtlasSize / textureSize;
+
+
+            int curIndex = 0;
+
+            for (int i = 0; i < texesInRow; i++)
+                for (int j = 0; j < texesInRow; j++)
+                {
+
                     if ((Textures.Count > curIndex) && (Textures[curIndex] != null))
                         TextureToAtlas(Textures[curIndex], i, j);
 
-                curIndex++;
-            }
+                    curIndex++;
+                }
 
-    }
+        }
 
-}
+        public List<string> srcFields = new List<string>();
 
-[ExecuteInEditMode]
-public class AtlasTextureCreator : MonoBehaviour {
+        public void SmoothAtlas() {
+            Debug.Log("Smoothing " + a_texture.name + " with " + a_texture.mipmapCount + " mipmaps");
+            for (int m = 0; m < a_texture.mipmapCount; m++)
+                smoothBorders(a_texture, m);
 
-	public static List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator> ();
-
-    public const string atlasFolderName = "ATLASES";
-
-    public AtlasTexture atlas;
-
-	public List<string> srcFields = new List<string> (); 
-
-    public MeshRenderer preview;
-
-	public static AtlasTextureCreator getByName(string name){
-		if (atlases.Count == 0)
-			return null;
-
-		List<string> nms = new List<string> ();
-		foreach (AtlasTextureCreator ac in atlases)
-			nms.Add (ac.ToString ());
-
-		return atlases[name.FindMostSimilarFrom(nms.ToArray())];
-
-	}
-
-	private void OnDisable(){
-		atlases.Remove (this);
-	}
-
-    private void OnEnable()
-    {
-		atlases.Add (this);
-
-        if (preview == null)
-            preview = GetComponent<MeshRenderer>();
-
-    }
-
-    public void SmoothAtlas() {
-        Debug.Log("Smoothing " + atlas.a_texture.name + " with " + atlas.a_texture.mipmapCount + " mipmaps");
-        for (int m = 0; m < atlas.a_texture.mipmapCount; m++)
-            atlas.smoothBorders(atlas.a_texture, m);
-
-        atlas.a_texture.Apply();
-    }
+            a_texture.Apply();
+        }
 
 #if UNITY_EDITOR
-    public void ReconstructAsset(AtlasTexture a) {
+        public void ReconstructAsset() {
 
-        a.ReconstructAtlas();
+            ReconstructAtlas();
 
-        byte[] bytes = a.a_texture.EncodeToPNG();
+            byte[] bytes = a_texture.EncodeToPNG();
 
-        string lastPart = "/" + atlasFolderName + "/";
-        string fullPath = Application.dataPath + lastPart;
-        Directory.CreateDirectory(fullPath);
+            string lastPart = "/" + cfg.atlasFolderName + "/";
+            string fullPath = Application.dataPath + lastPart;
+            Directory.CreateDirectory(fullPath);
 
-        string fileName = a.name + ".png";
-        string relativePath = "Assets" + lastPart + fileName;
-        fullPath += fileName;
+            string fileName = name + ".png";
+            string relativePath = "Assets" + lastPart + fileName;
+            fullPath += fileName;
 
-        File.WriteAllBytes(fullPath, bytes);
+            File.WriteAllBytes(fullPath, bytes);
 
-        AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
+            AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
-        a.a_texture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+            a_texture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
-        TextureImporter ti = a.a_texture.getTextureImporter();
-        bool needReimport = ti.wasNotReadable();
-        needReimport |= ti.wasClamped();
+            TextureImporter ti = a_texture.getTextureImporter();
+            bool needReimport = ti.wasNotReadable();
+            needReimport |= ti.wasClamped();
 
-        if (needReimport) ti.SaveAndReimport();
+            if (needReimport) ti.SaveAndReimport();
 
-
-
-        if (preview != null) preview.sharedMaterial.mainTexture = a.a_texture;
-
-    }
+        }
 #endif
 
-    public void PEGI() {
+        public void PEGI() {
 
 #if UNITY_EDITOR
-        pegi.write("Name:", 60);
-        pegi.edit(ref atlas.name);
-        pegi.newLine();
+            "Name:".edit(60, ref name).nl();
 
-        pegi.write("Atlas size:", 80);
-        pegi.edit(ref atlas.AtlasSize);
-        atlas.AtlasSize = Mathf.ClosestPowerOfTwo(atlas.AtlasSize);
-        pegi.newLine();
+            "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
+            AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
-        pegi.write("Textures size:", 80);
-        if (pegi.edit(ref atlas.textureSize))
-            pegi.foldIn();
-        atlas.textureSize = Mathf.Clamp(atlas.textureSize, 32, atlas.AtlasSize / 2);
-        atlas.textureSize = Mathf.ClosestPowerOfTwo(atlas.textureSize);
-        pegi.newLine();
+            if ("Textures size:".editDelayed(ref textureSize, 80).nl())
+                pegi.foldIn();
 
-        if (pegi.foldout("Textures:"))
-        {
-            pegi.newLine();
-            atlas.adjustListSize();
-            int max = atlas.TextureCount;
+            textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
 
-            for (int i = 0; i < max; i++)
-            {
-                Texture2D t = atlas.Textures[i];
-                if (pegi.edit(ref t))
-                    atlas.Textures[i] = t;
-                // = (Texture2D)EditorGUILayout.ObjectField(atlas.Textures[i], typeof(Texture2D), true);
+
+            if (pegi.foldout("Textures:")) {
                 pegi.newLine();
+                adjustListSize();
+                int max = TextureCount;
+
+                for (int i = 0; i < max; i++)
+                {
+                    Texture2D t = Textures[i];
+                    if (pegi.edit(ref t))
+                        Textures[i] = t;
+                    pegi.newLine();
+                }
             }
-        }
 
-        pegi.newLine();
-        pegi.write("Is Color Atlas:", 80);
-        pegi.toggle(ref atlas.sRGB);
+            pegi.newLine();
+            "Is Color Atlas:".toggle(80, ref sRGB).nl();
 
-        pegi.newLine();
+            if ("Generate".Click())
+                ReconstructAsset();
 
-        if (pegi.Click("Generate"))
-            ReconstructAsset(atlas);
+            if ((a_texture != null) && ("Smooth Edges".Click()))
+                SmoothAtlas();
 
-        if ((atlas.a_texture != null) && (pegi.Click("Smooth Edges")))
-            SmoothAtlas();
+            pegi.newLine();
 
-        pegi.newLine();
-
-        if (atlas.a_texture != null)
-        {
-            pegi.write("Atlas At " + AssetDatabase.GetAssetPath(atlas.a_texture));
-            EditorGUILayout.ObjectField(atlas.a_texture, typeof(Texture2D), false);
-        }
+            if (a_texture != null)
+            {
+                pegi.write("Atlas At " + AssetDatabase.GetAssetPath(a_texture));
+                EditorGUILayout.ObjectField(a_texture, typeof(Texture2D), false);
+            }
 
 #endif
 
-        pegi.newLine();
+            pegi.newLine();
+
+        }
+
 
     }
-
-
-}
 
 // Postprocesses all textures that are placed in a folder
 // "invert color" to have their colors inverted.
@@ -329,3 +296,4 @@ public class InvertColor : AssetPostprocessor {
     }
 }
 */
+  }

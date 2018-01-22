@@ -6,7 +6,7 @@ using PlayerAndEditorGUI;
 namespace Painter
 {
 
-    public enum MeshTool { vertices, uv, VertexAnimation, VertColor, VertexShadow, AtlasTexture }
+    public enum MeshTool { vertices, uv, VertexAnimation, VertColor, VertexShadow, AtlasTexture, VertexEdge }
 
     public static class MeshTools
     {
@@ -35,7 +35,7 @@ namespace Painter
     public abstract class MeshToolBase {
 
         protected MeshManager m { get { return MeshManager.inst(); } }
-        protected playtimeMesherSaveData cfg { get { return playtimeMesherSaveData.inst(); } }
+        protected painterConfig cfg { get { return painterConfig.inst; } }
         protected LineData line { get { return m.pointedLine; } }
         protected trisDta triangle { get { return m.pointedTris; } }
         protected UVpoint vertex { get { return m.pointedUV; } }
@@ -110,19 +110,39 @@ namespace Painter
 
             MeshManager mgm = m;
 
-            if (pegi.Click("ALL Edges Smooth")) {
-                foreach (vertexpointDta vr in m._Mesh.vertices)
-                    vr.SmoothNormal = true;
+            painterConfig sd = painterConfig.inst;
 
+            if (MeshManager.inst().showGrid)
+            {
+                "Snap to grid:".toggle(100, ref sd.SnapToGrid);
+
+                if (sd.SnapToGrid)
+                    "size:".edit(40, ref sd.SnapToGridSize);
+            }
+
+
+            pegi.newLine();
+
+            "Add As Smooth:".toggle(120, ref MeshManager.cfg.newVerticesSmooth);
+            if (pegi.Click("Sharp All")) {
+                foreach (vertexpointDta vr in m._Mesh.vertices)
+                    vr.SmoothNormal = false;
                 mgm._Mesh.Dirty = true;
             }
 
-            if (pegi.Click("All verticles shared")) {
+            if (pegi.Click("Smooth All").nl()) {
+                foreach (vertexpointDta vr in m._Mesh.vertices)
+                    vr.SmoothNormal = true;
+                mgm._Mesh.Dirty = true;
+            }
+
+            "Add As Unique:".toggle(120, ref MeshManager.cfg.newVerticesUnique);
+            if (pegi.Click("All shared")) {
                 mgm._Mesh.SMOOTHALLVERTS();
                 mgm._Mesh.Dirty = true;
             }
 
-            if (pegi.Click("All verticles unique"))
+            if (pegi.Click("All unique"))
             {
                 foreach (trisDta t in MeshManager.inst()._Mesh.triangles)
                     mgm._Mesh.GiveTriangleUniqueVerticles(t);
@@ -132,7 +152,7 @@ namespace Painter
 
          
             if (pegi.Click("Mirror Agains Center")) {
-                GridNavigator.onGridPos = mgm._target.p.transform.position;
+                GridNavigator.onGridPos = mgm._target.transform.position;
                 mgm.UpdateLocalSpaceV3s();
                 mgm._Mesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
             }
@@ -162,10 +182,13 @@ namespace Painter
 
             if (m.pointedUV == null) return;
 
-            if ((KeyCode.M.KeyDown()) && (m.draggingSelected))
+            if ((KeyCode.M.isDown()) && (m.draggingSelected))
+            {
                 m.selectedUV.vert.MergeWithNearest();
+                m.draggingSelected = false;
+            }
 
-            if (KeyCode.Delete.KeyDown())
+            if (KeyCode.Delete.isDown())
             {
                 Debug.Log("Deleting");
                 if (!EditorInputManager.getControlKey())
@@ -190,17 +213,17 @@ namespace Painter
 
         public override void KeysEventPointedTriangle()
         {
-            if (KeyCode.Backspace.KeyDown())
+            if (KeyCode.Backspace.isDown())
             {
                 m._Mesh.triangles.Remove(triangle);
                 m._Mesh.Dirty = true;
                 return;
             }
 
-            if (KeyCode.U.KeyDown())
+            if (KeyCode.U.isDown())
                 triangle.MakeTriangleVertUnique(vertex);
 
-            if (KeyCode.N.KeyDown())
+            if (KeyCode.N.isDown())
             {
 
                 if (EditorInputManager.getAltKey() == false)
@@ -245,19 +268,15 @@ namespace Painter
 
         }
 
-        public override void MouseEventPointedLine()
-        {
-            if (EditorInputManager.GetMouseButtonDown(0))
-            {
+        public override void MouseEventPointedLine() {
+            if (EditorInputManager.GetMouseButtonDown(0)) 
                 m._Mesh.insertIntoLine(m.pointedLine.pnts[0].vert, m.pointedLine.pnts[1].vert, m.collisionPosLocal);
-            }
+            
         }
 
-        public override void MouseEventPointedTriangle()
-        {
-            if (EditorInputManager.GetMouseButtonDown(0))
-            {
-                if (EditorInputManager.getAltKey() == MeshManager.cfg.newVerticesSmooth)
+        public override void MouseEventPointedTriangle() {
+            if (EditorInputManager.GetMouseButtonDown(0))  {
+                if (EditorInputManager.getAltKey() == MeshManager.cfg.newVerticesUnique)
                     m._Mesh.insertIntoTriangleUniqueVerticles(m.pointedTris, m.collisionPosLocal);
                 else
                     m._Mesh.insertIntoTriangle(m.pointedTris, m.collisionPosLocal);
@@ -308,7 +327,7 @@ namespace Painter
 
            if  (pegi.toggle(ref tmp.GridToUVon, "Grid Painting ", 90)) {
                 if (!tmp.GridToUVon)
-                    playtimeMesherSaveData.inst()._meshTool = MeshTool.uv;
+                    cfg._meshTool = MeshTool.uv;
                 tmp.UpdatePreviewIfGridedDraw();
             }
 
@@ -375,7 +394,7 @@ namespace Painter
 
         public override void KeysEventPointedLine()
         {
-            if ((KeyCode.Backspace.KeyDown()))
+            if ((KeyCode.Backspace.isDown()))
             {
                 UVpoint a = line.pnts[0];
                 UVpoint b = line.pnts[1];
@@ -414,9 +433,9 @@ namespace Painter
         public override void tool_pegi()
         {
             if (pegi.Click("Paint All with Brush Color"))
-                m._Mesh.PaintAll(playtimeMesherSaveData.inst().brushConfig.color);
+                m._Mesh.PaintAll(cfg.brushConfig.color);
 
-            pegi.toggle(ref playtimeMesherSaveData.inst().MakeVericesUniqueOnEdgeColoring, "Make Vertices Unique On coloring", 60); 
+            pegi.toggle(ref cfg.MakeVericesUniqueOnEdgeColoring, "Make Vertices Unique On coloring", 60); 
             pegi.newLine();
 
             cfg.brushConfig.ColorSliders_PEGI();
@@ -424,28 +443,31 @@ namespace Painter
             if (pegi.Click("Colors AUTO for Detection"))
                 m._Mesh.AutoSetVertColors();
             pegi.newLine();
+            pegi.writeHint("Ctrl+LMB on Vertex - to paint only selected uv");
         }
 
         public override void MouseEventPointedVertex()
         {
             MeshManager m = MeshManager.inst();
 
-            BrushConfig bcf = playtimeMesherSaveData.inst().brushConfig;
+            BrushConfig bcf = cfg.brushConfig;
 
             if (EditorInputManager.GetMouseButtonDown(1))
-                m.pointedUV.vert.clearColor(playtimeMesherSaveData.inst().brushConfig.mask);
+                m.pointedUV.vert.clearColor(cfg.brushConfig.mask);
 
             if ((EditorInputManager.GetMouseButtonDown(0)))
             {
                 if (EditorInputManager.getControlKey())
                 {
-                    foreach (UVpoint uvi in m.pointedUV.vert.uv)
-                        uvi._color.From(playtimeMesherSaveData.inst().brushConfig.color, bcf.mask);
+                    bcf.mask.Transfer(ref m.pointedUV._color, bcf.color.ToColor());
+
+                  
                 }
                 else
-                    m.pointedUV._color.From(bcf.color, bcf.mask);
+                    foreach (UVpoint uvi in m.pointedUV.vert.uv)
+                        bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.color.ToColor());
 
-       
+
                 m._Mesh.Dirty = true;
             }
         }
@@ -457,9 +479,11 @@ namespace Painter
 
                 UVpoint a = line.pnts[0];
                 UVpoint b = line.pnts[1];
-
-                a.vert.SetColorOnLine(bcf.color.ToColor(), bcf.mask, b.vert);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
-                b.vert.SetColorOnLine(bcf.color.ToColor(), bcf.mask, a.vert);
+            
+                Color c = bcf.color.ToColor();
+               
+                a.vert.SetColorOnLine(c, bcf.mask, b.vert);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
+                b.vert.SetColorOnLine(c, bcf.mask, a.vert);
                 m._Mesh.Dirty = true;
             }
         }
@@ -469,20 +493,70 @@ namespace Painter
             UVpoint a = line.pnts[0];
             UVpoint b = line.pnts[1];
 
-            if (KeyCode.Alpha1.KeyDown())
-                a.vert.FlipChanelOnLine(ColorChanel.R, b.vert);
+            int ind = Event.current.NumericKeyDown();
 
-            if (KeyCode.Alpha2.KeyDown())
-                a.vert.FlipChanelOnLine(ColorChanel.G, b.vert);
-
-            if (KeyCode.Alpha3.KeyDown())
-                a.vert.FlipChanelOnLine(ColorChanel.B, b.vert);
-
-            if (KeyCode.Alpha4.KeyDown())
-                a.vert.FlipChanelOnLine(ColorChanel.A, b.vert);
-
+            if ((ind > 0) && (ind < 5))
+            {
+                a.vert.FlipChanelOnLine((ColorChanel)(ind - 1), b.vert);
+                m._Mesh.Dirty = true;
+                Event.current.Use();
+            }
+          
         }
 
+    }
+
+    public class VertexEdgeTool : MeshToolBase
+    {
+        public override MeshTool myTool { get { return MeshTool.VertexEdge; } }
+
+        public override bool showTriangles { get { return false; } }
+
+        public static float edgeValue = 1;
+
+        public override void tool_pegi() {
+            "Edge Strength: ".edit(ref edgeValue).nl();
+
+            pegi.writeHint("Strength usually used to show color on the edge and hide seam");
+        }
+
+        public override void MouseEventPointedVertex()
+        {
+            MeshManager m = MeshManager.inst();
+
+            if ((EditorInputManager.GetMouseButtonDown(0)))
+            {
+                if (EditorInputManager.getControlKey())
+                    edgeValue = m.pointedUV.vert.edgeStrength;
+                else
+                    m.pointedUV.vert.edgeStrength = edgeValue;
+
+
+                m._Mesh.Dirty = true;
+            }
+        }
+
+        public override void MouseEventPointedLine()
+        {
+            if (EditorInputManager.GetMouseButtonDown(0))
+            {
+
+                if (EditorInputManager.getControlKey()) 
+
+                    edgeValue = (line.pnts[0].vert.edgeStrength + line.pnts[1].vert.edgeStrength ) *0.5f;
+
+                
+                else {
+                   // Debug.Log("Assigning");
+                    line.pnts[0].vert.edgeStrength = edgeValue;
+                    line.pnts[1].vert.edgeStrength = edgeValue;
+
+
+                    m._Mesh.Dirty = true;
+                }
+            }
+        }
+        
     }
 
     public class VertexShadowTool : MeshToolBase
@@ -497,7 +571,7 @@ namespace Painter
 
             if ((EditorInputManager.GetMouseButtonDown(0)))
             {
-                BrushConfig bcf = playtimeMesherSaveData.inst().brushConfig;
+                BrushConfig bcf = cfg.brushConfig;
                 bcf.color.ToV4(ref m.pointedUV.vert.shadowBake, bcf.mask);
                 Debug.Log("Modified shadow to: " + m.pointedUV.vert.shadowBake.ToString());
 
@@ -512,7 +586,7 @@ namespace Painter
         public override bool showLines  {
             get
             {
-                return false;
+                return cfg.atlasEdgeAsChanel2;
             }
         }
 
@@ -532,26 +606,46 @@ namespace Painter
 
         public override MeshTool myTool { get { return MeshTool.AtlasTexture; } }
 
-        public override void tool_pegi()
-        {
-            pegi.write("Atlas Texture: ");
-            pegi.edit(ref cfg.curAtlasTexture);
-            pegi.newLine();
+        public override void tool_pegi() {
+
+            "Edge Click as Chanel 2".toggle(ref cfg.atlasEdgeAsChanel2).nl();
+
+            "Atlas Texture: ".edit(ref cfg.curAtlasTexture).nl();
+            "Atlas Chanel: ".edit(ref cfg.curAtlasChanel).nl();
+
             if (m.selectedTris != null)
             {
-                pegi.write("Selected tris uses Atlas Texture " + m.selectedTris.textureNo[0]);
-                pegi.newLine();
+                ("Selected tris uses Atlas Texture " + m.selectedTris.textureNo[0]).nl();
             }
+
+            pegi.writeHint("Cntrl + LMB -> Sample Texture");
         }
 
         public override void MouseEventPointedTriangle()
         {
-            MeshManager m = MeshManager.inst();
+           
             if (EditorInputManager.GetMouseButtonDown(0))
             {
-                m.pointedTris.textureNo[0] = playtimeMesherSaveData.inst().curAtlasTexture;
-                m._Mesh.Dirty = true;
+                if (EditorInputManager.getControlKey())
+                    cfg.curAtlasTexture = (int)m.pointedTris.textureNo[cfg.curAtlasChanel];
+                else
+                {
+                    m.pointedTris.textureNo[cfg.curAtlasChanel] = cfg.curAtlasTexture;
+                    m._Mesh.Dirty = true;
+                }
             }
+        }
+
+        public override void MouseEventPointedLine() {
+            if (EditorInputManager.GetMouseButtonDown(0))
+            {
+
+               foreach(var t in m.pointedLine.getAllTriangles_USES_Tris_Listing()) 
+                    t.textureNo.y = cfg.curAtlasTexture;
+                m._Mesh.Dirty = true;
+
+            }
+
         }
 
         public void SetAllTrianglesTextureTo(int no, int chanel) {
@@ -563,6 +657,20 @@ namespace Painter
 
             m._Mesh.Dirty = true;
         }
+
+        public override void KeysEventPointedTriangle()
+        {
+
+
+            int keyDown = Event.current.NumericKeyDown();
+            
+            if (keyDown!= -1) {
+                m.pointedTris.textureNo[cfg.curAtlasChanel] = keyDown;
+                m._Mesh.Dirty = true;
+                if (!Application.isPlaying) Event.current.Use();
+            }
+        
+    }
 
     }
 

@@ -37,7 +37,7 @@ namespace Painter
 
         int uvIndex;
         public int finalIndex;
-        public linearColor _color;
+        public Color _color;
 
         public bool tmpMark;
         public bool HasVertex;
@@ -61,7 +61,7 @@ namespace Painter
             switch (tag) {
                 case "i": finalIndex = data.ToInt(); mesh.uvsByFinalIndex[finalIndex] = this; break;
                 case "uvi": uvIndex = data.ToInt(); break;
-                case "col": _color = data.ToLinearColor(); break;
+                case "col": _color = data.ToColor(); break;
             }
         }
 
@@ -70,7 +70,7 @@ namespace Painter
             UVpoint tmp = new UVpoint(nvert, getUV(0), getUV(1));
             tmp.finalIndex = finalIndex;
             tmp.uvIndex = uvIndex;
-            tmp._color.CopyFrom(_color);
+            tmp._color = _color;
 
             MyLastCopy = tmp;
             return tmp;
@@ -89,6 +89,12 @@ namespace Painter
        
         public UVpoint() {
             Init(vertexpointDta.currentlyDecoded);
+        }
+
+        public UVpoint(UVpoint other)
+        {
+            Init(other.vert);
+            uvIndex = other.uvIndex;
         }
 
         public UVpoint(vertexpointDta nvert)
@@ -128,7 +134,7 @@ namespace Painter
         void Init(vertexpointDta nvert) {
             vert = nvert;
             nvert.uv.Add(this);
-            _color = new linearColor();
+            _color = new Color();
         }
 
         public void AssignToNewVertex(vertexpointDta vp) {
@@ -167,30 +173,20 @@ namespace Painter
             return false;
         }
 
-        public void setColor(Color32 col, BrushMask bm)
-        {
-            _color.From(col, bm);
-        }
-
-        public void setColor(Color32 col)
-        {
-            _color.From(col);
-        }
-
         public void setColor_OppositeTo(ColorChanel chan)
         {
             for (int i = 0; i < 3; i++)
             {
                 ColorChanel c = (ColorChanel)i;
-                _color.SetChanelFrom01(c, c == chan ? 0 : 1);
+                c.SetChanel(ref _color, c == chan ? 0 : 1);
             }
         }
 
         public void FlipChanel(ColorChanel chan)
         {
-            float val = _color.GetChanel01(chan);
+            float val = _color.GetChanel(chan);
             val = (val > 0.9f) ? 0 : 1;
-            _color.SetChanelFrom01(chan, val);
+            chan.SetChanel(ref _color, val);
         }
 
         ColorChanel GetZeroChanelIfOne(ref int count)
@@ -198,7 +194,7 @@ namespace Painter
             count = 0;
             ColorChanel ch = ColorChanel.A;
             for (int i = 0; i < 3; i++)
-                if (_color.GetChanel01((ColorChanel)i) > 0.9f)
+                if (_color.GetChanel((ColorChanel)i) > 0.9f)
                     count++;
                 else ch = (ColorChanel)i;
 
@@ -277,6 +273,7 @@ namespace Painter
     public class vertexpointDta : abstract_STD
     {
         protected EditableMesh mesh { get { return MeshManager.inst()._Mesh; } }
+        protected painterConfig cfg { get { return painterConfig.inst; } }
 
         public Vector3 normal;
         public int index;
@@ -296,6 +293,7 @@ namespace Painter
         public Matrix4x4 bindPoses;
         public List<List<BlendFrame>> shapes; // not currently working
         public int submeshIndex;
+        public float edgeStrength;
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -316,8 +314,9 @@ namespace Painter
 
             cody.Add("bw", boneWeight);
 
-            //if (bindPoses != null)
-                cody.Add("biP", bindPoses);
+            cody.Add("biP", bindPoses);
+
+            cody.Add("edge", edgeStrength);
 
             if (shapes != null)
                 cody.AddIfNotEmpty("bl",shapes);
@@ -341,6 +340,7 @@ namespace Painter
                 case "biP": bindPoses = data.ToMatrix4x4(); break;
                 case BlendFrame.tagName_bs: shapes = data.ToListOfList_STD<BlendFrame>(); break;
                 case "sub": submeshIndex = data.ToInt(); break;
+                case "edge":  edgeStrength = data.ToFloat(); break;
             }
         }
 
@@ -379,19 +379,19 @@ namespace Painter
 
         public Vector3 getWorldPos()  {
 
-              MeshPainter emc = MeshManager.inst()._target;
+              PlaytimePainter emc = MeshManager.inst()._target;
               if (emc.AnimatedVertices())  {
                   int animNo = emc.GetVertexAnimationNumber();
-                  return emc.p.transform.TransformPoint(pos + anim[animNo]);
+                  return emc.transform.TransformPoint(pos + anim[animNo]);
               }
 
-              return emc.p.transform.TransformPoint(pos);
+              return emc.transform.TransformPoint(pos);
            
         }
 
         public void SetFromWorldSpace(Vector3 wPos)
         {
-            pos = MeshManager.inst()._target.p.transform.InverseTransformPoint(wPos);
+            pos = MeshManager.inst()._target.transform.InverseTransformPoint(wPos);
         }
 
         public vertexpointDta() {
@@ -407,30 +407,31 @@ namespace Painter
             anim = new Countless<Vector3>();
             uv = new List<UVpoint>();
             shadowBake = Vector4.one;
+            SmoothNormal = cfg.newVerticesSmooth;
         }
 
         public void clearColor(BrushMask bm) {
             foreach (UVpoint uvi in uv)
-                uvi._color.From(new Color32(0, 0, 0, 0), bm);
+                bm.Transfer(ref uvi._color, Color.black);
         }
 
         void SetChanel(ColorChanel chan, vertexpointDta other, float val)
         {
             foreach (UVpoint u in uv)
                 if (u.ConnectedTo(other))
-                    u._color.SetChanelFrom01(chan, val);
+                    chan.SetChanel(ref u._color, val);
         }
 
         public bool FlipChanelOnLine(ColorChanel chan, vertexpointDta other)
         {
             float val = 1;
 
-            if (playtimeMesherSaveData.inst().MakeVericesUniqueOnEdgeColoring)
+            if (cfg.MakeVericesUniqueOnEdgeColoring)
                 MeshManager.inst()._Mesh.GiveLineUniqueVerticles_REFRESHTRISLISTING(new LineData(this, other));
 
             foreach (UVpoint u in uv)
                 if (u.ConnectedTo(other))
-                    val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
+                    val *= u._color.GetChanel(chan) * u.GetConnectedUVinVert(other)._color.GetChanel(chan);
 
             val = (val > 0.9f) ? 0 : 1;
 
@@ -449,7 +450,7 @@ namespace Painter
         {
             foreach (UVpoint u in uv)
                 if (u.ConnectedTo(other))
-                    u.setColor(col, bm);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
+                    bm.Transfer(ref u._color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
 
         }
 
@@ -462,12 +463,12 @@ namespace Painter
                         UVpoint ouv = u.GetConnectedUVinVert(other);
                         ColorChanel ch = (ColorChanel)i;
 
-                        float val = u._color.GetChanel01(ch) * ouv._color.GetChanel01(ch);
+                        float val = u._color.GetChanel(ch) * ouv._color.GetChanel(ch);
 
                         if (val > 0.9f)
                         {
-                            u._color.SetChanelFrom01(ch, 0);
-                            ouv._color.SetChanelFrom01(ch, 0);
+                             ch.SetChanel(ref u._color, 0);
+                            ch.SetChanel(ref ouv._color, 0);
                         }
                     }
 
@@ -545,7 +546,7 @@ namespace Painter
 
             foreach (UVpoint uvi in uv)
                 foreach (trisDta tri in uvi.tris)
-                    if (Alltris.Contains(tri) == false)
+                    if (!Alltris.Contains(tri))
                         Alltris.Add(tri);
 
 
@@ -636,6 +637,14 @@ namespace Painter
         }
 
         public const string stdTag_tri = "tri";
+
+        public trisDta CopySettingsFrom (trisDta td) {
+            for (int i = 0; i < 3; i++)
+                ForceSmoothedNorm[i] = td.ForceSmoothedNorm[i];
+            textureNo = td.textureNo;
+
+            return this;
+        }
 
         public bool wasProcessed;
 
@@ -771,10 +780,10 @@ namespace Painter
                 if (uvpnts[i].vert == vrt) return uvpnts[i];
 
             Debug.Log("Error using Get By Vert");
-            return uvpnts[0];
+            return null;//uvpnts[0];
         }
 
-        public Vector2 PointUVonTriangle(Vector3 point, int uvSet)
+        public Vector3 DistanceToWeight(Vector3 point)
         {
 
             Vector3 p1 = uvpnts[0].vert.pos;
@@ -786,11 +795,12 @@ namespace Painter
             Vector3 f3 = p3 - point;
 
             float a = Vector3.Cross(p2 - p1, p3 - p1).magnitude; // main triangle area a
-            float a1 = Vector3.Cross(f2, f3).magnitude / a; // p1's triangle area / a
-            float a2 = Vector3.Cross(f3, f1).magnitude / a; // p2's triangle area / a 
-            float a3 = Vector3.Cross(f1, f2).magnitude / a; // p3's triangle area / a
-
-            return (uvpnts[0].getUV(uvSet) * a1 + uvpnts[1].getUV(uvSet) * a2 + uvpnts[2].getUV(uvSet) * a3);
+            Vector3 p = new Vector3( 
+                Vector3.Cross(f2, f3).magnitude / a,
+                Vector3.Cross(f3, f1).magnitude / a,
+                Vector3.Cross(f1, f2).magnitude / a // p3's triangle area / a
+            );
+            return p; 
 
 
             /* Vector3 dst = new Vector3(point.DistanceTo(uvpnts[0].vert.pos),
@@ -799,6 +809,15 @@ namespace Painter
 
              return (uvpnts[0].v2 * (1 - dst.x) + uvpnts[1].v2 * (1 - dst.y) + uvpnts[2].v2 * (1 - dst.z)) / 2;*/
 
+        }
+
+        public void AssignWeightedData (UVpoint to, Vector3 weight) {
+         
+            to._color = uvpnts[0]._color * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
+            to.vert.shadowBake = uvpnts[0].vert.shadowBake * weight.x + uvpnts[1].vert.shadowBake * weight.y + uvpnts[2].vert.shadowBake * weight.z;
+            UVpoint nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? uvpnts[0] : uvpnts[1]) : uvpnts[2];
+            to.vert.boneWeight = nearest.vert.boneWeight; //boneWeight. * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
+            to.vert.submeshIndex = nearest.vert.submeshIndex;
         }
 
         public void Replace(UVpoint point, UVpoint with)
@@ -843,7 +862,7 @@ namespace Painter
                 bool same;
                 same = false;
                 foreach (UVpoint uvi in others)
-                    if (uvi == uvpnts[i]) same = true;
+                    if (uvi.vert == uvpnts[i].vert) same = true;
 
                 if (!same) return uvpnts[i];
             }
@@ -1061,6 +1080,7 @@ namespace Painter
 
             return GridNavigator.inst().PlaneToWorldVector(mid).normalized;
         }
+
     }
 
 }

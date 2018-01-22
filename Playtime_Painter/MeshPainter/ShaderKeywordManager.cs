@@ -19,7 +19,7 @@ public class meshSHaderMode {
     public static meshSHaderMode smoothNormal = new meshSHaderMode("MESH_PREVIEW_SHARP_NORMAL");
 
     // Functionality
-    private static meshSHaderMode selected;
+    public static meshSHaderMode selected;
 
     public override string ToString() {
         return Value;

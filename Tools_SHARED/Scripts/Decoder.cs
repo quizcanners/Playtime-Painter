@@ -207,7 +207,22 @@ namespace StoryTriggerData {
             return lc;
         }
 
+        public static Color ToColor(this string data) {
+            var cody = new stdDecoder(data);
+            Color c = new Color();
+            while (cody.gotData) {
+                switch (cody.getTag()) {
+                    case "r": c.r = cody.getData().ToFloat(); break;
+                    case "g": c.g = cody.getData().ToFloat(); break;
+                    case "b": c.b = cody.getData().ToFloat(); break;
+                    case "a": c.a = cody.getData().ToFloat(); break;
+                    default:
+                        cody.getData(); break;
+                }
+            }
 
+            return c;
+        }
 
 
     }

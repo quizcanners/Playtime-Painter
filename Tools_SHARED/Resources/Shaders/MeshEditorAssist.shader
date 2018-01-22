@@ -65,13 +65,13 @@
 				
 
 				normalAndPositionToUV(v.tangent.xyz, o.scenepos.xyz, o.bC, o.texcoord.zw);
-				o.texcoord.zw /=8;
+				//o.texcoord.zw /=8;
           
 
 				o.viewDir.xyz = WorldSpaceViewDir(v.vertex); 
 
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal.xyz);//v.tangent.xyz;//v.normal;
-				o.snormal.xyz = UnityObjectToWorldNormal(v.tangent.xyz);
+				o.snormal.xyz = UnityObjectToWorldNormal(v.tangent.xyz);  // Sharp Normal
 				o.snormal.w = v.tangent.w;
 
                 o.normalRight.xyz = UnityObjectToWorldNormal(v.texcoord2.xyz);
@@ -169,7 +169,7 @@
 				col = saturate(col)*val*0.95 + val*0.05;
 
 #if MESH_PREVIEW_VERTCOLOR
-				return i.vcol- border.x;
+				return i.vcol -border.x;
 #endif
 
 #if MESH_PREVIEW_PROJECTION

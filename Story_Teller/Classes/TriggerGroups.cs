@@ -22,6 +22,11 @@ namespace StoryTriggerData {
         public const string StoriesFolderName = "Stories";
         public const string triggersFileName = "triggers";
 
+        public override string ToString()
+        {
+            return "runtime " + myInstantiatedIndex;
+        }
+
         public string GetAssePath() {
             return StoriesFolderName + "/" + ToString();
         }

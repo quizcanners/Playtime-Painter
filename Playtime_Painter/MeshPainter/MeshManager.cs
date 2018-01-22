@@ -17,6 +17,7 @@ namespace Painter
     [ExecuteInEditMode]
     public class MeshManager {
 
+
         public static MeshManager inst() {
             return PainterManager.inst.meshManager;
         }
@@ -34,15 +35,18 @@ namespace Painter
 			return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
         }
 
-        public static MeshTool _meshTool() {
-            return playtimeMesherSaveData.inst()._meshTool;
+        public static MeshTool _meshTool {
+            get
+            {
+                return cfg._meshTool;
+            }
         } // will be depricated
 
-        public static MeshToolBase tool { get { return playtimeMesherSaveData.inst()._meshTool.Process(); } }
+        public static MeshToolBase tool { get { return painterConfig.inst._meshTool.Process(); } }
 
-        public static playtimeMesherSaveData cfg {
+        public static painterConfig cfg {
             get {
-                return playtimeMesherSaveData.inst();
+                return painterConfig.inst;
             }
         }
         public static int curUV = 0;
@@ -50,11 +54,11 @@ namespace Painter
         public static Vector3 editorMousePos;
 
         public static BrushConfig brushConfig() {
-            return playtimeMesherSaveData.inst().brushConfig;
+            return cfg.brushConfig;
         }
       
 
-        public MeshPainter _target;
+        public PlaytimePainter _target;
 
         [NonSerialized]
         public EditableMesh _Mesh = new EditableMesh();
@@ -100,31 +104,36 @@ namespace Painter
 
         public void UpdateLocalSpaceV3s() {
             if (_target != null) {
-                onGridLocal = _target.p.transform.InverseTransformPoint(GridNavigator.onGridPos);
-                collisionPosLocal = _target.p.transform.InverseTransformPoint(GridNavigator.collisionPos);
+                onGridLocal = _target.transform.InverseTransformPoint(GridNavigator.onGridPos);
+                collisionPosLocal = _target.transform.InverseTransformPoint(GridNavigator.collisionPos);
             }
         }
 
         public void TextureAnim_ToCollider() {
             _PreviewMeshGen.CopyFrom(_Mesh);
             _PreviewMeshGen.AddTextureAnimDisplacement();
-            MeshConstructor con = new MeshConstructor(_Mesh, cfg.meshProfiles[0], null);
-            con.AssignMeshAsCollider(_target.p.meshCollider );
+            MeshConstructor con = new MeshConstructor(_Mesh, _target.meshProfile, null);
+            con.AssignMeshAsCollider(_target.meshCollider );
         }
-        public void EditMesh(MeshPainter p)
-        {
-            if ((p == null) || (p == _target))
+
+        public void EditMesh(PlaytimePainter m, bool EditCopy) {
+            if ((m == null) || (m == _target))
                 return;
 
             if (_target != null)
                 DisconnectMesh();
 
-            _target = p;
+            _target = m;
 
-            if (p.saveMeshDta != null)
-                _Mesh.Reboot(p.saveMeshDta);
-            else
-                _Mesh.BreakMesh(p.p.meshFilter.sharedMesh);
+            if ((m.saveMeshDta != null) && (m.saveMeshDta.Length > 0))
+                _Mesh.Reboot(m.saveMeshDta);
+            else 
+                _Mesh.BreakMesh(m.meshFilter.sharedMesh);
+
+            
+
+            if (EditCopy)
+                m.meshFilter.sharedMesh = new Mesh();
 
             // MeshConstructionData mc = new MeshConstructionData(_Mesh, cfg.meshProfiles[0]);
             Redraw();
@@ -135,8 +144,10 @@ namespace Painter
             selectedTris = null;
             selectedUV = null;
         }
-        public void DisconnectMesh()
-        {
+
+        public void DisconnectMesh() {
+            if (_target!= null)
+            _target.saveMeshDta = _Mesh.Encode().ToString();
             _target = null;
             grid.Deactivateverts();
             GridNavigator.inst().SetEnabled(false, false);
@@ -146,23 +157,23 @@ namespace Painter
 #if UNITY_EDITOR
         public void SaveGeneratedMeshAsAsset()
         {
-            AssetDatabase.CreateAsset(_target.p.meshFilter.mesh, "Assets/Models/" + _target.p.gameObject.name + "_export.asset");
+            AssetDatabase.CreateAsset(_target.meshFilter.mesh, "Assets/Models/" + _target.gameObject.name + "_export.asset");
             AssetDatabase.SaveAssets();
         }
 #endif
 
-        public void Redraw()
-        {
+        public void Redraw() {
+            _Mesh.RefresVerticleTrisList();
+
             _Mesh.Dirty = false;
             if (_target != null) {
-                MeshConstructor mc = new MeshConstructor(_Mesh, cfg.meshProfiles[0], _target.p.meshFilter.sharedMesh);
-                _target.p.meshFilter.sharedMesh = mc.mesh;
-                mc.AssignMeshAsCollider(_target.p.meshCollider);
+                MeshConstructor mc = new MeshConstructor(_Mesh, _target.meshProfile, _target.meshFilter.sharedMesh);
+                _target.meshFilter.sharedMesh = mc.mesh;
+                
+                mc.AssignMeshAsCollider(_target.meshCollider);
             }
 
-                // _Mesh.GenerateMeshAndAssign();//_target.saveMeshDta);
-
-            if (_meshTool() == MeshTool.VertexAnimation)
+            if (_meshTool == MeshTool.VertexAnimation)
             {
                 //UpdateAnimations(SaveAbleMesh sbm);
               /*  int curFrame = _target.GetAnimationUVy();//getBaseDependencies().stretch_Monitor.curUVy;
@@ -229,7 +240,7 @@ namespace Painter
         public void ProcessScaleChange()
         {
             if ((_Mesh.vertices == null) || (_Mesh.vertices.Count < 1)) return;
-            if ((_meshTool() == MeshTool.uv) && (GridToUVon))
+            if ((_meshTool == MeshTool.uv) && (GridToUVon))
             {
                 if (_target != null)
                     _PreviewMeshGen.CopyFrom(_Mesh);
@@ -251,7 +262,7 @@ namespace Painter
         {
             if (_target != null)
             {
-                if ((_meshTool() == MeshTool.uv) && (GridToUVon))
+                if ((_meshTool == MeshTool.uv) && (GridToUVon))
                 {
                     ProcessScaleChange();
                 }
@@ -288,7 +299,8 @@ namespace Painter
         }
 
         public float dragDelay;
-        public bool draggingSelected = false;
+        bool isDragging = false;
+        public bool draggingSelected { get { return isDragging; } set { isDragging = GodMode.disableRotation = value; } }
 
         public void DisconnectDragged()
         {
@@ -352,8 +364,7 @@ namespace Painter
                             for (int j = 0; j < 3; j++)
                             {
                                 for (int i = 0; i < 3; i++)
-                                    if ((!found[j]) && (pointedTris.uvpnts[i]._color.ToColor().Equals(cols[j])))
-                                    {
+                                    if ((!found[j]) && (pointedTris.uvpnts[i]._color == cols[j])) {
                                         pointedTris.uvpnts[i].tmpMark = true;
                                         found[j] = true;
                                     }
@@ -365,7 +376,7 @@ namespace Painter
                                     if ((!found[j]) && (!pointedTris.uvpnts[i].tmpMark))
                                     {
                                         pointedTris.uvpnts[i].tmpMark = true;
-                                        pointedTris.uvpnts[i]._color.From(cols[j]);
+                                        pointedTris.uvpnts[i]._color = cols[j];
                                         found[j] = true;
                                     }
                             }
@@ -379,11 +390,11 @@ namespace Painter
                             UVpoint b = pointedLine.pnts[1];
                             UVpoint lessTris = (a.tris.Count < b.tris.Count) ? a : b;
 
-                            if ((a._color.r > 254) && (b._color.r > 254))
+                            if ((a._color.r > 0.9f) && (b._color.r > 0.9f))
                                 lessTris._color.r = 0;
-                            else if ((a._color.g > 254) && (b._color.g > 254))
+                            else if ((a._color.g > 0.9f) && (b._color.g > 0.9f))
                                 lessTris._color.g = 0;
-                            else if ((a._color.b > 254) && (b._color.b > 254))
+                            else if ((a._color.b > 0.9f) && (b._color.b > 0.9f))
                                 lessTris._color.b = 0;
 
                             _Mesh.Dirty = true;
@@ -393,8 +404,8 @@ namespace Painter
                     break;
 
                 case quickMeshFunctionForG.Path:
-                    if (selectedLine != null)
-                        VertexLine(selectedLine.pnts[0].vert, selectedLine.pnts[1].vert, new Color(0.7f, 0.8f, 0.5f, 1));
+                   // if (selectedLine != null)
+                     //   VertexLine(selectedLine.pnts[0].vert, selectedLine.pnts[1].vert, new Color(0.7f, 0.8f, 0.5f, 1));
                     if (Input.GetKeyDown(KeyCode.G))
                     {
                         if (G_toolDta.updated)
@@ -483,8 +494,9 @@ namespace Painter
             UVpoint third = td[0].NotOnLine(selectedLine);
 
 
+            var alltris = third.vert.triangles();
 
-            if (third.tris.Count == 1)
+            if (alltris.Count == 1)
             {
                 Debug.Log("Only one tris in third");
                 return;
@@ -494,9 +506,9 @@ namespace Painter
             UVpoint fourth = null;
             trisDta secondTris = null;
 
-            foreach (trisDta tris in third.tris)
+            foreach (trisDta tris in alltris)
             {
-                if (tris.includes(selectedLine.pnts[0]) != tris.includes(selectedLine.pnts[1]))
+                if (tris.includes(selectedLine.pnts[0].vert) != tris.includes(selectedLine.pnts[1].vert))
                 {
                     UVpoint otherUV = tris.NotOneOf(new UVpoint[] { selectedLine.pnts[0], selectedLine.pnts[1], third });
 
@@ -962,7 +974,7 @@ namespace Painter
                     if (selectedUV == null) { draggingSelected = false; Debug.Log("no selected"); return; }
                     if ((GridNavigator.inst().angGridToCamera(GridNavigator.onGridPos) < 82))
                     {
-                        switch (_meshTool())
+                        switch (_meshTool)
                         {
                             case MeshTool.vertices:
                                 selectedUV.vert.pos = onGridLocal;
@@ -1011,7 +1023,7 @@ namespace Painter
 
         void ManagePointedUV(vertexpointDta pointedVX)
         {
-            if ((_meshTool() == MeshTool.vertices) && (currentUV == pointedVX.uv.Count) && (EditorInputManager.GetMouseButtonDown(0)))
+            if ((_meshTool == MeshTool.vertices) && (currentUV == pointedVX.uv.Count) && (EditorInputManager.GetMouseButtonDown(0)))
                 new UVpoint(pointedVX);
 
             if (currentUV == pointedVX.uv.Count) currentUV--;
@@ -1032,7 +1044,7 @@ namespace Painter
         }
 
         /* void ManageToolVertColorOnLine(UVpoint a, UVpoint b, trisDta t) {
-             if (_meshTool() != MeshTool.VertColor) return;
+             if (_meshTool != MeshTool.VertColor) return;
 
             // LineData ld = new LineData(t, a, b);
 
@@ -1092,13 +1104,15 @@ namespace Painter
 
             pointedLine = new LineData(t, new UVpoint[] { a, b });
 
+        
+
         }
 
         void PROCESS_KEYS()
         {
 
             MeshToolBase t = tool;
-
+            
             if ((t.showVertices) && (pointedUV != null))
                 t.KeysEventPointedVertex();
             else if ((t.showLines) && (pointedLine != null))
@@ -1145,7 +1159,7 @@ namespace Painter
             if (grid.verts[0].go == null)
                 InitVertsIfNUll();
 
-            if (_meshTool() == MeshTool.vertices)
+            if (_meshTool == MeshTool.vertices)
                 DrowLinesAroundTargetPiece();
 
             UpdateLocalSpaceV3s();
@@ -1218,7 +1232,7 @@ namespace Painter
             VertexLine(t.uvpnts[0].vert, t.uvpnts[2].vert, t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
         }
 
-        public void DRAW_LINES()
+        public void DRAW_GIZMOS()
         {
           
 
@@ -1241,7 +1255,7 @@ namespace Painter
             {
                 if (pointedLine != null)
                     VertexLine(pointedLine.pnts[0].vert, pointedLine.pnts[1].vert,
-                    (_meshTool() != MeshTool.VertColor) ? Color.green : linearColor.Multiply(pointedLine.pnts[0]._color, pointedLine.pnts[1]._color));
+                    (_meshTool != MeshTool.VertColor) ? Color.green : pointedLine.pnts[0]._color * pointedLine.pnts[1]._color);
 
                 for (int i = 0; i < Mathf.Min(vertsShowMax, _Mesh.vertices.Count); i++)
                 {
@@ -1280,19 +1294,13 @@ namespace Painter
             }
         }
 
-        public void Awake()  {
-
-#if UNITY_EDITOR
-            EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
-            EditorApplication.playmodeStateChanged += playtimeMesherSaveData.SaveChanges;
-#endif
-        }
+     
 
         public void Start()
         {
 
             InitVertsIfNUll();
-            GridNavigator.inst().SetEnabled(true, playtimeMesherSaveData.inst().SnapToGrid);
+            GridNavigator.inst().SetEnabled(true, cfg.SnapToGrid);
 
             DisconnectMesh();
         }
@@ -1300,9 +1308,9 @@ namespace Painter
         public void CombinedUpdate()
         {
             
-			showGrid = ((_target != null) && (_target.enabled) && ((_meshTool() == MeshTool.vertices) || (_meshTool() == MeshTool.VertexAnimation) || ((_meshTool() == MeshTool.uv) && GridToUVon)));
+			showGrid = ((_target != null) && (_target.enabled) && ((_meshTool == MeshTool.vertices) || (_meshTool == MeshTool.VertexAnimation) || ((_meshTool == MeshTool.uv) && GridToUVon)));
 
-            GridNavigator.inst().SetEnabled(showGrid, playtimeMesherSaveData.inst().SnapToGrid && showGrid);
+            GridNavigator.inst().SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
 
             if (_target == null)
                 return;
@@ -1355,7 +1363,7 @@ namespace Painter
                 switch (e.keyCode)
                 {
 
-                    case KeyCode.Delete: Debug.Log("Use Backspace to delete vertices"); goto case KeyCode.Backspace;
+                    case KeyCode.Delete: //Debug.Log("Use Backspace to delete vertices"); goto case KeyCode.Backspace;
                     case KeyCode.Backspace:
                         if (pointedUV != null) DeleteUv(pointedUV); else if (selectedUV != null) DeleteUv(selectedUV); e.Use(); break;
                 }
@@ -1435,7 +1443,7 @@ namespace Painter
         void AssignText(MarkerWithText mrkr, vertexpointDta vpoint)
         {
 
-            if (_meshTool() == MeshTool.VertexAnimation)
+            if (_meshTool == MeshTool.VertexAnimation)
             {
                 mrkr.textm.text = vpoint.index.ToString();
                 return;
@@ -1444,14 +1452,14 @@ namespace Painter
             if ((vpoint.uv.Count > 1) || (GetSelectedVert() == vpoint))
             {
 
-                Texture tex = _target._meshRenderer.sharedMaterial.mainTexture;
+                Texture tex = _target.meshRenderer.sharedMaterial.mainTexture;
 
                 if (GetSelectedVert() == vpoint)
                 {
                     mrkr.textm.text = (vpoint.uv.Count > 1) ? ((vpoint.uv.IndexOf(selectedUV) + 1).ToString() + "/" + vpoint.uv.Count.ToString() +
                         (vpoint.SmoothNormal ? "s" : "")) : "";
                     float tsize = tex == null ? 128 : tex.width;
-                    if (_meshTool() == MeshTool.uv) mrkr.textm.text +=
+                    if (_meshTool == MeshTool.uv) mrkr.textm.text +=
                         ("uv: " + (selectedUV.uv.x * tsize) + "," + (selectedUV.uv.y * tsize));
                 }
                 else
@@ -1482,7 +1490,7 @@ namespace Painter
         public void DrowLinesAroundTargetPiece()
         {
 
-            Vector3 piecePos = _target.p.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
+            Vector3 piecePos = _target.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
             Vector3 projected = GridNavigator.inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
@@ -1498,7 +1506,7 @@ namespace Painter
             Debug.DrawLine(new Vector3(GridMask.x, projected.y, GridMask.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
             Debug.DrawLine(new Vector3(GridMask.x, GridMask.y, projected.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
 
-            MyDebugClasses.DrawTransformedCubeDebug(_target.p.transform, Color.blue);
+            MyDebugClasses.DrawTransformedCubeDebug(_target.transform, Color.blue);
 
 
         }
@@ -1537,50 +1545,53 @@ namespace Painter
 
             InitVertsIfNUll();
 
-            if (_target != null)
-            {
-                MeshPainter pm = _target;
+            if (_target != null) {
                 DisconnectMesh();
-                EditMesh(pm);
+                EditMesh(_target, false);
             }
 
             trisVerts = 0;
-#if UNITY_EDITOR
-            EditorApplication.playmodeStateChanged -= playtimeMesherSaveData.SaveChanges;
-            EditorApplication.playmodeStateChanged += playtimeMesherSaveData.SaveChanges;
-#endif
+
         }
- 
+
+
+        bool showReferences = false;
         public bool PEGI()
         {
             bool changed = false;
+            pegi.newLine();
 
-    
-            foreach (meshSHaderMode m in meshSHaderMode.allModes)
+            if ("Name:".edit(40, ref _Mesh.meshName))
+                _target.meshFilter.sharedMesh.name = _Mesh.meshName;
+            if (icon.save.Click("Save Mesh As "+_target.GenerateMeshSavePath(),25).nl()) _target.SaveMesh();
+
+            int before = (int)MeshManager._meshTool;
+            cfg._meshTool = (MeshTool)pegi.editEnum(cfg._meshTool);
+
+            if (MeshManager._meshTool == MeshTool.VertColor)
             {
-                pegi.newLine();
-                if ((!m.isSelected) && (m.ToString().Click().nl()))
-                    m.Apply();
 
+                if ((before != (int)MeshManager._meshTool) && (MeshManager.inst()._target != null))
+                    grid.UpdateVertColor();
             }
 
-            "Function for G Button:".write();
+            if ("preview".select(45,ref meshSHaderMode.selected, meshSHaderMode.allModes).nl()) 
+                meshSHaderMode.selected.Apply();
+            
+            pegi.write("Function for G Button:");
             quickMeshFunctionsExtensions.current = (quickMeshFunctionForG)pegi.editEnum(quickMeshFunctionsExtensions.current);
+            pegi.newLine();
 
             if (quickMeshFunctionForG.MakeOutline.selected())
-                outlineWidth = EditorGUILayout.FloatField("Width", outlineWidth);
+                "Width".edit(ref outlineWidth).nl();
+
 
             if (!quickMeshFunctionForG.Nothing.selected())
                 (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
 
-            int before = (int)MeshManager._meshTool();
-            playtimeMesherSaveData.inst()._meshTool = (MeshTool)EditorGUILayout.EnumPopup(MeshManager._meshTool());
-            if (MeshManager._meshTool() == MeshTool.VertColor)
-            {
+            pegi.newLine();
 
-                if ((before != (int)MeshManager._meshTool()) && (MeshManager.inst()._target != null))
-                    grid.UpdateVertColor();
-            }
+         
 
             if (quickMeshFunctionForG.Path.selected())
             {
@@ -1612,16 +1623,15 @@ namespace Painter
             }
 
 
-
-            pegi.writeHint(playtimeMesherSaveData.inst()._meshTool.Process().tooltip);
+            pegi.writeHint(cfg._meshTool.Process().tooltip);
 
             pegi.newLine();
 
-            playtimeMesherSaveData.inst()._meshTool.Process().tool_pegi();
+            cfg._meshTool.Process().tool_pegi();
 
             grid.UpdateVertColor();
 
-            switch (playtimeMesherSaveData.inst()._meshTool)
+            switch (cfg._meshTool)
             {
                 case MeshTool.vertices:
                     /* EditorGUILayout.LabelField(" Alt+LMB     - Add vert on grid .");
@@ -1641,13 +1651,15 @@ namespace Painter
             }
 
  
-            if (!Application.isPlaying)  {
+            if ((!Application.isPlaying) && ("references".foldout(ref showReferences).nl()))  {
 
                 "vertexPointMaterial".write(grid.vertexPointMaterial);
-                "vertexPrefab".edit(ref grid.vertPrefab);
-                "Max Vert Markers ".edit(ref vertsShowMax);
-                "pointedVertex".edit(ref grid.pointedVertex.go);
-                "SelectedVertex".edit(ref grid.selectedVertex.go);
+                pegi.newLine();
+
+                "vertexPrefab".edit(ref grid.vertPrefab).nl();
+                "Max Vert Markers ".edit(ref vertsShowMax).nl();
+                "pointedVertex".edit(ref grid.pointedVertex.go).nl();
+                "SelectedVertex".edit(ref grid.selectedVertex.go).nl();
 
             }
 

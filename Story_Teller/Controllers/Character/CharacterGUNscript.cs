@@ -37,6 +37,8 @@ namespace StoryTriggerData {
 
         public void DistantUpdate() {
 
+            /*
+
             float armLength = sholderToElbow + elbowToArm;
 
             Vector3 mousePosv3 = pointerPosition - transform.position;
@@ -110,6 +112,7 @@ namespace StoryTriggerData {
 
             Gun.position = gunPos;
             Gun.rotation = gunRotation;
+            */
         }
 
 

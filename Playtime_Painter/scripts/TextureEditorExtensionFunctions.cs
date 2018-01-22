@@ -14,8 +14,59 @@ namespace Painter{
 
 public static class TextureEditorExtensionFunctions  {
 
+        public static float GetChanel(this Color col, ColorChanel chan)
+        {
 
-    public static Mesh getMesh(this PlaytimePainter p) {
+            switch (chan)
+            {
+                case ColorChanel.R:
+                    return col.r;
+                case ColorChanel.G:
+                    return col.g;
+                case ColorChanel.B:
+                    return col.b;
+                default:
+                    return col.a;
+            }
+        }
+
+        public static void SetChanel(this ColorChanel chan,  ref Color col,  float value)
+        {
+   
+            switch (chan)
+            {
+                case ColorChanel.R:
+                    col.r = value;
+                    break;
+                case ColorChanel.G:
+                    col.g = value;
+                    break;
+                case ColorChanel.B:
+                    col.b = value;
+                    break;
+                case ColorChanel.A:
+                    col.a = value;
+                    break;
+            }
+        }
+
+        public static void Transfer(this BrushMask bm, ref Color col, Color c)
+        {
+           
+
+            if ((bm & BrushMask.R) != 0)
+                col.r = c.r;
+            if ((bm & BrushMask.G) != 0)
+                col.g =  c.g;
+            if ((bm & BrushMask.B) != 0)
+                col.b =  c.b;
+            if ((bm & BrushMask.A) != 0)
+                col.a =  c.a;
+        }
+
+      
+
+        public static Mesh getMesh(this PlaytimePainter p) {
         if (p == null) return null;
         if (p.skinnedMeshRendy != null) return p.colliderForSkinnedMesh;//skinnedMeshRendy.sharedMesh;
         if (p.meshFilter != null) return p.meshFilter.sharedMesh;

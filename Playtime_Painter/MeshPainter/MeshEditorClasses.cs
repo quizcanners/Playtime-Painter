@@ -17,6 +17,10 @@ namespace Painter {
 
     [Serializable]
     public class EditableMesh : abstract_STD {
+
+
+        protected painterConfig cfg { get { return painterConfig.inst; } }
+
         public bool Dirty;
 
         public bool gotColors;
@@ -26,6 +30,7 @@ namespace Painter {
         public List<string> shapes;
         public Countless<Countless<float>> blendWeights = new Countless<Countless<float>>();
 
+        public string meshName = "unnamed";
         public List<vertexpointDta> vertices = new List<vertexpointDta>();
         public List<trisDta> triangles = new List<trisDta>();
 
@@ -33,7 +38,7 @@ namespace Painter {
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-
+            cody.AddText("n", meshName);
             cody.AddIfNotEmpty(vertices);
             cody.AddIfNotEmpty(triangles);
 
@@ -44,6 +49,7 @@ namespace Painter {
             switch (tag) {
                 case vertexpointDta.stdTag_vrt: vertices = data.ToListOf_STD<vertexpointDta>(); break;
                 case trisDta.stdTag_tri: triangles = data.ToListOf_STD<trisDta>(); break;
+                case "n": meshName = data; break;
             }
         }
 
@@ -124,7 +130,7 @@ namespace Painter {
             MeshManager m = MeshManager.inst();
             if (m._target != null)
             {
-                MeshPainter em = m._target;
+                PlaytimePainter em = m._target;
                 if (em == null) return;
                 int y = em.GetAnimationUVy();
                 foreach (vertexpointDta v in vertices)
@@ -416,6 +422,8 @@ namespace Painter {
 
         public void BreakMesh(Mesh Nmesh) {
 
+            meshName = Nmesh.name;
+
             mesh = Nmesh;
 
             int vCnt = mesh.vertices.Length;
@@ -425,9 +433,9 @@ namespace Painter {
             Vector3[] vrts = mesh.vertices;
             bool gotUV1 = (mesh.uv != null) && (mesh.uv.Length == vCnt);
             bool gotUV2 = (mesh.uv2 != null) && (mesh.uv2.Length == vCnt);
-             gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
-             gotBoneWeights = (mesh.boneWeights != null) && (mesh.boneWeights.Length == vCnt);
-             gotBindPos = (mesh.bindposes != null) && (mesh.bindposes.Length == vCnt);
+            gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
+            gotBoneWeights = (mesh.boneWeights != null) && (mesh.boneWeights.Length == vCnt);
+            gotBindPos = (mesh.bindposes != null) && (mesh.bindposes.Length == vCnt);
 
             
 
@@ -436,7 +444,7 @@ namespace Painter {
                 vertices.Add(v);
                 UVpoint uv = new UVpoint(vertices[i], gotUV1 ? mesh.uv[i] : Vector2.zero, gotUV2 ? mesh.uv2[i] : Vector2.zero);
                 if (gotColors)
-                    uv._color.From(mesh.colors[i]);
+                    uv._color = mesh.colors[i];
                 if (gotBoneWeights)
                     v.boneWeight = mesh.boneWeights[i];
                 if (gotBindPos)
@@ -636,7 +644,7 @@ namespace Painter {
             return null;
         }
 
-        void RefresVerticleTrisList()
+        public void RefresVerticleTrisList()
         {
             foreach (vertexpointDta vp in vertices)
                 foreach (UVpoint uv in vp.uv)
@@ -657,11 +665,12 @@ namespace Painter {
 
         public void PaintAll(linearColor col)
         {
-            BrushMask bm = playtimeMesherSaveData.inst().brushConfig.mask;//glob.getBrush().brushMask;
+            BrushMask bm = cfg.brushConfig.mask;//glob.getBrush().brushMask;
+            Color c = col.ToColor();
             foreach (vertexpointDta v in vertices)
                 foreach (UVpoint uv in v.uv)
-                    uv._color.From(col, bm);
-            Debug.Log("Dirty");
+                   bm.Transfer(ref uv._color, c);
+            //Debug.Log("Dirty");
             Dirty = true;
         }
 
@@ -680,29 +689,49 @@ namespace Painter {
 
             vertexpointDta newVrt = new vertexpointDta(pos);
 
+         //   if ((a == null) || (b == null)) Debug.Log("Is null");
+
+
 
             vertices.Add(newVrt);
 
             List<trisDta> tris = a.triangles();
 
-            for (int i = 0; i < tris.Count; i++)
-            {
+            for (int i = 0; i < tris.Count; i++) {
                 trisDta tr = tris[i];
-                if (tr.includes(b))
-                {
+
+                if (tr.includes(b)) {
 
                     UVpoint auv;
                     UVpoint buv;
+                    UVpoint spliUV;
                     Vector2 uv;
                     UVpoint newUV;
 
                     auv = tr.GetByVert(a);
                     buv = tr.GetByVert(b);
+                    spliUV = tr.NotOnLine(a, b);
+
+
+                    if ((auv == null) || (buv == null))
+                    {
+                        Debug.Log("Didn't found a uv");
+                        continue;
+                    }
+
+                    Vector3 w = new Vector3();
+
+                    float dst = dsta + dstb;
+                    w[tr.NumberOf(auv)] = dstb / dst;
+                    w[tr.NumberOf(buv)] = dsta / dst;
+
                     uv = (auv.uv * dstb + buv.uv * dsta) / (dsta + dstb);
+
+                  
 
                     newUV = null;
 
-                    if ((newVrt.uv == null) || (newVrt.uv.Count == 0))
+                    if ((!MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
                         newUV = new UVpoint(newVrt);
                     else
                     {
@@ -715,14 +744,27 @@ namespace Painter {
                         newUV = new UVpoint(newVrt, uv);
 
                     newUV.uv = uv;
-
+                    tr.AssignWeightedData(newUV, w);
 
 
                     trisDta trb;
-                    trb = new trisDta(tr.uvpnts);
+                    trb = new trisDta(tr.uvpnts).CopySettingsFrom(tr);
                     triangles.Add(trb);
                     tr.Replace(auv, newUV);
-                    trb.Replace(buv, newUV);
+                   
+
+                 
+
+
+                    if (!MeshManager.cfg.newVerticesUnique) {
+                        var split = new UVpoint(spliUV);
+                        trb.Replace(spliUV, split);
+                        var newB = new UVpoint(newUV);
+                        trb.Replace(buv, newB);
+                    }
+                    else trb.Replace(buv, newUV);
+
+
                 }
 
 
@@ -749,12 +791,20 @@ namespace Painter {
         {
             // Debug.Log("Inserting into triangle");
             vertexpointDta newVrt = new vertexpointDta(pos);
-            UVpoint newUV = new UVpoint(newVrt, a.PointUVonTriangle(pos, 0), a.PointUVonTriangle(pos, 0));
+
+            Vector3 w = a.DistanceToWeight(pos);
+
+            Vector2 newV2_0 = a.uvpnts[0].getUV(0) * w.x + a.uvpnts[1].getUV(0) * w.y + a.uvpnts[2].getUV(0) * w.z;
+            Vector2 newV2_1 = a.uvpnts[0].getUV(1) * w.x + a.uvpnts[1].getUV(1) * w.y + a.uvpnts[2].getUV(1) * w.z;
+
+            UVpoint newUV = new UVpoint(newVrt, newV2_0, newV2_1);
+
+            a.AssignWeightedData(newUV, w);
 
             vertices.Add(newVrt);
 
-            trisDta b = new trisDta(a.uvpnts);
-            trisDta c = new trisDta(a.uvpnts);
+            trisDta b = new trisDta(a.uvpnts).CopySettingsFrom(a);
+            trisDta c = new trisDta(a.uvpnts).CopySettingsFrom(a);
 
             a.Replace(0, newUV);//uvpnts[0] = newUV;
             b.Replace(1, newUV);// uvpnts[1] = newUV;
@@ -767,23 +817,26 @@ namespace Painter {
 
         }
 
-        public void insertIntoTriangleUniqueVerticles(trisDta a, Vector3 pos)
-        {
-            //Debug.Log("Inserting into triangle");
+        public void insertIntoTriangleUniqueVerticles(trisDta a, Vector3 pos)  {
+
             vertexpointDta newVrt = new vertexpointDta(pos);
             vertices.Add(newVrt);
 
             UVpoint[] newUV = new UVpoint[3]; // (newVrt);
-            Vector2 newV2_0 = a.PointUVonTriangle(pos, 0);
-            Vector2 newV2_1 = a.PointUVonTriangle(pos, 1);
+
+            Vector3 w = a.DistanceToWeight(pos);
+
+            Vector2 newV2_0 = a.uvpnts[0].getUV(0) *w.x  + a.uvpnts[1].getUV(0) * w.y + a.uvpnts[2].getUV(0) * w.z;
+            Vector2 newV2_1 = a.uvpnts[0].getUV(1) * w.x + a.uvpnts[1].getUV(1) * w.y + a.uvpnts[2].getUV(1) * w.z;
+            //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (int i = 0; i < 3; i++)
             {
                 newUV[i] = new UVpoint(newVrt, newV2_0, newV2_1);
-
+                a.AssignWeightedData(newUV[i], w);
             }
 
-            trisDta b = new trisDta(a.uvpnts);
-            trisDta c = new trisDta(a.uvpnts);
+            trisDta b = new trisDta(a.uvpnts).CopySettingsFrom(a);
+            trisDta c = new trisDta(a.uvpnts).CopySettingsFrom(a);
 
             a.uvpnts[0] = newUV[0];
             b.uvpnts[1] = newUV[1];
@@ -791,6 +844,11 @@ namespace Painter {
 
             triangles.Add(b);
             triangles.Add(c);
+
+            a.MakeTriangleVertUnique(a.uvpnts[1]);
+            b.MakeTriangleVertUnique(b.uvpnts[2]);
+            c.MakeTriangleVertUnique(c.uvpnts[0]);
+
 
             Dirty = true;//_Mesh.GenerateMesh(_targetPiece);
 
@@ -836,7 +894,7 @@ namespace Painter {
                             }
                 }
             }
-            Debug.Log("Dirty");
+           // Debug.Log("Dirty");
             Dirty = true;
         }
     }
@@ -851,6 +909,7 @@ namespace Painter {
         {
             if (textm == null)
                 textm = go.GetComponentInChildren<TextMesh>();
+            go.hideFlags = HideFlags.DontSave;
         }
     }
 

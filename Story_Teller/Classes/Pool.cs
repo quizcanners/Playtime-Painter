@@ -48,6 +48,7 @@ namespace StoryTriggerData {
 
     public abstract class STD_Pool {
 
+        public static bool DestroyingAll = false;
         public static STD_Pool[] all;
 
         public static IEnumerable<STD_Object> allEnabledObjects() {
@@ -66,8 +67,10 @@ namespace StoryTriggerData {
         public static Dictionary<string, STD_Pool> stdPoolsDictionary;
 
         public static void DestroyAll() {
+            DestroyingAll = true;
             foreach (STD_Pool cmp in all)
                 cmp.pool.DestroyAll();
+            DestroyingAll = false;
         }
 
         public static STD_Object getOne(string tag) {

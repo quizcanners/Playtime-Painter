@@ -8,11 +8,14 @@ namespace Painter{
 [Serializable]
 public class painterConfig  {
     static painterConfig _inst;
-    public static painterConfig inst() {
-        if (_inst == null)
-            LoadOrInit();
+    public static painterConfig inst {
+            get
+            {
+                if (_inst == null)
+                    LoadOrInit();
 
-        return _inst;
+                return _inst;
+            }
     }
 
     public const string PainterCameraName = "PainterCamera";
@@ -30,21 +33,42 @@ public class painterConfig  {
 
     static string SaveName = "PainterConfig";
 
-    public static string ToolPath() {
+
+ 
+        public static string SavedMeshesName = "SavedMeshes";
+        public static int DamAnimRendtexSize = 128;
+        public bool allowEditingInFinalBuild;
+        public bool MakeVericesUniqueOnEdgeColoring;
+        public int MaxDistanceForTransformPosition = 100;
+        public int SnapToGridSize = 1;
+        public int MeshUVprojectionSize = 1;
+        public bool SnapToGrid = false;
+        public int curAtlasTexture = 0;
+        public int curAtlasChanel = 0;
+        public bool newVerticesUnique = false;
+        public bool newVerticesSmooth = true;
+        public bool atlasEdgeAsChanel2 = true;
+
+        public List<MeshSolutionProfile> meshProfiles;
+
+        public MeshTool _meshTool;
+
+
+        public static string ToolPath() {
 		return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
     }
 
     public string materialsFolderName;
     public string texturesFolderName;
+    public string meshesFolderName;
     public string vectorsFolderName;
-
+    public string atlasFolderName;
 
     public bool disableGodMode = false;
     public BrushConfig brushConfig;
     public float GodWalkSpeed = 100f;
     public float GodLookSpeed = 10f;
     public bool dontCreateDefaultRenderTexture;
-    public bool allowEditingInFinalBuild;
     public bool disableNonMeshColliderInPlayMode;
     public bool previewAlphaChanel;
         public bool newTextureIsColor = true;
@@ -85,25 +109,43 @@ public class painterConfig  {
             UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
         }
 
+        void SafeInit()
+        {
+
+            if (meshProfiles == null) meshProfiles = new List<MeshSolutionProfile>();
+            if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
+            if (texturesFolderName == null)
+                texturesFolderName = "Textures";
+            if (vectorsFolderName == null)
+                vectorsFolderName = "Vectors";
+            if (meshesFolderName == null)
+                meshesFolderName = "Meshes";
+            if (atlasFolderName == null)
+                atlasFolderName = "ATLASES";
+            if (recordingNames == null)
+                recordingNames = new List<string>();
+        }
+
     public static void LoadOrInit() {
 
         ResourceLoader<painterConfig> ld = new ResourceLoader<painterConfig>();
 
-        if (!ld.LoadFrom(Application.persistentDataPath,SaveName, ref _inst))
-            _inst = new painterConfig();
+            if (!ld.LoadFrom(Application.persistentDataPath, SaveName, ref _inst))  {
+                _inst = new painterConfig();
+                _inst._meshTool = MeshTool.vertices;
+            }
+
+            _inst.SafeInit();
+
+     
         
-
-            _inst.texturesFolderName = "Textures";
-            _inst.vectorsFolderName = "Vectors";
-
         GodMode gm = GodMode.inst;
         if (gm != null) {
             gm.speed = _inst.GodWalkSpeed;
             gm.sensitivity = _inst.GodLookSpeed;
         }
 
-            if (_inst.recordingNames == null)
-                _inst.recordingNames = new List<string>();
+           
             
              _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
 

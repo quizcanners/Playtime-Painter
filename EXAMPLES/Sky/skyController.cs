@@ -37,7 +37,7 @@ public class skyController : MonoBehaviour {
 
     public float skyDynamics = 0.1f;
 
-    void Update () {
+    public virtual void Update () {
 
         // Got some clipping when using _WorldSpaceLightPos0 
         if (directional != null) {

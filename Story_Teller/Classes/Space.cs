@@ -12,33 +12,17 @@ namespace StoryTriggerData {
 
 
     public static class SpaceDistanceExtensions {
-        public static void TransferToSmallerScale(this Vector3 a, Vector3 o, float coefficient) {
-            float d = a.x % 1;
-            o.x += d * coefficient;
-            a.x -= d;
+       
+        public static string label (this SpaceValues.lvl en) {
+            switch ((int)en) {
+                case 0: return "meters";
+                case 1: return "kilometers";
+                case 2: return "light minutes";
+                case 3: return "light years";
+                case 4: return "mega parsecs";
+            }
 
-            d = a.y % 1;
-            o.y += d * coefficient;
-            a.y -= d;
-
-            d = a.z % 1;
-            o.z += d * coefficient;
-            a.z -= d;
-        }
-
-
-        public static void TransferToLargerScale(this Vector3 a, Vector3 o, float coefficient) {
-            float d = (int)(a.x / coefficient);
-            a.x -= d * coefficient;
-            o.x += d;
-
-            d = (int)(a.y / coefficient);
-            a.y -= d * coefficient;
-            o.y += d;
-
-            d = (int)(a.z / coefficient);
-            a.z -= d * coefficient;
-            o.z += d;
+            return "error";
         }
 
     }
@@ -49,10 +33,17 @@ namespace StoryTriggerData {
         public static float lightYearsInMegaparsec = 3260000;
         public static float minutesInYear = 525600;        //31536000;
         public static float L_Speed_KMperMIN = 299792;        //2458; 
-        public static float maters_In_Kilometer = 1000;          //299792458; // meters
+        public static float meters_In_Kilometer = 1000;          //299792458; // meters
 
         public static UniversePosition playerPosition = new UniversePosition();
         public static UniverseLength universeScale = new UniverseLength(1);
+
+        public static UniversePosition tmpsPos = new UniversePosition();
+        public static UniverseLength tmpDist = new UniverseLength();
+        public static UniverseLength tmpRange = new UniverseLength();
+        public static UniverseLength tmpScale = new UniverseLength();
+        public static Vector3 tmpVec;
+
         public static float FarPlane = 1000f;
 
         protected const string meters = "meters";
@@ -64,7 +55,11 @@ namespace StoryTriggerData {
         public static bool autoUniverseScale = true;
         public static bool expand = false;
 
-        public int scaleLevel = 0;
+        public int BrowsingScaleLevel = 0;
+
+        public enum lvl { Meters, KM, LM, LY, MP}
+
+        
 
     }
 
@@ -72,29 +67,78 @@ namespace StoryTriggerData {
     [Serializable]
     public class UniverseLength : SpaceValues
     {
-        public static UniverseLength one = new UniverseLength(1);
+        public static readonly UniverseLength one = new UniverseLength(1);
 
-        public float Meters;
-        public float KM;
-        public float LM;
-        public float LY;
-        public float MP;
- 
+        public float[] val = new float[5];
+
+        public float Meters { get { return val[0]; } set { val[0] = value; } }
+        public float KM { get { return val[1]; } set { val[1] = value; } }
+        public float LM { get { return val[2]; } set { val[2] = value; } }
+        public float LY { get { return val[3]; } set { val[3] = value; } }
+        public float MP { get { return val[4]; } set { val[4] = value; } }
+
         public bool Equals(int i) {
             return (MP == 0 && LY == 0 && LM == 0 && KM == 0 && Meters == i);
         }
 
 
-    public void Divide (float val){
+        public UniverseLength Add(float value) {
+            Meters += value;
+            return AdjustValues();
+        }
+
+        public UniverseLength Add(UniverseLength o) {
+            Meters += o.Meters;
+            KM += o.KM;
+            LM += o.LM;
+            LY += o.LY;
+            MP += o.MP;
+
+            return AdjustValues();
+        }
+
+        public UniverseLength Subtract(UniverseLength o) {
+            Meters -= o.Meters;
+            KM -= o.KM;
+            LM -= o.LM;
+            LY -= o.LY;
+            MP -= o.MP;
+
+
+            return AdjustValues();
+        }
+
+        public UniverseLength Subtract(float val)
+        {
+            Meters -= val;
+            return AdjustValues();
+        }
+
+
+        public UniverseLength MultiplyBy (float val) {
+
+            Meters *= val;
+            KM *= val;
+            LM *= val;
+            LY *= val;
+            MP *= val;
+
+            return AdjustValues();
+
+        }
+
+    public UniverseLength Divide (float val){
         Meters/=val;
         KM/=val;
         LM/=val;
         LY/=val;
         MP/=val;
+
+       return AdjustValues();
     }
 
  
-    public void Divide (UniverseLength o) { 
+    public UniverseLength Divide (UniverseLength o) { 
    
       float div = (o.MP* UniversePosition.lightYearsInMegaparsec + o.LY);
       
@@ -106,7 +150,7 @@ namespace StoryTriggerData {
             
            // if (div<accuracyLimit){
              
-                div = (div*maters_In_Kilometer + o.Meters);
+                div = (div*meters_In_Kilometer + o.Meters);
                 Divide(div);
            
            
@@ -125,7 +169,9 @@ namespace StoryTriggerData {
         spLY /= o.spLY;
         spMP /= spMP;*/
         
-               AdjustValues();
+           return  AdjustValues();
+
+
     }
         
         public override void Decode(string tag, string data) {
@@ -159,11 +205,11 @@ namespace StoryTriggerData {
             bool changed = false;
 
 
-            changed |= "M".edit(ref Meters).nl();
-            changed |= "KM".edit(ref KM).nl();
-            changed |= "LM".edit(ref LM).nl();
-            changed |= "LY".edit(ref LY).nl();
-            changed |= "MP".edit(ref MP).nl();
+            changed |= "M".edit(ref val[0]).nl();
+            changed |= "KM".edit(ref val[1]).nl();
+            changed |= "LM".edit(ref val[2]).nl();
+            changed |= "LY".edit(ref val[3]).nl();
+            changed |= "MP".edit(ref val[4]).nl();
 
             return changed;
         }
@@ -205,15 +251,15 @@ namespace StoryTriggerData {
         }
 
         public UniverseLength AdjustValues() {
-            TransferToSmallerScale(ref MP, ref LY, UniversePosition.lightYearsInMegaparsec);
-            TransferToSmallerScale(ref LY, ref LM, UniversePosition.minutesInYear);
-            TransferToSmallerScale(ref LM, ref KM, UniversePosition.L_Speed_KMperMIN);
-            TransferToSmallerScale(ref KM, ref Meters, UniversePosition.maters_In_Kilometer);
+            TransferToSmallerScale(ref val[4], ref val[3], UniversePosition.lightYearsInMegaparsec);
+            TransferToSmallerScale(ref val[3], ref val[2], UniversePosition.minutesInYear);
+            TransferToSmallerScale(ref val[2], ref val[1], UniversePosition.L_Speed_KMperMIN);
+            TransferToSmallerScale(ref val[1], ref val[0], UniversePosition.meters_In_Kilometer);
 
-            TransferToLargerScale(ref Meters, ref KM, UniversePosition.maters_In_Kilometer);
-            TransferToLargerScale(ref KM, ref LM, UniversePosition.L_Speed_KMperMIN);
-            TransferToLargerScale(ref LM, ref LY, UniversePosition.minutesInYear);
-            TransferToLargerScale(ref LY, ref MP, UniversePosition.lightYearsInMegaparsec);
+            TransferToLargerScale(ref val[0], ref val[1], UniversePosition.meters_In_Kilometer);
+            TransferToLargerScale(ref val[1], ref val[2], UniversePosition.L_Speed_KMperMIN);
+            TransferToLargerScale(ref val[2], ref val[3], UniversePosition.minutesInYear);
+            TransferToLargerScale(ref val[3], ref val[4], UniversePosition.lightYearsInMegaparsec);
 
             return this;
         }
@@ -226,6 +272,10 @@ namespace StoryTriggerData {
             if (Meters != o.Meters) return Meters > o.Meters;
 
             return false;
+        }
+
+        public bool biggerThen (float length) {
+            return !(((MP + LY + LM) <= 0) && ((KM * meters_In_Kilometer + Meters) < length));
         }
 
         public UniverseLength CopyFrom(UniverseLength sd) {
@@ -328,11 +378,42 @@ namespace StoryTriggerData {
             return storyTag;
         }
 
-    
+        public void TransferToSmallerScale(ref Vector3 a, ref Vector3 o, float coefficient)
+        {
+            float d = a.x % 1;
+            a.x -= d;
+            o.x += d * coefficient;
 
-        public static UniversePosition tmpsPos = new UniversePosition();
-        public static UniverseLength tmpDist = new UniverseLength();
-        public static UniverseLength tmpScale = new UniverseLength();
+            d = a.y % 1;
+            o.y += d * coefficient;
+            a.y -= d;
+
+            d = a.z % 1;
+            o.z += d * coefficient;
+            a.z -= d;
+        }
+
+
+        public void TransferToLargerScale(ref Vector3 a, ref Vector3 o, float coefficient)
+        {
+            float d = (int)(a.x / coefficient);
+            a.x -= d * coefficient;
+            if (a.x < 0) { a.x += coefficient; d -= 1; }
+            o.x += d;
+
+            d = (int)(a.y / coefficient);
+            a.y -= d * coefficient;
+            if (a.y < 0) { a.y += coefficient; d -= 1; }
+            o.y += d;
+
+            d = (int)(a.z / coefficient);
+            a.z -= d * coefficient;
+            if (a.z < 0) { a.z += coefficient; d -= 1; }
+            o.z += d;
+        }
+
+
+
         //the speed of light = 299 792 458 m / s
         // light year 9,4607 × 10(15) m 
         // float max 10(38)
@@ -350,27 +431,37 @@ namespace StoryTriggerData {
             string tmp = "";
 
             if (MP.magnitude > 0) tmp += MP.ToStringShort() + " MP, ";
-            else {
+          //  else {
                 if (LY.magnitude > 0) tmp += LY.ToStringShort() + " LY, ";
                 if (LY.magnitude < 5) {
                     if (LM.magnitude > 0) tmp += LM.ToStringShort() + " LM, ";
                     if (KM.magnitude > 0) tmp += KM.ToStringShort() + " Km, ";
                     if (Meters.magnitude > 0) tmp += Meters.ToStringShort() + " m. ";
                 }
-            }
+            //}
             return tmp;
         }
 
-        public void AdjustValues() {
-            MP.TransferToSmallerScale(LY, lightYearsInMegaparsec);
-            LY.TransferToSmallerScale(LM, minutesInYear);
-            LM.TransferToSmallerScale(KM, L_Speed_KMperMIN);
-            KM.TransferToSmallerScale(Meters, maters_In_Kilometer);
+        public UniversePosition AdjustValues() {
+            TransferToSmallerScale(ref MP, ref LY, lightYearsInMegaparsec);
+            TransferToSmallerScale(ref LY, ref LM, minutesInYear);
+            TransferToSmallerScale(ref LM, ref KM, L_Speed_KMperMIN);
+            TransferToSmallerScale(ref KM, ref Meters, meters_In_Kilometer);
 
-            Meters.TransferToLargerScale(KM, maters_In_Kilometer);
-            KM.TransferToLargerScale(LM, L_Speed_KMperMIN);
-            LM.TransferToLargerScale(LY, minutesInYear);
-            LY.TransferToLargerScale(MP, lightYearsInMegaparsec);
+            TransferToLargerScale(ref Meters, ref KM, meters_In_Kilometer);
+            TransferToLargerScale(ref KM, ref LM, L_Speed_KMperMIN);
+            TransferToLargerScale(ref LM, ref LY, minutesInYear);
+            TransferToLargerScale(ref LY, ref MP, lightYearsInMegaparsec);
+
+            return this;
+        }
+
+
+        public UniversePosition Add (Vector3 vec){
+
+            Meters += vec;
+
+            return AdjustValues();
         }
 
         public void LerpBySpeedTo(UniverseLength speed, UniversePosition o) {
@@ -397,44 +488,76 @@ namespace StoryTriggerData {
             way = Mathf.Min(dist, sp);
             KM += (vec * way);
 
-            dist = sdist.Meters + Mathf.Min(1, dist - way) * maters_In_Kilometer;
-            sp = speed.Meters * Time.deltaTime + Mathf.Min(1, sp - way) * maters_In_Kilometer;
+            dist = sdist.Meters + Mathf.Min(1, dist - way) * meters_In_Kilometer;
+            sp = speed.Meters * Time.deltaTime + Mathf.Min(1, sp - way) * meters_In_Kilometer;
             way = Mathf.Min(dist, sp);
             Meters += (vec * way);
 
             AdjustValues();
         }
-        
-        public void LerpTo(UniversePosition spos, UniverseLength rad, float Portion) {
+
+
+     
+        public float LerpTo(UniversePosition spos, UniverseLength rad, float Portion) {
 
             Portion = Mathf.Clamp01(Portion);
 
-            UniverseLength sdist = tmpDist;
-            Vector3 vec = DistAndDirectionUnscaledTo(sdist, spos);
+            // UniverseLength sdist = tmpDist;
+            tmpVec = DistAndDirectionUnscaledTo(tmpDist, spos);
 
-            sdist.Meters = Mathf.Max(0, sdist.Meters - rad.Meters * 2.2f);
-            sdist.KM = Mathf.Max(0, sdist.KM - rad.KM * 2.2f);
+            tmpDist.Meters += 2;
+            tmpDist.Subtract(rad);
 
-            float solidMP = (int)(sdist.MP / 1024) * 1024;
-            float solidLY = (int)(sdist.LY / 1024) * 1024;
-            float solidLM = (int)(sdist.LM / 1024) * 1024;
-            float solidKM = (int)(sdist.KM / 1024) * 1024;
+            float nearVal = (!tmpDist.biggerThen(999)) ? tmpDist.Meters + tmpDist.KM*meters_In_Kilometer : meters_In_Kilometer;
+
+          //  if (nearVal < 20)
+            //    Debug.Log("Close near val. "+tmpDist);
+
+            tmpDist.MultiplyBy(Portion);
+
+            Move(tmpVec, tmpDist);
+
+            /*
+            tmpDist.Meters = Mathf.Max(0, tmpDist.Meters - rad.Meters * 2.2f);
+            tmpDist.KM = Mathf.Max(0, tmpDist.KM - rad.KM * 2.2f);
+
+            float solidMP = (int)(tmpDist.MP / 512) * 512;
+            float solidLY = (int)(tmpDist.LY / 512) * 512;
+            float solidLM = (int)(tmpDist.LM / 512) * 512;
+            float solidKM = (int)(tmpDist.KM / 512) * 512;
 
             MP += (vec * solidMP * Portion);
-            LY += (vec * ((sdist.MP - solidMP) * lightYearsInMegaparsec + solidLY) * Portion);
-            LM += (vec * ((sdist.LY - solidLY) * minutesInYear + solidLM) * Portion);
-            KM += (vec * ((sdist.LM - solidLM) * L_Speed_KMperMIN + solidKM) * Portion);
-            Meters += (vec * ((sdist.KM - solidKM) * maters_In_Kilometer + sdist.Meters) * Portion);
+            LY += (vec * ((tmpDist.MP - solidMP) * lightYearsInMegaparsec + solidLY) * Portion);
+            LM += (vec * ((tmpDist.LY - solidLY) * minutesInYear + solidLM) * Portion);
+            KM += (vec * ((tmpDist.LM - solidLM) * L_Speed_KMperMIN + solidKM) * Portion);
+            Meters += (vec * ((tmpDist.KM - solidKM) * meters_In_Kilometer + tmpDist.Meters) * Portion);
+            */
 
-            AdjustValues();
+            //AdjustValues();
+
+
+
+            return nearVal; 
 
         }
 
 
+        public UniversePosition  Move(Vector3 dir, UniverseLength distance)
+        {
+            MP += dir * distance.MP;
+            LY += dir * distance.LY;
+            LM += dir * distance.LM;
+            KM += dir * distance.KM;
+            Meters += dir * distance.Meters;
+
+            return AdjustValues();
+        }
 
 
-        public static bool isInside;
+
+        public static bool isInsidePlanet;
         public static bool isInReach;
+        public static float RangeGizmoSize;
         public Vector3 ToV3(UniverseLength scale, UniverseLength reach, out float size) {
             
        
@@ -443,14 +566,17 @@ namespace StoryTriggerData {
 
             Vector3 tmp = playerPosition.DistAndDirectionUnscaledTo(tmpDist, this);
 
-            isInside = scale.biggerThen(tmpDist);
+            isInsidePlanet = scale.biggerThen(tmpDist);
             isInReach = reach.biggerThen(tmpDist);
+           
 
             tmpScale.CopyFrom(scale).Divide(universeScale);
             tmpDist.Divide(universeScale);
-            
-            if (isInside) 
-                return tmp * (tmpDist.Meters + tmpDist.KM * maters_In_Kilometer);
+
+           
+
+            if (isInsidePlanet) 
+                return tmp * (tmpDist.Meters + tmpDist.KM * meters_In_Kilometer);
             
             size = tmpScale.MP;
             float fullDist = tmpDist.MP;
@@ -465,8 +591,8 @@ namespace StoryTriggerData {
 
                     if (fullDist < accuracyLimit) {
                         near = true;
-                        fullDist = ((fullDist * L_Speed_KMperMIN + tmpDist.KM) * maters_In_Kilometer + tmpDist.Meters);
-                        size = ((size * L_Speed_KMperMIN + tmpScale.KM) * maters_In_Kilometer + tmpScale.Meters);
+                        fullDist = ((fullDist * L_Speed_KMperMIN + tmpDist.KM) * meters_In_Kilometer + tmpDist.Meters);
+                        size = ((size * L_Speed_KMperMIN + tmpScale.KM) * meters_In_Kilometer + tmpScale.Meters);
                     }
                 }
             }
@@ -480,6 +606,34 @@ namespace StoryTriggerData {
             
             return tmp.normalized * FarPlane * distance01;
         }
+
+        public Vector3 ToV3unclamped(UniverseLength reach)
+        {
+
+            Vector3 tmp = playerPosition.DistAndDirectionUnscaledTo(tmpDist, this);
+
+
+            isInReach = reach.biggerThen(tmpDist);
+
+            tmpDist.Divide(universeScale);
+
+            float fullDist = tmpDist.MP;
+            
+                fullDist = fullDist * lightYearsInMegaparsec + tmpDist.LY;
+             
+                    fullDist = fullDist * minutesInYear + tmpDist.LM;
+                   
+                        fullDist = ((fullDist * L_Speed_KMperMIN + tmpDist.KM) * meters_In_Kilometer + tmpDist.Meters);
+
+
+            tmp = tmp.normalized;
+            tmp *= fullDist;
+
+
+
+            return tmp; 
+        }
+
 
         public void DistanceTo(UniverseLength sd, UniversePosition o) {
             sd.Zero();
@@ -501,7 +655,7 @@ namespace StoryTriggerData {
                         magn = diffKM.magnitude;
 
                         if (magn < accuracyLimit)
-                            sd.Meters = (o.Meters - Meters + diffKM * maters_In_Kilometer).magnitude;
+                            sd.Meters = (o.Meters - Meters + diffKM * meters_In_Kilometer).magnitude;
                         
                         else  sd.KM = magn; 
                     }
@@ -538,7 +692,7 @@ namespace StoryTriggerData {
 
             diff += diffKM * power;
 
-            power /= (1 + diffKM.magnitude * maters_In_Kilometer);
+            power /= (1 + diffKM.magnitude * meters_In_Kilometer);
 
             Vector3 diffM = o.Meters - Meters;
 
@@ -569,7 +723,7 @@ namespace StoryTriggerData {
                         magn = diffKM.magnitude;
 
                         if (magn < accuracyLimit) {
-                            Vector3 diffT = o.Meters - Meters + diffKM * maters_In_Kilometer;
+                            Vector3 diffT = o.Meters - Meters + diffKM * meters_In_Kilometer;
                             sd.Meters = diffT.magnitude;
                             dir = diffT;
                         } else { sd.KM = magn; dir = diffKM; }
@@ -595,13 +749,14 @@ namespace StoryTriggerData {
             KM = Vector3.zero;
             LM = Vector3.zero;
             LY = Vector3.zero;
-            MP = Vector3.zero;
+            MP = Vector3.one*500;
         }
 
         public UniversePosition() {
 
             if ((playerPosition != null) && (playerPosition != this))
                 CopyFrom(playerPosition);
+            else Zero();
         }
 
         public UniversePosition GetCopy() {
@@ -620,34 +775,34 @@ namespace StoryTriggerData {
 
             bool changed = false;
 
-            switch (scaleLevel) {
+            switch (BrowsingScaleLevel) {
 
                 case 0:
                     pegi.write(meters, 80);
-                    if ((kilometers + ": " + KM).ClickUnfocus().nl()) scaleLevel++;
+                    if ((kilometers + ": " + KM).ClickUnfocus().nl()) BrowsingScaleLevel++;
                     changed |= pegi.edit(ref Meters).nl(); break;
                 case 1:
-                    if (meters.ClickUnfocus(60)) scaleLevel--;
+                    if (meters.ClickUnfocus(60)) BrowsingScaleLevel--;
                     pegi.write(kilometers, 80);
-                    if ((lightMinutes + ": " + LM).ClickUnfocus().nl()) scaleLevel++;
+                    if ((lightMinutes + ": " + LM).ClickUnfocus().nl()) BrowsingScaleLevel++;
                     changed |= pegi.edit(ref KM).nl();
                     break;
                 case 2:
 
-                    if (kilometers.ClickUnfocus(60)) scaleLevel--;
+                    if (kilometers.ClickUnfocus(60)) BrowsingScaleLevel--;
                     pegi.write(lightMinutes, 80);
-                    if ((lightYears + ": " + LY).ClickUnfocus().nl()) scaleLevel++;
+                    if ((lightYears + ": " + LY).ClickUnfocus().nl()) BrowsingScaleLevel++;
                     changed |= pegi.edit(ref LM).nl();
                     break;
 
                 case 3:
-                    if (lightMinutes.ClickUnfocus(60)) scaleLevel--;
+                    if (lightMinutes.ClickUnfocus(60)) BrowsingScaleLevel--;
                     pegi.write(lightYears, 80);
-                    if ((megaParsecs + ": " + MP).ClickUnfocus().nl()) scaleLevel++;
-                    changed |= pegi.edit(ref LM).nl();
+                    if ((megaParsecs + ": " + MP).ClickUnfocus().nl()) BrowsingScaleLevel++;
+                    changed |= pegi.edit(ref LY).nl();
                     break;
                 case 4:
-                    if (lightYears.ClickUnfocus(60)) scaleLevel--;
+                    if (lightYears.ClickUnfocus(60)) BrowsingScaleLevel--;
                     megaParsecs.nl(80);
                     changed |= pegi.edit(ref MP).nl();
                     break;
@@ -661,8 +816,10 @@ namespace StoryTriggerData {
             if (expand)
             {
                 pegi.newLine();
-                if (icon.Close.Click(20).nl())
+                if (icon.Close.Click(20))
                     expand = false;
+                if ("zero".Click())
+                    Zero();
 
                 changed |= PEGIbase();
                 
