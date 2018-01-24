@@ -33,7 +33,7 @@ public class PainterManager : MonoBehaviour
 {
         static painterConfig cfg { get { return painterConfig.inst; } }
 
-    static PainterManager _inst;
+    public static PainterManager _inst;
         public static PainterManager inst {
             get {
                 if (_inst == null)

@@ -851,6 +851,7 @@ namespace StoryTriggerData {
 
             if (("Camera Pos " + playerPosition.ToString()).foldout(ref editing, 3).nl()) {
                 changed |= playerPosition.PEGIbase();
+                if (changed) Book.inst.AfterPlayerSpacePosUpdate();
             }
 
             if (("Universe Scale " + universeScale.ToString()).foldout(ref editing, 4).nl()) {

@@ -7,8 +7,14 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public static class ResourceLoader {
+
+
+
 
     public static string Load(string fullPath) {
         string data = null;
@@ -57,7 +63,8 @@ public static class ResourceLoader {
 
 #endif
 #if !UNITY_EDITOR
-        {
+        data = LoadStoryFromResource( insideResourceFolder,  name);
+       /* {
         TextAsset asset = Resources.Load(resourceName) as TextAsset;
 
             if (asset != null) {
@@ -73,9 +80,54 @@ public static class ResourceLoader {
                 //   Debug.Log("Failed liading "+pathNdName);
               
             }
-        }
+        }*/
 #endif
 
+        return data;
+    }
+
+    public static string LoadStoryFromResource(string insideResourceFolder, string name)
+    {
+
+        string resourceName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
+        string data = null;
+
+
+        
+        TextAsset asset = Resources.Load(resourceName) as TextAsset;
+
+            if (asset != null) {
+                BinaryFormatter bf = new BinaryFormatter();
+                MemoryStream ms = new MemoryStream(asset.bytes);
+                data = (string)bf.Deserialize(ms);
+                Resources.UnloadAsset(asset);
+                //Debug.Log("Loaded " + pathNdName);
+               
+            }
+            else
+            {
+                //   Debug.Log("Failed liading "+pathNdName);
+              
+            }
+        
+
+
+        return data;
+    }
+
+
+    public static string LoadStory(UnityEngine.Object o) {
+        string data = null;
+    #if UNITY_EDITOR
+        string path = AssetDatabase.GetAssetPath(o);
+        if (path != null) {
+            string subpath = Application.dataPath;
+            path = subpath.Substring(0, subpath.Length - 6) + path;
+           // Debug.Log("Loading "+path);
+            return Load(path);
+        }
+
+    #endif
         return data;
     }
 

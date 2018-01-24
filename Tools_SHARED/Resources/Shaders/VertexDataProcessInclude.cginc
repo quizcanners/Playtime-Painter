@@ -30,6 +30,7 @@ static const float TERABOUNCE = 0.5;
 float4 _lightControl;
 sampler2D _mergeTerrainHeight;
 float4 _mergeTerrainHeight_TexelSize;
+float4 _wrldOffset;
 
 sampler2D _TerrainColors;
 sampler2D _mergeControl;
@@ -59,6 +60,8 @@ float _Merge;
 inline void normalAndPositionToUV (float3 normal, float3 scenepos, out float4 tang, out float2 uv){
 
   float3 worldNormal = UnityObjectToWorldNormal(normal);
+
+	scenepos += _wrldOffset.xyz;
 
 	worldNormal = abs(worldNormal);
 	float znorm = saturate((worldNormal.x-worldNormal.z)*55555);
@@ -145,6 +148,8 @@ inline void leakColors (inout float4 col){
 }
 
 inline float2 foamAlphaWhite(float3 fwpos) {
+	//fwpos += _wrldOffset.xyz;
+
 	float l = cos(_foamParams.x + fwpos.x) - fwpos.y;
 	float dl = max(0, 0.2 - abs(l));
 
@@ -165,6 +170,7 @@ inline float2 foamAlphaWhite(float3 fwpos) {
 inline float3 foamStuff(float3 wpos) {
 	float3 fwpos;
 	fwpos = wpos;
+	fwpos.xz += _wrldOffset.xz;
 	fwpos.y -= _foamParams.z;
 	fwpos.y *= _foamDynamics.x;
 	fwpos.y += 128 / _foamDynamics.x;

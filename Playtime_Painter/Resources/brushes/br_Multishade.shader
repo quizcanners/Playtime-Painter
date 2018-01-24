@@ -88,7 +88,7 @@
 		float Height = tex2D(_VolDecalHeight, decalUV).a;
 		float4 overlay = tex2D(_VolDecalOverlay, decalUV);
 		float4 dest =  tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
-		float alpha = saturate((Height-dest.a) * 8*_DecalParameters.y-0.01);
+		float alpha = saturate((Height-dest.a) * 16*_DecalParameters.y-0.01);
 
 		float4 col = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
 

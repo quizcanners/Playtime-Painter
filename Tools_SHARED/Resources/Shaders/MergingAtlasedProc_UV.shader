@@ -78,7 +78,7 @@
 		o.wpos = worldPos.xyz;
 
 		normalAndPositionToUV(v.tangent.xyz, o.wpos.xyz, o.bC, o.texcoord.xy);
-		o.texcoord.xy /= 8;
+		o.texcoord.xy /= 10;
 
 		o.viewDir.xyz = (WorldSpaceViewDir(v.vertex));
 		o.normal.xyz = UnityObjectToWorldNormal(v.normal.xyz);

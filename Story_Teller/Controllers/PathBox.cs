@@ -113,7 +113,7 @@ namespace StoryTriggerData {
 		public List<Actor> managedActors = new List<Actor>();
 
 		void Manage(Actor a){
-            Debug.Log("Starting to manage: "+name);
+           // Debug.Log("Starting to manage: "+name);
             if (a.managedBy != null) a.managedBy.managedActors.Remove(a);
 			a.managedBy = this;
 			managedActors.Add(a);
@@ -215,7 +215,7 @@ namespace StoryTriggerData {
 
                     if (Max(localPos+localVelocity)<1) {
 
-                        Debug.Log("Fully ");
+                        //Debug.Log("Fully ");
 
                         localPos += localVelocity;
                         localVelocity = Vector3.zero;

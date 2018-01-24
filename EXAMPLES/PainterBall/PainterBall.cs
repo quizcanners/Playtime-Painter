@@ -5,7 +5,23 @@ using PlayerAndEditorGUI;
 
 namespace Painter {
 
-	public class paintingCollision {
+#if UNITY_EDITOR
+
+    using UnityEditor;
+
+    [CustomEditor(typeof(PainterBall))]
+    public class PainterBallEditor : Editor    {
+
+        public override void OnInspectorGUI() {
+            ef.start(serializedObject);
+            ((PainterBall)target).PEGI();
+            ef.newLine();
+        }
+    }
+#endif
+
+
+    public class paintingCollision {
 		public StrokeVector vector;
 		public PlaytimePainter painter;
 
@@ -31,7 +47,7 @@ namespace Painter {
                 paintingOn.Add(col);
                 col.vector.posFrom = transform.position;
                 col.vector.firstStroke = true;
-                target.updateOrChangeDestination(texTarget.RenderTexture);
+                target.UpdateOrSetTexTarget(texTarget.RenderTexture);
 
                 return col;
             }
@@ -85,7 +101,6 @@ namespace Painter {
         }
 
         public void OnEnable()  {
-            // Hard code brush config here
             brush.brushType_rt = BrushTypeSphere.inst.index;
             if (rendy == null) 
                 rendy = GetComponent<MeshRenderer>();
@@ -102,10 +117,8 @@ namespace Painter {
 				if (p.isPaintingInWorldSpace(brush)) {
                     StrokeVector v = col.vector;
                     v.posTo = transform.position;
-					p.Paint (v, brush);
-                    //Debug.Log("Painting");
-                    v.posFrom = v.posTo;
-                    v.firstStroke = false;
+                    p.Paint(v, brush);
+                  
 				}
 
             }
@@ -113,23 +126,29 @@ namespace Painter {
 
 
         public void PEGI() {
-            pegi.write("Painting on " + paintingOn.Count + " objects");
+            ("Painting on " + paintingOn.Count + " objects").nl();
 
-            pegi.newLine();
-            pegi.write("Size:", 50);
             float size = transform.localScale.x;
-            if (pegi.edit(ref size))
+            if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 100).nl())
                 transform.localScale = Vector3.one * size;
-            pegi.newLine();
 
-            brush.BrushIndependentTargets_PEGI();
-            brush.Mode_Type_PEGI(brush.IndependentCPUblit);
+          
+
+            pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
+
+            if  ((brush.BrushForTargets_PEGI().nl()) || (brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl())) {
+                if ((brush.TargetIsTex2D) || (!brush.currentBrushTypeRT().isA3Dbrush)) {
+                    brush.TargetIsTex2D = false;
+                    brush.brushType_rt = BrushTypeSphere.inst.index;
+
+                    pegi.resetOneTimeHint("PaintBall_brushHint");
+                }
+            }
+
             brush.currentBlitMode().PEGI(brush, null);
+
             if (brush.ColorSliders_PEGI()) 
                 rendy.material.color = brush.color.ToColor();
-            
-
-
         }
 
     }

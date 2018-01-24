@@ -152,6 +152,7 @@ namespace Painter {
             }
             else if  (icon.mesh.Click("Edit Mesh", 25)) {
                 painter.meshEditing = true;
+                painter.LockEditing = false;
                 return;
             }
 
@@ -247,11 +248,11 @@ namespace Painter {
                         }
                     }
 
-                    pegi.write(painter.getMaterial());
-                    // EditorGUILayout.ObjectField(painter.getMaterial(), typeof(Material), false);
 
-                    Material mater = painter.getMaterial();
+                    Material mater = painter.getMaterial(false);
 
+                    pegi.write(mater);
+         
 
                     if ((cfg.moreOptions || (mater == null) || (mater == rtp.defaultMaterial) || (image == null))
                         && (pegi.Click(icon.NewMaterial, "Instantiate Material", 25).nl()))
@@ -315,7 +316,7 @@ namespace Painter {
                                         painter.CreateRenderTexture(texScale, painter.nameHolder);
                                     if ("Remove RendTex".Click().nl()) {
                                         if (image.texture2D != null) {
-                                            painter.updateOrChangeDestination(texTarget.Texture2D);
+                                            painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                                             image.renderTexture = null;
                                         } else {
                                             painter.curImgData = null;

@@ -14,7 +14,7 @@ public enum Gridside { xz, xy, zy }
 public class GridNavigator : MonoBehaviour {
     public static GridNavigator inst()  {
         if (_inst == null) {
-            _inst = FindObjectOfType<GridNavigator>();
+            _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
             if (_inst == null) 
                 _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
 
@@ -72,8 +72,14 @@ public class GridNavigator : MonoBehaviour {
 
    public  void Deactivateverts()
     {
+
+        //return;
         for (int i = 0; i < MeshManager.inst().vertsShowMax; i++)
+        {
+            if (verts[i] == null)
+                Debug.Log("Got Nu  sdfdsll");
             verts[i].go.SetActive(false);
+        }
 
         pointedVertex.go.SetActive(false);
         selectedVertex.go.SetActive(false);

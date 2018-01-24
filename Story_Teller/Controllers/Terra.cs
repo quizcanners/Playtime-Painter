@@ -33,10 +33,11 @@ namespace StoryTriggerData
 
         string strokeData;
         PlaytimePainter painter;
+        WaterController water;
+
         public override stdEncoder Encode()
         {
             var cody = new stdEncoder();
-
 
             if (painter.meshEditEnabled)
                 MeshManager.inst().DisconnectMesh();
@@ -48,25 +49,35 @@ namespace StoryTriggerData
 
             cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
+            cody.Add("w_Noise", water.noise);
+            cody.Add("w_Thick", water.thickness);
+            cody.Add("w_Scale", water.upscale);
+            cody.Add("w_Wet", water.wetAreaHeight);
+
+
             return cody;
         }
 
-        public override void Decode(string tag, string data)
-        {
-            switch (tag)
-            {
+        public override void Decode(string tag, string data) {
+            switch (tag) {
                 case "name": gameObject.name = data; break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
                 case "playVectors": strokeData = data; painter.PlayStrokeData(data); break;
                 case "scale": transform.localScale = data.ToVector3();  break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
+                case "w_Noise": water.noise = data.ToFloat(); break;
+                case "w_Thick": water.thickness = data.ToFloat(); break;
+                case "w_Scale": water.upscale = data.ToFloat(); break;
+                case "w_Wet": water.wetAreaHeight = data.ToFloat(); water.setFoamDynamics(); break;
             }
         }
 
-        public override void Reboot()
-        {
+        public override void Reboot() {
+
             if (painter == null)
                 painter = GetComponent<PlaytimePainter>();
+            if (water == null)
+                water = GetComponentInChildren<WaterController>();
 
             stdValues = new STD_Values();
             transform.localScale = Vector3.one;

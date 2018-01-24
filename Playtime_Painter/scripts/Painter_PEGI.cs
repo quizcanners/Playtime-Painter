@@ -40,16 +40,16 @@ namespace Painter {
         }
 
 
-        public static bool BrushIndependentTargets_PEGI(this BrushConfig brush) {
+        public static bool BrushForTargets_PEGI(this BrushConfig brush) {
             bool changed = false;
 
-            if (pegi.Click(brush.IndependentCPUblit ? icon.CPU.getIcon() : icon.GPU.getIcon(),
-                brush.IndependentCPUblit ? "Render Texture Config" : "Texture2D Config", 45)) {
-                brush.IndependentCPUblit = !brush.IndependentCPUblit;
+            if (pegi.Click(brush.TargetIsTex2D ? icon.CPU.getIcon() : icon.GPU.getIcon(),
+                brush.TargetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45)) {
+                brush.TargetIsTex2D = !brush.TargetIsTex2D;
                 changed = true;
             }
 
-            if (brush.IndependentCPUblit)
+            if (brush.TargetIsTex2D)
                 changed |= pegi.toggle(ref brush.Smooth,
                         icon.Round.getIcon(), icon.Square.getIcon(), "Smooth/Pixels Brush", 45);
 
@@ -80,7 +80,7 @@ namespace Painter {
             if ((PainterManager.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null)) {
                 if (pegi.Click(cpuBlit ? icon.CPU.getIcon() : icon.GPU.getIcon(),
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45)) {
-                    painter.updateOrChangeDestination(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);
+                    painter.UpdateOrSetTexTarget(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);
                     changed = true;
                 }
             }
@@ -341,7 +341,7 @@ namespace Painter {
                         {
                             painter.Unity_To_Preview();
 
-                            painter.usePreviewShader = true;
+                           
                             painter.SetPreviewShader();
 
                             changed = true;
@@ -355,7 +355,7 @@ namespace Painter {
 
                 if ((painter.originalShader == null) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
                 {
-                    painter.usePreviewShader = true;
+                    
                     painter.SetPreviewShader();
                     changed = true;
                 }

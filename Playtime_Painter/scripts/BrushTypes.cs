@@ -256,12 +256,14 @@ public class BrushTypeDecal : BrushType {
         public static BrushTypeDecal inst { get { initIfNull(); return _inst; } }
 
         protected override string shaderKeyword { get {return "BRUSH_DECAL";} }
-	public override bool isUsingDecals { get { return true; } }
+	    public override bool isUsingDecals { get { return true; } }
 
-	public override string ToString ()
+	    public override string ToString ()
 	{
 		return "Decal";
 	}
+
+        Vector2 previousUV;
 
 		public override void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 		
@@ -270,27 +272,75 @@ public class BrushTypeDecal : BrushType {
 			imgData id = pntr.curImgData;
 
 			if ((st.firstStroke) || (br.decalContinious)) {
-				
+                
+                if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection)
+                {
+                    Vector2  delta = st.uvTo - previousUV;
+
+                   // if ((st.firstStroke) || (delta.magnitude*id.width > br.Size(false)*0.25f)) {
+
+                    float portion = Mathf.Clamp01( delta.magnitude * id.width * 4 / br.Size(false));
+
+                    float newAngle = Vector2.SignedAngle(Vector2.up, delta) + br.decalAngleModifier;
+                    br.decalAngle = Mathf.LerpAngle(br.decalAngle, newAngle, portion);
+
+                         previousUV = st.uvTo;
+                    //}
+                    
+                }
 
 				if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
 
-				st.uvTo = rtp.to01space(st.uvTo);
+			
 
 				rtp.ShaderPrepareStroke(br, 1, id);
-
 				Transform tf = rtbrush;
+                tf.localScale = Vector3.one * br.Size(false);
+                tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
+                brushMesh = brushMeshGenerator.inst().GetQuad();
 
-				tf.localScale = Vector3.one * br.Size(false);
-				brushMesh = brushMeshGenerator.inst().GetQuad();
-				tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br .decalAngle));
-				st.uvFrom = st.uvTo;
-				tf.localPosition = st.brushWorldPositionFrom(st.uvTo);
-				rtp.Render_UpdateSecondBufferIfUsing(id);
-				if (br.decalRandomRotation) {
-					br.decalAngle = UnityEngine.Random.Range (-90f, 450f);
-					pntr.Update_Brush_Parameters_For_Preview_Shader ();
-				}
-			}
+                st.uvTo = rtp.to01space(st.uvTo);
+
+                Vector2 deltauv = st.delta_uv;
+
+                /* 
+
+                 int strokes = Mathf.Max(1, (br.decalContinious && (!st.firstStroke)) ? (int)(deltauv.magnitude*id.width/br.Size(false)) : 1);
+
+                 deltauv /=  strokes;
+
+                 for (int i = 0; i < strokes; i++) {
+                     st.uvFrom += deltauv;*/
+
+                Vector2 uv = st.uvTo;
+
+                if ((br.decalRotationMethod == DecalRotationMethod.StrokeDirection) && (!st.firstStroke)) {
+                    float length = Mathf.Max(deltauv.magnitude * 2* id.width / br.Size(false), 1);
+                    Vector3 scale = tf.localScale;
+
+                    if (( Mathf.Abs(Mathf.Abs(br.decalAngleModifier) - 90)) < 40)
+                        scale.x *= length;
+                    else
+                        scale.y *= length;
+
+                    tf.localScale = scale;
+                    uv -= deltauv * ((length - 1)*0.5f/length);
+                }
+
+                    tf.localPosition = st.brushWorldPositionFrom(uv);
+
+
+                   // if (strokes > 1) Debug.Log("Stroke " + i + ":" + tf.localPosition);
+
+                    rtp.Render_UpdateSecondBufferIfUsing(id);
+
+                    if (br.decalRotationMethod == DecalRotationMethod.Random) {
+                        br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
+                        pntr.Update_Brush_Parameters_For_Preview_Shader();
+                    }
+              //  }
+              
+            }
 			painter.AfterStroke (st);
 	}
 
@@ -304,14 +354,19 @@ public class BrushTypeDecal : BrushType {
 			pegi.write("Select valid decal; Assign to Painter Camera.");
 		pegi.newLine();
 
-		pegi.toggle(ref br.decalContinious, "Continious", "Will keep adding decal every frame while the mouse is down", 80);
+        "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref br.decalContinious).nl();
+
+        "Rotation".write("Rotation method", 60);
+
+        br.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(br.decalRotationMethod); // "Random Angle", 90);
 		pegi.newLine();
-		pegi.toggle(ref br.decalRandomRotation, "Random Angle", 90);
-		pegi.newLine();
-		if (br.decalRandomRotation == false) {
-			pegi.write("Angle:", "Decal rotation", 60);
+		if (br.decalRotationMethod == DecalRotationMethod.Set) {
+			"Angle:".write ("Decal rotation", 60);
 			brushChanged_RT |= pegi.edit(ref br.decalAngle, -90, 450);
-		}
+		} else if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection) {
+                "Ang Offset:".edit("Angle modifier after the rotation method is applied",80, ref br.decalAngleModifier, -180f, 180f); 
+        } 
+
 		pegi.newLine();
 		if (!br.GetMask(BrushMask.A))
 			pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");

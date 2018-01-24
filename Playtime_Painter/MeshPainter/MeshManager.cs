@@ -1563,7 +1563,12 @@ namespace Painter
 
             if ("Name:".edit(40, ref _Mesh.meshName))
                 _target.meshFilter.sharedMesh.name = _Mesh.meshName;
-            if (icon.save.Click("Save Mesh As "+_target.GenerateMeshSavePath(),25).nl()) _target.SaveMesh();
+
+          
+
+#if UNITY_EDITOR
+            if ((AssetDatabase.GetAssetPath(_target.getMesh()).Length==0) && (icon.save.Click("Save Mesh As "+_target.GenerateMeshSavePath(),25).nl())) _target.SaveMesh();
+#endif
 
             int before = (int)MeshManager._meshTool;
             cfg._meshTool = (MeshTool)pegi.editEnum(cfg._meshTool);

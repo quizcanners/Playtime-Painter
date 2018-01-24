@@ -113,7 +113,15 @@ public class painterConfig  {
         {
 
             if (meshProfiles == null) meshProfiles = new List<MeshSolutionProfile>();
-            if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
+
+
+
+            meshProfiles.Add((MeshSolutionProfile)(new MeshSolutionProfile().Reboot(
+                ResourceLoader.LoadStoryFromResource(MeshSolutionProfile.folderName, "Standard"))));
+            meshProfiles.Add((MeshSolutionProfile)(new MeshSolutionProfile().Reboot(ResourceLoader.LoadStoryFromResource(MeshSolutionProfile.folderName, "Atlased"))));
+
+
+            //if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
             if (texturesFolderName == null)
                 texturesFolderName = "Textures";
             if (vectorsFolderName == null)
@@ -133,6 +141,8 @@ public class painterConfig  {
             if (!ld.LoadFrom(Application.persistentDataPath, SaveName, ref _inst))  {
                 _inst = new painterConfig();
                 _inst._meshTool = MeshTool.vertices;
+
+
             }
 
             _inst.SafeInit();

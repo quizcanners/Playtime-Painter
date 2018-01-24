@@ -73,7 +73,7 @@ public class StoryGodMode : GodMode {
             {
                 SpaceValues.playerPosition.Add(transform.position);
                 transform.position = Vector3.zero;
-
+                Book.inst.AfterPlayerSpacePosUpdate();
             }
         }
     }

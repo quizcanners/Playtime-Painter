@@ -16,7 +16,11 @@ public enum BrushMask
 {
 	R = 1, G = 2, B = 4, A = 8
 }
-		
+	
+public enum DecalRotationMethod {
+    Set, Random, StrokeDirection
+}
+
 [Serializable]
 public class BrushConfig : abstract_STD
 {
@@ -106,10 +110,12 @@ public class BrushConfig : abstract_STD
     public float Hardness = 256;
 	public float blurAmount = 1;
     public float decalAngle = 0;
-    public bool decalRandomRotation = true;
-    public bool flipMaskAlpha = false;
+    //public bool decalRandomRotation = true;
+    public DecalRotationMethod decalRotationMethod;
     public bool decalContinious = false;
-    public bool IndependentCPUblit = false;
+    public float decalAngleModifier;
+    public bool flipMaskAlpha = false;
+    public bool TargetIsTex2D = false;
 
     public float Brush3D_Radius = 16;
     public float Brush2D_Radius = 16;
@@ -123,8 +129,6 @@ public class BrushConfig : abstract_STD
     public float speed = 10;
     public bool MB1ToLinkPositions;
     public bool Smooth;
-    //public bool LazyBrush;
-    //public bool sphereBrush;
     public bool DontRedoMipmaps;
 
     public linearColor color;

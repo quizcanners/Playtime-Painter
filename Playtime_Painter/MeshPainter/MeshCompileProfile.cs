@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using StoryTriggerData;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Painter
 {
@@ -26,7 +31,7 @@ namespace Painter
 
         public virtual void SetDefaults(VertexSolution to)
         {
-            for (int i = 0; i < to.vals.Length; i++)
+            for (int i = 0; i < to.vals.Count; i++)
                 to.vals[i].valueIndex = i;
         }
 
@@ -122,8 +127,11 @@ namespace Painter
 
 
     [Serializable]
-    public class VertexDataValue
-    {
+    public class VertexDataValue : abstract_STD {
+
+        public int typeIndex;
+        public int valueIndex;
+
         public VertexDataType vertDataType { get { return MeshSolutions.types[typeIndex]; } }
 
         public float[] getDataArray() {
@@ -131,19 +139,33 @@ namespace Painter
             return vertDataType.getValue(valueIndex);
         }
 
-        public int typeIndex;
-        public int valueIndex;
-
-        public VertexDataValue()
-        {
-
-
+        public override stdEncoder Encode() {
+            stdEncoder cody = new stdEncoder();
+            cody.Add("t", typeIndex);
+            cody.Add("v", valueIndex);
+            return cody;
         }
+
+        public override void Decode(string tag, string data) {
+            switch (tag) {
+                case "t": typeIndex = data.ToInt(); break;
+                case "v": valueIndex = data.ToInt(); break;
+            }
+        }
+
+        public override string getDefaultTagName()
+        {
+            Debug.Log("Shouldn't be calling this");
+            return "none";
+        }
+
+    
+
     }
 
 
     [Serializable]
-    public class VertexSolution
+    public class VertexSolution : abstract_STD 
     {
         public int sameSizeDataIndex;
         public int targetIndex;
@@ -152,16 +174,18 @@ namespace Painter
         public VertexDataType sameSizeValue { get { if (sameSizeDataIndex >= 0) return MeshSolutions.types[sameSizeDataIndex]; else return null; } }
         public VertexDataTarget target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
-        public VertexDataValue[] vals;
+        public List<VertexDataValue> vals;
 
-        public bool PEGI()
+        public override bool PEGI()
         {
+            bool changed = false;
+
             (target.name() + ":").toggle(80, ref enabled);
 
             if (enabled)
             {
 
-                List<VertexDataType> tps = MeshSolutions.getTypesBySize(vals.Length);
+                List<VertexDataType> tps = MeshSolutions.getTypesBySize(vals.Count);
                 string[] nms = new string[tps.Count + 1];
 
                 for (int i = 0; i < tps.Count; i++)
@@ -179,7 +203,7 @@ namespace Painter
                             break;
                         }
 
-                pegi.select(ref selected, nms).nl();
+                changed |= pegi.select(ref selected, nms).nl();
 
                 if (selected >= tps.Count) sameSizeDataIndex = -1;
                 else
@@ -189,39 +213,46 @@ namespace Painter
 
                 if (sameSizeValue == null)
                 {
-                    for (int i = 0; i < vals.Length; i++)
-                    {
+                    for (int i = 0; i < vals.Count; i++) {
                         VertexDataValue v = vals[i];
 
-                        target.getFieldName(i).select(40, ref v.typeIndex, allDataNames);
+                        changed |= target.getFieldName(i).select(40, ref v.typeIndex, allDataNames);
 
                         string[] typeFields = new string[v.vertDataType.chanelsNeed];
 
                         for (int j = 0; j < typeFields.Length; j++)
                             typeFields[j] = v.vertDataType.getFieldName(j);
 
-                        pegi.select(ref v.valueIndex, typeFields).nl();
+
+
+                        changed |= pegi.select(ref v.valueIndex, typeFields).nl();
+
+                        v.valueIndex = Mathf.Clamp(v.valueIndex, 0, typeFields.Length - 1);
                     }
                 }
                 "**************************************************".nl();
             }
 
-            return false;
+            return changed;
         }
 
+        public VertexSolution() {
 
-        public VertexSolution(VertexDataTarget ntrg)
-        {
+        }
+
+        public VertexSolution(VertexDataTarget ntrg) {
             target = ntrg;
-            vals = new VertexDataValue[target.chanelsHas];
-            for (int i = 0; i < ntrg.chanelsHas; i++)
-                vals[i] = new VertexDataValue();
 
+            initVals();
             sameSizeDataIndex = -1;
-            targetIndex = ntrg.myIndex;
-
+         
             ntrg.SetDefaults(this);
+        }
 
+        void initVals() {
+            vals = new List<VertexDataValue>();
+            for (int i = 0; i < target.chanelsHas; i++)
+                vals.Add(new VertexDataValue());
         }
 
         public void Pack()
@@ -307,6 +338,39 @@ namespace Painter
                 target.set(ar);
 
         }
+
+        public override stdEncoder Encode() {
+            var cody = new stdEncoder();
+
+           
+            cody.Add("en", enabled);
+            cody.Add("t", targetIndex);
+
+            if (enabled) {
+                if (sameSizeDataIndex == -1)
+                    cody.AddIfNotEmpty("vals", vals);
+                else
+                    cody.Add("sameSize", sameSizeDataIndex);
+
+               
+            }
+            return cody;
+        }
+
+        public override void Decode(string tag, string data) {
+            switch (tag) {
+                case "en": enabled = data.ToBool();  break;
+                case "t": targetIndex = data.ToInt(); if (!enabled) initVals(); break;
+                case "vals": vals = data.ToListOf_STD<VertexDataValue>(); sameSizeDataIndex = -1; break;
+                case "sameSize": sameSizeDataIndex = data.ToInt(); initVals(); break;
+              
+            }
+        }
+
+        public override string getDefaultTagName()
+        {
+            return target.name();
+        }
     }
 
 
@@ -314,17 +378,40 @@ namespace Painter
 
 
     [Serializable]
-    public class MeshSolutionProfile {
-        public VertexSolution[] sln;
+    public class MeshSolutionProfile: abstract_STD {
+        public List<VertexSolution> sln;
 
         public string name = "";
 
-        public bool PEGI()
-        {
-            "Name: ".edit(40, ref name);
+        public const string folderName = "Mesh Profile";
+
+        public override bool PEGI() {
+
+
+
+            "Profile Name: ".edit(80, ref name);
+
+#if UNITY_EDITOR
+
+            if (icon.save.Click("Save To:" + painterConfig.inst.meshesFolderName + "/Resources/" + folderName, 25).nl()) {
+                this.SaveToResources (painterConfig.inst.meshesFolderName, folderName, name);
+                AssetDatabase.Refresh();
+            }
+
+
+            UnityEngine.Object myType = null;
+            if (pegi.edit(ref myType).nl())
+            {
+                var msol = (MeshSolutionProfile)(new MeshSolutionProfile().Reboot(ResourceLoader.LoadStory(myType)));
+                
+                painterConfig.inst.meshProfiles.Add(msol);
+                PlaytimePainter.inspectedPainter.selectedMeshProfile = painterConfig.inst.meshProfiles.Count - 1;
+            }
+#endif
+
 
             bool changed = false;
-            for (int i = 0; i < sln.Length; i++)
+            for (int i = 0; i < sln.Count; i++)
                 changed |= sln[i].PEGI().nl();
 
             return changed;
@@ -352,12 +439,38 @@ namespace Painter
                 vt.Clear();
         }
 
+        public override stdEncoder Encode()
+        {
+            stdEncoder cody = new stdEncoder();
+
+            cody.AddText("n", name);
+            cody.AddIfNotEmpty("sln", sln);
+
+
+            return cody;
+        }
+
+        public override void Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "n": name = data; break;
+                case "sln": sln = data.ToListOf_STD<VertexSolution>(); break;
+            }
+        }
+
+        public const string stdTag_vertSol = "vertSol";
+
+        public override string getDefaultTagName()
+        {
+            return stdTag_vertSol;
+        }
+
         public MeshSolutionProfile() {
             VertexDataTarget[] trgs = MeshSolutions.targets;
-            sln = new VertexSolution[trgs.Length];
+            sln = new List<VertexSolution>(); //[trgs.Length];
             name = "unnamed";
             for (int i = 0; i < trgs.Length; i++)
-                sln[i] = new VertexSolution(trgs[i]);
+                sln.Add(new VertexSolution(trgs[i]));
         }
 
     }

@@ -1474,6 +1474,12 @@ namespace PlayerAndEditorGUI {
             return edit(ref val, min, max);
         }
 
+        public static bool edit(this string label, string tip, int width,  ref float val, float min, float max)
+        {
+            write(label, tip, width);
+            return edit(ref val, min, max);
+        }
+
         public static bool edit(this string label, int width, ref int val) {
             write(label, width);
             return edit(ref val);
@@ -1712,7 +1718,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(string text, int width) {
+        public static void write(this string text, int width) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1726,7 +1732,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(string text, string tip) {
+        public static void write(this string text, string tip) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1743,7 +1749,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(string text, string tip, int width) {
+        public static void write(this string text, string tip, int width) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1800,14 +1806,26 @@ namespace PlayerAndEditorGUI {
 
             pegi.newLine();
 
-            writeHint(text);
-            if (Click("Got it")) {
+            text += " (press OK)";
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false) {
+                ef.writeHint(text, MessageType.Info);
+            }
+            else
+#endif
+            {
+                checkLine();
+                GUILayout.Label(text);
+            }
+
+            if (Click("OK", 50).nl()) {
                 PlayerPrefs.SetInt(name, 1);
-                pegi.newLine();
+         
                 return true;
             }
 
-            pegi.newLine();
+    
             return false;
         }
 
@@ -1887,6 +1905,7 @@ namespace PlayerAndEditorGUI {
             return changes;
         }
 
+       
         class TypeSwitch {
             Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
             public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }

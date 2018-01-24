@@ -27,7 +27,7 @@ namespace Painter{
 
 		public virtual bool showInDropdown(){
             if (painter == null)  
-                return (pegibrush.IndependentCPUblit ? supportedByTex2D : supportedByBigRT);
+                return (pegibrush.TargetIsTex2D ? supportedByTex2D : supportedByBigRT);
 
 			imgData id = painter.curImgData;
 
@@ -101,7 +101,7 @@ namespace Painter{
 
             imgData id = p == null ? null : p.curImgData;
 
-            bool cpuBlit = id == null ? brush.IndependentCPUblit : id.destination == texTarget.Texture2D;
+            bool cpuBlit = id == null ? brush.TargetIsTex2D : id.destination == texTarget.Texture2D;
             BrushType brushType = brush.currentBrushTypeRT();
             bool usingDecals = (!cpuBlit) && brushType.isUsingDecals; 
 

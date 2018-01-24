@@ -64,7 +64,7 @@ namespace StoryTriggerData {
 
             switch (tag) {
                 case "name": gameObject.name = data; break;
-                case "spos": UniversePosition.playerPosition.Reboot(data); break;
+                case "spos": UniversePosition.playerPosition.Reboot(data); AfterPlayerSpacePosUpdate();  break;
                 case "pages":
                     HOMEpages = data.ToListOfStoryPoolablesOfTag<Page>(Page.storyTag);
                     break;
@@ -282,7 +282,8 @@ namespace StoryTriggerData {
 
                 pegi.newLine();
 
-                UniversePosition.playerPosition.PEGI();
+                if (UniversePosition.playerPosition.PEGI())
+                    AfterPlayerSpacePosUpdate();
 
             } else {
                 if (pegi.Click("< Pages"))
@@ -313,19 +314,24 @@ namespace StoryTriggerData {
         [NonSerialized]
         public UniversePosition lerpPosition;
 
+        public void AfterPlayerSpacePosUpdate() {
+            Vector3 v3 = SpaceValues.playerPosition.Meters;
+            Shader.SetGlobalVector("_wrldOffset", new Vector4(v3.x, v3.y, v3.z,0));
+        }
+
         void CombinedUpdate() {
 
-            if (lerpTarget != null)
-            {
+            if (lerpTarget != null) {
                 //   "Lerpong".Log();
 
                 if ((lerpTarget.enabled == false) || (SpaceValues.playerPosition.LerpTo(lerpTarget.sPOS, lerpTarget.uReach, Application.isPlaying ? Time.deltaTime : 0.5f) < 1)) lerpTarget = null;
-
+                AfterPlayerSpacePosUpdate();
 
             }
             else if (lerpPosition != null)
             {
                 if (SpaceValues.playerPosition.LerpTo(lerpPosition, UniverseLength.one, Application.isPlaying ? Time.deltaTime : 0.5f) < 1) lerpPosition = null;
+                AfterPlayerSpacePosUpdate();
             }
             
 
