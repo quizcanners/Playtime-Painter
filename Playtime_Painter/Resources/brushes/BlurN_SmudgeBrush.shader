@@ -1,4 +1,4 @@
-﻿Shader "Brush/BlurN_SmudgeBrush" {
+﻿Shader "Editor/BlurN_SmudgeBrush" {
 
 		Category{
 		Tags{ "Queue" = "Transparent"}

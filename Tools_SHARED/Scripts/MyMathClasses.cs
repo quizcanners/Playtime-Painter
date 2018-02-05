@@ -158,6 +158,61 @@ public static class MyMath{
 }
 
 [Serializable]
+public class myIntVec2 {
+	public int x;
+	public int y;
+
+	public override string ToString ()
+	{
+		return "x:" + x + " y:" + y;
+	}
+
+	public myIntVec2 MultiplyBy (int val){
+		x *= val;
+		y *= val;
+		return this;
+	}
+
+	public myIntVec2 Subtract (myIntVec2 other){
+		x -= other.x;
+		y -= other.y;
+		return this;
+	}
+
+	public Vector2 ToFloat(){
+		return new Vector2 (x, y);
+	}
+
+	public myIntVec2 From (Vector2 vec){
+		x = (int)vec.x;
+		y = (int)vec.y;
+		return this;
+	}
+
+	public myIntVec2 (myIntVec2 other){
+		x = other.x;
+		y = other.y;
+	}
+
+	public myIntVec2 (float nx, float ny){
+		x = (int)nx;
+		y = (int)ny;
+	}
+
+	public myIntVec2 (int nx, int ny){
+		x = nx;
+		y = ny;
+	}
+
+	public myIntVec2(int val){
+		x = y = val;
+	}
+
+	public myIntVec2(){
+	
+	}
+}
+[Serializable]
 public class myIntVec3
 {
     public int x;

@@ -82,15 +82,17 @@ public static class Blit_Functions {
         if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
     }
 
+
+	
+
     public static void PaintCircle(Vector2 uvCoords, float brushAlpha, imgData image, BrushConfig bc) {
 
-        Vector2 pixIndex = image.uvToPixelNumber(uvCoords);
         brAlpha = brushAlpha;
 
         half = (bc.Size(false)) / 2;
         int ihalf = (int)half;
 
-        Vector2 tmpCoord;
+  
         if (bc.Smooth)
             _alphaMode = circleAlpha;
         else
@@ -109,25 +111,80 @@ public static class Blit_Functions {
 
         csrc = bc.color.ToColor();
 
-        tmpCoord = pixIndex;
-        tmpCoord.y -= ihalf;
-        float fromx = pixIndex.x - ihalf;
+		myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
+		int fromx = tmp.x - ihalf;
+
+		tmp.y -= ihalf;
+  
         for (y = -ihalf; y < ihalf + 1; y++) {
            
-            tmpCoord.x = fromx;
+				tmp.x = fromx;
 
             for (x = -ihalf; x < ihalf + 1; x++) {
                
                 if (_alphaMode())
-                    _blitMode(ref image.pixels[image.pixelNo(tmpCoord)]);
+						_blitMode(ref image.pixels[image.pixelNo(tmp)]);
                 
-                tmpCoord.x += 1;
+					tmp.x += 1;
             }
 
-            tmpCoord.y += 1;
+				tmp.y += 1;
         }
     }
+
+		public static void PaintCircleAtlased(Vector2 uvCoords, float brushAlpha, 
+			imgData image, BrushConfig bc, PlaytimePainter origin) {
+
+			imgData.sectorSize = image.width/origin.atlasRow;
+			imgData.atlasSector.From(origin.GetAtlasedSection()*imgData.sectorSize);
+
+			brAlpha = brushAlpha;
+
+			half = (bc.Size(false)) / 2;
+			int ihalf = (int)half;
+
+			if (bc.Smooth)
+				_alphaMode = circleAlpha;
+			else
+				_alphaMode = noAlpha;
+
+			_blitMode = bc.currentBlitMode ().BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
+
+			if (bc.Smooth) ihalf += 1;
+
+			alpha = 1;
+
+			r = bc.GetMask(BrushMask.R);
+			g = bc.GetMask(BrushMask.G);
+			b = bc.GetMask(BrushMask.B);
+			a = bc.GetMask(BrushMask.A);
+
+			csrc = bc.color.ToColor();
+
+			myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+
+			int fromx = tmp.x - ihalf;
+
+			tmp.y -= ihalf;
+
+		
+
+			for (y = -ihalf; y < ihalf + 1; y++) {
+
+				tmp.x = fromx;
+
+				for (x = -ihalf; x < ihalf + 1; x++) {
+
+					if (_alphaMode())
+						_blitMode(ref image.pixels[image.pixelNoAtlased(tmp)]);
+
+					tmp.x += 1;
+				}
+
+				tmp.y += 1;
+			}
+		}
 
 }
 }

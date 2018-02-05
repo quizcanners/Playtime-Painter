@@ -10,7 +10,7 @@ namespace Painter {
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : SceneViewEditable<PlaytimePainter> {
 
-        static painterConfig cfg { get { return painterConfig.inst; } }
+        static PainterConfig cfg { get { return PainterConfig.inst; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
             return (targ != null) && (targ.LockEditing == false) && ((targ.curImgData != null) || (targ.meshEditing));
@@ -24,14 +24,14 @@ namespace Painter {
 
             if ((painter != null) && (painter.meshEditing)) {
 
-                PlaytimePainter edited = MeshManager.inst()._target;
+                PlaytimePainter edited = MeshManager.inst.target;
                 
                 bool allowRefocusing = false;
 
                 if (p != null) {
 
-                    if ((p != edited) && (p.LockEditing == false) && (p.saveMeshDta != null) && L_mouseDwn && (e.button == 0)) {
-                        MeshManager.inst().EditMesh(p, false);
+					if ((p != edited) && (p.meshEditing) && (p.gotMeshData()) && L_mouseDwn && (e.button == 0)) {
+                        MeshManager.inst.EditMesh(p, false);
                         allowRefocusing = true;
                     }
 
@@ -40,7 +40,7 @@ namespace Painter {
                     
                 }
 
-                if ((((e.button == 1) && (!MeshManager.inst().draggingSelected)) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+                if ((((e.button == 1) && (!MeshManager.inst.draggingSelected)) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
                     navigating = true;
 
               //  if (allowRefocusing)
@@ -76,7 +76,7 @@ namespace Painter {
 
         public override void getEvents(Event e, Ray ray) {
             if ((painter!= null) && (painter.meshEditing))
-            MeshManager.inst().UpdateInputEditorTime(e, ray, L_mouseUp, L_mouseDwn);
+            MeshManager.inst.UpdateInputEditorTime(e, ray, L_mouseUp, L_mouseDwn);
         
 
             if ((e.type == EventType.keyDown) && (painter != null) && (painter.meshEditing == false)) {
@@ -107,31 +107,32 @@ namespace Painter {
 
 
 
-      
+
 
         public override void OnInspectorGUI() {
 
+            bool changes = false;
+
             ef.start(serializedObject);
             painter = (PlaytimePainter)target;
-
-   
 
             if (!PlaytimePainter.isCurrent_Tool()) {
                 if (pegi.Click(icon.Off, "Click to Enable Tool", 25)) {
                     PlaytimeToolComponent.enabledTool = typeof(PlaytimePainter);//  customTools.Painter;
                     CloseAllButThis(painter);
-                 
+
                     painter.CheckPreviewShader();
                 }
-                pegi.newLine();
+                painter.gameObject.end();
                 return;
             } else {
 
                 if ((isCurrentTool() && (painter.terrain != null) && (Application.isPlaying == false) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter.terrain) == true)) ||
                     (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 25))) {
                     PlaytimeToolComponent.enabledTool = null; //customTools.Disabled;
-                    MeshManager.inst().DisconnectMesh();
+                    MeshManager.inst.DisconnectMesh();
                     painter.SetOriginalShader();
+                    painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                 }
             }
 
@@ -139,45 +140,24 @@ namespace Painter {
 
 
 
-            if (painter.meshEditing) {
-                if (icon.Painter.Click("Edit Texture", 25))
-                {
-                    painter.meshEditing = false;
-                    MeshManager.inst().DisconnectMesh();
-                }
-                else
-                    painter.meshPEGI();
 
-                return;
-            }
-            else if  (icon.mesh.Click("Edit Mesh", 25)) {
-                painter.meshEditing = true;
-                painter.LockEditing = false;
-                return;
-            }
 
             PainterManager rtp = PainterManager.inst;
+            BrushConfig brush = PlaytimePainter.brush;
+            imgData image = painter.curImgData;
+
+            Texture tex = painter.getTexture();
+            if ((!painter.meshEditing) && ((tex != null) && (image == null)) || ((image != null) && (tex == null)) || ((image != null) && (tex != image.texture2D) && (tex != image.currentTexture())))
+                painter.textureWasChanged = true;
+
+
+            changes = painter.management_PEGI();
+
+            if (painter.meshEditing) { painter.gameObject.end();  return; } 
 
             if ((painter.meshRenderer != null) || (painter.terrain != null)) {
 
-                BrushConfig brush = PlaytimePainter.brush;
-                imgData image = painter.curImgData;
-
-                Texture tex = painter.getTexture();
-                if (((tex != null) && (image == null)) || ((image != null) && (tex == null)) || ((image != null) && (tex != image.texture2D) && (tex != image.currentTexture())))
-                    painter.textureWasChanged = true;
-
-                if (ef.toggle(ref painter.LockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of this abject.", 25))
-                    painter.CheckPreviewShader();
-
-                if (painter.LockEditing) {
-                    ef.newLine();
-                    return;
-                }
-
-                bool brushChanged_RT = painter.ifGotTexture_PEGI();
-
-                if (!cfg.showConfig) {
+                if ((!cfg.showConfig) && (!painter.LockEditing)) {
                     if (image != null) {
 
                         ef.newLine();
@@ -192,6 +172,8 @@ namespace Painter {
                                     painter.ForceReimportMyTexture(Orig);
                                     painter.curImgData.SaveName = painter.curImgData.texture2D.name;
                                     GUI.FocusControl("dummy");
+                                    if (painter.terrain != null)
+                                        painter.UpdateShaderGlobalVariables();
                                 }
                             }
 
@@ -230,7 +212,7 @@ namespace Painter {
                         ef.newLine();
 
 
-                        if (brushChanged_RT)
+                        if (changes)
                             painter.Update_Brush_Parameters_For_Preview_Shader();
 
                     }
@@ -255,7 +237,7 @@ namespace Painter {
          
 
                     if ((cfg.moreOptions || (mater == null) || (mater == rtp.defaultMaterial) || (image == null))
-                        && (pegi.Click(icon.NewMaterial, "Instantiate Material", 25).nl()))
+                        && (icon.NewMaterial.Click("Instantiate Material", 25).nl()))
                         painter.InstantiateMaterial(true);
 
 
@@ -287,7 +269,7 @@ namespace Painter {
                         bool isTerrainHeight = painter.isTerrainHeightTexture();
 
                         int texScale = (!isTerrainHeight) ?
-                             ((int)Mathf.Pow(2, painterConfig.inst.selectedSize + minPow))
+                             ((int)Mathf.Pow(2, PainterConfig.inst.selectedSize + minPow))
                             
                             : (painter.terrain.terrainData.heightmapResolution - 1);
 
@@ -345,7 +327,7 @@ namespace Painter {
                                     texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
                             }
 
-                            ef.select(ref painterConfig.inst.selectedSize, texSizes, 60);
+                            ef.select(ref PainterConfig.inst.selectedSize, texSizes, 60);
                         }
                         ef.newLine();
                     }
@@ -379,7 +361,10 @@ namespace Painter {
                 }
 
             }
-            ef.newLine();
+
+
+            painter.gameObject.end();
+
         }
 
         bool textureSetterField() {

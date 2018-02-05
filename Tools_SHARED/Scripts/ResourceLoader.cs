@@ -7,14 +7,13 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
 
+using StoryTriggerData;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 public static class ResourceLoader {
-
-
-
 
     public static string Load(string fullPath) {
         string data = null;
@@ -86,9 +85,8 @@ public static class ResourceLoader {
         return data;
     }
 
-    public static string LoadStoryFromResource(string insideResourceFolder, string name)
-    {
 
+    public static string LoadStoryFromResource(string insideResourceFolder, string name) {
         string resourceName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
         string data = null;
 

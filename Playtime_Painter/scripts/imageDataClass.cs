@@ -104,9 +104,7 @@ namespace Painter {
     }
 
     public class imgData {
-
-        painterConfig cfg { get { return painterConfig.inst; } }
-
+        PainterConfig cfg { get { return PainterConfig.inst; } }
 
         const float bytetocol = 1f / 255f;
 
@@ -121,15 +119,11 @@ namespace Painter {
 
         public UndoCache cache = new UndoCache();
 
-
-
         public Vector2 tyling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
 
-
         // ##################### For Stroke Vector Recording
-
 
         public List<string> recordedStrokes = new List<string>();
         public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
@@ -381,32 +375,50 @@ namespace Painter {
             return pixels[((int)vec.y) * width + (int)vec.x];
         }
 
-        public Color pixel(Vector2 vec) {
-            vec.x %= width;
-            while (vec.x < 0)
-                vec.x += width;
+		public Color pixel(myIntVec2 v) {
+            v.x %= width;
+            while (v.x < 0)
+                v.x += width;
 
-            vec.y %= height;
-            while (vec.y < 0)
-                vec.y += height;
+            v.y %= height;
+            while (v.y < 0)
+                v.y += height;
 
-            return pixels[((int)vec.y) * width + (int)vec.x];
+            return pixels[((int)v.y) * width + (int)v.x];
         }
 
-        public int pixelNo(Vector2 vec) {
-            int x = (int)vec.x;
+		public static myIntVec2 atlasSector = new myIntVec2();
+		public static int sectorSize = 1;
+
+		public int pixelNoAtlased(myIntVec2 v) {
+
+			int x = v.x - atlasSector.x;
+			int y = v.y - atlasSector.y;
+
+			x %= sectorSize;
+			if (x < 0)
+				x += sectorSize;
+			y %= sectorSize;
+			if (y < 0)
+				y += sectorSize;
+			return ((atlasSector.y+y)) * width + (atlasSector.x + x);
+		}
+
+		public int pixelNo(myIntVec2 v) {
+			int x = v.x;
+			int y = v.y;
+
             x %= width;
             if (x < 0)
                 x += width;
-            int y = (int)vec.y;
             y %= height;
             if (y < 0)
                 y += height;
             return y * width + x;
         }
 
-        public Vector2 uvToPixelNumber(Vector2 uv) {
-            return new Vector2(uv.x * width, uv.y * height);
+		public myIntVec2 uvToPixelNumber(Vector2 uv) {
+			return new myIntVec2(uv.x * width, uv.y * height);
         }
 
         public void SetAndApply(bool mipmaps) {

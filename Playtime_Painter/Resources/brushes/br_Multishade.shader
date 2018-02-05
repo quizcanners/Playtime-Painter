@@ -1,4 +1,4 @@
-﻿Shader "Brush/br_Multishade" {
+﻿Shader "Editor/br_Multishade" {
 	
 		Category{
 		Tags{ "Queue" = "Transparent"}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 using System;
 using System.Linq;
@@ -11,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+
 
 namespace PlayerAndEditorGUI {
 
@@ -24,22 +26,25 @@ namespace PlayerAndEditorGUI {
         
 
             public void drawFunction(int windowID) {
-                start();
                 paintingPlayAreaGUI = true;
 
+                elementIndex = 0;
+                lineOpen = false;
+                focusInd = 0;
 
                 GUI.backgroundColor = Color.white;
-             
 
                 funk();
 
+                mouseOverUI = windowRect.Contains(Input.mousePosition);
+
                 newLine();
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
-                paintingPlayAreaGUI = false;
                 newLine();
                 GUI.color = Color.white;
                 ("Tip:" + GUI.tooltip).nl();
 
+                paintingPlayAreaGUI = false;
             }
 
 
@@ -67,6 +72,7 @@ namespace PlayerAndEditorGUI {
         static int focusInd;
 
         public static bool isFoldedOut = false;
+        public static bool mouseOverUI = false;
 
         static int selectedFold = -1;
         public static int tabIndex; // will be reset on every NewLine;
@@ -97,6 +103,12 @@ namespace PlayerAndEditorGUI {
 
         public static bool nl(this string value) {
             write(value);
+            newLine();
+            return false;
+        }
+
+        public static bool nl(this string value, string tip) {
+            write(value, tip);
             newLine();
             return false;
         }
@@ -133,14 +145,16 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void start() {
-            paintingPlayAreaGUI = false;
-            elementIndex = 0;
-            lineOpen = false;
-            focusInd = 0;
+        public static void end(this GameObject go) {
+#if UNITY_EDITOR
+       
+
+         //   if (paintingPlayAreaGUI == false)
+                ef.end(go);
+         
+#endif
+
         }
-
-
 
         // ############ GUI
 
@@ -240,7 +254,7 @@ namespace PlayerAndEditorGUI {
               {
                 if ((from == null) || (from.Length == 0)) return false;
 
-                foldout(from[Mathf.Min(from.Length - 1, no)]);
+                foldout((no>-1)? from[Mathf.Min(from.Length - 1, no)] : ". . .");
                 newLine();
 
                 if (isFoldedOut) {
@@ -948,6 +962,10 @@ namespace PlayerAndEditorGUI {
 
         }
 
+		public static void nl(this icon icon, int size) {
+			pegi.write(icon.getIcon(), size);
+		}
+
         public static bool Click(this icon icon, int size) {
             return Click(icon.getIcon(), size);
         }
@@ -959,7 +977,7 @@ namespace PlayerAndEditorGUI {
         public static bool ClickToEditScript() {
 
 #if UNITY_EDITOR
-            if (icon.Script.Click(20)) {
+            if (icon.Script.Click("Click to edit current position in a script",20)) {
 
                 var frame = new StackFrame(1, true);
 
@@ -1205,7 +1223,8 @@ namespace PlayerAndEditorGUI {
             else
 #endif
             {
-              return  label.edit(ref val);
+                write(label);
+              return  edit(ref val);
             }
         }
 
@@ -1583,7 +1602,12 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width) {
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width)
+        {
+            return toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
+        }
+
+            public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1707,7 +1731,7 @@ namespace PlayerAndEditorGUI {
         public static void write(this string text) {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false) {
+            if (!paintingPlayAreaGUI) {
                 ef.write(text);
             } else
 #endif

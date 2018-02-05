@@ -1,5 +1,5 @@
 ﻿
-Shader "Damage/VertexDenting" {
+Shader "Painter_Experimental/VertexDenting" {
 	Properties{
 	[NoScaleOffset]_DamageMask("Damage Mask", 2D) = "white" {}
 	[NoScaleOffset]_MainTex("Albedo (RGB)", 2D) = "white" {}

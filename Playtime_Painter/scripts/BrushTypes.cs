@@ -34,7 +34,7 @@ public abstract class BrushType : IeditorDropdown {
 	protected static PlaytimePainter painter;
 
 	public static BrushType getCurrentBrushTypeForPainter (PlaytimePainter inspectedPainter) 
-		{ painter = inspectedPainter; return painterConfig.inst.brushConfig.currentBrushTypeRT(); } 
+		{ painter = inspectedPainter; return PainterConfig.inst.brushConfig.currentBrushTypeRT(); } 
 
 	public static List<BrushType> allTypes {  get {  initIfNull(); return _allTypes; } 
 	} 
@@ -157,7 +157,7 @@ public abstract class BrushType : IeditorDropdown {
 
                     pegi.newLine();
 
-                    if (painterConfig.inst.moreOptions || brush.flipMaskAlpha)
+                    if (PainterConfig.inst.moreOptions || brush.flipMaskAlpha)
                         change |= pegi.toggle(ref brush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
 
                     pegi.newLine();

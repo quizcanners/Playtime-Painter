@@ -1,6 +1,7 @@
 ﻿Shader "Editor/br_Preview" {
 		Properties {
 		_PreviewTex ("Base (RGB)", 2D) = "white" { }
+		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 		}
 		Category{
 		Tags{ "Queue" = "Geometry"  "RenderType"="Opaque" }
@@ -16,7 +17,7 @@
 		#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA
 		#pragma multi_compile  BRUSH_2D  BRUSH_3D BRUSH_DECAL
 		#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
-		
+		#pragma multi_compile  UV_NORMAL UV_ATLASED
 
 
 		#pragma vertex vert
@@ -27,6 +28,7 @@
 		
 		
 		sampler2D _PreviewTex;
+		float _AtlasTextures;
 		float4 _PreviewTex_ST;
 		float4 _PreviewTex_TexelSize;
 
@@ -36,6 +38,9 @@
 		float4 pos : POSITION;
 		float4 texcoord : TEXCOORD0;  
 		float3 worldPos : TEXCOORD1;
+#if UV_ATLASED
+		float4 atlasedUV : TEXCOORD2;
+#endif
 	};
 
 		v2f vert(appdata_full v) {
@@ -48,12 +53,29 @@
 
 
 			o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+
+#if UV_ATLASED
+
+			float atlasNumber = v.texcoord.z;
+			float atY = floor(atlasNumber / _AtlasTextures);
+			float atX = atlasNumber - atY*_AtlasTextures;
+			float edge = _PreviewTex_TexelSize.x;
+
+			o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
+			o.atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
+			o.atlasedUV.w = 1 / _AtlasTextures;
+#endif
+
 		return o;
 		}
 
 
 	
 	float4 frag(v2f i) : COLOR{
+
+#if UV_ATLASED
+		i.texcoord.xy = (frac(i.texcoord.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
+#endif
 
 	 #if BRUSH_COPY
 	 	_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));

@@ -3,7 +3,7 @@
 	_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
 	[NoScaleOffset]_BumpMapC("Geometry Combined Maps (RGB)", 2D) = "white" {}
 	_Merge("_Merge", Range(0.01,25)) = 1
-	[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+	_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 
 
@@ -76,14 +76,14 @@
 		o.viewDir.xyz = (WorldSpaceViewDir(v.vertex));
 
 		o.texcoord.xy = v.texcoord.xy;
-		float atlasNumber = v.texcoord1.w;
+		float atlasNumber = v.texcoord.z;
 		o.texcoord.z = atlasNumber;
 
 		UNITY_TRANSFER_FOG(o, o.pos);
 		TRANSFER_SHADOW(o);
 
 		float3 worldNormal = UnityObjectToWorldNormal(v.normal);
-		float3 snormal = UnityObjectToWorldNormal(v.texcoord1.xyz);
+		//float3 snormal = UnityObjectToWorldNormal(v.texcoord2.xyz);
 
 		o.fwpos = foamStuff(o.wpos);
 
@@ -92,9 +92,9 @@
 		float tangentSign = v.tangent.w * unity_WorldTransformParams.w;
 		float3 wBitangent = cross(wNormal, wTangent) * tangentSign;
 
-		o.tspace0 = float4(wTangent.x, wBitangent.x, wNormal.x, snormal.x);
-		o.tspace1 = float4(wTangent.y, wBitangent.y, wNormal.y, snormal.y);
-		o.tspace2 = float4(wTangent.z, wBitangent.z, wNormal.z, snormal.z);
+		o.tspace0 = float4(wTangent.x, wBitangent.x, wNormal.x, 0);//);
+		o.tspace1 = float4(wTangent.y, wBitangent.y, wNormal.y, 0);//snormal.y);
+		o.tspace2 = float4(wTangent.z, wBitangent.z, wNormal.z, 0);//snormal.z);
 
 
 		float atY = floor(atlasNumber / _AtlasTextures);
@@ -113,43 +113,36 @@
 		i.viewDir.xyz = normalize(i.viewDir.xyz);
 	float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
-	float far = min(1, dist*0.01);
+	float far = min(1, dist*0.5);
 	float deFar = 1 - far;
 
+	float mip = (0.1 *log2(dist*0.5));
 
-	
-
-	
-	
-
-
-	float mip = (0.5 *log2(dist*0.5));
-
-	float seam = i.atlasedUV.z*pow(2, mip);
+	float seam = i.atlasedUV.z*pow(2, mip)*0;
 
 	i.texcoord.xy = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + i.atlasedUV.xy + seam*0.5);
 
 	float4 geocol = tex2Dlod(_MainTex, float4(i.texcoord.xy,0,mip));
 	float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord.xy, 0, mip));
 
-	float2 border = DetectEdge(i.vcol);
-	border.x = border.x+saturate((0.5-geocol.a)*8*(1-border.x)*(border.x));
-	float deBorder = 1 - border.x;
+	//float2 border = DetectEdge(i.vcol);
+	//border.x = border.x+saturate((0.5-geocol.a)*8*(1-border.x)*(border.x));
+	//float deBorder = 1 - border.x;
 
 
 
 	bumpMap.rg = bumpMap.rg - 0.5;// *2 - 1;
-	bumpMap.rg *= deBorder;
-	bumpMap.ba = bumpMap.ba*deBorder + border.x*0.25;
+	//bumpMap.rg *= deBorder;
+	//bumpMap.ba = bumpMap.ba*deBorder + border.x*0.25;
 
-	geocol.rgb = geocol.rgb*(1 - border.y) + i.vcol.rgb*border.y;
+	//geocol.rgb = geocol.rgb*(1 - border.y) + i.vcol.rgb*border.y;
 
 	float3 tnormal = float3(bumpMap.r, bumpMap.g, 1);
 	float3 worldNormal;
 	
-	i.tspace0.z = i.tspace0.z*border.x + i.tspace0.w*deBorder;
-	i.tspace1.z = i.tspace1.z*border.x + i.tspace1.w*deBorder;
-	i.tspace2.z = i.tspace2.z*border.x + i.tspace2.w*deBorder;
+	//i.tspace0.z = i.tspace0.z*border.x + i.tspace0.w*deBorder;
+	//i.tspace1.z = i.tspace1.z*border.x + i.tspace1.w*deBorder;
+	//i.tspace2.z = i.tspace2.z*border.x + i.tspace2.w*deBorder;
 	
 	worldNormal.x = dot(i.tspace0.xyz, tnormal);
 	worldNormal.y = dot(i.tspace1.xyz, tnormal);

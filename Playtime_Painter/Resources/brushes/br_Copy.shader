@@ -1,4 +1,4 @@
-﻿Shader "Brush/br_Copy" {
+﻿Shader "Editor/br_Copy" {
 	Properties{
 		
 	}

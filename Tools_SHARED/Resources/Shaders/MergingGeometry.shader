@@ -149,7 +149,7 @@ Shader "Terrain/MergingGeometry" {
 	float4 terrainN = float4(0.5,0.5, bumpMap.b, bumpMap.a);
 
 
-	float maxheight = (1 + geocol.a);//*abs(bump.y);
+	float maxheight = ( geocol.a);//*abs(bump.y);
 
 	float tripMaxH = maxheight;
 	float3 tmpbump = bump;
@@ -194,14 +194,14 @@ Shader "Terrain/MergingGeometry" {
 	adiff = max(0, (tripMaxH + 0.5 - maxheight));
 	alpha = min(1, adiff * 2);
 
-	float aboveTerrain = saturate((aboveTerrainBump / _Merge + (geocol.a -maxheight - 1)) * 8); // MODIFIED
+	float aboveTerrain = saturate((aboveTerrainBump / _Merge + geocol.a -maxheight - 1) * 4); // MODIFIED
 	float deAboveTerrain = 1 - aboveTerrain;
 
 	alpha*=deAboveTerrain;
 	bump = tmpbump*alpha + (1 - alpha)*bump;
 
 
-	cont = geocol* aboveTerrain + terrain*deAboveTerrain;
+	cont = geocol* aboveTerrain +terrain*deAboveTerrain;
 
 	float wetSection = saturate(_foamParams.w - i.fwpos.y - (cont.a)*_foamParams.w)*(1 - terrainN.b);
 	i.fwpos.y += cont.a;
@@ -303,6 +303,7 @@ Shader "Terrain/MergingGeometry" {
 		//fernel;
 		//diff;
 		//aboveTerrainBump;
+		//aboveTerrain;
 		col;
 	//dotprod;
 	//terrainAmbient;

@@ -1,4 +1,4 @@
-﻿Shader "Brush/BufferCopier" {
+﻿Shader "Editor/BufferCopier" {
 	Properties{
 		 _MainTex("Tex", 2D) = "white" {}
 	}

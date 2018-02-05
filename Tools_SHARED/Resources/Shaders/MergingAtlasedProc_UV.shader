@@ -77,12 +77,12 @@
 		o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 		o.wpos = worldPos.xyz;
 
-		normalAndPositionToUV(v.tangent.xyz, o.wpos.xyz, o.bC, o.texcoord.xy);
+		normalAndPositionToUV(v.texcoord2.xyz, o.wpos.xyz, o.bC, o.texcoord.xy);
 		o.texcoord.xy /= 10;
 
 		o.viewDir.xyz = (WorldSpaceViewDir(v.vertex));
 		o.normal.xyz = UnityObjectToWorldNormal(v.normal.xyz);
-		o.snormal.xyz = UnityObjectToWorldNormal(v.tangent.xyz); // Sharp Normal
+		o.snormal.xyz = UnityObjectToWorldNormal(v.texcoord2.xyz); // Sharp Normal
 	
 
 		//texcoord.zw = v.texcoord.zw;
@@ -123,11 +123,6 @@
 
 
 
-
-
-
-
-
 	float mip = (0.5 *log2(dist*0.5));
 
 	float seam = i.atlasedUV.z*pow(2, mip);
@@ -160,7 +155,7 @@
 	bumpMap.b = bumpMap.b*deEdge + border.y*i.vcol.a;
 	bumpMap.a = bumpMap.a*deEdge +border.y;
 
-	geocol.rgb = geocol.rgb*(1 - border.y) + i.vcol.rgb*border.y;
+	geocol.rgb = geocol.rgb*(deEdge) + i.vcol.rgb*border.y;
 
 	float3 tnormal = float3(bumpMap.r, bumpMap.g, 1);
 	float3 worldNormal;

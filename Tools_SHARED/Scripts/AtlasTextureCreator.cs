@@ -15,7 +15,7 @@ namespace Painter {
     [Serializable]
     public class AtlasTextureCreator {
 
-        static painterConfig cfg { get { return painterConfig.inst; } }
+        static PainterConfig cfg { get { return PainterConfig.inst; } }
 
         public int AtlasSize = 2048;
 
@@ -23,16 +23,51 @@ namespace Painter {
 
         public bool sRGB = true;
 
-        public string name = "_MainTex";
+        public string name = "New_Atlas";
+
+		public List<string> targetFields;
+
+		public List<string> atlasFields;
 
         public Texture2D a_texture;
 
-        public List<Texture2D> Textures = new List<Texture2D>();
+        public List<Texture2D> Textures;
+
+		public int row { get{ return AtlasSize / textureSize;}}
+
+		public void AddTargets(FieldAtlas at, string target){
+			if (!atlasFields.Contains (at.atlasedField))
+				atlasFields.Add (at.atlasedField);
+			if (!targetFields.Contains (target))
+				targetFields.Add (target);
+		}
+
 
         public override string ToString()
         {
             return name;
         }
+
+		void Init (){
+			if (targetFields == null)
+			targetFields = new List<string> ();
+			if (atlasFields == null)
+			atlasFields = new List<string> ();
+			if (Textures == null)
+			Textures = new List<Texture2D> ();
+			adjustListSize ();
+		}
+
+		public AtlasTextureCreator (){
+			Init ();
+		}
+
+
+		public AtlasTextureCreator(string nname){
+			name = nname;
+			name = name.GetUniqueName (PainterManager.inst.atlases);
+			Init ();
+		}
 
         public void adjustListSize()
         {
@@ -41,14 +76,8 @@ namespace Painter {
                 Textures.Add(null);
         }
 
-        public int TextureCount
-        {
-            get
-            {
-                int row = AtlasSize / textureSize;
-
-                return row * row;
-            }
+        public int TextureCount {
+			get { int r = row; return r * r; }
         }
 
         public void TextureToAtlas(Texture2D tex, int x, int y)
@@ -160,12 +189,12 @@ namespace Painter {
 
             int curIndex = 0;
 
-            for (int i = 0; i < texesInRow; i++)
-                for (int j = 0; j < texesInRow; j++)
-                {
+			for (int y = 0; y < texesInRow; y++)
+				for (int x = 0; x < texesInRow; x++){
+                
 
                     if ((Textures.Count > curIndex) && (Textures[curIndex] != null))
-                        TextureToAtlas(Textures[curIndex], i, j);
+                        TextureToAtlas(Textures[curIndex], x, y);
 
                     curIndex++;
                 }
@@ -212,7 +241,7 @@ namespace Painter {
         }
 #endif
 
-        public void PEGI() {
+        public void PEGI(PlaytimePainter painter) {
 
 #if UNITY_EDITOR
             "Name:".edit(60, ref name).nl();
@@ -220,11 +249,14 @@ namespace Painter {
             "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
-            if ("Textures size:".editDelayed(ref textureSize, 80).nl())
+			if ("Textures size:".editDelayed(ref textureSize, 80).nl()){
                 pegi.foldIn();
+
+			}
 
             textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
 
+			adjustListSize();
 
             if (pegi.foldout("Textures:")) {
                 pegi.newLine();

@@ -1,7 +1,6 @@
 ﻿Shader "Editor/MeshEditorAssist" {
 	Properties {
-	 _MainTex("MainTex", 2D) = "white" {}
-	_BumpMap("Bump", 2D) = "white" {}
+	 _MainTex("_MainTex", 2D) = "white" {}
 	_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 	Category {
@@ -42,15 +41,13 @@
 				float3 scenepos : TEXCOORD2;
 				float3 viewDir: TEXCOORD3;
 				float3 normal: TEXCOORD4;
-				float4 snormal: TEXCOORD5; // .w will contain texture number.
+				float3 snormal: TEXCOORD5; // .w will contain texture number.
 				float4 bC : TEXCOORD6; 
 				float4 atlasedUV : TEXCOORD7;
-                float4 normalRight : TEXCOORD8;
-                float4 normalLeft : TEXCOORD9;
+				float4 edge : TEXCOORD11;
 			};
 			
 			sampler2D _MainTex;
-			sampler2D _BumpMap;
 			float4 _MainTex_TexelSize;
 			float4 _GridDotPosition;
 			float _AtlasTextures;
@@ -62,34 +59,26 @@
 				o.texcoord.xy = v.texcoord;
 				o.vcol = v.color;
 				o.scenepos.xyz = mul(unity_ObjectToWorld, v.vertex);
-				
+				o.edge = v.texcoord1;
 
-				normalAndPositionToUV(v.tangent.xyz, o.scenepos.xyz, o.bC, o.texcoord.zw);
-				//o.texcoord.zw /=8;
-          
+				normalAndPositionToUV(v.texcoord2.xyz, o.scenepos.xyz, o.bC, o.texcoord.zw);
 
 				o.viewDir.xyz = WorldSpaceViewDir(v.vertex); 
 
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal.xyz);//v.tangent.xyz;//v.normal;
-				o.snormal.xyz = UnityObjectToWorldNormal(v.tangent.xyz);  // Sharp Normal
-				o.snormal.w = v.tangent.w;
-
-                o.normalRight.xyz = UnityObjectToWorldNormal(v.texcoord2.xyz);
-                o.normalLeft.xyz = UnityObjectToWorldNormal(v.texcoord3.xyz);
-                o.normalRight.w = v.texcoord2.w;
-                o.normalLeft.w = v.texcoord3.w;
-
-
+				o.snormal.xyz = UnityObjectToWorldNormal(v.texcoord2.xyz);  // Sharp Normal
+			
+				float atlasNumber = v.texcoord.z;//v.tangent.w;
 				
-				float atY = floor(o.snormal.w / _AtlasTextures);
-				float atX = o.snormal.w - atY*_AtlasTextures;
+				float atY = floor(atlasNumber / _AtlasTextures);
+				float atX = atlasNumber - atY*_AtlasTextures;
 				float edge = _MainTex_TexelSize.x;
 
 				o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
 				o.atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
 				o.atlasedUV.w = 1 / _AtlasTextures;
 
-				TRANSFER_SHADOW(o)
+				TRANSFER_SHADOW(o);
 
 				return o;
 			}
@@ -108,18 +97,16 @@
 				smoothing = saturate((0.499-smoothing)*512/dist);
 				float val =  0.75+ abs(ind - o*2)*0.25*smoothing + 0.125*(1-smoothing);
 				  
-				// Smooth edges part
-				float2 border = DetectEdge(i.vcol);
+
+				float2 border = DetectEdge(i.edge);
+				float deEdge = 1 - border.y;
 				float deBorder = 1 - border.x;
 				i.normal.xyz = i.snormal.xyz*deBorder + i.normal.xyz*border.x;
 
-				// Tilable part:
-				//i.snormal.w;
+
 
 				float mip = (0.5 *log2(dist*0.5));
-				
-				//	o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;//+edge;
-				//o.atlasedUV.z = edge;//(1) / _AtlasTextures - edge * 2;
+
 				float edge = i.atlasedUV.z*pow(2, mip);
 
 				i.texcoord.zw = (frac(i.texcoord.zw)*(i.atlasedUV.w 
@@ -128,43 +115,33 @@
 					
 					+ i.atlasedUV.xy+ edge*0.5);
 
-			/*	float2 perfTex = (floor(i.texcoord.zw*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
-				float2 off = (i.texcoord.zw - perfTex);
-				off = off *saturate((abs(off) * _MainTex_TexelSize.z)*10 - 4);*/
-			
 				float4 col =  tex2Dlod(_MainTex, float4(i.texcoord.zw,0, mip));   //perfTex  + off
-				float4 bump = tex2Dlod(_BumpMap, float4(i.texcoord.zw,0, mip));
-				bump.rg -= 0.5;
-				bump.rg*=deBorder;
-				bump.ba = bump.ba*deBorder + border*0.25;
+			
+				//applyTangentNonNormalized(i.bC, i.normal.xyz, bump.rg);
 
-				applyTangentNonNormalized(i.bC, i.normal.xyz, bump.rg);
-				i.normal.xyz = normalize(i.normal.xyz);
+				//i.normal.xyz = normalize(i.normal.xyz);
 
 
 				col.rgb = col.rgb*(1 - border.y) + i.vcol.rgb*border.y;
 
-				float dent = 1 - bump.a;
+			
 				
 
 				float dotprod = dot(i.viewDir.xyz, i.normal.xyz);					 //dot(normal,  i.viewDir.xyz);
 				float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*i.normal.xyz);
 				float dott = max(0, dot(_WorldSpaceLightPos0, -reflected));
 
-			
 
 				float shadow = SHADOW_ATTENUATION(i);
 
 				float4 cont = 0;
 
 				float diff = max(0, dot(i.normal.xyz, _WorldSpaceLightPos0.xyz));
-				diff = saturate(diff - dent * 4 * (1 - diff));
+			
 
-				bump.b = pow(bump.b, 3);
+			
 
-				float power = 4096 * bump.b;//*(1 - dotprod);
-
-				col.rgb = col.rgb* (_LightColor0.rgb*diff*shadow) + pow(dott, power)*_LightColor0.rgb*power* bump.b;
+				col.rgb = col.rgb* (_LightColor0.rgb*diff*shadow) + pow(dott, 128)*_LightColor0.rgb;
 
 				col = saturate(col)*val*0.95 + val*0.05;
 
@@ -182,13 +159,14 @@
 				col.r = i.normal.x; //yz
 				col.g = i.normal.y; //yz
 				col.b = i.normal.z; //yz
+				col.rgb += 0.5;
 #endif
 
 #if MESH_PREVIEW_SHARP_NORMAL
 				col.r = i.snormal.x; //yz
 				col.g = i.snormal.y; //yz
 				col.b = i.snormal.z; //yz
-				
+				col.rgb += 0.5;
 #endif
 
 				//return i.snormal.w;

@@ -7,7 +7,7 @@ using UnityEditor.SceneManagement;
 #endif
 using System;
 using PlayerAndEditorGUI;
-
+using UnityEngine.EventSystems;
 namespace Painter{
 
 #if UNITY_EDITOR
@@ -29,9 +29,12 @@ namespace Painter{
 
 
     [ExecuteInEditMode]
-public class PainterManager : MonoBehaviour
-{
-        static painterConfig cfg { get { return painterConfig.inst; } }
+public class PainterManager : MonoBehaviour {
+
+        [SerializeField]
+        PainterConfig painterCfg;
+
+    static PainterConfig cfg { get { return PainterConfig.inst; } }
 
     public static PainterManager _inst;
         public static PainterManager inst {
@@ -39,10 +42,17 @@ public class PainterManager : MonoBehaviour
                 if (_inst == null)
                 {
                     _inst = GameObject.FindObjectOfType<PainterManager>();
-                    if (_inst == null)
-                    
-                        _inst = PlaytimePainter.InstantiateRenderTexturePainter();
-
+                    if (_inst == null) {
+                        if (_inst != null)
+                            _inst.gameObject.SetActive(true);
+                        else {
+#if UNITY_EDITOR
+                            GameObject go = Resources.Load("prefabs/" + PainterConfig.PainterCameraName) as GameObject;
+                            _inst = Instantiate(go).GetComponent<PainterManager>();
+                            _inst.name = PainterConfig.PainterCameraName;
+#endif
+                        }
+                    }
                     if (_inst.meshManager == null)
                         _inst.meshManager = new MeshManager();
 
@@ -70,7 +80,9 @@ public class PainterManager : MonoBehaviour
 
     public List<channelSetsForCombinedMaps> forCombinedMaps;
 
-    public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
+    public List<AtlasTextureCreator> atlases;
+
+	public List<MaterialAtlases> atlasedMaterials;
 
     public VolumetricDecal[] decals;
 
@@ -101,6 +113,7 @@ public class PainterManager : MonoBehaviour
 	public Shader br_Multishade = null;
 	public Shader br_BlurN_SmudgeBrush = null;
 
+    public Shader mesh_Preview = null;
     public Shader br_Preview = null;
     public Shader TerrainPreview = null;
 
@@ -215,7 +228,7 @@ public class PainterManager : MonoBehaviour
 
     public void UpdateBuffersState() {
 
-        painterConfig cfg = painterConfig.inst;
+        PainterConfig cfg = PainterConfig.inst;
 
         rtcam.cullingMask = 1 << myLayer;
 
@@ -393,7 +406,7 @@ public class PainterManager : MonoBehaviour
         blitMode.setKeyword ();
 		blitMode.SetGlobalShaderParameters ();
 
-		BlitModeExtensions.SetShaderToggle (painterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+		BlitModeExtensions.SetShaderToggle (PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
 
 		BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "PREVIEW_FILTER_PIXEL");
 		
@@ -509,7 +522,7 @@ public class PainterManager : MonoBehaviour
     // *******************  Component MGMT
 
     void PlayModeStateChanged() {
-        painterConfig.SaveChanges();
+        PainterConfig.SaveChanges();
         autodisabledBufferTarget = null;
 
     }
@@ -522,13 +535,20 @@ public class PainterManager : MonoBehaviour
             if (meshManager == null)
                 meshManager = new MeshManager();
 
+            if (painterCfg == null)
+                painterCfg = PainterConfig.inst;
+            else painterCfg.SafeInit();
+
             meshManager.OnEnable();
 
 
         rtcam.cullingMask = 1 << myLayer;
 
-            if (meshManager == null)
-                meshManager = new MeshManager();
+			if (atlases == null)
+				atlases = new List<AtlasTextureCreator> ();
+
+			if (atlasedMaterials == null)
+				atlasedMaterials = new List<MaterialAtlases> ();
 
 
 		if (PlaytimeToolComponent.enabledTool == null)
@@ -601,24 +621,26 @@ public class PainterManager : MonoBehaviour
         if (sourceTextures == null) sourceTextures = new Texture[0];
         if (masks == null) masks = new Texture[0];
         
-		if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Brush/PixPerfectCopy");
+		if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
         
-		if (bufferCopy == null) bufferCopy = Shader.Find("Brush/BufferCopier");
+		if (bufferCopy == null) bufferCopy = Shader.Find("Editor/BufferCopier");
 
-        if (br_Blit == null) br_Blit = Shader.Find("Brush/br_Blit");
+        if (br_Blit == null) br_Blit = Shader.Find("Editor/br_Blit");
 
-        if (br_Add == null) br_Add = Shader.Find("Brush/br_Add");
+        if (br_Add == null) br_Add = Shader.Find("Editor/br_Add");
 
-        if (br_Copy == null) br_Copy = Shader.Find("Brush/br_Copy");
+        if (br_Copy == null) br_Copy = Shader.Find("Editor/br_Copy");
 
-        if (br_Multishade == null) br_Multishade = Shader.Find("Brush/br_Multishade");
+        if (br_Multishade == null) br_Multishade = Shader.Find("Editor/br_Multishade");
 
-		if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Brush/BlurN_SmudgeBrush");
+		if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Editor/BlurN_SmudgeBrush");
 
         if (br_Preview == null) br_Preview = Shader.Find("Editor/br_Preview");
         
-        //if (br_TerrainPreview == null) 
-                TerrainPreview = Shader.Find("Editor/TerrainPreview");
+        if (mesh_Preview == null) mesh_Preview = Shader.Find("Editor/MeshEditorAssist");
+
+            //if (br_TerrainPreview == null) 
+            TerrainPreview = Shader.Find("Editor/TerrainPreview");
 
         transform.position = Vector3.up * 3000;
         if (rtcam == null)
@@ -643,14 +665,10 @@ public class PainterManager : MonoBehaviour
 
 #endif
 
-
-        if ((autodisabledBufferTarget != null) && (!this.ApplicationIsAboutToEnterPlayMode())) {
-           // Debug.Log("Reenabling Render Texture");
+        if ((autodisabledBufferTarget != null) && (!autodisabledBufferTarget.LockEditing) && (!this.ApplicationIsAboutToEnterPlayMode())) 
             autodisabledBufferTarget.reanableRenderTexture();
-          
-        }
+    
         autodisabledBufferTarget = null;
-
 
     }
 
@@ -678,7 +696,7 @@ public class PainterManager : MonoBehaviour
             if (p != null)
                 p.SetOriginalShader();
 
-            painterConfig.SaveChanges();
+            PainterConfig.SaveChanges();
             autodisabledBufferTarget = painterTarget;
             EmptyBufferTarget();
 
@@ -723,7 +741,7 @@ public class PainterManager : MonoBehaviour
  
 
 		PlaytimeToolComponent.CheckRefocus();
-        if ((painterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
+        if ((PainterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
                 Collider c = hit.collider;
@@ -737,7 +755,7 @@ public class PainterManager : MonoBehaviour
 					PlaytimePainter.currently_Painted_Object = null;
             }
             else {	
-				p.Paint(p.stroke, painterConfig.inst.brushConfig);
+				p.Paint(p.stroke, PainterConfig.inst.brushConfig);
                 p.Update();
             }
         }
@@ -753,25 +771,16 @@ public class PainterManager : MonoBehaviour
             PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
         }
 
-       
-
-        private void Start()
-        {
-            meshManager.Start();
-
-        }
-
         void OnApplicationQuit()
     {
 
 #if !UNITY_EDITOR && BUILD_WITH_PAINTER
             painterConfig.SaveChanges();
-            playtimeMesherSaveData.SaveChanges();
 #endif
         }
 
 
-        bool meshEditorConfig = false;
+       // bool meshEditorConfig = false;
         public void PEGI() {
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
@@ -794,8 +803,8 @@ public class PainterManager : MonoBehaviour
             "Decals".edit(() => decals).nl();
             "For combined maps".edit(() => forCombinedMaps).nl();
 
-            if ("Mesh Painter".foldout(ref meshEditorConfig).nl()) 
-                meshManager.PEGI();
+         //   if ("Mesh Painter".foldout(ref meshEditorConfig).nl()) 
+           //     meshManager.PEGI();
 
           
 

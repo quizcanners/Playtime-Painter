@@ -148,6 +148,7 @@ namespace StoryTriggerData {
 
                     pegi.newLine();
 
+#if UNITY_EDITOR
                     if (unrecognizedTags.Count>0){
                         "Unrecognized Tags:".nl();
                         for (int i=0; i<unrecognizedTags.Count; i++){
@@ -160,7 +161,7 @@ namespace StoryTriggerData {
                     }
                     
                     pegi.newLine();
-
+#endif
 
                     if ((parentPage != null) && (pegi.Click("Test Conversion"))) {
                         Debug.Log("Debug Testing conversion");

@@ -39,9 +39,6 @@ namespace StoryTriggerData
         {
             var cody = new stdEncoder();
 
-            if (painter.meshEditEnabled)
-                MeshManager.inst().DisconnectMesh();
-
             cody.AddText("name", gameObject.name);
             cody.AddIfNotZero("pos", transform.localPosition);
             if (strokeData != null)
@@ -96,7 +93,7 @@ namespace StoryTriggerData
 
                 pegi.ClickToEditScript();
 
-                painterConfig pcfg = painterConfig.inst;
+                PainterConfig pcfg = PainterConfig.inst;
 
                 string recordName = pcfg.recordingNames.Count > 0 ? pcfg.recordingNames[pcfg.browsedRecord] : null;
 

@@ -11,6 +11,7 @@ using StoryTriggerData;
 using PlayerAndEditorGUI;
 using System.Linq.Expressions;
 using System.Reflection;
+using UnityEditor.SceneManagement;
 
 public static class ef {
 
@@ -19,12 +20,45 @@ public static class ef {
         searchBarInd = 0;
         lineOpen = false;
         serObj = so;
+        changes = false;
         //editedStringIndex = 0;
+    }
+
+    public static bool end(GameObject go) {
+        if ((changes) && (!Application.isPlaying))
+            EditorSceneManager.MarkSceneDirty(go.scene);
+        newLine();
+        return changes;
+    }
+
+
+
+
+    static bool change { get { changes = true; return true; } }
+
+    public static void checkLine()
+    {
+        if (!lineOpen)
+        {
+            pegi.tabIndex = 0;
+            EditorGUILayout.BeginHorizontal();
+            lineOpen = true;
+        }
+    }
+
+    public static void newLine()
+    {
+        if (lineOpen)
+        {
+            lineOpen = false;
+            EditorGUILayout.EndHorizontal();
+        }
     }
 
     //static int editedStringIndex;
     //static string EditedValue;
 
+    public static bool changes;
     static bool lineOpen = false;
     static int selectedFold = -1;
     public static string searchBarInput = "";
@@ -73,8 +107,6 @@ public static class ef {
         return inds;
     }
 
-
-
     public static void focusTextInControl(string name) {
         EditorGUI.FocusTextInControl(name);
     }
@@ -94,6 +126,8 @@ public static class ef {
     public static bool foldout(string txt, ref bool state) {
         checkLine();
         state = EditorGUILayout.Foldout(state, txt);
+        if (isFoldedOut != state)
+            changes = true;
         isFoldedOut = state;
         return isFoldedOut;
     }
@@ -107,6 +141,9 @@ public static class ef {
             selected = current;
         else
             if (isFoldedOut) selected = -1;
+
+        if (isFoldedOut != (selected == current))
+            changes = true;
 
         isFoldedOut = selected == current;
 
@@ -147,7 +184,7 @@ public static class ef {
 
         if (select(ref jindx, lnms.ToArray())) {
             val = lst[inxs[jindx]];
-            return true;
+            return change;
         }
         return false;
     }
@@ -260,7 +297,7 @@ public static class ef {
         if (newNo != -1) {
             i = ar.ConvertFromFilteredIndex(newNo);
             ar.NameHolder = ar.FilteredNames[newNo];
-            return true;
+            return change;
         }
         return false;
     }
@@ -303,7 +340,7 @@ public static class ef {
         int newNo = EditorGUILayout.Popup(ind, lnms.ToArray());
         if (newNo != ind) {
             i = ints[newNo];
-            changed = true;
+            changed = change;
         }
         return changed;
 
@@ -322,7 +359,7 @@ public static class ef {
         int newNo = EditorGUILayout.Popup(no, from, GUILayout.MaxWidth(width));
         if (newNo != no) {
             no = newNo;
-            return true;
+            return change;
         }
         return false;
         //to = from[repName];
@@ -334,7 +371,7 @@ public static class ef {
         int newNo = EditorGUILayout.Popup(no, from, EditorStyles.toolbarDropDown);
         if (newNo != no) {
             no = newNo;
-            return true;
+            return change;
         }
         return false;
         //to = from[repName];
@@ -357,7 +394,7 @@ public static class ef {
         int newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown);
         if (newInd != ind) {
             no = from.ElementAt(newInd).Key;
-            return true;
+            return change;
         }
         return false;
     }
@@ -378,7 +415,7 @@ public static class ef {
         int newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown, GUILayout.MaxWidth(width));
         if (newInd != ind) {
             no = from.ElementAt(newInd).Key;
-            return true;
+            return change;
         }
         return false;
     }
@@ -443,7 +480,7 @@ public static class ef {
                 if (texes[i] == newTex) {
                     selected = i;
                     ef.newLine();
-                    return true;
+                    return change;
                 }
 
             bool assigned = false;
@@ -462,7 +499,7 @@ public static class ef {
 
             texes[selected] = newTex;
 
-            return true;
+            return change;
 
         }
         ef.newLine();
@@ -500,7 +537,7 @@ public static class ef {
         EditorGUILayout.PropertyField(tps, true);
         if (EditorGUI.EndChangeCheck()) {
             e.serializedObject.ApplyModifiedProperties();
-            return true;
+            return change;
         }
         return false;
     }
@@ -523,7 +560,7 @@ public static class ef {
         int has = tb[ind];
         if (edit(ref has)) {
             tb[ind] = has;
-            return true;
+            return change;
         }
         return false;
     }
@@ -533,7 +570,7 @@ public static class ef {
         checkLine();
         float before = val;
         val = EditorGUILayout.FloatField(label, val);
-        return (val != before);
+        return (val != before) ? change : false ;
     }
 
 
@@ -542,14 +579,14 @@ public static class ef {
         checkLine();
         float before = val;
         val = EditorGUILayout.FloatField(val);
-        return (val != before);
+        return (val != before) ? change : false;
     }
 
     public static bool edit(ref int val, int min, int max) {
         checkLine();
         float before = val;
         val = EditorGUILayout.IntSlider(val, min, max); //Slider(val, min, max);
-        return (val != before);
+        return (val != before) ? change : false;
     }
 
     public static bool editPOW(ref float val, float min, float max) {
@@ -559,7 +596,7 @@ public static class ef {
         float after = EditorGUILayout.Slider(before, min, max);
         if (before != after) {
             val = after * after;
-            return true;
+            return change;
         }
         return false;
     }
@@ -568,7 +605,7 @@ public static class ef {
         checkLine();
         float before = val;
         val = EditorGUILayout.Slider(val, min, max);
-        return (val != before);
+        return (val != before) ? change : false;
     }
 
     public static bool edit(ref Color col) {
@@ -577,7 +614,7 @@ public static class ef {
         Color before = col;
         col = EditorGUILayout.ColorField(col);
 
-        return (before.Equals(col) == false);
+        return (before.Equals(col) == false) ? change : false;
 
     }
 
@@ -586,7 +623,7 @@ public static class ef {
         int before = key;
 
         if (editDelayed(ref key, 40))
-            return dic.TryChangeKey(before, key);
+            return dic.TryChangeKey(before, key) ? change : false;
         /*{
         Debug.Log("Edited to "+key);
         string value;
@@ -608,7 +645,7 @@ public static class ef {
         string before = dic[atKey];
         if (editDelayed(ref before)) {
             dic[atKey] = before;
-            return false;
+            return change;
         }
         return false;
     }
@@ -617,14 +654,14 @@ public static class ef {
         checkLine();
         int pre = val;
         val = EditorGUILayout.IntField(val);
-        return val != pre;
+        return (val != pre) ? change : false;
     }
 
     public static bool edit(ref int val, int width) {
         checkLine();
         int pre = val;
         val = EditorGUILayout.IntField(val, GUILayout.MaxWidth(width));
-        return val != pre;
+        return (val != pre) ? change : false;
     }
 
     static int editedIntegerIndex;
@@ -636,7 +673,7 @@ public static class ef {
             EditorGUILayout.IntField(val, GUILayout.Width(width));
             val = editedInteger;
             elementIndex++;
-            return true;
+            return change;
         }
 
         int tmp = val;
@@ -655,7 +692,7 @@ public static class ef {
         bool modified = false;
         modified |= ef.edit(ref val.x);
         modified |= ef.edit(ref val.y);
-        return modified;
+        return modified ? change : false;
     }
 
   
@@ -664,7 +701,7 @@ public static class ef {
         checkLine();
         bool modified = false;
         modified |= "X".edit(ref val.x).nl() | "Y".edit(ref val.y).nl() | "Z".edit(ref val.z).nl();
-        return modified;
+        return modified ? change : false;
     }
 
     static string editedText;
@@ -676,13 +713,14 @@ public static class ef {
         if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash)) {
             EditorGUILayout.TextField(text);
             text = editedText;
-            return true;
+            return change;
         }
 
         string tmp = text;
         if (edit(ref tmp)) {
             editedText = tmp;
             editedHash = text.GetHashCode().ToString();
+            changes = false;
         }
 
 
@@ -696,13 +734,14 @@ public static class ef {
         if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash)) {
             EditorGUILayout.TextField(text);
             text = editedText;
-            return true;
+            return change;
         }
 
         string tmp = text;
         if (edit(ref tmp, width)) {
             editedText = tmp;
             editedHash = text.GetHashCode().ToString();
+            changes = false;
         }
 
 
@@ -714,7 +753,7 @@ public static class ef {
         string before = val.ToString();
         if (edit(ref before)) {
             val.setTranslation(before);
-            return true;
+            return change;
         }
         return false;
     }
@@ -723,50 +762,50 @@ public static class ef {
         checkLine();
         string before = text;
         text = EditorGUILayout.TextField(text);
-        return (String.Compare(before, text) != 0);
+        return (String.Compare(before, text) != 0) ? change : false;
     }
 
     public static bool edit(ref string text, int width) {
         checkLine();
         string before = text;
         text = EditorGUILayout.TextField(text, GUILayout.MaxWidth(width));
-        return (String.Compare(before, text) != 0);
+        return (String.Compare(before, text) != 0) ? change : false;
     }
 
     public static bool editBig(ref string text) {
         checkLine();
         string before = text;
         text = EditorGUILayout.TextArea(text);
-        return (String.Compare(before, text) != 0);
+        return (String.Compare(before, text) != 0) ? change : false;
     }
 
     public static bool edit(ref string[] texts, int no) {
         checkLine();
         string before = texts[no];
         texts[no] = EditorGUILayout.TextField(texts[no]);
-        return (String.Compare(before, texts[no]) != 0);
+        return (String.Compare(before, texts[no]) != 0) ? change : false;
     }
 
     public static bool edit(List<string> texts, int no) {
         checkLine();
         string before = texts[no];
         texts[no] = EditorGUILayout.TextField(texts[no]);
-        return (String.Compare(before, texts[no]) != 0);
+        return (String.Compare(before, texts[no]) != 0) ? change : false;
     }
 
     public static bool editPowOf2(ref int i, int min, int max) {
         checkLine();
         int before = i;
         i = Mathf.ClosestPowerOfTwo((int)Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
-        return (i != before);
+        return (i != before) ? change : false;
     }
 
     public static bool toggleInt(ref int val) {
         checkLine();
         bool before = val > 0;
-        if (ef.toggle(ref before)) {
+        if (toggle(ref before)) {
             val = before ? 1 : 0;
-            return true;
+            return change;
         }
         return false;
     }
@@ -775,7 +814,7 @@ public static class ef {
         checkLine();
         bool before = val;
         val = EditorGUILayout.Toggle(val, GUILayout.MaxWidth(40));
-        return (before != val);
+        return (before != val) ? change : false;
     }
 
     public static bool toggle(int ind, CountlessBool tb) {
@@ -804,7 +843,7 @@ public static class ef {
         checkLine();
         bool before = val;
         val = EditorGUILayout.Toggle(text, val);
-        return (before != val);
+        return (before != val) ? change : false;
     }
 
     public static bool toggle(ref bool val, string text, string tip) {
@@ -815,27 +854,27 @@ public static class ef {
         cont.text = text;
         cont.tooltip = tip;
         val = EditorGUILayout.Toggle(cont, val);
-        return (before != val);
+        return (before != val) ? change : false;
     }
 
     public static bool toggle(int ind, SRLZ_TreeBool tb) {
         checkLine();
         bool has = tb[ind];
-        if (ef.toggle(ref has)) {
+        if (toggle(ref has)) {
             tb[ind] = has;
-            return true;
+            return change;
         }
         return false;
     }
 
     public static bool Click(string txt, int width) {
         checkLine();
-        return GUILayout.Button(txt, GUILayout.MaxWidth(width));
+        return GUILayout.Button(txt, GUILayout.MaxWidth(width)) ? change : false;
     }
 
     public static bool Click(string txt) {
         checkLine();
-        return GUILayout.Button(txt);
+        return GUILayout.Button(txt) ? change : false;
     }
 
     public static bool Click(string txt, string tip) {
@@ -843,7 +882,7 @@ public static class ef {
         GUIContent cont = new GUIContent();
         cont.text = txt;
         cont.tooltip = tip;
-        return GUILayout.Button(cont);
+        return GUILayout.Button(cont) ? change : false;
     }
 
     public static bool Click(string txt, string tip, int width) {
@@ -851,13 +890,13 @@ public static class ef {
         GUIContent cont = new GUIContent();
         cont.text = txt;
         cont.tooltip = tip;
-        return GUILayout.Button(cont, GUILayout.MaxWidth(width));
+        return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
     }
 
 
     public static bool Click(Texture img, int width) {
         checkLine();
-        return GUILayout.Button(img, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
+        return GUILayout.Button(img, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
     }
 
     public static bool Click(Texture img, string tip, int width) {
@@ -865,7 +904,7 @@ public static class ef {
         GUIContent cont = new GUIContent();
         cont.tooltip = tip;
         cont.image = img;
-        return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 15));
+        return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 15)) ? change : false;
     }
 
     public static void write<T>(T field) where T : UnityEngine.Object {
@@ -920,21 +959,8 @@ public static class ef {
         EditorGUILayout.HelpBox(text, type);
     }
 
-    public static void checkLine() {
-        if (!lineOpen) {
-            pegi.tabIndex = 0;
-            EditorGUILayout.BeginHorizontal();
-            lineOpen = true;
-        }
-    }
 
-    public static void newLine() {
-        if (lineOpen) {
-            lineOpen = false;
-            EditorGUILayout.EndHorizontal();
-        }
-    }
-
+    
 
 
     public static void ShowTeture(Texture tex) {

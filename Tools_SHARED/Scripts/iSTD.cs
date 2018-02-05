@@ -61,18 +61,33 @@ namespace StoryTriggerData {
             ResourceSaver.Save(Application.persistentDataPath + Path.AddPreSlashIfNotEmpty() + "/", filename, s.Encode().ToString());
         }
 
-        public static void LoadFromAssets(this iSTD s, string fullPath, string name) {
+		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:iSTD, new() {
+			if (s == null)
+				s = new T ();
             s.Reboot(ResourceLoader.LoadStoryFromAssets(fullPath, name));
+			return s;
         }
 
-        public static void LoadSavedProgress(this iSTD s, string Folder, string fileName) {
+		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:iSTD, new() {
+			if (s == null)
+				s = new T ();
             s.Reboot(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty() + "/" + fileName + ResourceSaver.fileType));
-        }
+			return s;
+		}
 
-        public static void LoadFromResources(this iSTD s, string resFolderLocation, string subFolder, string file) {
-            s.Reboot(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
-        }
+		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:iSTD, new() {
+			if (s == null)
+				s = new T ();
+			s.Reboot(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
+			return s;
+		}
 
+		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:iSTD, new() {
+			if (s == null)
+				s = new T ();
+			s.Reboot(ResourceLoader.LoadStoryFromResource(subFolder, file));
+			return s;
+		}
 
     }
 }

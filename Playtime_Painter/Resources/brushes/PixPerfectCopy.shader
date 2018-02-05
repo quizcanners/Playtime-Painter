@@ -1,4 +1,4 @@
-﻿Shader "Brush/PixPerfectCopy" {
+﻿Shader "Editor/PixPerfectCopy" {
 	Properties{
 		 _MainTex("Tex", 2D) = "white" {}
 	}

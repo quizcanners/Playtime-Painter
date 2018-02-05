@@ -1,4 +1,4 @@
-﻿Shader "Brush/br_Add" {
+﻿Shader "Editor/br_Add" {
 	Properties{
 		
 	}

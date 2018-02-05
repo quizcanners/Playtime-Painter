@@ -7,7 +7,7 @@ namespace Painter {
 
     public static class PainterPEGI_Extensions {
 
-        static painterConfig cfg { get { return painterConfig.inst; } }
+        static PainterConfig cfg { get { return PainterConfig.inst; } }
         static PainterManager rtp { get { return PainterManager.inst; } }
 
 
@@ -148,138 +148,7 @@ namespace Painter {
         }
 
 
-        static bool showAtlases = false;
-        static int browsedAtlas = -1;
-        public static bool config_PEGI(this PlaytimePainter painter) {
-
-            BrushConfig brush = painterConfig.inst.brushConfig;
-            imgData id = painter.curImgData;
-            bool changed = false;
-
-            if ("Atlases".foldout(ref showAtlases)) {
-
-                if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
-                    browsedAtlas = -1;
-
-                if (browsedAtlas > -1) {
-                    if (icon.Close.Click(25))
-                        browsedAtlas = -1;
-                    else
-                        rtp.atlases[browsedAtlas].PEGI();
-                } else {
-                    pegi.newLine();
-                    for (int i=0; i<rtp.atlases.Count; i++) {
-                        if (icon.Delete.Click(25))
-                            rtp.atlases.RemoveAt(i);
-                        else {
-                            pegi.edit(ref rtp.atlases[i].name);
-                            if (icon.Edit.Click(25).nl()) browsedAtlas = i;
-                        }
-                    }
-
-                    if (icon.Add.Click(30))
-                        rtp.atlases.Add(new AtlasTextureCreator());
-                }
-
-                
-
-
-                return changed;
-            }
-
-            pegi.newLine();
-
-            if ("More options".toggle(80, ref cfg.moreOptions).nl())
-                cfg.showConfig = false;
-
-            (rtp.isLinearColorSpace ? "Project is Linear Color Space" : "Project is in Gamma Color Space").nl();
-
-          
-
-            "repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
-
-            changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
-
-            changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
-                                                       ref brush.DontRedoMipmaps).nl();
-
-            if ((id != null) && (brush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
-                id.SetAndApply(true);
-
-            bool gotBacups = (painter.numberOfTexture2Dbackups + painter.numberOfRenderTextureBackups) > 0;
-
-                if (gotBacups) {
-
-                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                pegi.writeOneTimeHint("This are not connected to Unity's " +
-                                          "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
-
-                changed |=
-                "texture2D UNDOs:".edit(150, ref painter.numberOfTexture2Dbackups).nl() ||
-                "renderTex UNDOs:".edit(150, ref painter.numberOfRenderTextureBackups).nl() ||
-
-                "backup manually:".toggle(150, ref painter.backupManually).nl();
-                } else if ("Enable Undo/Redo".Click().nl()) {
-                    
-                    painter.numberOfTexture2Dbackups = 10;
-                    painter.numberOfRenderTextureBackups = 10;
-                    
-                }
-
-          
-
-
-            if ("Don't create render texture buffer:".toggle(ref cfg.dontCreateDefaultRenderTexture).nl()) {
-                    painterConfig.SaveChanges();
-                    rtp.UpdateBuffersState();
-                }
-        
-                bool gotDefine = pegi.GetDefine(painterConfig.enablePainterForBuild);
-            if ("Enable texture editor for build".toggle(ref gotDefine).nl())
-                pegi.SetDefine(painterConfig.enablePainterForBuild, gotDefine);
-            
-
-
-            "Disable Non-Mesh Colliders in Play Mode:".toggle(ref cfg.disableNonMeshColliderInPlayMode).nl();
-              
-            "Save Textures To:".edit(110, ref cfg.texturesFolderName).nl();
-
-            "Save Materials To:".edit(110, ref cfg.materialsFolderName).nl();
-                                      
-
-             
-            if ("Edit scene light".foldout().nl()) {
-                    
-                    Color tmp = RenderSettings.ambientLight / RenderSettings.ambientIntensity;
-
-                    "ambient".edit(ref tmp).nl();
-
-
-                 
-                    float intensity = RenderSettings.ambientIntensity;
-                if ("Intensity:".edit(ref intensity, 0.1f, 10f).nl()) RenderSettings.ambientIntensity = intensity;
-
-                    RenderSettings.ambientLight = tmp * RenderSettings.ambientIntensity;
-                }
-
-            "Camera".write(rtp.rtcam); pegi.newLine();
-
-            "Brush".write(rtp.brushPrefab); pegi.newLine();
-
-            "Renderer to Debug second buffer".edit(ref rtp.secondBufferDebug).nl();
-
-            if ("Report a bug".Click())
-                PlaytimePainter.openEmail();
-            if ("Forum".Click())
-                PlaytimePainter.openForum();
-            if ("Manual".Click().nl())
-                PlaytimePainter.openDocumentation();
-
-
-
-		return changed;
-	}
+	
 
     public static bool SelectTexture_PEGI(this PlaytimePainter CurrentTarget) {
         int ind = CurrentTarget.selectedTexture;
@@ -334,7 +203,7 @@ namespace Painter {
 
                             changed = true;
                         }
-                        painterConfig.inst.brushConfig.MaskSet(BrushMask.A, true);
+                        PainterConfig.inst.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.getImgData() != null)
                         if ((painter.originalShader == null) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45)))

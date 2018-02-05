@@ -10,13 +10,39 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
-
+using UnityEngine.EventSystems;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 
 public static class UnityHelperFunctions {
+
+
+	public static string GetUniqueName<T>(this string s, List<T> list){
+
+		bool match = true;
+		int index = 1;
+		string mod = s;
+
+
+		while (match) {
+			match = false;
+
+			foreach (var l in list)
+				if (l.ToString ().SameAs (mod)) {
+					match = true;
+					break;
+				} 
+
+			if (match) {
+				mod = s + index.ToString ();
+				index++;
+			}
+		}
+
+		return mod;
+	}
 
     public static bool IsNaN(this Vector3  q)
     {
@@ -77,6 +103,10 @@ public static class UnityHelperFunctions {
         Gizmos.color = col;
         Gizmos.DrawLine(v3a, v3b);
     }
+
+	public static bool SameAs(this string s, string other){
+		return (String.Compare(s, other) == 0);
+	}
 
     public static bool SearchCompare(this string search, string name) {
         if ((search.Length == 0) || Regex.IsMatch(name, search, RegexOptions.IgnoreCase)) return true;

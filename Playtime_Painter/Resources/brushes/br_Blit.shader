@@ -1,4 +1,4 @@
-﻿Shader "Brush/br_Blit" {
+﻿Shader "Editor/br_Blit" {
 	Properties{
 		
 	}

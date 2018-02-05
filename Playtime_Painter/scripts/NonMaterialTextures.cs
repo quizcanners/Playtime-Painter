@@ -70,7 +70,7 @@ public class TerrainControlGlob : NonMaterialTexture {
 
     public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
     {
-        if ((painter.terrain != null) && (fieldName.Contains(painterConfig.terrainControl)))  {
+        if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainControl)))  {
             tex = painter.terrain.terrainData.alphamapTextures[fieldName[0].charToInt()];
             return true;
         }
@@ -82,7 +82,7 @@ public class TerrainControlGlob : NonMaterialTexture {
         if (painter.terrain != null) {
             Texture[] alphamaps = painter.terrain.terrainData.alphamapTextures;
             for (int i = 0; i < alphamaps.Length; i++)
-                dest.Add(i + "_" + painterConfig.terrainControl);
+                dest.Add(i + "_" + PainterConfig.terrainControl);
         }
     }
 
@@ -90,7 +90,7 @@ public class TerrainControlGlob : NonMaterialTexture {
     {
         if (painter.terrain != null)
         {
-            if (fieldName.Contains(painterConfig.terrainControl))
+            if (fieldName.Contains(PainterConfig.terrainControl))
             {
                 painter.curImgData.tyling = Vector2.one;
                 painter.curImgData.offset = Vector2.zero;
@@ -105,12 +105,12 @@ public class TerrainControlGlob : NonMaterialTexture {
         Texture tex = id.currentTexture();
         if (painter.terrain != null)
         {
-            if (fieldName.Contains(painterConfig.terrainControl))
+            if (fieldName.Contains(PainterConfig.terrainControl))
             {
                 int no = fieldName[0].charToInt();
 
                 if (no == 0)
-                    Shader.SetGlobalTexture(painterConfig.terrainControl, tex);
+                    Shader.SetGlobalTexture(PainterConfig.terrainControl, tex);
 
                 painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
 
@@ -125,14 +125,10 @@ public class TerrainSplatTexture : NonMaterialTexture
 {
     public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
     {
-        if ((painter.terrain != null) && (fieldName.Contains(painterConfig.terrainTexture)))
+        if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainTexture)))
         {
             int no = fieldName[0].charToInt();
             tex = painter.terrain.terrainData.splatPrototypes[no].texture;
-
-
-
-
             return true;
         }
         return false;
@@ -146,7 +142,7 @@ public class TerrainSplatTexture : NonMaterialTexture
             for (int i = 0; i < sp.Length; i++)
             {
                 if (sp[i].texture != null)
-                    dest.Add(i + painterConfig.terrainTexture + sp[i].texture.name);
+                    dest.Add(i + PainterConfig.terrainTexture + sp[i].texture.name);
             }
         }
     }
@@ -154,7 +150,7 @@ public class TerrainSplatTexture : NonMaterialTexture
     public override bool UpdateTyling(string fieldName, PlaytimePainter painter) {
 
         if (painter.terrain != null) {
-            if (fieldName.Contains(painterConfig.terrainTexture)) {
+            if (fieldName.Contains(PainterConfig.terrainTexture)) {
                 int no = fieldName[0].charToInt();
 
                 SplatPrototype[] splats = painter.terrain.terrainData.splatPrototypes;
@@ -178,7 +174,7 @@ public class TerrainSplatTexture : NonMaterialTexture
         Texture tex = id.currentTexture();
         if (painter.terrain != null)
         {
-            if (fieldName.Contains(painterConfig.terrainTexture))
+            if (fieldName.Contains(PainterConfig.terrainTexture))
             {
                 int no = fieldName[0].charToInt();
                 painter.terrain.setSplashPrototypeTexture(id.texture2D, no);
@@ -214,7 +210,7 @@ public class TerrainHeight : NonMaterialTexture
 
     public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
     {
-        if ((painter.terrain != null) && (fieldName.Contains(painterConfig.terrainHeight)))
+        if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainHeight)))
         {
             tex = painter.terrainHeightTexture;
             return true;
@@ -224,14 +220,14 @@ public class TerrainHeight : NonMaterialTexture
 
     public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest) {
         if (painter.terrain != null)
-            dest.Add(painterConfig.terrainHeight);
+            dest.Add(PainterConfig.terrainHeight);
     }
 
     public override bool UpdateTyling(string fieldName, PlaytimePainter painter)
     {
         if (painter.terrain != null)
         {
-            if (fieldName.Contains(painterConfig.terrainHeight))
+            if (fieldName.Contains(PainterConfig.terrainHeight))
             {
                 painter.curImgData.tyling = Vector2.one;
                 painter.curImgData.offset = Vector2.zero;
@@ -246,12 +242,12 @@ public class TerrainHeight : NonMaterialTexture
         Texture tex = id.currentTexture();
         if (painter.terrain != null)
         {
-            if (fieldName.Contains(painterConfig.terrainHeight))
+            if (fieldName.Contains(PainterConfig.terrainHeight))
             {
                     if (id != null)
                 painter.terrainHeightTexture = id.texture2D;
 
-                Shader.SetGlobalTexture(painterConfig.terrainHeight, tex);
+                Shader.SetGlobalTexture(PainterConfig.terrainHeight, tex);
                 return true;
             }
         }
@@ -260,7 +256,7 @@ public class TerrainHeight : NonMaterialTexture
 
     public override void OnUpdate(PlaytimePainter painter) {
         if (painter.terrainHeightTexture != null)
-            Shader.SetGlobalTexture(painterConfig.terrainHeight, painter.terrainHeightTexture.getDestinationTexture());
+            Shader.SetGlobalTexture(PainterConfig.terrainHeight, painter.terrainHeightTexture.getDestinationTexture());
     }
 }
 }

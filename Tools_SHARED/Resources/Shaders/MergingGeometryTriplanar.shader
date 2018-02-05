@@ -48,7 +48,7 @@
 		float4 pos : POSITION;
 
 		UNITY_FOG_COORDS(1)
-			float3 viewDir : TEXCOORD2;
+		float3 viewDir : TEXCOORD2;
 		float3 wpos : TEXCOORD3;
 		float3 tc_Control : TEXCOORD4;
 		float3 fwpos : TEXCOORD5;
