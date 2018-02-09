@@ -1,7 +1,7 @@
 ﻿Shader "Terrain/MergingAtlasedProc_UV" {
 	Properties{
-		_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
-	[NoScaleOffset]_BumpMapC("Geometry Combined Maps (RGB)", 2D) = "white" {}
+	[NoScaleOffset]_MainTex("Diffuse Atlas (RGB)", 2D) = "white" {}
+	[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
 	_Merge("_Merge", Range(0.01,25)) = 1
 		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}

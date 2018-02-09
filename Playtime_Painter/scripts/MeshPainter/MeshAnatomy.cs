@@ -12,6 +12,23 @@ using StoryTriggerData;
 
 namespace Painter
 {
+
+    public static class MeshAnatomyExtensions {
+
+        public static Vector3 SmoothVector (this List<trisDta> td) {
+
+            var v = Vector3.zero;
+
+            foreach (var t in td)
+                v += t.sharpNormal;
+
+            return v.normalized;
+
+        }
+
+    }
+
+
     public class UVpoint : abstract_STD {
 
         public override string getDefaultTagName() {
@@ -45,6 +62,17 @@ namespace Painter
         public List<trisDta> tris = new List<trisDta>();
         public UVpoint MyLastCopy;
         public vertexpointDta vert;
+
+        void Init(vertexpointDta nvert)
+        {
+            vert = nvert;
+            nvert.uv.Add(this);
+        }
+
+        void Init (UVpoint other) {
+            _color = other._color;
+          
+        }
 
 
         public override stdEncoder Encode() {
@@ -87,15 +115,25 @@ namespace Painter
             return null;
         }
 
-       
+        public List<trisDta> getTrianglesFromLine(UVpoint other) {
+            List<trisDta> lst = new List<trisDta>();
+
+                foreach (var t in tris)
+                    if (t.includes(other)) lst.Add(t);
+            
+            return lst;
+        }
+
         public UVpoint() {
             Init(vertexpointDta.currentlyDecoded);
         }
 
         public UVpoint(UVpoint other)
         {
+            Init(other);
             Init(other.vert);
             uvIndex = other.uvIndex;
+            
         }
 
         public UVpoint(vertexpointDta nvert)
@@ -111,7 +149,7 @@ namespace Painter
         public UVpoint(vertexpointDta nvert, Vector2 uv_0)
         {
             Init(nvert);
-
+          
             SetUVindexBy(uv_0, Vector2.zero);
         }
 
@@ -123,6 +161,7 @@ namespace Painter
 
         public UVpoint(vertexpointDta nvert, UVpoint other)
         {
+            Init(other);
             Init(nvert);
             SetUVindexBy(other.getUV(0), other.getUV(1));
         }
@@ -132,11 +171,7 @@ namespace Painter
             Reboot(data);
         }
 
-        void Init(vertexpointDta nvert) {
-            vert = nvert;
-            nvert.uv.Add(this);
-            _color = new Color();
-        }
+      
 
         public void AssignToNewVertex(vertexpointDta vp) {
             Vector2[] myUV = vert.shared_v2s[uvIndex];
@@ -621,8 +656,15 @@ namespace Painter
                     if (uv[i].tris[g].includes(other)) return uv[i].tris[g];
             }
             return null;
+        }
 
-
+        public List<trisDta> getTrianglesFromLine(vertexpointDta other) {
+            List<trisDta> lst = new List<trisDta>();
+            for (int i = 0; i < uv.Count; i++) {
+                foreach (var t in uv[i].tris) 
+                    if (t.includes(other)) lst.Add(t);
+            }
+            return lst;
         }
 
     }
@@ -635,6 +677,7 @@ namespace Painter
         public bool[] ForceSmoothedNorm = new bool[3];
         public Vector4 textureNo = new Vector4();
 
+        public Vector3 sharpNormal;
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();

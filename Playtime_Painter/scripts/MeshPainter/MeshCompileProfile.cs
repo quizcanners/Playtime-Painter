@@ -805,8 +805,9 @@ namespace Painter
 
             Vector4[] v4s;
 
-            public override void GenerateIfNull()
-            {
+            public override void GenerateIfNull() {
+                if (v4s == null)
+                    v4s = curMeshDta._tangents;
             }
 
             public override Vector4[] getV4(VertexDataTarget trg)
@@ -817,9 +818,10 @@ namespace Painter
                     return null;
                 }
 
+                return v4s;
 
-                Debug.Log("Manual tangent recalculation not implemented yet.");
-                return null;
+                //Debug.Log("Manual tangent recalculation not implemented yet.");
+               // return null;
             }
 
             public override float[] getValue(int no)
@@ -1241,6 +1243,167 @@ namespace Painter
             }
         }
 
+        public class edgeNormal_0 : VertexDataType
+        {
+            public static edgeNormal_0 inst;
+            const int dataSize = 3;
+
+            Vector3[] edges;
+
+            public override void GenerateIfNull()
+            {
+
+                if (edges == null)
+                    edges = curMeshDta._edgeNormal_0_OrSharp;
+
+            }
+
+            public override Vector3[] getV3(VertexDataTarget trg)
+            {
+                return edges;
+            }
+
+            public override float[] getValue(int no)
+            {
+                for (int i = 0; i < vcnt; i++)
+                    chanelMedium[i] = edges[i][no];
+
+                return chanelMedium;
+            }
+
+            public override string ToString()
+            {
+                return "LineNormal_0";
+            }
+
+            public override string getFieldName(int ind)
+            {
+                switch (ind)
+                {
+                    case 0: return "x";
+                    case 1: return "y";
+                    case 2: return "z";
+                }
+                return "Error";
+            }
+
+            public edgeNormal_0(int index) : base(dataSize, index)
+            {
+                inst = this;
+            }
+            public override void Clear()
+            {
+                edges = null;
+            }
+        }
+
+        public class edgeNormal_1 : VertexDataType
+        {
+            public static edgeNormal_1 inst;
+            const int dataSize = 3;
+
+            Vector3[] edges;
+
+            public override void GenerateIfNull()
+            {
+
+                if (edges == null)
+                    edges = curMeshDta._edgeNormal_1_OrSharp;
+
+            }
+
+            public override Vector3[] getV3(VertexDataTarget trg)
+            {
+                return edges;
+            }
+
+            public override float[] getValue(int no)
+            {
+                for (int i = 0; i < vcnt; i++)
+                    chanelMedium[i] = edges[i][no];
+
+                return chanelMedium;
+            }
+
+            public override string ToString()
+            {
+                return "LineNormal_1";
+            }
+
+            public override string getFieldName(int ind)
+            {
+                switch (ind)
+                {
+                    case 0: return "x";
+                    case 1: return "y";
+                    case 2: return "z";
+                }
+                return "Error";
+            }
+
+            public edgeNormal_1(int index) : base(dataSize, index)
+            {
+                inst = this;
+            }
+            public override void Clear()
+            {
+                edges = null;
+            }
+        }
+
+        public class edgeNormal_2 : VertexDataType
+        {
+            public static edgeNormal_2 inst;
+            const int dataSize = 3;
+
+            Vector3[] edges;
+
+            public override void GenerateIfNull()
+            {
+
+                if (edges == null)
+                    edges = curMeshDta._edgeNormal_2_OrSharp;
+
+            }
+
+            public override Vector3[] getV3(VertexDataTarget trg)
+            {
+                return edges;
+            }
+
+            public override float[] getValue(int no)
+            {
+                for (int i = 0; i < vcnt; i++)
+                    chanelMedium[i] = edges[i][no];
+
+                return chanelMedium;
+            }
+
+            public override string ToString()
+            {
+                return "LineNormal_2";
+            }
+
+            public override string getFieldName(int ind)
+            {
+                switch (ind)
+                {
+                    case 0: return "x";
+                    case 1: return "y";
+                    case 2: return "z";
+                }
+                return "Error";
+            }
+
+            public edgeNormal_2(int index) : base(dataSize, index)
+            {
+                inst = this;
+            }
+            public override void Clear()
+            {
+                edges = null;
+            }
+        }
 
         public static VertexDataType[] types = {
 
@@ -1248,13 +1411,14 @@ namespace Painter
 
         new vertexTangent(4), new vertexSharpNormal(5), new vertexColor(6), new vertexIndex(7),
 
-        new vertexShadow(8), new vertexAtlasedTextures(9),  new vertexNull(10), new vertexEdge(11)
+        new vertexShadow(8), new vertexAtlasedTextures(9),  new vertexNull(10), new vertexEdge(11),
+
+        new edgeNormal_0(12), new edgeNormal_1(13), new edgeNormal_2(14)
 
     };
 
         static string[] typesNames;
-
-
+        
         public static string[] getAllTypesNames()
         {
             if (typesNames == null)

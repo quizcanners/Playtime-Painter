@@ -54,7 +54,7 @@ Shader "Painter_Experimental/AtlasedStandard" {
 
 				o.vcol = v.color;
 
-                float atlasNumber = v.texcoord.z;
+            /*    float atlasNumber = v.texcoord.z;
                 float atY = floor(atlasNumber / _AtlasTextures);
 				float atX = atlasNumber - atY*_AtlasTextures;
 				float edge = _MainTex_TexelSize.x;
@@ -62,6 +62,9 @@ Shader "Painter_Experimental/AtlasedStandard" {
 				o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
 				o.atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
 				o.atlasedUV.w = 1 / _AtlasTextures;
+				*/
+
+				atlasedTexture(_AtlasTextures,   v.texcoord.z,  _MainTex_TexelSize.x,  o.atlasedUV);
 
                 TRANSFER_SHADOW(o);
 

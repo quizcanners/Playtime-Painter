@@ -33,7 +33,12 @@ namespace Painter {
         public Vector4[] FirstNormal;
         public Vector4[] SecondNormal;
         public Vector4[] ThirdNormal;
-   
+        public Vector4[] Tangents;
+
+
+        Vector3[] edgeNormal0;
+        Vector3[] edgeNormal1;
+        Vector3[] edgeNormal2;
 
 
         Color[] colors;
@@ -91,7 +96,7 @@ namespace Painter {
             }
 
             trisDta tri;
-            Vector3 trisNorm;
+            //Vector3 trisNorm;
             int nom;
             int[] inds = new int[3];
 
@@ -108,7 +113,7 @@ namespace Painter {
 
                 // ********* Calculating Normals
 
-                trisNorm = MyMath.GetNormalOfTheTriangle(
+                tri.sharpNormal = MyMath.GetNormalOfTheTriangle(
                     verts[inds[0]],
                     verts[inds[1]],
                     verts[inds[2]]);
@@ -119,27 +124,27 @@ namespace Painter {
                     vertexpointDta vertPnt = tri.uvpnts[no].vert;
                     int mDIndex = inds[no];
 
-                    sharpNormals[mDIndex] = trisNorm;
+                    sharpNormals[mDIndex] = tri.sharpNormal;
                     originalIndex[mDIndex] = vertPnt.index;
 
                     if (tri.ForceSmoothedNorm[no]) {
 
-                        normals[mDIndex] = trisNorm;
+                        normals[mDIndex] = tri.sharpNormal;
                         NormalForced[mDIndex] = true;
 
                         if (vertPnt.NormalIsSet)
-                            vertPnt.normal += trisNorm;
+                            vertPnt.normal += tri.sharpNormal;
                         else
-                            vertPnt.normal = trisNorm;
+                            vertPnt.normal = tri.sharpNormal;
 
                         vertPnt.NormalIsSet = true;
 
                     } else {
                         if (!NormalForced[mDIndex])
-                            normals[mDIndex] = trisNorm;
+                            normals[mDIndex] = tri.sharpNormal;
 
                         if (!vertPnt.NormalIsSet)
-                            vertPnt.normal += trisNorm;
+                            vertPnt.normal += tri.sharpNormal;
 
                     }
                 }
@@ -247,13 +252,9 @@ namespace Painter {
             }
         }
 
-        public Vector4[] _edgeData
-        {
-            get
-            {
-                if (edgeData == null)
-                {
-
+        public Vector4[] _edgeData {
+            get {
+                if (edgeData == null) {
                     edgeData = new Vector4[vertsCount];
                     
                     foreach (var tri in edMesh.triangles) {
@@ -263,14 +264,171 @@ namespace Painter {
                             edgeData[up.finalIndex] = new Vector4(no == 0 ? 0 : edge, no == 1 ? 0 : edge, no == 2 ? 0 : edge,  up.vert.edgeStrength);
                         }
                     }
-
                 }
-
                 return edgeData;
             }
         }
 
-        public Countless<vertexAnimationFrame> _anim {  get { if (anims == null) {
+        public Vector3[] _edgeNormal_0_OrSharp {
+            get  {
+                if (edgeNormal0 == null) {
+                    edgeNormal0 = new Vector3[vertsCount];
+
+                    foreach (var tri in edMesh.triangles)
+                    {
+                        UVpoint up = tri.uvpnts[0];
+                        edgeNormal0[up.finalIndex] = sharpNormals[up.finalIndex];
+
+                        UVpoint up1 = tri.uvpnts[1];
+                        UVpoint up2 = tri.uvpnts[2];
+
+                        var tris = up1.vert.getTrianglesFromLine(up2.vert);
+
+                        var nrm =  tris.SmoothVector();
+
+                        edgeNormal0[up1.finalIndex] = nrm;
+                        edgeNormal0[up2.finalIndex] = nrm;
+                    }
+                }
+                return edgeNormal0;
+            }
+        }
+
+        public Vector3[] _edgeNormal_1_OrSharp {
+            get {
+                if (edgeNormal1 == null)
+                {
+                    edgeNormal1 = new Vector3[vertsCount];
+
+                    foreach (var tri in edMesh.triangles)
+                    {
+                        UVpoint up = tri.uvpnts[1];
+                        edgeNormal1[up.finalIndex] = sharpNormals[up.finalIndex];
+
+                        UVpoint up0 = tri.uvpnts[0];
+                        UVpoint up2 = tri.uvpnts[2];
+
+                        var tris = up0.vert.getTrianglesFromLine(up2.vert);
+
+                        var nrm = tris.SmoothVector();
+
+                        edgeNormal1[up0.finalIndex] = nrm;
+                        edgeNormal1[up2.finalIndex] = nrm;
+                    }
+                }
+                return edgeNormal1;
+            }
+        }
+
+        public Vector3[] _edgeNormal_2_OrSharp {
+            get
+            {
+                if (edgeNormal2 == null) {
+                    edgeNormal2 = new Vector3[vertsCount];
+
+                    foreach (var tri in edMesh.triangles) {
+                        UVpoint up = tri.uvpnts[2];
+                        edgeNormal2[up.finalIndex] = sharpNormals[up.finalIndex];
+
+                        UVpoint up0 = tri.uvpnts[0];
+                        UVpoint up1 = tri.uvpnts[1];
+
+                        var tris = up0.vert.getTrianglesFromLine(up1.vert);
+
+                        var nrm = tris.SmoothVector();
+
+                        edgeNormal2[up0.finalIndex] = nrm;
+                        edgeNormal2[up1.finalIndex] = nrm;
+                    }
+                }
+                return edgeNormal2;
+            }
+        }
+
+        public Vector4[] _tangents
+        {
+            get
+            {
+
+                if (Tangents == null)
+                {
+
+                    Tangents = new Vector4[vertsCount];
+                    Vector3[] tan1 = new Vector3[vertsCount];
+                    Vector3[] tan2 = new Vector3[vertsCount];
+
+                    int tri = 0;
+
+                    foreach (var t in edMesh.triangles) {
+
+                        var i1 = t.uvpnts[0].finalIndex;
+                        var i2 = t.uvpnts[1].finalIndex;
+                        var i3 = t.uvpnts[2].finalIndex;
+
+                        Vector3 v1 = t.uvpnts[0].vert.pos;
+                        Vector3 v2 = t.uvpnts[1].vert.pos;
+                        Vector3 v3 = t.uvpnts[2].vert.pos;
+
+                        Vector2 w1 = t.uvpnts[0].getUV(0);// texcoords[i1];
+                        Vector2 w2 = t.uvpnts[1].getUV(0);
+                        Vector2 w3 = t.uvpnts[2].getUV(0);
+
+                        float x1 = v2.x - v1.x;
+                        float x2 = v3.x - v1.x;
+                        float y1 = v2.y - v1.y;
+                        float y2 = v3.y - v1.y;
+                        float z1 = v2.z - v1.z;
+                        float z2 = v3.z - v1.z;
+
+                        float s1 = w2.x - w1.x;
+                        float s2 = w3.x - w1.x;
+                        float t1 = w2.y - w1.y;
+                        float t2 = w3.y - w1.y;
+
+                        float r = 1.0f / (s1 * t2 - s2 * t1);
+                        Vector3 sdir = new Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+                        Vector3 tdir = new Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+                        tan1[i1] += sdir;
+                        tan1[i2] += sdir;
+                        tan1[i3] += sdir;
+
+                        tan2[i1] += tdir;
+                        tan2[i2] += tdir;
+                        tan2[i3] += tdir;
+
+                        tri += 3;
+
+                    }
+
+
+
+                    for (int i = 0; i < (vertsCount); i++) {
+
+                        Vector3 n = normals[i];
+                        Vector3 t = tan1[i];
+
+                        // Gram-Schmidt orthogonalize
+                        Vector3.OrthoNormalize(ref n, ref t);
+
+                        Tangents[i].x = t.x;
+                        Tangents[i].y = t.y;
+                        Tangents[i].z = t.z;
+
+                        // Calculate handedness
+                        Tangents[i].w = (Vector3.Dot(Vector3.Cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
+
+                    }
+
+                   
+                }
+
+                return Tangents;
+            }
+        }
+
+
+    public Countless<vertexAnimationFrame> _anim {  get { if (anims == null) {
 
                     List<int> frameInds = edMesh.hasFrame.GetItAll();
 

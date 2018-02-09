@@ -13,7 +13,12 @@ namespace Painter {
         static PainterConfig cfg { get { return PainterConfig.inst; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
-            return (targ != null) && (targ.LockEditing == false) && ((targ.curImgData != null) || (targ.meshEditing));
+            return (targ != null) && (targ.LockEditing == false) && (
+
+                ((targ.meshEditing == false) && (targ.curImgData != null)) || //(
+                ((targ.meshEditing) && (MeshManager.inst.target == targ))
+                
+                );
         }
         
         public override bool OnEditorRayHit(RaycastHit hit, Ray ray) {
@@ -40,7 +45,10 @@ namespace Painter {
                     
                 }
 
-                if ((((e.button == 1) && (!MeshManager.inst.draggingSelected)) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+                if ((((e.button == 1) && (!MeshManager.inst.draggingSelected)) 
+                    
+                    || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+
                     navigating = true;
 
               //  if (allowRefocusing)

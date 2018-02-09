@@ -123,32 +123,34 @@ namespace Painter
             con.AssignMeshAsCollider(target.meshCollider );
         }
 
-        public void EditMesh(PlaytimePainter m, bool EditCopy) {
-            if ((m == null) || (m == target))
+        public void EditMesh(PlaytimePainter painter, bool EditCopy) {
+            if ((painter == null) || (painter == target))
                 return;
 
             if (target != null)
                 DisconnectMesh();
 
-            target = m;
+            target = painter;
 
-            if (m.gotMeshData() ) {
-                _Mesh.Reboot(m.lastMeshSavedDta);
+            if (painter.gotMeshData() ) {
+                _Mesh.Reboot(painter.lastMeshSavedDta);
                 if (_Mesh.triangles.Count == 0)
-                    _Mesh.BreakMesh(m.meshFilter.sharedMesh);
+                    _Mesh.BreakMesh(painter.meshFilter.sharedMesh);
 
             }
             else
-                _Mesh.BreakMesh(m.meshFilter.sharedMesh);
+                _Mesh.BreakMesh(painter.meshFilter.sharedMesh);
 
             
 
 
             if (EditCopy)
-                m.meshFilter.sharedMesh = new Mesh();
+                painter.meshFilter.sharedMesh = new Mesh();
 
             // MeshConstructionData mc = new MeshConstructionData(_Mesh, cfg.meshProfiles[0]);
             Redraw();
+
+            painter.meshNameHolder = _Mesh.meshName;
 
             InitVertsIfNUll();
 
@@ -1570,8 +1572,6 @@ namespace Painter
 
             changed |= target.PreviewShaderToggle_PEGI();
 
-
-
             if ((target.originalShader != null) && ("preview".select(45, ref meshSHaderMode.selected, meshSHaderMode.allModes)))
                 meshSHaderMode.selected.Apply();
 
@@ -1582,8 +1582,6 @@ namespace Painter
             pegi.newLine();
 
             pegi.write("Tool:", 40);
-
-
 
             int before = (int)MeshManager._meshTool;
             cfg._meshTool = (MeshTool)pegi.editEnum(cfg._meshTool);
@@ -1596,19 +1594,13 @@ namespace Painter
 
             pegi.newLine();
 
-            if ("Mesh Name:".edit(70, ref _Mesh.meshName))
-                target.meshFilter.sharedMesh.name = _Mesh.meshName;
-
-          
+            "Mesh Name:".edit(70, ref target.meshNameHolder);
+                //target.meshFilter.sharedMesh.name = _Mesh.meshName;
 
 #if UNITY_EDITOR
-            if ((AssetDatabase.GetAssetPath(target.getMesh()).Length==0) && (icon.save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
+            if (((AssetDatabase.GetAssetPath(target.getMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.getMesh().name)!=0))  && 
+                (icon.save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
 #endif
-
-          
-
-
-
 
             pegi.newLine();
             

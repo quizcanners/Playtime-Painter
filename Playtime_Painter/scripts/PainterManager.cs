@@ -232,7 +232,8 @@ public class PainterManager : MonoBehaviour {
 
         rtcam.cullingMask = 1 << myLayer;
 
-        if ((cfg.dontCreateDefaultRenderTexture == false) && (!GotBuffers()))
+            //if ((cfg.dontCreateDefaultRenderTexture == false) && 
+            if (!GotBuffers())
         {
            // Debug.Log("Initing buffers");
             BigRT_pair = new RenderTexture[2];
@@ -242,17 +243,17 @@ public class PainterManager : MonoBehaviour {
             BigRT_pair[1].wrapMode = TextureWrapMode.Repeat;
 
         }
-        else if ((cfg.dontCreateDefaultRenderTexture) && GotBuffers())
+       /* else if ((cfg.dontCreateDefaultRenderTexture) && GotBuffers())
         {
 			EmptyBufferTarget ();
 
             DestroyImmediate (BigRT_pair[0]);
             DestroyImmediate (BigRT_pair[1]);
             BigRT_pair = null;
-        }
+        }*/
 
-        if (cfg.dontCreateDefaultRenderTexture == false)
-        {
+      /*  if (cfg.dontCreateDefaultRenderTexture == false)
+        {*/
             
             if (secondBufferDebug != null)
             {
@@ -260,7 +261,7 @@ public class PainterManager : MonoBehaviour {
                 if (secondBufferDebug.GetComponent<PlaytimePainter>() != null)
                     DestroyImmediate (secondBufferDebug.GetComponent<PlaytimePainter>());
             }
-        }
+       // }
 
 
         if (Camera.main != null)

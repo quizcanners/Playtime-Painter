@@ -88,6 +88,7 @@ namespace Painter
             get
             {
                 return  "LMB - Add Vertices, Make Triangles (Go Clockwise)" + Environment.NewLine +
+                    "Alt + LMB - Add On Grid" + Environment.NewLine +
                     "RMB - Drag Vertices" + Environment.NewLine +
                     "Scroll - Change Plane" + Environment.NewLine +
                     "U - make triengle unique." + Environment.NewLine+
@@ -281,7 +282,7 @@ namespace Painter
 
         public override void MouseEventPointedTriangle() {
             if (EditorInputManager.GetMouseButtonDown(0))  {
-                if (EditorInputManager.getAltKey() == MeshManager.cfg.newVerticesUnique)
+                if (MeshManager.cfg.newVerticesUnique)
                     m._Mesh.insertIntoTriangleUniqueVerticles(m.pointedTris, m.collisionPosLocal);
                 else
                     m._Mesh.insertIntoTriangle(m.pointedTris, m.collisionPosLocal);

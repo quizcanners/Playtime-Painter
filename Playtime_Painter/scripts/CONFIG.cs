@@ -7,6 +7,8 @@ using StoryTriggerData;
 
 namespace Painter{
 
+
+
 [Serializable]
 public class PainterConfig  {
     static PainterConfig _inst;
@@ -24,7 +26,10 @@ public class PainterConfig  {
     public const string ToolName = "Playtime_Painter";
     public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
 
-    // Terrain namings:
+        // Terrain Global Shader namings:
+    public const string terrainPosition = "_mergeTeraPosition";
+    public const string terrainTiling = "_mergeTerrainTiling";
+    public const string terrainScale = "_mergeTerrainScale";
     public const string terrainHeight = "_mergeTerrainHeight"; // Used in custom shaders
     public const string terrainControl = "_mergeControl"; // Used in Custom Terrain Shaders
     public const string terrainTexture = "_mergeSplat_";
@@ -32,12 +37,17 @@ public class PainterConfig  {
     public const string terrainLight = "_TerrainColors";
 	public const string previewTexture = "_PreviewTex";
 
+        
+
+        // Preview Constants
+        public const string UV_NORMAL = "UV_NORMAL";
+        public const string UV_ATLASED = "UV_ATLASED";
+
+        public const string atlasedTexturesInARow = "_AtlasTextures";
 
     static string SaveName = "PainterConfig";
 
 
- 
-        public static string SavedMeshesName = "SavedMeshes";
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
         public bool MakeVericesUniqueOnEdgeColoring;
@@ -72,24 +82,22 @@ public class PainterConfig  {
     public BrushConfig brushConfig;
     public float GodWalkSpeed = 100f;
     public float GodLookSpeed = 10f;
-    public bool dontCreateDefaultRenderTexture;
+   // public bool dontCreateDefaultRenderTexture;
     public bool disableNonMeshColliderInPlayMode;
 
     public bool previewAlphaChanel;
-        public bool newTextureIsColor = true;
+    public bool newTextureIsColor = true;
 
-        public bool moreOptions = false;
-        public bool showConfig = false;
+    public bool moreOptions = false;
+    public bool showConfig = false;
 
     public int selectedSize = 4;
 
+    public List<string> recordingNames;
 
+    public int browsedRecord;
 
-        public List<string> recordingNames;
-
-        public int browsedRecord;
-
-        public static Dictionary<string, string> recordings = new Dictionary<string, string>();
+    public static Dictionary<string, string> recordings = new Dictionary<string, string>();
 
         public string GetRecordingData(string name) {
 
@@ -125,6 +133,7 @@ public class PainterConfig  {
 				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Standard"));
 				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Atlased"));
 				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "AtlasedProjected"));
+                meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Bevel"));
             }
 
             //if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
@@ -352,18 +361,16 @@ public class PainterConfig  {
                     painter.numberOfRenderTextureBackups = 10;
                 }
 
-                if ("Don't create render texture buffer:".toggle(ref dontCreateDefaultRenderTexture).nl()) {
+            /*    if ("Don't create render texture buffer:".toggle(ref dontCreateDefaultRenderTexture).nl()) {
                     PainterConfig.SaveChanges();
                     rtp.UpdateBuffersState();
-                }
+                }*/
 
                
 
                 "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
 
-                "Save Textures To:".edit(110, ref texturesFolderName).nl();
-
-                "Save Materials To:".edit(110, ref materialsFolderName).nl();
+             
 
                 "Camera".write(rtp.rtcam);
                 pegi.newLine();
@@ -373,6 +380,13 @@ public class PainterConfig  {
 
                 "Renderer to Debug second buffer".edit(ref rtp.secondBufferDebug).nl();
             }
+
+            "Save Textures To:".edit(110, ref texturesFolderName).nl();
+
+            "Save Materials To:".edit(110, ref materialsFolderName).nl();
+
+            "Save Meshes To:".edit(110, ref meshesFolderName).nl();
+
 
             if (icon.Discord.Click("Join Discord", 64))
                 PlaytimePainter.open_Discord();

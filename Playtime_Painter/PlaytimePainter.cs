@@ -14,6 +14,7 @@ using PlayerAndEditorGUI;
 
 namespace Painter{
 
+    [HelpURL(WWW_Manual)]
     [AddComponentMenu("Mesh/Playtime Painter")]
     [ExecuteInEditMode]
     public class PlaytimePainter : PlaytimeToolComponent, iSTD {
@@ -71,6 +72,8 @@ namespace Painter{
 
         [SerializeField]
         Mesh meshDataSavedFor;
+
+        public String meshNameHolder;
 
         public string meshSaveData { get
             {
@@ -527,7 +530,7 @@ namespace Painter{
 			}
 	}
 
-		public Vector2 GetAtlasedSection(){
+	public Vector2 GetAtlasedSection(){
 			float atY = inAtlasIndex / atlasRow;
 			float atX = inAtlasIndex - atY*atlasRow;
 
@@ -1129,14 +1132,14 @@ namespace Painter{
         if (sp.Length != 0) {
             float tilingX = terrain.terrainData.size.x / sp[0].tileSize.x;
             float tilingZ = terrain.terrainData.size.z / sp[0].tileSize.y;
-            Shader.SetGlobalVector("_mergeTerrainTiling", new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y));
+            Shader.SetGlobalVector(PainterConfig.terrainTiling, new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y));
 
             //	float2 tiled = i.tc_Control.xz*_mergeTerrainTiling.xy+ _mergeTerrainTiling.zw;
             //float tiledY = i.tc_Control.y * 16;//*_mergeTerrainTiling.x;
 
             tilingY = terrain.terrainData.size.y / sp[0].tileSize.x;
         }
-        Shader.SetGlobalVector("_mergeTerrainScale", new Vector4(terrain.terrainData.size.x, terrain.terrainData.size.y, terrain.terrainData.size.z, 0.5f / ((float)terrain.terrainData.heightmapResolution)));
+        Shader.SetGlobalVector(PainterConfig.terrainScale, new Vector4(terrain.terrainData.size.x, terrain.terrainData.size.y, terrain.terrainData.size.z, 0.5f / ((float)terrain.terrainData.heightmapResolution)));
 
             UpdateTerrainPosition();
 
@@ -1149,7 +1152,7 @@ namespace Painter{
     public void UpdateTerrainPosition()
         {
             Vector3 pos = transform.position;
-            Shader.SetGlobalVector("_mergeTeraPosition", new Vector4(pos.x, pos.y, pos.z, tilingY));
+            Shader.SetGlobalVector(PainterConfig.terrainPosition, new Vector4(pos.x, pos.y, pos.z, tilingY));
         }
 
     public void Preview_To_UnityTerrain() {
@@ -1327,7 +1330,7 @@ namespace Painter{
             if (meshFilter.sharedMesh == null)
                 return "None";
 
-        return ("/" + cfg.meshesFolderName + "/" + meshFilter.sharedMesh.name + ".asset");
+        return ("/" + cfg.meshesFolderName + "/" + meshNameHolder + ".asset");
     }
 
     void OnBeforeSaveTexture(){
@@ -1377,32 +1380,23 @@ namespace Painter{
             Mesh m = this.getMesh();
             string path = AssetDatabase.GetAssetPath(m);
 
-           // Mesh outputAnimClip = AssetDatabase.LoadMainAssetAtPath(path) as AnimationClip;
-
-            if (path.Length>0) {
-                EditorUtility.CopySerialized(m, AssetDatabase.LoadMainAssetAtPath(path) as AnimationClip);
-                AssetDatabase.SaveAssets();
-            }
-            else
-            {
+   
+            
                 string lastPart = "/" + cfg.meshesFolderName + "/";
                 string folderPath = Application.dataPath + lastPart;
                 Directory.CreateDirectory(folderPath);
 
-                AssetDatabase.CreateAsset(m, "Assets" + GenerateMeshSavePath());
-                AssetDatabase.SaveAssets();
-            }
+                try {
 
-            if (path != null)
-            {
-                path.Log();
-                AssetDatabase.CreateAsset(m, path);
-            }
-            else
-            {
+                if (path.Length>0)
+                    meshFilter.sharedMesh = (Mesh)Instantiate(meshFilter.sharedMesh);
+                meshFilter.sharedMesh.name = meshNameHolder;
 
-                
-            }
+                AssetDatabase.CreateAsset(meshFilter.sharedMesh, "Assets" + GenerateMeshSavePath());
+                    AssetDatabase.SaveAssets();
+                } catch (Exception ex) {
+                    Debug.Log(ex);
+                }
         }
     
 #endif
@@ -1464,11 +1458,12 @@ namespace Painter{
             Application.OpenURL("https://discord.gg/rF7yXq3");
         }
 
+        public const string WWW_Manual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
 #if UNITY_EDITOR
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Open Manual")]
 #endif
         public static void openWWW_Documentation() {
-		Application.OpenURL("https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing");
+		Application.OpenURL(WWW_Manual);
 	}
 
         /*
@@ -1648,7 +1643,7 @@ namespace Painter{
             if ((curImgData != null) && (originalShader != null))
             {
                 texMGMT.Shader_BrushCFG_Update(brush, 1, curImgData.width, curImgData.TargetIsRenderTexture());
-                BlitModeExtensions.SetShaderToggle(!isAtlased, "UV_NORMAL", "UV_ATLASED");
+                BlitModeExtensions.SetShaderToggle(!isAtlased, PainterConfig.UV_NORMAL , PainterConfig.UV_ATLASED);
             }
     }
     
@@ -1830,16 +1825,18 @@ namespace Painter{
 
                 if (m.target != this)
                 {
-                    if (icon.Edit.Click("Edit Mesh", 25))
-                        meshMGMT.EditMesh(this, false);
-                    if ("New Mesh".Click())
-                    {
+
+                    if ("Edit Copy".Click())
+                        meshMGMT.EditMesh(this, true);
+
+                    if ("New Mesh".Click()) {
                         meshFilter.mesh = new Mesh();
                         lastMeshSavedDta = null;
                         meshMGMT.EditMesh(this, false);
                     }
-                    if ("Edit Copy".Click().nl())
-                        meshMGMT.EditMesh(this, true);
+                  
+                    if (icon.Edit.Click("Edit Mesh", 25).nl())
+                        meshMGMT.EditMesh(this, false);
                 }
 
             }

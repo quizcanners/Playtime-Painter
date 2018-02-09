@@ -183,7 +183,7 @@ namespace Painter
 				MeshManager.inst.Redraw();
 				MeshManager.inst.DisconnectMesh ();
 
-				AtlasedMaterial.SetFloat ("_AtlasTextures", painter.atlasRow);
+				AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRow);
 				painter.meshRenderer.sharedMaterial = AtlasedMaterial;
 
 			}

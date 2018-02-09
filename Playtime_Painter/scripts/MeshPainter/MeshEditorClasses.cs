@@ -459,11 +459,15 @@ namespace Painter {
                     v.bindPoses = mesh.bindposes[i];
             }
 
-            if (mesh.subMeshCount > 1) 
-                for (int s=0; s<mesh.subMeshCount; s++) 
-                    for (uint i= mesh.GetIndexStart(s); i<mesh.GetIndexCount(s); i++) 
-                        vertices[(int)i].submeshIndex = s;
- 
+            if (mesh.subMeshCount > 1)
+                for (int s = 0; s < mesh.subMeshCount; s++) {
+
+                    int[] indices = mesh.GetTriangles(s);
+
+                    foreach (var i in indices)
+                            vertices[i].submeshIndex = s;
+            }
+
             shapes = new List<string>();
 
             for (int s=0; s<mesh.blendShapeCount; s++) {
@@ -472,8 +476,6 @@ namespace Painter {
                     vertices[v].shapes.Add(new List<BlendFrame>());
 
                 shapes.Add(mesh.GetBlendShapeName(s));
-
-            
 
                 for (int f=0; f<mesh.GetBlendShapeFrameCount(s); f++) {
 
@@ -592,6 +594,9 @@ namespace Painter {
 
         public void GiveTriangleUniqueVerticles(trisDta tris)
         {
+
+            // Mistake here somewhere
+
             UVpoint[] changed = new UVpoint[3];
             for (int i = 0; i < 3; i++)
             {
@@ -602,7 +607,7 @@ namespace Painter {
                     if (triangles[t].includes(uvi)) count++;
 
                 if (count > 1)
-                    changed[i] = new UVpoint(uvi.vert);
+                    changed[i] = new UVpoint(uvi);
                 else
                     changed[i] = uvi;
 
@@ -735,7 +740,7 @@ namespace Painter {
 
                     newUV = null;
 
-                    if ((!MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
+                    if ((MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
                         newUV = new UVpoint(newVrt);
                     else
                     {
@@ -760,7 +765,7 @@ namespace Painter {
                  
 
 
-                    if (!MeshManager.cfg.newVerticesUnique) {
+                    if (MeshManager.cfg.newVerticesUnique) {
                         var split = new UVpoint(spliUV);
                         trb.Replace(spliUV, split);
                         var newB = new UVpoint(newUV);

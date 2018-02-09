@@ -57,9 +57,19 @@ float _Merge;
 
 
 
-inline void normalAndPositionToUV (float3 normal, float3 scenepos, out float4 tang, out float2 uv){
+inline void atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
+	
 
-  float3 worldNormal = UnityObjectToWorldNormal(normal);
+	float atY = floor(atlasNumber / _AtlasTextures);
+	float atX = atlasNumber - atY*_AtlasTextures;
+	float edge = _TexelSizeX;
+
+	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
+	atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
+	atlasedUV.w = 1 / _AtlasTextures;
+}
+
+inline void normalAndPositionToUV (float3 worldNormal, float3 scenepos, out float4 tang, out float2 uv){
 
 	scenepos += _wrldOffset.xyz;
 
@@ -82,6 +92,26 @@ inline void normalAndPositionToUV (float3 normal, float3 scenepos, out float4 ta
 	tang.z = znorm*dey; 
 
 }
+
+inline void normalAndPositionToUV(float3 worldNormal, float3 scenepos, out float2 uv) {
+
+	
+
+	scenepos += _wrldOffset.xyz;
+
+	worldNormal = abs(worldNormal);
+	float znorm = saturate((worldNormal.x - worldNormal.z) * 55555);
+	float xnorm = saturate(((worldNormal.z + worldNormal.y) - worldNormal.x) * 55555);
+	float ynorm = saturate((worldNormal.y - 0.8) * 55555);
+
+	float x = (scenepos.x)*(xnorm)+(scenepos.z)*(1 - xnorm);
+	float y = (scenepos.y)*(1 - ynorm) + (scenepos.z)*(ynorm);
+
+	uv.x = x;
+	uv.y = y;
+
+}
+
 
 inline void applyTangentNonNormalized (float4 tang, inout float3 normal, float2 bump){
 
@@ -127,6 +157,32 @@ inline float2 DetectEdge(float4 vcol){
 				return float2(border, vcol.a);
 
 				// use vcol.a to apply color
+
+}
+
+inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
+
+	//float3 neg = edge.rgb - 0.08;
+
+	//neg -= abs(neg);
+
+	//float junk = min(1, -(neg.r+neg.g+neg.b)*10);
+	
+
+	edge = max(0, edge - 0.965) * 28;
+	float border = max(max(edge.r, edge.g), edge.b);
+
+	//float border = allof;//min(1, allof);
+
+	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
+
+	//float dt = max(0, (1-dot(sharpNorm, normalize(edgeN)))*32);
+
+	float junk = min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g)*2)* border;
+
+	weight = edge.w*border;
+
+	return   normalize((sharpNorm*(1 - border) + border*edgeN)*(1 - junk) + junk*(junkNorm));
 
 }
 
