@@ -1281,6 +1281,22 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+        public static bool editTexture(this Material mat, string name) {
+            return mat.editTexture(name, name);
+        }
+
+            public static bool editTexture(this Material mat, string name, string display) {
+            write(display);
+            Texture tex = mat.GetTexture(name);
+
+            if (edit(ref tex)) {
+                mat.SetTexture(name, tex);
+                return true;
+            }
+
+            return false;
+        }
+
         static string editedText;
         static string editedHash = "";
         public static bool editDelayed(ref string val) {

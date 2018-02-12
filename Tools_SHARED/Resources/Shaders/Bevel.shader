@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/Bevel" {
+﻿Shader "Bevel/Pixelated" {
 	Properties{
 		_MainTex("Base texture", 2D) = "white" {}
 	_Noise("Noise", 2D) = "white" {}

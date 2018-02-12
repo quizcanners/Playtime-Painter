@@ -118,7 +118,7 @@ namespace Painter
 
             "Pixel-Perfect".toggle("New vertex will have UV coordinate rounded to half a pixel.",120, ref cfg.pixelPerfectMeshEditing).nl();
 
-            "Add As Smooth:".toggle(120, ref MeshManager.cfg.newVerticesSmooth);
+            "Add Smooth:".toggle(70, ref MeshManager.cfg.newVerticesSmooth);
             if (pegi.Click("Sharp All")) {
                 foreach (vertexpointDta vr in m._Mesh.vertices)
                     vr.SmoothNormal = false;
@@ -131,7 +131,7 @@ namespace Painter
                 mgm._Mesh.Dirty = true;
             }
 
-            "Add As Unique:".toggle(120, ref MeshManager.cfg.newVerticesUnique);
+            "Add Unique:".toggle(70, ref MeshManager.cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
                 mgm._Mesh.SMOOTHALLVERTS();
                 mgm._Mesh.Dirty = true;

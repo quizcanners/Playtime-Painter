@@ -5,56 +5,40 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace Painter {
 
-    public enum ShaderUV_Method { Normal, Atlased, Projected, AtlasedProjected }
 
     public static class MaterialTagsExtensions {
 
-        // Shader Tags
-        public const string shaderUVtype = "UVtype";
-        public const string shaderUV_Normal = "Normal";
-        public const string shaderUV_Atlas = "Atlas";
-        public const string shaderUV_Projected = "Projected";
-        public const string shaderUV_AtlasedProjected = "Atlas Projected";
-
         public const string shaderPreferedPackagingSolution = "Solution";
 
-
-        public static MeshSolutionProfile getSolutionByTag(this Material mat) {
+        public static int getMeshProfileByTag(this Material mat) {
 
             var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
 
-            foreach (var s in PainterConfig.inst.meshProfileSolutions)
-                if (String.Compare(s.name, name) == 0) return s;
+			var prf = PainterConfig.inst.meshProfileSolutions;
 
-            return PainterConfig.inst.meshProfileSolutions[0];
+			for(int i = 0; i<prf.Count; i++)// (var s in PainterConfig.inst.meshProfileSolutions)
+				if (String.Compare(prf[i].name, name) == 0) return i;
+
+			return 0;//PainterConfig.inst.meshProfileSolutions[0];
         }
 
-        public static ShaderUV_Method getUVmethod (this Material mat) {
-           
-            switch (mat.GetTag(shaderUVtype, false, shaderUV_Normal)) {
 
-                case shaderUV_Atlas: return ShaderUV_Method.Atlased;
-                case shaderUV_Projected: return ShaderUV_Method.Projected;
-                case shaderUV_AtlasedProjected: return ShaderUV_Method.AtlasedProjected;
 
-                default: return ShaderUV_Method.Normal;
-            }
+        public static bool isAtlased(this Material mat) {
+            if (mat == null) return false;
+            return mat.shaderKeywords.Contains(PainterConfig.UV_ATLASED);
         }
 
-        public static bool isAtlased(Material mat) {
-            var method = mat.getUVmethod();
-            return (method == ShaderUV_Method.Atlased) || (method == ShaderUV_Method.AtlasedProjected);
-        }
-
-        public static bool isProjected(Material mat) {
-            var method = mat.getUVmethod();
-            return (method == ShaderUV_Method.Projected) || (method == ShaderUV_Method.AtlasedProjected);
+        public static bool isProjected(this Material mat) {
+            if (mat == null) return false;
+            return mat.shaderKeywords.Contains(PainterConfig.UV_PROJECTED);
         }
 
 

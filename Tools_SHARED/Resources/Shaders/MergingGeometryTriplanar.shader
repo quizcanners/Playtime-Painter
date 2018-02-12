@@ -53,8 +53,7 @@
 		float3 tc_Control : TEXCOORD4;
 		float3 fwpos : TEXCOORD5;
 		SHADOW_COORDS(6)
-			//float3 normal : TEXCOORD11;
-			float2 texcoord : TEXCOORD7;
+		float2 texcoord : TEXCOORD7;
 		half3 tspace0 : TEXCOORD8; // tangent.x, bitangent.x, normal.x
 		half3 tspace1 : TEXCOORD9; // tangent.y, bitangent.y, normal.y
 		half3 tspace2 : TEXCOORD10; // tangent.z, bitangent.z, normal.z
@@ -275,8 +274,8 @@
 
 	float4 terrainLrefl = tex2D(_TerrainColors, i.tc_Control.xz
 		- reflected.xz*terrainN.b*terrainAmbient.a*0.1
-		//- worldNormal.xz*(1-terrainN.b)
-	);//*_LightColor0;
+	);
+
 	terrainLrefl.rgb*= teraBounce;
 
 	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
@@ -284,32 +283,26 @@
 
 	float direct = diff*shadow;
 
-	//
-
-	float3 ambientSky = (unity_AmbientSky.rgb * max(0, worldNormal.y - 0.5) * 2)*terrainAmbient.a;
+	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
+	float3 ambientCol = ShadeSH9(float4(worldNormal, 1))*terrainAmbient.a;
 
 	float4 col;
 	col.a = water; // NEW
-	col.rgb = (cont.rgb* (_LightColor0*direct + (ambientSky + terrainAmbient.rgb
+	col.rgb = (cont.rgb* (_LightColor0*direct + (terrainAmbient.rgb+ ambientCol
 		)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5 + shadow)*(under));
 
-	float power =
-		smoothness * 1024;
+	float power = smoothness * 1024;
 
-	float up = saturate((-reflected.y - 0.5) * 2 * terrainLrefl.a);//
-
+	
 	float3 reflResult = (
 		((pow(max(0.01, dot(_WorldSpaceLightPos0, -reflected)), power)* direct	*(_LightColor0)*power)) +
 
-		terrainLrefl.rgb*(1 - up) +
-		unity_AmbientSky.rgb *up
+		terrainLrefl.rgb +
+		ambientRefl.rgb
 
 		)* terrainN.b * fernel;
 
 	col.rgb += reflResult * under;
-
-
-	//col.a = max(0.5, min(i.fwpos.y + 2 - (foamA_W.x) * 2, 1)); // MODIFIED//col.a = saturate(i.fwpos.y + 2 - (foamA_W.x) * 2);
 
 	col.rgb *= 1 - saturate((_foamParams.z - i.wpos.y)*0.1);  // NEW
 
@@ -319,7 +312,6 @@
 
 	fogging = min(1,pow(max(0,fogging),2));
 	col.rgb = fogged.rgb * fogging + col.rgb *(1 - fogging);
-
 
 #if	MODIFY_BRIGHTNESS
 	col.rgb *= _lightControl.a;

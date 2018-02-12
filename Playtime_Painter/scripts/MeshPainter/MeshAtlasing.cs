@@ -154,7 +154,7 @@ namespace Painter
 
 				var MainField = passedFields [0];
 
-				painter.atlasRow = MainField.atlasCreator.row;
+				painter.atlasRows = MainField.atlasCreator.row;
 
 				Vector2 tyling = mat.GetTextureScale(originalTextures [MainField.originField]);
 				Vector2 offset = mat.GetTextureOffset(originalTextures [MainField.originField]);
@@ -183,9 +183,9 @@ namespace Painter
 				MeshManager.inst.Redraw();
 				MeshManager.inst.DisconnectMesh ();
 
-				AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRow);
+				AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRows);
 				painter.meshRenderer.sharedMaterial = AtlasedMaterial;
-
+				AtlasedMaterial.EnableKeyword(PainterConfig.UV_ATLASED);
 			}
 #endif
         }

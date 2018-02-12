@@ -136,7 +136,7 @@ public static class Blit_Functions {
 		public static void PaintCircleAtlased(Vector2 uvCoords, float brushAlpha, 
 			imgData image, BrushConfig bc, PlaytimePainter origin) {
 
-			imgData.sectorSize = image.width/origin.atlasRow;
+			imgData.sectorSize = image.width/origin.atlasRows;
 			imgData.atlasSector.From(origin.GetAtlasedSection()*imgData.sectorSize);
 
 			brAlpha = brushAlpha;

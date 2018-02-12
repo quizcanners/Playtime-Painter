@@ -61,11 +61,11 @@ namespace Painter{
 		public Mesh preAtlasingMesh;
 		public string preAtlasingSavedMesh;
 		public int inAtlasIndex;
-		public int atlasRow;
-		public bool isAtlased { get { return (preAtlasingMaterial != null); }}
+		public int atlasRows = 1;
+		public bool isAtlased { get { return  getMaterial(false).isAtlased(); } }
+		public bool isProjected{ get { return getMaterial (false).isProjected(); } }
 
         // Mesh Editing
-
 
         [SerializeField]
         public string lastMeshSavedDta;
@@ -531,8 +531,9 @@ namespace Painter{
 	}
 
 	public Vector2 GetAtlasedSection(){
-			float atY = inAtlasIndex / atlasRow;
-			float atX = inAtlasIndex - atY*atlasRow;
+			
+			float atY = inAtlasIndex / atlasRows;
+			float atX = inAtlasIndex - atY*atlasRows;
 
 			return new Vector2 (atX, atY);
 		}
@@ -544,7 +545,7 @@ namespace Painter{
 				uv.x = uv.x % 1;
 				uv.y = uv.y % 1;
 
-				uv = (GetAtlasedSection() + uv) / (float)atlasRow;
+				uv = (GetAtlasedSection() + uv) / (float)atlasRows;
 
 
 			} else {
@@ -1732,18 +1733,36 @@ namespace Painter{
                     pegi.newLine();
 
 					if (isAtlased) {
-						"Atlased Texture".nl ("Can be Undone/Corrected in settings");
+						atlasRows = getMaterial (false).GetInt (PainterConfig.atlasedTexturesInARow);
+						("Atlased Texture "+atlasRows+"*"+atlasRows).write("Shader has _ATLASED define");
+						if ("Undo".Click (40).nl())
+							getMaterial (false).DisableKeyword (PainterConfig.UV_ATLASED);
+
 						if (curImgData.TargetIsRenderTexture ())
 							pegi.writeOneTimeHint ("Watch out, Render Texture Brush can change neighboring textures on the Atlas.", "rtOnAtlas");
 					}
 
+					if (isProjected) {
+						pegi.writeWarning ("Projected UV Shader detected. Painting may not work properly");
+						if ("Undo".Click (40).nl())
+							getMaterial (false).DisableKeyword (PainterConfig.UV_PROJECTED);
+						pegi.newLine ();
+					}
+
+					bool toTexture2D = curImgData.TargetIsTexture2D();
+
+					if ((!toTexture2D) && (brush.currentBrushTypeRT ().isA3Dbrush) && (curImgData.offset!= Vector2.zero) && (curImgData.tyling!= Vector2.one) ) {
+						pegi.writeHint ("World space painting may not work properly when tiling and/or offset is applied.");	
+						pegi.newLine ();
+					}
+						
 
                     changed |= PainterPEGI_Extensions.BrushParameters_PEGI(brush, this);
 
                     BlitMode mode = brush.currentBlitMode();
                     Color col = brush.color.ToColor();
 
-                    bool toTexture2D = curImgData.TargetIsTexture2D();
+                    
 
 
                     if ((toTexture2D || (!mode.usingSourceTexture)) && (isTerrainHeightTexture() == false))
@@ -1826,9 +1845,10 @@ namespace Painter{
                 if (m.target != this)
                 {
 
-                    if ("Edit Copy".Click())
-                        meshMGMT.EditMesh(this, true);
+					if ("Edit Copy".Click ()) {
+						meshMGMT.EditMesh (this, true);
 
+					}
                     if ("New Mesh".Click()) {
                         meshFilter.mesh = new Mesh();
                         lastMeshSavedDta = null;

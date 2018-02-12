@@ -242,25 +242,22 @@ Shader "Terrain/MergingGeometry" {
 
 	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
-
 	float direct = diff*shadow;
 
-	float3 ambientSky = (unity_AmbientSky.rgb * max(0, worldNormal.y - 0.5) * 2)*terrainAmbient.a;
+	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
 
 	float4 col;
 	col.a = water; // NEW
-	col.rgb = (cont.rgb* (_LightColor0*direct + (ambientSky + terrainAmbient.rgb
+	col.rgb = (cont.rgb* (_LightColor0*direct + (terrainAmbient.rgb
 		)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5 + shadow)*(under));
 
 	float power = smoothness * 1024;
 
-	float up = saturate((-reflected.y - 0.5) * 2 * terrainLight.a);//
-
 	float3 reflResult = (
 		((pow(max(0.01, dot(_WorldSpaceLightPos0, -reflected)), power)* direct	*(_LightColor0)*power)) +
 
-		terrainLight.rgb*(1 - up) +
-		unity_AmbientSky.rgb *up//*terrainAmbient.a
+		terrainLight.rgb +
+		ambientRefl.rgb
 
 		)* terrainN.b * fernel;
 

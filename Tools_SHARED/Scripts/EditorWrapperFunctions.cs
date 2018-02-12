@@ -26,9 +26,13 @@ public static class ef {
 
     public static bool end(GameObject go) {
         if ((changes) && (!Application.isPlaying))
-            EditorSceneManager.MarkSceneDirty(go.scene);
+            EditorSceneManager.MarkSceneDirty((go == null) ? EditorSceneManager.GetActiveScene() : go.scene);
         newLine();
         return changes;
+    }
+
+    public static bool end() {
+        return end(null);
     }
 
 

@@ -132,15 +132,15 @@ namespace Painter
 
             target = painter;
 
-            if (painter.gotMeshData() ) {
-                _Mesh.Reboot(painter.lastMeshSavedDta);
-                if (_Mesh.triangles.Count == 0)
-                    _Mesh.BreakMesh(painter.meshFilter.sharedMesh);
+			if (painter.gotMeshData ()) {
+				_Mesh.Reboot (painter.lastMeshSavedDta);
+				if (_Mesh.triangles.Count == 0)
+					_Mesh.BreakMesh (painter.meshFilter.sharedMesh);
 
-            }
-            else
-                _Mesh.BreakMesh(painter.meshFilter.sharedMesh);
-
+			} else {
+				_Mesh.BreakMesh (painter.meshFilter.sharedMesh);
+				painter.selectedMeshProfile = painter.getMaterial (false).getMeshProfileByTag ();
+			}
             
 
 

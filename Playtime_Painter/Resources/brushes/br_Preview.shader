@@ -4,7 +4,12 @@
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 		}
 		Category{
-		Tags{ "Queue" = "Geometry"  "RenderType"="Opaque" }
+		Tags{ "Queue" = "Geometry"
+		
+		"RenderType"="Opaque" 
+		
+		
+		}
 		ColorMask RGBA
 		Cull off
 
@@ -13,26 +18,21 @@
 
 		CGPROGRAM
 
-		#pragma multi_compile  PREVIEW_FILTER_SMOOTH PREVIEW_FILTER_PIXEL
+		#pragma multi_compile  PREVIEW_FILTER_SMOOTH  UV_PIXELATED
 		#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA
 		#pragma multi_compile  BRUSH_2D  BRUSH_3D BRUSH_DECAL
 		#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
 		#pragma multi_compile  UV_NORMAL UV_ATLASED
 
-
 		#pragma vertex vert
 		#pragma fragment frag
 
 		#include "qc_Includes.cginc"
-
-		
 		
 		sampler2D _PreviewTex;
 		float _AtlasTextures;
 		float4 _PreviewTex_ST;
 		float4 _PreviewTex_TexelSize;
-
-
 	
 		struct v2f {
 		float4 pos : POSITION;
@@ -88,7 +88,7 @@
 	float alpha = 1;
 
 
-	#if PREVIEW_FILTER_PIXEL
+	#if UV_PIXELATED
 		float2 perfTex = (floor(i.texcoord.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
 		float2 off = (i.texcoord.xy - perfTex);
 

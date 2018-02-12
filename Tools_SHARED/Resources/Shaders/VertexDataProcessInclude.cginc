@@ -69,6 +69,19 @@ inline void atlasedTexture(float _AtlasTextures, float atlasNumber, float _Texel
 	atlasedUV.w = 1 / _AtlasTextures;
 }
 
+
+inline void applyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
+	float3 wBitangent = cross(normal, wTangent.xyz) * wTangent.w;
+
+	float3 tspace0 = float3(wTangent.x, wBitangent.x, normal.x);
+	float3 tspace1 = float3(wTangent.y, wBitangent.y, normal.y);
+	float3 tspace2 = float3(wTangent.z, wBitangent.z, normal.z);																												  //normal = i.normal.xyz;
+
+	normal.x = dot(tspace0, tnormal);
+	normal.y = dot(tspace1, tnormal);
+	normal.z = dot(tspace2, tnormal);
+}
+
 inline void normalAndPositionToUV (float3 worldNormal, float3 scenepos, out float4 tang, out float2 uv){
 
 	scenepos += _wrldOffset.xyz;
@@ -162,29 +175,41 @@ inline float2 DetectEdge(float4 vcol){
 
 inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
 
-	//float3 neg = edge.rgb - 0.08;
-
-	//neg -= abs(neg);
-
-	//float junk = min(1, -(neg.r+neg.g+neg.b)*10);
-	
-
 	edge = max(0, edge - 0.965) * 28;
-	float border = max(max(edge.r, edge.g), edge.b);
 
-	//float border = allof;//min(1, allof);
+	//edge = max(0, edge - 0.93) * 14;
+	float border = max(max(edge.r, edge.g), edge.b);
 
 	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
 
-	//float dt = max(0, (1-dot(sharpNorm, normalize(edgeN)))*32);
-
 	float junk = min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g)*2)* border;
 
-	weight = edge.w*border;
+	weight = (edge.w)*border;
 
-	return   normalize((sharpNorm*(1 - border) + border*edgeN)*(1 - junk) + junk*(junkNorm));
+	return normalize((sharpNorm*(1 - border) + border*edgeN)*(1 - junk) + junk*(junkNorm));
 
 }
+
+inline float3 DetectSmoothEdge(float thickness ,float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
+
+	thickness = thickness*thickness*0.5;
+	//0.00125
+
+	edge = saturate((edge - 1 + thickness)/thickness);
+
+	//edge = max(0, edge - 0.93) * 14;
+	float border = max(max(edge.r, edge.g), edge.b);
+
+	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
+
+	float junk = min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g) * 2)* border;
+
+	weight = (edge.w)*border;
+
+	return normalize((sharpNorm*(1 - border) + border*edgeN)*(1 - junk) + junk*(junkNorm));
+
+}
+
 
 
 inline float3 reflectedVector (float3 normal, float3 viewDir){

@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/BevelBumped" {
+﻿Shader "Bevel/Bumped" {
 	Properties{
 	_MainTex("Base texture", 2D) = "white" {}
 	_BumpMap("Normal Map", 2D) = "bump" {}
@@ -62,7 +62,7 @@
 		float3 edgeNorm1 : TEXCOORD8;
 		float3 edgeNorm2 : TEXCOORD9;
 		float4 wTangent : TEXCOORD10;
-		//float3 wBitangent : TEXCOORD11;
+
 	};
 	v2f vert(appdata_full v) {
 		v2f o;
@@ -70,7 +70,7 @@
 		o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 		o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
-		//float3 wNormal = o.normal.xyz;
+
 		o.wTangent.xyz = UnityObjectToWorldDir(v.tangent.xyz);
 		o.wTangent.w = v.tangent.w * unity_WorldTransformParams.w;
 
@@ -122,15 +122,7 @@
 
 	float3 preNorm = normal;
 
-	float3 wBitangent = cross(normal, i.wTangent.xyz) * i.wTangent.w;
-
-	float3 tspace0 = float3(i.wTangent.x, wBitangent.x, normal.x);
-	float3 tspace1 = float3(i.wTangent.y, wBitangent.y, normal.y);
-	float3 tspace2 = float3(i.wTangent.z, wBitangent.z, normal.z);																												  //normal = i.normal.xyz;
-
-	normal.x = dot(tspace0, tnormal);
-	normal.y = dot(tspace1, tnormal);
-	normal.z = dot(tspace2, tnormal);
+	applyTangent (normal, tnormal,  i.wTangent);
 	
 	normal = normal*deWeight + preNorm*weight;
 
@@ -142,12 +134,6 @@
 	float dotprod = dot(i.viewDir.xyz, normal);					 //dot(normal,  i.viewDir.xyz);
 	float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*normal);
 	float dott = max(0.01, dot(_WorldSpaceLightPos0, -reflected));
-
-
-	//float4 skyData = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflected);
-	//float3 skyColor = DecodeHDR(skyData, unity_SpecCube0_HDR);
-	//float4 sky = texCUBE(_Cube, reflected);
-
 
 	col.rgb *= ((max(0, dot(normal, _WorldSpaceLightPos0.xyz))
 		* shadow)*_LightColor0 //+ sky.rgb
@@ -162,10 +148,8 @@
 		)
 		*col.a ;
 
-	//col = texCUBE(_Cube, reflected);// = skyColor+0.1; 
-	// normal;
 
-	return //i.wTangent;//
+	return 
 	col;
 
 	}

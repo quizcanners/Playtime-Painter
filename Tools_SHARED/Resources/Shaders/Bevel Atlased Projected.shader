@@ -1,29 +1,32 @@
-﻿Shader "Painter_Experimental/Bevel Atlased Projected" {
+﻿Shader "Bevel/Bevel Atlased Projected" {
 	Properties{
 	[NoScaleOffset]_MainTex("Base texture Atlas", 2D) = "white" {}
+	[KeywordEnum(None, Regular, Combined)] _BUMP ("Bump Map", Float) = 0
 	[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
-	_Merge("_Merge", Range(0.01,25)) = 1
+	[Toggle(UV_PROJECTED)] _PROJECTED ("Projected UV", Float) = 0
+	[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 	[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
-	}
+	[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
+	[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
+	[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
+	
 
-		Category{
+	}
+//https://docs.unity3d.com/ScriptReference/MaterialPropertyDrawer.html
+	
+	
+SubShader {
+
 		Tags{
 		"Queue" = "Geometry"
 		"IgnoreProjector" = "True"
 		"RenderType" = "Opaque"
 		"LightMode" = "ForwardBase"
 		"DisableBatching" = "True"
-		"UVtype" = "Projected"
 		"Solution" = "Bevel"
 	}
 
-
-
-
-		SubShader
-	{
-		Pass
-	{
+		Pass {
 
 
 		CGPROGRAM
@@ -38,11 +41,16 @@
 
 #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
+#pragma multi_compile  ___ UV_ATLASED
+#pragma multi_compile  ___ UV_PROJECTED
+#pragma multi_compile  ___ UV_PIXELATED
+#pragma multi_compile  ___ EDGE_WIDTH_FROM_COL_A
+#pragma multi_compile  ___ CLIP_EDGES
+#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 
-		sampler2D _MainTex;
+	sampler2D _MainTex;
 	sampler2D _BumpMapC;
 	float4 _MainTex_TexelSize;
 	float _AtlasTextures;
@@ -56,22 +64,31 @@
 		float4 edge : TEXCOORD3;
 		float3 snormal: TEXCOORD4;
 		SHADOW_COORDS(5)
-			float3 viewDir: TEXCOORD6;
+		float3 viewDir: TEXCOORD6;
 		float3 edgeNorm0 : TEXCOORD7;
 		float3 edgeNorm1 : TEXCOORD8;
 		float3 edgeNorm2 : TEXCOORD9;
-		float4 atlasedUV : TEXCOORD10;
-		float4 bC : TEXCOORD11;
+		#if UV_ATLASED
+			float4 atlasedUV : TEXCOORD10;
+		#endif
+
+		#if !_BUMP_NONE
+			#if UV_PROJECTED
+				float4 bC : TEXCOORD11;
+			#else
+				float4 wTangent : TEXCOORD11;
+			#endif
+		#endif
 	};
+
 	v2f vert(appdata_full v) {
 		v2f o;
 		o.pos = UnityObjectToClipPos(v.vertex);
 		o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 		o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
-		//o.texcoord = v.texcoord.xy;
 		o.vcol = v.color;
-		o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w); //v.texcoord1;
+		o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w); 
 		o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
 		float3 deEdge = 1 - o.edge.xyz;
@@ -82,66 +99,121 @@
 
 		o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
-		normalAndPositionToUV(o.snormal.xyz, o.worldPos, o.bC, o.texcoord.xy);
+		#if UV_PROJECTED
+			normalAndPositionToUV(o.snormal.xyz, o.worldPos, 
+			#if !_BUMP_NONE
+				o.bC, 
+			#endif
+			o.texcoord.xy);
+		#else
+
+			#if !_BUMP_NONE
+				o.wTangent.xyz = UnityObjectToWorldDir(v.tangent.xyz);
+				o.wTangent.w = v.tangent.w * unity_WorldTransformParams.w;
+			#endif
+
+			o.texcoord = v.texcoord.xy;
+
+		#endif
 
 		TRANSFER_SHADOW(o);
 
-		float atlasNumber = v.texcoord.z;
-
-		float atY = floor(atlasNumber / _AtlasTextures);
-		float atX = atlasNumber - atY*_AtlasTextures;
-		float edge = _MainTex_TexelSize.x;
-
-		o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
-		o.atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
-		o.atlasedUV.w = 1 / _AtlasTextures;
-
-
+		#if UV_ATLASED
+			atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV); 
+		#endif
 
 		return o;
 	}
 
 
 
-	float4 frag(v2f i) : SV_Target
-	{
+	float4 frag(v2f i) : SV_Target {
+
+	float mip = 0;
+
+	#if UV_ATLASED
+		float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
+		#if	!UV_PIXELATED
+			mip = (log2(dist));
+		#endif
+		float seam = i.atlasedUV.z*pow(2, mip);
+		float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
+		i.texcoord = fractal + i.atlasedUV.xy;
+	#endif
 
 
-	float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
-	float far = min(1, dist*0.01);
-	float deFar = 1 - far;
-	float mip = (0.5 *log2(dist));
-	float seam = i.atlasedUV.z*pow(2, mip);
-	float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
-	i.texcoord = fractal + i.atlasedUV.xy;
 
+	#if	UV_PIXELATED
+		float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
+		float2 off = (i.texcoord - perfTex);
+		off = off *saturate((abs(off) * _MainTex_TexelSize.z) * 40 - 19);
+		i.texcoord = perfTex + off;
+	#endif
+
+	#if UV_ATLASED || UV_PIXELATED
+		float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
+	#else
+		float4 col = tex2D(_MainTex, i.texcoord);
+	#endif
 
 	float weight;
-
-	float3 normal = DetectSmoothEdge(i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight); //(i.edge.xyz);
+	float3 normal = DetectSmoothEdge(
+#if EDGE_WIDTH_FROM_COL_A
+		col.a,
+#endif
+		i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight); 
+	
 	float deWeight = 1 - weight;
-	/*float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
-	float2 off = (i.texcoord - perfTex);
-	off = off *saturate((abs(off) * _MainTex_TexelSize.z) * 40 - 19);
-	perfTex += off;*/
 
-	float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
-	float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, mip));
-	bumpMap.rg -= 0.5;
+#if CLIP_EDGES
+	clip(dot(i.viewDir.xyz, normal));
+#endif
 
 	col = col*deWeight + i.vcol*weight;
-	bumpMap = bumpMap*deWeight;
+
+	#if !_BUMP_NONE
+
+
+		#if UV_ATLASED || UV_PIXELATED
+			float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, mip));
+		#else
+			float4 bumpMap = tex2D(_BumpMapC, i.texcoord);
+		#endif
+
+		float3 tnormal;
+
+		#if _BUMP_REGULAR
+			tnormal = UnpackNormal(bumpMap);
+			bumpMap = float4(0,0,0.5,1);
+		#else
+			bumpMap.rg = (bumpMap.rg - 0.5)*2;
+			tnormal = float3(bumpMap.r, bumpMap.g, 1);
+		#endif
+
+
+		float3 preNorm = normal;
+
+		#if UV_PROJECTED
+			applyTangentNonNormalized(i.bC, normal, bumpMap.rg);
+			normal = normalize(normal);
+		#else
+			applyTangent (normal, tnormal,  i.wTangent);
+		#endif
+
+		normal = normal*deWeight + preNorm*weight;
+
+	#else
+		float4 bumpMap = float4(0,0,0.5,1);
+	#endif
+
 	bumpMap.b = bumpMap.b*deWeight + weight*i.vcol.a;
-	bumpMap.a = bumpMap.a*deWeight + weight*0.5;
+	bumpMap.a = bumpMap.a*deWeight + weight*0.7;
 
-	float3 tnormal = float3(bumpMap.r, bumpMap.g, 1);
 
-	applyTangentNonNormalized(i.bC, normal, bumpMap.rg);
-	normal = normalize(normal);
 
 	i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-	float dotprod = dot(i.viewDir.xyz, normal);					 //dot(normal,  i.viewDir.xyz);
+	float dotprod = dot(i.viewDir.xyz, normal);					
 	float fernel = 1.5 - dotprod;
 	float ambientBlock = (1 - bumpMap.a)*dotprod;
 	float shadow = saturate(SHADOW_ATTENUATION(i) * 2 - ambientBlock);
@@ -152,13 +224,14 @@
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	float direct = diff*shadow;
 
-	col.rgb *= ((diff)*_LightColor0 //+ ShadeSH9(float4(normal, 1))
+	float3 ambientCol = ShadeSH9(float4(normal, 1));
+
+	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a
 		
-		)*(1 - bumpMap.b)*bumpMap.a;
+		)*(1 - bumpMap.b);
+	
 
-	col.a += 0.01;
-
-	float power = pow(col.a,8);
+	float power = pow(bumpMap.b,8);
 
 	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb 
 		)* power
@@ -168,8 +241,15 @@
 
 	}
 		ENDCG
+		
 	}
+
+	
+
 		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+			
 	}
-	}
+	
+	//CustomEditor "BevelMaterialInspector"
+
 }

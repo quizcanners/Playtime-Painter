@@ -7,8 +7,8 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Cube
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _NORMALMAP
+  m_Shader: {fileID: 4800000, guid: 450e9fa2d7ddab141b1455df0cd9d50e, type: 3}
+  m_ShaderKeywords: CLIP_EDGES EDGE_WIDTH_FROM_COL_A _BUMP_COMBINED _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -23,7 +23,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMapC:
-        m_Texture: {fileID: 2800000, guid: fcaf15094f7fd314387b8ec69f0cd3a0, type: 3}
+        m_Texture: {fileID: 2800000, guid: b2fc3b812e2f956488fd20bd99e9f608, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -43,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 013435a7c8de91b47be3bdb99f1a6c05, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8cc8ace101adc7b4fb97972ac4337904, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -63,18 +63,24 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _ATLASED: 0
     - _AtlasTextures: 4
+    - _BUMP: 2
     - _BumpScale: 1
+    - _CLIP: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EDGE_WIDTH: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Merge: 0.3
+    - _Merge: 0.5
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
+    - _PIXELATED: 0
+    - _PROJECTED: 0
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

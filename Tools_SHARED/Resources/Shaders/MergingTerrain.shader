@@ -261,30 +261,25 @@ Shader "Terrain/MergingTerrain" {
 
 			float direct = diff*shadow;
 
-			//
-
-			float3 ambientSky = (unity_AmbientSky.rgb * max(0, worldNormal.y - 0.5) * 2)*terrainAmbient.a;
+			float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
+			float3 ambientCol = ShadeSH9(float4(worldNormal, 1))*terrainAmbient.a;
 
 			float4 col;
 
-			col.a = water; // NEW
+			col.a = water; 
 
-			col.rgb = (cont.rgb* (_LightColor0*direct + (ambientSky + terrainAmbient.rgb
+			col.rgb = (cont.rgb* (_LightColor0*direct + (terrainAmbient.rgb+ ambientCol
 				
-				)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5+shadow)*(under) // MODIFIED
-				
-				);
+				)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5+shadow)*(under));
 			
-			float power = 
-				smoothness *1024;// / dist;
+			float power = smoothness *1024;
 
-			float up = saturate((-reflected.y - 0.5) * 2 * terrainLight.a);//;
 
 			float3 reflResult = (
 				((pow(max(0.01, dot(_WorldSpaceLightPos0, -reflected)), power)* direct	*(_LightColor0)*power)) +
 
-				terrainLight.rgb*(1 - up) +
-				unity_AmbientSky.rgb *up//*terrainAmbient.a
+				terrainLight.rgb +
+				ambientRefl.rgb  
 
 				)* terrainN.b * fernel;
 
@@ -292,6 +287,9 @@ Shader "Terrain/MergingTerrain" {
 			
 			col.rgb *= 1-saturate ((_foamParams.z - i.wpos.y)*0.1);  // NEW
 		
+
+
+
 
 			float4 fogged = col;
 			UNITY_APPLY_FOG(i.fogCoord, fogged);
@@ -301,15 +299,14 @@ Shader "Terrain/MergingTerrain" {
 			col.rgb = fogged.rgb * fogging + col.rgb *(1-fogging);
 
 
-
 			#if	MODIFY_BRIGHTNESS
 			col.rgb *= _lightControl.a;
-#endif
+			#endif
 
 			#if COLOR_BLEED
 			float3 mix = col.gbr + col.brg;
 			col.rgb += mix*mix*_lightControl.r;
-#endif
+			#endif
 
 
 //col.rgb = worldNormal;

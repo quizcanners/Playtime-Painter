@@ -89,27 +89,15 @@ Shader "Painter_Experimental/AtlasedStandard" {
                 float3 worldViewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 worldRefl = reflect(-worldViewDir, worldNormal);
 
-
                 float4 col = tex2D(_MainTex, i.uv);
 
-
-                //col.a *=0.5;
-
-                //float power =col.a * col.a* 1024;
-
                 float4 occlude = tex2D(_OcclusionMap, i.uv);
-             
-           
+                        
                 float3 diff = 
                 max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz)) 
                 * _LightColor0 + _LightColor0*0.5*occlude;
 
                 col.rgb *= diff;
-
-                //col.rgb+= pow(max(0.01, dot(_WorldSpaceLightPos0, -worldRefl)), power)*_LightColor0*power*col.a;
-
-               //col.rgb = ShadeSH9(half4(worldNormal,1));
-
 
                 return col;
             }

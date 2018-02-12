@@ -42,6 +42,9 @@ public class PainterConfig  {
         // Preview Constants
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
+        public const string UV_PROJECTED = "UV_PROJECTED";
+        public const string UV_PIXELATED = "UV_PIXELATED";
+        public const string EDGE_WIDTH_FROM_COL_A = "EDGE_WIDTH_FROM_COL_A";
 
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
@@ -131,9 +134,10 @@ public class PainterConfig  {
                 meshProfileSolutions = new List<MeshSolutionProfile>();
 
 				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Standard"));
-				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Atlased"));
-				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "AtlasedProjected"));
                 meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Bevel"));
+                //meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Atlased"));
+				//meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "AtlasedProjected"));
+               
             }
 
             //if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
@@ -201,22 +205,24 @@ public class PainterConfig  {
 
                 if ("Undo Atlasing".Click())
                 {
-                    painter.getRenderer().sharedMaterial = painter.preAtlasingMaterial;
-                    if (painter.preAtlasingMesh != null)
+					painter.getRenderer ().sharedMaterial = painter.preAtlasingMaterial;
+					//painter.getRenderer ().sharedMaterial.DisableKeyword (PainterConfig.UV_ATLASED);
+
+					if (painter.preAtlasingMesh != null)
                         painter.meshFilter.mesh = painter.preAtlasingMesh;
                     painter.meshSaveData = painter.preAtlasingSavedMesh;
 
                     painter.preAtlasingMaterial = null;
                     painter.preAtlasingMesh = null;
+
                 }
 
-                if ("Not Atlased".Click().nl())
-                {
+                if ("Not Atlased".Click().nl()) {
                     painter.preAtlasingMaterial = null;
                 }
 
                 "In Atlas No:".edit(ref painter.inAtlasIndex).nl();
-                "Textures In A Row".edit(ref painter.atlasRow).nl();
+                "Textures In A Row".edit(ref painter.atlasRows).nl();
                 "Original Material:".write(painter.preAtlasingMaterial);
                 pegi.newLine();
 

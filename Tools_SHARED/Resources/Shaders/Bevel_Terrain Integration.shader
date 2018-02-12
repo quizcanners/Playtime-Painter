@@ -1,177 +1,237 @@
-﻿Shader "Terrain/MergingAtlasedProc_UV" {
+﻿Shader "Bevel/Bevel_Terrain Integration" {
 	Properties{
-	[NoScaleOffset]_MainTex("Diffuse Atlas (RGB)", 2D) = "white" {}
-	[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
-	_Merge("_Merge", Range(0.01,25)) = 1
+		[NoScaleOffset]_MainTex("Base texture Atlas", 2D) = "white" {}
+	[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
+		[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
+	[Toggle(UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
+		_Merge("_Merge", Range(0.01,25)) = 1
+		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+
+		[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
+		[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
+
+		[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
+
+
 	}
-
-
-		Category{
-		Tags{ "RenderType" = "Opaque"
-		"LightMode" = "ForwardBase"
-		"Queue" = "Geometry"
-	}
-		LOD 200
-		ColorMask RGBA
-
 
 		SubShader{
+
+		Tags{
+		"Queue" = "Geometry"
+		"IgnoreProjector" = "True"
+		"RenderType" = "Opaque"
+		"LightMode" = "ForwardBase"
+		"DisableBatching" = "True"
+		"Solution" = "Bevel"
+	}
+
+		ColorMask RGBA
+
 		Pass{
 
 
-
 		CGPROGRAM
-
 #pragma vertex vert
 #pragma fragment frag
-#pragma multi_compile_fog
+
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"
-		//#include "UnityCG.cginc"
+#include "UnityCG.cginc"
 #include "AutoLight.cginc"
 #include "VertexDataProcessInclude.cginc"
 
-#pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
+#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+#pragma multi_compile_fog
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
-
-
+#pragma multi_compile  ___ UV_ATLASED
+#pragma multi_compile  ___ UV_PROJECTED
+#pragma multi_compile  ___ UV_PIXELATED
+#pragma multi_compile  ___ EDGE_WIDTH_FROM_COL_A
+#pragma multi_compile  ___ CLIP_EDGES
+#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 
 
 	sampler2D _MainTex;
 	sampler2D _BumpMapC;
-	float _AtlasTextures;
 	float4 _MainTex_TexelSize;
-
-
+	float _AtlasTextures;
 
 	struct v2f {
-		float4 pos : POSITION;
+		float4 pos : SV_POSITION;
 		float4 vcol : COLOR0;
-		//float4 snormal: TEXCOORD0; // .w will contain texture number.
-		float4 atlasedUV : TEXCOORD0;
-		UNITY_FOG_COORDS(1)
-		float3 viewDir : TEXCOORD2;
-		float3 wpos : TEXCOORD3;
-		float3 tc_Control : TEXCOORD4;
-		float3 fwpos : TEXCOORD5;
-		SHADOW_COORDS(6)
-		float2 texcoord : TEXCOORD7; // z.w could contain texture numbers for two atlases.
-		float3 normal: TEXCOORD8;
-		float3 snormal: TEXCOORD9; 
-		float4 bC : TEXCOORD10;
-		float4 edge : TEXCOORD11;
+		float3 worldPos : TEXCOORD0;
+		float3 normal : TEXCOORD1;
+		float2 texcoord : TEXCOORD2;
+		float4 edge : TEXCOORD3;
+		float3 snormal: TEXCOORD4;
+		SHADOW_COORDS(5)
+		float3 viewDir: TEXCOORD6;
+		float3 edgeNorm0 : TEXCOORD7;
+		float3 edgeNorm1 : TEXCOORD8;
+		float3 edgeNorm2 : TEXCOORD9;
+#if UV_ATLASED
+		float4 atlasedUV : TEXCOORD10;
+#endif
 
+#if !_BUMP_NONE
+#if UV_PROJECTED
+		float4 bC : TEXCOORD11;
+#else
+		float4 wTangent : TEXCOORD11;
+#endif
+#endif
+		UNITY_FOG_COORDS(12)
+		float3 tc_Control : TEXCOORD13;
+		float3 fwpos : TEXCOORD14;
 	};
 
 	v2f vert(appdata_full v) {
 		v2f o;
-
 		o.pos = UnityObjectToClipPos(v.vertex);
+		UNITY_TRANSFER_FOG(o, o.pos);
+		o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+		o.fwpos = foamStuff(o.worldPos);
+		o.tc_Control.xyz = (o.worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+		o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
 		o.vcol = v.color;
-		o.edge = v.texcoord1;
+		o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w);
+		o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
-		float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
-		o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
-		o.wpos = worldPos.xyz;
+		float3 deEdge = 1 - o.edge.xyz;
 
-		normalAndPositionToUV(v.texcoord2.xyz, o.wpos.xyz, o.bC, o.texcoord.xy);
-		o.texcoord.xy /= 10;
+		o.edgeNorm0 = UnityObjectToWorldNormal(v.texcoord1.xyz);
+		o.edgeNorm1 = UnityObjectToWorldNormal(v.texcoord2.xyz);
+		o.edgeNorm2 = UnityObjectToWorldNormal(v.texcoord3.xyz);
 
-		o.viewDir.xyz = (WorldSpaceViewDir(v.vertex));
-		o.normal.xyz = UnityObjectToWorldNormal(v.normal.xyz);
-		o.snormal.xyz = UnityObjectToWorldNormal(v.texcoord2.xyz); // Sharp Normal
-	
+		o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
-		//texcoord.zw = v.texcoord.zw;
-		//texcoord.w = v.texcoord.w;
+#if UV_PROJECTED
+		normalAndPositionToUV(o.snormal.xyz, o.worldPos,
+#if !_BUMP_NONE
+			o.bC,
+#endif
+			o.texcoord.xy);
+#else
 
-		//o.snormal.w = atlasNumber;
+#if !_BUMP_NONE
+		o.wTangent.xyz = UnityObjectToWorldDir(v.tangent.xyz);
+		o.wTangent.w = v.tangent.w * unity_WorldTransformParams.w;
+#endif
 
-		UNITY_TRANSFER_FOG(o, o.pos);
+		o.texcoord = v.texcoord.xy;
+
+#endif
+
 		TRANSFER_SHADOW(o);
 
-		o.fwpos = foamStuff(o.wpos);
-
-		float atlasNumber = v.texcoord.z;//v.tangent.w;
-
-		float atY = floor(atlasNumber / _AtlasTextures);
-		float atX = atlasNumber - atY*_AtlasTextures;
-		float edge = _MainTex_TexelSize.x;
-
-		o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
-		o.atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
-		o.atlasedUV.w = 1 / _AtlasTextures;
-
-		//atlasNumber = v.texcoord.w;//v.tangent.w;
-		 //atY = floor(atlasNumber / _AtlasTextures);
-		 //atX = atlasNumber - atY*_AtlasTextures;
-		// o.texcoord.zw = float2(atX, atY) / _AtlasTextures;
+#if UV_ATLASED
+		atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV);
+#endif
 
 		return o;
 	}
 
 
-	float4 frag(v2f i) : COLOR{
+
+	float4 frag(v2f i) : SV_Target{
+
 		i.viewDir.xyz = normalize(i.viewDir.xyz);
-	float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
+
+	float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
 	float far = min(1, dist*0.01);
 	float deFar = 1 - far;
 
+		float mip = 0;
 
-
-	float mip = (0.5 *log2(dist*0.5));
-
-	float seam = i.atlasedUV.z*pow(2, mip);
-
-	float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
-
-	float2 atlasUV1 = fractal + i.atlasedUV.xy;
-
-	float4 geocol = tex2Dlod(_MainTex, float4(atlasUV1,0,mip));
-	float4 bumpMap = tex2Dlod(_BumpMapC, float4(atlasUV1, 0, mip));
-
-	/*float2 atlasUV2 = fractal + i.texcoord.zw;
-
-	float4 geocol2 = tex2Dlod(_MainTex, float4(atlasUV2, 0, mip));
-	float4 bumpMap2 = tex2Dlod(_BumpMapC, float4(atlasUV2, 0, mip));*/
-
-	float2 border = DetectEdge(i.edge);
-	border.x = border.x + saturate((0.5 - geocol.a) * 8 * (1 - border.x)*(border.x));
-
-
-	float deBorder = 1 - border.x;
-	float deEdge = 1 - border.y;
-	i.normal.xyz = i.snormal.xyz*deBorder + i.normal.xyz*border.x;
-
-	//geocol = geocol*deBorder + geocol2*border.x;
-	//bumpMap = bumpMap*deBorder + bumpMap2*border.x;
-
-	bumpMap.rg = bumpMap.rg - 0.5;// *2 - 1;
-	bumpMap.rg *= deEdge;
-	bumpMap.b = bumpMap.b*deEdge + border.y*i.vcol.a;
-	bumpMap.a = bumpMap.a*deEdge +border.y;
-
-	geocol.rgb = geocol.rgb*(deEdge) + i.vcol.rgb*border.y;
-
-	float3 tnormal = float3(bumpMap.r, bumpMap.g, 1);
-	float3 worldNormal;
-
+#if UV_ATLASED
 	
-	applyTangentNonNormalized(i.bC, i.normal.xyz, bumpMap.rg);
-	worldNormal = normalize(i.normal.xyz);
+#if	!UV_PIXELATED
+	mip = (log2(dist));
+#endif
+	float seam = i.atlasedUV.z*pow(2, mip);
+	float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
+	i.texcoord = fractal + i.atlasedUV.xy;
+#endif
 
 
 
+#if	UV_PIXELATED
+	float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
+	float2 off = (i.texcoord - perfTex);
+	off = off *saturate((abs(off) * _MainTex_TexelSize.z) * 40 - 19);
+	i.texcoord = perfTex + off;
+#endif
+
+#if UV_ATLASED || UV_PIXELATED
+	float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
+#else
+	float4 col = tex2D(_MainTex, i.texcoord);
+#endif
+
+	float weight;
+	float3 worldNormal = DetectSmoothEdge(
+#if EDGE_WIDTH_FROM_COL_A
+		col.a,
+#endif
+		i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight);
+
+	float deWeight = 1 - weight;
+
+#if CLIP_EDGES
+	clip(dot(i.viewDir.xyz, worldNormal));
+#endif
+
+	col = col*deWeight + i.vcol*weight;
+
+#if !_BUMP_NONE
+
+
+#if UV_ATLASED || UV_PIXELATED
+	float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, mip));
+#else
+	float4 bumpMap = tex2D(_BumpMapC, i.texcoord);
+#endif
+
+	float3 tnormal;
+
+#if _BUMP_REGULAR
+	tnormal = UnpackNormal(bumpMap);
+	bumpMap = float4(0,0,0.5,1);
+#else
+	bumpMap.rg = (bumpMap.rg - 0.5) * 2;
+	tnormal = float3(bumpMap.r, bumpMap.g, 1);
+#endif
+
+
+	float3 preNorm = worldNormal;
+
+#if UV_PROJECTED
+	applyTangentNonNormalized(i.bC, worldNormal, bumpMap.rg);
+	worldNormal = normalize(worldNormal);
+#else
+	applyTangent(worldNormal, tnormal,  i.wTangent);
+#endif
+
+	worldNormal = worldNormal*deWeight + preNorm*weight;
+
+#else
+	float4 bumpMap = float4(0,0,0.5,1);
+#endif
+
+	bumpMap.b = bumpMap.b*deWeight + weight*i.vcol.a;
+	bumpMap.a = bumpMap.a*deWeight + weight*0.7;
+
+	// Terrain Start
 	float4 cont = tex2D(_mergeControl, i.tc_Control.xz);
 	float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
 	float3 bump = (height.rgb - 0.5) * 2;
 
-
-	float aboveTerrainBump = ((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y)));
+	float aboveTerrainBump = ((((i.worldPos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y)));
 	float aboveTerrainBump01 = saturate(aboveTerrainBump);
 	float deAboveBump = 1 - aboveTerrainBump01;
 	bump = (bump * deAboveBump + worldNormal * aboveTerrainBump01);
@@ -208,7 +268,7 @@
 
 	float maxheight = (1 + splaty.a)*abs(bump.y);
 
-	float3 newBump = float3(splatNy.x - 0.5,0.33, splatNy.y - 0.5);
+	float3 newBump = float3(splatNy.x - 0.5, 0.33, splatNy.y - 0.5);
 
 	//Triplanar X:
 	float newHeight = (1.5 + splatx.a)*abs(bump.x);
@@ -217,7 +277,7 @@
 	float dAlpha = (1 - alpha);
 	terrain = terrain*dAlpha + splatx*alpha;
 	terrainN.ba = terrainN.ba*dAlpha + splatNx.ba*alpha;
-	newBump = newBump*dAlpha + float3(0, splatNx.y - 0.5,splatNx.x - 0.5)*alpha;
+	newBump = newBump*dAlpha + float3(0, splatNx.y - 0.5, splatNx.x - 0.5)*alpha;
 	maxheight += adiff;
 
 	//Triplanar Z:
@@ -235,7 +295,7 @@
 	float tripMaxH = maxheight;
 	float3 tmpbump = normalize(bump + newBump * 2 * deAboveBump);
 
-	terrain = terrain*deAboveBump + geocol*aboveTerrainBump01;
+	terrain = terrain*deAboveBump + col*aboveTerrainBump01;
 
 	float triplanarY = max(0, tmpbump.y) * 2; // Recalculate it based on previously sampled bump
 
@@ -250,7 +310,7 @@
 
 	newHeight = cont.g*triplanarY + splat1.a;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat1N.b));
+	alpha = min(1, adiff*(1 + edge*terrainN.b*splat1N.b));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat1*alpha;
 	terrainN = terrainN*(dAlpha)+splat1N*alpha;
@@ -259,7 +319,7 @@
 
 	newHeight = cont.b*triplanarY + splat2.a;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat2N.b));
+	alpha = min(1, adiff*(1 + edge*terrainN.b*splat2N.b));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat2*alpha;
 	terrainN = terrainN*(dAlpha)+splat2N*alpha;
@@ -267,27 +327,25 @@
 
 	newHeight = cont.a*triplanarY + splat3.a;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat3N.b));
+	alpha = min(1, adiff*(1 + edge*terrainN.b*splat3N.b));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat3*alpha;
 	terrainN = terrainN*(dAlpha)+splat3N*alpha;
 	maxheight += adiff;
 
-	//terrain.a = maxheight*0.3;  // new
 
 	terrainN.rg = terrainN.rg * 2 - 1;
 
 	adiff = max(0, (tripMaxH + 0.5 - maxheight));
 	alpha = min(1, adiff * 2);
 
-	float aboveTerrain = saturate((((aboveTerrainBump)) / _Merge + geocol.a - maxheight - 1) * 8);
+	float aboveTerrain = saturate((aboveTerrainBump / _Merge - maxheight + col.a - 1) * 4); // MODIFIED
 	float deAboveTerrain = 1 - aboveTerrain;
 
 	alpha *= deAboveTerrain;
 	bump = tmpbump*alpha + (1 - alpha)*bump;
 
-
-	cont = geocol* aboveTerrain + terrain*deAboveTerrain;
+	cont = col* aboveTerrain + terrain*deAboveTerrain;
 
 	float wetSection = saturate(_foamParams.w - i.fwpos.y - (cont.a)*_foamParams.w)*(1 - terrainN.b);
 	i.fwpos.y += cont.a;
@@ -296,22 +354,18 @@
 		+ float3(terrainN.r, 0, terrainN.g)*deAboveTerrain
 	);
 
-
 	terrainN.ba = terrainN.ba * deAboveTerrain +
 		aboveTerrain*bumpMap.ba;
 
-	float dotprod = max(0,dot(worldNormal,  i.viewDir.xyz));
+	float dotprod = max(0, dot(worldNormal, i.viewDir.xyz));
 	float fernel = 1.5 - dotprod;
-	float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*worldNormal);
+	float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
 	float2 foamA_W = foamAlphaWhite(i.fwpos);
-	float water = max(0.5, min(i.fwpos.y + 2 - (foamA_W.x) * 2, 1)); // MODIFIED
+	float water = max(0.5, min(i.fwpos.y + 2 - (foamA_W.x) * 2, 1));
 	float under = (water - 0.5) * 2;
 
-	terrainN.b = max(terrainN.b, wetSection*under); // MODIFIED
-													//terrainN.b = max(terrainN.b, wetSection);
-
-
+	terrainN.b = max(terrainN.b, wetSection*under);
 
 	float smoothness = (pow(terrainN.b, (3 - fernel) * 2));
 	float deSmoothness = (1 - smoothness);
@@ -325,49 +379,48 @@
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= terrainN.a;
 
-	float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*terrainN.b*terrainAmbient.a*0.1);
-	terrainLight.rgb *= teraBounce;
+	float4 terrainLrefl = tex2D(_TerrainColors, i.tc_Control.xz
+		- reflected.xz*terrainN.b*terrainAmbient.a*0.1
+	);
+	terrainLrefl.rgb *= teraBounce;
 
+	bumpMap = terrainN;
+
+	// Terrain End
 
 	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
-
 	float direct = diff*shadow;
 
-	//
+	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
+	float3 ambientCol = ShadeSH9(float4(worldNormal, 1))*terrainAmbient.a;
 
-	float3 ambientSky = (unity_AmbientSky.rgb * max(0, worldNormal.y - 0.5) * 2)*terrainAmbient.a;
+	col.a = water;
 
-	float4 col;
-	col.a = water; // NEW
-	col.rgb = (cont.rgb* (_LightColor0*direct + (ambientSky + terrainAmbient.rgb
+	col.rgb = (cont.rgb* (_LightColor0*direct + (terrainAmbient.rgb+ ambientCol
 		)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5 + shadow)*(under));
 
-	float power =
-		smoothness * 1024;
-
-	float up = saturate((-reflected.y - 0.5) * 2 * terrainLight.a);//
+	float power = smoothness * 1024;
 
 	float3 reflResult = (
 		((pow(max(0.01, dot(_WorldSpaceLightPos0, -reflected)), power)* direct	*(_LightColor0)*power)) +
 
-		terrainLight.rgb*(1 - up) +
-		unity_AmbientSky.rgb *up
+		terrainLrefl.rgb +
+		ambientRefl.rgb
 
 		)* terrainN.b * fernel;
 
 	col.rgb += reflResult * under;
 
+	col.rgb *= 1 - saturate((_foamParams.z - i.worldPos.y)*0.1);  // NEW
 
-	col.rgb *= 1 - saturate((_foamParams.z - i.wpos.y)*0.1);  // NEW
 
 	float4 fogged = col;
 	UNITY_APPLY_FOG(i.fogCoord, fogged);
-	float fogging = (32 - max(0,i.wpos.y - _foamParams.z)) / 32;
+	float fogging = (32 - max(0, i.worldPos.y - _foamParams.z)) / 32;
 
-	fogging = min(1,pow(max(0,fogging),2));
+	fogging = min(1, pow(max(0, fogging), 2));
 	col.rgb = fogged.rgb * fogging + col.rgb *(1 - fogging);
-
 
 #if	MODIFY_BRIGHTNESS
 	col.rgb *= _lightControl.a;
@@ -378,37 +431,20 @@
 	col.rgb += mix*mix*_lightControl.r;
 #endif
 
-	//col.rgb = i.vcol;
-	//col.rgb = bump.rgb;
-	//col.rgb = worldNormal;
-	//col.rg = abs(reflected.xz);
-	//col.b = 0;
-	//terrainLight.rgb *= cont.rgb;
-	return
-		//ambientPower;
-		//micro;
-		//power;//
-		//terrainLight;//*(1 - smoothness);
-		//smoothness;
-		//cont;
-		//power;
-		//splat0N;
-		//terrainAmbient;
-		//fernel;
-		//diff;
-		//aboveTerrainBump;
-		//bumpMap.b;
-		//i.vcol.a;
-		//dotprod;
-		col;
-	//dotprod;
-	//terrainAmbient;
+
+	return col;
+
 	}
-
-
 		ENDCG
+
 	}
+
+
+
 		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+
 	}
-	}
+
+		//CustomEditor "BevelMaterialInspector"
+
 }

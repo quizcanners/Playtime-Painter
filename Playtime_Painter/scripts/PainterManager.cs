@@ -409,7 +409,7 @@ public class PainterManager : MonoBehaviour {
 
 		BlitModeExtensions.SetShaderToggle (PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
 
-		BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "PREVIEW_FILTER_PIXEL");
+		BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", PainterConfig.UV_PIXELATED);
 		
 		
 
