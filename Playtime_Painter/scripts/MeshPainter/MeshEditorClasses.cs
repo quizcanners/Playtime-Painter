@@ -693,8 +693,7 @@ namespace Painter {
                 vp.pos += by;
         }
 
-        public vertexpointDta insertIntoLine(vertexpointDta a, vertexpointDta b, Vector3 pos)
-        {
+        public vertexpointDta insertIntoLine(vertexpointDta a, vertexpointDta b, Vector3 pos) {
             float dsta = Vector3.Distance(pos, a.pos);
             float dstb = Vector3.Distance(pos, b.pos);
             float sum = dsta + dstb;
@@ -722,8 +721,7 @@ namespace Painter {
                     spliUV = tr.NotOnLine(a, b);
 
 
-                    if ((auv == null) || (buv == null))
-                    {
+                    if ((auv == null) || (buv == null))  {
                         Debug.Log("Didn't found a uv");
                         continue;
                     }
@@ -741,7 +739,7 @@ namespace Painter {
                     newUV = null;
 
                     if ((MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
-                        newUV = new UVpoint(newVrt);
+                        newUV = new UVpoint(newVrt,uv);
                     else
                     {
                         for (int j = 0; j < newVrt.uv.Count; j++)
@@ -760,10 +758,7 @@ namespace Painter {
                     trb = new trisDta(tr.uvpnts).CopySettingsFrom(tr);
                     triangles.Add(trb);
                     tr.Replace(auv, newUV);
-                   
-
-                 
-
+                  
 
                     if (MeshManager.cfg.newVerticesUnique) {
                         var split = new UVpoint(spliUV);
@@ -931,6 +926,7 @@ namespace Painter {
             if (textm == null)
                 textm = go.GetComponentInChildren<TextMesh>();
             go.hideFlags = HideFlags.DontSave;
+            go.SetActive(false);
         }
     }
 

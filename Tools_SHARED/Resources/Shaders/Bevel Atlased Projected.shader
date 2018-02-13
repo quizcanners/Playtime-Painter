@@ -68,7 +68,7 @@ SubShader {
 		float3 edgeNorm0 : TEXCOORD7;
 		float3 edgeNorm1 : TEXCOORD8;
 		float3 edgeNorm2 : TEXCOORD9;
-		#if UV_ATLASED
+		#if defined(UV_ATLASED)
 			float4 atlasedUV : TEXCOORD10;
 		#endif
 
@@ -99,7 +99,7 @@ SubShader {
 
 		o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
-		#if UV_PROJECTED
+		#if defined(UV_PROJECTED)
 			normalAndPositionToUV(o.snormal.xyz, o.worldPos, 
 			#if !_BUMP_NONE
 				o.bC, 
@@ -118,8 +118,8 @@ SubShader {
 
 		TRANSFER_SHADOW(o);
 
-		#if UV_ATLASED
-			atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV); 
+		#if defined(UV_ATLASED)
+		vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV);
 		#endif
 
 		return o;
@@ -131,14 +131,13 @@ SubShader {
 
 	float mip = 0;
 
-	#if UV_ATLASED
+	#if defined(UV_ATLASED)
 		float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 		#if	!UV_PIXELATED
 			mip = (log2(dist));
 		#endif
-		float seam = i.atlasedUV.z*pow(2, mip);
-		float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
-		i.texcoord = fractal + i.atlasedUV.xy;
+
+			frag_atlasedTexture(i.atlasedUV, mip, i.texcoord.xy);
 	#endif
 
 
@@ -209,8 +208,6 @@ SubShader {
 	bumpMap.b = bumpMap.b*deWeight + weight*i.vcol.a;
 	bumpMap.a = bumpMap.a*deWeight + weight*0.7;
 
-
-
 	i.viewDir.xyz = normalize(i.viewDir.xyz);
 
 	float dotprod = dot(i.viewDir.xyz, normal);					
@@ -226,16 +223,15 @@ SubShader {
 
 	float3 ambientCol = ShadeSH9(float4(normal, 1));
 
-	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a
-		
-		)*(1 - bumpMap.b);
+	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a)*(1 - bumpMap.b);
 	
 
 	float power = pow(bumpMap.b,8);
 
-	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb 
-		)* power
-		 * 8 * direct +ShadeSH9(float4(-reflected, 1)))*bumpMap.b;
+	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb )* power
+		 * 8 * direct  +ShadeSH9(float4(-reflected, 1))
+		
+		)*bumpMap.b;
 
 	return col;
 

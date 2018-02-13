@@ -287,9 +287,11 @@ public class PainterConfig  {
                 if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
                     browsedAtlas = -1;
 
+                pegi.newLine();
+
                 if (browsedAtlas > -1)
                 {
-                    if (icon.Close.Click(25))
+                    if (icon.Back.Click(25))
                         browsedAtlas = -1;
                     else
                         rtp.atlases[browsedAtlas].PEGI(painter);

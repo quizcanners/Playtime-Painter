@@ -123,18 +123,21 @@ namespace Painter
                 foreach (vertexpointDta vr in m._Mesh.vertices)
                     vr.SmoothNormal = false;
                 mgm._Mesh.Dirty = true;
+                MeshManager.cfg.newVerticesSmooth = false;
             }
 
             if (pegi.Click("Smooth All").nl()) {
                 foreach (vertexpointDta vr in m._Mesh.vertices)
                     vr.SmoothNormal = true;
                 mgm._Mesh.Dirty = true;
+                MeshManager.cfg.newVerticesSmooth = true;
             }
 
             "Add Unique:".toggle(70, ref MeshManager.cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
                 mgm._Mesh.SMOOTHALLVERTS();
                 mgm._Mesh.Dirty = true;
+                MeshManager.cfg.newVerticesUnique = false;
             }
 
             if (pegi.Click("All unique"))
@@ -142,6 +145,7 @@ namespace Painter
                 foreach (trisDta t in mesh.triangles)
                     mgm._Mesh.GiveTriangleUniqueVerticles(t);
                 mgm._Mesh.Dirty = true;
+                MeshManager.cfg.newVerticesUnique = true;
             }
             pegi.newLine();
 

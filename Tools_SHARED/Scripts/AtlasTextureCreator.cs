@@ -204,7 +204,7 @@ namespace Painter {
         public List<string> srcFields = new List<string>();
 
         public void SmoothAtlas() {
-            Debug.Log("Smoothing " + a_texture.name + " with " + a_texture.mipmapCount + " mipmaps");
+          //  Debug.Log("Smoothing " + a_texture.name + " with " + a_texture.mipmapCount + " mipmaps");
             for (int m = 0; m < a_texture.mipmapCount; m++)
                 smoothBorders(a_texture, m);
 
@@ -215,6 +215,8 @@ namespace Painter {
         public void ReconstructAsset() {
 
             ReconstructAtlas();
+
+            SmoothAtlas();
 
             byte[] bytes = a_texture.EncodeToPNG();
 
@@ -244,6 +246,8 @@ namespace Painter {
         public void PEGI(PlaytimePainter painter) {
 
 #if UNITY_EDITOR
+
+           
             "Name:".edit(60, ref name).nl();
 
             "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
@@ -278,8 +282,8 @@ namespace Painter {
             if ("Generate".Click())
                 ReconstructAsset();
 
-            if ((a_texture != null) && ("Smooth Edges".Click()))
-                SmoothAtlas();
+           // if ((a_texture != null) && ("Smooth Edges".Click()))
+               
 
             pegi.newLine();
 

@@ -57,7 +57,7 @@ float _Merge;
 
 
 
-inline void atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
+inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
 	
 
 	float atY = floor(atlasNumber / _AtlasTextures);
@@ -67,6 +67,12 @@ inline void atlasedTexture(float _AtlasTextures, float atlasNumber, float _Texel
 	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
 	atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
 	atlasedUV.w = 1 / _AtlasTextures;
+}
+
+inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
+	float seam = (atlasedUV.z)*pow(2, mip);
+	float2 fractal = (frac(uv)*(atlasedUV.w - seam) + seam*0.5);
+	uv = fractal + atlasedUV.xy;
 }
 
 
@@ -159,6 +165,15 @@ float2 perfTex = (floor(texcoord.xy*texelsSize.z) + 0.5) * texelsSize.x;
 
 }
 
+void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
+
+	float2 perfTex = (floor(texcoord*texelsSize.z) + 0.5) * texelsSize.x;
+	float2 off = (texcoord - perfTex);
+	off = off *saturate((abs(off) * texelsSize.z) * 40 - 19);
+	texcoord = perfTex + off;
+
+}
+
 inline float2 DetectEdge(float4 vcol){
 
 				vcol = max(0, vcol - 0.965);
@@ -192,7 +207,7 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 
 inline float3 DetectSmoothEdge(float thickness ,float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
 
-	thickness = thickness*thickness*0.5;
+	thickness = thickness*thickness*0.25;
 	//0.00125
 
 	edge = saturate((edge - 1 + thickness)/thickness);
@@ -261,3 +276,155 @@ inline float3 foamStuff(float3 wpos) {
 
 	return fwpos;
 }
+
+
+
+
+inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float far, float deFar, inout float4 terrain, float triplanarY, inout float4 terrainN, inout float maxheight)
+{
+	float4 splat0 = tex2D(_mergeSplat_0, lowtiled)*far + tex2D(_mergeSplat_0, tiled)*deFar;
+	float4 splat1 = tex2D(_mergeSplat_1, lowtiled)*far + tex2D(_mergeSplat_1, tiled)*deFar;
+	float4 splat2 = tex2D(_mergeSplat_2, lowtiled)*far + tex2D(_mergeSplat_2, tiled)*deFar;
+	float4 splat3 = tex2D(_mergeSplat_3, lowtiled)*far + tex2D(_mergeSplat_3, tiled)*deFar;
+
+
+	float4 splat0N = tex2D(_mergeSplatN_0, lowtiled)*far + tex2D(_mergeSplatN_0, tiled)*deFar;
+	float4 splat1N = tex2D(_mergeSplatN_1, lowtiled)*far + tex2D(_mergeSplatN_1, tiled)*deFar;
+	float4 splat2N = tex2D(_mergeSplatN_2, lowtiled)*far + tex2D(_mergeSplatN_2, tiled)*deFar;
+	float4 splat3N = tex2D(_mergeSplatN_3, lowtiled)*far + tex2D(_mergeSplatN_3, tiled)*deFar;
+
+
+	float newHeight = cont.r * triplanarY + splat0.a;
+	float adiff = max(0, (newHeight - maxheight));
+	float alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat0N.b));
+	float dAlpha = (1 - alpha);
+	terrain = terrain*(dAlpha)+splat0*alpha;
+	terrainN = terrainN*(dAlpha)+splat0N*alpha;
+	maxheight += adiff;
+
+
+	newHeight = cont.g*triplanarY + splat1.a;
+	adiff = max(0, (newHeight - maxheight));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat1N.b));
+	dAlpha = (1 - alpha);
+	terrain = terrain*(dAlpha)+splat1*alpha;
+	terrainN = terrainN*(dAlpha)+splat1N*alpha;
+	maxheight += adiff;
+
+
+	newHeight = cont.b*triplanarY + splat2.a;
+	adiff = max(0, (newHeight - maxheight));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat2N.b));
+	dAlpha = (1 - alpha);
+	terrain = terrain*(dAlpha)+splat2*alpha;
+	terrainN = terrainN*(dAlpha)+splat2N*alpha;
+	maxheight += adiff;
+
+	newHeight = cont.a*triplanarY + splat3.a;
+	adiff = max(0, (newHeight - maxheight));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat3N.b));
+	dAlpha = (1 - alpha);
+	terrain = terrain*(dAlpha)+splat3*alpha;
+	terrainN = terrainN*(dAlpha)+splat3N*alpha;
+	maxheight += adiff;
+
+	terrainN.rg = terrainN.rg * 2 - 1;
+}
+
+
+
+inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, inout float3 worldNormal, inout float4 col, inout float4 terrainN, float4 bumpMap) {
+
+
+
+	float far = min(1, dist*0.01);
+	float deFar = 1 - far;
+
+	float4 cont = tex2D(_mergeControl, tc_Control.xz);
+	float4 height = tex2D(_mergeTerrainHeight, tc_Control.xz + _mergeTerrainScale.w);
+	float3 bump = (height.rgb - 0.5) * 2;
+
+	float aboveTerrainBump = ((((worldPos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y)));
+	float aboveTerrainBump01 = saturate(aboveTerrainBump);
+	float deAboveBump = 1 - aboveTerrainBump01;
+	bump = (bump * deAboveBump + worldNormal * aboveTerrainBump01);
+
+
+	float2 tiled = tc_Control.xz*_mergeTerrainTiling.xy + _mergeTerrainTiling.zw;
+	float tiledY = tc_Control.y * _mergeTeraPosition.w * 2;
+
+	float2 lowtiled = tc_Control.xz*_mergeTerrainTiling.xy*0.1;
+
+	
+	float4 splaty = tex2D(_mergeSplat_4, lowtiled);//*far +//tex2D(_mergeSplat_4, tiled)	*deFar;
+	float4 splatz = tex2D(_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
+	float4 splatx = tex2D(_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.y, tiledY))*deFar;
+
+
+	// Splat 4 is a base layer:
+	float4 splatNy = tex2D(_mergeSplatN_4, lowtiled);//*far + tex2D(_mergeSplatN_4, tiled)*deFar;
+	float4 splatNz = tex2D(_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
+	float4 splatNx = tex2D(_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
+
+	const float edge = MERGE_POWER;
+
+	float4 terrain = splaty;
+	terrainN = splatNy; //float4(0.5, 0.5, bumpMap.b, bumpMap.a);
+
+	float maxheight = (1 + splaty.a)*abs(bump.y);
+
+	float3 newBump = float3(splatNy.x - 0.5, 0.33, splatNy.y - 0.5);
+
+	//Triplanar X:
+	float newHeight = (1.5 + splatx.a)*abs(bump.x);
+	float adiff = max(0, (newHeight - maxheight));
+	float alpha = min(1, adiff*(1 + edge*terrainN.b*splatNx.b));
+	float dAlpha = (1 - alpha);
+	terrain = terrain*dAlpha + splatx*alpha;
+	terrainN.ba = terrainN.ba*dAlpha + splatNx.ba*alpha;
+	newBump = newBump*dAlpha + float3(0, splatNx.y - 0.5, splatNx.x - 0.5)*alpha;
+	maxheight += adiff;
+
+	//Triplanar Z:
+	newHeight = (1.5 + splatz.a)*abs(bump.z);
+	adiff = max(0, (newHeight - maxheight));
+	alpha = min(1, adiff*(1 + edge*terrainN.b*splatNz.b));
+	dAlpha = (1 - alpha);
+	terrain = terrain*(dAlpha)+splatz*alpha;
+	terrainN.ba = terrainN.ba*dAlpha + splatNz.ba*alpha;
+	newBump = newBump*dAlpha + float3(splatNz.x - 0.5, splatNz.y - 0.5, 0)*alpha;
+	maxheight += adiff;
+
+	terrainN.rg = 0.5;
+
+	float tripMaxH = maxheight;
+	float3 tmpbump = normalize(bump + newBump * 2 * deAboveBump);
+
+	terrain = terrain*deAboveBump + col*aboveTerrainBump01;
+
+	float triplanarY = max(0, tmpbump.y) * 2; // Recalculate it based on previously sampled bump
+
+	Terrain_4_Splats(cont, lowtiled,  tiled,  far,  deFar,  terrain,  triplanarY,  terrainN,  maxheight);
+
+	adiff = max(0, (tripMaxH + 0.5 - maxheight));
+	alpha = min(1, adiff * 2);
+
+	float aboveTerrain = saturate((aboveTerrainBump / _Merge - maxheight + col.a - 1) * 4); // MODIFIED
+	float deAboveTerrain = 1 - aboveTerrain;
+
+	alpha *= deAboveTerrain;
+	bump = tmpbump*alpha + (1 - alpha)*bump;
+
+	worldNormal = normalize(bump
+		+ float3(terrainN.r, 0, terrainN.g)*deAboveTerrain
+	);
+
+	col = col* aboveTerrain + terrain*deAboveTerrain;
+
+	terrainN.ba = terrainN.ba * deAboveTerrain +
+		aboveTerrain*bumpMap.ba;
+
+}
+
+
+

@@ -1168,6 +1168,8 @@ namespace Painter
 
         void SORT_AND_UPDATE_UI() {
 
+        
+
             if (grid.verts[0].go == null)
                 InitVertsIfNUll();
 
@@ -1203,7 +1205,8 @@ namespace Painter
                     }
                     else if (GetSelectedVert() == _Mesh.vertices[i])
                     {
-                        mrkr = grid.selectedVertex; tmpScale *= 1.5f;
+                        mrkr = grid.selectedVertex;
+                            tmpScale *= 1.5f;
                     }
 
                     mrkr.go.ActiveUpdate(true);

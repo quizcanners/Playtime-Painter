@@ -2,13 +2,12 @@
 		Properties {
 		_PreviewTex ("Base (RGB)", 2D) = "white" { }
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		//[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		}
 		Category{
-		Tags{ "Queue" = "Geometry"
-		
-		"RenderType"="Opaque" 
-		
-		
+		Tags{ 
+			"Queue" = "Geometry"
+			"RenderType"="Opaque" 
 		}
 		ColorMask RGBA
 		Cull off
@@ -18,11 +17,11 @@
 
 		CGPROGRAM
 
-		#pragma multi_compile  PREVIEW_FILTER_SMOOTH  UV_PIXELATED
+		#pragma multi_compile  PREVIEW_FILTER_SMOOTH  UV_PIXELATED_PREVIEW
 		#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA
 		#pragma multi_compile  BRUSH_2D  BRUSH_3D BRUSH_DECAL
 		#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
-		#pragma multi_compile  UV_NORMAL UV_ATLASED
+		#pragma multi_compile  ___ UV_ATLASED
 
 		#pragma vertex vert
 		#pragma fragment frag
@@ -46,19 +45,12 @@
 		v2f vert(appdata_full v) {
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);   
-
 			v.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
-
 			o.texcoord = previewTexcoord (v.texcoord.xy);
-
-
 			o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-
 #if UV_ATLASED
-
-			float atlasNumber = v.texcoord.z;
-			float atY = floor(atlasNumber / _AtlasTextures);
-			float atX = atlasNumber - atY*_AtlasTextures;
+			float atY = floor(v.texcoord.z / _AtlasTextures);
+			float atX = v.texcoord.z - atY*_AtlasTextures;
 			float edge = _PreviewTex_TexelSize.x;
 
 			o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
@@ -72,9 +64,13 @@
 
 	
 	float4 frag(v2f i) : COLOR{
-
+		float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 #if UV_ATLASED
-		i.texcoord.xy = (frac(i.texcoord.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
+		//float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz)+1;
+
+	float seam = (i.atlasedUV.z)*pow(2, (log2(dist)));
+	float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
+	i.texcoord.xy = fractal + i.atlasedUV.xy;
 #endif
 
 	 #if BRUSH_COPY
@@ -82,13 +78,13 @@
 	#endif
 
 
-	float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
+	
 
 	float4 col = 0;
 	float alpha = 1;
 
 
-	#if UV_PIXELATED
+	#if UV_PIXELATED_PREVIEW
 		float2 perfTex = (floor(i.texcoord.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
 		float2 off = (i.texcoord.xy - perfTex);
 

@@ -85,8 +85,7 @@ Shader "Terrain/MergingTerrain" {
 			float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
 			float far = min(1, dist*0.01);
-			float deFar = 1- far;
-
+			float deFar = 1 - far;
 
 			float4 cont = tex2D(_mergeControl, i.tc_Control.xz);
 			float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
@@ -95,9 +94,7 @@ Shader "Terrain/MergingTerrain" {
 			float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
 			float deAboveTerrain = 1 - aboveTerrain;
 
-
 			bump = bump*deAboveTerrain + i.normal * aboveTerrain;
-
 
 			float2 tiled = i.tc_Control.xz*_mergeTerrainTiling.xy+ _mergeTerrainTiling.zw;
 			float tiledY = i.tc_Control.y*_mergeTeraPosition.w*2;
@@ -122,16 +119,11 @@ Shader "Terrain/MergingTerrain" {
 			float4 splatNy = tex2D(_mergeSplatN_4, lowtiled);//*far + tex2D(_mergeSplatN_4, tiled)*deFar;
 			float4 splatNz = tex2D(_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
 			float4 splatNx = tex2D(_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
-		
-
 
 			float edge = MERGE_POWER;
 
-			
-
 			float4 terrain = splaty;
 			float4 terrainN = splatNy;
-
 
 			float maxheight = (1+splaty.a)*abs(bump.y);
 
@@ -164,43 +156,8 @@ Shader "Terrain/MergingTerrain" {
 
 			float triplanarY = max(0, tmpbump.y)*2; // Recalculate it based on previously sampled bump
 
-			newHeight = cont.r * triplanarY + splat0.a;
-			adiff = max(0, (newHeight - maxheight));
-			alpha = min(1, adiff*(1 + edge*terrainN.b*splat0N.b));
-			dAlpha = (1 - alpha);
-			terrain = terrain*(dAlpha) + splat0*alpha;
-			terrainN = terrainN*(dAlpha) + splat0N*alpha;
-			maxheight += adiff;
+	Terrain_4_Splats(cont, lowtiled, tiled, far, deFar, terrain, triplanarY, terrainN, maxheight);
 
-
-			newHeight = cont.g*triplanarY +splat1.a;
-			adiff = max(0, (newHeight-maxheight));
-			alpha = min(1,adiff*(1 + edge*terrainN.b*splat1N.b));
-			dAlpha = (1 - alpha);
-			terrain = terrain*(dAlpha)+splat1*alpha;
-			terrainN = terrainN*(dAlpha)+splat1N*alpha;
-			maxheight += adiff;
-			
-
-			newHeight = cont.b*triplanarY +splat2.a;
-			adiff = max(0, (newHeight-maxheight));
-			alpha = min(1,adiff*(1 + edge*terrainN.b*splat2N.b));
-			dAlpha = (1 - alpha);
-			terrain = terrain*(dAlpha)+splat2*alpha;
-			terrainN = terrainN*(dAlpha)+splat2N*alpha;
-			maxheight += adiff;
-
-			newHeight = cont.a*triplanarY +splat3.a;
-			adiff = max(0, (newHeight-maxheight));
-			alpha = min(1,adiff*(1 + edge*terrainN.b*splat3N.b));
-			dAlpha = (1 - alpha);
-			terrain = terrain*(dAlpha)+splat3*alpha;
-			terrainN = terrainN*(dAlpha)+splat3N*alpha;
-			maxheight += adiff;
-		
-			//terrain.a = maxheight*0.3;  // new
-
-				terrainN.rg = terrainN.rg*2 -1;
 
 				adiff = max(0, (tripMaxH+0.5- maxheight));
 				alpha = min(1, adiff*2);

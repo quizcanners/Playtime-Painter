@@ -446,7 +446,8 @@ namespace Painter{
 
             last_MouseOver_Object = this;
 
-            stroke.uvTo = offsetAndTileUV(stroke.uvTo);
+            stroke.posTo = hit.point;
+            stroke.uvTo = offsetAndTileUV(hit);
 
             if ((currently_Painted_Object != this) && (stroke.mouseDwn)) {
                 stroke.firstStroke = true;
@@ -538,15 +539,25 @@ namespace Painter{
 			return new Vector2 (atX, atY);
 		}
 
-    public Vector2 offsetAndTileUV( Vector2 uv) {
+    public Vector2 offsetAndTileUV( RaycastHit hit) {
+            var uv = hit.textureCoord;
         if (curImgData == null) return uv;
 			if (isAtlased) {
 				
 				uv.x = uv.x % 1;
 				uv.y = uv.y % 1;
 
-				uv = (GetAtlasedSection() + uv) / (float)atlasRows;
+                //inAtlasIndex
 
+                var m = this.getMesh();
+
+                int vert = m.triangles[hit.triangleIndex * 3];
+                List<Vector4> v4l = new List<Vector4>();
+                m.GetUVs(0, v4l);
+                if (v4l.Count >vert)
+                inAtlasIndex = (int)v4l[vert].z;
+
+                uv = (GetAtlasedSection() + uv) / (float)atlasRows;
 
 			} else {
 				uv.Scale (curImgData.tyling);
@@ -574,9 +585,13 @@ namespace Painter{
 
             if   (curImgData == null) return false;
 
+              /*  var v = meshFilter.sharedMesh;
+                v
+                hit.triangleIndex  */
+
             st.posTo = hit.point;
 
-			st.uvTo =   offsetAndTileUV(hit.textureCoord);
+			st.uvTo =   offsetAndTileUV(hit);
 
 			Update_MousePosition_Check_Preview_Shader(st.uvTo, st.posTo, Input.GetMouseButton(0));
 
@@ -996,17 +1011,11 @@ namespace Painter{
     public void SetPreviewShader()
         {
 
-           // Debug.Log("Setting");
-
             if ((PreviewShaderUser != null) && (PreviewShaderUser != this))
                 PreviewShaderUser.SetOriginalShader();
 
-        
-
             if ((meshEditing) && (meshMGMT.target != this))
                     return;
-                
-            
 
             Texture tex = curImgData.currentTexture();
 
@@ -1732,15 +1741,25 @@ namespace Painter{
 
                     pegi.newLine();
 
-					if (isAtlased) {
+                    bool toTexture2D = curImgData.TargetIsTexture2D();
+
+                    if (isAtlased) {
+                        if (originalShader == null)
 						atlasRows = getMaterial (false).GetInt (PainterConfig.atlasedTexturesInARow);
+
 						("Atlased Texture "+atlasRows+"*"+atlasRows).write("Shader has _ATLASED define");
 						if ("Undo".Click (40).nl())
 							getMaterial (false).DisableKeyword (PainterConfig.UV_ATLASED);
 
 						if (curImgData.TargetIsRenderTexture ())
 							pegi.writeOneTimeHint ("Watch out, Render Texture Brush can change neighboring textures on the Atlas.", "rtOnAtlas");
-					}
+
+                        if (!toTexture2D)
+                        {
+                            pegi.writeWarning("Render Texture painting does not yet support Atlas Editing");
+                            pegi.newLine();
+                        }
+                    }
 
 					if (isProjected) {
 						pegi.writeWarning ("Projected UV Shader detected. Painting may not work properly");
@@ -1749,7 +1768,7 @@ namespace Painter{
 						pegi.newLine ();
 					}
 
-					bool toTexture2D = curImgData.TargetIsTexture2D();
+					
 
 					if ((!toTexture2D) && (brush.currentBrushTypeRT ().isA3Dbrush) && (curImgData.offset!= Vector2.zero) && (curImgData.tyling!= Vector2.one) ) {
 						pegi.writeHint ("World space painting may not work properly when tiling and/or offset is applied.");	

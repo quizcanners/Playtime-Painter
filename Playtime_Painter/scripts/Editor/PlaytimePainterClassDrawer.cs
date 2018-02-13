@@ -65,8 +65,6 @@ namespace Painter {
                     StrokeVector st = p.stroke;
                     st.mouseUp = L_mouseUp;
                     st.mouseDwn = L_mouseDwn;
-                    st.uvTo = hit.textureCoord;
-                    st.posTo = hit.point;
                 }
 
                 p.OnMouseOver_SceneView(hit, e);
