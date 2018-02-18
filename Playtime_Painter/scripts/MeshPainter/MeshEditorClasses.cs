@@ -427,6 +427,22 @@ namespace Painter {
 
         }
 
+        public void Edit(PlaytimePainter painter)
+        {
+            if (painter.gotMeshData())
+            {
+                Reboot(painter.lastMeshSavedDta);
+                if (triangles.Count == 0)
+                    BreakMesh(painter.meshFilter.sharedMesh);
+
+            }
+            else
+            {
+                BreakMesh(painter.meshFilter.sharedMesh);
+                painter.selectedMeshProfile = painter.getMaterial(false).getMeshProfileByTag();
+            }
+        }
+
         public void BreakMesh(Mesh Nmesh) {
 
             meshName = Nmesh.name;
@@ -516,7 +532,8 @@ namespace Painter {
                 {
                     if ((vertices[j].pos - main.pos).magnitude < float.Epsilon)
                     {
-                        MergeVertices(i, j);
+                       
+                        vertices[i].MergeWith(vertices[j]);
                         j--;
                         vCnt = vertices.Count;
                     }
@@ -525,15 +542,20 @@ namespace Painter {
             }
 
             mesh = new Mesh();
-           // Debug.Log("Breaking mesh");
         }
 
-        public void MergeVertices(vertexpointDta one, vertexpointDta two) {
-            one.MergeWith(two);
-        }
+        public void MergeWith (PlaytimePainter other) {
 
-        public void MergeVertices(int a, int b) {
-            vertices[a].MergeWith(vertices[b]);
+            EditableMesh edm = new EditableMesh();
+            edm.Edit(other);
+
+            var tf = MeshManager.inst.target.transform;
+
+            triangles.AddRange(edm.triangles);
+            foreach (var v in edm.vertices) {
+                v.pos =  tf.InverseTransformPoint(other.transform.TransformPoint(v.pos));
+                vertices.Add(v);
+            }
 
         }
 

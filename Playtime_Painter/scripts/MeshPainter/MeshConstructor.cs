@@ -62,8 +62,6 @@ namespace Painter {
             if (edMesh.triangles.Count == 0)
                 return;
 
-         
-
             vertsCount = edMesh.AssignIndexes();
             tris = new int[edMesh.triangles.Count * 3];
             verts = new Vector3[vertsCount];
@@ -260,7 +258,8 @@ namespace Painter {
                     foreach (var tri in edMesh.triangles) {
                         for (int no = 0; no < 3; no++) {
                             UVpoint up = tri.uvpnts[no];
-                            float edge = up.vert.SmoothNormal ? 1 : 0;
+                            float edge = (up.tris.Count == 1 //up.vert.SmoothNormal
+                                ) ? 1 : 0;
                             edgeData[up.finalIndex] = new Vector4(no == 0 ? 0 : edge, no == 1 ? 0 : edge, no == 2 ? 0 : edge,  up.vert.edgeStrength);
                         }
                     }

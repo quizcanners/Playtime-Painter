@@ -335,7 +335,7 @@ namespace Painter {
                 if (changeTo == texTarget.RenderTexture) {
                     if (renderTexture == null)
                         PainterManager.inst.changeBufferTarget(this, mat, parameter, painter);
-
+                  //  Debug.Log("Assigning Render Texture Target ");
                     TextureToRenderTexture(texture2D);
                 } else {
                     RenderTexture_To_Texture2D(texture2D);

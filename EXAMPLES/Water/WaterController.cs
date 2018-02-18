@@ -5,6 +5,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 
+
 [CustomEditor(typeof(WaterController))]
 public class WaterEditor : Editor
 {
@@ -59,7 +60,12 @@ public class WaterController : MonoBehaviour {
     private void OnEnable() {
 
         setFoamDynamics();
+        Shader.EnableKeyword("WATER_FOAM");
+    }
 
+    private void OnDisable()
+    {
+        Shader.DisableKeyword("WATER_FOAM");
     }
 
     public Vector4 foamParameters;

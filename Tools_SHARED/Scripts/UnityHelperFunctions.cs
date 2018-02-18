@@ -871,10 +871,10 @@ public static class UnityHelperFunctions {
 
         TextureImporter importer = tex.getTextureImporter();
 
-        if ((importer!= null) && (importer.wasWrongDataType(value)))
+        if ((importer!= null) && (importer.wasWrongIsColor(value)))
             importer.SaveAndReimport();
     }
-    public static bool wasWrongDataType(this TextureImporter importer, bool isColor) {
+    public static bool wasWrongIsColor(this TextureImporter importer, bool isColor) {
       
             bool needsReimport = false;
 

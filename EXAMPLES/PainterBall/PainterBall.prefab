@@ -38,7 +38,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1177238647334156}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.659, y: 38.669, z: 9.074}
+  m_LocalPosition: {x: 9.32, y: 39.283, z: 11.19}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 0}
@@ -118,15 +118,17 @@ MonoBehaviour:
     selectedSourceTexture: 0
     selectedSourceMask: 0
     useMask: 0
+    randomMaskOffset: 0
     selectedDecal: 0
     maskTiling: 1
     Hardness: 1
     blurAmount: 1
     decalAngle: 0
-    decalRandomRotation: 1
-    flipMaskAlpha: 0
+    decalRotationMethod: 0
     decalContinious: 0
-    IndependentCPUblit: 0
+    decalAngleModifier: 0
+    flipMaskAlpha: 0
+    TargetIsTex2D: 0
     Brush3D_Radius: 1
     Brush2D_Radius: 16
     speed: 20

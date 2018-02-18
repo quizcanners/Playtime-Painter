@@ -31,7 +31,7 @@ namespace Painter {
 
         public Texture2D a_texture;
 
-        public List<Texture2D> Textures;
+        public List<Texture2D> textures;
 
 		public int row { get{ return AtlasSize / textureSize;}}
 
@@ -53,8 +53,8 @@ namespace Painter {
 			targetFields = new List<string> ();
 			if (atlasFields == null)
 			atlasFields = new List<string> ();
-			if (Textures == null)
-			Textures = new List<Texture2D> ();
+			if (textures == null)
+			textures = new List<Texture2D> ();
 			adjustListSize ();
 		}
 
@@ -72,8 +72,8 @@ namespace Painter {
         public void adjustListSize()
         {
             int ntc = TextureCount;
-            while (Textures.Count < ntc)
-                Textures.Add(null);
+            while (textures.Count < ntc)
+                textures.Add(null);
         }
 
         public int TextureCount {
@@ -193,8 +193,8 @@ namespace Painter {
 				for (int x = 0; x < texesInRow; x++){
                 
 
-                    if ((Textures.Count > curIndex) && (Textures[curIndex] != null))
-                        TextureToAtlas(Textures[curIndex], x, y);
+                    if ((textures.Count > curIndex) && (textures[curIndex] != null))
+                        TextureToAtlas(textures[curIndex], x, y);
 
                     curIndex++;
                 }
@@ -234,8 +234,19 @@ namespace Painter {
 
             a_texture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
+
+            TextureImporter other = null;
+
+            foreach (var t in textures) 
+                if (t != null) {
+                    other = t.getTextureImporter();
+                    break;
+            }
+
             TextureImporter ti = a_texture.getTextureImporter();
             bool needReimport = ti.wasNotReadable();
+            if (other!= null)
+            needReimport |= ti.wasWrongIsColor(other.sRGBTexture);
             needReimport |= ti.wasClamped();
 
             if (needReimport) ti.SaveAndReimport();
@@ -269,9 +280,9 @@ namespace Painter {
 
                 for (int i = 0; i < max; i++)
                 {
-                    Texture2D t = Textures[i];
+                    Texture2D t = textures[i];
                     if (pegi.edit(ref t))
-                        Textures[i] = t;
+                        textures[i] = t;
                     pegi.newLine();
                 }
             }

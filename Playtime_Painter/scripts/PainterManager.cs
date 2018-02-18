@@ -296,6 +296,7 @@ public class PainterManager : MonoBehaviour {
             materialTarget.SetTexture(parameterTarget, bufferTarget.currentTexture());
         }
 
+        painterTarget = null;
 		bufferTarget = null;
 	}
 
@@ -666,7 +667,7 @@ public class PainterManager : MonoBehaviour {
 
 #endif
 
-        if ((autodisabledBufferTarget != null) && (!autodisabledBufferTarget.LockEditing) && (!this.ApplicationIsAboutToEnterPlayMode())) 
+        if ((autodisabledBufferTarget != null) && (!autodisabledBufferTarget.meshEditing) && (!autodisabledBufferTarget.LockEditing) && (!this.ApplicationIsAboutToEnterPlayMode())) 
             autodisabledBufferTarget.reanableRenderTexture();
     
         autodisabledBufferTarget = null;
@@ -679,7 +680,7 @@ public class PainterManager : MonoBehaviour {
 
 		recentTextures.RemoveEmpty();
 #if UNITY_EDITOR
-        TakeAwayRT();
+        BeforeClosing();
 #endif
             
 #if UNITY_EDITOR
@@ -691,7 +692,7 @@ public class PainterManager : MonoBehaviour {
 
 #if UNITY_EDITOR
 
-        void TakeAwayRT() {
+        void BeforeClosing() {
 
             PlaytimePainter p = PlaytimePainter.PreviewShaderUser;
             if (p != null)
@@ -711,7 +712,7 @@ public class PainterManager : MonoBehaviour {
             //public delegate void SceneSavingCallback(Scene scene, string path);
            
             
-            TakeAwayRT();
+            BeforeClosing();
            // Debug.Log("Before Scene saved");
 
         }
@@ -774,9 +775,8 @@ public class PainterManager : MonoBehaviour {
 
         void OnApplicationQuit()
     {
-
 #if !UNITY_EDITOR && BUILD_WITH_PAINTER
-            painterConfig.SaveChanges();
+       //     painterConfig.SaveChanges();
 #endif
         }
 

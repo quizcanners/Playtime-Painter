@@ -159,7 +159,9 @@ namespace Painter {
 
             changes = painter.management_PEGI();
 
-            if (painter.meshEditing) { painter.gameObject.end();  return; } 
+
+
+            if (painter.meshEditing || (PlaytimePainter.isNowPlaytimeAndDisabled())) { painter.gameObject.end();  return; } 
 
             if ((painter.meshRenderer != null) || (painter.terrain != null)) {
 

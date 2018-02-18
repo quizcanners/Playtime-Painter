@@ -28,7 +28,6 @@ namespace Painter
 
     }
 
-
     public class UVpoint : abstract_STD {
 
         public override string getDefaultTagName() {

@@ -90,7 +90,7 @@ public static class Blit_Functions {
         brAlpha = brushAlpha;
 
         half = (bc.Size(false)) / 2;
-        int ihalf = (int)half;
+        int ihalf = (int)(half-0.5f);
 
   
         if (bc.Smooth)

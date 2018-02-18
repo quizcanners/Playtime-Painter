@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: Stone
   m_Shader: {fileID: 4800000, guid: 5ebc3bbd9fcb9cd46b7ad6275c0e1158, type: 3}
-  m_ShaderKeywords: _BUMP_NONE _NORMALMAP
+  m_ShaderKeywords: _BUMP_COMBINED _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -65,7 +65,7 @@ Material:
     m_Floats:
     - _ATLASED: 0
     - _AtlasTextures: 1
-    - _BUMP: 0
+    - _BUMP: 2
     - _BumpScale: 1
     - _CLIP: 0
     - _Cutoff: 0.5

@@ -59,20 +59,20 @@ public static class BumpGlossMerger {
         if (normalReady != null) {
             importer = normalReady.getTextureImporter();
             needReimport = importer.wasNotReadable();
-            needReimport |= importer.wasWrongDataType(false);
+            needReimport |= importer.wasWrongIsColor(false);
             needReimport |= importer.wasMarkedAsNormal();
             if (needReimport) importer.SaveAndReimport();
         }
 
         importer = smoothness.getTextureImporter();
         needReimport = importer.wasNotReadable();
-        needReimport |= importer.wasWrongDataType(false);
+        needReimport |= importer.wasWrongIsColor(false);
         needReimport |= importer.wasNotSingleChanel();
         if (needReimport) importer.SaveAndReimport();
 
         importer = ambient.getTextureImporter();
         needReimport = importer.wasNotReadable();
-        needReimport |= importer.wasWrongDataType(false);
+        needReimport |= importer.wasWrongIsColor(false);
         needReimport |= importer.wasNotSingleChanel();
         if (needReimport) importer.SaveAndReimport();
 
@@ -141,7 +141,7 @@ public static class BumpGlossMerger {
 
         TextureImporter resImp = Result.getTextureImporter();
         needReimport = resImp.wasClamped();
-        needReimport |= resImp.wasWrongDataType(false);
+        needReimport |= resImp.wasWrongIsColor(false);
         needReimport |= resImp.wasNotReadable();
         needReimport |= resImp.hadNoMipmaps();
 

@@ -45,6 +45,7 @@ public class PainterConfig  {
         public const string UV_PROJECTED = "UV_PROJECTED";
         public const string UV_PIXELATED = "UV_PIXELATED";
         public const string EDGE_WIDTH_FROM_COL_A = "EDGE_WIDTH_FROM_COL_A";
+        public const string WATER_FOAM = "WATER_FOAM";
 
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
@@ -198,203 +199,214 @@ public class PainterConfig  {
             imgData id = painter.curImgData;
             bool changed = false;
 
-            if (painter.isAtlased)
+            if (!PlaytimePainter.isNowPlaytimeAndDisabled())
             {
 
-                "***** Atlased *****".nl();
-
-                if ("Undo Atlasing".Click())
+                if (painter.isAtlased)
                 {
-					painter.getRenderer ().sharedMaterial = painter.preAtlasingMaterial;
-					//painter.getRenderer ().sharedMaterial.DisableKeyword (PainterConfig.UV_ATLASED);
 
-					if (painter.preAtlasingMesh != null)
-                        painter.meshFilter.mesh = painter.preAtlasingMesh;
-                    painter.meshSaveData = painter.preAtlasingSavedMesh;
+                    "***** Atlased *****".nl();
 
-                    painter.preAtlasingMaterial = null;
-                    painter.preAtlasingMesh = null;
+                    if ("Undo Atlasing".Click())
+                    {
+                        painter.getRenderer().sharedMaterial = painter.preAtlasingMaterial;
+
+                        if (painter.preAtlasingMesh != null)
+                            painter.meshFilter.mesh = painter.preAtlasingMesh;
+                        painter.meshSaveData = painter.preAtlasingSavedMesh;
+
+                        painter.preAtlasingMaterial = null;
+                        painter.preAtlasingMesh = null;
+                        painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    }
+
+                    if ("Not Atlased".Click().nl())
+                    {
+                        painter.preAtlasingMaterial = null;
+                        painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    }
+
+                    //"In Atlas No:".edit(ref painter.inAtlasIndex).nl();
+                    //"Textures In A Row".edit(ref painter.atlasRows).nl();
+                    //"Original Material:".write(painter.preAtlasingMaterial);
+                    pegi.newLine();
+
 
                 }
-
-                if ("Not Atlased".Click().nl()) {
-                    painter.preAtlasingMaterial = null;
-                }
-
-                "In Atlas No:".edit(ref painter.inAtlasIndex).nl();
-                "Textures In A Row".edit(ref painter.atlasRows).nl();
-                "Original Material:".write(painter.preAtlasingMaterial);
-                pegi.newLine();
-
-
-            }
-            else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
-            {
-
-               
-
-                showAtlases = false;
-
-                List<MaterialAtlases> am = rtp.atlasedMaterials;
-                int sctdAM = painter.selectedAtlasedMaterial;
-
-                if ((sctdAM > -1) && (sctdAM >= am.Count))
-                    painter.selectedAtlasedMaterial = sctdAM = -1;
-
-                if (sctdAM > -1)
+                else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
                 {
-                    pegi.write(am[sctdAM].name);
-                    if (icon.Close.Click(25).nl())
+
+
+
+                    showAtlases = false;
+
+                    List<MaterialAtlases> am = rtp.atlasedMaterials;
+                    int sctdAM = painter.selectedAtlasedMaterial;
+
+                    if ((sctdAM > -1) && (sctdAM >= am.Count))
                         painter.selectedAtlasedMaterial = sctdAM = -1;
-                    else
-                        am[sctdAM].PEGI(painter);
-                }
-                else
-                {
-                    pegi.newLine();
-                    for (int i = 0; i < rtp.atlasedMaterials.Count; i++)
+
+                    if (sctdAM > -1)
                     {
-                        if (icon.Delete.Click(25))
-                            rtp.atlasedMaterials.RemoveAt(i);
+                        pegi.write(am[sctdAM].name);
+                        if (icon.Close.Click(25).nl())
+                            painter.selectedAtlasedMaterial = sctdAM = -1;
                         else
+                            am[sctdAM].PEGI(painter);
+                    }
+                    else
+                    {
+                        pegi.newLine();
+                        for (int i = 0; i < rtp.atlasedMaterials.Count; i++)
                         {
-                            pegi.edit(ref rtp.atlasedMaterials[i].name);
-                            if (icon.Edit.Click(25).nl())
-                                painter.selectedAtlasedMaterial = i;
+                            if (icon.Delete.Click(25))
+                                rtp.atlasedMaterials.RemoveAt(i);
+                            else
+                            {
+                                pegi.edit(ref rtp.atlasedMaterials[i].name);
+                                if (icon.Edit.Click(25).nl())
+                                    painter.selectedAtlasedMaterial = i;
+                            }
+                        }
+
+                        if (icon.Add.Click(30))
+                        {
+                            var mat = new MaterialAtlases("new");
+                            rtp.atlasedMaterials.Add(mat);
+                            mat.originalMaterial = painter.getMaterial(true);
+                            painter.usePreviewShader = false;
+                            mat.OnChangeMaterial(painter);
+
                         }
                     }
 
-                    if (icon.Add.Click(30))
-                    {
-                        var mat = new MaterialAtlases("new");
-                        rtp.atlasedMaterials.Add(mat);
-                        mat.originalMaterial = painter.getMaterial(true);
-                        painter.usePreviewShader = false;
-                        mat.OnChangeMaterial(painter);
 
-                    }
+
+
+
+                    return changed;
                 }
-
-
-
-
-
-                return changed;
-            }
-            if ("Atlases".foldout(ref showAtlases))
-            {
-
-                if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
-                    browsedAtlas = -1;
-
-                pegi.newLine();
-
-                if (browsedAtlas > -1)
+                if ("Atlases".foldout(ref showAtlases))
                 {
-                    if (icon.Back.Click(25))
+
+                    if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
                         browsedAtlas = -1;
-                    else
-                        rtp.atlases[browsedAtlas].PEGI(painter);
-                }
-                else
-                {
+
                     pegi.newLine();
-                    for (int i = 0; i < rtp.atlases.Count; i++)
+
+                    if (browsedAtlas > -1)
                     {
-                        if (icon.Delete.Click(25))
-                            rtp.atlases.RemoveAt(i);
+                        if (icon.Back.Click(25))
+                            browsedAtlas = -1;
                         else
+                            rtp.atlases[browsedAtlas].PEGI(painter);
+                    }
+                    else
+                    {
+                        pegi.newLine();
+                        for (int i = 0; i < rtp.atlases.Count; i++)
                         {
-                            pegi.edit(ref rtp.atlases[i].name);
-                            if (icon.Edit.Click(25).nl())
-                                browsedAtlas = i;
+                            if (icon.Delete.Click(25))
+                                rtp.atlases.RemoveAt(i);
+                            else
+                            {
+                                pegi.edit(ref rtp.atlases[i].name);
+                                if (icon.Edit.Click(25).nl())
+                                    browsedAtlas = i;
+                            }
                         }
+
+                        if (icon.Add.Click(30))
+                            rtp.atlases.Add(new AtlasTextureCreator("new"));
+
                     }
 
-                    if (icon.Add.Click(30))
-                        rtp.atlases.Add(new AtlasTextureCreator("new"));
 
+
+
+                    return changed;
                 }
-
-
-
-
-                return changed;
             }
-
-
             pegi.newLine();
 
             bool gotDefine = pegi.GetDefine(PainterConfig.enablePainterForBuild);
 
-            if ("Enable Painter in Playtime for build".toggle(ref gotDefine).nl())
+            if ("Enable Painter for Playtime & Build".toggle(ref gotDefine).nl())
                 pegi.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
 
             if (gotDefine)
-                "Disable PlayTime UI".toggle(ref PainterConfig.inst.disablePainterUIonPlay).nl();
-
-
-            (rtp.isLinearColorSpace ? "Project is Linear Color Space" : "Project is in Gamma Color Space").nl("Go to Build Settings to change. Linear gives more natural look");
-
-            if (painter.meshEditing == false)
             {
-                if ("More options".toggle(80, ref moreOptions).nl())
-                    showConfig = false;
-
-                "repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
-
-                changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
-
-                changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
-                    ref brush.DontRedoMipmaps).nl();
-
-                if ((id != null) && (brush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
-                    id.SetAndApply(true);
-
-                bool gotBacups = (painter.numberOfTexture2Dbackups + painter.numberOfRenderTextureBackups) > 0;
-
-                if (gotBacups) {
-                    pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                    pegi.writeOneTimeHint("This are not connected to Unity's " +
-                    "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                    pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
-
-                    changed |= 
-                        "texture2D UNDOs:".edit(150, ref painter.numberOfTexture2Dbackups).nl() ||
-                        "renderTex UNDOs:".edit(150, ref painter.numberOfRenderTextureBackups).nl() ||
-                        "backup manually:".toggle(150, ref painter.backupManually).nl();
-                }
-                else if ("Enable Undo/Redo".Click().nl()) {
-                    painter.numberOfTexture2Dbackups = 10;
-                    painter.numberOfRenderTextureBackups = 10;
-                }
-
-            /*    if ("Don't create render texture buffer:".toggle(ref dontCreateDefaultRenderTexture).nl()) {
-                    PainterConfig.SaveChanges();
-                    rtp.UpdateBuffersState();
-                }*/
-
-               
-
-                "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
-
-             
-
-                "Camera".write(rtp.rtcam);
-                pegi.newLine();
-
-                "Brush".write(rtp.brushPrefab);
-                pegi.newLine();
-
-                "Renderer to Debug second buffer".edit(ref rtp.secondBufferDebug).nl();
+                if ("Disable PlayTime UI".toggle(ref PainterConfig.inst.disablePainterUIonPlay).nl())
+                    MeshManager.inst.DisconnectMesh();
             }
 
-            "Save Textures To:".edit(110, ref texturesFolderName).nl();
+            if (!PlaytimePainter.isNowPlaytimeAndDisabled())
+            {
 
-            "Save Materials To:".edit(110, ref materialsFolderName).nl();
+                (rtp.isLinearColorSpace ? "Project is Linear Color Space" : "Project is in Gamma Color Space").nl("Go to Build Settings to change. Linear gives more natural look");
 
-            "Save Meshes To:".edit(110, ref meshesFolderName).nl();
+                if (painter.meshEditing == false)
+                {
+                    if ("More options".toggle(80, ref moreOptions).nl())
+                        showConfig = false;
 
+                    "repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
+
+                    changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
+
+                    changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
+                        ref brush.DontRedoMipmaps).nl();
+
+                    if ((id != null) && (brush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
+                        id.SetAndApply(true);
+
+                    bool gotBacups = (painter.numberOfTexture2Dbackups + painter.numberOfRenderTextureBackups) > 0;
+
+                    if (gotBacups)
+                    {
+                        pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
+                        pegi.writeOneTimeHint("This are not connected to Unity's " +
+                        "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
+                        pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+
+                        changed |=
+                            "texture2D UNDOs:".edit(150, ref painter.numberOfTexture2Dbackups).nl() ||
+                            "renderTex UNDOs:".edit(150, ref painter.numberOfRenderTextureBackups).nl() ||
+                            "backup manually:".toggle(150, ref painter.backupManually).nl();
+                    }
+                    else if ("Enable Undo/Redo".Click().nl())
+                    {
+                        painter.numberOfTexture2Dbackups = 10;
+                        painter.numberOfRenderTextureBackups = 10;
+                    }
+
+                    /*    if ("Don't create render texture buffer:".toggle(ref dontCreateDefaultRenderTexture).nl()) {
+                            PainterConfig.SaveChanges();
+                            rtp.UpdateBuffersState();
+                        }*/
+
+
+
+                    "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
+
+
+
+                  /*  "Camera".write(rtp.rtcam);
+                    pegi.newLine();
+
+                    "Brush".write(rtp.brushPrefab);
+                    pegi.newLine();
+
+                    "Renderer to Debug second buffer".edit(ref rtp.secondBufferDebug).nl();*/
+                }
+
+                "Save Textures To:".edit(110, ref texturesFolderName).nl();
+
+                "Save Materials To:".edit(110, ref materialsFolderName).nl();
+
+                "Save Meshes To:".edit(110, ref meshesFolderName).nl();
+            }
+#if UNITY_EDITOR
 
             if (icon.Discord.Click("Join Discord", 64))
                 PlaytimePainter.open_Discord();
@@ -404,11 +416,11 @@ public class PainterConfig  {
 
             if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
                 PlaytimePainter.open_Email();
-            
+
+#endif
+
             return changed;
         }
-
-
 
         public PainterConfig() {
         brushConfig = new BrushConfig();

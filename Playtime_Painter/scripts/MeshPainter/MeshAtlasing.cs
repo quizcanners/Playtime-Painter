@@ -39,7 +39,7 @@ namespace Painter
 
 				if ((atlasedField != null) && (a.originalMaterial != null) && (atlasCreator != null) && (originField < a.originalTextures.Count)) {
 					Texture t = a.originalMaterial.GetTexture (a.originalTextures [originField]);
-					if ((t != null) && (t.GetType() == typeof(Texture2D)) && (atlasCreator.Textures.Contains((Texture2D)t)))
+					if ((t != null) && (t.GetType() == typeof(Texture2D)) && (atlasCreator.textures.Contains((Texture2D)t)))
 						icon.Done.nl (10);
 				}
 			}
@@ -122,7 +122,7 @@ namespace Painter
 
 					Texture2D texture = (Texture2D)tex;
                
-					List<Texture2D> aTexes = f.atlasCreator.Textures;
+					List<Texture2D> aTexes = f.atlasCreator.textures;
 
 
 					bool added = false;
@@ -163,7 +163,7 @@ namespace Painter
 					var f = passedFields[i];
 					var ac = f.atlasCreator;
 
-					ac.Textures [index] = passedTextures [i];
+					ac.textures [index] = passedTextures [i];
 					ac.AddTargets (f,originalTextures [f.originField]);
 
 					ac.ReconstructAsset();
@@ -198,7 +198,7 @@ namespace Painter
 					if (a.targetFields.Contains (originalTextures[i])) {
 						fields [field].atlasCreator = a;
 						Texture tex = originalMaterial.GetTexture (originalTextures[i]);
-							if ((tex!= null) && (tex.GetType() == typeof(Texture2D)) && (a.Textures.Contains((Texture2D)tex)))
+							if ((tex!= null) && (tex.GetType() == typeof(Texture2D)) && (a.textures.Contains((Texture2D)tex)))
 						return;
 					}
 				}

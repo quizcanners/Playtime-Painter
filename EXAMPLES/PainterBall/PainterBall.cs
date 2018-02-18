@@ -9,6 +9,7 @@ namespace Painter {
 
     using UnityEditor;
 
+   
     [CustomEditor(typeof(PainterBall))]
     public class PainterBallEditor : Editor    {
 
@@ -31,10 +32,12 @@ namespace Painter {
 		}
 	}
 
-   // [ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class PainterBall : MonoBehaviour {
 
         public MeshRenderer rendy;
+        public Rigidbody rigid;
+        public SphereCollider fuckingCollider;
 
 		public List<paintingCollision> paintingOn = new List<paintingCollision>();
         public BrushConfig brush = new BrushConfig();
@@ -104,7 +107,12 @@ namespace Painter {
             brush.brushType_rt = BrushTypeSphere.inst.index;
             if (rendy == null) 
                 rendy = GetComponent<MeshRenderer>();
-            rendy.material.color = brush.color.ToColor();
+            if (rigid == null)
+                rigid = GetComponent<Rigidbody>();
+            if (fuckingCollider == null)
+                fuckingCollider = GetComponent<SphereCollider>();
+
+            rendy.sharedMaterial.color = brush.color.ToColor();
 
         }
 
@@ -127,6 +135,22 @@ namespace Painter {
 
         public void PEGI() {
             ("Painting on " + paintingOn.Count + " objects").nl();
+
+            if ((fuckingCollider.isTrigger) && ("Make phisical".Click().nl()))
+            {
+                fuckingCollider.isTrigger = false;
+                rigid.isKinematic = false;
+                rigid.useGravity = true;
+            }
+
+            if ((!fuckingCollider.isTrigger) && ("Make Trigger".Click().nl()))
+            {
+                fuckingCollider.isTrigger = true;
+                rigid.isKinematic = true;
+                rigid.useGravity = false;
+            }
+
+
 
             float size = transform.localScale.x;
             if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 100).nl())

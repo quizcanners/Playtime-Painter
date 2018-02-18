@@ -132,7 +132,10 @@ namespace Painter
 
             target = painter;
 
-			if (painter.gotMeshData ()) {
+
+            _Mesh.Edit(painter);
+
+			/*if (painter.gotMeshData ()) {
 				_Mesh.Reboot (painter.lastMeshSavedDta);
 				if (_Mesh.triangles.Count == 0)
 					_Mesh.BreakMesh (painter.meshFilter.sharedMesh);
@@ -140,9 +143,7 @@ namespace Painter
 			} else {
 				_Mesh.BreakMesh (painter.meshFilter.sharedMesh);
 				painter.selectedMeshProfile = painter.getMaterial (false).getMeshProfileByTag ();
-			}
-            
-
+			}*/
 
             if (EditCopy)
                 painter.meshFilter.sharedMesh = new Mesh();
@@ -1238,25 +1239,20 @@ namespace Painter
 
         }
 
-        void outlineTriangle(trisDta t, Color colA, Color colB)
+      
+
+        public void DRAW_Lines(bool isGizmoCall)
         {
 
+            GizmoLines = isGizmoCall;
 
-            VertexLine(t.uvpnts[0].vert, t.uvpnts[1].vert, t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[1] ? colA : colB);
-            VertexLine(t.uvpnts[1].vert, t.uvpnts[2].vert, t.ForceSmoothedNorm[1] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
-            VertexLine(t.uvpnts[0].vert, t.uvpnts[2].vert, t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
-        }
-
-        public void DRAW_GIZMOS()
-        {
- 
             if (target == null) return;
 
 			//Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
 
             if (tool.showTriangles)
             {
-                if ((pointedTris != null) && (pointedTris != selectedTris))
+                if ((pointedTris != null) && ((pointedTris != selectedTris) || (!tool.showSelectedTriangle)))
                     outlineTriangle(pointedTris, Color.cyan, Color.gray);
 
                 if ((selectedTris != null) && (tool.showSelectedTriangle))
@@ -1266,14 +1262,14 @@ namespace Painter
             if (tool.showLines)
             {
                 if (pointedLine != null)
-                    VertexLine(pointedLine.pnts[0].vert, pointedLine.pnts[1].vert,
+                    Line(pointedLine.pnts[0].vert, pointedLine.pnts[1].vert,
                     (_meshTool != MeshTool.VertColor) ? Color.green : pointedLine.pnts[0]._color * pointedLine.pnts[1]._color);
 
                 for (int i = 0; i < Mathf.Min(vertsShowMax, _Mesh.vertices.Count); i++)
                 {
                     vertexpointDta vp = _Mesh.vertices[i];
                     if (sameTrisAsPointed(vp))
-                        VertexLine(vp, pointedUV.vert, Color.yellow);
+                        Line(vp, pointedUV.vert, Color.yellow);
                 }
             }
 
@@ -1288,14 +1284,15 @@ namespace Painter
                         if (td.includes(pointedUV))
                         {
 
-                            VertexLine(td.uvpnts[1].vert, td.uvpnts[0].vert, Color.yellow);
-                            VertexLine(td.uvpnts[1].vert, td.uvpnts[2].vert, Color.yellow);
-                            VertexLine(td.uvpnts[2].vert, td.uvpnts[0].vert, Color.yellow);
+                            Line(td.uvpnts[1].vert, td.uvpnts[0].vert, Color.yellow);
+                            Line(td.uvpnts[1].vert, td.uvpnts[2].vert, Color.yellow);
+                            Line(td.uvpnts[2].vert, td.uvpnts[0].vert, Color.yellow);
                         }
                     }
                     Vector3 selPos = pointedUV.vert.getWorldPos(); //.pos.ToV3 (false);
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos));
+                    //Gizmos.color = Color.green;
+                    //Gizmos.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos));
+                    Line(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
                 }
 
                 /*if (selectedUV != null)
@@ -1474,22 +1471,42 @@ namespace Painter
             else mrkr.textm.text = "";
         }
 
-        void VertexLine(vertexpointDta a, vertexpointDta b, Color col, Color colb) {
+        void outlineTriangle(trisDta t, Color colA, Color colB)
+        {
+            //bool vrt = tool == VertexPositionTool.inst;
+            Line(t.uvpnts[0], t.uvpnts[1], t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[1] ? colA : colB);
+            Line(t.uvpnts[1], t.uvpnts[2], t.ForceSmoothedNorm[1] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[2], t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
+        }
+
+
+        void Line(UVpoint  a, UVpoint b, Color col, Color colb) {
+            Line(a.vert, b.vert, col, colb);
+        }
+
+        void Line(vertexpointDta a, vertexpointDta b, Color col, Color colb) {
 
             Vector3 v3a = a.getWorldPos();
             Vector3 v3b = b.getWorldPos();
             Vector3 diff = (v3b - v3a) / 2;
-            Gizmos.color = col;
-            Gizmos.DrawLine(v3a, v3a + diff);
-            Gizmos.color = colb;
-            Gizmos.DrawLine(v3b, v3b - diff);
+            Line(v3a, v3a + diff, col);
+            Line(v3b, v3b - diff, colb);
         }
 
-        void VertexLine(vertexpointDta a, vertexpointDta b, Color col)
-        {
-            Gizmos.color = col;
-          //  Transform cam = gameObject.tryGetCameraTransform();
-            Gizmos.DrawLine(a.getWorldPos(), b.getWorldPos());
+        void Line(vertexpointDta a, vertexpointDta b, Color col) {
+          
+            Line(a.getWorldPos(), b.getWorldPos(), col);
+        }
+
+
+        public bool GizmoLines = false;
+        void Line(Vector3 from, Vector3 to, Color col) {
+            if (GizmoLines) {
+                Gizmos.color = col;
+                Gizmos.DrawLine(from, to);
+
+            } else 
+                Debug.DrawLine(from, to, col);
         }
 
         public void DrowLinesAroundTargetPiece()
@@ -1515,6 +1532,9 @@ namespace Painter
 
 
         }
+
+
+       
 
         void InitVertsIfNUll()
         {
@@ -1564,6 +1584,7 @@ namespace Painter
         }
 
 
+        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         public bool PEGI()
         {
@@ -1606,17 +1627,53 @@ namespace Painter
 #endif
 
             pegi.newLine();
-            
-            pegi.write("Function for G Button:");
-            quickMeshFunctionsExtensions.current = (quickMeshFunctionForG)pegi.editEnum(quickMeshFunctionsExtensions.current);
+
+            if (!selectedPainters.Contains(target))
+            {
+                if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl())
+                    selectedPainters.Add(target);
+
+                if (selectedPainters.Count > 0)
+                {
+                    "Will Merge with the following:".nl();
+                    for (int i = 0; i < selectedPainters.Count; i++)
+                    {
+                        if (selectedPainters[i] == null)
+                        {
+                            selectedPainters.RemoveAt(i);
+                            i--;
+                        }
+                        else
+                            selectedPainters[i].gameObject.name.nl();
+                    }
+
+                    if ("Merge!".Click().nl()) {
+
+                        foreach (var p in selectedPainters)
+                            _Mesh.MergeWith(p);
+
+                        _Mesh.Dirty = true;
+
+                    }
+                }
+
+            } else {
+                if ("Remove from Copy Selection".Click().nl())
+                    selectedPainters.Remove(target);
+            }
+                
+
+
+            //pegi.write("Function for G Button:");
+            //quickMeshFunctionsExtensions.current = (quickMeshFunctionForG)pegi.editEnum(quickMeshFunctionsExtensions.current);
             pegi.newLine();
 
-            if (quickMeshFunctionForG.MakeOutline.selected())
-                "Width".edit(ref outlineWidth).nl();
+            //if (quickMeshFunctionForG.MakeOutline.selected())
+              //  "Width".edit(ref outlineWidth).nl();
 
 
-            if (!quickMeshFunctionForG.Nothing.selected())
-                (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
+            //if (!quickMeshFunctionForG.Nothing.selected())
+              //  (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
 
             pegi.newLine();
 

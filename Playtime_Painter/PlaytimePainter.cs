@@ -557,6 +557,8 @@ namespace Painter{
                 if (v4l.Count >vert)
                 inAtlasIndex = (int)v4l[vert].z;
 
+                atlasRows = Mathf.Max(atlasRows, 1);
+
                 uv = (GetAtlasedSection() + uv) / (float)atlasRows;
 
 			} else {
@@ -773,7 +775,7 @@ namespace Painter{
 
         TextureImporter importer = curImgData.texture2D.getTextureImporter();
         bool needReimport = importer.wasNotReadable();
-        needReimport |= importer.wasWrongDataType(false);
+        needReimport |= importer.wasWrongIsColor(false);
         if (needReimport) importer.SaveAndReimport();
 #endif
 
@@ -812,7 +814,7 @@ namespace Painter{
         TextureImporter importer = curImgData.texture2D.getTextureImporter();
 
         bool needReimport = importer.wasNotReadable();
-        needReimport |= importer.wasWrongDataType(isColor);
+        needReimport |= importer.wasWrongIsColor(isColor);
 
         if (needReimport) importer.SaveAndReimport();
 #endif
@@ -1418,9 +1420,12 @@ namespace Painter{
     bool inited = false;
     public bool autoSelectMaterial_byNumberOfPointedSubmesh = true;
 
-	#if UNITY_EDITOR
 
-    [MenuItem("Tools/" + PainterConfig.ToolName + "/Attach Painter To Selected")]
+        public const string WWW_Manual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
+
+#if UNITY_EDITOR
+
+        [MenuItem("Tools/" + PainterConfig.ToolName + "/Attach Painter To Selected")]
     static void givePainterToSelected() {
         foreach (GameObject go in Selection.gameObjects) 
             IterateAssignToChildren(go.transform);
@@ -1459,40 +1464,35 @@ namespace Painter{
         PainterManager r = PainterManager.inst;
     }
       
-#endif
+       [MenuItem("Tools/" + PainterConfig.ToolName + "/Join Discord")]
 
-#if UNITY_EDITOR
-        [MenuItem("Tools/" + PainterConfig.ToolName + "/Join Discord")]
-#endif
         public static void open_Discord() {
             Application.OpenURL("https://discord.gg/rF7yXq3");
         }
 
-        public const string WWW_Manual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
-#if UNITY_EDITOR
+       
+
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Open Manual")]
-#endif
+
         public static void openWWW_Documentation() {
 		Application.OpenURL(WWW_Manual);
 	}
 
-        /*
-#if UNITY_EDITOR
-        [MenuItem("Tools/" + painterConfig.ToolName + "/Forum")]
-#endif*/
 
         public static void openWWW_Forum() {
         Application.OpenURL("https://www.quizcanners.com/forum/texture-editor");
     }
 
-#if UNITY_EDITOR
+
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Send an Email")]
-#endif
+
         public static void open_Email() {
         Application.OpenURL("mailto:quizcanners@gmail.com");
     }
 
-    public override void OnDestroy() {
+#endif
+
+        public override void OnDestroy() {
 		base.OnDestroy ();
 
 		Collider[] collis = GetComponents<Collider>();
@@ -1627,8 +1627,12 @@ namespace Painter{
   
     public void Update() {
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
-       
-        if (textureWasChanged) 
+
+            if ((!LockEditing) && (meshEditEnabled ) && (Application.isPlaying))
+                    MeshManager.inst.DRAW_Lines(false);
+
+
+                if (textureWasChanged) 
             OnChangedTexture();
      
         repaintTimer -= (Application.isPlaying) ?  Time.deltaTime : 0.016f;
@@ -1680,48 +1684,55 @@ namespace Painter{
     public bool management_PEGI() {
             bool changed = false;
 
-            if ((meshManager.target != null) && (meshManager.target != this))
-                meshManager.DisconnectMesh();
- 
-            if (!cfg.showConfig){
-                if (meshEditing) {
-                    if (icon.Painter.Click("Edit Texture", 25)) {
-                        SetOriginalShader();
-                        meshEditing = false;
-                        CheckPreviewShader();
-                        meshMGMT.DisconnectMesh();
-                        changed = true;
-                        cfg.showConfig = false;
-                    }
-                }
-                else
+            if (!isNowPlaytimeAndDisabled())
+            {
+
+                if ((meshManager.target != null) && (meshManager.target != this))
+                    meshManager.DisconnectMesh();
+
+                if (!cfg.showConfig)
                 {
-                    if (icon.mesh.Click("Edit Mesh", 25))
+                    if (meshEditing)
                     {
-                        meshEditing = true;
-                        LockEditing = false;
-                        SetOriginalShader();
-                        UpdateOrSetTexTarget(texTarget.Texture2D);
-                        cfg.showConfig = false;
-
-                        if (gotMeshData())
-                            meshMGMT.EditMesh(this, false);
-
-                        return true;
+                        if (icon.Painter.Click("Edit Texture", 25))
+                        {
+                            SetOriginalShader();
+                            meshEditing = false;
+                            CheckPreviewShader();
+                            meshMGMT.DisconnectMesh();
+                            changed = true;
+                            cfg.showConfig = false;
+                        }
                     }
-
-                    if (pegi.toggle(ref LockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of this abject.", 25))
+                    else
                     {
-                        CheckPreviewShader();
-                        if (LockEditing) UpdateOrSetTexTarget(texTarget.Texture2D);
-                    }
+                        if (icon.mesh.Click("Edit Mesh", 25))
+                        {
+                            meshEditing = true;
+                            LockEditing = false;
+                            SetOriginalShader();
+                            UpdateOrSetTexTarget(texTarget.Texture2D);
+                            cfg.showConfig = false;
 
+                            if (gotMeshData())
+                                meshMGMT.EditMesh(this, false);
+
+                            return true;
+                        }
+
+                        if (pegi.toggle(ref LockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of this abject.", 25))
+                        {
+                            CheckPreviewShader();
+                            if (LockEditing) UpdateOrSetTexTarget(texTarget.Texture2D);
+                        }
+
+                    }
                 }
+
+                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.mesh : icon.Painter, icon.Config, "Settings", 25);
             }
 
-            pegi.toggle(ref cfg.showConfig, meshEditing ? icon.mesh : icon.Painter, icon.Config, "Settings", 25);
-
-            if (cfg.showConfig)
+            if ((cfg.showConfig) || (isNowPlaytimeAndDisabled()))
             {
 
                 pegi.newLine();
@@ -1744,8 +1755,11 @@ namespace Painter{
                     bool toTexture2D = curImgData.TargetIsTexture2D();
 
                     if (isAtlased) {
-                        if (originalShader == null)
-						atlasRows = getMaterial (false).GetInt (PainterConfig.atlasedTexturesInARow);
+                        if (originalShader == null) {
+                            var m = getMaterial(false);
+                            if (m.HasProperty(PainterConfig.atlasedTexturesInARow))
+                            atlasRows = getMaterial(false).GetInt(PainterConfig.atlasedTexturesInARow);
+                        }
 
 						("Atlased Texture "+atlasRows+"*"+atlasRows).write("Shader has _ATLASED define");
 						if ("Undo".Click (40).nl())
@@ -1809,7 +1823,17 @@ namespace Painter{
         }
 
     public static PlaytimePainter inspectedPainter;
-    public override bool PEGI () {
+
+    public static bool isNowPlaytimeAndDisabled() {
+#if !BUILD_WITH_PAINTER
+            if (Application.isPlaying)
+                return true;
+
+#endif
+            return false;
+        }
+
+        public override bool PEGI () {
             bool changed = false;
             inspectedPainter = this;
             ToolManagementPEGI (); 
@@ -1821,6 +1845,10 @@ namespace Painter{
         
             changed |= management_PEGI().nl();
 
+
+            if (isNowPlaytimeAndDisabled()) 
+                return changed;
+            
             if ((LockEditing) || (meshEditing))
                 return changed;
 
@@ -1861,8 +1889,11 @@ namespace Painter{
 
                 pegi.writeOneTimeHint("Warning, this will change (or mess up) your model.", "MessUpMesh");
 
-                if (m.target != this)
-                {
+                if (m.target != this) {
+
+                    if (Application.isPlaying)
+                        pegi.writeWarning("Playtime Changes will be reverted once you try to edit the mesh again.");
+                    pegi.newLine();
 
 					if ("Edit Copy".Click ()) {
 						meshMGMT.EditMesh (this, true);
@@ -1927,15 +1958,18 @@ namespace Painter{
 
 #if UNITY_EDITOR
 
-
         void OnDrawGizmosSelected()  {
 
             if (!LockEditing) {
                 if (meshEditing)
-                    MeshManager.inst.DRAW_GIZMOS();
+                {
+                    if  (!Application.isPlaying)
+                    MeshManager.inst.DRAW_Lines(true);
+                }
                 else
-                if ((originalShader == null) && (last_MouseOver_Object == this) && isCurrentTool() && isPaintingInWorldSpace(brush)) 
-            Gizmos.DrawWireSphere(stroke.posTo, brush.Size(true) * 0.5f);
+                if ((originalShader == null) && (last_MouseOver_Object == this) && isCurrentTool() && isPaintingInWorldSpace(brush))
+                    Gizmos.DrawWireSphere(stroke.posTo, brush.Size(true) * 0.5f);
+                
             }
         
     }
