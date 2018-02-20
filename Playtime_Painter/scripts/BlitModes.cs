@@ -38,7 +38,7 @@ namespace Painter{
 				(
 					(id.destination == texTarget.RenderTexture) && 
 					((supportedByBigRT && (id.renderTexture == null)) 
-						|| (supportedByExclusiveRT && (id.renderTexture != null)))
+						|| (supportedBySingleBuffer && (id.renderTexture != null)))
 				);
 		}
 
@@ -87,11 +87,9 @@ namespace Painter{
 
 		public virtual blitModeFunction BlitFunctionTex2D { get{ return Blit_Functions.AlphaBlit; }}
 
-
-
 		public virtual bool supportedByTex2D {get { return true; }}
 		public virtual bool supportedByBigRT {get { return true; }}
-		public virtual bool supportedByExclusiveRT {get { return true; }}
+		public virtual bool supportedBySingleBuffer {get { return true; }}
 		public virtual bool usingSourceTexture {get {return false;}}
 		public virtual bool showColorSliders {get { return true;}}
 		public virtual Shader shaderForDoubleBuffer { get { return rt.br_Multishade; } }
@@ -145,13 +143,13 @@ namespace Painter{
 	public class BlitModeAlphaBlit : BlitMode {
 		public override string ToString () { return "Alpha Blit";}
 		protected override string shaderKeyword { get { return "BRUSH_NORMAL";} }
-	}
+    }
 
 	public class BlitModeAdd : BlitMode {
 		public override string ToString () { return "Add";}
 		protected override string shaderKeyword { get { return "BRUSH_ADD";} }
 
-		public override Shader shaderForSingleBuffer {get {return rt.br_Add;}}
+        public override Shader shaderForSingleBuffer {get {return rt.br_Add;}}
 		public override blitModeFunction BlitFunctionTex2D {get { return Blit_Functions.AddBlit; } }
 	}
 
@@ -160,7 +158,7 @@ namespace Painter{
         protected override string shaderKeyword { get { return "BRUSH_SUBTRACT"; } }
 
         //public override Shader shaderForSingleBuffer { get { return rt.br_Add; } }
-        public override bool supportedByExclusiveRT { get { return false; } }
+        public override bool supportedBySingleBuffer { get { return false; } }
 
         public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
     }
@@ -178,14 +176,14 @@ namespace Painter{
 	public class BlitModeMin : BlitMode {
 		public override string ToString () { return "Min";}
 		public override bool supportedByBigRT { get { return false; } }
-		public override bool supportedByExclusiveRT { get { return false; } }
+		public override bool supportedBySingleBuffer { get { return false; } }
 		public override blitModeFunction BlitFunctionTex2D {get { return Blit_Functions.MinBlit; } }
 	}
 
 	public class BlitModeMax : BlitMode {
 		public override string ToString () { return "Max";}
 		public override bool supportedByBigRT { get { return false; } }
-		public override bool supportedByExclusiveRT { get { return false; } }
+		public override bool supportedBySingleBuffer { get { return false; } }
 		public override blitModeFunction BlitFunctionTex2D {get { return Blit_Functions.MaxBlit; } }
 	}
 
@@ -193,7 +191,7 @@ namespace Painter{
 		public override string ToString () { return "Blur";}
 		protected override string shaderKeyword { get { return "BRUSH_BLUR";} }
 		public override bool showColorSliders {get {return false;}}
-		public override bool supportedByExclusiveRT { get { return false; } }
+		public override bool supportedBySingleBuffer { get { return false; } }
 		public override bool supportedByTex2D { get { return false; } }
 
 		public override Shader shaderForDoubleBuffer {get {return rt.br_BlurN_SmudgeBrush;}}
@@ -214,7 +212,7 @@ namespace Painter{
 		protected override string shaderKeyword { get { return "BRUSH_BLOOM";} }
 
 		public override bool showColorSliders {get {return false;}}
-		public override bool supportedByExclusiveRT { get { return false; } }
+		public override bool supportedBySingleBuffer { get { return false; } }
 		public override bool supportedByTex2D { get { return false; } }
 
 		public override Shader shaderForDoubleBuffer {get {return rt.br_BlurN_SmudgeBrush;}}

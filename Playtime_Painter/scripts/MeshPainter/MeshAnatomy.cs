@@ -681,6 +681,10 @@ namespace Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
+            cody.AddIfTrue("f0", ForceSmoothedNorm[0]);
+            cody.AddIfTrue("f1", ForceSmoothedNorm[1]);
+            cody.AddIfTrue("f2", ForceSmoothedNorm[2]);
+
             for (int i = 0; i < 3; i++)
                 cody.Add(i.ToString(),uvpnts[i].finalIndex);
 
@@ -693,6 +697,9 @@ namespace Painter
 
             switch (tag) {
                 case "tex": textureNo = data.ToVector4(); break;
+                case "f0": ForceSmoothedNorm[0] = true; break;
+                case "f1": ForceSmoothedNorm[1] = true; break;
+                case "f2": ForceSmoothedNorm[2] = true; break;
                 default: uvpnts[tag.ToInt()] = mesh.uvsByFinalIndex[data.ToInt()]; break;
             }
 
@@ -721,6 +728,11 @@ namespace Painter
                 if (v.vert == vrt) return true;
             }
             return false;
+        }
+
+        public void ForceAllNormals(bool to) {
+            for (int i = 0; i < 3; i++)
+                ForceSmoothedNorm[i] = to;
         }
 
         public void InvertNormal()

@@ -334,23 +334,14 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	float ldot =  dot(_WorldSpaceLightPos0, -reflected);
 
-//	float glossy = max(0, ldot-0.995) * 1024;
-//	float glossless = max(0, ldot - 0.8)*16;
 
-	/*col = (
-		//glossy*smoothness 
-		//+ 
-		glossless*deSmoothness
-		)
-		;
-
-	return;*/
 
 	float3 reflResult = (
 
+		(
+		//	max(0, ldot-smoothness)*power
 
-	//	((glossy*smoothness + glossless*deSmoothness)
-		(pow(max(0.01, ldot), power)	*power
+		pow(max(0.01, ldot), power)	*power
 
 			*_LightColor0* direct) +
 

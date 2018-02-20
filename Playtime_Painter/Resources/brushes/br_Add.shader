@@ -9,8 +9,8 @@
 		"LightMode" = "ForwardBase"
 	}
 
-		Blend SrcAlpha One//MinusSrcAlpha 
-		ColorMask RGBA
+		Blend SrcAlpha One
+		ColorMask RGB
 		Cull off
 		ZTest off
 		ZWrite off
@@ -23,7 +23,7 @@
 
 		#include "qc_Includes.cginc"
 
-		#pragma multi_compile  BRUSH_2D  BRUSH_3D BRUSH_DECAL
+#pragma multi_compile  BRUSH_2D  BRUSH_3D BRUSH_DECAL
 
 #pragma vertex vert
 #pragma fragment frag

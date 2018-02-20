@@ -34,9 +34,10 @@ namespace Painter {
 
             Vector2 newDelta = uvTo - uvFrom;
 
-            return crossedASeam(newDelta);
+            return (((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
+                     && (newDelta.magnitude > 0.1) && (newDelta.magnitude > previousDelta.magnitude * 4)) || (newDelta.magnitude > 0.2f));
 
-    }
+        }
 
 
     public override stdEncoder Encode() {
@@ -123,14 +124,6 @@ namespace Painter {
         }
 
 
-    public bool crossedASeam(Vector2 newDelta) {
-            
-
-            return (((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
-                     && (newDelta.magnitude > 0.3) && (newDelta.magnitude > previousDelta.magnitude * 4)) || (newDelta.magnitude > 0.8));
-
-
-        }
 
 	public Vector3 brushWorldPositionFrom (Vector2 uv) {  
 				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterManager.orthoSize;
@@ -147,6 +140,18 @@ namespace Painter {
 
           //  Debug.Log(" prev From " + uvFrom + " to " + uvTo);
         }
+
+        public StrokeVector()
+        {
+
+        }
+
+        public StrokeVector (RaycastHit hit) {
+            uvFrom = uvTo = hit.textureCoord.To01Space();
+            posFrom = posTo = hit.point;
+        }
+
+
 }
 
 }

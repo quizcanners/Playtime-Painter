@@ -80,7 +80,7 @@ Camera:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1448749756403976}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -197,12 +197,91 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d12a17cafa5c145a6a83e8c6f744ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texturesToCopyFrom:
-  - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
+  painterCfg:
+    allowEditingInFinalBuild: 0
+    MakeVericesUniqueOnEdgeColoring: 0
+    MaxDistanceForTransformPosition: 100
+    SnapToGridSize: 1
+    MeshUVprojectionSize: 1
+    SnapToGrid: 0
+    curAtlasTexture: 0
+    curAtlasChanel: 0
+    newVerticesUnique: 0
+    newVerticesSmooth: 1
+    atlasEdgeAsChanel2: 1
+    pixelPerfectMeshEditing: 0
+    meshProfileSolutions: []
+    _meshTool: 0
+    materialsFolderName: Materials
+    texturesFolderName: 
+    meshesFolderName: 
+    vectorsFolderName: 
+    atlasFolderName: 
+    disablePainterUIonPlay: 0
+    disableGodMode: 0
+    brushConfig:
+      mask: 7
+      bliTMode: 0
+      brushType_rt: 0
+      repaintDelay: 0.016
+      selectedSourceTexture: 0
+      selectedSourceMask: 0
+      useMask: 0
+      randomMaskOffset: 0
+      selectedDecal: 0
+      maskTiling: 1
+      Hardness: 256
+      blurAmount: 1
+      decalAngle: 0
+      decalRotationMethod: 0
+      decalContinious: 0
+      decalAngleModifier: 0
+      flipMaskAlpha: 0
+      TargetIsTex2D: 0
+      Brush3D_Radius: 16
+      Brush2D_Radius: 16
+      speed: 10
+      MB1ToLinkPositions: 0
+      Smooth: 1
+      DontRedoMipmaps: 0
+      color:
+        r: 0
+        g: 0
+        b: 0
+        a: 1
+    GodWalkSpeed: 100
+    GodLookSpeed: 10
+    disableNonMeshColliderInPlayMode: 0
+    previewAlphaChanel: 0
+    newTextureIsColor: 1
+    moreOptions: 0
+    showConfig: 0
+    selectedSize: 4
+    recordingNames: []
+    browsedRecord: 0
+    showAtlasedMaterial: 0
+    showAtlases: 0
+    browsedAtlas: -1
+  isLinearColorSpace: 0
+  sourceTextures:
   - {fileID: 2800000, guid: 319e4c66e8837cc4486d5c61f4a93cc0, type: 3}
+  - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
   masks:
   - {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
-  - {fileID: 0}
+  - {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
+  forCombinedMaps:
+  - productName: Asphault
+    colorTexture: {fileID: 2800000, guid: 8cc8ace101adc7b4fb97972ac4337904, type: 3}
+    height: {fileID: 2800000, guid: f7211d8f360636741b7c8c58f7459104, type: 3}
+    normalMap: {fileID: 0}
+    smooth: {fileID: 2800000, guid: a5c81fc873314ae48b0e6ea193dad722, type: 3}
+    ambient: {fileID: 2800000, guid: 170afaaad1e9bd649925c96af2395166, type: 3}
+    Product_colorWithAlpha: {fileID: 0}
+    Product_combinedBump: {fileID: 0}
+    strength: 0
+    updateThis: 0
+  atlases: []
+  atlasedMaterials: []
   decals:
   - decalName: Rocks
     type: 0
@@ -220,15 +299,37 @@ MonoBehaviour:
   myLayer: 30
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
     type: 2}
+  DebugDisableSecondBufferUpdate: 0
+  brushRendy: {fileID: 0}
+  meshManager:
+    showGrid: 1
+    previouslyEdited: {fileID: 0}
+    tmpCubeCfg:
+      Category: 0
+      role: 0
+      p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    outlineWidth: 1
+    GridToUVon: 0
+    trisVerts: 0
+    dragDelay: 0
+    GizmoLines: 0
+  br_Blit: {fileID: 0}
+  br_Add: {fileID: 0}
+  br_Copy: {fileID: 0}
+  pixPerfectCopy: {fileID: 0}
+  bufferCopy: {fileID: 0}
+  br_Multishade: {fileID: 0}
+  br_BlurN_SmudgeBrush: {fileID: 0}
+  mesh_Preview: {fileID: 0}
   br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
-  br_TerrainPreview: {fileID: 4800000, guid: c1cb62d252575ca49bcb6f05474bda7b, type: 3}
-  paintBuffers:
-  - {fileID: 0}
-  - {fileID: 0}
+  TerrainPreview: {fileID: 0}
+  defaultMaterial: {fileID: 0}
+  BigRT_pair: []
   secondBufferDebug: {fileID: 0}
   parameterTarget: _MainTex
   painterTarget: {fileID: 0}
   autodisabledBufferTarget: {fileID: 0}
+  bufferUpdated: 0
 --- !u!114 &114658260336127396
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -84,13 +84,7 @@ namespace Painter
                     RaycastHit hit;
                     Ray ray = new Ray(cp.point+ cp.normal*0.1f, -cp.normal);
 
-                  //  Debug.DrawRay(ray.origin, ray.direction, Color.red);
-
-                   // Debug.Log("Got collision");
-
                     if (collision.collider.Raycast(ray, out hit, 2f)) {
-
-                     //   Debug.Log("Painting!");
 
                         StrokeVector v = pCont.vector;
 

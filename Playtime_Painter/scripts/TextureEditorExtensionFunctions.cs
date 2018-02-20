@@ -126,7 +126,12 @@ public static class TextureEditorExtensionFunctions  {
 			return br.Size(world) / (pixWidth) * 2 * PainterManager.orthoSize;
 		}
 
-		public static BrushType currentBrushTypeRT(this BrushConfig cfg) { return BrushType.allTypes [cfg.brushType_rt]; }
+        public static bool isSingleBufferBrush(this BrushConfig b) { 
+                return (PainterManager.inst.isLinearColorSpace && b.currentBlitMode().supportedBySingleBuffer && b.currentBrushTypeRT().supportedBySingleBuffer && b.paintingRGB);
+        }
+
+
+        public static BrushType currentBrushTypeRT(this BrushConfig cfg) { return BrushType.allTypes [cfg.brushType_rt]; }
 		public static BlitMode currentBlitMode(this BrushConfig cfg) { BlitMode.pegibrush = cfg; return BlitMode.allModes [cfg.bliTMode]; }
 
         public static stdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {

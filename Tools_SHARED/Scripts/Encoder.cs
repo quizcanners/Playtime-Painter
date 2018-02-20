@@ -168,7 +168,14 @@ namespace StoryTriggerData {
             builder.AppendSplit(data);
         }
 
+        public void AddIfTrue(string tag, bool val) {
+            if (val)
+                Add(tag, val);
+        }
+
         //CultureInfo.InvariantCulture.NumberFormat
+
+
 
         public void AddIfNotNull(iSTD other) {
             if (other == null)

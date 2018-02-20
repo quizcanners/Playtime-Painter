@@ -447,7 +447,7 @@ namespace Painter{
             last_MouseOver_Object = this;
 
             stroke.posTo = hit.point;
-            stroke.uvTo = offsetAndTileUV(hit);
+            stroke.uvTo = offsetAndTileUV(hit).To01Space();
 
             if ((currently_Painted_Object != this) && (stroke.mouseDwn)) {
                 stroke.firstStroke = true;
@@ -467,6 +467,8 @@ namespace Painter{
             if ((currently_Painted_Object == this)){
 
                 if ((!stroke.mouseDwn) || canPaintOnMouseDown(brush)) {
+
+                
 
                     Paint(stroke, brush);
 
@@ -593,7 +595,7 @@ namespace Painter{
 
             st.posTo = hit.point;
 
-			st.uvTo =   offsetAndTileUV(hit);
+			st.uvTo =   offsetAndTileUV(hit).To01Space();
 
 			Update_MousePosition_Check_Preview_Shader(st.uvTo, st.posTo, Input.GetMouseButton(0));
 

@@ -94,7 +94,8 @@ namespace Painter
                     "U - make triengle unique." + Environment.NewLine+
                     "M - merge with nearest while dragging " + Environment.NewLine + 
                     "N - smooth verticle, detect edge" + Environment.NewLine + 
-                    "N on triangle near vertex - replace smooth normal of this vertex with This triangle's normal" ;
+                    "N on triangle near vertex - replace smooth normal of this vertex with This triangle's normal" + Environment.NewLine +
+                    "N on line to ForceNormal on connected triangles. (Alt - unforce)";
             }
         }
 
@@ -217,6 +218,16 @@ namespace Painter
                 }
                 else
                     m.DeleteUv(m.pointedUV);
+                m._Mesh.Dirty = true;
+            }
+        }
+
+        public override void KeysEventPointedLine()
+        {
+            if (KeyCode.N.isDown()) {
+                foreach (var t in m.pointedLine.getAllTriangles_USES_Tris_Listing())
+                    t.ForceAllNormals(!EditorInputManager.getAltKey());
+
                 m._Mesh.Dirty = true;
             }
         }

@@ -1586,6 +1586,7 @@ namespace Painter
 
         List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
+        bool showTooltip;
         public bool PEGI()
         {
             bool changed = false;
@@ -1704,10 +1705,11 @@ namespace Painter
                 }
             }
 
+            if ("Hint".foldout(ref showTooltip).nl())
+                pegi.writeHint(cfg._meshTool.Get().tooltip);
 
-            pegi.writeHint(cfg._meshTool.Get().tooltip);
 
-            pegi.newLine();
+            pegi.nl();
 
             cfg._meshTool.Get().tool_pegi();
 

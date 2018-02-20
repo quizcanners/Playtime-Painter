@@ -37,7 +37,7 @@ public class PainterManager : MonoBehaviour {
     static PainterConfig cfg { get { return PainterConfig.inst; } }
 
     public static PainterManager _inst;
-        public static PainterManager inst {
+    public static PainterManager inst {
             get {
                 if (_inst == null)
                 {
@@ -122,8 +122,6 @@ public class PainterManager : MonoBehaviour {
     static Vector3 prevPosPreview;
     static float previewAlpha = 1;
 
-        public string testString = "_test";
-
     // ******************* Buffers MGMT
 
     [NonSerialized]
@@ -180,9 +178,9 @@ public class PainterManager : MonoBehaviour {
         {
             RenderTexture rt = GetNonSquareBuffer(width, height);
             rtcam.targetTexture = rt;
-            PrepareFullCopyBrush(BigRT_pair[0]);
+                brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);//PrepareFullCopyBrush(BigRT_pair[0]);
 
-            Render();
+                Render();
             return rt;
         }
         else
@@ -191,8 +189,8 @@ public class PainterManager : MonoBehaviour {
             int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
             RenderTexture from = GetSquareBuffer(tmpWidth);
             rtcam.targetTexture = from;
-            PrepareFullCopyBrush(BigRT_pair[0]);
-            brushRendy.Set(bufferCopy);
+                brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);
+                brushRendy.Set(bufferCopy);
 
             Render();
 
@@ -201,8 +199,8 @@ public class PainterManager : MonoBehaviour {
                 tmpWidth /= 2;
                 RenderTexture to = GetSquareBuffer(tmpWidth);
                 rtcam.targetTexture = to;
-                PrepareFullCopyBrush(from);
-                brushRendy.Set(bufferCopy);
+                    brushRendy.PrepareForFullCopyOf(from);//PrepareFullCopyBrush(from);
+                    brushRendy.Set(bufferCopy);
 
                 Render();
                 from = to;
@@ -362,10 +360,10 @@ public class PainterManager : MonoBehaviour {
         Shader.SetGlobalVector("_brushColor", c);
         
         Shader.SetGlobalVector("_brushMask", new Vector4(
-            brush.GetMask(BrushMask.R) ? 1 : 0,
-            brush.GetMask(BrushMask.G) ? 1 : 0,
-            brush.GetMask(BrushMask.B) ? 1 : 0,
-            brush.GetMask(BrushMask.A) ? 1 : 0));
+            brush.mask.GetFlag(BrushMask.R) ? 1 : 0,
+            brush.mask.GetFlag(BrushMask.G) ? 1 : 0,
+            brush.mask.GetFlag(BrushMask.B) ? 1 : 0,
+            brush.mask.GetFlag(BrushMask.A) ? 1 : 0));
 
         if (isDecal) {
             VolumetricDecal vd = GetDecal(brush.selectedDecal);
@@ -419,106 +417,79 @@ public class PainterManager : MonoBehaviour {
 		
     }
 
-    public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, imgData id) {
+    public void ShaderPrepareStroke_UpdateBuffer(BrushConfig bc, float brushAlpha, imgData id) {
 
 		BlitMode blitMode = bc.currentBlitMode ();
 
 		bool isDoubleBuffer = (id.renderTexture == null);
 
-		Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture());
+        bool useSingle = (!isDoubleBuffer) || bc.isSingleBufferBrush();
 
-		ProvideCameraPositionToShader ();
+        if ((!useSingle) && (!bufferUpdated))
+           UpdateBufferTwo();
+
+        Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture());
+
+		
 
 		rtcam.targetTexture = id.currentRenderTexture ();
 
-		if (isDoubleBuffer)
-				Shader.SetGlobalTexture ("_DestBuffer", (isDoubleBuffer ? (Texture)BigRT_pair[1] : (Texture)id.texture2D));
+		if (isDoubleBuffer) Shader.SetGlobalTexture ("_DestBuffer",  (Texture)BigRT_pair[1]);
 
-		brushRendy.Set (isDoubleBuffer ? blitMode.shaderForDoubleBuffer : blitMode.shaderForSingleBuffer);
+        brushRendy.Set (useSingle ? blitMode.shaderForSingleBuffer : blitMode.shaderForDoubleBuffer);
 
 	}
 			
 
-    public void ProvideCameraPositionToShader()
-    {
-        transform.rotation = Quaternion.identity;
-        Shader.SetGlobalVector("_RTcamPosition", transform.position);
-    }
+   
 
     // **************************   Rendering calls
 
-    public Vector2 uvToPosition(Vector2 uv) {
-        return (uv - Vector2.one * 0.5f) * orthoSize * 2;
 
-			//Vector2 meshPos = ((st.uvFrom + st.uvTo) - Vector2.one) * rtp.orthoSize;
-    }
+    public void Render() {
+            transform.rotation = Quaternion.identity;
+            Shader.SetGlobalVector("_RTcamPosition", transform.position);
 
-
-
-    public Vector2 to01space(Vector2 from) {
-        from.x %= 1;
-        from.y %= 1;
-        if (from.x < 0) from.x += 1;
-        if (from.y < 0) from.y += 1;
-        return from;
-    }
-
-    //Vector2 previousTo = Vector2.zero;
-    //Vector2 previousDir = Vector2.zero;
-    //Vector3 hitPosPrevious;
-
-        public void Render()  {
-            //Debug.Log("Rendering to "+rtcam.targetTexture);
+            brushRendy.gameObject.SetActive(true);
             rtcam.Render();
-        }
+            brushRendy.gameObject.SetActive(false);
 
-    public void PrepareFullCopyBrush(Texture source) {
+            bufferUpdated = false;
 
-        ProvideCameraPositionToShader();
-        RenderTexture targ = rtcam.targetTexture;
-		brushRendy.PrepareForFullCopyOf (source);
-			/*
-		float aspectRatio = (float)targ.width / (float)targ.height;
-        brushRendy.transform.localScale = new Vector3(size * aspectRatio, size, 0);
-        brushRendy.transform.localPosition = Vector3.forward * 10;
-        brushRendy.transform.localRotation = Quaternion.identity;
-        brushRendy.SetShader(pixPerfectCopy);
-        brushRendy.SetTexture(source);
-        brushRendy.meshFilter.mesh = brushMeshGenerator.inst().GetQuad();*/
     }
-			
 
-    public void Render(Texture tex, imgData id) {
-            if (tex == null)
-                return;
+   public void Render(Texture tex, imgData id) {
+        if (tex == null)
+            return;
         rtcam.targetTexture = id.currentRenderTexture();
-		PrepareFullCopyBrush(tex);
-		Render_UpdateSecondBufferIfUsing(id);
-	}
+            brushRendy.PrepareForFullCopyOf(tex);
+            Render();
+
+   }
 
 	public void Render(Texture from, RenderTexture to) {
             if (from == null) return;
 			rtcam.targetTexture = to;
-            PrepareFullCopyBrush(from);
+            brushRendy.PrepareForFullCopyOf(from);
             Render();
         }
 
-    public void Render_UpdateSecondBufferIfUsing(imgData id) {
-        Render();
-
-        if ((GotBuffers()) && (id.currentRenderTexture() == BigRT_pair[0]))
-            UpdateBufferTwo();
-    }
-
-
     public void UpdateBufferTwo() {
-		if (!DebugDisableSecondBufferUpdate) {
-			PrepareFullCopyBrush (BigRT_pair [0]);
-			rtcam.targetTexture = BigRT_pair [1];
-			brushRendy.Set (bufferCopy);
-			rtcam.Render ();
-		}
+            brushRendy.PrepareForFullCopyOf(BigRT_pair[0]); 
+            UpdateBufferSegment();
     }
+
+
+    public bool bufferUpdated = false;
+    public void UpdateBufferSegment() {
+            if (!DebugDisableSecondBufferUpdate) {
+                brushRendy.Set(BigRT_pair[0]);
+                rtcam.targetTexture = BigRT_pair[1];
+                brushRendy.Set(bufferCopy);
+                Render();
+                bufferUpdated = true;
+            }
+        }
 
 
     // *******************  Component MGMT
@@ -655,7 +626,7 @@ public class PainterManager : MonoBehaviour {
         rtcam.orthographic = true;
         rtcam.orthographicSize = orthoSize;
         rtcam.clearFlags = CameraClearFlags.Nothing;
-        rtcam.enabled = false;
+        rtcam.enabled = Application.isPlaying;
 
 #if UNITY_EDITOR
         EditorApplication.update -= combinedUpdate;
@@ -795,9 +766,7 @@ public class PainterManager : MonoBehaviour {
             pegi.newLine();
             "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-            "testValue: ".edit(() => testString).nl();
-
-            //serializedObject.Update();
+            //"testValue: ".edit(() => testString).nl();
 
             "Textures to copy from".edit(() => sourceTextures).nl();
             "Masks".edit(() => masks).nl();

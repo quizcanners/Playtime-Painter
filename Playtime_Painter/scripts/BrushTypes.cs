@@ -61,7 +61,23 @@ public abstract class BrushType : IeditorDropdown {
             }
         }
 
-	public virtual bool showInDropdown(){
+    public Vector2 uvToPosition(Vector2 uv)
+        {
+            return (uv - Vector2.one * 0.5f) * PainterManager.orthoSize * 2;
+
+            //Vector2 meshPos = ((st.uvFrom + st.uvTo) - Vector2.one) * rtp.orthoSize;
+        }
+
+    public Vector2 to01space(Vector2 from)
+        {
+            from.x %= 1;
+            from.y %= 1;
+            if (from.x < 0) from.x += 1;
+            if (from.y < 0) from.y += 1;
+            return from;
+        }
+
+    public virtual bool showInDropdown(){
 		if (painter == null)
 			return false;
 		
@@ -74,7 +90,7 @@ public abstract class BrushType : IeditorDropdown {
 			
 			(((id.destination == texTarget.RenderTexture) && 
 				((supportedByBigRT && (id.renderTexture == null)) 
-					|| (supportedByExclusiveRT && (id.renderTexture != null)))
+					|| (supportedBySingleBuffer && (id.renderTexture != null)))
 			));
 	}
 
@@ -96,17 +112,15 @@ public abstract class BrushType : IeditorDropdown {
 
     static int typesCount = 0;
     public int index;
-       
 
     public BrushType() {
             index = typesCount;
             typesCount++;
            // Debug.Log("Type "+index);
         }
-        
 
     public virtual bool supportedByBigRT {get { return true; }}
-	public virtual bool supportedByExclusiveRT {get { return true; }}
+	public virtual bool supportedBySingleBuffer {get { return true; }}
 	public virtual bool isA3Dbrush {get { return false;}}
 	public virtual bool isUsingDecals {get { return false;}}
 	public virtual bool startPaintingTheMomentMouseIsDown {get { return true;}}
@@ -172,18 +186,18 @@ public abstract class BrushType : IeditorDropdown {
 		
 		painter = pntr;
 
-            if (st.crossedASeam())
-				st.uvFrom = st.uvTo;
+           // Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
+           // st.uvFrom -= outb;
+           // st.uvTo -= outb;
 
-		Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
-		st.uvFrom -= outb;
-		st.uvFrom -= outb;
+            if (st.crossedASeam())
+                st.uvFrom = st.uvTo;
 
 			if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
 
 			imgData id = painter.curImgData;
 
-			rtp.ShaderPrepareStroke(br, br.speed*0.05f, id);
+			rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed*0.05f, id);
 
 			bool isSphere = br.currentBrushTypeRT().isA3Dbrush;
 
@@ -191,28 +205,25 @@ public abstract class BrushType : IeditorDropdown {
 
 			if (isSphere) {
 
-               
-
 				Vector3 hitPos = st.posTo;
 				if (st.mouseDwn)
 					st.posFrom = hitPos;
 
-				Vector2 offset = rtp.to01space(id.offset);
+				Vector2 offset = to01space(id.offset);
 
 				Shader.SetGlobalVector("_brushWorldPosFrom", new Vector4(st.posFrom.x, st.posFrom.y, st.posFrom.z, 0));
 				Shader.SetGlobalVector("_brushWorldPosTo", new Vector4(hitPos.x, hitPos.y, hitPos.z, st.delta_WorldPos.magnitude));
 				Shader.SetGlobalVector("_brushEditedUVoffset", new Vector4(id.tyling.x, id.tyling.y, offset.x, offset.y));
 				st.posFrom = hitPos;
 
-				rtp.brushRendy.CopyAllFrom(pntr.gameObject, pntr.getMesh());
+				rtp.brushRendy.CopyAllFrom(pntr);
 				rtp.Render();
-
 				rtp.brushRendy.RestoreBounds();
 
-				if ((PainterManager.GotBuffers ()) && (id.currentRenderTexture () == rtp.BigRT_pair [0])) {
+				/*if ((PainterManager.GotBuffers ()) && (id.currentRenderTexture () == rtp.BigRT_pair [0])) {
 					rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
 					rtp.UpdateBufferTwo ();
-				}
+				}*/
 			}
 			else {
 
@@ -224,7 +235,15 @@ public abstract class BrushType : IeditorDropdown {
 				rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 				
 				rtbrush.localPosition =  st.brushWorldPositionFrom((st.uvFrom+st.uvTo)/2);
-				rtp.Render_UpdateSecondBufferIfUsing(id);
+
+              //  Debug.Log("From " + st.uvFrom + " to " + st.uvTo);
+
+                rtp.Render();//Render_UpdateSecondBufferIfUsing(id);
+
+                if (!br.isSingleBufferBrush())
+                    rtp.UpdateBufferSegment();
+
+
 			}
 
 
@@ -254,7 +273,7 @@ public class BrushTypeDecal : BrushType {
         static BrushTypeDecal _inst;
         public BrushTypeDecal() { _inst = this; }
         public static BrushTypeDecal inst { get { initIfNull(); return _inst; } }
-
+        public override bool supportedBySingleBuffer { get { return false; } }
         protected override string shaderKeyword { get {return "BRUSH_DECAL";} }
 	    public override bool isUsingDecals { get { return true; } }
 
@@ -293,13 +312,13 @@ public class BrushTypeDecal : BrushType {
 
 			
 
-				rtp.ShaderPrepareStroke(br, 1, id);
+				rtp.ShaderPrepareStroke_UpdateBuffer(br, 1, id);
 				Transform tf = rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
                 brushMesh = brushMeshGenerator.inst().GetQuad();
 
-                st.uvTo = rtp.to01space(st.uvTo);
+                st.uvTo = to01space(st.uvTo);
 
                 Vector2 deltauv = st.delta_uv;
 
@@ -330,11 +349,15 @@ public class BrushTypeDecal : BrushType {
                     tf.localPosition = st.brushWorldPositionFrom(uv);
 
 
-                   // if (strokes > 1) Debug.Log("Stroke " + i + ":" + tf.localPosition);
+                // if (strokes > 1) Debug.Log("Stroke " + i + ":" + tf.localPosition);
 
-                    rtp.Render_UpdateSecondBufferIfUsing(id);
+                rtp.Render();//Render_UpdateSecondBufferIfUsing(id);
 
-                    if (br.decalRotationMethod == DecalRotationMethod.Random) {
+                if (!br.isSingleBufferBrush())
+                    rtp.UpdateBufferSegment();
+
+
+                if (br.decalRotationMethod == DecalRotationMethod.Random) {
                         br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
                         pntr.Update_Brush_Parameters_For_Preview_Shader();
                     }
@@ -368,7 +391,7 @@ public class BrushTypeDecal : BrushType {
         } 
 
 		pegi.newLine();
-		if (!br.GetMask(BrushMask.A))
+		if (!br.mask.GetFlag(BrushMask.A))
 			pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");
 
 		return brushChanged_RT;
@@ -397,9 +420,9 @@ public class BrushTypeLazy : BrushType {
 	public override void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 		painter = pntr;
 
-			Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
-			st.uvTo -= outb;
-			st.uvFrom -= outb;
+		//	Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
+		//	st.uvTo -= outb;
+		//	st.uvFrom -= outb;
 
 		Vector2 delta_uv = st.delta_uv;//uv - st.uvFrom;//.Previous_uv;
 		float magn = delta_uv.magnitude;
@@ -483,31 +506,36 @@ public class BrushTypeLazy : BrushType {
 				bool isTail = st.firstStroke;//(!previousTo.Equals(uvFrom));
 
 				if ((!isTail) && (!smooth)) {
-					//Debug.Log ("Junction point");
+                    //Debug.Log ("Junction point");
+                    r.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id);
 
-					Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
-					brushMesh = brushMeshGenerator.inst().GetStreak(r.uvToPosition(st.uvFrom), r.uvToPosition(junkPoint), meshWidth, true, false);
+                    Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
+					brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(junkPoint), meshWidth, true, false);
 					tf.localScale = Vector3.one;
 					tf.localRotation = Quaternion.identity;
 					tf.localPosition = new Vector3(0, 0, 10);
 
-					r.ShaderPrepareStroke(br, br.speed*0.05f, id);
-					r.Render_UpdateSecondBufferIfUsing(id);
+
+                    r.Render();//Render_UpdateSecondBufferIfUsing(id);
 					st.uvFrom = junkPoint;
 					isTail = true;
 				}
 
-				brushMesh = brushMeshGenerator.inst().GetStreak(r.uvToPosition(st.uvFrom), r.uvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
+                r.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id);
 
-				tf.localScale = Vector3.one;
+                brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
+                tf.localScale = Vector3.one;
 				tf.localRotation = Quaternion.identity;
 				tf.localPosition = new Vector3(0, 0, 10);
 
 				st.previousDelta = direction;
-				r.ShaderPrepareStroke(br, br.speed*0.05f, id);
-				r.Render_UpdateSecondBufferIfUsing(id);
 
-			painter.AfterStroke(st);
+                r.Render();//Render_UpdateSecondBufferIfUsing(id);
+
+                if (!br.isSingleBufferBrush())
+                    rtp.UpdateBufferSegment();
+
+                painter.AfterStroke(st);
 		}
 	}
 }
@@ -517,6 +545,8 @@ public class BrushTypeSphere : BrushType {
         static BrushTypeSphere _inst;
         public BrushTypeSphere() { _inst = this; }
         public static BrushTypeSphere inst { get { initIfNull(); return _inst; } }
+      
+
 
         public override bool isA3Dbrush { get { return true; } }
         public override bool supportedForTerrain_RT {  get { return false; } }
@@ -542,29 +572,31 @@ public class BrushTypeSphere : BrushType {
             if (st.mouseDwn)
                 st.posFrom = hitPos;
 
-                Vector2 offset = rtp.to01space(id.offset);
+
+            rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id);
+
+          
+            Vector2 offset = to01space(id.offset);
 
                 Shader.SetGlobalVector("_brushWorldPosFrom", new Vector4(st.posFrom.x, st.posFrom.y, st.posFrom.z, 0));
                 Shader.SetGlobalVector("_brushWorldPosTo", new Vector4(hitPos.x, hitPos.y, hitPos.z, st.delta_WorldPos.magnitude));
                 Shader.SetGlobalVector("_brushEditedUVoffset", new Vector4(id.tyling.x, id.tyling.y, offset.x, offset.y));
                 st.posFrom = hitPos;
 
-                rtp.brushRendy.CopyAllFrom(pntr.gameObject, pntr.getMesh());
 
-            rtp.ShaderPrepareStroke(br, br.speed * 0.05f, id);
-
-           if (!st.mouseDwn)
-            rtp.Render();   // Disabling brush Renderer clears texture Right Away
-
-            rtp.brushRendy.RestoreBounds();
-
+          
+            if (!st.mouseDwn) {
+                rtp.brushRendy.CopyAllFrom(pntr);
+                rtp.Render();  
+                rtp.brushRendy.RestoreBounds();
+            }
 
 
-               if ((PainterManager.GotBuffers()) && (id.currentRenderTexture() == rtp.BigRT_pair[0])) {
+              /* if ((PainterManager.GotBuffers()) && (id.currentRenderTexture() == rtp.BigRT_pair[0])) {
                     rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
                     rtp.UpdateBufferTwo();
                // Debug.Log("Painting sphere");
-                }
+                }*/
             
             pntr.AfterStroke(st);
         }

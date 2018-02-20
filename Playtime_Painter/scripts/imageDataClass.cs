@@ -293,7 +293,7 @@ namespace Painter {
 
             RenderTexture curRT = RenderTexture.active;
 
-            Debug.Log("Sampling Render Texture");
+           // Debug.Log("Sampling Render Texture");
 
             PainterManager rtp = PainterManager.inst;
             int size = PainterManager.renderTextureSize / 4;

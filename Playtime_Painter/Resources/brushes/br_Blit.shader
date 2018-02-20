@@ -10,7 +10,7 @@
 	}
 
 		Blend SrcAlpha OneMinusSrcAlpha 
-		ColorMask RGBA
+		ColorMask RGB
 		Cull off
 		ZTest off
 		ZWrite off

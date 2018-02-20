@@ -10,6 +10,12 @@ using PlayerAndEditorGUI;
 
 
 
+public static class BrushExtensions
+{
+    public static bool GetFlag (this BrushMask mask, BrushMask flag) {
+        return (mask & flag) != 0;
+    }
+}
 
 [Flags]
 public enum BrushMask
@@ -74,10 +80,10 @@ public class BrushConfig : abstract_STD
     public const string storyTag = "brush";
     public override string getDefaultTagName() { return storyTag; }
 
-    public bool GetMask(BrushMask flag)
+  /*  public bool GetMask(BrushMask flag)
     {
-        return ((mask & flag) != 0);
-    }
+        return mask ((mask & flag) != 0);
+    }*/
 
     public void MaskToggle(BrushMask flag)
     {
@@ -131,20 +137,24 @@ public class BrushConfig : abstract_STD
     public bool Smooth;
     public bool DontRedoMipmaps;
 
+   
     public linearColor color;
 
     [NonSerialized]
     public Vector2 SampledUV;
 
-    public BrushConfig()
-    {
+    public BrushConfig() {
         Smooth = true;
         color = new linearColor(Color.black);
         mask = new BrushMask();
         mask |= BrushMask.R | BrushMask.G | BrushMask.B;
     }
 
-	public bool ColorSlider(BrushMask m, ref float chanel)	{
+    public bool paintingAllChannels { get { return mask.GetFlag(BrushMask.R)  && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A) ; } }
+
+    public bool paintingRGB { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); } }
+
+    public bool ColorSlider(BrushMask m, ref float chanel)	{
 
       
 
@@ -164,14 +174,14 @@ public class BrushConfig : abstract_STD
        
 
         bool changed = false;
-        bool maskVal = GetMask(m);
+        bool maskVal = mask.GetFlag(m);
         if (maskVal ? pegi.Click(icon, 25) : pegi.Click(m.ToString() + " disabled"))
         {
             MaskToggle(m);
             changed = true;
         }
 
-		if ((slider) && (GetMask(m)))
+		if ((slider) && (mask.GetFlag(m)))
             changed |= pegi.edit(ref chanel, 0, 1);
 		
         pegi.newLine();

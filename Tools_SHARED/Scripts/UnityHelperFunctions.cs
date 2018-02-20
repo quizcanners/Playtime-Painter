@@ -142,6 +142,11 @@ public static class UnityHelperFunctions {
             UnityEngine.Object.DestroyImmediate(go);
     }
 
+    public static Vector2 To01Space (this Vector2 v2)
+    {
+        return (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
+    }
+
     public static Vector4 ToVector4(this Color col) {
         return new Vector4(col.r,col.g, col.b, col.a);
     }

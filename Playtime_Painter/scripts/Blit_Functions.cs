@@ -104,10 +104,10 @@ public static class Blit_Functions {
 
         alpha = 1;
 
-         r = bc.GetMask(BrushMask.R);
-         g = bc.GetMask(BrushMask.G);
-         b = bc.GetMask(BrushMask.B);
-         a = bc.GetMask(BrushMask.A);
+         r = bc.mask.GetFlag(BrushMask.R);
+         g = bc.mask.GetFlag(BrushMask.G);
+         b = bc.mask.GetFlag(BrushMask.B);
+         a = bc.mask.GetFlag(BrushMask.A);
 
         csrc = bc.color.ToColor();
 
@@ -155,10 +155,10 @@ public static class Blit_Functions {
 
 			alpha = 1;
 
-			r = bc.GetMask(BrushMask.R);
-			g = bc.GetMask(BrushMask.G);
-			b = bc.GetMask(BrushMask.B);
-			a = bc.GetMask(BrushMask.A);
+			r = bc.mask.GetFlag(BrushMask.R);
+			g = bc.mask.GetFlag(BrushMask.G);
+			b = bc.mask.GetFlag(BrushMask.B);
+			a = bc.mask.GetFlag(BrushMask.A);
 
 			csrc = bc.color.ToColor();
 

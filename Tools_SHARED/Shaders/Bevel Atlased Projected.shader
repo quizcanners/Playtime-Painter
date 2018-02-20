@@ -155,7 +155,7 @@ SubShader {
 	float weight;
 	float3 normal = DetectSmoothEdge(
 #if EDGE_WIDTH_FROM_COL_A
-		col.a,
+		1-col.a,
 #endif
 		i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight); 
 	
