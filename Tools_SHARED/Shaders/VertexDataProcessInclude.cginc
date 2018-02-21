@@ -280,7 +280,7 @@ inline float3 foamStuff(float3 wpos) {
 }
 
 inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float shadow) {
-	float wetSection = saturate(_foamParams.w - fwpos.y - (colA)*_foamParams.w)*(1 - terrainN.b);
+	float wetSection = min(max(_foamParams.w - fwpos.y - (colA)*_foamParams.w, 0),0.999);//*(1 - terrainN.b);
 	fwpos.y += colA;
 
 	float2 foamA_W = foamAlphaWhite(fwpos);
@@ -293,6 +293,66 @@ inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float 
 	return float2(foamA_W.y*(0.5 + shadow)*(under), water);
 }
 
+
+
+
+inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow) {
+
+	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
+	float fernel = 1.5 - dotprod;
+	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
+
+	float smoothness = terrainN.b;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
+	float deSmoothness = (1 - smoothness);
+
+	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
+
+	shadow = saturate((shadow * 2 - ambientBlock));
+
+	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
+	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
+	float direct = diff*shadow;
+
+
+
+
+	float3 ambientRefl = ShadeSH9(float4(reflected, 1));
+	float3 ambientCol = ShadeSH9(float4(worldNormal, 1));
+
+	_LightColor0 *= direct;
+
+	col.rgb = col.rgb* (_LightColor0 +
+		(ambientCol
+			)*fernel)*deSmoothness;
+
+	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
+
+	float NdotH =  max(0, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
+
+
+
+	float normTerm = GGXTerm(NdotH, deSmoothness);//*(pow(terrainN.b + 0.05, 4) * 8);
+
+	float3 reflResult = (
+		normTerm*2 //normTerm
+
+		*_LightColor0 +
+
+		ambientRefl.rgb
+
+		)* terrainN.b;// *fernel;
+
+	col.rgb += reflResult;
+
+	//col.rgb = NdotH;
+
+	//col.rgb = reflected + 0.5;
+
+}
+
+
+
+
 inline void Terrain_Light(float3 tc_Control, float4 terrainN, 
 	float3 worldNormal, float3 viewDir, inout float4 col, float shadow) {
 
@@ -300,7 +360,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	float fernel = 1.5 - dotprod;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
-	float smoothness = (pow(terrainN.b, (3 - fernel) * 2));
+	float smoothness = terrainN.b;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
@@ -325,32 +385,33 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
 	float3 ambientCol = ShadeSH9(float4(worldNormal, 1))*terrainAmbient.a;
 
-	
+	_LightColor0 *= direct;
 
-	col.rgb = col.rgb* (_LightColor0*direct + (terrainAmbient.rgb + ambientCol
+	col.rgb = col.rgb* (_LightColor0 +
+		(terrainAmbient.rgb + ambientCol
 		)*fernel)*deSmoothness*terrainAmbient.a;
 
-	float power = smoothness * 1024;
+	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
-	float ldot =  dot(_WorldSpaceLightPos0, -reflected);
+	float NdotH = max(0, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
+	
+	
 
-
-
+	float normTerm = GGXTerm(NdotH, deSmoothness);//*(pow(terrainN.b + 0.05, 4) * 8);
+	
 	float3 reflResult = (
-
-		(
-		//	max(0, ldot-smoothness)*power
-
-		pow(max(0.01, ldot), power)	*power
-
-			*_LightColor0* direct) +
+		normTerm //normTerm
+		
+		*_LightColor0 +
 
 		terrainLrefl.rgb +
 		ambientRefl.rgb
 
-		)* terrainN.b * fernel;
+		)* terrainN.b;// *fernel;
 
 	col.rgb += reflResult;
+
+	//col.rgb = NdotH;
 
 	//col.rgb = reflected + 0.5;
 

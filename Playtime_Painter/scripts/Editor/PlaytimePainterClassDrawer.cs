@@ -47,7 +47,7 @@ namespace Painter {
 
                 if ((((e.button == 1) && (!MeshManager.inst.draggingSelected)) 
                     
-                    || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+                    || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
 
                     navigating = true;
 
@@ -74,7 +74,7 @@ namespace Painter {
 
             if (L_mouseUp) PlaytimePainter.currently_Painted_Object = null;
 
-            if (((e.button == 1) || (e.button == 2)) && ((e.type == EventType.mouseDown) || (e.type == EventType.mouseDrag) || (e.type == EventType.mouseUp)))
+            if (((e.button == 1) || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
                 navigating = true;
 
             return true;
@@ -85,7 +85,7 @@ namespace Painter {
             MeshManager.inst.UpdateInputEditorTime(e, ray, L_mouseUp, L_mouseDwn);
         
 
-            if ((e.type == EventType.keyDown) && (painter != null) && (painter.meshEditing == false)) {
+            if ((e.type == EventType.KeyDown) && (painter != null) && (painter.meshEditing == false)) {
                 imgData id = painter.curImgData;
                 if (id != null) {
                     if ((e.keyCode == KeyCode.Z) && (id.cache.undo.gotData()))

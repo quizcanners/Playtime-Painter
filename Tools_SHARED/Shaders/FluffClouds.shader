@@ -129,7 +129,7 @@ Category {
 col.a=max(0,(col.a / 8 - distortion)); // IMPORTANT
 float alpha = saturate(i.h*16 + vda/512); //-i.viewDir.y*4);
 
-float ca = min(1,col.a);
+float ca = col.a;//min(1, col.a);
 float dca = 1 - ca;
 
 

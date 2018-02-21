@@ -1,7 +1,7 @@
 ﻿Shader "Bevel/Pixelated" {
 	Properties{
 		_MainTex("Base texture", 2D) = "white" {}
-	_Noise("Noise", 2D) = "white" {}
+	//_Noise("Noise", 2D) = "white" {}
 	}
 
 		Category{
@@ -39,7 +39,7 @@
 
 		sampler2D _MainTex;
 	float4 _MainTex_TexelSize;
-	sampler2D _Noise;
+	//sampler2D _Noise;
 
 	struct v2f {
 		float4 pos : SV_POSITION;
@@ -90,7 +90,8 @@
 
 	//normal = i.normal.xyz;
 
-		float4 noise = tex2Dlod(_Noise, float4(frac(i.viewDir.x + i.worldPos.y + _Time.x) * 1128, frac(i.viewDir.y + i.worldPos.z - _Time.x) * 1128, 0, 0));//(frac((i.viewDir.x+i.worldPos.y) * 11123 + (i.viewDir.y+i.worldPos.z) * 11456 + (i.viewDir.z+i.worldPos.x) * 12789 * _Time.x) - 0.5);
+		
+	//float4 noise = tex2Dlod(_Noise, float4(frac(i.viewDir.x + i.worldPos.y + _Time.x) * 1128, frac(i.viewDir.y + i.worldPos.z - _Time.x) * 1128, 0, 0));//(frac((i.viewDir.x+i.worldPos.y) * 11123 + (i.viewDir.y+i.worldPos.z) * 11456 + (i.viewDir.z+i.worldPos.x) * 12789 * _Time.x) - 0.5);
 
 
 		float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
@@ -108,22 +109,12 @@
 
 		i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-		float dotprod = dot(i.viewDir.xyz, normal);					 //dot(normal,  i.viewDir.xyz);
-		float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*normal);
-		float dott = max(0.01, dot(_WorldSpaceLightPos0, -reflected));
 
-		col.rgb *= (max(0, dot(normal, _WorldSpaceLightPos0.xyz))
-			* shadow)*_LightColor0*(1 - col.a);
+		Simple_Light(float4 (0, 0, col.a, 1),
+			normal, i.viewDir.xyz, col, shadow);
 
-		col.a += 0.01;
 
-		float power = pow(col.a,8 + noise.g);
-
-		col.rgb += pow(dott, 4096 * power)*(_LightColor0.rgb + noise
-			)* power
-			*col.a * 8 * shadow;
-			
-		//col.rgb = normal;
+	
 
 		return col;
 		

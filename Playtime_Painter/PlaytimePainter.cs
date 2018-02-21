@@ -418,7 +418,7 @@ namespace Painter{
     public void OnMouseOver_SceneView(RaycastHit hit, Event e) {
 
             if (e.button == 1) {
-                if (e.type == EventType.mouseDown)
+                if (e.type == EventType.MouseDown)
                     mouseBttnTime = EditorApplication.timeSinceStartup;
                 if ((e.type == EventType.MouseUp) && ((EditorApplication.timeSinceStartup - mouseBttnTime) < 0.2f))
                     FocusOnThisObject();
@@ -427,7 +427,7 @@ namespace Painter{
             if (meshEditing)
                 return;
 
-            if ((LockEditing == false) && ((stroke.mouseDwn || (e.type == EventType.mouseDrag) || (stroke.mouseUp)) && (e.button == 0))) {
+            if ((LockEditing == false) && ((stroke.mouseDwn || (e.type == EventType.MouseDrag) || (stroke.mouseUp)) && (e.button == 0))) {
                 int submesh = MeshAnaliser.GetSubmeshNumber(this.getMesh(), hit.triangleIndex);
                 if (submesh != selectedMaterial) {
                     if (autoSelectMaterial_byNumberOfPointedSubmesh) {

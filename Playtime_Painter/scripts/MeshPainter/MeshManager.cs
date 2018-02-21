@@ -1357,7 +1357,7 @@ namespace Painter
 
             EditorInputManager.raySceneView = ray;
 
-            if (e.type == EventType.keyDown) {
+            if (e.type == EventType.KeyDown) {
                 switch (e.keyCode)
                 {
 

@@ -301,7 +301,7 @@ public static class UnityHelperFunctions {
         if (Application.isPlaying)
             return Input.GetKeyDown(k);
         else
-            return (Event.current.isKey && Event.current.type == EventType.keyDown && Event.current.keyCode == k);
+            return (Event.current.isKey && Event.current.type == EventType.KeyDown && Event.current.keyCode == k);
     }
 
     public static bool isUp(this KeyCode k)
@@ -309,7 +309,7 @@ public static class UnityHelperFunctions {
         if (Application.isPlaying)
             return Input.GetKeyUp(k);
         else
-            return (Event.current.isKey && Event.current.type == EventType.keyUp && Event.current.keyCode == k);
+            return (Event.current.isKey && Event.current.type == EventType.KeyUp && Event.current.keyCode == k);
     }
 
     public static void Focus(this GameObject go) {

@@ -70,7 +70,7 @@ public static class ef {
     static int elementIndex;
     static int searchBarInd;
     public static bool searchInFocus = false;
-    public static ArrayManager<Texture> tarray = new ArrayManager<Texture>();
+    public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
     public static SerializedObject serObj;
 
     public static List<int> search(List<string> from) {

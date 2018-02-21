@@ -55,8 +55,8 @@ public abstract class SceneViewEditable<T> : Editor where T : MonoBehaviour {
 
         if (e.isMouse) {
 
-            L_mouseDwn = (e.type == EventType.mouseDown) && (e.button == 0);
-            L_mouseUp = (e.type == EventType.mouseUp) && (e.button == 0);
+            L_mouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
+            L_mouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
 
             mousePosition = Event.current.mousePosition;
             rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);

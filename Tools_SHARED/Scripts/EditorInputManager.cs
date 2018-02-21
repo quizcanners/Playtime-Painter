@@ -75,9 +75,9 @@ public static class EditorInputManager {
             if (mouseBttnState[i] == MB_state_Editor.down) mouseBttnState[i] = MB_state_Editor.dragging; // to prevent multiple click readings
 
         if (mb < 3) switch (e.type) {
-                case EventType.mouseDown: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.down; break;
-                case EventType.mouseDrag: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.dragging; break;
-                case EventType.mouseUp: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.up; break;
+                case EventType.MouseDown: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.down; break;
+                case EventType.MouseDrag: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.dragging; break;
+                case EventType.MouseUp: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.up; break;
             }
     }
 

@@ -116,7 +116,7 @@
 			//bump.b *= bump2.b;
 
 			float smoothness = bump.b+bump2.b*deFar;
-			smoothness *= smoothness;
+			//smoothness *= smoothness;
 
 			float3 normal = normalize(float3(bump.r,1,bump.g));
 
@@ -137,7 +137,24 @@
 
 			float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*smoothness)*_LightColor0;
 
-			cont.rgb = ( unity_AmbientSky.rgb*terrainLight.a + dott*shadow*0.1+ (terrainLight.rgb *bump.b +pow(max(0.01, dott), 2048* smoothness * 8)* shadow*64)*_LightColor0.rgb) *(1+ dotprod) * 0.5;
+
+			float3 halfDirection = normalize(i.viewDir.xyz + _WorldSpaceLightPos0.xyz);
+
+			float NdotH = saturate((dot(normal, halfDirection)-1+smoothness*0.05)*100);
+
+
+			//return NdotH;
+
+			//float 	normTerm = GGXTerm(NdotH, smoothness*0.1);//*(pow(terrainN.b + 0.05, 4) * 8);
+			//return normTerm;
+
+			cont.rgb = ( unity_AmbientSky.rgb*terrainLight.a + dott*shadow*0.1+ (terrainLight.rgb *bump.b 
+				
+				
+				+ NdotH*4//pow(max(0.01, dott), 2048* smoothness * 8)
+				
+				
+				* shadow)*_LightColor0.rgb) *(1+ dotprod) * 0.5;
 
 			//cont.rgb += pow(bump.b,4)*1024;
 
