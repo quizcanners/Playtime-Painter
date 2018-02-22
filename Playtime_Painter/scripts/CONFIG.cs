@@ -27,17 +27,19 @@ public class PainterConfig  {
     public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
 
         // Terrain Global Shader namings:
-    public const string terrainPosition = "_mergeTeraPosition";
-    public const string terrainTiling = "_mergeTerrainTiling";
-    public const string terrainScale = "_mergeTerrainScale";
-    public const string terrainHeight = "_mergeTerrainHeight"; // Used in custom shaders
-    public const string terrainControl = "_mergeControl"; // Used in Custom Terrain Shaders
-    public const string terrainTexture = "_mergeSplat_";
-    public const string terrainNormalMap = "_mergeSplatN_";
-    public const string terrainLight = "_TerrainColors";
-	public const string previewTexture = "_PreviewTex";
+        public const string terrainPosition = "_mergeTeraPosition";
+        public const string terrainTiling = "_mergeTerrainTiling";
+        public const string terrainScale = "_mergeTerrainScale";
+        public const string terrainHeight = "_mergeTerrainHeight"; 
+        public const string terrainControl = "_mergeControl"; 
+        public const string terrainTexture = "_mergeSplat_";
+        public const string terrainNormalMap = "_mergeSplatN_";
+        public const string terrainLight = "_TerrainColors";
+	    public const string previewTexture = "_PreviewTex";
 
-        
+        public const string BRUSH_WORLD_POS_FROM = "_brushWorldPosFrom";
+		public const string BRUSH_WORLD_POS_TO = "_brushWorldPosTo";
+        public const string BRUSH_EDITED_UV_OFFSET = "_brushEditedUVoffset";
 
         // Preview Constants
         public const string UV_NORMAL = "UV_NORMAL";

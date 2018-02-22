@@ -1228,7 +1228,7 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool edit(ref int val, float min, float max) {
+        public static bool edit(ref int val, int min, int max) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1238,6 +1238,8 @@ namespace PlayerAndEditorGUI {
         {
                 checkLine();
                 float before = val;
+                //if (edit(ref val))
+                //val = Mathf.Clamp(val, min, max);
                 val = (int)GUILayout.HorizontalSlider(before, min, max);
                 return (before != val);
             }
@@ -1505,6 +1507,12 @@ namespace PlayerAndEditorGUI {
         }
         
         public static bool edit(this string label, ref float val, float min, float max) {
+            write(label);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, ref int val, int min, int max)
+        {
             write(label);
             return edit(ref val, min, max);
         }

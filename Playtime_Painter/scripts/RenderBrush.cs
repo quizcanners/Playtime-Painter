@@ -13,71 +13,85 @@ public class RenderBrush : MonoBehaviour {
     public MeshFilter meshFilter;
     public Mesh modifiedMesh;
     public Bounds modifiedBound;
-        PlaytimePainter replacedPainter;
-        Material replacedMaterial;
-        int replacedLayer;
-
+   
+        SkinnedMeshRenderer ReplacedSkinnedMeshRendy;
+        GameObject replacedGameObject;
+    Material replacedMaterial;
+    int replacedLayer;
+        public bool deformedBounds;
 
     public void RestoreBounds() {
 
            if (replacedMaterial!= null) {
-                replacedPainter.skinnedMeshRendy.sharedMaterial = replacedMaterial;
-                replacedPainter.gameObject.layer = replacedLayer;
+               
+                ReplacedSkinnedMeshRendy.sharedMaterial = replacedMaterial;
+                ReplacedSkinnedMeshRendy.localBounds = modifiedBound;
+                replacedGameObject.layer = replacedLayer;
                 replacedMaterial = null;
-                replacedPainter.skinnedMeshRendy.localBounds = modifiedBound;
                 meshRendy.enabled = true;
+
             } else
             {
                 transform.parent = PainterManager.inst.transform;
                 modifiedMesh.bounds = modifiedBound;
             }
 
+            deformedBounds = false;
+
         }
 
 
 
-        public void CopyAllFrom (PlaytimePainter painter) {
+        public void UseMeshAsBrush (PlaytimePainter painter) {
 
-        GameObject go = painter.gameObject;
+            GameObject go = painter.gameObject;
             Transform camTransform = PainterManager.inst.transform;
 
             var skinny = painter.skinnedMeshRendy;
-            if (skinny != null) {
 
-                meshRendy.enabled = false;
-                replacedPainter = painter;
+            if (skinny != null) 
+                UseSkinMeshAsBrush(go, skinny);
+            else 
+                UseMeshAsBrush(go, painter.getMesh());
+        }
 
-                replacedMaterial = skinny.sharedMaterial;
-                skinny.sharedMaterial = meshRendy.sharedMaterial;
+        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny)
+        {
+            meshRendy.enabled = false;
+            ReplacedSkinnedMeshRendy = skinny;
+            replacedGameObject = go;
+            replacedMaterial = skinny.sharedMaterial;
+            skinny.sharedMaterial = meshRendy.sharedMaterial;
 
-                replacedLayer = go.layer;
-                go.layer = gameObject.layer;
-                
-                modifiedBound = skinny.localBounds;
-                skinny.localBounds  = new Bounds(painter.transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
-               
-            }
-            else
-            {
-               
-                Mesh mesh = painter.getMesh();
+            replacedLayer = go.layer;
+            go.layer = gameObject.layer;
 
-                Transform target = go.transform;
+            modifiedBound = skinny.localBounds;
+            Transform camTransform = PainterManager.inst.transform;
+            skinny.localBounds = new Bounds(go.transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
 
-                transform.position = target.position;
-                transform.rotation = target.rotation;
-                transform.localScale = target.localScale;
+            deformedBounds = true;
+        }
 
-                modifiedMesh = mesh;
-                meshFilter.sharedMesh = mesh;
-                
-                modifiedBound = modifiedMesh.bounds;
-                modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
-                transform.parent = target.parent;
-            }
+        public void UseMeshAsBrush (GameObject go, Mesh mesh) {
 
-       
-    }
+            Transform camTransform = PainterManager.inst.transform;
+
+            Transform target = go.transform;
+
+            transform.position = target.position;
+            transform.rotation = target.rotation;
+            transform.localScale = target.localScale;
+
+            modifiedMesh = mesh;
+            meshFilter.sharedMesh = mesh;
+
+            modifiedBound = modifiedMesh.bounds;
+            modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
+            transform.parent = target.parent;
+
+            deformedBounds = true;
+        }
 
     public RenderBrush  Set(Shader shade) {
         meshRendy.sharedMaterial.shader = shade;

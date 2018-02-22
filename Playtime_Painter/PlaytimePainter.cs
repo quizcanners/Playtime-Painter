@@ -19,8 +19,6 @@ namespace Painter{
     [ExecuteInEditMode]
     public class PlaytimePainter : PlaytimeToolComponent, iSTD {
 
-        // Getters:
-
         public static bool isCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
 
         public static PainterConfig cfg { get { return PainterConfig.inst; } }
@@ -39,11 +37,6 @@ namespace Painter{
 
         public MeshSolutionProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshProfileSolutions.Count - 1));  return cfg.meshProfileSolutions[selectedMeshProfile]; } }
 
-        // Components:
-
-        //[HideInInspector]
-       // public PerPainterSaveData data;
-
         public Renderer meshRenderer;
         public SkinnedMeshRenderer skinnedMeshRendy;
         public Terrain terrain;
@@ -53,7 +46,6 @@ namespace Painter{
         public Texture2D terrainHeightTexture;
         [NonSerialized]
         public Mesh colliderForSkinnedMesh;
-
 
 		// Auto-Atlasing
 
@@ -138,188 +130,6 @@ namespace Painter{
             get { while (_selectedTextures.Count <= selectedMaterial) _selectedTextures.Add(0); return _selectedTextures[selectedMaterial]; }
             set { while (_selectedTextures.Count <= selectedMaterial) _selectedTextures.Add(0); _selectedTextures[selectedMaterial] = value; } }
         
-        // ************************** RECORDING & PLAYBACK ****************************
-
-
-        public static List<PlaytimePainter> playbackPainters = new List<PlaytimePainter>();
-
-        public List<string> playbackVectors = new List<string>(); 
-
-        public static stdDecoder cody = new stdDecoder("");
-
-        public void PlayStrokeData(string strokeData) {
-            if (!playbackPainters.Contains(this))
-                playbackPainters.Add(this);
-            StrokeVector.PausePlayback = false;
-            playbackVectors.Add(strokeData);
-        }
-
-        public void PlayByFilename(string recordingName) {
-            if (!playbackPainters.Contains(this))
-                playbackPainters.Add(this);
-            StrokeVector.PausePlayback = false;
-            playbackVectors.Add(cfg.GetRecordingData(recordingName));
-        }
-
-        public void PlaybeckVectors() {
-
-            if (cody.gotData) {
-               // string tag = cody.getTag();
-                //string data = cody.getData();
-                //Debug.Log("TAG: "+tag + " DATA: "+data);
-
-                Decode(cody.getTag(), cody.getData());
-            } else {
-                if (playbackVectors.Count > 0) {
-                    cody = new stdDecoder(playbackVectors.last());
-                    playbackVectors.RemoveLast(1);
-                } else
-                    playbackPainters.Remove(this);
-            }
-
-        }
-
-        Vector2 prevDir;
-        Vector2 lastUV;
-        Vector3 prevPOSDir;
-        Vector3 lastPOS;
-
-        float strokeDistance;
-
-        void RecordingMGMT() {
-            if (curImgData.recording) {
-
-                if (stroke.mouseDwn) {
-                    prevDir = Vector2.zero;
-                    prevPOSDir = Vector3.zero;
-                }
-
-                bool canRecord = stroke.mouseDwn || stroke.mouseUp;
-
-                bool rt = curImgData.TargetIsRenderTexture();
-                bool worldSpace = rt && brush.currentBrushTypeRT().isA3Dbrush;
-
-                if (!canRecord) {
-                  
-                  
-                    float size = brush.Size(worldSpace);
-
-                    if (worldSpace) {
-                        Vector3 dir = stroke.posTo - lastPOS;
-
-                        float dot = Vector3.Dot(dir.normalized, prevPOSDir);
-
-                        canRecord |=  (strokeDistance > size*10) || 
-                            ((dir.magnitude > size * 0.01f) && (strokeDistance > size) && (dot < 0.9f));
-
-                        float fullDist = strokeDistance + dir.magnitude;
-
-                        prevPOSDir = (prevPOSDir * strokeDistance + dir).normalized;
-
-                        strokeDistance = fullDist;
-
-                    } else {
-                        
-                        size /= ((float)curImgData.width);
-
-                        Vector2 dir = stroke.uvTo - lastUV;
-                      
-                        float dot = Vector2.Dot(dir.normalized, prevDir);
-
-                        canRecord |= (strokeDistance > size*5) || (strokeDistance*(float)curImgData.width>10) ||
-                            ((dir.magnitude > size * 0.01f) && (dot < 0.8f));
-
-
-                        float fullDist = strokeDistance + dir.magnitude;
-
-                        prevDir = (prevDir * strokeDistance + dir).normalized;
-
-                        strokeDistance = fullDist;
-
-                    }
-                }
-
-               // if (stroke.mouseDwn)
-
-                 //   Debug.Log(" prev From " + stroke.uvFrom + " to " + stroke.uvTo);
-
-                if (canRecord) {
-
-                    //prevPOSDir = (stroke.posTo - prevPOS).normalized;
-                    //prevDir = (stroke.uvTo - prevUV).normalized;
-
-                    Vector2 hold = stroke.uvTo;
-                    Vector3 holdv3 = stroke.posTo;
-
-                    if (!stroke.mouseDwn)
-                    {
-                      
-
-                        stroke.uvTo = lastUV;
-                        stroke.posTo = lastPOS;
-                    }
-
-                    strokeDistance = 0;
-
-                    string data = Encode().ToString();
-                    curImgData.recordedStrokes.Add(data);
-                    curImgData.recordedStrokes_forUndoRedo.Add(data);
-
-                    if (!stroke.mouseDwn) {
-                        stroke.uvTo = hold;
-                        stroke.posTo = holdv3;
-                    }
-
-                    //prevUV = stroke.uvTo;
-                    //prevPOS = stroke.posTo;
-
-                }
-
-                lastUV = stroke.uvTo;
-                lastPOS = stroke.posTo;
-
-            }
-        }
-
-        public stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
-
-            if (stroke.mouseDwn) {
-                cody.Add(BrushConfig.storyTag, brush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
-                cody.AddText("trg", curImgData.TargetIsTexture2D() ? "C" : "G");
-            }
-
-            cody.Add(StrokeVector.storyTag, stroke.Encode(curImgData.TargetIsRenderTexture() && brush.currentBrushTypeRT().isA3Dbrush));
-
-            return cody;
-        }
-
-    public void Decode(string tag, string data) {
-        switch (tag) {
-            case "trg": UpdateOrSetTexTarget(data.Equals("C") ? texTarget.Texture2D : texTarget.RenderTexture); break;
-                case BrushConfig.storyTag:
-                    InitIfNotInited();
-                    brush.Reboot(data); 
-                    brush.Brush2D_Radius *= curImgData == null ? 256 : curImgData.width; break;
-            case StrokeVector.storyTag:
-                stroke.Reboot(data);
-                Paint(stroke, brush);
-                break;
-        }
-    }
-
-
-    public iSTD Reboot(string data) {
-        new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-    }
-
-    public const string storyTag = "painter";
-
-    public string getDefaultTagName() {
-        return storyTag;
-    }
-
         // ************************** PAINTING *****************************
 
    public PlaytimePainter Paint(StrokeVector st, BrushConfig br) {
@@ -355,7 +165,7 @@ namespace Painter{
     public static PlaytimePainter currently_Painted_Object;
 	public static PlaytimePainter last_MouseOver_Object;
    
-#if BUILD_WITH_PAINTER //|| UNITY_EDITOR 
+#if BUILD_WITH_PAINTER 
 
 	public void OnMouseOver() {
 
@@ -564,7 +374,7 @@ namespace Painter{
                 uv = (GetAtlasedSection() + uv) / (float)atlasRows;
 
 			} else {
-				uv.Scale (curImgData.tyling);
+				uv.Scale (curImgData.tiling);
 				uv += curImgData.offset;
 			}
         return uv;
@@ -619,12 +429,12 @@ namespace Painter{
         for (float i = 0; i < dist; i++) {
             st.uvFrom += delta_uv;
 				if (isAtlased)
-					Blit_Functions.PaintCircleAtlased (st.uvFrom, alpha, curImgData, br, this);
+					Blit_Functions.PaintAtlased (st.uvFrom, alpha, curImgData, br, atlasRows, GetAtlasedSection());
 				else
-            		Blit_Functions.PaintCircle(st.uvFrom, alpha, curImgData, br);
+            		Blit_Functions.Paint(st.uvFrom, alpha, curImgData, br);
         }
        
-			AfterStroke(st);
+		AfterStroke(st);
     }
 
 	public void AfterStroke(StrokeVector st) {
@@ -652,7 +462,7 @@ namespace Painter{
 		string fieldName = getMaterialTextureName();
 		Material mat = getMaterial(false);
 		if (isPreviewShader () && (terrain==null)) {
-			curImgData.tyling = mat.GetTextureScale (PainterConfig.previewTexture);
+			curImgData.tiling = mat.GetTextureScale (PainterConfig.previewTexture);
 			curImgData.offset = mat.GetTextureOffset (PainterConfig.previewTexture);
 			return;
 		}
@@ -662,7 +472,7 @@ namespace Painter{
                 return;
 
         if ((mat == null) || (fieldName == null) || (curImgData == null)) return;
-        curImgData.tyling = mat.GetTextureScale(fieldName);
+        curImgData.tiling = mat.GetTextureScale(fieldName);
         curImgData.offset = mat.GetTextureOffset(fieldName);
     }
 
@@ -723,10 +533,10 @@ namespace Painter{
 
         InitIfNotInited();
 
-            if (curImgData == null) 
-                return;
+        if (curImgData == null) 
+           return;
             
-            curImgData.updateDestination(dst, getMaterial(true), getMaterialTextureName(), this);
+        curImgData.updateDestination(dst, getMaterial(true), getMaterialTextureName(), this);
         CheckPreviewShader();
 
     }
@@ -993,7 +803,7 @@ namespace Painter{
                 if (curImgData != null)
                 {
                     mat.SetTextureOffset(PainterConfig.previewTexture, curImgData.offset);
-                    mat.SetTextureScale(PainterConfig.previewTexture, curImgData.tyling);
+                    mat.SetTextureScale(PainterConfig.previewTexture, curImgData.tiling);
                 }
             }
     }
@@ -1309,11 +1119,203 @@ namespace Painter{
         return ((curImgData != null) && (terrain != null) && (getMaterialTextureName().Contains(PainterConfig.terrainControl)));
     }
 
-    // ************************** SAVING *******************************
+
+        // ************************** RECORDING & PLAYBACK ****************************
+        
+        public static List<PlaytimePainter> playbackPainters = new List<PlaytimePainter>();
+
+        public List<string> playbackVectors = new List<string>();
+
+        public static stdDecoder cody = new stdDecoder("");
+
+        public void PlayStrokeData(string strokeData)
+        {
+            if (!playbackPainters.Contains(this))
+                playbackPainters.Add(this);
+            StrokeVector.PausePlayback = false;
+            playbackVectors.Add(strokeData);
+        }
+
+        public void PlayByFilename(string recordingName)
+        {
+            if (!playbackPainters.Contains(this))
+                playbackPainters.Add(this);
+            StrokeVector.PausePlayback = false;
+            playbackVectors.Add(cfg.GetRecordingData(recordingName));
+        }
+
+        public void PlaybeckVectors()
+        {
+
+            if (cody.gotData)
+            {
+                // string tag = cody.getTag();
+                //string data = cody.getData();
+                //Debug.Log("TAG: "+tag + " DATA: "+data);
+
+                Decode(cody.getTag(), cody.getData());
+            }
+            else
+            {
+                if (playbackVectors.Count > 0)
+                {
+                    cody = new stdDecoder(playbackVectors.last());
+                    playbackVectors.RemoveLast(1);
+                }
+                else
+                    playbackPainters.Remove(this);
+            }
+
+        }
+
+        Vector2 prevDir;
+        Vector2 lastUV;
+        Vector3 prevPOSDir;
+        Vector3 lastPOS;
+
+        float strokeDistance;
+
+        void RecordingMGMT()
+        {
+            if (curImgData.recording)
+            {
+
+                if (stroke.mouseDwn)
+                {
+                    prevDir = Vector2.zero;
+                    prevPOSDir = Vector3.zero;
+                }
+
+                bool canRecord = stroke.mouseDwn || stroke.mouseUp;
+
+                bool rt = curImgData.TargetIsRenderTexture();
+                bool worldSpace = rt && brush.currentBrushTypeRT().isA3Dbrush;
+
+                if (!canRecord)
+                {
+
+
+                    float size = brush.Size(worldSpace);
+
+                    if (worldSpace)
+                    {
+                        Vector3 dir = stroke.posTo - lastPOS;
+
+                        float dot = Vector3.Dot(dir.normalized, prevPOSDir);
+
+                        canRecord |= (strokeDistance > size * 10) ||
+                            ((dir.magnitude > size * 0.01f) && (strokeDistance > size) && (dot < 0.9f));
+
+                        float fullDist = strokeDistance + dir.magnitude;
+
+                        prevPOSDir = (prevPOSDir * strokeDistance + dir).normalized;
+
+                        strokeDistance = fullDist;
+
+                    }
+                    else
+                    {
+
+                        size /= ((float)curImgData.width);
+
+                        Vector2 dir = stroke.uvTo - lastUV;
+
+                        float dot = Vector2.Dot(dir.normalized, prevDir);
+
+                        canRecord |= (strokeDistance > size * 5) || (strokeDistance * (float)curImgData.width > 10) ||
+                            ((dir.magnitude > size * 0.01f) && (dot < 0.8f));
+
+
+                        float fullDist = strokeDistance + dir.magnitude;
+
+                        prevDir = (prevDir * strokeDistance + dir).normalized;
+
+                        strokeDistance = fullDist;
+
+                    }
+                }
+
+                if (canRecord)
+                {
+
+                    Vector2 hold = stroke.uvTo;
+                    Vector3 holdv3 = stroke.posTo;
+
+                    if (!stroke.mouseDwn)
+                    {
+                        stroke.uvTo = lastUV;
+                        stroke.posTo = lastPOS;
+                    }
+
+                    strokeDistance = 0;
+
+                    string data = Encode().ToString();
+                    curImgData.recordedStrokes.Add(data);
+                    curImgData.recordedStrokes_forUndoRedo.Add(data);
+
+                    if (!stroke.mouseDwn)
+                    {
+                        stroke.uvTo = hold;
+                        stroke.posTo = holdv3;
+                    }
+
+                }
+
+                lastUV = stroke.uvTo;
+                lastPOS = stroke.posTo;
+
+            }
+        }
+
+        public stdEncoder Encode()
+        {
+            stdEncoder cody = new stdEncoder();
+
+            if (stroke.mouseDwn)
+            {
+                cody.Add(BrushConfig.storyTag, brush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
+                cody.AddText("trg", curImgData.TargetIsTexture2D() ? "C" : "G");
+            }
+
+            cody.Add(StrokeVector.storyTag, stroke.Encode(curImgData.TargetIsRenderTexture() && brush.currentBrushTypeRT().isA3Dbrush));
+
+            return cody;
+        }
+
+        public void Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "trg": UpdateOrSetTexTarget(data.Equals("C") ? texTarget.Texture2D : texTarget.RenderTexture); break;
+                case BrushConfig.storyTag:
+                    InitIfNotInited();
+                    brush.Reboot(data);
+                    brush.Brush2D_Radius *= curImgData == null ? 256 : curImgData.width; break;
+                case StrokeVector.storyTag:
+                    stroke.Reboot(data);
+                    Paint(stroke, brush);
+                    break;
+            }
+        }
+        
+        public iSTD Reboot(string data)
+        {
+            new stdDecoder(data).DecodeTagsFor(this);
+            return this;
+        }
+
+        public const string storyTag = "painter";
+
+        public string getDefaultTagName()
+        {
+            return storyTag;
+        }
+
+        // ************************** SAVING *******************************
 
 #if UNITY_EDITOR
 
-    public void ForceReimportMyTexture(string path) {
+        public void ForceReimportMyTexture(string path) {
 		
         TextureImporter importer = AssetImporter.GetAtPath("Assets" + path) as TextureImporter;
         if (importer == null) {
@@ -1786,7 +1788,7 @@ namespace Painter{
 
 					
 
-					if ((!toTexture2D) && (brush.currentBrushTypeRT ().isA3Dbrush) && (curImgData.offset!= Vector2.zero) && (curImgData.tyling!= Vector2.one) ) {
+					if ((!toTexture2D) && (brush.currentBrushTypeRT ().isA3Dbrush) && (curImgData.offset!= Vector2.zero) && (curImgData.tiling!= Vector2.one) ) {
 						pegi.writeHint ("World space painting may not work properly when tiling and/or offset is applied.");	
 						pegi.newLine ();
 					}

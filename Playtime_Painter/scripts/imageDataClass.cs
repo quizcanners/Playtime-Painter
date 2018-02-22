@@ -30,12 +30,20 @@ namespace Painter {
         }
 
         public static imgData getImgData(this Texture texture) {
+            if (texture == null)
+                return null;
+                
             foreach (imgData id in PlaytimePainter.imgdatas)
                 if ((id.texture2D == texture) || (id.renderTexture == texture)) {
                     //  Debug.Log("Same texture: "+id._texture.name + " dta size: "+id. width+" texture size: "+id._texture.width);
                     return id;
                 }
-            return null;
+
+            var nid = new imgData(texture);
+
+            PlaytimePainter.imgdatas.Add(nid);
+
+            return nid;
         }
 
         public static bool isBigRenderTexturePair(this Texture tex) {
@@ -119,7 +127,7 @@ namespace Painter {
 
         public UndoCache cache = new UndoCache();
 
-        public Vector2 tyling = Vector2.one;
+        public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
 

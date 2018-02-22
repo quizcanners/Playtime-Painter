@@ -131,7 +131,7 @@ public class TerrainLight : NonMaterialTexture {
         {
             if (fieldName.Contains(PainterConfig.terrainLight))
             {
-                painter.curImgData.tyling = Vector2.one;
+                painter.curImgData.tiling = Vector2.one;
                 painter.curImgData.offset = Vector2.zero;
                 return true; ;
             }

@@ -92,7 +92,7 @@ public class TerrainControlGlob : NonMaterialTexture {
         {
             if (fieldName.Contains(PainterConfig.terrainControl))
             {
-                painter.curImgData.tyling = Vector2.one;
+                painter.curImgData.tiling = Vector2.one;
                 painter.curImgData.offset = Vector2.zero;
                 return true;
             }
@@ -161,7 +161,7 @@ public class TerrainSplatTexture : NonMaterialTexture
                 float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
                 float length = painter.terrain.terrainData.size.z / sp.tileSize.y;
 
-                painter.curImgData.tyling = new Vector2(width, length);
+                painter.curImgData.tiling = new Vector2(width, length);
                 painter.curImgData.offset = sp.tileOffset;
                 return true;
             }
@@ -229,7 +229,7 @@ public class TerrainHeight : NonMaterialTexture
         {
             if (fieldName.Contains(PainterConfig.terrainHeight))
             {
-                painter.curImgData.tyling = Vector2.one;
+                painter.curImgData.tiling = Vector2.one;
                 painter.curImgData.offset = Vector2.zero;
                 return true;
             }

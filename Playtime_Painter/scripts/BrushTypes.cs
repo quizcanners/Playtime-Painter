@@ -25,9 +25,9 @@ public static class BlitModeExtensions {
 
 public abstract class BrushType : IeditorDropdown {
 
-	protected PainterManager rtp {get{ return PainterManager.inst;}}
-	protected Transform rtbrush { get { return rtp.brushRendy.transform; } }
-	protected Mesh brushMesh { set { rtp.brushRendy.meshFilter.mesh = value; } }
+	protected static PainterManager rtp {get{ return PainterManager.inst;}}
+	protected static Transform rtbrush { get { return rtp.brushRendy.transform; } }
+	protected static Mesh brushMesh { set { rtp.brushRendy.meshFilter.mesh = value; } }
 
 	private static List<BrushType> _allTypes;
 
@@ -186,10 +186,6 @@ public abstract class BrushType : IeditorDropdown {
 		
 		painter = pntr;
 
-           // Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
-           // st.uvFrom -= outb;
-           // st.uvTo -= outb;
-
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
 
@@ -201,7 +197,7 @@ public abstract class BrushType : IeditorDropdown {
 
 			bool isSphere = br.currentBrushTypeRT().isA3Dbrush;
 
-			float width = br.strokeWidth (id.width, isSphere);//.Size(isSphere) / ((float)id.width) * 2 * r.orthoSize;
+			
 
 			if (isSphere) {
 
@@ -209,47 +205,39 @@ public abstract class BrushType : IeditorDropdown {
 				if (st.mouseDwn)
 					st.posFrom = hitPos;
 
-				Vector2 offset = to01space(id.offset);
+                Vector2 offset = id.offset.To01Space();
 
-				Shader.SetGlobalVector("_brushWorldPosFrom", new Vector4(st.posFrom.x, st.posFrom.y, st.posFrom.z, 0));
-				Shader.SetGlobalVector("_brushWorldPosTo", new Vector4(hitPos.x, hitPos.y, hitPos.z, st.delta_WorldPos.magnitude));
-				Shader.SetGlobalVector("_brushEditedUVoffset", new Vector4(id.tyling.x, id.tyling.y, offset.x, offset.y));
-				st.posFrom = hitPos;
+                st.SetWorldPosInShader();
 
-				rtp.brushRendy.CopyAllFrom(pntr);
+				Shader.SetGlobalVector(PainterConfig.BRUSH_EDITED_UV_OFFSET, new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y));
+
+				rtp.brushRendy.UseMeshAsBrush(pntr);
 				rtp.Render();
-				rtp.brushRendy.RestoreBounds();
+			
 
-				/*if ((PainterManager.GotBuffers ()) && (id.currentRenderTexture () == rtp.BigRT_pair [0])) {
-					rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
-					rtp.UpdateBufferTwo ();
-				}*/
 			}
 			else {
+              
 
-
-				rtbrush.localScale = Vector3.one;
+                rtbrush.localScale = Vector3.one;
 				Vector2 direction = st.delta_uv;
 				float length = direction.magnitude;
-				brushMesh = brushMeshGenerator.inst().GetLongMesh(length * 256, width);
+				brushMesh = brushMeshGenerator.inst().GetLongMesh(length * 256, br.strokeWidth(id.width, false));
 				rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 				
-				rtbrush.localPosition =  st.brushWorldPositionFrom((st.uvFrom+st.uvTo)/2);
+				rtbrush.localPosition =  StrokeVector.brushWorldPositionFrom((st.uvFrom+st.uvTo)/2);
 
-              //  Debug.Log("From " + st.uvFrom + " to " + st.uvTo);
-
-                rtp.Render();//Render_UpdateSecondBufferIfUsing(id);
+                rtp.Render();
 
                 if (!br.isSingleBufferBrush())
                     rtp.UpdateBufferSegment();
-
-
+                
 			}
-
-
-
+            
 		pntr.AfterStroke(st);
 	}
+
+    
 
 }
 
@@ -261,10 +249,34 @@ public class BrushTypeNormal : BrushType {
 
         protected override string shaderKeyword { get { return "BRUSH_2D"; } }
 
-	public override string ToString ()
+	    public override string ToString ()
 	{
 		return "Normal";
 	}
+
+        public static void Paint (Vector2 uv, BrushConfig br, RenderTexture rt) {
+
+            if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
+
+            var id = rt.getImgData();
+
+            rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id);
+
+            float width = br.strokeWidth(id.width, false);
+
+            rtbrush.localScale = Vector3.one;
+               
+            brushMesh = brushMeshGenerator.inst().GetLongMesh(0, width);
+            rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
+
+            rtbrush.localPosition = StrokeVector.brushWorldPositionFrom(uv);
+
+            rtp.Render();
+
+            if (!br.isSingleBufferBrush())
+               rtp.UpdateBufferSegment();
+
+        }
 
 }
 
@@ -318,7 +330,7 @@ public class BrushTypeDecal : BrushType {
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
                 brushMesh = brushMeshGenerator.inst().GetQuad();
 
-                st.uvTo = to01space(st.uvTo);
+                st.uvTo = st.uvTo.To01Space();
 
                 Vector2 deltauv = st.delta_uv;
 
@@ -346,7 +358,7 @@ public class BrushTypeDecal : BrushType {
                     uv -= deltauv * ((length - 1)*0.5f/length);
                 }
 
-                    tf.localPosition = st.brushWorldPositionFrom(uv);
+                    tf.localPosition = StrokeVector.brushWorldPositionFrom(uv);
 
 
                 // if (strokes > 1) Debug.Log("Stroke " + i + ":" + tf.localPosition);
@@ -557,50 +569,50 @@ public class BrushTypeSphere : BrushType {
 		return "Sphere";
 	}
 
-        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)  {
 
-           
-
-            painter = pntr;
-
+        static void PrepareSphereBrush(imgData id, BrushConfig br, StrokeVector st) {
             if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
 
-            imgData id = pntr.curImgData;
-
-            Vector3 hitPos = st.posTo;
-
             if (st.mouseDwn)
-                st.posFrom = hitPos;
-
+                st.posFrom = st.posTo;
 
             rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id);
 
-          
-            Vector2 offset = to01space(id.offset);
+            Vector2 offset = id.offset.To01Space();
 
-                Shader.SetGlobalVector("_brushWorldPosFrom", new Vector4(st.posFrom.x, st.posFrom.y, st.posFrom.z, 0));
-                Shader.SetGlobalVector("_brushWorldPosTo", new Vector4(hitPos.x, hitPos.y, hitPos.z, st.delta_WorldPos.magnitude));
-                Shader.SetGlobalVector("_brushEditedUVoffset", new Vector4(id.tyling.x, id.tyling.y, offset.x, offset.y));
-                st.posFrom = hitPos;
+            st.SetWorldPosInShader();
 
-
-          
-            if (!st.mouseDwn) {
-                rtp.brushRendy.CopyAllFrom(pntr);
-                rtp.Render();  
-                rtp.brushRendy.RestoreBounds();
-            }
-
-
-              /* if ((PainterManager.GotBuffers()) && (id.currentRenderTexture() == rtp.BigRT_pair[0])) {
-                    rtp.PrepareFullCopyBrush(rtp.BigRT_pair[0]);
-                    rtp.UpdateBufferTwo();
-               // Debug.Log("Painting sphere");
-                }*/
-            
-            pntr.AfterStroke(st);
+            Shader.SetGlobalVector(PainterConfig.BRUSH_EDITED_UV_OFFSET, new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y));
         }
 
 
-    }
+        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)  {
+
+            painter = pntr;
+
+            imgData id = pntr.curImgData;
+
+            PrepareSphereBrush(id, br, st);
+
+            if (!st.mouseDwn) {
+                rtp.brushRendy.UseMeshAsBrush(pntr);
+                rtp.Render();  
+               
+            }
+
+            pntr.AfterStroke(st);
+        }
+
+        public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, Vector3 pos) {
+            PrepareSphereBrush(rt.getImgData(), br, new StrokeVector(pos));
+            rtp.brushRendy.UseSkinMeshAsBrush(go, skinner);
+            rtp.Render();
+        }
+
+        public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, Vector3 pos) {
+            PrepareSphereBrush(rt.getImgData(), br, new StrokeVector(pos));
+            rtp.brushRendy.UseMeshAsBrush(go,mesh);
+            rtp.Render();
+        }
+        }
 }

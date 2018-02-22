@@ -123,15 +123,24 @@ namespace Painter {
             return storyTag;   
         }
 
+        public void SetWorldPosInShader()
+        {
+            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_FROM, new Vector4(posFrom.x, posFrom.y, posFrom.z, 0));
+            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_TO, new Vector4(posTo.x, posTo.y, posTo.z, delta_WorldPos.magnitude));
+        }
 
-
-	public Vector3 brushWorldPositionFrom (Vector2 uv) {  
+	public static Vector3 brushWorldPositionFrom (Vector2 uv) {  
 				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterManager.orthoSize;
 
 				return new Vector3 (v2.x, v2.y, 10);
     }
 
-	public void SetPreviousValues() {
+      public  Vector3 brushWorldPosition() {
+            return brushWorldPositionFrom(uvTo);
+      }
+
+
+    public void SetPreviousValues() {
            
              
         previousDelta = mouseDwn ? Vector2.zero : (uvTo - uvFrom);
@@ -150,8 +159,12 @@ namespace Painter {
             uvFrom = uvTo = hit.textureCoord.To01Space();
             posFrom = posTo = hit.point;
         }
+        public StrokeVector(Vector3 pos)
+        {
 
+            posFrom = posTo = pos;
+        }
 
-}
+    }
 
 }

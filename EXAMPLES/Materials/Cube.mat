@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Cube
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 575442c32d4bb4446b01d39962c3989a, type: 3}
   m_ShaderKeywords: CLIP_EDGES EDGE_WIDTH_FROM_COL_A _BUMP_COMBINED _METALLICGLOSSMAP
     _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4

@@ -47,8 +47,8 @@ public class Persistant : MonoBehaviour {
        
         Load();
 #if UNITY_EDITOR
-        EditorApplication.playmodeStateChanged -= Save;
-        EditorApplication.playmodeStateChanged += Save;
+        EditorApplication.playModeStateChanged -= Save;
+        EditorApplication.playModeStateChanged += Save;
 #endif
     }
 
@@ -57,7 +57,7 @@ public class Persistant : MonoBehaviour {
             Load();
     }
 
-    public void Save() {
+    public void Save(PlayModeStateChange state) {
         if (_dta != null) {
             _dta.BeforeSave();
             ResourceSaver.SaveToResources(fileName, _dta);

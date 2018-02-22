@@ -456,6 +456,9 @@ public class PainterManager : MonoBehaviour {
 
             bufferUpdated = false;
 
+            if (brushRendy.deformedBounds)
+                brushRendy.RestoreBounds();
+
     }
 
    public void Render(Texture tex, imgData id) {
@@ -494,10 +497,9 @@ public class PainterManager : MonoBehaviour {
 
     // *******************  Component MGMT
 
-    void PlayModeStateChanged() {
+    void PlayModeStateChanged(PlayModeStateChange state) {
         PainterConfig.SaveChanges();
-        autodisabledBufferTarget = null;
-
+        autodisabledBufferTarget = null;            
     }
 
     private void OnEnable() {
@@ -560,8 +562,8 @@ public class PainterManager : MonoBehaviour {
         if (!this.ApplicationIsAboutToEnterPlayMode())
             EditorApplication.update += combinedUpdate;
 
-        EditorApplication.playmodeStateChanged -= PlayModeStateChanged; // painterConfig.SaveChanges;
-        EditorApplication.playmodeStateChanged += PlayModeStateChanged; // painterConfig.SaveChanges;
+        EditorApplication.playModeStateChanged -= PlayModeStateChanged; // painterConfig.SaveChanges;
+        EditorApplication.playModeStateChanged += PlayModeStateChanged; // painterConfig.SaveChanges;
 
         if (brushPrefab == null) {
             //string assetName = "Assets/" + painterConfig.ToolPath() + "/" + painterConfig.DependenciesFolder + "/prefabs/RenderCameraBrush.prefab";

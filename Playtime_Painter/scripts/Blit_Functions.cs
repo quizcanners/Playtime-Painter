@@ -83,9 +83,23 @@ public static class Blit_Functions {
     }
 
 
-	
+        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc) {
+            imgData id = texture.getImgData();
 
-    public static void PaintCircle(Vector2 uvCoords, float brushAlpha, imgData image, BrushConfig bc) {
+            id.offset = offset;
+            id.tiling = tiling;
+
+            if (id == null) {
+#if UNITY_EDITOR
+                Debug.Log("No texture data");
+#endif
+                return;
+            }
+
+            Paint(uvCoords, brushAlpha, texture.getImgData(), bc);
+        }
+
+            public static void Paint(Vector2 uvCoords, float brushAlpha, imgData image, BrushConfig bc) {
 
         brAlpha = brushAlpha;
 
@@ -133,11 +147,11 @@ public static class Blit_Functions {
         }
     }
 
-		public static void PaintCircleAtlased(Vector2 uvCoords, float brushAlpha, 
-			imgData image, BrushConfig bc, PlaytimePainter origin) {
+		public static void PaintAtlased(Vector2 uvCoords, float brushAlpha, 
+			imgData image, BrushConfig bc, int atlasRows, Vector2 AtlasedSection) {
 
-			imgData.sectorSize = image.width/origin.atlasRows;
-			imgData.atlasSector.From(origin.GetAtlasedSection()*imgData.sectorSize);
+			imgData.sectorSize = image.width/atlasRows;
+			imgData.atlasSector.From(AtlasedSection* imgData.sectorSize);
 
 			brAlpha = brushAlpha;
 
@@ -149,7 +163,7 @@ public static class Blit_Functions {
 			else
 				_alphaMode = noAlpha;
 
-			_blitMode = bc.currentBlitMode ().BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
+			_blitMode = bc.currentBlitMode ().BlitFunctionTex2D;
 
 			if (bc.Smooth) ihalf += 1;
 
