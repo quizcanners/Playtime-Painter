@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-
-
 // For Painting On MObjects which don't have Painter Component
-
-
 
 namespace Painter
 {
@@ -36,12 +32,20 @@ namespace Painter
         public int shoots = 1;
         public float spread = 0;
 
+
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0))
+                Paint();
+        }
+
+
         void Paint() {
 
             RaycastHit hit;
 
-            bool anyHits = false;
-            bool anyRecivers = false;
+           // bool anyHits = false;
+            //bool anyRecivers = false;
             var texturesNeedUpdate = new List<imgData>();
 
             for (int i=0; i<shoots; i++)
@@ -49,29 +53,27 @@ namespace Painter
 
                 var reciver = hit.transform.GetComponentInParent<PaintingReciever>();
 
-                    anyHits = true;
+              //      anyHits = true;
 
-                    if ((reciver != null) && (reciver.texture!= null)) {
+                    if ((reciver != null) && (reciver.getTexture() != null)) {
 
-                        anyRecivers = true;
+                //        anyRecivers = true;
 
                         var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
 
                         if (rendTex != null)  {
 
-                            if (reciver.skinnedMesh != null)
-                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMesh, brush, hit.point);
+                            if (reciver.skinnedMeshRenderer != null)
+                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, hit.point, reciver.useTexcoord2);
                             else if (reciver.meshFilter != null)
-                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.meshFilter.sharedMesh, brush, hit.point);
+                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.meshFilter.sharedMesh, brush, hit.point, reciver.useTexcoord2);
 
-                        }
-                        else if (reciver.texture.GetType() == typeof(Texture2D))
-                        {
+                        } else if (reciver.texture.GetType() == typeof(Texture2D)) {
 
                             if (hit.collider.GetType() != typeof(MeshCollider))
                                 Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
-                            Blit_Functions.Paint(hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush);
+                            Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush);
                             var id = reciver.texture.getImgData();
 
                             if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);
@@ -82,13 +84,13 @@ namespace Painter
 
             }
 
-            foreach (var t in texturesNeedUpdate) t.SetAndApply(false); // Set True for Mipmaps. 
+            foreach (var t in texturesNeedUpdate) t.SetAndApply(true); // True for Mipmaps. Best to disable mipmaps on textures and set to false 
             //Not to waste performance, don't SetAndApply after each edit, but at the end of the frame (LateUpdate maybe) and only if texture was changed.
             //Mip maps will slow things down, so best is to disable them.
 
 
-            if (!anyHits) Debug.Log("No hits");
-            else if (!anyRecivers) Debug.Log("Attach PaintingReciever script to objects you want to Paint on.");
+         //   if (!anyHits) Debug.Log("No hits");
+           // else if (!anyRecivers) Debug.Log("Attach PaintingReciever script to objects you want to Paint on.");
             
         }
 
@@ -118,23 +120,38 @@ namespace Painter
         }
 #endif
 
-
+        bool hint;
         public bool PEGI()
         {
             bool changed = false;
 
             "Bullets:".edit(ref shoots, 1, 50).nl();
             "Spread:".edit(ref spread, 0f , 1f).nl();
+
             if ("Fire!".Click().nl())
                 Paint();
 
+            if ("HINT".foldout(ref hint).nl()) {
+                "I can paint on Painting Recivers with:".nl();
+                "Mesh Collider + any Texture".nl();
+                "Skinned Mesh + any Collider + Render Texture".nl();
+                "Also its better to use textures without mipmaps".nl();
+                "Render Texture Painting will fail if material has tiling or offset".nl();
+                "Editing will be symmetrical if mesh is symmetrical".nl();
+            }
+
             changed |= brush.BrushForTargets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
-            changed |= brush.currentBlitMode().PEGI(brush, null);
+            brush._bliTMode = 0;
+            brush._type = 3;
+
+            changed |= brush.blitMode.PEGI(brush, null);
             Color col = brush.color.ToColor();
             if (pegi.edit(ref col).nl())
                 brush.color.From(col);
             changed |= brush.ColorSliders_PEGI();
+
+            if (brush.paintingRGB == false)
+                pegi.writeHint("Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).");
             return changed;
         }
     }

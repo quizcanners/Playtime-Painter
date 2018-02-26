@@ -31,7 +31,7 @@ using Painter;
 
             changed |= brush.BrushForTargets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
-            changed |= brush.currentBlitMode().PEGI(brush, null);
+            changed |= brush.blitMode.PEGI(brush, null);
             Color col = brush.color.ToColor();
             if (pegi.edit(ref col).nl())
                 brush.color.From(col);

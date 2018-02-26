@@ -104,7 +104,7 @@ namespace Painter {
         }
 
         public void OnEnable()  {
-            brush.brushType_rt = BrushTypeSphere.inst.index;
+            brush._type = BrushTypeSphere.inst.index;
             if (rendy == null) 
                 rendy = GetComponent<MeshRenderer>();
             if (rigid == null)
@@ -161,15 +161,15 @@ namespace Painter {
             pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
 
             if  ((brush.BrushForTargets_PEGI().nl()) || (brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl())) {
-                if ((brush.TargetIsTex2D) || (!brush.currentBrushTypeRT().isA3Dbrush)) {
+                if ((brush.TargetIsTex2D) || (!brush.type.isA3Dbrush)) {
                     brush.TargetIsTex2D = false;
-                    brush.brushType_rt = BrushTypeSphere.inst.index;
+                    brush._type = BrushTypeSphere.inst.index;
 
                     pegi.resetOneTimeHint("PaintBall_brushHint");
                 }
             }
 
-            brush.currentBlitMode().PEGI(brush, null);
+            brush.blitMode.PEGI(brush, null);
 
             if (brush.ColorSliders_PEGI()) 
                 rendy.material.color = brush.color.ToColor();
