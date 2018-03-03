@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Painter{
+namespace Playtime_Painter{
 
 
 public delegate void blitModeFunction(ref Color dst);

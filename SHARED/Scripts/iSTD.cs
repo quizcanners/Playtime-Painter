@@ -9,13 +9,21 @@ using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {
 
-    public interface iSTD {
+    public interface iPEGI {
+        bool PEGI();
+    }
+
+    public interface iSTD : iPEGI{
         stdEncoder Encode();
         iSTD Reboot(string data);
         void Decode(string tag, string data);
-        bool PEGI();
         string getDefaultTagName();
     }
+
+    public interface iGotName  {
+        string Name { get; set; }
+    }
+
 
     [Serializable]
     public abstract class abstract_STD : iSTD {

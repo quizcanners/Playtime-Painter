@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Linq;
-using Painter;
+using Playtime_Painter;
 using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {
@@ -18,7 +18,7 @@ namespace StoryTriggerData {
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
             ((CubeWorldSpace)target).PEGI();
-            pegi.newLine();
+            ef.end();
         }
     }
 # endif

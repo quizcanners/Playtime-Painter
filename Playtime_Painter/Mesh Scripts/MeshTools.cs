@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-namespace Painter
+namespace Playtime_Painter
 {
 
     public enum MeshTool { vertices, uv, VertexAnimation, VertColor, VertexShadow, AtlasTexture, VertexEdge }

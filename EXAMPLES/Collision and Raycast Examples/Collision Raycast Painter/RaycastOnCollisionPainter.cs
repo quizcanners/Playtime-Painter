@@ -5,24 +5,25 @@ using PlayerAndEditorGUI;
 
 
 
-namespace Painter
+namespace Playtime_Painter
 {
 
 #if UNITY_EDITOR
 
     using UnityEditor;
 
-    [CustomEditor(typeof(PainterCaster))]
+    [CustomEditor(typeof(RaycastOnCollisionPainter))]
     public class PainterCasterEditor : Editor{
 
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
-            ((PainterCaster)target).PEGI().nl();
+            ((RaycastOnCollisionPainter)target).PEGI().nl();
+            ef.end();
         }
     }
 #endif
 
-    public class PainterCaster : MonoBehaviour
+    public class RaycastOnCollisionPainter : MonoBehaviour
     {
 
         public BrushConfig brush = new BrushConfig();
@@ -103,7 +104,7 @@ namespace Painter
             bool changed = false;
             ("Painting on " + paintingOn.Count + " objects").nl();
 
-            changed |= brush.BrushForTargets_PEGI().nl();
+            changed |= brush.Targets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
             changed |= brush.blitMode.PEGI(brush, null);
             Color col = brush.color.ToColor();

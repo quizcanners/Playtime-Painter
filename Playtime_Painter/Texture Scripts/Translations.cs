@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     // Add new lines of text to enum:

@@ -15,7 +15,7 @@ namespace StoryTriggerData {
             public override void OnInspectorGUI() {
                 ef.start(serializedObject);
                 ((Page)target).PEGI();
-                pegi.newLine();
+                ef.end();
             }
         }
 
@@ -34,7 +34,7 @@ namespace StoryTriggerData {
             public override void OnInspectorGUI() {
                 ef.start(serializedObject);
                 ((Book)target).PEGI();
-                pegi.newLine();
+                ef.end();
             }
         }
 

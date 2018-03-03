@@ -352,6 +352,12 @@ public static class UnityHelperFunctions {
 
 #if UNITY_EDITOR
     public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) {
+         return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
+    }
+        
+
+
+        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
 
         Texture2D Result = new Texture2D(diffuse.width, diffuse.height, TextureFormat.RGBA32, true, false);
 
@@ -385,6 +391,7 @@ public static class UnityHelperFunctions {
     public static void saveTexture(this Texture2D tex)  {
 
         byte[] bytes = tex.EncodeToPNG();
+        //Debug.Log("Format " + tex.format); 
 
         string dest = AssetDatabase.GetAssetPath(tex).Replace("Assets", "");
 
@@ -419,10 +426,11 @@ public static class UnityHelperFunctions {
 
 		File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-		//Debug.Log ("Writing to "+dest);
-		AssetDatabase.Refresh();
+        //Debug.Log ("Writing to "+dest);
+        //AssetDatabase.Refresh();
+        AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-		Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+        Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
 		result.ReimportToMatchImportConfigOf(tex);
 
@@ -442,7 +450,8 @@ public static class UnityHelperFunctions {
 
         File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-        AssetDatabase.Refresh();
+        AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
+        //AssetDatabase.Refresh();
 
         Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
@@ -470,7 +479,8 @@ public static class UnityHelperFunctions {
 
         File.WriteAllBytes(fullPath, bytes);
 
-        AssetDatabase.Refresh(); 
+        AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
+        //AssetDatabase.Refresh(); 
 
         Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
@@ -981,8 +991,6 @@ public static class UnityHelperFunctions {
         return needsReimport;
 
     }
-
-
    
 
 #endif

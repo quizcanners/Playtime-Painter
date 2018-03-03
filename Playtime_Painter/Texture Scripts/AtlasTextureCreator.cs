@@ -10,7 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using PlayerAndEditorGUI;
 
-namespace Painter {
+namespace Playtime_Painter {
 
     [Serializable]
     public class AtlasTextureCreator {

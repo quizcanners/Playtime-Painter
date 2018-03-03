@@ -11,7 +11,7 @@ using UnityEditor;
 
 
 
-namespace Painter {
+namespace Playtime_Painter {
 
     //#if UNITY_EDITOR
 

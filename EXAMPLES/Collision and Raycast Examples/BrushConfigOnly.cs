@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using Painter;
+using Playtime_Painter;
 
 
 
@@ -17,8 +17,9 @@ using Painter;
         public override void OnInspectorGUI()
         {
             ef.start(serializedObject);
-            ((BrushConfigOnly)target).PEGI().nl();
-        }
+        ((BrushConfigOnly)target).PEGI();
+        ef.end();
+    }
     }
 #endif
 
@@ -29,7 +30,7 @@ using Painter;
         {
             bool changed = false;
 
-            changed |= brush.BrushForTargets_PEGI().nl();
+            changed |= brush.Targets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
             changed |= brush.blitMode.PEGI(brush, null);
             Color col = brush.color.ToColor();

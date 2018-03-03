@@ -12,7 +12,7 @@ using StoryTriggerData;
 using PlayerAndEditorGUI;
 //using UnityEditor.SceneManagement;
 
-namespace Painter{
+namespace Playtime_Painter{
 
     [HelpURL(WWW_Manual)]
     [AddComponentMenu("Mesh/Playtime Painter")]
@@ -35,7 +35,7 @@ namespace Painter{
             return icon.Painter.getIcon();
         }
 
-        public MeshSolutionProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshProfileSolutions.Count - 1));  return cfg.meshProfileSolutions[selectedMeshProfile]; } }
+        public MeshPackagingProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshPackagingSolutions.Count - 1));  return cfg.meshPackagingSolutions[selectedMeshProfile]; } }
 
         public Renderer meshRenderer;
         public SkinnedMeshRenderer skinnedMeshRendy;
@@ -611,13 +611,18 @@ namespace Painter{
 
             curImgData.SaveName = TextureName;
             texture.name = TextureName;
-      
-            if (gotRenderTextureData) {
+
+            if (gotRenderTextureData)
+            {
                 curImgData.RenderTexture_To_Texture2D(curImgData.texture2D);
 
-            }  else 
-                if (!isColor) 
-                    curImgData.Colorize(new Color(0.5f, 0.5f, 0.5f, 0.99f));
+            }
+            else
+                if (!isColor)
+            
+                curImgData.Colorize(new Color(0.5f, 0.5f, 0.5f, 0.99f));
+               
+            
 
             texture.Apply(true, false);
 
@@ -1799,7 +1804,7 @@ namespace Painter{
 					    }
 						
 
-                        changed |= PainterPEGI_Extensions.BrushParameters_PEGI(brush, this);
+                        changed |= brush.PEGI(this);
 
                         BlitMode mode = brush.blitMode;
                         Color col = brush.color.ToColor();
@@ -1928,8 +1933,8 @@ namespace Painter{
 
                 if ("Profile".foldout())
                 {
-                    if ((cfg.meshProfileSolutions.Count > 1) && (icon.Delete.Click(25)))
-                        cfg.meshProfileSolutions.RemoveAt(selectedMeshProfile);
+                    if ((cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
+                        cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
                     else
                     {
                         pegi.newLine();
@@ -1949,12 +1954,12 @@ namespace Painter{
                 else
                 {
 
-                    if ((" : ".select(20, ref selectedMeshProfile, cfg.meshProfileSolutions)) && (meshEditEnabled))
+                    if ((" : ".select(20, ref selectedMeshProfile, cfg.meshPackagingSolutions)) && (meshEditEnabled))
                         meshMGMT._Mesh.Dirty = true;
                     if (icon.Add.Click(25).nl())
                     {
-                        cfg.meshProfileSolutions.Add(new MeshSolutionProfile());
-                        selectedMeshProfile = cfg.meshProfileSolutions.Count - 1;
+                        cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());
+                        selectedMeshProfile = cfg.meshPackagingSolutions.Count - 1;
                         meshProfile.name = "New Profile " + selectedMeshProfile;
                     }
                     pegi.newLine();

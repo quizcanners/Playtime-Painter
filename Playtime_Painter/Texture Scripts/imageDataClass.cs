@@ -8,7 +8,7 @@ using UnityEditor;
 using System;
 using PlayerAndEditorGUI;
 
-namespace Painter {
+namespace Playtime_Painter {
 
     public enum texTarget { RenderTexture, Texture2D }
 

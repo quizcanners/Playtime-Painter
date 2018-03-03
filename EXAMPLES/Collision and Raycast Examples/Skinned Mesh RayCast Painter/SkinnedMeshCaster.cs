@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 
 
 
-namespace Painter
+namespace Playtime_Painter
 {
 
 #if UNITY_EDITOR
@@ -19,6 +19,7 @@ namespace Painter
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
             ((SkinnedMeshCaster)target).PEGI().nl();
+            ef.end();
         }
     }
 #endif
@@ -94,7 +95,7 @@ namespace Painter
             if ("Fire!".Click().nl())
                 Paint();
 
-            changed |= brush.BrushForTargets_PEGI().nl();
+            changed |= brush.Targets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
             changed |= brush.blitMode.PEGI(brush, null);
             Color col = brush.color.ToColor();

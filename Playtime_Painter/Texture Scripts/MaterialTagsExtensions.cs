@@ -10,7 +10,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-namespace Painter {
+namespace Playtime_Painter {
 
 
     public static class MaterialTagsExtensions {
@@ -21,7 +21,7 @@ namespace Painter {
 
             var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
 
-			var prf = PainterConfig.inst.meshProfileSolutions;
+			var prf = PainterConfig.inst.meshPackagingSolutions;
 
 			for(int i = 0; i<prf.Count; i++)// (var s in PainterConfig.inst.meshProfileSolutions)
 				if (String.Compare(prf[i].name, name) == 0) return i;

@@ -19,10 +19,9 @@
 		SubShader{
 
 		Tags{
-		"Queue" = "Geometry"
-		"IgnoreProjector" = "True"
 		"RenderType" = "Opaque"
 		"LightMode" = "ForwardBase"
+		"Queue" = "Geometry"
 		"DisableBatching" = "True"
 		"Solution" = "Bevel"
 	}
@@ -40,6 +39,7 @@
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 //#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
+#pragma multi_compile_fwdbase
 #pragma multi_compile_fog
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
@@ -231,7 +231,7 @@
 	
 	float shadow = SHADOW_ATTENUATION(i);
 #if WATER_FOAM
-	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow);
+	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow, i.viewDir.y);
 #endif
 
 	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz,

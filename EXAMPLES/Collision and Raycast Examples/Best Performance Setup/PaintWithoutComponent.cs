@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 
 // For Painting On MObjects which don't have Painter Component
 
-namespace Painter
+namespace Playtime_Painter
 {
 
 #if UNITY_EDITOR
@@ -19,7 +19,8 @@ namespace Painter
         public override void OnInspectorGUI()
         {
             ef.start(serializedObject);
-            ((PaintWithoutComponent)target).PEGI().nl();
+            ((PaintWithoutComponent)target).PEGI();
+            ef.end();
         }
     }
 #endif
@@ -140,7 +141,7 @@ namespace Painter
                 "Editing will be symmetrical if mesh is symmetrical".nl();
             }
 
-            changed |= brush.BrushForTargets_PEGI().nl();
+            changed |= brush.Targets_PEGI().nl();
             brush._bliTMode = 0;
             brush._type = 3;
 

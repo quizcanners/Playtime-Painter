@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]

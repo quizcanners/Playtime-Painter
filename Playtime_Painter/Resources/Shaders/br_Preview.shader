@@ -102,7 +102,7 @@
 
 		i.texcoord.xy = perfTex  + off;
 
-		col = tex2D(_PreviewTex, i.texcoord.xy);
+		col = tex2Dlod(_PreviewTex, float4(i.texcoord.xy,0,0));
 		
 		float2 off2 = i.texcoord.zw*i.texcoord.zw;
 		float fromCenter = off2.x+off2.y;
@@ -198,6 +198,7 @@
 	}
 		ENDCG
 	}
+	UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
 	}
 	}
 }

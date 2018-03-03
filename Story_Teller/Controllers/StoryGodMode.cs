@@ -14,7 +14,7 @@ public class StoryGodModeDrawer : Editor
     {
         ef.start(serializedObject);
         ((StoryGodMode)target).PEGI();
-        pegi.newLine();
+        ef.end();
     }
 }
 # endif

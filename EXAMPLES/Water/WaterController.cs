@@ -44,7 +44,7 @@ public class WaterEditor : Editor
         ef.newLine();
 
         if (modified) { trg.setFoamDynamics(); SceneView.RepaintAll(); UnityEditorInternal.InternalEditorUtility.RepaintAllViews(); }
-        ef.newLine();
+        ef.end();
 
     }
 }

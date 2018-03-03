@@ -9,7 +9,7 @@ using PlayerAndEditorGUI;
 using UnityEditor;
 #endif
 
-namespace Painter
+namespace Playtime_Painter
 {
  
     //  public enum meshSHaderMode { lit = "MESH_PREVIEW_LIT",  MESH_PREVIEW_NORMAL MESH_PREVIEW_VERTCOLOR MESH_PREVIEW_PROJECTION }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace Painter {
+namespace Playtime_Painter {
 
 #if UNITY_EDITOR
 
@@ -16,7 +16,7 @@ namespace Painter {
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
             ((PainterBall)target).PEGI();
-            ef.newLine();
+            ef.end();
         }
     }
 #endif
@@ -160,7 +160,7 @@ namespace Painter {
 
             pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
 
-            if  ((brush.BrushForTargets_PEGI().nl()) || (brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl())) {
+            if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl())) {
                 if ((brush.TargetIsTex2D) || (!brush.type.isA3Dbrush)) {
                     brush.TargetIsTex2D = false;
                     brush._type = BrushTypeSphere.inst.index;
@@ -172,7 +172,7 @@ namespace Painter {
             brush.blitMode.PEGI(brush, null);
 
             if (brush.ColorSliders_PEGI()) 
-                rendy.material.color = brush.color.ToColor();
+                rendy.sharedMaterial.color = brush.color.ToColor();
         }
 
     }

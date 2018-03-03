@@ -6,7 +6,7 @@ using System.Reflection;
 
 // This is a base class to use when managing special cases, such as: Terrain ControlMaps, Global Textures, Textures that are RAM only.
 
-namespace Painter{
+namespace Playtime_Painter{
 
 // Inherit this base class to create textures that are not not part of the material. (GlobalShaderValues, Terrain Textures)
 

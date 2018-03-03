@@ -25,6 +25,7 @@
 		CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
+#pragma multi_compile_fwdbase
 #pragma target 3.0
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"

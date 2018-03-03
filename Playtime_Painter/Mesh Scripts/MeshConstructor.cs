@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 
-namespace Painter {
+namespace Playtime_Painter {
 
 
     [Serializable]
@@ -47,7 +47,7 @@ namespace Painter {
         Countless<vertexAnimationFrame> anims; // outer tree - animation no, inner - vertices
         public int[] originalIndex;
 
-        public MeshSolutionProfile profile;
+        public MeshPackagingProfile profile;
 
         public EditableMesh edMesh;
 
@@ -447,7 +447,7 @@ namespace Painter {
             }
         }
 
-        public MeshConstructor(EditableMesh edmesh, MeshSolutionProfile solution, Mesh fmesh)
+        public MeshConstructor(EditableMesh edmesh, MeshPackagingProfile solution, Mesh fmesh)
         {
             profile = solution;
             edMesh = edmesh;

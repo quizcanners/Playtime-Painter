@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 
-namespace Painter {
+namespace Playtime_Painter {
 
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : SceneViewEditable<PlaytimePainter> {
@@ -374,11 +374,10 @@ namespace Painter {
                 painter.meshRenderer = (Renderer)EditorGUILayout.ObjectField(painter.meshRenderer, typeof(Renderer), true);
                 if ((painter.meshRenderer != null) && (painter.meshRenderer.gameObject != painter.gameObject)) {
                     painter.meshRenderer = null;
-                    Debug.Log("Attach directly to GameObject with Renderer");
+                    //Debug.Log("Attach directly to GameObject with Renderer");
                 }
 
             }
-
 
             painter.gameObject.end();
 

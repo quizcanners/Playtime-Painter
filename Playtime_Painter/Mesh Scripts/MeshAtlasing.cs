@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     [System.Serializable]
@@ -257,7 +257,7 @@ namespace Painter
 				(AtlasedMaterial!= null && AtlasedMaterial.shader != atlasedShader))
 				OnChangeMaterial (painter);
 
-			"Profile".select (50, ref matAtlasProfile, PainterConfig.inst.meshProfileSolutions).nl ();
+			"Profile".select (50, ref matAtlasProfile, PainterConfig.inst.meshPackagingSolutions).nl ();
 
 
 			if (originalMaterial != null && AtlasedMaterial != null && "Convert to Atlased".Click ())

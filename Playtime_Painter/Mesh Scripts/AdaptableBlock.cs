@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using Painter;
+using Playtime_Painter;
 
 public class AdaptableBlock : MonoBehaviour {
 

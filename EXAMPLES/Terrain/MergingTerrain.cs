@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
-using Painter;
-
+using Playtime_Painter;
+using Playtime_Painter.CombinedMaps;
 
 
 
@@ -12,7 +12,7 @@ using Painter;
 [ExecuteInEditMode]
 public class MergingTerrain : MonoBehaviour {
 
-    public List<channelSetsForCombinedMaps> mergeSubmasks;
+    public List<ChannelSetsForDefaultMaps> mergeSubmasks;
     Color[] col;
     [HideInInspector]
     public PlaytimePainter painter;
@@ -74,7 +74,7 @@ public class MergingTerrain : MonoBehaviour {
 
             for (int i = 0; i < mergeSubmasks.Count; i++)
             {
-                channelSetsForCombinedMaps tmp = mergeSubmasks[i];
+                ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                 if (tmp.Product_combinedBump != null)
                     Shader.SetGlobalTexture(PainterConfig.terrainNormalMap + i, tmp.Product_combinedBump.getDestinationTexture());
 

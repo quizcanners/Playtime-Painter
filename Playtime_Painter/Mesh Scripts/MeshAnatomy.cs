@@ -10,7 +10,7 @@ using UnityEditor;
 //using TextureEditor;
 using StoryTriggerData;
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     public static class MeshAnatomyExtensions {

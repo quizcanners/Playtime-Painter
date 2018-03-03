@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Painter;
+using Playtime_Painter;
 using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {
@@ -15,8 +15,8 @@ namespace StoryTriggerData {
             public override void OnInspectorGUI() {
                 ef.start(serializedObject);
                 ((Actor)target).PEGI();
-                pegi.newLine();
-            }
+            ef.end();
+        }
         }
 #endif
 

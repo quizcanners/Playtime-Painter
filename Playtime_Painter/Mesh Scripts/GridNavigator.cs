@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using Painter;
+using Playtime_Painter;
 
 public enum Gridside { xz, xy, zy }
 

@@ -14,7 +14,7 @@ public class GodModeDrawer : Editor
     {
         ef.start(serializedObject);
         ((GodMode)target).PEGI();
-        pegi.newLine();
+        ef.end();
     }
 }
 # endif

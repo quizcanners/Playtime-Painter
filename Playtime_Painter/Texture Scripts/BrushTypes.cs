@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace Painter{
+namespace Playtime_Painter{
 
 public static class BlitModeExtensions {
 	public static void KeywordSet (string name, bool to){
@@ -127,6 +127,7 @@ public abstract class BrushType : IeditorDropdown {
     public virtual bool supportedByRenderTexturePair {get { return true; }}
 	public virtual bool supportedBySingleBuffer {get { return true; }}
 	public virtual bool isA3Dbrush {get { return false;}}
+    public virtual bool isPixelPerfect { get { return false; }}
 	public virtual bool isUsingDecals {get { return false;}}
 	public virtual bool startPaintingTheMomentMouseIsDown {get { return true;}}
     public virtual bool supportedForTerrain_RT { get { return true; } }
@@ -253,6 +254,8 @@ public abstract class BrushType : IeditorDropdown {
         public override bool supportedByTex2D { get { return true; } }
 
         public override string ToString() { return "Pixel"; }
+
+        public override bool isPixelPerfect { get {return true; }}
 
         public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {

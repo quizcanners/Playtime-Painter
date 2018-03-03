@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using StoryTriggerData;
 
-namespace Painter {
+namespace Playtime_Painter {
 
 [Serializable]
     public class StrokeVector : abstract_STD {

@@ -8,7 +8,9 @@ using UnityEditor.SceneManagement;
 using System;
 using PlayerAndEditorGUI;
 using UnityEngine.EventSystems;
-namespace Painter{
+namespace Playtime_Painter{
+
+    using CombinedMaps;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(PainterManager))]
@@ -21,6 +23,7 @@ namespace Painter{
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
             ((PainterManager)target).PEGI();
+            ef.end();
         }
 
     }
@@ -78,7 +81,7 @@ public class PainterManager : MonoBehaviour {
 
     public Texture[] masks;
 
-    public List<channelSetsForCombinedMaps> forCombinedMaps;
+    public List<TextureSetForForCombinedMaps> forCombinedMaps;
 
     public List<AtlasTextureCreator> atlases;
 
@@ -707,10 +710,6 @@ public class PainterManager : MonoBehaviour {
                 l.last().PlaybeckVectors();
         }
 
-        forCombinedMaps.UpdateBumpGloss();
-
- 
-
 		PlaytimeToolComponent.CheckRefocus();
         if ((PainterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
             RaycastHit hit;
@@ -750,12 +749,26 @@ public class PainterManager : MonoBehaviour {
         }
 
 
-       // bool meshEditorConfig = false;
+
+        public bool showCombinedMaps = false;
+        public int exploredCombinedMap = -1;
+        public bool showPackagingSolutions = false;
+        public int exploredPackagingSolution = -1;
         public void PEGI() {
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return; }
+
+            if ("Packaging Solutions".foldout(ref showPackagingSolutions).nl()) {
+                cfg.texturePackagingSolutions.PEGI(ref exploredPackagingSolution);
+                return;
+            }
+
+            if ("Combined maps".foldout(ref showCombinedMaps).nl()) {
+                forCombinedMaps.PEGI(ref exploredCombinedMap);
+                return;
+            }
 
 #if UNITY_EDITOR
             "Using layer:".nl();
@@ -769,7 +782,7 @@ public class PainterManager : MonoBehaviour {
             "Textures to copy from".edit(() => sourceTextures).nl();
             "Masks".edit(() => masks).nl();
             "Decals".edit(() => decals).nl();
-            "For combined maps".edit(() => forCombinedMaps).nl();
+            //"For combined maps".edit(() => forCombinedMaps).nl();
 
          //   if ("Mesh Painter".foldout(ref meshEditorConfig).nl()) 
            //     meshManager.PEGI();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-namespace Painter {
+namespace Playtime_Painter {
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +13,8 @@ public class PaintingRecieverEditor : Editor
     public override void OnInspectorGUI() {
         ef.start(serializedObject);
         ((PaintingReciever)target).PEGI().nl();
-    }
+            ef.end();
+        }
 }
 #endif
 

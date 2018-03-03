@@ -5,7 +5,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 
 
-namespace Painter{
+namespace Playtime_Painter{
 
 	public abstract class BlitMode  : IeditorDropdown  {
 
@@ -136,19 +136,28 @@ namespace Painter{
             changed |= pegi.edit(ref brush.speed, 0.01f, 20);
             pegi.newLine();
             pegi.write("Scale:", 40);
-            if ((!cpuBlit) && brushType.isA3Dbrush)
-            {
+
+         
+
+            if ((!cpuBlit) && brushType.isA3Dbrush) {
 
                 Mesh m = painter.getMesh() ;
 
                 float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (painter == null ? 1 : painter.transform.lossyScale.magnitude);
+               
                 changed |= pegi.edit(ref brush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
+               
 
             }
             else
             {
-
-                changed |= pegi.edit(ref brush.Brush2D_Radius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : (id != null ? id.width * 0.5f : 256));
+                if (!brushType.isPixelPerfect)
+                    changed |= pegi.edit(ref brush.Brush2D_Radius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : (id != null ? id.width * 0.5f : 256));
+                else {
+                    int val = (int)brush.Brush2D_Radius;
+                    changed |= pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : (id != null ? id.width * 0.5f : 256)));
+                    brush.Brush2D_Radius = val;
+                }
             }
 
             pegi.newLine();

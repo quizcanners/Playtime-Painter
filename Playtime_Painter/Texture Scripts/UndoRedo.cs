@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace Painter {
+namespace Playtime_Painter {
 
 
     public class TextureBackup {

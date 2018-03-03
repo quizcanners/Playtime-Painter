@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
  
 
-namespace Painter{
+namespace Playtime_Painter{
 
 	public static class RecentTextureExtensions {
 	

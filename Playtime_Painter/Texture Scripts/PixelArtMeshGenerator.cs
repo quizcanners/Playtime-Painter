@@ -240,8 +240,8 @@ public class PixArtMeshGenDrawer : Editor
         tmp.mFilter = (MeshFilter)EditorGUILayout.ObjectField(tmp.mFilter, typeof(MeshFilter), true);
 
 
-        ef.newLine();
-        }
+        ef.end();
+    }
     
 }
 

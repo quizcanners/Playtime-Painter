@@ -279,18 +279,22 @@ inline float3 foamStuff(float3 wpos) {
 	return fwpos;
 }
 
-inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float shadow) {
+inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float shadow, float viewDir) {
 	float wetSection = min(max(_foamParams.w - fwpos.y - (colA)*_foamParams.w, 0),0.999);//*(1 - terrainN.b);
 	fwpos.y += colA;
 
+	//viewDir = saturate(viewDir)*0.5;
+
 	float2 foamA_W = foamAlphaWhite(fwpos);
-	float water = max(0.5, min(fwpos.y + 2 - (foamA_W.x) * 2, 1));
-	float under = (water - 0.5) * 2;
-	float deUnder = 1 - under;
+	float soil = max(0.5, min(fwpos.y + 2 - (foamA_W.x) * 2, 1));
+	float under = (soil - 0.5) * 2;
+	float above = 1 - under;
 
 	terrainN.b = max(terrainN.b, wetSection)*under;
 
-	return float2(foamA_W.y*(0.5 + shadow)*(under), water);
+	
+
+	return float2(foamA_W.y*(0.5 + shadow)*(under), soil*(viewDir*above) + under);
 }
 
 

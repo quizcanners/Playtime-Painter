@@ -9,7 +9,7 @@ using StoryTriggerData;
 using UnityEditor;
 #endif
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     public abstract class VertexDataTarget
@@ -52,7 +52,7 @@ namespace Painter
 
         public VertexSolution getMySolution()
         {
-            MeshSolutionProfile pf = MeshSolutions.curMeshDta.profile;
+            MeshPackagingProfile pf = MeshSolutions.curMeshDta.profile;
             return pf.sln[myIndex];
         }
 
@@ -380,7 +380,7 @@ namespace Painter
 
 
     [Serializable]
-    public class MeshSolutionProfile: abstract_STD {
+    public class MeshPackagingProfile: abstract_STD {
         public List<VertexSolution> sln;
 
         public string name = "";
@@ -403,10 +403,10 @@ namespace Painter
 
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType).nl()) {
-                var msol = (MeshSolutionProfile)(new MeshSolutionProfile().Reboot(ResourceLoader.LoadStory(myType)));
+                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Reboot(ResourceLoader.LoadStory(myType)));
                 
-                PainterConfig.inst.meshProfileSolutions.Add(msol);
-                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterConfig.inst.meshProfileSolutions.Count - 1;
+                PainterConfig.inst.meshPackagingSolutions.Add(msol);
+                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterConfig.inst.meshPackagingSolutions.Count - 1;
             }
 #endif
 
@@ -465,7 +465,7 @@ namespace Painter
             return stdTag_vertSol;
         }
 
-        public MeshSolutionProfile() {
+        public MeshPackagingProfile() {
             VertexDataTarget[] trgs = MeshSolutions.targets;
             sln = new List<VertexSolution>(); //[trgs.Length];
             name = "unnamed";

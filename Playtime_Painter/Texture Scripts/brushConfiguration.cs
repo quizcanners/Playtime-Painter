@@ -9,7 +9,7 @@ using StoryTriggerData;
 using PlayerAndEditorGUI;
 
 
-namespace Painter
+namespace Playtime_Painter
 {
 
     public static class BrushExtensions
@@ -83,11 +83,6 @@ namespace Painter
         public const string storyTag = "brush";
         public override string getDefaultTagName() { return storyTag; }
 
-        /*  public bool GetMask(BrushMask flag)
-          {
-              return mask ((mask & flag) != 0);
-          }*/
-
         public void MaskToggle(BrushMask flag)
         {
             mask ^= flag;
@@ -136,7 +131,6 @@ namespace Painter
         public float Hardness = 256;
         public float blurAmount = 1;
         public float decalAngle = 0;
-        //public bool decalRandomRotation = true;
         public DecalRotationMethod decalRotationMethod;
         public bool decalContinious = false;
         public float decalAngleModifier;
@@ -170,6 +164,165 @@ namespace Painter
 
         public bool paintingRGB { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); } }
 
+        static PainterConfig cfg { get { return PainterConfig.inst; } }
+        static PainterManager rtp { get { return PainterManager.inst; } }
+
+        public bool Mode_Type_PEGI(bool cpuBlit)
+        {
+            bool changed = false;
+            pegi.newLine();
+
+            msg.BlitMode.write("How final color will be calculated", 80);
+
+            var bm = blitMode;
+
+            changed |= pegi.select(ref _bliTMode, BlitMode.allModes.ToArray(), true);
+
+            pegi.newLine();
+            pegi.Space();
+            pegi.newLine();
+
+            if (!cpuBlit)
+            {
+                msg.BrushType.write(80);
+                changed |= pegi.select<BrushType>(ref _type, BrushType.allTypes);
+
+                changed |= type.PEGI(this);
+            }
+
+            pegi.newLine();
+
+            return changed;
+        }
+
+        public bool Targets_PEGI()
+        {
+            bool changed = false;
+
+            if ((TargetIsTex2D ? icon.CPU : icon.GPU).Click(
+                TargetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45))
+            {
+                TargetIsTex2D = !TargetIsTex2D;
+                setSupportedFor(TargetIsTex2D, true);
+                changed = true;
+            }
+
+            bool smooth = _type != BrushTypePixel.inst.index;
+
+            if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.getIcon(), icon.Square.getIcon(), "Smooth/Pixels Brush", 45))
+            {
+                changed = true;
+                _type = smooth ? BrushTypeNormal.inst.index : BrushTypePixel.inst.index;
+            }
+
+            return changed;
+        }
+
+        public bool PEGI(PlaytimePainter painter)  {
+
+
+            if ((painter.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
+                painter.UpdateColliderForSkinnedMesh();
+            pegi.newLine();
+
+
+            imgData id = painter.curImgData;
+
+            bool changed = false;
+            bool cpuBlit = id.destination == texTarget.Texture2D;
+
+            pegi.newLine();
+
+            changed |= painter.PreviewShaderToggle_PEGI();
+
+            if ((PainterManager.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
+            {
+                if ((cpuBlit ? icon.CPU : icon.GPU).Click(
+                    cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45))
+                {
+                    painter.UpdateOrSetTexTarget(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);
+                    setSupportedFor(cpuBlit, id.renderTexture == null);
+                    changed = true;
+                }
+            }
+
+
+            if (cpuBlit)
+            {
+                bool smooth = _type != BrushTypePixel.inst.index;
+
+                if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
+                {
+                    changed = true;
+                    _type = smooth ? BrushTypeNormal.inst.index : BrushTypePixel.inst.index;
+                }
+            }
+
+            pegi.newLine();
+            if ((painter.originalShader != null) && (cfg.moreOptions))
+                changed |= pegi.toggle(ref cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
+
+
+
+            if (Mode_Type_PEGI(cpuBlit))
+            {
+                if (type == BrushTypeDecal.inst)
+                    MaskSet(BrushMask.A, true);
+
+                changed = true;
+            }
+
+
+            BlitMode blitMode = BlitMode.getCurrentBlitModeForPainter(painter);
+
+            if (painter.terrain != null)
+            {
+
+                if ((painter.curImgData != null) && ((painter.isTerrainHeightTexture())) && (painter.originalShader == null))
+                    pegi.writeWarning(" You need to use Preview Shader to see changes");
+
+                pegi.newLine();
+
+                if ((painter.terrain != null) && (pegi.Click("Update Terrain").nl()))
+                    painter.UpdateShaderGlobalVariables();
+
+            }
+
+            changed |= blitMode.PEGI(this, painter);
+
+            BlitMode mode = blitMode;
+            imgData image = painter.curImgData;
+
+
+            if ((mode.usingSourceTexture) && (image.TargetIsRenderTexture()))
+            {
+                if (rtp.sourceTextures.Length > 0)
+                {
+                    selectedSourceTexture = Mathf.Min(selectedSourceTexture, rtp.sourceTextures.Length - 1);
+                    pegi.write("Copy From:", 70);
+                    pegi.selectOrAdd(ref selectedSourceTexture, ref rtp.sourceTextures);
+                }
+                else
+                    pegi.write("Add Textures to Render Camera to copy from");
+            }
+
+            pegi.newLine();
+
+            return changed;
+        }
+
+        public bool ColorSliders_PEGI()
+        {
+            bool changed = false;
+
+            changed |= ColorSlider(BrushMask.R, ref color.r, null, true);
+            changed |= ColorSlider(BrushMask.G, ref color.g, null, true);
+            changed |= ColorSlider(BrushMask.B, ref color.b, null, true);
+            changed |= ColorSlider(BrushMask.A, ref color.a, null, true);
+
+            return changed;
+        }
+
         public bool ColorSlider(BrushMask m, ref float chanel)
         {
             pegi.write(m.getIcon(), 25);
@@ -199,20 +352,6 @@ namespace Painter
                 changed |= pegi.edit(ref chanel, 0, 1);
 
             pegi.newLine();
-
-            return changed;
-        }
-
-
-
-        public bool ColorSliders_PEGI()
-        {
-            bool changed = false;
-
-            changed |= ColorSlider(BrushMask.R, ref color.r, null, true);
-            changed |= ColorSlider(BrushMask.G, ref color.g, null, true);
-            changed |= ColorSlider(BrushMask.B, ref color.b, null, true);
-            changed |= ColorSlider(BrushMask.A, ref color.a, null, true);
 
             return changed;
         }

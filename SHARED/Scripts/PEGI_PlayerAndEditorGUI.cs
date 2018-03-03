@@ -1096,6 +1096,16 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        public static bool edit(ref linearColor col) {
+            Color c = col.ToColor();
+            if (edit(ref c))
+            {
+                col.From(c);
+                return true;
+            }
+            return false;
+        }
+
         public static bool edit(ref Color col) {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1454,6 +1464,11 @@ namespace PlayerAndEditorGUI {
             return edit(ref field);
         }
 
+        public static bool edit(this string label, ref linearColor col) {
+            write(label);
+            return edit(ref col);
+        }
+
         public static bool edit<T>(this string label, int width, ref T field) where T : UnityEngine.Object {
             write(label, width);
             return edit(ref field);
@@ -1677,6 +1692,18 @@ namespace PlayerAndEditorGUI {
                 }
                 return false;
             }
+        }
+
+        public static bool toggle(this icon img, ref bool val)
+        {
+            write(img.getIcon(), 25);
+            return toggle(ref val);
+        }
+
+        public static bool toggle(this Texture img, ref bool val)
+        {
+            write(img, 25);
+            return toggle(ref val);
         }
 
         public static bool toggle(this string text, ref bool val) {

@@ -134,7 +134,7 @@
 
 	float shadow = SHADOW_ATTENUATION(i);
 #if WATER_FOAM
-	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow);
+	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow, i.viewDir.y);
 #endif
 
 	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz,

@@ -86,7 +86,7 @@ Category {
 
 			float size=tex2D(_MainTex, v/64).a;
 
-			float _OffsetX = _Time.x / 6;
+			float _OffsetX = _Time.x / 9;
 
 			float2 off = float2(_OffsetX, -_OffsetX) ;
 			float distortion=tex2D(_MainTex, (v)/34+ off).a/16;
@@ -97,7 +97,7 @@ Category {
 	
 			off.x+=_OffsetX*0.55;
 			float4 col = tex2D(_MainTex, (v )/(16) + (off - distortion)/8 );
-			float sunblock = tex2D(_MainTex, (v+sunvv*15) / (256) + (off - distortion) / 8).a;
+			float sunblock =  tex2D(_MainTex, (v + sunvv * 15) / (256) + (off - distortion) / 8).a;
 
 			off.y-=_OffsetX/2;
 
@@ -126,8 +126,13 @@ Category {
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
 
 
-col.a=max(0,(col.a / 8 - distortion)); // IMPORTANT
-float alpha = saturate(i.h*16 + vda/512); //-i.viewDir.y*4);
+col.a=max(0,(col.a / 12 - distortion)); // IMPORTANT
+
+float ecvator = i.h * 16 + vda / 512;
+
+float alpha = saturate(ecvator); //-i.viewDir.y*4);
+
+//float UnderEcvator = saturate(-(ecvator + 0.2));
 
 float ca = col.a;//min(1, col.a);
 float dca = 1 - ca;
@@ -159,10 +164,12 @@ col.rgb+=sun;
 
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
-col.rgb = col.rgb*(alpha)+ unity_FogColor.rgb*(1 - alpha);
+col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);//*(1 - UnderEcvator);
 #else
 col.rgb = col.rgb*(alpha)+ unity_AmbientEquator.rgb*(1 - alpha);
 #endif
+
+
 
 //col.rgb -= max(0, i.viewDir.y-0.1)*128;
 

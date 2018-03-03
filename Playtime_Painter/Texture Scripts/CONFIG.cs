@@ -5,8 +5,9 @@ using System;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
 
-namespace Painter{
 
+namespace Playtime_Painter{
+    using CombinedMaps;
 
 
 [Serializable]
@@ -69,7 +70,8 @@ public class PainterConfig  {
         public bool atlasEdgeAsChanel2 = true;
         public bool pixelPerfectMeshEditing = false;
 
-        public List<MeshSolutionProfile> meshProfileSolutions;
+        public List<MeshPackagingProfile> meshPackagingSolutions;
+        public List<TexturePackagingProfile> texturePackagingSolutions;
 
         public MeshTool _meshTool;
 
@@ -129,22 +131,21 @@ public class PainterConfig  {
             UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
         }
 
-        public void SafeInit()
-        {
+        public void SafeInit() {
 
             _inst = this;
 
-            if ((meshProfileSolutions == null) || (meshProfileSolutions.Count == 0)) {
-                meshProfileSolutions = new List<MeshSolutionProfile>();
+            if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
+                meshPackagingSolutions = new List<MeshPackagingProfile>();
 
-				meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Standard"));
-                meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Bevel"));
-                //meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "Atlased"));
-				//meshProfileSolutions.Add((new MeshSolutionProfile()).LoadFromResources(MeshSolutionProfile.folderName, "AtlasedProjected"));
-               
+				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard"));
+                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"));
+                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Atlased"));
+				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
             }
 
-            //if (meshProfiles.Count == 0) meshProfiles.Add(new MeshSolutionProfile());
+            if (texturePackagingSolutions == null) texturePackagingSolutions = new List<TexturePackagingProfile>();
+           
             if (texturesFolderName == null)
                 texturesFolderName = "Textures";
             if (vectorsFolderName == null)
@@ -155,6 +156,7 @@ public class PainterConfig  {
                 atlasFolderName = "ATLASES";
             if (recordingNames == null)
                 recordingNames = new List<string>();
+
         }
 
     public static void LoadOrInit() {
