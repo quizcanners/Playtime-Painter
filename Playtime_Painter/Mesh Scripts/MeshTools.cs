@@ -178,10 +178,7 @@ namespace Playtime_Painter
 
         public override void KeysEventPointedVertex()
         {
-           
-
-           // Debug.Log("Key event");
-
+  
             if (m.pointedUV == null) return;
 
             if ((KeyCode.M.isDown()) && (m.draggingSelected))
@@ -189,11 +186,13 @@ namespace Playtime_Painter
                 m.selectedUV.vert.MergeWithNearest();
                 m.draggingSelected = false;
                 m._Mesh.Dirty = true;
+                "M - merge with nearest".TeachingNotification();
             }
 
             if (KeyCode.N.isDown()) {
                 m.pointedUV.vert.SmoothNormal = !m.pointedUV.vert.SmoothNormal;
                 m._Mesh.Dirty = true;
+                "N - on Vertex - smooth Normal".TeachingNotification();
             }
 
             if (KeyCode.Delete.isDown())
@@ -228,6 +227,8 @@ namespace Playtime_Painter
                 foreach (var t in m.pointedLine.getAllTriangles_USES_Tris_Listing())
                     t.ForceAllNormals(!EditorInputManager.getAltKey());
 
+                "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
+
                 m._Mesh.Dirty = true;
             }
         }
@@ -251,11 +252,13 @@ namespace Playtime_Painter
                 {
                     int no = triangle.NumberOf(triangle.GetClosestTo(m.collisionPosLocal));
                     triangle.ForceSmoothedNorm[no] = !triangle.ForceSmoothedNorm[no];
+
+                    (triangle.ForceSmoothedNorm[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                 }
                 else
                 {
-                    Debug.Log("Inverting normal");
                     triangle.InvertNormal();
+                    "Inverting Normals".TeachingNotification();
                 }
 
                 m._Mesh.Dirty = true;
@@ -320,15 +323,15 @@ namespace Playtime_Painter
         {
             MeshManager tmp = m;
 
-            pegi.write("Editing UV:", 70);
-            pegi.edit(ref MeshManager.curUV, 0, 2);
+            pegi.write("Edit UV 1:", 70);
+            pegi.toggleInt (ref MeshManager.editedUV);
             pegi.newLine();
 
             if (m.selectedUV != null)
                 if (pegi.Click("ALL from selected")) {
                     foreach (vertexpointDta vr in m._Mesh.vertices)
                         foreach (UVpoint uv in vr.uv)
-                            uv.uv = m.selectedUV.uv;
+                            uv.editedUV = m.selectedUV.editedUV;
 
                     m._Mesh.Dirty = true;
                 }
@@ -336,7 +339,7 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if (m.selectedUV != null)
-                pegi.write("UV: " + (tmp.selectedUV.uv.x) + "," + (tmp.selectedUV.uv.y));
+                pegi.write("UV: " + (tmp.selectedUV.editedUV.x) + "," + (tmp.selectedUV.editedUV.y));
 
             pegi.newLine();
             if (m.GridToUVon) {
@@ -357,7 +360,7 @@ namespace Playtime_Painter
             if (tmp.selectedUV != null)
                 if (pegi.Click("All vert UVs from selected"))  {
                     foreach (UVpoint uv in tmp.selectedUV.vert.uv)
-                        uv.uv = tmp.selectedUV.uv;
+                        uv.editedUV = tmp.selectedUV.editedUV;
 
                     tmp._Mesh.Dirty = true;
                 }
@@ -376,7 +379,7 @@ namespace Playtime_Painter
             {
                 if ((m.selectedUV != null) && (m.pointedUV != null))
                 {
-                    m.pointedUV.uv = m.selectedUV.uv;
+                    m.pointedUV.editedUV = m.selectedUV.editedUV;
                     m._Mesh.Dirty = true;
                 }
 
@@ -384,7 +387,7 @@ namespace Playtime_Painter
             }
 
             if ((EditorInputManager.GetMouseButtonDown(1)) && (m.pointedUV != null) && (UVnavigator.inst() != null))
-                UVnavigator.inst().CenterOnUV(m.pointedUV.uv);
+                UVnavigator.inst().CenterOnUV(m.pointedUV.editedUV);
 
         }
 
@@ -407,7 +410,7 @@ namespace Playtime_Painter
                             if (m.selectedUV == null) m.selectedUV = m._Mesh.vertices[0].uv[0];
 
                             for (int i = 0; i < 3; i++)
-                                m.pointedTris.uvpnts[i].uv = m.PosToUV(m.pointedTris.uvpnts[i].vert.pos);
+                                m.pointedTris.uvpnts[i].editedUV = m.PosToUV(m.pointedTris.uvpnts[i].vert.pos);
                             m._Mesh.Dirty = true;
                         }
             }

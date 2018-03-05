@@ -9,11 +9,12 @@ using UnityEditor;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using PlayerAndEditorGUI;
+using StoryTriggerData;
 
 namespace Playtime_Painter {
 
     [Serializable]
-    public class AtlasTextureCreator {
+    public class AtlasTextureCreator : iGotName  {
 
         static PainterConfig cfg { get { return PainterConfig.inst; } }
 
@@ -24,6 +25,8 @@ namespace Playtime_Painter {
         public bool sRGB = true;
 
         public string name = "New_Atlas";
+
+        public string Name { get { return name; } set { name = value; } }
 
 		public List<string> targetFields;
 
@@ -80,6 +83,15 @@ namespace Playtime_Painter {
 			get { int r = row; return r * r; }
         }
 
+        public void ColorToAtlas (Color col, int x, int y) {
+            int size = textureSize * textureSize;
+            Color[] pix = new Color[size];
+            for (int i = 0; i < size; i++)
+                pix[i] = col;
+
+            a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, pix);
+        }
+
         public void TextureToAtlas(Texture2D tex, int x, int y)
         {
 #if UNITY_EDITOR
@@ -107,9 +119,7 @@ namespace Playtime_Painter {
 
             if (tSize == 0)
                 return;
-
-            // AtlasSize = AtlasSize
-
+            
             int cnt = aSize / tSize;
 
             linearColor tmp = new linearColor();
@@ -119,13 +129,11 @@ namespace Playtime_Painter {
             {
                 int startY = ty * tSize * aSize;
                 int lastY = (ty * tSize + tSize - 1) * aSize;
-                // Debug.Log("Processing Y "+ (ty * tSize) +" line ");
                 for (int tx = 0; tx < cnt; tx++)
                 {
                     int startX = tx * tSize;
                     int lastX = startX + tSize - 1;
-
-                    //   Debug.Log("Processing X " + (tx * tSize) + " line ");
+                    
 
                     tmp.Zero();
                     tmp.Add(col[startY + startX]);
@@ -189,12 +197,14 @@ namespace Playtime_Painter {
 
             int curIndex = 0;
 
+            Color defaltCol = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+
 			for (int y = 0; y < texesInRow; y++)
 				for (int x = 0; x < texesInRow; x++){
-                
-
                     if ((textures.Count > curIndex) && (textures[curIndex] != null))
                         TextureToAtlas(textures[curIndex], x, y);
+                    else
+                        ColorToAtlas(defaltCol, x, y);
 
                     curIndex++;
                 }
@@ -220,7 +230,7 @@ namespace Playtime_Painter {
 
             byte[] bytes = a_texture.EncodeToPNG();
 
-            string lastPart = "/" + cfg.atlasFolderName + "/";
+            string lastPart = cfg.atlasFolderName.AddPreSlashIfNotEmpty() + "/";
             string fullPath = Application.dataPath + lastPart;
             Directory.CreateDirectory(fullPath);
 
@@ -233,8 +243,7 @@ namespace Playtime_Painter {
             AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
             a_texture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
-
-
+            
             TextureImporter other = null;
 
             foreach (var t in textures) 
@@ -254,93 +263,51 @@ namespace Playtime_Painter {
         }
 #endif
 
-        public void PEGI(PlaytimePainter painter) {
-
+        public bool PEGI() {
+            bool changed = false;
 #if UNITY_EDITOR
 
-           
-            "Name:".edit(60, ref name).nl();
 
-            "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
+            changed |= "Name:".edit(60, ref name).nl();
+
+            changed |=  "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
 			if ("Textures size:".editDelayed(ref textureSize, 80).nl()){
                 pegi.foldIn();
+                changed = true;
 
-			}
+            }
 
             textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
 
 			adjustListSize();
 
-            if (pegi.foldout("Textures:")) {
-                pegi.newLine();
+            if ("Textures:".foldout().nl()) {
                 adjustListSize();
                 int max = TextureCount;
 
-                for (int i = 0; i < max; i++)
-                {
+                for (int i = 0; i < max; i++) {
                     Texture2D t = textures[i];
-                    if (pegi.edit(ref t))
+                    if (pegi.edit(ref t).nl())
                         textures[i] = t;
-                    pegi.newLine();
                 }
             }
 
             pegi.newLine();
             "Is Color Atlas:".toggle(80, ref sRGB).nl();
 
-            if ("Generate".Click())
+            if ("Generate".Click().nl())
                 ReconstructAsset();
 
-           // if ((a_texture != null) && ("Smooth Edges".Click()))
-               
-
-            pegi.newLine();
-
-            if (a_texture != null)
-            {
-                pegi.write("Atlas At " + AssetDatabase.GetAssetPath(a_texture));
-                EditorGUILayout.ObjectField(a_texture, typeof(Texture2D), false);
-            }
+            if (a_texture != null)            
+                ("Atlas At " + AssetDatabase.GetAssetPath(a_texture)).edit(ref a_texture, false).nl();
 
 #endif
 
-            pegi.newLine();
-
+            return changed;
         }
 
 
     }
-
-// Postprocesses all textures that are placed in a folder
-// "invert color" to have their colors inverted.
-/*
-public class InvertColor : AssetPostprocessor {
-    void OnPostprocessTexture(Texture2D texture)
-    {
-        // Only post process textures if they are in a folder
-        // "invert color" or a sub folder of it.
-        string lowerCaseAssetPath = assetPath.ToLower();
-        if (lowerCaseAssetPath.IndexOf("/"+ AtlasTextureCreator.atlasFolderName + "/") == -1)
-            return;
-
-        Debug.Log("Postprocessing " + texture.name + " with "+texture.mipmapCount + " mipmaps");
-
-
-        TextureImporter ti = texture.getTextureImporter();
-        bool needReimport = ti.wasNotReadable();
-        needReimport |= ti.wasClamped();
-
-        if (needReimport) ti.SaveAndReimport();
-
-        for (int m = 0; m < texture.mipmapCount; m++) 
-            AtlasTexture.smoothBorders(texture, m);
-        
-        // Instead of setting pixels for each mip map levels, you can also
-        // modify only the pixels in the highest mip level. And then simply use
-        // texture.Apply(true); to generate lower mip levels.
-    }
-}
-*/
   }

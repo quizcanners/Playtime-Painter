@@ -736,6 +736,7 @@ namespace Playtime_Painter {
                     UVpoint buv;
                     UVpoint spliUV;
                     Vector2 uv;
+                    Vector2 uv1;
                     UVpoint newUV;
 
                     auv = tr.GetByVert(a);
@@ -754,25 +755,25 @@ namespace Playtime_Painter {
                     w[tr.NumberOf(auv)] = dstb / dst;
                     w[tr.NumberOf(buv)] = dsta / dst;
 
-                    uv = (auv.uv * dstb + buv.uv * dsta) / (dsta + dstb);
+                    uv = (auv.GetUV(0) * dstb + buv.GetUV(0) * dsta) / (dsta + dstb);
+                    uv1 = (auv.GetUV(1) * dstb + buv.GetUV(1) * dsta) / (dsta + dstb);
 
-                  
 
                     newUV = null;
 
                     if ((MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
-                        newUV = new UVpoint(newVrt,uv);
+                        newUV = new UVpoint(newVrt,uv, uv1);
                     else
                     {
                         for (int j = 0; j < newVrt.uv.Count; j++)
-                            if ((newVrt.uv[j].uv - uv).magnitude < 0.0001f)
+                            if (newVrt.uv[j].SameUV(uv,uv1)) //.uv - uv).magnitude < 0.0001f) dfsdf
                                 newUV = newVrt.uv[j];
                     }
 
                     if (newUV == null)
-                        newUV = new UVpoint(newVrt, uv);
-
-                    newUV.uv = uv;
+                        newUV = new UVpoint(newVrt, uv, uv1);
+                    else
+                    newUV.SetUVindexBy(uv, uv1);
                     tr.AssignWeightedData(newUV, w);
 
 
@@ -824,8 +825,8 @@ namespace Playtime_Painter {
 
             Vector3 w = a.DistanceToWeight(pos);
 
-            Vector2 newV2_0 = a.uvpnts[0].getUV(0) * w.x + a.uvpnts[1].getUV(0) * w.y + a.uvpnts[2].getUV(0) * w.z;
-            Vector2 newV2_1 = a.uvpnts[0].getUV(1) * w.x + a.uvpnts[1].getUV(1) * w.y + a.uvpnts[2].getUV(1) * w.z;
+            Vector2 newV2_0 = a.uvpnts[0].GetUV(0) * w.x + a.uvpnts[1].GetUV(0) * w.y + a.uvpnts[2].GetUV(0) * w.z;
+            Vector2 newV2_1 = a.uvpnts[0].GetUV(1) * w.x + a.uvpnts[1].GetUV(1) * w.y + a.uvpnts[2].GetUV(1) * w.z;
 
             UVpoint newUV = new UVpoint(newVrt, newV2_0, newV2_1);
 
@@ -860,8 +861,8 @@ namespace Playtime_Painter {
 
             Vector3 w = a.DistanceToWeight(pos);
 
-            Vector2 newV2_0 = a.uvpnts[0].getUV(0) *w.x  + a.uvpnts[1].getUV(0) * w.y + a.uvpnts[2].getUV(0) * w.z;
-            Vector2 newV2_1 = a.uvpnts[0].getUV(1) * w.x + a.uvpnts[1].getUV(1) * w.y + a.uvpnts[2].getUV(1) * w.z;
+            Vector2 newV2_0 = a.uvpnts[0].GetUV(0) *w.x  + a.uvpnts[1].GetUV(0) * w.y + a.uvpnts[2].GetUV(0) * w.z;
+            Vector2 newV2_1 = a.uvpnts[0].GetUV(1) * w.x + a.uvpnts[1].GetUV(1) * w.y + a.uvpnts[2].GetUV(1) * w.z;
             //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (int i = 0; i < 3; i++)
             {

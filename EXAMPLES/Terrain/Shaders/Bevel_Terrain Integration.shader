@@ -131,7 +131,7 @@
 		TRANSFER_SHADOW(o);
 
 #if UV_ATLASED
-		vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV);
+		vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
 #endif
 
 		return o;
@@ -150,22 +150,25 @@
 		float mip = 0;
 
 #if UV_ATLASED
-	
-#if	!UV_PIXELATED
-	mip = (log2(dist));
-#endif
-
-	frag_atlasedTexture(i.atlasedUV, mip, i.texcoord.xy);
-
+		atlasUVlod(i.texcoord.xy, mip, _MainTex_TexelSize, i.atlasedUV);
 #endif
 
 
 
 #if	UV_PIXELATED
-	smoothedPixelsSampling(i.texcoord.xy, _MainTex_TexelSize);
+
+#if !UV_ATLASED
+		mip = getLOD(i.texcoord.xy, _MainTex_TexelSize);
+#endif
+	float2 sharp = i.texcoord.xy;
+	float near = max(0, 1 - mip);
+	smoothedPixelsSampling(sharp, _MainTex_TexelSize);
+
+	i.texcoord.xy = sharp * near + i.texcoord.xy*(1 - near);
+
 #endif
 
-#if UV_ATLASED || UV_PIXELATED
+#if UV_ATLASED
 	float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
 #else
 	float4 col = tex2D(_MainTex, i.texcoord);

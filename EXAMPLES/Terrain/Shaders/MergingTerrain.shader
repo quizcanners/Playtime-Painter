@@ -101,6 +101,9 @@ Shader "Terrain/MergingTerrain" {
 
 			float2 lowtiled = i.tc_Control.xz*_mergeTerrainTiling.xy*0.1;
 
+		//	float lod = getLOD(lowtiled, _mergeSplat_4_TexelSize);
+
+
 			float4 splaty = tex2D(_mergeSplat_4, lowtiled);//*far + tex2D(_mergeSplat_4, tiled)	*deFar;
 			float4 splatz = tex2D(_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
 			float4 splatx = tex2D(_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.y, tiledY))*deFar;

@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 // This interface works for simple data and for complex classes
 // Usually the base class for comples classes will have 
 
@@ -57,16 +61,26 @@ namespace StoryTriggerData {
 
     public static class STDExtensions {
 
-        public static void SaveToResources(this iSTD s, string ResFolderPath, string InsideResPath, string filename) {
+        public static iSTD RefreshAssetDatabase(this iSTD s) {
+#if UNITY_EDITOR
+            AssetDatabase.Refresh();
+#endif
+            return s;
+        }
+
+        public static iSTD SaveToResources(this iSTD s, string ResFolderPath, string InsideResPath, string filename) {
             ResourceSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
+            return s;
         }
 
-        public static void SaveToAssets(this iSTD s, string Path, string filename) {
+        public static iSTD SaveToAssets(this iSTD s, string Path, string filename) {
             ResourceSaver.Save(Application.dataPath + Path.AddPreSlashIfNotEmpty() + "/", filename, s.Encode().ToString());
+            return s;
         }
 
-        public static void SaveProgress(this iSTD s, string Path, string filename) {
+        public static iSTD SaveProgress(this iSTD s, string Path, string filename) {
             ResourceSaver.Save(Application.persistentDataPath + Path.AddPreSlashIfNotEmpty() + "/", filename, s.Encode().ToString());
+            return s;
         }
 
 		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:iSTD, new() {

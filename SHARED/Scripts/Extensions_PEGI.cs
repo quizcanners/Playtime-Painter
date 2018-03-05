@@ -51,7 +51,7 @@ public static class Extensions_PEGI  {
         return e;
     }
 
-    public static T AddUniqueName<T> (this List<T> list, string name) where T: new() {
+    public static T AddWithUniqueName<T> (this List<T> list, string name) where T: new() {
         T e = new T();
         list.Add(e);
         var named = e as iGotName;

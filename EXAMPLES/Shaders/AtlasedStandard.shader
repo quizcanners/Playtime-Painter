@@ -2,9 +2,9 @@
 
 Shader "Painter_Experimental/AtlasedStandard" {
 	 Properties {
-        _MainTex("Base texture", 2D) = "white" {}
-        _BumpMap("Normal Map", 2D) = "bump" {}
-        _OcclusionMap("Occlusion", 2D) = "white" {}
+        _MainTex("Base texture (ATL)", 2D) = "white" {}
+        _BumpMap("Normal Map (ATL)", 2D) = "bump" {}
+        _OcclusionMap("Occlusion (ATL)", 2D) = "white" {}
 
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
         _AtlasTextures("_Textures In Row _ Atlas", float) = 1
@@ -42,7 +42,7 @@ Shader "Painter_Experimental/AtlasedStandard" {
                 float4 vcol : COLOR0;
                 SHADOW_COORDS(5)
 #if defined(UV_ATLASED)
-					float4 atlasedUV : TEXCOORD6;
+				float4 atlasedUV : TEXCOORD6;
 #endif
             };
             v2f vert (appdata_full v)
@@ -62,7 +62,7 @@ Shader "Painter_Experimental/AtlasedStandard" {
 				o.vcol = v.color;
 
 #if defined(UV_ATLASED)
-				vert_atlasedTexture(_AtlasTextures,   v.texcoord.z,  _MainTex_TexelSize.x,  o.atlasedUV);
+				vert_atlasedTexture(_AtlasTextures,   v.texcoord.z,  o.atlasedUV);
 #endif
 
                 TRANSFER_SHADOW(o);
@@ -78,11 +78,19 @@ Shader "Painter_Experimental/AtlasedStandard" {
             {
         
 #if UV_ATLASED
-			i.uv = (frac(i.uv)*(i.atlasedUV.w) + i.atlasedUV.xy);
+			float mip = 0;
+			atlasUVlod(i.uv.xy, mip, _MainTex_TexelSize, i.atlasedUV);
+			//i.uv = (frac(i.uv)*(i.atlasedUV.w) + i.atlasedUV.xy);
+			float4 uvMip = float4 (i.uv, 0, mip);
+			float4 col = tex2Dlod(_MainTex, uvMip);
+			float3 tnormal = UnpackNormal(tex2Dlod(_BumpMap, uvMip));
+#else
+				float4 col = tex2D(_MainTex, i.uv);
+				float3 tnormal = UnpackNormal(tex2D(_BumpMap, i.uv));
 #endif
 
                 // same as from previous shader...
-                float3 tnormal = UnpackNormal(tex2D(_BumpMap, i.uv));
+             
                 float3 worldNormal;
                 worldNormal.x = dot(i.tspace0, tnormal);
                 worldNormal.y = dot(i.tspace1, tnormal);
@@ -90,7 +98,7 @@ Shader "Painter_Experimental/AtlasedStandard" {
                 float3 worldViewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 float3 worldRefl = reflect(-worldViewDir, worldNormal);
 
-                float4 col = tex2D(_MainTex, i.uv);
+             
 
                 float4 occlude = tex2D(_OcclusionMap, i.uv);
                         

@@ -89,21 +89,12 @@
 
 	float3 normal = DetectSmoothEdge(i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight); //(i.edge.xyz);
 
-	//normal = i.normal.xyz;
 
-		
-	//float4 noise = tex2Dlod(_Noise, float4(frac(i.viewDir.x + i.worldPos.y + _Time.x) * 1128, frac(i.viewDir.y + i.worldPos.z - _Time.x) * 1128, 0, 0));//(frac((i.viewDir.x+i.worldPos.y) * 11123 + (i.viewDir.y+i.worldPos.z) * 11456 + (i.viewDir.z+i.worldPos.x) * 12789 * _Time.x) - 0.5);
+		float mip;
+		smoothedPixelsSampling(i.texcoord.xy, _MainTex_TexelSize, mip);
 
+		float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy,0,mip));
 
-		float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
-		float2 off = (i.texcoord - perfTex);
-		off = off *saturate((abs(off) * _MainTex_TexelSize.z) * 40 - 19);
-		perfTex += off;
-
-
-		float4 col = tex2Dlod(_MainTex, float4(perfTex,0,0));
-
-		
 
 		col = col*(1- weight) + i.vcol*weight;
 		float shadow = SHADOW_ATTENUATION(i);

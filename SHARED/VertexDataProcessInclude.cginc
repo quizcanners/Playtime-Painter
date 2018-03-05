@@ -45,6 +45,8 @@ sampler2D _mergeSplat_2;
 sampler2D _mergeSplat_3;
 sampler2D _mergeSplat_4;
 
+float4 _mergeSplat_4_TexelSize;
+
 sampler2D _mergeSplatN_0;
 sampler2D _mergeSplatN_1;
 sampler2D _mergeSplatN_2;
@@ -61,21 +63,63 @@ float _Merge;
 
 
 
-inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
-	
-
+inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, out float4 atlasedUV) {
 	float atY = floor(atlasNumber / _AtlasTextures);
-	float atX = atlasNumber - atY*_AtlasTextures;
-	float edge = _TexelSizeX;
-
-	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
-	atlasedUV.z = edge;										//(1) / _AtlasTextures - edge * 2;
+	float atX = atlasNumber - atY * _AtlasTextures;
+	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				
+	atlasedUV.z = _AtlasTextures;										
 	atlasedUV.w = 1 / _AtlasTextures;
 }
 
+// Old depricated
+inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
+	float atY = floor(atlasNumber / _AtlasTextures);
+	float atX = atlasNumber - atY*_AtlasTextures;
+	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
+	atlasedUV.z = _TexelSizeX;										//(1) / _AtlasTextures - edge * 2;
+	atlasedUV.w = 1 / _AtlasTextures;
+}
+
+
+
+
+
+
+inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
+	_TexelSize.zw *= mod;
+	float2 px = _TexelSize.z * ddx(uv);
+	float2 py = _TexelSize.w * ddy(uv);
+
+	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
+}
+
+
+inline float getLOD(float2 uv, float4 _TexelSize) {
+
+	float2 px = _TexelSize.z * ddx(uv);
+	float2 py = _TexelSize.w * ddy(uv);
+
+	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
+}
+
+
+inline void atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {
+
+	_TexelSize.zw *= 0.5 * atlasedUV.w;
+	float2 px = _TexelSize.z * ddx(uv);
+	float2 py = _TexelSize.w * ddy(uv);
+	
+	lod = max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
+	
+	float seam = (_TexelSize.x)*pow(2, lod);
+
+	uv = frac(uv)*(atlasedUV.w - seam) + atlasedUV.xy + seam * 0.5;
+}
+
+// Old depricated
 inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
 	float seam = (atlasedUV.z)*pow(2, mip);
-	float2 fractal = (frac(uv)*(atlasedUV.w - seam) + seam*0.5);
+	float2 fractal = (frac(uv)*(atlasedUV.w - seam) + seam * 0.5);
 	uv = fractal + atlasedUV.xy;
 }
 
@@ -85,7 +129,7 @@ inline void applyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
 
 	float3 tspace0 = float3(wTangent.x, wBitangent.x, normal.x);
 	float3 tspace1 = float3(wTangent.y, wBitangent.y, normal.y);
-	float3 tspace2 = float3(wTangent.z, wBitangent.z, normal.z);																												  //normal = i.normal.xyz;
+	float3 tspace2 = float3(wTangent.z, wBitangent.z, normal.z);																												
 
 	normal.x = dot(tspace0, tnormal);
 	normal.y = dot(tspace1, tnormal);
@@ -152,22 +196,32 @@ inline void rotate ( inout float2 uv, float angle){
 
 }
 
-void smoothedPixelsSampling (inout float2 texcoord, float4 texelsSize, float dist){
+inline void smoothedPixelsSampling (inout float2 texcoord, float4 _TexelSize, out float mip) {
 
-float2 perfTex = (floor(texcoord.xy*texelsSize.z) + 0.5) * texelsSize.x;
+
+		float2 px = _TexelSize.z * ddx(texcoord);
+		float2 py = _TexelSize.w * ddy(texcoord);
+
+
+
+		mip = max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
+		float mipped = saturate(1 - mip);
+
+		float2 perfTex = (floor(texcoord.xy*_TexelSize.z) + 0.5) * _TexelSize.x;
+		
 		float2 off = (texcoord.xy - perfTex);
 
-		float n = max(4,30 - dist); 
+		float n = 30;//max(4,30 );
 
-		float2 offset = saturate((abs(off) * texelsSize.z)*(n*2+2) - n);
+		float2 offset = saturate((abs(off) * _TexelSize.z)*(n*2+2) - n);
 
 		off = off * offset;
 
-		texcoord.xy = perfTex  + off;
+		texcoord.xy =  (perfTex + off)*mipped + texcoord.xy*(1-mipped);
 
 }
 
-void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
+inline void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
 
 	float2 perfTex = (floor(texcoord*texelsSize.z) + 0.5) * texelsSize.x;
 	float2 off = (texcoord - perfTex);
@@ -395,7 +449,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	col.rgb = col.rgb* (_LightColor0 +
 		(terrainAmbient.rgb + ambientCol
-		)*fernel)*deSmoothness*terrainAmbient.a;
+			)*fernel)*deSmoothness*terrainAmbient.a;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -429,16 +483,20 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float far, float deFar, inout float4 terrain, float triplanarY, inout float4 terrainN, inout float maxheight)
 {
-	float4 splat0 = tex2D(_mergeSplat_0, lowtiled)*far + tex2D(_mergeSplat_0, tiled)*deFar;
-	float4 splat1 = tex2D(_mergeSplat_1, lowtiled)*far + tex2D(_mergeSplat_1, tiled)*deFar;
-	float4 splat2 = tex2D(_mergeSplat_2, lowtiled)*far + tex2D(_mergeSplat_2, tiled)*deFar;
-	float4 splat3 = tex2D(_mergeSplat_3, lowtiled)*far + tex2D(_mergeSplat_3, tiled)*deFar;
+
+	float4 lt = float4(lowtiled, 0, getLOD(lowtiled, _mergeSplat_4_TexelSize));
+	float4 t = float4(tiled, 0, getLOD(tiled, _mergeSplat_4_TexelSize));
+
+	float4 splat0 = tex2Dlod(_mergeSplat_0, lt)*far + tex2Dlod(_mergeSplat_0, t)*deFar;
+	float4 splat1 = tex2Dlod(_mergeSplat_1, lt)*far + tex2Dlod(_mergeSplat_1, t)*deFar;
+	float4 splat2 = tex2Dlod(_mergeSplat_2, lt)*far + tex2Dlod(_mergeSplat_2, t)*deFar;
+	float4 splat3 = tex2Dlod(_mergeSplat_3, lt)*far + tex2Dlod(_mergeSplat_3, t)*deFar;
 
 
-	float4 splat0N = tex2D(_mergeSplatN_0, lowtiled)*far + tex2D(_mergeSplatN_0, tiled)*deFar;
-	float4 splat1N = tex2D(_mergeSplatN_1, lowtiled)*far + tex2D(_mergeSplatN_1, tiled)*deFar;
-	float4 splat2N = tex2D(_mergeSplatN_2, lowtiled)*far + tex2D(_mergeSplatN_2, tiled)*deFar;
-	float4 splat3N = tex2D(_mergeSplatN_3, lowtiled)*far + tex2D(_mergeSplatN_3, tiled)*deFar;
+	float4 splat0N = tex2Dlod(_mergeSplatN_0, lt)*far + tex2Dlod(_mergeSplatN_0, t)*deFar;
+	float4 splat1N = tex2Dlod(_mergeSplatN_1, lt)*far + tex2Dlod(_mergeSplatN_1, t)*deFar;
+	float4 splat2N = tex2Dlod(_mergeSplatN_2, lt)*far + tex2Dlod(_mergeSplatN_2, t)*deFar;
+	float4 splat3N = tex2Dlod(_mergeSplatN_3, lt)*far + tex2Dlod(_mergeSplatN_3, t)*deFar;
 
 
 	float newHeight = cont.r * triplanarY + splat0.a;

@@ -38,19 +38,7 @@ namespace Playtime_Painter
         protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
         protected PlaytimePainter target { get { return MeshManager.inst.target; } }
 
-        public Vector2 uv  {
-            get {
-                return vert.shared_v2s[uvIndex][MeshManager.curUV];
-            }
-            set {
-                vert.shared_v2s[uvIndex][MeshManager.curUV] = value;
-            }
-
-        }
-
-        public Vector2 getUV(int ind) {
-            return vert.shared_v2s[uvIndex][ind];
-        }
+      
 
         int uvIndex;
         public int finalIndex;
@@ -73,6 +61,7 @@ namespace Playtime_Painter
           
         }
 
+      
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -95,7 +84,7 @@ namespace Playtime_Painter
 
         public UVpoint DeepCopyTo(vertexpointDta nvert)
         {
-            UVpoint tmp = new UVpoint(nvert, getUV(0), getUV(1));
+            UVpoint tmp = new UVpoint(nvert, GetUV(0), GetUV(1));
             tmp.finalIndex = finalIndex;
             tmp.uvIndex = uvIndex;
             tmp._color = _color;
@@ -162,15 +151,13 @@ namespace Playtime_Painter
         {
             Init(other);
             Init(nvert);
-            SetUVindexBy(other.getUV(0), other.getUV(1));
+            SetUVindexBy(other.GetUV(0), other.GetUV(1));
         }
 
         public UVpoint(vertexpointDta nvert, string data) {
             Init(nvert);
             Reboot(data);
         }
-
-      
 
         public void AssignToNewVertex(vertexpointDta vp) {
             Vector2[] myUV = vert.shared_v2s[uvIndex];
@@ -180,9 +167,24 @@ namespace Playtime_Painter
             SetUVindexBy(myUV);
         }
 
-        public void SetUVindexBy(Vector2[] uv_1_2)
+        public Vector2 editedUV {
+            get {return vert.shared_v2s[uvIndex][MeshManager.editedUV]; }
+            set { vert.shared_v2s[uvIndex][MeshManager.editedUV] = value; }
+        }
+
+        public Vector2 GetUV(int ind)
         {
-            uvIndex = vert.getIndexFor(uv_1_2[0], uv_1_2[1]);
+            return vert.shared_v2s[uvIndex][ind];
+        }
+
+        public bool SameUV(Vector2 uv, Vector2 uv1)
+        {
+            return (((uv - GetUV(0)).magnitude < 0.0000001f) && ((uv1 - GetUV(1)).magnitude < 0.0000001f));
+        }
+
+        public void SetUVindexBy(Vector2[] uvs)
+        {
+            uvIndex = vert.getIndexFor(uvs[0], uvs[1]);
         }
 
         public void SetUVindexBy(Vector2 uv_0, Vector2 uv_1)
@@ -566,7 +568,7 @@ namespace Playtime_Painter
 
             for (int i = 0; i < other.uv.Count; i++) {
                 UVpoint buv = other.uv[i];
-                Vector2[] uvs = new Vector2[] { buv.getUV(0), buv.getUV(1) };
+                Vector2[] uvs = new Vector2[] { buv.GetUV(0), buv.GetUV(1) };
                 uv.Add(buv);
                 buv.vert = this;
                 buv.SetUVindexBy(uvs);
@@ -789,7 +791,7 @@ namespace Playtime_Painter
         {
             for (int i = 0; i < 3; i++)
             {
-                nvrts[i].uv = uvpnts[i].uv;
+                nvrts[i].editedUV = uvpnts[i].editedUV;
                 uvpnts[i] = nvrts[i];
             }
         }

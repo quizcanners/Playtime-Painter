@@ -75,7 +75,7 @@ Material:
     - _GlossMapScale: 0.208
     - _Glossiness: 0.154
     - _GlossyReflections: 1
-    - _Merge: 0.5
+    - _Merge: 0.39
     - _Metallic: 0.816
     - _Mode: 0
     - _OcclusionStrength: 0.84

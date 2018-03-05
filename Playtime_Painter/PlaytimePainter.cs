@@ -260,7 +260,7 @@ namespace Playtime_Painter{
 
             last_MouseOver_Object = this;
 
-            if (meshEditing || LockEditing)
+            if (meshEditing || LockEditing || cfg.showConfig)
                 return false;
 
             if (isTerrainHeightTexture() && originalShader == null)
@@ -479,8 +479,7 @@ namespace Playtime_Painter{
 
 	    public void OnChangedTexture() {
                 if ((originalShader == null) || (terrain == null))
-
-		    ChangeTexture(getTexture());
+		            ChangeTexture(getTexture());
         }
 
         public void ChangeTexture(Texture texture) {
@@ -881,11 +880,11 @@ namespace Playtime_Painter{
                 originalShader = null;
         }
 
-        public void InstantiateMaterial(bool saveIt) {
+        public Material InstantiateMaterial(bool saveIt) {
 		
             SetOriginalShader();
 
-                if ((curImgData != null) && (getMaterial(false) != null))
+            if ((curImgData != null) && (getMaterial(false) != null))
                 UpdateOrSetTexTarget(texTarget.Texture2D);
 
 		    if ( texMGMT.defaultMaterial == null) InitIfNotInited();
@@ -928,8 +927,11 @@ namespace Playtime_Painter{
 
                 if ((curImgData != null) && (getMaterial(false) != null))
                 UpdateOrSetTexTarget(curImgData.destination);
-    
-	    }
+
+            return getMaterial(false);
+
+
+        }
 
         public Renderer getRenderer() {
 
@@ -1875,8 +1877,7 @@ namespace Playtime_Painter{
 
                 return changed;
             }
-
-
+        
         public bool meshPEGI()
             {
                 bool changed = false;

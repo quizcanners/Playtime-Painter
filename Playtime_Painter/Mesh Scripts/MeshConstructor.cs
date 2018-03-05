@@ -18,7 +18,7 @@ namespace Playtime_Painter {
 
         Vector4[] perVertexTrisTexture;
         Vector2[] uvs;
-        Vector2[] uvs2;
+        Vector2[] uvs1;
 
         public Vector3[] verts;
         public Vector3[] normals;
@@ -215,21 +215,21 @@ namespace Playtime_Painter {
                 uvs = new Vector2[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            uvs[uvi.finalIndex] = uvi.getUV(0);
+                            uvs[uvi.finalIndex] = uvi.GetUV(0);
                 }
                 return uvs;
             }
         }
 
-        public Vector2[] _uv2 {
+        public Vector2[] _uv1 {
             get {
-                if (uvs2 == null) {
-                    uvs2 = new Vector2[vertsCount];
+                if (uvs1 == null) {
+                    uvs1 = new Vector2[vertsCount];
                     foreach (var vp in edMesh.vertices)
                         foreach (var uvi in vp.uv)
-                            uvs2[uvi.finalIndex] = uvi.getUV(0);
+                            uvs1[uvi.finalIndex] = uvi.GetUV(1);
                 }
-                return uvs2;
+                return uvs1;
             }
         }
 
@@ -368,9 +368,9 @@ namespace Playtime_Painter {
                         Vector3 v2 = t.uvpnts[1].vert.pos;
                         Vector3 v3 = t.uvpnts[2].vert.pos;
 
-                        Vector2 w1 = t.uvpnts[0].getUV(0);// texcoords[i1];
-                        Vector2 w2 = t.uvpnts[1].getUV(0);
-                        Vector2 w3 = t.uvpnts[2].getUV(0);
+                        Vector2 w1 = t.uvpnts[0].GetUV(0);// texcoords[i1];
+                        Vector2 w2 = t.uvpnts[1].GetUV(0);
+                        Vector2 w3 = t.uvpnts[2].GetUV(0);
 
                         float x1 = v2.x - v1.x;
                         float x2 = v3.x - v1.x;

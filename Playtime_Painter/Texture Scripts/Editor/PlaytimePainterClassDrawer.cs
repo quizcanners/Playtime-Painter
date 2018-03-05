@@ -152,7 +152,6 @@ namespace Playtime_Painter {
                     MeshManager.inst.DisconnectMesh();
                     painter.SetOriginalShader();
                     painter.UpdateOrSetTexTarget(texTarget.Texture2D);
-                    Tools.current = previousTool;
                 }
             }
 

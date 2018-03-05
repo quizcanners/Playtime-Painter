@@ -205,9 +205,21 @@ namespace PlayerAndEditorGUI {
             return select(ref ind, lst);
         }
 
+        public static bool select<T>(this string text, string tip, ref int ind, List<T> lst)
+        {
+            write(text, tip);
+            return select(ref ind, lst);
+        }
+
         public static bool select<T>(this string text, int width, ref int ind, List<T> lst)
         {
             write(text, width);
+            return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, string tip, int width, ref int ind, List<T> lst)
+        {
+            write(text, tip, width);
             return select(ref ind, lst);
         }
 
@@ -952,6 +964,10 @@ namespace PlayerAndEditorGUI {
 			pegi.write(icon.getIcon(), size);
 		}
 
+        public static bool Click(this icon icon) {
+            return Click(icon.getIcon(), 25);
+        }
+
         public static bool Click(this icon icon, int size) {
             return Click(icon.getIcon(), size);
         }
@@ -1031,6 +1047,25 @@ namespace PlayerAndEditorGUI {
             } else
 #endif
         {
+                checkLine();
+                write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
+                return false;
+            }
+
+        }
+
+        public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(ref field, allowDrop);
+            }
+            else
+#endif
+            {
                 checkLine();
                 write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
                 return false;
@@ -1458,20 +1493,45 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(ref int current) {
             return select(ref current, typeof(T));
         }
-        
-        public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object {
-            write(label);
-            return edit(ref field);
-        }
 
         public static bool edit(this string label, ref linearColor col) {
             write(label);
             return edit(ref col);
         }
 
+        public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
+        {
+            write(label);
+            return edit(ref field);
+        }
+
+        public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+            write(label);
+            return edit(ref field, allowDrop);
+        }
+
         public static bool edit<T>(this string label, int width, ref T field) where T : UnityEngine.Object {
             write(label, width);
             return edit(ref field);
+        }
+
+        public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+            write(label, width);
+            return edit(ref field, allowDrop);
+        }
+
+        public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
+        {
+            write(label, tip, width);
+            return edit(ref field);
+        }
+
+        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+            write(label, tip, width);
+            return edit(ref field, allowDrop);
         }
 
         public static bool edit(this string label, ref Vector3 val)  {
@@ -1841,20 +1901,22 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void writeWarning(string text) {
+        public static void writeWarning(this string text) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
                 ef.writeHint(text, MessageType.Warning);
+                ef.newLine();
             } else
 #endif
             {
                 checkLine();
                 GUILayout.Label(text);
+                newLine();
             }
         }
 
-        public static void writeHint(string text) {
+        public static void writeHint(this string text) {
 
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -1894,11 +1956,11 @@ namespace PlayerAndEditorGUI {
 #endif
         }
 
-        public static void resetOneTimeHint(string name) {
+        public static void resetOneTimeHint(this string name) {
             PlayerPrefs.SetInt(name, 0);
         }
 
-        public static bool writeOneTimeHint(string text, string name) {
+        public static bool writeOneTimeHint(this string text, string name) {
 
             if (PlayerPrefs.GetInt(name) != 0) return false;
 
@@ -1927,7 +1989,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool GetDefine(string define) {
+        public static bool GetDefine(this string define) {
 
 #if UNITY_EDITOR
         return ef.GetDefine(define);
@@ -1936,7 +1998,7 @@ namespace PlayerAndEditorGUI {
 #endif
         }
 
-        public static void SetDefine(string val, bool to) {
+        public static void SetDefine(this string val, bool to) {
 
 #if UNITY_EDITOR
           

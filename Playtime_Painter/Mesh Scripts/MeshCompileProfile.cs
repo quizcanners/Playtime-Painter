@@ -385,18 +385,18 @@ namespace Playtime_Painter
 
         public string name = "";
 
-        public const string folderName = "Mesh Profile";
+        public const string folderName = "Mesh Profiles";
 
         public override bool PEGI() {
-
-
-
+            
             "Profile Name: ".edit(80, ref name);
 
 #if UNITY_EDITOR
 
-            if (icon.save.Click("Save To:" + PainterConfig.inst.meshesFolderName + "/Resources/" + folderName, 25).nl()) {
-                this.SaveToResources (PainterConfig.inst.meshesFolderName, folderName, name);
+            string path = PainterConfig.inst.meshesFolderName + "/" + folderName;
+            if (icon.save.Click("Save To:" + path, 25).nl()) {
+                this.SaveToAssets(path, name).RefreshAssetDatabase();
+                (name + " Saved to " + path).showNotification();
                 AssetDatabase.Refresh();
             }
 
@@ -767,7 +767,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v2s == null)
-                    v2s =  (myUVindex == 0) ? curMeshDta._uv : curMeshDta._uv2;
+                    v2s =  (myUVindex == 0) ? curMeshDta._uv : curMeshDta._uv1;
             }
 
             public override Vector2[] getV2(VertexDataTarget trg) {

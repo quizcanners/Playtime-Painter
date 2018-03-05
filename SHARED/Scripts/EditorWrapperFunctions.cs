@@ -555,6 +555,14 @@ public static class ef {
         return tmp != field;
     }
 
+    public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
+    {
+        checkLine();
+        T tmp = field;
+        field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowDrop);
+        return tmp != field;
+    }
+
     public static bool edit<T>(ref T field, string name) where T : UnityEngine.Object {
         checkLine();
         T tmp = field;

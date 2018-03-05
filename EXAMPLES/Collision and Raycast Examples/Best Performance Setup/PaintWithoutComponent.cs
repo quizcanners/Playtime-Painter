@@ -36,7 +36,7 @@ namespace Playtime_Painter
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButton(0))
                 Paint();
         }
 
@@ -54,11 +54,7 @@ namespace Playtime_Painter
 
                 var reciver = hit.transform.GetComponentInParent<PaintingReciever>();
 
-              //      anyHits = true;
-
                     if ((reciver != null) && (reciver.getTexture() != null)) {
-
-                //        anyRecivers = true;
 
                         var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
 
@@ -67,7 +63,7 @@ namespace Playtime_Painter
                             if (reciver.skinnedMeshRenderer != null)
                                 BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, hit.point, reciver.useTexcoord2);
                             else if (reciver.meshFilter != null)
-                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.meshFilter.sharedMesh, brush, hit.point, reciver.useTexcoord2);
+                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, hit.point, reciver.useTexcoord2);
 
                         } else if (reciver.texture.GetType() == typeof(Texture2D)) {
 
@@ -142,10 +138,10 @@ namespace Playtime_Painter
             }
 
             changed |= brush.Targets_PEGI().nl();
-            brush._bliTMode = 0;
+            brush._bliTMode = BlitModeAdd.inst.index;
             brush._type = 3;
 
-            changed |= brush.blitMode.PEGI(brush, null);
+            changed |= brush.blitMode.PEGI(brush, null).nl();
             Color col = brush.color.ToColor();
             if (pegi.edit(ref col).nl())
                 brush.color.From(col);

@@ -5,6 +5,9 @@ using System;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Playtime_Painter{
     using CombinedMaps;
@@ -51,6 +54,8 @@ public class PainterConfig  {
         public const string WATER_FOAM = "WATER_FOAM";
         public const string BRUSH_TEXCOORD_2 = "BRUSH_TEXCOORD_2";
 
+        public const string isAtlasedProperty = "_ATLASED";
+        public const string isAtlasableDisaplyNameTag = "(ATL)";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
     static string SaveName = "PainterConfig";
@@ -99,6 +104,8 @@ public class PainterConfig  {
 
     public bool moreOptions = false;
     public bool showConfig = false;
+    public bool ShowTeachingNotifications = false;
+
 
     public int selectedSize = 4;
 
@@ -191,11 +198,15 @@ public class PainterConfig  {
     }
 
         [SerializeField]
-          bool showAtlasedMaterial = false;
+        bool showAtlasedMaterial = false;
         [SerializeField]
         bool showAtlases = false;
         [SerializeField]
         int browsedAtlas = -1;
+        [SerializeField]
+        bool showTextureSets = false;
+        [SerializeField]
+        int browsedTextureSet = -1;
 
         public bool PEGI(PlaytimePainter painter)
         {
@@ -207,12 +218,35 @@ public class PainterConfig  {
             if (!PlaytimePainter.isNowPlaytimeAndDisabled())
             {
 
+                if ("Combined maps".foldout(ref showTextureSets).nl()) {
+                    TextureSetForForCombinedMaps.currentPainter = painter;
+
+                    changed |= rtp.forCombinedMaps.PEGI(ref browsedTextureSet);
+
+                    return changed;
+                }
+
                 if (painter.isAtlased)
                 {
 
                     "***** Atlased *****".nl();
 
-                    if ("Undo Atlasing".Click())
+#if UNITY_EDITOR
+
+                        var m = painter.getMesh();
+                        if (m != null && AssetDatabase.GetAssetPath(m).Length  == 0){
+                        "Atlased Mesh is not saved".nl();
+                        var n = m.name;
+                        if ("Mesh Name".edit(80,ref n))
+                            m.name = n;
+                        if (icon.save.Click().nl())
+                            painter.SaveMesh();
+                        }
+
+#endif
+
+
+                        if ("Undo Atlasing".Click())
                     {
                         painter.getRenderer().sharedMaterial = painter.preAtlasingMaterial;
 
@@ -225,39 +259,32 @@ public class PainterConfig  {
                         painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                     }
 
-                    if ("Not Atlased".Click().nl())
-                    {
+                    if ("Not Atlased".Click().nl()) {
                         painter.preAtlasingMaterial = null;
                         painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                     }
-
-                    //"In Atlas No:".edit(ref painter.inAtlasIndex).nl();
-                    //"Textures In A Row".edit(ref painter.atlasRows).nl();
-                    //"Original Material:".write(painter.preAtlasingMaterial);
+                    
                     pegi.newLine();
-
-
+                    
                 }
                 else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
                 {
 
-
-
                     showAtlases = false;
 
                     List<MaterialAtlases> am = rtp.atlasedMaterials;
-                    int sctdAM = painter.selectedAtlasedMaterial;
+                    int atlMat = painter.selectedAtlasedMaterial;
 
-                    if ((sctdAM > -1) && (sctdAM >= am.Count))
-                        painter.selectedAtlasedMaterial = sctdAM = -1;
+                    if ((atlMat > -1) && (atlMat >= am.Count))
+                        painter.selectedAtlasedMaterial = atlMat = -1;
 
-                    if (sctdAM > -1)
-                    {
-                        pegi.write(am[sctdAM].name);
-                        if (icon.Close.Click(25).nl())
-                            painter.selectedAtlasedMaterial = sctdAM = -1;
+                    if (atlMat > -1)  {
+
+                        if (icon.Back.Click())
+                            painter.selectedAtlasedMaterial = atlMat = -1;
                         else
-                            am[sctdAM].PEGI(painter);
+                            am[atlMat].PEGI(painter);
+                        
                     }
                     else
                     {
@@ -285,10 +312,6 @@ public class PainterConfig  {
                         }
                     }
 
-
-
-
-
                     return changed;
                 }
                 if ("Atlases".foldout(ref showAtlases))
@@ -304,7 +327,7 @@ public class PainterConfig  {
                         if (icon.Back.Click(25))
                             browsedAtlas = -1;
                         else
-                            rtp.atlases[browsedAtlas].PEGI(painter);
+                            rtp.atlases[browsedAtlas].PEGI();
                     }
                     else
                     {
@@ -405,7 +428,11 @@ public class PainterConfig  {
                     "Renderer to Debug second buffer".edit(ref rtp.secondBufferDebug).nl();*/
                 }
 
+                "Teaching Notifications".toggle("will show whatever you ae pressing on the screen.",140, ref ShowTeachingNotifications).nl();
+
                 "Save Textures To:".edit(110, ref texturesFolderName).nl();
+
+                "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl(); 
 
                 "Save Materials To:".edit(110, ref materialsFolderName).nl();
 

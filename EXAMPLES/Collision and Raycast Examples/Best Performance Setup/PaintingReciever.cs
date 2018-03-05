@@ -22,6 +22,7 @@ public class PaintingRecieverEditor : Editor
     {
 
         // For best performance on Skinned Meshes use RenderTexture
+        public Mesh originalMesh;
         public MeshFilter meshFilter;
         public Renderer _renderer;
         public SkinnedMeshRenderer skinnedMeshRenderer;
@@ -103,19 +104,26 @@ public class PaintingRecieverEditor : Editor
             }
             "Original Texture:".edit("You can use this texture to copy data to texture", () => originalTexture).nl();
 
+            "For Skinned meshes".nl();
 
-          
+            "   Skinned Mesh Renderer".edit(() => skinnedMeshRenderer).nl();
 
-          
-            "***** For Skinned meshes ****** ".nl();
+            "For Regular Meshes ".nl();
+            "   Mesh Filter".edit(() => meshFilter).nl();
+            "   Renderer".edit(() => _renderer).nl();
 
-            "Skinned Mesh Renderer".edit(() => skinnedMeshRenderer).nl();
+            if (this.gameObject.isStatic && originalMesh == null) {
+                pegi.writeWarning("Original mesh is not set.");
+                pegi.newLine();
+                if ((meshFilter != null) && "find mesh".Click().nl()) 
+                        originalMesh = meshFilter.sharedMesh;
+            }
 
-            "***** For Regular Meshes ****** ".nl();
-            "Mesh Filter".edit(() => meshFilter).nl();
-            "Renderer".edit(() => _renderer).nl();
+            "For STATIC Game Objects".nl();
+            "   Original Mesh".edit("Static objects use Combined mesh, so original one will be needed for painting" ,() => originalMesh).nl();
 
-            "Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl();
+            "For shaders which use Texcoord 2".nl();
+            "    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl();
 
 
 

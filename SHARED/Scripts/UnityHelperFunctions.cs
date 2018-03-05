@@ -355,35 +355,31 @@ public static class UnityHelperFunctions {
          return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
     }
         
+    public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
 
+        Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
 
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
+        diffuse.Reimport_IfNotReadale();
 
-        Texture2D Result = new Texture2D(diffuse.width, diffuse.height, TextureFormat.RGBA32, true, false);
+        var pxls = diffuse.GetPixels(width, height);
+        pxls[0].a = 0.5f;
+        
+        Result.SetPixels(pxls);
 
         byte[] bytes = Result.EncodeToPNG();
 
         string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
 
+        var extension = dest.Substring(dest.LastIndexOf(".") + 1);
 
-        if ((dest.Substring(dest.Length - 3, 3).Equals("jpg"))) {
-            //Debug.Log("Saving " + dest + " as png");
-            dest = dest.Substring(0, dest.Length - 3) + "png";
-        }
-        else if ((dest.Substring(dest.Length - 4, 4).Equals("jpeg"))) {
-            //Debug.Log("Saving " + dest + " as png");
-            dest = dest.Substring(0, dest.Length - 4) + "png";
-        }
-
+        dest = dest.Substring(0, dest.Length - extension.Length) + "png";
 
         dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
-
-
+        
         File.WriteAllBytes(Application.dataPath + dest, bytes);
 
         AssetDatabase.Refresh();
         
-
         return (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
     }
@@ -855,11 +851,7 @@ public static class UnityHelperFunctions {
  
                 bool needsReimport = false;
 
-                if (importer.textureType == TextureImporterType.Sprite)
-                {
-                    importer.textureType = TextureImporterType.Default;
-                    needsReimport = true;
-                }
+              
 
                 if (importer.isReadable == false)
                 {
@@ -867,7 +859,13 @@ public static class UnityHelperFunctions {
                     needsReimport = true;
                 }
 
-                if (importer.textureCompression != TextureImporterCompression.Uncompressed)
+        if (importer.textureType == TextureImporterType.Sprite)
+        {
+            importer.textureType = TextureImporterType.Default;
+            needsReimport = true;
+        }
+
+        if (importer.textureCompression != TextureImporterCompression.Uncompressed)
                 {
                     importer.textureCompression = TextureImporterCompression.Uncompressed;
                     needsReimport = true;
@@ -877,9 +875,7 @@ public static class UnityHelperFunctions {
 
           
         }
-
-
-
+    
     public static void Reimport_SetIsColorTexture(this Texture2D tex, bool value)
     {
         if (tex == null) return;

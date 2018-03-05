@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using StoryTriggerData;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Playtime_Painter
 {
@@ -9,40 +13,62 @@ namespace Playtime_Painter
     [System.Serializable]
     public class FieldAtlas {
         
+        static PainterManager texMGMT { get { return PainterManager.inst; } }
+
 		public string atlasedField;
 		public int originField;
 		int atlasIndex;
-        public AtlasTextureCreator atlasCreator;
+        public int atlasCreatorId;
 		public bool enabled;
+        public AtlasTextureCreator atlasCreator { get { return texMGMT.atlases.Count > atlasCreatorId ? texMGMT.atlases[atlasCreatorId] : null; } }
 
 
-
+        [SerializeField]
+        bool foldoutAtlas = false;
 		public void PEGI(MaterialAtlases a){
+
+           
 
 			atlasedField.toggle ("Use this field", 50, ref enabled);
 
 
 			if (enabled) {
 
-				":".select (50, ref atlasCreator, PainterManager.inst.atlases);
+                pegi.select(ref originField, a.originalTextures).nl();
 
-				if (icon.Add.Click ("Create new Atlas",15).nl()) {
-					atlasCreator = new AtlasTextureCreator (atlasedField);
-					PainterManager.inst.atlases.Add (atlasCreator);
+                pegi.Space();
 
-				}
+                if (atlasCreator != null){
+                    "Atlas".foldout(ref foldoutAtlas);
+                }
+                    else foldoutAtlas = false;
+
+                if (!foldoutAtlas) {
+                    pegi.select(ref atlasCreatorId, PainterManager.inst.atlases);
+                    if (icon.Add.Click("Create new Atlas", 15).nl()) {
+                        atlasCreatorId = PainterManager.inst.atlases.Count;
+                        var ac = new AtlasTextureCreator(atlasedField+" for "+a.name);
+                        PainterManager.inst.atlases.Add(ac);
+                    }
+                }
+                else atlasCreator.PEGI().nl();
+                
+              
 
 				pegi.Space ();
-
-
-				"From:".select (ref originField, a.originalTextures);
+                
+			
 
 				if ((atlasedField != null) && (a.originalMaterial != null) && (atlasCreator != null) && (originField < a.originalTextures.Count)) {
 					Texture t = a.originalMaterial.GetTexture (a.originalTextures [originField]);
 					if ((t != null) && (t.GetType() == typeof(Texture2D)) && (atlasCreator.textures.Contains((Texture2D)t)))
 						icon.Done.nl (10);
 				}
-			}
+                pegi.newLine();
+                pegi.Space();
+
+
+            }
 			pegi.newLine ();
 			pegi.Space ();
 			pegi.newLine ();
@@ -50,7 +76,7 @@ namespace Playtime_Painter
     }
 
 	[System.Serializable]
-    public class MaterialAtlases  {
+    public class MaterialAtlases : iGotName {
         //public static List<MaterialAtlases> all = new List<MaterialAtlases>();
 
 		public string name;
@@ -63,7 +89,11 @@ namespace Playtime_Painter
         public Shader originalShader;
 		public List<string> originalTextures;
 		public Material AtlasedMaterial;
-		Shader atlasedShader;
+        Material destinationMaterial { get { return AtlasedMaterial ? AtlasedMaterial : originalMaterial; } }
+
+        public string Name { get  {return name; } set { name = value; } }
+
+        Shader atlasedShader;
         public List<FieldAtlas> fields;
 		public int matAtlasProfile;
 
@@ -85,6 +115,10 @@ namespace Playtime_Painter
 
         public void ConvertToAtlased(PlaytimePainter painter) {
 #if UNITY_EDITOR
+
+            if (AtlasedMaterial == null)
+                AtlasedMaterial = painter.InstantiateMaterial(true);
+
             painter.selectedMeshProfile = matAtlasProfile;
 
 			painter.SetOriginalShader ();
@@ -104,9 +138,6 @@ namespace Playtime_Painter
 				if ((f.enabled) && (f.atlasCreator != null) && (tfields.Contains (originalTextures[f.originField]))) {
 				
 					string original = originalTextures [f.originField];
-
-					//Debug.Log ("passing " + f.atlasedField + " from " + originalTextures[f.originField]);
-
 
 					Texture tex = mat.GetTexture (original);
 
@@ -141,11 +172,8 @@ namespace Playtime_Painter
 						Debug.Log ("Could not find a place for "+original);
 						return;
 					}
-						
-
 			}
-
-
+            
 			if (passedFields.Count > 0) {
 				
 				painter.preAtlasingMaterial = painter.getMaterial (true);
@@ -167,7 +195,7 @@ namespace Playtime_Painter
 					ac.AddTargets (f,originalTextures [f.originField]);
 
 					ac.ReconstructAsset();
-					AtlasedMaterial.SetTexture (f.atlasedField, ac.a_texture);
+                    AtlasedMaterial.SetTexture (f.atlasedField, ac.a_texture);
 				}
 
 				MeshManager.inst.EditMesh(painter, true);
@@ -183,22 +211,30 @@ namespace Playtime_Painter
 				MeshManager.inst.Redraw();
 				MeshManager.inst.DisconnectMesh ();
 
-				AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRows);
+                AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRows);
 				painter.meshRenderer.sharedMaterial = AtlasedMaterial;
-				AtlasedMaterial.EnableKeyword(PainterConfig.UV_ATLASED);
+
+                var m = painter.getMesh().name;
+                painter.getMesh().name = m+ "_Atlased_" + index;
+
+                AtlasedMaterial.EnableKeyword(PainterConfig.UV_ATLASED);
+
 			}
 #endif
         }
 
 
         public void FindAtlas(int field){
-			foreach (var a in PainterManager.inst.atlases) {
-				if (a.atlasFields.Contains(fields[field].atlasedField)) {
+            var texMGMT = PainterManager.inst;
+            
+            for (int a = 0; a< texMGMT.atlases.Count; a++) {
+                var atl = texMGMT.atlases[a];
+                if (atl.atlasFields.Contains(fields[field].atlasedField)) {
 				for (int i=0; i< originalTextures.Count; i++){
-					if (a.targetFields.Contains (originalTextures[i])) {
-						fields [field].atlasCreator = a;
-						Texture tex = originalMaterial.GetTexture (originalTextures[i]);
-							if ((tex!= null) && (tex.GetType() == typeof(Texture2D)) && (a.textures.Contains((Texture2D)tex)))
+					if (atl.targetFields.Contains (originalTextures[i])) {
+						fields [field].atlasCreatorId = a;
+                            Texture tex = originalMaterial.GetTexture (originalTextures[i]);
+							if ((tex!= null) && (tex.GetType() == typeof(Texture2D)) && (atl.textures.Contains((Texture2D)tex)))
 						return;
 					}
 				}
@@ -209,32 +245,52 @@ namespace Playtime_Painter
 
         public void OnChangeMaterial (PlaytimePainter painter){
 #if UNITY_EDITOR
-            if ((originalMaterial != null) && (AtlasedMaterial != null) &&
-			    (originalMaterial == AtlasedMaterial))
-				return;
-
+          
 			if (originalMaterial != null)
 				originalTextures = originalMaterial.getTextures ();
 
-			if (AtlasedMaterial != null) {
-				List<string> aTextures = AtlasedMaterial.getTextures ();
+			if ((destinationMaterial != null) && (destinationMaterial.HasProperty(PainterConfig.isAtlasedProperty))) {
+				List<string> aTextures = destinationMaterial.getTextures ();
 				fields.Clear ();
 				for (int i = 0; i < aTextures.Count; i++) {
 					FieldAtlas ac = new FieldAtlas ();
 					fields.Add(ac);
 					ac.atlasedField = aTextures [i];
 				}
-				atlasedShader = AtlasedMaterial.shader;
-			}
+				atlasedShader = destinationMaterial.shader;
 
-			if ((originalMaterial != null) && (AtlasedMaterial != null))
+            
+                    foreach (var p in MaterialEditor.GetMaterialProperties(new Material[] { destinationMaterial }))
+                        if (p.displayName.Contains(PainterConfig.isAtlasableDisaplyNameTag))
+                            foreach (var f in fields)
+                                if (f.atlasedField.SameAs(p.name)) {
+                                    f.enabled = true;
+                                    continue;
+                                }
+
+                if (AtlasedMaterial == null)
+                    for (int i = 0; i < fields.Count; i++)
+                        fields[i].originField = i;
+                else if (originalMaterial != null) {
+                    var orTexs = originalMaterial.getTextures();
+                    foreach (var f in fields)
+                        for (int i = 0; i < orTexs.Count; i++)
+                            if (orTexs[i].SameAs(f.atlasedField))
+                                f.originField = i;
+
+                    
+                }
+			}
+            
+            if (originalMaterial != null)
 				for (int i = 0; i < fields.Count; i++)
 					FindAtlas (i);
 #endif
         }
 
 
-
+        [SerializeField]
+        private bool showHint;
         public void PEGI(PlaytimePainter painter) {
 
 #if UNITY_EDITOR
@@ -246,22 +302,40 @@ namespace Playtime_Painter
 			if ((mat != originalMaterial) || ((mat!= null) && (mat.shader != originalShader))) {
 				originalMaterial = mat;
                 originalShader = mat.shader;
-         
                 OnChangeMaterial (painter);
 			}
+            "Name".edit(50,ref name).nl();
+            if ("Hint".foldout(ref showHint).nl()) {
 
-				foreach (var f in fields)
-					f.PEGI (this);
-			
+                ("If you don't set Atlased Material(Destination)  it will try to create a copy of current material and set isAtlased toggle on it, if it has one." +
+                    " Below you can see: list of Texture Properties, for each you can select or create an atlas. Atlas is a class that holds all textures assigned to an atlas, and also creates and stores the atlas itself." +
+                    "After this you can select a field from current Material, texture of which will be copied into an atlas. A bit confusing, I know)").writeHint(); 
+
+            }
+
 			if (("Atlased Material:".edit (90, ref AtlasedMaterial).nl ()) || 
 				(AtlasedMaterial!= null && AtlasedMaterial.shader != atlasedShader))
 				OnChangeMaterial (painter);
 
-			"Profile".select (50, ref matAtlasProfile, PainterConfig.inst.meshPackagingSolutions).nl ();
+            foreach (var f in fields)
+                f.PEGI(this);
 
+            "Mesh Profile".select (110, ref matAtlasProfile, PainterConfig.inst.meshPackagingSolutions).nl ();
 
-			if (originalMaterial != null && AtlasedMaterial != null && "Convert to Atlased".Click ())
-				ConvertToAtlased (painter);
+            if ((destinationMaterial != null) && (!destinationMaterial.HasProperty(PainterConfig.isAtlasedProperty))) {
+                if (AtlasedMaterial == null) pegi.writeHint("Original Material doesn't have isAtlased property, change shader or add Destination Atlased Material");
+                else pegi.writeHint("Atlased Material doesn't have isAtlased property");
+            } else if (originalMaterial != null) {
+                
+                string names = "";
+                foreach (var f in fields)
+                    if (f.enabled && f.atlasCreator == null)  names += f.atlasedField + ", ";  
+
+                if (names.Length > 0) 
+                    pegi.writeHint("Fields "+names+" don't have atlases assigned to them, create some");
+                else if ("Convert to Atlased".Click())
+				    ConvertToAtlased(painter);
+            }
 
 #endif
 

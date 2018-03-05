@@ -29,17 +29,27 @@ namespace Playtime_Painter {
             return (id.destination == texTarget.RenderTexture) && (id.renderTexture == null);
         }
 
+        public static imgData getImgDataIfExists(this Texture texture)
+        {
+            if (texture == null)
+                return null;
+
+            foreach (imgData id in PlaytimePainter.imgdatas)
+                if ((id.texture2D == texture) || (id.renderTexture == texture)) 
+                    return id;
+                
+            
+            return null;
+        }
+
         public static imgData getImgData(this Texture texture) {
             if (texture == null)
                 return null;
-                
-            foreach (imgData id in PlaytimePainter.imgdatas)
-                if ((id.texture2D == texture) || (id.renderTexture == texture)) {
-                    //  Debug.Log("Same texture: "+id._texture.name + " dta size: "+id. width+" texture size: "+id._texture.width);
-                    return id;
-                }
+            
+            var nid = texture.getImgDataIfExists();
+            if (nid != null) return nid;
 
-            var nid = new imgData(texture);
+             nid = new imgData(texture);
 
             PlaytimePainter.imgdatas.Add(nid);
 
@@ -72,10 +82,11 @@ namespace Playtime_Painter {
         }
 
         public static Texture getDestinationTexture(this Texture texture) {
-            // Will return Render Texture if texture is being edited with it. 
-            imgData id = texture.getImgData();
+
+            imgData id = texture.getImgDataIfExists();
             if (id != null)
                 return id.currentTexture();
+
             return texture;
         }
 
@@ -382,7 +393,21 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (texture != null)
-                texture.Reimport_IfNotReadale();
+            {
+                var imp = texture.getTextureImporter();
+                if (imp != null) {
+
+                    var name =  AssetDatabase.GetAssetPath(texture);
+                    var extension = name.Substring(name.LastIndexOf(".") + 1);
+                    
+                    if (extension != "png") {
+                        ("Converting " + name + " to .png").showNotification();
+                        texture = texture.CreatePngSameDirectory(texture.name);
+                    }
+
+                    texture.Reimport_IfNotReadale();
+                }
+            }
 #endif
 
             PixelsFromTexture2D(texture2D);

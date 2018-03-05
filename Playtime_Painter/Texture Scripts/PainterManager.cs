@@ -749,18 +749,29 @@ public class PainterManager : MonoBehaviour {
         }
 
 
-
-        public bool showCombinedMaps = false;
-        public int exploredCombinedMap = -1;
-        public bool showPackagingSolutions = false;
-        public int exploredPackagingSolution = -1;
+        [SerializeField]
+         bool showCombinedMaps = false;
+        [SerializeField]
+         int exploredCombinedMap = -1;
+        [SerializeField]
+         bool showPackagingSolutions = false;
+        [SerializeField]
+         int exploredPackagingSolution = -1;
+        [SerializeField]
+         bool showAtlasedMaterials = false;
+        [SerializeField]
+         int exploredAtlasedMaterial = -1;
+        [SerializeField]
+         bool showAtlases = false;
+        [SerializeField]
+         int exploredAtlas = -1;
         public void PEGI() {
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return; }
 
-            if ("Packaging Solutions".foldout(ref showPackagingSolutions).nl()) {
+            if ("Texture Packaging Solutions".foldout(ref showPackagingSolutions).nl()) {
                 cfg.texturePackagingSolutions.PEGI(ref exploredPackagingSolution);
                 return;
             }
@@ -769,6 +780,12 @@ public class PainterManager : MonoBehaviour {
                 forCombinedMaps.PEGI(ref exploredCombinedMap);
                 return;
             }
+
+            if ("Atlased Materials".foldout(ref showAtlasedMaterials).nl())
+                atlasedMaterials.PEGI(ref exploredAtlasedMaterial);
+
+            if ("Atlases ".foldout(ref showAtlases).nl())
+                atlases.PEGI(ref exploredAtlas);
 
 #if UNITY_EDITOR
             "Using layer:".nl();

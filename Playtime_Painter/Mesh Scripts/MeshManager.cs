@@ -52,7 +52,7 @@ namespace Playtime_Painter
                 return PainterConfig.inst;
             }
         }
-        public static int curUV = 0;
+        public static int editedUV = 0;
         public bool showGrid = true;
         public static Vector3 editorMousePos;
 
@@ -265,7 +265,7 @@ namespace Playtime_Painter
                 {
                     foreach (UVpoint uv in v.uv)
                     {
-                        uv.uv = PosToUV(v.pos);
+                        uv.editedUV = PosToUV(v.pos);
                     }
                 }
 
@@ -308,7 +308,7 @@ namespace Playtime_Painter
                     break;
             }
             if (selectedUV != null)
-                uv += selectedUV.uv;
+                uv += selectedUV.editedUV;
 
             return uv;
         }
@@ -464,7 +464,7 @@ namespace Playtime_Painter
                             vertexpointDta hold = new vertexpointDta(pointedUV.vert.pos);
 
                             if (selectedUV != null)
-                                new UVpoint(hold, selectedUV.getUV(0), selectedUV.getUV(1));
+                                new UVpoint(hold, selectedUV.GetUV(0), selectedUV.GetUV(1));
                             else
                                 new UVpoint(hold);
 
@@ -559,8 +559,8 @@ namespace Playtime_Painter
 
             float distance = (frontCenter - backCenter).magnitude;
 
-            Vector2 frontCenterUV = (selectedLine.pnts[0].uv + selectedLine.pnts[1].uv) / 2;
-            Vector2 backCenterUV = (third.uv + fourth.uv) / 2;
+            Vector2 frontCenterUV = (selectedLine.pnts[0].editedUV + selectedLine.pnts[1].editedUV) / 2;
+            Vector2 backCenterUV = (third.editedUV + fourth.editedUV) / 2;
 
             G_toolDta.uvChangeSpeed = (frontCenterUV - backCenterUV) / distance;
             G_toolDta.width = selectedLine.Vector().magnitude;
@@ -598,8 +598,8 @@ namespace Playtime_Painter
             _Mesh.vertices.Add(a);
             _Mesh.vertices.Add(b);
 
-            UVpoint aUV = new UVpoint(a, selectedLine.pnts[0].uv + G_toolDta.uvChangeSpeed * distance);
-            UVpoint bUV = new UVpoint(b, selectedLine.pnts[1].uv + G_toolDta.uvChangeSpeed * distance);
+            UVpoint aUV = new UVpoint(a, selectedLine.pnts[0].editedUV + G_toolDta.uvChangeSpeed * distance);
+            UVpoint bUV = new UVpoint(b, selectedLine.pnts[1].editedUV + G_toolDta.uvChangeSpeed * distance);
 
 
 
@@ -685,7 +685,7 @@ namespace Playtime_Painter
             trisVerts = 0;
 
             if (UVnavigator._inst != null)
-                UVnavigator._inst.CenterOnUV(selectedUV.uv);
+                UVnavigator._inst.CenterOnUV(selectedUV.editedUV);
         }
 
         public bool DeleteVertHEAL(vertexpointDta vert)
@@ -1462,7 +1462,7 @@ namespace Playtime_Painter
                         (vpoint.SmoothNormal ? "s" : "")) : "";
                     float tsize = tex == null ? 128 : tex.width;
                     if (_meshTool == MeshTool.uv) mrkr.textm.text +=
-                        ("uv: " + (selectedUV.uv.x * tsize) + "," + (selectedUV.uv.y * tsize));
+                        ("uv: " + (selectedUV.editedUV.x * tsize) + "," + (selectedUV.editedUV.y * tsize));
                 }
                 else
                     mrkr.textm.text = vpoint.uv.Count.ToString() +

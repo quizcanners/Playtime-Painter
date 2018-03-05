@@ -155,5 +155,10 @@ namespace Playtime_Painter {
         return changed;
     }
 
+        public static void TeachingNotification (this string text) {
+            if (cfg.ShowTeachingNotifications)
+                text.showNotification();
+        }
+
 }
 }

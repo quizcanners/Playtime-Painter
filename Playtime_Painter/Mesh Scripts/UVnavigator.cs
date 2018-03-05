@@ -36,7 +36,7 @@ namespace Playtime_Painter
             if (Input.GetMouseButton(0))
             {
                 Vector2 nuv = MeshManager.RoundUVs(GetHitUV(), GridNavigator.inst().UVsnapToPixelPortion * rend.material.mainTexture.width);
-                MeshManager.inst.selectedUV.uv = nuv;
+                MeshManager.inst.selectedUV.editedUV = nuv;
                 MeshManager.inst.UpdatePreviewIfGridedDraw();
             }
         }
@@ -140,7 +140,7 @@ namespace Playtime_Painter
             ZoomingAndSelection();
             MeshUVediting();
 
-            Vector2 v2 = MeshManager.inst.selectedUV.uv;
+            Vector2 v2 = MeshManager.inst.selectedUV.editedUV;
             UpdateSamplerMaterial(v2);
 #endif
         }

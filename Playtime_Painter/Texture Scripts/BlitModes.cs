@@ -72,7 +72,7 @@ namespace Playtime_Painter{
             index = _allModes.Count;
         }
 
-		static void InstantiateBrushes() {
+		protected static void InstantiateBrushes() {
 
 			_allModes = new List<BlitMode> ();
 
@@ -172,11 +172,18 @@ namespace Playtime_Painter{
     }
 
 	public class BlitModeAdd : BlitMode {
+        static BlitModeAdd _inst;
+        public static BlitModeAdd inst { get { if (_inst == null) InstantiateBrushes(); return  _inst; } }
+
 		public override string ToString () { return "Add";}
 		protected override string shaderKeyword { get { return "BRUSH_ADD";} }
 
         public override Shader shaderForSingleBuffer {get {return rt.br_Add;}}
 		public override blitModeFunction BlitFunctionTex2D {get { return Blit_Functions.AddBlit; } }
+
+        public BlitModeAdd() {
+            _inst = this;
+        }
 	}
 
     public class BlitModeSubtract : BlitMode {
