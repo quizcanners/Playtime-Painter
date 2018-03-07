@@ -165,7 +165,7 @@ public class PlaytimeToolComponent : MonoBehaviour {
 
     // Tags to prevent tools from effecting certain objects:
 
-    public static string[] MeshEditorIgnore = new string[] { "VertexEd", "toolComponent" };
+    public static List<string> MeshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
 
 	public static bool MesherCanEditWithTag(string tag) {
 		foreach (string x in MeshEditorIgnore)
@@ -174,7 +174,7 @@ public class PlaytimeToolComponent : MonoBehaviour {
 		return true;
 	}
 
-    public static string[] TextureEditorIgnore = new string[] { "VertexEd", "toolComponent", "o" };
+    public static List<string> TextureEditorIgnore = new List<string> { "VertexEd", "toolComponent", "o" };
 
     public static bool PainterCanEditWithTag (string tag) {
 		foreach (string x in TextureEditorIgnore) 

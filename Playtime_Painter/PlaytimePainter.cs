@@ -161,7 +161,7 @@ namespace Playtime_Painter{
 
         public StrokeVector stroke = new StrokeVector();
 	    public float avgBrushSpeed = 0;
-	    double mouseBttnTime = 0;
+	//    double mouseBttnTime = 0;
 
         public static PlaytimePainter currently_Painted_Object;
 	    public static PlaytimePainter last_MouseOver_Object;
@@ -338,7 +338,7 @@ namespace Playtime_Painter{
 
         public Vector2 offsetAndTileUV(RaycastHit hit)
         {
-            var uv = stroke.texcoord2 ? hit.textureCoord2 : hit.textureCoord;
+            var uv = stroke.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
 
             if (curImgData == null) return uv;
             if (isAtlased)
@@ -1667,7 +1667,7 @@ namespace Playtime_Painter{
         public void Update_Brush_Parameters_For_Preview_Shader() {
                 if ((curImgData != null) && (originalShader != null))
                 {
-                    texMGMT.Shader_BrushCFG_Update(brush, 1, curImgData.width, curImgData.TargetIsRenderTexture(), stroke.texcoord2);
+                    texMGMT.Shader_BrushCFG_Update(brush, 1, curImgData.width, curImgData.TargetIsRenderTexture(), stroke.useTexcoord2);
                     BlitModeExtensions.SetShaderToggle(!isAtlased, PainterConfig.UV_NORMAL , PainterConfig.UV_ATLASED);
                 }
         }
@@ -1830,9 +1830,9 @@ namespace Playtime_Painter{
                         if ((backupManually) && ("Backup for UNDO".nl()))
                             Backup();
 
-                        if (cfg.moreOptions || stroke.texcoord2)
-                            changed |= "Use Texcoord 2".toggle(ref stroke.texcoord2).nl();
-
+                        if (cfg.moreOptions || curImgData.useTexcoord2)
+                            changed |= "Use Texcoord 2".toggle(ref curImgData.useTexcoord2).nl();
+                        stroke.useTexcoord2 = curImgData.useTexcoord2;
                     }
                 }
                 pegi.newLine();

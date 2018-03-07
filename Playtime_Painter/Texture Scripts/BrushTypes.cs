@@ -199,7 +199,7 @@ public abstract class BrushType : IeditorDropdown {
 
 			imgData id = painter.curImgData;
 
-			rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed*0.05f, id, st.texcoord2);
+			rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed*0.05f, id, st.useTexcoord2);
 
 			bool isSphere = br.type.isA3Dbrush;
 
@@ -269,7 +269,7 @@ public abstract class BrushType : IeditorDropdown {
 
             imgData id = painter.curImgData;
 
-            rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, st.texcoord2);
+            rtp.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, st.useTexcoord2);
 
         
 
@@ -378,7 +378,7 @@ public class BrushTypeDecal : BrushType {
 
 				if (rtp.BigRT_pair == null) rtp.UpdateBuffersState();
 
-				rtp.ShaderPrepareStroke_UpdateBuffer(br, 1, id, st.texcoord2);
+				rtp.ShaderPrepareStroke_UpdateBuffer(br, 1, id, st.useTexcoord2);
 				Transform tf = rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -645,7 +645,7 @@ public class BrushTypeLazy : BrushType {
 
             imgData id = pntr.curImgData;
 
-            PrepareSphereBrush(id, br, st, st.texcoord2);
+            PrepareSphereBrush(id, br, st, st.useTexcoord2);
 
             if (!st.mouseDwn) {
                 rtp.brushRendy.UseMeshAsBrush(pntr);

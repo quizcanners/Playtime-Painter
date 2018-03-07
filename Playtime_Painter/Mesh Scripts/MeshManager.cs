@@ -1220,7 +1220,7 @@ namespace Playtime_Painter
                     tmpRay.origin = transform.gameObject.tryGetCameraTransform().position;
                     tmpRay.direction = mrkr.go.transform.position - tmpRay.origin;
 
-                    if ((Physics.Raycast(tmpRay, out hit, cfg.MaxDistanceForTransformPosition)) && (hit.transform.tag != "VertexEd"))
+                    if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!PlaytimeToolComponent.MeshEditorIgnore.Contains(hit.transform.tag)))
                         mrkr.go.ActiveUpdate(false);
 
                     if (sameTrisAsPointed(vpoint))
@@ -1474,9 +1474,9 @@ namespace Playtime_Painter
         void outlineTriangle(trisDta t, Color colA, Color colB)
         {
             //bool vrt = tool == VertexPositionTool.inst;
-            Line(t.uvpnts[0], t.uvpnts[1], t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[1] ? colA : colB);
-            Line(t.uvpnts[1], t.uvpnts[2], t.ForceSmoothedNorm[1] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
-            Line(t.uvpnts[0], t.uvpnts[2], t.ForceSmoothedNorm[0] ? colA : colB, t.ForceSmoothedNorm[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[1], t.DominantNormals[0] ? colA : colB, t.DominantNormals[1] ? colA : colB);
+            Line(t.uvpnts[1], t.uvpnts[2], t.DominantNormals[1] ? colA : colB, t.DominantNormals[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[2], t.DominantNormals[0] ? colA : colB, t.DominantNormals[2] ? colA : colB);
         }
 
 

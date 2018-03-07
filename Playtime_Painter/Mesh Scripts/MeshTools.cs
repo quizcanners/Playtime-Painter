@@ -80,6 +80,7 @@ namespace Playtime_Painter
         }
 
         Vector3 displace = new Vector3();
+        
 
         public override MeshTool myTool { get { return MeshTool.vertices; } }
 
@@ -117,6 +118,10 @@ namespace Playtime_Painter
 
             pegi.newLine();
 
+            if ("Auto Bevel".Click())
+                AutoAssignDominantNormalsForBeveling();
+            "Sensitivity".edit(ref cfg.bevelDetectionSensetivity, 3, 30).nl();
+
             "Pixel-Perfect".toggle("New vertex will have UV coordinate rounded to half a pixel.",120, ref cfg.pixelPerfectMeshEditing).nl();
 
             "Add Smooth:".toggle(70, ref MeshManager.cfg.newVerticesSmooth);
@@ -136,7 +141,7 @@ namespace Playtime_Painter
 
             "Add Unique:".toggle(70, ref MeshManager.cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
-                mgm._Mesh.SMOOTHALLVERTS();
+                mgm._Mesh.AllVerticesShared();
                 mgm._Mesh.Dirty = true;
                 MeshManager.cfg.newVerticesUnique = false;
             }
@@ -151,13 +156,13 @@ namespace Playtime_Painter
             pegi.newLine();
 
          
-            if (pegi.Click("Mirror Agains Center")) {
+            if (pegi.Click("Mirror by Center")) {
                 GridNavigator.onGridPos = mgm.target.transform.position;
                 mgm.UpdateLocalSpaceV3s();
                 mgm._Mesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
             }
 
-            if (pegi.Click("Mirror Agains The Plane")) {
+            if (pegi.Click("Mirror by Plane")) {
                 mgm.UpdateLocalSpaceV3s();
                 mgm._Mesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
             }
@@ -225,7 +230,7 @@ namespace Playtime_Painter
         {
             if (KeyCode.N.isDown()) {
                 foreach (var t in m.pointedLine.getAllTriangles_USES_Tris_Listing())
-                    t.ForceAllNormals(!EditorInputManager.getAltKey());
+                    t.SetDominantNormals(!EditorInputManager.getAltKey());
 
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
 
@@ -251,9 +256,9 @@ namespace Playtime_Painter
                 if (!EditorInputManager.getAltKey())
                 {
                     int no = triangle.NumberOf(triangle.GetClosestTo(m.collisionPosLocal));
-                    triangle.ForceSmoothedNorm[no] = !triangle.ForceSmoothedNorm[no];
+                    triangle.DominantNormals[no] = !triangle.DominantNormals[no];
 
-                    (triangle.ForceSmoothedNorm[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
+                    (triangle.DominantNormals[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                 }
                 else
                 {
@@ -310,6 +315,40 @@ namespace Playtime_Painter
         public override void MouseEventPointedNothing() {
             if (EditorInputManager.GetMouseButtonDown(0))
                 m.AddPoint(m.onGridLocal);
+        }
+
+        public void AutoAssignDominantNormalsForBeveling() {
+
+            foreach (vertexpointDta vr in m._Mesh.vertices)
+                vr.SmoothNormal = true;
+           
+            foreach (var t in mesh.triangles) t.SetDominantNormals(true);
+
+                foreach (var t in mesh.triangles) {
+                Vector3[] v3s = new Vector3[3];
+                
+                for (int i=0; i<3; i++)
+                    v3s[i] = t.uvpnts[i].vert.pos;
+
+                float[] dist = new float[3];
+
+                for (int i = 0; i < 3; i++) 
+                    dist[i] = (v3s[(i + 1) % 3] - v3s[(i + 2) % 3]).magnitude;
+
+                for (int i = 0; i < 3; i++) {
+                    var a = (i + 1) % 3;
+                    var b = (i + 2) % 3;
+                    if (dist[i] < dist[a] / cfg.bevelDetectionSensetivity && dist[i] < dist[b] / cfg.bevelDetectionSensetivity) {
+                        t.SetDominantNormals(false);
+
+                        var other = (new LineData(t, t.uvpnts[a], t.uvpnts[b])).getOtherTriangle();
+                        if (other != null)
+                            other.SetDominantNormals(false);
+                    }
+                }
+            }
+
+            mesh.Dirty = true;
         }
 
     }
@@ -672,9 +711,7 @@ namespace Playtime_Painter
 
         public void SetAllTrianglesTextureTo(int no, int chanel) {
 
-            List<trisDta> ts = m._Mesh.triangles;
-
-            foreach (trisDta t in ts)
+            foreach (trisDta t in mesh.triangles)
                 t.textureNo[chanel] = no;
 
             m._Mesh.Dirty = true;

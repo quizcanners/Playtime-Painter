@@ -43,7 +43,7 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			float2 uv_Diffuse;
 			float2 uv_DamDiffuse;
 			float2 uv_DamDiffuse2;
-			float3 viewDir;
+			//float3 viewDir;
 #if defined(UV_ATLASED)
 			float4 atlasedUV : TEXCOORD6;
 #endif
@@ -54,10 +54,6 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 #if defined(UV_ATLASED)
 			vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
 #endif
-		
-
-			// Instead of TexelSize X use _AtlasedTextures parameter
-
 		}
 
 	

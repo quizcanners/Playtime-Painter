@@ -73,7 +73,7 @@ namespace Playtime_Painter {
             FirstNormal = new Vector4[vertsCount];
             SecondNormal = new Vector4[vertsCount];
             ThirdNormal = new Vector4[vertsCount];
-            edMesh.NumberVerticlesInTangentsW();
+            edMesh.NumberVerticles();
 
           
 
@@ -125,7 +125,7 @@ namespace Playtime_Painter {
                     sharpNormals[mDIndex] = tri.sharpNormal;
                     originalIndex[mDIndex] = vertPnt.index;
 
-                    if (tri.ForceSmoothedNorm[no]) {
+                    if (tri.DominantNormals[no]) {
 
                         normals[mDIndex] = tri.sharpNormal;
                         NormalForced[mDIndex] = true;

@@ -278,111 +278,7 @@ namespace Playtime_Painter {
            );*/
         }
 
-        /*
-        public void ReadFromSaveData(MeshConstructionData mDta) {
-
-          //  Debug.Log("Reading Saved Mesh Data");
-
-            vertices.Clear();
-            triangles.Clear();
-
-            if (mDta.verts == null)
-                return;
-
-            int cnt = mDta.verts.Length;
-
-            bool gotUV2 = (mDta.uvs2 != null) && (mDta.uvs2.Length == cnt);
-
-      
-
-          //  DoShadowBake = mDta.DoShadowBake && (mDta.shadowBake != null) && (mDta.shadowBake.Length == cnt);
-
-            if ((mDta.isSmoothNormal == null) || (mDta.isSmoothNormal.Length == 0))
-                mDta.isSmoothNormal = new bool[mDta.verts.Length];
-
-            if ((mDta.trisSmoothNormForced == null) || (mDta.trisSmoothNormForced.Length == 0))
-                mDta.trisSmoothNormForced = new bool[mDta.tris.Length];
-
-
-            Vector3 tmp = new Vector3();
-            List<UVpoint> tmpUV = new List<UVpoint>();
-            myVec3[] vrts = mDta.verts;
-            for (int i = 0; i < vrts.Length; i++)
-            {
-                tmp = vrts[i].ToV3();
-
-                int ind = mDta.originalIndex[i];//smoothNorms[i].w;
-
-                vertexpointDta holder = vertices.Count > ind ? vertices[ind] : null; //GetByPos(tmp);
-                if (holder == null)
-                {
-                    holder = new vertexpointDta(tmp);
-                    vertices.Add(holder);
-                    holder.index = ind;
-                    holder.shadowBake = mDta.shadowBake[i].ToV4();
-                }
-
-                holder.SmoothNormal = mDta.isSmoothNormal[i];
-                UVpoint nuv = new UVpoint(holder, mDta.uvs[i].ToV2(), gotUV2 ? mDta.uvs2[i].ToV2() : Vector2.zero);
-                tmpUV.Add(nuv);
-                if (mDta.colors != null)
-                    nuv._color.CopyFrom(mDta.colors[i]);
-
-                nuv.index = i;
-            }
-
-
-            hasFrame = new CountlessBool();
-            int[] frameInds;
-            vertexAnimationFrame[] anms = mDta.anims.GetAllUnsorted(out frameInds);
-            for (int i = 0; i < frameInds.Length; i++)
-            {
-                int frameInd = frameInds[i];
-                hasFrame[frameInd] = true;
-                //  Debug.Log("Reading frame "+ frameInd);
-
-                int[] vertexIndexes;
-                myVec3[] mv3s = anms[i].verts.GetAllUnsorted(out vertexIndexes);
-
-                for (int j = 0; j < vertexIndexes.Length; j++)
-                {
-                    // Debug.Log("Setting frame "+frameInd+" for vert "+ vertexIndexes[j]);
-                    vertices[vertexIndexes[j]].anim[frameInd] = mv3s[j];
-                }
-
-            }
-
-            UVpoint[] tri = new UVpoint[3];
-            for (int i = 0; i < mDta.tris.Length; i += 3)
-            {
-
-                tri[0] = tmpUV[mDta.tris[i]];
-                tri[1] = tmpUV[mDta.tris[i + 1]];
-                tri[2] = tmpUV[mDta.tris[i + 2]];
-
-                trisDta ntri;
-                ntri = new trisDta(tri);
-                triangles.Add(ntri);
-
-                ntri.ForceSmoothedNorm[0] = mDta.trisSmoothNormForced[i];
-                ntri.ForceSmoothedNorm[1] = mDta.trisSmoothNormForced[i + 1];
-                ntri.ForceSmoothedNorm[2] = mDta.trisSmoothNormForced[i + 2];
-            }
-
-            Vector4[] tt = mDta.trisTexture;
-
-            if (tt != null)
-                for (int i = 0; i < tt.Length; i++)
-                    triangles[i].textureNo = tt[i];
-
-            MeshManager.inst.NullPoinedSelected();
-
-            Dirty = true;
-
-        }
-        */
-
-        public void NumberVerticlesInTangentsW()
+        public void NumberVerticles()
         {
             for (int i = 0; i < vertices.Count; i++)
                 vertices[i].index = i; //< 128 ? i : 0;
@@ -586,7 +482,7 @@ namespace Playtime_Painter {
 
         }
 
-        public void SMOOTHALLVERTS()
+        public void AllVerticesShared()
         {
             for (int i = 0; i < vertices.Count; i++)
             {

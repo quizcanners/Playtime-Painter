@@ -133,6 +133,7 @@ namespace Playtime_Painter {
         public Texture2D texture2D;
         public int width = 128;
         public int height = 128;
+        public bool useTexcoord2;
 
         public Color[] pixels;
 

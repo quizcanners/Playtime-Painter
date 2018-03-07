@@ -13,7 +13,7 @@ namespace Playtime_Painter {
 	public Vector3 posFrom;
 	public Vector2 uvTo;
 	public Vector3 posTo;
-    public bool texcoord2; // For Sphere Brush
+    public bool useTexcoord2; // For Sphere Brush
     public Vector2 previousDelta;
 	public float avgBrushSpeed;
      
@@ -35,8 +35,14 @@ namespace Playtime_Painter {
 
             Vector2 newDelta = uvTo - uvFrom;
 
-            return (((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
-                     && (newDelta.magnitude > 0.1) && (newDelta.magnitude > previousDelta.magnitude * 4)) || (newDelta.magnitude > 0.2f));
+            float prevMagn = previousDelta.magnitude;
+
+            return ((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
+                     && (newDelta.magnitude > 0.1) && (newDelta.magnitude > prevMagn * 4))
+                     || (newDelta.magnitude > 0.2f) 
+                     //|| (newDelta.magnitude > prevMagn * 10)
+                     
+                     ;
 
         }
 

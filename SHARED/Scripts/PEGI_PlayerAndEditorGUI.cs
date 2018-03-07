@@ -1578,6 +1578,12 @@ namespace PlayerAndEditorGUI {
             return edit(ref val, min, max);
         }
 
+        public static bool edit(this string label, int width, ref float val, float min, float max)
+        {
+            write(label, width);
+            return edit(ref val, min, max);
+        }
+
         public static bool edit(this string label, string tip, int width,  ref float val, float min, float max)
         {
             write(label, tip, width);

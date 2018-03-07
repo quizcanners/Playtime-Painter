@@ -14,7 +14,7 @@ using StoryTriggerData;
 namespace Playtime_Painter {
 
     [Serializable]
-    public class AtlasTextureCreator : iGotName  {
+    public class AtlasTextureCreator : iGotName , iPEGI  {
 
         static PainterConfig cfg { get { return PainterConfig.inst; } }
 

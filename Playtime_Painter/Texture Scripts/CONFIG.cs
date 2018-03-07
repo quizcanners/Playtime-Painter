@@ -64,7 +64,7 @@ public class PainterConfig  {
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
         public bool MakeVericesUniqueOnEdgeColoring;
-        public int MaxDistanceForTransformPosition = 100;
+      //  public int MaxDistanceForTransformPosition = 100;
         public int SnapToGridSize = 1;
         public int MeshUVprojectionSize = 1;
         public bool SnapToGrid = false;
@@ -79,7 +79,7 @@ public class PainterConfig  {
         public List<TexturePackagingProfile> texturePackagingSolutions;
 
         public MeshTool _meshTool;
-
+        public float bevelDetectionSensetivity = 6;
 
         public static string ToolPath() {
 		return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;

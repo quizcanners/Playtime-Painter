@@ -125,7 +125,7 @@ namespace Playtime_Painter
 
 			painter.UpdateOrSetTexTarget (texTarget.Texture2D);
 
-            Material mat = painter.meshRenderer.sharedMaterial;
+            Material mat = painter.getMaterial(false);
             List<string> tfields = mat.getTextures();
 
            
@@ -154,8 +154,7 @@ namespace Playtime_Painter
 					Texture2D texture = (Texture2D)tex;
                
 					List<Texture2D> aTexes = f.atlasCreator.textures;
-
-
+                    
 					bool added = false;
 
 					for (int i = index; i < aTexes.Count; i++)
@@ -164,8 +163,9 @@ namespace Playtime_Painter
 							passedFields.Add (f);
 							passedTextures.Add (texture);
 							added = true;
-							//Debug.Log ("Assigning index "+i);
-							i = 999;
+                            break;
+                            //Debug.Log ("Assigning index "+i);
+							//i = 999;
 						}
 
 					if (!added) {
@@ -199,6 +199,8 @@ namespace Playtime_Painter
 				}
 
 				MeshManager.inst.EditMesh(painter, true);
+
+                Debug.Log("Index is "+index);
 
 				if ((tyling != Vector2.one) || (offset != Vector2.zero)) {
 					MeshManager.inst._Mesh.TileAndOffsetUVs (offset, tyling);

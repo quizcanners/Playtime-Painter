@@ -675,7 +675,7 @@ namespace Playtime_Painter
         protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
 
         public UVpoint[] uvpnts = new UVpoint[3];
-        public bool[] ForceSmoothedNorm = new bool[3];
+        public bool[] DominantNormals = new bool[3];
         public Vector4 textureNo = new Vector4();
 
         public Vector3 sharpNormal;
@@ -683,9 +683,9 @@ namespace Playtime_Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddIfTrue("f0", ForceSmoothedNorm[0]);
-            cody.AddIfTrue("f1", ForceSmoothedNorm[1]);
-            cody.AddIfTrue("f2", ForceSmoothedNorm[2]);
+            cody.AddIfTrue("f0", DominantNormals[0]);
+            cody.AddIfTrue("f1", DominantNormals[1]);
+            cody.AddIfTrue("f2", DominantNormals[2]);
 
             for (int i = 0; i < 3; i++)
                 cody.Add(i.ToString(),uvpnts[i].finalIndex);
@@ -699,9 +699,9 @@ namespace Playtime_Painter
 
             switch (tag) {
                 case "tex": textureNo = data.ToVector4(); break;
-                case "f0": ForceSmoothedNorm[0] = true; break;
-                case "f1": ForceSmoothedNorm[1] = true; break;
-                case "f2": ForceSmoothedNorm[2] = true; break;
+                case "f0": DominantNormals[0] = true; break;
+                case "f1": DominantNormals[1] = true; break;
+                case "f2": DominantNormals[2] = true; break;
                 default: uvpnts[tag.ToInt()] = mesh.uvsByFinalIndex[data.ToInt()]; break;
             }
 
@@ -715,7 +715,7 @@ namespace Playtime_Painter
 
         public trisDta CopySettingsFrom (trisDta td) {
             for (int i = 0; i < 3; i++)
-                ForceSmoothedNorm[i] = td.ForceSmoothedNorm[i];
+                DominantNormals[i] = td.DominantNormals[i];
             textureNo = td.textureNo;
 
             return this;
@@ -732,9 +732,9 @@ namespace Playtime_Painter
             return false;
         }
 
-        public void ForceAllNormals(bool to) {
+        public void SetDominantNormals(bool to) {
             for (int i = 0; i < 3; i++)
-                ForceSmoothedNorm[i] = to;
+                DominantNormals[i] = to;
         }
 
         public void InvertNormal()
@@ -1098,6 +1098,18 @@ namespace Playtime_Painter
             pnts[1] = b;
 
             trianglesCount = 0;
+        }
+
+        public trisDta getOtherTriangle() {
+            foreach (UVpoint uv0 in pnts)
+                foreach (UVpoint uv in uv0.vert.uv)
+                    foreach (trisDta tri in uv.tris)
+                        if (tri != triangle && tri.includes(pnts[0].vert) && tri.includes(pnts[1].vert))
+                            return tri;
+
+
+            return null;
+            
         }
 
         public List<trisDta> getAllTriangles_USES_Tris_Listing()
