@@ -142,6 +142,8 @@ public class PainterConfig  {
 
             _inst = this;
 
+           // meshPackagingSolutions = null;
+
             if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
                 meshPackagingSolutions = new List<MeshPackagingProfile>();
 
@@ -167,29 +169,23 @@ public class PainterConfig  {
         }
 
     public static void LoadOrInit() {
-            Debug.Log("Loading config");
+          //  Debug.Log("Loading config ");
         ResourceLoader<PainterConfig> ld = new ResourceLoader<PainterConfig>();
 
             if (!ld.LoadFrom(Application.persistentDataPath, SaveName, ref _inst))  {
                 _inst = new PainterConfig();
                 _inst._meshTool = MeshTool.vertices;
-
-
             }
 
             _inst.SafeInit();
-
-     
-        
+            
         GodMode gm = GodMode.inst;
         if (gm != null) {
             gm.speed = _inst.GodWalkSpeed;
             gm.sensitivity = _inst.GodLookSpeed;
         }
-
-           
-            
-             _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
+        
+        _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
 
     }
 

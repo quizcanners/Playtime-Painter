@@ -468,7 +468,7 @@ namespace Playtime_Painter
         public MeshPackagingProfile() {
             VertexDataTarget[] trgs = MeshSolutions.targets;
             sln = new List<VertexSolution>(); //[trgs.Length];
-            name = "unnamed";
+            name = "unnamedd";
             for (int i = 0; i < trgs.Length; i++)
                 sln.Add(new VertexSolution(trgs[i]));
         }

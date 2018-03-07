@@ -182,14 +182,15 @@ namespace Playtime_Painter
 
             _Mesh.Dirty = false;
             if (target != null) {
+                //Debug.Log("Redrawing as "+target.meshProfile.name);
                 MeshConstructor mc = new MeshConstructor(_Mesh, target.meshProfile, target.meshFilter.sharedMesh);
                 target.meshFilter.sharedMesh = mc.mesh;
                 
                 mc.AssignMeshAsCollider(target.meshCollider);
             }
 
-            if (_meshTool == MeshTool.VertexAnimation)
-            {
+          //  if (_meshTool == MeshTool.VertexAnimation)
+            //{
                 //UpdateAnimations(SaveAbleMesh sbm);
               /*  int curFrame = _target.GetAnimationUVy();//getBaseDependencies().stretch_Monitor.curUVy;
                 MeshConstructionData svm = _target.saveMeshDta;
@@ -202,7 +203,7 @@ namespace Playtime_Painter
                     svm.updateAnimation(curFrame);
                 }
 */
-            }
+            //}
 
             //  Debug.Log("Redraw ");
         }
@@ -1643,9 +1644,16 @@ namespace Playtime_Painter
                         {
                             selectedPainters.RemoveAt(i);
                             i--;
-                        }
-                        else
+                        } else {
+                            if (icon.Delete.Click(25))
+                            {
+                                selectedPainters.RemoveAt(i);
+                                i--;
+                            }
+                            else
                             selectedPainters[i].gameObject.name.nl();
+                          
+                        }
                     }
 
                     if ("Merge!".Click().nl()) {

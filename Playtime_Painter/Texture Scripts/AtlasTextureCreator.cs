@@ -13,6 +13,32 @@ using StoryTriggerData;
 
 namespace Playtime_Painter {
 
+    public static class AtlasingExtensions {
+        public static bool Contains (this List<AtlasTextureField> lst, Texture2D tex) {
+
+            foreach (var ef in lst)
+                if ((ef != null) && (ef.texture != null) && (ef.texture == tex))
+                    return false;
+
+            return true;
+        }
+    }
+
+    [Serializable]
+    public class AtlasTextureField {
+        public Texture2D texture;
+        public Color color;
+        public bool used;
+
+        public AtlasTextureField(Texture2D tex, Color col)
+        {
+            texture = tex;
+            color = col;
+            used = true;
+        }
+
+    }
+
     [Serializable]
     public class AtlasTextureCreator : iGotName , iPEGI  {
 
@@ -34,9 +60,9 @@ namespace Playtime_Painter {
 
         public Texture2D a_texture;
 
-        public List<Texture2D> textures;
+        public List<AtlasTextureField> textures;
 
-		public int row { get{ return AtlasSize / textureSize;}}
+        public int row { get{ return AtlasSize / textureSize;}}
 
 		public void AddTargets(FieldAtlas at, string target){
 			if (!atlasFields.Contains (at.atlasedField))
@@ -57,7 +83,9 @@ namespace Playtime_Painter {
 			if (atlasFields == null)
 			atlasFields = new List<string> ();
 			if (textures == null)
-			textures = new List<Texture2D> ();
+			textures = new List<AtlasTextureField> ();
+           
+
 			adjustListSize ();
 		}
 
@@ -201,8 +229,14 @@ namespace Playtime_Painter {
 
 			for (int y = 0; y < texesInRow; y++)
 				for (int x = 0; x < texesInRow; x++){
-                    if ((textures.Count > curIndex) && (textures[curIndex] != null))
-                        TextureToAtlas(textures[curIndex], x, y);
+                    var t = textures[curIndex];
+                    if ((textures.Count > curIndex) && (t != null) && (t.used))
+                    {
+                        if (t.texture != null)
+                            TextureToAtlas(t.texture, x, y);
+                        else
+                            ColorToAtlas(t.color, x,y);
+                    }
                     else
                         ColorToAtlas(defaltCol, x, y);
 
@@ -247,8 +281,8 @@ namespace Playtime_Painter {
             TextureImporter other = null;
 
             foreach (var t in textures) 
-                if (t != null) {
-                    other = t.getTextureImporter();
+                if ((t != null) && (t.texture != null)) {
+                    other = t.texture.getTextureImporter();
                     break;
             }
 
@@ -288,9 +322,14 @@ namespace Playtime_Painter {
                 int max = TextureCount;
 
                 for (int i = 0; i < max; i++) {
-                    Texture2D t = textures[i];
-                    if (pegi.edit(ref t).nl())
-                        textures[i] = t;
+                    var t = textures[i];
+                    if (t.used)
+                    {
+                        if (t.texture != null)
+                            pegi.edit(ref t.texture).nl();
+                        else
+                            pegi.edit(ref t.color).nl();
+                    }
                 }
             }
 

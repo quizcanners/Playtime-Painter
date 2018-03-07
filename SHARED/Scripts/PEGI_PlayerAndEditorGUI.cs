@@ -1610,6 +1610,18 @@ namespace PlayerAndEditorGUI {
             return edit(ref col);
         }
 
+        public static bool edit(this string label, int width, ref Color col)
+        {
+            write(label, width);
+            return edit(ref col);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Color col)
+        {
+            write(label, tip, width);
+            return edit(ref col);
+        }
+
         public static bool edit(this string label, int width, ref string val) {
             write(label, width);
             return edit(ref val);

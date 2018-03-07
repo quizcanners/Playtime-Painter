@@ -918,7 +918,7 @@ public static class ef {
         GUIContent cont = new GUIContent();
         cont.tooltip = tip;
         cont.image = img;
-        return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 15)) ? change : false;
+        return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
     }
 
     public static void write<T>(T field) where T : UnityEngine.Object {

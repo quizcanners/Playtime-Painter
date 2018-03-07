@@ -12,7 +12,9 @@ namespace Playtime_Painter
 
     [System.Serializable]
     public class FieldAtlas {
+    
         
+
         static PainterManager texMGMT { get { return PainterManager.inst; } }
 
 		public string atlasedField;
@@ -20,55 +22,62 @@ namespace Playtime_Painter
 		int atlasIndex;
         public int atlasCreatorId;
 		public bool enabled;
+        public Color col;
         public AtlasTextureCreator atlasCreator { get { return texMGMT.atlases.Count > atlasCreatorId ? texMGMT.atlases[atlasCreatorId] : null; } }
 
 
         [SerializeField]
         bool foldoutAtlas = false;
 		public void PEGI(MaterialAtlases a){
-
-           
-
+            
 			atlasedField.toggle ("Use this field", 50, ref enabled);
 
-
-			if (enabled) {
+            if (enabled){
 
                 pegi.select(ref originField, a.originalTextures).nl();
 
                 pegi.Space();
 
-                if (atlasCreator != null){
+                if (atlasCreator != null)
                     "Atlas".foldout(ref foldoutAtlas);
-                }
-                    else foldoutAtlas = false;
+                
+                else foldoutAtlas = false;
 
-                if (!foldoutAtlas) {
+                if (!foldoutAtlas)
+                {
+                    if (atlasCreator != null)
+                        "Color".toggle(35, ref atlasCreator.sRGB);
+
                     pegi.select(ref atlasCreatorId, PainterManager.inst.atlases);
-                    if (icon.Add.Click("Create new Atlas", 15).nl()) {
+                    if (icon.Add.Click("Create new Atlas", 15).nl())
+                    {
                         atlasCreatorId = PainterManager.inst.atlases.Count;
-                        var ac = new AtlasTextureCreator(atlasedField+" for "+a.name);
+                        var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
                         PainterManager.inst.atlases.Add(ac);
                     }
                 }
                 else atlasCreator.PEGI().nl();
-                
-              
 
-				pegi.Space ();
-                
-			
 
-				if ((atlasedField != null) && (a.originalMaterial != null) && (atlasCreator != null) && (originField < a.originalTextures.Count)) {
-					Texture t = a.originalMaterial.GetTexture (a.originalTextures [originField]);
-					if ((t != null) && (t.GetType() == typeof(Texture2D)) && (atlasCreator.textures.Contains((Texture2D)t)))
-						icon.Done.nl (10);
-				}
-                pegi.newLine();
+
+                pegi.Space();
+
+
+
+                if ((atlasedField != null) && (a.originalMaterial != null) && (atlasCreator != null) && (originField < a.originalTextures.Count))
+                {
+                    Texture t = a.originalMaterial.GetTexture(a.originalTextures[originField]);
+                    if ((t != null) && t.GetType() == typeof(Texture2D)) //&& (atlasCreator.textures.Contains((Texture2D)t)))
+                        icon.Done.write(25);
+                    else "Will use Color".edit(ref col).nl();
+                } else
+                "Color".edit("Color that will be used instead of a texture.", 35, ref col).nl();
                 pegi.Space();
 
 
             }
+           
+                
 			pegi.newLine ();
 			pegi.Space ();
 			pegi.newLine ();
@@ -119,7 +128,7 @@ namespace Playtime_Painter
             if (AtlasedMaterial == null)
                 AtlasedMaterial = painter.InstantiateMaterial(true);
 
-            painter.selectedMeshProfile = matAtlasProfile;
+           
 
 			painter.SetOriginalShader ();
 
@@ -132,37 +141,49 @@ namespace Playtime_Painter
 			int index = 0;
 			List<FieldAtlas> passedFields = new List<FieldAtlas> ();
 			List<Texture2D> passedTextures = new List<Texture2D> ();
+            List<Color> passedColors = new List<Color>();
 
-
-			foreach (var f in fields)
+            foreach (var f in fields)
 				if ((f.enabled) && (f.atlasCreator != null) && (tfields.Contains (originalTextures[f.originField]))) {
 				
 					string original = originalTextures [f.originField];
 
 					Texture tex = mat.GetTexture (original);
 
-					if (tex == null) {
-						Debug.Log (painter.name + " no " + original + " texture.");
-						return;
-					}
+                    Texture2D texture = null;
 
-					if (tex.GetType () != typeof(Texture2D)) {
-						Debug.Log ("Not a Texture 2D: " + original);
-						return;
-					}
+                    if (tex == null)
+                    {
+                        var note = painter.name + " no " + original + " texture. Using Color.";
+                        note.showNotification();
+                        Debug.Log(note);
+                        //return;
+                    }
+                    else
+                    {
 
-					Texture2D texture = (Texture2D)tex;
-               
-					List<Texture2D> aTexes = f.atlasCreator.textures;
-                    
-					bool added = false;
+                        if (tex.GetType() != typeof(Texture2D))
+                        {
+                            Debug.Log("Not a Texture 2D: " + original);
+                            return;
+                        }
+
+                        texture = (Texture2D)tex;
+
+
+                    }
+
+                    var aTexes = f.atlasCreator.textures;
+
+                    bool added = false;
 
 					for (int i = index; i < aTexes.Count; i++)
-						if ((aTexes [i] == null) || (aTexes [i] == texture)) {
+						if ((aTexes [i] == null) || (!aTexes[i].used) || (aTexes [i].texture == texture)) {
 							index = i;
 							passedFields.Add (f);
 							passedTextures.Add (texture);
-							added = true;
+                            passedColors.Add(f.col);
+                            added = true;
                             break;
                             //Debug.Log ("Assigning index "+i);
 							//i = 999;
@@ -191,16 +212,18 @@ namespace Playtime_Painter
 					var f = passedFields[i];
 					var ac = f.atlasCreator;
 
-					ac.textures [index] = passedTextures [i];
-					ac.AddTargets (f,originalTextures [f.originField]);
-
+                    ac.textures[index] = new AtlasTextureField(passedTextures[i], passedColors[i]);
+                   
+                    ac.AddTargets (f,originalTextures [f.originField]);
 					ac.ReconstructAsset();
                     AtlasedMaterial.SetTexture (f.atlasedField, ac.a_texture);
 				}
 
 				MeshManager.inst.EditMesh(painter, true);
 
-                Debug.Log("Index is "+index);
+                painter.selectedMeshProfile = matAtlasProfile;
+
+             //   Debug.Log("Index is "+index);
 
 				if ((tyling != Vector2.one) || (offset != Vector2.zero)) {
 					MeshManager.inst._Mesh.TileAndOffsetUVs (offset, tyling);
@@ -301,7 +324,7 @@ namespace Playtime_Painter
 
 				Material mat = painter.getMaterial (false);
 
-			if ((mat != originalMaterial) || ((mat!= null) && (mat.shader != originalShader))) {
+			if  ((mat!= null) && ((mat != originalMaterial) || mat.shader != originalShader)) {
 				originalMaterial = mat;
                 originalShader = mat.shader;
                 OnChangeMaterial (painter);
@@ -311,13 +334,16 @@ namespace Playtime_Painter
 
                 ("If you don't set Atlased Material(Destination)  it will try to create a copy of current material and set isAtlased toggle on it, if it has one." +
                     " Below you can see: list of Texture Properties, for each you can select or create an atlas. Atlas is a class that holds all textures assigned to an atlas, and also creates and stores the atlas itself." +
-                    "After this you can select a field from current Material, texture of which will be copied into an atlas. A bit confusing, I know)").writeHint(); 
-
+                    "After this you can select a field from current Material, texture of which will be copied into an atlas. A bit confusing, I know)" +
+                    "Also if stuff looks smudged, rebuild the light.").writeHint(); 
             }
 
 			if (("Atlased Material:".edit (90, ref AtlasedMaterial).nl ()) || 
 				(AtlasedMaterial!= null && AtlasedMaterial.shader != atlasedShader))
 				OnChangeMaterial (painter);
+
+            pegi.Space();
+            pegi.newLine();
 
             foreach (var f in fields)
                 f.PEGI(this);

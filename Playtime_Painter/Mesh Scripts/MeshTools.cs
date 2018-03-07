@@ -120,7 +120,7 @@ namespace Playtime_Painter
 
             if ("Auto Bevel".Click())
                 AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".edit(ref cfg.bevelDetectionSensetivity, 3, 30).nl();
+            "Sensitivity".edit(60,ref cfg.bevelDetectionSensetivity, 3, 30).nl();
 
             "Pixel-Perfect".toggle("New vertex will have UV coordinate rounded to half a pixel.",120, ref cfg.pixelPerfectMeshEditing).nl();
 

@@ -35,8 +35,6 @@ namespace Playtime_Painter{
             return icon.Painter.getIcon();
         }
 
-        public MeshPackagingProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshPackagingSolutions.Count - 1));  return cfg.meshPackagingSolutions[selectedMeshProfile]; } }
-
         public Renderer meshRenderer;
         public SkinnedMeshRenderer skinnedMeshRendy;
         public Terrain terrain;
@@ -93,7 +91,9 @@ namespace Playtime_Painter{
         public int numberOfRenderTextureBackups = 0;
         public bool backupManually;
         public int selectedMeshProfile = 0;
-      //  public bool useTexcoord2 = false;
+        public MeshPackagingProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshPackagingSolutions.Count - 1)); return cfg.meshPackagingSolutions[selectedMeshProfile]; } }
+
+        //  public bool useTexcoord2 = false;
 
         // Textures
 
@@ -1903,23 +1903,40 @@ namespace Playtime_Painter{
                     pegi.writeOneTimeHint("Warning, this will change (or mess up) your model.", "MessUpMesh");
 
                     if (m.target != this) {
+                    
+                    var ent = gameObject.GetComponent("pb_Entity");
+                    var obj = gameObject.GetComponent("pb_Object");
+                    
+                    if (ent || obj)  {
+                        "PRO builder detected. Strip it using Actions in the Tools->ProBuilder menu.".writeHint();
+                        if ("Strip it".Click())
+                        {
+                            if (obj != null) UnityHelperFunctions.DestroyWhatever(obj);
+                            if (ent != null) UnityHelperFunctions.DestroyWhatever(ent);
+                        }
+                    }
+                    else
+                    {
 
                         if (Application.isPlaying)
                             pegi.writeWarning("Playtime Changes will be reverted once you try to edit the mesh again.");
                         pegi.newLine();
 
-					    if ("Edit Copy".Click ()) {
-						    meshMGMT.EditMesh (this, true);
+                        if ("Edit Copy".Click())
+                        {
+                            meshMGMT.EditMesh(this, true);
 
-					    }
-                        if ("New Mesh".Click()) {
+                        }
+                        if ("New Mesh".Click())
+                        {
                             meshFilter.mesh = new Mesh();
                             lastMeshSavedDta = null;
                             meshMGMT.EditMesh(this, false);
                         }
-                  
+
                         if (icon.Edit.Click("Edit Mesh", 25).nl())
                             meshMGMT.EditMesh(this, false);
+                    }
                     }
 
                 }
