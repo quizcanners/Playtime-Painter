@@ -21,11 +21,13 @@ namespace Playtime_Painter {
 
         protected PainterConfig cfg { get { return PainterConfig.inst; } }
 
-        public bool Dirty;
+        public bool dirty;
+        
 
-        public bool gotColors;
         public bool gotBoneWeights;
         public bool gotBindPos;
+        public int submeshCount;
+        public List<uint> baseVertex = new List<uint>();
 
         public List<string> shapes;
         public Countless<Countless<float>> blendWeights = new Countless<Countless<float>>();
@@ -41,7 +43,10 @@ namespace Playtime_Painter {
             cody.AddText("n", meshName);
             cody.AddIfNotEmpty(vertices);
             cody.AddIfNotEmpty(triangles);
-
+            cody.Add("sub", submeshCount);
+            cody.Add("wei", gotBoneWeights);
+            cody.Add("bp", gotBindPos);
+            cody.AddIfNotEmpty("bv", baseVertex);
             return cody;
         }
 
@@ -50,6 +55,10 @@ namespace Playtime_Painter {
                 case vertexpointDta.stdTag_vrt: vertices = data.ToListOf_STD<vertexpointDta>(); break;
                 case trisDta.stdTag_tri: triangles = data.ToListOf_STD<trisDta>(); break;
                 case "n": meshName = data; break;
+                case "sub":  submeshCount = data.ToInt(); break;
+                case "wei": gotBoneWeights = data.ToBool(); break;
+                case "bp": gotBindPos = data.ToBool(); break;
+                case "bv": baseVertex = data.ToListOfUInt(); break;
             }
         }
 
@@ -319,24 +328,30 @@ namespace Playtime_Painter {
             for (int i = Count; i < triangles.Count; i++)
                 triangles[i].InvertNormal();
             Debug.Log("Dirty");
-            Dirty = true;
+            dirty = true;
 
         }
 
-        public void Edit(PlaytimePainter painter)
-        {
-            if (painter.gotMeshData())
+        public void Edit(PlaytimePainter pntr) {
+            //Temporary
+            submeshCount = 1;
+            if (pntr.savedEditableMesh != null)
             {
-                Reboot(painter.lastMeshSavedDta);
+                Reboot(pntr.savedEditableMesh);
                 if (triangles.Count == 0)
-                    BreakMesh(painter.meshFilter.sharedMesh);
+                    BreakMesh(pntr.meshFilter.sharedMesh);
 
             }
             else
             {
-                BreakMesh(painter.meshFilter.sharedMesh);
-                painter.selectedMeshProfile = painter.getMaterial(false).getMeshProfileByTag();
+                BreakMesh(pntr.meshFilter.sharedMesh);
+                pntr.selectedMeshProfile = pntr.getMaterial(false).getMeshProfileByTag();
             }
+
+            // Temporary
+            while (baseVertex.Count < submeshCount)
+                baseVertex.Add(0);
+
         }
 
         public void BreakMesh(Mesh Nmesh) {
@@ -345,6 +360,8 @@ namespace Playtime_Painter {
 
             mesh = Nmesh;
 
+            
+
             int vCnt = mesh.vertices.Length;
             //  Debug.Log("Breaking Mesh "+ vCnt + " verts");
 
@@ -352,7 +369,7 @@ namespace Playtime_Painter {
             Vector3[] vrts = mesh.vertices;
             bool gotUV1 = (mesh.uv != null) && (mesh.uv.Length == vCnt);
             bool gotUV2 = (mesh.uv2 != null) && (mesh.uv2.Length == vCnt);
-            gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
+            bool gotColors = (mesh.colors != null) && (mesh.colors.Length == vCnt);
             gotBoneWeights = (mesh.boneWeights != null) && (mesh.boneWeights.Length == vCnt);
             gotBindPos = (mesh.bindposes != null) && (mesh.bindposes.Length == vCnt);
 
@@ -371,14 +388,7 @@ namespace Playtime_Painter {
                     v.bindPoses = mesh.bindposes[i];
             }
 
-            if (mesh.subMeshCount > 1)
-                for (int s = 0; s < mesh.subMeshCount; s++) {
-
-                    int[] indices = mesh.GetTriangles(s);
-
-                    foreach (var i in indices)
-                            vertices[i].submeshIndex = s;
-            }
+           
 
             shapes = new List<string>();
 
@@ -404,20 +414,34 @@ namespace Playtime_Painter {
                 }
             }
 
-            int tCnt = mesh.triangles.Length / 3;
+
+
+
             triangles = new List<trisDta>();
             UVpoint[] pnts = new UVpoint[3];
-            int[] tris = mesh.triangles;
-            for (int i = 0; i < tCnt; i++)
-            {
-                int no;
-                no = i * 3;
-                pnts[0] = vertices[tris[no]].uv[0]; no++;
-                pnts[1] = vertices[tris[no]].uv[0]; no++;
-                pnts[2] = vertices[tris[no]].uv[0];
 
-                triangles.Add(new trisDta(pnts));
+            submeshCount = mesh.subMeshCount;
+            baseVertex = new List<uint>();
+
+            for (int s = 0; s < submeshCount; s++)  {
+
+                baseVertex.Add(mesh.GetBaseVertex(s));
+               
+                int[] indices = mesh.GetTriangles(s);
+
+                int tCnt = indices.Length / 3;
+               
+                for (int i = 0; i < tCnt; i++) {
+                   
+                    for (int e=0; e<3; e++)
+                        pnts[e] = vertices[indices[i * 3 + e]].uv[0];
+
+                    var t = new trisDta(pnts);
+                    t.submeshIndex = s;
+                    triangles.Add(t);
+                }
             }
+
 
             // Debug.Log("Merging");
 
@@ -438,6 +462,8 @@ namespace Playtime_Painter {
             }
 
             mesh = new Mesh();
+
+            dirty = true;
         }
 
         public void MergeWith (PlaytimePainter other) {
@@ -602,7 +628,7 @@ namespace Playtime_Painter {
                 foreach (UVpoint uv in v.uv)
                    bm.Transfer(ref uv._color, c);
             //Debug.Log("Dirty");
-            Dirty = true;
+            dirty = true;
         }
 
         public void Displace(Vector3 by)
@@ -693,7 +719,7 @@ namespace Playtime_Painter {
 
             }
 
-            Dirty = true;
+            dirty = true;
 
             if (cfg.pixelPerfectMeshEditing)
             newVrt.PixPerfect();
@@ -744,7 +770,7 @@ namespace Playtime_Painter {
             if (cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
-            Dirty = true;
+            dirty = true;
             return newVrt;
         }
 
@@ -784,7 +810,7 @@ namespace Playtime_Painter {
             if (cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
-            Dirty = true;
+            dirty = true;
             return newVrt;
 
         }
@@ -830,7 +856,7 @@ namespace Playtime_Painter {
                 }
             }
            // Debug.Log("Dirty");
-            Dirty = true;
+            dirty = true;
         }
     }
 

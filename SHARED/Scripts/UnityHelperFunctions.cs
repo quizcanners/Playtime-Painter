@@ -174,6 +174,15 @@ public static class UnityHelperFunctions {
 #endif
     }
 
+    public static int TotalCount (this List<int>[] lists) {
+        int total = 0;
+
+        foreach (var e in lists)
+            total += e.Count;
+
+        return total;
+    }
+
     public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder) {
 
 #if UNITY_EDITOR

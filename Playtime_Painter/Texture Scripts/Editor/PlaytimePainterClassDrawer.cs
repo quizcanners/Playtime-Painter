@@ -13,9 +13,9 @@ namespace Playtime_Painter {
         static PainterConfig cfg { get { return PainterConfig.inst; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
-            return (targ != null) && (targ.LockEditing == false) && (
+            return (targ) && (!targ.LockEditing) && (
 
-                ((targ.meshEditing == false) && (targ.curImgData != null)) || //(
+                ((!targ.meshEditing) && (targ.curImgData != null)) || //(
                 ((targ.meshEditing) && (MeshManager.inst.target == targ))
                 
                 );
@@ -46,7 +46,7 @@ namespace Playtime_Painter {
                     if (p != null)
                     {
 
-                        if ((p != edited) && (p.meshEditing) && (p.gotMeshData()) && L_mouseDwn && (e.button == 0))
+                        if ((p != edited) && (p.meshEditing) && (p.savedEditableMesh != null ) && L_mouseDwn && (e.button == 0))
                         {
                             MeshManager.inst.EditMesh(p, false);
                             allowRefocusing = true;

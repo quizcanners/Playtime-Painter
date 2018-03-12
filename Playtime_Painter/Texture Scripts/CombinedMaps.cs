@@ -13,10 +13,7 @@ using StoryTriggerData;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-
-
 namespace Playtime_Painter {
-
     namespace CombinedMaps
     {
 
@@ -39,7 +36,6 @@ namespace Playtime_Painter {
 
             public string name;
           
-            
             public TexturePackagingProfile profile { get { return PainterConfig.inst.texturePackagingSolutions[selectedProfile]; } }
 
             public Texture2D GetTexture() {
@@ -160,7 +156,7 @@ namespace Playtime_Painter {
 
             public static TexturePackagingProfile currentPEGI;
            
-          public override bool PEGI()
+            public override bool PEGI()
             {
                 return PEGI(null, TextureSetForForCombinedMaps.currentPainter);
             }
@@ -200,12 +196,14 @@ namespace Playtime_Painter {
                 if (usingBumpStrength) changed |= "Bump Strength".edit(ref bumpStrength).nl();
                 if (usingColorSelector) changed |= "Color".edit(ref fillColor).nl();
 
-                if (sets != null)
+                if (sets != null) {
                     if ("Combine".Click().nl())
-                                    Combine(sets, p);
+                        Combine(sets, p);
+
+                    if (p != null)
+                        "You will still need to press SAVE in Painter to make changes permanent.".writeHint();
+                }
                 
-               
-              
                 return changed;
             }
 
@@ -222,7 +220,7 @@ namespace Playtime_Painter {
                 {
                      size = id.width * id.height;
                      dst = id.pixels;
-                } else  {
+                } else {
                     size = set.width * set.height;
                     tex = new Texture2D(set.width, set.height, TextureFormat.ARGB32, false, set.isColor);
                     dst = new Color[size];
@@ -261,23 +259,25 @@ namespace Playtime_Painter {
                     for (int i = 0; i < size; i++)
                         dst[i].a = col[i][ch];
                 }
-                
-                if (id!= null)
+
+                if (id != null) {
                     id.SetAndApply(true);
-            else
+                    set.LastProduct = tex;
+                }
+                else
                 {
                     tex.SetPixels(dst);
                     tex.Apply();
                     set.LastProduct = tex;
                     set.LastProduct = tex.saveTextureAsAsset(PainterConfig.inst.texturesFolderName, ref set.name, false);
 
-                         TextureImporter importer = set.LastProduct.getTextureImporter();
+                    TextureImporter importer = set.LastProduct.getTextureImporter();
 
-                         bool needReimport = importer.wasNotReadable();
-                         needReimport |= importer.wasWrongIsColor(isColor);
-                         needReimport |= importer.wasClamped();
+                    bool needReimport = importer.wasNotReadable();
+                    needReimport |= importer.wasWrongIsColor(isColor);
+                    needReimport |= importer.wasClamped();
 
-                         if (needReimport) importer.SaveAndReimport();
+                    if (needReimport) importer.SaveAndReimport();
                 }
 
                 TextureRole.Clear();
@@ -439,15 +439,11 @@ namespace Playtime_Painter {
                    
                 return _pixels;
             }
-
-
-
+            
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {
                 bool changed = " . ".select(20,ref selectedChannel, channels).nl();
-
-           
-
+                
                 return changed;
             }
 

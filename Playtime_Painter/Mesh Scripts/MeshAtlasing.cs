@@ -127,17 +127,14 @@ namespace Playtime_Painter
 
             if (AtlasedMaterial == null)
                 AtlasedMaterial = painter.InstantiateMaterial(true);
-
-           
-
+            
 			painter.SetOriginalShader ();
 
 			painter.UpdateOrSetTexTarget (texTarget.Texture2D);
 
             Material mat = painter.getMaterial(false);
             List<string> tfields = mat.getTextures();
-
-           
+            
 			int index = 0;
 			List<FieldAtlas> passedFields = new List<FieldAtlas> ();
 			List<Texture2D> passedTextures = new List<Texture2D> ();
@@ -157,20 +154,17 @@ namespace Playtime_Painter
                         var note = painter.name + " no " + original + " texture. Using Color.";
                         note.showNotification();
                         Debug.Log(note);
-                        //return;
                     }
                     else
                     {
 
-                        if (tex.GetType() != typeof(Texture2D))
-                        {
+                        if (tex.GetType() != typeof(Texture2D)) {
                             Debug.Log("Not a Texture 2D: " + original);
                             return;
                         }
 
                         texture = (Texture2D)tex;
-
-
+                        
                     }
 
                     var aTexes = f.atlasCreator.textures;
@@ -185,8 +179,6 @@ namespace Playtime_Painter
                             passedColors.Add(f.col);
                             added = true;
                             break;
-                            //Debug.Log ("Assigning index "+i);
-							//i = 999;
 						}
 
 					if (!added) {
@@ -221,17 +213,15 @@ namespace Playtime_Painter
 
 				MeshManager.inst.EditMesh(painter, true);
 
+                painter.preAtlasingSavedMesh = MeshManager.inst._Mesh.Encode().ToString();
+
                 painter.selectedMeshProfile = matAtlasProfile;
-
-             //   Debug.Log("Index is "+index);
-
+                
 				if ((tyling != Vector2.one) || (offset != Vector2.zero)) {
 					MeshManager.inst._Mesh.TileAndOffsetUVs (offset, tyling);
 					Debug.Log ("offsetting "+offset + " tyling "+tyling);
 				}
-
-				painter.preAtlasingSavedMesh = MeshManager.inst._Mesh.Encode ().ToString ();
-
+                
 				VertexAtlasTool.inst.SetAllTrianglesTextureTo(index, 0);
 				MeshManager.inst.Redraw();
 				MeshManager.inst.DisconnectMesh ();
@@ -241,6 +231,8 @@ namespace Playtime_Painter
 
                 var m = painter.getMesh().name;
                 painter.getMesh().name = m+ "_Atlased_" + index;
+
+                //painter.getMaterial(false).SetTextureOffset(1,Vector2.zero);
 
                 AtlasedMaterial.EnableKeyword(PainterConfig.UV_ATLASED);
 

@@ -6,33 +6,25 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-    public enum MeshTool { vertices, uv, VertexAnimation, VertColor, VertexShadow, AtlasTexture, VertexEdge }
-
-    public static class MeshTools
-    {
-
-        public static MeshToolBase Get(this MeshTool t)  {
-            return allTools[(int)t];
-        }
-
-        static MeshTools() {
-            List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<MeshToolBase>();
-
-            allTools = new MeshToolBase[allTypes.Count];
-
-            foreach (Type t in allTypes)
-            {
-                MeshToolBase tb = (MeshToolBase)Activator.CreateInstance(t);
-                allTools[(int)(tb.myTool)] = tb;
-            }
-        }
-
-        static MeshToolBase[] allTools;
-
-
-    }
-
     public abstract class MeshToolBase {
+        
+        static List<MeshToolBase> _allTools;
+
+        public static List<MeshToolBase> allTools
+        { get {
+                if (_allTools == null) {
+                    _allTools = new List<MeshToolBase>();
+
+                    _allTools.Add(new VertexPositionTool());
+                    _allTools.Add(new DominantCornerTool());
+                    _allTools.Add(new VertexColorTool());
+                    _allTools.Add(new VertexEdgeTool());
+                    allTools.Add(new VertexAtlasTool());
+                }
+                return _allTools;
+            } }
+
+
 
         protected MeshManager m { get { return MeshManager.inst; } }
         protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
@@ -41,11 +33,13 @@ namespace Playtime_Painter
         protected trisDta triangle { get { return m.pointedTris; } }
         protected UVpoint vertex { get { return m.pointedUV; } }
 
-        public abstract MeshTool myTool { get; }
+       // public abstract MeshTool myTool { get; }
 
         public virtual bool showVertices { get { return true; } }
         public virtual bool showLines { get { return true; } }
         public virtual bool showTriangles { get { return true; } }
+
+        public virtual bool showGrid { get { return false; } }
 
         public virtual bool showSelectedVerticle { get { return false; } }
         public virtual bool showSelectedLine { get { return false; } }
@@ -53,7 +47,13 @@ namespace Playtime_Painter
 
         public virtual string tooltip { get { return "No tooltip"; } }
 
-        public virtual void tool_pegi() {
+        public virtual Color vertColor {get { return Color.gray;  }  }
+
+        public virtual void PEGI() {
+        }
+
+        public virtual void AssignText(MarkerWithText mrkr, vertexpointDta vpoint) {
+           mrkr.textm.text = "";
         }
 
         public virtual void MouseEventPointedVertex() { }
@@ -69,6 +69,8 @@ namespace Playtime_Painter
         public virtual void KeysEventPointedLine()  { }
 
         public virtual void KeysEventPointedTriangle()  { }
+
+        public virtual void ManageDragging() { }
     }
 
     public class VertexPositionTool : MeshToolBase
@@ -80,9 +82,40 @@ namespace Playtime_Painter
         }
 
         Vector3 displace = new Vector3();
-        
 
-        public override MeshTool myTool { get { return MeshTool.vertices; } }
+        public override bool showGrid { get { return true; } }
+  
+        public override void AssignText(MarkerWithText mrkr, vertexpointDta vpoint)
+        {
+
+            var pvrt = m.GetSelectedVert();
+
+            if ((vpoint.uv.Count > 1) || (pvrt == vpoint))
+            {
+
+                Texture tex = m.target.meshRenderer.sharedMaterial.mainTexture;
+
+                if (pvrt == vpoint)
+                {
+                    mrkr.textm.text = (vpoint.uv.Count > 1) ? ((vpoint.uv.IndexOf(m.selectedUV) + 1).ToString() + "/" + vpoint.uv.Count.ToString() +
+                        (vpoint.SmoothNormal ? "s" : "")) : "";
+                  
+
+                }
+                else
+                    mrkr.textm.text = vpoint.uv.Count.ToString() +
+                        (vpoint.SmoothNormal ? "s" : "");
+            }
+            else mrkr.textm.text = "";
+        }
+
+        public override Color vertColor
+        {
+            get
+            {
+                return Color.white; 
+            }
+        }
 
         public override string tooltip
         {
@@ -100,13 +133,13 @@ namespace Playtime_Painter
             }
         }
 
-        public override void tool_pegi() {
+        public override void PEGI() {
 
             MeshManager mgm = m;
 
             PainterConfig sd = PainterConfig.inst;
 
-            if (m.showGrid)
+            if (MeshManager.tool.showGrid)
             {
                 "Snap to grid:".toggle(100, ref sd.SnapToGrid);
 
@@ -119,7 +152,7 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if ("Auto Bevel".Click())
-                AutoAssignDominantNormalsForBeveling();
+                DominantCornerTool.inst.AutoAssignDominantNormalsForBeveling();
             "Sensitivity".edit(60,ref cfg.bevelDetectionSensetivity, 3, 30).nl();
 
             "Pixel-Perfect".toggle("New vertex will have UV coordinate rounded to half a pixel.",120, ref cfg.pixelPerfectMeshEditing).nl();
@@ -128,21 +161,21 @@ namespace Playtime_Painter
             if (pegi.Click("Sharp All")) {
                 foreach (vertexpointDta vr in m._Mesh.vertices)
                     vr.SmoothNormal = false;
-                mgm._Mesh.Dirty = true;
+                mgm._Mesh.dirty = true;
                 MeshManager.cfg.newVerticesSmooth = false;
             }
 
             if (pegi.Click("Smooth All").nl()) {
                 foreach (vertexpointDta vr in m._Mesh.vertices)
                     vr.SmoothNormal = true;
-                mgm._Mesh.Dirty = true;
+                mgm._Mesh.dirty = true;
                 MeshManager.cfg.newVerticesSmooth = true;
             }
 
             "Add Unique:".toggle(70, ref MeshManager.cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
                 mgm._Mesh.AllVerticesShared();
-                mgm._Mesh.Dirty = true;
+                mgm._Mesh.dirty = true;
                 MeshManager.cfg.newVerticesUnique = false;
             }
 
@@ -150,7 +183,7 @@ namespace Playtime_Painter
             {
                 foreach (trisDta t in mesh.triangles)
                     mgm._Mesh.GiveTriangleUniqueVerticles(t);
-                mgm._Mesh.Dirty = true;
+                mgm._Mesh.dirty = true;
                 MeshManager.cfg.newVerticesUnique = true;
             }
             pegi.newLine();
@@ -175,7 +208,7 @@ namespace Playtime_Painter
 
             if (pegi.Click("Apply")) {
                 mgm._Mesh.Displace(displace);
-                mgm._Mesh.Dirty = true;
+                mgm._Mesh.dirty = true;
                 displace = Vector3.zero;
             }
             pegi.newLine();
@@ -190,13 +223,13 @@ namespace Playtime_Painter
             {
                 m.selectedUV.vert.MergeWithNearest();
                 m.draggingSelected = false;
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
                 "M - merge with nearest".TeachingNotification();
             }
 
             if (KeyCode.N.isDown()) {
                 m.pointedUV.vert.SmoothNormal = !m.pointedUV.vert.SmoothNormal;
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
                 "N - on Vertex - smooth Normal".TeachingNotification();
             }
 
@@ -222,7 +255,7 @@ namespace Playtime_Painter
                 }
                 else
                     m.DeleteUv(m.pointedUV);
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -234,7 +267,7 @@ namespace Playtime_Painter
 
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
 
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -243,7 +276,7 @@ namespace Playtime_Painter
             if (KeyCode.Backspace.isDown())
             {
                 m._Mesh.triangles.Remove(triangle);
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
                 return;
             }
 
@@ -266,7 +299,7 @@ namespace Playtime_Painter
                     "Inverting Normals".TeachingNotification();
                 }
 
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
 
             }
 
@@ -317,28 +350,115 @@ namespace Playtime_Painter
                 m.AddPoint(m.onGridLocal);
         }
 
-        public void AutoAssignDominantNormalsForBeveling() {
+        public override void ManageDragging()
+        {
+            if ((EditorInputManager.GetMouseButtonUp(1)) || (EditorInputManager.GetMouseButton(1) == false))
+            {
+                m.draggingSelected = false;
+                mesh.dirty = true;
+
+            }
+            else
+            {
+                m.dragDelay -= Time.deltaTime;
+                if ((m.dragDelay < 0) || (Application.isPlaying == false))
+                {
+                    if (m.selectedUV == null) { m.draggingSelected = false; Debug.Log("no selected"); return; }
+                    if ((GridNavigator.inst().angGridToCamera(GridNavigator.onGridPos) < 82))
+                                m.selectedUV.vert.pos = m.onGridLocal;
+                }
+            }
+        }
+
+    }
+
+    public class DominantCornerTool : MeshToolBase
+    {
+        public static DominantCornerTool inst;
+
+        public DominantCornerTool()
+        {
+            inst = this;
+        }
+
+        public bool SetTo = true;
+
+        public override bool showVertices  { get { return false; } }
+
+        public override string tooltip
+        {
+            get
+            {
+                return "Paint the DOMINANCE on triangles" + Environment.NewLine +
+                    "It will affect how normal vector will be calculated";
+            }
+        }
+
+        public override void PEGI()
+        {
+
+            MeshManager mgm = m;
+
+            PainterConfig sd = PainterConfig.inst;
+
+            "Dominance True".toggle(ref SetTo).nl();
+       
+            pegi.ClickToEditScript();
+
+            if ("Auto Bevel".Click())
+                AutoAssignDominantNormalsForBeveling();
+            "Sensitivity".edit(60, ref cfg.bevelDetectionSensetivity, 3, 30).nl();
+
+            if ("Sharp All".Click()) {
+                foreach (vertexpointDta vr in m._Mesh.vertices)
+                    vr.SmoothNormal = false;
+                mgm._Mesh.dirty = true;
+                MeshManager.cfg.newVerticesSmooth = false;
+            }
+
+            if ("Smooth All".Click().nl()) {
+                foreach (vertexpointDta vr in m._Mesh.vertices)
+                    vr.SmoothNormal = true;
+                mgm._Mesh.dirty = true;
+                MeshManager.cfg.newVerticesSmooth = true;
+            }
+
+
+        
+            
+        }
+
+        public override void MouseEventPointedTriangle() {
+            if (EditorInputManager.GetMouseButton(0))
+                mesh.dirty |= triangle.SetDominantNormals(SetTo);
+        }
+
+        public void AutoAssignDominantNormalsForBeveling()
+        {
 
             foreach (vertexpointDta vr in m._Mesh.vertices)
                 vr.SmoothNormal = true;
-           
+
             foreach (var t in mesh.triangles) t.SetDominantNormals(true);
 
-                foreach (var t in mesh.triangles) {
+            foreach (var t in mesh.triangles)
+            {
                 Vector3[] v3s = new Vector3[3];
-                
-                for (int i=0; i<3; i++)
-                    v3s[i] = t.uvpnts[i].vert.pos;
+
+                for (int i = 0; i < 3; i++)
+                    v3s[i] = t.uvpnts[i].pos;
 
                 float[] dist = new float[3];
 
-                for (int i = 0; i < 3; i++) 
+                for (int i = 0; i < 3; i++)
                     dist[i] = (v3s[(i + 1) % 3] - v3s[(i + 2) % 3]).magnitude;
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++)
+                {
                     var a = (i + 1) % 3;
                     var b = (i + 2) % 3;
-                    if (dist[i] < dist[a] / cfg.bevelDetectionSensetivity && dist[i] < dist[b] / cfg.bevelDetectionSensetivity) {
+                    if (dist[i] < dist[a] / cfg.bevelDetectionSensetivity && dist[i] < dist[b] / cfg.bevelDetectionSensetivity)
+                    {
                         t.SetDominantNormals(false);
 
                         var other = (new LineData(t, t.uvpnts[a], t.uvpnts[b])).getOtherTriangle();
@@ -348,17 +468,20 @@ namespace Playtime_Painter
                 }
             }
 
-            mesh.Dirty = true;
+            mesh.dirty = true;
         }
 
     }
 
     public class VertexUVTool : MeshToolBase
     {
+        public static VertexUVTool _inst;
 
-        public override MeshTool myTool { get { return MeshTool.uv; } }
-
-        public override void tool_pegi()
+        public VertexUVTool() {
+            _inst = this;
+        }
+        
+        public override void PEGI()
         {
             MeshManager tmp = m;
 
@@ -372,7 +495,7 @@ namespace Playtime_Painter
                         foreach (UVpoint uv in vr.uv)
                             uv.editedUV = m.selectedUV.editedUV;
 
-                    m._Mesh.Dirty = true;
+                    m._Mesh.dirty = true;
                 }
 
             pegi.newLine();
@@ -389,8 +512,8 @@ namespace Playtime_Painter
             pegi.newLine();
 
            if  (pegi.toggle(ref tmp.GridToUVon, "Grid Painting ", 90)) {
-                if (!tmp.GridToUVon)
-                    cfg._meshTool = MeshTool.uv;
+                //if (!tmp.GridToUVon)
+                    //cfg._meshTool = MeshTool.uv;
                 tmp.UpdatePreviewIfGridedDraw();
             }
 
@@ -401,13 +524,48 @@ namespace Playtime_Painter
                     foreach (UVpoint uv in tmp.selectedUV.vert.uv)
                         uv.editedUV = tmp.selectedUV.editedUV;
 
-                    tmp._Mesh.Dirty = true;
+                    tmp._Mesh.dirty = true;
                 }
 
 
             pegi.newLine();
 
 
+        }
+
+        public override Color vertColor
+        {
+            get
+            {
+                return Color.magenta; 
+            }
+        }
+
+        public override void AssignText(MarkerWithText mrkr, vertexpointDta vpoint)
+        {
+
+         
+
+            var pvrt = m.GetSelectedVert();
+
+            if ((vpoint.uv.Count > 1) || (pvrt == vpoint))
+            {
+
+                Texture tex = m.target.meshRenderer.sharedMaterial.mainTexture;
+
+                if (pvrt == vpoint)
+                {
+                    mrkr.textm.text = (vpoint.uv.Count > 1) ? ((vpoint.uv.IndexOf(m.selectedUV) + 1).ToString() + "/" + vpoint.uv.Count.ToString() +
+                        (vpoint.SmoothNormal ? "s" : "")) : "";
+                    float tsize = tex == null ? 128 : tex.width;
+                       mrkr.textm.text +=
+                        ("uv: " + (m.selectedUV.editedUV.x * tsize) + "," + (m.selectedUV.editedUV.y * tsize));
+                }
+                else
+                    mrkr.textm.text = vpoint.uv.Count.ToString() +
+                        (vpoint.SmoothNormal ? "s" : "");
+            }
+            else mrkr.textm.text = "";
         }
 
         public override void MouseEventPointedVertex()
@@ -419,7 +577,7 @@ namespace Playtime_Painter
                 if ((m.selectedUV != null) && (m.pointedUV != null))
                 {
                     m.pointedUV.editedUV = m.selectedUV.editedUV;
-                    m._Mesh.Dirty = true;
+                    m._Mesh.dirty = true;
                 }
 
               
@@ -435,7 +593,7 @@ namespace Playtime_Painter
             UVpoint a = line.pnts[0];
             UVpoint b = line.pnts[1];
 
-            if (Vector3.Distance(m.collisionPosLocal, a.vert.pos) < Vector3.Distance(m.collisionPosLocal, b.vert.pos))
+            if (Vector3.Distance(m.collisionPosLocal, a.pos) < Vector3.Distance(m.collisionPosLocal, b.pos))
                 m.AssignSelected(m._Mesh.GetUVpointAFromLine(a.vert, b.vert));
             else
                 m.AssignSelected(m._Mesh.GetUVpointAFromLine(b.vert, a.vert));
@@ -449,8 +607,8 @@ namespace Playtime_Painter
                             if (m.selectedUV == null) m.selectedUV = m._Mesh.vertices[0].uv[0];
 
                             for (int i = 0; i < 3; i++)
-                                m.pointedTris.uvpnts[i].editedUV = m.PosToUV(m.pointedTris.uvpnts[i].vert.pos);
-                            m._Mesh.Dirty = true;
+                                m.pointedTris.uvpnts[i].editedUV = m.PosToUV(m.pointedTris.uvpnts[i].pos);
+                            m._Mesh.dirty = true;
                         }
             }
         }
@@ -467,7 +625,7 @@ namespace Playtime_Painter
                 else
                     m.DeleteLine(line);
 
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -475,8 +633,13 @@ namespace Playtime_Painter
 
     public class VertexAnimationTool : MeshToolBase
     {
-        public override MeshTool myTool { get { return MeshTool.VertexAnimation; } }
+        public override void AssignText(MarkerWithText mrkr, vertexpointDta vpoint)
+        {
 
+          
+                mrkr.textm.text = vpoint.index.ToString();
+             
+        }
         public override void MouseEventPointedVertex()
         {
           
@@ -487,13 +650,57 @@ namespace Playtime_Painter
                 m.dragDelay = 0.2f;
             }
         }
+
+        public override bool showGrid { get { return true; } }
+
+        public override void ManageDragging()
+        {
+            if ((EditorInputManager.GetMouseButtonUp(1)) || (EditorInputManager.GetMouseButton(1) == false))
+            {
+                m.draggingSelected = false;
+                mesh.dirty = true;
+
+            }
+            else
+            {
+                m.dragDelay -= Time.deltaTime;
+                if ((m.dragDelay < 0) || (Application.isPlaying == false))
+                {
+                    if (m.selectedUV == null) { m.draggingSelected = false; Debug.Log("no selected"); return; }
+                    if ((GridNavigator.inst().angGridToCamera(GridNavigator.onGridPos) < 82) &&
+                               m.target.AnimatedVertices())
+                                    m.selectedUV.vert.AnimateTo(m.onGridLocal);
+                                
+                    
+                        
+                    
+                }
+            }
+        }
+
     }
 
     public class VertexColorTool : MeshToolBase
     {
-        public override MeshTool myTool { get { return MeshTool.VertColor; } }
+        // public override MeshTool myTool { get { return MeshTool.VertColor; } }
 
-        public override void tool_pegi() {
+        public override Color vertColor
+        {
+            get
+            {
+                return Color.white;
+            }
+        }
+
+        public override string tooltip
+        {
+            get
+            {
+                return " 1234 on Line - apply RGBA for Border.";
+            }
+        }
+
+        public override void PEGI() {
             if (("Paint All with Brush Color").Click())
                 m._Mesh.PaintAll(cfg.brushConfig.color);
 
@@ -525,7 +732,7 @@ namespace Playtime_Painter
                     foreach (UVpoint uvi in mgmt.pointedUV.vert.uv)
                         bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.color.ToColor());
 
-                mgmt._Mesh.Dirty = true;
+                mgmt._Mesh.dirty = true;
             }
         }
 
@@ -541,7 +748,7 @@ namespace Playtime_Painter
                
                 a.vert.SetColorOnLine(c, bcf.mask, b.vert);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
                 b.vert.SetColorOnLine(c, bcf.mask, a.vert);
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -555,7 +762,7 @@ namespace Playtime_Painter
             if ((ind > 0) && (ind < 5))
             {
                 a.vert.FlipChanelOnLine((ColorChanel)(ind - 1), b.vert);
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
                 Event.current.Use();
             }
           
@@ -565,13 +772,13 @@ namespace Playtime_Painter
 
     public class VertexEdgeTool : MeshToolBase
     {
-        public override MeshTool myTool { get { return MeshTool.VertexEdge; } }
+       // public override MeshTool myTool { get { return MeshTool.VertexEdge; } }
 
         public override bool showTriangles { get { return false; } }
 
         public static float edgeValue = 1;
 
-        public override void tool_pegi() {
+        public override void PEGI() {
             "Edge Strength: ".edit(ref edgeValue).nl();
 
             pegi.writeHint("Strength usually used to show color on the edge and hide seam");
@@ -589,7 +796,7 @@ namespace Playtime_Painter
                     m.pointedUV.vert.edgeStrength = edgeValue;
 
 
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -609,7 +816,7 @@ namespace Playtime_Painter
                     line.pnts[1].vert.edgeStrength = edgeValue;
 
 
-                    m._Mesh.Dirty = true;
+                    m._Mesh.dirty = true;
                 }
             }
         }
@@ -618,7 +825,7 @@ namespace Playtime_Painter
 
     public class VertexShadowTool : MeshToolBase
     {
-        public override MeshTool myTool { get { return MeshTool.VertexShadow; } }
+       // public override MeshTool myTool { get { return MeshTool.VertexShadow; } }
 
         public override void MouseEventPointedVertex()
         {
@@ -632,7 +839,7 @@ namespace Playtime_Painter
                 bcf.color.ToV4(ref m.pointedUV.vert.shadowBake, bcf.mask);
                 Debug.Log("Modified shadow to: " + m.pointedUV.vert.shadowBake.ToString());
 
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
             }
         }
 
@@ -656,18 +863,26 @@ namespace Playtime_Painter
 
         static VertexAtlasTool _inst;
 
-		public static VertexAtlasTool inst {get { if (_inst == null)
-					MeshTool.AtlasTexture.Get ();
-				return _inst;}}
+		public static VertexAtlasTool inst {get { if (_inst == null) {
+                    var a = allTools;
+                    return _inst;
+                        }
+                        return _inst;}}
 
         public VertexAtlasTool()
         {
             _inst = this;
         }
 
-        public override MeshTool myTool { get { return MeshTool.AtlasTexture; } }
+        public override string tooltip
+        {
+            get
+            {
+                return "Select Texture and click on triangles";
+            }
+        }
 
-        public override void tool_pegi() {
+        public override void PEGI() {
 
             "Edge Click as Chanel 2".toggle(ref cfg.atlasEdgeAsChanel2).nl();
 
@@ -692,7 +907,7 @@ namespace Playtime_Painter
                 else
                 {
                     m.pointedTris.textureNo[cfg.curAtlasChanel] = cfg.curAtlasTexture;
-                    m._Mesh.Dirty = true;
+                    m._Mesh.dirty = true;
                 }
             }
         }
@@ -703,7 +918,7 @@ namespace Playtime_Painter
 
                foreach(var t in m.pointedLine.getAllTriangles_USES_Tris_Listing()) 
                     t.textureNo.y = cfg.curAtlasTexture;
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
 
             }
 
@@ -714,7 +929,7 @@ namespace Playtime_Painter
             foreach (trisDta t in mesh.triangles)
                 t.textureNo[chanel] = no;
 
-            m._Mesh.Dirty = true;
+            m._Mesh.dirty = true;
         }
 
         public override void KeysEventPointedTriangle()
@@ -725,7 +940,7 @@ namespace Playtime_Painter
             
             if (keyDown!= -1) {
                 m.pointedTris.textureNo[cfg.curAtlasChanel] = keyDown;
-                m._Mesh.Dirty = true;
+                m._Mesh.dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
         

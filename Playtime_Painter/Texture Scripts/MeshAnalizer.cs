@@ -16,6 +16,8 @@ public static class MeshAnaliser {
                 return 0;
             }
 
+            //return m.
+
                 int[] hittedTriangle = new int[] {
 				m.triangles[hitIndex * 3],
 				m.triangles[hitIndex * 3 + 1],

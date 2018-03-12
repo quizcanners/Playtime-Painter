@@ -92,11 +92,7 @@ public abstract class SceneViewEditable<T> : Editor where T : MonoBehaviour {
     }
 
     public virtual void OnSceneGUI() {
-
-
-        // if (Application.isPlaying)
-        //   return;
-
+        
         if (isCurrentTool() && (painter != null) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter) == false))
             PlaytimeToolComponent.enabledTool = null;
 

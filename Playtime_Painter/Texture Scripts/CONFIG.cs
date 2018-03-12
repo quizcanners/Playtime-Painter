@@ -78,7 +78,8 @@ public class PainterConfig  {
         public List<MeshPackagingProfile> meshPackagingSolutions;
         public List<TexturePackagingProfile> texturePackagingSolutions;
 
-        public MeshTool _meshTool;
+        public int _meshTool;
+        public MeshToolBase meshTool { get {return MeshToolBase.allTools[_meshTool];} }
         public float bevelDetectionSensetivity = 6;
 
         public static string ToolPath() {
@@ -160,7 +161,7 @@ public class PainterConfig  {
             if (vectorsFolderName == null)
                 vectorsFolderName = "Vectors";
             if (meshesFolderName == null)
-                meshesFolderName = "Meshes";
+                meshesFolderName = "Models";
             if (atlasFolderName == null)
                 atlasFolderName = "ATLASES";
             if (recordingNames == null)
@@ -174,7 +175,6 @@ public class PainterConfig  {
 
             if (!ld.LoadFrom(Application.persistentDataPath, SaveName, ref _inst))  {
                 _inst = new PainterConfig();
-                _inst._meshTool = MeshTool.vertices;
             }
 
             _inst.SafeInit();
@@ -248,7 +248,7 @@ public class PainterConfig  {
 
                         if (painter.preAtlasingMesh != null)
                             painter.meshFilter.mesh = painter.preAtlasingMesh;
-                        painter.meshSaveData = painter.preAtlasingSavedMesh;
+                        painter.savedEditableMesh = painter.preAtlasingSavedMesh;
 
                         painter.preAtlasingMaterial = null;
                         painter.preAtlasingMesh = null;

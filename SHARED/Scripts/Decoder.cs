@@ -128,6 +128,10 @@ namespace StoryTriggerData {
             return int.Parse(data);
         }
 
+        public static uint ToUInt(this string data)
+        {
+            return uint.Parse(data);
+        }
 
         // Float
 
@@ -140,7 +144,7 @@ namespace StoryTriggerData {
 
         // List (int)
 
-        public static List<int> ToListOfInt_STD(this string data) {
+        public static List<int> ToListOfInt(this string data) {
 
 
 
@@ -156,7 +160,23 @@ namespace StoryTriggerData {
             return l;
         }
 
+        public static List<uint> ToListOfUInt(this string data)
+        {
 
+
+
+            List<uint> l = new List<uint>();
+
+            stdDecoder cody = new stdDecoder(data);
+
+            while (cody.gotData)
+            {
+                cody.getTag();
+                l.Add(cody.getData().ToUInt());
+            }
+
+            return l;
+        }
         // ToSlistOfStorySaveable
 
         public static List<List<T>> ToListOfList_STD<T>(this string data) where T : iSTD, new()

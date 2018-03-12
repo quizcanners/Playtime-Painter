@@ -57,31 +57,29 @@ namespace Playtime_Painter{
 
         // Mesh Editing
 
-        [SerializeField]
-        public string lastMeshSavedDta;
+        //[SerializeField]
+        public string _savedMeshData;
 
         [SerializeField]
         Mesh meshDataSavedFor;
 
         public String meshNameHolder;
 
-        public string meshSaveData { get
+        public string savedEditableMesh { get
             {
-                if (meshEditEnabled)
-                    MeshManager.inst.DisconnectMesh();
-
+              
                 if (meshDataSavedFor != this.getMesh())
-                    lastMeshSavedDta = null;
+                    _savedMeshData = null;
 
-                return lastMeshSavedDta; }
-            set { meshDataSavedFor = this.getMesh(); lastMeshSavedDta = value; }
+                if ((_savedMeshData != null) && (_savedMeshData.Length == 0))
+                    _savedMeshData = null;
+
+                return _savedMeshData; }
+            set { meshDataSavedFor = this.getMesh(); _savedMeshData = value; }
 
         }
        
-        public bool gotMeshData() {
-            return (lastMeshSavedDta != null) && (lastMeshSavedDta.Length > 0) && (meshDataSavedFor == this.getMesh());
-        }
-
+     
         // Config:
 
         public bool meshEditing = false;
@@ -93,9 +91,7 @@ namespace Playtime_Painter{
         public int selectedMeshProfile = 0;
         public MeshPackagingProfile meshProfile { get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshPackagingSolutions.Count - 1)); return cfg.meshPackagingSolutions[selectedMeshProfile]; } }
 
-        //  public bool useTexcoord2 = false;
-
-        // Textures
+      
 
         [NonSerialized]
         public static List<imgData> imgdatas = new List<imgData>();
@@ -161,12 +157,12 @@ namespace Playtime_Painter{
 
         public StrokeVector stroke = new StrokeVector();
 	    public float avgBrushSpeed = 0;
-	//    double mouseBttnTime = 0;
 
         public static PlaytimePainter currently_Painted_Object;
 	    public static PlaytimePainter last_MouseOver_Object;
-   
-#if BUILD_WITH_PAINTER 
+
+#if BUILD_WITH_PAINTER
+	    double mouseBttnTime = 0;
 
 	    public void OnMouseOver() {
 
@@ -1727,7 +1723,7 @@ namespace Playtime_Painter{
                                 cfg.showConfig = false;
                                 "Editing Mesh".showNotification();
 
-                                if (gotMeshData())
+                                if (savedEditableMesh!= null)
                                     meshMGMT.EditMesh(this, false);
 
                                 return true;
@@ -1892,9 +1888,9 @@ namespace Playtime_Painter{
 
                     if (this != m.target)
                     {
-                        if ((lastMeshSavedDta != null) && (lastMeshSavedDta.Length > 0))
+                        if (savedEditableMesh != null)
                             "Got saved mesh data".nl();
-                        else "No profile data found".nl();
+                        else "No saved data found".nl();
                     }
 
                     // if ((m.target != null) && (m.target != this))
@@ -1930,7 +1926,7 @@ namespace Playtime_Painter{
                         if ("New Mesh".Click())
                         {
                             meshFilter.mesh = new Mesh();
-                            lastMeshSavedDta = null;
+                            savedEditableMesh = null;
                             meshMGMT.EditMesh(this, false);
                         }
 
@@ -1957,7 +1953,7 @@ namespace Playtime_Painter{
                     {
                         pegi.newLine();
                         if (meshProfile.PEGI().nl())
-                            m._Mesh.Dirty = true;
+                            m._Mesh.dirty = true;
 
                         if ("Hint".foldout(ref VertexSolution.showHint).nl()) {
                         "If using projected UV, place sharpNormal in TANGENT".nl();
@@ -1973,7 +1969,7 @@ namespace Playtime_Painter{
                 {
 
                     if ((" : ".select(20, ref selectedMeshProfile, cfg.meshPackagingSolutions)) && (meshEditEnabled))
-                        meshMGMT._Mesh.Dirty = true;
+                        meshMGMT._Mesh.dirty = true;
                     if (icon.Add.Click(25).nl())
                     {
                         cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());
@@ -2047,7 +2043,7 @@ namespace Playtime_Painter{
 
         public bool TryLoadMesh(string data) {
             if ((data != null) || (data.Length > 0)) {
-                meshSaveData = data;
+                savedEditableMesh = data;
 
                 meshManager.EditMesh(this, true);
 

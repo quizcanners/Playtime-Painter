@@ -38,8 +38,8 @@ namespace Playtime_Painter
         protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
         protected PlaytimePainter target { get { return MeshManager.inst.target; } }
 
-      
 
+     
         int uvIndex;
         public int finalIndex;
         public Color _color;
@@ -49,6 +49,9 @@ namespace Playtime_Painter
         public List<trisDta> tris = new List<trisDta>();
         public UVpoint MyLastCopy;
         public vertexpointDta vert;
+
+        public Vector3 pos { get { return vert.pos; } }
+
 
         void Init(vertexpointDta nvert)
         {
@@ -327,7 +330,7 @@ namespace Playtime_Painter
         public BoneWeight boneWeight;
         public Matrix4x4 bindPoses;
         public List<List<BlendFrame>> shapes; // not currently working
-        public int submeshIndex;
+        //public int submeshIndex;
         public float edgeStrength;
 
         public override stdEncoder Encode() {
@@ -355,8 +358,7 @@ namespace Playtime_Painter
             if (shapes != null)
                 cody.AddIfNotEmpty("bl",shapes);
 
-            cody.AddIfNotZero("sub", submeshIndex);
-
+          
             return cody;
         }
        
@@ -373,7 +375,7 @@ namespace Playtime_Painter
                 case "bw": boneWeight = data.ToBoneWeight(); break;
                 case "biP": bindPoses = data.ToMatrix4x4(); break;
                 case BlendFrame.tagName_bs: shapes = data.ToListOfList_STD<BlendFrame>(); break;
-                case "sub": submeshIndex = data.ToInt(); break;
+             
                 case "edge":  edgeStrength = data.ToFloat(); break;
             }
         }
@@ -500,7 +502,7 @@ namespace Playtime_Painter
 
 
 
-            mesh.Dirty = true;
+            mesh.dirty = true;
 
 
             return (val == 1);
@@ -677,8 +679,19 @@ namespace Playtime_Painter
         public UVpoint[] uvpnts = new UVpoint[3];
         public bool[] DominantNormals = new bool[3];
         public Vector4 textureNo = new Vector4();
-
+        public int submeshIndex;
         public Vector3 sharpNormal;
+
+    
+
+        public float area { get
+            {
+                return Vector3.Cross(uvpnts[0].pos - uvpnts[1].pos, uvpnts[0].pos - uvpnts[2].pos).magnitude * 0.5f;
+               // V.magnitude * 0.5f;
+
+
+
+            } }
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -692,6 +705,9 @@ namespace Playtime_Painter
 
             cody.Add("tex", textureNo);
 
+            cody.AddIfNotZero("sub", submeshIndex);
+           
+
             return cody;
         }
 
@@ -702,6 +718,7 @@ namespace Playtime_Painter
                 case "f0": DominantNormals[0] = true; break;
                 case "f1": DominantNormals[1] = true; break;
                 case "f2": DominantNormals[2] = true; break;
+                case "sub": submeshIndex = data.ToInt(); break;
                 default: uvpnts[tag.ToInt()] = mesh.uvsByFinalIndex[data.ToInt()]; break;
             }
 
@@ -717,6 +734,7 @@ namespace Playtime_Painter
             for (int i = 0; i < 3; i++)
                 DominantNormals[i] = td.DominantNormals[i];
             textureNo = td.textureNo;
+            submeshIndex = td.submeshIndex;
 
             return this;
         }
@@ -732,9 +750,15 @@ namespace Playtime_Painter
             return false;
         }
 
-        public void SetDominantNormals(bool to) {
+        public bool SetDominantNormals(bool to) {
+            bool changed = false;
             for (int i = 0; i < 3; i++)
-                DominantNormals[i] = to;
+                if (DominantNormals[i] != to)
+                {
+                    changed = true;
+                    DominantNormals[i] = to;
+                }
+            return changed;
         }
 
         public void InvertNormal()
@@ -827,9 +851,9 @@ namespace Playtime_Painter
 
         public bool PointOnTriangle()
         {
-            Vector3 va = uvpnts[0].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[0].vert.pos);
-            Vector3 vb = uvpnts[1].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[1].vert.pos);
-            Vector3 vc = uvpnts[2].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[2].vert.pos);
+            Vector3 va = uvpnts[0].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[0].pos);
+            Vector3 vb = uvpnts[1].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[1].pos);
+            Vector3 vc = uvpnts[2].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[2].pos);
 
             float sum = Vector3.Angle(va, vb) + Vector3.Angle(va, vc) + Vector3.Angle(vb, vc);
             return (Mathf.Abs(sum - 360) < 1);
@@ -848,7 +872,7 @@ namespace Playtime_Painter
 
             UVpoint nearest = uvpnts[0];
             for (int i = 1; i < 3; i++)
-                if ((fpos - uvpnts[i].vert.pos).magnitude < (fpos - nearest.vert.pos).magnitude) nearest = uvpnts[i];
+                if ((fpos - uvpnts[i].pos).magnitude < (fpos - nearest.pos).magnitude) nearest = uvpnts[i];
 
             return nearest;
 
@@ -866,9 +890,9 @@ namespace Playtime_Painter
         public Vector3 DistanceToWeight(Vector3 point)
         {
 
-            Vector3 p1 = uvpnts[0].vert.pos;
-            Vector3 p2 = uvpnts[1].vert.pos;
-            Vector3 p3 = uvpnts[2].vert.pos;
+            Vector3 p1 = uvpnts[0].pos;
+            Vector3 p2 = uvpnts[1].pos;
+            Vector3 p3 = uvpnts[2].pos;
 
             Vector3 f1 = p1 - point;
             Vector3 f2 = p2 - point;
@@ -883,9 +907,9 @@ namespace Playtime_Painter
             return p; 
 
 
-            /* Vector3 dst = new Vector3(point.DistanceTo(uvpnts[0].vert.pos),
-              point.DistanceTo(uvpnts[1].vert.pos),
-              point.DistanceTo(uvpnts[2].vert.pos)).normalized;
+            /* Vector3 dst = new Vector3(point.DistanceTo(uvpnts[0].pos),
+              point.DistanceTo(uvpnts[1].pos),
+              point.DistanceTo(uvpnts[2].pos)).normalized;
 
              return (uvpnts[0].v2 * (1 - dst.x) + uvpnts[1].v2 * (1 - dst.y) + uvpnts[2].v2 * (1 - dst.z)) / 2;*/
 
@@ -897,7 +921,7 @@ namespace Playtime_Painter
             to.vert.shadowBake = uvpnts[0].vert.shadowBake * weight.x + uvpnts[1].vert.shadowBake * weight.y + uvpnts[2].vert.shadowBake * weight.z;
             UVpoint nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? uvpnts[0] : uvpnts[1]) : uvpnts[2];
             to.vert.boneWeight = nearest.vert.boneWeight; //boneWeight. * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
-            to.vert.submeshIndex = nearest.vert.submeshIndex;
+            //to.vert.submeshIndex = nearest.vert.submeshIndex;
         }
 
         public void Replace(UVpoint point, UVpoint with)
@@ -1003,7 +1027,7 @@ namespace Playtime_Painter
 
             Replace(pnt, nuv);
 
-            mesh.Dirty = true;
+            mesh.dirty = true;
 
 
         }
@@ -1136,7 +1160,7 @@ namespace Playtime_Painter
 
         public Vector3 Vector()
         {
-            return pnts[1].vert.pos - pnts[0].vert.pos;
+            return pnts[1].pos - pnts[0].pos;
         }
 
         public Vector3 HalfVectorToB(LineData other)
@@ -1150,8 +1174,8 @@ namespace Playtime_Painter
                 LineB = this;
             }
 
-            Vector3 a = LineA.pnts[0].vert.pos - LineA.pnts[1].vert.pos;
-            Vector3 b = LineB.pnts[1].vert.pos - LineB.pnts[0].vert.pos;
+            Vector3 a = LineA.pnts[0].pos - LineA.pnts[1].pos;
+            Vector3 b = LineB.pnts[1].pos - LineB.pnts[0].pos;
 
             //Debug.Log("Vectors A "+ a + " and B "+ b);
 

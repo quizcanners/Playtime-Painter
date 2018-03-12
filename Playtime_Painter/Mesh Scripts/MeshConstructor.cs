@@ -14,7 +14,8 @@ namespace Playtime_Painter {
     [Serializable]
     public class MeshConstructor {
 
-        public int[] tris;
+        public List<int>[] tris;
+        public uint[] baseVertex;
 
         Vector4[] perVertexTrisTexture;
         Vector2[] uvs;
@@ -26,7 +27,7 @@ namespace Playtime_Painter {
 
         BoneWeight[] boneWeights;
         Matrix4x4[] bindPoses;
-        BlendFrame[] blendShapes;
+        //BlendFrame[] blendShapes;
 
         public float[] weight;
 
@@ -63,7 +64,10 @@ namespace Playtime_Painter {
                 return;
 
             vertsCount = edMesh.AssignIndexes();
-            tris = new int[edMesh.triangles.Count * 3];
+            tris = new List<int>[edMesh.submeshCount];
+            for (int i = 0; i < edMesh.submeshCount; i++)
+                tris[i] = new List<int>();
+
             verts = new Vector3[vertsCount];
             normals = new Vector3[vertsCount];
 
@@ -94,18 +98,17 @@ namespace Playtime_Painter {
             }
 
             trisDta tri;
-            //Vector3 trisNorm;
-            int nom;
+         
             int[] inds = new int[3];
+
+            baseVertex = edMesh.baseVertex.ToArray();
 
             for (int i = 0; i < edMesh.triangles.Count; i++) {
                 tri = edMesh.triangles[i];
-
-                nom = i * 3;
-
+                
                 for (int j = 0; j < 3; j++) {
                     inds[j] = tri.uvpnts[j].finalIndex;
-                    tris[nom + j] = inds[j];
+                    tris[tri.submeshIndex].Add(inds[j]);
                 }
 
 
@@ -114,7 +117,8 @@ namespace Playtime_Painter {
                 tri.sharpNormal = MyMath.GetNormalOfTheTriangle(
                     verts[inds[0]],
                     verts[inds[1]],
-                    verts[inds[2]]);
+                    verts[inds[2]])*tri.area;
+
 
 
                 for (int no = 0; no < 3; no++) {
@@ -155,7 +159,7 @@ namespace Playtime_Painter {
 
             for (int i = 0; i < edMesh.triangles.Count; i++) {
                 tri = edMesh.triangles[i];
-                nom = i * 3;
+
                 for (int j = 0; j < 3; j++) {
                     inds[j] = tri.uvpnts[j].finalIndex;
                 }
@@ -364,9 +368,9 @@ namespace Playtime_Painter {
                         var i2 = t.uvpnts[1].finalIndex;
                         var i3 = t.uvpnts[2].finalIndex;
 
-                        Vector3 v1 = t.uvpnts[0].vert.pos;
-                        Vector3 v2 = t.uvpnts[1].vert.pos;
-                        Vector3 v3 = t.uvpnts[2].vert.pos;
+                        Vector3 v1 = t.uvpnts[0].pos;
+                        Vector3 v2 = t.uvpnts[1].pos;
+                        Vector3 v3 = t.uvpnts[2].pos;
 
                         Vector2 w1 = t.uvpnts[0].GetUV(0);// texcoords[i1];
                         Vector2 w2 = t.uvpnts[1].GetUV(0);
@@ -471,7 +475,6 @@ namespace Playtime_Painter {
                 boneWeights = new BoneWeight[vertsCount];
                 for (int i = 0; i < edMesh.vertices.Count; i++)
                     boneWeights[i] = edMesh.vertices[i].boneWeight;
-               // Debug.Log("verts "+vertsCount+"  actual " + mesh.vertices.Length);
                 mesh.boneWeights = boneWeights;
             }
 
@@ -505,22 +508,9 @@ namespace Playtime_Painter {
 
         }
 
-        public void CopyMeshTo(ref Mesh other) {
-            if ((verts == null) || (tris == null) || (verts.Length < 3) || (tris.Length < 3) || (mesh == null)) return;
-            if (other == null) other = new Mesh();
-            other.Clear();
-            other.vertices = mesh.vertices;
-            other.uv = mesh.uv;
-            other.uv2 = mesh.uv2;
-            other.uv3 = mesh.uv3;
-            other.uv4 = mesh.uv4;
-            other.triangles = mesh.triangles;
-            other.tangents = mesh.tangents;
-            other.colors = mesh.colors;
-            other.normals = mesh.normals;
-        }
 
-     
+        public bool valid { get { return ((verts != null) && (tris != null) && (verts.Length >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); } }
+
         public void AssignMeshAsCollider(MeshCollider c)  {
             c.sharedMesh = null;
             c.sharedMesh = mesh;
@@ -532,7 +522,7 @@ namespace Playtime_Painter {
         }
 
         public void AssignMesh(MeshFilter m, MeshCollider c) {
-            if ((tris == null) || (tris.Length < 3)) return;
+            if ((tris == null) || (tris.TotalCount() < 3)) return;
             if (m!= null)
             m.sharedMesh = mesh;
             if (c != null) {

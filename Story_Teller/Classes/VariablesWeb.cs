@@ -200,8 +200,8 @@ namespace StoryTriggerData {
         public override void Decode(string subtag, string data) {
             switch (subtag) {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
-                case "b": branches = data.ToListOfInt_STD(); break;
-                case "v": vars = data.ToListOfInt_STD(); break;
+                case "b": branches = data.ToListOfInt(); break;
+                case "v": vars = data.ToListOfInt(); break;
                 case "d": description = data; break;
                 case TaggedTarget.stdTag_TagTar: targ = new TaggedTarget(data); break;
             }

@@ -21,6 +21,8 @@ public class PaintingRecieverEditor : Editor
     public class PaintingReciever : MonoBehaviour
     {
 
+        //public enum RendererType { Geometry, SkinnedMesh, Terrain }
+
         // For best performance on Skinned Meshes use RenderTexture
         public Mesh originalMesh;
         public MeshFilter meshFilter;

@@ -81,6 +81,9 @@ namespace StoryTriggerData {
 
             return cody.ToString();
         }
+
+
+
     }
 
 
@@ -213,6 +216,10 @@ namespace StoryTriggerData {
             AddText(tag, val.ToString());
         }
 
+        public void Add(string tag, uint val) {
+            AddText(tag, val.ToString());
+        }
+
         // Optional encoding:
 
         public bool AddIfNotEmpty(string tag, string val) {
@@ -228,9 +235,7 @@ namespace StoryTriggerData {
         public bool AddIfNotEmpty(string tag, List<int> val) {
 
             if (val.Count > 0) {
-
-
-
+                
                 stdEncoder cody = new stdEncoder();
                 foreach (int i in val)
                     cody.Add("e", i);
@@ -239,6 +244,17 @@ namespace StoryTriggerData {
                 return true;
             }
 
+            return false;
+        }
+
+        public bool AddIfNotEmpty(string tag, List<uint> val){
+            if (val.Count > 0) {
+                stdEncoder cody = new stdEncoder();
+                foreach (uint i in val)
+                    cody.Add("e", i);
+                Add(tag, cody);
+                return true;
+            }
             return false;
         }
 
@@ -408,8 +424,7 @@ namespace StoryTriggerData {
 
             return false;
         }
-
-
+        
         public bool AddIfNotZero(string tag, Vector2 v2) {
 
             if ((Math.Abs(v2.x) > Mathf.Epsilon) || (Math.Abs(v2.y) > Mathf.Epsilon)) {
@@ -419,8 +434,6 @@ namespace StoryTriggerData {
 
             return false;
         }
-
-        
 
     }
 

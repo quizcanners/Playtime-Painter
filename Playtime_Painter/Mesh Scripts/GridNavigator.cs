@@ -56,19 +56,7 @@ public class GridNavigator : MonoBehaviour {
 
 
 
-    public void UpdateVertColor()
-    {
-        Color col = Color.gray;
-
-        switch (MeshManager._meshTool)
-        {
-            case MeshTool.vertices: col = Color.yellow; break;
-            case MeshTool.uv: col = Color.magenta; break;
-            case MeshTool.VertColor: col = Color.white; break;
-        }
-
-        vertexPointMaterial.SetColor("_Color", col);
-    }
+   
 
    public  void Deactivateverts()
     {

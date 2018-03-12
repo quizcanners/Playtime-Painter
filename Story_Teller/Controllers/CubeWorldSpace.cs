@@ -40,8 +40,8 @@ namespace StoryTriggerData {
             if (strokeData != null) 
                 cody.AddText("playVectors", strokeData );
 
-            if ((painter.meshSaveData != null) && (painter.meshSaveData.Length > 0))
-                cody.AddText("mesh", painter.meshSaveData);
+            if ((painter.savedEditableMesh != null) && (painter.savedEditableMesh.Length > 0))
+                cody.AddText("mesh", painter.savedEditableMesh);
 
             cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);

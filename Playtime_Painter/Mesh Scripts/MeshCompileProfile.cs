@@ -424,7 +424,7 @@ namespace Playtime_Painter
 
         public void StartPacking(MeshConstructor sm) {
 
-            if ((sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.Length < 3)) {
+            if (!sm.valid){//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
                 Debug.Log("Got no stuff to regenerate mesh. ");
                 return;
             }
@@ -501,8 +501,9 @@ namespace Playtime_Painter
             public override void set(Vector3[] dta)
             {
                 curMeshDta.mesh.vertices = dta;
-
-                curMeshDta.mesh.triangles = curMeshDta.tris;
+                curMeshDta.mesh.subMeshCount = curMeshDta.tris.Length;
+                for (int sm = 0; sm < curMeshDta.tris.Length; sm++)
+                    curMeshDta.mesh.SetTriangles(curMeshDta.tris[sm], sm, true, 0);
             }
 
             public override string name()

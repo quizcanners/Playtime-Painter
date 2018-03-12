@@ -147,9 +147,9 @@ public class CountlessInt : STDCountlessBase {
 
     public override void Decode(string subtag, string data) {
         switch (subtag) {
-            case "inds": inds = data.ToListOfInt_STD(); break;
+            case "inds": inds = data.ToListOfInt(); break;
             case "vals":
-                List<int> vals = data.ToListOfInt_STD();
+                List<int> vals = data.ToListOfInt();
                 for (int i = 0; i < vals.Count; i++)
                     Set(inds[i], vals[i]);
                 inds = null;
@@ -365,7 +365,7 @@ public class CountlessBool : STDCountlessBase {
     public override void Decode(string subtag, string data) {
         switch (subtag) {
             case "inds":
-                List<int> inds = data.ToListOfInt_STD();
+                List<int> inds = data.ToListOfInt();
                 foreach (int i in inds)
                     Set(i, true);
 
