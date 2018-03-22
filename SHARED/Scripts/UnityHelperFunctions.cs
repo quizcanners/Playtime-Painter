@@ -147,6 +147,11 @@ public static class UnityHelperFunctions {
         return (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
     }
 
+    public static Vector2 Floor(this Vector2 v2)
+    {
+        return new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
+    }
+
     public static Vector4 ToVector4(this Color col) {
         return new Vector4(col.r,col.g, col.b, col.a);
     }
@@ -241,6 +246,25 @@ public static class UnityHelperFunctions {
         return tnames;
     }
 #endif
+
+
+    public static bool DisplayNameContains (this Material m, string propertyName, string tag) {
+/*
+#if UNITY_EDITOR
+        try
+        {
+            var p = MaterialEditor.GetMaterialProperty(new Material[] { m }, propertyName);
+            if (p!= null) 
+                return p.displayName.Contains(tag);
+            
+        } catch (Exception ex) {
+            Debug.Log("Materail "+m.name +" has no "+ propertyName+ " "+ex.ToString());
+        }
+#endif
+*/
+        return propertyName.Contains(tag);
+    }
+
 
     // Changing Enabled state will force editor to redraw (Unity 2017)
     public static void ActiveUpdate(this GameObject go, bool setTo) {
@@ -358,6 +382,20 @@ public static class UnityHelperFunctions {
 		RenderTexture.active = curRT;
 
 	}
+
+
+    public static string SetUniqueObjectName (this UnityEngine.Object obj, string folderName,  string extension) {
+      
+        folderName = "Assets" + folderName.AddPreSlashIfNotEmpty();
+        string name = obj.name;
+        string fullpath = AssetDatabase.GenerateUniqueAssetPath(folderName + "/" + name + extension);
+        name = fullpath.Substring(folderName.Length);
+        name = name.Substring(0,name.Length - extension.Length);
+        obj.name = name;
+
+        return fullpath;
+    }
+
 
 #if UNITY_EDITOR
     public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) {
@@ -813,16 +851,32 @@ public static class UnityHelperFunctions {
     public static bool wasMarkedAsNormal(this TextureImporter importer)
     {
 
+        /*  bool needsReimport = false;
+
+          if (importer.textureType == TextureImporterType.NormalMap) {
+              importer.textureType = TextureImporterType.Default;
+              needsReimport = true;
+          }*/
+
+        return wasMarkedAsNormal(importer, false);
+
+    }
+    public static bool wasMarkedAsNormal(this TextureImporter importer, bool convertToNormal)
+    {
+
         bool needsReimport = false;
-        
-        if (importer.textureType == TextureImporterType.NormalMap) {
-            importer.textureType = TextureImporterType.Default;
+
+        if ((importer.textureType == TextureImporterType.NormalMap) != convertToNormal)
+        {
+            importer.textureType = convertToNormal ? TextureImporterType.NormalMap : TextureImporterType.Default;
             needsReimport = true;
         }
 
         return needsReimport;
 
     }
+
+
 
     public static void Reimport_IfClamped(this Texture2D tex)
     {

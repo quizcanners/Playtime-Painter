@@ -65,6 +65,14 @@ MonoBehaviour:
   meshCollider: {fileID: 0}
   terrainHeightTexture: {fileID: 2800000, guid: 9da58cdd9148caf448a96f5649c14fc9,
     type: 3}
+  preAtlasingMaterials: []
+  preAtlasingMesh: {fileID: 0}
+  preAtlasingSavedMesh: 
+  inAtlasIndex: 0
+  atlasRows: 1
+  _savedMeshData: 
+  meshDataSavedFor: {fileID: 0}
+  meshNameHolder: 
   meshEditing: 0
   usePreviewShader: 0
   enableUNDO: 0
@@ -81,24 +89,26 @@ MonoBehaviour:
   - 3_mergeSplat_Tiles_COLOR
   - _mergeTerrainHeight
   nameHolder: TerrainPrefab
-  selectedMaterial: 0
-  playbackVectors: []
+  selectedAtlasedMaterial: -1
+  selectedSubmesh: 0
   stroke:
     uvFrom: {x: 0.5064709, y: 0.4266441}
     posFrom: {x: 0, y: 0, z: 0}
     uvTo: {x: 0.45925322, y: 0.8311938}
     posTo: {x: -86.1936, y: 58.820423, z: 809.98755}
+    unRepeatedUV: {x: 0, y: 0}
+    useTexcoord2: 0
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.0008587268
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
   avgBrushSpeed: 0.00000000454599
+  playbackVectors: []
   LockEditing: 1
   forcedMeshCollider: 0
   autoSelectMaterial_byNumberOfPointedSubmesh: 1
   textureWasChanged: 0
-  saveMeshDta: 
 --- !u!114 &114945857844550318
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -117,84 +127,75 @@ MonoBehaviour:
     normalMap: {fileID: 2800000, guid: 4628463762d75d14fb65830ee9c76021, type: 3}
     smooth: {fileID: 2800000, guid: 90b3095a53d841b46805c01f98271cd4, type: 3}
     ambient: {fileID: 2800000, guid: 2e854d9ff9f1ac24e80a0283a3012eef, type: 3}
+    reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: 65de2f11b93091142bc897e90d60f027,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: beb42eb20cece4a4d8dbb34a72e10cbf,
       type: 3}
-    strength: 1
+    size: 1024
+    normalStrength: 1
     updateThis: 0
+    packagingProfile: 0
   - productName: Grass
     colorTexture: {fileID: 2800000, guid: 77d7947610f814541b699c888b0cdc15, type: 3}
     height: {fileID: 2800000, guid: 70de282afd9855643a0e223a8396d005, type: 3}
     normalMap: {fileID: 2800000, guid: 5d731d6eefa02754bb03e34b38f1a9e5, type: 3}
     smooth: {fileID: 2800000, guid: d58e2767cfefb5b4e8e024928807e561, type: 3}
     ambient: {fileID: 2800000, guid: fce8d8d2850c39b419d9a01216ff2080, type: 3}
+    reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: 0ac0fa7f76f3ce847969455ae59cc153,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: 01c8abe088e85dd40a699d48fcfe32ec,
       type: 3}
-    strength: 1
+    size: 1024
+    normalStrength: 1
     updateThis: 0
+    packagingProfile: 0
   - productName: Sand
     colorTexture: {fileID: 2800000, guid: c7252ee334baec14e91fba54d2e42517, type: 3}
     height: {fileID: 2800000, guid: 86a0f5ab210ce3043a16a0cd5380f38a, type: 3}
     normalMap: {fileID: 2800000, guid: 292d4e8f6bbeb054ba2ba0181896a348, type: 3}
     smooth: {fileID: 2800000, guid: 92abb32c64ca9634a87a158df8dadb77, type: 3}
     ambient: {fileID: 2800000, guid: 3c793caa35d8338448f5ee4b48ad0d5e, type: 3}
+    reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: 847c471b29c8c104aafd7b256fc7d2cc,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: 96758c7770745d34bab608805f65ded2,
       type: 3}
-    strength: 1
+    size: 1024
+    normalStrength: 1
     updateThis: 0
+    packagingProfile: 0
   - productName: Tiles
     colorTexture: {fileID: 2800000, guid: 3639f2f841b2a3f41b5a83bc85b46c37, type: 3}
     height: {fileID: 2800000, guid: e4aaf1662975b654c9caccb2dcec3858, type: 3}
     normalMap: {fileID: 2800000, guid: 61a625af40b0ca5458acc2d80b02d0f3, type: 3}
     smooth: {fileID: 2800000, guid: 9af2a53f1d5baca438cdb9784166243f, type: 3}
     ambient: {fileID: 2800000, guid: 2847c3806dd4e4f42b69af3c7a51fe53, type: 3}
+    reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: c9672f7c42a918d4ba340d801565b605,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: df05a18da13009340bd38795f6a42884,
       type: 3}
-    strength: 1
+    size: 1024
+    normalStrength: 1
     updateThis: 0
+    packagingProfile: 0
   - productName: Cliff
     colorTexture: {fileID: 2800000, guid: f46e95fbadbd7ae48897589e6c613c9b, type: 3}
     height: {fileID: 2800000, guid: cb74c918c4e15de4a99f08b4f66da2ad, type: 3}
     normalMap: {fileID: 2800000, guid: 9bb375646bb43b244a8b0b2322bcd294, type: 3}
     smooth: {fileID: 2800000, guid: cac6d4de179d32947855f3ec4e96e5a3, type: 3}
     ambient: {fileID: 2800000, guid: efc7a2d785c4c3a41a03f7bd9368c18b, type: 3}
+    reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: 375e11a640662004d94fb8e94943bede,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: 3091b9e202b44064eb9a268495f80352,
       type: 3}
-    strength: 1
+    size: 1024
+    normalStrength: 1
     updateThis: 0
-  - productName: Knight
-    colorTexture: {fileID: 2800000, guid: a8d0e8b731868054eba72948c25b2081, type: 3}
-    height: {fileID: 2800000, guid: 825b293d5284d0640ae851320f783f35, type: 3}
-    normalMap: {fileID: 2800000, guid: 8f8175a1aa7bb4444a2c1aedd5253f5b, type: 3}
-    smooth: {fileID: 2800000, guid: 825b293d5284d0640ae851320f783f35, type: 3}
-    ambient: {fileID: 2800000, guid: 825b293d5284d0640ae851320f783f35, type: 3}
-    Product_colorWithAlpha: {fileID: 2800000, guid: e86ecda1424ae684396820c1db809a2d,
-      type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: 161b4b7ca57906842898998f5601ccb6,
-      type: 3}
-    strength: 1
-    updateThis: 0
-  - productName: Rock
-    colorTexture: {fileID: 2800000, guid: 3a0af722af8095a40b4cacf70896912c, type: 3}
-    height: {fileID: 2800000, guid: 3b15e54c59196c1419009746926fb72e, type: 3}
-    normalMap: {fileID: 2800000, guid: aac47418816937847a25309d17d11975, type: 3}
-    smooth: {fileID: 2800000, guid: 0928c82f01854414980fbe8d1c86be37, type: 3}
-    ambient: {fileID: 2800000, guid: 3b15e54c59196c1419009746926fb72e, type: 3}
-    Product_colorWithAlpha: {fileID: 2800000, guid: 86d8de332d0d87c48ad2aad44b546496,
-      type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: 3cbf22f784815204d835ae745c43b2be,
-      type: 3}
-    strength: 1
-    updateThis: 0
+    packagingProfile: 0
   painter: {fileID: 114409623194588454}
   terrain: {fileID: 218635271444635022}
   lightTexture: {fileID: 2800000, guid: b8432e0e7ec51b649af38d31e6b884d2, type: 3}

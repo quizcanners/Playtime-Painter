@@ -58,7 +58,7 @@ namespace Playtime_Painter
 
                 case "mode": _bliTMode = data.ToInt(); break;
 
-                case linearColor.toryTag: color.Reboot(data); break;
+                case linearColor.toryTag: colorLinear.Reboot(data); break;
 
                 case "source": selectedSourceTexture = data.ToInt(); break;
 
@@ -142,20 +142,25 @@ namespace Playtime_Painter
 
         public float Size(bool worldSpace) { return (worldSpace ? Brush3D_Radius : Brush2D_Radius); }
 
-        public BrushType type { get { return BrushType.allTypes[_type]; } set { _type = value.index; } }
-        public BlitMode blitMode { get { BlitMode.pegibrush = this; return BlitMode.allModes[_bliTMode]; } set { _bliTMode = value.index; } }
+        public BrushType type { get {
+                _type = Mathf.Clamp(_type, 0, BrushType.allTypes.Count-1);
+                return BrushType.allTypes[_type]; } set { _type = value.index; } }
+        public BlitMode blitMode { get { BlitMode.pegibrush = this;
+
+
+                return BlitMode.allModes[_bliTMode]; } set { _bliTMode = value.index; } }
 
         public float speed = 10;
         public bool MB1ToLinkPositions;
         public bool DontRedoMipmaps;
 
-        public linearColor color;
+        public linearColor colorLinear;
 
         [NonSerialized]
         public Vector2 SampledUV;
 
         public BrushConfig() {
-            color = new linearColor(Color.green);
+            colorLinear = new linearColor(Color.green);
             mask = new BrushMask();
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
@@ -167,8 +172,8 @@ namespace Playtime_Painter
         static PainterConfig cfg { get { return PainterConfig.inst; } }
         static PainterManager rtp { get { return PainterManager.inst; } }
 
-        public bool Mode_Type_PEGI(bool cpuBlit)
-        {
+        public bool Mode_PEGI(bool cpuBlit) {
+
             bool changed = false;
             pegi.newLine();
 
@@ -182,11 +187,19 @@ namespace Playtime_Painter
             pegi.Space();
             pegi.newLine();
 
+            return changed;
+        }
+
+        public bool Mode_Type_PEGI(bool cpuBlit)
+        {
+            bool changed = Mode_PEGI(cpuBlit);
+
             if (!cpuBlit)
             {
                 msg.BrushType.write(80);
+              
                 changed |= pegi.select<BrushType>(ref _type, BrushType.allTypes);
-
+               
                 changed |= type.PEGI(this);
             }
 
@@ -264,6 +277,8 @@ namespace Playtime_Painter
 
 
 
+            BrushType.painter = painter;
+
             if (Mode_Type_PEGI(cpuBlit))
             {
                 if (type == BrushTypeDecal.inst)
@@ -272,8 +287,10 @@ namespace Playtime_Painter
                 changed = true;
             }
 
+            BrushType.painter = null;
 
-            BlitMode blitMode = BlitMode.getCurrentBlitModeForPainter(painter);
+
+           BlitMode blitMode = BlitMode.getCurrentBlitModeForPainter(painter);
 
             if (painter.terrain != null)
             {
@@ -284,7 +301,7 @@ namespace Playtime_Painter
                 pegi.newLine();
 
                 if ((painter.terrain != null) && (pegi.Click("Update Terrain").nl()))
-                    painter.UpdateShaderGlobalVariables();
+                    painter.UpdateShaderGlobalsForTerrain();
 
             }
 
@@ -315,10 +332,10 @@ namespace Playtime_Painter
         {
             bool changed = false;
 
-            changed |= ColorSlider(BrushMask.R, ref color.r, null, true);
-            changed |= ColorSlider(BrushMask.G, ref color.g, null, true);
-            changed |= ColorSlider(BrushMask.B, ref color.b, null, true);
-            changed |= ColorSlider(BrushMask.A, ref color.a, null, true);
+            changed |= ColorSlider(BrushMask.R, ref colorLinear.r, null, true);
+            changed |= ColorSlider(BrushMask.G, ref colorLinear.g, null, true);
+            changed |= ColorSlider(BrushMask.B, ref colorLinear.b, null, true);
+            changed |= ColorSlider(BrushMask.A, ref colorLinear.a, null, true);
 
             return changed;
         }

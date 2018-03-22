@@ -104,7 +104,7 @@ namespace Playtime_Painter {
         {
             int ntc = TextureCount;
             while (textures.Count < ntc)
-                textures.Add(null);
+                textures.Add(new AtlasTextureField(null , Color.gray));
         }
 
         public int TextureCount {
@@ -120,17 +120,7 @@ namespace Playtime_Painter {
             a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, pix);
         }
 
-        public void TextureToAtlas(Texture2D tex, int x, int y)
-        {
-#if UNITY_EDITOR
-            tex.Reimport_IfNotReadale();
-#endif
-
-            Color[] from = tex.GetPixels(textureSize, textureSize);
-
-            a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, from);
-
-        }
+  
 
         public void smoothBorders(Texture2D atlas, int miplevel)
         {
@@ -233,9 +223,19 @@ namespace Playtime_Painter {
                     if ((textures.Count > curIndex) && (t != null) && (t.used))
                     {
                         if (t.texture != null)
-                            TextureToAtlas(t.texture, x, y);
+                        {
+#if UNITY_EDITOR
+                            t.texture.Reimport_IfNotReadale();
+#endif
+
+                            Color[] from = t.texture.GetPixels(textureSize, textureSize);
+
+                            a_texture.SetPixels(x * textureSize, y * textureSize, textureSize, textureSize, from);
+
+                           // TextureToAtlas(t.texture, x, y);
+                        }
                         else
-                            ColorToAtlas(t.color, x,y);
+                            ColorToAtlas(t.color, x, y);
                     }
                     else
                         ColorToAtlas(defaltCol, x, y);
@@ -247,24 +247,20 @@ namespace Playtime_Painter {
 
         public List<string> srcFields = new List<string>();
 
-        public void SmoothAtlas() {
-          //  Debug.Log("Smoothing " + a_texture.name + " with " + a_texture.mipmapCount + " mipmaps");
-            for (int m = 0; m < a_texture.mipmapCount; m++)
-                smoothBorders(a_texture, m);
-
-            a_texture.Apply();
-        }
-
+    
 #if UNITY_EDITOR
         public void ReconstructAsset() {
 
             ReconstructAtlas();
+            
+            for (int m = 0; m < a_texture.mipmapCount; m++)
+                smoothBorders(a_texture, m);
 
-            SmoothAtlas();
+            a_texture.Apply(false);
 
             byte[] bytes = a_texture.EncodeToPNG();
 
-            string lastPart = cfg.atlasFolderName.AddPreSlashIfNotEmpty() + "/";
+            string lastPart = cfg.texturesFolderName.AddPreSlashIfNotEmpty() + cfg.atlasFolderName.AddPreSlashIfNotEmpty() + "/";
             string fullPath = Application.dataPath + lastPart;
             Directory.CreateDirectory(fullPath);
 
@@ -323,12 +319,13 @@ namespace Playtime_Painter {
 
                 for (int i = 0; i < max; i++) {
                     var t = textures[i];
+
                     if (t.used)
                     {
-                        if (t.texture != null)
-                            pegi.edit(ref t.texture).nl();
-                        else
-                            pegi.edit(ref t.color).nl();
+                        pegi.edit(ref t.texture);
+                        if (t.texture == null)
+                            pegi.edit(ref t.color);
+                        pegi.newLine();
                     }
                 }
             }

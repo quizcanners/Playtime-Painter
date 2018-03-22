@@ -89,7 +89,7 @@ public static class TextureEditorExtensionFunctions  {
 				bool slider = b.blitMode.showColorSliders;
 
 			if ((painter!=null) && (painter.isTerrainHeightTexture())) {
-				changed |= b.ColorSlider (BrushMask.A, ref b.color.a, null,true);
+				changed |= b.ColorSlider (BrushMask.A, ref b.colorLinear.a, null,true);
 				//b.MaskSet (BrushMask.R, false);
 				//b.MaskSet (BrushMask.G, false);
 				//b.MaskSet (BrushMask.B, false);
@@ -98,25 +98,25 @@ public static class TextureEditorExtensionFunctions  {
 			else if ((painter != null) && painter.isTerrainControlTexture())
 			{
 				// Debug.Log("Is control texture");
-				changed |= b.ColorSlider(BrushMask.R, ref b.color.r, painter.terrain.getSplashPrototypeTexture(0),slider);
-				changed |= b.ColorSlider(BrushMask.G, ref b.color.g, painter.terrain.getSplashPrototypeTexture(1),slider);
-				changed |= b.ColorSlider(BrushMask.B, ref b.color.b, painter.terrain.getSplashPrototypeTexture(2),slider);
-				changed |= b.ColorSlider(BrushMask.A, ref b.color.a, painter.terrain.getSplashPrototypeTexture(3),slider);
+				changed |= b.ColorSlider(BrushMask.R, ref b.colorLinear.r, painter.terrain.getSplashPrototypeTexture(0),slider);
+				changed |= b.ColorSlider(BrushMask.G, ref b.colorLinear.g, painter.terrain.getSplashPrototypeTexture(1),slider);
+				changed |= b.ColorSlider(BrushMask.B, ref b.colorLinear.b, painter.terrain.getSplashPrototypeTexture(2),slider);
+				changed |= b.ColorSlider(BrushMask.A, ref b.colorLinear.a, painter.terrain.getSplashPrototypeTexture(3),slider);
 			}
 			else
 			{
 
 				if ((painter.curImgData.TargetIsRenderTexture()) && (painter.curImgData.renderTexture != null)) {
-					changed |= b.ColorSlider (BrushMask.R, ref b.color.r);
-					changed |= b.ColorSlider (BrushMask.G, ref b.color.g);
-					changed |= b.ColorSlider (BrushMask.B, ref b.color.b);
+					changed |= b.ColorSlider (BrushMask.R, ref b.colorLinear.r);
+					changed |= b.ColorSlider (BrushMask.G, ref b.colorLinear.g);
+					changed |= b.ColorSlider (BrushMask.B, ref b.colorLinear.b);
 
 				} else {
 					
-					changed |= b.ColorSlider (BrushMask.R, ref b.color.r, null,slider);
-					changed |= b.ColorSlider (BrushMask.G, ref b.color.g, null,slider);
-					changed |= b.ColorSlider (BrushMask.B, ref b.color.b, null,slider);
-					changed |= b.ColorSlider (BrushMask.A, ref b.color.a, null,slider);
+					changed |= b.ColorSlider (BrushMask.R, ref b.colorLinear.r, null,slider);
+					changed |= b.ColorSlider (BrushMask.G, ref b.colorLinear.g, null,slider);
+					changed |= b.ColorSlider (BrushMask.B, ref b.colorLinear.b, null,slider);
+					changed |= b.ColorSlider (BrushMask.A, ref b.colorLinear.a, null,slider);
 				}
 			}
 			return changed;
@@ -161,7 +161,7 @@ public static class TextureEditorExtensionFunctions  {
             cody.Add("mode", brush._bliTMode);
 
             if (mode.showColorSliders)
-                cody.AddIfNotNull(brush.color);
+                cody.AddIfNotNull(brush.colorLinear);
 
             if (mode.usingSourceTexture)
                 cody.Add("source", brush.selectedSourceTexture);

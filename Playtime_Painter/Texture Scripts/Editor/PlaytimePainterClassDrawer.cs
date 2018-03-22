@@ -189,7 +189,7 @@ namespace Playtime_Painter {
                                     painter.curImgData.SaveName = painter.curImgData.texture2D.name;
                                     GUI.FocusControl("dummy");
                                     if (painter.terrain != null)
-                                        painter.UpdateShaderGlobalVariables();
+                                        painter.UpdateShaderGlobalsForTerrain();
                                 }
                             }
 
@@ -237,12 +237,16 @@ namespace Playtime_Painter {
                     pegi.Space();
                     pegi.newLine();
 
-                    ef.write("Mat:", 30);
-                    List<string> mats = painter.getMaterials();
-                    if ((mats != null) && (mats.Count > 0)) {
-                        if (ef.select(ref painter.selectedMaterial, mats.ToArray())) {
+                   // ef.write("Mat:", 30);
+                    var mats = painter.getMaterials();
+                    if ((mats != null) && (mats.Length > 0)) {
+                        int sm = painter.selectedSubmesh;
+                        if (pegi.select(ref sm, mats)) {
+                            painter.SetOriginalShader();
+                            painter.selectedSubmesh = sm;
                             painter.OnChangedTexture();
                             image = painter.curImgData;
+                            painter.CheckPreviewShader();
                         }
                     }
 
@@ -250,15 +254,16 @@ namespace Playtime_Painter {
                     Material mater = painter.getMaterial(false);
 
                     pegi.write(mater);
+                 
          
 
                     if ((cfg.moreOptions || (mater == null) || (mater == rtp.defaultMaterial) || (image == null))
-                        && (icon.NewMaterial.Click("Instantiate Material", 25).nl()))
+                        && (icon.NewMaterial.Click("Instantiate Material", 25)))
                         painter.InstantiateMaterial(true);
 
+                    pegi.newLine();
 
-
-                    if ((mats != null) && (mats.Count > 1)) {
+                    if ((mats != null) && (mats.Length > 1)) {
                         "Auto Select Material:".toggle("Material will be changed based on the submesh you are painting on", 120,
                                                        ref painter.autoSelectMaterial_byNumberOfPointedSubmesh).nl();
                     }
@@ -267,7 +272,7 @@ namespace Playtime_Painter {
                     ef.Space();
                     ef.newLine();
 
-                    pegi.write("Tex:", "Texture field on the material", 30);
+              //      pegi.write("Tex:", "Texture field on the material", 30);
 
                     if (painter.SelectTexture_PEGI()) {
                         image = painter.curImgData;
@@ -275,7 +280,7 @@ namespace Playtime_Painter {
                     }
 
                     if (image != null)
-                        painter.UpdateTyling();
+                        painter.UpdateTylingFromMaterial();
 
                     textureSetterField();
 

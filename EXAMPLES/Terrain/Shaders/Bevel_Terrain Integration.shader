@@ -1,8 +1,8 @@
 ﻿Shader "Bevel/Bevel_Terrain Integration" {
 	Properties{
-		[NoScaleOffset]_MainTex("Base texture Atlas", 2D) = "white" {}
+		[NoScaleOffset]_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 	[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
-		[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
+		[NoScaleOffset]_BumpMapC_ATL("Combined Maps (_ATL) (RGB)", 2D) = "white" {}
 	[Toggle(UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
 		_Merge("_Merge", Range(0.01,2)) = 1
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
@@ -51,9 +51,9 @@
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 #pragma multi_compile  ___ WATER_FOAM
 
-	sampler2D _MainTex;
-	sampler2D _BumpMapC;
-	float4 _MainTex_TexelSize;
+	sampler2D _MainTex_ATL;
+	sampler2D _BumpMapC_ATL;
+	float4 _MainTex_ATL_TexelSize;
 	float _AtlasTextures;
 
 	struct v2f {
@@ -150,7 +150,7 @@
 		float mip = 0;
 
 #if UV_ATLASED
-		atlasUVlod(i.texcoord.xy, mip, _MainTex_TexelSize, i.atlasedUV);
+		atlasUVlod(i.texcoord.xy, mip, _MainTex_ATL_TexelSize, i.atlasedUV);
 #endif
 
 
@@ -158,20 +158,20 @@
 #if	UV_PIXELATED
 
 #if !UV_ATLASED
-		mip = getLOD(i.texcoord.xy, _MainTex_TexelSize);
+		mip = getLOD(i.texcoord.xy, _MainTex_ATL_TexelSize);
 #endif
 	float2 sharp = i.texcoord.xy;
 	float near = max(0, 1 - mip);
-	smoothedPixelsSampling(sharp, _MainTex_TexelSize);
+	smoothedPixelsSampling(sharp, _MainTex_ATL_TexelSize);
 
 	i.texcoord.xy = sharp * near + i.texcoord.xy*(1 - near);
 
 #endif
 
 #if UV_ATLASED
-	float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
+	float4 col = tex2Dlod(_MainTex_ATL, float4(i.texcoord,0,mip));
 #else
-	float4 col = tex2D(_MainTex, i.texcoord);
+	float4 col = tex2D(_MainTex_ATL, i.texcoord);
 #endif
 
 	float weight;
@@ -193,16 +193,16 @@
 
 
 #if UV_ATLASED || UV_PIXELATED
-	float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, mip));
+	float4 bumpMap = tex2Dlod(_BumpMapC_ATL, float4(i.texcoord, 0, mip));
 #else
-	float4 bumpMap = tex2D(_BumpMapC, i.texcoord);
+	float4 bumpMap = tex2D(_BumpMapC_ATL, i.texcoord);
 #endif
 
 	float3 tnormal;
 
 #if _BUMP_REGULAR
 	tnormal = UnpackNormal(bumpMap);
-	bumpMap = float4(0,0,0.5,1);
+	bumpMap = float4(0,0,1,1);
 #else
 	bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 	tnormal = float3(bumpMap.r, bumpMap.g, 1);
@@ -221,10 +221,10 @@
 	worldNormal = worldNormal*deWeight + preNorm*weight;
 
 #else
-	float4 bumpMap = float4(0,0,0.5,1);
+	float4 bumpMap = float4(0,0,1,1); // MODIFIED
 #endif
 
-	bumpMap.b = bumpMap.b*deWeight + weight*i.vcol.a;
+	col.a = col.a*deWeight + weight*i.vcol.a;
 	bumpMap.a = bumpMap.a*deWeight + weight*0.7;
 
 	// Terrain Start

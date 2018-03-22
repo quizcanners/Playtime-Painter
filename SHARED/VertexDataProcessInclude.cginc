@@ -333,9 +333,9 @@ inline float3 foamStuff(float3 wpos) {
 	return fwpos;
 }
 
-inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float shadow, float viewDir) {
+inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, float shadow, float viewDir) {
 	float wetSection = min(max(_foamParams.w - fwpos.y - (colA)*_foamParams.w, 0),0.999);//*(1 - terrainN.b);
-	fwpos.y += colA;
+	fwpos.y += terrainN.b;
 
 	//viewDir = saturate(viewDir)*0.5;
 
@@ -344,7 +344,7 @@ inline float2 WetSection(inout float4 terrainN, float colA, float3 fwpos, float 
 	float under = (soil - 0.5) * 2;
 	float above = 1 - under;
 
-	terrainN.b = max(terrainN.b, wetSection)*under;
+	colA = max(colA, wetSection)*under;
 
 	
 
@@ -360,7 +360,7 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 	float fernel = 1.5 - dotprod;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
-	float smoothness = terrainN.b;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
+	float smoothness = col.a;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
@@ -400,7 +400,7 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 		ambientRefl.rgb
 
-		)* terrainN.b;// *fernel;
+		)* col.a;// *fernel;
 
 	col.rgb += reflResult;
 
@@ -420,7 +420,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	float fernel = 1.5 - dotprod;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
-	float smoothness = terrainN.b;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
+	float smoothness = col.a;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
@@ -438,7 +438,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= terrainN.a;
 	float4 terrainLrefl = tex2D(_TerrainColors, tc_Control.xz
-		- reflected.xz*terrainN.b*terrainAmbient.a*0.1
+		- reflected.xz*col.a*terrainAmbient.a*0.1
 	);
 	terrainLrefl.rgb *= teraBounce;
 
@@ -467,7 +467,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 		terrainLrefl.rgb +
 		ambientRefl.rgb
 
-		)* terrainN.b;// *fernel;
+		)* col.a;// *fernel;
 
 	col.rgb += reflResult;
 
@@ -499,35 +499,35 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 	float4 splat3N = tex2Dlod(_mergeSplatN_3, lt)*far + tex2Dlod(_mergeSplatN_3, t)*deFar;
 
 
-	float newHeight = cont.r * triplanarY + splat0.a;
+	float newHeight = cont.r * triplanarY + splat0N.b;
 	float adiff = max(0, (newHeight - maxheight));
-	float alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat0N.b));
+	float alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat0.a));
 	float dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat0*alpha;
 	terrainN = terrainN*(dAlpha)+splat0N*alpha;
 	maxheight += adiff;
 
 
-	newHeight = cont.g*triplanarY + splat1.a;
+	newHeight = cont.g*triplanarY + splat1N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat1N.b));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat1.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat1*alpha;
 	terrainN = terrainN*(dAlpha)+splat1N*alpha;
 	maxheight += adiff;
 
 
-	newHeight = cont.b*triplanarY + splat2.a;
+	newHeight = cont.b*triplanarY + splat2N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat2N.b));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat2.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat2*alpha;
 	terrainN = terrainN*(dAlpha)+splat2N*alpha;
 	maxheight += adiff;
 
-	newHeight = cont.a*triplanarY + splat3.a;
+	newHeight = cont.a*triplanarY + splat3N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrainN.b*splat3N.b));
+	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat3.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat3*alpha;
 	terrainN = terrainN*(dAlpha)+splat3N*alpha;
@@ -576,14 +576,14 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 	float4 terrain = splaty;
 	terrainN = splatNy; //float4(0.5, 0.5, bumpMap.b, bumpMap.a);
 
-	float maxheight = (1 + splaty.a)*abs(bump.y);
+	float maxheight = (1 + splatNy.b)*abs(bump.y);
 
 	float3 newBump = float3(splatNy.x - 0.5, 0.33, splatNy.y - 0.5);
 
 	//Triplanar X:
-	float newHeight = (1.5 + splatx.a)*abs(bump.x);
+	float newHeight = (1.5 + splatNx.b)*abs(bump.x);
 	float adiff = max(0, (newHeight - maxheight));
-	float alpha = min(1, adiff*(1 + edge*terrainN.b*splatNx.b));
+	float alpha = min(1, adiff*(1 + edge*terrain.a*splatx.a));
 	float dAlpha = (1 - alpha);
 	terrain = terrain*dAlpha + splatx*alpha;
 	terrainN.ba = terrainN.ba*dAlpha + splatNx.ba*alpha;
@@ -591,9 +591,9 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 	maxheight += adiff;
 
 	//Triplanar Z:
-	newHeight = (1.5 + splatz.a)*abs(bump.z);
+	newHeight = (1.5 + splatNz.b)*abs(bump.z);
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + edge*terrainN.b*splatNz.b));
+	alpha = min(1, adiff*(1 + edge*terrain.a*splatz.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splatz*alpha;
 	terrainN.ba = terrainN.ba*dAlpha + splatNz.ba*alpha;
@@ -614,7 +614,7 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 	adiff = max(0, (tripMaxH + 0.5 - maxheight));
 	alpha = min(1, adiff * 2);
 
-	float aboveTerrain = saturate((aboveTerrainBump / _Merge - maxheight + col.a - 1) * 4); // MODIFIED
+	float aboveTerrain = saturate((aboveTerrainBump / _Merge - maxheight + terrainN.b - 1) * 4); // MODIFIED
 	float deAboveTerrain = 1 - aboveTerrain;
 
 	alpha *= deAboveTerrain;

@@ -18,7 +18,7 @@
 		CGPROGRAM
 
 		//#pragma multi_compile  PREVIEW_FILTER_SMOOTH  UV_PIXELATED_PREVIEW
-		#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA
+		#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA  PREVIEW_SAMPLING_DISPLACEMENT
 		#pragma multi_compile  BRUSH_2D  BRUSH_3D  BRUSH_3D_TEXCOORD2  BRUSH_SQUARE  BRUSH_DECAL
 		#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
 		#pragma multi_compile  ___ UV_ATLASED
@@ -173,10 +173,28 @@
 	 #endif
 
 
+	#if PREVIEW_SAMPLING_DISPLACEMENT
+
+		float resX = (i.texcoord.x + (col.r - 0.5) * 2);
+		float resY = (i.texcoord.y + (col.g - 0.5) * 2);
+
+		float edge = abs(0.5-((resX*_brushSamplingDisplacement.z) % 1)) + abs(0.5 - (resY*_brushSamplingDisplacement.w) % 1);
+
+		float distX = (resX - _brushSamplingDisplacement.x);
+		float distY = (resY - _brushSamplingDisplacement.y);
+		col.rgb = saturate(1 - sqrt(distX*distX + distY * distY)*8) + saturate(edge);
+
+	
+
+		//_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x) / 2 + 0.5;
+		//_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y) / 2 + 0.5;
+	#endif
+
 	#if PREVIEW_ALPHA
 		//col = src*src*_brushMask+col*col*(1-_brushMask);
 		col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a; //  col.a;
 	#endif
+	
 	
 
 	 #if BRUSH_NORMAL || BRUSH_COPY

@@ -43,8 +43,11 @@ public class PainterConfig  {
 
         public const string BRUSH_WORLD_POS_FROM = "_brushWorldPosFrom";
 		public const string BRUSH_WORLD_POS_TO = "_brushWorldPosTo";
+        public const string BRUSH_POINTED_UV = "_brushPointedUV";
         public const string BRUSH_EDITED_UV_OFFSET = "_brushEditedUVoffset";
-
+        public const string BRUSH_ATLAS_SECTION_AND_ROWS = "_brushAtlasSectionAndRows";
+        public const string BRUSH_SAMPLING_DISPLACEMENT = "_brushSamplingDisplacement";
+        //public const string BRUSH_IS_ATLASED = "BRUSH_IS_ATLASED";
         // Preview Constants
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
@@ -55,7 +58,8 @@ public class PainterConfig  {
         public const string BRUSH_TEXCOORD_2 = "BRUSH_TEXCOORD_2";
 
         public const string isAtlasedProperty = "_ATLASED";
-        public const string isAtlasableDisaplyNameTag = "(ATL)";
+        public const string isAtlasableDisaplyNameTag = "_ATL";
+        public const string isUV2DisaplyNameTag = "_UV2";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
     static string SaveName = "PainterConfig";
@@ -69,6 +73,7 @@ public class PainterConfig  {
         public int MeshUVprojectionSize = 1;
         public bool SnapToGrid = false;
         public int curAtlasTexture = 0;
+        public int curSubmesh = 0;
         public int curAtlasChanel = 0;
         public bool newVerticesUnique = false;
         public bool newVerticesSmooth = true;
@@ -107,6 +112,8 @@ public class PainterConfig  {
     public bool showConfig = false;
     public bool ShowTeachingNotifications = false;
 
+
+        public myIntVec2 samplingMaskSize;
 
     public int selectedSize = 4;
 
@@ -153,6 +160,8 @@ public class PainterConfig  {
                 meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Atlased"));
 				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
             }
+
+            if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
 
             if (texturePackagingSolutions == null) texturePackagingSolutions = new List<TexturePackagingProfile>();
            
@@ -225,7 +234,7 @@ public class PainterConfig  {
                 if (painter.isAtlased)
                 {
 
-                    "***** Atlased *****".nl();
+                    "***** Selected Material Atlased *****".nl();
 
 #if UNITY_EDITOR
 
@@ -244,19 +253,19 @@ public class PainterConfig  {
 
                         if ("Undo Atlasing".Click())
                     {
-                        painter.getRenderer().sharedMaterial = painter.preAtlasingMaterial;
+                        painter.getRenderer().sharedMaterials = painter.preAtlasingMaterials;
 
                         if (painter.preAtlasingMesh != null)
                             painter.meshFilter.mesh = painter.preAtlasingMesh;
                         painter.savedEditableMesh = painter.preAtlasingSavedMesh;
 
-                        painter.preAtlasingMaterial = null;
+                        painter.preAtlasingMaterials = null;
                         painter.preAtlasingMesh = null;
                         painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                     }
 
                     if ("Not Atlased".Click().nl()) {
-                        painter.preAtlasingMaterial = null;
+                        painter.preAtlasingMaterials = null;
                         painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                     }
                     

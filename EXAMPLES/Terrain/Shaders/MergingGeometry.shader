@@ -35,7 +35,7 @@ Shader "Terrain/MergingGeometry" {
 #pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
-
+#pragma multi_compile  ___ WATER_FOAM
 
 	sampler2D _MainTex;
 	sampler2D _BumpMapC;
@@ -48,7 +48,9 @@ Shader "Terrain/MergingGeometry" {
 		float3 viewDir : TEXCOORD2;
 		float3 wpos : TEXCOORD3;
 		float3 tc_Control : TEXCOORD4;
+#if WATER_FOAM
 		float3 fwpos : TEXCOORD5;
+#endif
 		SHADOW_COORDS(6)
 		//float3 normal : TEXCOORD11;
 		float2 texcoord : TEXCOORD7;
@@ -73,7 +75,9 @@ Shader "Terrain/MergingGeometry" {
 
 		float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
+#if WATER_FOAM
 		o.fwpos = foamStuff(o.wpos);
+#endif
 
 		half3 wNormal = worldNormal;
 		half3 wTangent = UnityObjectToWorldDir(v.tangent.xyz);
@@ -147,35 +151,35 @@ Shader "Terrain/MergingGeometry" {
 	float3 tmpbump = bump;
 	float triplanarY = max(0, tmpbump.y) * 2; // Recalculate it based on previously sampled bump
 
-	float newHeight = cont.r * triplanarY + splat0.a;
+	float newHeight = cont.r * triplanarY + splat0N.b;
 	float adiff = max(0, (newHeight - maxheight));
-	float alpha = min(1, adiff*(1 + edge*terrainN.b*splat0N.b));
+	float alpha = min(1, adiff*(1 + edge*terrain.a*splat0.a));
 	float dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat0*alpha;
 	terrainN = terrainN*(dAlpha)+splat0N*alpha;
 	maxheight += adiff;
 
 
-	newHeight = cont.g*triplanarY + splat1.a;
+	newHeight = cont.g*triplanarY + splat1N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat1N.b));
+	alpha = min(1,adiff*(1 + edge*terrain.a*splat1.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat1*alpha;
 	terrainN = terrainN*(dAlpha)+splat1N*alpha;
 	maxheight += adiff;
 
 
-	newHeight = cont.b*triplanarY + splat2.a;
+	newHeight = cont.b*triplanarY + splat2N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat2N.b));
+	alpha = min(1,adiff*(1 + edge*terrain.a*splat2.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat2*alpha;
 	terrainN = terrainN*(dAlpha)+splat2N*alpha;
 	maxheight += adiff;
 
-	newHeight = cont.a*triplanarY + splat3.a;
+	newHeight = cont.a*triplanarY + splat3N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1,adiff*(1 + edge*terrainN.b*splat3N.b));
+	alpha = min(1,adiff*(1 + edge*terrain.a*splat3.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat3*alpha;
 	terrainN = terrainN*(dAlpha)+splat3N*alpha;
@@ -186,7 +190,7 @@ Shader "Terrain/MergingGeometry" {
 	adiff = max(0, (tripMaxH + 0.5 - maxheight));
 	alpha = min(1, adiff * 2);
 
-	float aboveTerrain = saturate((aboveTerrainBump / _Merge + geocol.a -maxheight - 1) * 4); // MODIFIED
+	float aboveTerrain = saturate((aboveTerrainBump / _Merge + terrainN.b -maxheight - 1) * 4); // MODIFIED
 	float deAboveTerrain = 1 - aboveTerrain;
 
 	alpha*=deAboveTerrain;
@@ -195,8 +199,8 @@ Shader "Terrain/MergingGeometry" {
 
 	cont = geocol* aboveTerrain +terrain*deAboveTerrain;
 
-	float wetSection = saturate(_foamParams.w - i.fwpos.y - (cont.a)*_foamParams.w)*(1 - terrainN.b);
-	i.fwpos.y += cont.a;
+	float wetSection = saturate(_foamParams.w - i.fwpos.y - (terrainN.b)*_foamParams.w)*(1 - terrainN.b);
+	i.fwpos.y += terrainN.b;
 
 	worldNormal = normalize(bump 
 	+float3(terrainN.r, 0, terrainN.g)*deAboveTerrain
@@ -212,11 +216,11 @@ Shader "Terrain/MergingGeometry" {
 	float water = max(0.5, min(i.fwpos.y + 2 - (foamA_W.x) * 2, 1)); // MODIFIED
 	float under = (water - 0.5) * 2;
 
-	terrainN.b = max(terrainN.b, wetSection*under); // MODIFIED
+	cont.a = max(cont.a, wetSection*under); // MODIFIED
 
 	float fernel = 1.5 - dotprod;
 
-	float smoothness = (pow(terrainN.b, (3 - fernel) * 2));  //terrainN.b*terrainN.b;//+((1 - dotprod)*(1 - terrainN.b)));
+	float smoothness = (pow(cont.a, (3 - fernel) * 2));  //terrainN.b*terrainN.b;//+((1 - dotprod)*(1 - terrainN.b)));
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
@@ -228,7 +232,7 @@ Shader "Terrain/MergingGeometry" {
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= terrainN.a;
 
-	float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*terrainN.b*terrainAmbient.a*0.1);
+	float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*cont.a*terrainAmbient.a*0.1);
 	terrainLight.rgb *= teraBounce;
 
 
@@ -239,7 +243,7 @@ Shader "Terrain/MergingGeometry" {
 	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
 
 	float4 col;
-	col.a = water; // NEW
+
 	col.rgb = (cont.rgb* (_LightColor0*direct + (terrainAmbient.rgb
 		)*fernel)*deSmoothness*terrainAmbient.a + foamA_W.y*(0.5 + shadow)*(under));
 
@@ -251,7 +255,7 @@ Shader "Terrain/MergingGeometry" {
 		terrainLight.rgb +
 		ambientRefl.rgb
 
-		)* terrainN.b * fernel;
+		)* cont.a * fernel;
 
 	col.rgb += reflResult*under;
 
@@ -264,6 +268,8 @@ Shader "Terrain/MergingGeometry" {
 	fogging = min(1,pow(max(0,fogging),2));
 	col.rgb = fogged.rgb * fogging + col.rgb *(1 - fogging);
 
+
+	col.a = water; // NEW
 
 #if	MODIFY_BRIGHTNESS
 	col.rgb *= _lightControl.a;

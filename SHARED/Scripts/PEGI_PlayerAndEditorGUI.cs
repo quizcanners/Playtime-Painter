@@ -188,8 +188,7 @@ namespace PlayerAndEditorGUI {
                 return GUI.GetNameOfFocusedControl();
             }
         }
-
-
+        
         public static bool select(this string text, int width, ref int value, string[] array) {
             write(text, width);
             return select(ref value, array);
@@ -200,9 +199,50 @@ namespace PlayerAndEditorGUI {
             return select(ref value, array);
         }
 
+        public static bool select(this string text, ref string val, List<string> lst) {
+            write(text);
+            return select(ref val, lst);
+        }
+
+        public static bool select(this string text, int width, ref string val, List<string> lst)
+        {
+            write(text, width);
+            return select(ref val, lst);
+        }
+
+        public static bool selectEnum(this string text, ref int val, Type t)
+        {
+            write(text);
+            return selectEnum(ref val, t);
+        }
+
         public static bool select<T>(this string text, ref int ind, List<T> lst) {
             write(text);
             return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, ref int ind, T[] lst)
+        {
+            write(text);
+            return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, int width, ref int ind, T[] lst)
+        {
+            write(text, width);
+            return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, string tip, int width, ref int ind, T[] lst)
+        {
+            write(text, tip, width);
+            return select(ref ind, lst);
+        }
+
+        public static bool select<T>(this string text, ref T value, T[] lst)
+        {
+            write(text);
+            return select(ref value, lst);
         }
 
         public static bool select<T>(this string text, string tip, ref int ind, List<T> lst)
@@ -322,6 +362,85 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+        public static bool select<T>(ref T val, T[] lst)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.select<T>(ref val, lst);
+            }
+            else
+#endif
+
+            {
+                checkLine();
+
+                List<string> lnms = new List<string>();
+                List<int> indxs = new List<int>();
+
+                int jindx = -1;
+
+                for (int j = 0; j < lst.Length; j++)
+                {
+                    T tmp = lst[j];
+                    if (!tmp.isGenericNull())
+                    {
+                        if ((!val.isGenericNull()) && val.Equals(tmp))
+                            jindx = lnms.Count;
+                        lnms.Add(tmp.ToString());
+                        indxs.Add(j);
+                    }
+                }
+
+                if (select(ref jindx, lnms.ToArray()))
+                {
+                    val = lst[indxs[jindx]];
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        public static bool select<T>(ref int ind, T[] lst)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.select<T>(ref ind, lst);
+            }
+            else
+#endif
+
+            {
+                checkLine();
+
+                List<string> lnms = new List<string>();
+                List<int> indxs = new List<int>();
+
+                //int jindx = -1;
+                int before = ind;
+                ind = Mathf.Clamp(ind,0, lst.Length);
+
+               // var val = lst[ind];
+
+                for (int j = 0; j < lst.Length; j++) {
+                    T tmp = lst[j];
+                    if (!tmp.isGenericNull()) {
+                        lnms.Add(tmp.ToString());
+                        indxs.Add(j);
+                    }
+                }
+
+                if (select(ref ind, lnms.ToArray()))
+                    return true;
+                
+                return before != ind;
+            }
+        }
+
         public static bool select<T>(ref T val, List<T> lst) {
 
 #if UNITY_EDITOR
@@ -355,6 +474,26 @@ namespace PlayerAndEditorGUI {
 
                 return false;
             }
+        }
+
+        public static bool select(ref string val, List<string> lst)
+        {
+
+            var ind = -1;
+
+            for (int i=0; i<lst.Count; i++)
+                if (lst[i]!= null && lst[i].SameAs(val))
+            {
+                    ind = i;
+                    break;
+            }
+
+            if (select(ref ind, lst)) {
+                val = lst[ind];
+                return true;
+            }
+
+            return false;
         }
 
         public static bool select<T>(ref int ind, List<T> lst) {
@@ -478,10 +617,6 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool select<T>(ref int i, T[] ar) where T : IeditorDropdown {
-            return select<T>(ref i, ar, false);
-        }
-
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD, new() {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -532,7 +667,7 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool select(ref int current, Type type) {
+        public static bool selectEnum(ref int current, Type type) {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
                 return ef.select(ref current, type);
@@ -1035,7 +1170,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit(ref int current, Type type) {
-            return select(ref current, type);
+            return selectEnum(ref current, type);
         }
 
         public static bool edit<T>(ref T field) where T : UnityEngine.Object {
@@ -1125,6 +1260,69 @@ namespace PlayerAndEditorGUI {
                 bool modified = false;
                 modified |= edit(ref val.x);
                 modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref myIntVec2 val)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref myIntVec2 val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max);
+                modified |= edit(ref val.y, min, max);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref myIntVec2 val, int min, myIntVec2 max)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max.x);
+                modified |= edit(ref val.y, min, max.y);
                 return modified;
             }
 
@@ -1491,7 +1689,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit<T>(ref int current) {
-            return select(ref current, typeof(T));
+            return selectEnum(ref current, typeof(T));
         }
 
         public static bool edit(this string label, ref linearColor col) {
@@ -1532,6 +1730,34 @@ namespace PlayerAndEditorGUI {
         {
             write(label, tip, width);
             return edit(ref field, allowDrop);
+        }
+
+        public static bool edit(this string label, ref myIntVec2 val)
+        {
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref myIntVec2 val)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref myIntVec2 val, int min, int max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref myIntVec2 val, int min, myIntVec2 max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, ref Vector3 val)  {
@@ -1622,6 +1848,36 @@ namespace PlayerAndEditorGUI {
             return edit(ref col);
         }
 
+        public static bool edit(this string label, ref Vector2 v2)
+        {
+            write(label);
+            return edit(ref v2);
+        }
+
+        public static bool edit(this string label, int width, ref Vector2 v2)
+        {
+            write(label, width);
+            return edit(ref v2);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Vector2 v2)
+        {
+            write(label, tip, width);
+            return edit(ref v2);
+        }
+
+        public static bool edit(this string label, int width, ref Vector3 v3)
+        {
+            write(label, width);
+            return edit(ref v3);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Vector3 v3)
+        {
+            write(label, tip, width);
+            return edit(ref v3);
+        }
+
         public static bool edit(this string label, int width, ref string val) {
             write(label, width);
             return edit(ref val);
@@ -1634,7 +1890,7 @@ namespace PlayerAndEditorGUI {
 
         public static int editEnum<T>(T val) {
             int ival = Convert.ToInt32(val);
-            select(ref ival, typeof(T));
+            selectEnum(ref ival, typeof(T));
             return ival;
         }
 
@@ -1816,6 +2072,13 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
             }
+
+        }
+
+        public static void write<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
+        {
+            write(label, tip, width);
+            write(field);
 
         }
 

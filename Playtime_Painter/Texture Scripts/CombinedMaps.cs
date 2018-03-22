@@ -22,8 +22,8 @@ namespace Playtime_Painter {
 
             //public List<Texture2D> textures;
             public Texture2D Diffuse;
-            public Texture2D Height;
-            public Texture2D Normal;
+            public Texture2D HeightMap;
+            public Texture2D NormalMap;
             public Texture2D Gloss;
             public Texture2D Reflectivity;
             public Texture2D Ambient;
@@ -40,8 +40,8 @@ namespace Playtime_Painter {
 
             public Texture2D GetTexture() {
                 if (Diffuse != null) return Diffuse;
-                if (Height != null) return Height;
-                if (Normal != null) return Normal;
+                if (HeightMap != null) return HeightMap;
+                if (NormalMap != null) return NormalMap;
                 if (Gloss != null) return Gloss;
                 if (Reflectivity != null) return Reflectivity;
                 if (Ambient != null) return Ambient;
@@ -68,11 +68,17 @@ namespace Playtime_Painter {
 
                 changed |= "Name".edit(ref name).nl();
 
+                if (painter!= null && painter.curImgData != null)  {
+                    "Editing:".write(40);
+                    pegi.write(painter.curImgData.texture2D);
+                    pegi.nl();
+                }
+
                 changed |= "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.",70,ref Diffuse).nl();
                 changed |= "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
-                    "or height based terrain blending.",70, ref Height).nl();
+                    "or height based terrain blending.",70, ref HeightMap).nl();
                 changed |= "Normal".edit("Noraml map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
-                    "generated from Height",70, ref Normal).nl();
+                    "generated from Height",70, ref NormalMap).nl();
                 changed |= "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.",70, ref Gloss).nl();
                 changed |= "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.",70, ref Reflectivity).nl();
                 changed |= "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
@@ -81,8 +87,14 @@ namespace Playtime_Painter {
                 var cfg = PainterConfig.inst;
 
                 if (painter == null) {
+                    var frstTex = GetTexture();
                     changed |= "width:".edit(ref width).nl();
                     changed |= "height".edit(ref height).nl();
+                    if (frstTex!= null && "Match Source".Click().nl()) {
+                        width = frstTex.width;
+                        height = frstTex.height;
+                    }
+
                     changed |= "is Color".toggle(ref isColor).nl();
                 }
 
@@ -115,6 +127,8 @@ namespace Playtime_Painter {
             public List<TextureChannel> channel;
             public string name;
             public linearColor fillColor;
+            public bool glossMipFromBump;
+            public bool glossMipFromHeight;
 
             public string Name { get { return name; } set { name = value; } }
 
@@ -181,6 +195,7 @@ namespace Playtime_Painter {
 
                 bool usingBumpStrength = false;
                 bool usingColorSelector = false;
+                bool usingGlossMap = false;
 
                 for (int c = 0; c < 4; c++)
                 {
@@ -191,10 +206,22 @@ namespace Playtime_Painter {
 
                     usingBumpStrength |= ch.role.usingBumpStrengthSlider(ch.sourceChannel);
                     usingColorSelector |= ch.role.usingColorSelector;
+                    usingGlossMap |= ch.role.GetType() == typeof(TextureRole_Gloss);
                 }
 
                 if (usingBumpStrength) changed |= "Bump Strength".edit(ref bumpStrength).nl();
                 if (usingColorSelector) changed |= "Color".edit(ref fillColor).nl();
+                if (usingGlossMap) {
+                    if ((sets == null || sets.HeightMap != null) && "Gloss Mip -= Height Noise".toggle(ref glossMipFromHeight)) {
+                        changed = true;
+                        glossMipFromBump = false;
+                    }
+                    if ((sets == null || sets.NormalMap  != null) && "Gloss Mip -= Normal Noise".toggle(ref glossMipFromBump)) {
+                        changed = true;
+                        glossMipFromHeight = false;
+                    }
+                }
+
 
                 if (sets != null) {
                     if ("Combine".Click().nl())
@@ -368,8 +395,12 @@ namespace Playtime_Painter {
             }
 
             public static void Clear() {
-                foreach (var r in _allRoles) r._pixels = null;
+                foreach (var r in _allRoles) r.ClearPixels();
             } 
+
+            public virtual void ClearPixels() {
+                _pixels = null;
+            }
 
             public int index;
 
@@ -401,7 +432,7 @@ namespace Playtime_Painter {
                         var importer = tex.getTextureImporter();
                         bool needReimport = importer.wasNotReadable();
                        
-                        needReimport |= importer.wasWrongIsColor(isColor);
+                        //needReimport |= importer.wasWrongIsColor(isColor);
                         needReimport |= importer.wasMarkedAsNormal();
                         if (sourceSingleChannel)
                             needReimport |= importer.wasNotSingleChanel();
@@ -569,7 +600,7 @@ namespace Playtime_Painter {
                 int width = id == null ? set.width : id.width;
                 int height = id == null ? set.height : id.height;
                 if (_pixels == null)
-                    ExtractPixels(set.Ambient   ? set.Ambient : set.Height, width, height);
+                    ExtractPixels(set.Ambient   ? set.Ambient : set.HeightMap, width, height);
 
                 return _pixels;
             }
@@ -608,7 +639,7 @@ namespace Playtime_Painter {
                 height = id == null ? set.height : id.height;
                 if (_pixels == null)
                 {
-                    ExtractPixels(set.Height != null ? set.Height : set.Ambient, width, height);
+                    ExtractPixels(set.HeightMap != null ? set.HeightMap : set.Ambient, width, height);
 
                     float xLeft;
                     float xRight;
@@ -656,12 +687,29 @@ namespace Playtime_Painter {
 
             public override bool usingBumpStrengthSlider(int channel) { return true; }
 
+            public override void ClearPixels()
+            {
+                base.ClearPixels();
+
+                if (tex != null) {
+                    var imp = tex.getTextureImporter();
+                    if (imp.wasMarkedAsNormal(true))
+                        imp.SaveAndReimport();
+                }
+                    
+                
+            }
+
+            Texture2D tex;
+
             public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
             {
                 int width = id == null ? set.width : id.width;
                 int height = id == null ? set.height : id.height;
                 if (_pixels == null)
-                    ExtractPixels(set.Normal, width, height);
+                    ExtractPixels(set.NormalMap, width, height);
+
+                tex = set.NormalMap;
 
                 return _pixels;
             }

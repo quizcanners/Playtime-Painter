@@ -2,17 +2,17 @@
 
 Shader "Painter_Experimental/DestructibleEnvironment" {
 	Properties {
-		[NoScaleOffset] _MainTex ("_Albedo (ATL) (RGB)", 2D) = "white" {}
-		_Diffuse("ATL_Diffuse (ATL)", 2D) = "white" {}
-		[NoScaleOffset]_Bump("ATL_Bump (ATL)", 2D) = "white" {}
+		[NoScaleOffset] _MainTex_ATL_UV2("_Main DAMAGE (_UV2) (_ATL) (RGB)", 2D) = "white" {}
+		_Diffuse("ATL_Diffuse (_ATL)", 2D) = "white" {}
+		[NoScaleOffset]_Bump("ATL_Bump (_ATL)", 2D) = "gray" {}
 	
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	
 		_DamDiffuse("Damaged Diffuse", 2D) = "white" {}
-		[NoScaleOffset]_BumpD("Bump Damage", 2D) = "white" {}
+		[NoScaleOffset]_BumpD("Bump Damage", 2D) = "gray" {}
 		_DamDiffuse2("Damaged Diffuse Deep", 2D) = "white" {}
-		[NoScaleOffset]_BumpD2("Bump Damage 2", 2D) = "white" {}
+		[NoScaleOffset]_BumpD2("Bump Damage 2", 2D) = "gray" {}
 
 	}
 	SubShader {
@@ -28,18 +28,18 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
-		sampler2D _MainTex;
+		sampler2D _MainTex_ATL_UV2;
 		sampler2D _Diffuse;
 		sampler2D _DamDiffuse;
 		sampler2D _DamDiffuse2;
 		sampler2D _Bump;
 		sampler2D _BumpD;
 		sampler2D _BumpD2;
-		float4 _MainTex_TexelSize;
+		float4 _MainTex_ATL_UV2_TexelSize;
 		float _AtlasTextures;
 
 		struct Input {
-			float2 uv2_MainTex;
+			float2 uv2_MainTex_ATL_UV2;
 			float2 uv_Diffuse;
 			float2 uv_DamDiffuse;
 			float2 uv_DamDiffuse2;
@@ -69,20 +69,20 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 
 #if UV_ATLASED
 
-			i.uv2_MainTex.xy = (frac(i.uv2_MainTex.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
+			i.uv2_MainTex_ATL_UV2.xy = (frac(i.uv2_MainTex_ATL_UV2.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
 			
 			float lod;
 
-			atlasUVlod(i.uv_Diffuse, lod, _MainTex_TexelSize, i.atlasedUV);
+			atlasUVlod(i.uv_Diffuse, lod, _MainTex_ATL_UV2_TexelSize, i.atlasedUV);
 
 			float4 col = tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod)); // tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod));
 			float4 bump = tex2Dlod(_Bump, float4(i.uv_Diffuse, 0, lod)); 
 
-			float4 mask = tex2D(_MainTex, i.uv2_MainTex);
+			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
 
 #else
 
-			float4 mask = tex2D(_MainTex, i.uv2_MainTex);
+			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
 			float4 col = tex2D(_Diffuse, i.uv_Diffuse);
 			float4 bump = tex2D(_Bump, i.uv_Diffuse); 
 
@@ -95,25 +95,25 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 
 			//clip(0.9 - mask.r);
 		
-			float maskr = tex2D(_MainTex, float2(i.uv2_MainTex.x,i.uv2_MainTex.y + _MainTex_TexelSize.y*2 )).r;
-			float maskg = tex2D(_MainTex, float2(i.uv2_MainTex.x + _MainTex_TexelSize.x*2 , i.uv2_MainTex.y )).r;
+			float maskr = tex2D(_MainTex_ATL_UV2, float2(i.uv2_MainTex_ATL_UV2.x,i.uv2_MainTex_ATL_UV2.y + _MainTex_ATL_UV2_TexelSize.y )).r;
+			float maskg = tex2D(_MainTex_ATL_UV2, float2(i.uv2_MainTex_ATL_UV2.x + _MainTex_ATL_UV2_TexelSize.x , i.uv2_MainTex_ATL_UV2.y )).r;
 
 		
 			float4 dam = tex2D(_DamDiffuse, i.uv_DamDiffuse);
 			float4 dam2 = tex2D(_DamDiffuse2, i.uv_DamDiffuse2);
 
 			
-			float4 bumpd = tex2D(_BumpD, i.uv_DamDiffuse); bumpd.rg = (bumpd.rg - 0.5)*2;
+			float4 bumpd = tex2D(_BumpD, i.uv_DamDiffuse); bumpd.rg -= 0.5;
 			float4 bumpd2 = tex2D(_BumpD2, i.uv_DamDiffuse2); bumpd2.rg -= 0.5;
 
 
-			float damAlpha = saturate((mask.r*3 - dam.a*2 + col.a - 1) * 8);
+			float damAlpha = saturate((mask.r*3 - bumpd.b*2 + col.a - 1) * 8);
 			float deAlpha = 1 - damAlpha;
 			col = col*deAlpha + dam*damAlpha;
 			bump = bump*deAlpha + bumpd*damAlpha;
 
 
-			float damAlpha2 = ((mask.r ) - 0.5 - dam2.a + dam.a) * 4* damAlpha;
+			float damAlpha2 = ((mask.r ) - 1 - bumpd2.b + bumpd.a) * 4* damAlpha;
 
 			
 			damAlpha2 = saturate(damAlpha2);
@@ -121,7 +121,11 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			col = col*deAlpha + dam2*damAlpha2;
 			bump = bump*deAlpha + bumpd2*damAlpha2;
 
-			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*8 + bump.r , -(mask.r - maskr)*damAlpha2*8  + bump.g , 0.1));
+			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*4 +
+				bump.r 
+				, -(mask.r - maskr)*damAlpha2*4  + 
+				bump.g 
+				, 0.1));
 
 			o.Albedo = col.rgb;
 			o.Smoothness = max(bump.b, mask.b);

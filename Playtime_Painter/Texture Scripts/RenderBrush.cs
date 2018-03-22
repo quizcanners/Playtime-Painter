@@ -16,24 +16,31 @@ public class RenderBrush : MonoBehaviour {
    
         SkinnedMeshRenderer changedSkinnedMeshRendy;
         GameObject changedGameObject;
-    Material replacedMaterial;
+    Material replacedTargetsMaterial;
+        Material[] replacedBrushesMaterials;
+        int modifiedSubmesh;
     int replacedLayer;
         public bool deformedBounds;
 
     public void RestoreBounds() {
+           // return;
+           if (replacedTargetsMaterial!= null) {
 
-           if (replacedMaterial!= null) {
-               
-                changedSkinnedMeshRendy.sharedMaterial = replacedMaterial;
+                var lst = changedSkinnedMeshRendy.sharedMaterials;
+                lst[modifiedSubmesh] = replacedTargetsMaterial;
+                changedSkinnedMeshRendy.sharedMaterials = lst;
+
                 changedSkinnedMeshRendy.localBounds = modifiedBound;
                 changedGameObject.layer = replacedLayer;
-                replacedMaterial = null;
+                replacedTargetsMaterial = null;
                 meshRendy.enabled = true;
 
             } else
             {
                 transform.parent = PainterManager.inst.transform;
                 modifiedMesh.bounds = modifiedBound;
+
+                meshRendy.materials = replacedBrushesMaterials;
             }
 
             deformedBounds = false;
@@ -50,13 +57,15 @@ public class RenderBrush : MonoBehaviour {
             var skinny = painter.skinnedMeshRendy;
 
             if (skinny != null) 
-                UseSkinMeshAsBrush(go, skinny);
+                UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);
             else 
-                UseMeshAsBrush(go, painter.getMesh());
+                UseMeshAsBrush(go, painter.getMesh(), new List<int> { painter.selectedSubmesh });
         }
 
-        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny)
+        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int submesh)
         {
+            modifiedSubmesh = submesh;
+
             meshRendy.enabled = false;
 
             Transform camTransform = PainterManager.inst.transform;
@@ -70,13 +79,15 @@ public class RenderBrush : MonoBehaviour {
             replacedLayer = go.layer;
             go.layer = gameObject.layer;
 
-            replacedMaterial = skinny.sharedMaterial;
-            skinny.sharedMaterial = meshRendy.sharedMaterial;
-       
+            replacedTargetsMaterial = skinny.sharedMaterials[modifiedSubmesh];
+            var lst = skinny.sharedMaterials;
+            lst[modifiedSubmesh] = meshRendy.sharedMaterial;
+            skinny.sharedMaterials = lst;
+
             deformedBounds = true;
         }
 
-        public void UseMeshAsBrush (GameObject go, Mesh mesh) {
+        public void UseMeshAsBrush (GameObject go, Mesh mesh, List<int> selectedSubmeshes) {
 
             Transform camTransform = PainterManager.inst.transform;
 
@@ -92,6 +103,21 @@ public class RenderBrush : MonoBehaviour {
             modifiedBound = modifiedMesh.bounds;
             modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
             transform.parent = target.parent;
+
+            replacedBrushesMaterials = meshRendy.sharedMaterials;
+
+            int max = 0;
+
+            foreach (var e in selectedSubmeshes)
+                max = Mathf.Max(e, max);
+
+            if (max > 0)
+            {
+                var mats = new Material[max + 1];
+                foreach (var e in selectedSubmeshes)
+                    mats[e] = meshRendy.sharedMaterial;
+                meshRendy.materials = mats;
+            }
 
             deformedBounds = true;
         }

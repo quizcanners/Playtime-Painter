@@ -39,7 +39,7 @@ public class MergingTerrain : MonoBehaviour {
         needToUpdateTextures |= mergeSubmasks.UpdateBumpGloss();
 
         if (needToUpdateTextures) {
-            painter.UpdateShaderGlobalVariables();
+            painter.UpdateShaderGlobalsForTerrain();
             UpdateTextures();
         }
 
@@ -125,7 +125,7 @@ public class TerrainLight : NonMaterialTexture {
             dest.Add(PainterConfig.terrainLight);
     }
 
-    public override bool UpdateTyling(string fieldName, PlaytimePainter painter)
+    public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
     {
         if (painter.terrain != null)
         {

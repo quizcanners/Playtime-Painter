@@ -15,9 +15,17 @@ public class RenderTexturesPool : MonoBehaviour {
 
 
     public RenderTexture GetOne() {
+
         if (list.Count > 0)
             return list.RemoveLast();
-        else return new RenderTexture(size, size, 0);
+        else
+        {
+            var rt = new RenderTexture(size, size, 0);
+            rt.wrapMode = TextureWrapMode.Repeat;
+            rt.useMipMap = false;
+
+            return rt; 
+        }
     }
 
     public void ReturnOne(RenderTexture rt) {

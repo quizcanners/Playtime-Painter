@@ -55,7 +55,13 @@ public class NonMaterialTexture  {
         return false;
     }
 
-    public virtual bool UpdateTyling(string fieldName, PlaytimePainter painter) {
+        public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter)
+        {
+            Debug.Log("Update Tiling on " + this.GetType() + " not implemented");
+            return false;
+        }
+
+        public virtual bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter) {
         Debug.Log("Update Tiling on "+ this.GetType() +" not implemented");
         return false;
     }
@@ -86,7 +92,7 @@ public class TerrainControlGlob : NonMaterialTexture {
         }
     }
 
-    public override bool UpdateTyling(string fieldName, PlaytimePainter painter)
+    public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
     {
         if (painter.terrain != null)
         {
@@ -147,7 +153,7 @@ public class TerrainSplatTexture : NonMaterialTexture
         }
     }
 
-    public override bool UpdateTyling(string fieldName, PlaytimePainter painter) {
+    public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter) {
 
         if (painter.terrain != null) {
             if (fieldName.Contains(PainterConfig.terrainTexture)) {
@@ -223,7 +229,7 @@ public class TerrainHeight : NonMaterialTexture
             dest.Add(PainterConfig.terrainHeight);
     }
 
-    public override bool UpdateTyling(string fieldName, PlaytimePainter painter)
+    public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
     {
         if (painter.terrain != null)
         {

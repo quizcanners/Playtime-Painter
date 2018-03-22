@@ -64,6 +64,17 @@ namespace Playtime_Painter {
                 return;
 
             vertsCount = edMesh.AssignIndexes();
+
+            if (edMesh.submeshCount > 1) {
+
+                int maxSubmesh = 0;
+
+                foreach (var t in edMesh.triangles)
+                    maxSubmesh = Mathf.Max(maxSubmesh, t.submeshIndex);
+
+                edMesh.submeshCount = maxSubmesh + 1;
+            }
+
             tris = new List<int>[edMesh.submeshCount];
             for (int i = 0; i < edMesh.submeshCount; i++)
                 tris[i] = new List<int>();
@@ -129,7 +140,7 @@ namespace Playtime_Painter {
                     sharpNormals[mDIndex] = tri.sharpNormal;
                     originalIndex[mDIndex] = vertPnt.index;
 
-                    if (tri.DominantNormals[no]) {
+                    if (tri.SharpCorner[no]) {
 
                         normals[mDIndex] = tri.sharpNormal;
                         NormalForced[mDIndex] = true;

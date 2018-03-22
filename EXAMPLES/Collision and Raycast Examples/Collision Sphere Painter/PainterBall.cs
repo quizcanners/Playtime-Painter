@@ -112,7 +112,7 @@ namespace Playtime_Painter {
             if (fuckingCollider == null)
                 fuckingCollider = GetComponent<SphereCollider>();
 
-            rendy.sharedMaterial.color = brush.color.ToColor();
+            rendy.sharedMaterial.color = brush.colorLinear.ToColor();
 
         }
 
@@ -172,7 +172,7 @@ namespace Playtime_Painter {
             brush.blitMode.PEGI(brush, null);
 
             if (brush.ColorSliders_PEGI()) 
-                rendy.sharedMaterial.color = brush.color.ToColor();
+                rendy.sharedMaterial.color = brush.colorLinear.ToColor();
         }
 
     }

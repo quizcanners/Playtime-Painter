@@ -63,6 +63,13 @@
 		v.texcoord.xy = v.texcoord2.xy;
 #endif
 
+		// ATLASED CALCULATION
+		float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
+		float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
+		v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
+			* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+
+
 		o.worldPos = worldPos.xyz;
 
 		float2 tmp;

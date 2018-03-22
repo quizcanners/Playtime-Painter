@@ -55,7 +55,7 @@ namespace Playtime_Painter
                         if (colliderDIsabled) painter.meshCollider.enabled = false;
                     }
 
-                    StrokeVector v = new StrokeVector(hit);
+                    StrokeVector v = new StrokeVector(hit, false);
                     
                     painter.SetTexTarget(brush).Paint(v, brush);
                 }
@@ -98,9 +98,9 @@ namespace Playtime_Painter
             changed |= brush.Targets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
             changed |= brush.blitMode.PEGI(brush, null);
-            Color col = brush.color.ToColor();
+            Color col = brush.colorLinear.ToColor();
             if (pegi.edit(ref col).nl())
-                brush.color.From(col);
+                brush.colorLinear.From(col);
             changed |= brush.ColorSliders_PEGI();
             return changed;
         }

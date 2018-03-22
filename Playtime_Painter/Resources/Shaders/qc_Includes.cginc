@@ -21,7 +21,9 @@
 	float4 _RTcamPosition;
 	float4 _brushPointedUV;
 	float4 _DecalParameters;
-
+	float4 _brushAtlasSectionAndRows;
+	float4 _brushSamplingDisplacement;
+	float4 _brushPointedUV_Untiled;
 
 
 	inline bool isAcute(float a, float b, float c) {

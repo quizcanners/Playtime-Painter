@@ -1401,9 +1401,9 @@ namespace Playtime_Painter
         void outlineTriangle(trisDta t, Color colA, Color colB)
         {
             //bool vrt = tool == VertexPositionTool.inst;
-            Line(t.uvpnts[0], t.uvpnts[1], t.DominantNormals[0] ? colA : colB, t.DominantNormals[1] ? colA : colB);
-            Line(t.uvpnts[1], t.uvpnts[2], t.DominantNormals[1] ? colA : colB, t.DominantNormals[2] ? colA : colB);
-            Line(t.uvpnts[0], t.uvpnts[2], t.DominantNormals[0] ? colA : colB, t.DominantNormals[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[1], t.SharpCorner[0] ? colA : colB, t.SharpCorner[1] ? colA : colB);
+            Line(t.uvpnts[1], t.uvpnts[2], t.SharpCorner[1] ? colA : colB, t.SharpCorner[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[2], t.SharpCorner[0] ? colA : colB, t.SharpCorner[2] ? colA : colB);
         }
 
 

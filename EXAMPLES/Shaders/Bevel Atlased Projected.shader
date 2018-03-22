@@ -1,8 +1,8 @@
 ﻿Shader "Bevel/Bevel Atlased Projected" {
 	Properties{
-	[NoScaleOffset]_MainTex("Base texture Atlas", 2D) = "white" {}
+	[NoScaleOffset]_MainTex_ATL("Base texture (ATL)", 2D) = "white" {}
 	[KeywordEnum(None, Regular, Combined)] _BUMP ("Bump Map", Float) = 0
-	[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "white" {}
+	[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "gray" {}
 	[Toggle(UV_PROJECTED)] _PROJECTED ("Projected UV", Float) = 0
 	[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 	[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
@@ -47,9 +47,9 @@ SubShader {
 #pragma multi_compile  ___ CLIP_EDGES
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 
-	sampler2D _MainTex;
+	sampler2D _MainTex_ATL;
 	sampler2D _BumpMapC;
-	float4 _MainTex_TexelSize;
+	float4 _MainTex_ATL_TexelSize;
 	float _AtlasTextures;
 
 	struct v2f {
@@ -116,7 +116,7 @@ SubShader {
 		TRANSFER_SHADOW(o);
 
 		#if defined(UV_ATLASED)
-		vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_TexelSize.x, o.atlasedUV);
+		vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
 		#endif
 
 		return o;
@@ -140,16 +140,16 @@ SubShader {
 
 
 	#if	UV_PIXELATED
-		float2 perfTex = (floor(i.texcoord*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
+		float2 perfTex = (floor(i.texcoord*_MainTex_ATL_TexelSize.z) + 0.5) * _MainTex_ATL_TexelSize.x;
 		float2 off = (i.texcoord - perfTex);
-		off = off *saturate((abs(off) * _MainTex_TexelSize.z) * 40 - 19);
+		off = off *saturate((abs(off) * _MainTex_ATL_TexelSize.z) * 40 - 19);
 		i.texcoord = perfTex + off;
 	#endif
 
 	#if UV_ATLASED || UV_PIXELATED
-		float4 col = tex2Dlod(_MainTex, float4(i.texcoord,0,mip));
+		float4 col = tex2Dlod(_MainTex_ATL, float4(i.texcoord,0,mip));
 	#else
-		float4 col = tex2D(_MainTex, i.texcoord);
+		float4 col = tex2D(_MainTex_ATL, i.texcoord);
 	#endif
 
 	float weight;
@@ -202,7 +202,7 @@ SubShader {
 		float4 bumpMap = float4(0,0,0.5,1);
 	#endif
 
-	bumpMap.b = bumpMap.b*deWeight + weight*i.vcol.a;
+	col.a = col.a*deWeight + weight*i.vcol.a;
 	bumpMap.a = bumpMap.a*deWeight + weight*0.7;
 
 	i.viewDir.xyz = normalize(i.viewDir.xyz);
@@ -220,15 +220,15 @@ SubShader {
 
 	float3 ambientCol = ShadeSH9(float4(normal, 1));
 
-	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a)*(1 - bumpMap.b);
+	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a)*(1 - col.a);
 	
 
-	float power = pow(bumpMap.b,8);
+	float power = pow(col.a,8);
 
 	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb )* power
 		 * 8 * direct  +ShadeSH9(float4(-reflected, 1))
 		
-		)*bumpMap.b;
+		)*col.a;
 
 	return col;
 

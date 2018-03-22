@@ -118,7 +118,7 @@ Shader "Terrain/MergingTerrain" {
 			float4 terrain = splaty;
 			float4 terrainN = splatNy;
 
-			float maxheight = (1+splaty.a)*abs(bump.y);
+			float maxheight = (1+splatNy.b)*abs(bump.y);
 
 			float3 newBump = float3(splatNy.x-0.5,0.33, splatNy.y-0.5);
 

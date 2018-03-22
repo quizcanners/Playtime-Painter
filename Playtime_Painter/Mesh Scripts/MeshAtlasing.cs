@@ -188,10 +188,14 @@ namespace Playtime_Painter
 			}
             
 			if (passedFields.Count > 0) {
-				
-				painter.preAtlasingMaterial = painter.getMaterial (true);
-				painter.preAtlasingMesh = painter.getMesh ();
-				painter.inAtlasIndex = index;
+
+                bool firstAtlasing = false;
+
+                if (painter.preAtlasingMaterials == null) {
+                    painter.preAtlasingMaterials = painter.getMaterials();
+                    painter.preAtlasingMesh = painter.getMesh();
+                    firstAtlasing = true;
+                }
 
 				var MainField = passedFields [0];
 
@@ -213,7 +217,8 @@ namespace Playtime_Painter
 
 				MeshManager.inst.EditMesh(painter, true);
 
-                painter.preAtlasingSavedMesh = MeshManager.inst._Mesh.Encode().ToString();
+                if (firstAtlasing)
+                    painter.preAtlasingSavedMesh = MeshManager.inst._Mesh.Encode().ToString();
 
                 painter.selectedMeshProfile = matAtlasProfile;
                 
@@ -222,16 +227,17 @@ namespace Playtime_Painter
 					Debug.Log ("offsetting "+offset + " tyling "+tyling);
 				}
                 
-				VertexAtlasTool.inst.SetAllTrianglesTextureTo(index, 0);
+				TriangleAtlasTool.inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubmesh);
 				MeshManager.inst.Redraw();
 				MeshManager.inst.DisconnectMesh ();
 
                 AtlasedMaterial.SetFloat (PainterConfig.atlasedTexturesInARow , painter.atlasRows);
-				painter.meshRenderer.sharedMaterial = AtlasedMaterial;
+				painter.material = AtlasedMaterial;
 
-                var m = painter.getMesh().name;
-                painter.getMesh().name = m+ "_Atlased_" + index;
-
+                if (firstAtlasing) {
+                    var m = painter.getMesh();
+                    m.name = m.name + "_Atlased_" + index;
+                }
                 //painter.getMaterial(false).SetTextureOffset(1,Vector2.zero);
 
                 AtlasedMaterial.EnableKeyword(PainterConfig.UV_ATLASED);
@@ -333,6 +339,25 @@ namespace Playtime_Painter
 			if (("Atlased Material:".edit (90, ref AtlasedMaterial).nl ()) || 
 				(AtlasedMaterial!= null && AtlasedMaterial.shader != atlasedShader))
 				OnChangeMaterial (painter);
+
+            if (painter != null) {
+                var mats = painter.getMaterials();
+                if (mats != null)
+                {
+                    if (mats.Length > 1)
+                    {
+                        if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubmesh, mats))
+                        OnChangeMaterial(painter);
+                    }
+                    else if (mats.Length > 0)
+                        "Source Material".write("Submesh which will be converted", 90, mats[0]);
+                }
+                pegi.newLine();
+                pegi.Space();
+                pegi.newLine();
+            }
+
+
 
             pegi.Space();
             pegi.newLine();

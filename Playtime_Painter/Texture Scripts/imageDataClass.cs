@@ -332,7 +332,12 @@ namespace Playtime_Painter {
 
             RenderTexture.active = curRT;
 
-            return sampler.GetPixel(0, 0);
+            var pix = sampler.GetPixel(0, 0);
+
+            if (PainterManager.inst.isLinearColorSpace)
+                pix = pix.linear;
+
+            return pix;
         }
 
         public void TextureToRenderTexture(Texture2D tex) {

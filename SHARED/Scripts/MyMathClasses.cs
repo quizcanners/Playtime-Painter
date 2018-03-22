@@ -162,12 +162,25 @@ public class myIntVec2 {
 	public int x;
 	public int y;
 
-	public override string ToString ()
+    public int max { get { return x > y ? x : y; } }
+
+    public override string ToString ()
 	{
 		return "x:" + x + " y:" + y;
 	}
 
-	public myIntVec2 MultiplyBy (int val){
+    public void Clamp(int min, int max) {
+        x = Mathf.Clamp(x, min, max);
+        y = Mathf.Clamp(y, min, max);
+    }
+
+    public void Clamp(int min, myIntVec2 max)
+    {
+        x = Mathf.Clamp(x, min, max.x);
+        y = Mathf.Clamp(y, min, max.y);
+    }
+
+    public myIntVec2 MultiplyBy (int val){
 		x *= val;
 		y *= val;
 		return this;

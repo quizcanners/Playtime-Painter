@@ -116,6 +116,7 @@ public class PainterManager : MonoBehaviour {
 	public Shader br_Multishade = null;
 	public Shader br_BlurN_SmudgeBrush = null;
 
+
     public Shader mesh_Preview = null;
     public Shader br_Preview = null;
     public Shader TerrainPreview = null;
@@ -332,35 +333,44 @@ public class PainterManager : MonoBehaviour {
 
     // ******************* Brush Shader MGMT
 
-    public static void Shader_Pos_Update(Vector2 uv, Vector3 pos, bool hidePreview, float size) {
+    public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size) {
 
         if ((hidePreview) && (previewAlpha == 0)) return;
 
         previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
 
-        Shader.SetGlobalVector("_brushPointedUV", new Vector4(uv.x, uv.y, 0, previewAlpha));
-
-        Shader.SetGlobalVector("_brushWorldPosFrom", new Vector4(prevPosPreview.x, prevPosPreview.y, prevPosPreview.z, size));
-        Shader.SetGlobalVector("_brushWorldPosTo", new Vector4(pos.x, pos.y, pos.z, (pos - prevPosPreview).magnitude));
-        prevPosPreview = pos;
+        Shader.SetGlobalVector(PainterConfig.BRUSH_POINTED_UV, new Vector4(st.uvTo.x, st.uvTo.y, 0, previewAlpha));
+        Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_FROM, new Vector4(prevPosPreview.x, prevPosPreview.y, prevPosPreview.z, size));
+        Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_TO, new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+        prevPosPreview = st.posTo;
     }
 
+    public void Shader_UpdateDecal (BrushConfig brush)
+        {
+          
+                VolumetricDecal vd = GetDecal(brush.selectedDecal);
+                if (vd != null)
+                {
+                    Shader.SetGlobalTexture("_VolDecalHeight", vd.heightMap);
+                    Shader.SetGlobalTexture("_VolDecalOverlay", vd.overlay);
+                    Shader.SetGlobalVector("_DecalParameters", new Vector4(brush.decalAngle * Mathf.Deg2Rad, (vd.type == VolumetricDecalType.Add) ? 1 : -1,
+                            Mathf.Clamp01(brush.speed / 10f), 0));
+                }
+            
+        }
+
     public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2) {
-
-	//	BrushType brushType = brush.brushType;
-
-		
 
 		bool is3Dbrush =  (RendTex) && (brush.type.isA3Dbrush);
 		bool isDecal =  (RendTex) && (brush.type.isUsingDecals);
 
-		Color c = brush.color.ToColor();
+		Color c = brush.colorLinear.ToColor();
 
 #if UNITY_EDITOR
-        if (PlayerSettings.colorSpace == ColorSpace.Linear) c *= c;
+      //      if (isLinearColorSpace) c = c.linear;
 #endif
-
-        Shader.SetGlobalVector("_brushColor", c);
+        
+            Shader.SetGlobalVector("_brushColor", c);
         
         Shader.SetGlobalVector("_brushMask", new Vector4(
             brush.mask.GetFlag(BrushMask.R) ? 1 : 0,
@@ -368,15 +378,7 @@ public class PainterManager : MonoBehaviour {
             brush.mask.GetFlag(BrushMask.B) ? 1 : 0,
             brush.mask.GetFlag(BrushMask.A) ? 1 : 0));
 
-        if (isDecal) {
-            VolumetricDecal vd = GetDecal(brush.selectedDecal);
-            if (vd != null) {
-                Shader.SetGlobalTexture("_VolDecalHeight", vd.heightMap);
-                Shader.SetGlobalTexture("_VolDecalOverlay", vd.overlay);
-                Shader.SetGlobalVector("_DecalParameters", new Vector4(brush.decalAngle*Mathf.Deg2Rad, (vd.type == VolumetricDecalType.Add) ? 1 : -1, 
-                        Mathf.Clamp01(brush.speed/10f), 0));
-            }
-        }
+            if (isDecal) Shader_UpdateDecal(brush);
 
         int ind = brush.selectedSourceMask;
 		Shader.SetGlobalTexture("_SourceMask", ((ind < masks.Length) && (ind >= 0) && (brush.useMask) && (RendTex)) ? masks[ind] : null);
@@ -409,9 +411,25 @@ public class PainterManager : MonoBehaviour {
 
             brush.blitMode.setKeyword ().SetGlobalShaderParameters ();
 
-		BlitModeExtensions.SetShaderToggle (PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
 
-		//BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "UV_PIXELATED_PREVIEW");
+            //PREVIEW_SAMPLING_DISPLACEMENT
+
+
+
+            if (brush.blitMode.GetType() == typeof(BlitModeSamplingOffset))
+            {
+                Shader.EnableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
+
+                Shader.DisableKeyword("PREVIEW_ALPHA");
+                Shader.DisableKeyword("PREVIEW_RGB");
+            }
+            else
+            {
+                Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
+                BlitModeExtensions.SetShaderToggle(PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+            }
+
+            //BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "UV_PIXELATED_PREVIEW");
 		
 		
 
@@ -420,7 +438,7 @@ public class PainterManager : MonoBehaviour {
 		
     }
 
-    public void ShaderPrepareStroke_UpdateBuffer(BrushConfig bc, float brushAlpha, imgData id, bool texcoord2) {
+    public void ShaderPrepareStroke_UpdateBuffer(BrushConfig bc, float brushAlpha, imgData id, bool texcoord2, bool firstStroke) {
 
 		bool isDoubleBuffer = (id.renderTexture == null);
 
@@ -429,7 +447,8 @@ public class PainterManager : MonoBehaviour {
         if ((!useSingle) && (!bufferUpdated))
            UpdateBufferTwo();
 
-        Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture(), texcoord2);
+        if (firstStroke)
+            Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture(), texcoord2);
             
 		rtcam.targetTexture = id.currentRenderTexture ();
 
@@ -439,8 +458,6 @@ public class PainterManager : MonoBehaviour {
 
 	}
 			
-
-   
 
     // **************************   Rendering calls
 
@@ -609,6 +626,8 @@ public class PainterManager : MonoBehaviour {
 
 		if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Editor/BlurN_SmudgeBrush");
 
+        
+
         if (br_Preview == null) br_Preview = Shader.Find("Editor/br_Preview");
         
         if (mesh_Preview == null) mesh_Preview = Shader.Find("Editor/MeshEditorAssist");
@@ -696,9 +715,6 @@ public class PainterManager : MonoBehaviour {
             meshManager.Update();
     }
 
-
-    
-
     public void combinedUpdate() {
 
         List<PlaytimePainter> l = PlaytimePainter.playbackPainters;
@@ -747,8 +763,7 @@ public class PainterManager : MonoBehaviour {
        //     painterConfig.SaveChanges();
 #endif
         }
-
-
+        
         [SerializeField]
          bool showCombinedMaps = false;
         [SerializeField]

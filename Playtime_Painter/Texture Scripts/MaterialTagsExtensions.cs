@@ -29,7 +29,9 @@ namespace Playtime_Painter {
 			return 0;//PainterConfig.inst.meshProfileSolutions[0];
         }
 
-
+        public static bool isAtlased(this Material mat, string property) {
+            return mat.isAtlased() && mat.DisplayNameContains(property, PainterConfig.isAtlasableDisaplyNameTag);
+        }
 
         public static bool isAtlased(this Material mat) {
             if (mat == null) return false;

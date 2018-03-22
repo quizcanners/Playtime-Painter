@@ -16,6 +16,34 @@ public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
 public class linearColor : abstract_STD  {
     public float r, g, b, a;
 
+    public float this[int index]
+    {
+        get {
+            switch (index) {
+                case 0: return r;
+                case 1: return g;
+                case 2: return b;
+                case 3: return a;
+            }
+
+            return a;
+        }
+        set
+        {
+            switch (index)
+            {
+                case 0:  r = value; break;
+                case 1:  g = value; break;
+                case 2:  b = value; break;
+                case 3:  a = value; break;
+            }
+        }
+    }
+
+
+    Color col { get { return new Color(r, g, b, a); } }
+
+
     public override stdEncoder Encode() {
         stdEncoder cody = new stdEncoder();
 
@@ -89,21 +117,23 @@ public class linearColor : abstract_STD  {
     }
 
     public void From(Color c) {
-        r = c.r * c.r;
-        g = c.g * c.g;
-        b = c.b * c.b;
-        a = c.a * c.a;
+        c = c.linear;
+        r = c.r;
+        g = c.g;
+        b = c.b;
+        a = c.a;
     }
 
     public void From(Color c, BrushMask bm)  {
+        c = c.linear;
         if ((bm & BrushMask.R) != 0)
-            r = c.r * c.r;
+            r = c.r;
         if ((bm & BrushMask.G) != 0)
-            g = c.g * c.g;
+            g = c.g;
         if ((bm & BrushMask.B) != 0)
-            b = c.b * c.b;
+            b = c.b;
         if ((bm & BrushMask.A) != 0)
-            a = c.a * c.a;
+            a = c.a;
     }
 
     public void From(linearColor c, BrushMask bm)
@@ -127,29 +157,21 @@ public class linearColor : abstract_STD  {
     }
 
     public Color ToColor(float alpha) {
-        Color tmp = new Color();
-        tmp.r = Mathf.Sqrt(r);
-        tmp.g = Mathf.Sqrt(g);
-        tmp.b = Mathf.Sqrt(b);
+        Color tmp = col.gamma;
         tmp.a = alpha;
         return tmp;
     }
 
+
+
     public Color ToColor()
     {
-        Color tmp = new Color();
-        tmp.r = Mathf.Sqrt(r);
-        tmp.g = Mathf.Sqrt(g);
-        tmp.b = Mathf.Sqrt(b);
-        tmp.a = Mathf.Sqrt(a);
-        return tmp;
+     
+        return col.gamma;
     }
 
     public void ToColor(ref Color tmp) {
-        tmp.r = Mathf.Sqrt(r);
-        tmp.g = Mathf.Sqrt(g);
-        tmp.b = Mathf.Sqrt(b);
-        tmp.a = Mathf.Sqrt(a);
+        tmp = col.gamma;
     }
 
     public Vector4 ToV4() {
@@ -186,10 +208,11 @@ public class linearColor : abstract_STD  {
     }
 
     public void Add(Color other) {
-        r += other.r * other.r;
-        g += other.g * other.g;
-        b += other.b * other.b;
-        a += other.a * other.a;
+        other = other.linear;
+        r += other.r;
+        g += other.g;
+        b += other.b;
+        a += other.a;
     }
 
 
@@ -232,13 +255,7 @@ public class linearColor : abstract_STD  {
     }
 
     public static Color Multiply(linearColor a, linearColor b)  {
-        Color tmp = new Color();
-
-        tmp.r = (Mathf.Sqrt(a.r) * Mathf.Sqrt(b.r));
-        tmp.g = (Mathf.Sqrt(a.g) * Mathf.Sqrt(b.g));
-        tmp.b = (Mathf.Sqrt(a.b) * Mathf.Sqrt(b.b));
-        tmp.a = (Mathf.Sqrt(a.a) * Mathf.Sqrt(b.a));
-
+        Color tmp = a.col.gamma * b.col.gamma;
         return tmp;
     }
 

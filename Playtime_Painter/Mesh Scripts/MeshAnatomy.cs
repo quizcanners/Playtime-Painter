@@ -677,7 +677,7 @@ namespace Playtime_Painter
         protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
 
         public UVpoint[] uvpnts = new UVpoint[3];
-        public bool[] DominantNormals = new bool[3];
+        public bool[] SharpCorner = new bool[3];
         public Vector4 textureNo = new Vector4();
         public int submeshIndex;
         public Vector3 sharpNormal;
@@ -696,9 +696,9 @@ namespace Playtime_Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddIfTrue("f0", DominantNormals[0]);
-            cody.AddIfTrue("f1", DominantNormals[1]);
-            cody.AddIfTrue("f2", DominantNormals[2]);
+            cody.AddIfTrue("f0", SharpCorner[0]);
+            cody.AddIfTrue("f1", SharpCorner[1]);
+            cody.AddIfTrue("f2", SharpCorner[2]);
 
             for (int i = 0; i < 3; i++)
                 cody.Add(i.ToString(),uvpnts[i].finalIndex);
@@ -715,9 +715,9 @@ namespace Playtime_Painter
 
             switch (tag) {
                 case "tex": textureNo = data.ToVector4(); break;
-                case "f0": DominantNormals[0] = true; break;
-                case "f1": DominantNormals[1] = true; break;
-                case "f2": DominantNormals[2] = true; break;
+                case "f0": SharpCorner[0] = true; break;
+                case "f1": SharpCorner[1] = true; break;
+                case "f2": SharpCorner[2] = true; break;
                 case "sub": submeshIndex = data.ToInt(); break;
                 default: uvpnts[tag.ToInt()] = mesh.uvsByFinalIndex[data.ToInt()]; break;
             }
@@ -732,7 +732,7 @@ namespace Playtime_Painter
 
         public trisDta CopySettingsFrom (trisDta td) {
             for (int i = 0; i < 3; i++)
-                DominantNormals[i] = td.DominantNormals[i];
+                SharpCorner[i] = td.SharpCorner[i];
             textureNo = td.textureNo;
             submeshIndex = td.submeshIndex;
 
@@ -750,13 +750,13 @@ namespace Playtime_Painter
             return false;
         }
 
-        public bool SetDominantNormals(bool to) {
+        public bool SetSharpCorners(bool to) {
             bool changed = false;
             for (int i = 0; i < 3; i++)
-                if (DominantNormals[i] != to)
+                if (SharpCorner[i] != to)
                 {
                     changed = true;
-                    DominantNormals[i] = to;
+                    SharpCorner[i] = to;
                 }
             return changed;
         }

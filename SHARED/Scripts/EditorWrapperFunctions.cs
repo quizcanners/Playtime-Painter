@@ -182,13 +182,42 @@ public static class ef {
             if (!tmp.isGenericNull()) {
                 if ((!val.isGenericNull()) && val.Equals(tmp))
                     jindx = lnms.Count;
-                lnms.Add(tmp.ToString());
+                lnms.Add(j+": "+tmp.ToString());
                 inxs.Add(j);
 
             }
         }
 
         if (select(ref jindx, lnms.ToArray())) {
+            val = lst[inxs[jindx]];
+            return change;
+        }
+        return false;
+    }
+
+    public static bool select<T>(ref T val, T[] lst)
+    {
+        checkLine();
+
+        List<string> lnms = new List<string>();
+        List<int> inxs = new List<int>();
+        int jindx = -1;
+
+        for (int j = 0; j < lst.Length; j++)
+        {
+            T tmp = lst[j];
+            if (!tmp.isGenericNull())
+            {
+                if ((!val.isGenericNull()) && val.Equals(tmp))
+                    jindx = lnms.Count;
+                lnms.Add(j+": "+tmp.ToString());
+                inxs.Add(j);
+
+            }
+        }
+
+        if (select(ref jindx, lnms.ToArray()))
+        {
             val = lst[inxs[jindx]];
             return change;
         }
@@ -207,7 +236,7 @@ public static class ef {
             if (lst[j] != null) {
                 if (no == j)
                     jindx = indxs.Count;
-                lnms.Add(lst[j].ToString());
+                lnms.Add(j+": "+lst[j].ToString());
                 indxs.Add(j);
 
             }
@@ -234,7 +263,7 @@ public static class ef {
             if (lst[j] != null) {
                 if (no == j)
                     jindx = indxs.Count;
-                lnms.Add(lst[j].ToString());
+                lnms.Add(j+": "+lst[j].ToString());
                 indxs.Add(j);
 
             }
@@ -249,6 +278,9 @@ public static class ef {
 
     }
 
+   
+
+
     public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD, new() {
         List<int> inds;
         List<T> objs = tree.GetAllObjs(out inds);
@@ -257,7 +289,7 @@ public static class ef {
         for (int i = 0; i < objs.Count; i++) {
             if (no == inds[i])
                 tmpindex = i;
-            filtered.Add(objs[i].ToString());
+            filtered.Add(i+": "+objs[i].ToString());
         }
 
         if (select(ref tmpindex, filtered.ToArray())) {
@@ -338,7 +370,7 @@ public static class ef {
             T val = ar[j];
             if (val.showInDropdown()) {
                 if (i == j) ind = ints.Count;
-                lnms.Add(val.ToString());
+                lnms.Add(j+": "+val.ToString());
                 ints.Add(j);
             }
         }
@@ -352,12 +384,28 @@ public static class ef {
 
     }
 
-    public static bool select<T>(ref int i, T[] ar) where T : IeditorDropdown {
+    public static bool select<T>(ref int ind, T[] lst)
+    {
+        checkLine();
 
-        return select<T>(ref i, ar, false);
+        List<string> lnms = new List<string>();
+        //List<int> indxs = new List<int>();
 
+        int before = ind;
+        ind = Mathf.Clamp(ind, 0, lst.Length);
 
+        for (int i = 0; i < lst.Length; i++)
+        {
+            var e = lst[i]; 
+
+            lnms.Add(i + ": " + (e == null ? "Nothing" : e.ToString()));
+        }
+        if (select(ref ind, lnms.ToArray()))
+            return true;
+
+        return ind != before;
     }
+
 
     public static bool select(ref int no, string[] from, int width) {
         checkLine();
@@ -709,7 +757,32 @@ public static class ef {
         return modified ? change : false;
     }
 
-  
+    public static bool edit(ref myIntVec2 val)
+    {
+        checkLine();
+        bool modified = false;
+        modified |= edit(ref val.x);
+        modified |= edit(ref val.y);
+        return modified ? change : false;
+    }
+
+    public static bool edit(ref myIntVec2 val, int min, int max)
+    {
+        checkLine();
+        bool modified = false;
+        modified |= edit(ref val.x, min, max);
+        modified |= edit(ref val.y, min, max);
+        return modified ? change : false;
+    }
+
+    public static bool edit(ref myIntVec2 val, int min, myIntVec2 max)
+    {
+        checkLine();
+        bool modified = false;
+        modified |= edit(ref val.x, min, max.x);
+        modified |= edit(ref val.y, min, max.y);
+        return modified ? change : false;
+    }
 
     public static bool edit(ref Vector3 val) {
         checkLine();

@@ -49,36 +49,92 @@ namespace Playtime_Painter
             //bool anyRecivers = false;
             var texturesNeedUpdate = new List<imgData>();
 
-            for (int i=0; i<shoots; i++)
-            if (Physics.Raycast(new Ray(transform.position,  transform.forward + transform.right*Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
+            for (int i = 0; i < shoots; i++)
+                if (Physics.Raycast(new Ray(transform.position, transform.forward + transform.right * Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
 
-                var reciver = hit.transform.GetComponentInParent<PaintingReciever>();
+                    var recivers = hit.transform.GetComponentsInParent<PaintingReciever>();
+                    PaintingReciever reciver = null;
+                  //  Debug.Log("Hit");
+                    if (recivers.Length > 0) {
 
-                    if ((reciver != null) && (reciver.getTexture() != null)) {
+                        var submesh = 0;
+                        reciver = recivers[0];
 
-                        var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
+                        // IF FEW SUBMESHES
+                        if (hit.collider.GetType() == typeof(MeshCollider))
+                        {
 
-                        if (rendTex != null)  {
+                            submesh = ((MeshCollider)hit.collider).sharedMesh.GetSubmeshNumber(hit.triangleIndex);
 
-                            if (reciver.skinnedMeshRenderer != null)
-                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, hit.point, reciver.useTexcoord2);
-                            else if (reciver.meshFilter != null)
-                                BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, hit.point, reciver.useTexcoord2);
+                            if (recivers.Length > 1)
+                            {
 
-                        } else if (reciver.texture.GetType() == typeof(Texture2D)) {
+                                var mats = reciver.rendy.materials;
 
-                            if (hit.collider.GetType() != typeof(MeshCollider))
-                                Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
+                                var material = mats[submesh % mats.Length];
 
-                            Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush);
-                            var id = reciver.texture.getImgData();
+                                reciver = null;
 
-                            if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);
-
+                                foreach (var r in recivers)
+                                    if (r.material == material)
+                                    {
+                                        reciver = r;
+                                        break;
+                                    }
+                            }
                         }
-                        else Debug.Log(reciver.gameObject.name + " doesn't have any combination of paintable things setup on his PainterReciver.");
-                }
+                        else
+                            submesh = reciver.materialIndex;
 
+                        // ACTUAL PAINTING
+
+                    if (reciver != null) {
+                        var tex = reciver.getTexture();
+                        if (tex != null)
+                        {
+                            var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
+
+                                // WORLD SPACE BRUSH
+
+                            if (rendTex != null)
+                            {
+                                    var st = new StrokeVector(hit.point);
+
+                                    st.unRepeatedUV = hit.collider.GetType() == typeof(MeshCollider) ? 
+                                        (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor()  : reciver.meshUVoffset;
+
+                                    st.useTexcoord2 = reciver.useTexcoord2;
+
+                                    if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer != null)
+                                        BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, st, submesh);
+                                    else if (reciver.type == PaintingReciever.RendererType.regular && reciver.meshFilter != null)
+                                    {
+                                        var mat = reciver.material;
+                                        if (mat != null && mat.isAtlased())
+                                            BrushTypeSphere.PaintAtlased (rendTex, reciver.gameObject,
+                                          reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterConfig.atlasedTexturesInARow));
+                                        else
+                                        BrushTypeSphere.Paint(rendTex, reciver.gameObject,
+                                            reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh } );
+                                    }
+                            }
+                            // TEXTURE SPACE BRUSH
+                            else if (reciver.texture.GetType() == typeof(Texture2D))
+                            {
+
+                                if (hit.collider.GetType() != typeof(MeshCollider))
+                                    Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
+
+                                Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush);
+                                var id = reciver.texture.getImgData();
+
+                                if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);
+
+                            }
+                            else Debug.Log(reciver.gameObject.name + " doesn't have any combination of paintable things setup on his PainterReciver.");
+                        }
+                    }
+                }
             }
 
             foreach (var t in texturesNeedUpdate) t.SetAndApply(true); // True for Mipmaps. Best to disable mipmaps on textures and set to false 
@@ -138,13 +194,13 @@ namespace Playtime_Painter
             }
 
             changed |= brush.Targets_PEGI().nl();
-            brush._bliTMode = BlitModeAdd.inst.index;
+            changed |= brush.Mode_PEGI(brush.TargetIsTex2D).nl();
             brush._type = 3;
 
             changed |= brush.blitMode.PEGI(brush, null).nl();
-            Color col = brush.color.ToColor();
+            Color col = brush.colorLinear.ToColor();
             if (pegi.edit(ref col).nl())
-                brush.color.From(col);
+                brush.colorLinear.From(col);
             changed |= brush.ColorSliders_PEGI();
 
             if (brush.paintingRGB == false)

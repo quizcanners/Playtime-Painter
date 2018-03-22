@@ -13,7 +13,10 @@ namespace Playtime_Painter {
 	public Vector3 posFrom;
 	public Vector2 uvTo;
 	public Vector3 posTo;
-    public bool useTexcoord2; // For Sphere Brush
+       // public Vector2 inMeshUV;
+        public Vector2 unRepeatedUV;
+
+        public bool useTexcoord2; // For Sphere Brush
     public Vector2 previousDelta;
 	public float avgBrushSpeed;
      
@@ -27,6 +30,8 @@ namespace Playtime_Painter {
 
 	public Vector2 delta_uv { get { return uvTo - uvFrom; } }
 	public Vector3 delta_WorldPos { get { return posTo - posFrom; } }
+
+       
 
     public bool crossedASeam() {
 
@@ -163,17 +168,22 @@ namespace Playtime_Painter {
 
         public StrokeVector()
         {
-
+            dwn();
         }
 
-        public StrokeVector (RaycastHit hit) {
-            uvFrom = uvTo = hit.textureCoord.To01Space();
+        public StrokeVector (RaycastHit hit, bool texcoord2) {
+            useTexcoord2 = texcoord2;
+            //inMeshUV = hit.textureCoord;
+            uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
             posFrom = posTo = hit.point;
+            dwn();
         }
+
         public StrokeVector(Vector3 pos)
         {
 
             posFrom = posTo = pos;
+            dwn();
         }
 
     }
