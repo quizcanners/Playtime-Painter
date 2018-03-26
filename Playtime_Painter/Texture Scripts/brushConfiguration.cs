@@ -307,23 +307,7 @@ namespace Playtime_Painter
 
             changed |= blitMode.PEGI(this, painter);
 
-            BlitMode mode = blitMode;
-            imgData image = painter.curImgData;
-
-
-            if ((mode.usingSourceTexture) && (image.TargetIsRenderTexture()))
-            {
-                if (rtp.sourceTextures.Length > 0)
-                {
-                    selectedSourceTexture = Mathf.Min(selectedSourceTexture, rtp.sourceTextures.Length - 1);
-                    pegi.write("Copy From:", 70);
-                    pegi.selectOrAdd(ref selectedSourceTexture, ref rtp.sourceTextures);
-                }
-                else
-                    pegi.write("Add Textures to Render Camera to copy from");
-            }
-
-            pegi.newLine();
+          
 
             return changed;
         }

@@ -125,7 +125,7 @@ public static class Blit_Functions {
          b = bc.mask.GetFlag(BrushMask.B);
          a = bc.mask.GetFlag(BrushMask.A);
 
-        csrc = bc.colorLinear.ToColor();
+        csrc = bc.colorLinear.ToGamma();
 
 		myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
@@ -178,7 +178,7 @@ public static class Blit_Functions {
 			b = bc.mask.GetFlag(BrushMask.B);
 			a = bc.mask.GetFlag(BrushMask.A);
 
-			csrc = bc.colorLinear.ToColor();
+			csrc = bc.colorLinear.ToGamma();
 
 			myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 

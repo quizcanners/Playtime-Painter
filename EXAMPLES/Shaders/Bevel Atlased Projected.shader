@@ -1,4 +1,4 @@
-﻿Shader "Bevel/Bevel Atlased Projected" {
+﻿Shader "Painter_Experimental/Bevel/Bevel Atlased Projected" {
 	Properties{
 	[NoScaleOffset]_MainTex_ATL("Base texture (ATL)", 2D) = "white" {}
 	[KeywordEnum(None, Regular, Combined)] _BUMP ("Bump Map", Float) = 0
@@ -229,6 +229,17 @@ SubShader {
 		 * 8 * direct  +ShadeSH9(float4(-reflected, 1))
 		
 		)*col.a;
+
+
+#if	MODIFY_BRIGHTNESS
+	col.rgb *= _lightControl.a;
+#endif
+
+#if COLOR_BLEED
+	float3 mix = col.gbr + col.brg;
+	col.rgb += mix * mix*_lightControl.r;
+#endif
+
 
 	return col;
 

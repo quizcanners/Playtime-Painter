@@ -171,6 +171,19 @@ namespace Playtime_Painter
 
             pegi.newLine();
 
+            if ((brush.blitMode.usingSourceTexture) && (id == null || id.TargetIsRenderTexture())) {
+                if (rt.sourceTextures.Length > 0)
+                {
+                    brush.selectedSourceTexture = Mathf.Min(brush.selectedSourceTexture, rt.sourceTextures.Length - 1);
+                    pegi.write("Copy From:", 70);
+                    pegi.selectOrAdd(ref brush.selectedSourceTexture, ref rt.sourceTextures);
+                }
+                else
+                    pegi.write("Add Textures to Render Camera to copy from");
+            }
+
+            pegi.newLine();
+            
             return changed;
         }
 
@@ -284,7 +297,7 @@ namespace Playtime_Painter
 
 
             public void fromColor(BrushConfig brush, Vector2 uv) {
-                var c = brush.colorLinear.ToColor();
+                var c = brush.colorLinear.ToGamma();
 
                 currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * cfg.samplingMaskSize.x);
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * cfg.samplingMaskSize.y);

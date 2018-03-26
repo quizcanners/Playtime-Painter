@@ -403,13 +403,13 @@ namespace Playtime_Painter {
                 var imp = texture.getTextureImporter();
                 if (imp != null) {
 
-                    var name =  AssetDatabase.GetAssetPath(texture);
+                  /*  var name =  AssetDatabase.GetAssetPath(texture);
                     var extension = name.Substring(name.LastIndexOf(".") + 1);
                     
                     if (extension != "png") {
                         ("Converting " + name + " to .png").showNotification();
                         texture = texture.CreatePngSameDirectory(texture.name);
-                    }
+                    }*/
 
                     texture.Reimport_IfNotReadale();
                 }

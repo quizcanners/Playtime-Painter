@@ -623,7 +623,7 @@ namespace Playtime_Painter {
         public void PaintAll(linearColor col)
         {
             BrushMask bm = cfg.brushConfig.mask;//glob.getBrush().brushMask;
-            Color c = col.ToColor();
+            Color c = col.ToGamma();
             foreach (vertexpointDta v in vertices)
                 foreach (UVpoint uv in v.uv)
                    bm.Transfer(ref uv._color, c);

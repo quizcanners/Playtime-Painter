@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "Painter_Experimental/SmoothPixels" {
+Shader "Painter_Experimental/PixArt/SmoothPixels" {
 	Properties {
 		//_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
@@ -25,8 +25,8 @@ Shader "Painter_Experimental/SmoothPixels" {
 			float2 uv_MainTex;
 		};
 
-		half _Glossiness;
-		half _Metallic;
+		float _Glossiness;
+		float _Metallic;
 
 		//fixed4 _Color;
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
@@ -43,7 +43,7 @@ Shader "Painter_Experimental/SmoothPixels" {
 				off = off *saturate((abs(off) * _MainTex_TexelSize.z)*40 - 19);
 				perfTex  += off;
 
-				fixed4 c = tex2D(_MainTex, perfTex);// *_Color;
+				float4 c = tex2D(_MainTex, perfTex);// *_Color;
 			o.Albedo = c.rgb;
 			o.Metallic = _Metallic;
 			o.Smoothness = _Glossiness;

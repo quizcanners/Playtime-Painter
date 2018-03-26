@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Pixel Art
-  m_Shader: {fileID: 4800000, guid: ef7c830739f53d04c84629e6b1d3e12f, type: 3}
+  m_Shader: {fileID: 4800000, guid: bd771c84b6ab6a848baaf394060788cd, type: 3}
   m_ShaderKeywords: _EMISSION _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _UVSEC_UV1
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
@@ -18,6 +18,18 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Bump:
+        m_Texture: {fileID: 2800000, guid: b8c3733bd8b4d774eb6a70e712376e4e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpDetail:
+        m_Texture: {fileID: 2800000, guid: 01c8abe088e85dd40a699d48fcfe32ec, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpEx:
+        m_Texture: {fileID: 2800000, guid: 36256601d263baf44b57f783e958f8fe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -40,6 +52,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ExplodedTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GridTex:
+        m_Texture: {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -70,6 +90,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Smudge:
+        m_Texture: {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaTestRef: 0.5
     - _AtlasTextures: 1
@@ -79,7 +103,7 @@ Material:
     - _DstBlend: 0
     - _EmissionScaleUI: 1
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 1
     - _GlossyReflections: 1
     - _Lightmapping: 1
     - _Metallic: 0

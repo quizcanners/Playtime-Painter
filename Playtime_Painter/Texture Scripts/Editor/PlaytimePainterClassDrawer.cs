@@ -118,7 +118,7 @@ namespace Playtime_Painter {
 
         static string[] texSizes;
         const int range = 9;
-        const int minPow = 4;
+        const int minPow = 2;
 
 
 

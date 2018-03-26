@@ -364,7 +364,7 @@ public class PainterManager : MonoBehaviour {
 		bool is3Dbrush =  (RendTex) && (brush.type.isA3Dbrush);
 		bool isDecal =  (RendTex) && (brush.type.isUsingDecals);
 
-		Color c = brush.colorLinear.ToColor();
+		Color c = brush.colorLinear.ToGamma();
 
 #if UNITY_EDITOR
       //      if (isLinearColorSpace) c = c.linear;

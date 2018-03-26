@@ -372,8 +372,6 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 	float direct = diff*shadow;
 
 
-
-
 	float3 ambientRefl = ShadeSH9(float4(reflected, 1));
 	float3 ambientCol = ShadeSH9(float4(worldNormal, 1));
 
@@ -381,7 +379,7 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 	col.rgb = col.rgb* (_LightColor0 +
 		(ambientCol
-			)*fernel)*deSmoothness;
+			)*fernel);//*deSmoothness;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -449,7 +447,8 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	col.rgb = col.rgb* (_LightColor0 +
 		(terrainAmbient.rgb + ambientCol
-			)*fernel)*deSmoothness*terrainAmbient.a;
+			)*fernel)//*deSmoothness
+		*terrainAmbient.a;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 

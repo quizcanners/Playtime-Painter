@@ -633,7 +633,7 @@ public class Countless<T> : CountlessBase {
 
     void Set(int ind, T obj) {
         if (ind >= Max) {
-            if (obj.Equals(default(T)))
+            if (obj.isDefaultOrNull())
                 return;
             while (ind >= Max) {
                 depth++;
@@ -652,7 +652,7 @@ public class Countless<T> : CountlessBase {
         VariableBranch vb = br;
         int subSize = Max;
 
-        if (!obj.Equals(default(T))) {
+        if (!obj.isDefaultOrNull()) {
             while (d > 0) {
                 subSize /= branchSize;
                 int no = ind / subSize;
@@ -667,7 +667,7 @@ public class Countless<T> : CountlessBase {
                 vb.value += 1;
 
                 int cnt = objs.Length;
-                while ((firstFreeObj < cnt) && (!objs[firstFreeObj].Equals(default(T)))) firstFreeObj++;
+                while ((firstFreeObj < cnt) && (!objs.isDefaultOrNull())) firstFreeObj++;
                 if (firstFreeObj >= cnt)
                     Expand(ref objs, branchSize);
 

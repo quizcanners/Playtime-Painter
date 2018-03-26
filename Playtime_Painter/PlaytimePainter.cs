@@ -536,7 +536,32 @@ namespace Playtime_Painter{
 		
             textureWasChanged = false;
 
-		    string field = getMaterialTextureName();
+#if UNITY_EDITOR
+            if ((texture != null) && (texture.GetType() == typeof(Texture2D)))
+            {
+                var t2d = (Texture2D)texture;
+                var imp = t2d.getTextureImporter();
+                if (imp != null)
+                {
+
+                    var name = AssetDatabase.GetAssetPath(texture);
+                    var extension = name.Substring(name.LastIndexOf(".") + 1);
+
+                    if (extension != "png")
+                    {
+                        ("Converting " + name + " to .png").showNotification();
+                        texture = t2d.CreatePngSameDirectory(texture.name);
+                    }
+
+                  //  texture.Reimport_IfNotReadale();
+                }
+            }
+#endif
+
+
+
+
+            string field = getMaterialTextureName();
 
             curImgData = null;
 
@@ -975,6 +1000,8 @@ namespace Playtime_Painter{
                 //getMaterial(true).CopyPropertiesFromMaterial(hold);
                 CheckPreviewShader();
             }
+
+            material.name = gameObject.name;
 
                 if (saveIt) {
     #if UNITY_EDITOR
@@ -1875,7 +1902,7 @@ namespace Playtime_Painter{
                         changed |= brush.PEGI(this);
 
                         BlitMode mode = brush.blitMode;
-                        Color col = brush.colorLinear.ToColor();
+                        Color col = brush.colorLinear.ToGamma();
                     
                         if ((toTexture2D || (!mode.usingSourceTexture)) && (isTerrainHeightTexture() == false))
                         {

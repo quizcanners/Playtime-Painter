@@ -78,15 +78,17 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			float4 col = tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod)); // tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod));
 			float4 bump = tex2Dlod(_Bump, float4(i.uv_Diffuse, 0, lod)); 
 
-			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
+			//float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
 
 #else
 
-			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
+			
 			float4 col = tex2D(_Diffuse, i.uv_Diffuse);
 			float4 bump = tex2D(_Bump, i.uv_Diffuse); 
 
 #endif
+
+			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
 
 			bump.rg -= 0.5;
 		

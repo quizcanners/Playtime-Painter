@@ -1330,7 +1330,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit(ref linearColor col) {
-            Color c = col.ToColor();
+            Color c = col.ToGamma();
             if (edit(ref c))
             {
                 col.From(c);

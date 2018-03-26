@@ -26,7 +26,9 @@ public static class CsharpFuncs {
 #endif
     }
 
-  
+    public static bool isDefaultOrNull<T> (this T obj) {
+        return EqualityComparer<T>.Default.Equals(obj, default(T));
+    }
 
     public static float RoundTo(this float val, int percision) {
         return (float)Math.Round(val, percision);

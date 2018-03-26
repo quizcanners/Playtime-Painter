@@ -41,7 +41,7 @@ public class linearColor : abstract_STD  {
     }
 
 
-    Color col { get { return new Color(r, g, b, a); } }
+    Color l_col { get { return new Color(r, g, b, a); } }
 
 
     public override stdEncoder Encode() {
@@ -156,22 +156,22 @@ public class linearColor : abstract_STD  {
         a = col.a;
     }
 
-    public Color ToColor(float alpha) {
-        Color tmp = col.gamma;
+    public Color ToGamma(float alpha) {
+        Color tmp = l_col.gamma;
         tmp.a = alpha;
         return tmp;
     }
 
 
 
-    public Color ToColor()
+    public Color ToGamma()
     {
      
-        return col.gamma;
+        return l_col.gamma;
     }
 
-    public void ToColor(ref Color tmp) {
-        tmp = col.gamma;
+    public void ToGamma(ref Color tmp) {
+        tmp = l_col.gamma;
     }
 
     public Vector4 ToV4() {
@@ -255,7 +255,7 @@ public class linearColor : abstract_STD  {
     }
 
     public static Color Multiply(linearColor a, linearColor b)  {
-        Color tmp = a.col.gamma * b.col.gamma;
+        Color tmp = a.l_col.gamma * b.l_col.gamma;
         return tmp;
     }
 

@@ -161,7 +161,7 @@ namespace Playtime_Painter {
 
                     tmp.MultiplyBy(0.25f);
 
-                    Color tmpC = tmp.ToColor();
+                    Color tmpC = tmp.ToGamma();
 
 
                     col[startY + startX] = tmpC;
@@ -176,7 +176,7 @@ namespace Playtime_Painter {
                         tmp.Add(col[startY + x]);
                         tmp.Add(col[lastY + x]);
                         tmp.MultiplyBy(0.5f);
-                        tmpC = tmp.ToColor();
+                        tmpC = tmp.ToGamma();
                         col[startY + x] = tmpC;
                         col[lastY + x] = tmpC;
                     }
@@ -187,7 +187,7 @@ namespace Playtime_Painter {
                         tmp.Add(col[y + startX]);
                         tmp.Add(col[y + lastX]);
                         tmp.MultiplyBy(0.5f);
-                        tmpC = tmp.ToColor();
+                        tmpC = tmp.ToGamma();
                         col[y + startX] = tmpC;
                         col[y + lastX] = tmpC;
                     }

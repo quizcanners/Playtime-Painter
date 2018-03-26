@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/Pixel_Parallax" {
+﻿Shader "Painter_Experimental/PixArt/Parallax" {
 	Properties {
 		[NoScaleOffset] _MainTex ("Albedo (RGB)", 2D) = "white" {}
 		//_Size ("Scale", float) = 4

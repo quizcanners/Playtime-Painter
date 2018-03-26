@@ -712,7 +712,7 @@ namespace Playtime_Painter
 
             "Make Vertices Unique On coloring".toggle(60, ref cfg.MakeVericesUniqueOnEdgeColoring).nl();
 
-            Color col = cfg.brushConfig.colorLinear.ToColor();
+            Color col = cfg.brushConfig.colorLinear.ToGamma();
             if (pegi.edit(ref col).nl())
                 cfg.brushConfig.colorLinear.From(col);
 
@@ -732,11 +732,11 @@ namespace Playtime_Painter
             if ((EditorInputManager.GetMouseButtonDown(0))) {
                 if (EditorInputManager.getControlKey())
                 
-                    bcf.mask.Transfer(ref m.pointedUV._color, bcf.colorLinear.ToColor());
+                    bcf.mask.Transfer(ref m.pointedUV._color, bcf.colorLinear.ToGamma());
                 
                 else
                     foreach (UVpoint uvi in m.pointedUV.vert.uv)
-                        bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.colorLinear.ToColor());
+                        bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.colorLinear.ToGamma());
 
                 m._Mesh.dirty = true;
             }
@@ -750,7 +750,7 @@ namespace Playtime_Painter
                 UVpoint a = line.pnts[0];
                 UVpoint b = line.pnts[1];
             
-                Color c = bcf.colorLinear.ToColor();
+                Color c = bcf.colorLinear.ToGamma();
                
                 a.vert.SetColorOnLine(c, bcf.mask, b.vert);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
                 b.vert.SetColorOnLine(c, bcf.mask, a.vert);

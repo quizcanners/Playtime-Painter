@@ -124,11 +124,12 @@ namespace Playtime_Painter {
 
             public bool isColor;
             public float bumpStrength = 0.1f;
+            public float bumpNoiseInGlossFraction = 0.1f;
             public List<TextureChannel> channel;
             public string name;
             public linearColor fillColor;
-            public bool glossMipFromBump;
-            public bool glossMipFromHeight;
+            public bool glossNoiseFromBump;
+            public bool glossNoiseFromHeight;
 
             public string Name { get { return name; } set { name = value; } }
 
@@ -158,16 +159,14 @@ namespace Playtime_Painter {
 
                 return cody;
             }
-
-          
+            
             public const string folderName = "TexSolution";
 
             public override string getDefaultTagName()
             {
                 return folderName;
             }
-
-
+            
             public static TexturePackagingProfile currentPEGI;
            
             public override bool PEGI()
@@ -209,17 +208,27 @@ namespace Playtime_Painter {
                     usingGlossMap |= ch.role.GetType() == typeof(TextureRole_Gloss);
                 }
 
+                
+
                 if (usingBumpStrength) changed |= "Bump Strength".edit(ref bumpStrength).nl();
                 if (usingColorSelector) changed |= "Color".edit(ref fillColor).nl();
                 if (usingGlossMap) {
-                    if ((sets == null || sets.HeightMap != null) && "Gloss Mip -= Height Noise".toggle(ref glossMipFromHeight)) {
-                        changed = true;
-                        glossMipFromBump = false;
+                    
+                    if (sets == null || sets.HeightMap != null) {
+                        if ("Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl()) {
+                            changed = true;
+                            glossNoiseFromBump = false;
+                        }
                     }
-                    if ((sets == null || sets.NormalMap  != null) && "Gloss Mip -= Normal Noise".toggle(ref glossMipFromBump)) {
+
+                    if ((sets == null || sets.NormalMap  != null) && "Gloss Mip -= Normal Noise".toggle(ref glossNoiseFromBump).nl()) {
                         changed = true;
-                        glossMipFromHeight = false;
+                        glossNoiseFromHeight = false;
                     }
+
+                    if (glossNoiseFromHeight || glossNoiseFromBump)
+                        "Fraction".edit(ref bumpNoiseInGlossFraction, 0f, 40f).nl();
+
                 }
 
 
@@ -243,58 +252,58 @@ namespace Playtime_Painter {
                 Color[] dst;
                 Texture2D tex = null;
 
-                if ((p != null) && (p.curImgData != null))
+                if (id != null)
                 {
                      size = id.width * id.height;
                      dst = id.pixels;
+                    tex = id.texture2D;
                 } else {
                     size = set.width * set.height;
-                    tex = new Texture2D(set.width, set.height, TextureFormat.ARGB32, false, set.isColor);
+                    tex = new Texture2D(set.width, set.height, TextureFormat.ARGB32, true, set.isColor);
                     dst = new Color[size];
                     tex.wrapMode = TextureWrapMode.Repeat;
                     tex.name = set.name;
                 }
 
-                var c = channel[0];
-                if (c.enabled) {
-                    var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
-                    var col = c.role.GetPixels(set, id);
-                    for (int i = 0; i < size; i++)
-                        dst[i].r = col[i][ch];
-                }
+                var mips = new List<Color[]>();
+                for (int i = 1; i < tex.mipmapCount; i++)
+                    mips.Add(tex.GetPixels(i));
 
-                c = channel[1];
-                if (c.enabled) {
-                    var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
-                    var col = c.role.GetPixels(set, id);
-                    for (int i = 0; i < size; i++)
-                        dst[i].g = col[i][ch];
-                }
+                for (int colChan = 0; colChan < 4; colChan++) {
+                    var c = channel[colChan];
+                    if (c.enabled) {
 
-                c = channel[2];
-                if (c.enabled) {
-                    var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
-                    var col = c.role.GetPixels(set, id);
-                    for (int i = 0; i < size; i++)
-                        dst[i].b = col[i][ch];
-                }
+                        var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
+                        var col = c.role.GetPixels(set, id);
+                        for (int i = 0; i < size; i++)
+                            dst[i][colChan] = col[i][ch];
 
-                c = channel[3];
-                if (c.enabled) {
-                    var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
-                    var col = c.role.GetPixels(set, id);
-                    for (int i = 0; i < size; i++)
-                        dst[i].a = col[i][ch];
+
+                        var newMips = c.role.GetMipPixels(set, id);
+                        for (int m = 1; m < tex.mipmapCount; m++)
+                        {
+                            var mlevel = mips[m - 1];
+                            var newLevel = newMips[m - 1];
+
+                            for (int si = 0; si < mlevel.Length; si++)
+                                mlevel[si][colChan] = newLevel[si][colChan];
+
+                            mips[m - 1] = mlevel;
+                        }
+
+                    }
                 }
+             
+
+                for (int i = 1; i < tex.mipmapCount; i++)
+                    tex.SetPixels(mips[i-1],i);
 
                 if (id != null) {
-                    id.SetAndApply(true);
+                    id.SetAndApply(false);
                     set.LastProduct = tex;
-                }
-                else
-                {
+                } else {
                     tex.SetPixels(dst);
-                    tex.Apply();
+                    tex.Apply(false, false);
                     set.LastProduct = tex;
                     set.LastProduct = tex.saveTextureAsAsset(PainterConfig.inst.texturesFolderName, ref set.name, false);
 
@@ -400,17 +409,20 @@ namespace Playtime_Painter {
 
             public virtual void ClearPixels() {
                 _pixels = null;
+                mipLevels = null;
             }
 
             public int index;
-
+           
             public Color[] _pixels;
+            public List<Color[]> mipLevels;
 
             public TextureRole()
             {
                 index = _allRoles.Count;
             }
 
+          
 
             public virtual bool usingBumpStrengthSlider (int sourceChannel) { return false; } 
             public virtual bool usingColorSelector { get { return false; } }
@@ -471,6 +483,60 @@ namespace Playtime_Painter {
                 return _pixels;
             }
             
+            public virtual List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, imgData id)
+            {
+                if (mipLevels == null)
+                {
+
+                    int width = id == null ? set.width : id.width;
+                    int height = id == null ? set.height : id.height;
+
+                    mipLevels = new List<Color[]>();
+
+
+
+                    int w = width;
+                    int h = height;
+
+
+                    while (w > 1 && h > 1)
+                    {
+                        w /= 2;
+                        h /= 2;
+
+                        var dest = new Color[w * h];
+
+                        int dx = width / w;
+                        int dy = height / h;
+
+                        float pixelsPerSector = dx * dy;
+
+                      
+                        for (int y = 0; y < h; y++)
+                            for (int x = 0; x < w; x++)
+                            {
+                                
+                                var col = new Color(0, 0, 0, 0);
+
+                                int start = y * dy * width + x * dx;
+
+                                for (int sy = 0; sy < dy; sy++)
+                                    for (int sx = 0; sx < dx; sx++)
+                                        col += _pixels[start + sy * width + sx];
+                                    
+                                col /= pixelsPerSector;
+                           
+                                dest[y * w + x] = col; 
+                            }
+
+
+                        mipLevels.Add(dest);
+
+                    }
+                }
+                return mipLevels;
+            }
+
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {
                 bool changed = " . ".select(20,ref selectedChannel, channels).nl();
@@ -516,7 +582,7 @@ namespace Playtime_Painter {
 
                 if (_pixels == null)
                 {
-                    var col = set.profile.fillColor.ToColor();
+                    var col = set.profile.fillColor.ToGamma();
                     var size = width * height;
                     _pixels = new Color[size];
                     for (int i = 0; i < size; i++)
@@ -558,13 +624,82 @@ namespace Playtime_Painter {
             {
                 int width = id == null ? set.width : id.width;
                 int height = id == null ? set.height : id.height;
-                if (_pixels == null)
-                    ExtractPixels(set.Gloss  ? set.Gloss : set.Reflectivity, width, height);
+                if (_pixels == null) {
+                    ExtractPixels(set.Gloss ? set.Gloss : set.Reflectivity, width, height);
+
+                    if (set.profile.glossNoiseFromHeight && set.HeightMap != null)
+                        GlossMipmapsFromHeightNoise(set.HeightMap, width, height, set.profile.bumpNoiseInGlossFraction);
+                }
 
                 return _pixels;
             }
 
+            public override void ClearPixels() {
+                base.ClearPixels();
+                mipLevels = null;
+            }
 
+            public void GlossMipmapsFromHeightNoise (Texture2D heightMap, int width, int height, float strength) {
+                if (mipLevels != null) return;
+
+                mipLevels = new List<Color[]>();
+
+                var hpix = heightMap.GetPixels(width, height);
+
+                int w = width;
+                int h = height;
+
+
+                while (w>1 && h>1) {
+                    w /= 2;
+                    h /= 2;
+
+                    var dest = new Color[w * h];
+
+                    int dx = width / w;
+                    int dy = height / h;
+
+                    float pixelsPerSector = dx * dy;
+
+                    for (int x =0; x<w; x++)
+                        for (int y =0; y<h; y++) {
+
+                            float avg = 0;
+                            var col = new Color(0, 0, 0, 0);
+
+                            int start = y * dy * width + x*dx;
+
+                            for (int sy = 0; sy < dy; sy++)
+                                for (int sx = 0; sx < dx; sx++) {
+                                    int ind = start + sy * width + sx;
+                                    avg += hpix[ind].a;
+                                    col += _pixels[ind]; 
+                                }
+
+                            col /= pixelsPerSector;
+                            avg /= pixelsPerSector;
+
+                            float noise = 0;
+                            
+                            for (int sy = 0; sy < dy; sy++)
+                                for (int sx = 0; sx < dx; sx++) 
+                                    noise += Mathf.Abs(hpix[start + sy * width + sx].a - avg);
+
+                            noise /= pixelsPerSector;
+
+                            col.a = Mathf.Clamp(col.a - noise * strength, 0.01f, 0.99f);
+
+                            dest[y * w + x] = col; 
+                        }
+
+
+                    mipLevels.Add(dest);
+
+                }
+
+
+            }
+            
         }
 
         public class TextureRole_Reflectivity : TextureRole
