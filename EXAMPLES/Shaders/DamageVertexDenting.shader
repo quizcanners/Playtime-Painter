@@ -1,7 +1,7 @@
 ﻿
 Shader "Painter_Experimental/DestructibleCharacters" {
 	Properties{
-	[NoScaleOffset]_MainTex("Damage Mask", 2D) = "white" {}
+	[NoScaleOffset]_MainTex("Damage Mask", 2D) = "black" {}
 	[NoScaleOffset]_Diffuse("Main", 2D) = "white" {}
 	[NoScaleOffset]_NrmyM("Main Combined Map", 2D) = "gray" {}
 	[NoScaleOffset]_Dirt("Dirt (RGB)", 2D) = "white" {}

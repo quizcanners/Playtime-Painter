@@ -98,25 +98,25 @@
 			float4 bumpB = tex2D(_BumpMapC, waterUV2 * 0.1 - _Time.y*0.005);
 			bumpB.rg -= 0.5;
 
-			float4 bump2 = tex2Dlod(_BumpMapC, float4(waterUV + bumpB.rg*0.02
+			float4 bump2 = tex2Dlod(_BumpMapC, float4(waterUV + bumpB.rg*0.01
 				- _Time.y*0.02,0, bump2B.a*bumpB.a*2));
 			bump2.rg -= 0.5;
 
 			float4 bump = tex2Dlod(_BumpMapC,float4(waterUV2 - bump2.rg*0.02
-				+ bump2.rg*0.05 + _Time.y*0.032 , 0 , bumpB.a *bump2B.a * 2));
+				+ bump2.rg*0.01 + _Time.y*0.032 , 0 , bumpB.a *bump2B.a*2));
 			bump.rg -= 0.5;
 		
 		
 
 
 			bump.rg = (bump2.rg //*bump.a
-				+ bump.rg)*deFar; + (bump2B.rg*bump.a //*bump.a
+				+ bump.rg)*deFar + (bump2B.rg*bump.a //*bump.a
 					+ bumpB.rg*bump2.a)*0.5;//*bump2.a;// )*0.1;
 			
 
 			//bump.b *= bump2.b;
 
-			float smoothness = bump.b+bump2.b*deFar;
+			float smoothness = (bump.b+bump2.b*deFar);
 			//smoothness *= smoothness;
 
 			float3 normal = normalize(float3(bump.r,1,bump.g));
@@ -136,12 +136,13 @@
 			dotprod = (1 - dotprod);//*0.75;
 			//float dottToView = dot(i.viewDir.xyz, )
 
-			float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*smoothness)*_LightColor0;
+			float4 terrainLight = tex2D(_TerrainColors, i.tc_Control.xz - reflected.xz*smoothness*0.03);
+			//terrainLight.rgb *=_LightColor0.rgb;
 
 
 			float3 halfDirection = normalize(i.viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
-			float NdotH = saturate((dot(normal, halfDirection)-1+smoothness*0.05)*100);
+			float NdotH = saturate((dot(normal, halfDirection)-1+smoothness*0.005)*100);
 
 
 			//return NdotH;
@@ -149,17 +150,17 @@
 			//float 	normTerm = GGXTerm(NdotH, smoothness*0.1);//*(pow(terrainN.b + 0.05, 4) * 8);
 			//return normTerm;
 
-			cont.rgb = ( unity_AmbientSky.rgb*terrainLight.a + dott*shadow*0.1+ (terrainLight.rgb *bump.b 
+			cont.rgb = ( unity_AmbientSky.rgb*terrainLight.a + dott*shadow*0.1+ (terrainLight.rgb *bump.b*0.5 
 				
 				
 				+ NdotH*4//pow(max(0.01, dott), 2048* smoothness * 8)
 				
 				
-				* shadow)*_LightColor0.rgb) *(1+ dotprod) * 0.5;
+				* shadow)*_LightColor0.rgb) *(0.25+ dotprod);
 
 			//cont.rgb += pow(bump.b,4)*1024;
 
-			UNITY_APPLY_FOG(i.fogCoord, cont);
+			
 			
 #if	MODIFY_BRIGHTNESS
 			cont.rgb *= _lightControl.a;
@@ -170,6 +171,8 @@
 			cont.rgb += mix*mix*_lightControl.r;
 #endif
 
+			UNITY_APPLY_FOG(i.fogCoord, cont);
+			//cont.rgb *= dotprod;
 
 			return cont;
 

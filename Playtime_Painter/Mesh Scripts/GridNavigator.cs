@@ -15,12 +15,22 @@ public class GridNavigator : MonoBehaviour {
     public static GridNavigator inst()  {
         if (_inst == null) {
             _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
-            if (_inst == null) 
-                _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
+            if (_inst == null)
+            {
+                try
+                {
+                    _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
+                    _inst.transform.parent = PainterManager.inst.transform;
+                    _inst.name = "grid";
+                    _inst.gameObject.hideFlags = HideFlags.DontSave;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
+                }
+            }
 
-            _inst.transform.parent = PainterManager.inst.transform;
-            _inst.name = "grid";
-            _inst.gameObject.hideFlags = HideFlags.DontSave;
+            
          }
         return _inst;
     }

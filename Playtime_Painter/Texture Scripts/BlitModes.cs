@@ -8,23 +8,13 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-    public abstract class BlitMode : IeditorDropdown
+    public abstract class BlitMode : PainterStuff, IeditorDropdown
     {
 
         private static List<BlitMode> _allModes;
-
-        protected PainterManager rt { get { return PainterManager.inst; } }
-
-        protected PainterConfig cfg { get { return PainterConfig.inst; } }
-
+        
         public int index;
-
-        protected static PlaytimePainter painter;
-        public static BrushConfig pegibrush;
-
-        public static BlitMode getCurrentBlitModeForPainter(PlaytimePainter inspectedPainter)
-        { painter = inspectedPainter; return PainterConfig.inst.brushConfig.blitMode; }
-
+        
         public static List<BlitMode> allModes
         {
             get
@@ -35,12 +25,14 @@ namespace Playtime_Painter
             }
         }
 
-        public virtual bool showInDropdown()
-        {
-            if (painter == null)
-                return (pegibrush.TargetIsTex2D ? supportedByTex2D : supportedByRenderTexturePair);
+        public virtual bool showInDropdown() {
 
-            imgData id = painter.curImgData;
+            bool CPU = BrushConfig.inspectedIsCPUbrush;
+
+            if (PlaytimePainter.inspectedPainter == null)
+                return (CPU ? supportedByTex2D : supportedByRenderTexturePair);
+
+            imgData id = PlaytimePainter.inspectedPainter.curImgData;
 
             if (id == null)
                 return false;
@@ -115,16 +107,16 @@ namespace Playtime_Painter
         public virtual bool supportedBySingleBuffer { get { return true; } }
         public virtual bool usingSourceTexture { get { return false; } }
         public virtual bool showColorSliders { get { return true; } }
-        public virtual Shader shaderForDoubleBuffer { get { return rt.br_Multishade; } }
-        public virtual Shader shaderForSingleBuffer { get { return rt.br_Blit; } }
+        public virtual Shader shaderForDoubleBuffer { get { return mgmt.br_Multishade; } }
+        public virtual Shader shaderForSingleBuffer { get { return mgmt.br_Blit; } }
 
-        public virtual bool PEGI(BrushConfig brush, PlaytimePainter p)
+        public virtual bool PEGI()
         {
 
-            imgData id = p == null ? null : p.curImgData;
+            imgData id = painter == null ? null : painter.curImgData;
 
             bool cpuBlit = id == null ? brush.TargetIsTex2D : id.destination == texTarget.Texture2D;
-            BrushType brushType = brush.type;
+            BrushType brushType = brush.type(cpuBlit);
             bool usingDecals = (!cpuBlit) && brushType.isUsingDecals;
 
 
@@ -149,9 +141,9 @@ namespace Playtime_Painter
             if ((!cpuBlit) && brushType.isA3Dbrush)
             {
 
-                Mesh m = painter.getMesh();
+                Mesh m = PlaytimePainter.inspectedPainter.getMesh();
 
-                float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (painter == null ? 1 : painter.transform.lossyScale.magnitude);
+                float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (PlaytimePainter.inspectedPainter == null ? 1 : PlaytimePainter.inspectedPainter.transform.lossyScale.magnitude);
 
                 changed |= pegi.edit(ref brush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
 
@@ -172,11 +164,11 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if ((brush.blitMode.usingSourceTexture) && (id == null || id.TargetIsRenderTexture())) {
-                if (rt.sourceTextures.Length > 0)
+                if (mgmt.sourceTextures.Length > 0)
                 {
-                    brush.selectedSourceTexture = Mathf.Min(brush.selectedSourceTexture, rt.sourceTextures.Length - 1);
+                    brush.selectedSourceTexture = Mathf.Min(brush.selectedSourceTexture, mgmt.sourceTextures.Length - 1);
                     pegi.write("Copy From:", 70);
-                    pegi.selectOrAdd(ref brush.selectedSourceTexture, ref rt.sourceTextures);
+                    pegi.selectOrAdd(ref brush.selectedSourceTexture, ref mgmt.sourceTextures);
                 }
                 else
                     pegi.write("Add Textures to Render Camera to copy from");
@@ -207,7 +199,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Add"; }
             protected override string shaderKeyword { get { return "BRUSH_ADD"; } }
 
-            public override Shader shaderForSingleBuffer { get { return rt.br_Add; } }
+            public override Shader shaderForSingleBuffer { get { return mgmt.br_Add; } }
             public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AddBlit; } }
 
             public BlitModeAdd()
@@ -221,7 +213,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Subtract"; }
             protected override string shaderKeyword { get { return "BRUSH_SUBTRACT"; } }
 
-            //public override Shader shaderForSingleBuffer { get { return rt.br_Add; } }
+            //public override Shader shaderForSingleBuffer { get { return mgmt.br_Add; } }
             public override bool supportedBySingleBuffer { get { return false; } }
 
             public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
@@ -235,7 +227,7 @@ namespace Playtime_Painter
 
             public override bool supportedByTex2D { get { return false; } }
             public override bool usingSourceTexture { get { return true; } }
-            public override Shader shaderForSingleBuffer { get { return rt.br_Copy; } }
+            public override Shader shaderForSingleBuffer { get { return mgmt.br_Copy; } }
         }
 
         public class BlitModeMin : BlitMode
@@ -262,12 +254,12 @@ namespace Playtime_Painter
             public override bool supportedBySingleBuffer { get { return false; } }
             public override bool supportedByTex2D { get { return false; } }
 
-            public override Shader shaderForDoubleBuffer { get { return rt.br_BlurN_SmudgeBrush; } }
+            public override Shader shaderForDoubleBuffer { get { return mgmt.br_BlurN_SmudgeBrush; } }
 
-            public override bool PEGI(BrushConfig brush, PlaytimePainter p)
+            public override bool PEGI()
             {
 
-                bool brushChanged_RT = base.PEGI(brush, p);
+                bool brushChanged_RT = base.PEGI();
                 pegi.newLine();
                 pegi.write("Blur Amount", 70);
                 brushChanged_RT |= pegi.edit(ref brush.blurAmount, 1f, 8f);
@@ -286,7 +278,7 @@ namespace Playtime_Painter
 
             public int method;
 
-            public override bool supportedByTex2D { get { return false; } }
+            public override bool supportedByTex2D { get { return true; } }
 
             public override string ToString() { return "Pixel Reshape"; }
 
@@ -294,8 +286,7 @@ namespace Playtime_Painter
                 currentPixel.x = (int)Mathf.Floor(uv.x * cfg.samplingMaskSize.x);
                 currentPixel.y = (int)Mathf.Floor(uv.y * cfg.samplingMaskSize.y);
             }
-
-
+        
             public void fromColor(BrushConfig brush, Vector2 uv) {
                 var c = brush.colorLinear.ToGamma();
 
@@ -303,11 +294,11 @@ namespace Playtime_Painter
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * cfg.samplingMaskSize.y);
             }
 
-            public override bool PEGI(BrushConfig brush, PlaytimePainter p)
+            public override bool PEGI()
             {
-                bool changed = base.PEGI(brush, p);
+                bool changed = base.PEGI();
 
-                if (p == null)
+                if (painter == null)
                     return changed;
 
                 pegi.newLine();
@@ -324,14 +315,14 @@ namespace Playtime_Painter
                     currentPixel.Clamp(-cfg.samplingMaskSize.max, cfg.samplingMaskSize.max * 2);
                 }
 
-                if (p != null &&  "Set Tile/Offset".Click()) {
-                    p.curImgData.tiling = Vector2.one * 1.5f;
-                    p.curImgData.offset = -Vector2.one * 0.25f;
-                    p.UpdateTylingToMaterial();
-                    changed = true;
-                }
+            if (painter != null &&  "Set Tiling Offset".Click()) {
+                painter.curImgData.tiling = Vector2.one * 1.5f;
+                painter.curImgData.offset = -Vector2.one * 0.25f;
+                painter.UpdateTylingToMaterial();
+                changed = true;
+             }
 
-                if (p != null && "Generate Default".Click().nl())
+                if (painter != null && "Generate Default".Click().nl())
                 {
                     var img = painter.curImgData;
 
@@ -389,10 +380,11 @@ namespace Playtime_Painter
             if (st.firstStroke)
             {
                 
-                    if (method == ((int)ColorSetMethod.MDownColor))
-                    {
+                    if (method == ((int)ColorSetMethod.MDownColor)) {
+                    if (pntr) {
                         pntr.SampleTexture(st.uvTo);
                         fromColor(br, st.unRepeatedUV);
+                    }
                     }
                     else
                     if (method == ((int)ColorSetMethod.MDownPosition))
@@ -418,17 +410,14 @@ namespace Playtime_Painter
             public override bool supportedBySingleBuffer { get { return false; } }
             public override bool supportedByTex2D { get { return false; } }
 
-            public override Shader shaderForDoubleBuffer { get { return rt.br_BlurN_SmudgeBrush; } }
+            public override Shader shaderForDoubleBuffer { get { return mgmt.br_BlurN_SmudgeBrush; } }
 
-            public override bool PEGI(BrushConfig brush, PlaytimePainter p)
+            public override bool PEGI()
             {
 
-                bool brushChanged_RT = base.PEGI(brush, p);
-                pegi.newLine();
-                pegi.write("Bloom Radius", 70);
-                brushChanged_RT |= pegi.edit(ref brush.blurAmount, 1f, 8f);
-                pegi.newLine();
-                return brushChanged_RT;
+                bool changed = base.PEGI().nl();
+                changed |= "Bloom Radius".edit(70,ref brush.blurAmount, 1f, 8f).nl();
+                return changed;
             }
         }
 

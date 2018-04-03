@@ -47,8 +47,8 @@ namespace Playtime_Painter
 
             switch (tag)
             {
-                case "typeRT": _type = data.ToInt(); break;
-
+                case "typeGPU": inGPUtype = data.ToInt(); break;
+                case "typeCPU": inCPUtype = data.ToInt(); break;
                 case "size2D": Brush2D_Radius = data.ToFloat(); break;
                 case "size3D": Brush3D_Radius = data.ToFloat(); break;
 
@@ -99,21 +99,24 @@ namespace Playtime_Painter
         public BrushMask mask;
 
         public int _bliTMode;
-        public int _type;
+        public int _type (bool CPU) { return CPU ? inCPUtype : inGPUtype;}
+        public void typeSet (bool CPU, BrushType t ) { if (CPU) inCPUtype = t.index; else  inGPUtype = t.index; }
+        public int inGPUtype;
+        public int inCPUtype;
 
         public void setSupportedFor (bool CPU, bool RTpair) {
             if (!CPU) {
                 if (RTpair) {
-                    if (!type.supportedByRenderTexturePair) foreach (var t in BrushType.allTypes) { if (t.supportedByRenderTexturePair) { type = t; break; } }
+                    if (!type(CPU).supportedByRenderTexturePair) foreach (var t in BrushType.allTypes) { if (t.supportedByRenderTexturePair) { typeSet(CPU,t); break; } }
                     if (!blitMode.supportedByRenderTexturePair) foreach (var t in BlitMode.allModes) { if (t.supportedByRenderTexturePair) { blitMode = t; break; } }
                 } else
                 {
-                    if (!type.supportedBySingleBuffer) foreach (var t in BrushType.allTypes) { if (t.supportedBySingleBuffer) { type = t; break; } }
+                    if (!type(CPU).supportedBySingleBuffer) foreach (var t in BrushType.allTypes) { if (t.supportedBySingleBuffer) { typeSet(CPU, t); break; } }
                     if (!blitMode.supportedBySingleBuffer) foreach (var t in BlitMode.allModes) { if (t.supportedBySingleBuffer) { blitMode = t; break; } }
                 }
             } else
             {
-                if (!type.supportedByTex2D) foreach (var t in BrushType.allTypes) { if (t.supportedByTex2D) { type = t; break; } }
+                if (!type(CPU).supportedByTex2D) foreach (var t in BrushType.allTypes) { if (t.supportedByTex2D) { typeSet(CPU, t); break; } }
                 if (!blitMode.supportedByTex2D) foreach (var t in BlitMode.allModes) { if (t.supportedByTex2D) { blitMode = t; break; } }
             }
         }
@@ -142,13 +145,15 @@ namespace Playtime_Painter
 
         public float Size(bool worldSpace) { return (worldSpace ? Brush3D_Radius : Brush2D_Radius); }
 
-        public BrushType type { get {
-                _type = Mathf.Clamp(_type, 0, BrushType.allTypes.Count-1);
-                return BrushType.allTypes[_type]; } set { _type = value.index; } }
-        public BlitMode blitMode { get { BlitMode.pegibrush = this;
+        public BrushType type(PlaytimePainter pntr) {
+            return pntr == null ? type(TargetIsTex2D) : type(pntr.curImgData.TargetIsTexture2D());
+        }
 
+            public BrushType type(bool CPU) { 
+            return BrushType.allTypes[_type(CPU)]; }
 
-                return BlitMode.allModes[_bliTMode]; } set { _bliTMode = value.index; } }
+        //set { _type = value.index; } }
+        public BlitMode blitMode { get { return BlitMode.allModes[_bliTMode]; } set { _bliTMode = value.index; } }
 
         public float speed = 10;
         public bool MB1ToLinkPositions;
@@ -172,9 +177,56 @@ namespace Playtime_Painter
         static PainterConfig cfg { get { return PainterConfig.inst; } }
         static PainterManager rtp { get { return PainterManager.inst; } }
 
-        public bool Mode_PEGI(bool cpuBlit) {
 
+        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter)  {
+           
+            if (painter.curImgData == null) {
+                painter.InitIfNotInited();
+                if (painter.curImgData == null) return painter;
+            }
+
+          
+            var id = painter.curImgData;
+            var cpu = id.TargetIsTexture2D();
+            var t = type(cpu);
+
+            blitMode.PrePaint(painter, this, stroke);
+
+            if (cpu) {
+                painter.RecordingMGMT();
+                t.PaintToTexture2D(painter, this, stroke);
+            } else {
+              
+                if ((painter.terrain != null) && (!t.supportedForTerrain_RT))
+                    return painter;
+                
+                    painter.RecordingMGMT();
+
+                    t.Paint(painter, this, stroke);
+
+            }
+
+
+
+            return painter;
+        }
+
+
+        public static BrushConfig inspectedBrush;
+        public static bool inspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? PlaytimePainter.inspectedPainter.curImgData.TargetIsTexture2D() : inspectedBrush.TargetIsTex2D; } }
+        
+        public bool Mode_Type_PEGI()
+        {
+            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
+
+            inCPUtype = Mathf.Clamp(inCPUtype, 0, BrushType.allTypes.Count - 1);
+            inGPUtype = Mathf.Clamp(inGPUtype, 0, BrushType.allTypes.Count - 1);
+
+            bool CPU = painter != null ? painter.curImgData.TargetIsTexture2D() : TargetIsTex2D;
+
+            inspectedBrush = this;
             bool changed = false;
+            
             pegi.newLine();
 
             msg.BlitMode.write("How final color will be calculated", 80);
@@ -187,27 +239,20 @@ namespace Playtime_Painter
             pegi.Space();
             pegi.newLine();
 
-            return changed;
-        }
-
-        public bool Mode_Type_PEGI(bool cpuBlit)
-        {
-            bool changed = Mode_PEGI(cpuBlit);
-
-            if (!cpuBlit)
-            {
+            if (!CPU) {
                 msg.BrushType.write(80);
-              
-                changed |= pegi.select<BrushType>(ref _type, BrushType.allTypes);
-               
-                changed |= type.PEGI(this);
+                changed |= pegi.select<BrushType>(ref inGPUtype, BrushType.allTypes);
             }
 
-            pegi.newLine();
+            changed |= type(CPU).PEGI().nl();
+
+            changed |= blitMode.PEGI();
+
+            inspectedBrush = null;
 
             return changed;
         }
-
+        
         public bool Targets_PEGI()
         {
             bool changed = false;
@@ -220,19 +265,20 @@ namespace Playtime_Painter
                 changed = true;
             }
 
-            bool smooth = _type != BrushTypePixel.inst.index;
+            bool smooth = type(TargetIsTex2D) != BrushTypePixel.inst;
 
             if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.getIcon(), icon.Square.getIcon(), "Smooth/Pixels Brush", 45))
             {
                 changed = true;
-                _type = smooth ? BrushTypeNormal.inst.index : BrushTypePixel.inst.index;
+                typeSet(TargetIsTex2D,  smooth ? (BrushType)BrushTypeNormal.inst : (BrushType)BrushTypePixel.inst);
             }
 
             return changed;
         }
 
-        public bool PEGI(PlaytimePainter painter)  {
+        public override bool PEGI()  {
 
+            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
 
             if ((painter.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
                 painter.UpdateColliderForSkinnedMesh();
@@ -262,38 +308,39 @@ namespace Playtime_Painter
 
             if (cpuBlit)
             {
-                bool smooth = _type != BrushTypePixel.inst.index;
+                bool smooth = _type(cpuBlit) != BrushTypePixel.inst.index;
 
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
                 {
                     changed = true;
-                    _type = smooth ? BrushTypeNormal.inst.index : BrushTypePixel.inst.index;
+                    typeSet(cpuBlit,  smooth ? (BrushType)BrushTypeNormal.inst : (BrushType)BrushTypePixel.inst);
                 }
             }
 
             pegi.newLine();
+#if UNITY_EDITOR
+            if (Tools.current != Tool.None)
+            {
+                "Lock to use Transform tools".writeWarning();
+                if ("Hide Transform tool".Click().nl())
+                    Tools.current = Tool.None;
+            }
+#endif
+
             if ((painter.originalShader != null) && (cfg.moreOptions))
                 changed |= pegi.toggle(ref cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
 
 
 
-            BrushType.painter = painter;
-
-            if (Mode_Type_PEGI(cpuBlit))
+            if (Mode_Type_PEGI())
             {
-                if (type == BrushTypeDecal.inst)
+                if (type(cpuBlit) == BrushTypeDecal.inst)
                     MaskSet(BrushMask.A, true);
 
                 changed = true;
             }
 
-            BrushType.painter = null;
-
-
-           BlitMode blitMode = BlitMode.getCurrentBlitModeForPainter(painter);
-
-            if (painter.terrain != null)
-            {
+            if (painter.terrain != null)  {
 
                 if ((painter.curImgData != null) && ((painter.isTerrainHeightTexture())) && (painter.originalShader == null))
                     pegi.writeWarning(" You need to use Preview Shader to see changes");
@@ -305,46 +352,24 @@ namespace Playtime_Painter
 
             }
 
-            changed |= blitMode.PEGI(this, painter);
-
-          
-
             return changed;
         }
 
-        public bool ColorSliders_PEGI()
-        {
-            bool changed = false;
-
-            changed |= ColorSlider(BrushMask.R, ref colorLinear.r, null, true);
-            changed |= ColorSlider(BrushMask.G, ref colorLinear.g, null, true);
-            changed |= ColorSlider(BrushMask.B, ref colorLinear.b, null, true);
-            changed |= ColorSlider(BrushMask.A, ref colorLinear.a, null, true);
-
-            return changed;
-        }
-
-        public bool ColorSlider(BrushMask m, ref float chanel)
+        public bool ChannelSlider(BrushMask m, ref float channel)
         {
             pegi.write(m.getIcon(), 25);
-            bool changed = pegi.edit(ref chanel, 0, 1);
-
-            pegi.newLine();
-
+            bool changed = pegi.edit(ref channel, 0, 1).nl();
             return changed;
         }
 
-        public bool ColorSlider(BrushMask m, ref float chanel, Texture icon, bool slider)
+        public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider)
         {
             if (icon == null)
                 icon = m.getIcon();
 
-
-
             bool changed = false;
             bool maskVal = mask.GetFlag(m);
-            if (maskVal ? pegi.Click(icon, 25) : pegi.Click(m.ToString() + " disabled"))
-            {
+            if (maskVal ? pegi.Click(icon, 25) : pegi.Click(m.ToString() + " disabled")) {
                 MaskToggle(m);
                 changed = true;
             }
@@ -356,6 +381,68 @@ namespace Playtime_Painter
 
             return changed;
         }
+
+        public bool ColorSliders_PEGI()
+        {
+
+            if (PlaytimePainter.inspectedPainter != null)
+                return ColorSliders();
+
+            bool changed = false;
+
+            Color col = colorLinear.ToGamma();
+            if (pegi.edit(ref col).nl())
+            {
+                colorLinear.From(col);
+                changed = true;
+            }
+            
+            changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);
+            changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, true);
+            changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, true);
+            changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
+
+            return changed;
+        }
+
+        bool ColorSliders( ) {
+            bool changed = false;
+            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
+            bool slider = blitMode.showColorSliders;
+
+            if ((painter != null) && (painter.isTerrainHeightTexture())) {
+                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
+            }
+            else if ((painter != null) && painter.isTerrainControlTexture())
+            {
+                // Debug.Log("Is control texture");
+                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.getSplashPrototypeTexture(0), slider);
+                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.getSplashPrototypeTexture(1), slider);
+                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.getSplashPrototypeTexture(2), slider);
+                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.getSplashPrototypeTexture(3), slider);
+            }
+            else
+            {
+
+                if ((painter.curImgData.TargetIsRenderTexture()) && (painter.curImgData.renderTexture != null))
+                {
+                    changed |= ChannelSlider(BrushMask.R, ref colorLinear.r);
+                    changed |= ChannelSlider(BrushMask.G, ref colorLinear.g);
+                    changed |= ChannelSlider(BrushMask.B, ref colorLinear.b);
+
+                }
+                else
+                {
+
+                    changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider);
+                    changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider);
+                    changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider);
+                    changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider);
+                }
+            }
+            return changed;
+        }
+
 
     }
 

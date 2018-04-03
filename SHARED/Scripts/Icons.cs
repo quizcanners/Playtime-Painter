@@ -9,7 +9,9 @@ public enum icon {
     save, NewMaterial, NewTexture, On, Off, Lock, Unlock, GPU, CPU, Round,
     Square, PreviewShader, OriginalShader, saveAsNew, Undo, Redo, Painter,
     UndoDisabled, RedoDisabled, Play, Record, Delete, Done, Edit, Close, Add,
-    Script, Config, Load, Pause, mesh, Discord, Docs, Email, Back, Red, Green, Blue, Alpha 
+    Script, Config, Load, Pause, mesh, Discord, Docs, Email, Back, Red, Green, Blue, Alpha,
+    Hint
+
 }
 
 public static class Icons_MGMT {

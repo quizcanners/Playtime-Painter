@@ -29,7 +29,7 @@ struct v2fvd {
 
 
 static const float MERGE_POWER = 512;
-static const float TERABOUNCE = 0.5;
+static const float TERABOUNCE = 0.2;
 
 float4 _lightControl;
 sampler2D _mergeTerrainHeight;
@@ -319,21 +319,21 @@ inline float2 foamAlphaWhite(float3 fwpos) {
 	return float2(foamAlpha, foamWhite);
 }
 
-inline float3 foamStuff(float3 wpos) {
-	float3 fwpos;
-	fwpos = wpos;
+inline float4 foamStuff(float3 wpos) {
+	float4 fwpos;
+	fwpos.xyz = wpos;
 	fwpos.xz += _wrldOffset.xz;
 	fwpos.y -= _foamParams.z;
 	fwpos.y *= _foamDynamics.x;
 	fwpos.y += 128 / _foamDynamics.x;
 	fwpos.xz *= _foamDynamics.y;
-	fwpos /= _foamDynamics.z;
+	fwpos.xyz /= _foamDynamics.z;
 	fwpos.y += 1;
-
+	fwpos.w = wpos.y;
 	return fwpos;
 }
 
-inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, float shadow, float viewDir) {
+inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, float shadow, float viewDir, inout float Metalic) {
 	float wetSection = min(max(_foamParams.w - fwpos.y - (colA)*_foamParams.w, 0),0.999);//*(1 - terrainN.b);
 	fwpos.y += terrainN.b;
 
@@ -345,7 +345,7 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 	float above = 1 - under;
 
 	colA = max(colA, wetSection)*under;
-
+	Metalic += (1 - Metalic)*0.5*wetSection;
 	
 
 	return float2(foamA_W.y*(0.5 + shadow)*(under), soil*(viewDir*above) + under);
@@ -354,13 +354,13 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 
 
 
-inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow) {
+inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float reflectivness) {
 
 	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
 	float fernel = 1.5 - dotprod;
-	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
+	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);
 
-	float smoothness = col.a;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
+	float smoothness = col.a;
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
@@ -379,32 +379,35 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 	col.rgb = col.rgb* (_LightColor0 +
 		(ambientCol
-			)*fernel);//*deSmoothness;
+			));
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
-	float NdotH =  max(0, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
+	float NdotH = max(0.01, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
 
+	float power = pow(smoothness, 8) * 4096;
 
-	//float power = pow(smoothness, 32) * 4096;
-
-	//float normTerm = pow(NdotH, power)*power*0.1;
-	float normTerm = GGXTerm(NdotH, deSmoothness);//*(pow(terrainN.b + 0.05, 4) * 8);
+	float normTerm = pow(NdotH, power)*power*0.01;
 
 	float3 reflResult = (
-		normTerm*2 //normTerm
+		normTerm 
 
-		*_LightColor0 +
+		*_LightColor0*reflectivness +
 
 		ambientRefl.rgb
 
-		)* col.a;// *fernel;
+		)* col.a*fernel;
 
 	col.rgb += reflResult;
 
-	//col.rgb = NdotH;
+#if	MODIFY_BRIGHTNESS
+	col.rgb *= _lightControl.a;
+#endif
 
-	//col.rgb = reflected + 0.5;
+#if COLOR_BLEED
+	float3 mix = (col.gbr + col.brg)*fernel;
+	col.rgb += mix * mix*_lightControl.r;
+#endif
 
 }
 
@@ -412,7 +415,13 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 
 inline void Terrain_Light(float3 tc_Control, float4 terrainN, 
-	float3 worldNormal, float3 viewDir, inout float4 col, float shadow) {
+	float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float Metallic, float4 fwpos
+	) {
+
+#if WATER_FOAM
+	float2 wet = WetSection(terrainN, col.a, fwpos, shadow, viewDir.y, Metallic);
+#endif
+
 
 	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
 	float fernel = 1.5 - dotprod;
@@ -429,7 +438,6 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	float direct = diff*shadow;
 
-
 	float3 teraBounce = _LightColor0.rgb*TERABOUNCE;
 
 	float4 terrainAmbient = tex2D(_TerrainColors, tc_Control.xz);
@@ -445,9 +453,11 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	_LightColor0 *= direct;
 
+	float deMetalic = (1 - Metallic);
+
 	col.rgb = col.rgb* (_LightColor0 +
 		(terrainAmbient.rgb + ambientCol
-			)*fernel)//*deSmoothness
+			)*fernel)*( deSmoothness*Metallic + deMetalic)
 		*terrainAmbient.a;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
@@ -468,11 +478,33 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 		)* col.a;// *fernel;
 
-	col.rgb += reflResult;
+	col.rgb += reflResult* (deMetalic + col.rgb*Metallic);
 
 	//col.rgb = NdotH;
 
 	//col.rgb = reflected + 0.5;
+
+#if WATER_FOAM
+	col.rgb += wet.x;
+	col.a = wet.y;
+	col.rgb *= 1 - saturate((_foamParams.z - fwpos.w)*0.1);  // NEW
+#endif
+
+#if	MODIFY_BRIGHTNESS
+	col.rgb *= _lightControl.a;
+#endif
+
+#if COLOR_BLEED
+	float3 mix = (col.gbr + col.brg)*fernel;
+	col.rgb += mix * mix*_lightControl.r;
+#endif
+
+	//float4 fogged = col;
+
+//	float fogging = (32 - max(0, wposy - _foamParams.z)) / 32;
+
+	//fogging = min(1, pow(max(0, fogging), 2));
+	//col.rgb = fogged.rgb;// *fogging + col.rgb *(1 - fogging);
 
 }
 

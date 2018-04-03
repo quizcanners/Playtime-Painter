@@ -255,16 +255,31 @@ public static void SetMaximumLength<T>(this List<T> list, int Length) {
     public static List<Type> GetAllChildTypesOf<T>()
     {
         List<Type> types = new List<Type>();
-        foreach (Type type in Assembly.GetAssembly(typeof(T)).GetTypes())
-        {
-            if (type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)) && (type != typeof(T)))
-            {
+        foreach (Type type in Assembly.GetAssembly(typeof(T)).GetTypes()) {
+            if (type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)) && (type != typeof(T))) {
                 types.Add(type);
             }
         }
-
         return types;
     }
+
+    public static List<List<Type>> GetAllChildTypesOf(List<Type> baseTypes) {
+        List<List<Type>> types = new List<List<Type>>();
+        for (int i = 0; i < baseTypes.Count; i++)
+            types[i] = new List<Type>();
+
+        foreach (Type type in Assembly.GetAssembly(baseTypes[0]).GetTypes()) {
+            if (type.IsClass && !type.IsAbstract) {
+                for (int i=0; i<baseTypes.Count; i++)
+                    if (type.IsSubclassOf(baseTypes[i]) && (type != baseTypes[i])) {
+                        types[i].Add(type);
+                        break;
+                    }
+            }
+        }
+        return types;
+    }
+
 
     /*  public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs)
       {

@@ -58,9 +58,7 @@ public class PaintingRecieverEditor : Editor
                 if (material.HasProperty(textureField))
                     material.SetTexture(textureField, value);
                 else material.mainTexture = value;   } }
-
-
-
+        
         public Texture texture;
         public Texture originalTexture;
         public bool useTexcoord2;
@@ -75,27 +73,32 @@ public class PaintingRecieverEditor : Editor
         }
 
         public Texture getTexture() {
-            if (texture != null) return texture;
+            if (texture != null)
+                return texture;
 
-            var rtm = RenderTexturesPool._inst;
-         
+            var rtm = TexturesPool._inst;
+
+            if (material == null) {
+                Debug.Log("No Material ");
+                return null;
+            }
 
             if (rtm!= null) {
-
+                
                 originalMaterial = material;
-                texture = rtm.GetOne();
-                if (originalMaterial == null)
-                {
-                    Debug.Log("No Material ");
-                    return null;
-                }
+
+                texture = rtm.GetRenderTexture();
 
                 fromRTmanager = true;
              
-            
                 material = Instantiate(originalMaterial);
 
-                PainterManager.inst.Render(originalTexture == null ? matTex : originalTexture , (RenderTexture) texture);
+                var tex = originalTexture == null ? matTex : originalTexture;
+                if (tex != null)
+                PainterManager.inst.Render( tex , (RenderTexture) texture);
+                else
+                    PainterManager.inst.Render(Color.black , (RenderTexture)texture);
+
                 matTex = texture;
             }
 
@@ -108,7 +111,7 @@ public class PaintingRecieverEditor : Editor
                 fromRTmanager = false;
                 material = originalMaterial;
                 originalMaterial = null;
-                RenderTexturesPool._inst.ReturnOne((RenderTexture)texture);
+                TexturesPool._inst.ReturnOne((RenderTexture)texture);
                 texture = null;
                 return;
             }
@@ -180,10 +183,6 @@ public class PaintingRecieverEditor : Editor
                     "   Property".select(ref textureField, lst).nl();
                 }
                 else textureField = "";
-
-            
-
-
             }
 
 
@@ -292,7 +291,7 @@ public class PaintingRecieverEditor : Editor
                     else
                     {
 
-                        var rtm = RenderTexturesPool._inst;
+                        var rtm = TexturesPool._inst;
 
                         if (rtm != null)
                         {
@@ -309,7 +308,7 @@ public class PaintingRecieverEditor : Editor
                         {
                             "No Render Texture Pool found".write();
                             if ("Create".Click().nl())
-                                new GameObject().AddComponent<RenderTexturesPool>().gameObject.name = "Render Texture Pool";
+                                (TexturesPool.inst.gameObject.name + " created").showNotification(); //new GameObject().AddComponent<TexturesPool>().gameObject.name = "Texture Pool";
                         }
                     }
                 }

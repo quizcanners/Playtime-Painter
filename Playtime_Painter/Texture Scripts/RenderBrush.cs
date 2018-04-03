@@ -132,8 +132,14 @@ public class RenderBrush : MonoBehaviour {
             return this;
         }
 
+        public RenderBrush Set(Color col)
+        {
+            meshRendy.sharedMaterial.SetColor("_Color", col);
+            return this;
+        }
 
-public void PrepareForFullCopyOf (Texture tex){
+
+        public void PrepareForFullCopyOf (Texture tex){
 			float size = PainterManager.orthoSize * 2;
 			float aspectRatio = (float)tex.width / (float)tex.height;
 			transform.localScale = new Vector3(size * aspectRatio, size, 0);
@@ -143,12 +149,18 @@ public void PrepareForFullCopyOf (Texture tex){
             Set(rtp.pixPerfectCopy).Set(tex);
         }
 
+        public void PrepareColorPaint(Color col)
+        {
+            float size = PainterManager.orthoSize * 2;
+            transform.localScale = new Vector3(size , size, 0);
+            transform.localPosition = Vector3.forward * 10;
+            transform.localRotation = Quaternion.identity;
+            meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+            Set(rtp.br_ColorFill).Set(col);
+        }
 
 
-
-    private void OnEnable() {
-     
-    }
+      
 
     // Use this for initialization
     void Awake () {

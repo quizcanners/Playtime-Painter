@@ -319,7 +319,7 @@ namespace Playtime_Painter
 
             switch (quickMeshFunctionsExtensions.current)
             {
-                case quickMeshFunctionForG.DeleteTrianglesFully:
+                case QuickMeshFunctions.DeleteTrianglesFully:
                     if ((Input.GetKey(KeyCode.G)) && (pointedTris != null))
                     {
                         foreach (UVpoint uv in pointedTris.uvpnts)
@@ -336,7 +336,7 @@ namespace Playtime_Painter
                         _Mesh.dirty = true;
                     }
                     break;
-                case quickMeshFunctionForG.Line_Center_Vertex_Add:
+                case QuickMeshFunctions.Line_Center_Vertex_Add:
                     if ((Input.GetKeyDown(KeyCode.G)) && (pointedLine != null))
                     {
                         Vector3 tmp = pointedLine.pnts[0].pos;
@@ -345,7 +345,7 @@ namespace Playtime_Painter
 
                     }
                     break;
-                case quickMeshFunctionForG.TrisColorForBorderDetection:
+                case QuickMeshFunctions.TrisColorForBorderDetection:
                     if (Input.GetKeyDown(KeyCode.G))
                     {
                         Debug.Log("Pointed Line null: " + (pointedLine == null));
@@ -402,7 +402,7 @@ namespace Playtime_Painter
                     }
                     break;
 
-                case quickMeshFunctionForG.Path:
+                case QuickMeshFunctions.Path:
                    // if (selectedLine != null)
                      //   VertexLine(selectedLine.pnts[0].vert, selectedLine.pnts[1].vert, new Color(0.7f, 0.8f, 0.5f, 1));
                     if (Input.GetKeyDown(KeyCode.G))
@@ -417,7 +417,7 @@ namespace Playtime_Painter
 
 
                     break;
-                case quickMeshFunctionForG.MakeOutline:
+                case QuickMeshFunctions.MakeOutline:
                     if ((Input.GetKeyDown(KeyCode.G)) && (pointedUV != null))
                     {
 
@@ -1063,7 +1063,7 @@ namespace Playtime_Painter
 
                 G_toolDta.updated = false;
 
-                if (quickMeshFunctionForG.Path.selected())
+                if (QuickMeshFunctions.Path.selected())
                     SetPathStart();
 
             }
@@ -1122,7 +1122,8 @@ namespace Playtime_Painter
 
         void SORT_AND_UPDATE_UI() {
 
-        
+            if (grid == null)
+                return;
 
             if (grid.verts[0].go == null)
                 InitVertsIfNUll();
@@ -1191,9 +1192,7 @@ namespace Playtime_Painter
 
 
         }
-
-      
-
+        
         public void DRAW_Lines(bool isGizmoCall)
         {
 
@@ -1459,12 +1458,12 @@ namespace Playtime_Painter
 
 
         }
-
-
-       
-
+        
         void InitVertsIfNUll()
         {
+            if (grid == null)
+                return;
+            
             if (grid.vertPrefab == null)
                 grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
 
@@ -1514,6 +1513,7 @@ namespace Playtime_Painter
         List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         bool showTooltip;
+        bool showCopyOptions;
         public bool PEGI()
         {
             bool changed = false;
@@ -1551,78 +1551,122 @@ namespace Playtime_Painter
 
             pegi.newLine();
 
-            if (!selectedPainters.Contains(target))
-            {
-                if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl())
-                    selectedPainters.Add(target);
+           
 
-                if (selectedPainters.Count > 0)
-                {
-                    "Will Merge with the following:".nl();
-                    for (int i = 0; i < selectedPainters.Count; i++)
-                    {
-                        if (selectedPainters[i] == null)
+
+            pegi.nl();
+
+            tool.PEGI();
+
+            pegi.newLine();
+
+            if ("Hint".foldout(ref showTooltip).nl())
+                pegi.writeHint(tool.tooltip);
+
+
+            if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
+
+                if (!selectedPainters.Contains(target)) {
+                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl())
+                        selectedPainters.Add(target);
+
+                    if (selectedPainters.Count > 0) {
+
+                        if (_Mesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref _Mesh.UV2distributeRow).nl())
+                            _Mesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
+                        else
                         {
-                            selectedPainters.RemoveAt(i);
-                            i--;
-                        } else {
-                            if (icon.Delete.Click(25))
+                            if (_Mesh.UV2distributeCurrent > 0)
+                            {
+                                ("All added meshes will be distributed in " + _Mesh.UV2distributeRow + " by " + _Mesh.UV2distributeRow + " grid. By cancelling this added" +
+                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
+                                if ("Cancel Distribution".Click().nl())
+                                    _Mesh.UV2distributeRow = 0;
+                            }
+                            else {
+                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref _Mesh.UV2distributeRow, 2, 16).nl();
+                                "Start from".edit(ref _Mesh.UV2distributeCurrent).nl();
+                            }
+                            pegi.write("Using " + (_Mesh.UV2distributeCurrent + selectedPainters.Count + 1) + " out of " + (_Mesh.UV2distributeRow * _Mesh.UV2distributeRow).ToString() + " spots");
+                            pegi.newLine();
+                        }
+                        
+
+
+
+                        "Will Merge with the following:".nl();
+                        for (int i = 0; i < selectedPainters.Count; i++)
+                        {
+                            if (selectedPainters[i] == null)
                             {
                                 selectedPainters.RemoveAt(i);
                                 i--;
                             }
                             else
-                            selectedPainters[i].gameObject.name.nl();
-                          
+                            {
+                                if (icon.Delete.Click(25))
+                                {
+                                    selectedPainters.RemoveAt(i);
+                                    i--;
+                                }
+                                else
+                                    selectedPainters[i].gameObject.name.nl();
+
+                            }
+                        }
+
+                        if ("Merge!".Click().nl())
+                        {
+
+                            foreach (var p in selectedPainters)
+                                _Mesh.MergeWith(p);
+
+                            _Mesh.dirty = true;
+
                         }
                     }
 
-                    if ("Merge!".Click().nl()) {
-
-                        foreach (var p in selectedPainters)
-                            _Mesh.MergeWith(p);
-
-                        _Mesh.dirty = true;
-
-                    }
                 }
-
-            } else {
-                if ("Remove from Copy Selection".Click().nl())
-                    selectedPainters.Remove(target);
+                else
+                {
+                    if ("Remove from Copy Selection".Click().nl())
+                        selectedPainters.Remove(target);
+                }
             }
-                
-
 
             //pegi.write("Function for G Button:");
             //quickMeshFunctionsExtensions.current = (quickMeshFunctionForG)pegi.editEnum(quickMeshFunctionsExtensions.current);
             pegi.newLine();
 
             //if (quickMeshFunctionForG.MakeOutline.selected())
-              //  "Width".edit(ref outlineWidth).nl();
+            //  "Width".edit(ref outlineWidth).nl();
 
 
             //if (!quickMeshFunctionForG.Nothing.selected())
-              //  (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
+            //  (G_toolDta.toolsHints[(int)quickMeshFunctionsExtensions.current]).nl();
 
             pegi.newLine();
 
-         
 
-            if (quickMeshFunctionForG.Path.selected()) {
+
+            if (QuickMeshFunctions.Path.selected())
+            {
 
                 if (selectedLine == null) "Select Line".nl();
-                else {
+                else
+                {
 
                     if ("Set path start on selected".Click())
                         SetPathStart();
 
                     if (G_toolDta.updated == false)
                         "Select must be a Quad with shared uvs".nl();
-                    else {
+                    else
+                    {
                         if (selectedLine == null)
                             G_toolDta.updated = false;
-                        else  {
+                        else
+                        {
 
                             "Mode".write();
                             G_toolDta.mode = (gtoolPathConfig)pegi.editEnum(G_toolDta.mode);
@@ -1634,16 +1678,11 @@ namespace Playtime_Painter
                 }
             }
 
-            if ("Hint".foldout(ref showTooltip).nl())
-                pegi.writeHint(tool.tooltip);
 
 
-            pegi.nl();
 
-            tool.PEGI();
 
-         
-        
+
 
             grid.vertexPointMaterial.SetColor("_Color", tool.vertColor);
 

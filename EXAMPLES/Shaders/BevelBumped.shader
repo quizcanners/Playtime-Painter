@@ -2,6 +2,7 @@
 	Properties{
 	_MainTex("Base texture", 2D) = "white" {}
 	_BumpMap("Normal Map", 2D) = "bump" {}
+	_Refl("_Reflectivity", 2D) = "white" {}
 	[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
 	}
 
@@ -39,7 +40,11 @@
 
 		sampler2D _MainTex;
 	float4 _MainTex_TexelSize;
+	float4 _MainTex_ST;
 	sampler2D _BumpMap;
+	float4 _BumpMap_ST;
+	sampler2D _Refl;
+	float4 _Refl_ST;
 
 	struct v2f {
 		float4 pos : SV_POSITION;
@@ -92,9 +97,9 @@
 
 	i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-	float4 col = tex2D(_MainTex, i.texcoord);
+	float4 col = tex2D(_MainTex, TRANSFORM_TEX(i.texcoord, _MainTex));
 
-	float3 tnormal = UnpackNormal(tex2D(_BumpMap, i.texcoord));
+	float3 tnormal = UnpackNormal(tex2D(_BumpMap, TRANSFORM_TEX(i.texcoord, _BumpMap)));
 
 	float weight;
 	float3 normal = DetectSmoothEdge(i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight); //(i.edge.xyz);
@@ -114,22 +119,12 @@
 	
 	float shadow = SHADOW_ATTENUATION(i);
 
-	float dotprod = dot(i.viewDir.xyz, normal);					
-	float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*normal);
-	float dott = max(0.01, dot(_WorldSpaceLightPos0, -reflected));
+	Simple_Light(float4(1, 1, 1, 1), normal, i.viewDir.xyz, col, shadow, tex2D(_Refl, TRANSFORM_TEX(i.texcoord, _Refl)).r);
 
-	col.rgb *= ((max(0, dot(normal, _WorldSpaceLightPos0.xyz))
-		* shadow)*_LightColor0 
-		)*(1 - col.a);
+	//TRANSFORM_TEX(i.texcoord, _Refl)
 
-	col.a += 0.01;
 
-	float power = pow(col.a,8 );
 
-	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb 
-		)* power * 8 * shadow
-		)
-		*col.a ;
 
 
 	return 

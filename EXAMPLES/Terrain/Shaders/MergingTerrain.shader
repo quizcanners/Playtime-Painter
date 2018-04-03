@@ -38,7 +38,7 @@ Shader "Terrain/MergingTerrain" {
 				float3 wpos : TEXCOORD3;
 				float3 tc_Control : TEXCOORD4;
 #if WATER_FOAM
-				float3 fwpos : TEXCOORD5;
+				float4 fwpos : TEXCOORD5;
 #endif
 				SHADOW_COORDS(6) 
 				float3 normal : TEXCOORD7;
@@ -164,38 +164,26 @@ Shader "Terrain/MergingTerrain" {
 	
 	float shadow = SHADOW_ATTENUATION(i);
 
+	float Metallic = 0;
+
+
+
+	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow , Metallic, 
 #if WATER_FOAM
-	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow, i.viewDir.y);
+		i.fwpos
+#else
+		0
 #endif
-
-			Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz,
-				col, shadow);
-
-#if WATER_FOAM
-			col.rgb += wet.x;
-			col.a = wet.y;
-			col.rgb *= 1-saturate ((_foamParams.z - i.wpos.y)*0.1);  // NEW
-#endif
+		);
 
 
+	UNITY_APPLY_FOG(i.fogCoord, col);
 
 
-			float4 fogged = col;
-			UNITY_APPLY_FOG(i.fogCoord, fogged);
-			float fogging = (32-max(0,i.wpos.y-_foamParams.z))/32;
-
-			fogging = min(1,pow(max(0,fogging),2));
-			col.rgb = fogged.rgb * fogging + col.rgb *(1-fogging);
+		
 
 
-			#if	MODIFY_BRIGHTNESS
-			col.rgb *= _lightControl.a;
-			#endif
-
-			#if COLOR_BLEED
-			float3 mix = col.gbr + col.brg;
-			col.rgb += mix*mix*_lightControl.r;
-			#endif
+		
 
 
 //col.rgb = worldNormal;

@@ -375,10 +375,7 @@ namespace Playtime_Painter
         }
     }
 
-
-
-
-
+    
     [Serializable]
     public class MeshPackagingProfile: abstract_STD {
         public List<VertexSolution> sln;
@@ -475,9 +472,23 @@ namespace Playtime_Painter
 
     }
 
-
     public static class MeshSolutions
     {
+
+        public const string shaderPreferedPackagingSolution = "Solution";
+
+        public static int getMeshProfileByTag(this Material mat)
+        {
+
+            var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
+
+            var prf = PainterConfig.inst.meshPackagingSolutions;
+
+            for (int i = 0; i < prf.Count; i++)// (var s in PainterConfig.inst.meshProfileSolutions)
+                if (String.Compare(prf[i].name, name) == 0) return i;
+
+            return 0;//PainterConfig.inst.meshProfileSolutions[0];
+        }
 
         private static MeshConstructor _curMeshDra;
 

@@ -470,8 +470,6 @@ namespace Playtime_Painter
             SmoothNormal = cfg.newVerticesSmooth;
         }
 
-
-
         public void clearColor(BrushMask bm) {
             foreach (UVpoint uvi in uv)
                 bm.Transfer(ref uvi._color, Color.black);

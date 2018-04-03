@@ -24,9 +24,9 @@ public static class ResourceLoader {
                 data = (string)bf.Deserialize(file);
                 file.Close();
             } catch (Exception ex) {
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
                 Debug.Log(fullPath + " not loaded " + ex.ToString());
-#endif
+//#endif
             }
         }
         return data;
@@ -36,11 +36,13 @@ public static class ResourceLoader {
 
     public static string LoadStoryFromResource(string resourceFolderLocation, string insideResourceFolder, string name) {
 
-        string resourceName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
+      
         string data = null;
 
 #if UNITY_EDITOR
-        string path = Application.dataPath +resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources/"  + resourceName + ResourceSaver.fileType;
+
+        string resourceName = insideResourceFolder.AddPreSlashIfNotEmpty() + "/" + name;
+        string path = Application.dataPath +resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources"  + resourceName + ResourceSaver.fileType;
        
         //Debug.Log("Trying to load " + path);
         if (File.Exists(path)) {
@@ -238,9 +240,9 @@ public class ResourceLoader<T> {
             }
             catch (Exception ex)
             {
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
                 Debug.Log(path + " not loaded " + ex.ToString());
-#endif
+//#endif
                 return false;
             }
             return true;

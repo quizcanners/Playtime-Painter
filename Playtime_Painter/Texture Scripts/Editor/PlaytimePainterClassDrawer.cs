@@ -157,7 +157,7 @@ namespace Playtime_Painter {
 
             painter.InitIfNotInited();
 
-            BrushConfig brush = PlaytimePainter.brush;
+            BrushConfig brush = PlaytimePainter.globalBrush;
             imgData image = painter.curImgData;
 
             Texture tex = painter.getTexture();
@@ -165,7 +165,7 @@ namespace Playtime_Painter {
                 painter.textureWasChanged = true;
 
 
-            changes = painter.management_PEGI();
+            changes = painter.PEGI_MAIN();
 
 
 
@@ -228,8 +228,7 @@ namespace Playtime_Painter {
                         ef.newLine();
 
 
-                        if (changes)
-                            painter.Update_Brush_Parameters_For_Preview_Shader();
+                      
 
                     }
                     ef.newLine();
@@ -254,12 +253,15 @@ namespace Playtime_Painter {
                     Material mater = painter.getMaterial(false);
 
                     pegi.write(mater);
-                 
-         
+
+
 
                     if ((cfg.moreOptions || (mater == null) || (mater == rtp.defaultMaterial) || (image == null))
                         && (icon.NewMaterial.Click("Instantiate Material", 25)))
+                    {
+                        changes = true;
                         painter.InstantiateMaterial(true);
+                    }
 
                     pegi.newLine();
 
@@ -275,6 +277,7 @@ namespace Playtime_Painter {
               //      pegi.write("Tex:", "Texture field on the material", 30);
 
                     if (painter.SelectTexture_PEGI()) {
+                        
                         image = painter.curImgData;
                         if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.getMaterialTextureName();
                     }
@@ -300,24 +303,37 @@ namespace Playtime_Painter {
                             string param = painter.getMaterialTextureName();
 
                             if (pegi.Click(icon.NewTexture, (image == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
+                            {
+                                changes = true;
                                 if (isTerrainHeight)
                                     painter.createTerrainHeightTexture(painter.nameHolder);
                                 else
                                     painter.createTexture2D(texScale, painter.nameHolder, cfg.newTextureIsColor);
+                            }
 
 
 
                             if ((image == null) && (cfg.moreOptions) && ("Create Render Texture".Click()))
+                            {
+                                changes = true;
                                 painter.CreateRenderTexture(texScale, painter.nameHolder);
+                            }
 
                             if ((image != null) && (cfg.moreOptions)) {
                                 if ((image.renderTexture == null) && ("Add Render Tex".Click()))
+                                {
+                                    changes = true;
                                     image.AddRenderTexture();
+                                }
                                 if (image.renderTexture != null) {
 
                                     if ("Replace RendTex".Click("Replace " + param + " with Rend Tex size: " + texScale))
+                                    {
+                                        changes = true;
                                         painter.CreateRenderTexture(texScale, painter.nameHolder);
+                                    }
                                     if ("Remove RendTex".Click().nl()) {
+                                        changes = true;
                                         if (image.texture2D != null) {
                                             painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                                             image.renderTexture = null;
@@ -366,7 +382,10 @@ namespace Playtime_Painter {
                         ef.write("Recent Texs:", 60);
                         Texture tmp = painter.curImgData.exclusiveTexture();
                         if (pegi.select(ref tmp, recentTexs))
+                        {
                             painter.ChangeTexture(tmp);
+                            changes = true;
+                        }
                     }
 
                     ef.Space();
@@ -382,6 +401,9 @@ namespace Playtime_Painter {
                 }
 
             }
+
+            if (changes)
+                painter.Update_Brush_Parameters_For_Preview_Shader();
 
             painter.gameObject.end();
 

@@ -194,12 +194,7 @@ namespace Playtime_Painter
             }
 
             changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_PEGI(brush.TargetIsTex2D).nl();
-            brush._type = 3;
-            changed |= brush.blitMode.PEGI(brush, null).nl();
-            Color col = brush.colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-                brush.colorLinear.From(col);
+            changed |= brush.Mode_Type_PEGI().nl();
             changed |= brush.ColorSliders_PEGI();
 
             if (brush.paintingRGB == false)

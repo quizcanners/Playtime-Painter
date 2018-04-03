@@ -435,22 +435,9 @@ namespace Playtime_Painter {
             return pixels[((int)v.y) * width + (int)v.x];
         }
 
-		public static myIntVec2 atlasSector = new myIntVec2();
-		public static int sectorSize = 1;
+	
 
-		public int pixelNoAtlased(myIntVec2 v) {
-
-			int x = v.x - atlasSector.x;
-			int y = v.y - atlasSector.y;
-
-			x %= sectorSize;
-			if (x < 0)
-				x += sectorSize;
-			y %= sectorSize;
-			if (y < 0)
-				y += sectorSize;
-			return ((atlasSector.y+y)) * width + (atlasSector.x + x);
-		}
+		
 
 		public int pixelNo(myIntVec2 v) {
 			int x = v.x;

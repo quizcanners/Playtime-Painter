@@ -163,11 +163,7 @@ col.rgb += ((colDet.rgb*col.a)*fdist*alpha + radial*max(0, -i.viewDir.y-0.25)//*
 col.rgb+=sun;
 
 
-#if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
-col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);//*(1 - UnderEcvator);
-#else
-col.rgb = col.rgb*(alpha)+ unity_AmbientEquator.rgb*(1 - alpha);
-#endif
+
 
 
 
@@ -183,6 +179,11 @@ float3 mix = col.gbr + col.brg;
 col.rgb += mix*mix*_lightControl.r;
 #endif
 
+#if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
+col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);//*(1 - UnderEcvator);
+#else
+col.rgb = col.rgb*(alpha)+unity_AmbientEquator.rgb*(1 - alpha);
+#endif
 
 
 col.a = 0;

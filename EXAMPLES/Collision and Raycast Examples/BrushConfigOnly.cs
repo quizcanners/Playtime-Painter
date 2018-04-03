@@ -31,11 +31,7 @@ using Playtime_Painter;
             bool changed = false;
 
             changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
-            changed |= brush.blitMode.PEGI(brush, null);
-            Color col = brush.colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-                brush.colorLinear.From(col);
+            changed |= brush.Mode_Type_PEGI().nl();
             changed |= brush.ColorSliders_PEGI();
 
             return changed;

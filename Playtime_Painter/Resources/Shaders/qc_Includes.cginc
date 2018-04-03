@@ -67,7 +67,7 @@
 	inline float4 previewTexcoord (float2 texcoord){
 		float4 tmp;
 		tmp.xy = texcoord.xy;
-		tmp.zw = (_brushPointedUV.xy - texcoord.xy)/_brushForm.z;
+		tmp.zw = (_brushPointedUV.xy-floor(_brushPointedUV.xy) - tmp.xy + floor(tmp.xy))/_brushForm.z;
 		//tmp.zw -= floor(tmp.zw);
 		return tmp;
 	}

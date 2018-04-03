@@ -37,7 +37,7 @@ namespace Playtime_Painter {
 
         public MeshRenderer rendy;
         public Rigidbody rigid;
-        public SphereCollider fuckingCollider;
+        public SphereCollider _collider;
 
 		public List<paintingCollision> paintingOn = new List<paintingCollision>();
         public BrushConfig brush = new BrushConfig();
@@ -104,28 +104,28 @@ namespace Playtime_Painter {
         }
 
         public void OnEnable()  {
-            brush._type = BrushTypeSphere.inst.index;
+            brush.typeSet(false, BrushTypeSphere.inst);
             if (rendy == null) 
                 rendy = GetComponent<MeshRenderer>();
             if (rigid == null)
                 rigid = GetComponent<Rigidbody>();
-            if (fuckingCollider == null)
-                fuckingCollider = GetComponent<SphereCollider>();
+            if (_collider == null)
+                _collider = GetComponent<SphereCollider>();
 
             rendy.sharedMaterial.color = brush.colorLinear.ToGamma();
-
+            brush.TargetIsTex2D = false;
         }
 
         private void Update() {
 
-            brush.Brush3D_Radius = transform.lossyScale.x;
+            brush.Brush3D_Radius = transform.lossyScale.x*0.7f;
 
 			foreach (paintingCollision col in paintingOn){
 				PlaytimePainter p = col.painter;
 				if (p.isPaintingInWorldSpace(brush)) {
                     StrokeVector v = col.vector;
                     v.posTo = transform.position;
-                    p.Paint(v, brush);
+                    brush.Paint(v, p);
                   
 				}
 
@@ -136,16 +136,16 @@ namespace Playtime_Painter {
         public void PEGI() {
             ("Painting on " + paintingOn.Count + " objects").nl();
 
-            if ((fuckingCollider.isTrigger) && ("Make phisical".Click().nl()))
+            if ((_collider.isTrigger) && ("Make phisical".Click().nl()))
             {
-                fuckingCollider.isTrigger = false;
+                _collider.isTrigger = false;
                 rigid.isKinematic = false;
                 rigid.useGravity = true;
             }
 
-            if ((!fuckingCollider.isTrigger) && ("Make Trigger".Click().nl()))
+            if ((!_collider.isTrigger) && ("Make Trigger".Click().nl()))
             {
-                fuckingCollider.isTrigger = true;
+                _collider.isTrigger = true;
                 rigid.isKinematic = true;
                 rigid.useGravity = false;
             }
@@ -153,23 +153,21 @@ namespace Playtime_Painter {
 
 
             float size = transform.localScale.x;
-            if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 100).nl())
+            if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl())
                 transform.localScale = Vector3.one * size;
 
           
 
             pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
-
-            if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl())) {
-                if ((brush.TargetIsTex2D) || (!brush.type.isA3Dbrush)) {
+          
+            if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI().nl())) {
+                if ((brush.TargetIsTex2D) || (!brush.type(false).isA3Dbrush)) {
                     brush.TargetIsTex2D = false;
-                    brush._type = BrushTypeSphere.inst.index;
+                    brush.typeSet(false,  BrushTypeSphere.inst);
 
                     pegi.resetOneTimeHint("PaintBall_brushHint");
                 }
             }
-
-            brush.blitMode.PEGI(brush, null);
 
             if (brush.ColorSliders_PEGI()) 
                 rendy.sharedMaterial.color = brush.colorLinear.ToGamma();

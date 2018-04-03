@@ -74,7 +74,7 @@ namespace Playtime_Painter
                 StrokeVector v = pCont.vector;
                 v.posTo = transform.position;
                 if (v.mouseDwn) v.posFrom = v.posTo;
-                pCont.painter.Paint(v, brush);
+                brush.Paint(v, pCont.painter);
             } else {
 
                 if (collision.contacts.Length > 0) {
@@ -92,7 +92,7 @@ namespace Playtime_Painter
                         v.uvTo = hit.textureCoord;
                         if (v.mouseDwn) v.uvFrom = v.uvTo;
 
-                        pCont.painter.SetTexTarget(brush).Paint(pCont.vector, brush);
+                       brush.Paint(pCont.vector, pCont.painter.SetTexTarget(brush));
                     }
                 }
             }
@@ -105,11 +105,7 @@ namespace Playtime_Painter
             ("Painting on " + paintingOn.Count + " objects").nl();
 
             changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
-            changed |= brush.blitMode.PEGI(brush, null);
-            Color col = brush.colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-                brush.colorLinear.From(col);
+            changed |= brush.Mode_Type_PEGI().nl();
             changed |= brush.ColorSliders_PEGI();
             return changed;
         }

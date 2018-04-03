@@ -3,33 +3,44 @@
 Shader "Painter_Experimental/PixArt/BumpedOutline" {
 	Properties {
 		[NoScaleOffset] _MainTex ("Albedo (RGB)", 2D) = "white" {}
-		_Bump ("Bump (RGB)", 2D) = "white" {}
+		[NoScaleOffset]_Bump ("Bump (RGB)", 2D) = "white" {}
+		_BumpDetail("_bumpDetail", 2D) = "bump" {}
+		_Smudge("_smudge", 2D) = "gray" {}
 		_Glossiness("Smoothness", Range(0,1)) = 0.5
 			_Metallic("Metallic", Range(0,1)) = 0.0
 	}
 	SubShader {
-		Tags { "Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
+		Tags { //"Queue"="AlphaTest" 
+		//"IgnoreProjector"="True"
+		//"RenderType"="TransparentCutout"
+			"RenderType" = "Opaque"
+		}
 		LOD 200
 		
 		CGPROGRAM
 
-
-		#pragma surface surf Standard fullforwardshadows alpha
+		#pragma surface surf Standard fullforwardshadows
+		//#pragma surface surf Standard fullforwardshadows alpha
 		#pragma target 3.0
 
 		sampler2D _MainTex;
 		sampler2D _Bump;
-		float4 _MainTex_TexelSize;
-
+		sampler2D _BumpDetail;
+		sampler2D _Smudge;
 		float _Glossiness;
 		float _Metallic;
 
+		float4 _MainTex_TexelSize;
+
 		struct Input {
 			float2 uv_MainTex;
-
+			float2 uv_Smudge;
+			float2 uv_BumpDetail;
 		};
 
-		
+		UNITY_INSTANCING_BUFFER_START(Props)
+			// put more per-instance properties here
+			UNITY_INSTANCING_BUFFER_END(Props)
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 
@@ -41,6 +52,9 @@ Shader "Painter_Experimental/PixArt/BumpedOutline" {
 		hold*= _MainTex_TexelSize.x;
 		up=(up+0.5)* _MainTex_TexelSize.x;
 		
+
+		float2 off = (IN.uv_MainTex - up);
+
 		float4 c = tex2Dlod (_MainTex, float4(up,0,0));
 
 		
@@ -49,7 +63,7 @@ Shader "Painter_Experimental/PixArt/BumpedOutline" {
 		float4 contact2 = tex2Dlod (_MainTex, float4(up+float2(0,hold.y),0,0));
 		float4 contact3 = tex2Dlod (_MainTex, float4(up+float2(hold.x,hold.y),0,0));
 	
-		hold*= _MainTex_TexelSize.z /6.5;
+		hold*= _MainTex_TexelSize.z /5.5;
 		
 		border=abs(border);
 
@@ -83,29 +97,50 @@ Shader "Painter_Experimental/PixArt/BumpedOutline" {
 	border.x*=(YaboveX*ddiff+XaboveY*DeDiff); 
 	border.y*=(XaboveY*ddiff+YaboveX*DeDiff); 
 
+	float bord = (border.x + border.y - 0.36) * 8;
+	bord = saturate(bord*abs(bord)) / 2;
+	float deBord = (1 - bord);
 
-o.Normal=UnpackNormal(tex2Dlod(_Bump, float4(IN.uv_MainTex* _MainTex_TexelSize.z +float2( -hold.x , -hold.y ),0,0)));
+	float3 nn2 = UnpackNormal(tex2Dlod(_BumpDetail, float4(IN.uv_BumpDetail, 0, 0)));
+
+float3 nn =UnpackNormal(tex2Dlod(_Bump, float4((IN.uv_MainTex* _MainTex_TexelSize.z % 1) +float2( -hold.x , -hold.y )
+	,0,0)));
+
+nn = (nn + nn2 *0.1* deBord);
+
+nn = normalize(nn*(1 - bord) + float3(0, 0, bord));
 
 
+o.Normal = nn;
 
-	float wid=(border.x+border.y-0.36)*8;
-	wid = saturate(wid*abs(wid))/2;
+float smudge = tex2D(_Smudge, IN.uv_Smudge).a;
 
-		c.rgb = ((//contact.rgb
-			 tex2D(_MainTex, IN.uv_MainTex).rgb
+float gloss = _Glossiness * smudge*deBord + (bord*0.2);
+
+//float2 sat = abs(off) * 128 * _MainTex_TexelSize.zw;
+//float2 pixuv = up + off;//*min(1, sat*0.03);
+
+float4 light = (tex2Dlod(_MainTex, float4(IN.uv_MainTex + (nn.xy)*(_MainTex_TexelSize.xy * (1 + 0.3* smudge)
+	
+	), 0, 0)));
+
+	
+float4 col = ((c + c * light *(1 - gloss) + light * gloss*0.5))*(1 - bord);
+
 		
 
-			
-			)*wid+c.rgb*(1-wid));
-		o.Albedo = c.rgb-wid/2; 
-		o.Alpha = min(1,(c.a-0.01)*100);
+	
+
+		o.Albedo = col.rgb*deBord*deBord;//-bord / 2;
+		//o.Alpha = min(1,(c.a-0.01)*100);
 
 		o.Metallic = _Metallic;
-		o.Smoothness = _Glossiness;
+		o.Smoothness = gloss;
 	
 
 		}
 		ENDCG
 	} 
+	FallBack "Diffuse"
 //Fallback "Custom/vlit"
 }

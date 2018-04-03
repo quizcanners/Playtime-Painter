@@ -2,7 +2,7 @@
 
 Shader "Painter_Experimental/DestructibleEnvironment" {
 	Properties {
-		[NoScaleOffset] _MainTex_ATL_UV2("_Main DAMAGE (_UV2) (_ATL) (RGB)", 2D) = "white" {}
+		[NoScaleOffset] _MainTex_ATL_UV2("_Main DAMAGE (_UV2) (_ATL) (RGB)", 2D) = "black" {}
 		_Diffuse("ATL_Diffuse (_ATL)", 2D) = "white" {}
 		[NoScaleOffset]_Bump("ATL_Bump (_ATL)", 2D) = "gray" {}
 	

@@ -56,8 +56,9 @@ namespace Playtime_Painter
                     }
 
                     StrokeVector v = new StrokeVector(hit, false);
-                    
-                    painter.SetTexTarget(brush).Paint(v, brush);
+
+                   
+                    brush.Paint(v,painter.SetTexTarget(brush));
                 }
 
             }
@@ -96,11 +97,7 @@ namespace Playtime_Painter
                 Paint();
 
             changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI(brush.TargetIsTex2D).nl();
-            changed |= brush.blitMode.PEGI(brush, null);
-            Color col = brush.colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-                brush.colorLinear.From(col);
+            changed |= brush.Mode_Type_PEGI().nl();
             changed |= brush.ColorSliders_PEGI();
             return changed;
         }

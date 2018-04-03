@@ -1,10 +1,12 @@
-﻿Shader "Editor/br_TerrainPreview_Shadow" {
+﻿/*Shader "Editor/br_TerrainPreview_Shadow" {
 	SubShader
      {
          Pass
          {
              Name "ShadowCaster"
-             Tags { "LightMode" = "ShadowCaster" }
+             Tags { 
+		"Queue" = "Transparent"
+		"LightMode" = "ShadowCaster" }
            
              Fog { Mode Off }
              ZWrite On ZTest Less Cull Off
@@ -17,7 +19,7 @@
              #pragma multi_compile_shadowcaster
              #pragma fragmentoption ARB_precision_hint_fastest
 
-        #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+			 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
              #include "UnityCG.cginc"
  
              struct v2f
@@ -75,3 +77,4 @@
       }
       FallBack Off
 }
+*/

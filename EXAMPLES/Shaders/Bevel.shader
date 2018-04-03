@@ -103,9 +103,7 @@
 
 
 		Simple_Light(float4 (0, 0, col.a, 1),
-			normal, i.viewDir.xyz, col, shadow);
-
-
+			normal, i.viewDir.xyz, col, shadow, 1);
 	
 
 		return col;

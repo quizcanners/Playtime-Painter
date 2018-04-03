@@ -11,25 +11,25 @@ public static class Blit_Functions {
 
     public delegate bool alphaMode_dlg();
 
-    static bool r;
-    static bool g;
-    static bool b;
-    static bool a;
-    static float alpha;
+        public static bool r;
+        public static bool g;
+        public static bool b;
+        public static bool a;
+        public static float alpha;
 
-    static int x;
-    static int y;
-    static float half;
-    static float brAlpha;
+        public static int x;
+        public static int y;
+        public static float half;
+    public static float brAlpha;
 
-    static alphaMode_dlg _alphaMode;
-    static blitModeFunction _blitMode;
+        public static alphaMode_dlg _alphaMode;
+        public static blitModeFunction _blitMode;
 
-    static Color csrc;
+        public static Color csrc;
 
-    static bool noAlpha() { return true; }
+        public static bool noAlpha() { return true; }
 
-    static bool circleAlpha() {
+        public static bool circleAlpha() {
         float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
         alpha = Mathf.Clamp01((dist) / half) * brAlpha;
         return alpha > 0;
@@ -106,7 +106,7 @@ public static class Blit_Functions {
         half = (bc.Size(false)) / 2;
         int ihalf = (int)(half-0.5f);
 
-            bool smooth = bc.type != BrushTypePixel.inst;
+            bool smooth = bc.type(true) != BrushTypePixel.inst;
 
 
         if (smooth)
@@ -149,60 +149,6 @@ public static class Blit_Functions {
         }
     }
 
-		public static void PaintAtlased(Vector2 uvCoords, float brushAlpha, 
-			imgData image, BrushConfig bc, int atlasRows, Vector2 AtlasedSection) {
-
-			imgData.sectorSize = image.width/atlasRows;
-			imgData.atlasSector.From(AtlasedSection* imgData.sectorSize);
-
-			brAlpha = brushAlpha;
-
-			half = (bc.Size(false)) / 2;
-			int ihalf = Mathf.FloorToInt(half-0.5f);
-
-            bool smooth = bc.type != BrushTypePixel.inst;
-
-			if (smooth)
-				_alphaMode = circleAlpha;
-			else
-				_alphaMode = noAlpha;
-
-			_blitMode = bc.blitMode.BlitFunctionTex2D;
-
-			if (smooth) ihalf += 1;
-
-			alpha = 1;
-
-			r = bc.mask.GetFlag(BrushMask.R);
-			g = bc.mask.GetFlag(BrushMask.G);
-			b = bc.mask.GetFlag(BrushMask.B);
-			a = bc.mask.GetFlag(BrushMask.A);
-
-			csrc = bc.colorLinear.ToGamma();
-
-			myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
-
-			int fromx = tmp.x - ihalf;
-
-			tmp.y -= ihalf;
-
-		
-
-			for (y = -ihalf; y < ihalf + 1; y++) {
-
-				tmp.x = fromx;
-
-				for (x = -ihalf; x < ihalf + 1; x++) {
-
-					if (_alphaMode())
-						_blitMode(ref image.pixels[image.pixelNoAtlased(tmp)]);
-
-					tmp.x += 1;
-				}
-
-				tmp.y += 1;
-			}
-		}
 
 }
 }

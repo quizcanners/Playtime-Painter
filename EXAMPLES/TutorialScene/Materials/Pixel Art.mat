@@ -8,8 +8,9 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: Pixel Art
   m_Shader: {fileID: 4800000, guid: bd771c84b6ab6a848baaf394060788cd, type: 3}
-  m_ShaderKeywords: _EMISSION _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _UVSEC_UV1
-  m_LightmapFlags: 1
+  m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+    _SPECULARHIGHLIGHTS_OFF _UVSEC_UV1
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -23,8 +24,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpDetail:
-        m_Texture: {fileID: 2800000, guid: 01c8abe088e85dd40a699d48fcfe32ec, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 2800000, guid: a6632d37497fb4b499db483ae96e6520, type: 3}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _BumpEx:
         m_Texture: {fileID: 2800000, guid: 36256601d263baf44b57f783e958f8fe, type: 3}
@@ -92,7 +93,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Smudge:
         m_Texture: {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaTestRef: 0.5
@@ -102,17 +103,17 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EmissionScaleUI: 1
-    - _GlossMapScale: 1
+    - _GlossMapScale: 0
     - _Glossiness: 1
-    - _GlossyReflections: 1
+    - _GlossyReflections: 0
     - _Lightmapping: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Size: 16
-    - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 1
+    - _SmoothnessTextureChannel: 1
+    - _SpecularHighlights: 0
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1

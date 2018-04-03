@@ -25,8 +25,7 @@ namespace Playtime_Painter
 #endif
 
     [ExecuteInEditMode]
-    public class BakedShadowsLightProbe : MonoBehaviour
-    {
+    public class BakedShadowsLightProbe : MonoBehaviour {
 
         public static Countless<BakedShadowsLightProbe> allProbes = new Countless<BakedShadowsLightProbe>();
         public static int FreeIndex = 0;
@@ -37,8 +36,7 @@ namespace Playtime_Painter
 
         public int index;
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return gameObject.name;
         }
 

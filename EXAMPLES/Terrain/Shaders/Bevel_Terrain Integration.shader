@@ -83,7 +83,7 @@
 		UNITY_FOG_COORDS(12)
 		float3 tc_Control : TEXCOORD13;
 #if WATER_FOAM
-		float3 fwpos : TEXCOORD14;
+		float4 fwpos : TEXCOORD14;
 #endif
 	};
 
@@ -233,37 +233,23 @@
 	Terrain_Trilanear(i.tc_Control, i.worldPos, dist, worldNormal, col, terrainN, bumpMap);
 	
 	float shadow = SHADOW_ATTENUATION(i);
+
+	float Metalic = 0;
+
+
+	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic, 
+		
 #if WATER_FOAM
-	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow, i.viewDir.y);
+		i.fwpos
+#else
+		0
 #endif
-
-	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz,
-		col, shadow);
-
-#if WATER_FOAM
-	col.rgb += wet.x;
-	col.a = wet.y;
-	col.rgb *= 1 - saturate((_foamParams.z - i.worldPos.y)*0.1);  // NEW
-
-#endif
+		);
 
 
-	
-	float4 fogged = col;
-	UNITY_APPLY_FOG(i.fogCoord, fogged);
-	float fogging = (32 - max(0, i.worldPos.y - _foamParams.z)) / 32;
+	UNITY_APPLY_FOG(i.fogCoord, col);
 
-	fogging = min(1, pow(max(0, fogging), 2));
-	col.rgb = fogged.rgb * fogging + col.rgb *(1 - fogging);
 
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-	float3 mix = col.gbr + col.brg;
-	col.rgb += mix*mix*_lightControl.r;
-#endif
 
 	return col;
 

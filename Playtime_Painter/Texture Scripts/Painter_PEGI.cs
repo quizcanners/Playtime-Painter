@@ -10,22 +10,24 @@ namespace Playtime_Painter {
         static PainterConfig cfg { get { return PainterConfig.inst; } }
         static PainterManager rtp { get { return PainterManager.inst; } }
 
-        public static bool SelectTexture_PEGI(this PlaytimePainter CurrentTarget) {
-        int ind = CurrentTarget.selectedTexture;
-        if (pegi.select(ref ind, CurrentTarget.getMaterialTextureNames())) {
-            CurrentTarget.selectedTexture = ind;
-            CurrentTarget.OnChangedTexture();
+        public static bool SelectTexture_PEGI(this PlaytimePainter p) {
+        int ind = p.selectedTexture;
+        if (pegi.select(ref ind, p.getMaterialTextureNames())) {
+            p.SetOriginalShader();
+            p.selectedTexture = ind;
+            p.OnChangedTexture();
+            p.CheckPreviewShader();
             return true;
         }
         return false;
     }
 
-        public static bool NewTextureOptions_PEGI(this PlaytimePainter trg) {
+        public static bool NewTextureOptions_PEGI(this PlaytimePainter p) {
             bool changes = false;
 
-            if (trg.curImgData != null) return changes;
+            if (p.curImgData != null) return changes;
 
-        if (trg.getMaterialTextureName() == null) {
+        if (p.getMaterialTextureName() == null) {
             pegi.write("This material has no textures");
             pegi.newLine();
                 return changes;
@@ -33,9 +35,9 @@ namespace Playtime_Painter {
 
         bool color = pegi.Click(icon.NewTexture.getIcon(), "New Texture" ,25);
         if (pegi.Click("Create Mask") || color) {
-            List<string> texes = trg.getMaterialTextureNames();
+            List<string> texes = p.getMaterialTextureNames();
                 if (texes.Count > 0) {
-                    trg.createTexture2D(256, "New " + trg.getMaterialTextureName(), color);
+                    p.createTexture2D(256, "New " + p.getMaterialTextureName(), color);
                     changes = true;
                 }
             

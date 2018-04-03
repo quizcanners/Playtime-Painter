@@ -1804,6 +1804,18 @@ namespace PlayerAndEditorGUI {
             return edit(ref val, min, max);
         }
 
+        public static bool edit(this string label, int width, ref int val, int min, int max)
+        {
+            write(label, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
+        {
+            write(label, tip, width);
+            return edit(ref val, min, max);
+        }
+
         public static bool edit(this string label, int width, ref float val, float min, float max)
         {
             write(label, width);
@@ -2038,6 +2050,18 @@ namespace PlayerAndEditorGUI {
         {
             write(img, 25);
             return toggle(ref val);
+        }
+
+        public static bool toggleInt(this string text, ref int val)
+        {
+            write(text);
+            return toggleInt(ref val);
+        }
+
+        public static bool toggleInt(this string text, string hint, ref int val)
+        {
+            write(text, hint);
+            return toggleInt(ref val);
         }
 
         public static bool toggle(this string text, ref bool val) {
@@ -2299,8 +2323,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression) {
             return edit<T>(null, tex, tip, -1, memberExpression);
         }
-
-
+        
         public static bool edit<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression) {
             
             bool changes = false;
@@ -2345,14 +2368,24 @@ namespace PlayerAndEditorGUI {
 #endif
             return changes;
         }
-
-       
+        
         class TypeSwitch {
             Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
             public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }
             public void Switch(object x, string name) { matches[x.GetType()](x); }
         }
 
+        public static void SetToDirty (this UnityEngine.Object obj) {
+            #if UNITY_EDITOR
+            EditorUtility.SetDirty(obj);
+            #endif
+        }
 
+        public static void RepaintViews()
+        {
+#if UNITY_EDITOR
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+#endif
+        }
     }
 }

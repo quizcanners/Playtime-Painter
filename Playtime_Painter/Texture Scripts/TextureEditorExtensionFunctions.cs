@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -63,9 +64,7 @@ public static class TextureEditorExtensionFunctions  {
             if ((bm & BrushMask.A) != 0)
                 col.a =  c.a;
         }
-
-      
-
+        
         public static Mesh getMesh(this PlaytimePainter p) {
         if (p == null) return null;
         if (p.skinnedMeshRendy != null) return p.colliderForSkinnedMesh;//skinnedMeshRendy.sharedMesh;
@@ -74,7 +73,7 @@ public static class TextureEditorExtensionFunctions  {
         return null;
     }
 
-    public static bool ContainsInstanceType(this List<NonMaterialTexture> collection, Type type){
+        public static bool ContainsInstanceType(this List<PainterPluginBase> collection, Type type){
 
 		foreach (var t in collection) 
 			if (t.GetType() == type) return true; 
@@ -82,56 +81,19 @@ public static class TextureEditorExtensionFunctions  {
 		return false;
 	}
 
-
-
-		public static bool ColorSliders(this BrushConfig b, PlaytimePainter painter)  {
-			bool changed = false;
-				bool slider = b.blitMode.showColorSliders;
-
-			if ((painter!=null) && (painter.isTerrainHeightTexture())) {
-				changed |= b.ColorSlider (BrushMask.A, ref b.colorLinear.a, null,true);
-				//b.MaskSet (BrushMask.R, false);
-				//b.MaskSet (BrushMask.G, false);
-				//b.MaskSet (BrushMask.B, false);
-
-			}
-			else if ((painter != null) && painter.isTerrainControlTexture())
-			{
-				// Debug.Log("Is control texture");
-				changed |= b.ColorSlider(BrushMask.R, ref b.colorLinear.r, painter.terrain.getSplashPrototypeTexture(0),slider);
-				changed |= b.ColorSlider(BrushMask.G, ref b.colorLinear.g, painter.terrain.getSplashPrototypeTexture(1),slider);
-				changed |= b.ColorSlider(BrushMask.B, ref b.colorLinear.b, painter.terrain.getSplashPrototypeTexture(2),slider);
-				changed |= b.ColorSlider(BrushMask.A, ref b.colorLinear.a, painter.terrain.getSplashPrototypeTexture(3),slider);
-			}
-			else
-			{
-
-				if ((painter.curImgData.TargetIsRenderTexture()) && (painter.curImgData.renderTexture != null)) {
-					changed |= b.ColorSlider (BrushMask.R, ref b.colorLinear.r);
-					changed |= b.ColorSlider (BrushMask.G, ref b.colorLinear.g);
-					changed |= b.ColorSlider (BrushMask.B, ref b.colorLinear.b);
-
-				} else {
-					
-					changed |= b.ColorSlider (BrushMask.R, ref b.colorLinear.r, null,slider);
-					changed |= b.ColorSlider (BrushMask.G, ref b.colorLinear.g, null,slider);
-					changed |= b.ColorSlider (BrushMask.B, ref b.colorLinear.b, null,slider);
-					changed |= b.ColorSlider (BrushMask.A, ref b.colorLinear.a, null,slider);
-				}
-			}
-			return changed;
-		}
-
 		public static float strokeWidth (this BrushConfig br, float pixWidth, bool world){
 			return br.Size(world) / (pixWidth) * 2 * PainterManager.orthoSize;
 		}
 
         public static bool isSingleBufferBrush(this BrushConfig b) { 
-                return (PainterManager.inst.isLinearColorSpace && b.blitMode.supportedBySingleBuffer && b.type.supportedBySingleBuffer && b.paintingRGB);
+                return (PainterManager.inst.isLinearColorSpace && b.blitMode.supportedBySingleBuffer && b.type(false).supportedBySingleBuffer && b.paintingRGB);
         }
-
-
-      
+        
+        public static bool isProjected(this Material mat)
+        {
+            if (mat == null) return false;
+            return mat.shaderKeywords.Contains(PainterConfig.UV_PROJECTED);
+        }
 
         public static stdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
             stdEncoder cody = new stdEncoder();
@@ -139,12 +101,10 @@ public static class TextureEditorExtensionFunctions  {
             bool rt = painter.curImgData.TargetIsRenderTexture();
 
             BlitMode mode = brush.blitMode;
-            BrushType type = brush.type;
-
-
-            if (rt) cody.Add("typeRT", brush._type);
-            else cody.AddText("typeCPU", "cpu");
-
+            BrushType type = brush.type(!rt);
+            
+            cody.Add(rt ? "typeGPU" : "typeCPU", brush._type(!rt));
+            
             bool worldSpace = rt && type.isA3Dbrush;
 
             if (worldSpace)
@@ -195,7 +155,7 @@ public static class TextureEditorExtensionFunctions  {
         }
 
         public static float Size(this BrushConfig brush, imgData id) {
-            bool worldSpace = id.TargetIsRenderTexture() && brush.type.isA3Dbrush;
+            bool worldSpace = id.TargetIsRenderTexture() && brush.type(false).isA3Dbrush;
             return brush.Size(worldSpace);
         }
 

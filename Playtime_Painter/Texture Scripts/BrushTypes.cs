@@ -23,19 +23,17 @@ public static class BlitModeExtensions {
 
 }
 
-public abstract class BrushType : IeditorDropdown {
+public abstract class BrushType : PainterStuff, IeditorDropdown {
 
-	protected static PainterManager mgmt {get{ return PainterManager.inst;}}
+	/*protected static PainterManager mgmt {get{ return PainterManager.inst;}}
 	protected static Transform rtbrush { get { return mgmt.brushRendy.transform; } }
 	protected static Mesh brushMesh { set { mgmt.brushRendy.meshFilter.mesh = value; } }
     protected static PainterConfig cfg { get { return PainterConfig.inst; } }
+    protected static BrushConfig brush { get { return BrushConfig.inspectedBrush; } }
+    protected static PlaytimePainter painter { get { return PlaytimePainter.inspectedPainter; } }*/
 
-	private static List<BrushType> _allTypes;
 
-	public static PlaytimePainter painter;
-
-	public static BrushType getCurrentBrushTypeForPainter (PlaytimePainter inspectedPainter) 
-		{ painter = inspectedPainter; return PainterConfig.inst.brushConfig.type; } 
+    private static List<BrushType> _allTypes;
 
 	public static List<BrushType> allTypes {  get {  initIfNull(); return _allTypes; } 
 	} 
@@ -80,10 +78,10 @@ public abstract class BrushType : IeditorDropdown {
         }
 
     public virtual bool showInDropdown(){
-		if (painter == null)
+		if (PlaytimePainter.inspectedPainter == null)
 			return false;
 		
-		imgData id = painter.curImgData;
+		imgData id = PlaytimePainter.inspectedPainter.curImgData;
 
 		if (id == null)
 			return false;
@@ -121,10 +119,8 @@ public abstract class BrushType : IeditorDropdown {
     public BrushType() {
             index = typesCount;
             typesCount++;
-           // Debug.Log("Type "+index);
         }
-
-
+        
     public virtual bool supportedByTex2D { get { return false; } }
     public virtual bool supportedByRenderTexturePair {get { return true; }}
 	public virtual bool supportedBySingleBuffer {get { return true; }}
@@ -134,11 +130,15 @@ public abstract class BrushType : IeditorDropdown {
 	public virtual bool startPaintingTheMomentMouseIsDown {get { return true;}}
     public virtual bool supportedForTerrain_RT { get { return true; } }
 
-	public virtual bool PEGI(BrushConfig brush){
+	public virtual bool PEGI(){
 		
             bool change = false;
 		pegi.newLine();
-		if (PainterManager.inst.masks.Length > 0) {
+
+        if (BrushConfig.inspectedIsCPUbrush)
+            return change;
+            
+        if  (PainterManager.inst.masks.Length > 0) {
 
 			brush.selectedSourceMask = Mathf.Clamp(brush.selectedSourceMask, 0,PainterManager.inst.masks.Length-1); 
 				
@@ -184,46 +184,65 @@ public abstract class BrushType : IeditorDropdown {
 
                     pegi.newLine();
 			}
+
+
 		}
 		else { pegi.writeHint("Assign some Masks to Painter Camera"); }
 
 		return change;
 	}
 
-	public virtual void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st){
-		
-		    painter = pntr;
+    public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        {
+
+            Vector2 delta_uv = st.uvTo - st.uvFrom;
+            
+            if (delta_uv.magnitude > (0.2f + st.avgBrushSpeed * 3)) delta_uv = Vector2.zero; // This is made to avoid glitch strokes on seams
+            else st.avgBrushSpeed = (st.avgBrushSpeed + delta_uv.magnitude) / 2;
+
+            float dist = (int)(delta_uv.magnitude * pntr.curImgData.width * 8 / br.Size(false));
+
+            dist = Mathf.Max(dist, 1);
+            delta_uv /= dist;
+            float alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
+            st.uvFrom += delta_uv;
+
+            PainterPluginBase pluginBlit = null;
+
+            float startI = 0;
+
+            foreach (var p in pntr.plugins)
+                if (p.PaintTexture2D(st.uvFrom, alpha, pntr.curImgData, br)) {
+                    pluginBlit = p;
+                    startI = 1;
+                    break;
+                }
+            
+            for (float i = startI; i < dist; i++) {
+                if (pluginBlit != null)
+                    pluginBlit.PaintTexture2D(st.uvFrom, alpha, pntr.curImgData, br);
+                else
+                    Blit_Functions.Paint(st.uvFrom, alpha, pntr.curImgData, br);
+                st.uvFrom += delta_uv;
+            }
+
+            pntr.AfterStroke(st);
+        }
+
+    public virtual void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st){
+
+            BeforeStroke(pntr, br, st);
 
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
 
 			if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
 
-			imgData id = painter.curImgData;
+			imgData id = pntr.curImgData;
 
-			mgmt.ShaderPrepareStroke_UpdateBuffer(br, br.speed*0.05f, id, st.useTexcoord2, st.firstStroke);
+			mgmt.ShaderPrepareStroke(br, br.speed*0.05f, id, st.useTexcoord2, st.firstStroke);
 
-		//	bool isSphere = br.type.isA3Dbrush;
-
-		//	if (isSphere) {
-
-                /*Vector3 hitPos = st.posTo;
-				if (st.mouseDwn)
-					st.posFrom = hitPos;
-
-                Vector2 offset = id.offset.To01Space();
-
-                st.SetWorldPosInShader();
-
-				Shader.SetGlobalVector(PainterConfig.BRUSH_EDITED_UV_OFFSET, new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y));
-
-				rtp.brushRendy.UseMeshAsBrush(pntr);
-				rtp.Render();*/
-
-              
-
-		//	}
-		//	else {
+	
               
 
                 rtbrush.localScale = Vector3.one;
@@ -236,13 +255,36 @@ public abstract class BrushType : IeditorDropdown {
 
                 mgmt.Render();
 
-                if (!br.isSingleBufferBrush())
-                    mgmt.UpdateBufferSegment();
-                
-		//	}
-            
-		pntr.AfterStroke(st);
-	}
+            AfterStroke(pntr, br, st);
+        }
+
+    protected static void AfterStroke(BrushConfig br) {
+
+            if ((br.useMask) && (br.randomMaskOffset))
+                br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+
+        }
+
+    protected virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        {
+            foreach (var p in pntr.plugins)
+                p.BeforeGPUStroke(pntr, br, st, this);
+        }
+
+    protected virtual void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
+
+                pntr.AfterStroke(st);
+
+            if (!br.isSingleBufferBrush() && !br.type(pntr).isA3Dbrush)
+                mgmt.UpdateBufferSegment();
+
+            if ((br.useMask) && (st.mouseUp) && (br.randomMaskOffset))
+                br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+
+            foreach (var p in pntr.plugins)
+                p.AfterGPUStroke( pntr,  br,  st, this);
+
+        }
 
 }
 
@@ -261,16 +303,16 @@ public abstract class BrushType : IeditorDropdown {
         public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
-            painter = pntr;
+            BeforeStroke(pntr, br, st);
 
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
 
             if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
 
-            imgData id = painter.curImgData;
+            imgData id = pntr.curImgData;
 
-            mgmt.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
+            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
 
         
 
@@ -284,16 +326,10 @@ public abstract class BrushType : IeditorDropdown {
 
                 mgmt.Render();
 
-                if (!br.isSingleBufferBrush())
-                    mgmt.UpdateBufferSegment();
-
-            
-
-            pntr.AfterStroke(st);
-
+               
+            AfterStroke(pntr, br, st);
         }
-
-
+        
     }
 
     public class BrushTypeNormal : BrushType {
@@ -317,7 +353,7 @@ public abstract class BrushType : IeditorDropdown {
 
             var id = rt.getImgData();
 
-            mgmt.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, false, false);
+            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
 
             float width = br.strokeWidth(id.width, false);
 
@@ -330,17 +366,15 @@ public abstract class BrushType : IeditorDropdown {
 
             mgmt.Render();
 
-            if (!br.isSingleBufferBrush())
-               mgmt.UpdateBufferSegment();
+            AfterStroke(br);
+
+          
 
         }
 
 }
 
-    
-  
-
-
+   
     public class BrushTypeDecal : BrushType {
 
         static BrushTypeDecal _inst;
@@ -358,10 +392,10 @@ public abstract class BrushType : IeditorDropdown {
         Vector2 previousUV;
 
 		public override void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
-		
-		painter = pntr;
-		
-			imgData id = pntr.curImgData;
+
+            BeforeStroke(pntr, br, st);
+
+            imgData id = pntr.curImgData;
 
 			if ((st.firstStroke) || (br.decalContinious)) {
                 
@@ -383,7 +417,7 @@ public abstract class BrushType : IeditorDropdown {
 
 				if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
 
-				mgmt.ShaderPrepareStroke_UpdateBuffer(br, 1, id, st.useTexcoord2, st.firstStroke);
+				mgmt.ShaderPrepareStroke(br, 1, id, st.useTexcoord2, st.firstStroke);
 				Transform tf = rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -419,50 +453,50 @@ public abstract class BrushType : IeditorDropdown {
 
                     tf.localPosition = StrokeVector.brushWorldPositionFrom(uv);
 
+                mgmt.Render();
 
-                // if (strokes > 1) Debug.Log("Stroke " + i + ":" + tf.localPosition);
+                AfterStroke(pntr, br, st);
 
-                mgmt.Render();//Render_UpdateSecondBufferIfUsing(id);
-
-                if (!br.isSingleBufferBrush())
-                    mgmt.UpdateBufferSegment();
-
-
-                if (br.decalRotationMethod == DecalRotationMethod.Random) {
-                        br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
-                        mgmt.Shader_UpdateDecal(cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
-                }
-              //  }
-              
-            }
-			painter.AfterStroke (st);
+            } else
+            pntr.AfterStroke (st);
 	}
 
-		public override bool PEGI (BrushConfig br) {
+        protected override void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        {
+            base.AfterStroke(pntr, br, st);
+
+            if (br.decalRotationMethod == DecalRotationMethod.Random)
+            {
+                br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
+                mgmt.Shader_UpdateDecal(cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
+            }
+        }
+
+        public override bool PEGI () {
 		
 		bool brushChanged_RT = false;
-		brushChanged_RT |= pegi.select<VolumetricDecal>(ref br.selectedDecal, PainterManager.inst.decals);
+		brushChanged_RT |= pegi.select<VolumetricDecal>(ref brush.selectedDecal, PainterManager.inst.decals);
 		pegi.newLine();
 
-		if (PainterManager.inst.GetDecal(br.selectedDecal) == null)
+		if (PainterManager.inst.GetDecal(brush.selectedDecal) == null)
 			pegi.write("Select valid decal; Assign to Painter Camera.");
 		pegi.newLine();
 
-        "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref br.decalContinious).nl();
+        "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref brush.decalContinious).nl();
 
         "Rotation".write("Rotation method", 60);
 
-        br.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(br.decalRotationMethod); // "Random Angle", 90);
+            brush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(brush.decalRotationMethod); // "Random Angle", 90);
 		pegi.newLine();
-		if (br.decalRotationMethod == DecalRotationMethod.Set) {
+		if (brush.decalRotationMethod == DecalRotationMethod.Set) {
 			"Angle:".write ("Decal rotation", 60);
-			brushChanged_RT |= pegi.edit(ref br.decalAngle, -90, 450);
-		} else if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection) {
-                "Ang Offset:".edit("Angle modifier after the rotation method is applied",80, ref br.decalAngleModifier, -180f, 180f); 
+			brushChanged_RT |= pegi.edit(ref brush.decalAngle, -90, 450);
+		} else if (brush.decalRotationMethod == DecalRotationMethod.StrokeDirection) {
+                "Ang Offset:".edit("Angle modifier after the rotation method is applied",80, ref brush.decalAngleModifier, -180f, 180f); 
         } 
 
 		pegi.newLine();
-		if (!br.mask.GetFlag(BrushMask.A))
+		if (!brush.mask.GetFlag(BrushMask.A))
 			pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");
 
 		return brushChanged_RT;
@@ -489,16 +523,16 @@ public class BrushTypeLazy : BrushType {
 	Vector2 previousDirectionLazy;
 
 	public override void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
-		painter = pntr;
 
-		//	Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
-		//	st.uvTo -= outb;
-		//	st.uvFrom -= outb;
+            BeforeStroke(pntr, br, st);
+            //	Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
+            //	st.uvTo -= outb;
+            //	st.uvFrom -= outb;
 
-		Vector2 delta_uv = st.delta_uv;//uv - st.uvFrom;//.Previous_uv;
+            Vector2 delta_uv = st.delta_uv;//uv - st.uvFrom;//.Previous_uv;
 		float magn = delta_uv.magnitude;
 
-		float width = br.Size(false) / ((float)painter.curImgData.width) * 4;
+		float width = br.Size(false) / ((float)pntr.curImgData.width) * 4;
             //const float followPortion = 0.5f;
             //float follow = width;
 
@@ -566,7 +600,7 @@ public class BrushTypeLazy : BrushType {
 			//RenderTexturePainter.inst.RenderLazyBrush(painter.Previous_uv, uv, brush.speed * 0.05f, painter.curImgData, brush, painter.LmouseUP, smooth );
 				if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
 
-				imgData id = painter.curImgData;
+				imgData id = pntr.curImgData;
 
 				float meshWidth = br.strokeWidth(id.width, false); //.Size(false) / ((float)id.width) * 2 * rtp.orthoSize;
 
@@ -578,7 +612,7 @@ public class BrushTypeLazy : BrushType {
 
 				if ((!isTail) && (!smooth)) {
                     //Debug.Log ("Junction point");
-                    r.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, false, false);
+                    r.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
 					brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(junkPoint), meshWidth, true, false);
@@ -592,7 +626,7 @@ public class BrushTypeLazy : BrushType {
 					isTail = true;
 				}
 
-                r.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, false, st.firstStroke);
+                r.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, st.firstStroke);
 
                 brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
                 tf.localScale = Vector3.one;
@@ -601,12 +635,10 @@ public class BrushTypeLazy : BrushType {
 
 				st.previousDelta = direction;
 
-                r.Render();//Render_UpdateSecondBufferIfUsing(id);
+                r.Render();
 
-                if (!br.isSingleBufferBrush())
-                    mgmt.UpdateBufferSegment();
+                AfterStroke(pntr,br,st);
 
-                painter.AfterStroke(st);
 		}
 	}
 }
@@ -619,11 +651,8 @@ public class BrushTypeLazy : BrushType {
 
         protected override string shaderKeyword(bool texcoord2) { return  (texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"); }
 
-      
-
         public override bool isA3Dbrush { get { return true; } }
         public override bool supportedForTerrain_RT { get { return false; } }
-
 
         public override string ToString () {
 		return "Sphere";
@@ -635,7 +664,7 @@ public class BrushTypeLazy : BrushType {
             if (st.mouseDwn)
                 st.posFrom = st.posTo;
 
-            mgmt.ShaderPrepareStroke_UpdateBuffer(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
+            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
 
             Vector2 offset = id.offset - st.unRepeatedUV.Floor();
             
@@ -647,50 +676,50 @@ public class BrushTypeLazy : BrushType {
 
         public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)  {
 
-            painter = pntr;
-
             imgData id = pntr.curImgData;
+
+            BeforeStroke(pntr, br, st);
 
             PrepareSphereBrush(id, br, st);
 
-            if (pntr.isAtlased) {
-                //Shader.EnableKeyword(PainterConfig.BRUSH_IS_ATLASED);
-                var ats = painter.GetAtlasedSection();
-                Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(ats.x, ats.y, painter.atlasRows, 1));
-            } 
- 
             if (!st.mouseDwn) {
                 mgmt.brushRendy.UseMeshAsBrush(pntr);
                 mgmt.Render();  
             }
 
-            pntr.AfterStroke(st);
+            AfterStroke(pntr, br, st);
 
-            if (pntr.isAtlased)
-                Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
-        }
-
-        public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex) {
-            PrepareSphereBrush(rt.getImgData(), br, st);
-            mgmt.brushRendy.UseSkinMeshAsBrush(go, skinner, submeshIndex);
-            mgmt.Render();
           
         }
 
+        public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex) {
+            br.blitMode.PrePaint(null, br, st);
+            PrepareSphereBrush(rt.getImgData(), br, st);
+            mgmt.brushRendy.UseSkinMeshAsBrush(go, skinner, submeshIndex);
+            mgmt.Render();
+            AfterStroke(br);
+        }
+
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st,  List<int> submeshIndex) {
+            br.blitMode.PrePaint(null, br, st);
+
             PrepareSphereBrush(rt.getImgData(), br, st);
             mgmt.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
             mgmt.Render();
+            AfterStroke(br);
         }
 
         public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> submeshIndex, int A_Textures_in_row)
         {
-          
+
+            br.blitMode.PrePaint(null, br, st);
+
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, A_Textures_in_row, 1));
 
             PrepareSphereBrush(rt.getImgData(), br, st);
             mgmt.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
             mgmt.Render();
+            AfterStroke(br);
 
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }

@@ -10,7 +10,7 @@ using UnityEditor;
 #endif
 
 namespace Playtime_Painter{
-    using CombinedMaps;
+
 
 
 [Serializable]
@@ -25,6 +25,8 @@ public class PainterConfig  {
                 return _inst;
             }
     }
+
+    public static PlaytimePainter painter { get { return PlaytimePainter.inspectedPainter; } }
 
     public const string PainterCameraName = "PainterCamera";
     public const string ToolName = "Playtime_Painter";
@@ -81,7 +83,7 @@ public class PainterConfig  {
         public bool pixelPerfectMeshEditing = false;
 
         public List<MeshPackagingProfile> meshPackagingSolutions;
-        public List<TexturePackagingProfile> texturePackagingSolutions;
+      
 
         public int _meshTool;
         public MeshToolBase meshTool { get {return MeshToolBase.allTools[_meshTool];} }
@@ -113,7 +115,7 @@ public class PainterConfig  {
     public bool ShowTeachingNotifications = false;
 
 
-        public myIntVec2 samplingMaskSize;
+    public myIntVec2 samplingMaskSize;
 
     public int selectedSize = 4;
 
@@ -123,7 +125,7 @@ public class PainterConfig  {
 
     public static Dictionary<string, string> recordings = new Dictionary<string, string>();
 
-        public string GetRecordingData(string name) {
+    public string GetRecordingData(string name) {
 
             string data;
 
@@ -136,17 +138,17 @@ public class PainterConfig  {
             return data;
         }
 
-        public void RemoveRecord() {
+    public void RemoveRecord() {
             RemoveRecord(recordingNames[browsedRecord]);
         }
 
-        public void RemoveRecord(string name) {
+    public void RemoveRecord(string name) {
             recordingNames.Remove(name);
             recordings.Remove(name);
             UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
         }
 
-        public void SafeInit() {
+    public void SafeInit() {
 
             _inst = this;
 
@@ -155,15 +157,14 @@ public class PainterConfig  {
             if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
                 meshPackagingSolutions = new List<MeshPackagingProfile>();
 
-				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard"));
+				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased"));
                 meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"));
-                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Atlased"));
 				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
             }
 
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
 
-            if (texturePackagingSolutions == null) texturePackagingSolutions = new List<TexturePackagingProfile>();
+           
            
             if (texturesFolderName == null)
                 texturesFolderName = "Textures";
@@ -202,163 +203,47 @@ public class PainterConfig  {
         ResourceSaver.Save<PainterConfig>(Application.persistentDataPath,SaveName, _inst);
     }
 
-        [SerializeField]
-        bool showAtlasedMaterial = false;
-        [SerializeField]
-        bool showAtlases = false;
-        [SerializeField]
-        int browsedAtlas = -1;
-        [SerializeField]
-        bool showTextureSets = false;
-        [SerializeField]
-        int browsedTextureSet = -1;
+    
 
-        public bool PEGI(PlaytimePainter painter)
+        public bool PEGI()
         {
             PainterManager rtp = PainterManager.inst;
             BrushConfig brush = PainterConfig.inst.brushConfig;
-            imgData id = painter.curImgData;
             bool changed = false;
 
             if (!PlaytimePainter.isNowPlaytimeAndDisabled())
             {
 
-                if ("Combined maps".foldout(ref showTextureSets).nl()) {
-                    TextureSetForForCombinedMaps.currentPainter = painter;
+              
+                rtp.browsedPlugin = Mathf.Clamp(rtp.browsedPlugin, -1, rtp.plugins.Count - 1);
 
-                    changed |= rtp.forCombinedMaps.PEGI(ref browsedTextureSet);
-
-                    return changed;
-                }
-
-                if (painter.isAtlased)
+                if (rtp.browsedPlugin != -1)
                 {
+                    if (icon.Back.Click().nl())
+                        rtp.browsedPlugin = -1;
+                    else  {
+                        var pl = rtp.plugins[rtp.browsedPlugin];
+                        if (pl.ConfigTab_PEGI().nl())
+                            pl.SetToDirty();
 
-                    "***** Selected Material Atlased *****".nl();
-
-#if UNITY_EDITOR
-
-                        var m = painter.getMesh();
-                        if (m != null && AssetDatabase.GetAssetPath(m).Length  == 0){
-                        "Atlased Mesh is not saved".nl();
-                        var n = m.name;
-                        if ("Mesh Name".edit(80,ref n))
-                            m.name = n;
-                        if (icon.save.Click().nl())
-                            painter.SaveMesh();
-                        }
-
-#endif
-
-
-                        if ("Undo Atlasing".Click())
-                    {
-                        painter.getRenderer().sharedMaterials = painter.preAtlasingMaterials;
-
-                        if (painter.preAtlasingMesh != null)
-                            painter.meshFilter.mesh = painter.preAtlasingMesh;
-                        painter.savedEditableMesh = painter.preAtlasingSavedMesh;
-
-                        painter.preAtlasingMaterials = null;
-                        painter.preAtlasingMesh = null;
-                        painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                        return changed;
                     }
-
-                    if ("Not Atlased".Click().nl()) {
-                        painter.preAtlasingMaterials = null;
-                        painter.getRenderer().sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
-                    }
-                    
-                    pegi.newLine();
-                    
                 }
-                else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
-                {
-
-                    showAtlases = false;
-
-                    List<MaterialAtlases> am = rtp.atlasedMaterials;
-                    int atlMat = painter.selectedAtlasedMaterial;
-
-                    if ((atlMat > -1) && (atlMat >= am.Count))
-                        painter.selectedAtlasedMaterial = atlMat = -1;
-
-                    if (atlMat > -1)  {
-
-                        if (icon.Back.Click())
-                            painter.selectedAtlasedMaterial = atlMat = -1;
-                        else
-                            am[atlMat].PEGI(painter);
-                        
-                    }
-                    else
+                else
+                    for (int p = 0; p < rtp.plugins.Count; p++)
                     {
-                        pegi.newLine();
-                        for (int i = 0; i < rtp.atlasedMaterials.Count; i++)
-                        {
-                            if (icon.Delete.Click(25))
-                                rtp.atlasedMaterials.RemoveAt(i);
-                            else
-                            {
-                                pegi.edit(ref rtp.atlasedMaterials[i].name);
-                                if (icon.Edit.Click(25).nl())
-                                    painter.selectedAtlasedMaterial = i;
-                            }
-                        }
-
-                        if (icon.Add.Click(30))
-                        {
-                            var mat = new MaterialAtlases("new");
-                            rtp.atlasedMaterials.Add(mat);
-                            mat.originalMaterial = painter.getMaterial(true);
-                            painter.usePreviewShader = false;
-                            mat.OnChangeMaterial(painter);
-
-                        }
+                        rtp.plugins[p].ToString().write();
+                        if (icon.Edit.Click().nl()) rtp.browsedPlugin = p;
                     }
 
-                    return changed;
+                if ("Find New Plugins".Click())
+                    rtp.RefreshPlugins();
+
+                if ("Clear Data".Click().nl())  {
+                    rtp.DeletePlugins();
+                    rtp.RefreshPlugins();
                 }
-                if ("Atlases".foldout(ref showAtlases))
-                {
-
-                    if ((browsedAtlas > -1) && (browsedAtlas >= rtp.atlases.Count))
-                        browsedAtlas = -1;
-
-                    pegi.newLine();
-
-                    if (browsedAtlas > -1)
-                    {
-                        if (icon.Back.Click(25))
-                            browsedAtlas = -1;
-                        else
-                            rtp.atlases[browsedAtlas].PEGI();
-                    }
-                    else
-                    {
-                        pegi.newLine();
-                        for (int i = 0; i < rtp.atlases.Count; i++)
-                        {
-                            if (icon.Delete.Click(25))
-                                rtp.atlases.RemoveAt(i);
-                            else
-                            {
-                                pegi.edit(ref rtp.atlases[i].name);
-                                if (icon.Edit.Click(25).nl())
-                                    browsedAtlas = i;
-                            }
-                        }
-
-                        if (icon.Add.Click(30))
-                            rtp.atlases.Add(new AtlasTextureCreator("new"));
-
-                    }
-
-
-
-
-                    return changed;
-                }
+                
             }
             pegi.newLine();
 
@@ -367,31 +252,23 @@ public class PainterConfig  {
             if ("Enable Painter for Playtime & Build".toggle(ref gotDefine).nl())
                 pegi.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
 
-            if (gotDefine)
-            {
+            if (gotDefine) {
                 if ("Disable PlayTime UI".toggle(ref PainterConfig.inst.disablePainterUIonPlay).nl())
                     MeshManager.inst.DisconnectMesh();
             }
 
-            if (!PlaytimePainter.isNowPlaytimeAndDisabled())
-            {
+            if (!PlaytimePainter.isNowPlaytimeAndDisabled()) {
 
-                (rtp.isLinearColorSpace ? "Project is Linear Color Space" : "Project is in Gamma Color Space").nl("Go to Build Settings to change. Linear gives more natural look");
-
-                if (painter.meshEditing == false)
-                {
+                if (painter.meshEditing == false) {
                     if ("More options".toggle(80, ref moreOptions).nl())
                         showConfig = false;
 
-                    "repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
+                    "CPU blit repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
 
                     changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
 
                     changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
                         ref brush.DontRedoMipmaps).nl();
-
-                    if ((id != null) && (brush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
-                        id.SetAndApply(true);
 
                     bool gotBacups = (painter.numberOfTexture2Dbackups + painter.numberOfRenderTextureBackups) > 0;
 
@@ -412,13 +289,6 @@ public class PainterConfig  {
                         painter.numberOfTexture2Dbackups = 10;
                         painter.numberOfRenderTextureBackups = 10;
                     }
-
-                    /*    if ("Don't create render texture buffer:".toggle(ref dontCreateDefaultRenderTexture).nl()) {
-                            PainterConfig.SaveChanges();
-                            rtp.UpdateBuffersState();
-                        }*/
-
-
 
                     "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
 

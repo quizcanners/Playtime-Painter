@@ -4,6 +4,7 @@
 	[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
 	[NoScaleOffset]_BumpMapC("Geometry Combined Maps (RGB)", 2D) = "white" {}
 	_Merge("_Merge", Range(0.01,2)) = 1
+	[Toggle(CLIP_ALPHA)] _ALPHA("Clip Alpha", Float) = 0
 	
 	}
     
@@ -37,6 +38,7 @@
 #pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ WATER_FOAM
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma multi_compile  ___ CLIP_ALPHA
 
 	sampler2D _MainTex;
 	sampler2D _BumpMapC;
@@ -48,7 +50,9 @@
 		float3 viewDir : TEXCOORD2;
 		float3 wpos : TEXCOORD3;
 		float3 tc_Control : TEXCOORD4;
-		float3 fwpos : TEXCOORD5;
+#if WATER_FOAM
+		float4 fwpos : TEXCOORD5;
+#endif
 		SHADOW_COORDS(6)
 		float2 texcoord : TEXCOORD7;
 #if _BUMP_NONE
@@ -76,7 +80,11 @@
 
 		float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
+#if WATER_FOAM
+
 		o.fwpos = foamStuff(o.wpos);      
+
+#endif
 
 		half3 wNormal = worldNormal;
 
@@ -102,16 +110,21 @@
 
 	float4 col = tex2D(_MainTex, i.texcoord.xy);
 	
+#if CLIP_ALPHA
+	clip(col.a - 0.5);
+	col.a = 0.1;
+#endif
+
 #if _BUMP_NONE
 	float3 worldNormal = i.normal;
-	float4 bumpMap = float4(0, 0, 0.5, 1);
+	float4 bumpMap = float4(0, 0, 1, 1);
 #else
 
 	float4 bumpMap = tex2D(_BumpMapC, i.texcoord.xy);
 	float3 tnormal;
 #if _BUMP_REGULAR
 	tnormal = UnpackNormal(bumpMap);
-	bumpMap = float4(0, 0, 0.5, 1);
+	bumpMap = float4(0, 0, 1, 1);
 #else
 	bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 	tnormal = float3(bumpMap.r, bumpMap.g, 1);
@@ -133,35 +146,22 @@
 	Terrain_Trilanear(i.tc_Control, i.wpos, dist, worldNormal, col, terrainN, bumpMap);
 
 	float shadow = SHADOW_ATTENUATION(i);
+
+	float Metalic = 0;
+
+
+	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
 #if WATER_FOAM
-	float2 wet = WetSection(terrainN, col.a, i.fwpos, shadow, i.viewDir.y);
+		i.fwpos
+#else
+	0
 #endif
+		);
 
-	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz,
-		col, shadow);
 
-#if WATER_FOAM
-	col.rgb += wet.x;
-	col.a = wet.y;
-	col.rgb *= 1 - saturate((_foamParams.z - i.wpos.y)*0.1);  // NEW
+	UNITY_APPLY_FOG(i.fogCoord, col);
 
-#endif
 
-	float4 fogged = col;
-	UNITY_APPLY_FOG(i.fogCoord, fogged);
-	float fogging = (32 - max(0,i.wpos.y - _foamParams.z)) / 32;
-
-	fogging = min(1,pow(max(0,fogging),2));
-	col.rgb = fogged.rgb * fogging + col.rgb *(1 - fogging);
-
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-	float3 mix = col.gbr + col.brg;
-	col.rgb += mix*mix*_lightControl.r;
-#endif
 
 	//col.rgb = bump.rgb;
 	//col.rgb = worldNormal;

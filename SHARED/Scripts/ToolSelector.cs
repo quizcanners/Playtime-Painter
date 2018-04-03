@@ -184,8 +184,10 @@ public class PlaytimeToolComponent : MonoBehaviour {
 	}
 		
 	public static GameObject refocusOnThis;
-	static int scipframes = 3;
-	public static void CheckRefocus() {
+#if UNITY_EDITOR
+    static int scipframes = 3;
+#endif
+    public static void CheckRefocus() {
 #if UNITY_EDITOR
 		if (refocusOnThis != null) {
 			scipframes--;

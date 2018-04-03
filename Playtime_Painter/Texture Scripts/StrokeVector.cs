@@ -31,7 +31,9 @@ namespace Playtime_Painter {
 	public Vector2 delta_uv { get { return uvTo - uvFrom; } }
 	public Vector3 delta_WorldPos { get { return posTo - posFrom; } }
 
-       
+    public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) {
+            return brush.Paint(this, painter);
+    }
 
     public bool crossedASeam() {
 
@@ -50,7 +52,6 @@ namespace Playtime_Painter {
                      ;
 
         }
-
 
     public override stdEncoder Encode() {
 

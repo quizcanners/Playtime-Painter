@@ -220,10 +220,10 @@ public static class UnityHelperFunctions {
 #endif
     }
 
-#if UNITY_EDITOR
+
     public static List<string> getTextures(this Material m) {
         List<string> tnames = new List<string>();
-
+#if UNITY_EDITOR
         if (m == null) return tnames;
 
         Material[] mat = new Material[1];
@@ -242,10 +242,10 @@ public static class UnityHelperFunctions {
         foreach (MaterialProperty p in props)
             if (p.type == MaterialProperty.PropType.Texture)
                 tnames.Add(p.name);
-
+#endif
         return tnames;
     }
-#endif
+
 
 
     public static bool DisplayNameContains (this Material m, string propertyName, string tag) {
@@ -388,7 +388,13 @@ public static class UnityHelperFunctions {
       
         folderName = "Assets" + folderName.AddPreSlashIfNotEmpty();
         string name = obj.name;
-        string fullpath = AssetDatabase.GenerateUniqueAssetPath(folderName + "/" + name + extension);
+        string fullpath =
+#if UNITY_EDITOR
+
+            AssetDatabase.GenerateUniqueAssetPath(folderName + "/" + name + extension);
+#else
+            folderName + "/" + name + extension;
+#endif
         name = fullpath.Substring(folderName.Length);
         name = name.Substring(0,name.Length - extension.Length);
         obj.name = name;
@@ -427,7 +433,16 @@ public static class UnityHelperFunctions {
 
         AssetDatabase.Refresh();
         
-        return (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+        var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+
+        var imp = tex.getTextureImporter();
+        bool needReimport = imp.wasNotReadable();
+        needReimport |= imp.wasClamped();
+        needReimport |= imp.wasWrongIsColor(diffuse.isColorTexturee());
+        if (needReimport)
+            imp.SaveAndReimport();
+
+        return tex;
 
     }
 

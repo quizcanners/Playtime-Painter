@@ -10,8 +10,6 @@ using PlayerAndEditorGUI;
 using UnityEngine.EventSystems;
 namespace Playtime_Painter{
 
-    using CombinedMaps;
-
 #if UNITY_EDITOR
     [CustomEditor(typeof(PainterManager))]
     public class RenderTexturePainterEditor : Editor {
@@ -81,12 +79,6 @@ public class PainterManager : MonoBehaviour {
 
     public Texture[] masks;
 
-    public List<TextureSetForForCombinedMaps> forCombinedMaps;
-
-    public List<AtlasTextureCreator> atlases;
-
-	public List<MaterialAtlases> atlasedMaterials;
-
     public VolumetricDecal[] decals;
 
     public VolumetricDecal GetDecal(int no)
@@ -96,6 +88,53 @@ public class PainterManager : MonoBehaviour {
         
     [NonSerialized]
 	public Dictionary<string, List<Texture>> recentTextures = new Dictionary<string, List<Texture>> ();
+
+    [SerializeField]
+    private List<PainterManagerPluginBase> _plugins;
+    public int browsedPlugin;
+
+    public List<PainterManagerPluginBase> plugins { get {
+
+                if (_plugins == null)
+                    RefreshPlugins();
+                else
+                    for (int i = 0; i < _plugins.Count; i++)
+                        if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
+
+                return _plugins;
+            } }
+
+    public void RefreshPlugins() {
+
+            if (_plugins == null) _plugins = new List<PainterManagerPluginBase>();
+            
+           
+          List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<PainterManagerPluginBase>();
+          foreach (var t in allTypes) {
+                bool contains = false;
+
+                foreach(var p in _plugins) 
+                    if (p.GetType() == t) { contains = true; break; }
+
+                if (!contains) {
+                    var c = (PainterManagerPluginBase)gameObject.GetComponent(t);
+                    if (c == null)
+                        c = (PainterManagerPluginBase)gameObject.AddComponent(t);
+                    _plugins.Add(c);
+                    c.OnEnable();
+                   // ("Painter Plugin " + c.ToString() + " added").showNotification();
+                }
+          }
+        }
+    public void DeletePlugins() {
+            for (int i = 0; i < _plugins.Count; i++)
+                _plugins[i].DestroyWhatever();
+
+            _plugins = null;
+        }
+
+
+
 
     public Camera rtcam;
     public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
@@ -115,7 +154,7 @@ public class PainterManager : MonoBehaviour {
 	public Shader bufferCopy = null;
 	public Shader br_Multishade = null;
 	public Shader br_BlurN_SmudgeBrush = null;
-
+    public Shader br_ColorFill = null;
 
     public Shader mesh_Preview = null;
     public Shader br_Preview = null;
@@ -361,8 +400,11 @@ public class PainterManager : MonoBehaviour {
 
     public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2) {
 
-		bool is3Dbrush =  (RendTex) && (brush.type.isA3Dbrush);
-		bool isDecal =  (RendTex) && (brush.type.isUsingDecals);
+            var brushType = brush.type(!RendTex);
+
+
+        bool is3Dbrush =  (RendTex) && (brushType.isA3Dbrush);
+		bool isDecal =  (RendTex) && (brushType.isUsingDecals);
 
 		Color c = brush.colorLinear.ToGamma();
 
@@ -402,7 +444,7 @@ public class PainterManager : MonoBehaviour {
 				, brush.blurAmount)); // w - blur amount
 
             //if (RendTex)
-                brush.type.setKeyword(texcoord2);
+            brushType.setKeyword(texcoord2);
             //else
               //  BrushTypeNormal.inst.setKeyword(texcoord2);
 
@@ -438,7 +480,7 @@ public class PainterManager : MonoBehaviour {
 		
     }
 
-    public void ShaderPrepareStroke_UpdateBuffer(BrushConfig bc, float brushAlpha, imgData id, bool texcoord2, bool firstStroke) {
+    public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, imgData id, bool texcoord2, bool firstStroke) {
 
 		bool isDoubleBuffer = (id.renderTexture == null);
 
@@ -457,11 +499,9 @@ public class PainterManager : MonoBehaviour {
         brushRendy.Set (useSingle ? bc.blitMode.shaderForSingleBuffer : bc.blitMode.shaderForDoubleBuffer);
 
 	}
-			
-
+	
     // **************************   Rendering calls
-
-
+    
     public void Render() {
             transform.rotation = Quaternion.identity;
             Shader.SetGlobalVector("_RTcamPosition", transform.position);
@@ -480,26 +520,40 @@ public class PainterManager : MonoBehaviour {
    public void Render(Texture tex, imgData id) {
         if (tex == null)
             return;
-        rtcam.targetTexture = id.currentRenderTexture();
-            brushRendy.PrepareForFullCopyOf(tex);
-            Render();
+            brushRendy.Set(pixPerfectCopy);
+            Graphics.Blit(tex, id.currentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
+            //rtcam.targetTexture = id.currentRenderTexture();
+             // brushRendy.PrepareForFullCopyOf(tex);
+            //  Render();
 
-   }
+        }
 
 	public void Render(Texture from, RenderTexture to) {
-            if (from == null) return;
-			rtcam.targetTexture = to;
-            brushRendy.PrepareForFullCopyOf(from);
+        if (from == null) return;
+            brushRendy.Set(pixPerfectCopy);
+            Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
+            //rtcam.targetTexture = to;
+            //brushRendy.PrepareForFullCopyOf(from);
+            // Render();
+        }
+
+        public void Render(Color col, RenderTexture to) {
+            rtcam.targetTexture = to;
+            brushRendy.PrepareColorPaint(col);
             Render();
         }
 
-    public void UpdateBufferTwo() {
-            brushRendy.PrepareForFullCopyOf(BigRT_pair[0]); 
-            UpdateBufferSegment();
-    }
+        public void UpdateBufferTwo() {
+           
+            brushRendy.Set(pixPerfectCopy);
+            Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
+            bufferUpdated = true;
+            //brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);
+            //Set(rtp.pixPerfectCopy).Set(tex);
+            // UpdateBufferSegment();
+        }
 
-
-    public bool bufferUpdated = false;
+        public bool bufferUpdated = false;
     public void UpdateBufferSegment() {
             if (!DebugDisableSecondBufferUpdate) {
                 brushRendy.Set(BigRT_pair[0]);
@@ -535,11 +589,7 @@ public class PainterManager : MonoBehaviour {
 
         rtcam.cullingMask = 1 << myLayer;
 
-			if (atlases == null)
-				atlases = new List<AtlasTextureCreator> ();
-
-			if (atlasedMaterials == null)
-				atlasedMaterials = new List<MaterialAtlases> ();
+		
 
 
 		if (PlaytimeToolComponent.enabledTool == null)
@@ -625,8 +675,8 @@ public class PainterManager : MonoBehaviour {
         if (br_Multishade == null) br_Multishade = Shader.Find("Editor/br_Multishade");
 
 		if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Editor/BlurN_SmudgeBrush");
-
         
+        if (br_ColorFill == null) br_ColorFill = Shader.Find("Editor/br_ColorFill");
 
         if (br_Preview == null) br_Preview = Shader.Find("Editor/br_Preview");
         
@@ -662,6 +712,9 @@ public class PainterManager : MonoBehaviour {
             autodisabledBufferTarget.reanableRenderTexture();
     
         autodisabledBufferTarget = null;
+
+            foreach (var p in plugins)
+                p.OnEnable();
 
     }
 
@@ -740,8 +793,8 @@ public class PainterManager : MonoBehaviour {
 				if ((p.curImgData == null)) {
 					PlaytimePainter.currently_Painted_Object = null;
             }
-            else {	
-				p.Paint(p.stroke, PainterConfig.inst.brushConfig);
+            else {
+                PainterConfig.inst.brushConfig.Paint(p.stroke, p);
                 p.Update();
             }
         }
@@ -764,43 +817,11 @@ public class PainterManager : MonoBehaviour {
 #endif
         }
         
-        [SerializeField]
-         bool showCombinedMaps = false;
-        [SerializeField]
-         int exploredCombinedMap = -1;
-        [SerializeField]
-         bool showPackagingSolutions = false;
-        [SerializeField]
-         int exploredPackagingSolution = -1;
-        [SerializeField]
-         bool showAtlasedMaterials = false;
-        [SerializeField]
-         int exploredAtlasedMaterial = -1;
-        [SerializeField]
-         bool showAtlases = false;
-        [SerializeField]
-         int exploredAtlas = -1;
         public void PEGI() {
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return; }
-
-            if ("Texture Packaging Solutions".foldout(ref showPackagingSolutions).nl()) {
-                cfg.texturePackagingSolutions.PEGI(ref exploredPackagingSolution);
-                return;
-            }
-
-            if ("Combined maps".foldout(ref showCombinedMaps).nl()) {
-                forCombinedMaps.PEGI(ref exploredCombinedMap);
-                return;
-            }
-
-            if ("Atlased Materials".foldout(ref showAtlasedMaterials).nl())
-                atlasedMaterials.PEGI(ref exploredAtlasedMaterial);
-
-            if ("Atlases ".foldout(ref showAtlases).nl())
-                atlases.PEGI(ref exploredAtlas);
 
 #if UNITY_EDITOR
             "Using layer:".nl();
@@ -809,19 +830,9 @@ public class PainterManager : MonoBehaviour {
             pegi.newLine();
             "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-            //"testValue: ".edit(() => testString).nl();
-
             "Textures to copy from".edit(() => sourceTextures).nl();
             "Masks".edit(() => masks).nl();
             "Decals".edit(() => decals).nl();
-            //"For combined maps".edit(() => forCombinedMaps).nl();
-
-         //   if ("Mesh Painter".foldout(ref meshEditorConfig).nl()) 
-           //     meshManager.PEGI();
-
-          
-
         }
-
 }
 }

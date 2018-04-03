@@ -711,11 +711,7 @@ namespace Playtime_Painter
                 mgmt._Mesh.PaintAll(cfg.brushConfig.colorLinear);
 
             "Make Vertices Unique On coloring".toggle(60, ref cfg.MakeVericesUniqueOnEdgeColoring).nl();
-
-            Color col = cfg.brushConfig.colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-                cfg.brushConfig.colorLinear.From(col);
-
+            
             cfg.brushConfig.ColorSliders_PEGI().nl();
 
             pegi.writeHint("Ctrl+LMB on Vertex - to paint only selected uv");

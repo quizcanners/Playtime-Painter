@@ -1,0 +1,31 @@
+Thank you for using Playtime Painter. 
+
+The Asset is being constantly developed and there are many features yet to come. 
+If something looks like a bug or just feels unintuitive, feel free to use one of the Contact options below to let me know.
+
+
+HOW TO USE:
+Attach PlaytimePainter Component to the GameObject you want to edit. Component's interface contains all the Texture editing
+and mesh editing functionality. More in Online Documentation.
+
+IMPORTANT TO KNOW:
+Component more often prioratizes time-saving over being cautious. For example, it will automatically set "Is readable" 
+for texture currently selected for editing and will create a .PNG RGBA copy of it to edit if current version is of a wrong format.
+I created it for a very specific goal: to try stuff out as fast as possible. It's easy to edit things, but as a result, it's possible
+to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback.
+
+
+Hope you will enjoy the Asset, and please join a Discord channel (link below). 
+
+
+Online Documentation:
+https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo
+
+Discussion & Feedback: 
+https://discord.gg/rF7yXq3
+quizcanners@gmail.com
+https://www.quizcanners.com/forum/texture-editor
+
+
+Most of the links are also accessible from the Setting tab of the component.  
+There are also some options at the Top Menu: Tool->PlaytimePainter ...

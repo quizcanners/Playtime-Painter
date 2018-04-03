@@ -3,7 +3,7 @@
 		_MainTex("_MainTex", 2D) = "white" {}
 	//_ExplodedTex ("_ExplodedTex", 2D) = "white" {}
 	[NoScaleOffset]_Bump("_bump", 2D) = "bump" {}
-	_Smudge("_smudge", 2D) = "white" {}
+	_Smudge("_smudge", 2D) = "gray" {}
 	[NoScaleOffset]_BumpEx("_bumpEx", 2D) = "bump" {}
 	_BumpDetail("_bumpDetail", 2D) = "bump" {}
 
@@ -130,12 +130,11 @@
 			float3 nn2 = UnpackNormal(tex2Dlod(_BumpDetail, float4(i.uv_BumpDetail*(4 + nn.xy), 0, 0)));
 			nn += nn2 * ( 2 - c.a)*0.05;
 
-			o.Normal = normalize(nn*(1-bord)+float3(0,0,bord));
+			nn = normalize(nn*(1 - bord) + float3(0, 0, bord));
 
-			float smudge = tex2D(_Smudge, i.uv_Smudge 
-			//	+ nn.xy * 0.1
-			
-			).a;
+			o.Normal = nn;
+
+			float smudge = tex2D(_Smudge, i.uv_Smudge).a;
 			float deSmudge = 1 - smudge;
 
 
@@ -148,15 +147,7 @@
 
 			float gloss = _Glossiness * smudge*deBord + bord;
 
-			float4 col = (
-
-				(c //+ _OutlineColor * (pow(dist, 3)*_touchPoint.z)*smudge
-					+ c * light *(1 - gloss)
-					+ light * gloss*0.5
-					)
-
-				)
-				*(1 - bord);//+bord * bord*0.1;
+			float4 col = ((c + c * light *(1 - gloss)+ light * gloss*0.5))*(1 - bord);
 
 			float3 bgr = col.gbr + col.brg;
 			bgr *= bgr;

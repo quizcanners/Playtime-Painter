@@ -11,11 +11,9 @@ namespace Playtime_Painter {
     using UnityEditor;
 
     [CustomEditor(typeof(BakedShadowMaterialController))]
-    public class BakedShadowMaterialControllerEditor : Editor
-    {
+    public class BakedShadowMaterialControllerEditor : Editor {
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             ef.start(serializedObject);
             ((BakedShadowMaterialController)target).PEGI();
             ef.end();
@@ -25,8 +23,7 @@ namespace Playtime_Painter {
 
     [ExecuteInEditMode]
     public class BakedShadowMaterialController : MonoBehaviour {
-
-
+        
         public Material material;
         public List<int>[] probes;
         public float[] bounceCoefficient = new float[3];
@@ -45,7 +42,7 @@ namespace Playtime_Painter {
         }
 
         public int browsedNode = -1;
-        public bool PEGI() {
+        public virtual bool PEGI() {
 
             bool changed = false;
 
