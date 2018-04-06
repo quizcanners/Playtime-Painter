@@ -62,9 +62,9 @@
 		float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
 		float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
 		v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
-			* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1- _brushAtlasSectionAndRows.w);
-		
-
+			* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+		//v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
+		//_brushAtlasSectionAndRows.w + v.texcoord.xy * (1- _brushAtlasSectionAndRows.w);
 		
 		worldPos.xyz = _RTcamPosition.xyz;
 		worldPos.z+=100;
@@ -97,7 +97,7 @@
 	#endif
 
 	#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-        float alpha = prepareAlphaSphere ( i.texcoord, i.worldPos);
+		float alpha = prepareAlphaSphere(i.texcoord, i.worldPos);
 		clip(alpha - 0.000001);
     #endif
 
@@ -124,6 +124,8 @@
 		//_brushColor = overlay*overlay.a + _brushColor*(1-overlay.a);
 		_brushColor.a = Height;
 	#endif
+
+		//return 1;
 
 	#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
 		return blitWithDestBuffer (alpha, _brushColor,  i.texcoord.xy);

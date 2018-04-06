@@ -21,15 +21,17 @@ namespace Playtime_Painter{
 
         public static bool isCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
 
-        public static PainterConfig cfg { get { return PainterConfig.inst; } }
+        protected static PainterConfig cfg { get { return PainterConfig.inst; } }
 
-        public static BrushConfig globalBrush { get { return PainterConfig.inst.brushConfig; } }
+        protected static BrushConfig globalBrush { get { return PainterConfig.inst.brushConfig; } }
 
-        public BrushType globalBrushType { get { return globalBrush.type(curImgData.TargetIsTexture2D()); } }
+        protected BrushType globalBrushType { get { return globalBrush.type(curImgData.TargetIsTexture2D()); } }
 
-        public static PainterManager texMGMT { get { return PainterManager.inst; } }
+        protected static PainterManager texMGMT { get { return PainterManager.inst; } }
 
-        public static MeshManager meshMGMT { get { return MeshManager.inst; } }
+        protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
+
+        protected static GridNavigator grid { get { return GridNavigator.inst(); } }
 
         public override string ToolName() { return PainterConfig.ToolName; }
 
@@ -220,6 +222,9 @@ namespace Playtime_Painter{
             if (!canPaint())
                 return;
 
+            if (globalBrush.type(this).useGrid) 
+                ProcessGridDrag();
+            else
             if (!ProcessHit(hit, stroke))
                 return;
 
@@ -292,44 +297,60 @@ namespace Playtime_Painter{
 
         public bool CastRayPlaytime(StrokeVector st, Vector3 mousePos)
         {
-            //v2 = new Vector2();
-            RaycastHit hit;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out hit, float.MaxValue))
-                return ProcessHit(hit, st);
+
+            if (globalBrush.type(this).useGrid)
+            {
+                ProcessGridDrag();
+                return true;
+            }
+            else
+            {
+
+                RaycastHit hit;
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out hit, float.MaxValue))
+                    return ProcessHit(hit, st);
+
+                return false;
+            }
+        }
 
 
-
-            return false;
+        void ProcessGridDrag() {
+            stroke.posTo = GridNavigator.onGridPos;
+            PreviewShader_StrokePosition_Update(Input.GetMouseButton(0));
         }
 
         bool ProcessHit(RaycastHit hit, StrokeVector st)
         {
-            int submesh = this.getMesh().GetSubmeshNumber(hit.triangleIndex);
-            if (submesh != selectedSubmesh)
-            {
-                if (autoSelectMaterial_byNumberOfPointedSubmesh)
+            
+
+                int submesh = this.getMesh().GetSubmeshNumber(hit.triangleIndex);
+                if (submesh != selectedSubmesh)
                 {
-                    SetOriginalShader();
+                    if (autoSelectMaterial_byNumberOfPointedSubmesh)
+                    {
+                        SetOriginalShader();
 
-                    selectedSubmesh = submesh;
-                    OnChangedTexture();
+                        selectedSubmesh = submesh;
+                        OnChangedTexture();
 
-                    CheckPreviewShader();
+                        CheckPreviewShader();
+                    }
+                    // else
+                    //   if ((getRenderer() != null) && (getRenderer().materials.Length>submesh))
+                    // return false;
                 }
-                // else
-                //   if ((getRenderer() != null) && (getRenderer().materials.Length>submesh))
-                // return false;
-            }
 
 
-            if (curImgData == null) return false;
+                if (curImgData == null) return false;
 
-            st.posTo = hit.point;
+                st.posTo = hit.point;
 
-            st.unRepeatedUV = offsetAndTileUV(hit);
-            st.uvTo = st.unRepeatedUV.To01Space();
+                st.unRepeatedUV = offsetAndTileUV(hit);
+                st.uvTo = st.unRepeatedUV.To01Space();
+            
 
-           PainterShader_StrokePosition_Update(Input.GetMouseButton(0));
+           PreviewShader_StrokePosition_Update(Input.GetMouseButton(0));
 
             return true;
         }
@@ -1667,7 +1688,24 @@ namespace Playtime_Painter{
         public bool textureWasChanged = false;
         
         float repaintTimer;
-        
+
+#if UNITY_EDITOR
+
+        public void FeedEvents(Event e) {
+
+
+
+            if ((e.type == EventType.KeyDown) && !meshEditing && curImgData != null) {
+
+                    if ((e.keyCode == KeyCode.Z) && (curImgData.cache.undo.gotData()))
+                        curImgData.cache.undo.ApplyTo(curImgData);
+                    else if ((e.keyCode == KeyCode.X) && (curImgData.cache.redo.gotData()))
+                        curImgData.cache.redo.ApplyTo(curImgData);
+            }
+        }
+
+#endif
+
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
         bool texture2DDataWasChanged;
 
@@ -1676,8 +1714,7 @@ namespace Playtime_Painter{
                 if ((!LockEditing) && (meshEditEnabled ) && (Application.isPlaying))
                         MeshManager.inst.DRAW_Lines(false);
 
-
-                    if (textureWasChanged) 
+            if (textureWasChanged) 
                 OnChangedTexture();
      
             repaintTimer -= (Application.isPlaying) ?  Time.deltaTime : 0.016f;
@@ -1693,7 +1730,7 @@ namespace Playtime_Painter{
         }
 #endif
 
-        public void PainterShader_StrokePosition_Update(bool hide) {
+        public void PreviewShader_StrokePosition_Update(bool hide) {
                     CheckPreviewShader();
                 if (originalShader!= null)
                     PainterManager.Shader_PerFrame_Update(stroke, hide, globalBrush.Size(isPaintingInWorldSpace(globalBrush)));
@@ -1735,7 +1772,8 @@ namespace Playtime_Painter{
         public bool PEGI_MAIN()
         {
             inspectedPainter = this;
-
+            texMGMT.focusedPainter = meshEditing ? null : this;
+            
             bool changed = false;
 
             if (!isNowPlaytimeAndDisabled())
@@ -1915,7 +1953,7 @@ namespace Playtime_Painter{
                 }
                 else if ((curImgData != null) && (!LockEditing))
                 {
-
+                    
                     curImgData.undo_redo_PEGI();
                     if (!curImgData.recording)
                         this.Playback_PEGI();
@@ -1924,13 +1962,15 @@ namespace Playtime_Painter{
 
                     bool CPU = curImgData.TargetIsTexture2D();
 
+                    foreach (var p in texMGMT.plugins) 
+                        if (p.BrushConfigPEGI().nl()) {
+                            p.SetToDirty();
+                            changed = true;
+                    }
 
                     foreach (var p in plugins)
-                        if (p.BrushConfigPEGI())
-                    {
-#if UNITY_EDITOR
-                            Undo.RecordObject(p,"pegi");
-#endif
+                        if (p.BrushConfigPEGI().nl()) {
+                            p.SetToDirty();
                             changed = true;
                     }
 
@@ -1944,6 +1984,7 @@ namespace Playtime_Painter{
                     }
 
                     changed |= globalBrush.PEGI();
+                       
 
                     BlitMode mode = globalBrush.blitMode;
                     Color col = globalBrush.colorLinear.ToGamma();
@@ -2009,7 +2050,7 @@ namespace Playtime_Painter{
                     MeshManager.inst.DRAW_Lines(true);
                 }
                 else
-                if ((originalShader == null) && (last_MouseOver_Object == this) && isCurrentTool() && isPaintingInWorldSpace(globalBrush))
+                if ((originalShader == null) && (last_MouseOver_Object == this) && isCurrentTool() && isPaintingInWorldSpace(globalBrush) && !cfg.showConfig)
                     Gizmos.DrawWireSphere(stroke.posTo, globalBrush.Size(true) * 0.5f);
                 
             }
@@ -2023,15 +2064,6 @@ namespace Playtime_Painter{
         public bool meshEditEnabled { get { return isCurrentTool() && meshEditing && (MeshManager.inst.target == this); } }
 
         public MeshManager meshManager { get { return MeshManager.inst; } }
-
-        public EditableMesh editedMesh
-        {
-            get
-            {
-                if (meshManager.target == this) return meshManager._Mesh;
-                Debug.Log(name + " call Edit before accessing edited mesh."); return null;
-            }
-        }
 
         public int GetAnimationUVy()
         {

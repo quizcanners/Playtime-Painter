@@ -16,7 +16,7 @@ namespace Playtime_Painter
 
 	[Serializable]
     [ExecuteInEditMode]
-    public class MeshManager {
+    public class MeshManager : PainterStuff  {
 
 
         public static MeshManager inst { get
@@ -26,8 +26,6 @@ namespace Playtime_Painter
         }
 
         public static Transform transform { get { return PainterManager.inst.transform; } }
-
-        public static GridNavigator grid { get { return GridNavigator.inst(); } }
 
         public static float animTextureSize = 128;
 
@@ -40,19 +38,9 @@ namespace Playtime_Painter
         
         public static MeshToolBase tool { get { return PainterConfig.inst.meshTool; } }
 
-        public static PainterConfig cfg {
-            get {
-                return PainterConfig.inst;
-            }
-        }
         public static int editedUV = 0;
        // public bool showGrid = true;
         public static Vector3 editorMousePos;
-
-        public static BrushConfig brushConfig() {
-            return cfg.brushConfig;
-        }
-      
 
         [NonSerialized]
         public PlaytimePainter target;
@@ -74,8 +62,7 @@ namespace Playtime_Painter
         int currentUV = 0;
         bool SelectingUVbyNumber = false;
         public bool GridToUVon = false;
-
-      
+        
 
         [NonSerialized]
         public UVpoint selectedUV;
@@ -200,8 +187,7 @@ namespace Playtime_Painter
             return uv;
         }
 
-        public void AddToTrisSet(UVpoint nuv)
-        {
+        public void AddToTrisSet(UVpoint nuv) {
 
             TrisSet[trisVerts] = nuv;
             trisVerts++;
@@ -661,8 +647,8 @@ namespace Playtime_Painter
             {
                 GridNavigator.onGridPos = selectedUV.vert.getWorldPos();
                 //  Debug.Log("Moving grid pos to " + GridNavigator.onGridPos);
-                UpdateLocalSpaceV3s();
-                GridNavigator.inst().UpdatePositions();
+               // UpdateLocalSpaceV3s();
+                grid.UpdatePositions();
                 // Debug.Log("Result: "+GridNavigator.onGridPos);
             }
 
@@ -1177,11 +1163,8 @@ namespace Playtime_Painter
                     if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!PlaytimeToolComponent.MeshEditorIgnore.Contains(hit.transform.tag)))
                         mrkr.go.ActiveUpdate(false);
 
-                    if (sameTrisAsPointed(vpoint))
-                    {
+                    if (sameTrisAsPointed(vpoint))           
                         mrkr.textm.color = Color.white;
-
-                    }
                     else
                         mrkr.textm.color = Color.gray;
 
@@ -1254,14 +1237,7 @@ namespace Playtime_Painter
             }
         }
 
-        public void CombinedUpdate()
-        {
-
-            bool showGrid = ((target != null) && (target.enabled) && tool.showGrid);
-                //&& ((_meshTool == MeshTool.vertices) 
-                //|| (_meshTool == MeshTool.VertexAnimation) || ((_meshTool == MeshTool.uv) && GridToUVon)));
-
-            GridNavigator.inst().SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
+        public void CombinedUpdate() {
 
             if (target == null)
                 return;
@@ -1272,8 +1248,6 @@ namespace Playtime_Painter
                 return;
             }
 
-
-
             int no = EditorInputManager.GetNumberKeyDown();
             SelectingUVbyNumber = false;
             if (no != -1) { currentUV = no - 1; SelectingUVbyNumber = true; } else currentUV = 0;
@@ -1282,33 +1256,31 @@ namespace Playtime_Painter
             if (Application.isPlaying)
                 UpdateInputPlaytime();
 
-            GridNavigator.inst().UpdatePositions();
+             grid.UpdatePositions();
 
 
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
-
-         
-
+            
             if (_Mesh.dirty)
                 Redraw();
 
         }
 
-        void updateGrid()
+        /*void updateGrid()
         {
             GridNavigator.inst().UpdatePositions();
             UpdateLocalSpaceV3s();
-        }
+        }*/
 
 #if UNITY_EDITOR
-        public void UpdateInputEditorTime(Event e, Ray ray, bool up, bool dwn)
+        public void UpdateInputEditorTime(Event e, bool up, bool dwn)
         {
 
             if (target == null)
                 return;
 
-            EditorInputManager.raySceneView = ray;
+           
 
             if (e.type == EventType.KeyDown) {
                 switch (e.keyCode)
@@ -1320,24 +1292,10 @@ namespace Playtime_Painter
                 }
                 PROCESS_KEYS();
             }
-
-            if (e.type == EventType.ScrollWheel)
-            {
-                if (GridNavigator.inst().ScrollsProcess(e.delta.y))
-                    ProcessScaleChange();
-                updateGrid();
-
-                e.Use();
-            }
-
-            if (e.isMouse || (e.type == EventType.ScrollWheel)) {
-
-                EditorInputManager.feedMouseEvent(e);
-                updateGrid();
-
+            
+            if (e.isMouse || (e.type == EventType.ScrollWheel)) 
                 RAYCAST_SELECT_MOUSEedit();
-            }
-
+            
             SORT_AND_UPDATE_UI();
 
             return;
@@ -1349,12 +1307,7 @@ namespace Playtime_Painter
 
             if (pegi.mouseOverUI)
                 return;
-              //  return;
 
-            if (GridNavigator.inst().ScrollsProcess(Input.GetAxis("Mouse ScrollWheel")))
-                ProcessScaleChange();
-
-            updateGrid();
             RAYCAST_SELECT_MOUSEedit();
             PROCESS_KEYS();
 

@@ -81,6 +81,7 @@ public class PainterConfig  {
         public bool newVerticesSmooth = true;
         public bool atlasEdgeAsChanel2 = true;
         public bool pixelPerfectMeshEditing = false;
+        public bool useGridForBrush = false;
 
         public List<MeshPackagingProfile> meshPackagingSolutions;
       
@@ -263,7 +264,7 @@ public class PainterConfig  {
                     if ("More options".toggle(80, ref moreOptions).nl())
                         showConfig = false;
 
-                    "CPU blit repaint delay".nl("Delay for video memory update when painting to Texture2D", 100);
+                    "CPU blit repaint delay".nl("Delay for video memory update when painting to Texture2D", 140);
 
                     changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
 

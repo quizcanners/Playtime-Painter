@@ -3,6 +3,7 @@
 Shader "Painter_Experimental/DestructibleEnvironment" {
 	Properties {
 		[NoScaleOffset] _MainTex_ATL_UV2("_Main DAMAGE (_UV2) (_ATL) (RGB)", 2D) = "black" {}
+		_WetColor("Wetness Color", Color) = (0.26,0.16,0.16,0.0)
 		_Diffuse("ATL_Diffuse (_ATL)", 2D) = "white" {}
 		[NoScaleOffset]_Bump("ATL_Bump (_ATL)", 2D) = "gray" {}
 	
@@ -36,6 +37,7 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 		sampler2D _BumpD;
 		sampler2D _BumpD2;
 		float4 _MainTex_ATL_UV2_TexelSize;
+		float4 _WetColor;
 		float _AtlasTextures;
 
 		struct Input {
@@ -78,8 +80,6 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			float4 col = tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod)); // tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod));
 			float4 bump = tex2Dlod(_Bump, float4(i.uv_Diffuse, 0, lod)); 
 
-			//float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
-
 #else
 
 			
@@ -109,13 +109,13 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			float4 bumpd2 = tex2D(_BumpD2, i.uv_DamDiffuse2); bumpd2.rg -= 0.5;
 
 
-			float damAlpha = saturate((mask.r*3 - bumpd.b*2 + col.a - 1) * 8);
+			float damAlpha = saturate((mask.r*3 + bump.b - bumpd.b*2  - 1) * 4);
 			float deAlpha = 1 - damAlpha;
 			col = col*deAlpha + dam*damAlpha;
 			bump = bump*deAlpha + bumpd*damAlpha;
 
 
-			float damAlpha2 = ((mask.r ) - 1 - bumpd2.b + bumpd.a) * 4* damAlpha;
+			float damAlpha2 = (((mask.r-0.5)*4 ) - 1 + (bumpd2.b - bumpd.b)*2) * 8* damAlpha;
 
 			
 			damAlpha2 = saturate(damAlpha2);
@@ -123,17 +123,38 @@ Shader "Painter_Experimental/DestructibleEnvironment" {
 			col = col*deAlpha + dam2*damAlpha2;
 			bump = bump*deAlpha + bumpd2*damAlpha2;
 
-			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*4 +
-				bump.r 
-				, -(mask.r - maskr)*damAlpha2*4  + 
-				bump.g 
-				, 0.1));
 
-			o.Albedo = col.rgb;
-			o.Smoothness = max(bump.b, mask.b);
-			o.Metallic = damAlpha2;
+		
+			//float water = max(col.a, mask.b);
+		
+
+			float water = saturate((mask.b*(2 + damAlpha + damAlpha2) - bump.b-1));
+
+			o.Smoothness = max(col.a, water);//*(0.7 + 0.3*_WetColor.a);
+
+			water *= _WetColor.a;
+			float deWater = 1 - water;
+
+			o.Normal =normalize(
+				
+				
+				float3(
+				(mask.r - maskg)*damAlpha2*4 
+					+ bump.r ,
+					-(maskr - mask.r)*damAlpha2*4 
+					+ bump.g, 0.1)*deWater
+			+float3(0,0,1)*water
+			
+			);
+
+			o.Albedo = col.rgb * deWater + _WetColor.rgb*water;
+
+
+
+			
+			o.Metallic = water;
 			o.Alpha = col.a;
-			o.Occlusion = bump.a;
+			o.Occlusion = bump.a*deWater+water;
 		}
 		ENDCG
 	}

@@ -749,6 +749,30 @@ public static class ef {
         return false;//(String.Compare(before, text) != 0);
     }
 
+    public static bool editDelayed(ref int val)
+    {
+        checkLine();
+
+        if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex))
+        {
+            EditorGUILayout.IntField(val);
+            val = editedInteger;
+            elementIndex++;
+            return change;
+        }
+
+        int tmp = val;
+        if (edit(ref tmp))
+        {
+            editedInteger = tmp;
+            editedIntegerIndex = elementIndex;//val.GetHashCode().ToString();
+        }
+
+        elementIndex++;
+
+        return false;//(String.Compare(before, text) != 0);
+    }
+
     public static bool edit(ref Vector2 val) {
         checkLine();
         bool modified = false;
@@ -797,10 +821,13 @@ public static class ef {
         checkLine();
 
 
-        if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash)) {
-            EditorGUILayout.TextField(text);
-            text = editedText;
-            return change;
+        if (KeyCode.Return.isDown()){
+            if (text.GetHashCode().ToString() == editedHash)
+            {
+                EditorGUILayout.TextField(text);
+                text = editedText;
+                return change;
+            } 
         }
 
         string tmp = text;

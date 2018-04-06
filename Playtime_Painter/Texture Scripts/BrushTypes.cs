@@ -129,6 +129,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 	public virtual bool isUsingDecals {get { return false;}}
 	public virtual bool startPaintingTheMomentMouseIsDown {get { return true;}}
     public virtual bool supportedForTerrain_RT { get { return true; } }
+    public virtual bool useGrid { get { return false; } }
 
 	public virtual bool PEGI(){
 		
@@ -140,54 +141,59 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             
         if  (PainterManager.inst.masks.Length > 0) {
 
-			brush.selectedSourceMask = Mathf.Clamp(brush.selectedSourceMask, 0,PainterManager.inst.masks.Length-1); 
+			inspectedBrush.selectedSourceMask = Mathf.Clamp(inspectedBrush.selectedSourceMask, 0,PainterManager.inst.masks.Length-1); 
 				
 			pegi.Space();
 			pegi.newLine();
 
-			change |= pegi.toggle(ref brush.useMask, "Mask","Multiply Brush Speed By Mask Texture's alpha", 40);
+			change |= pegi.toggle(ref inspectedBrush.useMask, "Mask","Multiply Brush Speed By Mask Texture's alpha", 40);
 
 			//pegi.newLine();
 
-			if (brush.useMask) {
+			if (inspectedBrush.useMask) {
 				
-				pegi.selectOrAdd(ref brush.selectedSourceMask, ref PainterManager.inst.masks);
+				pegi.selectOrAdd(ref inspectedBrush.selectedSourceMask, ref PainterManager.inst.masks);
 
 				pegi.newLine();
 
-                    if (!brush.randomMaskOffset) {
+                    if (!inspectedBrush.randomMaskOffset) {
 
                         pegi.write("Mask Offset: ", 70);
 
-                        change |= pegi.edit(ref brush.maskOffset);
+                        change |= pegi.edit(ref inspectedBrush.maskOffset);
 
                         pegi.newLine();
                     }
 
                     pegi.write("Random Mask Offset");
 
-                    change |= pegi.toggle(ref brush.randomMaskOffset);
+                    change |= pegi.toggle(ref inspectedBrush.randomMaskOffset);
 
                     pegi.newLine();
 
 				pegi.write("Mask Tiling: ", 70);
 
-				if (pegi.edit(ref brush.maskTiling, 1, 8)) {
-					brush.maskTiling = Mathf.Clamp(brush.maskTiling, 0.1f, 64);
+				if (pegi.edit(ref inspectedBrush.maskTiling, 1, 8)) {
+					inspectedBrush.maskTiling = Mathf.Clamp(inspectedBrush.maskTiling, 0.1f, 64);
 					change = true;
 				}
 
                     pegi.newLine();
 
-                    if (PainterConfig.inst.moreOptions || brush.flipMaskAlpha)
-                        change |= pegi.toggle(ref brush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
+                    if (PainterConfig.inst.moreOptions || inspectedBrush.flipMaskAlpha)
+                        change |= pegi.toggle(ref inspectedBrush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
 
                     pegi.newLine();
 			}
 
 
 		}
-		else { pegi.writeHint("Assign some Masks to Painter Camera"); }
+		else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
+
+        
+
+            if (useGrid && "Center Grid".Click().nl())
+                GridNavigator.onGridPos = painter.transform.position;
 
 		return change;
 	}
@@ -236,11 +242,11 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
 
-			if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+			if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
 			imgData id = pntr.curImgData;
 
-			mgmt.ShaderPrepareStroke(br, br.speed*0.05f, id, st.useTexcoord2, st.firstStroke);
+			texMGMT.ShaderPrepareStroke(br, br.speed*0.05f, id, st.useTexcoord2, st.firstStroke);
 
 	
               
@@ -253,7 +259,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 				
 				rtbrush.localPosition =  StrokeVector.brushWorldPositionFrom((st.uvFrom+st.uvTo)/2);
 
-                mgmt.Render();
+                texMGMT.Render();
 
             AfterStroke(pntr, br, st);
         }
@@ -276,7 +282,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
                 pntr.AfterStroke(st);
 
             if (!br.isSingleBufferBrush() && !br.type(pntr).isA3Dbrush)
-                mgmt.UpdateBufferSegment();
+                texMGMT.UpdateBufferSegment();
 
             if ((br.useMask) && (st.mouseUp) && (br.randomMaskOffset))
                 br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
@@ -308,11 +314,11 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
 
-            if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
             imgData id = pntr.curImgData;
 
-            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
 
         
 
@@ -324,7 +330,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             rtbrush.localPosition = st.brushWorldPosition;// StrokeVector.brushWorldPositionFrom((st.uvFrom + st.uvTo) / 2);
 
-                mgmt.Render();
+                texMGMT.Render();
 
                
             AfterStroke(pntr, br, st);
@@ -349,11 +355,11 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
         public static void Paint (Vector2 uv, BrushConfig br, RenderTexture rt) {
 
-            if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
             var id = rt.getImgData();
 
-            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
 
             float width = br.strokeWidth(id.width, false);
 
@@ -364,7 +370,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             rtbrush.localPosition = StrokeVector.brushWorldPositionFrom(uv);
 
-            mgmt.Render();
+            texMGMT.Render();
 
             AfterStroke(br);
 
@@ -415,9 +421,9 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
                     
                 }
 
-				if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+				if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-				mgmt.ShaderPrepareStroke(br, 1, id, st.useTexcoord2, st.firstStroke);
+				texMGMT.ShaderPrepareStroke(br, 1, id, st.useTexcoord2, st.firstStroke);
 				Transform tf = rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -453,7 +459,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
                     tf.localPosition = StrokeVector.brushWorldPositionFrom(uv);
 
-                mgmt.Render();
+                texMGMT.Render();
 
                 AfterStroke(pntr, br, st);
 
@@ -468,35 +474,35 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             if (br.decalRotationMethod == DecalRotationMethod.Random)
             {
                 br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
-                mgmt.Shader_UpdateDecal(cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
+                texMGMT.Shader_UpdateDecal(cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
             }
         }
 
         public override bool PEGI () {
 		
 		bool brushChanged_RT = false;
-		brushChanged_RT |= pegi.select<VolumetricDecal>(ref brush.selectedDecal, PainterManager.inst.decals);
+		brushChanged_RT |= pegi.select<VolumetricDecal>(ref inspectedBrush.selectedDecal, PainterManager.inst.decals);
 		pegi.newLine();
 
-		if (PainterManager.inst.GetDecal(brush.selectedDecal) == null)
+		if (PainterManager.inst.GetDecal(inspectedBrush.selectedDecal) == null)
 			pegi.write("Select valid decal; Assign to Painter Camera.");
 		pegi.newLine();
 
-        "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref brush.decalContinious).nl();
+        "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref inspectedBrush.decalContinious).nl();
 
         "Rotation".write("Rotation method", 60);
 
-            brush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(brush.decalRotationMethod); // "Random Angle", 90);
+            inspectedBrush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(inspectedBrush.decalRotationMethod); // "Random Angle", 90);
 		pegi.newLine();
-		if (brush.decalRotationMethod == DecalRotationMethod.Set) {
+		if (inspectedBrush.decalRotationMethod == DecalRotationMethod.Set) {
 			"Angle:".write ("Decal rotation", 60);
-			brushChanged_RT |= pegi.edit(ref brush.decalAngle, -90, 450);
-		} else if (brush.decalRotationMethod == DecalRotationMethod.StrokeDirection) {
-                "Ang Offset:".edit("Angle modifier after the rotation method is applied",80, ref brush.decalAngleModifier, -180f, 180f); 
+			brushChanged_RT |= pegi.edit(ref inspectedBrush.decalAngle, -90, 450);
+		} else if (inspectedBrush.decalRotationMethod == DecalRotationMethod.StrokeDirection) {
+                "Ang Offset:".edit("Angle modifier after the rotation method is applied",80, ref inspectedBrush.decalAngleModifier, -180f, 180f); 
         } 
 
 		pegi.newLine();
-		if (!brush.mask.GetFlag(BrushMask.A))
+		if (!inspectedBrush.mask.GetFlag(BrushMask.A))
 			pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");
 
 		return brushChanged_RT;
@@ -596,9 +602,9 @@ public class BrushTypeLazy : BrushType {
                         st.uvTo = st.uvFrom + delta_uv.normalized * trackPortion;
 				}
 			}
-				PainterManager r = mgmt;
+				PainterManager r = texMGMT;
 			//RenderTexturePainter.inst.RenderLazyBrush(painter.Previous_uv, uv, brush.speed * 0.05f, painter.curImgData, brush, painter.LmouseUP, smooth );
-				if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+				if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
 				imgData id = pntr.curImgData;
 
@@ -653,18 +659,19 @@ public class BrushTypeLazy : BrushType {
 
         public override bool isA3Dbrush { get { return true; } }
         public override bool supportedForTerrain_RT { get { return false; } }
+        public override bool useGrid   {  get { return cfg.useGridForBrush; } }
 
         public override string ToString () {
 		return "Sphere";
 	}
 
         static void PrepareSphereBrush(imgData id, BrushConfig br, StrokeVector st) {
-            if (mgmt.BigRT_pair == null) mgmt.UpdateBuffersState();
+            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
             if (st.mouseDwn)
                 st.posFrom = st.posTo;
 
-            mgmt.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
 
             Vector2 offset = id.offset - st.unRepeatedUV.Floor();
             
@@ -683,8 +690,8 @@ public class BrushTypeLazy : BrushType {
             PrepareSphereBrush(id, br, st);
 
             if (!st.mouseDwn) {
-                mgmt.brushRendy.UseMeshAsBrush(pntr);
-                mgmt.Render();  
+                texMGMT.brushRendy.UseMeshAsBrush(pntr);
+                texMGMT.Render();  
             }
 
             AfterStroke(pntr, br, st);
@@ -695,8 +702,8 @@ public class BrushTypeLazy : BrushType {
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex) {
             br.blitMode.PrePaint(null, br, st);
             PrepareSphereBrush(rt.getImgData(), br, st);
-            mgmt.brushRendy.UseSkinMeshAsBrush(go, skinner, submeshIndex);
-            mgmt.Render();
+            texMGMT.brushRendy.UseSkinMeshAsBrush(go, skinner, submeshIndex);
+            texMGMT.Render();
             AfterStroke(br);
         }
 
@@ -704,8 +711,8 @@ public class BrushTypeLazy : BrushType {
             br.blitMode.PrePaint(null, br, st);
 
             PrepareSphereBrush(rt.getImgData(), br, st);
-            mgmt.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
-            mgmt.Render();
+            texMGMT.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
+            texMGMT.Render();
             AfterStroke(br);
         }
 
@@ -717,13 +724,19 @@ public class BrushTypeLazy : BrushType {
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, A_Textures_in_row, 1));
 
             PrepareSphereBrush(rt.getImgData(), br, st);
-            mgmt.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
-            mgmt.Render();
+            texMGMT.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
+            texMGMT.Render();
             AfterStroke(br);
 
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
 
+        public override bool PEGI() {
+            bool changed = base.PEGI();
 
+            changed |= "Use Grid".toggle(60 ,ref cfg.useGridForBrush);
+
+            return changed;
+        }
     }
 }

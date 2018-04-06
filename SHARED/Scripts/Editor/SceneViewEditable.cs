@@ -48,7 +48,7 @@ public abstract class SceneViewEditable<T> : Editor where T : MonoBehaviour {
     public Vector2 mousePosition;
     public Ray rayGUI = new Ray();
 
-    public virtual void getEvents(Event e, Ray ray) { }
+    public virtual void FeedEvents(Event e) { }
 
     public virtual void GridUpdate(SceneView sceneview) {
 
@@ -65,11 +65,16 @@ public abstract class SceneViewEditable<T> : Editor where T : MonoBehaviour {
 
             mousePosition = Event.current.mousePosition;
             rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
+
+            EditorInputManager.raySceneView = rayGUI;
         }
 
-        getEvents(e, rayGUI);
+        FeedEvents(e);
+        
+        if (e.isMouse || (e.type == EventType.ScrollWheel)) 
+            EditorInputManager.feedMouseEvent(e);
 
-        if (e.isMouse) {
+            if (e.isMouse) {
 
             RaycastHit hit;
             bool ishit = Physics.Raycast(rayGUI, out hit);

@@ -52,7 +52,7 @@ namespace Playtime_Painter {
                             allowRefocusing = true;
                         }
 
-                        if ((edited == null) || (edited != p))
+                        if ((edited == null) || ((edited != p) && (!PainterConfig.inst.brushConfig.type(edited).useGrid)))
                             allowRefocusing = true;
 
                     }
@@ -69,6 +69,8 @@ namespace Playtime_Painter {
 
                     if (L_mouseDwn) PlaytimePainter.currently_Painted_Object = null;
 
+                    if (PainterConfig.inst.brushConfig.type(painter).useGrid) p = painter;
+                    
                     if (p != null)
                     {
                         StrokeVector st = p.stroke;
@@ -89,19 +91,18 @@ namespace Playtime_Painter {
             return true;
         }
 
-        public override void getEvents(Event e, Ray ray) {
-            if ((painter!= null) && (painter.meshEditing))
-            MeshManager.inst.UpdateInputEditorTime(e, ray, L_mouseUp, L_mouseDwn);
-        
+        public override void FeedEvents(Event e) {
+            
+            GridNavigator.inst().FeedEvent(e);
 
-            if ((e.type == EventType.KeyDown) && (painter != null) && (painter.meshEditing == false)) {
-                imgData id = painter.curImgData;
-                if (id != null) {
-                    if ((e.keyCode == KeyCode.Z) && (id.cache.undo.gotData()))
-                        id.cache.undo.ApplyTo(id);
-                    else if ((e.keyCode == KeyCode.X) && (id.cache.redo.gotData()))
-                        id.cache.redo.ApplyTo(id);
-                }
+            if (painter != null) {
+
+                painter.FeedEvents(e);
+
+                if (painter.meshEditing)
+                MeshManager.inst.UpdateInputEditorTime(e,  L_mouseUp, L_mouseDwn);
+
+                
             }
         }
         
@@ -119,10 +120,7 @@ namespace Playtime_Painter {
         static string[] texSizes;
         const int range = 9;
         const int minPow = 2;
-
-
-
-
+        
         public static Tool previousTool;
 
         public override void OnInspectorGUI() {
@@ -157,7 +155,6 @@ namespace Playtime_Painter {
 
             painter.InitIfNotInited();
 
-            BrushConfig brush = PlaytimePainter.globalBrush;
             imgData image = painter.curImgData;
 
             Texture tex = painter.getTexture();
@@ -424,10 +421,6 @@ namespace Playtime_Painter {
             return false;
 
         }
-
-     
-
-
 
     }
 #endif

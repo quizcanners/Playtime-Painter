@@ -11,7 +11,8 @@ using Playtime_Painter;
 
 public enum Gridside { xz, xy, zy }
 
-public class GridNavigator : MonoBehaviour {
+[ExecuteInEditMode]
+public class GridNavigator : PainterStuffMono {
     public static GridNavigator inst()  {
         if (_inst == null) {
             _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
@@ -50,10 +51,7 @@ public class GridNavigator : MonoBehaviour {
     public static Quaternion xgrid = Quaternion.Euler(new Vector3(0, 90, 0));
     public static Quaternion zgrid = Quaternion.Euler(new Vector3(0, 0, 0));
     public static Quaternion ygrid = Quaternion.Euler(new Vector3(90, 0, 0));
-
-
-
-
+    
     public static Vector3 collisionPos;
  
     public static Vector3 onGridPos;
@@ -61,19 +59,11 @@ public class GridNavigator : MonoBehaviour {
     public Gridside g_side = Gridside.xz;
     public float UVsnapToPixelPortion = 2;
     public MeshRenderer dot;
-    public MeshRenderer grid;
+    public MeshRenderer rendy;
+    
+   public  void Deactivateverts() {
 
-
-
-
-   
-
-   public  void Deactivateverts()
-    {
-
-        //return;
-        for (int i = 0; i < MeshManager.inst.vertsShowMax; i++)
-        {
+        for (int i = 0; i < MeshManager.inst.vertsShowMax; i++) {
             if (verts[i] == null)
                 Debug.Log("Got Nu  sdfdsll");
             verts[i].go.SetActive(false);
@@ -81,21 +71,14 @@ public class GridNavigator : MonoBehaviour {
 
         pointedVertex.go.SetActive(false);
         selectedVertex.go.SetActive(false);
-        // for (int i = 0; i < uvMarker.Count; i++ )
-        //     uvMarker[i].SetActive(false);
     }
 
     public void SetEnabled(bool gridEn, bool dotEn) {
-        //if (grid.enabled != gridEn)
-            grid.EnabledUpdate(gridEn);
-        //if (dot.enabled != dotEn)
+        rendy.EnabledUpdate(gridEn);
             dot.EnabledUpdate(dotEn);
     }
 
-    float AngleClamp(Quaternion ang)
-    {
-
-
+    float AngleClamp(Quaternion ang) {
         float res = Quaternion.Angle(gameObject.tryGetCameraTransform().rotation, ang);
         if (res > 90)
             res = 180 - res;
@@ -115,14 +98,12 @@ public class GridNavigator : MonoBehaviour {
         Ray ray = EditorInputManager.GetScreenRay();
         float rayDistance;
         if (_plane.Raycast(ray, out rayDistance))
-        {
             return ray.GetPoint(rayDistance);
-        }
+        
         else return Vector3.zero;
     }
 
-    public Vector3 PlaneToWorldVector(Vector2 v2)
-    {
+    public Vector3 PlaneToWorldVector(Vector2 v2) {
         switch (g_side)
         {
             case Gridside.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
@@ -193,47 +174,51 @@ public class GridNavigator : MonoBehaviour {
 
             if (x <= z) g_side = Gridside.zy;
             else g_side = Gridside.xy;
-            //  Debug.Log("X " + x + " Z " + z + " result " + g_side.ToString());
         }
         else g_side = Gridside.xz;
 
     }
-    public bool ScrollsProcess(float delta)
-    {
-
-        if (delta > 0)
-        {
-
-            switch (g_side)
-            {
+    public void ScrollsProcess(float delta) {
+        if (delta > 0)   
+            switch (g_side) {
                 case Gridside.xy: g_side = Gridside.zy; break;
                 case Gridside.xz: ClosestAxis(false); break;
                 case Gridside.zy: g_side = Gridside.xy; break;
             }
-  
-        }
         else if (delta < 0)
-        {
             g_side = Gridside.xz;
-          
+
+
+
+        if (meshMGMT.target != null)
+            meshMGMT.ProcessScaleChange();
+      
+    }
+    
+    public void UpdatePositions() {
+
+        MeshManager m = meshMGMT;
+        var cfg = PainterConfig.inst;
+
+        bool showGrid = ((m.target != null) && (m.target.enabled) && MeshManager.tool.showGrid);
+
+        if (!showGrid && PlaytimePainter.isCurrent_Tool() && !cfg.showConfig) {
+            var pp = texMGMT.focusedPainter;
+            showGrid = pp != null && !pp.LockEditing && !pp.meshEditing && globalBrush.type(pp).useGrid; 
         }
 
-        return delta != 0;
+        SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
 
-    }
+        if (!showGrid)
+            return;
 
-
-
-    public void UpdatePositions() {
-        PainterConfig sd = PainterConfig.inst;
-
-        if (sd.SnapToGridSize <= 0) sd.SnapToGridSize = 1;
+        if (cfg.SnapToGridSize <= 0) cfg.SnapToGridSize = 1;
 
         switch (g_side)
         {
-            case Gridside.xy: grid.transform.rotation = zgrid; break;
-            case Gridside.xz: grid.transform.rotation = ygrid; break;
-            case Gridside.zy: grid.transform.rotation = xgrid; break;
+            case Gridside.xy: rendy.transform.rotation = zgrid; break;
+            case Gridside.xz: rendy.transform.rotation = ygrid; break;
+            case Gridside.zy: rendy.transform.rotation = xgrid; break;
         }
 
         xzPlane.distance = -onGridPos.y;
@@ -247,8 +232,8 @@ public class GridNavigator : MonoBehaviour {
             case Gridside.zy:   hit = MouseToPlane(zyPlane);           break;
         }
 
-        if (sd.SnapToGrid)
-            hit = MyMath.RoundDiv(hit, sd.SnapToGridSize);
+        if (cfg.SnapToGrid)
+            hit = MyMath.RoundDiv(hit, cfg.SnapToGridSize);
 
         if (hit != Vector3.zero)  {
 
@@ -275,8 +260,6 @@ public class GridNavigator : MonoBehaviour {
         transform.position = onGridPos+Vector3.one*0.01f;
 
         Shader.SetGlobalVector("_GridDotPosition", new Vector4(onGridPos.x, onGridPos.y, onGridPos.z));
-        // Set grid direction to cast light only on this side of the grid.
-        //Shader.SetGlobalVector("_GridDirection", new Vector4(onGridPos.x, onGridPos.y, onGridPos.z));
 
         dot.transform.rotation = gameObject.tryGetCameraTransform().rotation;
 
@@ -285,9 +268,7 @@ public class GridNavigator : MonoBehaviour {
         float dist = Mathf.Max(0.1f, (cam.position - transform.position).magnitude * 2);
 
         dot.transform.localScale = Vector3.one * (dist / 64f);
-        grid.transform.localScale = new Vector3(dist, dist, dist);
-
-
+        rendy.transform.localScale = new Vector3(dist, dist, dist);
 
         float dx = 0;
         float dy = 0;
@@ -301,22 +282,52 @@ public class GridNavigator : MonoBehaviour {
         else dy = (transform.position.z);
 
         float scale = 8;
-        if (!MeshManager.cfg.SnapToGrid)
+        if (!cfg.SnapToGrid)
             scale = Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8)));
-        else scale = MeshManager.cfg.SnapToGridSize;
+        else scale = cfg.SnapToGridSize;
 
         dx -= Mathf.Round(dx / scale) * scale;
         dy -= Mathf.Round(dy / scale) * scale;
-        grid.sharedMaterial.SetFloat("_dx", dx / dist);
-        grid.sharedMaterial.SetFloat("_dy", dy / dist);
-        grid.sharedMaterial.SetFloat("_Size", dist / scale);
+        rendy.sharedMaterial.SetFloat("_dx", dx / dist);
+        rendy.sharedMaterial.SetFloat("_dy", dy / dist);
+        rendy.sharedMaterial.SetFloat("_Size", dist / scale);
+
+        if (meshMGMT.target != null)
+            meshMGMT.UpdateLocalSpaceV3s();
+
+    }
+
+    private void Update() {
+
+        if (!this.enabled)
+            return;
+
+        if (Application.isPlaying) 
+            ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
+
+        if (meshMGMT.target == null)
+            UpdatePositions();
+        
     }
 
     private void OnEnable() {
         _inst = this;
     }
    
+    public void FeedEvent(Event e) {
 
+        if (!this.enabled)
+            return;
+
+        if (e.isMouse)
+            UpdatePositions();
+
+        if (e.type == EventType.ScrollWheel) {
+            ScrollsProcess(e.delta.y);
+            UpdatePositions();
+            e.Use();
+        }
+    }
 
 
 }

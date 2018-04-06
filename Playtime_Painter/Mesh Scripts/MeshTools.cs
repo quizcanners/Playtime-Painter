@@ -156,26 +156,26 @@ namespace Playtime_Painter
 
             "Pixel-Perfect".toggle("New vertex will have UV coordinate rounded to half a pixel.",120, ref cfg.pixelPerfectMeshEditing).nl();
 
-            "Add Smooth:".toggle(70, ref MeshManager.cfg.newVerticesSmooth);
+            "Add Smooth:".toggle(70, ref cfg.newVerticesSmooth);
             if (pegi.Click("Sharp All")) {
                 foreach (vertexpointDta vr in mgmt._Mesh.vertices)
                     vr.SmoothNormal = false;
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesSmooth = false;
+                cfg.newVerticesSmooth = false;
             }
 
             if (pegi.Click("Smooth All").nl()) {
                 foreach (vertexpointDta vr in mgmt._Mesh.vertices)
                     vr.SmoothNormal = true;
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesSmooth = true;
+                cfg.newVerticesSmooth = true;
             }
 
-            "Add Unique:".toggle(70, ref MeshManager.cfg.newVerticesUnique);
+            "Add Unique:".toggle(70, ref cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
                 mgm._Mesh.AllVerticesShared();
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesUnique = false;
+                cfg.newVerticesUnique = false;
             }
 
             if (pegi.Click("All unique"))
@@ -183,7 +183,7 @@ namespace Playtime_Painter
                 foreach (trisDta t in mesh.triangles)
                     mgm._Mesh.GiveTriangleUniqueVerticles(t);
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesUnique = true;
+                cfg.newVerticesUnique = true;
             }
             pegi.newLine();
 
@@ -337,7 +337,7 @@ namespace Playtime_Painter
 
         public override void MouseEventPointedTriangle() {
             if (EditorInputManager.GetMouseButtonDown(0))  {
-                if (MeshManager.cfg.newVerticesUnique)
+                if (cfg.newVerticesUnique)
                     mgmt._Mesh.insertIntoTriangleUniqueVerticles(mgmt.pointedTris, mgmt.collisionPosLocal);
                 else
                     mgmt._Mesh.insertIntoTriangle(mgmt.pointedTris, mgmt.collisionPosLocal);
@@ -414,14 +414,14 @@ namespace Playtime_Painter
                 foreach (vertexpointDta vr in mgmt._Mesh.vertices)
                     vr.SmoothNormal = false;
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesSmooth = false;
+                cfg.newVerticesSmooth = false;
             }
 
             if ("Smooth All".Click().nl()) {
                 foreach (vertexpointDta vr in mgmt._Mesh.vertices)
                     vr.SmoothNormal = true;
                 mgm._Mesh.dirty = true;
-                MeshManager.cfg.newVerticesSmooth = true;
+                cfg.newVerticesSmooth = true;
             }
 
 
@@ -509,7 +509,7 @@ namespace Playtime_Painter
             pegi.newLine();
             if (mgmt.GridToUVon) {
                 pegi.write("Projection size");
-                if (pegi.edit(ref MeshManager.cfg.MeshUVprojectionSize))
+                if (pegi.edit(ref cfg.MeshUVprojectionSize))
                     mgmt.ProcessScaleChange();
             }
             pegi.newLine();

@@ -104,48 +104,13 @@ namespace Playtime_Painter
 
                 showAtlases = false;
 
-                List<MaterialAtlases> am = atlasedMaterials;
-                int atlMat = painter.selectedAtlasedMaterial;
+        
 
-                if ((atlMat > -1) && (atlMat >= am.Count))
-                    painter.selectedAtlasedMaterial = atlMat = -1;
+                changed |= atlasedMaterials.PEGI(ref painter.selectedAtlasedMaterial, true).nl();
 
-                if (atlMat > -1)
-                {
+               
 
-                    if (icon.Back.Click())
-                        painter.selectedAtlasedMaterial = atlMat = -1;
-                    else
-                        am[atlMat].PEGI(painter);
 
-                }
-                else
-                {
-                    pegi.newLine();
-                    for (int i = 0; i < atlasedMaterials.Count; i++)
-                    {
-                        if (icon.Delete.Click(25))
-                            atlasedMaterials.RemoveAt(i);
-                        else
-                        {
-                            pegi.edit(ref atlasedMaterials[i].name);
-                            if (icon.Edit.Click(25).nl())
-                                painter.selectedAtlasedMaterial = i;
-                        }
-                    }
-
-                    if (icon.Add.Click(30))
-                    {
-                        var mat = new MaterialAtlases("new");
-                        atlasedMaterials.Add(mat);
-                        mat.originalMaterial = painter.getMaterial(true);
-                        painter.usePreviewShader = false;
-                        mat.OnChangeMaterial(painter);
-
-                    }
-                }
-
-                return changed;
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -186,8 +151,10 @@ namespace Playtime_Painter
 
 
 
-                return changed;
+              
             }
+
+          
 
             return changed;
 

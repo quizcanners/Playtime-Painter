@@ -16,6 +16,16 @@ using System.Reflection;
 
 namespace PlayerAndEditorGUI {
 
+    public interface iPEGI
+    {
+        bool PEGI();
+    }
+
+    public interface iGotName
+    {
+        string Name { get; set; }
+    }
+
     public static class pegi {
 
 
@@ -1160,7 +1170,7 @@ namespace PlayerAndEditorGUI {
 #endif
         {
                 string before = dic[atKey];
-                if (editDelayed(ref before, 40)) {
+                if (editDelayed( ref before, 40)) {
                     dic[atKey] = before;
                     return false;
                 }
@@ -1594,6 +1604,12 @@ namespace PlayerAndEditorGUI {
         public static bool editDelayed(this string txt, ref int val, int width) {
             write(txt);
             return editDelayed(ref val, width);
+        }
+
+        public static bool editDelayed(this string txt, int width, ref string val)
+        {
+            write(txt, width);
+            return editDelayed(ref val);
         }
 
         static int editedInteger;

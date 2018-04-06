@@ -37,6 +37,8 @@ public class PainterManager : MonoBehaviour {
 
     static PainterConfig cfg { get { return PainterConfig.inst; } }
 
+    public PlaytimePainter focusedPainter;
+
     public static PainterManager _inst;
     public static PainterManager inst {
             get {
@@ -51,6 +53,7 @@ public class PainterManager : MonoBehaviour {
                             GameObject go = Resources.Load("prefabs/" + PainterConfig.PainterCameraName) as GameObject;
                             _inst = Instantiate(go).GetComponent<PainterManager>();
                             _inst.name = PainterConfig.PainterCameraName;
+                            _inst.RefreshPlugins();
 #endif
                         }
                     }
@@ -107,8 +110,8 @@ public class PainterManager : MonoBehaviour {
     public void RefreshPlugins() {
 
             if (_plugins == null) _plugins = new List<PainterManagerPluginBase>();
-            
-           
+
+            browsedPlugin = -1;
           List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<PainterManagerPluginBase>();
           foreach (var t in allTypes) {
                 bool contains = false;
@@ -736,7 +739,8 @@ public class PainterManager : MonoBehaviour {
 
 #if UNITY_EDITOR
 
-        void BeforeClosing() {
+        void BeforeClosing()
+        {
 
             PlaytimePainter p = PlaytimePainter.PreviewShaderUser;
             if (p != null)
@@ -748,18 +752,25 @@ public class PainterManager : MonoBehaviour {
 
         }
 
-        public  void OnSceneOpening(string path, OpenSceneMode mode) {
-           // Debug.Log("On Scene Opening");
+        public void OnSceneOpening(string path, OpenSceneMode mode)
+        {
+            // Debug.Log("On Scene Opening");
         }
 
-        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path) {
+        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path)
+        {
             //public delegate void SceneSavingCallback(Scene scene, string path);
-           
-            
+
+
             BeforeClosing();
-           // Debug.Log("Before Scene saved");
+            // Debug.Log("Before Scene saved");
 
         }
+#endif
+
+#if UNITY_EDITOR || BUILD_WITH_PAINTER
+
+
 
     public void Update() {
         if (Application.isPlaying)
@@ -780,6 +791,7 @@ public class PainterManager : MonoBehaviour {
         }
 
 		PlaytimeToolComponent.CheckRefocus();
+
         if ((PainterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying)) {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
@@ -787,6 +799,7 @@ public class PainterManager : MonoBehaviour {
 				if ((c.GetType() != typeof(MeshCollider)) && (PlaytimeToolComponent.PainterCanEditWithTag(c.tag))) c.enabled = false;
             }
         }
+
 			PlaytimePainter p = PlaytimePainter.currently_Painted_Object;
 
 			if ((p != null) && (Application.isPlaying == false)) {
@@ -797,9 +810,16 @@ public class PainterManager : MonoBehaviour {
                 PainterConfig.inst.brushConfig.Paint(p.stroke, p);
                 p.Update();
             }
-        }
+
+         
+            
+
+
+
+            }
 
     }
+
 #endif
 
         public void CancelAllPlaybacks()

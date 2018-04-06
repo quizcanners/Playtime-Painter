@@ -132,7 +132,12 @@ public static class UnityHelperFunctions {
     }
 
     public static string AddPreSlashIfNotEmpty(this string s) {
-        return s.Length == 0 ? s : "/" + s;
+        return (s.Length == 0 || (s[0] == '/')) ? s : "/" + s;
+    }
+
+    public static string AddPostSlashIfNotEmpty(this string s)
+    {
+        return (s.Length == 0 || (s[s.Length-1] == '/'))  ? s :  s + "/";
     }
 
     public static void DestroyWhatever(this UnityEngine.Object go) {
@@ -331,18 +336,26 @@ public static class UnityHelperFunctions {
     }
 
     public static bool isDown(this KeyCode k) {
+        bool down = false;
+#if UNITY_EDITOR
+        down |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyDown && Event.current.keyCode == k);
         if (Application.isPlaying)
-            return Input.GetKeyDown(k);
-        else
-            return (Event.current.isKey && Event.current.type == EventType.KeyDown && Event.current.keyCode == k);
+#endif
+            down |= Input.GetKeyDown(k);
+
+            return down;
     }
 
-    public static bool isUp(this KeyCode k)
-    {
+    public static bool isUp(this KeyCode k)  {
+
+        bool up = false;
+#if UNITY_EDITOR
+        up |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyUp && Event.current.keyCode == k);
         if (Application.isPlaying)
-            return Input.GetKeyUp(k);
-        else
-            return (Event.current.isKey && Event.current.type == EventType.KeyUp && Event.current.keyCode == k);
+#endif
+            up |= Input.GetKeyUp(k);
+
+        return up;
     }
 
     public static void Focus(this GameObject go) {
@@ -522,7 +535,7 @@ public static class UnityHelperFunctions {
 
         byte[] bytes = tex.EncodeToPNG();
 
-        string lastPart = "/" + folderName + "/";
+        string lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
         string folderPath = Application.dataPath + lastPart;
         Directory.CreateDirectory(folderPath);
 

@@ -438,17 +438,24 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	float direct = diff*shadow;
 
-	float3 teraBounce = _LightColor0.rgb*TERABOUNCE;
+	float3 teraBounce = //_LightColor0.rgb*
+		TERABOUNCE;
 
-	float4 terrainAmbient = tex2D(_TerrainColors, tc_Control.xz);
+	float4 terrainAmbient = tex2Dlod(_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003
+		,0,0));
+	terrainAmbient.a = tex2Dlod(_TerrainColors, float4(tc_Control.xz, 0, 0)).a;
+
+
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= terrainN.a;
-	float4 terrainLrefl = tex2D(_TerrainColors, tc_Control.xz
-		- reflected.xz*col.a*terrainAmbient.a*0.1
-	);
+	float4 terrainLrefl = tex2Dlod(_TerrainColors, float4(tc_Control.xz
+		- reflected.xz*col.a*terrainAmbient.a*0.1, 0, 6*deSmoothness
+		
+		));
+
 	terrainLrefl.rgb *= teraBounce;
 
-	float3 ambientRefl = ShadeSH9(float4(reflected, 1))*terrainAmbient.a;
+	float3 ambientRefl = ShadeSH9(float4(normalize(-reflected), 1))*terrainAmbient.a;
 	float3 ambientCol = ShadeSH9(float4(worldNormal, 1))*terrainAmbient.a;
 
 	_LightColor0 *= direct;

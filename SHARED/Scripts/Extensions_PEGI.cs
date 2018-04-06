@@ -62,7 +62,7 @@ public static class Extensions_PEGI  {
     }
 
 
-    public static bool PEGI<T> (this List<T> list, ref int edited) where T: new()
+    public static bool PEGI<T> (this List<T> list, ref int edited, bool allowDelete) where T: new()
     {
         bool changed = false;
 
@@ -74,7 +74,7 @@ public static class Extensions_PEGI  {
             if (edited == -1) {
                 for (int i = 0; i < list.Count; i++)
                 {
-                if (icon.Delete.Click(25))
+                if (allowDelete && icon.Delete.Click(25))
                 {
                     list.RemoveAt(i);
                     changed = true;

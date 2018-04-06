@@ -164,7 +164,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1934160213785244}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -80, y: -32.761986, z: 61.8032}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4093100904773784}
@@ -547,7 +547,7 @@ MonoBehaviour:
   g_side: 2
   UVsnapToPixelPortion: 2
   dot: {fileID: 23056769831486616}
-  grid: {fileID: 23231279010551366}
+  rendy: {fileID: 23231279010551366}
 --- !u!135 &135642894363442478
 SphereCollider:
   m_ObjectHideFlags: 1

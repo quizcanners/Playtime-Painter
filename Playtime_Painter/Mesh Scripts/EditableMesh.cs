@@ -702,7 +702,7 @@ namespace Playtime_Painter {
 
                     newUV = null;
 
-                    if ((MeshManager.cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
+                    if ((cfg.newVerticesUnique) || (newVrt.uv == null) || (newVrt.uv.Count == 0))
                         newUV = new UVpoint(newVrt,uv, uv1);
                     else
                     {
@@ -724,7 +724,7 @@ namespace Playtime_Painter {
                     tr.Replace(auv, newUV);
                   
 
-                    if (MeshManager.cfg.newVerticesUnique) {
+                    if (cfg.newVerticesUnique) {
                         var split = new UVpoint(spliUV);
                         trb.Replace(spliUV, split);
                         var newB = new UVpoint(newUV);

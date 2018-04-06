@@ -37,7 +37,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1163992285041006}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1004.7, y: -35.7, z: -852.4}
+  m_LocalPosition: {x: -1004.7, y: -35, z: -852.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -65,11 +65,6 @@ MonoBehaviour:
   meshCollider: {fileID: 0}
   terrainHeightTexture: {fileID: 2800000, guid: 9da58cdd9148caf448a96f5649c14fc9,
     type: 3}
-  preAtlasingMaterials: []
-  preAtlasingMesh: {fileID: 0}
-  preAtlasingSavedMesh: 
-  inAtlasIndex: 0
-  atlasRows: 1
   _savedMeshData: 
   meshDataSavedFor: {fileID: 0}
   meshNameHolder: 
@@ -83,13 +78,19 @@ MonoBehaviour:
   materials_TextureFields:
   - _TerrainColors
   - 0__mergeControl
-  - 0_mergeSplat_Chunky_COLOR
+  - _mergeTerrainHeight
+  - 0_mergeSplat_Dirt_COLOR
   - 1_mergeSplat_Grass_COLOR
   - 2_mergeSplat_Sand_COLOR
   - 3_mergeSplat_Tiles_COLOR
-  - _mergeTerrainHeight
   nameHolder: TerrainPrefab
   selectedAtlasedMaterial: -1
+  plugins:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   selectedSubmesh: 0
   stroke:
     uvFrom: {x: 0.5064709, y: 0.4266441}
@@ -103,7 +104,6 @@ MonoBehaviour:
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
-  avgBrushSpeed: 0.00000000454599
   playbackVectors: []
   LockEditing: 1
   forcedMeshCollider: 0
@@ -122,43 +122,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mergeSubmasks:
   - productName: Dirt
-    colorTexture: {fileID: 2800000, guid: f6ebb7e345c8e82408cabaa8a2a18654, type: 3}
-    height: {fileID: 2800000, guid: c7d6278fbe57ff149bd18c987304b495, type: 3}
-    normalMap: {fileID: 2800000, guid: 4628463762d75d14fb65830ee9c76021, type: 3}
-    smooth: {fileID: 2800000, guid: 90b3095a53d841b46805c01f98271cd4, type: 3}
-    ambient: {fileID: 2800000, guid: 2e854d9ff9f1ac24e80a0283a3012eef, type: 3}
-    reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 2800000, guid: 65de2f11b93091142bc897e90d60f027,
+    colorTexture: {fileID: 2800000, guid: d4c0d1e3b9354ac47af5e77e689c838d, type: 3}
+    height: {fileID: 2800000, guid: 84f8e61777e85464ba6766e206287fcb, type: 3}
+    normalMap: {fileID: 2800000, guid: e296857de47c74545b47af8ba3d33bb8, type: 3}
+    smooth: {fileID: 2800000, guid: 2f192c0b12999db45872f5d12f494b18, type: 3}
+    ambient: {fileID: 2800000, guid: 5ba4566fb33badc44b8167b57aecfaa3, type: 3}
+    reflectiveness: {fileID: 2800000, guid: 479b81b3a92963c4b8496746e8792919, type: 3}
+    Product_colorWithAlpha: {fileID: 2800000, guid: 3bfad2a70a3556e4c8e347ac64073ec3,
       type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: beb42eb20cece4a4d8dbb34a72e10cbf,
+    Product_combinedBump: {fileID: 2800000, guid: 2d35ddac88fdb3c43aebc3dac9bb2bbc,
       type: 3}
     size: 1024
     normalStrength: 1
     updateThis: 0
     packagingProfile: 0
   - productName: Grass
-    colorTexture: {fileID: 2800000, guid: 77d7947610f814541b699c888b0cdc15, type: 3}
-    height: {fileID: 2800000, guid: 70de282afd9855643a0e223a8396d005, type: 3}
-    normalMap: {fileID: 2800000, guid: 5d731d6eefa02754bb03e34b38f1a9e5, type: 3}
-    smooth: {fileID: 2800000, guid: d58e2767cfefb5b4e8e024928807e561, type: 3}
-    ambient: {fileID: 2800000, guid: fce8d8d2850c39b419d9a01216ff2080, type: 3}
+    colorTexture: {fileID: 2800000, guid: 64e812a92a4775e45bd58a929b1ac811, type: 3}
+    height: {fileID: 2800000, guid: 7de5daaa0b8c7d445be376a719b7813c, type: 3}
+    normalMap: {fileID: 2800000, guid: b908795a6ca49774ca88a4b16626ac3a, type: 3}
+    smooth: {fileID: 2800000, guid: 6b7733bd092d6c840839a2f7a9fc1ee2, type: 3}
+    ambient: {fileID: 2800000, guid: cef848c4ddf16434ab2d528d31dfe56b, type: 3}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 2800000, guid: 0ac0fa7f76f3ce847969455ae59cc153,
+    Product_colorWithAlpha: {fileID: 2800000, guid: 6454a6051debd404394d701039883a53,
       type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: 01c8abe088e85dd40a699d48fcfe32ec,
+    Product_combinedBump: {fileID: 2800000, guid: b3c0000cd6ab2854a8bad20b5b769c69,
       type: 3}
-    size: 1024
+    size: 2048
     normalStrength: 1
     updateThis: 0
     packagingProfile: 0
   - productName: Sand
-    colorTexture: {fileID: 2800000, guid: c7252ee334baec14e91fba54d2e42517, type: 3}
-    height: {fileID: 2800000, guid: 86a0f5ab210ce3043a16a0cd5380f38a, type: 3}
-    normalMap: {fileID: 2800000, guid: 292d4e8f6bbeb054ba2ba0181896a348, type: 3}
-    smooth: {fileID: 2800000, guid: 92abb32c64ca9634a87a158df8dadb77, type: 3}
-    ambient: {fileID: 2800000, guid: 3c793caa35d8338448f5ee4b48ad0d5e, type: 3}
+    colorTexture: {fileID: 2800000, guid: ab7283a3964621140bf59a307783bbde, type: 3}
+    height: {fileID: 2800000, guid: 41a1df2d6fcbae04c82ac0a66180b1b5, type: 3}
+    normalMap: {fileID: 2800000, guid: 182a40906a9c9ae48a5e053193d08bc8, type: 3}
+    smooth: {fileID: 2800000, guid: 8991ff89c602eee448f61dfa027dc658, type: 3}
+    ambient: {fileID: 2800000, guid: f562007494913004185b51e753642bf4, type: 3}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 2800000, guid: 847c471b29c8c104aafd7b256fc7d2cc,
+    Product_colorWithAlpha: {fileID: 2800000, guid: b435393d37601e84db1f10ed766d0206,
       type: 3}
     Product_combinedBump: {fileID: 2800000, guid: 96758c7770745d34bab608805f65ded2,
       type: 3}
@@ -167,30 +167,30 @@ MonoBehaviour:
     updateThis: 0
     packagingProfile: 0
   - productName: Tiles
-    colorTexture: {fileID: 2800000, guid: 3639f2f841b2a3f41b5a83bc85b46c37, type: 3}
-    height: {fileID: 2800000, guid: e4aaf1662975b654c9caccb2dcec3858, type: 3}
-    normalMap: {fileID: 2800000, guid: 61a625af40b0ca5458acc2d80b02d0f3, type: 3}
-    smooth: {fileID: 2800000, guid: 9af2a53f1d5baca438cdb9784166243f, type: 3}
-    ambient: {fileID: 2800000, guid: 2847c3806dd4e4f42b69af3c7a51fe53, type: 3}
+    colorTexture: {fileID: 2800000, guid: 0b3a34236dc76154a91f77fdbb9963a2, type: 3}
+    height: {fileID: 2800000, guid: 451fd0df0e95c044eaaeeec29949132f, type: 3}
+    normalMap: {fileID: 2800000, guid: 2576a5d0512a4e144bf9631477ae2f34, type: 3}
+    smooth: {fileID: 2800000, guid: 66f1c4744c86798459de03d95081a6ce, type: 3}
+    ambient: {fileID: 2800000, guid: 8c496a9e84af42e4cb586043873db7f4, type: 3}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 2800000, guid: c9672f7c42a918d4ba340d801565b605,
+    Product_colorWithAlpha: {fileID: 2800000, guid: d0f92a4ed08135042b3f5c2a555f4076,
       type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: df05a18da13009340bd38795f6a42884,
+    Product_combinedBump: {fileID: 2800000, guid: a6632d37497fb4b499db483ae96e6520,
       type: 3}
     size: 1024
     normalStrength: 1
     updateThis: 0
     packagingProfile: 0
   - productName: Cliff
-    colorTexture: {fileID: 2800000, guid: f46e95fbadbd7ae48897589e6c613c9b, type: 3}
-    height: {fileID: 2800000, guid: cb74c918c4e15de4a99f08b4f66da2ad, type: 3}
-    normalMap: {fileID: 2800000, guid: 9bb375646bb43b244a8b0b2322bcd294, type: 3}
-    smooth: {fileID: 2800000, guid: cac6d4de179d32947855f3ec4e96e5a3, type: 3}
-    ambient: {fileID: 2800000, guid: efc7a2d785c4c3a41a03f7bd9368c18b, type: 3}
+    colorTexture: {fileID: 2800000, guid: 2e6bd3c1c3843b04f987478b27104e1c, type: 3}
+    height: {fileID: 2800000, guid: 406411a54f9657a4691af7cbb39e12d2, type: 3}
+    normalMap: {fileID: 2800000, guid: 718c217cfdb60c1408e264f0bd917be0, type: 3}
+    smooth: {fileID: 2800000, guid: 45d28e21ccec36142a95577eff2ad5db, type: 3}
+    ambient: {fileID: 2800000, guid: f2e281aadbb9d2b43964fbb89ac04aa9, type: 3}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 2800000, guid: 375e11a640662004d94fb8e94943bede,
+    Product_colorWithAlpha: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa,
       type: 3}
-    Product_combinedBump: {fileID: 2800000, guid: 3091b9e202b44064eb9a268495f80352,
+    Product_combinedBump: {fileID: 2800000, guid: 43866032c9f85bd43bcafdf035f6b35a,
       type: 3}
     size: 1024
     normalStrength: 1
@@ -223,7 +223,7 @@ Terrain:
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5
   m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 80
+  m_DetailObjectDistance: 250
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 1
   m_SplatMapDistance: 2000

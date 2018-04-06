@@ -46,7 +46,9 @@ namespace Playtime_Painter {
 
             bool changed = false;
 
-            changed |= "Material".edit(ref material).nl();
+  
+
+            changed |= "Material".edit(60, ref material).nl();
 
            
 

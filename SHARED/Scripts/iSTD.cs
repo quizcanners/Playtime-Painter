@@ -13,10 +13,6 @@ using UnityEditor;
 
 namespace StoryTriggerData {
 
-    public interface iPEGI {
-        bool PEGI();
-    }
-
     public interface iSTD : iPEGI{
         stdEncoder Encode();
         iSTD Reboot(string data);
@@ -24,9 +20,7 @@ namespace StoryTriggerData {
         string getDefaultTagName();
     }
 
-    public interface iGotName  {
-        string Name { get; set; }
-    }
+   
 
 
     [Serializable]

@@ -78,8 +78,7 @@ namespace Playtime_Painter {
             public static Texture2D NormalMapFrom(float strength, float diagonalPixelsCoef, Texture2D bump, Texture2D normalReady, Texture2D ambient, string name, Texture2D Result)
             {
 
-                if (bump == null)
-                {
+                if (bump == null) {
                     Debug.Log("No bump texture");
                     return null;
                 }
@@ -276,7 +275,7 @@ namespace Playtime_Painter {
             [SerializeField]
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI() {
-                return forCombinedMaps.PEGI(ref browsedTextureSet);
+               return forCombinedMaps.PEGI(ref browsedTextureSet, true);
             }
         }
 

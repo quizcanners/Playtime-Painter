@@ -214,14 +214,11 @@ namespace Playtime_Painter
             return true;
         }
     }
-
-
+    
     [System.Serializable]
     public class FieldAtlas
     {
-
-
-
+        
         static PainterManager texMGMT { get { return PainterManager.inst; } }
 
         public string atlasedField;
@@ -235,15 +232,18 @@ namespace Playtime_Painter
 
         [SerializeField]
         bool foldoutAtlas = false;
-        public void PEGI(MaterialAtlases a)
+        public bool PEGI()
         {
+            bool changed = false;
 
-            atlasedField.toggle("Use this field", 50, ref enabled);
+            MaterialAtlases a = MaterialAtlases.inspectedAtlas;
+
+            changed |= atlasedField.toggle("Use this field", 50, ref enabled);
 
             if (enabled)
             {
 
-                pegi.select(ref originField, a.originalTextures).nl();
+                changed |=  pegi.select(ref originField, a.originalTextures).nl();
 
                 pegi.Space();
 
@@ -255,7 +255,7 @@ namespace Playtime_Painter
                 if (!foldoutAtlas)
                 {
                     if (atlasCreator != null)
-                        "Color".toggle(35, ref atlasCreator.sRGB);
+                        changed |= "Color".toggle(35, ref atlasCreator.sRGB);
 
                     pegi.select(ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases);
                     if (icon.Add.Click("Create new Atlas", 15).nl())
@@ -263,9 +263,10 @@ namespace Playtime_Painter
                         atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
                         var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
                         TileableAtlasingControllerPlugin.inst.atlases.Add(ac);
+                        changed = true;
                     }
                 }
-                else atlasCreator.PEGI().nl();
+                else changed |= atlasCreator.PEGI().nl();
 
 
 
@@ -291,11 +292,14 @@ namespace Playtime_Painter
             pegi.newLine();
             pegi.Space();
             pegi.newLine();
+
+            return changed;
+
         }
     }
 
     [System.Serializable]
-    public class MaterialAtlases : iGotName
+    public class MaterialAtlases : iGotName, iPEGI
     {
         //public static List<MaterialAtlases> all = new List<MaterialAtlases>();
 
@@ -339,6 +343,9 @@ namespace Playtime_Painter
         public void ConvertToAtlased(PlaytimePainter painter)
         {
 #if UNITY_EDITOR
+
+         
+
 
             if (AtlasedMaterial == null)
                 AtlasedMaterial = painter.InstantiateMaterial(true);
@@ -548,12 +555,15 @@ namespace Playtime_Painter
         }
 
 
+        public static MaterialAtlases inspectedAtlas;
         [SerializeField]
         private bool showHint;
-        public void PEGI(PlaytimePainter painter)
+        public bool PEGI()
         {
-
-#if UNITY_EDITOR
+            bool changed = false;
+            var painter = PlaytimePainter.inspectedPainter;
+            inspectedAtlas = this;
+//#if UNITY_EDITOR
 
             painter.SetOriginalShader();
 
@@ -565,7 +575,7 @@ namespace Playtime_Painter
                 originalShader = mat.shader;
                 OnChangeMaterial(painter);
             }
-            "Name".edit(50, ref name).nl();
+            changed |= "Name".edit(50, ref name).nl();
             if ("Hint".foldout(ref showHint).nl())
             {
 
@@ -577,7 +587,10 @@ namespace Playtime_Painter
 
             if (("Atlased Material:".edit(90, ref AtlasedMaterial).nl()) ||
                 (AtlasedMaterial != null && AtlasedMaterial.shader != atlasedShader))
+            {
                 OnChangeMaterial(painter);
+                changed = true;
+            }
 
             if (painter != null)
             {
@@ -587,7 +600,10 @@ namespace Playtime_Painter
                     if (mats.Length > 1)
                     {
                         if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubmesh, mats))
+                        {
+                            changed = true;
                             OnChangeMaterial(painter);
+                        }
                     }
                     else if (mats.Length > 0)
                         "Source Material".write("Submesh which will be converted", 90, mats[0]);
@@ -603,9 +619,9 @@ namespace Playtime_Painter
             pegi.newLine();
 
             foreach (var f in fields)
-                f.PEGI(this);
+                changed |= f.PEGI();
 
-            "Mesh Profile".select(110, ref matAtlasProfile, PainterConfig.inst.meshPackagingSolutions).nl();
+            changed |= "Mesh Profile".select(110, ref matAtlasProfile, PainterConfig.inst.meshPackagingSolutions).nl();
 
             if ((destinationMaterial != null) && (!destinationMaterial.HasProperty(PainterConfig.isAtlasedProperty)))
             {
@@ -625,7 +641,8 @@ namespace Playtime_Painter
                     ConvertToAtlased(painter);
             }
 
-#endif
+            inspectedAtlas = null;
+            return changed;
 
         }
 
@@ -916,10 +933,10 @@ namespace Playtime_Painter
 
             changed |= "Name:".edit(60, ref name).nl();
 
-            changed |= "Atlas size:".editDelayed(ref AtlasSize, 80).nl();
+            changed |= "Atlas size:".editDelayed( ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
-            if ("Textures size:".editDelayed(ref textureSize, 80).nl())
+            if ("Textures size:".editDelayed( ref textureSize, 80).nl())
             {
                 pegi.foldIn();
                 changed = true;

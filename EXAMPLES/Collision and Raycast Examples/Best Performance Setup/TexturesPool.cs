@@ -21,6 +21,7 @@ public class TexturesPool : MonoBehaviour {
         else {
             var rt = new Texture2D(width, width, TextureFormat.ARGB32, false);
             rt.wrapMode = TextureWrapMode.Repeat;
+            rt.name = "Tex2D_fromPool";
             return rt;
         }
     }
@@ -34,7 +35,7 @@ public class TexturesPool : MonoBehaviour {
             var rt = new RenderTexture(width, width, 0);
             rt.wrapMode = TextureWrapMode.Repeat;
             rt.useMipMap = false;
-
+            rt.name = "RenderTexture_fromPool";
             return rt; 
         }
     }

@@ -135,6 +135,7 @@ namespace Playtime_Painter {
         public int height = 128;
         public bool useTexcoord2;
 
+        [NonSerialized]
         public Color[] pixels;
 
         public UndoCache cache = new UndoCache();
@@ -434,11 +435,7 @@ namespace Playtime_Painter {
 
             return pixels[((int)v.y) * width + (int)v.x];
         }
-
-	
-
-		
-
+        
 		public int pixelNo(myIntVec2 v) {
 			int x = v.x;
 			int y = v.y;
