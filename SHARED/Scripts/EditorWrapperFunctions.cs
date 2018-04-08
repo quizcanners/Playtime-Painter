@@ -676,7 +676,7 @@ public static class ef {
         Color before = col;
         col = EditorGUILayout.ColorField(col);
 
-        return (before.Equals(col) == false) ? change : false;
+        return (before != col) ? change : false;
 
     }
 

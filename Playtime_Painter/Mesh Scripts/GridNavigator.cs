@@ -200,12 +200,7 @@ public class GridNavigator : PainterStuffMono {
         MeshManager m = meshMGMT;
         var cfg = PainterConfig.inst;
 
-        bool showGrid = ((m.target != null) && (m.target.enabled) && MeshManager.tool.showGrid);
-
-        if (!showGrid && PlaytimePainter.isCurrent_Tool() && !cfg.showConfig) {
-            var pp = texMGMT.focusedPainter;
-            showGrid = pp != null && !pp.LockEditing && !pp.meshEditing && globalBrush.type(pp).useGrid; 
-        }
+        bool showGrid = m.target.needsGrid() || texMGMT.focusedPainter.needsGrid(); 
 
         SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
 
@@ -293,7 +288,7 @@ public class GridNavigator : PainterStuffMono {
         rendy.sharedMaterial.SetFloat("_Size", dist / scale);
 
         if (meshMGMT.target != null)
-            meshMGMT.UpdateLocalSpaceV3s();
+            meshMGMT.UpdateLocalSpaceV3s(); 
 
     }
 

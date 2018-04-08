@@ -73,6 +73,8 @@ public class PainterManager : MonoBehaviour {
 
     public const int renderTextureSize = 2048;//4096;
 
+    public List<imgData> imgdatas = new List<imgData>();
+        
     public Texture[] sourceTextures;
 
     public Texture getSourceTexture(int ind)
@@ -90,7 +92,7 @@ public class PainterManager : MonoBehaviour {
     }
         
     [NonSerialized]
-	public Dictionary<string, List<Texture>> recentTextures = new Dictionary<string, List<Texture>> ();
+	public Dictionary<string, List<imgData>> recentTextures = new Dictionary<string, List<imgData>> ();
 
     [SerializeField]
     private List<PainterManagerPluginBase> _plugins;
@@ -540,13 +542,13 @@ public class PainterManager : MonoBehaviour {
             // Render();
         }
 
-        public void Render(Color col, RenderTexture to) {
+    public void Render(Color col, RenderTexture to) {
             rtcam.targetTexture = to;
             brushRendy.PrepareColorPaint(col);
             Render();
         }
 
-        public void UpdateBufferTwo() {
+    public void UpdateBufferTwo() {
            
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
@@ -556,7 +558,7 @@ public class PainterManager : MonoBehaviour {
             // UpdateBufferSegment();
         }
 
-        public bool bufferUpdated = false;
+    public bool bufferUpdated = false;
     public void UpdateBufferSegment() {
             if (!DebugDisableSecondBufferUpdate) {
                 brushRendy.Set(BigRT_pair[0]);
@@ -582,6 +584,8 @@ public class PainterManager : MonoBehaviour {
 
             if (meshManager == null)
                 meshManager = new MeshManager();
+
+        
 
             if (painterCfg == null)
                 painterCfg = PainterConfig.inst;
@@ -726,8 +730,14 @@ public class PainterManager : MonoBehaviour {
 			PlaytimeToolComponent.SetPrefs();
 
 		recentTextures.RemoveEmpty();
+
+            for (int i = 0; i < imgdatas.Count; i++) {
+                var id = imgdatas[i];
+                if (id == null || (!id.needsToBeSaved)) { imgdatas.RemoveAt(i); id.DestroyWhatever(); i--; }
+            }
+
 #if UNITY_EDITOR
-        BeforeClosing();
+            BeforeClosing();
 #endif
             
 #if UNITY_EDITOR
@@ -769,9 +779,7 @@ public class PainterManager : MonoBehaviour {
 #endif
 
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
-
-
-
+        
     public void Update() {
         if (Application.isPlaying)
             combinedUpdate();
@@ -836,12 +844,22 @@ public class PainterManager : MonoBehaviour {
        //     painterConfig.SaveChanges();
 #endif
         }
-        
+
+        bool showImgDatas;
         public void PEGI() {
+
+            pegi.nl();
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return; }
+
+            if (("Img datas: "+imgdatas.Count+"").foldout(ref showImgDatas).nl()) {
+                for (int i = 0; i < imgdatas.Count; i++) {
+                    if (icon.Delete.Click() || imgdatas[i] == null) { imgdatas[i].DestroyWhatever();  imgdatas.RemoveAt(i); i--; }
+                    else { imgdatas[i].ToString().write(imgdatas[i].texture2D); pegi.nl();  }
+                }
+            }
 
 #if UNITY_EDITOR
             "Using layer:".nl();

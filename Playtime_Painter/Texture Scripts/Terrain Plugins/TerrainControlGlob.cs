@@ -5,8 +5,7 @@ using UnityEngine;
 namespace Playtime_Painter
 {
     [System.Serializable]
-    public class TerrainControlGlob : PainterPluginBase
-    {
+    public class TerrainControlGlob : PainterPluginBase {
 
         public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {

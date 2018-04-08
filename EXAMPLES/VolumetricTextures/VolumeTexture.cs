@@ -7,14 +7,13 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
     [Serializable]
-    public class VolumeTexture : iPEGI, iGotName  {
+    public class VolumeTexture : MonoBehaviour, iPEGI, iGotName  {
 
         public int h_slices = 1;
         public float size = 1;
         [NonSerialized]
         Color[] volume;
-        public Texture2D tex;
-        public string name;
+        public imgData tex;
 
         public string Name { get { return name; } set { name = value; } }
 
@@ -39,6 +38,10 @@ namespace Playtime_Painter {
             float magnitude = (LastCenterPos - pos).magnitude;
 
             return Color.white * (width * size * 0.5f - magnitude); 
+        }
+
+        public virtual void AssignTo(PlaytimePainter p) {
+              p.ChangeTexture(tex.currentTexture());
         }
 
         Vector3 LastCenterPos;
@@ -85,16 +88,16 @@ namespace Playtime_Painter {
             if (tex == null)
             {
                 if (TexturesPool._inst != null)
-                    tex = TexturesPool._inst.GetTexture2D();
+                    tex = TexturesPool._inst.GetTexture2D().getImgData();
                 else
                 {
                     Debug.Log("No Texture for Volume");
                     return;
                 }
-                tex.name += VolumePaintingPlugin.VolumeTextureTag;
+                UpdateTextureName();
             }
 
-            Color32[] pixels = new Color32[tex.width * tex.width];
+            Color[] pixels = tex.pixels;//new Color32[tex.width * tex.width];
 
             int texSectorW = tex.width / h_slices;
             int w = width;
@@ -124,8 +127,8 @@ namespace Playtime_Painter {
                 }
             }
 
-            tex.SetPixels32(pixels);
-            tex.Apply(false);
+            tex.SetAndApply(false);//SetPixels32(pixels);
+            //tex.//Apply(false);
             UpdateTextureName();
 
 
@@ -187,19 +190,23 @@ namespace Playtime_Painter {
         }
 
         public void UpdateTextureName() {
-            if (tex!= null) {
-                tex.name = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString();
+            if (tex != null) {
+                tex.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
+                if (tex.texture2D != null) tex.texture2D.name = tex.SaveName;
+                if (tex.renderTexture != null) tex.renderTexture.name = tex.SaveName;
             }
         }
         
         public static int tmpWidth = 1024;
-        public bool PEGI() {
+        public virtual bool PEGI() {
             bool changed = false;
 
             if ((VolumePaintingPlugin._inst != null) && (!VolumePaintingPlugin._inst.volumes.Contains(this)))
                 VolumePaintingPlugin._inst.volumes.Add(this);
-            
-            if ("Name".editDelayed(30, ref name).nl()) {
+
+            string n = name;
+            if ("Name".editDelayed(30, ref n).nl()) {
+                name = n;
                 changed = true;
                 UpdateTextureName();
             }
@@ -209,9 +216,15 @@ namespace Playtime_Painter {
                 Debug.Log("Clearing volume");
             }
 
-            changed |= "Texture".edit(60, ref tex).nl();
+            var texture = tex.currentTexture();
+         
+            if ("Texture".edit(60, ref texture).nl() || (texture == null)) {
+                changed = true;
+                tex = texture == null ? null : texture.getImgData();
+            }
 
-            "Size".edit(ref size, 0, 1024f).nl();
+            changed |= "Volume Scale".edit(70,ref size).nl();
+            size = Mathf.Max(0.0001f, size);
 
             if (volume != null)
             {
@@ -219,10 +232,8 @@ namespace Playtime_Painter {
                 if ("Clear".Click())
                     volume = null;
             }
-            else
-            {
-                if (tex == null)
-                {
+
+                if (tex == null) {
                     if (TexturesPool._inst == null)
                     {
                         pegi.nl();
@@ -233,10 +244,9 @@ namespace Playtime_Painter {
                             TexturesPool.inst.width = tmpWidth;
                         }
                     }
-                    else
-                    {
+                    else {
                         if ("Get From Pool".Click().nl())
-                            tex = TexturesPool._inst.GetTexture2D();
+                            tex = TexturesPool._inst.GetTexture2D().getImgData();
                     }
                 }
                 pegi.nl();
@@ -250,7 +260,7 @@ namespace Playtime_Painter {
                 ("Will result in X:" + w + " Z:" + w + " Y:" + height + "volume").nl();
 
                 //}
-            }
+            
 
 
             return changed;

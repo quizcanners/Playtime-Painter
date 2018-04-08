@@ -25,7 +25,7 @@ namespace Playtime_Painter{
 
         protected static BrushConfig globalBrush { get { return PainterConfig.inst.brushConfig; } }
 
-        protected BrushType globalBrushType { get { return globalBrush.type(curImgData.TargetIsTexture2D()); } }
+        public BrushType globalBrushType { get { return globalBrush.type(curImgData.TargetIsTexture2D()); } }
 
         protected static PainterManager texMGMT { get { return PainterManager.inst; } }
 
@@ -34,6 +34,8 @@ namespace Playtime_Painter{
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
 
         public override string ToolName() { return PainterConfig.ToolName; }
+
+        private bool needsGrid { get { return this.needsGrid(); } }
 
         public override Texture ToolIcon() {
             return icon.Painter.getIcon();
@@ -84,9 +86,6 @@ namespace Playtime_Painter{
         public MeshPackagingProfile meshProfile {
             get { selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, cfg.meshPackagingSolutions.Count - 1)); return cfg.meshPackagingSolutions[selectedMeshProfile]; } }
         
-        [NonSerialized]
-        public static List<imgData> imgdatas = new List<imgData>();
-
         [NonSerialized]
         public List<Shader> originalShaders = new List<Shader>();
 
@@ -222,7 +221,7 @@ namespace Playtime_Painter{
             if (!canPaint())
                 return;
 
-            if (globalBrush.type(this).useGrid) 
+            if (needsGrid)//globalBrush.type(this).needsGrid) 
                 ProcessGridDrag();
             else
             if (!ProcessHit(hit, stroke))
@@ -298,7 +297,7 @@ namespace Playtime_Painter{
         public bool CastRayPlaytime(StrokeVector st, Vector3 mousePos)
         {
 
-            if (globalBrush.type(this).useGrid)
+            if (needsGrid)//globalBrush.type(this).needsGrid)
             {
                 ProcessGridDrag();
                 return true;
@@ -336,9 +335,6 @@ namespace Playtime_Painter{
 
                         CheckPreviewShader();
                     }
-                    // else
-                    //   if ((getRenderer() != null) && (getRenderer().materials.Length>submesh))
-                    // return false;
                 }
 
 
@@ -439,7 +435,7 @@ namespace Playtime_Painter{
 
         public void UpdateTylingFromMaterial() {
 
-		    string fieldName = getMaterialTextureName();
+		    string fieldName = materialTexturePropertyName;
 		    Material mat = getMaterial(false);
 		    if (isPreviewShader () && (terrain==null)) {
 			    curImgData.tiling = mat.GetTextureScale (PainterConfig.previewTexture);
@@ -459,7 +455,7 @@ namespace Playtime_Painter{
         public void UpdateTylingToMaterial()
         {
 
-            string fieldName = getMaterialTextureName();
+            string fieldName = materialTexturePropertyName;
             Material mat = getMaterial(false);
             if (isPreviewShader() && (terrain == null))
             {
@@ -511,7 +507,7 @@ namespace Playtime_Painter{
 
 
 
-            string field = getMaterialTextureName();
+            string field = materialTexturePropertyName;
 
             curImgData = null;
 
@@ -536,13 +532,15 @@ namespace Playtime_Painter{
 
 		    curImgData = texture.getImgDataIfExists();
 
-		    texMGMT.recentTextures.AddIfNew (field, texture);
+		 
 
             if (curImgData == null)
             {
-                curImgData = new imgData(texture);
+                curImgData = ScriptableObject.CreateInstance<imgData>().init(texture);
                 curImgData.useTexcoord2 = getMaterial(false).DisplayNameContains(field, PainterConfig.isUV2DisaplyNameTag);
             }
+
+            texMGMT.recentTextures.AddIfNew(field, curImgData);
 
             UpdateOrSetTexTarget(curImgData.destination);
 
@@ -564,7 +562,7 @@ namespace Playtime_Painter{
             if (curImgData == null) 
                return;
             
-            curImgData.updateDestination(dst, getMaterial(true), getMaterialTextureName(), this);
+            curImgData.updateDestination(dst, getMaterial(true), materialTexturePropertyName, this);
             CheckPreviewShader();
 
         }
@@ -583,7 +581,7 @@ namespace Playtime_Painter{
 
         public void createTerrainHeightTexture (string NewName) {
 
-            string field = getMaterialTextureName();
+            string field = materialTexturePropertyName;
 
             if (field != PainterConfig.terrainHeight) {
                 Debug.Log("Terrain height is not currently selected.");
@@ -668,7 +666,7 @@ namespace Playtime_Painter{
 
 	    public void CreateRenderTexture (int size, string name) {
 		    imgData previous = curImgData;
-            curImgData = new imgData(size);
+            curImgData = ScriptableObject.CreateInstance<imgData>().init(size);
 
             curImgData.SaveName = name;
 
@@ -748,9 +746,10 @@ namespace Playtime_Painter{
 		    return materials_TextureFields;
         }
 
-        public string getMaterialTextureName() {
-            List<string> list = getMaterialTextureNames();
-            return selectedTexture < list.Count ? list[selectedTexture] : null;
+        public string materialTexturePropertyName { get {
+                List<string> list = getMaterialTextureNames();
+                return selectedTexture < list.Count ? list[selectedTexture] : null;
+            }
         }
 
         public Texture getTexture() {
@@ -763,7 +762,7 @@ namespace Playtime_Painter{
                     return mat == null ? null : mat.GetTexture(PainterConfig.previewTexture);
                 }
 
-            string fieldName = getMaterialTextureName();
+            string fieldName = materialTexturePropertyName;
 
             if (fieldName == null)
                 return null;
@@ -802,12 +801,12 @@ namespace Playtime_Painter{
         }
 
         public void setTextureOnMaterial() {
-            setTextureOnMaterial(getMaterialTextureName());
+            setTextureOnMaterial(materialTexturePropertyName);
         }
 
         public void setTextureOnMaterial(Texture tex)
         {
-            setTextureOnMaterial(getMaterialTextureName(), tex);
+            setTextureOnMaterial(materialTexturePropertyName, tex);
         }
 
         public void setTextureOnMaterial(string fieldName) {
@@ -1148,7 +1147,7 @@ namespace Playtime_Painter{
 		
             if (terrain == null)
                 return false;
-            string name = getMaterialTextureName();
+            string name = materialTexturePropertyName;
             if (name == null)
                 return false;
             return name.Contains(PainterConfig.terrainHeight);
@@ -1166,7 +1165,7 @@ namespace Playtime_Painter{
         }
 
         public bool isTerrainControlTexture() {
-            return ((curImgData != null) && (terrain != null) && (getMaterialTextureName().Contains(PainterConfig.terrainControl)));
+            return ((curImgData != null) && (terrain != null) && (materialTexturePropertyName.Contains(PainterConfig.terrainControl)));
         }
         
         // ************************** RECORDING & PLAYBACK ****************************
@@ -1422,7 +1421,7 @@ namespace Playtime_Painter{
 		
 		    OnBeforeSaveTexture ();
 
-            curImgData.texture2D.rewriteOriginalTexture();
+            curImgData.texture2D = curImgData.texture2D.rewriteOriginalTexture();
 
 		    OnPostSaveTexture ();
         }
@@ -1746,7 +1745,7 @@ namespace Playtime_Painter{
                 
                 }
         }
-    
+
         // ********************* PEGI **********************************
 
         public override void OnGUI() {
@@ -1763,7 +1762,7 @@ namespace Playtime_Painter{
 
         public override string playtimeWindowName {
 		    get {
-			    return gameObject.name+" "+getMaterialTextureName();
+			    return gameObject.name+" "+materialTexturePropertyName;
 		    }
 	    }
         
@@ -1951,8 +1950,7 @@ namespace Playtime_Painter{
                     pegi.newLine();
                     
                 }
-                else if ((curImgData != null) && (!LockEditing))
-                {
+                else if ((curImgData != null) && (!LockEditing)) {
                     
                     curImgData.undo_redo_PEGI();
                     if (!curImgData.recording)
@@ -2010,6 +2008,14 @@ namespace Playtime_Painter{
                     if ((globalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                         curImgData.SetAndApply(true); 
                 }
+
+                pegi.nl();
+
+                foreach (var p in texMGMT.plugins)
+                    if (p.Component_PEGI().nl()) {
+                        p.SetToDirty();
+                        changed = true;
+                    }
             }
             pegi.newLine();
             inspectedPainter = null;

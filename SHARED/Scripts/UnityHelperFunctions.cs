@@ -483,6 +483,15 @@ public static class UnityHelperFunctions {
         return path.Replace("Assets", "");
     }
 
+    public static bool SavedAsAsset (this UnityEngine.Object go) {
+#if UNITY_EDITOR
+        return (!String.IsNullOrEmpty(AssetDatabase.GetAssetPath(go)));
+#else
+        return true;
+#endif
+
+    }
+
 	public static Texture2D rewriteOriginalTexture_NewName(this Texture2D tex, string name) {
 		if (name == tex.name) 
 			return tex.rewriteOriginalTexture ();

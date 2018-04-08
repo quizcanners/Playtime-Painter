@@ -10,7 +10,7 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
-    public enum texTarget { RenderTexture, Texture2D }
+    public enum texTarget {  Texture2D, RenderTexture }
 
     public static class PlaytimePainterExtensions {
 
@@ -34,11 +34,10 @@ namespace Playtime_Painter {
             if (texture == null)
                 return null;
 
-            foreach (imgData id in PlaytimePainter.imgdatas)
+            foreach (imgData id in PainterManager.inst.imgdatas)
                 if ((id.texture2D == texture) || (id.renderTexture == texture)) 
                     return id;
-                
-            
+
             return null;
         }
 
@@ -49,9 +48,7 @@ namespace Playtime_Painter {
             var nid = texture.getImgDataIfExists();
             if (nid != null) return nid;
 
-             nid = new imgData(texture);
-
-            PlaytimePainter.imgdatas.Add(nid);
+             nid = ScriptableObject.CreateInstance<imgData>().init(texture);
 
             return nid;
         }
@@ -60,22 +57,16 @@ namespace Playtime_Painter {
             return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.inst.BigRT_pair[0])));
         }
 
-        public static bool Contains(this Texture texture, Texture another) {
-            if (texture == null)
-                return false;
+        public static bool ContainsDuplicant(this List<imgData> texs, imgData other) {
 
-            imgData id = texture.getImgData();
+            if (other == null)
+                return true;
 
-            if (id == null) return false;
-            return (((id.renderTexture != null) && (id.renderTexture.Equals(another)))
-            ||
-            ((id.texture2D != null) && (id.texture2D.Equals(another))));
-        }
+            for (int i=0; i<texs.Count; i++)
+                if (texs[i] == null) { texs.RemoveAt(i); i--;}
 
-        public static bool ContainsDuplicant(this List<Texture> texs, Texture other) {
-
-            foreach (Texture t in texs)
-                if (t.Contains(other))
+            foreach (imgData t in texs)
+                if (t.Equals(other))
                     return true;
 
             return false;
@@ -122,11 +113,10 @@ namespace Playtime_Painter {
 
     }
 
-    public class imgData {
-        PainterConfig cfg { get { return PainterConfig.inst; } }
-
+    [Serializable]
+    public class imgData : PainterStuffScriptable {
+   
         const float bytetocol = 1f / 255f;
-
         public texTarget destination;
         public RenderTexture renderTexture;
         public static Texture2D sampler;
@@ -135,18 +125,30 @@ namespace Playtime_Painter {
         public int height = 128;
         public bool useTexcoord2;
 
-        [NonSerialized]
-        public Color[] pixels;
+        public bool needsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || ( renderTexture != null && renderTexture.SavedAsAsset())); } }
 
+        [NonSerialized]
+        public Color[] _pixels;
+
+        public Color[] pixels { get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
+            set { _pixels = value; }
+        }
+
+        [NonSerialized]
         public UndoCache cache = new UndoCache();
 
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
 
-        // ##################### For Stroke Vector Recording
+        public override string ToString() {
+            return (texture2D != null ? texture2D.name : (renderTexture != null ? renderTexture.name : SaveName));
+        }
 
+        // ##################### For Stroke Vector Recording
+        [NonSerialized]
         public List<string> recordedStrokes = new List<string>();
+        [NonSerialized]
         public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
         public bool recording;
 
@@ -186,7 +188,12 @@ namespace Playtime_Painter {
 #endif
         }
 
-// ####################### Textures MGMT
+        // ####################### Textures MGMT
+
+        public bool Equals(Texture tex)
+        {
+            return (tex != null && tex == texture2D) || (renderTexture != null && renderTexture == tex);
+        }
 
         public RenderTexture AddRenderTexture() {
             return AddRenderTexture(width, height, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, FilterMode.Bilinear, null);
@@ -282,13 +289,15 @@ namespace Playtime_Painter {
         }
 
         public void pixelsToGamma() {
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = pixels[i].gamma;
+            var p = pixels;
+            for (int i = 0; i < p.Length; i++)
+                _pixels[i] = _pixels[i].gamma;
         }
 
         public void pixelsToLinear() {
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = pixels[i].linear;
+            var p = pixels;
+            for (int i = 0; i < p.Length; i++)
+                _pixels[i] = _pixels[i].linear;
         }
 
         void UVto01(ref Vector2 uv) {
@@ -299,8 +308,9 @@ namespace Playtime_Painter {
         }
 
         public void Colorize(Color col) {
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = col;
+            var p = pixels;
+            for (int i = 0; i < p.Length; i++)
+                _pixels[i] = col;
 
         }
 
@@ -420,10 +430,6 @@ namespace Playtime_Painter {
             PixelsFromTexture2D(texture2D);
         }
 
-        public Color pixelFastUnsafe(Vector2 vec) {
-            return pixels[((int)vec.y) * width + (int)vec.x];
-        }
-
 		public Color pixel(myIntVec2 v) {
             v.x %= width;
             while (v.x < 0)
@@ -454,17 +460,22 @@ namespace Playtime_Painter {
         }
 
         public void SetAndApply(bool mipmaps) {
-            texture2D.SetPixels(pixels);
+            if (_pixels == null) return;
+            texture2D.SetPixels(_pixels);
             texture2D.Apply(mipmaps);
         }
 
-        public imgData(Texture tex) {
+        public imgData init (Texture tex) {
+          //  Debug.Log("Creating image data for ."+tex.name);
+
             if (tex.GetType() == typeof(Texture2D))
                 useTex2D((Texture2D)tex);
             else
                  if (tex.GetType() == typeof(RenderTexture))
                 useRenderTexture((RenderTexture)tex);
-            PlaytimePainter.imgdatas.Add(this);
+
+            PainterManager.inst.imgdatas.Add(this);
+            return this;
         }
 
         void useRenderTexture(RenderTexture rt) {
@@ -499,13 +510,17 @@ namespace Playtime_Painter {
                 SaveName = "New img";
         }
 
-        public imgData(int renderTextureSize) {
+        public imgData init (int renderTextureSize) {
+
+            Debug.Log("Creating rt data.");
+
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
             //destination = dest.RenderTexture;
             //Debug.Log("new RT");
-            PlaytimePainter.imgdatas.Add(this);
+            PainterManager.inst.imgdatas.Add(this);
+            return this;
         }
 
         public bool gotUNDO() {
@@ -514,6 +529,10 @@ namespace Playtime_Painter {
 
         public bool undo_redo_PEGI() {
             bool changed = false;
+
+            if (cache == null) cache = new UndoCache();
+            if (recordedStrokes == null) recordedStrokes = new List<string>();
+            if (recordedStrokes_forUndoRedo == null)  recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
 
             if (cache.undo.gotData()) {
                 if (pegi.Click(icon.Undo.getIcon(), "Press Z to undo (Scene View)", 25)) {
@@ -558,6 +577,8 @@ namespace Playtime_Painter {
 
             return changed;
         }
+
+       
 
     }
 

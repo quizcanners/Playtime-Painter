@@ -5,39 +5,22 @@ using PlayerAndEditorGUI;
 
 
 namespace Playtime_Painter {
-
-#if UNITY_EDITOR
-
-    using UnityEditor;
-
-    [CustomEditor(typeof(BakedShadowMaterialController))]
-    public class BakedShadowMaterialControllerEditor : Editor {
-
-        public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((BakedShadowMaterialController)target).PEGI();
-            ef.end();
-        }
-    }
-#endif
-
-    [ExecuteInEditMode]
-    public class BakedShadowMaterialController : MonoBehaviour {
+    
+    [System.Serializable]
+    public class MaterialLightManager {
         
-        public Material material;
+        public List<Material> materials;
         public List<int>[] probes;
         public float[] bounceCoefficient = new float[3];
 
-        public void OnEnable() {
-            if (material == null) {
-                var rendy = GetComponent<MeshRenderer>();
-                if (rendy) material = rendy.sharedMaterial;
-            }
-
+        public MaterialLightManager() {
+            
             if (probes == null) {
                 probes = new List<int>[3];
                 for (int c = 0; c < 3; c++) probes[c] = new List<int>();
-            } 
+            }
+
+            materials = new List<Material>();
 
         }
 
@@ -46,11 +29,11 @@ namespace Playtime_Painter {
 
             bool changed = false;
 
-  
+            if (materials == null) materials = new List<Material>();
 
-            changed |= "Material".edit(60, ref material).nl();
+            "Materials:".nl();
 
-           
+            materials.PEGI<Material>(true);
 
             for (int c = 0; c < 3; c++) {
 
@@ -60,19 +43,17 @@ namespace Playtime_Painter {
 
                 var lst = probes[c];
                
-
                 for (int i=0; i< lst.Count; i++) {
                     var tmp = lst[i];
                     var prb = BakedShadowsLightProbe.allProbes[tmp];
 
                     if (icon.Delete.Click())
+                    {
+                        changed = true;
                         lst.RemoveAt(i);
+                    }
                     else
                     {
-
-                      //  if (prb != null && pegi.foldout("Probe:", ref browsedNode, tmp))
-                       //     changed |= prb.PEGI().nl();
-                       // else
                         if (pegi.select(ref tmp, BakedShadowsLightProbe.allProbes).nl())
                         {
                             probes[c][i] = tmp;
@@ -88,14 +69,14 @@ namespace Playtime_Painter {
             }
 
             if (changed && !Application.isPlaying)
-                Update();
+                UpdateMaterials();
 
             return changed;
         }
         
-        void Update() {
+        public void UpdateMaterials() {
 
-            if (material != null) 
+            if (materials.Count>0) 
                 for (int c=0; c<3; c++) {
 
                     Color col = Color.black;
@@ -116,8 +97,11 @@ namespace Playtime_Painter {
 
                     col.a = bounceCoefficient[c];
 
-                    material.SetVector("l" + c + "col", col.ToVector4());
-                    material.SetVector("l" + c + "pos", pos);
+                    foreach (var m in materials)
+                        if (m!= null) {
+                        m.SetVector("l" + c + "col", col.ToVector4());
+                        m.SetVector("l" + c + "pos", pos);
+                    }
                 }
         }
     }

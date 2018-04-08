@@ -197,7 +197,13 @@ public static void SetMaximumLength<T>(this List<T> list, int Length) {
         return Convert.ToInt32(text);
     }
 
-
+    public static int ToIntFromTextSafe(this string text, int defaultReturn) {
+        int res;
+        if (Int32.TryParse(text, out res))
+            return res;
+        else
+            return defaultReturn;
+    }
 
     public static int charToInt(this char c)
     {

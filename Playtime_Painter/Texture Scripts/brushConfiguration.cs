@@ -184,8 +184,7 @@ namespace Playtime_Painter
                 painter.InitIfNotInited();
                 if (painter.curImgData == null) return painter;
             }
-
-          
+            
             var id = painter.curImgData;
             var cpu = id.TargetIsTexture2D();
             var t = type(cpu);
@@ -203,11 +202,8 @@ namespace Playtime_Painter
                     painter.RecordingMGMT();
 
                     t.Paint(painter, this, stroke);
-
             }
-
-
-
+            
             return painter;
         }
 

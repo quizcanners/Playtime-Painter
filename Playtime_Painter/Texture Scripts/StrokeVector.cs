@@ -187,6 +187,12 @@ namespace Playtime_Painter {
             dwn();
         }
 
+        public StrokeVector(Vector2 uv)
+        {
+
+            uvFrom = uvTo = uv;
+            dwn();
+        }
     }
 
 }

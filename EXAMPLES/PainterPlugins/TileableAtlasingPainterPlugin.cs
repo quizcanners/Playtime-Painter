@@ -43,9 +43,10 @@ namespace Playtime_Painter
 
         //st.uvFrom, alpha, pntr.curImgData, br, pntr.atlasRows, pntr.GetAtlasedSection()
 
-        public override bool PaintTexture2D(Vector2 uvCoords, float brushAlpha, imgData image, BrushConfig bc)
-        {
+        public override bool PaintTexture2D(StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc) {
             if (parentPainter.isAtlased()) {
+
+                Vector2 uvCoords = stroke.uvFrom;
 
                 Vector2 AtlasedSection = GetAtlasedSection();
 
@@ -84,6 +85,7 @@ namespace Playtime_Painter
                 tmp.y -= ihalf;
 
 
+                var pixels = image.pixels;
 
                 for (Blit_Functions.y = -ihalf; Blit_Functions.y < ihalf + 1; Blit_Functions.y++)
                 {
@@ -105,7 +107,7 @@ namespace Playtime_Painter
                             if (sy < 0)
                                 sy += sectorSize;
 
-                            Blit_Functions._blitMode(ref image.pixels[((atlasSector.y + sy)) * image.width + (atlasSector.x + sx)]);
+                            Blit_Functions._blitMode(ref pixels[((atlasSector.y + sy)) * image.width + (atlasSector.x + sx)]);
                         }
 
                         tmp.x += 1;
@@ -195,7 +197,7 @@ namespace Playtime_Painter
             if (p == null) return false;
             var mat = p.getMaterial(false);
             if (mat == null) return false;
-            return p.getMaterial(false).isAtlased(p.getMaterialTextureName()); }
+            return p.getMaterial(false).isAtlased(p.materialTexturePropertyName); }
         public static bool isProjected(this PlaytimePainter p) { return p.getMaterial(false).isProjected(); }
 
         public static bool isAtlased(this Material mat, string property) {

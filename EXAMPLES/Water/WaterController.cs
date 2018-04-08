@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PlayerAndEditorGUI;
 
-#if UNITY_EDITOR
-using UnityEditor;
 
 namespace Playtime_Painter
 {
+
+#if UNITY_EDITOR
+    using UnityEditor;
 
     [CustomEditor(typeof(WaterController))]
     public class WaterEditor : Editor
@@ -31,7 +33,9 @@ namespace Playtime_Painter
             ef.write("Wet Area Height:", 50);
             modified |= ef.edit(ref trg.wetAreaHeight, 0.1f, 10);
             ef.newLine();
-            if (modified) { trg.setFoamDynamics();  UnityEditorInternal.InternalEditorUtility.RepaintAllViews(); }
+            if (modified) { trg.setFoamDynamics();
+                pegi.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+            }
             ef.end();
 
         }

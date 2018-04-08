@@ -6,7 +6,8 @@ namespace Playtime_Painter{
 
 
 public delegate void blitModeFunction(ref Color dst);
-
+public delegate bool PaintTexture2DMethod (StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc);
+    
 public static class Blit_Functions {
 
     public delegate bool alphaMode_dlg();
@@ -19,15 +20,22 @@ public static class Blit_Functions {
 
         public static int x;
         public static int y;
+        public static int z;
         public static float half;
-    public static float brAlpha;
+        public static float brAlpha;
 
         public static alphaMode_dlg _alphaMode;
         public static blitModeFunction _blitMode;
-
+        
         public static Color csrc;
 
         public static bool noAlpha() { return true; }
+
+        public static bool SphereAlpha() {
+            float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
+            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
+            return alpha > 0;
+        }
 
         public static bool circleAlpha() {
         float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
@@ -81,8 +89,7 @@ public static class Blit_Functions {
         if (b) cdst.b -= alpha * Mathf.Max(0, cdst.b - csrc.b);
         if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
     }
-
-
+        
         public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc) {
             imgData id = texture.getImgData();
 
@@ -96,43 +103,50 @@ public static class Blit_Functions {
                 return;
             }
 
-            Paint(uvCoords, brushAlpha, texture.getImgData(), bc);
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.getImgData(), bc);
         }
 
-        public static void Paint(Vector2 uvCoords, float brushAlpha, imgData image, BrushConfig bc) {
+        public static void PrepareCPUBlit (this BrushConfig bc) {
+            half = (bc.Size(false)) / 2;
+            bool smooth = bc.type(true) != BrushTypePixel.inst;
+            if (smooth)
+                _alphaMode = circleAlpha;
+            else
+                _alphaMode = noAlpha;
+
+            _blitMode = bc.blitMode.BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
+
+            alpha = 1;
+
+            r = bc.mask.GetFlag(BrushMask.R);
+            g = bc.mask.GetFlag(BrushMask.G);
+            b = bc.mask.GetFlag(BrushMask.B);
+            a = bc.mask.GetFlag(BrushMask.A);
+
+            csrc = bc.colorLinear.ToGamma();
+
+        }
+
+        public static bool Paint(StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc) {
+
+            Vector2 uvCoords = stroke.uvFrom;
 
         brAlpha = brushAlpha;
 
-        half = (bc.Size(false)) / 2;
+        bc.PrepareCPUBlit();
+            
         int ihalf = (int)(half-0.5f);
-
-            bool smooth = bc.type(true) != BrushTypePixel.inst;
-
-
-        if (smooth)
-            _alphaMode = circleAlpha;
-        else
-            _alphaMode = noAlpha;
-
-			_blitMode = bc.blitMode.BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
-
+        bool smooth = bc.type(true) != BrushTypePixel.inst;
         if (smooth) ihalf += 1;
-
-        alpha = 1;
-
-         r = bc.mask.GetFlag(BrushMask.R);
-         g = bc.mask.GetFlag(BrushMask.G);
-         b = bc.mask.GetFlag(BrushMask.B);
-         a = bc.mask.GetFlag(BrushMask.A);
-
-        csrc = bc.colorLinear.ToGamma();
-
-		myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+        
+        myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
 		int fromx = tmp.x - ihalf;
 
 		tmp.y -= ihalf;
-  
+
+            var pixels = image.pixels;
+
         for (y = -ihalf; y < ihalf + 1; y++) {
            
 				tmp.x = fromx;
@@ -140,15 +154,17 @@ public static class Blit_Functions {
             for (x = -ihalf; x < ihalf + 1; x++) {
                
                 if (_alphaMode())
-						_blitMode(ref image.pixels[image.pixelNo(tmp)]);
+						_blitMode(ref pixels[image.pixelNo(tmp)]);
                 
 					tmp.x += 1;
             }
 
 				tmp.y += 1;
         }
-    }
 
+            return true;
+    }
+        
 
 }
 }

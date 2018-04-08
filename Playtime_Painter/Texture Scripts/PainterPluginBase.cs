@@ -115,7 +115,7 @@ namespace Playtime_Painter
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual bool PaintTexture2D(Vector2 uvCoords, float brushAlpha, imgData p, BrushConfig bc) { return false; }
+        public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, imgData p, BrushConfig bc) { return false; }
 
         public virtual void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
 

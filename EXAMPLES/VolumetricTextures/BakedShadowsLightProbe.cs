@@ -85,6 +85,8 @@ namespace Playtime_Painter
             "Emission Color".edit(ref ecol).nl();
             "Brightness".edit(ref brightness).nl();
 
+            if (changed) pegi.RepaintViews();
+
             return changed;
         }
 

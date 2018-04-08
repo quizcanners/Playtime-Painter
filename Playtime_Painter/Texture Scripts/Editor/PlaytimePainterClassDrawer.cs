@@ -34,6 +34,8 @@ namespace Playtime_Painter {
             PlaytimePainter p = tf == null ? null : tf.GetComponent<PlaytimePainter>();
             Event e = Event.current;
 
+            bool allowRefocusing = true;
+
             if (painter != null)
             {
                 if (painter.meshEditing)
@@ -41,7 +43,7 @@ namespace Playtime_Painter {
 
                     PlaytimePainter edited = MeshManager.inst.target;
 
-                    bool allowRefocusing = false;
+                     allowRefocusing = false;
 
                     if (p != null)
                     {
@@ -52,9 +54,8 @@ namespace Playtime_Painter {
                             allowRefocusing = true;
                         }
 
-                        if ((edited == null) || ((edited != p) && (!PainterConfig.inst.brushConfig.type(edited).useGrid)))
+                        if ((edited == null) || (edited != p))
                             allowRefocusing = true;
-
                     }
 
                     if ((((e.button == 1) && (!MeshManager.inst.draggingSelected))
@@ -67,9 +68,11 @@ namespace Playtime_Painter {
                 else
                 {
 
+
+
                     if (L_mouseDwn) PlaytimePainter.currently_Painted_Object = null;
 
-                    if (PainterConfig.inst.brushConfig.type(painter).useGrid) p = painter;
+                    if (painter.needsGrid()) { p = painter; allowRefocusing = false; }
                     
                     if (p != null)
                     {
@@ -84,11 +87,11 @@ namespace Playtime_Painter {
             }
             if (L_mouseUp) PlaytimePainter.currently_Painted_Object = null;
 
-
             if (((e.button == 1) || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
                 navigating = true;
 
-            return true;
+
+            return allowRefocusing;
         }
 
         public override void FeedEvents(Event e) {
@@ -276,7 +279,7 @@ namespace Playtime_Painter {
                     if (painter.SelectTexture_PEGI()) {
                         
                         image = painter.curImgData;
-                        if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.getMaterialTextureName();
+                        if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.materialTexturePropertyName;
                     }
 
                     if (image != null)
@@ -297,7 +300,7 @@ namespace Playtime_Painter {
                         List<string> texNames = painter.getMaterialTextureNames();
 
                         if (texNames.Count > painter.selectedTexture) {
-                            string param = painter.getMaterialTextureName();
+                            string param = painter.materialTexturePropertyName;
 
                             if (pegi.Click(icon.NewTexture, (image == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
                             {
@@ -348,7 +351,8 @@ namespace Playtime_Painter {
                         pegi.nl();
 
                         if (image == null)
-                            "_Name:".edit("Name for new texture", 40, ref painter.nameHolder);
+                            "_Name:".edit("Name for new texture", 40, ref painter.nameHolder).nl();
+
 
 
                         if (!isTerrainHeight) {
@@ -370,17 +374,16 @@ namespace Playtime_Painter {
                     ef.tab();
                     ef.newLine();
 
-                    List<Texture> recentTexs;
+                    List<imgData> recentTexs;
 
-                    string texName = painter.getMaterialTextureName();
+                    string texName = painter.materialTexturePropertyName;
 
                     if ((texName != null) && (rtp.recentTextures.TryGetValue(texName, out recentTexs))
                         && ((recentTexs.Count > 1) || (painter.curImgData == null))) {
                         ef.write("Recent Texs:", 60);
-                        Texture tmp = painter.curImgData.exclusiveTexture();
-                        if (pegi.select(ref tmp, recentTexs))
-                        {
-                            painter.ChangeTexture(tmp);
+                        imgData tmp = painter.curImgData;//.exclusiveTexture();
+                        if (pegi.select(ref tmp, recentTexs)) {
+                            painter.ChangeTexture(tmp.exclusiveTexture());
                             changes = true;
                         }
                     }
@@ -407,7 +410,7 @@ namespace Playtime_Painter {
         }
 
         bool textureSetterField() {
-            string field = painter.getMaterialTextureName();
+            string field = painter.materialTexturePropertyName;
             if ((field == null) || (field.Length == 0)) return false;
 
             Texture tex = painter.getTexture();

@@ -52,9 +52,7 @@ namespace Playtime_Painter
         public override bool ConfigTab_PEGI()
         {
             bool changed = false;
-
-            var painter = PlaytimePainter.inspectedPainter;
-
+            
             if (painter.isAtlased())
             {
 
@@ -99,18 +97,9 @@ namespace Playtime_Painter
                 pegi.newLine();
 
             }
-            else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
-            {
-
+            else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl()) {
                 showAtlases = false;
-
-        
-
                 changed |= atlasedMaterials.PEGI(ref painter.selectedAtlasedMaterial, true).nl();
-
-               
-
-
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -147,15 +136,9 @@ namespace Playtime_Painter
                         atlases.Add(new AtlasTextureCreator("new"));
 
                 }
-
-
-
-
-              
+                
             }
-
-          
-
+            
             return changed;
 
         }

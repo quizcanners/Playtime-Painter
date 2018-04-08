@@ -21,28 +21,47 @@ namespace Playtime_Painter {
     }
 #endif
     
-    public class VolumeShadowProbe : BakedShadowMaterialController {
+    [ExecuteInEditMode]
+    public class VolumeShadowProbe : VolumeTexture {
         
-        public VolumeTexture vt;
+        MaterialLightManager mats;
+        public const string BakedShadowVolumeTextureProperty = "_BakedShadow_VOL";
+
 
         public void OnDrawGizmosSelected() {
-            vt.DrawGizmo(transform.position, Color.green);
+            DrawGizmo(transform.position, Color.green);
+        }
+
+        public void Update() {
+            mats.UpdateMaterials();
+        }
+
+        public void OnEnable() {
+            if (mats == null)
+                mats = new MaterialLightManager();
+        }
+
+        public override void AssignTo(PlaytimePainter p) {
+            if (!mats.materials.Contains(p.material))
+                mats.materials.Add(p.material);
+            mats.UpdateMaterials();
+            p.material.SetVolumeTexture(BakedShadowVolumeTextureProperty, this, transform.position);
         }
 
         public override bool PEGI() {
             
             bool changed = base.PEGI();
             
-            changed |= vt.PEGI();
+            changed |= mats.PEGI();
             
-            if (vt.tex != null && "Recalculate".Click().nl()) {
+            if (tex != null && tex.texture2D != null && "Recalculate".Click().nl()) {
                 changed = true;
-                vt.RecalculateVolume(transform.position);
-                vt.VolumeToTexture();
+                RecalculateVolume(transform.position);
+                VolumeToTexture();
 
                 Vector3 pos = transform.position;
 
-                material.SetVolumeTexture("_BakedShadow_VOL", vt, transform.position);
+                mats.materials.SetVolumeTexture(BakedShadowVolumeTextureProperty, this, transform.position);
             }
 
             return changed;

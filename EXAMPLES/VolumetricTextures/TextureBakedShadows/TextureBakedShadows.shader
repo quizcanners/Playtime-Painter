@@ -39,6 +39,7 @@
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma multi_compile  ___ UV_ATLASED
 
 	uniform sampler2D _MainTex;
 	uniform sampler2D _BumpMapC;

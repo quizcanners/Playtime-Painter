@@ -1,9 +1,13 @@
 ﻿Shader "Painter_Experimental/VolumeBakedShadows" {
 	Properties {
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
+		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0
+		_BumpMapC ("Combined Map", 2D) = "grey" {}
 		_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "white" {}
-		_Glossiness ("Smoothness", Range(0,1)) = 0.5
-		_Metallic ("Metallic", Range(0,1)) = 0.0
+		
+
+			[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
+			[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 
 			VOLUME_H_SLICES("Baked Shadow Slices", Vector) = (0,0,0,0)
 			VOLUME_POSITION_N_SIZE("Baked Shadow Position & Size", Vector) = (0,0,0,0)
@@ -40,6 +44,8 @@
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma multi_compile  ___ UV_ATLASED
+
 
 			uniform sampler2D _MainTex;
 		uniform sampler2D _BumpMapC;
@@ -125,13 +131,20 @@
 #else
 
 			float4 col = tex2D(_MainTex, i.texcoord);
+
+
+
+			//return tex2D(_MainTex, i.texcoord);
+
+
+
+
+
 #if !_BUMP_NONE
 			float4 bumpMap = tex2D(_BumpMapC, i.texcoord);
 #endif
 
 #endif
-
-
 
 #if !_BUMP_NONE
 			float3 tnormal;
@@ -152,8 +165,6 @@
 
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-
-
 			float dotprod = dot(i.viewDir.xyz, i.normal);
 			float fernel = 1.5 - dotprod;
 			float ambientBlock = (1 - bumpMap.a)*dotprod;
@@ -163,13 +174,9 @@
 
 			// Point Lights:
 
-
-			// To pixel unit position
-			//return  float4( i.worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz, 1);
-
-			float3 bsPos = (i.worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w;
+			float3 bsPos = (i.worldPos.xyz  - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w //+ i.normal
+				;
 			
-			// To UV within sector
 			bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
 			float h = min(max(0,bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
 
@@ -178,11 +185,7 @@
 
 			float2 sector = saturate(float2(sectorX, sectorY)*VOLUME_H_SLICES.w);
 
-			float4 bakeUV = float4(sector + bsPos.xz
-				, 0, 0);
-
-			//return bakeUV;
-
+			float4 bakeUV = float4(sector + bsPos.xz, 0, 0);
 			float4 bake = tex2Dlod(_BakedShadow_VOL, bakeUV);
 
 			h += 1;
@@ -198,18 +201,23 @@
 
 			bake = bake * (1 - deH) + bakeUp * (deH);
 
-			return bake;
-
 			float4 directBake = saturate((bake - 0.9) * 10);
 
 			const float fourPi = 4 * 3.14;
 			float power = pow(col.a, 8) * 4096;
+		//float power = pow(smoothness, 8) * 4096;
+
+		//	float normTerm = pow(NdotH, power)*power*0.01;
+
 
 			float3 scatter = 0;
 			float3 glossLight = 0;
 			float3 directLight = 0;
 
 			//0 - Point Light
+
+		
+
 			float3 vec = i.worldPos.xyz - l0pos.xyz;
 			float len = length(vec);
 			vec /= len;
@@ -222,10 +230,9 @@
 			directLight += distApprox * direct;
 			scatter += distApprox * bake.r * l0col.a;
 
-
 			float3 halfDirection = normalize(i.viewDir.xyz - vec);
 			float NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			float normTerm = pow(NdotH, power)*power*0.01;
+			float normTerm = pow(NdotH, power*len)*power*0.01;
 
 			glossLight += normTerm * l0col.rgb*direct;
 
@@ -245,7 +252,7 @@
 
 			halfDirection = normalize(i.viewDir.xyz - vec);
 			NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			normTerm = pow(NdotH, power)*power*0.01;
+			normTerm = pow(NdotH, power*len)*power*0.01;
 
 			glossLight += normTerm * l1col.rgb*direct;
 
@@ -265,7 +272,7 @@
 
 			halfDirection = normalize(i.viewDir.xyz - vec);
 			NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			normTerm = pow(NdotH, power)*power*0.01;
+			normTerm = pow(NdotH, power*len)*power*0.01;
 
 			glossLight += normTerm * l2col.rgb*direct;
 
@@ -283,9 +290,14 @@
 			NdotH = max(0.01, (dot(i.normal, halfDirection)));
 			normTerm = pow(NdotH, power)*power*0.01;
 
-			col.rgb *= (direct*_LightColor0.rgb + directLight + (ShadeSH9(float4(i.normal, 1))*bake.a + scatter) * bumpMap.a);
+			col.rgb *= (direct*_LightColor0.rgb + directLight + (ShadeSH9(float4(i.normal, 1))*bake.a + scatter*(1-bake.a)) * bumpMap.a)*(1-col.a);
 
-			col.rgb += (normTerm *_LightColor0.rgb * direct + glossLight + ShadeSH9(float4(-reflected, 1))*bake.a)*col.a;
+			col.rgb += (normTerm *	_LightColor0.rgb * direct 	
+				+ 
+				glossLight 
+				+ ShadeSH9(float4(-reflected, 1))*bake.a
+				) * (col.a)
+				;//*col.a;
 
 
 #if	MODIFY_BRIGHTNESS
@@ -296,6 +308,8 @@
 			float3 mix = col.gbr + col.brg;
 			col.rgb += mix * mix*_lightControl.r;
 #endif
+
+		
 
 
 			return col;

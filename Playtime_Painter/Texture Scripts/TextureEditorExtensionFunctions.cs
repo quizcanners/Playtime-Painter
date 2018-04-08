@@ -159,6 +159,43 @@ public static class TextureEditorExtensionFunctions  {
             return brush.Size(worldSpace);
         }
 
-}
+        public static bool needsGrid (this PlaytimePainter pp) {
+            if (pp == null || !pp.enabled) return false;
+            
+            if (!pp.meshEditing) {
+
+                if (!pp.LockEditing && !PainterConfig.inst.showConfig && PlaytimePainter.isCurrent_Tool()) {
+                    if (pp.globalBrushType.needsGrid) return true;
+
+                    foreach (var p in PainterManager.inst.plugins)
+                        if (p.needsGrid(pp)) return true;
+                }
+                return false;
+            }
+            else return PainterManager.inst.meshManager.target == pp && PainterConfig.inst.meshTool.showGrid;
+        }
+
+        public static void RemoveEmpty(this Dictionary<string, List<imgData>> dic)
+        {
+            foreach (KeyValuePair<string, List<imgData>> l in dic)
+                l.Value.RemoveEmpty();
+        }
+        
+        public static void AddIfNew(this Dictionary<string, List<imgData>> dic, string Property, imgData texture)
+        {
+
+            List<imgData> mgmt;
+            if (!dic.TryGetValue(Property, out mgmt))
+            {
+                mgmt = new List<imgData>();
+                dic.Add(Property, mgmt);
+            }
+
+            if (!mgmt.ContainsDuplicant(texture))
+                mgmt.Add(texture);
+
+        }
+        
+    }
 
 }

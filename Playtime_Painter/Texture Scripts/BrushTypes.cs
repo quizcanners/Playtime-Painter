@@ -122,18 +122,18 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
         }
         
     public virtual bool supportedByTex2D { get { return false; } }
-    public virtual bool supportedByRenderTexturePair {get { return true; }}
-	public virtual bool supportedBySingleBuffer {get { return true; }}
-	public virtual bool isA3Dbrush {get { return false;}}
-    public virtual bool isPixelPerfect { get { return false; }}
-	public virtual bool isUsingDecals {get { return false;}}
-	public virtual bool startPaintingTheMomentMouseIsDown {get { return true;}}
+    public virtual bool supportedByRenderTexturePair { get { return true; } }
+	public virtual bool supportedBySingleBuffer { get { return true; } }
+	public virtual bool isA3Dbrush { get { return false; } }
+    public virtual bool isPixelPerfect { get { return false; } }
+	public virtual bool isUsingDecals { get { return false; } }
+	public virtual bool startPaintingTheMomentMouseIsDown { get { return true; } }
     public virtual bool supportedForTerrain_RT { get { return true; } }
-    public virtual bool useGrid { get { return false; } }
+    public virtual bool needsGrid { get { return false; } }
 
 	public virtual bool PEGI(){
 		
-            bool change = false;
+        bool change = false;
 		pegi.newLine();
 
         if (BrushConfig.inspectedIsCPUbrush)
@@ -147,8 +147,6 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 			pegi.newLine();
 
 			change |= pegi.toggle(ref inspectedBrush.useMask, "Mask","Multiply Brush Speed By Mask Texture's alpha", 40);
-
-			//pegi.newLine();
 
 			if (inspectedBrush.useMask) {
 				
@@ -189,48 +187,66 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
 		}
 		else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
-
         
-
-            if (useGrid && "Center Grid".Click().nl())
+            if (painter.needsGrid() && "Center Grid".Click().nl())
                 GridNavigator.onGridPos = painter.transform.position;
 
 		return change;
 	}
 
-    public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
-        {
+    public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             Vector2 delta_uv = st.uvTo - st.uvFrom;
             
             if (delta_uv.magnitude > (0.2f + st.avgBrushSpeed * 3)) delta_uv = Vector2.zero; // This is made to avoid glitch strokes on seams
             else st.avgBrushSpeed = (st.avgBrushSpeed + delta_uv.magnitude) / 2;
 
-            float dist = (int)(delta_uv.magnitude * pntr.curImgData.width * 8 / br.Size(false));
 
-            dist = Mathf.Max(dist, 1);
-            delta_uv /= dist;
             float alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
+
+
+            bool worldSpace = pntr.needsGrid();
+
+            float uvDist = (delta_uv.magnitude * pntr.curImgData.width * 8 / br.Size(false));
+            float worldDist =  st.delta_WorldPos.magnitude;
+
+            float steps = (int)Mathf.Max(1, worldSpace ? worldDist : uvDist);
+
+            delta_uv /= steps;
+            Vector3 deltaPos = st.delta_WorldPos / steps;
+
             st.uvFrom += delta_uv;
+            st.posFrom += deltaPos;
+           
 
-            PainterPluginBase pluginBlit = null;
-
-            float startI = 0;
+            PaintTexture2DMethod pluginBlit = null;
 
             foreach (var p in pntr.plugins)
-                if (p.PaintTexture2D(st.uvFrom, alpha, pntr.curImgData, br)) {
-                    pluginBlit = p;
-                    startI = 1;
+                if (p.PaintTexture2D(st, alpha, pntr.curImgData, br)) {
+                    pluginBlit = p.PaintTexture2D;
                     break;
                 }
-            
-            for (float i = startI; i < dist; i++) {
-                if (pluginBlit != null)
-                    pluginBlit.PaintTexture2D(st.uvFrom, alpha, pntr.curImgData, br);
-                else
-                    Blit_Functions.Paint(st.uvFrom, alpha, pntr.curImgData, br);
-                st.uvFrom += delta_uv;
+
+            if (pluginBlit == null)
+                foreach (var p in texMGMT.plugins)
+                    if (p.PaintTexture2D(st, alpha, pntr.curImgData, br)) {
+                        pluginBlit = p.PaintTexture2D;
+                        break;
+                    }
+
+            if (pluginBlit == null) {
+                pluginBlit = Blit_Functions.Paint;
+                pluginBlit(st, alpha, pntr.curImgData, br);
             }
+
+       
+                for (float i = 1; i < steps; i++)  {
+                    st.uvFrom += delta_uv;
+                    st.posFrom += deltaPos;
+                    pluginBlit(st, alpha, pntr.curImgData, br);
+                }
+          
+           
 
             pntr.AfterStroke(st);
         }
@@ -379,8 +395,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
         }
 
 }
-
-   
+    
     public class BrushTypeDecal : BrushType {
 
         static BrushTypeDecal _inst;
@@ -511,7 +526,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
 }
 
-public class BrushTypeLazy : BrushType {
+    public class BrushTypeLazy : BrushType {
 
         static BrushTypeLazy _inst;
         public BrushTypeLazy() { _inst = this; }
@@ -659,7 +674,7 @@ public class BrushTypeLazy : BrushType {
 
         public override bool isA3Dbrush { get { return true; } }
         public override bool supportedForTerrain_RT { get { return false; } }
-        public override bool useGrid   {  get { return cfg.useGridForBrush; } }
+        public override bool needsGrid   {  get { return cfg.useGridForBrush; } }
 
         public override string ToString () {
 		return "Sphere";
