@@ -76,12 +76,10 @@
 
 		float4 tmp;
 
-
 		tmp.zw = texcoord.xy-0.5;
 		float3 worldPos = mul (unity_ObjectToWorld, vertex).xyz-_RTcamPosition.xyz;
 		tmp.xy = worldPos.xy/256+0.5;
 
-		
 		return tmp;
 	}
 

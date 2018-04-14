@@ -13,7 +13,7 @@ namespace Playtime_Painter {
         public static bool SelectTexture_PEGI(this PlaytimePainter p) {
         int ind = p.selectedTexture;
         if (pegi.select(ref ind, p.getMaterialTextureNames())) {
-            p.SetOriginalShader();
+            p.SetOriginalShaderOnThis();
             p.selectedTexture = ind;
             p.OnChangedTexture();
             p.CheckPreviewShader();
@@ -25,7 +25,7 @@ namespace Playtime_Painter {
         public static bool NewTextureOptions_PEGI(this PlaytimePainter p) {
             bool changes = false;
 
-            if (p.curImgData != null) return changes;
+            if (p.imgData != null) return changes;
 
         if (p.materialTexturePropertyName == null) {
             pegi.write("This material has no textures");
@@ -55,20 +55,20 @@ namespace Playtime_Painter {
 
                 if (tht != null) {
                   
-                        if ((painter.originalShader != null) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
+                        if ((!painter.isOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
                         {
                             painter.Preview_To_UnityTerrain();
                             painter.Unity_To_Preview(); 
 
-                            painter.usePreviewShader = false;
-                            painter.SetOriginalShader();
+                            painter.matDta.usePreviewShader = false;
+                            painter.SetOriginalShaderOnThis();
 
                             changed = true;
                         }
                         PainterConfig.inst.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.getImgData() != null)
-                        if ((painter.originalShader == null) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
+                        if ((painter.isOriginalShader) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
                             painter.Unity_To_Preview();
                             
                             painter.SetPreviewShader();
@@ -78,17 +78,17 @@ namespace Playtime_Painter {
                 }  
             } else {
                 
-                if ((painter.originalShader == null) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
+                if ((painter.isOriginalShader ) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
                 {
                     
                     painter.SetPreviewShader();
                     changed = true;
                 }
 
-                if ((painter.originalShader != null) && (pegi.Click(icon.PreviewShader.getIcon(), "Return to Original Shader", 45)))
+                if ((!painter.isOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Return to Original Shader", 45)))
                 {
-                    painter.usePreviewShader = false;
-                    painter.SetOriginalShader();
+                    painter.matDta.usePreviewShader = false;
+                    painter.SetOriginalShaderOnThis();
                     changed = true;
                 }
             }
@@ -118,6 +118,7 @@ namespace Playtime_Painter {
             } else {
 
 
+                var id = trg.imgData;
 
                 bool gotVectors = cfg.recordingNames.Count > 0;
 
@@ -130,8 +131,8 @@ namespace Playtime_Painter {
                         changed = true;
                     }
                     if (pegi.Click(icon.Record, "Continue Recording", 18)) {
-                        trg.curImgData.SaveName = cfg.recordingNames[cfg.browsedRecord];
-                        trg.curImgData.ContinueRecording();
+                        id.SaveName = cfg.recordingNames[cfg.browsedRecord];
+                        id.ContinueRecording();
                         "Recording resumed".showNotification();
                     }
 
@@ -144,8 +145,8 @@ namespace Playtime_Painter {
                 if ((gotVectors && (pegi.Click(icon.Add, "Start new Vector recording", 18))) || 
                     ((!gotVectors) && ("New Vector Recording").Click("Start New recording")
                     )) {
-                    trg.curImgData.SaveName = "Unnamed";
-                    trg.curImgData.StartRecording();
+                    id.SaveName = "Unnamed";
+                    id.StartRecording();
                     "Recording started".showNotification();
                 }
 

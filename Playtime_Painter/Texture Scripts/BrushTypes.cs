@@ -25,18 +25,9 @@ public static class BlitModeExtensions {
 
 public abstract class BrushType : PainterStuff, IeditorDropdown {
 
-	/*protected static PainterManager mgmt {get{ return PainterManager.inst;}}
-	protected static Transform rtbrush { get { return mgmt.brushRendy.transform; } }
-	protected static Mesh brushMesh { set { mgmt.brushRendy.meshFilter.mesh = value; } }
-    protected static PainterConfig cfg { get { return PainterConfig.inst; } }
-    protected static BrushConfig brush { get { return BrushConfig.inspectedBrush; } }
-    protected static PlaytimePainter painter { get { return PlaytimePainter.inspectedPainter; } }*/
-
-
     private static List<BrushType> _allTypes;
 
-	public static List<BrushType> allTypes {  get {  initIfNull(); return _allTypes; } 
-	} 
+	public static List<BrushType> allTypes {  get {  initIfNull(); return _allTypes; } 	} 
     
     public static void initIfNull() {
             if (_allTypes != null) return;
@@ -61,12 +52,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             */
         }
 
-    public Vector2 uvToPosition(Vector2 uv)
-        {
-            return (uv - Vector2.one * 0.5f) * PainterManager.orthoSize * 2;
-
-            //Vector2 meshPos = ((st.uvFrom + st.uvTo) - Vector2.one) * rtp.orthoSize;
-        }
+    public Vector2 uvToPosition(Vector2 uv) { return (uv - Vector2.one * 0.5f) * PainterManager.orthoSize * 2; }
 
     public Vector2 to01space(Vector2 from)
         {
@@ -80,8 +66,8 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
     public virtual bool showInDropdown(){
 		if (PlaytimePainter.inspectedPainter == null)
 			return false;
-		
-		imgData id = PlaytimePainter.inspectedPainter.curImgData;
+
+            ImageData id = inspectedImageData;
 
 		if (id == null)
 			return false;
@@ -124,7 +110,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
     public virtual bool supportedByTex2D { get { return false; } }
     public virtual bool supportedByRenderTexturePair { get { return true; } }
 	public virtual bool supportedBySingleBuffer { get { return true; } }
-	public virtual bool isA3Dbrush { get { return false; } }
+    public virtual bool isA3DBrush { get { return false; } }
     public virtual bool isPixelPerfect { get { return false; } }
 	public virtual bool isUsingDecals { get { return false; } }
 	public virtual bool startPaintingTheMomentMouseIsDown { get { return true; } }
@@ -188,8 +174,8 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 		}
 		else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
         
-            if (painter.needsGrid() && "Center Grid".Click().nl())
-                GridNavigator.onGridPos = painter.transform.position;
+            if (inspectedPainter.needsGrid() && "Center Grid".Click().nl())
+                GridNavigator.onGridPos = inspectedPainter.transform.position;
 
 		return change;
 	}
@@ -207,7 +193,9 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             bool worldSpace = pntr.needsGrid();
 
-            float uvDist = (delta_uv.magnitude * pntr.curImgData.width * 8 / br.Size(false));
+            var id = pntr.imgData;
+
+            float uvDist = (delta_uv.magnitude * id.width * 8 / br.Size(false));
             float worldDist =  st.delta_WorldPos.magnitude;
 
             float steps = (int)Mathf.Max(1, worldSpace ? worldDist : uvDist);
@@ -222,28 +210,28 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             PaintTexture2DMethod pluginBlit = null;
 
             foreach (var p in pntr.plugins)
-                if (p.PaintTexture2D(st, alpha, pntr.curImgData, br)) {
+                if (p.PaintTexture2D(st, alpha, id, br, pntr)) {
                     pluginBlit = p.PaintTexture2D;
                     break;
                 }
 
             if (pluginBlit == null)
                 foreach (var p in texMGMT.plugins)
-                    if (p.PaintTexture2D(st, alpha, pntr.curImgData, br)) {
+                    if (p.PaintTexture2D(st, alpha, id, br, pntr)) {
                         pluginBlit = p.PaintTexture2D;
                         break;
                     }
 
             if (pluginBlit == null) {
                 pluginBlit = Blit_Functions.Paint;
-                pluginBlit(st, alpha, pntr.curImgData, br);
+                pluginBlit(st, alpha, id, br, pntr);
             }
 
        
                 for (float i = 1; i < steps; i++)  {
                     st.uvFrom += delta_uv;
                     st.posFrom += deltaPos;
-                    pluginBlit(st, alpha, pntr.curImgData, br);
+                    pluginBlit(st, alpha, id, br, pntr);
                 }
           
            
@@ -253,22 +241,19 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
     public virtual void Paint (PlaytimePainter pntr, BrushConfig br, StrokeVector st){
 
-            BeforeStroke(pntr, br, st);
+        BeforeStroke(pntr, br, st);
 
-            if (st.crossedASeam())
-                st.uvFrom = st.uvTo;
+        if (st.crossedASeam())
+           st.uvFrom = st.uvTo;
 
-			if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
+            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-			imgData id = pntr.curImgData;
+			ImageData id = pntr.imgData;
 
-			texMGMT.ShaderPrepareStroke(br, br.speed*0.05f, id, st.useTexcoord2, st.firstStroke);
-
-	
-              
-
-                rtbrush.localScale = Vector3.one;
-				Vector2 direction = st.delta_uv;
+			texMGMT.ShaderPrepareStroke(br, br.speed*0.05f, id, st, pntr);
+            
+            rtbrush.localScale = Vector3.one;
+			Vector2 direction = st.delta_uv;
 				float length = direction.magnitude;
 				brushMesh = brushMeshGenerator.inst().GetLongMesh(length * 256, br.strokeWidth(id.width, false));
 				rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
@@ -287,17 +272,17 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
         }
 
-    protected virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+    public virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
             foreach (var p in pntr.plugins)
                 p.BeforeGPUStroke(pntr, br, st, this);
         }
 
-    protected virtual void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
+    public virtual void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
                 pntr.AfterStroke(st);
 
-            if (!br.isSingleBufferBrush() && !br.type(pntr).isA3Dbrush)
+            if (!br.isSingleBufferBrush() && !br.IsA3Dbrush(pntr))
                 texMGMT.UpdateBufferSegment();
 
             if ((br.useMask) && (st.mouseUp) && (br.randomMaskOffset))
@@ -332,13 +317,11 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-            imgData id = pntr.curImgData;
+            ImageData id = pntr.imgData;
 
-            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
-
-        
-
-                rtbrush.localScale = Vector3.one* br.strokeWidth(id.width, false);
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
+            
+            rtbrush.localScale = Vector3.one* br.strokeWidth(id.width, false);
                 //Vector2 direction = st.delta_uv;
               //  float length = direction.magnitude;
             brushMesh = brushMeshGenerator.inst().GetQuad();//GetLongMesh(length * 256, br.strokeWidth(id.width, false));
@@ -346,9 +329,8 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             rtbrush.localPosition = st.brushWorldPosition;// StrokeVector.brushWorldPositionFrom((st.uvFrom + st.uvTo) / 2);
 
-                texMGMT.Render();
-
-               
+            texMGMT.Render();
+  
             AfterStroke(pntr, br, st);
         }
         
@@ -374,8 +356,10 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
             var id = rt.getImgData();
-
-            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
+            var stroke = new StrokeVector(uv);
+            stroke.useTexcoord2 = false;
+            stroke.firstStroke = false;
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, stroke, null);
 
             float width = br.strokeWidth(id.width, false);
 
@@ -416,7 +400,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             BeforeStroke(pntr, br, st);
 
-            imgData id = pntr.curImgData;
+            ImageData id = pntr.imgData;
 
 			if ((st.firstStroke) || (br.decalContinious)) {
                 
@@ -438,7 +422,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
 				if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-				texMGMT.ShaderPrepareStroke(br, 1, id, st.useTexcoord2, st.firstStroke);
+				texMGMT.ShaderPrepareStroke(br, 1, id, st, pntr);
 				Transform tf = rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -482,7 +466,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             pntr.AfterStroke (st);
 	}
 
-        protected override void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
             base.AfterStroke(pntr, br, st);
 
@@ -553,7 +537,9 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
             Vector2 delta_uv = st.delta_uv;//uv - st.uvFrom;//.Previous_uv;
 		float magn = delta_uv.magnitude;
 
-		float width = br.Size(false) / ((float)pntr.curImgData.width) * 4;
+            var id = pntr.imgData;
+
+		float width = br.Size(false) / ((float)id.width) * 4;
             //const float followPortion = 0.5f;
             //float follow = width;
 
@@ -620,9 +606,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 				PainterManager r = texMGMT;
 			//RenderTexturePainter.inst.RenderLazyBrush(painter.Previous_uv, uv, brush.speed * 0.05f, painter.curImgData, brush, painter.LmouseUP, smooth );
 				if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
-
-				imgData id = pntr.curImgData;
-
+                
 				float meshWidth = br.strokeWidth(id.width, false); //.Size(false) / ((float)id.width) * 2 * rtp.orthoSize;
 
 				Transform tf = rtbrush;
@@ -632,8 +616,9 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 				bool isTail = st.firstStroke;//(!previousTo.Equals(uvFrom));
 
 				if ((!isTail) && (!smooth)) {
-                    //Debug.Log ("Junction point");
-                    r.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, false);
+                    var st2 = new StrokeVector(st);
+                    st2.firstStroke = false;
+                    r.ShaderPrepareStroke(br, br.speed * 0.05f, id, st2, pntr);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
 					brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(junkPoint), meshWidth, true, false);
@@ -647,7 +632,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 					isTail = true;
 				}
 
-                r.ShaderPrepareStroke(br, br.speed * 0.05f, id, false, st.firstStroke);
+                r.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
 
                 brushMesh = brushMeshGenerator.inst().GetStreak(uvToPosition(st.uvFrom), uvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
                 tf.localScale = Vector3.one;
@@ -672,7 +657,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
         protected override string shaderKeyword(bool texcoord2) { return  (texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"); }
 
-        public override bool isA3Dbrush { get { return true; } }
+        public override bool isA3DBrush { get { return true; } }
         public override bool supportedForTerrain_RT { get { return false; } }
         public override bool needsGrid   {  get { return cfg.useGridForBrush; } }
 
@@ -680,17 +665,17 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 		return "Sphere";
 	}
 
-        static void PrepareSphereBrush(imgData id, BrushConfig br, StrokeVector st) {
+        static void PrepareSphereBrush(ImageData id, BrushConfig br, StrokeVector stroke, PlaytimePainter pntr) {
             if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-            if (st.mouseDwn)
-                st.posFrom = st.posTo;
+            if (stroke.mouseDwn)
+                stroke.posFrom = stroke.posTo;
 
-            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st.useTexcoord2, st.firstStroke);
+            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, stroke, null);
 
-            Vector2 offset = id.offset - st.unRepeatedUV.Floor();
+            Vector2 offset = id.offset - stroke.unRepeatedUV.Floor();
             
-            st.SetWorldPosInShader();
+            stroke.SetWorldPosInShader();
 
             Shader.SetGlobalVector(PainterConfig.BRUSH_EDITED_UV_OFFSET, new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y));
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
@@ -698,11 +683,11 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
         public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)  {
 
-            imgData id = pntr.curImgData;
+            ImageData id = pntr.imgData;
 
             BeforeStroke(pntr, br, st);
 
-            PrepareSphereBrush(id, br, st);
+            PrepareSphereBrush(id, br, st, pntr);
 
             if (!st.mouseDwn) {
                 texMGMT.brushRendy.UseMeshAsBrush(pntr);
@@ -716,7 +701,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex) {
             br.blitMode.PrePaint(null, br, st);
-            PrepareSphereBrush(rt.getImgData(), br, st);
+            PrepareSphereBrush(rt.getImgData(), br, st, null);
             texMGMT.brushRendy.UseSkinMeshAsBrush(go, skinner, submeshIndex);
             texMGMT.Render();
             AfterStroke(br);
@@ -725,7 +710,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st,  List<int> submeshIndex) {
             br.blitMode.PrePaint(null, br, st);
 
-            PrepareSphereBrush(rt.getImgData(), br, st);
+            PrepareSphereBrush(rt.getImgData(), br, st, null);
             texMGMT.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
             texMGMT.Render();
             AfterStroke(br);
@@ -738,7 +723,7 @@ public abstract class BrushType : PainterStuff, IeditorDropdown {
 
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, A_Textures_in_row, 1));
 
-            PrepareSphereBrush(rt.getImgData(), br, st);
+            PrepareSphereBrush(rt.getImgData(), br, st, null);
             texMGMT.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
             texMGMT.Render();
             AfterStroke(br);

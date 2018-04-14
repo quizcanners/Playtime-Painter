@@ -11,24 +11,26 @@ namespace Playtime_Painter
 
     using UnityEditor;
 
-    [CustomEditor(typeof(BakedShadowsLightProbe))]
+    [CustomEditor(typeof(LightCaster))]
     public class BakedShadowsLightProbeEditor : Editor
     {
 
         public override void OnInspectorGUI()
         {
             ef.start(serializedObject);
-            ((BakedShadowsLightProbe)target).PEGI();
+            ((LightCaster)target).PEGI();
             ef.end();
         }
     }
 #endif
 
     [ExecuteInEditMode]
-    public class BakedShadowsLightProbe : MonoBehaviour {
+    public class LightCaster : MonoBehaviour {
 
-        public static Countless<BakedShadowsLightProbe> allProbes = new Countless<BakedShadowsLightProbe>();
+        public static Countless<LightCaster> allProbes = new Countless<LightCaster>();
         public static int FreeIndex = 0;
+
+    
 
 
         public Color ecol = Color.yellow;
@@ -82,8 +84,8 @@ namespace Playtime_Painter
                 ChangeIndexTo(tmp);
             }
 
-            "Emission Color".edit(ref ecol).nl();
-            "Brightness".edit(ref brightness).nl();
+            changed |= "Emission Color".edit(ref ecol).nl();
+            changed |= "Brightness".edit(ref brightness).nl();
 
             if (changed) pegi.RepaintViews();
 

@@ -125,13 +125,13 @@ namespace Playtime_Painter {
 
                 // ********* Calculating Normals
 
-                tri.sharpNormal = MyMath.GetNormalOfTheTriangle(
-                    verts[inds[0]],
-                    verts[inds[1]],
-                    verts[inds[2]])*tri.area;
+                tri.sharpNormal = tri.GetNormal() * tri.area;
 
-
-
+                /*MyMath.GetNormalOfTheTriangle(
+                verts[inds[0]],
+                verts[inds[1]],
+                verts[inds[2]])*/
+                
                 for (int no = 0; no < 3; no++) {
 
                     vertexpointDta vertPnt = tri.uvpnts[no].vert;

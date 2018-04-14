@@ -281,7 +281,7 @@ namespace Playtime_Painter {
 
 
             [Serializable]
-            public class TextureSetForForCombinedMaps : iGotName, iPEGI
+            public class TextureSetForForCombinedMaps : PainterStuff, iGotName, iPEGI
             {
                 
             protected CombinedMapsControllerPlugin ctrl { get { return CombinedMapsControllerPlugin._inst; } }
@@ -325,77 +325,78 @@ namespace Playtime_Painter {
 
                 public bool PEGI()
                 {
-                    return PEGI(currentPainter);
+
+
+                bool changed = false;
+
+                changed |= "Name".edit(ref name).nl();
+
+                var id = inspectedImageData;
+
+                if (inspectedPainter != null && id != null)
+                {
+                    "Editing:".write(40);
+                    pegi.write(id.texture2D);
+                    pegi.nl();
                 }
+
+                changed |= "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref Diffuse).nl();
+                changed |= "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
+                    "or height based terrain blending.", 70, ref HeightMap).nl();
+                changed |= "Normal".edit("Noraml map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
+                    "generated from Height", 70, ref NormalMap).nl();
+                changed |= "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref Gloss).nl();
+                changed |= "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref Reflectivity).nl();
+                changed |= "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
+                    "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl();
+                changed |= "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl();
+                var cfg = PainterConfig.inst;
+
+                if (inspectedPainter == null)
+                {
+                    var frstTex = GetTexture();
+                    changed |= "width:".edit(ref width).nl();
+                    changed |= "height".edit(ref height).nl();
+                    if (frstTex != null && "Match Source".Click().nl())
+                    {
+                        width = frstTex.width;
+                        height = frstTex.height;
+                    }
+
+                    changed |= "is Color".toggle(ref isColor).nl();
+                }
+
+                changed |= "Packaging Profile".foldout(ref showProfile);
+                if (!showProfile)
+                    pegi.select(ref selectedProfile, ctrl.texturePackagingSolutions).nl();
+
+                if ((selectedProfile < ctrl.texturePackagingSolutions.Count) && (showProfile))
+
+                    changed |= ctrl.texturePackagingSolutions[selectedProfile].PEGI(this).nl();
+
+                else
+                if (icon.Add.Click("New Texture Packaging Profile", 25).nl())
+                {
+                    ctrl.texturePackagingSolutions.AddWithUniqueName();
+                    selectedProfile = ctrl.texturePackagingSolutions.Count - 1;
+                }
+
+                currentPainter = null;
+
+
+
+                return changed;
+            }
 
                 public bool showProfile;
                 public int selectedProfile = 0;
                 public static PlaytimePainter currentPainter;
 
-                public bool PEGI(PlaytimePainter painter)
-                {
-                    bool changed = false;
-
-                    changed |= "Name".edit(ref name).nl();
-
-                    if (painter != null && painter.curImgData != null)
-                    {
-                        "Editing:".write(40);
-                        pegi.write(painter.curImgData.texture2D);
-                        pegi.nl();
-                    }
-
-                    changed |= "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref Diffuse).nl();
-                    changed |= "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
-                        "or height based terrain blending.", 70, ref HeightMap).nl();
-                    changed |= "Normal".edit("Noraml map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
-                        "generated from Height", 70, ref NormalMap).nl();
-                    changed |= "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref Gloss).nl();
-                    changed |= "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref Reflectivity).nl();
-                    changed |= "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
-                        "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl();
-                    changed |= "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl();
-                    var cfg = PainterConfig.inst;
-
-                    if (painter == null)
-                    {
-                        var frstTex = GetTexture();
-                        changed |= "width:".edit(ref width).nl();
-                        changed |= "height".edit(ref height).nl();
-                        if (frstTex != null && "Match Source".Click().nl())
-                        {
-                            width = frstTex.width;
-                            height = frstTex.height;
-                        }
-
-                        changed |= "is Color".toggle(ref isColor).nl();
-                    }
-
-                    changed |= "Packaging Profile".foldout(ref showProfile);
-                    if (!showProfile)
-                        pegi.select(ref selectedProfile, ctrl.texturePackagingSolutions).nl();
-
-                    if ((selectedProfile < ctrl.texturePackagingSolutions.Count) && (showProfile))
-
-                        changed |= ctrl.texturePackagingSolutions[selectedProfile].PEGI(this, painter).nl();
-
-                    else
-                    if (icon.Add.Click("New Texture Packaging Profile", 25).nl())
-                    {
-                    ctrl.texturePackagingSolutions.AddWithUniqueName();
-                        selectedProfile = ctrl.texturePackagingSolutions.Count - 1;
-                    }
-
-                    currentPainter = null;
-
-                
-
-                    return changed;
-                }
+               
             }
 
             [Serializable]
-            public class TexturePackagingProfile : abstract_STD, iGotName
+            public class TexturePackagingProfile : PainterStuff_STD, iGotName
             {
 
                 public bool isColor;
@@ -447,11 +448,13 @@ namespace Playtime_Painter {
 
                 public override bool PEGI()
                 {
-                    return PEGI(null, TextureSetForForCombinedMaps.currentPainter);
+                    return PEGI(null);
                 }
 
-                public bool PEGI(TextureSetForForCombinedMaps sets, PlaytimePainter p)
+                public bool PEGI(TextureSetForForCombinedMaps sets)
                 {
+                    PlaytimePainter p = inspectedPainter;
+
                     pegi.nl();
 
                     currentPEGI = this;
@@ -530,7 +533,7 @@ namespace Playtime_Painter {
                     TextureRole.Clear();
 
                     int size;
-                    var id = p == null ? null : p.curImgData;
+                    var id = p == null ? null : p.imgData;
                     Color[] dst;
                     Texture2D tex = null;
 
@@ -559,7 +562,7 @@ namespace Playtime_Painter {
                         if (c.enabled)
                         {
 
-                            var ch = c.role.productSingleChannel ? 3 : c.sourceChannel;
+                            var ch = c.sourceChannel;
                             var col = c.role.GetPixels(set, id);
                             for (int i = 0; i < size; i++)
                                 dst[i][colChan] = col[i][ch];
@@ -660,7 +663,7 @@ namespace Playtime_Painter {
 
                         changed |= pegi.select(ref sourceRole, rls);
 
-                        if (!role.productSingleChannel)
+                       // if (!role.productSingleChannel)
                             changed |= rls[sourceRole].PEGI(ref sourceChannel, this);
                     }
                     pegi.newLine();
@@ -677,8 +680,8 @@ namespace Playtime_Painter {
             }
 
 
-            public abstract class TextureRole
-            {
+        public abstract class TextureRole
+        {
 
                 static List<TextureRole> _allRoles;
                 public static List<TextureRole> all
@@ -722,35 +725,41 @@ namespace Playtime_Painter {
                     index = _allRoles.Count;
                 }
 
-
+            protected bool wasNormal;
 
                 public virtual bool usingBumpStrengthSlider(int sourceChannel) { return false; }
                 public virtual bool usingColorSelector { get { return false; } }
                 public virtual bool isColor { get { return false; } }
-                public virtual bool sourceSingleChannel { get { return false; } }
-                public virtual bool productSingleChannel { get { return false; } }
+               // public virtual bool sourceSingleChannel { get { return false; } }
+                //public virtual bool productSingleChannel { get { return false; } }
                 public virtual List<string> channels { get { return chans; } }
                 public virtual Color DefaultColor { get { return isColor ? Color.white : Color.grey; } }
 
 
                 static List<string> chans = new List<string> { "R", "G", "B", "A" };
 
-                protected void ExtractPixels(Texture2D tex, int width, int height)
-                {
+            protected void ExtractPixels(Texture2D tex, int width, int height)
+            {
 
-                    if (tex != null)
+                if (tex != null)
+                {
+                    try
                     {
-                        try
-                        {
 
 #if UNITY_EDITOR
-                            var importer = tex.getTextureImporter();
-                            bool needReimport = importer.wasNotReadable();
+                        var importer = tex.getTextureImporter();
+                        bool needReimport = importer.wasNotReadable();
 
-                            //needReimport |= importer.wasWrongIsColor(isColor);
-                            needReimport |= importer.wasMarkedAsNormal();
-                            if (sourceSingleChannel)
-                                needReimport |= importer.wasNotSingleChanel();
+                        //needReimport |= importer.wasWrongIsColor(isColor);
+                        if (importer.wasMarkedAsNormal())
+                        {
+                            wasNormal = true;
+                            needReimport = true;
+                        }
+                        else wasNormal = false;
+
+                            //if (sourceSingleChannel)
+                              //  needReimport |= importer.wasNotSingleChanel();
 
                             if (needReimport)
                                 importer.SaveAndReimport();
@@ -776,7 +785,7 @@ namespace Playtime_Painter {
 
                 }
 
-                public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
 
                     int width = id == null ? set.width : id.width;
@@ -788,7 +797,7 @@ namespace Playtime_Painter {
                     return _pixels;
                 }
 
-                public virtual List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, imgData id)
+                public virtual List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     if (mipLevels == null)
                     {
@@ -861,7 +870,7 @@ namespace Playtime_Painter {
                     inst = this;
                 }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
 
                     if (id != null) return id.pixels;
@@ -883,7 +892,7 @@ namespace Playtime_Painter {
 
                 public override string ToString() { return "Fill Color"; }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;
@@ -908,7 +917,7 @@ namespace Playtime_Painter {
 
                 public override string ToString() { return "Color"; }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;
@@ -924,11 +933,11 @@ namespace Playtime_Painter {
             public class TextureRole_Gloss : TextureRole
             {
 
-                public override bool sourceSingleChannel { get { return true; } }
-                public override bool productSingleChannel { get { return true; } }
+               // public override bool sourceSingleChannel { get { return true; } }
+               // public override bool productSingleChannel { get { return true; } }
                 public override string ToString() { return "Gloss"; }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;
@@ -1020,12 +1029,12 @@ namespace Playtime_Painter {
             {
 
 
-                public override bool sourceSingleChannel { get { return true; } }
-                public override bool productSingleChannel { get { return true; } }
+               // public override bool sourceSingleChannel { get { return true; } }
+              //  public override bool productSingleChannel { get { return true; } }
 
                 public override string ToString() { return "Reflectivity"; }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;
@@ -1039,12 +1048,12 @@ namespace Playtime_Painter {
 
             public class TextureRole_Ambient : TextureRole
             {
-                public override bool sourceSingleChannel { get { return true; } }
-                public override bool productSingleChannel { get { return true; } }
+               // public override bool sourceSingleChannel { get { return true; } }
+                //public override bool productSingleChannel { get { return true; } }
 
                 public override string ToString() { return "Ambient"; }
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;
@@ -1061,7 +1070,7 @@ namespace Playtime_Painter {
                 public override string ToString() { return "Height"; }
                 public override bool usingBumpStrengthSlider(int channel) { return channel < 2; }
 
-                public override bool sourceSingleChannel { get { return true; } }
+               // public override bool sourceSingleChannel { get { return true; } }
 
                 public override List<string> channels { get { return chans; } }
 
@@ -1082,7 +1091,7 @@ namespace Playtime_Painter {
                 }
 
 
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     width = id == null ? set.width : id.width;
                     height = id == null ? set.height : id.height;
@@ -1136,6 +1145,8 @@ namespace Playtime_Painter {
 
                 public override bool usingBumpStrengthSlider(int channel) { return true; }
 
+            public bool wasMarkedAsNormal = false;
+
                 public override void ClearPixels()
                 {
                     base.ClearPixels();
@@ -1144,16 +1155,16 @@ namespace Playtime_Painter {
                     if (tex != null)
                     {
                         var imp = tex.getTextureImporter();
-                        if (imp.wasMarkedAsNormal(true))
+                        if (imp.wasMarkedAsNormal(wasMarkedAsNormal))
                             imp.SaveAndReimport();
                     }
 #endif
-
+                wasMarkedAsNormal = false;
                 }
 #if UNITY_EDITOR
                 Texture2D tex;
 #endif
-                public override Color[] GetPixels(TextureSetForForCombinedMaps set, imgData id)
+                public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
                 {
                     int width = id == null ? set.width : id.width;
                     int height = id == null ? set.height : id.height;

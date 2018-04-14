@@ -54,8 +54,7 @@ namespace Playtime_Painter {
            
             if (modifyBrightness)
                 changed |= pegi.edit(ref eyeBrightness, 0.0001f, 8f).nl();
-
-
+            
              pegi.toggle(ref showHint, icon.Close, icon.Hint, "Show hint", 35).nl();
 
             if (showHint)

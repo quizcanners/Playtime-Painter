@@ -193,6 +193,26 @@ namespace Playtime_Painter {
             uvFrom = uvTo = uv;
             dwn();
         }
+
+        public StrokeVector(StrokeVector  other)
+        {
+            uvFrom = other.uvFrom;
+            posFrom = other.posFrom;
+            uvTo = other.uvTo;
+
+            posTo = other.posTo;
+            unRepeatedUV = other.unRepeatedUV;
+
+            useTexcoord2 = other.useTexcoord2;
+            previousDelta = other.previousDelta;
+            avgBrushSpeed = other.avgBrushSpeed;
+            
+            mouseDwn = other.mouseDwn;
+            firstStroke = other.firstStroke ; // For cases like Lazy Brush, when painting doesn't start on the first frame.
+            mouseUp = other.mouseDwn;
+
+            dwn();
+        }
     }
 
 }

@@ -13,13 +13,9 @@ using System.Linq;
 using UnityEditor;
 #endif
 
+namespace Playtime_Painter {
 
-
-
-
-namespace Playtime_Painter
-{
-
+    [Serializable]
     public class TileableAtlasingPainterPlugin : PainterPluginBase {
 
         public Material[] preAtlasingMaterials;
@@ -41,10 +37,8 @@ namespace Playtime_Painter
             BlitModeExtensions.SetShaderToggle(!p.isAtlased(), PainterConfig.UV_NORMAL, PainterConfig.UV_ATLASED);
         }
 
-        //st.uvFrom, alpha, pntr.curImgData, br, pntr.atlasRows, pntr.GetAtlasedSection()
-
-        public override bool PaintTexture2D(StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc) {
-            if (parentPainter.isAtlased()) {
+        public override bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
+            if (pntr.isAtlased()) {
 
                 Vector2 uvCoords = stroke.uvFrom;
 
@@ -156,7 +150,7 @@ namespace Playtime_Painter
 
             if (p.isAtlased()) {
                 var m = p.getMaterial(false);
-                if (p.originalShader == null) {
+                if (p.isOriginalShader) {
                     if (m.HasProperty(PainterConfig.atlasedTexturesInARow))
                         atlasRows = m.GetInt(PainterConfig.atlasedTexturesInARow);
                 }
@@ -165,10 +159,12 @@ namespace Playtime_Painter
                 if ("Undo".Click(40).nl())
                    m.DisableKeyword(PainterConfig.UV_ATLASED);
 
-                if (p.curImgData.TargetIsRenderTexture())
+                var id = p.imgData;
+
+                if (id.TargetIsRenderTexture())
                     pegi.writeOneTimeHint("Watch out, Render Texture Brush can change neighboring textures on the Atlas.", "rtOnAtlas");
 
-                if (!p.curImgData.TargetIsTexture2D()) {
+                if (!id.TargetIsTexture2D()) {
                     pegi.writeWarning("Render Texture painting does not yet support Atlas Editing");
                     pegi.newLine();
                 }
@@ -178,7 +174,7 @@ namespace Playtime_Painter
 
         public override void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type)
         {
-            if (type.isA3Dbrush && pntr.isAtlased())
+            if (br.IsA3Dbrush(pntr) && pntr.isAtlased())
             {
                 var ats = GetAtlasedSection();
                 Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(ats.x, ats.y, atlasRows, 1));
@@ -186,7 +182,7 @@ namespace Playtime_Painter
         }
 
         public override void AfterGPUStroke(PlaytimePainter p, BrushConfig br, StrokeVector st, BrushType type) {
-            if (type.isA3Dbrush && p.isAtlased())
+            if (br.IsA3Dbrush(p) && p.isAtlased())
                 Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
 
@@ -220,7 +216,6 @@ namespace Playtime_Painter
     [System.Serializable]
     public class FieldAtlas
     {
-        
         static PainterManager texMGMT { get { return PainterManager.inst; } }
 
         public string atlasedField;
@@ -352,7 +347,7 @@ namespace Playtime_Painter
             if (AtlasedMaterial == null)
                 AtlasedMaterial = painter.InstantiateMaterial(true);
 
-            painter.SetOriginalShader();
+            painter.SetOriginalShaderOnThis();
 
             painter.UpdateOrSetTexTarget(texTarget.Texture2D);
 
@@ -451,13 +446,13 @@ namespace Playtime_Painter
                 MeshManager.inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshManager.inst._Mesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshManager.inst.edMesh.Encode().ToString();
 
                 painter.selectedMeshProfile = matAtlasProfile;
 
                 if ((tyling != Vector2.one) || (offset != Vector2.zero))
                 {
-                    MeshManager.inst._Mesh.TileAndOffsetUVs(offset, tyling, 0);
+                    MeshManager.inst.edMesh.TileAndOffsetUVs(offset, tyling, 0);
                     Debug.Log("offsetting " + offset + " tyling " + tyling);
                 }
 
@@ -567,7 +562,7 @@ namespace Playtime_Painter
             inspectedAtlas = this;
 //#if UNITY_EDITOR
 
-            painter.SetOriginalShader();
+            painter.SetOriginalShaderOnThis();
 
             Material mat = painter.getMaterial(false);
 
@@ -649,9 +644,7 @@ namespace Playtime_Painter
         }
 
     }
-
-  
-
+    
     [Serializable]
     public class AtlasTextureField
     {

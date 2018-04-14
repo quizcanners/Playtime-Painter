@@ -70,7 +70,7 @@ namespace Playtime_Painter
 
          
 
-            if (pCont.painter.isPaintingInWorldSpace(brush)) {
+            if (brush.IsA3Dbrush(pCont.painter)) {
                 StrokeVector v = pCont.vector;
                 v.posTo = transform.position;
                 if (v.mouseDwn) v.posFrom = v.posTo;

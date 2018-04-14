@@ -28,7 +28,7 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public class BrushConfig : abstract_STD
+    public class BrushConfig : PainterStuff_STD 
     {
 
         public override stdEncoder Encode()
@@ -146,14 +146,33 @@ namespace Playtime_Painter
         public float Size(bool worldSpace) { return (worldSpace ? Brush3D_Radius : Brush2D_Radius); }
 
         public BrushType type(PlaytimePainter pntr) {
-            return pntr == null ? type(TargetIsTex2D) : type(pntr.curImgData.TargetIsTexture2D());
+            return pntr == null ? type(TargetIsTex2D) : type(pntr.imgData.TargetIsTexture2D());
         }
 
-            public BrushType type(bool CPU) { 
+        public BrushType type(bool CPU) { 
             return BrushType.allTypes[_type(CPU)]; }
 
-        //set { _type = value.index; } }
         public BlitMode blitMode { get { return BlitMode.allModes[_bliTMode]; } set { _bliTMode = value.index; } }
+
+        public virtual bool IsA3Dbrush(PlaytimePainter pntr)
+        {
+            bool overrideOther = false;
+
+            bool isA3d = false;
+
+            if (pntr != null)
+                foreach (var pl in texMGMT.plugins)
+                {
+                    isA3d = pl.isA3Dbrush(pntr, this, ref overrideOther);
+                    if (overrideOther) break;
+                }
+
+            if (!overrideOther)
+                isA3d = type(pntr).isA3DBrush;
+
+            return isA3d;
+        }
+
 
         public float speed = 10;
         public bool MB1ToLinkPositions;
@@ -173,54 +192,61 @@ namespace Playtime_Painter
         public bool paintingAllChannels { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A); } }
 
         public bool paintingRGB { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); } }
+        
+        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr)  {
 
-        static PainterConfig cfg { get { return PainterConfig.inst; } }
-        static PainterManager rtp { get { return PainterManager.inst; } }
+            var id = pntr.imgData;
 
-
-        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter)  {
-           
-            if (painter.curImgData == null) {
-                painter.InitIfNotInited();
-                if (painter.curImgData == null) return painter;
+            if (id == null) {
+                pntr.InitIfNotInited();
+                id = pntr.imgData;
+                if (id == null) return pntr;
             }
             
-            var id = painter.curImgData;
+          
             var cpu = id.TargetIsTexture2D();
             var t = type(cpu);
 
-            blitMode.PrePaint(painter, this, stroke);
+            blitMode.PrePaint(pntr, this, stroke);
 
             if (cpu) {
-                painter.RecordingMGMT();
-                t.PaintToTexture2D(painter, this, stroke);
+                pntr.RecordingMGMT();
+                t.PaintToTexture2D(pntr, this, stroke);
             } else {
-              
-                if ((painter.terrain != null) && (!t.supportedForTerrain_RT))
-                    return painter;
-                
-                    painter.RecordingMGMT();
+                bool rendered = false;
 
-                    t.Paint(painter, this, stroke);
+                foreach (var pl in texMGMT.plugins)
+                    if (pl.PaintRenderTexture(stroke, id, this, pntr))
+                    {
+                        rendered = true;
+                        break;
+                    }
+                        
+                if ((pntr.terrain != null) && (!t.supportedForTerrain_RT))
+                    return pntr;
+              
+                    pntr.RecordingMGMT();
+
+                if (!rendered)
+                    t.Paint(pntr, this, stroke);
             }
             
-            return painter;
+            return pntr;
         }
-
-
-        public static BrushConfig inspectedBrush;
-        public static bool inspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? PlaytimePainter.inspectedPainter.curImgData.TargetIsTexture2D() : inspectedBrush.TargetIsTex2D; } }
+        
+        public static BrushConfig _inspectedBrush;
+        public static bool inspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? inspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; } }
         
         public bool Mode_Type_PEGI()
         {
-            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
+            PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
             inCPUtype = Mathf.Clamp(inCPUtype, 0, BrushType.allTypes.Count - 1);
             inGPUtype = Mathf.Clamp(inGPUtype, 0, BrushType.allTypes.Count - 1);
 
-            bool CPU = painter != null ? painter.curImgData.TargetIsTexture2D() : TargetIsTex2D;
+            bool CPU = p != null ? p.imgData.TargetIsTexture2D() : TargetIsTex2D;
 
-            inspectedBrush = this;
+            _inspectedBrush = this;
             bool changed = false;
             
             pegi.newLine();
@@ -240,11 +266,30 @@ namespace Playtime_Painter
                 changed |= pegi.select<BrushType>(ref inGPUtype, BrushType.allTypes);
             }
 
+
+            bool overrideBlitModePegi = false;
+
+            foreach (var pl in texMGMT.plugins)
+                if (pl.BrushConfigPEGI(ref overrideBlitModePegi, this).nl())
+                {
+                    pl.SetToDirty();
+                    changed = true;
+                }
+
+            if (p != null)
+            foreach (var pl in p.plugins)
+                if (pl.BrushConfigPEGI().nl())
+                {
+                    pl.SetToDirty();
+                    changed = true;
+                }
+
             changed |= type(CPU).PEGI().nl();
 
+            if (!overrideBlitModePegi)
             changed |= blitMode.PEGI();
 
-            inspectedBrush = null;
+            _inspectedBrush = null;
 
             return changed;
         }
@@ -274,28 +319,32 @@ namespace Playtime_Painter
 
         public override bool PEGI()  {
 
-            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
+            PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
-            if ((painter.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
-                painter.UpdateColliderForSkinnedMesh();
+            if (p == null) { "No Painter Detected".nl(); return false; }
+
+          
+
+            if ((p.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
+                p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
 
 
-            imgData id = painter.curImgData;
+            ImageData id = p.imgData;
 
             bool changed = false;
             bool cpuBlit = id.destination == texTarget.Texture2D;
 
             pegi.newLine();
 
-            changed |= painter.PreviewShaderToggle_PEGI();
+            changed |= p.PreviewShaderToggle_PEGI();
 
             if ((PainterManager.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45))
                 {
-                    painter.UpdateOrSetTexTarget(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);
+                    p.UpdateOrSetTexTarget(cpuBlit ? texTarget.RenderTexture : texTarget.Texture2D);
                     setSupportedFor(cpuBlit, id.renderTexture == null);
                     changed = true;
                 }
@@ -323,8 +372,9 @@ namespace Playtime_Painter
             }
 #endif
 
-            if ((painter.originalShader != null) && (cfg.moreOptions))
+            if ((!p.isOriginalShader) && (cfg.moreOptions))
                 changed |= pegi.toggle(ref cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
+
 
 
 
@@ -336,15 +386,15 @@ namespace Playtime_Painter
                 changed = true;
             }
 
-            if (painter.terrain != null)  {
+            if (p.terrain != null)  {
 
-                if ((painter.curImgData != null) && ((painter.isTerrainHeightTexture())) && (painter.originalShader == null))
+                if ((p.imgData != null) && ((p.isTerrainHeightTexture())) && (p.isOriginalShader))
                     pegi.writeWarning(" You need to use Preview Shader to see changes");
 
                 pegi.newLine();
 
-                if ((painter.terrain != null) && (pegi.Click("Update Terrain").nl()))
-                    painter.UpdateShaderGlobalsForTerrain();
+                if ((p.terrain != null) && (pegi.Click("Update Terrain").nl()))
+                    p.UpdateShaderGlobalsForTerrain();
 
             }
 
@@ -419,8 +469,8 @@ namespace Playtime_Painter
             }
             else
             {
-
-                if ((painter.curImgData.TargetIsRenderTexture()) && (painter.curImgData.renderTexture != null))
+                var id = painter.imgData;
+                if ((id.TargetIsRenderTexture()) && (id.renderTexture != null))
                 {
                     changed |= ChannelSlider(BrushMask.R, ref colorLinear.r);
                     changed |= ChannelSlider(BrushMask.G, ref colorLinear.g);

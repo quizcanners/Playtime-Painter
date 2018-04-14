@@ -3877,14 +3877,14 @@ MonoBehaviour:
   - {fileID: 1934539792}
   selectedSubmesh: 0
   stroke:
-    uvFrom: {x: 0.55396473, y: 0.30085522}
-    posFrom: {x: 9.773644, y: 37.753433, z: 9.760483}
-    uvTo: {x: 0.11240875, y: 0.8508837}
-    posTo: {x: 8.707151, y: 37.447872, z: 9.770947}
-    unRepeatedUV: {x: 0.11240875, y: 0.8508837}
+    uvFrom: {x: 0.6383047, y: 0.39837766}
+    posFrom: {x: 8.911105, y: 36.65662, z: 10.622537}
+    uvTo: {x: 0.7011748, y: 0.9707893}
+    posTo: {x: 10.741896, y: 37.896267, z: 10.721743}
+    unRepeatedUV: {x: 0.7011748, y: 0.9707893}
     useTexcoord2: 0
-    previousDelta: {x: 0.0004956722, y: -0.0036040843}
-    avgBrushSpeed: 0.003852542
+    previousDelta: {x: 0, y: 0}
+    avgBrushSpeed: 0.0038053046
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
@@ -4215,6 +4215,7 @@ MonoBehaviour:
     newVerticesSmooth: 1
     atlasEdgeAsChanel2: 1
     pixelPerfectMeshEditing: 0
+    useGridForBrush: 0
     meshPackagingSolutions:
     - sln:
       - sameSizeDataIndex: 0
@@ -4528,7 +4529,7 @@ MonoBehaviour:
       flipMaskAlpha: 0
       TargetIsTex2D: 0
       Brush3D_Radius: 16
-      Brush2D_Radius: 1
+      Brush2D_Radius: 23.7
       speed: 2.3
       MB1ToLinkPositions: 0
       DontRedoMipmaps: 0
@@ -4536,7 +4537,7 @@ MonoBehaviour:
         r: 1
         g: 1
         b: 0
-        a: 0.769
+        a: 1
     GodWalkSpeed: 100
     GodLookSpeed: 10
     disableNonMeshColliderInPlayMode: 0
@@ -4551,7 +4552,10 @@ MonoBehaviour:
     selectedSize: 4
     recordingNames: []
     browsedRecord: 0
+  focusedPainter: {fileID: 1815085832}
   isLinearColorSpace: 1
+  imgdatas:
+  - {fileID: 2021590167}
   sourceTextures:
   - {fileID: 2800000, guid: 319e4c66e8837cc4486d5c61f4a93cc0, type: 3}
   - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
@@ -4589,7 +4593,6 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     outlineWidth: 1
-    GridToUVon: 0
     trisVerts: 0
     dragDelay: 0
     GizmoLines: 0
@@ -4670,7 +4673,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: -242.99573
+  timer: -188.17255
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5018,6 +5021,27 @@ MonoBehaviour:
   SpinCenter: {x: 0, y: 0, z: 0}
   OrbitingFocused: 0
   SpinStartTime: 0
+--- !u!114 &2021590167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad4082f1b8d20444a76e829f79cad77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destination: 0
+  renderTexture: {fileID: 0}
+  texture2D: {fileID: 2800000, guid: b7fdfbe5ad74fa04f962a034390a76f1, type: 3}
+  width: 256
+  height: 256
+  useTexcoord2: 0
+  tiling: {x: 1, y: 1}
+  offset: {x: 0, y: 0}
+  SaveName: Cube
+  recording: 0
 --- !u!114 &2077134081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5112,7 +5136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &2146497307
 Light:
   m_ObjectHideFlags: 0
@@ -5122,8 +5146,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 0.7075472, g: 0.5840602, b: 0.5840602, a: 1}
-  m_Intensity: 2.52
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
@@ -5155,10 +5179,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2146497306}
-  m_LocalRotation: {x: -0.8519593, y: -0.27887908, z: -0.2574573, w: -0.36070433}
+  m_LocalRotation: {x: -0.88060814, y: -0.35183313, z: -0.20584379, w: -0.24160123}
   m_LocalPosition: {x: -4.62, y: 3.171, z: -24.127}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 28.1, y: -586.5, z: 491.476}
+  m_LocalEulerAnglesHint: {x: 16.3, y: -573.7, z: 491.476}

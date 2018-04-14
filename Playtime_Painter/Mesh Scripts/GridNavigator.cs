@@ -187,12 +187,7 @@ public class GridNavigator : PainterStuffMono {
             }
         else if (delta < 0)
             g_side = Gridside.xz;
-
-
-
-        if (meshMGMT.target != null)
-            meshMGMT.ProcessScaleChange();
-      
+        
     }
     
     public void UpdatePositions() {
@@ -322,7 +317,12 @@ public class GridNavigator : PainterStuffMono {
             UpdatePositions();
             e.Use();
         }
+
+        if (EditorInputManager.GetMouseButtonDown(2)) {
+            RaycastHit hit;
+            if (Physics.Raycast(EditorInputManager.GetScreenRay(), out hit))
+                onGridPos = hit.point;
+           }
     }
-
-
+    
 }

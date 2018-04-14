@@ -79,9 +79,11 @@ public class HintController : MonoBehaviour {
 		case hintStage.draw: if (PlaytimeToolComponent.enabledTool != typeof(PlaytimePainter)) { setStage(hintStage.enableTool); break; } if (timer < 0) { setStage(hintStage.addTool); } break;
                case hintStage.addTool: if (picture.GetComponent<PlaytimePainter>() != null) { setStage(hintStage.addTexture); } break;
                  case hintStage.addTexture:
-                if ((shipPainter()!= null) && (shipPainter().curImgData != null)) setStage(hintStage.renderTexture); break;
-                 case hintStage.renderTexture: if ((shipPainter() != null) && (shipPainter().curImgData != null)
-                    && (shipPainter().curImgData.TargetIsRenderTexture())) setStage(hintStage.WellDone); break;
+
+                if ((shipPainter()!= null) && (shipPainter().imgData != null)) setStage(hintStage.renderTexture); break;
+
+                 case hintStage.renderTexture: if ((shipPainter() != null) && (shipPainter().imgData != null)
+                    && (shipPainter().imgData.TargetIsRenderTexture())) setStage(hintStage.WellDone); break;
                        
                 }
 

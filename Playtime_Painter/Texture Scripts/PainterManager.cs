@@ -8,15 +8,13 @@ using UnityEditor.SceneManagement;
 using System;
 using PlayerAndEditorGUI;
 using UnityEngine.EventSystems;
+using System.Linq;
+
 namespace Playtime_Painter{
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
     [CustomEditor(typeof(PainterManager))]
     public class RenderTexturePainterEditor : Editor {
-
-        PainterManager rtp;
-
-        public static int testValue = 1;
 
         public override void OnInspectorGUI() {
             ef.start(serializedObject);
@@ -27,20 +25,17 @@ namespace Playtime_Painter{
     }
 
 #endif
-
-
+    
     [ExecuteInEditMode]
-public class PainterManager : MonoBehaviour {
+    public class PainterManager : PainterStuffMono {
 
         [SerializeField]
         PainterConfig painterCfg;
 
-    static PainterConfig cfg { get { return PainterConfig.inst; } }
+        public PlaytimePainter focusedPainter;
 
-    public PlaytimePainter focusedPainter;
-
-    public static PainterManager _inst;
-    public static PainterManager inst {
+        public static PainterManager _inst;
+        public static PainterManager inst {
             get {
                 if (_inst == null)
                 {
@@ -66,39 +61,49 @@ public class PainterManager : MonoBehaviour {
             }
         }
 
-	public bool isLinearColorSpace;
-
-    /* Should be power of 2. 
-     *After changing this value, you need to destroy "Render Texture Painter in your scenes" for everything to be reinitialized.*/
-
-    public const int renderTextureSize = 2048;//4096;
-
-    public List<imgData> imgdatas = new List<imgData>();
+	    public bool isLinearColorSpace;
         
-    public Texture[] sourceTextures;
+        public const int renderTextureSize = 2048;
 
-    public Texture getSourceTexture(int ind)
+        public List<ImageData> imgDatas = new List<ImageData>();
+
+        [NonSerialized]
+        public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
+
+        public Dictionary<Material, MaterialData> matDatas = new Dictionary<Material, MaterialData>();
+
+        public MaterialData getMaterialDataFor (Material mat) {
+            if (mat == null)
+                return null;
+            MaterialData data = null;
+            if (matDatas.TryGetValue(mat, out data))
+                return data;
+            data = new MaterialData(mat);
+            matDatas.Add(mat, data);
+            return data;
+        }
+
+        public Texture[] sourceTextures;
+
+        public Texture getSourceTexture(int ind)
     {
         return ind < sourceTextures.Length ? sourceTextures[ind] : null;
     }
 
-    public Texture[] masks;
+        public Texture[] masks;
 
-    public VolumetricDecal[] decals;
+        public VolumetricDecal[] decals;
 
-    public VolumetricDecal GetDecal(int no)
+        public VolumetricDecal GetDecal(int no)
     {
 		return ((decals.Length > no) && (decals[no].showInDropdown())) ? decals[no] : null;
     }
-        
-    [NonSerialized]
-	public Dictionary<string, List<imgData>> recentTextures = new Dictionary<string, List<imgData>> ();
 
-    [SerializeField]
-    private List<PainterManagerPluginBase> _plugins;
-    public int browsedPlugin;
+        [SerializeField]
+        private List<PainterManagerPluginBase> _plugins;
+        public int browsedPlugin;
 
-    public List<PainterManagerPluginBase> plugins { get {
+        public List<PainterManagerPluginBase> plugins { get {
 
                 if (_plugins == null)
                     RefreshPlugins();
@@ -109,7 +114,7 @@ public class PainterManager : MonoBehaviour {
                 return _plugins;
             } }
 
-    public void RefreshPlugins() {
+        public void RefreshPlugins() {
 
             if (_plugins == null) _plugins = new List<PainterManagerPluginBase>();
 
@@ -131,35 +136,32 @@ public class PainterManager : MonoBehaviour {
                 }
           }
         }
-    public void DeletePlugins() {
+        public void DeletePlugins() {
             for (int i = 0; i < _plugins.Count; i++)
                 _plugins[i].DestroyWhatever();
 
             _plugins = null;
         }
-
-
-
-
-    public Camera rtcam;
-    public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
-    public RenderBrush brushPrefab;
-    public static float orthoSize = 128; // Orthographic size of the camera. 
-	//[NonSerialized]
-	public bool DebugDisableSecondBufferUpdate;
-    public RenderBrush brushRendy = null;
         
-    public MeshManager meshManager = new MeshManager();
+        public Camera rtcam;
+        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+        public RenderBrush brushPrefab;
+        public static float orthoSize = 128; // Orthographic size of the camera. 
+	//[NonSerialized]
+	    public bool DebugDisableSecondBufferUpdate;
+        public RenderBrush brushRendy = null;
+        
+        public MeshManager meshManager = new MeshManager();
         
     // Brush shaders
-	public Shader br_Blit = null;
-	public Shader br_Add = null;
-	public Shader br_Copy = null;
-	public Shader pixPerfectCopy = null;
-	public Shader bufferCopy = null;
-	public Shader br_Multishade = null;
-	public Shader br_BlurN_SmudgeBrush = null;
-    public Shader br_ColorFill = null;
+	    public Shader br_Blit = null;
+	    public Shader br_Add = null;
+	    public Shader br_Copy = null;
+	    public Shader pixPerfectCopy = null;
+	    public Shader bufferCopy = null;
+	    public Shader br_Multishade = null;
+	    public Shader br_BlurN_SmudgeBrush = null;
+        public Shader br_ColorFill = null;
 
     public Shader mesh_Preview = null;
     public Shader br_Preview = null;
@@ -219,16 +221,14 @@ public class PainterManager : MonoBehaviour {
 
     public RenderTexture painterRT_toBuffer(int width, int height)
     {
-          
 
         bool square = (width == height);
         if ((!square) || (!Mathf.IsPowerOfTwo(width)))
         {
             RenderTexture rt = GetNonSquareBuffer(width, height);
-            rtcam.targetTexture = rt;
-                brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);//PrepareFullCopyBrush(BigRT_pair[0]);
-
-                Render();
+            brushRendy.PrepareForFullCopyOf(BigRT_pair[0], rt);//PrepareFullCopyBrush(BigRT_pair[0]);
+           // brushRendy.Set(bufferCopy);
+            Render();
             return rt;
         }
         else
@@ -265,7 +265,7 @@ public class PainterManager : MonoBehaviour {
 
     // This are used in case user started to use Render Texture on another target. Data is moved to previous Material's Texture2D so that Render Texture Buffer can be used with new target. 
     [NonSerialized]
-    public imgData bufferTarget;
+    public ImageData bufferTarget;
     [NonSerialized]
     public Material materialTarget;
     public string parameterTarget;
@@ -346,15 +346,12 @@ public class PainterManager : MonoBehaviour {
 		bufferTarget = null;
 	}
 
-    public void changeBufferTarget(imgData newTarget, Material mat, string parameter, PlaytimePainter painter)
+    public void changeBufferTarget(ImageData newTarget, Material mat, string parameter, PlaytimePainter painter)
     {
         if (bufferTarget != newTarget) {
 
             if (painterTarget != null) 
-                    painterTarget.SetOriginalShader();
-                  
-                       
-            
+                    painterTarget.SetOriginalShaderOnThis();
 
 			if (bufferTarget != null) {
 				if (bufferTarget.texture2D != null)
@@ -403,13 +400,12 @@ public class PainterManager : MonoBehaviour {
             
         }
 
-    public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2) {
+    public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2, PlaytimePainter pntr) {
 
-            var brushType = brush.type(!RendTex);
+        var brushType = brush.type(!RendTex);
 
-
-        bool is3Dbrush =  (RendTex) && (brushType.isA3Dbrush);
-		bool isDecal =  (RendTex) && (brushType.isUsingDecals);
+        bool is3Dbrush = brush.IsA3Dbrush(pntr);
+		bool isDecal = (RendTex) && (brushType.isUsingDecals);
 
 		Color c = brush.colorLinear.ToGamma();
 
@@ -448,23 +444,14 @@ public class PainterManager : MonoBehaviour {
 				, brush.Size(is3Dbrush) / textureWidth // z - scale for uv space
 				, brush.blurAmount)); // w - blur amount
 
-            //if (RendTex)
             brushType.setKeyword(texcoord2);
-            //else
-              //  BrushTypeNormal.inst.setKeyword(texcoord2);
-
+           
             if (texcoord2) Shader.EnableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
             else Shader.DisableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
 
             brush.blitMode.setKeyword ().SetGlobalShaderParameters ();
 
-
-            //PREVIEW_SAMPLING_DISPLACEMENT
-
-
-
-            if (brush.blitMode.GetType() == typeof(BlitModeSamplingOffset))
-            {
+            if (brush.blitMode.GetType() == typeof(BlitModeSamplingOffset))  {
                 Shader.EnableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
 
                 Shader.DisableKeyword("PREVIEW_ALPHA");
@@ -476,32 +463,40 @@ public class PainterManager : MonoBehaviour {
                 BlitModeExtensions.SetShaderToggle(PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
-            //BlitModeExtensions.SetShaderToggle ((brush.Smooth || RendTex), "PREVIEW_FILTER_SMOOTH", "UV_PIXELATED_PREVIEW");
-		
-		
-
 		if ((RendTex) && (brush.blitMode.usingSourceTexture))
 			Shader.SetGlobalTexture ("_SourceTexture", getSourceTexture (brush.selectedSourceTexture));
 		
     }
 
-    public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, imgData id, bool texcoord2, bool firstStroke) {
+    public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, ImageData id, StrokeVector stroke, PlaytimePainter pntr) {
 
-		bool isDoubleBuffer = (id.renderTexture == null);
+        bool isDoubleBuffer = (id.renderTexture == null);
 
         bool useSingle = (!isDoubleBuffer) || bc.isSingleBufferBrush();
 
         if ((!useSingle) && (!bufferUpdated))
            UpdateBufferTwo();
 
-        if (firstStroke)
-            Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture(), texcoord2);
+        if (stroke.firstStroke )
+            Shader_BrushCFG_Update (bc, brushAlpha, id.width, id.TargetIsRenderTexture(), stroke.useTexcoord2, pntr);
             
 		rtcam.targetTexture = id.currentRenderTexture ();
 
 		if (isDoubleBuffer) Shader.SetGlobalTexture ("_DestBuffer",  (Texture)BigRT_pair[1]);
 
-        brushRendy.Set (useSingle ? bc.blitMode.shaderForSingleBuffer : bc.blitMode.shaderForDoubleBuffer);
+        Shader shd = null;
+        if (pntr != null) 
+        foreach (var pl in plugins) { 
+            Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
+            if (bs != null) {
+                shd = bs;
+                break;
+            }
+        }
+
+        if (shd == null) shd = useSingle ? bc.blitMode.shaderForSingleBuffer : bc.blitMode.shaderForDoubleBuffer;
+
+        brushRendy.Set (shd);
 
 	}
 	
@@ -522,7 +517,7 @@ public class PainterManager : MonoBehaviour {
 
     }
 
-   public void Render(Texture tex, imgData id) {
+   public void Render(Texture tex, ImageData id) {
         if (tex == null)
             return;
             brushRendy.Set(pixPerfectCopy);
@@ -728,20 +723,26 @@ public class PainterManager : MonoBehaviour {
     private void OnDisable() {
 		if (PlaytimePainter.isCurrent_Tool())
 			PlaytimeToolComponent.SetPrefs();
-
+        
 		recentTextures.RemoveEmpty();
 
-            for (int i = 0; i < imgdatas.Count; i++) {
-                var id = imgdatas[i];
-                if (id == null || (!id.needsToBeSaved)) { imgdatas.RemoveAt(i); id.DestroyWhatever(); i--; }
-            }
+        for (int i = 0; i < imgDatas.Count; i++) {
+            var id = imgDatas[i];
+            if (id == null || (!id.needsToBeSaved)) { imgDatas.RemoveAt(i); id.DestroyWhatever(); i--; }
+        }
+
+          
+        for (int index = 0; index < matDatas.Count; index++) {
+            var itemKey = matDatas.ElementAt(index).Key;
+            if (!itemKey.SavedAsAsset()) matDatas.Remove(itemKey);
+        }
 
 #if UNITY_EDITOR
             BeforeClosing();
 #endif
             
 #if UNITY_EDITOR
-            EditorApplication.update -= meshManager.editingUpdate;
+        EditorApplication.update -= meshManager.editingUpdate;
 #endif
 
 
@@ -751,10 +752,8 @@ public class PainterManager : MonoBehaviour {
 
         void BeforeClosing()
         {
-
-            PlaytimePainter p = PlaytimePainter.PreviewShaderUser;
-            if (p != null)
-                p.SetOriginalShader();
+            if (PlaytimePainter.previewHolderMaterial != null)
+                PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
 
             PainterConfig.SaveChanges();
             autodisabledBufferTarget = painterTarget;
@@ -811,7 +810,7 @@ public class PainterManager : MonoBehaviour {
 			PlaytimePainter p = PlaytimePainter.currently_Painted_Object;
 
 			if ((p != null) && (Application.isPlaying == false)) {
-				if ((p.curImgData == null)) {
+				if ((p.imgData == null)) {
 					PlaytimePainter.currently_Painted_Object = null;
             }
             else {
@@ -854,12 +853,15 @@ public class PainterManager : MonoBehaviour {
 
             if (rtcam == null) { "no camera".nl(); return; }
 
-            if (("Img datas: "+imgdatas.Count+"").foldout(ref showImgDatas).nl()) {
-                for (int i = 0; i < imgdatas.Count; i++) {
-                    if (icon.Delete.Click() || imgdatas[i] == null) { imgdatas[i].DestroyWhatever();  imgdatas.RemoveAt(i); i--; }
-                    else { imgdatas[i].ToString().write(imgdatas[i].texture2D); pegi.nl();  }
+            if (("Img datas: "+imgDatas.Count+"").foldout(ref showImgDatas).nl()) {
+                for (int i = 0; i < imgDatas.Count; i++) {
+                    if (icon.Delete.Click() || imgDatas[i] == null) { imgDatas[i].DestroyWhatever();  imgDatas.RemoveAt(i); i--; }
+                    else { imgDatas[i].ToString().write(imgDatas[i].texture2D); pegi.nl();  }
                 }
             }
+
+            if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
+                matDatas.PEGI(ref MaterialData.inspectedMaterial, true);
 
 #if UNITY_EDITOR
             "Using layer:".nl();
@@ -873,4 +875,6 @@ public class PainterManager : MonoBehaviour {
             "Decals".edit(() => decals).nl();
         }
 }
+
+
 }

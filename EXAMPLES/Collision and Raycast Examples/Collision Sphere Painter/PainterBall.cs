@@ -122,7 +122,7 @@ namespace Playtime_Painter {
 
 			foreach (paintingCollision col in paintingOn){
 				PlaytimePainter p = col.painter;
-				if (p.isPaintingInWorldSpace(brush)) {
+				if (brush.IsA3Dbrush(p)) {
                     StrokeVector v = col.vector;
                     v.posTo = transform.position;
                     brush.Paint(v, p);
@@ -161,7 +161,7 @@ namespace Playtime_Painter {
             pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
           
             if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI().nl())) {
-                if ((brush.TargetIsTex2D) || (!brush.type(false).isA3Dbrush)) {
+                if ((brush.TargetIsTex2D) || (!brush.IsA3Dbrush(null))) {
                     brush.TargetIsTex2D = false;
                     brush.typeSet(false,  BrushTypeSphere.inst);
 

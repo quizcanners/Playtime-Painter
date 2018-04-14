@@ -48,15 +48,16 @@ namespace Playtime_Painter
                     float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
                     float length = painter.terrain.terrainData.size.z / sp.tileSize.y;
 
-                    painter.curImgData.tiling = new Vector2(width, length);
-                    painter.curImgData.offset = sp.tileOffset;
+                    var id = painter.imgData;
+                    id.tiling = new Vector2(width, length);
+                    id.offset = sp.tileOffset;
                     return true;
                 }
             }
             return false;
         }
 
-        public override bool setTextureOnMaterial(string fieldName, imgData id, PlaytimePainter painter)
+        public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
         {
             Texture tex = id.currentTexture();
             if (painter.terrain != null)

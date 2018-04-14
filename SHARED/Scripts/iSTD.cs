@@ -31,7 +31,8 @@ namespace StoryTriggerData {
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
         }
-        public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl(); return false; }
+        public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
+            return false; }
         public abstract void Decode(string tag, string data);
         public abstract string getDefaultTagName();
 

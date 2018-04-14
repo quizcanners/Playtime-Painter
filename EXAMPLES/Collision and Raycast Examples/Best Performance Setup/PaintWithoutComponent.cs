@@ -47,7 +47,7 @@ namespace Playtime_Painter
 
            // bool anyHits = false;
             //bool anyRecivers = false;
-            var texturesNeedUpdate = new List<imgData>();
+            var texturesNeedUpdate = new List<ImageData>();
 
             for (int i = 0; i < shoots; i++)
                 if (Physics.Raycast(new Ray(transform.position, transform.forward + transform.right * Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
@@ -125,7 +125,7 @@ namespace Playtime_Painter
                                 if (hit.collider.GetType() != typeof(MeshCollider))
                                     Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
-                                Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush);
+                                Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush, null);
                                 var id = reciver.texture.getImgData();
 
                                 if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);

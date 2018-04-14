@@ -494,7 +494,7 @@ namespace Playtime_Painter {
             triangles.AddRange(edm.triangles);
 
             foreach (var v in edm.vertices) {
-                v.pos =  tf.InverseTransformPoint(other.transform.TransformPoint(v.pos));
+                v.worldPos  =  other.transform.TransformPoint(v.pos);
                 vertices.Add(v);
             }
 
@@ -647,6 +647,17 @@ namespace Playtime_Painter {
                 foreach (UVpoint uv in v.uv)
                    bm.Transfer(ref uv._color, c);
             //Debug.Log("Dirty");
+            dirty = true;
+        }
+
+        public void SetShadowAll(linearColor col)
+        {
+            BrushMask bm = cfg.brushConfig.mask;//glob.getBrush().brushMask;
+            Color c = col.ToGamma();
+
+            foreach (vertexpointDta v in vertices)
+                bm.Transfer(ref v.shadowBake, c); 
+               
             dirty = true;
         }
 

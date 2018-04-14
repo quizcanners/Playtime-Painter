@@ -10,7 +10,7 @@ namespace Playtime_Painter {
         public int order;
         public List<string> strokeRecord;
 
-        protected virtual void SetB(imgData from, int globalOrder) {
+        protected virtual void SetB(ImageData from, int globalOrder) {
             order = globalOrder;
             strokeRecord = from.recordedStrokes_forUndoRedo;
             from.recordedStrokes_forUndoRedo = new List<string>();
@@ -21,7 +21,7 @@ namespace Playtime_Painter {
     public class Texture2DBackup : TextureBackup {
 		public Color[] pixels;
 
-        public void Set(Color[] texturePixels,imgData from, int globalOrder){
+        public void Set(Color[] texturePixels,ImageData from, int globalOrder){
 
             SetB(from,globalOrder);
 			pixels = texturePixels;
@@ -29,7 +29,7 @@ namespace Playtime_Painter {
           
 		}
 
-        public Texture2DBackup (Color[] texturePixels, imgData from, int globalOrder){
+        public Texture2DBackup (Color[] texturePixels, ImageData from, int globalOrder){
             Set (texturePixels, from, globalOrder);
 		}
 
@@ -39,7 +39,7 @@ namespace Playtime_Painter {
 		public RenderTexture rt;
         public bool exclusive;
 
-		public void Set (imgData from, int globalOrder){
+		public void Set (ImageData from, int globalOrder){
           
             PainterManager.inst.Render(from.currentRenderTexture(), rt);
 
@@ -48,7 +48,7 @@ namespace Playtime_Painter {
             exclusive = from.renderTexture != null;
 		}
 
-        public RenderTextureBackup (imgData from, int globalOrder){
+        public RenderTextureBackup (ImageData from, int globalOrder){
 			RenderTexture frt = from.currentRenderTexture ();
 
 			rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32, 
@@ -112,7 +112,7 @@ namespace Playtime_Painter {
 
 
 
-		public void ApplyTo (imgData id) {
+		public void ApplyTo (ImageData id) {
 
 			bool fromRT = (tex2D.Count == 0) || ((rtex.Count > 0) && (tex2D [tex2D.Count - 1].order < rtex [rtex.Count - 1].order));
 
@@ -202,7 +202,7 @@ namespace Playtime_Painter {
 		}
 
 
-        public void backupTexture2D (int maxTextures, imgData id){
+        public void backupTexture2D (int maxTextures, ImageData id){
 
 			tex2D.SetMaximumLength (maxTextures);
 
@@ -222,7 +222,7 @@ namespace Playtime_Painter {
 
 		}
 
-		public void backupRenderTexture (int maxTextures, imgData from){
+		public void backupRenderTexture (int maxTextures, ImageData from){
 
 			ClearRtexUpto (maxTextures);
 

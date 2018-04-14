@@ -25,15 +25,15 @@ namespace Playtime_Painter
             return changed;
         }
 
-        void findMergingTerrain(PlaytimePainter painter)
+        void findMergingTerrain(PlaytimePainter pntr)
         {
-            if ((mergingTerrain == null) && (painter.terrain != null))
-                mergingTerrain = painter.GetComponent<MergingTerrain>();
+            if ((mergingTerrain == null) && (pntr.terrain != null))
+                mergingTerrain = pntr.GetComponent<MergingTerrain>();
         }
 
-        public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
+        public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
         {
-            if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainLight)))
+            if ((pntr.terrain != null) && (fieldName.Contains(PainterConfig.terrainLight)))
             {
                 tex = mergingTerrain.lightTexture;
                 return true;
@@ -41,40 +41,41 @@ namespace Playtime_Painter
             return false;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
+        public override void GetNonMaterialTextureNames(PlaytimePainter pntr, ref List<string> dest)
         {
-            findMergingTerrain(painter);
+            findMergingTerrain(pntr);
 
-            if ((painter.terrain != null) && (mergingTerrain != null))
+            if ((pntr.terrain != null) && (mergingTerrain != null))
                 dest.Add(PainterConfig.terrainLight);
         }
 
-        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
+        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter pntr)
         {
-            if (painter.terrain != null)
+            if (pntr.terrain != null)
             {
                 if (fieldName.Contains(PainterConfig.terrainLight))
                 {
-                    painter.curImgData.tiling = Vector2.one;
-                    painter.curImgData.offset = Vector2.zero;
+                    var id = pntr.imgData;
+                    id.tiling = Vector2.one;
+                    id.offset = Vector2.zero;
                     return true; ;
                 }
             }
             return false;
         }
 
-        public override bool setTextureOnMaterial(string fieldName, imgData id, PlaytimePainter painter)
+        public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter pntr)
         {
           //  if (id == null)
             //    return;
 
             Texture tex = id.currentTexture();
 
-            if (painter.terrain != null)
+            if (pntr.terrain != null)
             {
                 if (fieldName.Contains(PainterConfig.terrainLight))
                 {
-                    findMergingTerrain(painter);
+                    findMergingTerrain(pntr);
                     if ((mergingTerrain != null) && (id!= null))
                         mergingTerrain.lightTexture = id.texture2D;
 

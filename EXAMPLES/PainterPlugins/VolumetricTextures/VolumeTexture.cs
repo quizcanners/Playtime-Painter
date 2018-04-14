@@ -6,47 +6,67 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
+
+#if UNITY_EDITOR
+
+    using UnityEditor;
+
+    [CustomEditor(typeof(VolumeTexture))]
+    public class VolumeTextureEditor : Editor
+    {
+
+        public override void OnInspectorGUI()
+        {
+            ef.start(serializedObject);
+            ((VolumeTexture)target).PEGI();
+            ef.end();
+        }
+    }
+#endif
+
     [Serializable]
-    public class VolumeTexture : MonoBehaviour, iPEGI, iGotName  {
+    public class VolumeTexture : PainterStuffMono, iPEGI, iGotName {
+
+        public static List<VolumeTexture> all = new List<VolumeTexture>();
+        
+        public static int tmpWidth = 1024;
 
         public int h_slices = 1;
         public float size = 1;
         [NonSerialized]
         Color[] volume;
-        public imgData tex;
+        public ImageData tex;
+
+        public virtual string MaterialPropertyName {get {return "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; } }
+
+        public List<Material> materials;
 
         public string Name { get { return name; } set { name = value; } }
 
         public int height { get { return h_slices * h_slices; } }
-        public int width
-        {
-            get
-            {
-                return ((tex == null ?
-(TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width)
-: tex.width) //- h_slices * 2
-) / h_slices;
-            }
-        }
 
-        public VolumeTexture() {
-            if (VolumePaintingPlugin._inst != null)
-                VolumePaintingPlugin._inst.volumes.Add(this);
-        }
+        public int width{get { return ((tex == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): tex.width)) / h_slices;}}
 
-        public virtual Color GetColorFor(Vector3 pos) {
-            float magnitude = (LastCenterPos - pos).magnitude;
+        public Vector4 posNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
 
-            return Color.white * (width * size * 0.5f - magnitude); 
-        }
-
+        public Vector4 slices4Shader {get { float w = (tex.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
+        
         public virtual void AssignTo(PlaytimePainter p) {
-              p.ChangeTexture(tex.currentTexture());
+            if (!materials.Contains(p.material))
+                materials.Add(p.material);
+            p.ChangeTexture(tex.currentTexture());
         }
 
-        Vector3 LastCenterPos;
+        public virtual Color GetColorFor(Vector3 pos)
+        {
+            float magnitude = (LastCenterPosTMP - pos).magnitude;
+
+            return Color.white * (width * size * 0.5f - magnitude);
+        }
+
+        Vector3 LastCenterPosTMP;
         public virtual void RecalculateVolume(Vector3 center) {
-            LastCenterPos = center;
+            LastCenterPosTMP = center;
             int w = width;
             int volumeLength = w * w * height;
 
@@ -72,15 +92,6 @@ namespace Playtime_Painter {
 
 
 
-        }
-
-        public virtual void DrawGizmo (Vector3 center, Color col)
-        {
-            if (tex != null) {
-                var w = width;
-                center.y += height * 0.5f * size;
-                Gizmos.DrawWireCube(center, new Vector3(w, height, w) * size);
-            }
         }
         
         public virtual void VolumeToTexture()
@@ -196,19 +207,14 @@ namespace Playtime_Painter {
                 if (tex.renderTexture != null) tex.renderTexture.name = tex.SaveName;
             }
         }
-        
-        public static int tmpWidth = 1024;
+
         public virtual bool PEGI() {
             bool changed = false;
-
-            if ((VolumePaintingPlugin._inst != null) && (!VolumePaintingPlugin._inst.volumes.Contains(this)))
-                VolumePaintingPlugin._inst.volumes.Add(this);
 
             string n = name;
             if ("Name".editDelayed(30, ref n).nl()) {
                 name = n;
                 changed = true;
-                UpdateTextureName();
             }
             
             if (volume != null && volume.Length != width * width * height)  {
@@ -217,8 +223,11 @@ namespace Playtime_Painter {
             }
 
             var texture = tex.currentTexture();
-         
-            if ("Texture".edit(60, ref texture).nl() || (texture == null)) {
+
+            if (texture == null)
+                tex = null;
+
+            if ("Texture".edit(60, ref texture).nl()) {
                 changed = true;
                 tex = texture == null ? null : texture.getImgData();
             }
@@ -226,44 +235,91 @@ namespace Playtime_Painter {
             changed |= "Volume Scale".edit(70,ref size).nl();
             size = Mathf.Max(0.0001f, size);
 
-            if (volume != null)
-            {
-                ("Got " + width + " * " + width + " * " + height + " volume").nl();
-                if ("Clear".Click())
-                    volume = null;
-            }
-
                 if (tex == null) {
-                    if (TexturesPool._inst == null)
+
+                if (TexturesPool._inst == null)
                     {
-                        pegi.nl();
-                        changed |= "Texture Width".edit(ref tmpWidth);
-                        if ("Create Pool".Click().nl())
+                    pegi.nl();
+                    changed |= "Texture Width".edit(ref tmpWidth);
+
+                    if ("Create Pool".Click().nl())
                         {
                             tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(tmpWidth, 128, 2048));
                             TexturesPool.inst.width = tmpWidth;
                         }
                     }
                     else {
-                        if ("Get From Pool".Click().nl())
-                            tex = TexturesPool._inst.GetTexture2D().getImgData();
+                    if ("Get From Pool".Click().nl()) {
+                        tex = TexturesPool._inst.GetTexture2D().getImgData();
+                        changed = true;
+                    }
                     }
                 }
                 pegi.nl();
 
                 changed |= "Slices:".edit("How texture will be sliced for height", 80, ref h_slices, 1, 8).nl();
 
+            if (changed)
+                UpdateTextureName();
 
-
-                // if (tex != null) {
-                int w = width;
+            int w = width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + height + "volume").nl();
-
-                //}
             
+            "Materials:".nl();
 
+            if (inspectedPainter != null) {
+                var pmat = inspectedPainter.material;
+                if (pmat != null) {
+                    if (!materials.Contains(pmat))  {
+                        if ("Add This Material".Click().nl())
+                            materials.Add(pmat);
+                    }
+                    else if ("Remove This Material".Click().nl())
+                        materials.Remove(pmat);
+                }
+            }
 
+            materials.PEGI<Material>(true);
+
+            if (materials.Count>0 && ("Update Pos On Materials".Click().nl() || changed))
+                UpdateVolumePositionOnMaterials();
+            
             return changed;
+        }
+
+        public virtual void UpdateVolumePositionOnMaterials() {
+            materials.SetVolumeTexture(MaterialPropertyName, this);
+        }
+        
+        Vector3 previousWorldPosition = Vector3.zero;
+        public virtual void Update() {
+            if (previousWorldPosition != transform.position) {
+                previousWorldPosition = transform.position;
+                UpdateVolumePositionOnMaterials();
+            }
+
+        }
+
+        public virtual void OnEnable() {
+            all.Add(this);
+            if (materials == null) materials = new List<Material>();
+        }
+
+        public virtual void OnDisable() {
+            if (all.Contains(this))
+            all.Remove(this);
+        }
+
+        public virtual void OnDrawGizmosSelected()
+        {
+            if (tex != null)
+            {
+                Vector3 center = transform.position;
+                var w = width;
+                center.y += height * 0.5f * size;
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireCube(center, new Vector3(w, height, w) * size);
+            }
         }
 
     }

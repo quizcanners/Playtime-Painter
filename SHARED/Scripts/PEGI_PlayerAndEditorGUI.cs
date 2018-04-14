@@ -2389,76 +2389,70 @@ namespace PlayerAndEditorGUI {
 #endif
             return changes;
         }
-        
-        class TypeSwitch {
-            Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
-            public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }
-            public void Switch(object x, string name) { matches[x.GetType()](x); }
-        }
 
-        public static void SetToDirty (this UnityEngine.Object obj) {
-            #if UNITY_EDITOR
-            EditorUtility.SetDirty(obj);
-            #endif
-        }
 
-        public static void RepaintViews()
+        public static bool PEGI<G, T>(this Dictionary<G, T> dic, ref int edited, bool allowDelete)
         {
-#if UNITY_EDITOR
-            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-#endif
-        }
+            bool changed = false;
 
-        public static Dictionary<int, string> editedDic;
+            int before = edited;
+            edited = Mathf.Clamp(edited, -1, dic.Count);
+            changed |= (edited != before);
 
-        static void AssignUniqueNameIn<T>(this T el, List<T> list)
-        {
-
-            var named = el as iGotName;
-            if (named == null) return;
-
-            string tmpName = named.Name;
-            bool duplicate = true;
-            int counter = 0;
-
-            while (duplicate)
+            if (edited == -1)
             {
-                duplicate = false;
-
-                foreach (var e in list)
+                for (int i = 0; i < dic.Count; i++)
                 {
-                    var other = e as iGotName;
-                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.Name) == 0))
+                    var item = dic.ElementAt(i);
+                    var itemKey = item.Key;
+                    if (allowDelete && icon.Delete.Click(25))
                     {
-                        duplicate = true;
-                        counter++;
-                        tmpName = named.Name + counter.ToString();
-                        break;
+                        dic.Remove(itemKey);
+                        changed = true;
+                        i--;
                     }
+                    else
+                    {
+                        var named = item as iGotName;
+                        if (named != null)
+                        {
+                            var n = named.Name;
+                            if (edit(ref n))
+                            {
+                                changed = true;
+                                named.Name = n;
+                            }
+                        }
+                        else
+                            write(itemKey.ToString());
+
+                        if ((item.Value is iPEGI) && icon.Edit.Click(25))
+                        {
+                            changed = true;
+                            edited = i;
+                        }
+                    }
+
+                    newLine();
+                }
+
+            }
+            else
+            {
+                if (icon.Back.Click(25).nl())
+                {
+                    changed = true;
+                    edited = -1;
+                }
+                else
+                {
+                    var std = dic.ElementAt(edited).Value as iPEGI;
+                    if (std != null) changed |= std.PEGI();
                 }
             }
 
-            named.Name = tmpName;
-
-        }
-
-        public static T AddWithUniqueName<T>(this List<T> list) where T : new()
-        {
-            T e = new T();
-            list.Add(e);
-            e.AssignUniqueNameIn(list);
-            return e;
-        }
-
-        public static T AddWithUniqueName<T>(this List<T> list, string name) where T : new()
-        {
-            T e = new T();
-            list.Add(e);
-            var named = e as iGotName;
-            if (named != null)
-                named.Name = name;
-            e.AssignUniqueNameIn(list);
-            return e;
+            pegi.newLine();
+            return changed;
         }
 
         public static bool PEGI<T>(this List<T> list, ref int edited, bool allowDelete) where T : new()
@@ -2530,39 +2524,44 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool PEGI<T>(this List<T> list, bool allowDelete) where T: UnityEngine.Object {
+        public static bool PEGI<T>(this List<T> list, bool allowDelete) where T : UnityEngine.Object
+        {
             bool changed = false;
-            
-            for (int i = 0; i < list.Count; i++)  {
-                    if (allowDelete && icon.Delete.Click(25))
-                    {
-                        list.RemoveAt(i);
-                        changed = true;
-                        i--;
-                    }
-                    else
-                    {
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (allowDelete && icon.Delete.Click(25))
+                {
+                    list.RemoveAt(i);
+                    changed = true;
+                    i--;
+                }
+                else
+                {
                     var el = list[i];
-                    if (el != null) {
+                    if (el != null)
+                    {
                         var n = el.name;
-                            if (pegi.edit(ref n)) {
-                                changed = true;
-                                el.name = n;
-                            }
+                        if (pegi.edit(ref n))
+                        {
+                            changed = true;
+                            el.name = n;
+                        }
                     }
 
                     if (pegi.edit(ref el).nl())
                         list[i] = el;
-                }    
+                }
             }
 
-            if (icon.Add.Click(25)) {
+            if (icon.Add.Click(25))
+            {
                 changed = true;
                 list.Add(null);
             }
 
-        pegi.newLine();
-        return changed;
+            pegi.newLine();
+            return changed;
         }
 
         public static bool select_or_Edit_PEGI(this Dictionary<int, string> dic, ref int selected)
@@ -2588,6 +2587,81 @@ namespace PlayerAndEditorGUI {
             }
 
             return changed;
+        }
+
+
+        class TypeSwitch {
+            Dictionary<Type, Action<object>> matches = new Dictionary<Type, Action<object>>();
+            public TypeSwitch Case<T>(Action<T> action) { matches.Add(typeof(T), (x) => action((T)x)); return this; }
+            public void Switch(object x, string name) { matches[x.GetType()](x); }
+        }
+
+        public static void SetToDirty (this UnityEngine.Object obj) {
+            #if UNITY_EDITOR
+            EditorUtility.SetDirty(obj);
+            #endif
+        }
+
+        public static void RepaintViews()
+        {
+#if UNITY_EDITOR
+//            if (SceneView.lastActiveSceneView != null)
+  //              SceneView.lastActiveSceneView.Repaint();
+            SceneView.RepaintAll();
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+#endif
+        }
+
+        public static Dictionary<int, string> editedDic;
+
+        static void AssignUniqueNameIn<T>(this T el, List<T> list)
+        {
+
+            var named = el as iGotName;
+            if (named == null) return;
+
+            string tmpName = named.Name;
+            bool duplicate = true;
+            int counter = 0;
+
+            while (duplicate)
+            {
+                duplicate = false;
+
+                foreach (var e in list)
+                {
+                    var other = e as iGotName;
+                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.Name) == 0))
+                    {
+                        duplicate = true;
+                        counter++;
+                        tmpName = named.Name + counter.ToString();
+                        break;
+                    }
+                }
+            }
+
+            named.Name = tmpName;
+
+        }
+
+        public static T AddWithUniqueName<T>(this List<T> list) where T : new()
+        {
+            T e = new T();
+            list.Add(e);
+            e.AssignUniqueNameIn(list);
+            return e;
+        }
+
+        public static T AddWithUniqueName<T>(this List<T> list, string name) where T : new()
+        {
+            T e = new T();
+            list.Add(e);
+            var named = e as iGotName;
+            if (named != null)
+                named.Name = name;
+            e.AssignUniqueNameIn(list);
+            return e;
         }
 
         public static string newEnumName = "UNNAMED";

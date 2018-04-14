@@ -15,15 +15,13 @@ namespace Playtime_Painter
     // Inherit this base class to create textures that are not not part of the material. (GlobalShaderValues, Terrain Textures)
 
     [Serializable]
-    public class PainterPluginBase : ScriptableObject
+    public class PainterPluginBase : PainterStuffScriptable 
     {
 
         [SerializeField]
         public PlaytimePainter parentPainter;
 
         static List<Type> allTypes;
-
-        protected PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
 
         public static void updateList(PlaytimePainter pntr)
         {
@@ -38,7 +36,7 @@ namespace Playtime_Painter
                 foreach (Type t in allTypes)
                 {
                     var obj = (PainterPluginBase)ScriptableObject.CreateInstance(t);
-                    obj.parentPainter = pntr;
+                  
                     pntr.plugins.Add(obj);
                 }
 
@@ -62,7 +60,7 @@ namespace Playtime_Painter
                 {
                     Debug.Log("Creating instance of " + t.ToString());
                     var np = (PainterPluginBase)ScriptableObject.CreateInstance(t);
-                    np.parentPainter = pntr;
+                  
                     pntr.plugins.Add(np);  //(PainterPluginBase)Activator.CreateInstance(t));
                     Undo.RegisterCreatedObjectUndo(np, "plgns");
                 }
@@ -82,7 +80,7 @@ namespace Playtime_Painter
 
         }
 
-        public virtual bool setTextureOnMaterial(string fieldName, imgData id, PlaytimePainter painter)
+        public virtual bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
         {
             //Debug.Log("Set Texture  on " + this.GetType() + "  not implemented");
             return false;
@@ -115,7 +113,7 @@ namespace Playtime_Painter
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, imgData p, BrushConfig bc) { return false; }
+        public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData p, BrushConfig bc, PlaytimePainter pntr) { return false; }
 
         public virtual void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
 

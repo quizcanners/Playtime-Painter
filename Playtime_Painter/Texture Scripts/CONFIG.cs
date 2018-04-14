@@ -218,6 +218,7 @@ public class PainterConfig  {
               
                 rtp.browsedPlugin = Mathf.Clamp(rtp.browsedPlugin, -1, rtp.plugins.Count - 1);
 
+          
                 if (rtp.browsedPlugin != -1)
                 {
                     if (icon.Back.Click().nl())
@@ -271,25 +272,11 @@ public class PainterConfig  {
                     changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
                         ref brush.DontRedoMipmaps).nl();
 
-                    bool gotBacups = (painter.numberOfTexture2Dbackups + painter.numberOfRenderTextureBackups) > 0;
+                    var id = painter.imgData;
 
-                    if (gotBacups)
-                    {
-                        pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                        pegi.writeOneTimeHint("This are not connected to Unity's " +
-                        "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                        pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+                    if (id != null)
+                        changed |= id.PEGI();
 
-                        changed |=
-                            "texture2D UNDOs:".edit(150, ref painter.numberOfTexture2Dbackups).nl() ||
-                            "renderTex UNDOs:".edit(150, ref painter.numberOfRenderTextureBackups).nl() ||
-                            "backup manually:".toggle(150, ref painter.backupManually).nl();
-                    }
-                    else if ("Enable Undo/Redo".Click().nl())
-                    {
-                        painter.numberOfTexture2Dbackups = 10;
-                        painter.numberOfRenderTextureBackups = 10;
-                    }
 
                     "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
 

@@ -14,41 +14,52 @@ namespace Playtime_Painter {
 
     public static class PlaytimePainterExtensions {
 
-        public static bool TargetIsTexture2D(this imgData id) {
+        public static bool TargetIsTexture2D(this ImageData id) {
             if (id == null) return false;
             return id.destination == texTarget.Texture2D;
         }
 
-        public static bool TargetIsRenderTexture(this imgData id) {
+        public static bool TargetIsRenderTexture(this ImageData id) {
             if (id == null) return false;
             return id.destination == texTarget.RenderTexture;
         }
 
-        public static bool TargetIsBigRenderTexture(this imgData id) {
+        public static bool TargetIsBigRenderTexture(this ImageData id) {
             if (id == null) return false;
             return (id.destination == texTarget.RenderTexture) && (id.renderTexture == null);
         }
 
-        public static imgData getImgDataIfExists(this Texture texture)
+        public static ImageData getImgDataIfExists(this Texture texture)
         {
             if (texture == null)
                 return null;
 
-            foreach (imgData id in PainterManager.inst.imgdatas)
+            if (texture.isBigRenderTexturePair() && PainterManager.inst.bufferTarget != null)
+                return PainterManager.inst.bufferTarget;
+
+            foreach (ImageData id in PainterManager.inst.imgDatas)
                 if ((id.texture2D == texture) || (id.renderTexture == texture)) 
                     return id;
 
             return null;
         }
 
-        public static imgData getImgData(this Texture texture) {
+        static ImageData recentImgDta;
+        static Texture recentTexture;
+        public static ImageData getImgData(this Texture texture) {
             if (texture == null)
                 return null;
-            
-            var nid = texture.getImgDataIfExists();
-            if (nid != null) return nid;
 
-             nid = ScriptableObject.CreateInstance<imgData>().init(texture);
+            if (recentTexture != null && texture == recentTexture && recentImgDta != null)
+                return recentImgDta;
+
+            var nid = texture.getImgDataIfExists();
+
+            if (nid == null) 
+             nid = ScriptableObject.CreateInstance<ImageData>().init(texture);
+
+            recentImgDta = nid;
+            recentTexture = texture;
 
             return nid;
         }
@@ -57,7 +68,7 @@ namespace Playtime_Painter {
             return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.inst.BigRT_pair[0])));
         }
 
-        public static bool ContainsDuplicant(this List<imgData> texs, imgData other) {
+        public static bool ContainsDuplicant(this List<ImageData> texs, ImageData other) {
 
             if (other == null)
                 return true;
@@ -65,7 +76,7 @@ namespace Playtime_Painter {
             for (int i=0; i<texs.Count; i++)
                 if (texs[i] == null) { texs.RemoveAt(i); i--;}
 
-            foreach (imgData t in texs)
+            foreach (ImageData t in texs)
                 if (t.Equals(other))
                     return true;
 
@@ -74,20 +85,20 @@ namespace Playtime_Painter {
 
         public static Texture getDestinationTexture(this Texture texture) {
 
-            imgData id = texture.getImgDataIfExists();
+            ImageData id = texture.getImgDataIfExists();
             if (id != null)
                 return id.currentTexture();
 
             return texture;
         }
 
-        public static RenderTexture currentRenderTexture(this imgData id) {
+        public static RenderTexture currentRenderTexture(this ImageData id) {
             if (id == null)
                 return null;
             return id.renderTexture == null ? PainterManager.inst.BigRT_pair[0] : id.renderTexture;
         }
 
-        public static Texture exclusiveTexture(this imgData id) {
+        public static Texture exclusiveTexture(this ImageData id) {
             if (id == null)
                 return null;
             switch (id.destination) {
@@ -99,7 +110,7 @@ namespace Playtime_Painter {
             return null;
         }
 
-        public static Texture currentTexture(this imgData id) {
+        public static Texture currentTexture(this ImageData id) {
             if (id == null)
                 return null;
             switch (id.destination) {
@@ -114,7 +125,7 @@ namespace Playtime_Painter {
     }
 
     [Serializable]
-    public class imgData : PainterStuffScriptable {
+    public class ImageData : PainterStuffScriptable, iPEGI {
    
         const float bytetocol = 1f / 255f;
         public texTarget destination;
@@ -126,6 +137,10 @@ namespace Playtime_Painter {
         public bool useTexcoord2;
 
         public bool needsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || ( renderTexture != null && renderTexture.SavedAsAsset())); } }
+
+        public int numberOfTexture2Dbackups = 0;
+        public int numberOfRenderTextureBackups = 0;
+        public bool backupManually;
 
         [NonSerialized]
         public Color[] _pixels;
@@ -143,6 +158,24 @@ namespace Playtime_Painter {
 
         public override string ToString() {
             return (texture2D != null ? texture2D.name : (renderTexture != null ? renderTexture.name : SaveName));
+        }
+
+
+        public void Backup()
+        {
+            if (backupManually) return;
+
+           
+                if (destination == texTarget.RenderTexture)
+                {
+                    if (numberOfRenderTextureBackups > 0)
+                        cache.undo.backupRenderTexture(numberOfRenderTextureBackups, this);
+                }
+                else if (numberOfTexture2Dbackups > 0)
+                    cache.undo.backupTexture2D(numberOfRenderTextureBackups, this);
+
+                cache.redo.Clear();
+            
         }
 
         // ##################### For Stroke Vector Recording
@@ -390,7 +423,7 @@ namespace Playtime_Painter {
 
                 }
                 destination = changeTo;
-                painter.setTextureOnMaterial();
+                painter.setTextureOnMaterial(this.currentTexture());
 
             }
 
@@ -465,7 +498,7 @@ namespace Playtime_Painter {
             texture2D.Apply(mipmaps);
         }
 
-        public imgData init (Texture tex) {
+        public ImageData init (Texture tex) {
           //  Debug.Log("Creating image data for ."+tex.name);
 
             if (tex.GetType() == typeof(Texture2D))
@@ -474,7 +507,7 @@ namespace Playtime_Painter {
                  if (tex.GetType() == typeof(RenderTexture))
                 useRenderTexture((RenderTexture)tex);
 
-            PainterManager.inst.imgdatas.Add(this);
+            PainterManager.inst.imgDatas.Add(this);
             return this;
         }
 
@@ -510,7 +543,7 @@ namespace Playtime_Painter {
                 SaveName = "New img";
         }
 
-        public imgData init (int renderTextureSize) {
+        public ImageData init (int renderTextureSize) {
 
             Debug.Log("Creating rt data.");
 
@@ -519,7 +552,7 @@ namespace Playtime_Painter {
             AddRenderTexture();
             //destination = dest.RenderTexture;
             //Debug.Log("new RT");
-            PainterManager.inst.imgdatas.Add(this);
+            PainterManager.inst.imgDatas.Add(this);
             return this;
         }
 
@@ -578,8 +611,31 @@ namespace Playtime_Painter {
             return changed;
         }
 
-       
+        public bool PEGI()
+        {
+            bool changed = false;
 
+            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
+
+            if (gotBacups)  {
+                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
+                pegi.writeOneTimeHint("This are not connected to Unity's " +
+                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
+                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+
+                changed |=
+                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
+                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
+                    "backup manually:".toggle(150, ref backupManually).nl();
+            }
+            else if ("Enable Undo/Redo".Click().nl())
+            {
+                numberOfTexture2Dbackups = 10;
+                numberOfRenderTextureBackups = 10;
+                changed = true;
+            }
+            return changed;
+        }
     }
 
 }

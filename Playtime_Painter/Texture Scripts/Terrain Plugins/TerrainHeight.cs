@@ -30,15 +30,16 @@ namespace Playtime_Painter
             {
                 if (fieldName.Contains(PainterConfig.terrainHeight))
                 {
-                    painter.curImgData.tiling = Vector2.one;
-                    painter.curImgData.offset = Vector2.zero;
+                    var id = painter.imgData;
+                    id.tiling = Vector2.one;
+                    id.offset = Vector2.zero;
                     return true;
                 }
             }
             return false;
         }
 
-        public override bool setTextureOnMaterial(string fieldName, imgData id, PlaytimePainter painter)
+        public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
         {
             Texture tex = id.currentTexture();
             if (painter.terrain != null)

@@ -140,11 +140,9 @@ public class STDCountlessBase : CountlessBase, iSTD {
 }
 
 public class CountlessInt : STDCountlessBase {
-
-
+    
     List<int> inds;
-
-
+    
     public override void Decode(string subtag, string data) {
         switch (subtag) {
             case "inds": inds = data.ToListOfInt(); break;
@@ -157,9 +155,7 @@ public class CountlessInt : STDCountlessBase {
         }
 
     }
-
-
-
+    
     public override stdEncoder Encode() {
         stdEncoder cody = new stdEncoder();
 
@@ -205,8 +201,7 @@ public class CountlessInt : STDCountlessBase {
 
 
     }
-
-
+    
     public int this[int index] {
         get { return Get(index); }
         set { Set(index, value); }
@@ -357,11 +352,7 @@ public class CountlessInt : STDCountlessBase {
 }
 
 public class CountlessBool : STDCountlessBase {
-
-
-
-
-
+    
     public override void Decode(string subtag, string data) {
         switch (subtag) {
             case "inds":
@@ -374,9 +365,7 @@ public class CountlessBool : STDCountlessBase {
         }
 
     }
-
-
-
+    
     public override stdEncoder Encode() {
         stdEncoder cody = new stdEncoder();
 
@@ -391,8 +380,7 @@ public class CountlessBool : STDCountlessBase {
 
     public const string storyTag = "TreeBool";
     public override string getDefaultTagName() { return storyTag; }
-
-
+    
     public List<int> GetItAll() {
         List<int> inds = new List<int>();
         GetItAllCascadeBool(ref inds, br, depth, 0, Max);
@@ -622,15 +610,12 @@ public class Countless<T> : CountlessBase {
         // for (int i = args.Length - add; i < args.Length; i++)
         //   args[i] = new T();
     }
-
-
+    
     public T this[int index] {
         get { return Get(index); }
         set { Set(index, value); }
     }
-
-
-
+    
     void Set(int ind, T obj) {
         if (ind >= Max) {
             if (obj.isDefaultOrNull())
@@ -820,8 +805,7 @@ public class CountlessSTD<T> : STDCountlessBase where T : iSTD, new() {
 
     public const string storyTag = "TreeObj";
     public override string getDefaultTagName() { return storyTag; }
-
-
+    
     public void Expand(ref T[] args, int add) // no instantiating
     {
         T[] temp;
@@ -835,14 +819,12 @@ public class CountlessSTD<T> : STDCountlessBase where T : iSTD, new() {
         // for (int i = args.Length - add; i < args.Length; i++)
         //   args[i] = new T();
     }
-
-
+    
     public T this[int index] {
         get { return Get(index); }
         set { Set(index, value); }
     }
-
-
+    
     protected void Set (int ind, T obj) {
         if (ind >= Max) {
             if (obj == null)
@@ -1013,8 +995,6 @@ public class CountlessSTD<T> : STDCountlessBase where T : iSTD, new() {
 
 }
 
-
-
 // Unnulable classes will create new instances
 public class UnnullableSTD<T> : CountlessSTD<T> where T : iSTD, new() {
 
@@ -1065,8 +1045,7 @@ public class UnnullableSTD<T> : CountlessSTD<T> where T : iSTD, new() {
 
         return objs[vb.br[ind].value];
     }
-
-
+    
 }
 
 // List trees
@@ -1075,9 +1054,7 @@ public class UnnullableLists<T> : STDCountlessBase   {
 
     List<T>[] objs = new List<T>[0];
     int firstFreeObj = 0;
-
-
-
+    
     public void Expand(ref List<T>[] args, int add) // no instantiating
     {
         List<T>[] temp;
@@ -1089,14 +1066,12 @@ public class UnnullableLists<T> : STDCountlessBase   {
         // for (int i = args.Length - add; i < args.Length; i++)
         //   args[i] = new T();
     }
-
-
+    
     public List<T> this[int index] {
         get { return Get(index); }
         set { Set(index, value); }
     }
-
-
+    
     void Set(int ind, List<T> obj) {
         if (ind >= Max) {
             if (obj == null)
@@ -1229,8 +1204,7 @@ public class UnnullableLists<T> : STDCountlessBase   {
 
 
     }
-
-
+    
     List<T> Create(int ind) {
         if (ind < 0) {
             Debug.Log("!Wrong index");

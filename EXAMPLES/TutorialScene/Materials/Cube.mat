@@ -18,6 +18,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BakedShadow_VOL:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BakedShadows_UV2:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -27,7 +31,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMapC:
-        m_Texture: {fileID: 2800000, guid: beb42eb20cece4a4d8dbb34a72e10cbf, type: 3}
+        m_Texture: {fileID: 2800000, guid: 43866032c9f85bd43bcafdf035f6b35a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMapC_ATL:
@@ -64,6 +68,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Microdetail:
+        m_Texture: {fileID: 2800000, guid: 528f3ebab7f594f47879e4013deece5b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Noise:
@@ -115,7 +123,10 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - _vertShad: 0
     m_Colors:
+    - VOLUME_H_SLICES: {r: 0, g: 0, b: 0, a: 0}
+    - VOLUME_POSITION_N_SIZE: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

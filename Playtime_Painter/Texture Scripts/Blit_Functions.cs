@@ -6,7 +6,7 @@ namespace Playtime_Painter{
 
 
 public delegate void blitModeFunction(ref Color dst);
-public delegate bool PaintTexture2DMethod (StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc);
+public delegate bool PaintTexture2DMethod (StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr);
     
 public static class Blit_Functions {
 
@@ -90,8 +90,8 @@ public static class Blit_Functions {
         if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
     }
         
-        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc) {
-            imgData id = texture.getImgData();
+        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr) {
+            ImageData id = texture.getImgData();
 
             id.offset = offset;
             id.tiling = tiling;
@@ -103,7 +103,7 @@ public static class Blit_Functions {
                 return;
             }
 
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.getImgData(), bc);
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.getImgData(), bc, pntr);
         }
 
         public static void PrepareCPUBlit (this BrushConfig bc) {
@@ -127,7 +127,7 @@ public static class Blit_Functions {
 
         }
 
-        public static bool Paint(StrokeVector stroke, float brushAlpha, imgData image, BrushConfig bc) {
+        public static bool Paint(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
 
             Vector2 uvCoords = stroke.uvFrom;
 

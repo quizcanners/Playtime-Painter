@@ -32,7 +32,7 @@ namespace Playtime_Painter
             if (PlaytimePainter.inspectedPainter == null)
                 return (CPU ? supportedByTex2D : supportedByRenderTexturePair);
 
-            imgData id = PlaytimePainter.inspectedPainter.curImgData;
+            ImageData id = inspectedImageData;
 
             if (id == null)
                 return false;
@@ -110,44 +110,31 @@ namespace Playtime_Painter
         public virtual Shader shaderForDoubleBuffer { get { return texMGMT.br_Multishade; } }
         public virtual Shader shaderForSingleBuffer { get { return texMGMT.br_Blit; } }
 
-        public virtual bool PEGI()
-        {
+        public virtual bool PEGI() {
 
-            imgData id = painter == null ? null : painter.curImgData;
+            ImageData id = inspectedImageData;
 
             bool cpuBlit = id == null ? inspectedBrush.TargetIsTex2D : id.destination == texTarget.Texture2D;
             BrushType brushType = inspectedBrush.type(cpuBlit);
             bool usingDecals = (!cpuBlit) && brushType.isUsingDecals;
-
-
+            
             bool changed = false;
 
             pegi.newLine();
 
-            if ((!cpuBlit) && (!usingDecals))
-            {
-                pegi.write("Hardness:", "Makes edges more rough.", 70);
-                changed |= pegi.edit(ref inspectedBrush.Hardness, 1f, 512f);
-                pegi.newLine();
-            }
+            if ((!cpuBlit) && (!usingDecals)) 
+                changed |= "Hardness:".edit("Makes edges more rough.", 70, ref inspectedBrush.Hardness, 1f, 512f).nl();
 
-            pegi.write(usingDecals ? "Tint alpha" : "Speed", usingDecals ? 70 : 40);
-            changed |= pegi.edit(ref inspectedBrush.speed, 0.01f, 20);
-            pegi.newLine();
+            changed |=  (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref inspectedBrush.speed, 0.01f, 20).nl();
+       
             pegi.write("Scale:", 40);
 
-
-
-            if ((!cpuBlit) && brushType.isA3Dbrush)
-            {
-
+            if (inspectedBrush.IsA3Dbrush(inspectedPainter))  {
                 Mesh m = PlaytimePainter.inspectedPainter.getMesh();
-
+           
                 float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (PlaytimePainter.inspectedPainter == null ? 1 : PlaytimePainter.inspectedPainter.transform.lossyScale.magnitude);
 
                 changed |= pegi.edit(ref inspectedBrush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
-
-
             }
             else
             {
@@ -168,10 +155,10 @@ namespace Playtime_Painter
                 {
                     inspectedBrush.selectedSourceTexture = Mathf.Min(inspectedBrush.selectedSourceTexture, texMGMT.sourceTextures.Length - 1);
                     pegi.write("Copy From:", 70);
-                    pegi.selectOrAdd(ref inspectedBrush.selectedSourceTexture, ref texMGMT.sourceTextures);
+                    changed |= pegi.selectOrAdd(ref inspectedBrush.selectedSourceTexture, ref texMGMT.sourceTextures);
                 }
                 else
-                    pegi.write("Add Textures to Render Camera to copy from");
+                    "Add Textures to Render Camera to copy from".nl();
             }
 
             pegi.newLine();
@@ -213,7 +200,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Subtract"; }
             protected override string shaderKeyword { get { return "BRUSH_SUBTRACT"; } }
 
-            //public override Shader shaderForSingleBuffer { get { return mgmt.br_Add; } }
+            //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
             public override bool supportedBySingleBuffer { get { return false; } }
 
             public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
@@ -294,78 +281,82 @@ namespace Playtime_Painter
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * cfg.samplingMaskSize.y);
             }
 
-            public override bool PEGI()
-            {
-                bool changed = base.PEGI();
+        public override bool PEGI()
+        {
+            bool changed = base.PEGI();
 
-                if (painter == null)
-                    return changed;
+            if (inspectedPainter == null)
+                return changed;
 
-                pegi.newLine();
+            pegi.newLine();
 
-                changed |= "Mask Size: ".edit(60, ref cfg.samplingMaskSize).nl();
+            changed |= "Mask Size: ".edit(60, ref cfg.samplingMaskSize).nl();
 
-                cfg.samplingMaskSize.Clamp(1, 512);
+            cfg.samplingMaskSize.Clamp(1, 512);
 
-                changed |= "Color Set On".selectEnum(ref method, typeof(ColorSetMethod)).nl();
+            changed |= "Color Set On".selectEnum(ref method, typeof(ColorSetMethod)).nl();
 
-                if (method == 2)  {
-                    changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
+            if (method == 2) {
+                changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
 
-                    currentPixel.Clamp(-cfg.samplingMaskSize.max, cfg.samplingMaskSize.max * 2);
-                }
+                currentPixel.Clamp(-cfg.samplingMaskSize.max, cfg.samplingMaskSize.max * 2);
+            }
 
-            if (painter != null &&  "Set Tiling Offset".Click()) {
-                painter.curImgData.tiling = Vector2.one * 1.5f;
-                painter.curImgData.offset = -Vector2.one * 0.25f;
-                painter.UpdateTylingToMaterial();
+            var id = inspectedImageData;
+
+            if (id != null)
+            { 
+
+            if ("Set Tiling Offset".Click()) {
+
+                id.tiling = Vector2.one * 1.5f;
+                id.offset = -Vector2.one * 0.25f;
+                inspectedPainter.UpdateTylingToMaterial();
                 changed = true;
-             }
+            }
 
-                if (painter != null && "Generate Default".Click().nl())
-                {
-                    var img = painter.curImgData;
+            if (inspectedPainter != null && "Generate Default".Click().nl())
+            {
+                var pix = id.pixels;
 
-                    var pix = img.pixels;
+                int dx = id.width / cfg.samplingMaskSize.x;
+                int dy = id.height / cfg.samplingMaskSize.y;
 
-                    int dx = img.width / cfg.samplingMaskSize.x;
-                    int dy = img.height / cfg.samplingMaskSize.y;
-
-                    for (currentPixel.x = 0; currentPixel.x < cfg.samplingMaskSize.x; currentPixel.x++)
-                        for (currentPixel.y = 0; currentPixel.y < cfg.samplingMaskSize.y; currentPixel.y++)
-                        {
+                for (currentPixel.x = 0; currentPixel.x < cfg.samplingMaskSize.x; currentPixel.x++)
+                    for (currentPixel.y = 0; currentPixel.y < cfg.samplingMaskSize.y; currentPixel.y++)
+                    {
 
                         float center_uv_x = ((float)currentPixel.x + 0.5f) / (float)cfg.samplingMaskSize.x;
                         float center_uv_y = ((float)currentPixel.y + 0.5f) / (float)cfg.samplingMaskSize.y;
 
                         int startX = currentPixel.x * dx;
 
-                            for (int suby = 0; suby < dy; suby++)
-                            {
+                        for (int suby = 0; suby < dy; suby++)
+                        {
 
-                                int y = (currentPixel.y * dy + suby);
-                                int start = y * img.width + startX;
+                            int y = (currentPixel.y * dy + suby);
+                            int start = y * id.width + startX;
 
-                            float offy = (center_uv_y - ((float)y / (float)img.height)) / 2f + 0.5f;
+                            float offy = (center_uv_y - ((float)y / (float)id.height)) / 2f + 0.5f;
 
                             for (int subx = 0; subx < dx; subx++) {
                                 int ind = start + subx;
 
-                                float offx = (center_uv_x - ((float)(startX+ subx) / (float)img.width)) / 2f + 0.5f;
-                                
+                                float offx = (center_uv_x - ((float)(startX + subx) / (float)id.width)) / 2f + 0.5f;
+
                                 pix[ind].r = offx;
                                 pix[ind].g = offy;
                             }
                         }
 
-                }
+                    }
 
-                    img.SetAndApply(true);
-                    if (!img.TargetIsTexture2D())
-                        img.Texture2D_To_RenderTexture();
+                id.SetAndApply(true);
+                if (!id.TargetIsTexture2D())
+                    id.Texture2D_To_RenderTexture();
 
-                }
-
+            }
+        }
             pegi.newLine();
 
                 return changed;

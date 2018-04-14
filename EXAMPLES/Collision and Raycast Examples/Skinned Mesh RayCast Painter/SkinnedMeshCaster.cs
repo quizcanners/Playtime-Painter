@@ -38,7 +38,7 @@ namespace Playtime_Painter
 
               if (painter!= null) {
 
-                    if ((painter.skinnedMeshRendy != null) && (painter.isPaintingInWorldSpace(brush) == false)) {   
+                    if ((painter.skinnedMeshRendy != null) && (brush.IsA3Dbrush(painter) == false)) {   
 
                         painter.UpdateColliderForSkinnedMesh();
 

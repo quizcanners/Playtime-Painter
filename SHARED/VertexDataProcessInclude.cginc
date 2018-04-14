@@ -669,5 +669,65 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 
 }
 
+inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES) {
 
+	int hy = floor(uv.y*VOLUME_H_SLICES.x);
+	int hx = floor(uv.x*VOLUME_H_SLICES.x);
+
+	float2 xz = uv * VOLUME_H_SLICES.x;
+
+	xz.x -= hx;
+	xz.y -= hy;
+
+	xz *= VOLUME_H_SLICES.y*2;
+	xz -= VOLUME_H_SLICES.y;
+
+	float h = hy * VOLUME_H_SLICES.x + hx;
+
+	float3 bsPos = float3(xz.x, h, xz.y) / VOLUME_POSITION_N_SIZE.w;
+
+	float3 worldPos = VOLUME_POSITION_N_SIZE.xyz + bsPos;
+
+	return worldPos;
+}
+
+//  var VOLUME_POSITION_N_SIZE = new Vector4(pos.x, pos.y, pos.z, 1f / size);
+//var VOLUME_H_SLICES = new Vector4(slices, w * 0.5f, 1f / ((float)w), 1f / ((float)slices));
+
+
+inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES, float3 normal) {
+
+	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w + normal*0.5
+		;
+
+	bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
+	float h = min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
+
+	float sectorY = floor(h * VOLUME_H_SLICES.w);
+	float sectorX = floor(h - sectorY * VOLUME_H_SLICES.x);
+
+	float2 sector = saturate(float2(sectorX, sectorY)*VOLUME_H_SLICES.w);
+
+	float4 bakeUV = float4(sector + bsPos.xz, 0, 0);
+	float4 bake = tex2Dlod(volume, bakeUV);
+
+	h += 1;
+
+	sectorY = floor(h * VOLUME_H_SLICES.w);
+	sectorX = floor(h - sectorY * VOLUME_H_SLICES.x);
+
+	sector = saturate(float2(sectorX, sectorY)*VOLUME_H_SLICES.w);
+
+	float4 bakeUp = tex2Dlod(volume, float4(sector + bsPos.xz, 0, 0));
+
+	float deH = h % 1;
+
+	bake = bake * (1 - deH) + bakeUp * (deH);
+
+	//float3 wp = volumeUVtoWorld(sector + bsPos.xz, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
+
+		//bake.rgb = ((worldPos - wp)*0.5 + 0.5);
+
+	return bake;
+}
 

@@ -28,18 +28,15 @@ namespace Playtime_Painter
 
     }
 
-    public class UVpoint : abstract_STD {
+    public class UVpoint : PainterStuff_STD  {
 
         public override string getDefaultTagName() {
             return stdTag_uv;
         }
         public const string stdTag_uv = "uv";
-
-        protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
+        
         protected PlaytimePainter target { get { return MeshManager.inst.target; } }
 
-
-     
         int uvIndex;
         public int finalIndex;
         public Color _color;
@@ -263,7 +260,7 @@ namespace Playtime_Painter
         }
     }
 
-    public class BlendFrame : abstract_STD
+    public class BlendFrame : PainterStuff_STD
     {
         public Vector3 deltaPosition;
         public Vector3 deltaTangent;
@@ -308,17 +305,17 @@ namespace Playtime_Painter
   
     } 
 
-    public class vertexpointDta : abstract_STD
+    public class vertexpointDta : PainterStuff_STD
     {
-        protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
-        protected PainterConfig cfg { get { return PainterConfig.inst; } }
 
+        // DATA NEEDS MANUAL UPDATE:
         public Vector3 normal;
         public int index;
         public bool NormalIsSet;
         public float distanceToPointed;
         public Vector3 distanceToPointedV3;
         public static vertexpointDta currentlyDecoded;
+        // ____
 
         // Data to save:
         public List<Vector2[]> shared_v2s = new List<Vector2[]>();
@@ -332,6 +329,37 @@ namespace Playtime_Painter
         public List<List<BlendFrame>> shapes; // not currently working
         //public int submeshIndex;
         public float edgeStrength;
+
+        public Vector3 worldPos { get {
+                PlaytimePainter emc = MeshManager.inst.target;
+                if (emc.AnimatedVertices())   {
+                    int animNo = emc.GetVertexAnimationNumber();
+                    return emc.transform.TransformPoint(pos + anim[animNo]);
+                }
+
+                return emc.transform.TransformPoint(pos);
+            } 
+
+            set {
+              pos =  meshMGMT.target.transform.InverseTransformPoint(value);
+            }
+
+        }
+
+        public Vector3 GetWorldNormal() {
+            return meshMGMT.target.transform.TransformDirection(GetNormal());
+        }
+
+        public Vector3 GetNormal() {
+            normal = Vector3.zero;
+            foreach (var u in uv)
+                foreach (var t in u.tris) 
+                normal += t.GetNormal();
+            
+            normal.Normalize();
+
+            return normal;
+        }
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -412,24 +440,7 @@ namespace Playtime_Painter
 
             if (dest.magnitude > 0) mesh.hasFrame[no] = true;
         }
-
-        public Vector3 getWorldPos()  {
-
-              PlaytimePainter emc = MeshManager.inst.target;
-              if (emc.AnimatedVertices())  {
-                  int animNo = emc.GetVertexAnimationNumber();
-                  return emc.transform.TransformPoint(pos + anim[animNo]);
-              }
-
-              return emc.transform.TransformPoint(pos);
-           
-        }
-
-        public void SetFromWorldSpace(Vector3 wPos)
-        {
-            pos = MeshManager.inst.target.transform.InverseTransformPoint(wPos);
-        }
-
+        
         public vertexpointDta() {
             Reboot(Vector3.zero);
         }
@@ -441,9 +452,10 @@ namespace Playtime_Painter
         public void PixPerfect() {
             var trg = MeshManager.inst.target;
 
-            if ((trg!= null) && (trg.curImgData!= null)){
-                var width = trg.curImgData.width*2;
-                var height = trg.curImgData.height*2;
+            if ((trg!= null) && (trg.imgData!= null)){
+                var id = trg.imgData;
+                var width = id.width*2;
+                var height = id.height*2;
 
                 foreach (var v2a in shared_v2s)
                     for(int i=0; i<2; i++) {
@@ -672,7 +684,7 @@ namespace Playtime_Painter
 
     [Serializable]
     public class trisDta : abstract_STD {
-        protected EditableMesh mesh { get { return MeshManager.inst._Mesh; } }
+        protected EditableMesh mesh { get { return MeshManager.inst.edMesh; } }
 
         public UVpoint[] uvpnts = new UVpoint[3];
         public bool[] SharpCorner = new bool[3];
@@ -680,7 +692,15 @@ namespace Playtime_Painter
         public int submeshIndex;
         public Vector3 sharpNormal;
 
-    
+        public Vector3 GetNormal() {
+
+            sharpNormal = MyMath.GetNormalOfTheTriangle(
+                    uvpnts[0].pos,
+                    uvpnts[1].pos,
+                    uvpnts[2].pos);
+
+            return sharpNormal;
+        }
 
         public float area { get
             {

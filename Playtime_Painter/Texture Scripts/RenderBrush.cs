@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Playtime_Painter{
 
 [ExecuteInEditMode]
-public class RenderBrush : MonoBehaviour {
+public class RenderBrush : PainterStuffMono {
 
 		public static PainterManager rtp {get {return PainterManager.inst;}}
 
@@ -127,7 +127,7 @@ public class RenderBrush : MonoBehaviour {
             return this;
     }
 
-        public RenderBrush Set( Texture tex) {
+        public RenderBrush Set(Texture tex) {
             meshRendy.sharedMaterial.SetTexture("_MainTex", tex);
             return this;
         }
@@ -138,15 +138,36 @@ public class RenderBrush : MonoBehaviour {
             return this;
         }
 
+        public void FullScreenQuad() {
+            float size = PainterManager.orthoSize * 2;
+            transform.localScale = new Vector3(size , size, 0);
+            transform.localPosition = Vector3.forward * 10;
+            transform.localRotation = Quaternion.identity;
+            meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+        }
 
-        public void PrepareForFullCopyOf (Texture tex){
-			float size = PainterManager.orthoSize * 2;
-			float aspectRatio = (float)tex.width / (float)tex.height;
-			transform.localScale = new Vector3(size * aspectRatio, size, 0);
-			transform.localPosition = Vector3.forward * 10;
-			transform.localRotation = Quaternion.identity;
+        public RenderBrush PrepareForFullCopyOf (Texture tex){
+            
+            return PrepareForFullCopyOf(tex, null);
+        }
+
+        public RenderBrush PrepareForFullCopyOf(Texture tex, RenderTexture onto)
+        {
+
+            float size = PainterManager.orthoSize * 2;
+            float aspectRatio = (float)tex.width / (float)tex.height;
+            if (onto != null) {
+                float ar2 = onto.width / onto.height;
+                aspectRatio = ar2/aspectRatio;
+                texMGMT.rtcam.targetTexture = onto;
+            }
+            transform.localScale = new Vector3(size * aspectRatio, size, 0);
+            transform.localPosition = Vector3.forward * 10;
+            transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
             Set(rtp.pixPerfectCopy).Set(tex);
+
+            return this;
         }
 
         public void PrepareColorPaint(Color col)

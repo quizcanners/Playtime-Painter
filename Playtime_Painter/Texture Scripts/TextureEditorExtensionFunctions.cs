@@ -14,7 +14,7 @@ using StoryTriggerData;
 namespace Playtime_Painter{
 
 public static class TextureEditorExtensionFunctions  {
-
+        
         public static float GetChanel(this Color col, ColorChanel chan)
         {
 
@@ -64,7 +64,21 @@ public static class TextureEditorExtensionFunctions  {
             if ((bm & BrushMask.A) != 0)
                 col.a =  c.a;
         }
-        
+
+        public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
+        {
+
+
+            if ((bm & BrushMask.R) != 0)
+                col.x = c.r;
+            if ((bm & BrushMask.G) != 0)
+                col.y = c.g;
+            if ((bm & BrushMask.B) != 0)
+                col.z = c.b;
+            if ((bm & BrushMask.A) != 0)
+                col.w = c.a;
+        }
+
         public static Mesh getMesh(this PlaytimePainter p) {
         if (p == null) return null;
         if (p.skinnedMeshRendy != null) return p.colliderForSkinnedMesh;//skinnedMeshRendy.sharedMesh;
@@ -98,19 +112,21 @@ public static class TextureEditorExtensionFunctions  {
         public static stdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
             stdEncoder cody = new stdEncoder();
 
-            bool rt = painter.curImgData.TargetIsRenderTexture();
+            var id = painter.imgData;
+
+            bool rt = id.TargetIsRenderTexture();
 
             BlitMode mode = brush.blitMode;
             BrushType type = brush.type(!rt);
             
             cody.Add(rt ? "typeGPU" : "typeCPU", brush._type(!rt));
             
-            bool worldSpace = rt && type.isA3Dbrush;
+            bool worldSpace = rt && brush.IsA3Dbrush(painter);
 
             if (worldSpace)
                 cody.Add("size3D", brush.Brush3D_Radius);
             else
-                cody.Add("size2D", brush.Brush2D_Radius/((float)painter.curImgData.width));
+                cody.Add("size2D", brush.Brush2D_Radius/((float)id.width));
 
 
             cody.Add("useMask", brush.useMask);
@@ -153,12 +169,7 @@ public static class TextureEditorExtensionFunctions  {
 
             return cody;
         }
-
-        public static float Size(this BrushConfig brush, imgData id) {
-            bool worldSpace = id.TargetIsRenderTexture() && brush.type(false).isA3Dbrush;
-            return brush.Size(worldSpace);
-        }
-
+        
         public static bool needsGrid (this PlaytimePainter pp) {
             if (pp == null || !pp.enabled) return false;
             
@@ -175,19 +186,19 @@ public static class TextureEditorExtensionFunctions  {
             else return PainterManager.inst.meshManager.target == pp && PainterConfig.inst.meshTool.showGrid;
         }
 
-        public static void RemoveEmpty(this Dictionary<string, List<imgData>> dic)
+        public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
         {
-            foreach (KeyValuePair<string, List<imgData>> l in dic)
+            foreach (KeyValuePair<string, List<ImageData>> l in dic)
                 l.Value.RemoveEmpty();
         }
         
-        public static void AddIfNew(this Dictionary<string, List<imgData>> dic, string Property, imgData texture)
+        public static void AddIfNew(this Dictionary<string, List<ImageData>> dic, string Property, ImageData texture)
         {
 
-            List<imgData> mgmt;
+            List<ImageData> mgmt;
             if (!dic.TryGetValue(Property, out mgmt))
             {
-                mgmt = new List<imgData>();
+                mgmt = new List<ImageData>();
                 dic.Add(Property, mgmt);
             }
 

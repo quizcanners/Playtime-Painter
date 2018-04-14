@@ -15,7 +15,7 @@ namespace Playtime_Painter {
         public override bool AllowEditing(PlaytimePainter targ) {
             return (targ) && (!targ.LockEditing) && (
 
-                ((!targ.meshEditing) && (targ.curImgData != null)) || //(
+                ((!targ.meshEditing) && (targ.imgData != null)) || //(
                 ((targ.meshEditing) && (MeshManager.inst.target == targ))
                 
                 );
@@ -151,14 +151,14 @@ namespace Playtime_Painter {
                     (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 25))) {
                     PlaytimeToolComponent.enabledTool = null; //customTools.Disabled;
                     MeshManager.inst.DisconnectMesh();
-                    painter.SetOriginalShader();
+                    painter.SetOriginalShaderOnThis();
                     painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                 }
             }
 
             painter.InitIfNotInited();
 
-            imgData image = painter.curImgData;
+            ImageData image = painter.imgData;
 
             Texture tex = painter.getTexture();
             if ((!painter.meshEditing) && ((tex != null) && (image == null)) || ((image != null) && (tex == null)) || ((image != null) && (tex != image.texture2D) && (tex != image.currentTexture())))
@@ -183,10 +183,10 @@ namespace Playtime_Painter {
                             string Orig = "";
 
                             if (image.texture2D != null) {
-                                Orig = painter.curImgData.texture2D.GetPathWithout_Assets_Word();
+                                Orig = image.texture2D.GetPathWithout_Assets_Word();
                                 if ((pegi.Click(icon.Load, "Will reload " + Orig, 25))) {
                                     painter.ForceReimportMyTexture(Orig);
-                                    painter.curImgData.SaveName = painter.curImgData.texture2D.name;
+                                    image.SaveName = image.texture2D.name;
                                     GUI.FocusControl("dummy");
                                     if (painter.terrain != null)
                                         painter.UpdateShaderGlobalsForTerrain();
@@ -194,7 +194,7 @@ namespace Playtime_Painter {
                             }
 
 
-                            "Texture Name: ".edit(70, ref painter.curImgData.SaveName);
+                            "Texture Name: ".edit(70, ref image.SaveName);
 
                             if (image.texture2D != null) {
 
@@ -241,10 +241,10 @@ namespace Playtime_Painter {
                     if ((mats != null) && (mats.Length > 0)) {
                         int sm = painter.selectedSubmesh;
                         if (pegi.select(ref sm, mats)) {
-                            painter.SetOriginalShader();
+                            painter.SetOriginalShaderOnThis();
                             painter.selectedSubmesh = sm;
                             painter.OnChangedTexture();
-                            image = painter.curImgData;
+                            image = painter.imgData;
                             painter.CheckPreviewShader();
                         }
                     }
@@ -278,7 +278,7 @@ namespace Playtime_Painter {
 
                     if (painter.SelectTexture_PEGI()) {
                         
-                        image = painter.curImgData;
+                        image = painter.imgData;
                         if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.materialTexturePropertyName;
                     }
 
@@ -338,8 +338,8 @@ namespace Playtime_Painter {
                                             painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                                             image.renderTexture = null;
                                         } else {
-                                            painter.curImgData = null;
-                                            painter.setTextureOnMaterial();
+                                           
+                                            painter.setTextureOnMaterial(null);
                                         }
 
                                     }
@@ -374,14 +374,14 @@ namespace Playtime_Painter {
                     ef.tab();
                     ef.newLine();
 
-                    List<imgData> recentTexs;
+                    List<ImageData> recentTexs;
 
                     string texName = painter.materialTexturePropertyName;
 
                     if ((texName != null) && (rtp.recentTextures.TryGetValue(texName, out recentTexs))
-                        && ((recentTexs.Count > 1) || (painter.curImgData == null))) {
+                        && ((recentTexs.Count > 1) || (painter.imgData == null))) {
                         ef.write("Recent Texs:", 60);
-                        imgData tmp = painter.curImgData;//.exclusiveTexture();
+                        ImageData tmp = painter.imgData;//.exclusiveTexture();
                         if (pegi.select(ref tmp, recentTexs)) {
                             painter.ChangeTexture(tmp.exclusiveTexture());
                             changes = true;
