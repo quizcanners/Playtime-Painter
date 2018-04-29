@@ -31,17 +31,17 @@ namespace Playtime_Painter {
         }
 
         public override void OnEnable() {
-            Update();
+            SetStuff();
         }
 
-        public void Update() {
+        public void SetStuff() {
             Shader.SetGlobalVector("_lightControl", new Vector4(colorBleeding, 0, 0, eyeBrightness));
             UnityHelperFunctions.SetKeyword("MODIFY_BRIGHTNESS", modifyBrightness);
             UnityHelperFunctions.SetKeyword("COLOR_BLEED", colorBleed);
         }
         
         bool showHint;
-
+        bool editFog;
         public override bool ConfigTab_PEGI() {
             bool changed = false;
 
@@ -60,9 +60,30 @@ namespace Playtime_Painter {
             if (showHint)
                 "Is not a postrocess effect. It modifies Global Shader Parameter. Will only be visible on Custom shaders which containt the needed defines.".writeHint();
 
+            bool fog = RenderSettings.fog;
+            if ("Fog".toggle(ref fog).nl()) 
+                RenderSettings.fog = fog;
+            
+            if (fog) {
+                var col = RenderSettings.fogColor;
+                if ("Color".edit(ref col).nl()) 
+                    RenderSettings.fogColor = col;
+                var mode = (int)RenderSettings.fogMode;
+                if (mode != (int)FogMode.ExponentialSquared)
+                    "Exponential Squared is recommended".writeHint();
+                if ("Mode".selectEnum(40, ref mode, typeof(FogMode)).nl())
+                    RenderSettings.fogMode = (FogMode)mode;
+                float density = RenderSettings.fogDensity;
+                if ("Density".edit(60, ref density, 0f, 0.05f).nl())
+                    RenderSettings.fogDensity = density;
+            }
+               
+
+            
+
             if (changed)  {
                 pegi.RepaintViews();
-                Update();
+                SetStuff();
                 this.SetToDirty();
             }
             return changed;

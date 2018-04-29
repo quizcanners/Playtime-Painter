@@ -9,18 +9,41 @@ namespace Playtime_Painter
     [Serializable]
     public class MaterialData : iPEGI
     {
+
+        public static MaterialData lastFetched;
+        public static Material lastFetchedFor;
+
         public static int inspectedMaterial = -1;
         public static bool showMatDatas;
 
         public Material material;
-        public bool lockEditing;
         public int _selectedTexture;
         public bool usePreviewShader = false;
+
+        [NonSerialized]
+        public string bufferParameterTarget; // which texture is currently using RenderTexture buffer
+        [NonSerialized]
+        public PlaytimePainter painterTarget;
+
+        public void SetTextureOnLastTarget(ImageData id) {
+            if (painterTarget)
+                painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.currentTexture(), material);
+        }
 
         public List<string> materials_TextureFields = new List<string>();
 
         public MaterialData (Material mat)  {
             material = mat;
+        }
+
+        public override string ToString()
+        {
+            return material == null ? "Error" : material.name;
+        }
+
+        public MaterialData()
+        {
+          //  Debug.Log("No material parameter assigned to data");
         }
 
         public bool PEGI() {

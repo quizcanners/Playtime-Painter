@@ -55,9 +55,10 @@ namespace StoryTriggerData {
             return tag + (targ == null ? "_this" : targ.trig.name); 
         }
 
-        public override void Decode(string subtag, string data) {
+        public override bool Decode(string subtag, string data) {
             tag = subtag;
             _data = data;
+            return true;
         }
 
         public override stdEncoder Encode() {
@@ -77,7 +78,7 @@ namespace StoryTriggerData {
         public static string returnTag = "";
         public static string returnData = "";
         public static string objectSearch="";
-        public static STD_Object browsedForCalls;
+        public static STD_Poolable browsedForCalls;
         public static STD_Call edited;
 
         public override bool PEGI() {
@@ -107,7 +108,7 @@ namespace StoryTriggerData {
 
                     int maxToShow = 20;
 
-                    foreach (STD_Object obj in STD_Pool.allEnabledObjects()) {
+                    foreach (STD_Poolable obj in STD_Pool.allEnabledObjects()) {
                    
                         if (objectSearch.SearchCompare(obj.gameObject.name)) {
 

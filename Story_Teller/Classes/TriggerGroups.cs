@@ -131,10 +131,12 @@ namespace StoryTriggerData {
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
-                case "t": triggers.Reboot(data); break;
+                case "t": triggers.Decode(data); break;
+                default: return false;
             }
+            return true;
         }
 
 

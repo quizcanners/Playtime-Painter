@@ -52,7 +52,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 8ed89fbcd960ac74a934369051cae62f, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex_ATL:
@@ -80,6 +80,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _ALPHA: 0
     - _ATLASED: 1
     - _AlphaTestRef: 0.5
     - _AtlasTextures: 4
@@ -95,7 +96,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Lightmapping: 1
-    - _Merge: 0.8
+    - _Merge: 0.55
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1

@@ -8,11 +8,11 @@ public static class EditorInputManager {
     public static Ray GetScreenRay()
     {
         if (Application.isPlaying)
-            return Camera.main.ScreenPointToRay(Input.mousePosition);
+            return  (Camera.main != null) ? Camera.main.ScreenPointToRay(Input.mousePosition) : raySceneView; 
         else
             return raySceneView;
     }
-    public enum MB_state_Editor { down, up, dragging }
+    public enum MB_state_Editor {  up, down, dragging }
     public static MB_state_Editor[] mouseBttnState = new MB_state_Editor[3];
 
     public static bool getControlKey()
@@ -32,7 +32,17 @@ public static class EditorInputManager {
             return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
         }
         else
-            return Event.current.alt;
+            return Event.current!= null && Event.current.alt;
+    }
+
+    public static bool getShiftKey()
+    {
+        if (Application.isPlaying)
+        {
+            return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        }
+        else
+            return Event.current != null && Event.current.shift;
     }
 
     public static int GetNumberKeyDown()

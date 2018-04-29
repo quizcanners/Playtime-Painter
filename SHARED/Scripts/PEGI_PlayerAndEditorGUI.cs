@@ -26,6 +26,8 @@ namespace PlayerAndEditorGUI {
         string Name { get; set; }
     }
 
+    public delegate bool PEGIcallDelegate();
+
     public static class pegi {
 
 
@@ -223,6 +225,12 @@ namespace PlayerAndEditorGUI {
         public static bool selectEnum(this string text, ref int val, Type t)
         {
             write(text);
+            return selectEnum(ref val, t);
+        }
+
+        public static bool selectEnum(this string text, int width, ref int val, Type t)
+        {
+            write(text, width);
             return selectEnum(ref val, t);
         }
 
@@ -903,6 +911,8 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+
+
         public static bool foldout(this string txt) {
 
 
@@ -1275,7 +1285,29 @@ namespace PlayerAndEditorGUI {
 
 
         }
+        
+        public static bool edit(this string label , ref Vector2 val)
+        {
 
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+
+                write(label);
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+        
         public static bool edit(ref myIntVec2 val)
         {
 
@@ -1879,12 +1911,6 @@ namespace PlayerAndEditorGUI {
         {
             write(label, tip, width);
             return edit(ref col);
-        }
-
-        public static bool edit(this string label, ref Vector2 v2)
-        {
-            write(label);
-            return edit(ref v2);
         }
 
         public static bool edit(this string label, int width, ref Vector2 v2)

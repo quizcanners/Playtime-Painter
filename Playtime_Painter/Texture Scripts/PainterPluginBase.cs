@@ -31,6 +31,16 @@ namespace Playtime_Painter
             if (allTypes == null)
                 allTypes = CsharpFuncs.GetAllChildTypesOf<PainterPluginBase>();
 
+            for (int i = 0; i < pntr.plugins.Count; i++)
+            {
+                var nt = pntr.plugins[i];
+
+                if (nt == null) {
+                    pntr.plugins.RemoveAt(i);
+                    i--;
+                }
+            }
+
             if (pntr.plugins.Count == 0)
             {
                 foreach (Type t in allTypes)
@@ -62,7 +72,9 @@ namespace Playtime_Painter
                     var np = (PainterPluginBase)ScriptableObject.CreateInstance(t);
                   
                     pntr.plugins.Add(np);  //(PainterPluginBase)Activator.CreateInstance(t));
+#if UNITY_EDITOR
                     Undo.RegisterCreatedObjectUndo(np, "plgns");
+#endif
                 }
             }
 
@@ -113,7 +125,7 @@ namespace Playtime_Painter
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData p, BrushConfig bc, PlaytimePainter pntr) { return false; }
+        //public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData p, BrushConfig bc, PlaytimePainter pntr) { return false; }
 
         public virtual void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
 

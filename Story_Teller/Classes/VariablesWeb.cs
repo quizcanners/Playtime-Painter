@@ -28,11 +28,13 @@ namespace StoryTriggerData {
             return cody;
         }
 
-        public override void Decode(string subtag, string data) {
+        public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "wb": branches = data.ToListOf_STD<WebBranch>(); break;
                 case "v": vars = data.ToListOf_STD<Condition>(); break;
+                default: return false;
             }
+            return true;
         }
 
         //#if UNITY_EDITOR
@@ -164,7 +166,7 @@ namespace StoryTriggerData {
             branches = new List<WebBranch>();
             branches.Add(new WebBranch());
             if (data != null)
-                Reboot(data);
+                Decode(data);
         }
     }
 
@@ -193,18 +195,20 @@ namespace StoryTriggerData {
             cody.AddIfNotEmpty("b",branches);
             cody.AddIfNotEmpty("v", vars);
             cody.AddText("d", description);
-            cody.AddIfNotNull(targ);
+            cody.Add(targ);
             return cody;
         }
 
-        public override void Decode(string subtag, string data) {
+        public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
                 case "b": branches = data.ToListOfInt(); break;
                 case "v": vars = data.ToListOfInt(); break;
                 case "d": description = data; break;
                 case TaggedTarget.stdTag_TagTar: targ = new TaggedTarget(data); break;
+                default: return false;
             }
+            return true;
         }
 
 
@@ -215,7 +219,7 @@ namespace StoryTriggerData {
 
         public WebBranch(string data) {
             Clear();
-            Reboot(data);
+            Decode(data);
         }
 
         public WebBranch() {

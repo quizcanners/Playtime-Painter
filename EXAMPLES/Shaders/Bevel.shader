@@ -15,9 +15,6 @@
 		"Solution" = "Bevel"
 	}
 
-
-
-
 		SubShader
 	{
 		Pass

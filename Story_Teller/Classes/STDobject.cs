@@ -14,37 +14,28 @@ using PlayerAndEditorGUI;
 namespace StoryTriggerData {
 
     [ExecuteInEditMode]
-    public abstract class STD_Object : PoolableBase, iSTD {
+    public abstract class STD_Poolable : PoolableBase, iKeepUnrecognizedSTD {
 
         public STD_Values stdValues;
 
         public Page parentPage;
 
-#if UNITY_EDITOR
         protected List<string> unrecognizedTags = new List<string>();
         protected List<string> unrecognizedData = new List<string>();
-        // In editor we will store unrecognized data for debug and not to loose it due to prefab mismatch
-       
-#endif
 
-         protected void Unrecognized(string tag, string data){
-         #if UNITY_EDITOR
-            unrecognizedTags.Add(tag);
-            unrecognizedData.Add(data);
-            #endif
+        public void Unrecognized(string tag, string data){
+             unrecognizedTags.Add(tag);
+             unrecognizedData.Add(data);
         }
         
-         protected void SaveUnrecognized(stdEncoder cody){
-         #if UNITY_EDITOR
-         for (int i=0; i<unrecognizedTags.Count; i++)
-            cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
-         #endif
-        }
-        
-
+         public void SaveUnrecognized(stdEncoder cody){
+            for (int i=0; i<unrecognizedTags.Count; i++)
+                cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+         }
+ 
         public abstract void Reboot();
 
-        public virtual iSTD Reboot(string data) {
+        public virtual iSTD Decode(string data) {
 
             //gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
             //gameObject.hideFlags &= ~(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
@@ -54,11 +45,10 @@ namespace StoryTriggerData {
             gameObject.name = "new " + getDefaultTagName();
             
             Reboot();
-            
-     #if UNITY_EDITOR       
+                 
             unrecognizedTags = new List<string>();
             unrecognizedData = new List<string>();
-     #endif    
+ 
             new stdDecoder(data).DecodeTagsFor(this);
 
             return this;
@@ -79,11 +69,11 @@ namespace StoryTriggerData {
             return getDefaultTagName();
         }
 
-        public abstract void Decode(string tag, string data);
+        public abstract bool Decode(string tag, string data);
 
         public abstract stdEncoder Encode();
 
-        public STD_Object LinkTo(Page p) {
+        public STD_Poolable LinkTo(Page p) {
             p.Link(this);
             return this;
         }
@@ -92,8 +82,7 @@ namespace StoryTriggerData {
             if (parentPage != null)
                 parentPage.Unlink(this);
         }
-
-
+        
         public abstract void SetStaticPoolController(STD_Pool inst);
 
         static string customTag = "";
@@ -131,7 +120,7 @@ namespace StoryTriggerData {
             return dataSet;
         }
 
-        public static STD_Object browsed;
+        public static STD_Poolable browsed;
         public override bool PEGI() {
             browsed = this;
 
@@ -155,7 +144,7 @@ namespace StoryTriggerData {
                             if (icon.Delete.Click(20)) {
                                     unrecognizedTags.RemoveAt(i);
                                     unrecognizedData.RemoveAt(i);
-                                    } else 
+                            } else 
                                     (unrecognizedTags[i] + " | " + unrecognizedData[i]).nl();
                         }
                     }
@@ -166,13 +155,13 @@ namespace StoryTriggerData {
                     if ((parentPage != null) && (pegi.Click("Test Conversion"))) {
                         Debug.Log("Debug Testing conversion");
                         var encode = Encode();
+                        SaveUnrecognized(encode);
+
                         Page pg = parentPage;
                         Deactivate();
+
                         pg.Decode(getDefaultTagName(), encode.ToString());
-                    }
-                    
-                 
-                    
+                    }  
                 }
 
                 if (stdValues!= null)

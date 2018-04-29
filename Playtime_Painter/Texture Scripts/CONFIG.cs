@@ -13,24 +13,24 @@ namespace Playtime_Painter{
 
 
 
-[Serializable]
-public class PainterConfig  {
-    static PainterConfig _inst;
-    public static PainterConfig inst {
+    [Serializable]
+    public class PainterConfig : PainterStuff  {
+        static PainterConfig _inst;
+        public static PainterConfig inst {
             get
             {
-                if (_inst == null)
+                if (_inst == null && !applicationIsQuitting)
                     LoadOrInit();
 
                 return _inst;
             }
     }
 
-    public static PlaytimePainter painter { get { return PlaytimePainter.inspectedPainter; } }
+        public static PlaytimePainter painter { get { return PlaytimePainter.inspectedPainter; } }
 
-    public const string PainterCameraName = "PainterCamera";
-    public const string ToolName = "Playtime_Painter";
-    public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
+        public const string PainterCameraName = "PainterCamera";
+        public const string ToolName = "Playtime_Painter";
+        public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
 
         // Terrain Global Shader namings:
         public const string terrainPosition = "_mergeTeraPosition";
@@ -64,69 +64,60 @@ public class PainterConfig  {
         public const string isUV2DisaplyNameTag = "_UV2";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
-    static string SaveName = "PainterConfig";
+        public const string vertexColorRole = "VertexColorRole_"; // + R, G, B, A
 
-
+        public string meshToolsSTD = null;
+        
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
         public bool MakeVericesUniqueOnEdgeColoring;
       //  public int MaxDistanceForTransformPosition = 100;
         public int SnapToGridSize = 1;
-        public int MeshUVprojectionSize = 1;
         public bool SnapToGrid = false;
-        public int curAtlasTexture = 0;
-        public int curSubmesh = 0;
-        public int curAtlasChanel = 0;
         public bool newVerticesUnique = false;
         public bool newVerticesSmooth = true;
-        public bool atlasEdgeAsChanel2 = true;
         public bool pixelPerfectMeshEditing = false;
         public bool useGridForBrush = false;
 
         public List<MeshPackagingProfile> meshPackagingSolutions;
-      
 
         public int _meshTool;
-        public MeshToolBase meshTool { get {return MeshToolBase.allTools[_meshTool];} }
+        public MeshToolBase meshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.allTools.Count - 1);  return MeshToolBase.allTools[_meshTool];} }
         public float bevelDetectionSensetivity = 6;
 
         public static string ToolPath() {
 		return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
     }
 
-    public string materialsFolderName;
-    public string texturesFolderName;
-    public string meshesFolderName;
-    public string vectorsFolderName;
-    public string atlasFolderName;
+        public string materialsFolderName;
+        public string texturesFolderName;
+        public string meshesFolderName;
+        public string vectorsFolderName;
+        public string atlasFolderName;
 
-    public bool disablePainterUIonPlay = false;
-    public bool disableGodMode = false;
-    public BrushConfig brushConfig;
-    public float GodWalkSpeed = 100f;
-    public float GodLookSpeed = 10f;
-   // public bool dontCreateDefaultRenderTexture;
-    public bool disableNonMeshColliderInPlayMode;
+        public bool enablePainterUIonPlay = false;
+        public BrushConfig brushConfig;
+        public bool disableNonMeshColliderInPlayMode;
 
-    public bool previewAlphaChanel;
-    public bool newTextureIsColor = true;
+        public bool previewAlphaChanel;
+        public bool newTextureIsColor = true;
 
-    public bool moreOptions = false;
-    public bool showConfig = false;
-    public bool ShowTeachingNotifications = false;
+        public bool moreOptions = false;
+        public bool showConfig = false;
+        public bool ShowTeachingNotifications = false;
 
 
-    public myIntVec2 samplingMaskSize;
+        public myIntVec2 samplingMaskSize;
 
-    public int selectedSize = 4;
+        public int selectedSize = 4;
 
-    public List<string> recordingNames;
+        public List<string> recordingNames;
 
-    public int browsedRecord;
+        public int browsedRecord;
 
-    public static Dictionary<string, string> recordings = new Dictionary<string, string>();
+        public static Dictionary<string, string> recordings = new Dictionary<string, string>();
 
-    public string GetRecordingData(string name) {
+        public string GetRecordingData(string name) {
 
             string data;
 
@@ -139,25 +130,22 @@ public class PainterConfig  {
             return data;
         }
 
-    public void RemoveRecord() {
+        public void RemoveRecord() {
             RemoveRecord(recordingNames[browsedRecord]);
         }
 
-    public void RemoveRecord(string name) {
+        public void RemoveRecord(string name) {
             recordingNames.Remove(name);
             recordings.Remove(name);
             UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
         }
 
-    public void SafeInit() {
+        public void Init() {
 
             _inst = this;
 
-           // meshPackagingSolutions = null;
-
             if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
                 meshPackagingSolutions = new List<MeshPackagingProfile>();
-
 				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased"));
                 meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"));
 				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
@@ -165,8 +153,8 @@ public class PainterConfig  {
 
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
 
-           
-           
+            if (materialsFolderName == null)
+                materialsFolderName = "Materials";
             if (texturesFolderName == null)
                 texturesFolderName = "Textures";
             if (vectorsFolderName == null)
@@ -180,39 +168,46 @@ public class PainterConfig  {
 
         }
 
-    public static void LoadOrInit() {
-          //  Debug.Log("Loading config ");
-        ResourceLoader<PainterConfig> ld = new ResourceLoader<PainterConfig>();
+        public static void LoadOrInit() {
 
-            if (!ld.LoadFrom(Application.persistentDataPath, SaveName, ref _inst))  {
+            if (texMGMT.painterCfg != null)
+                _inst = texMGMT.painterCfg;
+
+            if (_inst == null){
                 _inst = new PainterConfig();
+                texMGMT.painterCfg = _inst;
             }
-
-            _inst.SafeInit();
             
-        GodMode gm = GodMode.inst;
-        if (gm != null) {
-            gm.speed = _inst.GodWalkSpeed;
-            gm.sensitivity = _inst.GodLookSpeed;
+            _inst.Init();
+ 
+            _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
+
+            var encody = new stdDecoder(_inst.meshToolsSTD);
+            foreach (var tag in encody.enumerator) {
+                foreach (var m in MeshToolBase.allTools)
+                if (m.ToString().SameAs(tag)) {
+                    m.Decode(encody.getData());
+                    break;
+                }
+            }
+        }
+    
+        public static void SaveChanges() {
+            stdEncoder cody = new stdEncoder();
+            if (!applicationIsQuitting) {
+                foreach (var mt in MeshToolBase.allTools)
+                    cody.Add(mt);
+                _inst.meshToolsSTD = cody.ToString();
+            }
         }
         
-        _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
-
-    }
-
-    public static void SaveChanges() {
-        ResourceSaver.Save<PainterConfig>(Application.persistentDataPath,SaveName, _inst);
-    }
-
-    
-
         public bool PEGI()
         {
             PainterManager rtp = PainterManager.inst;
             BrushConfig brush = PainterConfig.inst.brushConfig;
             bool changed = false;
 
-            if (!PlaytimePainter.isNowPlaytimeAndDisabled())
+            if (!isNowPlaytimeAndDisabled)
             {
 
               
@@ -255,11 +250,11 @@ public class PainterConfig  {
                 pegi.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
 
             if (gotDefine) {
-                if ("Disable PlayTime UI".toggle(ref PainterConfig.inst.disablePainterUIonPlay).nl())
+                if ("Enable PlayTime UI".toggle(ref cfg.enablePainterUIonPlay).nl())
                     MeshManager.inst.DisconnectMesh();
             }
 
-            if (!PlaytimePainter.isNowPlaytimeAndDisabled()) {
+            if (!isNowPlaytimeAndDisabled) {
 
                 if (painter.meshEditing == false) {
                     if ("More options".toggle(80, ref moreOptions).nl())
@@ -318,12 +313,8 @@ public class PainterConfig  {
         }
 
         public PainterConfig() {
-        brushConfig = new BrushConfig();
-        materialsFolderName = "Materials";
-            newTextureIsColor = true;
-                
+            brushConfig = new BrushConfig();
+        }
 
-}
-
-}
+    }
 }

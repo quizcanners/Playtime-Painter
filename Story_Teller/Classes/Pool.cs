@@ -7,7 +7,7 @@ using System.Linq;
 namespace StoryTriggerData {
 
     public static class PoolExtensions  {
-        public static List<T> ToListOfStoryPoolablesOfTag<T>(this string data, string prefabTag) where T : STD_Object
+        public static List<T> ToListOfStoryPoolablesOfTag<T>(this string data, string prefabTag) where T : STD_Poolable
         {
 
             stdDecoder cody = new stdDecoder(data);
@@ -18,7 +18,7 @@ namespace StoryTriggerData {
             {
                 cody.getTag();
                 T tmp = (T)STD_Pool.getOne(prefabTag);
-                tmp.Reboot(cody.getData());
+                tmp.Decode(cody.getData());
                 l.Add(tmp);
             }
 
@@ -51,14 +51,14 @@ namespace StoryTriggerData {
         public static bool DestroyingAll = false;
         public static STD_Pool[] all;
 
-        public static IEnumerable<STD_Object> allEnabledObjects() {
+        public static IEnumerable<STD_Poolable> allEnabledObjects() {
             for (int i = 0; i < all.Length; i++) {
                 
                 PoolControllerBase pcb = all[i].pool;
 
                 for (int o = 0; o < pcb.Max; o++)
                     if (pcb.activeSelf(o)) 
-                        yield return (STD_Object)pcb.getScript(o);
+                        yield return (STD_Poolable)pcb.getScript(o);
             }
         }
 
@@ -73,10 +73,10 @@ namespace StoryTriggerData {
             DestroyingAll = false;
         }
 
-        public static STD_Object getOne(string tag) {
+        public static STD_Poolable getOne(string tag) {
             STD_Pool cp;
             if (stdPoolsDictionary.TryGetValue(tag, out cp))
-                return (STD_Object)cp.pool.getScript();
+                return (STD_Poolable)cp.pool.getScript();
             return null;
         }
 
@@ -88,7 +88,7 @@ namespace StoryTriggerData {
 
         public static void InitStoryPoolsIfNull() {
             if (all == null) {
-                List<Type> derrs = CsharpFuncs.GetAllChildTypesOf<STD_Object>();
+                List<Type> derrs = CsharpFuncs.GetAllChildTypesOf<STD_Poolable>();
                 all = new STD_Pool[derrs.Count];
                 stdPoolsDictionary = new Dictionary<string, STD_Pool>();
 
@@ -112,7 +112,7 @@ namespace StoryTriggerData {
         }
     }
 
-	public class STD_PoolGeneric<T> : STD_Pool where T: STD_Object, new() {
+	public class STD_PoolGeneric<T> : STD_Pool where T: STD_Poolable, new() {
 
 		public string getCodeTag() {
 			var dnAttribute = typeof(T).GetCustomAttributes(
@@ -128,7 +128,7 @@ namespace StoryTriggerData {
             storyTag = getCodeTag();
             pool = new PoolController<T> (8, Resources.Load(Book.PrefabsResourceFolder + "/" + storyTag) as GameObject);
             try {
-                pool.prefab.GetComponent<STD_Object>().SetStaticPoolController(this);
+                pool.prefab.GetComponent<STD_Poolable>().SetStaticPoolController(this);
             } catch {
 
                 Debug.Log( "Place a prefab for your "+ typeof(T) + " object and place it in some Resource folder, in "

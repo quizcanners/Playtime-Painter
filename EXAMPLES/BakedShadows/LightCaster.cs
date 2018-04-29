@@ -51,7 +51,7 @@ namespace Playtime_Painter
             allProbes[index] = this;
         }
 
-        void OnDrawGizmos()
+        void OnDrawGizmosSelected()
         {
             Gizmos.color = ecol;
             Gizmos.DrawWireSphere(transform.position, 1);

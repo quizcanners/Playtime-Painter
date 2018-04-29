@@ -24,12 +24,14 @@ namespace StoryTriggerData {
             return cody;
         }
 
-       public void Decode(string tag, string data) {
+        public bool Decode(string tag, string data) {
             switch (tag) {
                 case "g" : groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 case "v": targValue = data.ToInt(); break;
+                default: return false;
             }
+            return true;
         }
         
         public override bool isBoolean() {
@@ -78,13 +80,13 @@ namespace StoryTriggerData {
             return stdTag_TagTar;
         }
 
-        public iSTD Reboot(string data) {
+        public iSTD Decode(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
         public TaggedTarget(string data) {
-            Reboot(data);
+            Decode(data);
         }
     }
 

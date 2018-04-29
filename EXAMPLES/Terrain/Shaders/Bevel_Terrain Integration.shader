@@ -8,10 +8,10 @@
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 
-		[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
-		[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
+		//[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
+		//[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
 
-		[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
+		//[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
 
 
 	}
@@ -45,9 +45,9 @@
 #pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ UV_ATLASED
 #pragma multi_compile  ___ UV_PROJECTED
-#pragma multi_compile  ___ UV_PIXELATED
-#pragma multi_compile  ___ EDGE_WIDTH_FROM_COL_A
-#pragma multi_compile  ___ CLIP_EDGES
+//#pragma multi_compile  ___ UV_PIXELATED
+//#pragma multi_compile  ___ EDGE_WIDTH_FROM_COL_A
+//#pragma multi_compile  ___ CLIP_EDGES
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 #pragma multi_compile  ___ WATER_FOAM
 
@@ -155,6 +155,7 @@
 
 
 
+/*
 #if	UV_PIXELATED
 
 #if !UV_ATLASED
@@ -167,6 +168,7 @@
 	i.texcoord.xy = sharp * near + i.texcoord.xy*(1 - near);
 
 #endif
+*/
 
 #if UV_ATLASED
 	float4 col = tex2Dlod(_MainTex_ATL, float4(i.texcoord,0,mip));
@@ -174,25 +176,32 @@
 	float4 col = tex2D(_MainTex_ATL, i.texcoord);
 #endif
 
+	//col.rgb = i.edgeNorm2 + 0.5; Preview mesh may be using a wrong profile
+
 	float weight;
 	float3 worldNormal = DetectSmoothEdge(
-#if EDGE_WIDTH_FROM_COL_A
-		col.a,
-#endif
+//#if EDGE_WIDTH_FROM_COL_A
+	//	col.a,
+//#endif
 		i.edge, i.normal.xyz, i.snormal.xyz, i.edgeNorm0, i.edgeNorm1, i.edgeNorm2, weight);
+
+
+	
+
+//	return col;
 
 	float deWeight = 1 - weight;
 
-#if CLIP_EDGES
+//#if CLIP_EDGES
 	clip(dot(i.viewDir.xyz, worldNormal));
-#endif
+//#endif
 
 	col = col*deWeight + i.vcol*weight;
 
 #if !_BUMP_NONE
 
 
-#if UV_ATLASED || UV_PIXELATED
+#if UV_ATLASED  //|| UV_PIXELATED
 	float4 bumpMap = tex2Dlod(_BumpMapC_ATL, float4(i.texcoord, 0, mip));
 #else
 	float4 bumpMap = tex2D(_BumpMapC_ATL, i.texcoord);

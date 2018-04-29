@@ -57,14 +57,16 @@ public class linearColor : abstract_STD  {
 
    
 
-    public override void Decode(string tag, string data) {
+    public override bool Decode(string tag, string data) {
 
         switch (tag) {
             case "r": r = data.ToFloat(); break;
             case "g": g = data.ToFloat(); break;
             case "b": b = data.ToFloat(); break;
             case "a": a = data.ToFloat(); break;
+            default: return false;
         }
+        return true;
 
     }
 

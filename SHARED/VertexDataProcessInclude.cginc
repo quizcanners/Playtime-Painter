@@ -103,7 +103,7 @@ inline float getLOD(float2 uv, float4 _TexelSize) {
 }
 
 
-inline void atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {
+inline float atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {
 
 	_TexelSize.zw *= 0.5 * atlasedUV.w;
 	float2 px = _TexelSize.z * ddx(uv);
@@ -114,7 +114,14 @@ inline void atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float
 	float seam = (_TexelSize.x)*pow(2, lod);
 
 	uv = frac(uv)*(atlasedUV.w - seam) + atlasedUV.xy + seam * 0.5;
+
+	return seam;
 }
+
+inline void atlasUV(inout float2 uv, float seam, float4 atlasedUV) {
+	uv = frac(uv)*(atlasedUV.w - seam) + atlasedUV.xy + seam * 0.5;
+}
+
 
 // Old depricated
 inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
@@ -230,18 +237,10 @@ inline void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
 
 }
 
-inline float2 DetectEdge(float4 vcol){
-
-				vcol = max(0, vcol - 0.965);
-				vcol.a = min(1, vcol.a * 28);
-
-				float allof = vcol.r+vcol.g+vcol.b;
-				float border = min(1,(allof)*(28)+ vcol.a); 
-
-				return float2(border, vcol.a);
-
-				// use vcol.a to apply color
-
+inline float2 DetectEdge(float4 edge){
+	edge = max(0, edge - 0.965) * 28.5715;
+	float border = max(max(edge.r, edge.g), edge.b);
+	return float2(border, min(1,edge.a)*border);
 }
 
 inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
@@ -697,7 +696,7 @@ inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 V
 
 inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES, float3 normal) {
 
-	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w + normal*0.5
+	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w + normal*0.25
 		;
 
 	bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
@@ -731,3 +730,70 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	return bake;
 }
 
+inline void PointLight(inout float3 scatter, inout float3 glossLight, inout float3 directLight,
+float3 vec, float3 normal, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol, float power
+	) {
+
+	
+	float len = length(vec);
+	vec /= len;
+
+	float direct = max(0, dot(normal, -vec));
+	direct = saturate(direct - ambientBlock * (1 - direct))*directBake; // Multiply by shadow
+
+	float lensq = len * len;
+	float3 distApprox = lcol.rgb / lensq;
+
+
+	float3 halfDirection = normalize(viewDir - vec);
+	float NdotH = max(0.01, (dot(normal, halfDirection)));
+	float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
+
+	scatter += distApprox * bake * lcol.a;
+	glossLight += lcol.rgb*normTerm*direct;
+	directLight += distApprox * direct;
+
+}
+
+inline void PointLightTransparent(inout float3 scatter, inout float3 directLight,
+	float3 vec, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol
+) {
+
+
+	float len = length(vec);
+	vec /= len;
+
+	float direct = directBake;// saturate(direct - ambientBlock * (1 - direct))*directBake; // Multiply by shadow
+
+	float lensq = len * len;
+	float3 distApprox = lcol.rgb / lensq;
+
+	float power = pow(max(0.01, dot(viewDir, vec)), 256*(2.5- directBake));
+	//float3 halfDirection = normalize(viewDir - vec);
+	//float NdotH = max(0.01, (dot(normal, halfDirection)));
+	//float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
+
+	scatter += distApprox * bake * lcol.a;
+	//glossLight += lcol.rgb*normTerm*direct;
+	directLight += (distApprox  + lcol.rgb*power) * direct;
+
+}
+
+inline void DirectionalLight(inout float3 scatter, inout float3 glossLight, inout float3 directLight, 
+	float shadow,  float3 normal, float3 viewDir, float ambientBlock, float bake, float power) {
+	shadow = saturate(shadow * 2 - ambientBlock);
+
+	float direct = max(0, dot(_WorldSpaceLightPos0, normal));
+	direct = direct * shadow; // Multiply by shadow
+
+	float halfDirection = normalize(viewDir + _WorldSpaceLightPos0.xyz);
+	float NdotH = max(0.01, (dot(normal, halfDirection)));
+	float normTerm = pow(NdotH, power);
+
+	_LightColor0.rgb *= direct;
+
+	glossLight +=  + normTerm * _LightColor0.rgb;
+	directLight += _LightColor0.rgb;
+	scatter += ShadeSH9(float4(normal, 1))*bake;
+
+}

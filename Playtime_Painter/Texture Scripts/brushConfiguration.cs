@@ -14,6 +14,12 @@ namespace Playtime_Painter
 
     public static class BrushExtensions
     {
+
+        public static bool GetFlag(this BrushMask mask, int flag)
+        {
+            return (mask & (BrushMask)(Mathf.Pow(2,flag))) != 0;
+        }
+
         public static bool GetFlag(this BrushMask mask, BrushMask flag)
         {
             return (mask & flag) != 0;
@@ -31,6 +37,9 @@ namespace Playtime_Painter
     public class BrushConfig : PainterStuff_STD 
     {
 
+        public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
+        public static BrushConfigPEGIplugin brushConfigPegies;
+
         public override stdEncoder Encode()
         {
             stdEncoder cody = new stdEncoder();
@@ -42,7 +51,7 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override void Decode(string tag, string data)
+        public override bool Decode(string tag, string data)
         {
 
             switch (tag)
@@ -58,7 +67,7 @@ namespace Playtime_Painter
 
                 case "mode": _bliTMode = data.ToInt(); break;
 
-                case linearColor.toryTag: colorLinear.Reboot(data); break;
+                case linearColor.toryTag: colorLinear.Decode(data); break;
 
                 case "source": selectedSourceTexture = data.ToInt(); break;
 
@@ -75,7 +84,9 @@ namespace Playtime_Painter
                 case "speed": speed = data.ToFloat(); break;
                 // case "smooth": Smooth= data.ToBool(); break;
                 case "maskOff": maskOffset = data.ToVector2(); break;
+                default: return false;
             }
+            return true;
 
 
         }
@@ -172,8 +183,7 @@ namespace Playtime_Painter
 
             return isA3d;
         }
-
-
+        
         public float speed = 10;
         public bool MB1ToLinkPositions;
         public bool DontRedoMipmaps;
@@ -213,6 +223,16 @@ namespace Playtime_Painter
                 pntr.RecordingMGMT();
                 t.PaintToTexture2D(pntr, this, stroke);
             } else {
+
+                var md = pntr.matDta;
+
+                if (id.renderTexture == null && !texMGMT.materialsUsingTendTex.Contains(md)) {
+                    texMGMT.changeBufferTarget(id, md, pntr.MaterialTexturePropertyName, pntr);
+                    //materialsUsingTendTex.Add(md);
+                    pntr.SetTextureOnMaterial(id);
+                    //Debug.Log("Adding RT target");
+                }
+
                 bool rendered = false;
 
                 foreach (var pl in texMGMT.plugins)
@@ -266,15 +286,12 @@ namespace Playtime_Painter
                 changed |= pegi.select<BrushType>(ref inGPUtype, BrushType.allTypes);
             }
 
-
             bool overrideBlitModePegi = false;
 
-            foreach (var pl in texMGMT.plugins)
-                if (pl.BrushConfigPEGI(ref overrideBlitModePegi, this).nl())
-                {
-                    pl.SetToDirty();
-                    changed = true;
-                }
+            if (brushConfigPegies != null)
+            foreach (BrushConfigPEGIplugin pl in brushConfigPegies.GetInvocationList())
+                changed |= pl(ref overrideBlitModePegi, this).nl();
+               
 
             if (p != null)
             foreach (var pl in p.plugins)
@@ -372,7 +389,8 @@ namespace Playtime_Painter
             }
 #endif
 
-            if ((!p.isOriginalShader) && (cfg.moreOptions))
+            if //(
+                (!p.isOriginalShader)// && (cfg.moreOptions))
                 changed |= pegi.toggle(ref cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
 
 
@@ -408,14 +426,35 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider)
-        {
+        public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider) {
             if (icon == null)
                 icon = m.getIcon();
 
-            bool changed = false;
+            string letter = m.ToString();
             bool maskVal = mask.GetFlag(m);
-            if (maskVal ? pegi.Click(icon, 25) : pegi.Click(m.ToString() + " disabled")) {
+
+            if (inspectedPainter != null && inspectedPainter.meshEditing && meshMGMT.meshTool == VertexColorTool.inst) {
+
+                var mat = inspectedPainter.material;
+                if (mat != null) {
+                    var tag = mat.GetTag(PainterConfig.vertexColorRole + letter, false, null);
+                    if (tag != null && tag.Length > 0)
+                    {
+                       
+                        if (maskVal)
+                            (tag+":").nl();
+                        else
+                            letter = tag+" ";
+                    }
+
+                    
+                }
+
+            }
+
+            bool changed = false;
+            
+            if (maskVal ? pegi.Click(icon, 25) : pegi.Click(letter + " disabled")) {
                 MaskToggle(m);
                 changed = true;
             }
@@ -431,7 +470,7 @@ namespace Playtime_Painter
         public bool ColorSliders_PEGI()
         {
 
-            if (PlaytimePainter.inspectedPainter != null)
+            if (inspectedPainter != null)
                 return ColorSliders();
 
             bool changed = false;

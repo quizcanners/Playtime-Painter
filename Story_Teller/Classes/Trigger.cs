@@ -82,14 +82,16 @@ namespace StoryTriggerData {
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
                 case "e": enm = data.ToDictionaryIntString_STD(); break;
                 case "s": isStatic = data.ToBool(); break;
+                default: return false;
             }
+            return true;
 
         }
 

@@ -52,11 +52,11 @@ public static class SentenceEditorExtensions {
             return enc;
 	}
 
-	public override void Decode (string subtag, string data){
+	public override bool Decode (string subtag, string data){
             
             int l = subtag.ToInt();
             setTranslation((Languages)l, data);
-
+        return true;
 	}
 
 	public override string getDefaultTagName(){
@@ -87,7 +87,7 @@ public static class SentenceEditorExtensions {
         txt = new List<string>();
 
         if (data != null)
-           Reboot(data);
+           Decode(data);
     }
 
     public Sentance(string str, Languages len) {

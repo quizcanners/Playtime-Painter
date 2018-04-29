@@ -12,6 +12,143 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
+
+    [Serializable]
+    public class MeshPackagingProfile : abstract_STD
+    {
+        public List<VertexSolution> sln;
+
+        public string name = "";
+
+        public const string folderName = "Mesh Profiles";
+
+        public override bool PEGI()
+        {
+
+            "Profile Name: ".edit(80, ref name);
+
+#if UNITY_EDITOR
+
+            string path = PainterConfig.inst.meshesFolderName + "/" + folderName;
+            if (icon.save.Click("Save To:" + path, 25).nl())
+            {
+                this.SaveToAssets(path, name).RefreshAssetDatabase();
+                (name + " Saved to " + path).showNotification();
+                AssetDatabase.Refresh();
+            }
+
+
+            UnityEngine.Object myType = null;
+            if (pegi.edit(ref myType).nl())
+            {
+                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Decode(ResourceLoader.LoadStory(myType)));
+
+                PainterConfig.inst.meshPackagingSolutions.Add(msol);
+                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterConfig.inst.meshPackagingSolutions.Count - 1;
+            }
+#endif
+
+
+            bool changed = false;
+            for (int i = 0; i < sln.Count; i++)
+                changed |= sln[i].PEGI().nl();
+
+            return changed;
+        }
+
+        public override string ToString()
+        {
+            return name;
+        }
+
+        public bool Repack(MeshConstructor sm)
+        {
+
+
+            if (!sm.valid)
+            {//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
+                Debug.Log("Got no stuff to regenerate mesh. ");
+                return false;
+            }
+
+            sm.mesh.Clear();
+
+            MeshSolutions.curMeshDta = sm;
+
+            MeshSolutions.dataTypeFilter = null;
+
+            foreach (VertexSolution vs in sln)
+                if (vs.enabled) vs.Pack();
+
+            foreach (VertexDataType vt in MeshSolutions.types)
+                vt.Clear();
+
+            return true;
+        }
+
+        public bool UpdatePackage(MeshConstructor sm, Type dataType) {
+
+           // if (!sm.valid)
+           //{//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
+           //  Debug.Log("Got no stuff to regenerate mesh. ");
+           //  return false;
+           //}
+
+            MeshSolutions.curMeshDta = sm;
+
+            MeshSolutions.dataTypeFilter = dataType;
+
+            foreach (VertexSolution vs in sln)
+                if (vs.enabled) vs.Pack();
+
+            foreach (VertexDataType vt in MeshSolutions.types)
+                vt.Clear();
+
+            return true;
+        }
+
+        public override stdEncoder Encode()
+        {
+            stdEncoder cody = new stdEncoder();
+
+            cody.AddText("n", name);
+            cody.AddIfNotEmpty("sln", sln);
+
+
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "n": name = data; break;
+                case "sln": sln = data.ToListOf_STD<VertexSolution>(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        public const string stdTag_vertSol = "vertSol";
+
+        public override string getDefaultTagName()
+        {
+            return stdTag_vertSol;
+        }
+
+        public MeshPackagingProfile()
+        {
+            VertexDataTarget[] trgs = MeshSolutions.targets;
+            sln = new List<VertexSolution>(); //[trgs.Length];
+            name = "unnamedd";
+            for (int i = 0; i < trgs.Length; i++)
+                sln.Add(new VertexSolution(trgs[i]));
+        }
+
+    }
+
+
+
     public abstract class VertexDataTarget
     {
         public byte chanelsHas;
@@ -103,8 +240,6 @@ namespace Playtime_Painter
             return null;
         }
 
-
-
         public virtual Vector2[] getV2(VertexDataTarget trg)
         {
             Debug.Log("Mesh Data type " + this.GetType() + " does not provide Vector2 array");
@@ -146,11 +281,13 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "t": typeIndex = data.ToInt(); break;
                 case "v": valueIndex = data.ToInt(); break;
+                default: return false;
             }
+            return true;
         }
 
         public override string getDefaultTagName()
@@ -158,8 +295,6 @@ namespace Playtime_Painter
             Debug.Log("Shouldn't be calling this");
             return "none";
         }
-
-    
 
     }
 
@@ -267,13 +402,15 @@ namespace Playtime_Painter
             }
         }
 
-        void PackVector3()
-        {
+        void PackVector3() {
 
             Vector3[] ar;
 
             if (sameSizeValue != null)
             {
+                if (MeshSolutions.dataTypeFilter != null &&  sameSizeValue.GetType() != MeshSolutions.dataTypeFilter)
+                    return;
+
                 sameSizeValue.GenerateIfNull();
 
                 ar = sameSizeValue.getV3(target);
@@ -281,14 +418,12 @@ namespace Playtime_Painter
             }
             else
             {
-
                 ar = new Vector3[MeshSolutions.vcnt];
 
                 for (int i = 0; i < MeshSolutions.vcnt; i++)
                     ar[i] = new Vector3();
 
-                for (int i = 0; i < 3; i++)
-                {
+                for (int i = 0; i < 3; i++) {
                     VertexDataValue v = vals[i];
                     float[] tmp = v.getDataArray();
 
@@ -311,6 +446,9 @@ namespace Playtime_Painter
 
             if (sameSizeValue != null)
             {
+                if (MeshSolutions.dataTypeFilter != null && sameSizeValue.GetType() != MeshSolutions.dataTypeFilter)
+                    return;
+
                 sameSizeValue.GenerateIfNull();
 
                 ar = sameSizeValue.getV4(target);
@@ -359,14 +497,16 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "en": enabled = data.ToBool();  break;
                 case "t": targetIndex = data.ToInt(); if (!enabled) initVals(); break;
                 case "vals": vals = data.ToListOf_STD<VertexDataValue>(); sameSizeDataIndex = -1; break;
                 case "sameSize": sameSizeDataIndex = data.ToInt(); initVals(); break;
-              
+
+                default: return false;
             }
+            return true;
         }
 
         public override string getDefaultTagName()
@@ -375,105 +515,11 @@ namespace Playtime_Painter
         }
     }
 
-    
-    [Serializable]
-    public class MeshPackagingProfile: abstract_STD {
-        public List<VertexSolution> sln;
-
-        public string name = "";
-
-        public const string folderName = "Mesh Profiles";
-
-        public override bool PEGI() {
-            
-            "Profile Name: ".edit(80, ref name);
-
-#if UNITY_EDITOR
-
-            string path = PainterConfig.inst.meshesFolderName + "/" + folderName;
-            if (icon.save.Click("Save To:" + path, 25).nl()) {
-                this.SaveToAssets(path, name).RefreshAssetDatabase();
-                (name + " Saved to " + path).showNotification();
-                AssetDatabase.Refresh();
-            }
-
-
-            UnityEngine.Object myType = null;
-            if (pegi.edit(ref myType).nl()) {
-                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Reboot(ResourceLoader.LoadStory(myType)));
-                
-                PainterConfig.inst.meshPackagingSolutions.Add(msol);
-                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterConfig.inst.meshPackagingSolutions.Count - 1;
-            }
-#endif
-
-
-            bool changed = false;
-            for (int i = 0; i < sln.Count; i++)
-                changed |= sln[i].PEGI().nl();
-
-            return changed;
-        }
-
-        public override string ToString() {
-            return name;
-        }
-
-        public void StartPacking(MeshConstructor sm) {
-
-            if (!sm.valid){//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
-                Debug.Log("Got no stuff to regenerate mesh. ");
-                return;
-            }
-
-            sm.mesh.Clear();
-
-            MeshSolutions.curMeshDta = sm;
-
-            foreach (VertexSolution vs in sln)
-                if (vs.enabled) vs.Pack();
-
-            foreach (VertexDataType vt in MeshSolutions.types)
-                vt.Clear();
-        }
-
-        public override stdEncoder Encode()
-        {
-            stdEncoder cody = new stdEncoder();
-
-            cody.AddText("n", name);
-            cody.AddIfNotEmpty("sln", sln);
-
-
-            return cody;
-        }
-
-        public override void Decode(string tag, string data)  {
-            switch (tag) {
-                case "n": name = data; break;
-                case "sln": sln = data.ToListOf_STD<VertexSolution>(); break;
-            }
-        }
-
-        public const string stdTag_vertSol = "vertSol";
-
-        public override string getDefaultTagName()
-        {
-            return stdTag_vertSol;
-        }
-
-        public MeshPackagingProfile() {
-            VertexDataTarget[] trgs = MeshSolutions.targets;
-            sln = new List<VertexSolution>(); //[trgs.Length];
-            name = "unnamedd";
-            for (int i = 0; i < trgs.Length; i++)
-                sln.Add(new VertexSolution(trgs[i]));
-        }
-
-    }
-
+  
     public static class MeshSolutions
     {
+
+        public static Type dataTypeFilter;
 
         public const string shaderPreferedPackagingSolution = "Solution";
 
@@ -497,7 +543,10 @@ namespace Playtime_Painter
 
             get { return _curMeshDra; }
 
-            set { _curMeshDra = value; vcnt = _curMeshDra.verts.Length; chanelMedium = new float[vcnt]; }
+            set { _curMeshDra = value;
+                vcnt = value.vertsCount;
+                chanelMedium = new float[vcnt];
+            }
 
         }
 
@@ -512,9 +561,11 @@ namespace Playtime_Painter
             public override void set(Vector3[] dta)
             {
                 curMeshDta.mesh.vertices = dta;
-                curMeshDta.mesh.subMeshCount = curMeshDta.tris.Length;
-                for (int sm = 0; sm < curMeshDta.tris.Length; sm++)
-                    curMeshDta.mesh.SetTriangles(curMeshDta.tris[sm], sm, true, 0);
+                if (curMeshDta.tris != null) {
+                    curMeshDta.mesh.subMeshCount = curMeshDta.tris.Length;
+                    for (int sm = 0; sm < curMeshDta.tris.Length; sm++)
+                        curMeshDta.mesh.SetTriangles(curMeshDta.tris[sm], sm, true, 0);
+                }
             }
 
             public override string name()
@@ -732,7 +783,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (vertices == null)
-                    vertices = curMeshDta.verts;
+                    vertices = curMeshDta._position;
  
             }
 
@@ -872,7 +923,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v3norms == null)
-                    v3norms = curMeshDta.normals;
+                    v3norms = curMeshDta._normals;
             }
 
            
@@ -928,7 +979,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (v3norms == null)
-                    v3norms = curMeshDta.sharpNormals;
+                    v3norms = curMeshDta._sharpNormals;
 
             }
 
@@ -949,8 +1000,7 @@ namespace Playtime_Painter
             {
                 v3norms = null;
             }
-
-
+            
             public override string ToString()
             {
                 return "SharpNormal";
@@ -1033,7 +1083,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (inds == null) 
-                    inds = curMeshDta.originalIndex;
+                    inds = curMeshDta._vertexIndex;
                 
             }
 
@@ -1257,6 +1307,60 @@ namespace Playtime_Painter
             }
         }
 
+        public class vertexEdgeByWeight : VertexDataType
+        {
+            public static vertexEdgeByWeight inst;
+            const int dataSize = 3;
+
+            Vector3[] edges;
+
+            public override void GenerateIfNull()
+            {
+
+                if (edges == null)
+                    edges = curMeshDta._edgeDataByWeight;
+
+            }
+
+            public override Vector3[] getV3(VertexDataTarget trg)
+            {
+                return edges;
+            }
+
+            public override float[] getValue(int no)
+            {
+                for (int i = 0; i < vcnt; i++)
+                    chanelMedium[i] = edges[i][no];
+
+                return chanelMedium;
+            }
+
+            public override string ToString()
+            {
+                return "Edge * weight";
+            }
+
+            public override string getFieldName(int ind)
+            {
+                switch (ind)
+                {
+                    case 0: return "x";
+                    case 1: return "y";
+                    case 2: return "z";
+                }
+                return "Error";
+            }
+
+            public vertexEdgeByWeight(int index) : base(dataSize, index)
+            {
+                inst = this;
+            }
+            public override void Clear()
+            {
+                edges = null;
+            }
+        }
+
         public class edgeNormal_0 : VertexDataType
         {
             public static edgeNormal_0 inst;
@@ -1427,7 +1531,7 @@ namespace Playtime_Painter
 
         new vertexShadow(8), new vertexAtlasedTextures(9),  new vertexNull(10), new vertexEdge(11),
 
-        new edgeNormal_0(12), new edgeNormal_1(13), new edgeNormal_2(14)
+        new edgeNormal_0(12), new edgeNormal_1(13), new edgeNormal_2(14), new vertexEdgeByWeight(15)
 
     };
 

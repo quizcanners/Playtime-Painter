@@ -57,19 +57,15 @@ namespace StoryTriggerData {
         [NonSerialized]
         bool Loaded;
       
-
-        public override void Decode(string tag, string data) {
-
-            //UnityEngine.Debug.Log("Decoding: "+data);
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "name": gameObject.name = data; break;
-                case "spos": UniversePosition.playerPosition.Reboot(data); AfterPlayerSpacePosUpdate();  break;
-                case "pages":
-                    HOMEpages = data.ToListOfStoryPoolablesOfTag<Page>(Page.storyTag);
-                    break;
+                case "spos": UniversePosition.playerPosition.Decode(data); AfterPlayerSpacePosUpdate();  break;
+                case "pages":HOMEpages = data.ToListOfStoryPoolablesOfTag<Page>(Page.storyTag); break;
+                default: return false;
             }
-
+            return true;
         }
 
         public override void Reboot() {
@@ -79,13 +75,11 @@ namespace StoryTriggerData {
             Loaded = false;
         }
 
-        public override iSTD Reboot(string data) {
+        public override iSTD Decode(string data) {
             Reboot();
 
-            var cody = new stdDecoder(data);
+            new stdDecoder(data).DecodeTagsFor(this);
 
-            while (cody.gotData)
-                Decode(cody.getTag(), cody.getData());
             return this;
         }
 
@@ -103,7 +97,7 @@ namespace StoryTriggerData {
         public static string PrefabsResourceFolder = "stdPrefabs";
 
         public void LoadOrInit() {
-            Reboot(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, gameObject.name, storyTag));
+            Decode(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, gameObject.name, storyTag));
             Loaded = true;
         }
 
@@ -247,7 +241,7 @@ namespace StoryTriggerData {
 
                 if (icon.Add.Click(25).nl()) {
                     Page sp = pool.getOne();
-                    sp.Reboot(null);
+                    sp.Decode(null);
                     HOMEpages.Add(sp);
                     sp.OriginBook = this.gameObject.name;
                 }

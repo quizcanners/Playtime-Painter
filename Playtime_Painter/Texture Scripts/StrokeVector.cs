@@ -92,7 +92,7 @@ namespace Playtime_Painter {
             return s;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "fU": dwn(data.ToVector2());  break;
@@ -100,7 +100,9 @@ namespace Playtime_Painter {
                 case "tU": uvTo = data.ToVector2(); break;
                 case "tP": posTo = data.ToVector3(); break;
                 case "Up": mouseUp = true; break;
+                default: return false;
             }
+            return true;
 
         }
 

@@ -5,12 +5,14 @@ using UnityEngine;
 namespace Playtime_Painter{
 
 
-public delegate void blitModeFunction(ref Color dst);
-public delegate bool PaintTexture2DMethod (StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr);
-    
+
 public static class Blit_Functions {
 
-    public delegate bool alphaMode_dlg();
+        public delegate void blitModeFunction(ref Color dst);
+        public delegate bool PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr);
+
+
+        public delegate bool alphaMode_dlg();
 
         public static bool r;
         public static bool g;

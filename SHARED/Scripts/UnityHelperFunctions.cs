@@ -18,8 +18,25 @@ using UnityEditor;
 
 public static class UnityHelperFunctions {
 
+    public static bool RaycastGotHit(this Vector3 from, Vector3 vpos) {
+        Vector3 ray = from - vpos;
+        return Physics.Raycast(new Ray(vpos, ray), ray.magnitude);
+    }
 
-	public static string GetUniqueName<T>(this string s, List<T> list){
+    public static bool RaycastGotHit(this Vector3 from, Vector3 vpos, float safeGap)
+    {
+        Vector3 ray = vpos - from;
+
+        float magnitude = ray.magnitude - safeGap;
+
+        if (magnitude < 0) return false;
+        
+        return Physics.Raycast(new Ray(from
+            
+            , ray), magnitude);
+    }
+
+    public static string GetUniqueName<T>(this string s, List<T> list){
 
 		bool match = true;
 		int index = 1;
@@ -270,9 +287,16 @@ public static class UnityHelperFunctions {
         return propertyName.Contains(tag);
     }
 
+    public static bool isPrefab (this GameObject go) {
+#if UNITY_EDITOR
+       return PrefabUtility.GetPrefabParent(go) == null && PrefabUtility.GetPrefabObject(go) != null; // Is a prefab
+#else
+        return false;
+#endif
 
+    }
     // Changing Enabled state will force editor to redraw (Unity 2017)
-    public static void ActiveUpdate(this GameObject go, bool setTo) {
+    public static void SetActiveTo(this GameObject go, bool setTo) {
         if (go.activeSelf != setTo)
             go.SetActive(setTo);
     }
@@ -280,7 +304,7 @@ public static class UnityHelperFunctions {
 
     public static void EnabledUpdate(this Renderer c, bool setTo) {
         //There were some update when enabled state is changed
-        if (c.enabled != setTo)
+        if (c!=null && c.enabled != setTo)
             c.enabled = setTo;
     }
 
@@ -416,6 +440,16 @@ public static class UnityHelperFunctions {
     }
 
 
+    public static bool SavedAsAsset(this UnityEngine.Object go)
+    {
+#if UNITY_EDITOR
+        return (!String.IsNullOrEmpty(AssetDatabase.GetAssetPath(go)));
+#else
+        return true;
+#endif
+
+    }
+
 #if UNITY_EDITOR
     public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) {
          return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
@@ -481,15 +515,6 @@ public static class UnityHelperFunctions {
         string path = AssetDatabase.GetAssetPath(tex);
         if (String.IsNullOrEmpty(path)) return null;
         return path.Replace("Assets", "");
-    }
-
-    public static bool SavedAsAsset (this UnityEngine.Object go) {
-#if UNITY_EDITOR
-        return (!String.IsNullOrEmpty(AssetDatabase.GetAssetPath(go)));
-#else
-        return true;
-#endif
-
     }
 
 	public static Texture2D rewriteOriginalTexture_NewName(this Texture2D tex, string name) {

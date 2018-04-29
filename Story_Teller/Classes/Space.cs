@@ -174,7 +174,7 @@ namespace StoryTriggerData {
 
     }
         
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "MP": MP = data.ToFloat(); break;
@@ -182,9 +182,9 @@ namespace StoryTriggerData {
                 case "LM": LM = data.ToFloat(); break;
                 case "KM": KM = data.ToFloat(); break;
                 case "M": Meters = data.ToFloat(); break;
-                default: Debug.Log(tag + "Not recognized"); break;
+                default: return false;
             }
-
+            return true;
         }
 
         public override stdEncoder Encode() {
@@ -317,12 +317,12 @@ namespace StoryTriggerData {
         }
 
         public UniverseLength(string data) {
-            Reboot(data);
+            Decode(data);
         }
 
-        public override iSTD Reboot(string data) {
+        public override iSTD Decode(string data) {
             Zero();
-            base.Reboot(data);
+            base.Decode(data);
             return this;
         }
 
@@ -340,7 +340,7 @@ namespace StoryTriggerData {
     public class UniversePosition : SpaceValues
     {
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "MP": MP = data.ToVector3(); break;
@@ -348,14 +348,15 @@ namespace StoryTriggerData {
                 case "LM": LM = data.ToVector3(); break;
                 case "KM": KM = data.ToVector3(); break;
                 case "M": Meters = data.ToVector3(); break;
-                default: Debug.Log(tag + "Not recognized"); break;
+                default: return false;
             }
+            return true;
 
         }
 
-        public override iSTD Reboot(string data) {
+        public override iSTD Decode(string data) {
             Zero();
-            base.Reboot(data);
+            base.Decode(data);
             return this;
         }
 

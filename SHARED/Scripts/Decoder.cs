@@ -117,9 +117,7 @@ namespace StoryTriggerData {
 
 
         // Integer
-
-
-
+        
         public static bool ToBool(this string data) {
             return data == "y";
         }
@@ -133,14 +131,14 @@ namespace StoryTriggerData {
             return uint.Parse(data);
         }
 
+
         // Float
 
         public static float ToFloat(this string data) {
             return float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
 
         }
-
-
+        
 
         // List (int)
 
@@ -177,6 +175,8 @@ namespace StoryTriggerData {
 
             return l;
         }
+
+
         // ToSlistOfStorySaveable
 
         public static List<List<T>> ToListOfList_STD<T>(this string data) where T : iSTD, new()
@@ -202,7 +202,7 @@ namespace StoryTriggerData {
             while (cody.gotData) {
                 cody.getTag();
                 T tmp = new T();
-                tmp.Reboot(cody.getData());
+                tmp.Decode(cody.getData());
                 l.Add(tmp);
             }
 
@@ -219,11 +219,10 @@ namespace StoryTriggerData {
 
             return dic;
         }
-
-
+        
         public static linearColor ToLinearColor(this string data) {
             linearColor lc = new linearColor();
-            lc.Reboot(data);
+            lc.Decode(data);
             return lc;
         }
 
@@ -243,12 +242,11 @@ namespace StoryTriggerData {
 
             return c;
         }
-
-
+        
     }
 
 
-    public class stdDecoder {
+    public class stdDecoder  {
 
         string data;
         int position;
@@ -262,36 +260,40 @@ namespace StoryTriggerData {
         }
 
         public void DecodeTagsFor(iSTD storyComponent) {
-            while (gotData) {
 
+            var unrec = storyComponent as iKeepUnrecognizedSTD;
+
+            if (unrec == null)
+                foreach (var tag in enumerator)
+                    storyComponent.Decode(tag, getData());
+            else
+                foreach (var tag in enumerator) {
+                    var d = getData();
+                    if (!storyComponent.Decode(tag, d))
+                        unrec.Unrecognized(tag, d);
+                }
+
+            /*while (gotData) {
                 string tag = getTag();
-                //Debug.Log("tag: " + tag);
-
 
                 if (tag == null)
                     return;
 
                 storyComponent.Decode(tag, getData());
-
-            }
+            }*/
         }
 
         string toNextSplitter() {
             int start = position;
             while (data[position] != stdEncoder.splitter)
                 position++;
-
             position++;
-
             return data.Substring(start, position - start - 1);
-
         }
 
         public bool gotData { get { return position < data.Length; } }
 
         public string getTag() {
-
-
 
             if (position >= data.Length)
                 return null;
@@ -304,8 +306,9 @@ namespace StoryTriggerData {
             }
             expectingGetData = true;
 
-            return toNextSplitter();
+            _currentTag = toNextSplitter();
 
+            return _currentTag;
         }
 
         public string getData() {
@@ -313,8 +316,7 @@ namespace StoryTriggerData {
             if (!expectingGetData)
                 Debug.Log("Was expecting Get Tag");
             expectingGetData = false;
-
-
+            
             int length = Int32.Parse(toNextSplitter());
 
             string result = data.Substring(position, length);
@@ -323,5 +325,13 @@ namespace StoryTriggerData {
             return result;
         }
 
+        string _currentTag;
+        public IEnumerable<string> enumerator { get { while (NextTag()) { yield return _currentTag; } } }
+
+        public bool NextTag() {
+            if (expectingGetData)
+                getData();
+            return getTag() != null;
+        }
     }
 }

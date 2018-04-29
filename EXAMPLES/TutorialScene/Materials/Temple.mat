@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Temple
+  m_Shader: {fileID: 4800000, guid: e43fdff7d0252b347a071b009c6c8770, type: 3}
+  m_ShaderKeywords: UV_ATLASED VERT_SHADOW _BUMP_COMBINED _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BakedShadow_VOL:
+        m_Texture: {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapC:
+        m_Texture: {fileID: 2800000, guid: fc677faa1dbe03a4bb9d642ac9b2c96b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapC_ATL:
+        m_Texture: {fileID: 2800000, guid: fc677faa1dbe03a4bb9d642ac9b2c96b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex_ATL:
+        m_Texture: {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Microdetail:
+        m_Texture: {fileID: 2800000, guid: 528f3ebab7f594f47879e4013deece5b, type: 3}
+        m_Scale: {x: 16, y: 16}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ALPHA: 0
+    - _ATLASED: 1
+    - _AtlasTextures: 4
+    - _BUMP: 2
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.538
+    - _GlossyReflections: 1
+    - _Merge: 0.31
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _PROJECTED: 0
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 1
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    - _vertShad: 1
+    m_Colors:
+    - VOLUME_H_SLICES: {r: 8, g: 127, b: 0.003937008, a: 0.125}
+    - VOLUME_POSITION_N_SIZE: {r: 104.9, g: 1.71, b: 137.7, a: 3.3333333}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - l0col: {r: 1.8396235, g: 30, b: 2.2689474, a: 0.1}
+    - l0pos: {r: 112.44, g: 4.021, b: 140.78, a: 0}
+    - l1col: {r: 30, g: 24.445421, b: 23.349056, a: 0.1}
+    - l1pos: {r: 101.795, g: 3.38, b: 130.837, a: 0}
+    - l2col: {r: 108.05, g: 7.538371, b: 0, a: 0.3}
+    - l2pos: {r: 94.45, g: 11.72, b: 155.9, a: 0}

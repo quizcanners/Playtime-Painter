@@ -137,7 +137,7 @@ public static class TextureEditorExtensionFunctions  {
             cody.Add("mode", brush._bliTMode);
 
             if (mode.showColorSliders)
-                cody.AddIfNotNull(brush.colorLinear);
+                cody.Add(brush.colorLinear);
 
             if (mode.usingSourceTexture)
                 cody.Add("source", brush.selectedSourceTexture);
@@ -170,20 +170,21 @@ public static class TextureEditorExtensionFunctions  {
             return cody;
         }
         
-        public static bool needsGrid (this PlaytimePainter pp) {
-            if (pp == null || !pp.enabled) return false;
+        public static bool needsGrid (this PlaytimePainter pntr) {
+            if (pntr == null || !pntr.enabled) return false;
             
-            if (!pp.meshEditing) {
+            if (!pntr.meshEditing) {
 
-                if (!pp.LockEditing && !PainterConfig.inst.showConfig && PlaytimePainter.isCurrent_Tool()) {
-                    if (pp.globalBrushType.needsGrid) return true;
+                if (!pntr.LockTextureEditing && !PainterConfig.inst.showConfig && PlaytimePainter.isCurrent_Tool()) {
+                    if (pntr.globalBrushType.needsGrid) return true;
 
-                    foreach (var p in PainterManager.inst.plugins)
-                        if (p.needsGrid(pp)) return true;
+                    if (GridNavigator.pluginNeedsGrid_Delegates != null)
+                    foreach (PainterBoolPlugin p in GridNavigator.pluginNeedsGrid_Delegates.GetInvocationList())
+                        if (p(pntr)) return true;
                 }
                 return false;
             }
-            else return PainterManager.inst.meshManager.target == pp && PainterConfig.inst.meshTool.showGrid;
+            else return PainterManager.inst.meshManager.target == pntr && PainterConfig.inst.meshTool.showGrid;
         }
 
         public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
@@ -206,7 +207,137 @@ public static class TextureEditorExtensionFunctions  {
                 mgmt.Add(texture);
 
         }
-        
+
+        public static bool TargetIsTexture2D(this ImageData id)
+        {
+            if (id == null) return false;
+            return id.destination == texTarget.Texture2D;
+        }
+
+        public static bool TargetIsRenderTexture(this ImageData id)
+        {
+            if (id == null) return false;
+            return id.destination == texTarget.RenderTexture;
+        }
+
+        public static bool TargetIsBigRenderTexture(this ImageData id)
+        {
+            if (id == null) return false;
+            return (id.destination == texTarget.RenderTexture) && (id.renderTexture == null);
+        }
+
+        public static ImageData getImgDataIfExists(this Texture texture)
+        {
+            if (texture == null)
+                return null;
+
+            if (texture.isBigRenderTexturePair() && PainterManager.inst.imgDataUsingRendTex != null)
+                return PainterManager.inst.imgDataUsingRendTex;
+
+            foreach (ImageData id in PainterManager.inst.imgDatas)
+                if ((id.texture2D == texture) || (id.renderTexture == texture))
+                    return id;
+
+            return null;
+        }
+
+        static ImageData recentImgDta;
+        static Texture recentTexture;
+        public static ImageData getImgData(this Texture texture)
+        {
+            if (texture == null)
+                return null;
+
+            if (recentTexture != null && texture == recentTexture && recentImgDta != null)
+                return recentImgDta;
+
+            var nid = texture.getImgDataIfExists();
+
+            if (nid == null)
+                nid = ScriptableObject.CreateInstance<ImageData>().init(texture);
+
+            recentImgDta = nid;
+            recentTexture = texture;
+
+            return nid;
+        }
+
+        public static bool isBigRenderTexturePair(this Texture tex)
+        {
+            return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.inst.BigRT_pair[0])));
+        }
+
+        public static bool ContainsDuplicant(this List<ImageData> texs, ImageData other)
+        {
+
+            if (other == null)
+                return true;
+
+            for (int i = 0; i < texs.Count; i++)
+                if (texs[i] == null) { texs.RemoveAt(i); i--; }
+
+            foreach (ImageData t in texs)
+                if (t.Equals(other))
+                    return true;
+
+            return false;
+        }
+
+        public static Texture getDestinationTexture(this Texture texture)
+        {
+
+            ImageData id = texture.getImgDataIfExists();
+            if (id != null)
+                return id.currentTexture();
+
+            return texture;
+        }
+
+        public static RenderTexture currentRenderTexture(this ImageData id)
+        {
+            if (id == null)
+                return null;
+            return id.renderTexture == null ? PainterManager.inst.BigRT_pair[0] : id.renderTexture;
+        }
+
+        public static Texture exclusiveTexture(this ImageData id)
+        {
+            if (id == null)
+                return null;
+            switch (id.destination)
+            {
+                case texTarget.RenderTexture:
+                    return id.renderTexture == null ? (Texture)id.texture2D : (Texture)id.renderTexture;
+                case texTarget.Texture2D:
+                    return id.texture2D;
+            }
+            return null;
+        }
+
+        public static Texture currentTexture(this ImageData id)
+        {
+            if (id == null)
+                return null;
+            switch (id.destination)
+            {
+                case texTarget.RenderTexture:
+                    if (id.renderTexture != null)
+                        return id.renderTexture;
+                    if (PainterManager.inst.imgDataUsingRendTex == id)
+                        return PainterManager.inst.BigRT_pair[0];
+                    id.destination = texTarget.Texture2D;
+                    return id.texture2D;
+                case texTarget.Texture2D:
+                    return id.texture2D;
+            }
+            return null;
+        }
+
+        public static MaterialData GetMaterialData (this Material mat) {
+            return PainterManager.inst.getMaterialDataFor(mat);
+        }
+
+
     }
 
 }

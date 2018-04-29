@@ -7,10 +7,10 @@ namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class TexturesPool : MonoBehaviour {
+    public class TexturesPool : PainterStuffMono  {
 
         public static TexturesPool _inst;
-        public static TexturesPool inst { get { if (_inst == null) new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool"; return _inst; } }
+        public static TexturesPool inst { get { if (_inst == null && !applicationIsQuitting) new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool"; return _inst; } }
 
         public int width = 256;
 

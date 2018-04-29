@@ -243,16 +243,18 @@ namespace StoryTriggerData
             return cody;
         }
 
-        public void Decode(string subtag, string data) {
+        public bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "v": compareValue = data.ToInt(); break;
                 case "ty": _type = data.ToInt(); break;
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
+                default: return false;
             }
+            return true;
         }
 
-        public iSTD Reboot(string data) {
+        public iSTD Decode(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
         }

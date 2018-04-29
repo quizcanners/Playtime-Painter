@@ -37,7 +37,7 @@ namespace Playtime_Painter {
             BlitModeExtensions.SetShaderToggle(!p.isAtlased(), PainterConfig.UV_NORMAL, PainterConfig.UV_ATLASED);
         }
 
-        public override bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
+        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
             if (pntr.isAtlased()) {
 
                 Vector2 uvCoords = stroke.uvFrom;
@@ -149,7 +149,7 @@ namespace Playtime_Painter {
             bool changed = false;
 
             if (p.isAtlased()) {
-                var m = p.getMaterial(false);
+                var m = p.GetMaterial(false);
                 if (p.isOriginalShader) {
                     if (m.HasProperty(PainterConfig.atlasedTexturesInARow))
                         atlasRows = m.GetInt(PainterConfig.atlasedTexturesInARow);
@@ -186,15 +186,17 @@ namespace Playtime_Painter {
                 Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
 
+      
+
     }
 
     public static class AtlasingExtensions {
         public static bool isAtlased(this PlaytimePainter p) {
             if (p == null) return false;
-            var mat = p.getMaterial(false);
+            var mat = p.GetMaterial(false);
             if (mat == null) return false;
-            return p.getMaterial(false).isAtlased(p.materialTexturePropertyName); }
-        public static bool isProjected(this PlaytimePainter p) { return p.getMaterial(false).isProjected(); }
+            return p.GetMaterial(false).isAtlased(p.MaterialTexturePropertyName); }
+        public static bool isProjected(this PlaytimePainter p) { return p.GetMaterial(false).isProjected(); }
 
         public static bool isAtlased(this Material mat, string property) {
             return mat.isAtlased() && mat.DisplayNameContains(property, PainterConfig.isAtlasableDisaplyNameTag);
@@ -220,7 +222,6 @@ namespace Playtime_Painter {
 
         public string atlasedField;
         public int originField;
-        int atlasIndex;
         public int atlasCreatorId;
         public bool enabled;
         public Color col;
@@ -351,7 +352,7 @@ namespace Playtime_Painter {
 
             painter.UpdateOrSetTexTarget(texTarget.Texture2D);
 
-            Material mat = painter.getMaterial(false);
+            Material mat = painter.GetMaterial(false);
             List<string> tfields = mat.getTextures();
 
             int index = 0;
@@ -419,7 +420,7 @@ namespace Playtime_Painter {
 
                 if (atlPlug.preAtlasingMaterials == null)
                 {
-                    atlPlug.preAtlasingMaterials = painter.getMaterials();
+                    atlPlug.preAtlasingMaterials = painter.GetMaterials();
                     atlPlug.preAtlasingMesh = painter.getMesh();
                     firstAtlasing = true;
                 }
@@ -558,13 +559,15 @@ namespace Playtime_Painter {
         public bool PEGI()
         {
             bool changed = false;
+
+            #if UNITY_EDITOR
             var painter = PlaytimePainter.inspectedPainter;
             inspectedAtlas = this;
-//#if UNITY_EDITOR
+
 
             painter.SetOriginalShaderOnThis();
 
-            Material mat = painter.getMaterial(false);
+            Material mat = painter.GetMaterial(false);
 
             if ((mat != null) && ((mat != originalMaterial) || mat.shader != originalShader))
             {
@@ -591,7 +594,7 @@ namespace Playtime_Painter {
 
             if (painter != null)
             {
-                var mats = painter.getMaterials();
+                var mats = painter.GetMaterials();
                 if (mats != null)
                 {
                     if (mats.Length > 1)
@@ -637,8 +640,12 @@ namespace Playtime_Painter {
                 else if ("Convert to Atlased".Click())
                     ConvertToAtlased(painter);
             }
+#endif
 
             inspectedAtlas = null;
+
+
+
             return changed;
 
         }

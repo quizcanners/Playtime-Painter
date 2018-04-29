@@ -1,8 +1,9 @@
 ﻿Shader "Painter_Experimental/VolumeBakedShadows" {
 	Properties {
-		_MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_MainTex_ATL ("Albedo (RGB) (Atlas)", 2D) = "white" {}
+		//_Glossiness("Smoothness", Range(0,1)) = 0.5
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0
-		[NoScaleOffset]_BumpMapC ("Combined Map", 2D) = "grey" {}
+		[NoScaleOffset]_BumpMapC_ATL ("Combined Map ()", 2D) = "grey" {}
 		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}
 		_Microdetail("Microdetail (RG-bump B:Rough A:AO)", 2D) = "white" {}
 		[Toggle(VERT_SHADOW)] _vertShad("Has Vertex Shadows", Float) = 0
@@ -26,6 +27,8 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
+			"VertexColorRole_A" = "Second Atlas Texture"
+			"VertexColorRole_B" = "Additional Wetness"
 		}
 
 
@@ -38,6 +41,7 @@
 			CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
+#pragma multi_compile_fog
 #pragma multi_compile_fwdbase
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
@@ -48,12 +52,15 @@
 #pragma multi_compile  ___ UV_ATLASED
 #pragma multi_compile  ___ VERT_SHADOW
 
-		uniform sampler2D _MainTex;
-		uniform sampler2D _BumpMapC;
+		uniform sampler2D _MainTex_ATL;
+		uniform sampler2D _BumpMapC_ATL;
 		uniform sampler2D _BakedShadow_VOL;
 		uniform sampler2D _Microdetail;
-		float4 _MainTex_ST;
+		float4 _MainTex_ATL_ST;
 		float4 _Microdetail_ST;
+
+		float _Glossiness;
+		float _AtlasTextures;
 
 		float4 l0pos;
 		float4 l0col;
@@ -61,7 +68,7 @@
 		float4 l1col;
 		float4 l2pos;
 		float4 l2col;
-		float4 _MainTex_TexelSize;
+		float4 _MainTex_ATL_TexelSize;
 		float4 _BakedShadows_VOL_TexelSize;
 		float4 VOLUME_H_SLICES;
 		float4 VOLUME_POSITION_N_SIZE;
@@ -69,34 +76,37 @@
 		struct v2f {
 			float4 pos : SV_POSITION;
 			float4 vcol : COLOR0;
+
 			float3 worldPos : TEXCOORD0;
 			float3 normal : TEXCOORD1;
 			float2 texcoord : TEXCOORD2;
 			float2 texcoord2 : TEXCOORD3;
 			SHADOW_COORDS(4)
-				float3 viewDir: TEXCOORD5;
-#if defined(UV_ATLASED)
-			float4 atlasedUV : TEXCOORD6;
-#endif
-#if !_BUMP_NONE
-			float4 wTangent : TEXCOORD7;
-#endif
-
-#if VERT_SHADOW
-			float4 vertShad : TEXCOORD8;
-#endif
-
+			float3 viewDir: TEXCOORD5;
+			float4 edge : TEXCOORD6;
+			#if defined(UV_ATLASED)
+			float4 atlasedUV : TEXCOORD7;
+			float4 atlasedUV2 : TEXCOORD8;
+			#endif
+			#if !_BUMP_NONE
+			float4 wTangent : TEXCOORD9;
+			#endif
+			#if VERT_SHADOW
+			float4 vertShad : TEXCOORD10;
+			#endif
+			UNITY_FOG_COORDS(11)
 		};
 
 
 		v2f vert(appdata_full v) {
 			v2f o;
-
+		
 
 			o.pos = UnityObjectToClipPos(v.vertex);
+			UNITY_TRANSFER_FOG(o, o.pos);
 			o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 			o.normal.xyz = UnityObjectToWorldNormal(v.normal);
-
+			
 			o.vcol = v.color;
 			o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
@@ -105,13 +115,15 @@
 			o.wTangent.w = v.tangent.w * unity_WorldTransformParams.w;
 #endif
 
-			o.texcoord = v.texcoord.xy;//TRANSFORM_TEX(v.texcoord.xy, _MainTex); ;
+			o.texcoord = v.texcoord.xy;//TRANSFORM_TEX(v.texcoord.xy, _MainTex_ATL); ;
 			o.texcoord2 = v.texcoord1.xy;
+			o.edge = v.texcoord3;
 
 			TRANSFER_SHADOW(o);
 
 #if defined(UV_ATLASED)
 			vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
+			vert_atlasedTexture(_AtlasTextures, v.texcoord.w, _MainTex_ATL_TexelSize.x, o.atlasedUV2);
 #endif
 
 #if VERT_SHADOW
@@ -125,61 +137,84 @@
 
 		float4 frag(v2f i) : COLOR{
 
-			
+			float2 border = DetectEdge(i.edge);
+			border.x = max(border.y, border.x);// border.y);
+			float deBorder = 1 - border.x;
+			//float deEdge = 1 - border.y;
+
+			//return border.x;
 
 #if UV_ATLASED
-
-			i.texcoord2.xy = (frac(i.texcoord2.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
+			
+		//	i.texcoord2.xy = (frac(i.texcoord2.xy)*(i.atlasedUV.w) + i.atlasedUV.xy); // for damage
+		float2 tc1 = i.texcoord.xy;
+		float2 tc2 = i.texcoord.xy;
 
 		float lod;
 
-		atlasUVlod(i.texcoord, lod, _MainTex_TexelSize, i.atlasedUV);
+		float seam = atlasUVlod(tc1, lod, _MainTex_ATL_TexelSize, i.atlasedUV);
 
-		float4 col = tex2Dlod(_MainTex, float4(i.texcoord, 0, lod));
+		atlasUV(tc2, seam, i.atlasedUV2);
 
 #if !_BUMP_NONE
-		float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, lod));
+		float4 bumpMap = tex2Dlod(_BumpMapC_ATL, float4(tc1, 0, lod));
+		float4 bumpMap2 = tex2Dlod(_BumpMapC_ATL, float4(tc2, 0, lod));
+
+		float border2 =  border.x + i.vcol.a;
+
+		border.x = max(border.x - border.x*deBorder, saturate((border2+bumpMap2.b -0.5-bumpMap.b)*16));
+		deBorder = 1 - border.x;
+
+		bumpMap = bumpMap * deBorder + bumpMap2 * border.x;
+
+		//bumpMap.a -= bumpMap.a*(deBorder*border.x) * 2;
+
 #endif
+
+		float4 col = tex2Dlod(_MainTex_ATL, float4(tc1, 0, lod)) * deBorder
+				+ tex2Dlod(_MainTex_ATL, float4(tc2, 0, lod))*border.x;
 
 #else
-
 			
-			float2 tc = TRANSFORM_TEX(i.texcoord, _MainTex);
-			float4 col = tex2D(_MainTex, tc);
 
-			
+			float2 tc = TRANSFORM_TEX(i.texcoord, _MainTex_ATL);
+			float4 col = tex2D(_MainTex_ATL, tc);
+
+		
 
 #if !_BUMP_NONE
-			float4 bumpMap = tex2D(_BumpMapC, tc);
+			float4 bumpMap = tex2D(_BumpMapC_ATL, tc);
 #endif
 
+			col = col * deBorder + i.vcol*border.x;
+
 #endif
-
-			
-
-		//	col.a *= 0.49;
 
 #if !_BUMP_NONE
 			i.texcoord.xy += 0.001 * (bumpMap.rg - 0.5);
 #endif
 			float4 micro = tex2D(_Microdetail, TRANSFORM_TEX(i.texcoord.xy, _Microdetail));
 
-
+		
 
 #if !_BUMP_NONE
 
-			
 			float3 tnormal;
 
 #if _BUMP_REGULAR
 			tnormal = UnpackNormal(bumpMap);
-			bumpMap = float4(0,0,0.5,1);
+			bumpMap = float4(0,0,1,1);
 #else
 			bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 			tnormal = float3(bumpMap.r, bumpMap.g, 1);
 #endif
 
-			tnormal.rg += (micro.rg - 0.5)*0.5;
+			tnormal.rg += (micro.rg - 0.5)*(1-col.a);
+
+#if !UV_ATLASED
+			tnormal = tnormal * deBorder + float3(0, 0, 1)*border.x;
+			micro.b = micro.b*deBorder + 0.5*border.x;
+#endif
 
 			applyTangent(i.normal, tnormal,  i.wTangent);
 
@@ -187,144 +222,75 @@
 			float4 bumpMap = float4(0,0,0.5,1);
 #endif
 
-		
-			
-
 			bumpMap.a *= micro.a;
+
+#if !UV_ATLASED
+			bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
+#endif
 
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
 
+			i.normal = normalize(i.normal);
+
 			float dotprod = dot(i.viewDir.xyz, i.normal);
 			float fernel = (1.5 - dotprod);
-			float ambientBlock = (1 - bumpMap.a)*dotprod;
+			float ambientBlock = (1 - bumpMap.a)*(3+dotprod);
 			
 			float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*i.normal);
-			ambientBlock *= 4;
+			//ambientBlock *= 4;
 
 			// Point Lights:
 			
 			float4 bake = SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, i.normal);
 
 #if VERT_SHADOW
-			bake = min(bake, i.vertShad);
+			bake = max(bake, i.vertShad);
 #endif
 
-			//col.a = min(col.a, 0.499);
+			bake = 1 - bake;
 
-			float4 directBake = saturate((bake - 0.9) * 10);
+			float4 directBake = saturate((bake - 0.5) * 2);
 
-			const float fourPi = 4 * 3.14;
+			col.a += i.vcol.b*(1 - col.a);
 
-			float power = //1 - col.a*micro.b;
-				//	col.a = //col.a*col.a*(1+micro.b)*0.1;
-				pow(col.a, 8*micro.b)*4096;
-			
-			//col.a = 1 - col.a*micro.b;
-			power = min(128, power);
+			float power = 
+				(pow(col.a, 8*micro.b))*2048;
 
-			//return power;
+			power = max(0.001,min(128, power));
 
 			float3 scatter = 0;
 			float3 glossLight = 0;
 			float3 directLight = 0;
 
-			//0 - Point Light
-			
-		
+			// Point Lights
 
-			float3 vec = i.worldPos.xyz - l0pos.xyz;
-			float len = length(vec);
-			vec /= len;
+			PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l0pos.xyz,
+				i.normal, i.viewDir.xyz, ambientBlock, bake.r, directBake.r, l0col, power);
 
-			float direct = max(0,dot(i.normal.xyz,-vec));
-			direct = saturate(direct - ambientBlock * (1 - direct))*directBake.r; // Multiply by shadow
+			PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l1pos.xyz,
+				i.normal, i.viewDir.xyz, ambientBlock, bake.g, directBake.g, l1col, power);
 
-			float3 distApprox = l0col.rgb / (fourPi*(len*len));
+			PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l2pos.xyz,
+				i.normal, i.viewDir.xyz, ambientBlock, bake.b, directBake.b, l2col, power);
 
-			directLight += distApprox * direct;
-			scatter += distApprox * bake.r * l0col.a;
-
-			float3 halfDirection = normalize(i.viewDir.xyz - vec);
-			float NdotH = max(0, (dot(i.normal, halfDirection)));
-			float normTerm = //GGXTerm(NdotH, power);
-			pow(NdotH, power)*power*0.01;
-
-			glossLight += normTerm * l0col.rgb*direct;
-
-			//1 - Point Light
-			vec = i.worldPos.xyz - l1pos.xyz;
-			len = length(vec);
-			vec /= len;
-
-			direct = max(0, dot(i.normal.xyz, -vec));
-			direct = saturate(direct - ambientBlock * (1 - direct))*directBake.g; // Multiply by shadow
-
-			distApprox = l1col.rgb / (fourPi*(len*len));
-
-			directLight += distApprox * direct;
-			scatter += distApprox * bake.g * l1col.a;
+			glossLight *= 0.1;
+			scatter *= (1 - bake.a);
 
 
-			halfDirection = normalize(i.viewDir.xyz - vec);
-			NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			normTerm =// GGXTerm(NdotH, power);
-				pow(NdotH, power)*power*0.01;
 
-			glossLight += normTerm * l1col.rgb*direct;
-
-			//2 - Point Light
-			vec = i.worldPos.xyz - l2pos.xyz;
-			len = length(vec);
-			vec /= len;
-
-			direct = max(0, dot(i.normal.xyz, -vec));
-			direct = saturate(direct - ambientBlock * (1 - direct))*directBake.b; // Multiply by shadow
-
-			distApprox = l2col.rgb / (fourPi*(len*len));
-
-			directLight += distApprox *direct;
-			scatter += distApprox * bake.b * l2col.a;
+			DirectionalLight(scatter, glossLight, directLight,
+				SHADOW_ATTENUATION(i), i.normal, i.viewDir, ambientBlock, bake.a, power);
 
 
-			halfDirection = normalize(i.viewDir.xyz - vec);
-			//return float4(halfDirection, 0);
-			NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			
-			normTerm = //GGXTerm(NdotH, power);
-				pow(NdotH, power)*power*0.01;
 
-			//return normTerm;
-
-			glossLight += l2col.rgb *normTerm*direct;
+			float smoothness = pow(col.a, 5 - fernel);
+			float deDmoothness = 1 - smoothness;
 
 
-			// Baked Shadows End
-	
-			direct = max(0.01, dot(_WorldSpaceLightPos0, i.normal.xyz));
-			direct = max(0.01, saturate((direct - ambientBlock * (1 - direct))*SHADOW_ATTENUATION(i))); // Multiply by shadow
 
-			directLight += direct * _LightColor0.rgb;
-			scatter = ShadeSH9(float4(i.normal, 1))*bake.a
-				+ scatter * (1 - bake.a)
-				;
+			col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a);
 
-			halfDirection = normalize(i.viewDir.xyz + _WorldSpaceLightPos0.xyz);
-			NdotH = max(0.01, (dot(i.normal, halfDirection)));
-			normTerm = //GGXTerm(NdotH, col.a);
-				pow(NdotH, power)*power*0.01;
-
-			glossLight += normTerm *_LightColor0.rgb*direct;
-
-		
-
-			col.rgb *= (directLight + (scatter) * bumpMap.a);
-
-			col.rgb += (
-				(
-					glossLight
-					) 
-				+ ShadeSH9(float4(-reflected, 1))*bake.a
-				) * (col.a)*fernel;
+			col.rgb += (glossLight+ ShadeSH9(float4(-reflected, 1))*directBake.a) * smoothness;
 
 
 #if	MODIFY_BRIGHTNESS
@@ -336,7 +302,7 @@
 			col.rgb += mix * mix*_lightControl.r;
 #endif
 
-		
+			UNITY_APPLY_FOG(i.fogCoord, col);
 
 
 			return col;

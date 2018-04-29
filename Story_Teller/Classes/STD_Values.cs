@@ -57,7 +57,7 @@ namespace StoryTriggerData {
             return cody;
         }
 
-        public void Decode(string tag, string data) {
+        public bool Decode(string tag, string data) {
             switch (tag) {
                 case "i": iGroup = new InteractionBranch(data);
 
@@ -71,15 +71,17 @@ namespace StoryTriggerData {
                     break;//.Add(new StoryEvent(data)); break;
                 case "ent": OnEnterResults = data.ToListOf_STD<Result>(); break;
                 case "ext": OnExitResults = data.ToListOf_STD<Result>(); break;
-                case "ints": ints.Reboot(data); break;
-                case "bools": bools.Reboot(data); break;
-                case "tags": boolTags.Reboot(data); break;
-                case "enumTags": enumTags.Reboot(data); break;
-                case "qoType": type = (QOoptionType)data.ToInt(); break; 
+                case "ints": ints.Decode(data); break;
+                case "bools": bools.Decode(data); break;
+                case "tags": boolTags.Decode(data); break;
+                case "enumTags": enumTags.Decode(data); break;
+                case "qoType": type = (QOoptionType)data.ToInt(); break;
+                default: return false;
             }
+            return true;
         }
 
-        public iSTD Reboot(string data) {
+        public iSTD Decode(string data) {
             Reboot();
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
@@ -249,7 +251,7 @@ namespace StoryTriggerData {
 
             } else {
 
-                if (("<"+STD_Object.browsed.gameObject.name).Click(40))
+                if (("<"+STD_Poolable.browsed.gameObject.name).Click(40))
                     browsing_interactions = false;
                 else {
                     pegi.newLine();

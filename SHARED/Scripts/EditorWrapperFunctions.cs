@@ -635,8 +635,6 @@ public static class ef {
         return (val != before) ? change : false ;
     }
 
-
-
     public static bool edit(ref float val) {
         checkLine();
         float before = val;
@@ -773,11 +771,22 @@ public static class ef {
         return false;//(String.Compare(before, text) != 0);
     }
 
+    public static bool edit(string label, ref Vector2 val)
+    {
+        checkLine();
+
+        var oldVal = val;
+        val = EditorGUILayout.Vector2Field(label, val );
+      
+        return oldVal != val;
+    }
+
     public static bool edit(ref Vector2 val) {
         checkLine();
         bool modified = false;
-        modified |= ef.edit(ref val.x);
-        modified |= ef.edit(ref val.y);
+
+        modified |= edit(ref val.x);
+        modified |= edit(ref val.y);
         return modified ? change : false;
     }
 

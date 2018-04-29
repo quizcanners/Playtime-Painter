@@ -54,7 +54,9 @@ public class PaintingRecieverEditor : Editor
         }
         public Texture matTex { get {
                 if (material == null) return null;
-                return material.HasProperty(textureField) ? material.GetTexture(textureField) : material.mainTexture; } set {
+                return material.HasProperty(textureField) ? material.GetTexture(textureField) : material.mainTexture;
+
+            } set {
                 if (material.HasProperty(textureField))
                     material.SetTexture(textureField, value);
                 else material.mainTexture = value;   } }

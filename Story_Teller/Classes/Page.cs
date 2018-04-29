@@ -5,19 +5,15 @@ using System.Text;
 using System;
 using PlayerAndEditorGUI;
 
-
-
-
 namespace StoryTriggerData{
 
     [TagName(Page.storyTag)]
     [ExecuteInEditMode]
-    public class Page : STD_Object {
+    public class Page : STD_Poolable {
 
-        List<STD_Object> linkedObjects;
+        List<STD_Poolable> linkedObjects;
 
         public const string storyTag = "page";
-
 
         [NonSerialized]
         public string anotherBook;
@@ -30,7 +26,6 @@ namespace StoryTriggerData{
         bool objectsLoaded;
         public bool noClamping;
         public string OriginBook;
-
 
         public override string getDefaultTagName() {
             return storyTag;
@@ -55,7 +50,7 @@ namespace StoryTriggerData{
 
             anotherBook = "";
 
-            linkedObjects = new List<STD_Object>();
+            linkedObjects = new List<STD_Poolable>();
 
             noClamping = false;
 
@@ -68,7 +63,7 @@ namespace StoryTriggerData{
             objectsLoaded = false;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "name": gameObject.name = data; break;
@@ -76,33 +71,30 @@ namespace StoryTriggerData{
                 case "URL": anotherBook = data; break;
                 case "size": uSize = new UniverseLength(data); break;
                 case "radius": uReach = new UniverseLength(data); break;
-                case UniversePosition.storyTag: sPOS.Reboot(data); break;
+                case UniversePosition.storyTag: sPOS.Decode(data); break;
                 case "noClamp": noClamping = data.ToBool(); break;
                 default:
-                    STD_Object storyObject = STD_Pool.getOne(tag);
+                    STD_Poolable storyObject = STD_Pool.getOne(tag);
 
-                    if (storyObject != null) {
-                        storyObject.LinkTo(this);
-                        storyObject.Reboot(data);
-                    } else
-                        Debug.Log("Unrecognised tag:" + tag);
-                    break;
+                    if (storyObject != null)
+                        storyObject.LinkTo(this).Decode(data);
+                    else
+                        return false; break;
             }
+            return true;
         }
 
         void encodeMeta(stdEncoder cody) {
             cody.AddText("origin", OriginBook);
             cody.AddText("name", gameObject.name);
             cody.AddIfNotEmpty("URL", anotherBook);
-            cody.AddIfNotNull(sPOS);
+            cody.Add(sPOS);
             if (!uSize.Equals(10))
                 cody.Add("size", uSize);
             if (!uReach.Equals(1))
                 cody.Add("radius", uReach);
             if (noClamping) cody.Add("noClamp", noClamping);
         }
-
-
 
         public override stdEncoder Encode() { // Page and it's full content is saved in a saparate file
 
@@ -113,20 +105,14 @@ namespace StoryTriggerData{
             return cody;
         }
 
-
         public stdEncoder EncodeContent() {
-
             var cody = new stdEncoder();
 
-            //encodeMeta(cody);
-
-            foreach (STD_Object sc in linkedObjects)
-                cody.AddIfNotNull(sc);
+            foreach (STD_Poolable sc in linkedObjects)
+                cody.Add(sc);
 
             return cody;
         }
-
-
 
         public void SavePageContent() {
             if (objectsLoaded)
@@ -168,7 +154,7 @@ namespace StoryTriggerData{
             base.Deactivate();
         }
 
-        public void Unlink(STD_Object sb) {
+        public void Unlink(STD_Poolable sb) {
             if (linkedObjects.Remove(sb)) {
                 sb.parentPage = null;
                 if (!STD_Pool.DestroyingAll)
@@ -176,7 +162,7 @@ namespace StoryTriggerData{
             }
         }
 
-        public void Link(STD_Object sb) {
+        public void Link(STD_Poolable sb) {
             if (sb.parentPage != null)
                 sb.parentPage.Unlink(sb);
             sb.transform.parent = transform;
@@ -188,7 +174,7 @@ namespace StoryTriggerData{
             for (int i = linkedObjects.Count - 1; i >= 0; i--)
                 linkedObjects[i].Deactivate();
 
-            linkedObjects = new List<STD_Object>();
+            linkedObjects = new List<STD_Poolable>();
 
             objectsLoaded = false;
         }
@@ -261,13 +247,13 @@ namespace StoryTriggerData{
                         pegi.write(up.pool.prefab);
 
                         if (icon.Add.Click(20))
-                            STD_Pool.all[i].pool.getFreeGO().GetComponent<STD_Object>().LinkTo(this).Reboot(null);
+                            STD_Pool.all[i].pool.getFreeGO().GetComponent<STD_Poolable>().LinkTo(this).Decode(null);
 
                         int Delete = -1;
 
                         for (int o = 0; o < linkedObjects.Count; o++) {
 
-                            STD_Object obj = linkedObjects[o];
+                            STD_Poolable obj = linkedObjects[o];
                             if (obj.poolController == up.pool) {
                                 pegi.newLine();
 

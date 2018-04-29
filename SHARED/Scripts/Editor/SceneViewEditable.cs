@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 #if UNITY_EDITOR
 
@@ -60,13 +61,21 @@ public abstract class SceneViewEditable<T> : Editor where T : MonoBehaviour {
 
         if (e.isMouse) {
 
+            if (e.button != 0) return;
+
             L_mouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
             L_mouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
 
             mousePosition = Event.current.mousePosition;
-            rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
 
+            if (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
+                || mousePosition.x > Camera.current.pixelWidth ||
+                   mousePosition.y > Camera.current.pixelHeight))
+                return;
+            
+            rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
             EditorInputManager.raySceneView = rayGUI;
+          
         }
 
         FeedEvents(e);

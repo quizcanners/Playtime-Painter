@@ -24,6 +24,7 @@ namespace Playtime_Painter {
     }
 #endif
 
+    [ExecuteInEditMode]
     [Serializable]
     public class VolumeTexture : PainterStuffMono, iPEGI, iGotName {
 
@@ -51,11 +52,7 @@ namespace Playtime_Painter {
 
         public Vector4 slices4Shader {get { float w = (tex.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
         
-        public virtual void AssignTo(PlaytimePainter p) {
-            if (!materials.Contains(p.material))
-                materials.Add(p.material);
-            p.ChangeTexture(tex.currentTexture());
-        }
+        public virtual bool needsToManageMaterials { get { return true; } }
 
         public virtual Color GetColorFor(Vector3 pos)
         {
@@ -93,7 +90,23 @@ namespace Playtime_Painter {
 
 
         }
-        
+
+        public virtual void AddIfNew(PlaytimePainter p) {
+            AddIfNew(p.material);
+        }
+
+        public bool AddIfNew (Material mat) {
+            if (!materials.Contains(mat))
+            {
+                materials.Add(mat);
+                if (needsToManageMaterials)
+                    UpdateMaterials();
+
+                return true;
+            }
+            return false;
+        }
+
         public virtual void VolumeToTexture()
         {
             if (tex == null)
@@ -269,25 +282,19 @@ namespace Playtime_Painter {
 
             if (inspectedPainter != null) {
                 var pmat = inspectedPainter.material;
-                if (pmat != null) {
-                    if (!materials.Contains(pmat))  {
-                        if ("Add This Material".Click().nl())
-                            materials.Add(pmat);
-                    }
-                    else if ("Remove This Material".Click().nl())
-                        materials.Remove(pmat);
-                }
+                if (pmat != null &&  materials.Contains(pmat) && "Remove This Material".Click().nl())
+                   materials.Remove(pmat);
             }
 
             materials.PEGI<Material>(true);
 
-            if (materials.Count>0 && ("Update Pos On Materials".Click().nl() || changed))
-                UpdateVolumePositionOnMaterials();
+            if (materials.Count>0 && ("Update Materials".Click().nl() || changed))
+                UpdateMaterials();
             
             return changed;
         }
 
-        public virtual void UpdateVolumePositionOnMaterials() {
+        public virtual void UpdateMaterials() {
             materials.SetVolumeTexture(MaterialPropertyName, this);
         }
         
@@ -295,14 +302,15 @@ namespace Playtime_Painter {
         public virtual void Update() {
             if (previousWorldPosition != transform.position) {
                 previousWorldPosition = transform.position;
-                UpdateVolumePositionOnMaterials();
+                materials.SetVolumeTexture(MaterialPropertyName, this);
             }
-
         }
 
         public virtual void OnEnable() {
+            if (materials == null)
+                materials = new List<Material>();
             all.Add(this);
-            if (materials == null) materials = new List<Material>();
+            
         }
 
         public virtual void OnDisable() {
@@ -321,6 +329,8 @@ namespace Playtime_Painter {
                 Gizmos.DrawWireCube(center, new Vector3(w, height, w) * size);
             }
         }
+
+        public virtual bool DrawGizmosOnPainter (PlaytimePainter pntr) { return false;  }
 
     }
 }

@@ -16,7 +16,7 @@ public class meshSHaderMode {
     public static meshSHaderMode normVector = new meshSHaderMode("MESH_PREVIEW_NORMAL");
     public static meshSHaderMode vertColor = new meshSHaderMode("MESH_PREVIEW_VERTCOLOR");
     public static meshSHaderMode projection = new meshSHaderMode("MESH_PREVIEW_PROJECTION");
-    public static meshSHaderMode smoothNormal = new meshSHaderMode("MESH_PREVIEW_SHARP_NORMAL");
+    //public static meshSHaderMode smoothNormal = new meshSHaderMode("MESH_PREVIEW_SHARP_NORMAL");
 
     // Functionality
     public static meshSHaderMode selected;

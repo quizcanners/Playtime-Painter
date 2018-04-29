@@ -25,7 +25,7 @@ namespace StoryTriggerData {
 
     [ExecuteInEditMode]
     [TagName(CubeWorldSpace.tagName)]
-    public class CubeWorldSpace : STD_Object {
+    public class CubeWorldSpace : STD_Poolable {
 
 
         string strokeData;
@@ -45,11 +45,11 @@ namespace StoryTriggerData {
 
             cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
-            cody.AddIfNotNull(stdValues);
+            cody.Add(stdValues);
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "name": gameObject.name = data; break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
@@ -57,8 +57,10 @@ namespace StoryTriggerData {
                 case "mesh": painter.TryLoadMesh(data); break;
                 case "scale": transform.localScale = data.ToVector3();  break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
-                case STD_Values.storyTag: stdValues.Reboot(data); break;
+                case STD_Values.storyTag: stdValues.Decode(data); break;
+                default: return false;
             }
+            return true;
         }
 
         public override void Reboot() {

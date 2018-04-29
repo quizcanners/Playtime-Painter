@@ -14,7 +14,7 @@ public enum Gridside { xz, xy, zy }
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
     public static GridNavigator inst()  {
-        if (_inst == null) {
+        if (_inst == null && !applicationIsQuitting) {
             _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
             if (_inst == null)
             {
@@ -35,6 +35,8 @@ public class GridNavigator : PainterStuffMono {
          }
         return _inst;
     }
+
+    public static PainterBoolPlugin pluginNeedsGrid_Delegates;
 
     public Material vertexPointMaterial;
     public GameObject vertPrefab;
@@ -179,6 +181,7 @@ public class GridNavigator : PainterStuffMono {
 
     }
     public void ScrollsProcess(float delta) {
+        var before = g_side;
         if (delta > 0)   
             switch (g_side) {
                 case Gridside.xy: g_side = Gridside.zy; break;
@@ -187,7 +190,10 @@ public class GridNavigator : PainterStuffMono {
             }
         else if (delta < 0)
             g_side = Gridside.xz;
-        
+
+        if (before != g_side && meshMGMT.target != null)
+            meshMGMT.meshTool.OnGridChange();
+
     }
     
     public void UpdatePositions() {
@@ -306,7 +312,7 @@ public class GridNavigator : PainterStuffMono {
    
     public void FeedEvent(Event e) {
 
-        if (!this.enabled)
+        if (!rendy.enabled)
             return;
 
         if (e.isMouse)

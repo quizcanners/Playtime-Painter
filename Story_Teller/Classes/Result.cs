@@ -88,14 +88,16 @@ namespace StoryTriggerData
 
         public ResultType type { get { return (ResultType)_type; } set { _type = (int)value; } }
 
-        public void Decode(string subtag, string data) {
+        public bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "ty": _type = data.ToInt(); break;
                 case "val": updateValue = data.ToInt(); break;
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 case TaggedTarget.stdTag_TagTar: targ = new TaggedTarget(data); break;
+                default: return false;
             }
+            return true;
         }
 
         public stdEncoder Encode() {
@@ -105,11 +107,11 @@ namespace StoryTriggerData
             cody.AddIfNotZero("val", updateValue);
             cody.Add("g", groupIndex);
             cody.Add("t", triggerIndex);
-            cody.AddIfNotNull(targ);
+            cody.Add(targ);
             return cody;
         }
 
-        public iSTD Reboot(string data) {
+        public iSTD Decode(string data) {
             if (data == null) {
                 groupIndex = TriggerGroups.browsed.GetHashCode();
             } else
@@ -148,11 +150,11 @@ namespace StoryTriggerData
         }
 
         public Result() {
-            Reboot(null);
+            Decode(null);
         }
 
         public Result(string data) {
-            Reboot(data);
+            Decode(data);
         }
 
         public static string CompileResultText(Result res) {

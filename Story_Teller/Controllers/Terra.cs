@@ -29,7 +29,7 @@ namespace StoryTriggerData
 
     [ExecuteInEditMode]
     [TagName(Terra.tagName)]
-    public class Terra : STD_Object {
+    public class Terra : STD_Poolable {
 
         string strokeData;
         PlaytimePainter painter;
@@ -55,7 +55,7 @@ namespace StoryTriggerData
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "name": gameObject.name = data; break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
@@ -66,7 +66,9 @@ namespace StoryTriggerData
                 case "w_Thick": water.thickness = data.ToFloat(); break;
                 case "w_Scale": water.upscale = data.ToFloat(); break;
                 case "w_Wet": water.wetAreaHeight = data.ToFloat(); water.setFoamDynamics(); break;
+                default: return false;
             }
+            return true;
         }
 
         public override void Reboot() {

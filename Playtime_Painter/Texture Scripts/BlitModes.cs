@@ -100,7 +100,7 @@ namespace Playtime_Painter
             */
         }
 
-        public virtual blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AlphaBlit; } }
+        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AlphaBlit; } }
 
         public virtual bool supportedByTex2D { get { return true; } }
         public virtual bool supportedByRenderTexturePair { get { return true; } }
@@ -187,7 +187,7 @@ namespace Playtime_Painter
             protected override string shaderKeyword { get { return "BRUSH_ADD"; } }
 
             public override Shader shaderForSingleBuffer { get { return texMGMT.br_Add; } }
-            public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AddBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AddBlit; } }
 
             public BlitModeAdd()
             {
@@ -203,7 +203,7 @@ namespace Playtime_Painter
             //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
             public override bool supportedBySingleBuffer { get { return false; } }
 
-            public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
         }
 
         public class BlitModeCopy : BlitMode
@@ -222,7 +222,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Min"; }
             public override bool supportedByRenderTexturePair { get { return false; } }
             public override bool supportedBySingleBuffer { get { return false; } }
-            public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MinBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MinBlit; } }
         }
 
         public class BlitModeMax : BlitMode
@@ -230,7 +230,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Max"; }
             public override bool supportedByRenderTexturePair { get { return false; } }
             public override bool supportedBySingleBuffer { get { return false; } }
-            public override blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MaxBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MaxBlit; } }
         }
 
         public class BlitModeBlur : BlitMode

@@ -53,7 +53,7 @@ namespace StoryTriggerData
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
           
            switch (tag) {
                 case "goto": goToReference = data; break;
@@ -61,7 +61,9 @@ namespace StoryTriggerData
                 case "t": text = new Sentance(data); break;
                 case "t2": texts2 = data.ToListOf_STD<Sentance>(); break;
                 case "res": results = data.ToListOf_STD<Result>(); break;
-           }
+                default: return false;
+            }
+            return true;
 
         }
 
@@ -74,7 +76,7 @@ namespace StoryTriggerData
             Clear();
 
             if (data != null)
-                Reboot(data);
+                Decode(data);
           
         }
 
@@ -163,7 +165,7 @@ namespace StoryTriggerData
             return cody;
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             //Debug.Log("Decoding " + tag + " with " + data);
 
             switch (tag) {
@@ -172,7 +174,9 @@ namespace StoryTriggerData
                 case "txt": Texts = data.ToListOf_STD<Sentance>(); break;
                 case "opt": options = data.ToListOf_STD<DialogueChoice>(); break;
                 case "fin": FinalResults = data.ToListOf_STD<Result>(); break;
+                default: return false;
             }
+            return true;
         }
 
 
@@ -192,7 +196,7 @@ namespace StoryTriggerData
             Clear();
             if (data == null)
                 Texts.Add(new Sentance("Edit this", Languages.en));
-            Reboot(data);
+            Decode(data);
         }
 
         void Clear() {
@@ -352,14 +356,16 @@ namespace StoryTriggerData
             return cody;
 		}
 
-        public override void Decode(string subtag, string data) {
+        public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "name": name = data; break;
                 case "cond": conds = new VariablesWeb(data); break;
                 case "igr": interactionBranches = data.ToListOf_STD<InteractionBranch>(); break; //new List<InteractionGroup>(data); break;
                 case Interaction.storyTag_intrct:
-                    interactions = data.ToListOf_STD<Interaction>(); break; 
+                    interactions = data.ToListOf_STD<Interaction>(); break;
+                default: return false;
             }
+            return true;
         }
 
         public override string getDefaultTagName(){return storyTag;}
@@ -379,7 +385,7 @@ namespace StoryTriggerData
         }
 
         public InteractionBranch(string data) {
-            Reboot(data);
+            Decode(data);
         }
 
         public string getShortDescription() {

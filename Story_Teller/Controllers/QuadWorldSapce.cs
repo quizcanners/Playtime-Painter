@@ -10,7 +10,7 @@ namespace StoryTriggerData {
 
 
 [TagName(QuadWorldSapce.tagName)]
-public class QuadWorldSapce : STD_Object {
+    public class QuadWorldSapce : STD_Poolable {
 
         public static STD_Pool StoryPoolController;
 
@@ -18,30 +18,30 @@ public class QuadWorldSapce : STD_Object {
             StoryPoolController = inst;
         }
 
-	public const string tagName = "quad";
+	    public const string tagName = "quad";
 
-	public override string getDefaultTagName () {
+	    public override string getDefaultTagName () {
 			return tagName;
-	}
+	    }
 
-        public override stdEncoder Encode  (){
-            var cody = new stdEncoder();
+    public override stdEncoder Encode  (){
+        var cody = new stdEncoder();
 
-            cody.AddIfNotNull(stdValues);
+        cody.Add(stdValues);
             cody.AddIfNotZero("pos", transform.position);
 
             return cody;
 	}
 
-	public override void Decode (string subtag, string data) {
+	    public override bool Decode (string subtag, string data) {
 
             switch (subtag) {
-                case STD_Values.storyTag: stdValues.Reboot(data); break;
-			case "pos" :
-                    transform.position = data.ToVector3();
-				break;
-		}
-	}
+                case STD_Values.storyTag: stdValues.Decode(data); break;
+			    case "pos" : transform.position = data.ToVector3(); break;
+                default: return false;
+            }
+            return true;
+        }
 
     public override void Reboot() {
             transform.position = Vector3.zero;

@@ -51,14 +51,17 @@ namespace Playtime_Painter
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter pntr)
         {
-            if (pntr.terrain != null)
+            if (pntr.terrain != null && fieldName != null)
             {
                 if (fieldName.Contains(PainterConfig.terrainLight))
                 {
                     var id = pntr.imgData;
-                    id.tiling = Vector2.one;
-                    id.offset = Vector2.zero;
-                    return true; ;
+                    if (id != null)
+                    {
+                        id.tiling = Vector2.one;
+                        id.offset = Vector2.zero;
+                    }
+                    return true; 
                 }
             }
             return false;

@@ -127,13 +127,13 @@ public class STDCountlessBase : CountlessBase, iSTD {
 
     public virtual stdEncoder Encode() { return null; }
 
-    public virtual iSTD Reboot(string data) {
+    public virtual iSTD Decode(string data) {
         Clear();
         new stdDecoder(data).DecodeTagsFor(this);
         return this;
     }
 
-    public virtual void Decode(string subtag, string data) { }
+    public virtual bool Decode(string subtag, string data) { return true; }
 
     public virtual string getDefaultTagName() { return "TreeBase not implemented"; }
 
@@ -143,7 +143,7 @@ public class CountlessInt : STDCountlessBase {
     
     List<int> inds;
     
-    public override void Decode(string subtag, string data) {
+    public override bool Decode(string subtag, string data) {
         switch (subtag) {
             case "inds": inds = data.ToListOfInt(); break;
             case "vals":
@@ -152,7 +152,9 @@ public class CountlessInt : STDCountlessBase {
                     Set(inds[i], vals[i]);
                 inds = null;
                 break;
+            default: return false;
         }
+        return true;
 
     }
     
@@ -347,13 +349,13 @@ public class CountlessInt : STDCountlessBase {
     }
 
     public CountlessInt(string data) {
-        Reboot(data);
+        Decode(data);
     }
 }
 
 public class CountlessBool : STDCountlessBase {
     
-    public override void Decode(string subtag, string data) {
+    public override bool Decode(string subtag, string data) {
         switch (subtag) {
             case "inds":
                 List<int> inds = data.ToListOfInt();
@@ -362,7 +364,9 @@ public class CountlessBool : STDCountlessBase {
 
                 inds = null;
                 break;
+            default: return false;
         }
+        return true;
 
     }
     
@@ -785,10 +789,11 @@ public class CountlessSTD<T> : STDCountlessBase where T : iSTD, new() {
     protected T[] objs = new T[0];
     int firstFreeObj = 0;
 
-    public override void Decode(string tag, string data) {
+    public override bool Decode(string tag, string data) {
         T tmp = new T();
-        tmp.Reboot(data);
+        tmp.Decode(data);
         Set(tag.ToIntFromText(),tmp);
+        return true;
     }
 
     public override stdEncoder Encode() {
@@ -1251,8 +1256,9 @@ public class UnnullableLists<T> : STDCountlessBase   {
 
 public class UnnulSTDLists<T> : UnnullableLists<T> where T : iSTD, new() {
 
-    public override void Decode(string tag, string data) {
+    public override bool Decode(string tag, string data) {
             this[tag.ToIntFromText()] = data.ToListOf_STD<T>();
+        return true;
     }
 
     public override stdEncoder Encode() {

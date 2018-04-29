@@ -101,7 +101,7 @@
 				float2 border = DetectEdge(i.edge);
 				float deEdge = 1 - border.y;
 				float deBorder = 1 - border.x;
-				i.normal.xyz = i.snormal.xyz*deBorder + i.normal.xyz*border.x;
+				//i.normal.xyz = i.snormal.xyz*deBorder + i.normal.xyz*border.x;
 
 
 
@@ -122,7 +122,7 @@
 				//i.normal.xyz = normalize(i.normal.xyz);
 
 
-				col.rgb = col.rgb*(1 - border.y) + i.vcol.rgb*border.y;
+				//col.rgb = col.rgb*(1 - border.y) + i.vcol.rgb*border.y;
 
 			
 				
@@ -146,7 +146,7 @@
 				col = saturate(col)*val*0.95 + val*0.05;
 
 #if MESH_PREVIEW_VERTCOLOR
-				return i.vcol -border.x;
+				return i.vcol;// -border.x;
 #endif
 
 #if MESH_PREVIEW_PROJECTION
@@ -156,16 +156,13 @@
 #endif
 
 #if MESH_PREVIEW_NORMAL
-				col.r = i.normal.x; //yz
-				col.g = i.normal.y; //yz
-				col.b = i.normal.z; //yz
+				col.rgb = i.normal.xyz; //yz
+
 				col.rgb += 0.5;
 #endif
 
 #if MESH_PREVIEW_SHARP_NORMAL
-				col.r = i.snormal.x; //yz
-				col.g = i.snormal.y; //yz
-				col.b = i.snormal.z; //yz
+				col.rgb = i.snormal.xyz; 
 				col.rgb += 0.5;
 #endif
 

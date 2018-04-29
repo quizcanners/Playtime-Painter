@@ -8,24 +8,32 @@ namespace Playtime_Painter
     public class VertexShadowTool : MeshToolBase {
         public override string ToString() { return "vertex Shadow"; }
 
-        public override void MouseEventPointedVertex() {
+        public override bool MouseEventPointedVertex() {
            
             if ((EditorInputManager.GetMouseButton(0))) {
+                if (pointedUV.sameAsLastFrame)
+                    return true;
                 BrushConfig bcf = cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref vertex.shadowBake, bcf.mask);
                 meshMGMT.edMesh.dirty = true;
+                return true;
             }
+            return false;
         }
 
-        public override void MouseEventPointedTriangle()
+        public override bool MouseEventPointedTriangle()
         {
             if ((EditorInputManager.GetMouseButton(0)))
             {
+                if (pointedTris.sameAsLastFrame)
+                    return true;
                 BrushConfig bcf = cfg.brushConfig;
-                foreach (var uv in triangle.uvpnts)
+                foreach (var uv in pointedTris.uvpnts)
                 bcf.colorLinear.ToV4(ref uv.vert.shadowBake, bcf.mask);
                 meshMGMT.edMesh.dirty = true;
+                return true;
             }
+            return false;
         }
 
         public override bool PEGI()
@@ -34,9 +42,9 @@ namespace Playtime_Painter
             var msk = globalBrush.mask;
             if ("Paint All".Click().nl())
             {
-                foreach (var v in mesh.vertices)
+                foreach (var v in editedMesh.vertices)
                     msk.Transfer(ref v.shadowBake, col);
-                mesh.dirty = true;
+                editedMesh.dirty = true;
             }
             globalBrush.ColorSliders_PEGI().nl();
 
@@ -50,7 +58,7 @@ namespace Playtime_Painter
 
                         if (shadVT != null && "Auto Raycast Shadows".Click().nl()) {
 
-                            foreach (var v in mesh.vertices) {
+                            foreach (var v in editedMesh.vertices) {
 
                                 var vpos = v.worldPos + v.GetWorldNormal() * 0.001f;
 
@@ -58,13 +66,16 @@ namespace Playtime_Painter
                                     var pnt = shadVT.lights.GetLight(i);
                                     if (pnt != null)
                                     {
-                                        Vector3 ray = pnt.transform.position - vpos;
-                                        v.shadowBake[i] = Physics.Raycast(new Ray(vpos, ray), ray.magnitude) ? 0 : 1;
+
+                                //Vector3 ray = pnt.transform.position - vpos;
+                                v.shadowBake[i] = pnt.transform.position.RaycastGotHit(vpos) ? 0.6f : 0;
+                                
+                                //Physics.Raycast(new Ray(vpos, ray), ray.magnitude) ? 1 : 0;
                                     }
                                 }
                             }
 
-                            mesh.dirty = true;
+                            editedMesh.dirty = true;
 
                             "Raycast Complete".showNotification();
                         }

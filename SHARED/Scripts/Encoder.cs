@@ -81,13 +81,9 @@ namespace StoryTriggerData {
 
             return cody.ToString();
         }
-
-
-
+        
     }
-
-
-
+    
     public class stdEncoder {
         //public const char tagtag = '<' ;
         public const char splitter = '|';
@@ -136,6 +132,8 @@ namespace StoryTriggerData {
         }
 
         public void Add(string tag, stdEncoder cody) {
+            if (cody == null) return;
+
             checkLine();
 
             builder.AppendSplit(tag);
@@ -176,25 +174,18 @@ namespace StoryTriggerData {
                 Add(tag, val);
         }
 
-        //CultureInfo.InvariantCulture.NumberFormat
-
-
-
-        public void AddIfNotNull(iSTD other) {
-            if (other == null)
-                return;
-            checkLine();
-            AddText(other.getDefaultTagName(), other.Encode().ToString());
+        public void Add(iSTD other) {
+            if (other != null)
+               Add(other.getDefaultTagName(), other);
         }
 
         public void Add(string tag, iSTD other) {
-            checkLine();
-            AddText(tag, other.Encode().ToString());
-        }
-
-        public void AddIfNotNull(string tag, iSTD other) {
-            if (other != null)
-                Add(tag, other);
+            if (other != null) {
+                Add(tag, other.Encode());
+                var unrec = other as iKeepUnrecognizedSTD;
+                if (unrec != null)
+                    unrec.SaveUnrecognized(this);
+            }
         }
 
         public override string ToString() {
@@ -342,7 +333,6 @@ namespace StoryTriggerData {
             return false;
         }
 
-
         public void Add (string tag, Matrix4x4 m) {
 
             stdEncoder sub = new stdEncoder();
@@ -392,7 +382,6 @@ namespace StoryTriggerData {
 
                 
         }
-
 
         public void Add(string tag, Vector4 v4) { AddText(tag, v4.Encode()); }
         public void Add(string tag, Vector3 v3) { AddText(tag, v3.Encode()); }

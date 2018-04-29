@@ -15,42 +15,130 @@ namespace StoryTriggerData {
 
     public interface iSTD : iPEGI{
         stdEncoder Encode();
-        iSTD Reboot(string data);
-        void Decode(string tag, string data);
+        iSTD Decode(string data);
+        bool Decode(string tag, string data);
         string getDefaultTagName();
     }
 
-   
+    // This class can be used for some backwards compatibility. 
+    public interface iKeepUnrecognizedSTD : iSTD
+    {
+        // include as Default option in decode function:
+        //Example: default: Unrecognized(tag, data); 
+        void Unrecognized(string tag, string data);
+
+        // Use cody.AddUnrecognized(this) in Encode, it will use this Function:
+        void SaveUnrecognized(stdEncoder cody);
+    }
+
+    [Serializable]
+    public abstract class abstractKeepUnrecognized_STD : abstract_STD, iKeepUnrecognizedSTD {
+     
+        protected List<string> unrecognizedTags = new List<string>();
+        protected List<string> unrecognizedData = new List<string>();
+        
+        public void Unrecognized(string tag, string data) {
+            unrecognizedTags.Add(tag);
+            unrecognizedData.Add(data);
+        }
+        
+        public void SaveUnrecognized(stdEncoder cody) {
+            for (int i = 0; i < unrecognizedTags.Count; i++)
+                cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+        }
+
+        public static int inspectedUnrecognized = -1;
+        public override bool PEGI() {
+            bool changed = false;
+            if (unrecognizedTags != null) {
+                "Unrecognized Tags".nl();
+                for (int i=0; i<unrecognizedTags.Count; i++) {
+                    if (icon.Delete.Click()) {
+                        changed = true;
+                        unrecognizedTags.RemoveAt(i);
+                        unrecognizedData.RemoveAt(i);
+                        i--;
+                    }
+                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
+                        unrecognizedData[i].nl();
+                }
+            }
+
+            return changed;
+        }
+    }
 
 
     [Serializable]
     public abstract class abstract_STD : iSTD {
 
         public abstract stdEncoder Encode();
-        public virtual iSTD Reboot(string data) {
+        public virtual iSTD Decode(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
+            return this;
+        }
+        public virtual iSTD Decode(stdEncoder cody) {
+            new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
         public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
             return false; }
-        public abstract void Decode(string tag, string data);
+        public abstract bool Decode(string tag, string data);
         public abstract string getDefaultTagName();
-
     }
 
     [Serializable]
-    public abstract class ComponentSTD : MonoBehaviour, iSTD {
+    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD
+    {
 
         public abstract stdEncoder Encode();
         public abstract void Reboot();
-        public virtual bool PEGI() { return false; }
-        public virtual iSTD Reboot(string data) {
+        public virtual iSTD Decode(string data) {
             Reboot();
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
         }
-        public abstract void Decode(string tag, string data);
+        public abstract bool Decode(string tag, string data);
         public abstract string getDefaultTagName();
+
+        protected List<string> unrecognizedTags = new List<string>();
+        protected List<string> unrecognizedData = new List<string>();
+
+        public void Unrecognized(string tag, string data)
+        {
+            unrecognizedTags.Add(tag);
+            unrecognizedData.Add(data);
+        }
+
+        public void SaveUnrecognized(stdEncoder cody)
+        {
+            for (int i = 0; i < unrecognizedTags.Count; i++)
+                cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+        }
+
+        public static int inspectedUnrecognized = -1;
+        public virtual bool PEGI()
+        {
+            bool changed = false;
+            if (unrecognizedTags != null)
+            {
+                "Unrecognized Tags".nl();
+                for (int i = 0; i < unrecognizedTags.Count; i++)
+                {
+                    if (icon.Delete.Click())
+                    {
+                        changed = true;
+                        unrecognizedTags.RemoveAt(i);
+                        unrecognizedData.RemoveAt(i);
+                        i--;
+                    }
+                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
+                        unrecognizedData[i].nl();
+                }
+            }
+
+            return changed;
+        }
 
     }
 
@@ -81,28 +169,28 @@ namespace StoryTriggerData {
 		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:iSTD, new() {
 			if (s == null)
 				s = new T ();
-            s.Reboot(ResourceLoader.LoadStoryFromAssets(fullPath, name));
+            s.Decode(ResourceLoader.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
 		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:iSTD, new() {
 			if (s == null)
 				s = new T ();
-            s.Reboot(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty() + "/" + fileName + ResourceSaver.fileType));
+            s.Decode(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty() + "/" + fileName + ResourceSaver.fileType));
 			return s;
 		}
 
 		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:iSTD, new() {
 			if (s == null)
 				s = new T ();
-			s.Reboot(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
+			s.Decode(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
 			return s;
 		}
 
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:iSTD, new() {
 			if (s == null)
 				s = new T ();
-			s.Reboot(ResourceLoader.LoadStoryFromResource(subFolder, file));
+			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
 

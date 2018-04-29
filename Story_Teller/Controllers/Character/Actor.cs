@@ -23,7 +23,7 @@ namespace StoryTriggerData {
 
     [TagName(tagName)]
     [ExecuteInEditMode]
-    public class Actor : STD_Object {
+    public class Actor : STD_Poolable {
 
         public static Actor controlled;
 
@@ -126,16 +126,16 @@ namespace StoryTriggerData {
                 rigiMovement[i].Record(allRigidbodies[i].transform, transform.parent);
         }
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
 
             switch (tag) {
                 case "pos": transform.localPosition = data.ToVector3(); break;
                 case "p": controlledByPlayer = true; controlled = this; break;
                 case "n": gameObject.name = data; break;
                 case "speed": acceleration = data.ToFloat(); break;
-                default: Unrecognized(tag, data); break;
+                default: return false;
             }
-
+            return true;
         }
 
         public override stdEncoder Encode() {
@@ -151,8 +151,6 @@ namespace StoryTriggerData {
             }
 
             cody.AddText("n", gameObject.name);
-            
-            SaveUnrecognized(cody);
             
             return cody;
         }

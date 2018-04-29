@@ -12,10 +12,10 @@ namespace Playtime_Painter {
 
         public static bool SelectTexture_PEGI(this PlaytimePainter p) {
         int ind = p.selectedTexture;
-        if (pegi.select(ref ind, p.getMaterialTextureNames())) {
+        if (pegi.select(ref ind, p.GetMaterialTextureNames())) {
             p.SetOriginalShaderOnThis();
             p.selectedTexture = ind;
-            p.OnChangedTexture();
+            p.OnChangedTexture_OnMaterial();
             p.CheckPreviewShader();
             return true;
         }
@@ -27,7 +27,7 @@ namespace Playtime_Painter {
 
             if (p.imgData != null) return changes;
 
-        if (p.materialTexturePropertyName == null) {
+        if (p.MaterialTexturePropertyName == null) {
             pegi.write("This material has no textures");
             pegi.newLine();
                 return changes;
@@ -35,9 +35,9 @@ namespace Playtime_Painter {
 
         bool color = pegi.Click(icon.NewTexture.getIcon(), "New Texture" ,25);
         if (pegi.Click("Create Mask") || color) {
-            List<string> texes = p.getMaterialTextureNames();
+            List<string> texes = p.GetMaterialTextureNames();
                 if (texes.Count > 0) {
-                    p.createTexture2D(256, "New " + p.materialTexturePropertyName, color);
+                    p.createTexture2D(256, "New " + p.MaterialTexturePropertyName, color);
                     changes = true;
                 }
             

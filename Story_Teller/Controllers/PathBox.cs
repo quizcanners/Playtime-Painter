@@ -26,20 +26,22 @@ namespace StoryTriggerData {
   
     [TagName(PathBox.tagName)]
     [ExecuteInEditMode]
-    public class PathBox : STD_Object {
+    public class PathBox : STD_Poolable {
 
         VariablesWeb conditions;
 
         public const string tagName = "path";
 
-        public override void Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "n": gameObject.name = data; break;
                 case "size": transform.localScale = data.ToVector3(); break;
                 case "pos": transform.localPosition = data.ToVector3(); break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
-                case "c": conditions.Reboot(data); break;
+                case "c": conditions.Decode(data); break;
+                default: return false;
             }
+            return true;
         }
 
         public override void Reboot() {
