@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
+
 //using StoryTriggerData;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -55,7 +56,7 @@ namespace Playtime_Painter {
         public EditableMesh previewEdMesh = new EditableMesh();
         [NonSerialized]
         public Mesh previewMesh;
-        
+   
         public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
       
 
@@ -1009,9 +1010,11 @@ namespace Playtime_Painter {
         int justLoaded;
         bool showTooltip;
         bool showCopyOptions;
-        public bool PEGI()
-        {
+        public bool PEGI()  {
+
             bool changed = false;
+            EditableMesh.inspected = edMesh;
+
             pegi.newLine();
             pegi.Space();
 
@@ -1055,8 +1058,7 @@ namespace Playtime_Painter {
 
             if ("Hint".foldout(ref showTooltip).nl())
                 pegi.writeHint(meshTool.tooltip);
-
-
+            
             if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
 
                 if (!selectedPainters.Contains(target)) {
@@ -1124,7 +1126,12 @@ namespace Playtime_Painter {
                 }
             }
 
+
+
             pegi.newLine();
+
+            if (edMesh != null)
+                edMesh.PEGI().nl();
 
             grid.vertexPointMaterial.SetColor("_Color", meshTool.vertColor);
 
@@ -1137,8 +1144,9 @@ namespace Playtime_Painter {
                 "Max Vert Markers ".edit(ref vertsShowMax).nl();
                 "pointedVertex".edit(ref grid.pointedVertex.go).nl();
                 "SelectedVertex".edit(ref grid.selectedVertex.go).nl();
-
             }
+
+            EditableMesh.inspected = null;
 
             return changed;
         }

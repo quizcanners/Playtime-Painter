@@ -220,7 +220,7 @@ SubShader {
 
 	float3 ambientCol = ShadeSH9(float4(normal, 1));
 
-	col.rgb *= (direct*_LightColor0.rgb + ambientCol*bumpMap.a)*(1 - col.a);
+	col.rgb *= (direct*_LightColor0.rgb*(1 - col.a) + ambientCol*bumpMap.a);
 	
 
 	float power = pow(col.a,8);

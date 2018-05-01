@@ -21,7 +21,13 @@
 		//"RenderType" = "Transparent"
 		//"LightMode" = "ForwardBase"
 
-			"Queue" = "AlphaTest+50" "IgnoreProjector" = "True" "RenderType" = "TransparentCutout"
+			"Queue" = "AlphaTest"
+			"IgnoreProjector" = "True"
+			"RenderType" = "Transparent"
+
+		//"Queue" = "AlphaTest+50"
+		//"IgnoreProjector" = "True" 
+		//"RenderType" = "TransparentCutout"
 	}
 
 
@@ -31,11 +37,15 @@
 			Blend SrcAlpha OneMinusSrcAlpha
 
 		SubShader{
+
+			     
+
 		Pass{
 
 		CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
+#pragma multi_compile_fog
 #pragma multi_compile_fwdbase
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
@@ -45,8 +55,6 @@
 
 	uniform sampler2D _MainTex;
 	uniform sampler2D _BakedShadow_VOL;
-
-
 
 	float4 l0pos;
 	float4 l0col;
@@ -69,6 +77,7 @@
 		float2 texcoord : TEXCOORD2;
 		SHADOW_COORDS(3)
 		float3 viewDir: TEXCOORD4;
+		UNITY_FOG_COORDS(5)
 
 	};
 
@@ -83,7 +92,7 @@
 
 		o.texcoord = v.texcoord.xy;//TRANSFORM_TEX(v.texcoord.xy, _MainTex_ATL); ;
 	
-
+		UNITY_TRANSFER_FOG(o, o.pos);
 		TRANSFER_SHADOW(o);
 
 		return o;
@@ -123,21 +132,13 @@
 		float4 bake2 = 1-  SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
 
 
-		float3 directBake = (saturate((bake.rgb - 0.5) * 2) + saturate((bake2.rgb - 0.5) * 2))*(ambientBlock);
+		float4 directBake = (saturate((bake - 0.5) * 2) + saturate((bake2 - 0.5) * 2))*(ambientBlock);
 
 		bake =(bake + bake2) * 0.5;
 
 		
 
-		
-
-		float power = 100;
-			//(pow(col.a, 8 * micro.b)) * 2048;
-
-		//power = max(0.001,min(128, power));
-
 		float3 scatter = 0;
-		float3 glossLight = 0;
 		float3 directLight = 0;
 
 		// Point Lights
@@ -153,11 +154,15 @@
 
 		scatter *= (1 - bake.a);
 
-		DirectionalLight(scatter, glossLight, directLight,
-			SHADOW_ATTENUATION(i), normal, i.viewDir, ambientBlock, bake.a, power);
+		DirectionalLightTransparent(scatter, directLight,
+			//SHADOW_ATTENUATION(i)
+			directBake.a
+			,
+			
+			normal, i.viewDir, ambientBlock, bake.a);
 
 
-		col.rgb *= (directLight + (scatter));
+		col.rgb *= (directLight + scatter);
 
 		//col.rgb += (glossLight)*directBake.a;
 
@@ -170,6 +175,8 @@
 		float3 mix = col.gbr + col.brg;
 		col.rgb += mix * mix*_lightControl.r;
 #endif
+
+		UNITY_APPLY_FOG(i.fogCoord, col);
 
 		return col;
 

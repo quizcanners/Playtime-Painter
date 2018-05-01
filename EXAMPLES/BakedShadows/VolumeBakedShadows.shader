@@ -160,12 +160,17 @@
 		float4 bumpMap = tex2Dlod(_BumpMapC_ATL, float4(tc1, 0, lod));
 		float4 bumpMap2 = tex2Dlod(_BumpMapC_ATL, float4(tc2, 0, lod));
 
+	
+
 		float border2 =  border.x + i.vcol.a;
 
-		border.x = max(border.x - border.x*deBorder, saturate((border2+bumpMap2.b -0.5-bumpMap.b)*16));
+		border.x = saturate( max(border.x - border.x*deBorder*2, (border2 - 1 +(bumpMap2.b - bumpMap.b) )*16));
 		deBorder = 1 - border.x;
 
 		bumpMap = bumpMap * deBorder + bumpMap2 * border.x;
+
+		//bumpMap = bumpMap * (1 - col.a) + float4(0.5,0.5,1,1) * col.a;
+		//return deBorder*0.5+0.5;
 
 		//bumpMap.a -= bumpMap.a*(deBorder*border.x) * 2;
 
@@ -173,6 +178,9 @@
 
 		float4 col = tex2Dlod(_MainTex_ATL, float4(tc1, 0, lod)) * deBorder
 				+ tex2Dlod(_MainTex_ATL, float4(tc2, 0, lod))*border.x;
+
+		col.a += i.vcol.b*(1 - col.a);
+
 
 #else
 			
@@ -186,16 +194,22 @@
 			float4 bumpMap = tex2D(_BumpMapC_ATL, tc);
 #endif
 
+		
+
 			col = col * deBorder + i.vcol*border.x;
 
 #endif
+
+		//	bumpMap = float4(0.5, 0.5, 1, 1);
+
 
 #if !_BUMP_NONE
 			i.texcoord.xy += 0.001 * (bumpMap.rg - 0.5);
 #endif
 			float4 micro = tex2D(_Microdetail, TRANSFORM_TEX(i.texcoord.xy, _Microdetail));
 
-		
+			//micro = float4(0.5, 0.5, 1, 1);
+
 
 #if !_BUMP_NONE
 
@@ -208,6 +222,9 @@
 			bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 			tnormal = float3(bumpMap.r, bumpMap.g, 1);
 #endif
+
+		
+
 
 			tnormal.rg += (micro.rg - 0.5)*(1-col.a);
 
@@ -224,9 +241,14 @@
 
 			bumpMap.a *= micro.a;
 
+
+			
 #if !UV_ATLASED
 			bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
 #endif
+
+
+		
 
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
 
@@ -251,12 +273,12 @@
 
 			float4 directBake = saturate((bake - 0.5) * 2);
 
-			col.a += i.vcol.b*(1 - col.a);
+
 
 			float power = 
 				(pow(col.a, 8*micro.b))*2048;
 
-			power = max(0.001,min(128, power));
+			power = max(0.001, power);//min(1024, power));
 
 			float3 scatter = 0;
 			float3 glossLight = 0;
@@ -277,20 +299,24 @@
 			scatter *= (1 - bake.a);
 
 
+		
 
 			DirectionalLight(scatter, glossLight, directLight,
-				SHADOW_ATTENUATION(i), i.normal, i.viewDir, ambientBlock, bake.a, power);
+				SHADOW_ATTENUATION(i), i.normal.xyz, i.viewDir.xyz, ambientBlock, bake.a, power);
 
-
-
-			float smoothness = pow(col.a, 5 - fernel);
+			float smoothness = saturate(pow(col.a, 5 - fernel));
 			float deDmoothness = 1 - smoothness;
 
+		
+			//return col;
+
+			col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a
+				);
+
+			col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1))*directBake.a)* smoothness;
 
 
-			col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a);
-
-			col.rgb += (glossLight+ ShadeSH9(float4(-reflected, 1))*directBake.a) * smoothness;
+			//col.rgb = (scatter);//*bumpMap.a;
 
 
 #if	MODIFY_BRIGHTNESS
@@ -301,6 +327,8 @@
 			float3 mix = col.gbr + col.brg;
 			col.rgb += mix * mix*_lightControl.r;
 #endif
+
+			//col = 0;
 
 			UNITY_APPLY_FOG(i.fogCoord, col);
 

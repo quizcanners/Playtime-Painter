@@ -197,7 +197,7 @@ namespace Playtime_Painter {
         {
             get
             {
-                return true;
+                return false;
             }
         }
 

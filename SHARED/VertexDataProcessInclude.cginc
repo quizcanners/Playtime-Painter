@@ -38,6 +38,7 @@ float4 _wrldOffset;
 
 sampler2D _TerrainColors;
 sampler2D _mergeControl;
+sampler2D _foam_MASK;
 
 sampler2D _mergeSplat_0;
 sampler2D _mergeSplat_1;
@@ -343,7 +344,7 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 	float under = (soil - 0.5) * 2;
 	float above = 1 - under;
 
-	colA = max(colA, wetSection)*under;
+	colA += max(colA, wetSection)*under*0.8*(1 - colA);
 	Metalic += (1 - Metalic)*0.5*wetSection;
 	
 
@@ -418,6 +419,13 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	) {
 
 #if WATER_FOAM
+
+	//float4 fcol = tex2D(_foam_MASK, fwpos.xz + _Time.x);
+
+
+	///terrainN.b += fcol.r;
+	//fwpos.y += fcol.r;
+
 	float2 wet = WetSection(terrainN, col.a, fwpos, shadow, viewDir.y, Metallic);
 #endif
 
@@ -461,10 +469,14 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	float deMetalic = (1 - Metallic);
 
-	col.rgb = col.rgb* (_LightColor0 +
+	col.rgb = col.rgb* (
+		_LightColor0*(1-col.a) +
+		
 		(terrainAmbient.rgb + ambientCol
-			)*fernel)*( deSmoothness*Metallic + deMetalic)
-		*terrainAmbient.a;
+			)*fernel*terrainAmbient.a
+		
+		) //*( deSmoothness*Metallic + deMetalic)
+		;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -479,8 +491,8 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 		
 		*_LightColor0 +
 
-		terrainLrefl.rgb +
-		ambientRefl.rgb
+		(terrainLrefl.rgb +
+		ambientRefl.rgb)*terrainN.a
 
 		)* col.a;// *fernel;
 
@@ -491,7 +503,10 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	//col.rgb = reflected + 0.5;
 
 #if WATER_FOAM
-	col.rgb += wet.x;
+
+	
+
+	col.rgb += wet.x*0.3;//*fcol.rgb*fcol.a;
 	col.a = wet.y;
 	col.rgb *= 1 - saturate((_foamParams.z - fwpos.w)*0.1);  // NEW
 #endif
@@ -779,6 +794,20 @@ inline void PointLightTransparent(inout float3 scatter, inout float3 directLight
 
 }
 
+inline void DirectionalLightTransparent(inout float3 scatter, inout float3 directLight,
+	float shadow, float3 normal, float3 viewDir, float ambientBlock, float bake) {
+	
+	_LightColor0.rgb *= shadow;
+
+	float dott =  dot(viewDir, -_WorldSpaceLightPos0.xyz);
+
+	float power = pow(max(0.01, dott), 256);
+
+	scatter += ShadeSH9(float4(normal, 1))*bake +power * _LightColor0.rgb*8;
+	directLight += _LightColor0.rgb*max(0.1,-dott);
+
+}
+
 inline void DirectionalLight(inout float3 scatter, inout float3 glossLight, inout float3 directLight, 
 	float shadow,  float3 normal, float3 viewDir, float ambientBlock, float bake, float power) {
 	shadow = saturate(shadow * 2 - ambientBlock);
@@ -786,14 +815,15 @@ inline void DirectionalLight(inout float3 scatter, inout float3 glossLight, inou
 	float direct = max(0, dot(_WorldSpaceLightPos0, normal));
 	direct = direct * shadow; // Multiply by shadow
 
-	float halfDirection = normalize(viewDir + _WorldSpaceLightPos0.xyz);
+	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 	float NdotH = max(0.01, (dot(normal, halfDirection)));
 	float normTerm = pow(NdotH, power);
 
 	_LightColor0.rgb *= direct;
 
-	glossLight +=  + normTerm * _LightColor0.rgb;
-	directLight += _LightColor0.rgb;
 	scatter += ShadeSH9(float4(normal, 1))*bake;
+	glossLight += normTerm *_LightColor0.rgb*power*0.1;
+	directLight += _LightColor0.rgb;
+	
 
 }

@@ -339,7 +339,8 @@ namespace Playtime_Painter
                     if (texture2D == null)
                         return;
 
-                    RenderTexture_To_Texture2D();
+                    if (Application.isPlaying && painter.inited) // To avoid Clear to black when exiting playmode
+                        RenderTexture_To_Texture2D();
 
                     if (renderTexture == null)
                         PainterManager.inst.EmptyBufferTarget();
@@ -439,7 +440,7 @@ namespace Playtime_Painter
                  if (tex.GetType() == typeof(RenderTexture))
                 useRenderTexture((RenderTexture)tex);
 
-            PainterManager.inst.imgDatas.Add(this);
+            PainterManager.inst.imgDatas.Insert(0,this);
             return this;
         }
 
@@ -491,7 +492,7 @@ namespace Playtime_Painter
             AddRenderTexture();
             //destination = dest.RenderTexture;
             //Debug.Log("new RT");
-            PainterManager.inst.imgDatas.Add(this);
+            PainterManager.inst.imgDatas.Insert(0,this);
             return this;
         }
 

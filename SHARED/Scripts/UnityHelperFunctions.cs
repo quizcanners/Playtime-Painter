@@ -289,7 +289,8 @@ public static class UnityHelperFunctions {
 
     public static bool isPrefab (this GameObject go) {
 #if UNITY_EDITOR
-       return PrefabUtility.GetPrefabParent(go) == null && PrefabUtility.GetPrefabObject(go) != null; // Is a prefab
+        
+       return PrefabUtility.GetPrefabObject(go) != null &&  PrefabUtility.GetPrefabParent(go) == null; // Is a prefab
 #else
         return false;
 #endif

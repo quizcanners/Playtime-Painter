@@ -6,6 +6,7 @@ using StoryTriggerData;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
+using Playtime_Painter.Mesh_Primitives;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,6 +16,8 @@ using UnityEditor;
 namespace Playtime_Painter {
 
     public class EditableMesh : PainterStuff_STD {
+
+        // Could give each vertex a unique index and Use Countless class to store new data for it.
 
         public bool dirty { get { return 
                     dirty_Vertices || dirty_Color || dirty_Normals || dirty_Position;
@@ -45,6 +48,7 @@ namespace Playtime_Painter {
         public List<vertexpointDta> vertices = new List<vertexpointDta>();
         public List<trisDta> triangles = new List<trisDta>();
 
+        public List<EditableMeshPreProcess> editableMeshOtherData; 
         public CountlessBool hasFrame = new CountlessBool();
 
         public override stdEncoder Encode() {
@@ -237,15 +241,12 @@ namespace Playtime_Painter {
         public int trisVerts;
 
         public void SortAround(Vector3 center, bool forceRecalculate)  {
-
          
             distanceLimit = Mathf.Max(1, distanceLimit * (1f - Time.deltaTime));
 			if (distanceLimit == 0)
 				distanceLimit = 0.1f;
 
             recalculateDelay -= Time.deltaTime;
-
-		
 
 			bool recalculated = false;
 			int near = 0;
@@ -268,23 +269,6 @@ namespace Playtime_Painter {
                 previousPointed = center;
                 recalculateDelay = 1;
 
-                /*int outOfDistanceLImitCount = 0;
-
-				for (int i = 0; i < nearestVertCount; i++) {
-                    vertexpointDta a = vertices[i];
-                    vertexpointDta b = vertices[i + 1];
-                    if (b.distanceToPointed > distanceLimit)
-                        outOfDistanceLImitCount++;
-
-                    if (a.distanceToPointed > b.distanceToPointed) {
-                        vertices[i] = b;
-                        vertices[i + 1] = a;
-                    }
-                }*/
-				//(outOfDistanceLImitCount > 0) || 
-
-				//if (Mathf.Abs(nearestVertCount-near)>2) {
-
                     sortVertsClose.Clear();
                     sortVertsFar.Clear();
 
@@ -299,17 +283,11 @@ namespace Playtime_Painter {
                     vertices.Clear();
                     vertices.AddRange(sortVertsClose);
                     vertices.AddRange(sortVertsFar);
-
-
+                    
 					distanceLimit += Mathf.Max(-distanceLimit*0.5f,  ((float)(nearTarget - sortVertsClose.Count))*distanceLimit/nearTarget);
 
-                  //  Debug.Log ("range "+distanceLimit + " close " + sortVertsClose.Count + " far "+sortVertsFar.Count);
-                //}
 				}
-
-				//int min = 0;
-				//int max = nearestVertCount;
-
+                
                 for (int j = 0; j < 25; j++) {
 					bool changed = false;
 					for (int i = 0; i < nearestVertCount-1; i++) {
@@ -331,31 +309,14 @@ namespace Playtime_Painter {
             {
                 vertices.Sort(delegate (vertexpointDta a, vertexpointDta b)
                 {
-
                     return b.distanceToPointed < a.distanceToPointed ? 1 : ((b.distanceToPointed - 0.0001f) < a.distanceToPointed ? 0 : -1);
 
-                    //float diff = a.distanceToPointed - b.distanceToPointed;
-                    //if (diff == 0) return 0;
-
-                    //return (int)(diff / Mathf.Abs(diff));
                 }
                 );
+
                 return;
             }
-            //Debug.Log ("Min: " + Min + "Max: " + Max + " avg Dist: " + avgDistance);
 
-
-
-
-
-
-            /* vertices.Sort(delegate(vertexpointDta a, vertexpointDta b)  {
-                 float diff = a.pos.DistanceTo(center) - b.pos.DistanceTo(center);
-                 if (diff == 0) return 0;
-
-                 return (int)(diff / Mathf.Abs(diff));
-             }
-           );*/
         }
 
         public void NumberVerticles()
@@ -908,6 +869,29 @@ namespace Playtime_Painter {
            // Debug.Log("Dirty");
             dirty = true;
         }
+
+        bool showGenerateFunctions = false;
+        int explorefunction = -1;
+        public static EditableMesh inspected;
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            if ("functions".foldout(ref showGenerateFunctions).nl()) {
+
+                if (editableMeshOtherData == null) {
+                    editableMeshOtherData = new List<EditableMeshPreProcess>();
+                    editableMeshOtherData.Add(new Generate_Button());
+                }
+
+
+                editableMeshOtherData.PEGI(ref explorefunction, false);
+
+            }
+
+            return changed;
+        }
+
     }
 
     [Serializable]

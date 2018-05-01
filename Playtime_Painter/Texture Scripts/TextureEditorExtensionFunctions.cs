@@ -234,30 +234,48 @@ public static class TextureEditorExtensionFunctions  {
             if (texture.isBigRenderTexturePair() && PainterManager.inst.imgDataUsingRendTex != null)
                 return PainterManager.inst.imgDataUsingRendTex;
 
-            foreach (ImageData id in PainterManager.inst.imgDatas)
-                if ((id.texture2D == texture) || (id.renderTexture == texture))
-                    return id;
+            ImageData rid = null;
 
-            return null;
+            var lst = PainterManager.inst.imgDatas;
+
+            for (int i = 0; i < lst.Count; i++) {
+                ImageData id = lst[i];
+                if ((texture == id.texture2D) || (texture == id.renderTexture)) {
+                    rid = id;
+                    if (i > 3) 
+                        PainterManager.inst.imgDatas.Move(i, 0);
+                    break;
+                }
+            }
+
+
+
+            return rid;
         }
 
-        static ImageData recentImgDta;
-        static Texture recentTexture;
+        //static ImageData recentImgDta;
+        //static Texture recentTexture;
         public static ImageData getImgData(this Texture texture)
         {
             if (texture == null)
                 return null;
 
-            if (recentTexture != null && texture == recentTexture && recentImgDta != null)
-                return recentImgDta;
+          //  if (recentTexture != null && texture == recentTexture && recentImgDta != null)
+            //    return recentImgDta;
+
+            //Debug.Log("Looping trough texture datas");
 
             var nid = texture.getImgDataIfExists();
 
             if (nid == null)
+            //{
+              //  Debug.Log("Creating imgDATA for " + texture.name);
                 nid = ScriptableObject.CreateInstance<ImageData>().init(texture);
+            //}
+            //else Debug.Log("Returning for "+texture.name);
 
-            recentImgDta = nid;
-            recentTexture = texture;
+            //recentImgDta = nid;
+            //recentTexture = texture;
 
             return nid;
         }

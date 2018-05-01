@@ -22,8 +22,7 @@ namespace Playtime_Painter{
 
         public static PEGIcallDelegate plugins_ComponentPEGI;
         public static PainterBoolPlugin plugins_GizmoDraw;
-
-
+        
         public static bool isCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
 
         protected static PainterConfig cfg { get { return PainterConfig.inst; } }
@@ -1463,7 +1462,8 @@ namespace Playtime_Painter{
         set { var i = imgData; if (i != null) i.lockEditing = value; }
         }
         public bool forcedMeshCollider;
-        bool inited = false;
+        [NonSerialized]
+        public bool inited = false;
         public bool autoSelectMaterial_byNumberOfPointedSubmesh = true;
         
         public const string WWW_Manual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
@@ -1555,17 +1555,18 @@ namespace Playtime_Painter{
             
             SetOriginalShader();
 
-          // var id = GetTextureOnMaterial().getImgDataIfExists();
+           var id = GetTextureOnMaterial().getImgDataIfExists();
 
-           // if ((id!= null) && (id.texture2D != null))
-             //       UpdateOrSetTexTarget(texTarget.Texture2D);
-                inited = false;
+            inited = false; // Should be before restoring to texture2D to avoid Clear to black.
 
-                if ((PainterManager._inst != null) && (MeshManager.inst.target == this)) {
+            if ((id!= null) && (id.currentTexture().isBigRenderTexturePair()))
+                    UpdateOrSetTexTarget(texTarget.Texture2D);
+               
+            if ((PainterManager._inst != null) && (MeshManager.inst.target == this)) {
                     MeshManager.inst.DisconnectMesh();
                     MeshManager.inst.previouslyEdited = this;
-                }
             }
+        }
 
         public override void OnEnable() {
 		
@@ -1605,17 +1606,10 @@ namespace Playtime_Painter{
                 && ((terrain == null) || (terrainCollider == null)) ) ) {
                 inited = true;
 
-                    nameHolder = gameObject.name;
-
-              
+                nameHolder = gameObject.name;
 
                 if (meshRenderer == null)
                     meshRenderer = GetComponent<Renderer>();
-
-                
-
-                if (imgData == null) 
-                    OnChangedTexture_OnMaterial();
             
                 if (meshRenderer != null) {
                     
@@ -1654,6 +1648,10 @@ namespace Playtime_Painter{
                         terrainCollider = GetComponent<TerrainCollider>();
                 
                 }
+
+                if ((this == texMGMT.autodisabledBufferTarget) && (!LockTextureEditing) && (!this.ApplicationIsAboutToEnterPlayMode()))
+                    reanableRenderTexture();
+
             }
         }
  

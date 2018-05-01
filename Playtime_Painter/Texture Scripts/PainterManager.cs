@@ -85,15 +85,19 @@ namespace Playtime_Painter
             if (mat == null)
                 return null;
 
-            if (MaterialData.lastFetchedFor != null && MaterialData.lastFetchedFor == mat && MaterialData.lastFetched != null)
-                return MaterialData.lastFetched;
-
             MaterialData data = null;
             
             for (int i=0; i<matDatas.Count; i++) {
                 var md = matDatas[i];
                 if (md != null && md.material!= null) {
-                    if (md.material == mat) { data = md; break;  }
+                    if (md.material == mat) {
+                        data = md;
+
+                        if (i > 3)
+                            matDatas.Move(i, 0);
+ 
+                        break;
+                    }
                         
                 } else {
                     matDatas.RemoveAt(i); i--;
@@ -106,8 +110,7 @@ namespace Playtime_Painter
                // Debug.Log("Creating material data for "+mat.ToString());
             }
 
-            MaterialData.lastFetchedFor = mat;
-            MaterialData.lastFetched = data;
+       
 
             return data;
         }
@@ -672,11 +675,7 @@ namespace Playtime_Painter
             // Debug.Log("Adding scene saving delegate");
             EditorSceneManager.sceneOpening -= OnSceneOpening;
             EditorSceneManager.sceneOpening += OnSceneOpening;
-
-
-
-
-
+            
             if (defaultMaterial == null)
                 defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 
@@ -716,9 +715,7 @@ namespace Playtime_Painter
                 }
             }
             brushRendy.gameObject.layer = myLayer;
-
-
-
+            
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
             if (sourceTextures == null) sourceTextures = new Texture[0];
             if (masks == null) masks = new Texture[0];
@@ -769,13 +766,8 @@ namespace Playtime_Painter
 
 #endif
 
-            if ((autodisabledBufferTarget != null) && (!autodisabledBufferTarget.LockTextureEditing) && (!this.ApplicationIsAboutToEnterPlayMode()))
-                autodisabledBufferTarget.reanableRenderTexture();
-
             autodisabledBufferTarget = null;
-
-
-
+            
         }
 
         private void OnDisable()

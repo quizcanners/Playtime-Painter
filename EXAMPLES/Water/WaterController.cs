@@ -17,25 +17,9 @@ namespace Playtime_Painter
         public override void OnInspectorGUI()
         {
             ef.start(serializedObject);
-            WaterController trg = (WaterController)target;
+            ((WaterController)target).PEGI();
 
-            bool modified = false;
-
-            ef.write("Thickness:", 70);
-            modified |= ef.edit(ref trg.thickness, 5, 300);
-            ef.newLine();
-            ef.write("Noise:", 50);
-            modified |= ef.edit(ref trg.noise, 0, 100);
-            ef.newLine();
-            ef.write("Upscale:", 50);
-            modified |= ef.edit(ref trg.upscale, 1, 64);
-            ef.newLine();
-            ef.write("Wet Area Height:", 50);
-            modified |= ef.edit(ref trg.wetAreaHeight, 0.1f, 10);
-            ef.newLine();
-            if (modified) { trg.setFoamDynamics();
-                pegi.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-            }
+   
             ef.end();
 
         }
@@ -62,6 +46,8 @@ namespace Playtime_Painter
             Shader.DisableKeyword("WATER_FOAM");
         }
 
+        public Texture foamMask;
+
         public Vector4 foamParameters;
         float MyTime = 0;
         public float thickness;
@@ -72,18 +58,15 @@ namespace Playtime_Painter
 
         public void setFoamDynamics() {
             Shader.SetGlobalVector("_foamDynamics", new Vector4(thickness, noise, upscale, (300 - thickness)));
-
+            Shader.SetGlobalTexture("_foam_MASK", foamMask);
         }
         
         // Update is called once per frame
-        void Update()
-        {
+        void Update() {
 
             if ((Application.isPlaying) || (gameObject.isFocused()))
-            {
                 MyTime += Time.deltaTime;
-            }
-
+            
             foamParameters.x = MyTime;
             foamParameters.y = MyTime * 0.6f;
             foamParameters.z = transform.position.y;
@@ -93,5 +76,23 @@ namespace Playtime_Painter
 
 
         }
+
+
+        public bool PEGI() {
+            bool changed = false;
+            changed |= "Foam".edit(70, ref foamMask).nl();
+            changed |= "Thickness:".edit(70, ref thickness, 5, 300).nl();
+            changed |= "Noise:".edit(50, ref noise, 0, 100).nl();
+            changed |= "Upscale:".edit(50, ref upscale, 1, 64).nl();
+            changed |= "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl();
+            if (changed)  {
+                setFoamDynamics();
+                pegi.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                this.SetToDirty();
+            }
+            
+            return changed;
+        }
+
     }
 }
