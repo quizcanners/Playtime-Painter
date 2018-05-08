@@ -9,6 +9,8 @@ using UnityEditor;
 #endif
 using Playtime_Painter;
 
+using PlayerAndEditorGUI;
+
 public enum Gridside { xz, xy, zy }
 
 [ExecuteInEditMode]

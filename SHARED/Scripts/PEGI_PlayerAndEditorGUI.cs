@@ -170,6 +170,11 @@ namespace PlayerAndEditorGUI {
 
         // ############ GUI
 
+        public static void DropFocus()
+        {
+            FocusControl("_");
+        }
+
         public static void FocusControl(string name) {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false) {
@@ -967,7 +972,7 @@ namespace PlayerAndEditorGUI {
             if (paintingPlayAreaGUI == false)
             {
                 if (ef.Click(text, width)) {
-                    FocusControl("_");
+                    DropFocus();
                     return true;
                 }
                  return false;
@@ -979,7 +984,34 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 if ( GUILayout.Button(text, GUILayout.MaxWidth(width)))
                 {
-                    FocusControl("_");
+                    DropFocus();
+                    return true;
+                }
+                return false;
+            }
+
+        }
+
+        public static bool ClickUnfocus(this Texture tex, int width)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                if (ef.Click(tex, width))
+                {
+                    DropFocus();
+                    return true;
+                }
+                return false;
+            }
+            else
+#endif
+
+            {
+                checkLine();
+                if (GUILayout.Button(tex, GUILayout.MaxWidth(width))) {
+                    DropFocus();
                     return true;
                 }
                 return false;
@@ -995,7 +1027,7 @@ namespace PlayerAndEditorGUI {
             {
                 if (ef.Click(text))
                 {
-                    FocusControl("_");
+                    DropFocus();
                     return true;
                 }
                 return false;
@@ -1007,7 +1039,7 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 if (GUILayout.Button(text))
                 {
-                    FocusControl("_");
+                    DropFocus();
                     return true;
                 }
                 return false;
@@ -1123,6 +1155,11 @@ namespace PlayerAndEditorGUI {
             return Click(icon.getIcon(), 25);
         }
 
+        public static bool ClickUnfocus(this icon icon)
+        {
+            return ClickUnfocus(icon.getIcon(), 25);
+        }
+
         public static bool Click(this icon icon, int size) {
             return Click(icon.getIcon(), size);
         }
@@ -1189,6 +1226,18 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+        public static bool edit(this string name, ref AnimationCurve val) {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(name, ref val);
+            }
+            else
+#endif
+                return false;
+        }
+
         public static bool edit(ref int current, Type type) {
             return selectEnum(ref current, type);
         }
@@ -1250,6 +1299,48 @@ namespace PlayerAndEditorGUI {
                 }
                 return false;
             }
+
+        }
+
+        public static bool edit(ref Vector4 val)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z) | "W".edit(ref val.w);
+                return modified;
+            }
+        }
+
+        public static bool edit(this string label, ref Vector4 val)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+
+                write(label);
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                modified |= edit(ref val.z);
+                modified |= edit(ref val.w);
+                return modified;
+            }
+
 
         }
 
@@ -1845,7 +1936,26 @@ namespace PlayerAndEditorGUI {
             write(label, width);
             return edit(ref val);
         }
-        
+
+        public static bool edit(this string label, int width, ref float from, ref float to)
+        {
+            write(label, width);
+            bool changed = false;
+            if (edit(ref from)) {
+                changed = true;
+                to = Mathf.Max(from, to);
+            }
+
+            write("-", 10);
+
+            if (edit(ref to)) {
+                from = Mathf.Min(from, to);
+                changed = true;
+            }
+
+            return changed;
+        }
+
         public static bool edit(this string label, ref float val, float min, float max) {
             write(label);
             return edit(ref val, min, max);
@@ -1861,6 +1971,12 @@ namespace PlayerAndEditorGUI {
         {
             write(label, width);
             return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref int val)
+        {
+            write(label, tip, width);
+            return edit(ref val);
         }
 
         public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
@@ -1886,7 +2002,7 @@ namespace PlayerAndEditorGUI {
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, int width, ref int val) {
+        public static bool edit(this string label, string tip, int width, ref float val) {
             write(label, tip, width);
             return edit(ref val);
         }
@@ -2502,23 +2618,37 @@ namespace PlayerAndEditorGUI {
                     }
                     else
                     {
-                        var named = list[i] as iGotName;
-                        if (named != null)
-                        {
-                            var n = named.Name;
-                            if (pegi.edit(ref n))
-                            {
-                                changed = true;
-                                named.Name = n;
+                        var el = list[i];
+                        if (el == null) {
+                            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour))) {
+                                GameObject obj = null;
+                                if (edit(ref obj))
+                                {
+                                    list[i] = obj.GetComponent<T>();
+                                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
+                                }
                             }
                         }
                         else
-                            pegi.write(list[i].ToString());
-
-                        if ((list[i] is iPEGI) && icon.Edit.Click(25))
                         {
-                            changed = true;
-                            edited = i;
+                            var named = list[i] as iGotName;
+                            if (named != null)
+                            {
+                                var n = named.Name;
+                                if (pegi.edit(ref n))
+                                {
+                                    changed = true;
+                                    named.Name = n;
+                                }
+                            }
+                            else
+                                pegi.write(list[i].ToString());
+
+                            if ((list[i] is iPEGI) && icon.Edit.Click(25))
+                            {
+                                changed = true;
+                                edited = i;
+                            }
                         }
                     }
 
@@ -2528,7 +2658,10 @@ namespace PlayerAndEditorGUI {
                 if (icon.Add.Click(25))
                 {
                     changed = true;
-                    list.AddWithUniqueName();
+                    if (typeof(T).IsSubclassOf(typeof(MonoBehaviour))) {
+                        list.Add(default(T));
+                    } else
+                        list.AddWithUniqueName();
                 }
 
             }
@@ -2673,6 +2806,7 @@ namespace PlayerAndEditorGUI {
 
         public static T AddWithUniqueName<T>(this List<T> list) where T : new()
         {
+           
             T e = new T();
             list.Add(e);
             e.AssignUniqueNameIn(list);
@@ -2769,7 +2903,39 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        static List<MonoBehaviour> editorSubscribedMb = new List<MonoBehaviour>();
+        public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, EditorApplication.CallbackFunction myMethodName) where T : MonoBehaviour {
+#if UNITY_EDITOR
+            if (!editorSubscribedMb.Contains(mb))
+            {
+                if ("Run Updates".Click())
+                {
+                    EditorApplication.update += myMethodName;
+                    editorSubscribedMb.Add(mb);
+                    return true;
+                }
 
+            } else
+            {
+                if ("Stop Updates".Click())
+                {
+                    EditorApplication.update -= myMethodName;
+                    editorSubscribedMb.Remove(mb);
+                    return true;
+                }
+              
+            }
+
+
+#endif
+
+            return false;
+        }
+
+        public static bool isSubscribedToEditorUpdates(this MonoBehaviour mb)
+        {
+            return editorSubscribedMb.Contains(mb);
+        }
 
     }
 }

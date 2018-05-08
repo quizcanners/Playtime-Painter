@@ -243,7 +243,7 @@ namespace StoryTriggerData {
                     if (((groupIndex != gb.GetHashCode()) || (triggerIndex != indx)) && t.SearchCompare(gname)){//search.SearchCompare(t.name)) {
                                 Trigger.searchMatchesFound++;
                                 pegi.write(t.name + "_" + indx);
-                        if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetHashCode(); pegi.FocusControl("none"); pegi.newLine(); return true; }
+                        if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetHashCode(); pegi.DropFocus(); pegi.newLine(); return true; }
                                 pegi.newLine();
                             }
                         }

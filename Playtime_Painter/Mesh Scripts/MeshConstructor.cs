@@ -8,6 +8,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 
+using PlayerAndEditorGUI;
+
 namespace Playtime_Painter {
 
 
@@ -453,7 +455,7 @@ namespace Playtime_Painter {
 
                     sharpNormals[mDIndex] = tri.sharpNormal;
 
-                    if (tri.SharpCorner[no])
+                    if (tri.DominantCourner[no])
                     {
 
                         normals[mDIndex] = tri.sharpNormal;

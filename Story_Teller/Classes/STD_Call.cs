@@ -4,7 +4,6 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 
 
-
 namespace StoryTriggerData {
 
     public static class STD_CallExtensions {

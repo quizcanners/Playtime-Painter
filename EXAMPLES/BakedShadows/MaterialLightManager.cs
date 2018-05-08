@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-
 namespace Playtime_Painter {
     
     [System.Serializable]

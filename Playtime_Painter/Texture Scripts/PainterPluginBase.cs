@@ -6,6 +6,7 @@ using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using PlayerAndEditorGUI;
 
 // This is a base class to use when managing special cases, such as: Terrain ControlMaps, Global Textures, Textures that are RAM only.
 

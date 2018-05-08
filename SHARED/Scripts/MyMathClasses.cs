@@ -7,13 +7,12 @@ using PlayerAndEditorGUI;
 
 
 
-public static class Vector2Extension
-{
+public static class MyMath{
 
     public static Vector2 Rotate(this Vector2 v, float degrees)
     {
-        float sin = Mathf.Sin(degrees );
-        float cos = Mathf.Cos(degrees );
+        float sin = Mathf.Sin(degrees);
+        float cos = Mathf.Cos(degrees);
 
         float tx = v.x;
         float ty = v.y;
@@ -21,9 +20,6 @@ public static class Vector2Extension
         v.y = (sin * tx) + (cos * ty);
         return v;
     }
-}
-
-public static class MyMath{
 
     public static Vector3 RoundDiv(Vector3 v3, int by) {
         v3 /= by;

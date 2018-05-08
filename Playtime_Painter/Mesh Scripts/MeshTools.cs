@@ -13,6 +13,8 @@ namespace Playtime_Painter
         public delegate bool meshToolPlugBool(MeshToolBase tool, out bool val);
         public static meshToolPlugBool showVerticesPlugs;
 
+        protected static bool dirty { get { return editedMesh.dirty; } set { editedMesh.dirty = value; } }
+
         static List<MeshToolBase> _allTools;
 
         public static List<MeshToolBase> allTools
@@ -43,7 +45,7 @@ namespace Playtime_Painter
         protected trisDta selectedTris { get { return meshMGMT.selectedTris; } }
         protected UVpoint pointedUV { get { return meshMGMT.pointedUV; } }
         protected UVpoint selectedUV { get { return meshMGMT.selectedUV; } }
-        protected vertexpointDta vertex { get { return meshMGMT.pointedUV.vert; } }
+        protected vertexpointDta pointedVertex { get { return meshMGMT.pointedUV.vert; } }
         protected EditableMesh freshPreviewMesh {  get { if (meshMGMT.previewMesh == null)  {
                     meshMGMT.previewEdMesh = new EditableMesh();
                     meshMGMT.previewEdMesh.Decode(meshMGMT.edMesh.Encode());
@@ -138,6 +140,8 @@ namespace Playtime_Painter
 
         List<vertexpointDta> draggedVertices = new List<vertexpointDta>();
         Vector3 originalPosition;
+
+        Vector3 offset;
 
         public override bool showGrid { get { return true; } }
   
@@ -244,7 +248,30 @@ namespace Playtime_Painter
                 SharpFacesTool.inst.AutoAssignDominantNormalsForBeveling();
             "Sensitivity".edit(60, ref cfg.bevelDetectionSensetivity, 3, 30).nl();
 
+            if ("Offset".foldout())
+            {
+                "center".edit(ref offset).nl();
+                if ("Modify".Click().nl())
+                {
+                    foreach (var v in editedMesh.vertices)
+                        v.localPos += offset;
 
+                    offset = -offset;
+
+                    dirty = true;
+
+                }
+
+                if ("Auto Center".Click().nl())
+                {
+                    Vector3 avr = Vector3.zero;
+                    foreach (var v in editedMesh.vertices)
+                        avr += v.localPos;
+
+                    offset = - avr / editedMesh.vertices.Count;
+                }
+
+            }
             /*
             if (pegi.Click("Mirror by Center")) {
                 GridNavigator.onGridPos = mgm.target.transform.position;
@@ -476,7 +503,7 @@ namespace Playtime_Painter
     {
         public static SharpFacesTool inst;
 
-        public override string ToString() { return "Sharp Faces"; }
+        public override string ToString() { return "Dominant Faces"; }
 
         public SharpFacesTool()
         {
@@ -591,9 +618,9 @@ namespace Playtime_Painter
                 if (!EditorInputManager.getAltKey())
                 {
                     int no = pointedTris.NumberOf(pointedTris.GetClosestTo(meshMGMT.collisionPosLocal));
-                    pointedTris.SharpCorner[no] = !pointedTris.SharpCorner[no];
+                    pointedTris.DominantCourner[no] = !pointedTris.DominantCourner[no];
 
-                    (pointedTris.SharpCorner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
+                    (pointedTris.DominantCourner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                 }
                 else
                 {
@@ -638,6 +665,140 @@ namespace Playtime_Painter
         }
 
     }
+
+    public class SmoothingTool : MeshToolBase {
+
+        public bool MergeUnmerge = false;
+
+        public static SmoothingTool inst;
+
+        public override string ToString() { return "Vertex Smoothing"; }
+
+        public SmoothingTool()
+        {
+            inst = this;
+        }
+
+        public override bool showVerticesDefault { get { return true; } }
+
+        public override bool showLines { get { return true; } }
+
+        public override string tooltip
+        {
+            get
+            {
+                return "Click to set vertex as smooth/sharp" + Environment.NewLine;
+            }
+        }
+
+        public override bool PEGI()
+        {
+
+            MeshManager m = meshMGMT;
+
+            PainterConfig sd = PainterConfig.inst;
+            pegi.write("OnClick:", 60);
+            if ((MergeUnmerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
+                MergeUnmerge = !MergeUnmerge;
+           
+            if ("Sharp All".Click())
+            {
+                foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
+                    vr.SmoothNormal = false;
+                m.edMesh.dirty = true;
+                cfg.newVerticesSmooth = false;
+            }
+
+            if ("Smooth All".Click().nl())
+            {
+                foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
+                    vr.SmoothNormal = true;
+                m.edMesh.dirty = true;
+                cfg.newVerticesSmooth = true;
+            }
+
+          
+            if ("All shared".Click())
+            {
+                m.edMesh.AllVerticesShared();
+                m.edMesh.dirty = true;
+                cfg.newVerticesUnique = false;
+            }
+
+            if ("All unique".Click().nl())
+            {
+                foreach (trisDta t in editedMesh.triangles)
+                    m.edMesh.dirty |=  m.edMesh.GiveTriangleUniqueVerticles(t);
+                cfg.newVerticesUnique = true;
+            }
+
+          
+
+            return false;
+
+        }
+
+        public override bool MouseEventPointedTriangle()
+        {
+            
+            if (EditorInputManager.GetMouseButton(0)) {
+                if (MergeUnmerge) {
+                    if (EditorInputManager.getShiftKey())
+                        editedMesh.dirty |= pointedTris.SetAllVerticesShared();
+                    else
+                        editedMesh.dirty |= editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                }
+                else
+                    editedMesh.dirty |= pointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
+            }
+
+            return false;
+        }
+
+        public override bool MouseEventPointedVertex()
+        {
+            if (EditorInputManager.GetMouseButton(0))
+            {
+                if (MergeUnmerge)
+                {
+                    if (EditorInputManager.getShiftKey())
+                        editedMesh.dirty |= pointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
+                    else
+                        editedMesh.dirty |= pointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                }
+                else
+                    editedMesh.dirty |= pointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
+            }
+
+            return false;
+        }
+
+        public override bool MouseEventPointedLine()
+        {
+            if (EditorInputManager.GetMouseButton(0))
+            {
+                if (MergeUnmerge)
+                {
+                    if (!EditorInputManager.getShiftKey())
+                        dirty |= pointedLine.AllVerticesShared();
+                    else
+                    {
+                        dirty |= pointedLine.GiveUniqueVerticesToTriangles();
+                       
+                    }
+                }
+                else
+                {
+                   for (int i=0; i<2; i++)
+                        dirty |= pointedLine[i].SetSmoothNormal(!EditorInputManager.getShiftKey());
+                }
+            }
+
+            return false;
+        }
+
+    }
+
 
     /*
     public class VertexAnimationTool : MeshToolBase
@@ -1031,7 +1192,6 @@ namespace Playtime_Painter
 
     }
 
- 
     public class TriangleSubmeshTool : MeshToolBase
     {
         public int curSubmesh = 0;

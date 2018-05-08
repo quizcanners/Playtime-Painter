@@ -1787,6 +1787,8 @@ namespace Playtime_Painter{
                     {
                         if (icon.mesh.Click("Edit Mesh", 25))
                         {
+
+
                             meshEditing = true;
 
                             SetOriginalShader();
@@ -1796,7 +1798,7 @@ namespace Playtime_Painter{
 
                             if (savedEditableMesh != null)
                                 meshMGMT.EditMesh(this, false);
-
+                            
                             changed = true;
                         }
 

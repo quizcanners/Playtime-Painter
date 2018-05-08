@@ -4,6 +4,8 @@ using UnityEngine;
 using System;
 using StoryTriggerData;
 
+using PlayerAndEditorGUI;
+
 namespace Playtime_Painter {
 
 [Serializable]

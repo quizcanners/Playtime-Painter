@@ -8,7 +8,7 @@ using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+using PlayerAndEditorGUI;
 using StoryTriggerData;
 
 namespace Playtime_Painter{

@@ -204,7 +204,7 @@ namespace StoryTriggerData {
             bool changed = false;
             PoolController<Page> pool = Page.myPoolController;
 
-            if (browsedPage >= pool.Max)
+            if (browsedPage >= pool.initializedCount)
                 browsedPage = -1;
 
             if (browsedPage == -1) {

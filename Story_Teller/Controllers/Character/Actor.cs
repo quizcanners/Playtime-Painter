@@ -246,7 +246,7 @@ namespace StoryTriggerData {
             float MaxDistance = 999999;
 
 
-            for (int i = 0; i < PathBox.StoryPoolController.pool.Max; i++) {
+            for (int i = 0; i < PathBox.StoryPoolController.pool.initializedCount; i++) {
                 var path = (PathBox)PathBox.StoryPoolController.pool.getScript(i);
                 if (path.gameObject.activeSelf) {
                     float dist = path.nearestDistance(transform.position);
@@ -286,7 +286,7 @@ namespace StoryTriggerData {
                 if (managedBy != null)
                     managedBy.TryManageVelocity(this);
                 
-                for ( int i=0; i<PathBox.StoryPoolController.pool.Max; i++) {
+                for ( int i=0; i<PathBox.StoryPoolController.pool.initializedCount; i++) {
                     var path = (PathBox)PathBox.StoryPoolController.pool.getScript(i);
                     if ((path.gameObject.activeSelf) && (path != managedBy)) 
                         path.TryManageVelocity(this);

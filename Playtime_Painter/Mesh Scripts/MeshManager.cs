@@ -466,12 +466,13 @@ namespace Playtime_Painter {
         bool ProcessLinesOnTriangle(trisDta t)
         {
             t.wasProcessed = true;
-            const float percision = 0.01f;
+            const float percision = 0.05f;
 
             float acc =(target.transform.InverseTransformPoint(transform.gameObject.tryGetCameraTransform().position)  -collisionPosLocal).magnitude;
 
-            if (meshTool.showTriangles)
-                acc = Mathf.Min( acc, t.ShortestLine().localLength * 0.5f);
+            //if (meshTool.showTriangles)
+              //  acc = Mathf.Min( acc, t.ShortestLine().localLength * 0.5f
+                //    );
 
             acc *= percision;
 
@@ -903,9 +904,9 @@ namespace Playtime_Painter {
         void outlineTriangle(trisDta t, Color colA, Color colB)
         {
             //bool vrt = tool == VertexPositionTool.inst;
-            Line(t.uvpnts[0], t.uvpnts[1], t.SharpCorner[0] ? colA : colB, t.SharpCorner[1] ? colA : colB);
-            Line(t.uvpnts[1], t.uvpnts[2], t.SharpCorner[1] ? colA : colB, t.SharpCorner[2] ? colA : colB);
-            Line(t.uvpnts[0], t.uvpnts[2], t.SharpCorner[0] ? colA : colB, t.SharpCorner[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[1], t.DominantCourner[0] ? colA : colB, t.DominantCourner[1] ? colA : colB);
+            Line(t.uvpnts[1], t.uvpnts[2], t.DominantCourner[1] ? colA : colB, t.DominantCourner[2] ? colA : colB);
+            Line(t.uvpnts[0], t.uvpnts[2], t.DominantCourner[0] ? colA : colB, t.DominantCourner[2] ? colA : colB);
         }
         
         void Line(UVpoint  a, UVpoint b, Color col, Color colb) {

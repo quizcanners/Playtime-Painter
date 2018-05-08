@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Playtime_Painter;
-
+using PlayerAndEditorGUI;
 
 [ExecuteInEditMode]
 public class HintController : MonoBehaviour {

@@ -2,7 +2,7 @@
 using UnityEngine;
 using System;
 using System.Linq;
-
+using PlayerAndEditorGUI;
 
 namespace StoryTriggerData {
 
@@ -56,7 +56,7 @@ namespace StoryTriggerData {
                 
                 PoolControllerBase pcb = all[i].pool;
 
-                for (int o = 0; o < pcb.Max; o++)
+                for (int o = 0; o < pcb.initializedCount; o++)
                     if (pcb.activeSelf(o)) 
                         yield return (STD_Poolable)pcb.getScript(o);
             }

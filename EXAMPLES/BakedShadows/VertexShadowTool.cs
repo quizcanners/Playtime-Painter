@@ -14,7 +14,7 @@ namespace Playtime_Painter
                 if (pointedUV.sameAsLastFrame)
                     return true;
                 BrushConfig bcf = cfg.brushConfig;
-                bcf.colorLinear.ToV4(ref vertex.shadowBake, bcf.mask);
+                bcf.colorLinear.ToV4(ref pointedVertex.shadowBake, bcf.mask);
                 meshMGMT.edMesh.dirty = true;
                 return true;
             }

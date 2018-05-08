@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
+using PlayerAndEditorGUI;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;

@@ -525,6 +525,8 @@ namespace Playtime_Painter
 
         public static int getMeshProfileByTag(this Material mat)
         {
+            if (mat == null)
+                return 0;
 
             var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
 

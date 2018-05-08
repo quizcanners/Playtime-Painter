@@ -9,6 +9,7 @@ using UnityEditor;
 #endif
 //using TextureEditor;
 using StoryTriggerData;
+using PlayerAndEditorGUI;
 
 namespace Playtime_Painter
 {
@@ -351,6 +352,14 @@ namespace Playtime_Painter
         public int vertexGroup = 0;
 
         public bool sameAsLastFrame { get { return this == editedMesh.LastFramePointedUV.vert; } }
+
+        public bool SetSmoothNormal(bool to)
+        {
+            if (to == SmoothNormal)
+                return false;
+            SmoothNormal = to;
+            return true;
+        }
 
         public Vector3 worldPos { get {
                 PlaytimePainter emc = MeshManager.inst.target;
@@ -733,6 +742,19 @@ namespace Playtime_Painter
             }
             return lst;
         }
+
+        public bool SetAllUVsShared()
+        {
+            if (uvpoints.Count == 1)
+                return false;
+
+            while (uvpoints.Count > 1)
+                if (!editedMesh.MoveTris(uvpoints[1], uvpoints[0])) {
+                    break;
+                }
+
+            return true;
+        }
     }
 
     [Serializable]
@@ -744,7 +766,7 @@ namespace Playtime_Painter
 
 
         public UVpoint[] uvpnts = new UVpoint[3];
-        public bool[] SharpCorner = new bool[3];
+        public bool[] DominantCourner = new bool[3];
         public float[] edgeWeight = new float[3];
         public Vector4 textureNo = new Vector4();
         public int submeshIndex;
@@ -774,9 +796,9 @@ namespace Playtime_Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddIfTrue("f0", SharpCorner[0]);
-            cody.AddIfTrue("f1", SharpCorner[1]);
-            cody.AddIfTrue("f2", SharpCorner[2]);
+            cody.AddIfTrue("f0", DominantCourner[0]);
+            cody.AddIfTrue("f1", DominantCourner[1]);
+            cody.AddIfTrue("f2", DominantCourner[2]);
 
             cody.Add("ew0", edgeWeight[0]);
             cody.Add("ew1", edgeWeight[1]);
@@ -797,9 +819,9 @@ namespace Playtime_Painter
 
             switch (tag) {
                 case "tex": textureNo = data.ToVector4(); break;
-                case "f0": SharpCorner[0] = true; break;
-                case "f1": SharpCorner[1] = true; break;
-                case "f2": SharpCorner[2] = true; break;
+                case "f0": DominantCourner[0] = true; break;
+                case "f1": DominantCourner[1] = true; break;
+                case "f2": DominantCourner[2] = true; break;
                 case "ew0": edgeWeight[0] = data.ToFloat(); break;
                 case "ew1": edgeWeight[1] = data.ToFloat(); break;
                 case "ew2": edgeWeight[2] = data.ToFloat(); break;
@@ -821,7 +843,7 @@ namespace Playtime_Painter
 
         public trisDta CopySettingsFrom (trisDta td) {
             for (int i = 0; i < 3; i++)
-                SharpCorner[i] = td.SharpCorner[i];
+                DominantCourner[i] = td.DominantCourner[i];
             textureNo = td.textureNo;
             submeshIndex = td.submeshIndex;
 
@@ -839,13 +861,34 @@ namespace Playtime_Painter
             return false;
         }
 
+        public bool SetAllVerticesShared()
+        {
+            bool changed = false;
+
+            for (int i = 0; i < 3; i++) 
+                changed |= this[i].SetAllUVsShared();
+
+            return changed;
+        }
+
+        public bool SetSmoothVertices (bool to) {
+            bool changed = false;
+            for (int i = 0; i < 3; i++)
+                if (this[i].SmoothNormal != to)
+                {
+                    changed = true;
+                    this[i].SmoothNormal = to;
+                }
+            return changed;
+        }
+
         public bool SetSharpCorners(bool to) {
             bool changed = false;
             for (int i = 0; i < 3; i++)
-                if (SharpCorner[i] != to)
+                if (DominantCourner[i] != to)
                 {
                     changed = true;
-                    SharpCorner[i] = to;
+                    DominantCourner[i] = to;
                 }
             return changed;
         }
@@ -1087,21 +1130,22 @@ namespace Playtime_Painter
             }
             return null;
         }
-
-
-
-        public void GiveUniqueVerticesAgainst(trisDta td)
+        
+        public bool GiveUniqueVerticesAgainst(trisDta td)
         {
+            bool changed = false;
             for (int i = 0; i < 3; i++)
             {
                 UVpoint u = uvpnts[i];
 
-                if (td.includes(u)) uvpnts[i] = new UVpoint(u.vert);
-
-
+                if (td.includes(u))
+                {
+                    uvpnts[i] = new UVpoint(u.vert);
+                    changed = true;
+                }
             }
 
-
+            return changed;
         }
 
         public void MergeAround(trisDta other, vertexpointDta vrt)
@@ -1389,7 +1433,25 @@ namespace Playtime_Painter
 
         }
 
+        public bool AllVerticesShared()
+        {
+            bool changed = false;
+            for (int i = 0; i < 2; i++) 
+                changed |= this[i].SetAllUVsShared();
 
+            return changed;
+        }
+
+        public bool GiveUniqueVerticesToTriangles() {
+            bool changed = false;
+            var tris = getAllTriangles_USES_Tris_Listing();
+
+            for (int i = 0; i < tris.Count; i++)
+                for (int j = i + 1; j < tris.Count; j++)
+                   changed |= tris[i].GiveUniqueVerticesAgainst(tris[j]);
+
+            return changed;
+        }
 
         public override int GetHashCode() {
             return pnts[0].finalIndex;

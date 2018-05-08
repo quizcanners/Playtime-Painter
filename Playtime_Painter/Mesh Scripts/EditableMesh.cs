@@ -557,28 +557,34 @@ namespace Playtime_Painter {
             RefresVerticleTrisList();
         }
 
-        public void GiveTriangleUniqueVerticles(trisDta tris)
+        public bool GiveTriangleUniqueVerticles(trisDta tris)
         {
-
+            bool change = false;
             // Mistake here somewhere
 
             UVpoint[] changed = new UVpoint[3];
             for (int i = 0; i < 3; i++)
             {
-                int count = 0;
-                UVpoint uvi;
-                uvi = tris.uvpnts[i];
-                for (int t = 0; t < triangles.Count; t++)
-                    if (triangles[t].includes(uvi)) count++;
+                //int count = 0;
+                UVpoint uvi = tris.uvpnts[i];
+        
+              //  for (int t = 0; t < triangles.Count; t++)
+               //     if (triangles[t].includes(uvi)) count++;
 
-                if (count > 1)
+                if (uvi.tris.Count > 1) //count > 1)
+                {
                     changed[i] = new UVpoint(uvi);
+                    change = true;
+                }
                 else
                     changed[i] = uvi;
 
 
             }
-            tris.Change(changed);
+            if (change)
+                tris.Change(changed);
+
+            return change;
         }
 
         public void Rescale(float By, Vector3 center)

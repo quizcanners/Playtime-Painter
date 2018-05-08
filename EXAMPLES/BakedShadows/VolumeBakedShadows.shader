@@ -299,10 +299,12 @@
 			scatter *= (1 - bake.a);
 
 
-		
+			float shadow = SHADOW_ATTENUATION(i);
+
+		//	return directBake.a;
 
 			DirectionalLight(scatter, glossLight, directLight,
-				SHADOW_ATTENUATION(i), i.normal.xyz, i.viewDir.xyz, ambientBlock, bake.a, power);
+				shadow*directBake.a, i.normal.xyz, i.viewDir.xyz, ambientBlock, bake.a, power);
 
 			float smoothness = saturate(pow(col.a, 5 - fernel));
 			float deDmoothness = 1 - smoothness;
