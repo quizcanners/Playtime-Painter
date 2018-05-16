@@ -1,0 +1,175 @@
+﻿using UnityEngine;
+using System.Collections;
+using System;
+using System.Collections.Generic;
+using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+using LogicTree;
+/* Story Tell Tool Requirements:
+ * Many Subprojects can use the same tool and merge nicely. This means every implementation needs to have database instance - a unique static class. All the triggers will be dependable on it.
+ * For each object you can select which Trigger groups are relevant to it.
+ * 
+ * 
+ */
+
+namespace StoryTriggerData {
+    
+    //   [AddComponentMenu("Logic/StoryTelll")]
+    //   [ExecuteInEditMode]
+    //PlaytimeToolComponent,
+
+        // This one merges interaction and STD values
+
+    public class InteractionTarget : Values, iSTD {
+
+        public const string storyTag = "story";
+
+        public InteractionBranch interactionGroup;
+        public List<string> interactionReferences;
+
+        // This are used to modify triggers when interacting with the object
+        public List<TargetedResult> OnEnterResults = new List<TargetedResult>();
+        public List<TargetedResult> OnExitResults = new List<TargetedResult>();
+        
+        public QOoptionType type;
+
+        public override string getDefaultTagName()
+        {
+            return storyTag;
+        }
+        
+        public override void Reboot() {
+            base.Reboot();
+            myQuestVersion = 0;
+            interactionGroup = new InteractionBranch();
+            interactionGroup.name = "ROOT";
+            interactionReferences = new List<string>();
+        }
+        
+        public int myQuestVersion = -1;
+        
+        public void UpdateLogic()
+        {
+            myQuestVersion = LogicMGMT.questVersion;
+        }
+
+        public void Update()
+        {
+            if (myQuestVersion != LogicMGMT.questVersion)
+                UpdateLogic();
+        }
+
+        public InteractionTarget() {
+            Reboot();
+        }
+
+        public override stdEncoder Encode()
+        {
+            var cody = new stdEncoder();
+
+            cody.Add("i", interactionGroup);
+            cody.AddIfNotEmpty("ent", OnEnterResults);
+            cody.AddIfNotEmpty("ext", OnExitResults);
+            cody.Add("qoType", (int)type);
+            cody.Add("base", base.Encode());
+
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "i":
+                    interactionGroup = new InteractionBranch(data);
+
+                    List<Interaction> lst = new List<Interaction>();
+                    interactionGroup.getAllInteractions(ref lst);
+
+                    foreach (Interaction si in lst)
+                        if (si.reference.Length > 0)
+                            interactionReferences.Add(si.reference);
+
+                    break;//.Add(new StoryEvent(data)); break;
+                case "ent": data.DecodeInto(out OnEnterResults); break;
+                case "ext": data.DecodeInto(out OnExitResults); break;
+                case "qoType": type = (QOoptionType)data.ToInt(); break;
+                default:
+                    return base.Decode(tag, data);
+            }
+            return true;
+        }
+
+
+        public bool browsing_interactions = false;
+
+        public override bool PEGI() {
+
+            bool changed = false;  
+
+            if (!browsing_interactions) {
+                
+                if (this != Dialogue.browsedObj) {
+
+                    pegi.newLine();
+
+                    changed |= base.PEGI().nl();
+
+               
+
+                    pegi.write("Interactions: ", interactionGroup.getShortDescription());
+
+                    if (icon.Edit.Click("Edit Interaction Tree", 20))
+                        browsing_interactions = true;
+
+                    pegi.newLine();
+
+                    if (pegi.foldout("__ON_ENTER" + OnEnterResults.ToStringSafe(TargetedResult.showOnEnter), ref TargetedResult.showOnEnter)) {
+                        TargetedResult.showOnExit = false;
+                        Trigger.showTriggers = false;
+
+                        OnEnterResults.PEGI(this);
+
+                    }
+                    pegi.newLine();
+                    if (pegi.foldout("__ON_EXIT" + OnExitResults.ToStringSafe(TargetedResult.showOnExit), ref TargetedResult.showOnExit)) {
+                        TargetedResult.showOnEnter = false;
+                        Trigger.showTriggers = false;
+
+                        OnExitResults.PEGI(this);
+
+                    }
+                    pegi.newLine();
+                }
+
+
+
+            } else {
+
+                if (("<"+STD_Poolable.browsed.gameObject.name).Click(40))
+                    browsing_interactions = false;
+                else {
+                    pegi.newLine();
+                    interactionGroup.PEGI(this);
+                }
+            }
+
+            return changed;
+        }
+        
+        public void groupFilter_PEGI() {
+
+            List<TriggerGroups> lst = TriggerGroups.all.GetAllObjsNoOrder();
+
+            for (int i = 0; i < lst.Count; i++) {
+                TriggerGroups td = lst[i];
+                pegi.write(td + "_" + td.GetHashCode(), 230);
+                pegi.toggle(td.GetHashCode(), groupsToShowInBrowser);
+                pegi.newLine();
+            }
+
+
+        }
+
+    }
+}

@@ -10,6 +10,8 @@ using UnityEditor;
 //using TextureEditor;
 using StoryTriggerData;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+
 
 namespace Playtime_Painter
 {
@@ -428,14 +430,15 @@ namespace Playtime_Painter
                             shared_v2s.last()[0] = data.ToVector2(); break;
                 case "u1":  shared_v2s.last()[1] = data.ToVector2(); break;
                 case "uvs": currentlyDecoded = this;
-                            uvpoints = data.ToListOf_STD<UVpoint>(); break;
+                    data.DecodeInto(out uvpoints); break;
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": SmoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
-                case "bw": boneWeight = data.ToBoneWeight(); break;
-                case "biP": bindPoses = data.ToMatrix4x4(); break;
+                case "bw": data.DecodeInto(out boneWeight); //ToBoneWeight();
+                    break;
+                case "biP":  data.DecodeInto(out bindPoses);  break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
-                case BlendFrame.tagName_bs: shapes = data.ToListOfList_STD<BlendFrame>(); break;
+                case BlendFrame.tagName_bs: data.DecodeInto(out shapes); break;
                 case "gr": vertexGroup = data.ToInt(); break;
                 default: return false;
             }

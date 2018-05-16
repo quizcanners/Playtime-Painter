@@ -2,32 +2,33 @@
 using System;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
-
-namespace StoryTriggerData
+namespace LogicTree
 {
 
     public enum ResultType { SetBool, Set, Add, Subtract, SetTimeReal, SetTimeGame, SetTagBool, SetTagInt }
 
+
     public static class ResultExtensionFunctions {
-        public static string ToStringSafe(this List<Result> o, bool showDetail) {
+        public static string ToStringSafe(this List<TargetedResult> o, bool showDetail) {
             bool AnyFinals = ((o != null) && (o.Count > 0));
             return (AnyFinals ? "[" + o.Count + "]: " +
                  (showDetail ? "..." : o[0].ToString()) : " NONE");
 
         }
 
-        public static void apply(this List<Result> results, STD_Values to) {
+        public static void apply(this List<TargetedResult> results, Values to) {
 
             if (results.Count > 0) {
                 for (int i = 0; i < results.Count; i++)
                     results[i].apply(to);
 
-                STD_Values.AddQuestVersion();
+                LogicMGMT.AddQuestVersion();
             }
         }
 
-        public static void PEGI(this List<Result> res, STD_Values tell) {
+        public static void PEGI(this List<TargetedResult> res, Values tell) {
 
             if (icon.Add.Click(25))
                 res.Add();
@@ -49,11 +50,11 @@ namespace StoryTriggerData
         }
 
 
-        public static Result Add(this List<Result> lst) {
-            Result r = new Result();
+        public static TargetedResult Add(this List<TargetedResult> lst) {
+            TargetedResult r = new TargetedResult();
 
             if (lst.Count > 0) {
-                Result prev = lst.last();
+                TargetedResult prev = lst.last();
 
                 r.groupIndex = prev.groupIndex;
                 r.triggerIndex = prev.triggerIndex;
@@ -63,7 +64,7 @@ namespace StoryTriggerData
                 List<int> indxs;
                 r.group.triggers.GetAllObjs(out indxs);
 
-                foreach (Result res in lst)
+                foreach (TargetedResult res in lst)
                     if (res.groupIndex == r.groupIndex)
                         indxs.Remove(res.triggerIndex);
 
@@ -78,15 +79,10 @@ namespace StoryTriggerData
         }
 
     }
-
-    public class Result : Argument, iSTD {
-        
-        public int _type;
-        public int updateValue;
+    
+    public class TargetedResult : ValueIndex, iSTD {
 
         public TaggedTarget targ;
-
-        public ResultType type { get { return (ResultType)_type; } set { _type = (int)value; } }
 
         public bool Decode(string subtag, string data) {
             switch (subtag) {
@@ -94,53 +90,16 @@ namespace StoryTriggerData
                 case "val": updateValue = data.ToInt(); break;
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
-                case TaggedTarget.stdTag_TagTar: targ = new TaggedTarget(data); break;
+                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
                 default: return false;
             }
             return true;
         }
-
-        public stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
-
-            cody.AddIfNotZero("ty", _type);
-            cody.AddIfNotZero("val", updateValue);
-            cody.Add("g", groupIndex);
-            cody.Add("t", triggerIndex);
-            cody.Add(targ);
-            return cody;
-        }
-
-        public iSTD Decode(string data) {
-            if (data == null) {
-                groupIndex = TriggerGroups.browsed.GetHashCode();
-            } else
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
-
-        public void apply(STD_Values so) {
-
-                switch ((ResultType)_type) {
-                    case ResultType.SetBool: SetBool(so, (updateValue > 0)); break;
-                    case ResultType.Set: SetInt(so, updateValue); break;
-                    case ResultType.Add: so.ints[groupIndex].Add(triggerIndex, updateValue); break;
-                    case ResultType.Subtract: so.ints[groupIndex].Add(triggerIndex, -updateValue); break;
-                    case ResultType.SetTimeReal: SetInt(so, Book.GetRealTime()); break;
-                    case ResultType.SetTimeGame: SetInt(so, (int)Time.time); break;
-                    case ResultType.SetTagBool: so.SetTagBool(groupIndex, triggerIndex, updateValue > 0); break;
-                    case ResultType.SetTagInt: so.SetTagEnum(groupIndex, triggerIndex, updateValue); break;   
-                }
-        }
-
+        
         public const string storyTag_res = "res";
 
         public string getDefaultTagName() {
             return storyTag_res;
-        }
-
-        public override bool isBoolean() {
-            return ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
         }
 
         public override string ToString()
@@ -149,15 +108,16 @@ namespace StoryTriggerData
             return   t == null ? "???" : t.name + _type + " " + updateValue;
         }
 
-        public Result() {
-            Decode(null);
+        public TargetedResult() {
+            groupIndex = TriggerGroups.browsed.GetHashCode();
         }
 
-        public Result(string data) {
-            Decode(data);
+        public iSTD Decode(string data) {
+            new stdDecoder(data).DecodeTagsFor(this);
+            return this;
         }
 
-        public static string CompileResultText(Result res) {
+        public static string CompileResultText(TargetedResult res) {
             return res.trig.name + res._type + " " + res.updateValue;
         }
 
@@ -165,10 +125,45 @@ namespace StoryTriggerData
         public static bool showOnExit;
         public static bool showOnEnter;
         public static int exploredResult = -1;
- 
-    
 
-        public bool PEGI(int index, ref int DeleteNo, STD_Values so) {
+        public int _type;
+        public int updateValue;
+
+        public ResultType type { get { return (ResultType)_type; } set { _type = (int)value; } }
+
+        public stdEncoder Encode()
+        {
+            stdEncoder cody = new stdEncoder();
+
+            cody.AddIfNotZero("ty", _type);
+            cody.AddIfNotZero("val", updateValue);
+            cody.Add("g", groupIndex);
+            cody.Add("t", triggerIndex);
+            return cody;
+        }
+
+        public void apply(Values so)
+        {
+
+            switch ((ResultType)_type)
+            {
+                case ResultType.SetBool: SetBool(so, (updateValue > 0)); break;
+                case ResultType.Set: SetInt(so, updateValue); break;
+                case ResultType.Add: so.ints[groupIndex].Add(triggerIndex, updateValue); break;
+                case ResultType.Subtract: so.ints[groupIndex].Add(triggerIndex, -updateValue); break;
+                case ResultType.SetTimeReal: SetInt(so, LogicMGMT.RealTimeNow()); break;
+                case ResultType.SetTimeGame: SetInt(so, (int)Time.time); break;
+                case ResultType.SetTagBool: so.SetTagBool(groupIndex, triggerIndex, updateValue > 0); break;
+                case ResultType.SetTagInt: so.SetTagEnum(groupIndex, triggerIndex, updateValue); break;
+            }
+        }
+
+        public override bool isBoolean()
+        {
+            return ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
+        }
+
+        public bool PEGI(int index, ref int DeleteNo, Values so) {
            
             bool changed = false;
 

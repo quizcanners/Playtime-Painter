@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Linq;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
@@ -22,6 +23,8 @@ namespace StoryTriggerData {
         }
     }
 # endif
+
+
 
     [ExecuteInEditMode]
     [TagName(CubeWorldSpace.tagName)]
@@ -57,7 +60,7 @@ namespace StoryTriggerData {
                 case "mesh": painter.TryLoadMesh(data); break;
                 case "scale": transform.localScale = data.ToVector3();  break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
-                case STD_Values.storyTag: stdValues.Decode(data); break;
+                case InteractionTarget.storyTag: data.DecodeInto(out stdValues); break;
                 default: return false;
             }
             return true;
@@ -67,7 +70,7 @@ namespace StoryTriggerData {
             if (painter == null) 
                 painter = GetComponent<PlaytimePainter>();
 
-            stdValues = new STD_Values();
+            stdValues = new InteractionTarget();
             transform.localScale = Vector3.one;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(Vector3.zero);

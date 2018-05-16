@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
-
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -123,7 +123,7 @@ namespace Playtime_Painter
             switch (tag)
             {
                 case "n": name = data; break;
-                case "sln": sln = data.ToListOf_STD<VertexSolution>(); break;
+                case "sln":  data.DecodeInto(out sln); break;
                 default: return false;
             }
             return true;
@@ -364,7 +364,7 @@ namespace Playtime_Painter
 
                         changed |= pegi.select(ref v.valueIndex, typeFields).nl();
 
-                        v.valueIndex = Mathf.Clamp(v.valueIndex, 0, typeFields.Length - 1);
+                        v.valueIndex = v.valueIndex.ClampZeroTo(typeFields.Length);
                     }
                 }
                 "**************************************************".nl();
@@ -501,7 +501,7 @@ namespace Playtime_Painter
             switch (tag) {
                 case "en": enabled = data.ToBool();  break;
                 case "t": targetIndex = data.ToInt(); if (!enabled) initVals(); break;
-                case "vals": vals = data.ToListOf_STD<VertexDataValue>(); sameSizeDataIndex = -1; break;
+                case "vals": data.DecodeInto(out vals); sameSizeDataIndex = -1; break;
                 case "sameSize": sameSizeDataIndex = data.ToInt(); initVals(); break;
 
                 default: return false;
@@ -566,7 +566,7 @@ namespace Playtime_Painter
                 if (curMeshDta.tris != null) {
                     curMeshDta.mesh.subMeshCount = curMeshDta.tris.Length;
                     for (int sm = 0; sm < curMeshDta.tris.Length; sm++)
-                        curMeshDta.mesh.SetTriangles(curMeshDta.tris[sm], sm, true, 0);
+                        curMeshDta.mesh.SetTriangles(curMeshDta.tris[sm], sm, true);
                 }
             }
 

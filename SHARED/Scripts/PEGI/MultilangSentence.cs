@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
 using System.Text;
-using StoryTriggerData;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

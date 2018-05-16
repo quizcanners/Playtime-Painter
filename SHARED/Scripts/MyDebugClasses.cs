@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI
+namespace SharedTools_Stuff
 {
 
     public static class MyDebugClasses

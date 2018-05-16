@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -153,7 +154,7 @@ namespace Playtime_Painter
             if ((vpoint.uvpoints.Count > 1) || (pvrt == vpoint))
             {
 
-                Texture tex = meshMGMT.target.meshRenderer.sharedMaterial.mainTexture;
+                //Texture tex = meshMGMT.target.GetTextureOnMaterial();//meshRenderer.sharedMaterial.mainTexture;
 
                 if (pvrt == vpoint)
                 {
@@ -666,138 +667,142 @@ namespace Playtime_Painter
 
     }
 
-    public class SmoothingTool : MeshToolBase {
+    public class SmoothingTool : MeshToolBase
+     {
 
-        public bool MergeUnmerge = false;
+            public bool MergeUnmerge = false;
 
-        public static SmoothingTool inst;
+            public static SmoothingTool inst;
 
-        public override string ToString() { return "Vertex Smoothing"; }
+            public override string ToString() { return "Vertex Smoothing"; }
 
-        public SmoothingTool()
-        {
-            inst = this;
-        }
-
-        public override bool showVerticesDefault { get { return true; } }
-
-        public override bool showLines { get { return true; } }
-
-        public override string tooltip
-        {
-            get
+            public SmoothingTool()
             {
-                return "Click to set vertex as smooth/sharp" + Environment.NewLine;
-            }
-        }
-
-        public override bool PEGI()
-        {
-
-            MeshManager m = meshMGMT;
-
-            PainterConfig sd = PainterConfig.inst;
-            pegi.write("OnClick:", 60);
-            if ((MergeUnmerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
-                MergeUnmerge = !MergeUnmerge;
-           
-            if ("Sharp All".Click())
-            {
-                foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
-                    vr.SmoothNormal = false;
-                m.edMesh.dirty = true;
-                cfg.newVerticesSmooth = false;
+                inst = this;
             }
 
-            if ("Smooth All".Click().nl())
+            public override bool showVerticesDefault { get { return true; } }
+
+            public override bool showLines { get { return true; } }
+
+            public override string tooltip
             {
-                foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
-                    vr.SmoothNormal = true;
-                m.edMesh.dirty = true;
-                cfg.newVerticesSmooth = true;
-            }
-
-          
-            if ("All shared".Click())
-            {
-                m.edMesh.AllVerticesShared();
-                m.edMesh.dirty = true;
-                cfg.newVerticesUnique = false;
-            }
-
-            if ("All unique".Click().nl())
-            {
-                foreach (trisDta t in editedMesh.triangles)
-                    m.edMesh.dirty |=  m.edMesh.GiveTriangleUniqueVerticles(t);
-                cfg.newVerticesUnique = true;
-            }
-
-          
-
-            return false;
-
-        }
-
-        public override bool MouseEventPointedTriangle()
-        {
-            
-            if (EditorInputManager.GetMouseButton(0)) {
-                if (MergeUnmerge) {
-                    if (EditorInputManager.getShiftKey())
-                        editedMesh.dirty |= pointedTris.SetAllVerticesShared();
-                    else
-                        editedMesh.dirty |= editedMesh.GiveTriangleUniqueVerticles(pointedTris);
-                }
-                else
-                    editedMesh.dirty |= pointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
-            }
-
-            return false;
-        }
-
-        public override bool MouseEventPointedVertex()
-        {
-            if (EditorInputManager.GetMouseButton(0))
-            {
-                if (MergeUnmerge)
+                get
                 {
-                    if (EditorInputManager.getShiftKey())
-                        editedMesh.dirty |= pointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
-                    else
-                        editedMesh.dirty |= pointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                    return "Click to set vertex as smooth/sharp" + Environment.NewLine;
                 }
-                else
-                    editedMesh.dirty |= pointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
             }
 
-            return false;
-        }
-
-        public override bool MouseEventPointedLine()
-        {
-            if (EditorInputManager.GetMouseButton(0))
+            public override bool PEGI()
             {
-                if (MergeUnmerge)
+
+                MeshManager m = meshMGMT;
+
+                PainterConfig sd = PainterConfig.inst;
+                pegi.write("OnClick:", 60);
+                if ((MergeUnmerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
+                    MergeUnmerge = !MergeUnmerge;
+
+                if ("Sharp All".Click())
                 {
-                    if (!EditorInputManager.getShiftKey())
-                        dirty |= pointedLine.AllVerticesShared();
+                    foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
+                        vr.SmoothNormal = false;
+                    m.edMesh.dirty = true;
+                    cfg.newVerticesSmooth = false;
+                }
+
+                if ("Smooth All".Click().nl())
+                {
+                    foreach (vertexpointDta vr in meshMGMT.edMesh.vertices)
+                        vr.SmoothNormal = true;
+                    m.edMesh.dirty = true;
+                    cfg.newVerticesSmooth = true;
+                }
+
+
+                if ("All shared".Click())
+                {
+                    m.edMesh.AllVerticesShared();
+                    m.edMesh.dirty = true;
+                    cfg.newVerticesUnique = false;
+                }
+
+                if ("All unique".Click().nl())
+                {
+                    foreach (trisDta t in editedMesh.triangles)
+                        m.edMesh.dirty |= m.edMesh.GiveTriangleUniqueVerticles(t);
+                    cfg.newVerticesUnique = true;
+                }
+
+
+
+                return false;
+
+            }
+
+            public override bool MouseEventPointedTriangle()
+            {
+
+                if (EditorInputManager.GetMouseButton(0))
+                {
+                    if (MergeUnmerge)
+                    {
+                        if (EditorInputManager.getShiftKey())
+                            editedMesh.dirty |= pointedTris.SetAllVerticesShared();
+                        else
+                            editedMesh.dirty |= editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                    }
+                    else
+                        editedMesh.dirty |= pointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
+                }
+
+                return false;
+            }
+
+            public override bool MouseEventPointedVertex()
+            {
+                if (EditorInputManager.GetMouseButton(0))
+                {
+                    if (MergeUnmerge)
+                    {
+                        if (EditorInputManager.getShiftKey())
+                            editedMesh.dirty |= pointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
+                        else
+                            editedMesh.dirty |= pointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                    }
+                    else
+                        editedMesh.dirty |= pointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
+                }
+
+                return false;
+            }
+
+            public override bool MouseEventPointedLine()
+            {
+                if (EditorInputManager.GetMouseButton(0))
+                {
+                    if (MergeUnmerge)
+                    {
+                        if (!EditorInputManager.getShiftKey())
+                            dirty |= pointedLine.AllVerticesShared();
+                        else
+                        {
+                            dirty |= pointedLine.GiveUniqueVerticesToTriangles();
+
+                        }
+                    }
                     else
                     {
-                        dirty |= pointedLine.GiveUniqueVerticesToTriangles();
-                       
+                        for (int i = 0; i < 2; i++)
+                            dirty |= pointedLine[i].SetSmoothNormal(!EditorInputManager.getShiftKey());
                     }
                 }
-                else
-                {
-                   for (int i=0; i<2; i++)
-                        dirty |= pointedLine[i].SetSmoothNormal(!EditorInputManager.getShiftKey());
-                }
+
+                return false;
             }
 
-            return false;
         }
-
-    }
+    
 
 
     /*

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,10 +10,11 @@ using UnityEditor;
 // This interface works for simple data and for complex classes
 // Usually the base class for comples classes will have 
 
-namespace StoryTriggerData {
+namespace SharedTools_Stuff
+{
 
     public interface iSTD : iPEGI{
-        stdEncoder Encode();
+        stdEncoder Encode(); 
         iSTD Decode(string data);
         bool Decode(string tag, string data);
         string getDefaultTagName();
@@ -50,10 +50,14 @@ namespace StoryTriggerData {
         public static int inspectedUnrecognized = -1;
         public override bool PEGI() {
             bool changed = false;
-            if (unrecognizedTags != null) {
+            //if (unrecognizedTags != null) {
+            if (unrecognizedTags.Count > 0)
+            {
                 "Unrecognized Tags".nl();
-                for (int i=0; i<unrecognizedTags.Count; i++) {
-                    if (icon.Delete.Click()) {
+                for (int i = 0; i < unrecognizedTags.Count; i++)
+                {
+                    if (icon.Delete.Click())
+                    {
                         changed = true;
                         unrecognizedTags.RemoveAt(i);
                         unrecognizedData.RemoveAt(i);
@@ -63,6 +67,7 @@ namespace StoryTriggerData {
                         unrecognizedData[i].nl();
                 }
             }
+            else "No Unrecognized Tags".nl();
 
             return changed;
         }
@@ -78,6 +83,7 @@ namespace StoryTriggerData {
             return this;
         }
         public virtual iSTD Decode(stdEncoder cody) {
+           
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
@@ -144,6 +150,8 @@ namespace StoryTriggerData {
 
     public static class STDExtensions {
 
+        public static string copyBufferValue;
+
         public static iSTD RefreshAssetDatabase(this iSTD s) {
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
@@ -193,6 +201,27 @@ namespace StoryTriggerData {
 			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
+
+
+        public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
+            bool changed = false; 
+
+            if (!exp) {
+                exp = mono.GetComponent<iSTD_Explorer>();
+                if (!exp && "Add iSTD Explorer".Click())
+                    exp = mono.gameObject.AddComponent<iSTD_Explorer>();
+
+                changed |= exp != null;
+            }
+            else
+            {
+                exp.inspectedSTD = mono;
+                changed |=exp.PEGI();
+            }  
+            
+
+            return changed;
+        }
 
     }
 }

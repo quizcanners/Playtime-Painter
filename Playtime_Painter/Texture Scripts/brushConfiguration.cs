@@ -7,7 +7,7 @@ using UnityEditor;
 using System;
 using StoryTriggerData;
 using PlayerAndEditorGUI;
-
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -261,8 +261,8 @@ namespace Playtime_Painter
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
-            inCPUtype = Mathf.Clamp(inCPUtype, 0, BrushType.allTypes.Count - 1);
-            inGPUtype = Mathf.Clamp(inGPUtype, 0, BrushType.allTypes.Count - 1);
+            inCPUtype = inCPUtype.ClampZeroTo(BrushType.allTypes.Count);
+            inGPUtype = inGPUtype.ClampZeroTo(BrushType.allTypes.Count);
 
             bool CPU = p != null ? p.imgData.TargetIsTexture2D() : TargetIsTex2D;
 
@@ -412,7 +412,7 @@ namespace Playtime_Painter
                 pegi.newLine();
 
                 if ((p.terrain != null) && (pegi.Click("Update Terrain").nl()))
-                    p.UpdateShaderGlobalsForTerrain();
+                    p.UpdateShaderGlobals();
 
             }
 

@@ -16,7 +16,7 @@ namespace PlayerAndEditorGUI
             else
                 return raySceneView;
         }
-        public enum MB_state_Editor { up, down, dragging }
+        public enum MB_state_Editor { nothing, up, down, dragging }
         public static MB_state_Editor[] mouseBttnState = new MB_state_Editor[3];
 
         public static bool getControlKey()
@@ -86,15 +86,17 @@ namespace PlayerAndEditorGUI
         {
             int mb = e.button;
 
-            for (int i = 0; i < 3; i++)
-                if (mouseBttnState[i] == MB_state_Editor.down) mouseBttnState[i] = MB_state_Editor.dragging; // to prevent multiple click readings
-
-            if (mb < 3) switch (e.type)
-                {
-                    case EventType.MouseDown: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.down; break;
-                    case EventType.MouseDrag: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.dragging; break;
-                    case EventType.MouseUp: EditorInputManager.mouseBttnState[mb] = EditorInputManager.MB_state_Editor.up; break;
-                }
+            if (e.type == EventType.MouseLeaveWindow || e.type == EventType.MouseEnterWindow) {
+                for (int i = 0; i < 3; i++)
+                    mouseBttnState[i] = MB_state_Editor.nothing;
+            } 
+             else 
+            if (mb < 3) switch (e.type) {
+                    case EventType.MouseDown: mouseBttnState[mb] = MB_state_Editor.down; break;
+                    case EventType.MouseDrag: mouseBttnState[mb] = MB_state_Editor.dragging; break;
+                    case EventType.MouseUp: mouseBttnState[mb] = MB_state_Editor.up; break;
+                    case EventType.MouseMove: mouseBttnState[mb] = MB_state_Editor.nothing; break;
+            }
         }
 
     }

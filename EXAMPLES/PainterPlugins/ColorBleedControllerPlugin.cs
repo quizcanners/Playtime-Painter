@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
+using SharedTools_Stuff;
+
 
 namespace Playtime_Painter {
     
@@ -82,7 +84,7 @@ namespace Playtime_Painter {
             
 
             if (changed)  {
-                pegi.RepaintViews();
+                UnityHelperFunctions.RepaintViews();
                 SetStuff();
                 this.SetToDirty();
             }

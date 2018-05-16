@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 
 namespace Playtime_Painter {
@@ -178,7 +179,7 @@ namespace Playtime_Painter {
                                     image.SaveName = image.texture2D.name;
                                     GUI.FocusControl("dummy");
                                     if (painter.terrain != null)
-                                        painter.UpdateShaderGlobalsForTerrain();
+                                        painter.UpdateShaderGlobals();
                                 }
                             }
 

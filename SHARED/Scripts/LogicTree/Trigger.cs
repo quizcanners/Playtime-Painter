@@ -11,8 +11,10 @@ using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
 
+using SharedTools_Stuff;
 
-namespace StoryTriggerData {
+namespace LogicTree
+{
 
 
     [Serializable]
@@ -41,9 +43,8 @@ namespace StoryTriggerData {
                 return hold;
             }
         }
-
-
-         int usage;
+        
+        int usage;
 
         public TriggerUsage _usage { get { return TriggerUsage.get(usage); }  set { usage = value.index; } }
 
@@ -87,7 +88,7 @@ namespace StoryTriggerData {
             switch (tag) {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
-                case "e": enm = data.ToDictionaryIntString_STD(); break;
+                case "e": data.DecodeInto(out enm); break;
                 case "s": isStatic = data.ToBool(); break;
                 default: return false;
             }

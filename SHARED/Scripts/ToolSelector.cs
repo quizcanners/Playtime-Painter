@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI
+namespace SharedTools_Stuff
 {
 
     public interface IeditorDropdown

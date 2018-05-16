@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 using System;
 using UnityEngine.SceneManagement;
 using StoryTriggerData;
@@ -148,32 +149,9 @@ namespace Playtime_Painter {
 
                 pegi.newLine();
 
-                if (browsedAtlas > -1)
-                {
-                    if (icon.Back.Click(25))
-                        browsedAtlas = -1;
-                    else
-                        atlases[browsedAtlas].PEGI();
-                }
-                else
-                {
-                    pegi.newLine();
-                    for (int i = 0; i < atlases.Count; i++)
-                    {
-                        if (icon.Delete.Click(25))
-                            atlases.RemoveAt(i);
-                        else
-                        {
-                            pegi.edit(ref atlases[i].name);
-                            if (icon.Edit.Click(25).nl())
-                                browsedAtlas = i;
-                        }
-                    }
+                atlases.PEGI(ref browsedAtlas, true);
 
-                    if (icon.Add.Click(30))
-                        atlases.Add(new AtlasTextureCreator("new"));
-
-                }
+             
 
             }
 

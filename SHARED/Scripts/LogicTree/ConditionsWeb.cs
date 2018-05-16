@@ -2,22 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using SharedTools_Stuff;
 
-namespace StoryTriggerData {
+namespace LogicTree
+{
 
     [Serializable]
-    public class VariablesWeb : abstract_STD {
+    public class ConditionsWeb : abstract_STD {
         public List<Condition> vars;
-        public List<WebBranch> branches;
-
-
+        public List<ConditionsBranch> branches;
+        
         public override bool PEGI() {
-            return this.PEGI(null);
+            //return false;
+             return this.PEGI(null);
         }
+
 
         public override string getDefaultTagName() {
             return "condWeb";
         }
+
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
@@ -30,22 +34,22 @@ namespace StoryTriggerData {
 
         public override bool Decode(string subtag, string data) {
             switch (subtag) {
-                case "wb": branches = data.ToListOf_STD<WebBranch>(); break;
-                case "v": vars = data.ToListOf_STD<Condition>(); break;
+                case "wb": data.DecodeInto(out branches); break;
+                case "v": data.DecodeInto(out vars); break;
                 default: return false;
             }
             return true;
         }
 
         //#if UNITY_EDITOR
-        public Condition addVar(WebBranch br) {
+        public Condition addVar(ConditionsBranch br) {
             //Condition tmp = new Condition();
             br.vars.Add(vars.Count);
             Condition tmp = vars.Add();
             return tmp;
         }
 
-        public List<Condition> getAllFromBranch(WebBranch wb) {
+        public List<Condition> getAllFromBranch(ConditionsBranch wb) {
             List<Condition> tmp = new List<Condition>();//[wb.vars.Count];
 
             for (int i = 0; i < wb.vars.Count; i++)
@@ -55,7 +59,7 @@ namespace StoryTriggerData {
         }
 
         public List<Condition> getAllFromBranch(int no) {
-            WebBranch wb = branches[no];
+            ConditionsBranch wb = branches[no];
             List<Condition> tmp = new List<Condition>();//[wb.vars.Count];
 
             for (int i = 0; i < wb.vars.Count; i++)
@@ -64,8 +68,8 @@ namespace StoryTriggerData {
             return tmp;
         }
 
-        public WebBranch addBranch(WebBranch br) {
-            WebBranch tmp = new WebBranch();
+        public ConditionsBranch addBranch(ConditionsBranch br) {
+            ConditionsBranch tmp = new ConditionsBranch();
             br.branches.Add(branches.Count);
             branches.Add(tmp);
             return tmp;
@@ -90,7 +94,7 @@ namespace StoryTriggerData {
                 }
 
             for (int i = 0; i < branches.Count; i++) {
-                WebBranch subb = branches[i];
+                ConditionsBranch subb = branches[i];
                 if (subb != null) {
                     for (int j = 0; j < subb.branches.Count; j++)
                         if (brinds[subb.branches[j]] == -1) {
@@ -123,7 +127,7 @@ namespace StoryTriggerData {
             }
 
             for (int i = 0; i < branches.Count; i++) {
-                WebBranch subb = branches[i];
+                ConditionsBranch subb = branches[i];
                 for (int j = 0; j < subb.vars.Count; j++) {
                     if (varinds[subb.vars[j]] == -1) {
                         //Debug.Log("Removing at " + subb.vars[j]);
@@ -144,7 +148,7 @@ namespace StoryTriggerData {
         }
 
         void DeleteCascade(int no) {
-            WebBranch wb = branches[no];
+            ConditionsBranch wb = branches[no];
 
             if (wb.branches.Count > 0)
                 for (int i = 0; i < wb.branches.Count; i++)
@@ -160,11 +164,11 @@ namespace StoryTriggerData {
         }
         //#endif
 
-        public VariablesWeb(string data) {
+        public ConditionsWeb(string data) {
             
             vars = new List<Condition>();
-            branches = new List<WebBranch>();
-            branches.Add(new WebBranch());
+            branches = new List<ConditionsBranch>();
+            branches.Add(new ConditionsBranch());
             if (data != null)
                 Decode(data);
         }
@@ -173,7 +177,7 @@ namespace StoryTriggerData {
     public enum ConditionBranchType { OR, AND }
 
     [Serializable]
-    public class WebBranch : abstract_STD {
+    public class ConditionsBranch : abstract_STD {
 
         public const string tag = "br";
 
@@ -186,8 +190,7 @@ namespace StoryTriggerData {
         public ConditionBranchType type;
         public string description = "new branch";
         public TaggedTarget targ;
-
-
+        
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
@@ -202,27 +205,21 @@ namespace StoryTriggerData {
         public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
-                case "b": branches = data.ToListOfInt(); break;
-                case "v": vars = data.ToListOfInt(); break;
+                case "b": data.DecodeInto(out branches); break;
+                case "v": data.DecodeInto(out vars); break;
                 case "d": description = data; break;
-                case TaggedTarget.stdTag_TagTar: targ = new TaggedTarget(data); break;
+                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
                 default: return false;
             }
             return true;
         }
-
-
+        
         void Clear() {
             branches = new List<int>();
             vars = new List<int>();
         }
 
-        public WebBranch(string data) {
-            Clear();
-            Decode(data);
-        }
-
-        public WebBranch() {
+        public ConditionsBranch() {
             Clear();
         }
     }

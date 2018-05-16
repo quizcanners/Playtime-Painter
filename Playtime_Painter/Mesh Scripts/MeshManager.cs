@@ -5,8 +5,8 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
-
-//using StoryTriggerData;
+using SharedTools_Stuff;
+using StoryTriggerData;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -1159,8 +1159,7 @@ namespace Playtime_Painter {
             if (undoMoves.Count > 1) {
                 if (pegi.Click(icon.Undo.getIcon(), 25)) {
                     redoMoves.Add(undoMoves.RemoveLast());
-                    edMesh = new EditableMesh();
-                    edMesh.Decode(undoMoves.last());
+                    undoMoves.last().DecodeInto(out edMesh);
                     Redraw();
                     changed = true;
                 }
@@ -1171,8 +1170,7 @@ namespace Playtime_Painter {
             if (redoMoves.Count > 0) {
                 if (pegi.Click(icon.Redo.getIcon(),  25)) {
                     changed = true;
-                    edMesh = new EditableMesh();
-                    edMesh.Decode(redoMoves.last());
+                    redoMoves.last().DecodeInto(out edMesh);
                     undoMoves.Add(redoMoves.RemoveLast());
                     Redraw();
                 }

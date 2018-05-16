@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+
 
 [ExecuteInEditMode]
 public class HintController : MonoBehaviour {

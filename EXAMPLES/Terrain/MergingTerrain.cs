@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -58,7 +59,7 @@ namespace Playtime_Painter
 
             if (needToUpdateTextures)
             {
-                painter.UpdateShaderGlobalsForTerrain();
+                painter.UpdateShaderGlobals();
                 UpdateTextures();
             }
 

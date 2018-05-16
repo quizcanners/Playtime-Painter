@@ -8,7 +8,7 @@ using StoryTriggerData;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;
-
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -643,9 +643,7 @@ namespace Playtime_Painter {
 #endif
 
             inspectedAtlas = null;
-
-
-
+            
             return changed;
 
         }
@@ -679,10 +677,8 @@ namespace Playtime_Painter {
         public int textureSize = 512;
 
         public bool sRGB = true;
-
-        public string name = "New_Atlas";
-
-        public string Name { get { return name; } set { name = value; } }
+        
+        public string Name { get; set;}
 
         public List<string> targetFields;
 
@@ -704,7 +700,7 @@ namespace Playtime_Painter {
         
         public override string ToString()
         {
-            return name;
+            return Name;
         }
 
         void Init()
@@ -727,8 +723,8 @@ namespace Playtime_Painter {
         
         public AtlasTextureCreator(string nname)
         {
-            name = nname;
-            name = name.GetUniqueName(TileableAtlasingControllerPlugin.inst.atlases);
+            Name = nname;
+            Name = Name.GetUniqueName(TileableAtlasingControllerPlugin.inst.atlases);
             Init();
         }
 
@@ -897,7 +893,7 @@ namespace Playtime_Painter {
             string fullPath = Application.dataPath + lastPart;
             Directory.CreateDirectory(fullPath);
 
-            string fileName = name + ".png";
+            string fileName = Name + ".png";
             string relativePath = "Assets" + lastPart + fileName;
             fullPath += fileName;
 
@@ -933,7 +929,8 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
 
 
-            changed |= "Name:".edit(60, ref name).nl();
+            this.PEGI_Name().nl();
+           // changed |= "Name:".edit(60, ref name).nl();
 
             changed |= "Atlas size:".editDelayed( ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));

@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 using Playtime_Painter;
-
+using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 public enum Gridside { xz, xy, zy }
@@ -16,24 +16,28 @@ public enum Gridside { xz, xy, zy }
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
     public static GridNavigator inst()  {
-        if (_inst == null && !applicationIsQuitting) {
-            _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
-            if (_inst == null)
+        if (_inst == null)
+        {
+            if (!applicationIsQuitting)
             {
-                try
+                _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
+                if (_inst == null)
                 {
-                    _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
-                    _inst.transform.parent = PainterManager.inst.transform;
-                    _inst.name = "grid";
-                    _inst.gameObject.hideFlags = HideFlags.DontSave;
+                    try
+                    {
+                        _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
+                        _inst.transform.parent = PainterManager.inst.transform;
+                        _inst.name = "grid";
+                        _inst.gameObject.hideFlags = HideFlags.DontSave;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
-                }
-            }
 
-            
+            }
+            else _inst = null;
          }
         return _inst;
     }
@@ -314,7 +318,7 @@ public class GridNavigator : PainterStuffMono {
    
     public void FeedEvent(Event e) {
 
-        if (!rendy.enabled)
+        if (!rendy || !rendy.enabled)
             return;
 
         if (e.isMouse)

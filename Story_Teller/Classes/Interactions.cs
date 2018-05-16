@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using PlayerAndEditorGUI;
-
-
+using SharedTools_Stuff;
+using LogicTree;
 
 namespace StoryTriggerData
 {
@@ -26,10 +26,10 @@ namespace StoryTriggerData
 
     [Serializable]
     public class DialogueChoice: abstract_STD  {
-        public VariablesWeb conditions;
+        public ConditionsWeb conditions;
         public Sentance text;
         public List<Sentance> texts2;
-        public List<Result> results;
+        public List<TargetedResult> results;
         public List<STD_Call> calls;
         public string goToReference;
 
@@ -57,10 +57,10 @@ namespace StoryTriggerData
           
            switch (tag) {
                 case "goto": goToReference = data; break;
-                case "web": conditions = new VariablesWeb(data); break;
+                case "web": conditions = new ConditionsWeb(data); break;
                 case "t": text = new Sentance(data); break;
-                case "t2": texts2 = data.ToListOf_STD<Sentance>(); break;
-                case "res": results = data.ToListOf_STD<Result>(); break;
+                case "t2": data.DecodeInto(out texts2); break;
+                case "res": data.DecodeInto(out results); break;
                 default: return false;
             }
             return true;
@@ -83,27 +83,27 @@ namespace StoryTriggerData
        
 
         void Clear() {
-            conditions = new VariablesWeb(null);
+            conditions = new ConditionsWeb(null);
             texts2 = new List<Sentance>();
             text = new Sentance(null);
-            results = new List<Result>();
+            results = new List<TargetedResult>();
             calls = new List<STD_Call>();
         }
 
-        public void PEGI(STD_Values so) {
+        public void PEGI(InteractionTarget so) {
             
             text.PEGI();
 
             pegi.newLine();
             if (pegi.foldout("___Conditions:", ref Condition.unfoldPegi)) {
-                Result.showOnExit = false;
+                TargetedResult.showOnExit = false;
 
                 conditions.PEGI(so);
             }
 
             pegi.newLine();
 
-            if (pegi.foldout("___Results:", ref Result.showOnExit)){
+            if (pegi.foldout("___Results:", ref TargetedResult.showOnExit)){
                 Condition.unfoldPegi = false;
 
                results.PEGI(so);
@@ -117,10 +117,8 @@ namespace StoryTriggerData
 
             pegi.newLine();
 
-            pegi.write("After choice text:");
-
-            pegi.newLine();
-
+            "After choice text:".nl();
+            
             texts2.PEGI();
 
            
@@ -146,10 +144,10 @@ namespace StoryTriggerData
     public class Interaction : abstract_STD {
 
         public string reference="";
-        public VariablesWeb conditions;
+        public ConditionsWeb conditions;
         public List<Sentance> Texts;
         public List<DialogueChoice> options;
-        public List<Result> FinalResults;
+        public List<TargetedResult> FinalResults;
         public int editedOption;
   
 
@@ -170,10 +168,10 @@ namespace StoryTriggerData
 
             switch (tag) {
                 case "ref": reference = data; break;
-                case "Conds": conditions = new VariablesWeb(data); break;
-                case "txt": Texts = data.ToListOf_STD<Sentance>(); break;
-                case "opt": options = data.ToListOf_STD<DialogueChoice>(); break;
-                case "fin": FinalResults = data.ToListOf_STD<Result>(); break;
+                case "Conds": conditions = new ConditionsWeb(data); break;
+                case "txt": data.DecodeInto(out Texts); break;
+                case "opt": data.DecodeInto(out options); break;
+                case "fin": data.DecodeInto(out FinalResults); break;
                 default: return false;
             }
             return true;
@@ -200,15 +198,15 @@ namespace StoryTriggerData
         }
 
         void Clear() {
-            conditions = new VariablesWeb(null);
+            conditions = new ConditionsWeb(null);
             options = new List<DialogueChoice>();
-            FinalResults = new List<Result>();
+            FinalResults = new List<TargetedResult>();
             editedOption = -1;
             Texts = new List<Sentance>();
             reference = "";
         }
 
-        public void Execute( STD_Values so) {
+        public void Execute( InteractionTarget so) {
             for (int j = 0; j < options.Count; j++)
                 if (options[j].conditions.TestConditions(so)) { options[j].results.apply(so); break; }
             FinalResults.apply(so);
@@ -216,14 +214,14 @@ namespace StoryTriggerData
 
 
         public static bool unfoldPegi;
-        public void PEGI( bool OneClickAction, STD_Values st) {
+        public void PEGI( bool OneClickAction, InteractionTarget st) {
             
             pegi.write("Reference name:",80);
 
             string modified = reference;
             if (pegi.editDelayed(ref modified)) {
                 var lst = new List<Interaction>();
-                st.iGroup.getAllInteractions(ref lst);
+                st.interactionGroup.getAllInteractions(ref lst);
                 Debug.Log("Looping interactions "+lst.Count);
 
                 if (st.interactionReferences.Contains(modified)) {
@@ -255,12 +253,12 @@ namespace StoryTriggerData
             pegi.ClickTab(ref Condition.unfoldPegi, "Conditions");
             pegi.ClickTab(ref Sentance.showTexts, "text");
             pegi.ClickTab(ref DialogueChoice.unfoldPegi, "Choices");
-            pegi.ClickTab(ref Result.showFinal, "Results");
+            pegi.ClickTab(ref TargetedResult.showFinal, "Results");
 
             Condition.unfoldPegi = pegi.selectedTab == 0;
             Sentance.showTexts = pegi.selectedTab == 1;
             DialogueChoice.unfoldPegi = pegi.selectedTab == 2;
-            Result.showFinal = pegi.selectedTab == 3;
+            TargetedResult.showFinal = pegi.selectedTab == 3;
 
             pegi.newLine();
                 pegi.Space();
@@ -317,11 +315,10 @@ namespace StoryTriggerData
                 }
             }
 
-            if (Result.showFinal) 
+            if (TargetedResult.showFinal) 
                 FinalResults.PEGI(st);
         }
-
-
+        
         void SwapReferencesInOptions(string from, string to) {
             foreach (DialogueChoice d in options)
                 if (d.goToReference == from)
@@ -330,12 +327,12 @@ namespace StoryTriggerData
 
     }
 
-    [Serializable]
-	public class InteractionBranch : abstract_STD{
+	public class InteractionBranch : abstract_STD 
+    {
         public const string storyTag = "qoEvent";
         public string name = "no name";
 
-        public VariablesWeb conds = new VariablesWeb(null);
+        public ConditionsWeb conds = new ConditionsWeb(null);
 
         public List<InteractionBranch> interactionBranches = new List<InteractionBranch>();
 
@@ -343,8 +340,7 @@ namespace StoryTriggerData
 
         public bool isOneClickAction;
         public int EditorSelectedInteraction = -1;
-
-
+        
         public override stdEncoder Encode (){
 			var cody= new stdEncoder ();
 
@@ -359,10 +355,10 @@ namespace StoryTriggerData
         public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "name": name = data; break;
-                case "cond": conds = new VariablesWeb(data); break;
-                case "igr": interactionBranches = data.ToListOf_STD<InteractionBranch>(); break; //new List<InteractionGroup>(data); break;
+                case "cond": conds = new ConditionsWeb(data); break;
+                case "igr": data.DecodeInto(out interactionBranches); break; //new List<InteractionGroup>(data); break;
                 case Interaction.storyTag_intrct:
-                    interactions = data.ToListOf_STD<Interaction>(); break;
+                    data.DecodeInto(out interactions); break;
                 default: return false;
             }
             return true;
@@ -393,7 +389,7 @@ namespace StoryTriggerData
         }
 
         int browsedBranch = -1;
-        public bool PEGI(STD_Values so) {
+        public bool PEGI(InteractionTarget so) {
 
             bool changed = false;
 
@@ -408,7 +404,7 @@ namespace StoryTriggerData
                 
             } else {
 
-                browsedBranch = Mathf.Clamp(browsedBranch, -1, interactionBranches.Count);
+                browsedBranch = Mathf.Clamp(browsedBranch, -1, interactionBranches.Count-1);
 
                 if (browsedBranch == -1) {
                     pegi.newLine();

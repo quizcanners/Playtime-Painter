@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
@@ -18,8 +19,7 @@ namespace StoryTriggerData {
             {
                 cody.getTag();
                 T tmp = (T)STD_Pool.getOne(prefabTag);
-                tmp.Decode(cody.getData());
-                l.Add(tmp);
+                l.Add(cody.getData().DecodeInto(tmp));
             }
 
             return l;

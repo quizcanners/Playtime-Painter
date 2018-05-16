@@ -12,9 +12,7 @@ public class StoryGodModeDrawer : Editor
 {
     public override void OnInspectorGUI()
     {
-        ef.start(serializedObject);
-        ((StoryGodMode)target).PEGI();
-        ef.end();
+        ((StoryGodMode)target).inspect(serializedObject);
     }
 }
 # endif
@@ -73,7 +71,7 @@ public class StoryGodMode : GodMode {
             {
                 SpaceValues.playerPosition.Add(transform.position);
                 transform.position = Vector3.zero;
-                Book.inst.AfterPlayerSpacePosUpdate();
+                Book.instBook.AfterPlayerSpacePosUpdate();
             }
         }
     }

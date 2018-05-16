@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using PlayerAndEditorGUI;
-
+using LogicTree;
 
 
 namespace StoryTriggerData
@@ -10,18 +10,16 @@ namespace StoryTriggerData
 
     public static class Dialogue {
 
-        public static InteractionBranch root { get {return browsedObj.iGroup; } }
+        public static InteractionBranch root { get {return browsedObj.interactionGroup; } }
 
         public static string singleText { get { return _optText.Count > 0 ? _optText[0] : null; } set { _optText.Clear(); _optText.Add(value); } }
 
-        public static STD_Values browsedObj;
+        public static InteractionTarget browsedObj;
 
         public static List<string> _optText = new List<string>();
         static List<Interaction> possibleInteractions = new List<Interaction>();
         static List<DialogueChoice> possibleOptions = new List<DialogueChoice>();
-
-
-
+        
         public static bool ScrollOptsDirty;
 
         static bool checkOptions(Interaction ia) {
@@ -39,15 +37,14 @@ namespace StoryTriggerData
 
             ScrollOptsDirty = true;
 
-            QuestVersion = STD_Values.questVersion;
+            QuestVersion = LogicMGMT.questVersion;
 
             if (cnt > 0)
                 return true;
             else
                 return false;
         }
-
-
+        
         static void updatePassiveLogic(InteractionBranch gr) {
 
             foreach (Interaction si in gr.interactions){
@@ -77,16 +74,11 @@ namespace StoryTriggerData
                 }
             }
         }
-
-
+        
         static int textCount;
-
-       
-
-       
-
+        
         public static void BackToInitials() {
-            STD_Values.AddQuestVersion();
+            LogicMGMT.AddQuestVersion();
             clearTexts();
 
             updatePassiveLogic(root);
@@ -98,7 +90,7 @@ namespace StoryTriggerData
                 CloseInteractions();
             else {
 
-                QuestVersion = STD_Values.questVersion;
+                QuestVersion = LogicMGMT.questVersion;
                 ScrollOptsDirty = true;
 
                 InteractionStage = 0;
@@ -119,7 +111,7 @@ namespace StoryTriggerData
             }
         }
 
-        public static void StartInteractions(STD_Values so) {
+        public static void StartInteractions(InteractionTarget so) {
             so.OnEnterResults.apply(so);
             browsedObj = so;
             BackToInitials();
@@ -142,7 +134,7 @@ namespace StoryTriggerData
         static int QuestVersion;
         public static void DistantUpdate() {
             if (root != null) {
-                if (QuestVersion != STD_Values.questVersion) {
+                if (QuestVersion != LogicMGMT.questVersion) {
 
                     switch (InteractionStage) {
                         case 0: BackToInitials(); break;
@@ -154,7 +146,7 @@ namespace StoryTriggerData
                                 singleText = tmp[textNo].ToString();
                             break;
                     }
-                    QuestVersion = STD_Values.questVersion;
+                    QuestVersion = LogicMGMT.questVersion;
                 }
             }
         }
@@ -178,7 +170,7 @@ namespace StoryTriggerData
         static string continuationReference;
         public static void SelectOption(int no) {
             //Debug.Log("Selecting: " + no);
-            STD_Values.AddQuestVersion();
+            LogicMGMT.AddQuestVersion();
             //int actual = possibleInteractions.Count > 0 ? possibleInteractions[no] : 0;
             switch (InteractionStage)
             {
@@ -225,7 +217,7 @@ namespace StoryTriggerData
         }
 
 
-        public static bool PEGI(STD_Values trg) {
+        public static bool PEGI(InteractionTarget trg) {
             bool changed = false;
 
             if (browsedObj != trg) {

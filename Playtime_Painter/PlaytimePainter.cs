@@ -12,13 +12,15 @@ using StoryTriggerData;
 using PlayerAndEditorGUI;
 using System.Reflection;
 //using UnityEditor.SceneManagement;
+using SharedTools_Stuff;
+
 
 namespace Playtime_Painter{
 
     [HelpURL(WWW_Manual)]
     [AddComponentMenu("Mesh/Playtime Painter")]
     [ExecuteInEditMode]
-    public class PlaytimePainter : PlaytimeToolComponent, iSTD {
+    public class PlaytimePainter : PlaytimeToolComponent, iSTD, iPEGI {
 
         public static PEGIcallDelegate plugins_ComponentPEGI;
         public static PainterBoolPlugin plugins_GizmoDraw;
@@ -654,7 +656,7 @@ namespace Playtime_Painter{
     #endif
 
             SetTextureOnMaterial(id.texture2D);
-            UpdateShaderGlobalsForTerrain();
+            UpdateShaderGlobals();
         }
 
         public void createTexture2D(int size, string TextureName, bool isColor) {
@@ -668,9 +670,9 @@ namespace Playtime_Painter{
 		    if (gotRenderTextureData && ((id.texture2D == null) || (TextureName == id.SaveName))) 
 			    id.texture2D = texture;
 		
-            ChangeTexture(texture);
-
 		    texture.wrapMode = TextureWrapMode.Repeat;
+
+            ChangeTexture(texture);
 
             id = imgData;
 
@@ -681,7 +683,7 @@ namespace Playtime_Painter{
                 id.RenderTexture_To_Texture2D();
             else
                 if (!isColor)
-            id.Colorize(new Color(0.5f, 0.5f, 0.5f, 0.99f));
+                    id.Colorize(new Color(0.5f, 0.5f, 0.5f, 0.99f));
                
             texture.Apply(true, false);
 
@@ -694,11 +696,13 @@ namespace Playtime_Painter{
             needReimport |= importer.wasWrongIsColor(isColor);
 
             if (needReimport) importer.SaveAndReimport();
-    #endif
 
+
+    #endif
+            
         }
 
-	    public void CreateRenderTexture (int size, string name) {
+        public void CreateRenderTexture (int size, string name) {
 		    ImageData previous = imgData;
 
             var nt = ScriptableObject.CreateInstance<ImageData>().init(size);
@@ -828,7 +832,7 @@ namespace Playtime_Painter{
                 else {
                     int cnt = meshRenderer.sharedMaterials.Length;
                     if (cnt != 0) {
-                        selectedSubmesh = Mathf.Clamp(selectedSubmesh, 0, cnt - 1);
+                        selectedSubmesh = selectedSubmesh.ClampZeroTo(cnt);
                         result = meshRenderer.sharedMaterials[selectedSubmesh];
                     }
                 }
@@ -965,7 +969,7 @@ namespace Playtime_Painter{
 
         float tilingY = 8;
 
-        public void UpdateShaderGlobalsForTerrain() {
+        public void UpdateShaderGlobals() {
 
             foreach (PainterPluginBase nt in plugins) 
                 nt.OnUpdate(this);
@@ -1049,7 +1053,7 @@ namespace Playtime_Painter{
 
             terrain.terrainData.SetHeights(0, 0, heights);
 
-            UpdateShaderGlobalsForTerrain();
+            UpdateShaderGlobals();
 
             if (rendTex) UpdateOrSetTexTarget(texTarget.RenderTexture);
         }
@@ -1113,7 +1117,7 @@ namespace Playtime_Painter{
             if (rendTex)
                 UpdateOrSetTexTarget(texTarget.RenderTexture);
 
-            UpdateShaderGlobalsForTerrain();
+            UpdateShaderGlobals();
         }
 
         public bool isTerrainHeightTexture() {
@@ -1387,12 +1391,17 @@ namespace Playtime_Painter{
 	    void OnPostSaveTexture(){
             var id = imgData;
 
+            OnPostSaveTexture(imgData);
+
+        }
+
+        void OnPostSaveTexture(ImageData id)  {
             SetTextureOnMaterial(id);
             UpdateOrSetTexTarget(id.destination);
-		    UpdateShaderGlobalsForTerrain();
-	    }
+            UpdateShaderGlobals();
+        }
 
-	    public void RewriteOriginalTexture_Rename(string name) {
+        public void RewriteOriginalTexture_Rename(string name) {
 		
 		    OnBeforeSaveTexture ();
             var id = imgData;
@@ -1413,12 +1422,13 @@ namespace Playtime_Painter{
         public void SaveTextureAsAsset(bool asNew)  {
 
 		    OnBeforeSaveTexture ();
+
             var id = imgData;
             id.texture2D = id.texture2D.saveTextureAsAsset(cfg.texturesFolderName, ref id.SaveName, asNew);
 
             id.texture2D.Reimport_IfNotReadale();
 
-		    OnPostSaveTexture ();
+		    OnPostSaveTexture (id);
 
         }
 
@@ -1498,16 +1508,19 @@ namespace Playtime_Painter{
 				DestroyImmediate(ip);
 		}
 
-		PainterManager rtp = UnityEngine.Object.FindObjectOfType<PainterManager>();
-		if (rtp != null)
-			DestroyImmediate(rtp.gameObject);
+		var rtp = FindObjectsOfType<PainterManager>();
+            if (rtp != null)
+                foreach (var rt in rtp)
+                    rt.gameObject.DestroyWhatever();
 
+            PainterStuff.applicationIsQuitting = false;
 	}
 
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Instantiate Painter Camera")]
         static void InstantiatePainterCamera() {
-        PainterManager r = PainterManager.inst;
-    }
+            PainterStuff.applicationIsQuitting = false;
+            PainterManager r = PainterManager.inst;
+        }
       
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Join Discord")]
         public static void open_Discord() {
@@ -1578,7 +1591,7 @@ namespace Playtime_Painter{
             PainterPluginBase.updateList(this);
             
             if (terrain != null) 
-                UpdateShaderGlobalsForTerrain();
+                UpdateShaderGlobals();
 
                 if (meshRenderer == null)
                     meshRenderer = GetComponent<MeshRenderer>();

@@ -10,8 +10,10 @@ using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
 
+using SharedTools_Stuff;
 
-namespace StoryTriggerData {
+namespace LogicTree
+{
 
     public class TriggerGroups : abstract_STD {
 
@@ -22,8 +24,7 @@ namespace StoryTriggerData {
         public const string StoriesFolderName = "Stories";
         public const string triggersFileName = "triggers";
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "runtime " + myInstantiatedIndex;
         }
 
@@ -31,9 +32,10 @@ namespace StoryTriggerData {
             return StoriesFolderName + "/" + ToString();
         }
 
-        public UnnullableLists<STD_Values> taggedBool = new UnnullableLists<STD_Values>();
+        [NonSerialized]
+        public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
 
-        public UnnullableSTD<UnnullableLists<STD_Values>> taggedInts = new UnnullableSTD<UnnullableLists<STD_Values>>();
+        public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
 
         public TriggerGroups this[int index] { get { return _all[index]; } }
 
@@ -151,7 +153,7 @@ namespace StoryTriggerData {
            return PEGI(null);
         }
 
-        public bool PEGI(STD_Values so) {
+        public bool PEGI(Values so) {
             
             bool changed = false;
 
@@ -242,7 +244,7 @@ namespace StoryTriggerData {
         }
 
 
-        public bool AddTrigger_PEGI( Argument arg) {
+        public bool AddTrigger_PEGI( ValueIndex arg) {
 
             bool changed = false;
 

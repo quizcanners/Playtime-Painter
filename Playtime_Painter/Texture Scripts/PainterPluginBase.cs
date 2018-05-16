@@ -7,7 +7,7 @@ using System.Reflection;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-
+using SharedTools_Stuff;
 // This is a base class to use when managing special cases, such as: Terrain ControlMaps, Global Textures, Textures that are RAM only.
 
 namespace Playtime_Painter

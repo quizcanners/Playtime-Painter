@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
-
-namespace StoryTriggerData {
+namespace LogicTree
+{
 
     // Trigger usage is only used for PEGI. Logic engine will not need this to process triggers
 
@@ -24,15 +25,15 @@ namespace StoryTriggerData {
             return pegi.select(ref ind, usgs, 45);
         }
 
-        public bool editTrigger_And_Value_PEGI(Argument arg, STD_Values so) {
+        public bool editTrigger_And_Value_PEGI(ValueIndex arg, Values so) {
             return editTrigger_And_Value_PEGI(arg.triggerIndex, arg.group, so);
         }
 
-        public virtual void conditionPEGI(Condition c, STD_Values so) {
+        public virtual void conditionPEGI(Condition c, Values so) {
    
         }
 
-        public virtual bool resultsPEGI(Result r, STD_Values so) {
+        public virtual bool resultsPEGI(TargetedResult r, Values so) {
             return false;
         }
 
@@ -40,7 +41,7 @@ namespace StoryTriggerData {
             return false;
         }
 
-        public virtual bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, STD_Values so) {
+        public virtual bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             bool changed = false;
             Trigger t = group.triggers[ind];
             string before = t.name;
@@ -101,19 +102,19 @@ namespace StoryTriggerData {
             {(int)ResultType.Subtract, "-"},
         };
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.select(ref c._type, conditionUsages, 40);
             pegi.edit(ref c.compareValue, 40);
         }
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             bool changed = false;
             changed |= pegi.select(ref r._type, resultUsages, 40);
             changed |= pegi.edit(ref r.updateValue, 40);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, STD_Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             if (so != null) 
@@ -137,11 +138,11 @@ namespace StoryTriggerData {
         public override string ToString() { return string.Format("Game Time"); }
 
         public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
-            { ((int)ConditionType.GameTimePassedAbove), "Game_Time passed > " },
-            { ((int)ConditionType.GameTimePassedBelow), "Game_Time passed < " },
+            { ((int)ConditionType.VirtualTimePassedAbove), "Game_Time passed > " },
+            { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.select(ref c._type, conditionUsages);
             pegi.edit(ref c.compareValue);
         }
@@ -153,7 +154,7 @@ namespace StoryTriggerData {
             {(int)ResultType.Set, "="},
         };
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             bool changed = false;
 
             changed |= pegi.select(ref r._type, resultUsages);
@@ -176,7 +177,7 @@ namespace StoryTriggerData {
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.select(ref c._type, conditionUsages);
             pegi.edit(ref c.compareValue);
         }
@@ -187,7 +188,7 @@ namespace StoryTriggerData {
             {(int)ResultType.Subtract, "-"},
         };
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             bool changed = false;
             changed |= pegi.select(ref r._type, resultUsages);
             if (r.type != ResultType.SetTimeReal)
@@ -202,19 +203,19 @@ namespace StoryTriggerData {
       
         public override string ToString() { return string.Format("Enums"); }
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.select(ref c._type, Usage_Number.conditionUsages);
             pegi.select(ref c.compareValue, c.trig.enm);
         }
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             bool changed = false;
             changed |= pegi.select(ref r._type, Usage_Number.resultUsages);
             pegi.select(ref r.updateValue, r.trig.enm);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, STD_Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
             Trigger t = group.triggers[ind];
 
@@ -243,7 +244,7 @@ namespace StoryTriggerData {
 
         public override string ToString() { return string.Format("TagGroup"); }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, STD_Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             var changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             Trigger t = group.triggers[ind];
@@ -278,13 +279,13 @@ namespace StoryTriggerData {
             return changed;
         }
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.select(ref c._type, Usage_Number.conditionUsages);
             pegi.select(ref c.compareValue, c.trig.enm);
             //c.trig.enm.//select_or_Edit_PEGI(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             bool changed = false;
             changed |= pegi.select(ref r._type, Usage_Number.resultUsages);
             pegi.select(ref r.updateValue, r.trig.enm);
@@ -302,16 +303,16 @@ namespace StoryTriggerData {
 
         public override string ToString() { return string.Format("YesNo"); }
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.toggleInt(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group,STD_Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
             if (so != null)
                 changed |= pegi.toggle(ind ,so.bools[group.GetHashCode()]);
@@ -326,15 +327,15 @@ namespace StoryTriggerData {
      
         public override string ToString() { return string.Format("Tag"); }
 
-        public override void conditionPEGI(Condition c, STD_Values so) {
+        public override void conditionPEGI(Condition c, Values so) {
             pegi.toggleInt(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(Result r, STD_Values so) {
+        public override bool resultsPEGI(TargetedResult r, Values so) {
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group,STD_Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             if (so != null) {

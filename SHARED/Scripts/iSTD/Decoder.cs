@@ -4,16 +4,16 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Text;
-//using StoryLink;
 using System.Globalization;
 
-namespace StoryTriggerData {
+namespace SharedTools_Stuff
+{
 
     public static class DecodeExtensions {
 
-        public static BoneWeight ToBoneWeight(this string data) {
+        public static void DecodeInto(this string data, out BoneWeight b) {
             var cody = new stdDecoder(data);
-            var b = new BoneWeight();
+             b = new BoneWeight();
 
             while (cody.gotData)
                 switch (cody.getTag()) {
@@ -29,12 +29,33 @@ namespace StoryTriggerData {
                     case "i3": b.boneIndex3 = data.ToInt(); break;
                     case "w3": b.weight3 = data.ToFloat(); break;
                 }
-            return b;
+          
         }
+        
+        public static string DecodeInto(this string data, Transform tf)
+        {
 
-        public static Matrix4x4 ToMatrix4x4 (this string data) {
             var cody = new stdDecoder(data);
-            var m = new Matrix4x4();
+            bool local = false;
+
+            foreach (var tag in cody.enumerator)
+            {
+                var d = cody.getData();
+                switch (tag)
+                {
+                    case "loc": local = d.ToBool(); break;
+                    case "pos": if (local) tf.localPosition = d.ToVector3(); else tf.position = d.ToVector3(); break;
+                    case "size": tf.localScale = d.ToVector3(); break;
+                    case "rot": if (local) tf.localRotation = d.ToQuaternion(); else tf.rotation = d.ToQuaternion(); break;
+                }
+            }
+
+            return cody.ToString();
+        }
+        
+        public static void DecodeInto (this string data, out Matrix4x4 m) {
+            var cody = new stdDecoder(data);
+             m = new Matrix4x4();
 
             while (cody.gotData) 
                 switch (cody.getTag()) {
@@ -62,9 +83,30 @@ namespace StoryTriggerData {
                     default: Debug.Log("Uncnown component: " + cody.GetType()); break;
                 }
 
-            return m;
+           // return m;
         }
 
+        public static Quaternion ToQuaternion(this string data)
+        {
+
+            stdDecoder cody = new stdDecoder(data);
+
+            Quaternion q = new Quaternion();
+
+            while (cody.gotData)
+            {
+                switch (cody.getTag())
+                {
+                    case "x": q.x = cody.getData().ToFloat(); break;
+                    case "y": q.y = cody.getData().ToFloat(); break;
+                    case "z": q.z = cody.getData().ToFloat(); break;
+                    case "w": q.w = cody.getData().ToFloat(); break;
+                    default: Debug.Log("Uncnown component: " + cody.GetType()); break;
+                }
+            }
+            return q;
+        }
+        
         public static Vector4 ToVector4(this string data) {
 
             stdDecoder cody = new stdDecoder(data);
@@ -82,8 +124,7 @@ namespace StoryTriggerData {
             }
             return v4;
         }
-
-
+        
         public static Vector3 ToVector3(this string data) {
 
             stdDecoder cody = new stdDecoder(data);
@@ -117,7 +158,6 @@ namespace StoryTriggerData {
 
 
         // Integer
-        
         public static bool ToBool(this string data) {
             return data == "y";
         }
@@ -133,20 +173,30 @@ namespace StoryTriggerData {
 
 
         // Float
-
         public static float ToFloat(this string data) {
             return float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
 
         }
         
 
+        // STD
+        public static T DecodeInto<T> (this string data, out T val) where T: iSTD, new() {
+            val = new T();
+            new stdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data, T val) where T : iSTD {
+            if (val != null)
+            new stdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+
         // List (int)
+        public static List<int> DecodeInto (this string data, out List<int> l ) {
 
-        public static List<int> ToListOfInt(this string data) {
-
-
-
-            List<int> l = new List<int>();
+            l = new List<int>();
 
             stdDecoder cody = new stdDecoder(data);
 
@@ -158,12 +208,26 @@ namespace StoryTriggerData {
             return l;
         }
 
-        public static List<uint> ToListOfUInt(this string data)
+        public static List<float> DecodeInto(this string data, out List<float> l)
         {
 
+            l = new List<float>();
 
+            stdDecoder cody = new stdDecoder(data);
 
-            List<uint> l = new List<uint>();
+            while (cody.gotData)
+            {
+                cody.getTag();
+                l.Add(cody.getData().ToFloat());
+            }
+
+            return l;
+        }
+
+        public static List<uint> DecodeInto(this string data, out List<uint> l)
+        {
+
+             l = new List<uint>();
 
             stdDecoder cody = new stdDecoder(data);
 
@@ -178,46 +242,45 @@ namespace StoryTriggerData {
 
 
         // ToSlistOfStorySaveable
-
-        public static List<List<T>> ToListOfList_STD<T>(this string data) where T : iSTD, new()
+        public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : iSTD, new()
         {
-            List<List<T>> l = new List<List<T>>();
+            l = new List<List<T>>();
 
             var cody = new stdDecoder(data);
 
             while (cody.gotData) {
                 cody.getTag();
-                l.Add(cody.getData().ToListOf_STD<T>());
+                List<T> el;
+                cody.getData().DecodeInto(out el);
+                l.Add(el);
             }
 
             return l;
         }
 
-        public static List<T> ToListOf_STD<T>(this string data) where T : iSTD, new() {
+        public static List<T> DecodeInto<T>(this string data, out List<T> l) where T : iSTD, new() {
 
             stdDecoder cody = new stdDecoder(data);
 
-            List<T> l = new List<T>();
+             l = new List<T>();
 
             while (cody.gotData) {
                 cody.getTag();
-                T tmp = new T();
-                tmp.Decode(cody.getData());
-                l.Add(tmp);
+                T tmp;
+                l.Add(cody.getData().DecodeInto(out tmp));
             }
 
             return l;
         }
 
-        public static Dictionary<int, string> ToDictionaryIntString_STD(this string data) {
+        public static void DecodeInto(this string data, out Dictionary<int, string> dic) {
             var cody = new stdDecoder(data);
 
-            Dictionary<int, string> dic = new Dictionary<int, string>();
+            dic = new Dictionary<int, string>();
 
             while (cody.gotData)
                 dic.Add(cody.getTag().ToInt(), cody.getData());
-
-            return dic;
+            
         }
         
         public static linearColor ToLinearColor(this string data) {

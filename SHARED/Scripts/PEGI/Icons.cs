@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
+using SharedTools_Stuff;
 // Icons management
 
 namespace PlayerAndEditorGUI
@@ -14,7 +15,7 @@ namespace PlayerAndEditorGUI
         Square, PreviewShader, OriginalShader, saveAsNew, Undo, Redo, Painter,
         UndoDisabled, RedoDisabled, Play, Record, Delete, Done, Edit, Close, Add,
         Script, Config, Load, Pause, mesh, Discord, Docs, Email, Back, Red, Green, Blue, Alpha,
-        Hint
+        Hint, Copy, Paste, Search
 
     }
 

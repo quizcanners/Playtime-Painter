@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Linq;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace StoryTriggerData
 {
@@ -78,7 +79,7 @@ namespace StoryTriggerData
             if (water == null)
                 water = GetComponentInChildren<WaterController>();
 
-            stdValues = new STD_Values();
+            stdValues = new InteractionTarget();
             transform.localScale = Vector3.one;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(Vector3.zero);

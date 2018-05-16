@@ -20,7 +20,7 @@ namespace Playtime_Painter {
         public class Generate_Button : EditableMeshPreProcess
         {
 
-            float widthPercentage = 0.1f;
+           // float widthPercentage = 0.1f;
             vertexpointDta[] grid;
 
             public override bool PEGI() {

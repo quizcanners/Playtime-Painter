@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -141,7 +142,7 @@ namespace Playtime_Painter
             if (PainterManager.inst.masks.Length > 0)
             {
 
-                inspectedBrush.selectedSourceMask = Mathf.Clamp(inspectedBrush.selectedSourceMask, 0, PainterManager.inst.masks.Length - 1);
+                inspectedBrush.selectedSourceMask =inspectedBrush.selectedSourceMask.ClampZeroTo(PainterManager.inst.masks.Length);
 
                 pegi.Space();
                 pegi.newLine();

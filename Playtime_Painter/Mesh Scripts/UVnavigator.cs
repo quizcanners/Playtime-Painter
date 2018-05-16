@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -270,7 +271,9 @@ namespace Playtime_Painter
                     break;
             }
 
-            uv = (uv + offset) * tiling;
+            uv = (uv + offset);
+
+            uv.Scale(tiling);
 
             return uv;
         }

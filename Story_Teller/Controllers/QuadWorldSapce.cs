@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Linq;
+using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
@@ -36,7 +37,7 @@ namespace StoryTriggerData {
 	    public override bool Decode (string subtag, string data) {
 
             switch (subtag) {
-                case STD_Values.storyTag: stdValues.Decode(data); break;
+                case InteractionTarget.storyTag: stdValues.Decode(data); break;
 			    case "pos" : transform.position = data.ToVector3(); break;
                 default: return false;
             }

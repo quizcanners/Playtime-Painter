@@ -7,7 +7,8 @@ using System.Text;
 using System.Globalization;
 using PlayerAndEditorGUI;
 
-namespace StoryTriggerData {
+namespace SharedTools_Stuff
+{
 
     public static class EncodeExtensions {
 
@@ -16,7 +17,37 @@ namespace StoryTriggerData {
             builder.Append(stdEncoder.splitter);
         }
 
+        public static string Encode (this Transform tf, bool local) {
 
+            var cody = new stdEncoder();
+
+            cody.Add("loc", local);
+
+            if (local) {
+                cody.Add("pos", tf.localPosition);
+                cody.Add("size", tf.localScale);
+                cody.Add("rot", tf.localRotation);
+            } else {
+                cody.Add("pos", tf.position);
+                cody.Add("size", tf.localScale);
+                cody.Add("rot", tf.rotation);
+            }
+
+            return cody.ToString();
+        }
+
+        public static string Encode<T>(this List<T> val) where T : iSTD {
+
+            stdEncoder cody = new stdEncoder();
+
+            if (val != null)
+            foreach (var v in val)
+                if (v != null)
+                cody.Add("e", v.Encode());
+
+            return cody.ToString();
+        }
+        
         public static string Encode(this Vector3 v3, int percision) {
 
             stdEncoder cody = new stdEncoder();
@@ -34,6 +65,18 @@ namespace StoryTriggerData {
 
             cody.AddIfNotZero("x", v2.x.RoundTo(percision));
             cody.AddIfNotZero("y", v2.y.RoundTo(percision));
+
+            return cody.ToString();
+        }
+
+        public static string Encode(this Quaternion q)
+        {
+            stdEncoder cody = new stdEncoder();
+
+            cody.AddIfNotZero("x", q.x.RoundTo6Dec());
+            cody.AddIfNotZero("y", q.y.RoundTo6Dec());
+            cody.AddIfNotZero("z", q.z.RoundTo6Dec());
+            cody.AddIfNotZero("w", q.w.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -259,13 +302,7 @@ namespace StoryTriggerData {
         public bool AddIfNotEmpty<T>(string tag, List<T> val) where T : iSTD {
 
             if (val.Count > 0) {
-                stdEncoder sub = new stdEncoder();
-
-                for (int i = 0; i < val.Count; i++)// T s in val)
-                    if (val[i] != null)
-                        sub.Add("e", val[i].Encode());
-
-                AddText(tag, sub.ToString());
+                Add(tag, val);
                 return true;
             }
 
@@ -288,8 +325,7 @@ namespace StoryTriggerData {
 
             return false;
         }
-
-
+        
         public bool AddIfNotEmpty(string tag, Dictionary<int, string> dic) {
             if (dic.Count > 0) {
 
@@ -332,6 +368,16 @@ namespace StoryTriggerData {
             }
 
             return false;
+        }
+
+        public void Add<T>(string tag, List<T> val) where T : iSTD {
+            stdEncoder sub = new stdEncoder();
+
+            foreach (var e in val)
+                if (e != null)
+                    sub.Add("e", e);
+
+            AddText(tag, sub.ToString());
         }
 
         public void Add (string tag, Matrix4x4 m) {
@@ -384,6 +430,7 @@ namespace StoryTriggerData {
                 
         }
 
+        public void Add(string tag, Quaternion q) { AddText(tag, q.Encode()); }
         public void Add(string tag, Vector4 v4) { AddText(tag, v4.Encode()); }
         public void Add(string tag, Vector3 v3) { AddText(tag, v3.Encode()); }
         public void Add(string tag, Vector2 v2) { AddText(tag, v2.Encode()); }

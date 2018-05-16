@@ -12,11 +12,23 @@ using PlayerAndEditorGUI;
 using System.Linq.Expressions;
 using System.Reflection;
 using UnityEditor.SceneManagement;
+using SharedTools_Stuff;
+
 
 namespace  PlayerAndEditorGUI {
 
-    public static class ef
-    {
+    public static class ef {
+
+        public static bool inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, iPEGI {
+            if (o.gameObject.isPrefab())
+                return false;
+
+            start(so);
+            bool changed = o.PEGI();
+            end();
+
+            return changed;
+        }
 
         public static void start(SerializedObject so)
         {
@@ -42,11 +54,12 @@ namespace  PlayerAndEditorGUI {
         {
             return end(null);
         }
-
-
-
-
+        
         static bool change { get { changes = true; return true; } }
+
+        static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
+
+        static bool EndCheckLine() { return EditorGUI.EndChangeCheck() ? change : false; }
 
         public static void checkLine()
         {
@@ -66,9 +79,6 @@ namespace  PlayerAndEditorGUI {
                 EditorGUILayout.EndHorizontal();
             }
         }
-
-        //static int editedStringIndex;
-        //static string EditedValue;
 
         public static bool changes;
         static bool lineOpen = false;
@@ -376,7 +386,7 @@ namespace  PlayerAndEditorGUI {
 
             if (clampValue)
             {
-                i = Mathf.Clamp(i, 0, ar.Length);
+                i = i.ClampZeroTo(ar.Length);
                 if (ar[i].showInDropdown() == false)
                     for (int v = 0; v < ar.Length; v++)
                     {
@@ -420,7 +430,7 @@ namespace  PlayerAndEditorGUI {
             //List<int> indxs = new List<int>();
 
             int before = ind;
-            ind = Mathf.Clamp(ind, 0, lst.Length);
+            ind = ind.ClampZeroTo(lst.Length);
 
             for (int i = 0; i < lst.Length; i++)
             {
@@ -661,13 +671,7 @@ namespace  PlayerAndEditorGUI {
             return tmp != field;
         }
 
-        public static bool edit<T>(ref T field, string name) where T : UnityEngine.Object
-        {
-            checkLine();
-            T tmp = field;
-            field = (T)EditorGUILayout.ObjectField(name, field, typeof(T), true);
-            return tmp != field;
-        }
+       
 
         public static bool edit(int ind, CountlessInt tb)
         {
@@ -835,12 +839,9 @@ namespace  PlayerAndEditorGUI {
 
         public static bool edit(string name, ref AnimationCurve val) {
 
-            checkLine();
-            var before = val;
+            BeginCheckLine();
             val = EditorGUILayout.CurveField(name,val);
-            if (before != val)
-                return true;
-            return false;
+            return EndCheckLine();
         }
 
         public static bool edit(string label, ref Vector4 val)
@@ -983,42 +984,37 @@ namespace  PlayerAndEditorGUI {
 
         public static bool edit(ref string text)
         {
-            checkLine();
-            string before = text;
+            BeginCheckLine();
             text = EditorGUILayout.TextField(text);
-            return (String.Compare(before, text) != 0) ? change : false;
+            return EndCheckLine();
         }
 
         public static bool edit(ref string text, int width)
         {
-            checkLine();
-            string before = text;
+            BeginCheckLine();
             text = EditorGUILayout.TextField(text, GUILayout.MaxWidth(width));
-            return (String.Compare(before, text) != 0) ? change : false;
+            return EndCheckLine();
         }
 
         public static bool editBig(ref string text)
         {
-            checkLine();
-            string before = text;
+            BeginCheckLine();
             text = EditorGUILayout.TextArea(text);
-            return (String.Compare(before, text) != 0) ? change : false;
+            return EndCheckLine();
         }
 
         public static bool edit(ref string[] texts, int no)
         {
-            checkLine();
-            string before = texts[no];
+            BeginCheckLine();
             texts[no] = EditorGUILayout.TextField(texts[no]);
-            return (String.Compare(before, texts[no]) != 0) ? change : false;
+            return EndCheckLine();
         }
 
         public static bool edit(List<string> texts, int no)
         {
-            checkLine();
-            string before = texts[no];
+            BeginCheckLine();
             texts[no] = EditorGUILayout.TextField(texts[no]);
-            return (String.Compare(before, texts[no]) != 0) ? change : false;
+            return EndCheckLine();
         }
 
         public static bool editPowOf2(ref int i, int min, int max)

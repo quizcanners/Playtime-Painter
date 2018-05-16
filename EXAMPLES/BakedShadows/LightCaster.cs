@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -87,7 +87,7 @@ namespace Playtime_Painter
             changed |= "Emission Color".edit(ref ecol).nl();
             changed |= "Brightness".edit(ref brightness).nl();
 
-            if (changed) pegi.RepaintViews();
+            if (changed) UnityHelperFunctions.RepaintViews();
 
             return changed;
         }

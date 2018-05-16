@@ -9,14 +9,14 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-
+using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
     [ExecuteInEditMode]
     public abstract class STD_Poolable : PoolableBase, iKeepUnrecognizedSTD {
 
-        public STD_Values stdValues;
+        public InteractionTarget stdValues;
 
         public Page parentPage;
 

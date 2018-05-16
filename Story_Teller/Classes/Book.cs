@@ -14,44 +14,29 @@ using System.Linq.Expressions;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-
-
+using SharedTools_Stuff;
+using LogicTree;
 
 namespace StoryTriggerData {
 
    
     [ExecuteInEditMode]
-    public class Book : ComponentSTD {
+    public class Book : LogicMGMT {
 
-        public static Book inst { get {
+       public static Book instBook { get { return (Book)inst; } }
 
-                if (_inst == null)
-                    _inst = FindObjectOfType<Book>();
-
-                if (_inst == null) {
-                    _inst = (new GameObject().AddComponent<Book>());
-                }
-
-                return _inst;
-            }
-        }
-
-        static Book _inst;
-
-        public STD_Values stdValues = new STD_Values();
+        public InteractionTarget stdValues = new InteractionTarget();
 
         public const string storyTag = "HOME";
-
 
         public override string getDefaultTagName() {
             return storyTag;
         }
-
-
+        
         public static List<Page> HOMEpages;
 
         public List<String> OtherBooks;
-
+        
 
         // *********************** SAVING/LOADING  MGMT
         [NonSerialized]
@@ -77,9 +62,7 @@ namespace StoryTriggerData {
 
         public override iSTD Decode(string data) {
             Reboot();
-
             new stdDecoder(data).DecodeTagsFor(this);
-
             return this;
         }
 
@@ -101,7 +84,6 @@ namespace StoryTriggerData {
             Loaded = true;
         }
 
-
         public void SaveChanges() {
 #if UNITY_EDITOR
             if (Loaded) {
@@ -116,10 +98,7 @@ namespace StoryTriggerData {
             }
 #endif
         }
-
-
-
-
+        
         public void OnDisable() {
                 UnityHelperFunctions.FocusOn(this.gameObject);
             if (!Application.isPlaying)
@@ -128,11 +107,9 @@ namespace StoryTriggerData {
             
         }
 
-      
+        public override void OnEnable() {
 
-        public void OnEnable() {
-
-            _inst = this;
+            base.OnEnable();
 
             STD_Pool.InitStoryPoolsIfNull();
 
@@ -170,11 +147,6 @@ namespace StoryTriggerData {
 #endif
 
         }
-
-
-
-
-
 
         // *********************** COMPONENT MGMT
 
@@ -291,19 +263,6 @@ namespace StoryTriggerData {
         }
 
 
-        // *********************** TIMED EVENTS MONItORING
-
-        bool waiting;
-        float timeToWait = -1;
-
-        public void AddTimeListener(float seconds) {
-            seconds += 0.5f;
-            if (!waiting) timeToWait = seconds;
-            else timeToWait = Mathf.Min(timeToWait, seconds);
-            waiting = true;
-        }
-
-
         public Page lerpTarget;
         [NonSerialized]
         public UniversePosition lerpPosition;
@@ -316,7 +275,6 @@ namespace StoryTriggerData {
         void CombinedUpdate() {
 
             if (lerpTarget != null) {
-                //   "Lerpong".Log();
 
                 if ((lerpTarget.enabled == false) || (SpaceValues.playerPosition.LerpTo(lerpTarget.sPOS, lerpTarget.uReach, Application.isPlaying ? Time.deltaTime : 0.5f) < 1)) lerpTarget = null;
                 AfterPlayerSpacePosUpdate();
@@ -329,16 +287,12 @@ namespace StoryTriggerData {
             }
             
 
-            if (waiting) {
-                timeToWait -= Time.deltaTime;
-                if (timeToWait < 0) {
-                    waiting = false;
-                    STD_Values.AddQuestVersion();
-                }
-            }
+           
         }
 
-        void Update() {
+        override public void Update() {
+
+            base.Update();
 
             if (StoryGodMode.inst != null)
                 StoryGodMode.inst.DistantUpdate();
@@ -348,17 +302,7 @@ namespace StoryTriggerData {
             foreach (var p in HOMEpages)
                 p.PostPositionUpdate();
         }
-
-    
-
-        public static int RealTimeOnStartUp = 0;
-        public void Awake() {
-            RealTimeOnStartUp = (int)((DateTime.Now.Ticks - 733000 * TimeSpan.TicksPerDay) / TimeSpan.TicksPerSecond);
-        }
-
-        public static int GetRealTime() {
-            return RealTimeOnStartUp + (int)Time.realtimeSinceStartup;
-        }
+        
 
     }
 }

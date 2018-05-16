@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Text;
 using System;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+using LogicTree;
 
 namespace StoryTriggerData{
 
@@ -77,7 +79,7 @@ namespace StoryTriggerData{
                     STD_Poolable storyObject = STD_Pool.getOne(tag);
 
                     if (storyObject != null)
-                        storyObject.LinkTo(this).Decode(data);
+                        data.DecodeInto(storyObject.LinkTo(this));
                     else
                         return false; break;
             }
@@ -231,9 +233,8 @@ namespace StoryTriggerData{
                 pegi.newLine();
 
                 if ((!objectsLoaded) && ("Load".Click()))
-                    Book.inst.lerpTarget = this; 
+                    Book.instBook.lerpTarget = this; 
                 
-
                 if ((objectsLoaded) && ("Save".Click()))
                     SavePageContent();
 

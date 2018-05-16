@@ -7,6 +7,9 @@ using System.Reflection.Emit;
 using System.Linq;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+using LogicTree;
+
 
 namespace StoryTriggerData {
 
@@ -28,7 +31,7 @@ namespace StoryTriggerData {
     [ExecuteInEditMode]
     public class PathBox : STD_Poolable {
 
-        VariablesWeb conditions;
+        ConditionsWeb conditions;
 
         public const string tagName = "path";
 
@@ -48,7 +51,7 @@ namespace StoryTriggerData {
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
             transform.localRotation = Quaternion.identity;
-            conditions = new VariablesWeb(null);
+            conditions = new ConditionsWeb(null);
         }
 
         public override stdEncoder Encode() {

@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 using StoryTriggerData;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using SharedTools_Stuff;
+
 
 namespace Playtime_Painter {
     namespace CombinedMaps {
@@ -421,7 +423,7 @@ namespace Playtime_Painter {
             {
                 switch (tag)
                 {
-                    case "ch": channel = data.ToListOf_STD<TextureChannel>(); break;
+                    case "ch":data.DecodeInto(out channel); break;
                     case "c": isColor = data.ToBool(); break;
                     case "n": name = data; break;
                     case "b": bumpStrength = data.ToFloat(); break;

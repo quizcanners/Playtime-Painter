@@ -3,24 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
-
-
-namespace StoryTriggerData
+namespace LogicTree
 {
 
-    public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, GameTimePassedAbove, GameTimePassedBelow, NotEquals }
+    public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
     public static class ConditionExtensionFunctions
     {
 
-        public static bool TestConditions(this VariablesWeb tree, STD_Values ip) {
+        public static bool TestConditions(this ConditionsWeb tree, Values ip) {
             bool tmp = tree.ConditionsCascade(0, ip);
             return tmp;
         }
 
-        public static bool ConditionsCascade(this VariablesWeb tree, int branch, STD_Values ip) {
-            WebBranch vb = tree.branches[branch];
+        public static bool ConditionsCascade(this ConditionsWeb tree, int branch, Values ip) {
+            ConditionsBranch vb = tree.branches[branch];
             switch (vb.type) {
                 case ConditionBranchType.AND:
                     for (int i = 0; i < vb.vars.Count; i++)
@@ -38,12 +37,12 @@ namespace StoryTriggerData
             return true;
         }
 
-        public static void MakeConditionsTrue(this VariablesWeb tree, STD_Values ip) {
+        public static void MakeConditionsTrue(this ConditionsWeb tree, Values ip) {
             tree.MakeCondTrueCascade(0, ip);
         }
 
-        static void MakeCondTrueCascade(this VariablesWeb tree, int branch, STD_Values ip) {
-            WebBranch vb = tree.branches[branch];
+        static void MakeCondTrueCascade(this ConditionsWeb tree, int branch, Values ip) {
+            ConditionsBranch vb = tree.branches[branch];
 
             switch ((ConditionBranchType)vb.type) {
                 case ConditionBranchType.AND:
@@ -65,9 +64,8 @@ namespace StoryTriggerData
             }
 
         }
-
-
-        public static string ToStringSafe(this VariablesWeb c, STD_Values tell, bool showDetails)
+        
+        public static string ToStringSafe(this ConditionsWeb c, Values tell, bool showDetails)
         {
 
             bool AnyConditions = (c.vars.Count > 0);
@@ -75,13 +73,12 @@ namespace StoryTriggerData
            return c.TestConditions(tell) + " " + (showDetails ? "..." :
                      ((AnyConditions) ? "[" + c.vars.Count + "]: " + c.vars[0].ToString() : "UNCONDITIONAL"));
         }
-
-
-        public static VariablesWeb lastTree = null;
+        
+        public static ConditionsWeb lastTree = null;
 
         public static List<int> browsingBranch = new List<int>();
 
-        public static bool PEGI(this VariablesWeb tree, STD_Values so) {
+        public static bool PEGI(this ConditionsWeb tree, Values so) {
 
             bool changed = false;
 
@@ -92,7 +89,7 @@ namespace StoryTriggerData
                 bool root = browsingBranch.Count == 0;
 
             int brNo = root ? 0 : browsingBranch.last();//[browsingBranch.Count - 1];
-                WebBranch wb = tree.branches[brNo];
+                ConditionsBranch wb = tree.branches[brNo];
 
             if ((!root) && icon.Close.Click("Back",20)) browsingBranch.RemoveLast(1);
 
@@ -138,14 +135,9 @@ namespace StoryTriggerData
                     if (icon.Edit.Click(20))
                         browsingBranch.Add(index);
                 }
-
                     pegi.newLine();
                 }
-
-              
-
-              
-             
+                
                 pegi.newLine();
             return changed;
             }
@@ -178,7 +170,7 @@ namespace StoryTriggerData
             return r;
         }
 
-        static int PEGI(this List<Condition> conds, STD_Values so) {
+        static int PEGI(this List<Condition> conds, Values so) {
 
             bool changed = false;
 
@@ -199,15 +191,15 @@ namespace StoryTriggerData
 
             }
 
-        public static void ConditionsFoldout(ref VariablesWeb cond, ref bool Show, string descr) {
+        public static void ConditionsFoldout(ref ConditionsWeb cond, ref bool Show, string descr) {
                 bool AnyConditions = ((cond != null) && (cond.vars.Count > 0));
                 pegi.foldout(descr + (Show ? "..." :
                   ((AnyConditions) ? "[" + cond.vars.Count + "]: " + cond.vars[0].ToString() : "UNCONDITIONAL")), ref Show);
 
             }
 
-        public static string CompileBranchText(VariablesWeb tree, int branch, STD_Values ip) {
-                WebBranch cb = tree.branches[branch];
+        public static string CompileBranchText(ConditionsWeb tree, int branch, Values ip) {
+                ConditionsBranch cb = tree.branches[branch];
                 int br = cb.branches.Count;
                 int Conds = cb.vars.Count;
 
@@ -219,7 +211,7 @@ namespace StoryTriggerData
 
 
     [Serializable]
-    public class Condition : Argument , iSTD {
+    public class Condition : ValueIndex , iSTD {
 
         public static string tag = "cond";
 
@@ -259,7 +251,7 @@ namespace StoryTriggerData
             return this;
         }
 
-        public void ForceConditionTrue(STD_Values st) {
+        public void ForceConditionTrue(Values st) {
 
             switch (type) {
                 case ConditionType.Bool:  SetBool(st,compareValue > 0); break;
@@ -270,7 +262,7 @@ namespace StoryTriggerData
             }
         }
 
-        public bool TestFor(STD_Values st) {
+        public bool TestFor(Values st) {
 
             int timeGap;
 
@@ -280,30 +272,27 @@ namespace StoryTriggerData
                 case ConditionType.Below: if (GetInt(st) < compareValue) return true; break;
                 case ConditionType.Equals: if (GetInt(st) == compareValue) return true; break;
                 case ConditionType.NotEquals: if (GetInt(st) != compareValue) return true; break;
-                case ConditionType.GameTimePassedAbove:
+                case ConditionType.VirtualTimePassedAbove:
                     timeGap = (int)Time.time - GetInt(st);
-                    if (timeGap > compareValue) return true; Book.inst.AddTimeListener(compareValue - timeGap); break;
-                case ConditionType.GameTimePassedBelow:
+                    if (timeGap > compareValue) return true; LogicMGMT.inst.AddTimeListener(compareValue - timeGap); break;
+                case ConditionType.VirtualTimePassedBelow:
                     timeGap = (int)Time.time - GetInt(st);
-                    if (timeGap < compareValue) { Book.inst.AddTimeListener(compareValue - timeGap); return true; }
+                    if (timeGap < compareValue) { LogicMGMT.inst.AddTimeListener(compareValue - timeGap); return true; }
                     break;
                 case ConditionType.RealTimePassedAbove:
-                    timeGap = (Book.GetRealTime() - GetInt(st));
-                    if (timeGap > compareValue) return true; Book.inst.AddTimeListener(compareValue - timeGap); break;
+                    timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
+                    if (timeGap > compareValue) return true; LogicMGMT.inst.AddTimeListener(compareValue - timeGap); break;
                 case ConditionType.RealTimePassedBelow:
-                    timeGap = (Book.GetRealTime() - GetInt(st));
-                    if (timeGap < compareValue) { Book.inst.AddTimeListener(compareValue - timeGap); return true; }
+                    timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
+                    if (timeGap < compareValue) { LogicMGMT.inst.AddTimeListener(compareValue - timeGap); return true; }
                     break;
-
-          
-
-
+                    
             }
             //Debug.Log ("No pass on: " + glob.triggers.triggers [cond.TriggerNo].name+ " with "+cond.Type);
             return false;
         }
 
-        public int isItClaimable( int dir, STD_Values st) {
+        public int isItClaimable( int dir, Values st) {
 
             switch ((ConditionType)_type) {
                 case ConditionType.Bool: if ((dir > 0) == (compareValue > 0)) return 1; break;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using SharedTools_Stuff;
 
 [ExecuteInEditMode]
 public class CharacterFeetScript : MonoBehaviour {

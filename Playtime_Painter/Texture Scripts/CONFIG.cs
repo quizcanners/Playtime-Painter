@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
 using StoryTriggerData;
-
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -146,9 +146,10 @@ namespace Playtime_Painter{
 
             if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
                 meshPackagingSolutions = new List<MeshPackagingProfile>();
-				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased"));
+				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Simple"));
                 meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"));
 				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
+                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased"));
             }
 
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
@@ -184,9 +185,10 @@ namespace Playtime_Painter{
 
             var encody = new stdDecoder(_inst.meshToolsSTD);
             foreach (var tag in encody.enumerator) {
+                var d = encody.getData();
                 foreach (var m in MeshToolBase.allTools)
                 if (m.ToString().SameAs(tag)) {
-                    m.Decode(encody.getData());
+                    m.Decode(d);
                     break;
                 }
             }

@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+using SharedTools_Stuff;
 using PlayerAndEditorGUI;
+
 
 namespace Playtime_Painter {
 
@@ -361,11 +363,6 @@ namespace Playtime_Painter {
                 return position;
             }
         }
-
-           
-
-
-
 
         public int[] _vertexIndex
         {

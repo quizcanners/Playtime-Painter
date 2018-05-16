@@ -2,44 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+
+
+namespace PlayerAndEditorGUI {
 
 
 #if UNITY_EDITOR
-using UnityEditor;
-
-namespace PlayerAndEditorGUI { 
-
-[CustomEditor(typeof(GodMode))]
+    using UnityEditor;
+    [CustomEditor(typeof(GodMode))]
 public class GodModeDrawer : Editor
 {
     public override void OnInspectorGUI()
     {
-        ef.start(serializedObject);
-        ((GodMode)target).PEGI();
-        ef.end();
-    }
+            ((GodMode)target).inspect(serializedObject);
+
+        }
 }
 #endif
 
 
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour
+    public class GodMode : MonoBehaviour, iPEGI
     {
 
         public static GodMode inst;
-        public float speed = 100;
+        public float speed = 20;
         public float sensitivity = 5;
         public static bool disableRotation = false;
         public bool rotateWithotRMB;
         public static string PrefSpeed = "GodSpeed";
         public static string PrefSens = "GodSensitivity";
 
-        private void OnEnable()
-        {
-            speed = PlayerPrefs.GetFloat(PrefSpeed);
-            sensitivity = PlayerPrefs.GetFloat(PrefSens);
-            if (speed == 0) speed = 100;
-            if (sensitivity == 0) sensitivity = 5;
+        private void OnEnable() {
+
             inst = this;
         }
 
@@ -51,10 +47,7 @@ public class GodModeDrawer : Editor
         // Update is called once per frame
         protected float rotationY;
 
-        public virtual void DistantUpdate()
-        {
-
-        }
+  
 
         public virtual void Update()
         {
@@ -66,11 +59,11 @@ public class GodModeDrawer : Editor
             if (Input.GetKey(KeyCode.S)) add -= transform.forward;
             if (Input.GetKey(KeyCode.D)) add += transform.right;
             add.y = 0;
-            if (Input.GetKey(KeyCode.LeftShift)) add += Vector3.down;
-            if (Input.GetKey(KeyCode.Space)) add += Vector3.up;
+            if (Input.GetKey(KeyCode.Q)) add += Vector3.down;
+            if (Input.GetKey(KeyCode.E)) add += Vector3.up;
 
 
-            transform.position += add * speed * Time.deltaTime;
+            transform.position += add * speed * Time.deltaTime * (Input.GetKey(KeyCode.LeftShift) ? 3f: 1f);
 
             if ((Application.isPlaying) && (!disableRotation))
             {
@@ -169,13 +162,14 @@ public class GodModeDrawer : Editor
             }
         }
 
-        public void PEGI()
+        public virtual void DistantUpdate()
         {
+        }
 
-            //pegi.write("speed:");
+            public bool PEGI()
+        {
+            
             "Speed:".edit("Speed of movement", 50, ref speed).nl();
-            //if (pegi.edit(ref speed))
-            //  PlayerPrefs.SetFloat(GodMode.PrefSpeed, speed);
             pegi.newLine();
 
             pegi.write("sensitivity:");
@@ -186,13 +180,13 @@ public class GodModeDrawer : Editor
             "Rotate without RMB".toggle(ref rotateWithotRMB).nl();
 
             pegi.write("WASD - move"); pegi.newLine();
-            pegi.write("Shift, Space - Dwn, Up"); pegi.newLine();
+            pegi.write("Q, E - Dwn, Up"); pegi.newLine();
+            pegi.write("Shift - faster"); pegi.newLine();
             pegi.write("RMB - look around"); pegi.newLine();
-            pegi.write("MMB - Orbit");
+            pegi.write("MMB - Orbit Collider");
 
-
+            return false;
         }
-
 
     }
 }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
 using Playtime_Painter.Mesh_Primitives;
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -73,13 +74,13 @@ namespace Playtime_Painter {
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
-                case vertexpointDta.stdTag_vrt: vertices = data.ToListOf_STD<vertexpointDta>(); break;
-                case trisDta.stdTag_tri: triangles = data.ToListOf_STD<trisDta>(); break;
+                case vertexpointDta.stdTag_vrt:  data.DecodeInto(out vertices); break;
+                case trisDta.stdTag_tri: data.DecodeInto(out triangles); break;
                 case "n": meshName = data; break;
                 case "sub":  submeshCount = data.ToInt(); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
                 case "bp": gotBindPos = data.ToBool(); break;
-                case "bv": baseVertex = data.ToListOfUInt(); break;
+                case "bv": data.DecodeInto(out baseVertex); break;
                 case "UV2dR": UV2distributeRow = data.ToInt(); break;
                 case "UV2cur": UV2distributeCurrent = data.ToInt(); break;
                 case "sctdUV": selectedUV = vertices[data.ToInt()].uvpoints[0]; break;
@@ -448,7 +449,14 @@ namespace Playtime_Painter {
 
             for (int s = 0; s < submeshCount; s++)  {
 
-                baseVertex.Add(actualMesh.GetBaseVertex(s));
+                baseVertex.Add(
+#if UNITY_2018_1_OR_NEWER
+                    actualMesh.GetBaseVertex(s)
+#else
+                    0
+#endif
+
+                    );
                
                 int[] indices = actualMesh.GetTriangles(s);
 

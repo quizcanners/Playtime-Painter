@@ -9,6 +9,7 @@ using System;
 using PlayerAndEditorGUI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -44,30 +45,32 @@ namespace Playtime_Painter
         {
             get
             {
-                if (_inst == null && !PainterStuff.applicationIsQuitting)
-                {
-                    
-
-                    _inst = GameObject.FindObjectOfType<PainterManager>();
-                    if (_inst == null)
+                if (_inst == null) {
+                    if (!PainterStuff.applicationIsQuitting)
                     {
-                        if (_inst != null)
-                            _inst.gameObject.SetActive(true);
-                        else
+
+
+                        _inst = GameObject.FindObjectOfType<PainterManager>();
+                        if (_inst == null)
                         {
+                            if (_inst != null)
+                                _inst.gameObject.SetActive(true);
+                            else
+                            {
 #if UNITY_EDITOR
-                            GameObject go = Resources.Load("prefabs/" + PainterConfig.PainterCameraName) as GameObject;
-                            _inst = Instantiate(go).GetComponent<PainterManager>();
-                            _inst.name = PainterConfig.PainterCameraName;
-                            _inst.RefreshPlugins();
+                                GameObject go = Resources.Load("prefabs/" + PainterConfig.PainterCameraName) as GameObject;
+                                _inst = Instantiate(go).GetComponent<PainterManager>();
+                                _inst.name = PainterConfig.PainterCameraName;
+                                _inst.RefreshPlugins();
 #endif
+                            }
                         }
+                        if (_inst.meshManager == null)
+                            _inst.meshManager = new MeshManager();
+
                     }
-                    if (_inst.meshManager == null)
-                        _inst.meshManager = new MeshManager();
-
+                    else _inst = null;
                 }
-
                 return _inst;
             }
         }
@@ -884,7 +887,7 @@ namespace Playtime_Painter
             foreach (var p in PlaytimePainter.playbackPainters)
                 p.playbackVectors.Clear();
 
-            PlaytimePainter.cody = new StoryTriggerData.stdDecoder(null);
+            PlaytimePainter.cody = new stdDecoder(null);
         }
 
         void OnApplicationQuit()
@@ -928,6 +931,4 @@ namespace Playtime_Painter
             "Decals".edit(() => decals).nl();
         }
     }
-
-
 }

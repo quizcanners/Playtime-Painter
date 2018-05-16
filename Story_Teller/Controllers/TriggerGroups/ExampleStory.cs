@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using LogicTree;
 /*
  * INSTRUCTION:
  * In order to enable merging of many stories you may want to RENAME this classes and set HashCode to your favorite number. 
@@ -54,19 +54,19 @@ namespace StoryTriggerData {
 
     public static class MyStory_EXAMPLE_Extensions {
 
-        public static int Get(this STD_Values st, MyStory_EXAMPLE.integers ind) {
+        public static int Get(this InteractionTarget st, MyStory_EXAMPLE.integers ind) {
             return st.ints[MyStory_EXAMPLE.group][(int)ind];
         }
 
-        public static void Set(this STD_Values st, MyStory_EXAMPLE.integers ind, int value) {
+        public static void Set(this InteractionTarget st, MyStory_EXAMPLE.integers ind, int value) {
             st.ints[MyStory_EXAMPLE.group][(int)ind] = value;
         }
 
-        public static bool Get(this STD_Values st, MyStory_EXAMPLE.booleans ind) {
+        public static bool Get(this InteractionTarget st, MyStory_EXAMPLE.booleans ind) {
             return st.bools[MyStory_EXAMPLE.group][(int)ind];
         }
 
-        public static void Set(this STD_Values st, MyStory_EXAMPLE.booleans ind, bool value) {
+        public static void Set(this InteractionTarget st, MyStory_EXAMPLE.booleans ind, bool value) {
             st.bools[MyStory_EXAMPLE.group][(int)ind] = value;
         }
 

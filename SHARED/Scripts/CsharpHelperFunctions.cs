@@ -10,11 +10,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Diagnostics;
 using System.Linq.Expressions;
+
+using StoryTriggerData;
+using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI
+namespace SharedTools_Stuff
 {
 
     public static class CsharpFuncs
@@ -28,6 +31,75 @@ namespace PlayerAndEditorGUI
             UnityEngine.Debug.Log(text);
 #endif
         }
+
+
+        static void AssignUniqueNameIn<T>(this T el, List<T> list)
+        {
+
+            var named = el as iGotName;
+            if (named == null) return;
+
+            string tmpName = named.Name;
+            bool duplicate = true;
+            int counter = 0;
+
+            while (duplicate)
+            {
+                duplicate = false;
+
+                foreach (var e in list)
+                {
+                    var other = e as iGotName;
+                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.Name) == 0))
+                    {
+                        duplicate = true;
+                        counter++;
+                        tmpName = named.Name + counter.ToString();
+                        break;
+                    }
+                }
+            }
+
+            named.Name = tmpName;
+
+        }
+
+
+        public static T AddWithUniqueName<T>(this List<T> list) where T : new()
+        {
+
+            T e = new T();
+            list.Add(e);
+            e.AssignUniqueNameIn(list);
+            return e;
+        }
+
+        public static T AddWithUniqueName<T>(this List<T> list, string name) where T : new()
+        {
+            T e = new T();
+            list.Add(e);
+            var named = e as iGotName;
+            if (named != null)
+                named.Name = name;
+            e.AssignUniqueNameIn(list);
+            return e;
+        }
+
+     
+       
+
+        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
+        {
+            string value;
+            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
+            {
+                dic.Remove(before);
+                dic.Add(now, value);
+                return true;
+            }
+            return false;
+        }
+
 
         public static bool isDefaultOrNull<T>(this T obj)
         {

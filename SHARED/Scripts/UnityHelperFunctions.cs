@@ -15,9 +15,36 @@ using UnityEngine.EventSystems;
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI {
+namespace SharedTools_Stuff
+{
 
     public static class UnityHelperFunctions {
+
+        public static void RepaintViews()
+        {
+#if UNITY_EDITOR
+//            if (SceneView.lastActiveSceneView != null)
+  //              SceneView.lastActiveSceneView.Repaint();
+            SceneView.RepaintAll();
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+#endif
+        }
+        
+        public static void SetToDirty(this UnityEngine.Object obj)
+        {
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(obj);
+#endif
+        }
+
+        public static void UpdatePrefab(this GameObject gameObject)
+        {
+#if UNITY_EDITOR
+            var pf = PrefabUtility.GetPrefabObject(gameObject);
+            if (pf != null)
+                PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.GetPrefabParent(gameObject), ReplacePrefabOptions.ConnectToPrefab);
+#endif
+        }
 
         public static float Angle(this Vector2 vec)
         {

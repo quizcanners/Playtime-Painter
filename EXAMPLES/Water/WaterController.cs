@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -87,7 +87,7 @@ namespace Playtime_Painter
             changed |= "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl();
             if (changed)  {
                 setFoamDynamics();
-                pegi.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                UnityHelperFunctions.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
                 this.SetToDirty();
             }
             

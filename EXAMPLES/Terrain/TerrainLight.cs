@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
+
 
 namespace Playtime_Painter
 {
@@ -20,7 +22,7 @@ namespace Playtime_Painter
           //  changed |= "Test: ".edit(ref testData).nl();
 
             if (changed)
-                pegi.SetToDirty(this);
+                UnityHelperFunctions.SetToDirty(this);
 
             return changed;
         }
