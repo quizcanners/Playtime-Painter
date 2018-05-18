@@ -48,7 +48,7 @@ namespace StoryTriggerData {
 
             cody.AddIfNotOne("scale", transform.localScale);
             cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
-            cody.Add(stdValues);
+            cody.Add(InteractionTarget.storyTag, stdValues);
             return cody;
         }
 

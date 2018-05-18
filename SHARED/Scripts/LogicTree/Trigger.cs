@@ -13,7 +13,7 @@ using PlayerAndEditorGUI;
 
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
 
 
@@ -105,10 +105,7 @@ namespace LogicTree
 
         public const string storyTag_Trg = "Trg";
 
-        public override string getDefaultTagName() {
-            return storyTag_Trg;
-        }
-
+    
         public override bool PEGI() {
             return TriggerUsage.select_PEGI(ref usage);
         }

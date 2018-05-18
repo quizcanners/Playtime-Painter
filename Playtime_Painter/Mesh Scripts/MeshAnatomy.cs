@@ -7,8 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-//using TextureEditor;
-using StoryTriggerData;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
@@ -402,7 +400,7 @@ namespace Playtime_Painter
                 cody.Add("u1", lst[1]);
             }
 
-            cody.AddIfNotEmpty("uvs", uvpoints);
+            cody.Add_ifNotEmpty("uvs", uvpoints);
 
             cody.Add("pos", localPos);
 
@@ -419,7 +417,7 @@ namespace Playtime_Painter
             if (shapes != null)
                 cody.AddIfNotEmpty(BlendFrame.tagName_bs, shapes);
 
-            cody.AddIfNotZero("gr", vertexGroup);
+            cody.Add_ifNotZero("gr", vertexGroup);
           
             return cody;
         }
@@ -799,9 +797,9 @@ namespace Playtime_Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddIfTrue("f0", DominantCourner[0]);
-            cody.AddIfTrue("f1", DominantCourner[1]);
-            cody.AddIfTrue("f2", DominantCourner[2]);
+            cody.Add_ifTrue("f0", DominantCourner[0]);
+            cody.Add_ifTrue("f1", DominantCourner[1]);
+            cody.Add_ifTrue("f2", DominantCourner[2]);
 
             cody.Add("ew0", edgeWeight[0]);
             cody.Add("ew1", edgeWeight[1]);
@@ -812,7 +810,7 @@ namespace Playtime_Painter
 
             cody.Add("tex", textureNo);
 
-            cody.AddIfNotZero("sub", submeshIndex);
+            cody.Add_ifNotZero("sub", submeshIndex);
            
 
             return cody;

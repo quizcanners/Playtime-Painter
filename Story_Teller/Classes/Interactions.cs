@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 namespace StoryTriggerData
 {
@@ -29,7 +29,7 @@ namespace StoryTriggerData
         public ConditionsWeb conditions;
         public Sentance text;
         public List<Sentance> texts2;
-        public List<TargetedResult> results;
+        public List<Result> results;
         public List<STD_Call> calls;
         public string goToReference;
 
@@ -38,17 +38,13 @@ namespace StoryTriggerData
 
         public const string storyTag = "talkOpt";
 
-        public override string getDefaultTagName() {
-            return storyTag;
-        }
-
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); //EncodeData();
             cody.AddIfNotEmpty("goto", goToReference);
             cody.Add("web", conditions);
             cody.Add("t",text);
-            cody.AddIfNotEmpty("t2", texts2);
-            cody.AddIfNotEmpty("res", results);
+            cody.Add_ifNotEmpty("t2", texts2);
+            cody.Add_ifNotEmpty("res", results);
 
             return cody;
         }
@@ -57,7 +53,7 @@ namespace StoryTriggerData
           
            switch (tag) {
                 case "goto": goToReference = data; break;
-                case "web": conditions = new ConditionsWeb(data); break;
+                case "web": data.DecodeInto(out conditions); break;
                 case "t": text = new Sentance(data); break;
                 case "t2": data.DecodeInto(out texts2); break;
                 case "res": data.DecodeInto(out results); break;
@@ -83,10 +79,10 @@ namespace StoryTriggerData
        
 
         void Clear() {
-            conditions = new ConditionsWeb(null);
+            conditions = new ConditionsWeb();
             texts2 = new List<Sentance>();
             text = new Sentance(null);
-            results = new List<TargetedResult>();
+            results = new List<Result>();
             calls = new List<STD_Call>();
         }
 
@@ -95,16 +91,16 @@ namespace StoryTriggerData
             text.PEGI();
 
             pegi.newLine();
-            if (pegi.foldout("___Conditions:", ref Condition.unfoldPegi)) {
-                TargetedResult.showOnExit = false;
+            if (pegi.foldout("___Conditions:", ref ConditionLogic.unfoldPegi)) {
+                Interaction.showOnExit_Results = false;
 
                 conditions.PEGI(so);
             }
 
             pegi.newLine();
 
-            if (pegi.foldout("___Results:", ref TargetedResult.showOnExit)){
-                Condition.unfoldPegi = false;
+            if (pegi.foldout("___Results:", ref Interaction.showOnExit_Results)){
+                ConditionLogic.unfoldPegi = false;
 
                results.PEGI(so);
             }
@@ -147,18 +143,20 @@ namespace StoryTriggerData
         public ConditionsWeb conditions;
         public List<Sentance> Texts;
         public List<DialogueChoice> options;
-        public List<TargetedResult> FinalResults;
+        public List<Result> FinalResults;
         public int editedOption;
-  
+        public static bool showFinal_Results;
+        public static bool showOnExit_Results;
+        public static bool showOnEnter_Results;
 
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); //EncodeData();
             cody.AddIfNotEmpty("ref", reference);
             cody.Add("Conds", conditions);
-            cody.AddIfNotEmpty("txt",Texts);
-            cody.AddIfNotEmpty("opt", options);
-            cody.AddIfNotEmpty("fin", FinalResults);
+            cody.Add_ifNotEmpty("txt",Texts);
+            cody.Add_ifNotEmpty("opt", options);
+            cody.Add_ifNotEmpty("fin", FinalResults);
       
             return cody;
         }
@@ -168,7 +166,7 @@ namespace StoryTriggerData
 
             switch (tag) {
                 case "ref": reference = data; break;
-                case "Conds": conditions = new ConditionsWeb(data); break;
+                case "Conds": data.DecodeInto(out conditions); break;
                 case "txt": data.DecodeInto(out Texts); break;
                 case "opt": data.DecodeInto(out options); break;
                 case "fin": data.DecodeInto(out FinalResults); break;
@@ -180,10 +178,6 @@ namespace StoryTriggerData
 
 
         public const string storyTag_intrct = "intrct";
-
-        public override string getDefaultTagName() {
-            return storyTag_intrct;
-        }
 
 
         public Interaction() {
@@ -198,9 +192,9 @@ namespace StoryTriggerData
         }
 
         void Clear() {
-            conditions = new ConditionsWeb(null);
+            conditions = new ConditionsWeb();
             options = new List<DialogueChoice>();
-            FinalResults = new List<TargetedResult>();
+            FinalResults = new List<Result>();
             editedOption = -1;
             Texts = new List<Sentance>();
             reference = "";
@@ -208,7 +202,7 @@ namespace StoryTriggerData
 
         public void Execute( InteractionTarget so) {
             for (int j = 0; j < options.Count; j++)
-                if (options[j].conditions.TestConditions(so)) { options[j].results.apply(so); break; }
+                if (options[j].conditions.TestFor(so)) { options[j].results.apply(so); break; }
             FinalResults.apply(so);
         }
 
@@ -250,21 +244,21 @@ namespace StoryTriggerData
 
             pegi.newLine();
 
-            pegi.ClickTab(ref Condition.unfoldPegi, "Conditions");
+            pegi.ClickTab(ref ConditionLogic.unfoldPegi, "Conditions");
             pegi.ClickTab(ref Sentance.showTexts, "text");
             pegi.ClickTab(ref DialogueChoice.unfoldPegi, "Choices");
-            pegi.ClickTab(ref TargetedResult.showFinal, "Results");
+            pegi.ClickTab(ref showFinal_Results, "Results");
 
-            Condition.unfoldPegi = pegi.selectedTab == 0;
+            ConditionLogic.unfoldPegi = pegi.selectedTab == 0;
             Sentance.showTexts = pegi.selectedTab == 1;
             DialogueChoice.unfoldPegi = pegi.selectedTab == 2;
-            TargetedResult.showFinal = pegi.selectedTab == 3;
+            showFinal_Results = pegi.selectedTab == 3;
 
             pegi.newLine();
                 pegi.Space();
             pegi.newLine();
 
-            if (Condition.unfoldPegi) 
+            if (ConditionLogic.unfoldPegi) 
                 conditions.PEGI(st);
 
             if (Sentance.showTexts) 
@@ -315,7 +309,7 @@ namespace StoryTriggerData
                 }
             }
 
-            if (TargetedResult.showFinal) 
+            if (showFinal_Results) 
                 FinalResults.PEGI(st);
         }
         
@@ -327,54 +321,45 @@ namespace StoryTriggerData
 
     }
 
-	public class InteractionBranch : abstract_STD 
+	public class InteractionBranch : LogicBranch<Interaction>
     {
         public const string storyTag = "qoEvent";
-        public string name = "no name";
-
-        public ConditionsWeb conds = new ConditionsWeb(null);
-
-        public List<InteractionBranch> interactionBranches = new List<InteractionBranch>();
-
-        public List<Interaction> interactions = new List<Interaction>();
-
+     
+   
         public bool isOneClickAction;
         public int EditorSelectedInteraction = -1;
-        
-        public override stdEncoder Encode (){
-			var cody= new stdEncoder ();
 
-            cody.AddText("name",name);
+   
+        public override stdEncoder Encode()
+        {
+            var cody = new stdEncoder();
+
+            cody.AddText("name", name);
             cody.Add("cond", conds);
-            cody.AddIfNotEmpty("igr", interactionBranches);
-            cody.AddIfNotEmpty(interactions);
-
+            cody.Add_ifNotEmpty("igr", subBranches);
+            cody.Add_ifNotEmpty(Interaction.storyTag_intrct, elements);
+            cody.Add("base", base.Encode());
             return cody;
-		}
+        }
 
-        public override bool Decode(string subtag, string data) {
-            switch (subtag) {
+        public override bool Decode(string subtag, string data)
+        {
+            switch (subtag)
+            {
+
                 case "name": name = data; break;
-                case "cond": conds = new ConditionsWeb(data); break;
-                case "igr": data.DecodeInto(out interactionBranches); break; //new List<InteractionGroup>(data); break;
+                case "cond": data.DecodeInto(conds); break;
+                case "igr": data.DecodeInto(out subBranches); break; 
                 case Interaction.storyTag_intrct:
-                    data.DecodeInto(out interactions); break;
+                    data.DecodeInto(out elements); break;
                 default: return false;
             }
             return true;
         }
 
-        public override string getDefaultTagName(){return storyTag;}
-
-        public void getAllInteractions(ref List<Interaction> lst) {
-            lst.AddRange(interactions);
-            foreach (InteractionBranch ig in interactionBranches)
-                ig.getAllInteractions(ref lst);
-        }
-
         public override string ToString()
         {
-            return interactions.ToStringSafe();
+            return elements.ToStringSafe();
         }
 
         public InteractionBranch() {
@@ -385,7 +370,7 @@ namespace StoryTriggerData
         }
 
         public string getShortDescription() {
-            return "[" + interactions.Count + "],[" + interactionBranches.Count + "]";
+            return "[" + elements.Count + "],[" + subBranches.Count + "]";
         }
 
         int browsedBranch = -1;
@@ -393,18 +378,18 @@ namespace StoryTriggerData
 
             bool changed = false;
 
-            EditorSelectedInteraction = Mathf.Min(EditorSelectedInteraction, interactions.Count - 1);
+            EditorSelectedInteraction = Mathf.Min(EditorSelectedInteraction, elements.Count - 1);
 
             if (EditorSelectedInteraction != -1) {
                 pegi.newLine();
                 if (icon.Close.Click(20)) {
                     EditorSelectedInteraction = -1; pegi.FocusControl("none");//EditorGUI.FocusTextInControl("none");
                 } else
-                interactions[EditorSelectedInteraction].PEGI(isOneClickAction, so);
+                elements[EditorSelectedInteraction].PEGI(isOneClickAction, so);
                 
             } else {
 
-                browsedBranch = Mathf.Clamp(browsedBranch, -1, interactionBranches.Count-1);
+                browsedBranch = Mathf.Clamp(browsedBranch, -1, subBranches.Count-1);
 
                 if (browsedBranch == -1) {
                     pegi.newLine();
@@ -412,7 +397,7 @@ namespace StoryTriggerData
 
                     (" Branch:  " + name).nl();
                     
-                    if (pegi.foldout("Condition Tree: ", ref Condition.unfoldPegi)) {
+                    if (pegi.foldout("Condition Tree: ", ref ConditionLogic.unfoldPegi)) {
                         Interaction.unfoldPegi = false;
                         pegi.newLine();
                         conds.PEGI(so);
@@ -425,11 +410,11 @@ namespace StoryTriggerData
 
                         pegi.newLine();
 
-                        Condition.unfoldPegi = false;
+                        ConditionLogic.unfoldPegi = false;
 
                         pegi.write("Interactions: ");
 
-                        List<Interaction> Idata = interactions;
+                        List<Interaction> Idata = elements;
 
                         if (icon.Add.Click(25))
                             Idata.Add(new Interaction(null));
@@ -438,7 +423,7 @@ namespace StoryTriggerData
 
                         for (int i = 0; i < Idata.Count; i++) {
                             if (icon.Delete.Click(20))
-                                interactions.RemoveAt(i);
+                                elements.RemoveAt(i);
                             else
                                 Idata[i].Texts[0].PEGI();
 
@@ -454,14 +439,14 @@ namespace StoryTriggerData
                         pegi.write("Sub Branches:");
 
                         if (icon.Add.Click(25))
-                            interactionBranches.Add(new InteractionBranch(null));
+                            subBranches.Add(new InteractionBranch(null));
 
                         pegi.newLine();
 
                         int delete = -1;
-                        for (int j = 0; j < interactionBranches.Count; j++) {
+                        for (int j = 0; j < subBranches.Count; j++) {
 
-                            InteractionBranch ig = interactionBranches[j];
+                            InteractionBranch ig = (InteractionBranch)subBranches[j];
 
                             if (icon.Delete.Click("Delete Interaction Sub Branch", 20))
                                 delete = j;
@@ -476,7 +461,7 @@ namespace StoryTriggerData
                         }
 
                         if (delete != -1)
-                            interactionBranches.RemoveAt(delete);
+                            subBranches.RemoveAt(delete);
                     }
 
                     pegi.newLine();
@@ -485,7 +470,7 @@ namespace StoryTriggerData
                     if (("<"+name).Click())
                         browsedBranch = -1;
                     else
-                        interactionBranches[browsedBranch].PEGI(so);
+                        ((InteractionBranch)(subBranches[browsedBranch])).PEGI(so);
                 }
                 
             }

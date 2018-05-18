@@ -133,7 +133,7 @@ namespace SharedTools_Stuff
         public const char splitter = '|';
         bool dataExpected;
         bool unclosedData;
-        int dataStartedAt;
+        //int dataStartedAt;
 
         StringBuilder builder = new StringBuilder();
         StringBuilder databuilder = new StringBuilder();
@@ -169,6 +169,9 @@ namespace SharedTools_Stuff
 
         public void AddText(string tag, String data) {
             checkLine();
+
+            if (data == null)
+                data = "";
 
             builder.AppendSplit(tag);
             builder.AppendSplit(data.Length.ToString());
@@ -213,22 +216,21 @@ namespace SharedTools_Stuff
             builder.AppendSplit(data);
         }
 
-        public void AddIfTrue(string tag, bool val) {
+        public void Add_ifTrue(string tag, bool val) {
             if (val)
                 Add(tag, val);
         }
 
-        public void Add(iSTD other) {
-            if (other != null)
-               Add(other.getDefaultTagName(), other);
-        }
-
         public void Add(string tag, iSTD other) {
             if (other != null) {
-                Add(tag, other.Encode());
+
+                var cody = other.Encode();
+
                 var unrec = other as iKeepUnrecognizedSTD;
                 if (unrec != null)
-                    unrec.SaveUnrecognized(this);
+                  unrec.SaveUnrecognized(cody);
+
+                Add(tag, cody);
             }
         }
 
@@ -247,12 +249,24 @@ namespace SharedTools_Stuff
             AddData(data.ToString());
         }
 
+        public void Add_ifNotNegative(string tag, int val) {
+            if (val >= 0)
+                AddText(tag, val.ToString());
+        }
+
+
         public void Add(string tag, int val) {
             AddText(tag, val.ToString());
         }
 
         public void Add(string tag, uint val) {
             AddText(tag, val.ToString());
+        }
+
+
+        public void Add(string tag, Transform  tf)
+        {
+            AddText(tag, tf.Encode(true));
         }
 
         // Optional encoding:
@@ -293,13 +307,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool AddIfNotEmpty<T>( List<T> val) where T : iSTD {
-            if (val.Count == 0)
-                return false;
-            return AddIfNotEmpty(val[0].getDefaultTagName(), val);
-        }
-
-        public bool AddIfNotEmpty<T>(string tag, List<T> val) where T : iSTD {
+        public bool Add_ifNotEmpty<T>(string tag, List<T> val) where T : iSTD {
 
             if (val.Count > 0) {
                 Add(tag, val);
@@ -317,7 +325,7 @@ namespace SharedTools_Stuff
                 stdEncoder sub = new stdEncoder();
 
                 foreach (var l in val)
-                    sub.AddIfNotEmpty("e",l);
+                    sub.Add_ifNotEmpty("e",l);
 
                 AddText(tag, sub.ToString());
                 return true;
@@ -350,7 +358,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool AddIfNotZero(string tag, int val) {
+        public bool Add_ifNotZero(string tag, int val) {
 
             if (val != 0) {
                 AddText(tag, val.ToString());

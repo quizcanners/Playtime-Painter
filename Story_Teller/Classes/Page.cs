@@ -5,7 +5,7 @@ using System.Text;
 using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 namespace StoryTriggerData{
 
@@ -90,7 +90,7 @@ namespace StoryTriggerData{
             cody.AddText("origin", OriginBook);
             cody.AddText("name", gameObject.name);
             cody.AddIfNotEmpty("URL", anotherBook);
-            cody.Add(sPOS);
+            cody.Add(UniversePosition.storyTag,sPOS);
             if (!uSize.Equals(10))
                 cody.Add("size", uSize);
             if (!uReach.Equals(1))
@@ -111,19 +111,19 @@ namespace StoryTriggerData{
             var cody = new stdEncoder();
 
             foreach (STD_Poolable sc in linkedObjects)
-                cody.Add(sc);
+                cody.Add(sc.getDefaultTagName(),sc.Encode());
 
             return cody;
         }
 
         public void SavePageContent() {
             if (objectsLoaded)
-                ResourceSaver.SaveToResources(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
+                ResourceSaver.SaveToResources(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
         }
 
         public void LoadContent() {
             if (!objectsLoaded)
-                new stdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
+                new stdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
             objectsLoaded = true;
         }
 
@@ -134,10 +134,10 @@ namespace StoryTriggerData{
                 if ((p.gameObject.name == gameObject.name) && (p.gameObject != this.gameObject)) { duplicate = true; break; } //
             }
 
-            string path = "Assets/" + TriggerGroups.StoriesFolderName + "/Resources/" + GerResourcePath() + "/";
+            string path = "Assets/" + TriggerGroup.StoriesFolderName + "/Resources/" + GerResourcePath() + "/";
 
             if (duplicate)
-                UnityHelperFunctions.DuplicateResource(TriggerGroups.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
+                UnityHelperFunctions.DuplicateResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
             else
                 UnityEditor.AssetDatabase.RenameAsset(path + gameObject.name + ResourceSaver.fileType, newName + ResourceSaver.fileType);
 

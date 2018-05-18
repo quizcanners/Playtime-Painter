@@ -6,22 +6,7 @@ using SharedTools_Stuff;
 
 
 namespace PlayerAndEditorGUI {
-
-
-#if UNITY_EDITOR
-    using UnityEditor;
-    [CustomEditor(typeof(GodMode))]
-public class GodModeDrawer : Editor
-{
-    public override void OnInspectorGUI()
-    {
-            ((GodMode)target).inspect(serializedObject);
-
-        }
-}
-#endif
-
-
+    
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour, iPEGI
     {

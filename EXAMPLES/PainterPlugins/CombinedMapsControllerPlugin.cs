@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using UnityEngine.SceneManagement;
-using StoryTriggerData;
+
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using SharedTools_Stuff;
@@ -282,7 +282,7 @@ namespace Playtime_Painter {
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
             {
-                return forCombinedMaps.PEGI(ref browsedTextureSet, true);
+                return forCombinedMaps.edit_PEGI(ref browsedTextureSet, true);
             }
         }
 
@@ -437,7 +437,7 @@ namespace Playtime_Painter {
             {
                 var cody = new stdEncoder();
 
-                cody.AddIfNotEmpty("ch", channel);
+                cody.Add_ifNotEmpty("ch", channel);
                 cody.Add("c", isColor);
                 cody.AddText("n", name);
                 cody.Add("b", bumpStrength);
@@ -677,8 +677,8 @@ namespace Playtime_Painter {
             public override stdEncoder Encode()
             {
                 var cody = new stdEncoder();
-                cody.AddIfNotZero("s", sourceRole);
-                cody.AddIfNotZero("c", sourceChannel);
+                cody.Add_ifNotZero("s", sourceRole);
+                cody.Add_ifNotZero("c", sourceChannel);
                 cody.Add("f", flip);
                 return cody;
             }
@@ -705,10 +705,7 @@ namespace Playtime_Painter {
 
             public const string stdTag = "TexChan";
 
-            public override string getDefaultTagName()
-            {
-                return stdTag;
-            }
+          
         }
 
 

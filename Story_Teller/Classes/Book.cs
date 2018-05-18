@@ -15,7 +15,7 @@ using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 namespace StoryTriggerData {
 
@@ -29,10 +29,6 @@ namespace StoryTriggerData {
 
         public const string storyTag = "HOME";
 
-        public override string getDefaultTagName() {
-            return storyTag;
-        }
-        
         public static List<Page> HOMEpages;
 
         public List<String> OtherBooks;
@@ -72,7 +68,7 @@ namespace StoryTriggerData {
 
             cody.Add("spos", UniversePosition.playerPosition);
 
-            cody.AddIfNotEmpty("pages", HOMEpages);
+            cody.Add_ifNotEmpty("pages", HOMEpages);
 
             return cody;
         }
@@ -80,20 +76,20 @@ namespace StoryTriggerData {
         public static string PrefabsResourceFolder = "stdPrefabs";
 
         public void LoadOrInit() {
-            Decode(ResourceLoader.LoadStoryFromResource(TriggerGroups.StoriesFolderName, gameObject.name, storyTag));
+            Decode(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, gameObject.name, storyTag));
             Loaded = true;
         }
 
         public void SaveChanges() {
 #if UNITY_EDITOR
             if (Loaded) {
-                TriggerGroups.Save();
+                TriggerGroup.SaveAll();
 
                 foreach (Page p in Page.myPoolController.scripts)
                     if ((p != null) && (p.gameObject.activeSelf))
                         p.SavePageContent();
 
-                inst.SaveToResources(TriggerGroups.StoriesFolderName, gameObject.name, storyTag);
+                inst.SaveToResources(TriggerGroup.StoriesFolderName, gameObject.name, storyTag);
                 AssetDatabase.Refresh();
             }
 #endif
@@ -122,7 +118,7 @@ namespace StoryTriggerData {
                 EditorApplication.update += CombinedUpdate;
 
             try {
-                DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + TriggerGroups.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources");
+                DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + TriggerGroup.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources");
 
                 FileInfo[] fileInfo = levelDirectoryPath.GetFiles("*.*", SearchOption.TopDirectoryOnly);
 
@@ -156,7 +152,7 @@ namespace StoryTriggerData {
     public void RenameBook(string newName) {
 #if UNITY_EDITOR
 
-            string path = "Assets" + TriggerGroups.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources/";
+            string path = "Assets" + TriggerGroup.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources/";
 
             foreach (Page p in HOMEpages)
                 if (p.OriginBook == this.gameObject.name)
@@ -190,17 +186,17 @@ namespace StoryTriggerData {
                 pegi.newLine();
                 "Trigger groups: ".nl();
 
-                foreach (TriggerGroups s in TriggerGroups.all.GetAllObjsNoOrder()) {
+                foreach (TriggerGroup s in TriggerGroup.all.GetAllObjsNoOrder()) {
                     pegi.write(s.ToString(),80); 
                     pegi.write(s.GetHashCode().ToString(),30);
 
-                    if (unfoldTriggerGroup && (TriggerGroups.browsed == s)) {
+                    if (unfoldTriggerGroup && (TriggerGroup.browsed == s)) {
                         if (icon.Close.Click(20))
                             unfoldTriggerGroup = false;
                         pegi.newLine();
                         s.PEGI();
                     } else if (icon.Edit.Click(20)) {
-                        TriggerGroups.browsed = s;
+                        TriggerGroup.browsed = s;
                         unfoldTriggerGroup = true;
                     }
 

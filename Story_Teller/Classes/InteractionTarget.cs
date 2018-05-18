@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 /* Story Tell Tool Requirements:
  * Many Subprojects can use the same tool and merge nicely. This means every implementation needs to have database instance - a unique static class. All the triggers will be dependable on it.
  * For each object you can select which Trigger groups are relevant to it.
@@ -28,18 +28,12 @@ namespace StoryTriggerData {
         public List<string> interactionReferences;
 
         // This are used to modify triggers when interacting with the object
-        public List<TargetedResult> OnEnterResults = new List<TargetedResult>();
-        public List<TargetedResult> OnExitResults = new List<TargetedResult>();
+        public List<Result> OnEnterResults = new List<Result>();
+        public List<Result> OnExitResults = new List<Result>();
         
         public QOoptionType type;
 
-        public override string getDefaultTagName()
-        {
-            return storyTag;
-        }
-        
-        public override void Reboot() {
-            base.Reboot();
+        public void Reboot() {
             myQuestVersion = 0;
             interactionGroup = new InteractionBranch();
             interactionGroup.name = "ROOT";
@@ -50,12 +44,12 @@ namespace StoryTriggerData {
         
         public void UpdateLogic()
         {
-            myQuestVersion = LogicMGMT.questVersion;
+            myQuestVersion = LogicMGMT.currentLogicVersion;
         }
 
         public void Update()
         {
-            if (myQuestVersion != LogicMGMT.questVersion)
+            if (myQuestVersion != LogicMGMT.currentLogicVersion)
                 UpdateLogic();
         }
 
@@ -68,8 +62,8 @@ namespace StoryTriggerData {
             var cody = new stdEncoder();
 
             cody.Add("i", interactionGroup);
-            cody.AddIfNotEmpty("ent", OnEnterResults);
-            cody.AddIfNotEmpty("ext", OnExitResults);
+            cody.Add_ifNotEmpty("ent", OnEnterResults);
+            cody.Add_ifNotEmpty("ext", OnExitResults);
             cody.Add("qoType", (int)type);
             cody.Add("base", base.Encode());
 
@@ -124,16 +118,16 @@ namespace StoryTriggerData {
 
                     pegi.newLine();
 
-                    if (pegi.foldout("__ON_ENTER" + OnEnterResults.ToStringSafe(TargetedResult.showOnEnter), ref TargetedResult.showOnEnter)) {
-                        TargetedResult.showOnExit = false;
+                    if (pegi.foldout("__ON_ENTER" + OnEnterResults.ToStringSafe(Interaction.showOnEnter_Results), ref Interaction.showOnEnter_Results)) {
+                        Interaction.showOnExit_Results = false;
                         Trigger.showTriggers = false;
 
                         OnEnterResults.PEGI(this);
 
                     }
                     pegi.newLine();
-                    if (pegi.foldout("__ON_EXIT" + OnExitResults.ToStringSafe(TargetedResult.showOnExit), ref TargetedResult.showOnExit)) {
-                        TargetedResult.showOnEnter = false;
+                    if (pegi.foldout("__ON_EXIT" + OnExitResults.ToStringSafe(Interaction.showOnExit_Results), ref Interaction.showOnExit_Results)) {
+                        Interaction.showOnEnter_Results = false;
                         Trigger.showTriggers = false;
 
                         OnExitResults.PEGI(this);
@@ -159,10 +153,10 @@ namespace StoryTriggerData {
         
         public void groupFilter_PEGI() {
 
-            List<TriggerGroups> lst = TriggerGroups.all.GetAllObjsNoOrder();
+            List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
 
             for (int i = 0; i < lst.Count; i++) {
-                TriggerGroups td = lst[i];
+                TriggerGroup td = lst[i];
                 pegi.write(td + "_" + td.GetHashCode(), 230);
                 pegi.toggle(td.GetHashCode(), groupsToShowInBrowser);
                 pegi.newLine();

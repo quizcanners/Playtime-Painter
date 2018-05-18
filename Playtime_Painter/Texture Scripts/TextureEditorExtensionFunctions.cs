@@ -9,7 +9,6 @@ using System.Linq;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-using StoryTriggerData;
 using SharedTools_Stuff;
 
 
@@ -139,7 +138,7 @@ public static class TextureEditorExtensionFunctions  {
             cody.Add("mode", brush._bliTMode);
 
             if (mode.showColorSliders)
-                cody.Add(brush.colorLinear);
+                cody.Add("bc", brush.colorLinear);
 
             if (mode.usingSourceTexture)
                 cody.Add("source", brush.selectedSourceTexture);

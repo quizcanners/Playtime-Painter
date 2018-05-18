@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using StoryTriggerData;
 using PlayerAndEditorGUI;
 
 namespace SharedTools_Stuff

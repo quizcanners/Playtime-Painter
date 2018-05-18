@@ -8,7 +8,7 @@ using System.Linq;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 
 namespace StoryTriggerData {
@@ -51,7 +51,7 @@ namespace StoryTriggerData {
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
             transform.localRotation = Quaternion.identity;
-            conditions = new ConditionsWeb(null);
+            conditions = new ConditionsWeb();
         }
 
         public override stdEncoder Encode() {

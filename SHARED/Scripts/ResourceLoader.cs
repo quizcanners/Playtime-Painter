@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
 
-using StoryTriggerData;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -375,7 +375,10 @@ namespace SharedTools_Stuff
             string fullPath = directory;
             Directory.CreateDirectory(fullPath);
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create(fullPath + filename + fileType);
+            string full = fullPath + filename + fileType;
+            FileStream file = File.Create(full);
+            if (Application.isPlaying == false)
+                ("Saved To " + full).showNotification();
             bf.Serialize(file, data);
             file.Close();
         }

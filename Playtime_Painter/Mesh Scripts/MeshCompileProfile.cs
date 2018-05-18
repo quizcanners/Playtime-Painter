@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using StoryTriggerData;
 using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -112,7 +111,7 @@ namespace Playtime_Painter
             stdEncoder cody = new stdEncoder();
 
             cody.AddText("n", name);
-            cody.AddIfNotEmpty("sln", sln);
+            cody.Add_ifNotEmpty("sln", sln);
 
 
             return cody;
@@ -131,10 +130,7 @@ namespace Playtime_Painter
 
         public const string stdTag_vertSol = "vertSol";
 
-        public override string getDefaultTagName()
-        {
-            return stdTag_vertSol;
-        }
+        
 
         public MeshPackagingProfile()
         {
@@ -290,11 +286,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override string getDefaultTagName()
-        {
-            Debug.Log("Shouldn't be calling this");
-            return "none";
-        }
+     
 
     }
 
@@ -488,7 +480,7 @@ namespace Playtime_Painter
 
             if (enabled) {
                 if (sameSizeDataIndex == -1)
-                    cody.AddIfNotEmpty("vals", vals);
+                    cody.Add_ifNotEmpty("vals", vals);
                 else
                     cody.Add("sameSize", sameSizeDataIndex);
 
@@ -509,10 +501,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override string getDefaultTagName()
-        {
-            return target.name();
-        }
+       
     }
 
   

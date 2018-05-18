@@ -12,23 +12,63 @@ using PlayerAndEditorGUI;
 
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
+    
+   
 
-    public class TriggerGroups : abstract_STD {
+    public class TriggerGroup : abstractKeepUnrecognized_STD, iGotName, iGotIndex {
 
-        static UnnullableSTD<TriggerGroups> _all;
-
-        public UnnullableSTD<Trigger> triggers;
+        public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
 
         public const string StoriesFolderName = "Stories";
-        public const string triggersFileName = "triggers";
 
-        public override string ToString() {
-            return "runtime " + myInstantiatedIndex;
+        public static void FindAllTriggerGroups() {
+            all = new UnnullableSTD<TriggerGroup>();
+
+            List<Type> triggerGroups = CsharpFuncs.GetAllChildTypesOf<TriggerGroup>();
+
+            foreach (Type group in triggerGroups) {
+                TriggerGroup s = (TriggerGroup)Activator.CreateInstance(group);
+                browsed = s;
+            }
         }
 
-        public string GetAssePath() {
+        public static TriggerGroup browsed
+        {
+            get { return all[browsedGroup]; }
+            set { browsedGroup = value.GetHashCode(); }
+        }
+
+        public UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
+
+        int index;
+        public int GetIndex()
+        {
+            return index;
+        }
+
+        public void SetIndex(int val)
+        {
+            index = val;
+        }
+
+        public string name = "Unnamed_Triggers";
+
+        public string Name { get { return name; } set { name = value; } }
+
+        public override int GetHashCode()
+        {
+            return index;
+        }
+
+        static int browsedGroup;
+
+        public override string ToString() {
+            return name;
+        }
+
+        public string GetAssetPath() {
             return StoriesFolderName + "/" + ToString();
         }
 
@@ -37,155 +77,140 @@ namespace LogicTree
 
         public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
 
-        public TriggerGroups this[int index] { get { return _all[index]; } }
+        public TriggerGroup() {
 
-        public static UnnullableSTD<TriggerGroups> all {
-            get {
-                if (_all == null) {
+            index = UnnullableSTD<TriggerGroup>.IndexOfCurrentlyCreatedUnnulable;
 
-                    _all = new UnnullableSTD<TriggerGroups>();
-
-                    List<Type> triggerGroups = CsharpFuncs.GetAllChildTypesOf<TriggerGroups>();
-
-                    foreach (Type group in triggerGroups) {
-                        
-                        TriggerGroups s = (TriggerGroups)Activator.CreateInstance(group);
-
+            triggers = new UnnullableSTD<Trigger>();
+            
 #if UNITY_EDITOR
-                        s.LoadFromAssets( s.GetAssePath(), triggersFileName);
 
-                        Type type = s.getIntegerEnums();
+            Type type = getIntegerEnums();
 
-                        if (type != null) {
-                            
-                            string[] nms = Enum.GetNames(type);
+            if (type != null) {
 
-                            int[] indexes = (int[])Enum.GetValues(type);
+                string[] nms = Enum.GetNames(type);
 
-                            for (int i = 0; i < nms.Length; i++) {
-                              
-                                Trigger tr = s.triggers[indexes[i]];
+                int[] indexes = (int[])Enum.GetValues(type);
 
-                                if (tr.name != nms[i]) {
-                                    tr._usage = TriggerUsage.number;
-                                    tr.name = nms[i];
-                                }
-                            }
-                        }
+                for (int i = 0; i < nms.Length; i++)
+                {
 
-                        //Boolean enums
-                        type = s.getBooleanEnums();
+                    Trigger tr = triggers[indexes[i]];
 
-                        if (type != null) {
-
-                            string[] nms = Enum.GetNames(type);
-
-                            int[] indexes = (int[])Enum.GetValues(type);
-
-                            for (int i = 0; i < nms.Length; i++) {
-                                
-                                Trigger tr = s.triggers[indexes[i]];
-
-                                if (tr.name != nms[i]) {
-                                    tr._usage = TriggerUsage.boolean;
-                                    tr.name = nms[i];
-                                }
-                            }
-                        }
-
-#endif
-
-                        all[s.GetHashCode()] = s;
-                        browsed = s;
+                    if (tr.name != nms[i])
+                    {
+                        tr._usage = TriggerUsage.number;
+                        tr.name = nms[i];
                     }
-
                 }
-                return _all;
             }
 
-        }
+            //Boolean enums
+            type = getBooleanEnums();
 
-        static int browsedGroup;
+            if (type != null) {
 
-        public static TriggerGroups browsed {get {return all[browsedGroup];}
-            set { browsedGroup = value.GetHashCode(); } }
+                string[] nms = Enum.GetNames(type);
 
-        int myInstantiatedIndex; // If Story was instantiated
+                int[] indexes = (int[])Enum.GetValues(type);
 
-        public override int GetHashCode() {
-            return myInstantiatedIndex;
-        }
+                for (int i = 0; i < nms.Length; i++)
+                {
 
-        public override string getDefaultTagName() {
-            return StoriesFolderName;
-        }
+                    Trigger tr = triggers[indexes[i]];
 
-        public TriggerGroups() {
-            myInstantiatedIndex = UnnullableSTD<TriggerGroups>.IndexOfCurrentlyCreatedUnnulable;
-            triggers = new UnnullableSTD<Trigger>();
+                    if (tr.name != nms[i])
+                    {
+                        tr._usage = TriggerUsage.boolean;
+                        tr.name = nms[i];
+                    }
+                }
+            }
+
+#endif
         }
 
         public override stdEncoder Encode() {
-            var cody = new stdEncoder(); //EncodeData();
-
-                cody.Add("t",triggers);
-
+            var cody = new stdEncoder(); 
+            cody.AddText("n", name);
+            cody.Add("t",triggers);
+            cody.Add("ind", index);
             return cody;
         }
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
+                case "n": name = data; break;
                 case "t": triggers.Decode(data); break;
+                case "ind": index = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
+        
+        public static void SaveAll()  {
+            foreach (TriggerGroup s in all)
+                s.Save();
+        }
 
+        public void Save()
+        {
+            this.SaveToAssets(GetAssetPath(), name);
+        }
 
-        public static void Save()  {
-                foreach (TriggerGroups s in all.GetAllObjsNoOrder())
-                s.SaveToAssets(s.GetAssePath(), triggersFileName);
+        public static void LoadAll() {
+            foreach (TriggerGroup s in all)
+                s.Load();
+        }
+
+        public void Load()
+        {
+              this.LoadFromAssets(GetAssetPath(), name);
+
         }
 
         public override bool PEGI() {
+            bool changed = false;
+            changed |= (index+" Name").edit(60, ref name).nl();
+            
             Trigger.search_PEGI();
 
-           return PEGI(null);
-        }
+            changed |= PEGI(null);
 
+            return changed;
+        }
+        
         public bool PEGI(Values so) {
             
             bool changed = false;
 
-            List<int> indxs;
-            List<Trigger> lt = triggers.GetAllObjs(out indxs);
-
             int showMax = 20;
+            
+            foreach (Trigger t in triggers)
+            {
 
-            string groupName = this.ToString();
-
-            for (int i = 0; i < lt.Count; i++) {
-                Trigger t = lt[i];
-
-                if (t.SearchCompare(groupName)){ //rigger.searchField.SearchCompare(t.name)) {//  .Length < 1) || Regex.IsMatch(t.name, Trigger.searchField, RegexOptions.IgnoreCase))) {
+                if (t.SearchCompare(name))
+                {
                     showMax--;
 
                     Trigger.searchMatchesFound++;
 
                     t.PEGI();
 
-                    if (t._usage.hasMoreTriggerOptions()) {
-                        if (Trigger.edited != t) {
+                    if (t._usage.hasMoreTriggerOptions())
+                    {
+                        if (Trigger.edited != t)
+                        {
                             if (icon.Edit.Click(20))
                                 Trigger.edited = t;
-                        } else if (icon.Close.Click(20))
+                        }
+                        else if (icon.Close.Click(20))
                             Trigger.edited = null;
                     }
-                       
-                    changed |= t._usage.editTrigger_And_Value_PEGI(indxs[i], this, so);
 
-                    pegi.newLine();
-
+                    changed |= t._usage.editTrigger_And_Value_PEGI(triggers.currentEnumerationIndex, this, so).nl();
+                    
                     if (t._usage.hasMoreTriggerOptions()) {
                         pegi.Space();
                         pegi.newLine();
@@ -193,11 +218,13 @@ namespace LogicTree
 
                 }
                 if (showMax < 0) break;
-                }
+            }
+
+            pegi.nl();
 
             return changed;
 
-            }
+        }
 
         public bool searchTriggers_PEGI() {
 
@@ -242,25 +269,23 @@ namespace LogicTree
             return changed;
 
         }
-
-
+        
         public bool AddTrigger_PEGI( ValueIndex arg) {
 
             bool changed = false;
 
             Trigger selectedTrig = arg!= null ? arg.trig : null;
 
-            if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) && (!Trigger.searchField.isIncludedIn(selectedTrig.name)))  {
+            if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) 
+                && (selectedTrig == null || !Trigger.searchField.isIncludedIn(selectedTrig.name)))  {
 
                 if ((selectedTrig != null)
                     && pegi.Click("Rename " + selectedTrig.name)) {
                     selectedTrig.name = Trigger.searchField;
                     changed = true;
                 }
-
-
-
-                if (pegi.Click("CREATE [" + Trigger.searchField + "]")) {
+                
+                if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
                     
                     int ind = triggers.AddNew();
                     if (arg != null) {
@@ -289,6 +314,7 @@ namespace LogicTree
         public virtual Type getBooleanEnums() {
             return null;
         }
+
     }
 }
 

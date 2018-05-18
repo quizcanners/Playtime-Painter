@@ -335,15 +335,6 @@ namespace SharedTools_Stuff
                     if (!storyComponent.Decode(tag, d))
                         unrec.Unrecognized(tag, d);
                 }
-
-            /*while (gotData) {
-                string tag = getTag();
-
-                if (tag == null)
-                    return;
-
-                storyComponent.Decode(tag, getData());
-            }*/
         }
 
         string toNextSplitter() {

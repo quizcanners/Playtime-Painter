@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using StoryTriggerData;
 using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
@@ -17,16 +16,15 @@ namespace Playtime_Painter
         protected List<string> unrecognizedTags = new List<string>();
         protected List<string> unrecognizedData = new List<string>();
 
-        public void Unrecognized(string tag, string data)
-        {
-            unrecognizedTags.Add(tag);
-            unrecognizedData.Add(data);
+        public void Unrecognized(string tag, string data) {
+            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
 
-        public void SaveUnrecognized(stdEncoder cody)
+        public stdEncoder SaveUnrecognized(stdEncoder cody)
         {
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
         }
 
         public static int inspectedUnrecognized = -1;

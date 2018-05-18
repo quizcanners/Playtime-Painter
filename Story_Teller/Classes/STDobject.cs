@@ -24,16 +24,18 @@ namespace StoryTriggerData {
         protected List<string> unrecognizedData = new List<string>();
 
         public void Unrecognized(string tag, string data){
-             unrecognizedTags.Add(tag);
-             unrecognizedData.Add(data);
+            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData); 
         }
         
-         public void SaveUnrecognized(stdEncoder cody){
+         public stdEncoder SaveUnrecognized(stdEncoder cody){
             for (int i=0; i<unrecognizedTags.Count; i++)
                 cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
          }
  
         public abstract void Reboot();
+
+        public abstract string getDefaultTagName();
 
         public virtual iSTD Decode(string data) {
 
@@ -62,8 +64,6 @@ namespace StoryTriggerData {
 
             base.Deactivate();
         }
-
-        public abstract string getDefaultTagName();
 
         public override string ToString() {
             return getDefaultTagName();
@@ -125,6 +125,8 @@ namespace StoryTriggerData {
             browsed = this;
 
             bool changed = false;
+
+            changed |= base.PEGI();
 
             if ((stdValues == null) || (!stdValues.browsing_interactions)) {
                 pegi.newLine();

@@ -10,7 +10,8 @@ namespace SharedTools_Stuff
 
     [Serializable]
     public class savedISTD: iPEGI, iGotName  {
-        public string Name { get; set; }
+        public string _name;
+        public string Name { get { return _name; }  set { _name = value; } }
         public string comment;
         public string data;
 
@@ -19,17 +20,19 @@ namespace SharedTools_Stuff
         public bool PEGI() {
             bool changed = false;
 
-            if (icon.Load.ClickUnfocus())
-                std.Decode(data);
-            this.PEGI_Name();
-            if (icon.save.ClickUnfocus().nl())
-                data = std.Encode().ToString();
+            if (std != null) {
+                if (icon.Load.ClickUnfocus())
+                    std.Decode(data);
+                this.PEGI_Name();
+                if (icon.save.ClickUnfocus().nl())
+                    data = std.Encode().ToString();
+            }
 
             "Comment:".editBig(ref comment).nl();
             "Data:".editBig(ref data).nl();
             if (icon.Copy.Click())
                 STDExtensions.copyBufferValue = data;
-
+   
             return changed;
         }
     }
@@ -40,6 +43,8 @@ namespace SharedTools_Stuff
         public List<savedISTD> states;
         public int inspectedState = -1;
         public iSTD inspectedSTD;
+        public string fileFolderHolder = "STDEncodes";
+        public string fileNameHolder = "file Name";
         [SerializeField] bool inspectThis;
 
 
@@ -48,37 +53,63 @@ namespace SharedTools_Stuff
                 states = new List<savedISTD>();
         }
 
+
+
         public bool PEGI() {
             inspected = this;
             bool changed = false;
 
+            if (inspectedSTD == null)
+            {
+                MonoBehaviour mono = null;
+                if ("Target: ".edit(ref mono).nl()) {
+                    if (mono != null)
+                        inspectedSTD = mono as iSTD;
+                }
+            }
+
             if ("STD Explorer".foldout(ref inspectThis).nl()) {
+                
+                if (inspectedSTD != null) {
 
-                if (inspectedSTD == null)
-                    "Not attached to anythin".nl();
-                else
-                {
+                    if ("Save To Assets".Click())
+                        inspectedSTD.SaveToAssets(fileFolderHolder, fileNameHolder).RefreshAssetDatabase();
 
-                    "Saved States:".nl();
-
-                    var aded = states.PEGI(ref inspectedState, true, ref changed);
+                    pegi.write("Load:", 40);
+                    inspectedSTD.LoadOnDrop().nl();
 
                     if (STDExtensions.copyBufferValue != null && icon.Paste.Click().nl()) {
                         inspectedSTD.Decode(STDExtensions.copyBufferValue);
                         STDExtensions.copyBufferValue = null;
                     }
 
-                    if (aded!= null) {
-                        aded.data = inspectedSTD.Encode().ToString();
-                        inspectedState = states.Count - 1;
-                    }
-
+                    "Folder:".edit(60, ref fileFolderHolder).nl();
+                    "Name:".edit("No file extension", 60, ref fileNameHolder).nl();
+                    
                     var iki = inspectedSTD as abstractKeepUnrecognized_STD;
                     if (iki != null)
-                        iki.PEGI().nl();
-                    
+                        iki.PEGI_Unrecognized().nl();
 
+                    var comp = inspectedSTD as ComponentSTD;
+                    if (comp != null) {
+                        if ("Clear Component".Click().nl())
+                            comp.Reboot();
+                    }
+                    
                 }
+
+
+                var aded = "____ Saved States:".edit(states, ref inspectedState, true, ref changed);
+
+                if (aded != null && inspectedSTD != null) {
+                    aded.data = inspectedSTD.Encode().ToString();
+                    aded.Name = inspectedSTD.ToString(); 
+                    aded.comment = DateTime.Now.ToString();
+                    inspectedState = states.Count - 1;
+                }
+
+             
+
             }
 
             //inspectedSTD = null;

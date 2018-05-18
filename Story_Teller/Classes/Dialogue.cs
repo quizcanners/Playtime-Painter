@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using PlayerAndEditorGUI;
-using LogicTree;
+using STD_Logic;
 
 
 namespace StoryTriggerData
@@ -28,7 +28,7 @@ namespace StoryTriggerData
             int cnt = 0;
             //for (int i = 0; i < tmp.Count; i++)
             foreach (DialogueChoice dio in ia.options)  
-            if (dio.conditions.TestConditions(browsedObj)) {
+            if (dio.conditions.TestFor(browsedObj)) {
                     _optText.Add(dio.text.ToString());
                     possibleOptions.Add(dio);
                     cnt++;
@@ -37,7 +37,7 @@ namespace StoryTriggerData
 
             ScrollOptsDirty = true;
 
-            QuestVersion = LogicMGMT.questVersion;
+            QuestVersion = LogicMGMT.currentLogicVersion;
 
             if (cnt > 0)
                 return true;
@@ -47,38 +47,40 @@ namespace StoryTriggerData
         
         static void updatePassiveLogic(InteractionBranch gr) {
 
-            foreach (Interaction si in gr.interactions){
+            foreach (Interaction si in gr.elements){
                 if (browsedObj.type == QOoptionType.PassiveLogic)
-                    if (si.conditions.TestConditions(browsedObj)) {
+                    if (si.conditions.TestFor(browsedObj)) {
 
                         for (int j = 0; j < si.options.Count; j++)
-                            if (si.options[j].conditions.TestConditions(browsedObj))
+                            if (si.options[j].conditions.TestFor(browsedObj))
                                 si.options[j].results.apply(browsedObj);
                         si.FinalResults.apply(browsedObj);
                     }
             }
 
-            foreach (InteractionBranch sgr in gr.interactionBranches)
+            foreach (InteractionBranch sgr in gr.subBranches)
                 updatePassiveLogic(sgr);
         }
 
         static void CollectInteractions(InteractionBranch gr) {
-            //for (int i = 0; i < root.Interactions.Count; i++) {
-            foreach (Interaction si in gr.interactions) {
-              //  StoryInteraction tmp = root.Interactions[i];
+            foreach (Interaction si in gr.elements) {
                 if (browsedObj.type == QOoptionType.Dialogue) {
-                    if (si.conditions.TestConditions(browsedObj)) {
+                    if (si.conditions.TestFor(browsedObj)) {
                         _optText.Add(si.Texts[0].ToString());
-                        possibleInteractions.Add(si); textCount++;
+                        possibleInteractions.Add(si);
+                        textCount++;
                     }
                 }
             }
+
+            foreach (InteractionBranch sgr in gr.subBranches)
+                CollectInteractions(sgr);
         }
         
         static int textCount;
         
         public static void BackToInitials() {
-            LogicMGMT.AddQuestVersion();
+            LogicMGMT.AddLogicVersion();
             clearTexts();
 
             updatePassiveLogic(root);
@@ -90,7 +92,7 @@ namespace StoryTriggerData
                 CloseInteractions();
             else {
 
-                QuestVersion = LogicMGMT.questVersion;
+                QuestVersion = LogicMGMT.currentLogicVersion;
                 ScrollOptsDirty = true;
 
                 InteractionStage = 0;
@@ -134,7 +136,7 @@ namespace StoryTriggerData
         static int QuestVersion;
         public static void DistantUpdate() {
             if (root != null) {
-                if (QuestVersion != LogicMGMT.questVersion) {
+                if (QuestVersion != LogicMGMT.currentLogicVersion) {
 
                     switch (InteractionStage) {
                         case 0: BackToInitials(); break;
@@ -146,7 +148,7 @@ namespace StoryTriggerData
                                 singleText = tmp[textNo].ToString();
                             break;
                     }
-                    QuestVersion = LogicMGMT.questVersion;
+                    QuestVersion = LogicMGMT.currentLogicVersion;
                 }
             }
         }
@@ -170,7 +172,7 @@ namespace StoryTriggerData
         static string continuationReference;
         public static void SelectOption(int no) {
             //Debug.Log("Selecting: " + no);
-            LogicMGMT.AddQuestVersion();
+            LogicMGMT.AddLogicVersion();
             //int actual = possibleInteractions.Count > 0 ? possibleInteractions[no] : 0;
             switch (InteractionStage)
             {

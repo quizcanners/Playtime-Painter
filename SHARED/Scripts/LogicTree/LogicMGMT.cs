@@ -17,34 +17,16 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
 
-namespace LogicTree
+namespace STD_Logic
 {
-    public class LogicMGMT : ComponentSTD
-    {
+    public class LogicMGMT : ComponentSTD {
 
-        public static LogicMGMT inst
+        public static LogicMGMT inst;
+
+        public static int currentLogicVersion = 0;
+        public static void AddLogicVersion()
         {
-            get
-            {
-
-                if (_inst == null)
-                    _inst = FindObjectOfType<LogicMGMT>();
-
-                if (_inst == null)
-                {
-                    _inst = (new GameObject().AddComponent<LogicMGMT>());
-                }
-
-                return _inst;
-            }
-        }
-
-        protected static LogicMGMT _inst;
-
-        public static int questVersion = 0;
-        public static void AddQuestVersion()
-        {
-            questVersion++;
+            currentLogicVersion++;
         }
 
         public static int RealTimeOnStartUp = 0;
@@ -57,15 +39,19 @@ namespace LogicTree
             return RealTimeOnStartUp + (int)Time.realtimeSinceStartup;
         }
 
-        public virtual void OnEnable()
-        {
+        public virtual void OnEnable() {
 
-            _inst = this;
+            inst = this;
 
         }
 
         bool waiting;
         float timeToWait = -1;
+
+        public virtual Values inspectedValues()
+        {
+            return null;
+        }
 
         public void AddTimeListener(float seconds)
         {
@@ -83,7 +69,7 @@ namespace LogicTree
                 if (timeToWait < 0)
                 {
                     waiting = false;
-                    AddQuestVersion();
+                    AddLogicVersion();
                 }
             }
         }
@@ -95,7 +81,7 @@ namespace LogicTree
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-
+            
             return cody;
         }
 
@@ -106,12 +92,10 @@ namespace LogicTree
 
         public override bool Decode(string tag, string data)
         {
-            return false;
+
+            return true;
         }
 
-        public override string getDefaultTagName()
-        {
-            return "LogicMGMT";
-        }
+      
     }
 }

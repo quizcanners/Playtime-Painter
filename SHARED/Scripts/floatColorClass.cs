@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEditor;
 #endif
 using System;
-using StoryTriggerData;
 
 namespace SharedTools_Stuff
 {
@@ -80,9 +79,6 @@ namespace SharedTools_Stuff
         }
 
         public const string toryTag = "LCol";
-
-        public override string getDefaultTagName() { return toryTag; }
-
 
 
         public linearColor GetCopy()

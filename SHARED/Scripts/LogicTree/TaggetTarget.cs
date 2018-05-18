@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
     
     public class TaggedTarget: ValueIndex, iSTD {  // if there are zero
@@ -20,7 +20,7 @@ namespace LogicTree
             stdEncoder cody = new stdEncoder();
             cody.Add("g", groupIndex);
             cody.Add("t",triggerIndex);
-            cody.AddIfNotZero("v", targValue);
+            cody.Add_ifNotZero("v", targValue);
 
             return cody;
         }
@@ -43,9 +43,9 @@ namespace LogicTree
 
         public List<Values> getObjectsByTag() {
             if (targValue > 0)
-                return TriggerGroups.all[groupIndex].taggedInts[triggerIndex][targValue];
+                return TriggerGroup.all[groupIndex].taggedInts[triggerIndex][targValue];
             else 
-                return TriggerGroups.all[groupIndex].taggedBool[triggerIndex];
+                return TriggerGroup.all[groupIndex].taggedBool[triggerIndex];
         }
         
         public override bool PEGI() {

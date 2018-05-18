@@ -5,26 +5,24 @@ using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace LogicTree { 
+namespace STD_Logic {
+
 
     public class Values: abstractKeepUnrecognized_STD    {
 
-        public UnnullableSTD<CountlessBool> bools;
-        public UnnullableSTD<CountlessInt> ints;
-        public UnnullableSTD<CountlessInt> enumTags;
-        public UnnullableSTD<CountlessBool> boolTags;
+        public UnnullableSTD<CountlessBool> bools = new UnnullableSTD<CountlessBool>();
+        public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
+        public UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
+        public UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
         public CountlessBool groupsToShowInBrowser = new CountlessBool();
-
-        public override string getDefaultTagName(){
-            return "STD_ValuesBase";
-        }
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-            cody.Add("inst", ints);
+            cody.Add("ints", ints);
             cody.Add("bools", bools);
             cody.Add("tags", boolTags);
             cody.Add("enumTags", enumTags);
+            cody.Add("Test Unrecognized values", 1);
             return cody;
         }
 
@@ -43,7 +41,7 @@ namespace LogicTree {
 
             boolTags[groupIndex][tagIndex] = value;
 
-            TriggerGroups s = TriggerGroups.all[groupIndex];
+            TriggerGroup s = TriggerGroup.all[groupIndex];
 
             if (s.taggedBool[tagIndex].Contains(this))
             {
@@ -61,7 +59,7 @@ namespace LogicTree {
 
             enumTags[groupIndex][tagIndex] = value;
 
-            TriggerGroups s = TriggerGroups.all[groupIndex];
+            TriggerGroup s = TriggerGroup.all[groupIndex];
 
             if (s.taggedInts[tagIndex][value].Contains(this)) {
                 if (value != 0)
@@ -74,19 +72,6 @@ namespace LogicTree {
                 s.taggedInts[tagIndex][value].Add(this);
         }
         
-        public override iSTD Decode(string data) {
-            Reboot();
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
-
-        public virtual void Reboot() {
-            ints = new UnnullableSTD<CountlessInt>();
-            bools = new UnnullableSTD<CountlessBool>();
-            boolTags = new UnnullableSTD<CountlessBool>();
-            enumTags = new UnnullableSTD<CountlessInt>();
-        }
-
         public void removeAllTags() {
             List<int> groupInds;
             List<CountlessBool> lsts = boolTags.GetAllObjs(out groupInds);
@@ -106,43 +91,33 @@ namespace LogicTree {
         }
 
         public override bool PEGI() {
+            
             bool changed = false;
-
-            pegi.foldout("All Triggers", ref Trigger.showTriggers);
-
-            if (Trigger.showTriggers) {
-
-                if (pegi.Click("quest++"))
-                    LogicMGMT.AddQuestVersion();
-
-                pegi.ClickToEditScript();
-
+            
+                if ("quest++".Click().nl())
+                    LogicMGMT.AddLogicVersion();
+                
                 pegi.newLine();
 
-                TargetedResult.showOnExit = false;
-                TargetedResult.showOnEnter = false;
-
-                pegi.newLine();
+                "Click Enter to apply renaming.".writeOneTimeHint("EntApplyTrig");
 
                 Trigger.search_PEGI();
 
-                List<TriggerGroups> lst = TriggerGroups.all.GetAllObjsNoOrder();
-
                 Trigger.searchMatchesFound = 0;
 
-                for (int i = 0; i < lst.Count; i++) {
-                    TriggerGroups td = lst[i];
+                foreach (TriggerGroup td in TriggerGroup.all) 
                     td.PEGI(this);
-                }
-
-                TriggerGroups.browsed.AddTrigger_PEGI(null);
+  
+                TriggerGroup.browsed.AddTrigger_PEGI(null);
                 
-                groupsToShowInBrowser[TriggerGroups.browsed.GetHashCode()] = true;
+                groupsToShowInBrowser[TriggerGroup.browsed.GetHashCode()] = true;
+                
+            pegi.nl();
 
-            }
+            changed |= base.PEGI();
 
             pegi.newLine();
-
+            
             return changed;
         }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using LogicTree;
+using STD_Logic;
 /*
  * INSTRUCTION:
  * In order to enable merging of many stories you may want to RENAME this classes and set HashCode to your favorite number. 
@@ -14,7 +14,7 @@ using LogicTree;
 
 namespace StoryTriggerData {
 
-    public class MyStory_EXAMPLE : TriggerGroups {
+    public class MyStory_EXAMPLE : TriggerGroup {
 
 
        

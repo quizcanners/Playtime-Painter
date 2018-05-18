@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using StoryTriggerData;
+
 using SharedTools_Stuff;
 
 namespace Playtime_Painter

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 namespace StoryTriggerData {
 
@@ -70,10 +70,6 @@ namespace StoryTriggerData {
         }
 
         public const string storyTag_resT = "resT";
-
-        public override string getDefaultTagName() {
-            return storyTag_resT;
-        }
 
         public static string returnTag = "";
         public static string returnData = "";

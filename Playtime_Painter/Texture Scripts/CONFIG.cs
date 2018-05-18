@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
-using StoryTriggerData;
 using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -197,8 +196,8 @@ namespace Playtime_Painter{
         public static void SaveChanges() {
             stdEncoder cody = new stdEncoder();
             if (!applicationIsQuitting) {
-                foreach (var mt in MeshToolBase.allTools)
-                    cody.Add(mt);
+               // foreach (var mt in MeshToolBase.allTools)
+                    cody.Add("e",MeshToolBase.allTools);
                 _inst.meshToolsSTD = cody.ToString();
             }
         }

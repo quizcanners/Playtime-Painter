@@ -917,7 +917,7 @@ namespace Playtime_Painter
             }
 
             if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                matDatas.PEGI(ref MaterialData.inspectedMaterial, true);
+                matDatas.edit_PEGI(ref MaterialData.inspectedMaterial, true);
 
 #if UNITY_EDITOR
             "Using layer:".nl();

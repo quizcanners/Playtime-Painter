@@ -277,8 +277,8 @@ namespace Playtime_Painter {
 
             int w = width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + height + "volume").nl();
-            
-            "Materials:".nl();
+
+            "Matserials".edit(materials, true);
 
             if (inspectedPainter != null) {
                 var pmat = inspectedPainter.material;
@@ -286,7 +286,7 @@ namespace Playtime_Painter {
                    materials.Remove(pmat);
             }
 
-            materials.PEGI<Material>(true);
+          
 
             if (materials.Count>0 && ("Update Materials".Click().nl() || changed))
                 UpdateMaterials();

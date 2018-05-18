@@ -15,7 +15,7 @@ namespace PlayerAndEditorGUI
         Square, PreviewShader, OriginalShader, saveAsNew, Undo, Redo, Painter,
         UndoDisabled, RedoDisabled, Play, Record, Delete, Done, Edit, Close, Add,
         Script, Config, Load, Pause, mesh, Discord, Docs, Email, Back, Red, Green, Blue, Alpha,
-        Hint, Copy, Paste, Search
+        Hint, Copy, Paste, Search, Enter, Exit
 
     }
 

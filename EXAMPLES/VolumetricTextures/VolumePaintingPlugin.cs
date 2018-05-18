@@ -301,7 +301,7 @@ namespace Playtime_Painter {
                 "No volumes found".nl();
 
             for (int i=0; i<VolumeTexture.all.Count; i++) 
-               changes |= VolumeTexture.all.PEGI(ref exploredVolume, false);
+               changes |= VolumeTexture.all.edit_PEGI(ref exploredVolume, false);
                 
             return changes;
         }

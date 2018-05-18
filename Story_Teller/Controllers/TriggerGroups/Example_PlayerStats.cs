@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using SharedTools_Stuff;
-using LogicTree;
+using STD_Logic;
 
 namespace StoryTriggerData
 {
 
     // CHANGE NAME (Refaractor):
-    public class Example_PlayerStats : TriggerGroups
+    public class Example_PlayerStats : TriggerGroup
     {
         // CHANGE GROUP INDEX:
         public const int group = 5678;  

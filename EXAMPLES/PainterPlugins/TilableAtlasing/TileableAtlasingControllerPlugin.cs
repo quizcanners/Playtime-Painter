@@ -5,7 +5,6 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 using System;
 using UnityEngine.SceneManagement;
-using StoryTriggerData;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
@@ -138,7 +137,7 @@ namespace Playtime_Painter {
             else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
             {
                 showAtlases = false;
-                changed |= atlasedMaterials.PEGI(ref inspectedPainter.selectedAtlasedMaterial, true).nl();
+                changed |= atlasedMaterials.edit_PEGI(ref inspectedPainter.selectedAtlasedMaterial, true).nl();
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -149,7 +148,7 @@ namespace Playtime_Painter {
 
                 pegi.newLine();
 
-                atlases.PEGI(ref browsedAtlas, true);
+                atlases.edit_PEGI(ref browsedAtlas, true);
 
              
 

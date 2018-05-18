@@ -3,224 +3,196 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using SharedTools_Stuff;
+using PlayerAndEditorGUI;
 
-namespace LogicTree
+namespace STD_Logic
 {
 
-    [Serializable]
-    public class ConditionsWeb : abstract_STD {
-        public List<Condition> vars;
-        public List<ConditionsBranch> branches;
+    public class ConditionsWeb : abstract_STD, iGotName {
+        public List<ConditionLogic> conds = new List<ConditionLogic>();
+        public List<ConditionsWeb> branches = new List<ConditionsWeb>();
+
+        public ConditionBranchType type;
+        public string description = "new branch";
+        public TaggedTarget targ;
+
         
-        public override bool PEGI() {
-            //return false;
-             return this.PEGI(null);
+
+        public string Name
+        {
+            get
+            {
+                return description;
+            }
+
+            set
+            {
+                description = value;
+            }
         }
 
-
-        public override string getDefaultTagName() {
-            return "condWeb";
-        }
-
-
-        public override stdEncoder Encode() {
+        public override stdEncoder Encode()
+        {
             var cody = new stdEncoder();
-
-            cody.AddIfNotEmpty("wb",branches);
-            cody.AddIfNotEmpty("v",vars);
-
+            cody.Add_ifNotEmpty("wb", branches);
+            cody.Add_ifNotEmpty("v", conds);
+            cody.Add_ifNotZero("t", (int)type);
+            cody.AddText("d", description);
+            cody.Add(TaggedTarget.stdTag_TagTar, targ);
+            cody.Add_ifNotNegative("insB", browsedBranch);
             return cody;
         }
 
-        public override bool Decode(string subtag, string data) {
-            switch (subtag) {
+        public override bool Decode(string subtag, string data)
+        {
+            switch (subtag)
+            {
+                case "t": type = (ConditionBranchType)data.ToInt(); break;
+                case "d": description = data; break;
+                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
                 case "wb": data.DecodeInto(out branches); break;
-                case "v": data.DecodeInto(out vars); break;
+                case "v": data.DecodeInto(out conds); break;
+                case "insB": browsedBranch = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
 
-        //#if UNITY_EDITOR
-        public Condition addVar(ConditionsBranch br) {
-            //Condition tmp = new Condition();
-            br.vars.Add(vars.Count);
-            Condition tmp = vars.Add();
-            return tmp;
+        public override bool PEGI() {
+            //return false;
+             return PEGI(null);
+        }
+        
+        public  bool TestFor(Values ip) {
+
+            switch (type) {
+                case ConditionBranchType.AND:
+                    foreach (var c in conds)
+                        if (c.TestFor(ip) == false) return false;
+                    foreach (var b in branches)
+                        if (b.TestFor(ip) == false) return false;
+                    return true;
+                case ConditionBranchType.OR:
+                    foreach (var c in conds)
+                        if (c.TestFor(ip) == true) return true;
+                    foreach (var b in branches)
+                        if (b.TestFor(ip) == true) return true;
+                    return ((conds.Count == 0) && (branches.Count == 0));
+            }
+            return true;
         }
 
-        public List<Condition> getAllFromBranch(ConditionsBranch wb) {
-            List<Condition> tmp = new List<Condition>();//[wb.vars.Count];
 
-            for (int i = 0; i < wb.vars.Count; i++)
-                tmp.Add(vars[wb.vars[i]]);
-
-            return tmp;
-        }
-
-        public List<Condition> getAllFromBranch(int no) {
-            ConditionsBranch wb = branches[no];
-            List<Condition> tmp = new List<Condition>();//[wb.vars.Count];
-
-            for (int i = 0; i < wb.vars.Count; i++)
-                tmp.Add(vars[wb.vars[i]]);
-
-            return tmp;
-        }
-
-        public ConditionsBranch addBranch(ConditionsBranch br) {
-            ConditionsBranch tmp = new ConditionsBranch();
-            br.branches.Add(branches.Count);
-            branches.Add(tmp);
-            return tmp;
-        }
-
-        public void DeleteVar(int no) {
-            vars[no] = null; //default(T);
-            ReindexVars();
-        }
-
-        public void DeleteBranch(int no) {
-            DeleteCascade(no);
-
-            //  Debug.Log("Deleting "+ no);
-
-            int[] brinds = new int[branches.Count];
-            int newInd = 0;
-            for (int i = 0; i < branches.Count; i++)
-                if (branches[i] != null) { brinds[i] = newInd; newInd++; } else {
-                    //     Debug.Log("brind "+i+" is null");
-                    brinds[i] = -1;
-                }
-
-            for (int i = 0; i < branches.Count; i++) {
-                ConditionsBranch subb = branches[i];
-                if (subb != null) {
-                    for (int j = 0; j < subb.branches.Count; j++)
-                        if (brinds[subb.branches[j]] == -1) {
-                            //  Debug.Log("Deleting sub " + j);
-                            subb.branches.RemoveAt(j); j--;
-                        } else {
-                            // Debug.Log("Assigning "+ subb.branches[j] + " to "+ brinds[subb.branches[j]]);
-                            subb.branches[j] = brinds[subb.branches[j]];
-
-                        }
-                } else {
-                    // Debug.Log("Deleting branch "+i);
-                    branches.RemoveAt(i); i--;
-                }
+        public void ForceToTrue( Values ip) {
+            switch (type)
+            {
+                case ConditionBranchType.AND:
+                    foreach (var c in conds)
+                        c.ForceConditionTrue(ip);
+                    foreach (var b in branches)
+                        b.ForceToTrue(ip);
+                    break;
+                case ConditionBranchType.OR:
+                    if (conds.Count > 0)
+                    {
+                   
+                            conds[0].ForceConditionTrue(ip);
+                        return;
+                    }
+                    if (branches.Count > 0)
+                    {
+                        branches[0].ForceToTrue(ip);
+                        return;
+                    }
+                    break;
             }
 
-            //   Debug.Log("Left "+branches.Count+" branches ");
-
-            ReindexVars();
         }
 
-        void ReindexVars() {
-            int[] varinds = new int[vars.Count];
-            int newInd = 0;
-            for (int i = 0; i < vars.Count; i++) {
-                if (vars[i] != null) { varinds[i] = newInd; newInd++; } else {
-                    varinds[i] = -1;
-                    //  Debug.Log("Deleting variable "+i+" out of "+vars.Count);
-                }
+        public string ToString(Values tell, bool showDetails)
+        {
+
+            bool AnyConditions = (conds.Count > 0);
+
+            return TestFor(tell) + " " + (showDetails ? "..." :
+                      ((AnyConditions) ? "[" + conds.Count + "]: " + conds[0].ToString() : "UNCONDITIONAL"));
+        }
+
+        public string CompileBranchText(Values ip) {
+
+            int br = branches.Count;
+            int Conds = conds.Count;
+
+            return type + ":" + TestFor(ip).ToString() + (br > 0 ? br + " br," : " ") + (Conds > 0 ? (conds[0].ToString()) +
+                (Conds > 1 ? "+" + (Conds - 1) : "") : "");
+
+        }
+
+
+        int browsedBranch = -1;
+
+
+
+        static string path;
+        static bool isCalledFromAnotherBranch = false;
+        public bool PEGI(Values vals) {
+
+            browsedBranch = Mathf.Min(browsedBranch, branches.Count - 1);
+
+            bool changed = false;
+
+            if (!isCalledFromAnotherBranch)
+                path = "Cnds";
+            else
+                path += "->" + Name;
+
+            if (browsedBranch == -1) {
+                
+                pegi.newLine();
+                path.nl();
+
+                if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)"),
+                       (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
+                        "At least one condition or sub branch should be true")))
+                    type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
+
+                pegi.newLine();
+
+                conds.PEGI(vals);
+
+                changed |= "Sub Branches".edit(branches, ref browsedBranch, true);
+
             }
-
-            for (int i = 0; i < branches.Count; i++) {
-                ConditionsBranch subb = branches[i];
-                for (int j = 0; j < subb.vars.Count; j++) {
-                    if (varinds[subb.vars[j]] == -1) {
-                        //Debug.Log("Removing at " + subb.vars[j]);
-                        subb.vars.RemoveAt(j);
-                        j--;
-                    } else
-                        subb.vars[j] = varinds[subb.vars[j]];
-                }
+            else
+            {
+                isCalledFromAnotherBranch = true;
+                var sub = branches[browsedBranch];
+                if (sub.browsedBranch == -1 && icon.Exit.Click())
+                    browsedBranch = -1;
+                else
+                    changed |= sub.PEGI(vals);
+                isCalledFromAnotherBranch = false;
             }
-
-            for (int j = vars.Count - 1; j >= 0; j--)
-                if (varinds[j] == -1) {
-                    vars.RemoveAt(j);
-                }
-
-            //   Debug.Log("Finished got "+vars.Count+" left");
-
-        }
-
-        void DeleteCascade(int no) {
-            ConditionsBranch wb = branches[no];
-
-            if (wb.branches.Count > 0)
-                for (int i = 0; i < wb.branches.Count; i++)
-                    DeleteBranch(wb.branches[i]);
-
-            for (int i = 0; i < wb.vars.Count; i++)
-                vars[wb.vars[i]] = null;//default(T);
-
-            for (int i = 0; i < wb.branches.Count; i++)
-                branches[wb.branches[i]] = null;
-
-            branches[no] = null;
-        }
-        //#endif
-
-        public ConditionsWeb(string data) {
             
-            vars = new List<Condition>();
-            branches = new List<ConditionsBranch>();
-            branches.Add(new ConditionsBranch());
-            if (data != null)
-                Decode(data);
+            pegi.newLine();
+
+            return changed;
         }
+
+      
+
+        public void ConditionsFoldout(ref ConditionsWeb cond, ref bool Show, string descr)
+        {
+            bool AnyConditions = ((cond != null) && (cond.conds.Count > 0));
+            pegi.foldout(descr + (Show ? "..." :
+              ((AnyConditions) ? "[" + cond.conds.Count + "]: " + cond.conds[0].ToString() : "UNCONDITIONAL")), ref Show);
+
+        }
+
+
     }
 
     public enum ConditionBranchType { OR, AND }
 
-    [Serializable]
-    public class ConditionsBranch : abstract_STD {
-
-        public const string tag = "br";
-
-        public override string getDefaultTagName() {
-            return tag;
-        }
-
-        public List<int> branches;
-        public List<int> vars;
-        public ConditionBranchType type;
-        public string description = "new branch";
-        public TaggedTarget targ;
-        
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
-
-            cody.AddIfNotZero("t",(int)type );
-            cody.AddIfNotEmpty("b",branches);
-            cody.AddIfNotEmpty("v", vars);
-            cody.AddText("d", description);
-            cody.Add(targ);
-            return cody;
-        }
-
-        public override bool Decode(string subtag, string data) {
-            switch (subtag) {
-                case "t": type = (ConditionBranchType)data.ToInt(); break;
-                case "b": data.DecodeInto(out branches); break;
-                case "v": data.DecodeInto(out vars); break;
-                case "d": description = data; break;
-                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
-                default: return false;
-            }
-            return true;
-        }
-        
-        void Clear() {
-            branches = new List<int>();
-            vars = new List<int>();
-        }
-
-        public ConditionsBranch() {
-            Clear();
-        }
-    }
+ 
 }

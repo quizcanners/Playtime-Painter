@@ -236,10 +236,6 @@ namespace StoryTriggerData {
             return changed;
         }
 
-        public override string getDefaultTagName() {
-            return "SpacePos";
-        }
-
         void TransferToLargerScale(ref float smaller, ref float larger, float coeficient) {
             float d = (int)(smaller / coeficient);
             smaller -= d * coeficient;
@@ -376,10 +372,6 @@ namespace StoryTriggerData {
         }
 
         public const string storyTag = "SpacePos";
-
-        public override string getDefaultTagName() {
-            return storyTag;
-        }
 
         public void TransferToSmallerScale(ref Vector3 a, ref Vector3 o, float coefficient)
         {

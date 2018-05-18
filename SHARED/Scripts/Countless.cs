@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using StoryTriggerData;
 using PlayerAndEditorGUI;
 
 
@@ -681,7 +680,15 @@ namespace SharedTools_Stuff
         public T this[int index]
         {
             get { return Get(index); }
-            set { Set(index, value); }
+            set {
+                var igi = value as iGotIndex;
+                if (igi != null && igi.GetIndex() != index)
+                {
+                    Debug.Log("setting "+value.ToString() + " with ind " + igi.GetIndex() + " at "+index);
+                 //   igi.index = index;
+                }
+
+                Set(index, value); }
         }
 
         public T this[iGotIndex i]
@@ -882,10 +889,18 @@ namespace SharedTools_Stuff
         }
 
         public IEnumerator GetEnumerator() {
-            foreach (var e in objs)
-                if (!e.isDefaultOrNull())
+            List<int> indx;
+            var all = GetAllObjs(out indx);
+            for (int i = 0; i < all.Count; i++) {
+                var e = all[i];
+                if (!e.isDefaultOrNull()) {
+                    currentEnumerationIndex = indx[i];
                     yield return e;
+                }
+            }
         }
+
+        public int currentEnumerationIndex;
 
         public override bool PEGI() {
             base.PEGI();
@@ -907,7 +922,11 @@ namespace SharedTools_Stuff
         public override bool Decode(string tag, string data)
         {
             T tmp;
-            Set(tag.ToIntFromText(), data.DecodeInto(out tmp));
+            int ind = tag.ToIntFromText();
+           // Debug.Log(ind + " decodding "+data);
+            this[ind] = data.DecodeInto(out tmp);
+           
+         
             return true;
         }
 
@@ -918,8 +937,11 @@ namespace SharedTools_Stuff
             List<int> inds;
             List<T> vals = GetAllObjs(out inds);
 
-            for (int i = 0; i < inds.Count; i++)
-                cody.Add(inds[i].ToString(), vals[i].Encode());
+            for (int i = 0; i < inds.Count; i++) {
+                var dta = vals[i].Encode().ToString();
+                //Debug.Log(inds[i] + " Encodingg " + dta);
+                cody.AddText(inds[i].ToString(), dta);
+            }
 
             return cody;
         }
@@ -1132,10 +1154,35 @@ namespace SharedTools_Stuff
             firstFreeObj = 0;
         }
 
-        public IEnumerator GetEnumerator() {
-            foreach (var e in objs)
+        public IEnumerator GetEnumerator()
+        {
+            List<int> indx;
+            var all = GetAllObjs(out indx);
+            for (int i = 0; i < all.Count; i++)
+            {
+               
+
+                var e = all[i];
+
+                //Debug.Log("Enum " + indx[i] + " " +e.ToString());
+
                 if (!e.isDefaultOrNull())
+                {
+                    currentEnumerationIndex = indx[i];
                     yield return e;
+                }
+            }
+        }
+
+        public int currentEnumerationIndex;
+
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+
+
+            return changed;
         }
 
     }
@@ -1145,10 +1192,7 @@ namespace SharedTools_Stuff
 
         public static int IndexOfCurrentlyCreatedUnnulable;
 
-        T Create(int ind)
-        {
-            // Debug.Log("Creating new one at "+ind);
-
+        T Create(int ind) {
             IndexOfCurrentlyCreatedUnnulable = ind;
             T tmp = new T();
             Set(ind, tmp);
@@ -1168,8 +1212,7 @@ namespace SharedTools_Stuff
             return IndexOfCurrentlyCreatedUnnulable;
         }
 
-        protected override T Get(int ind)
-        {
+        protected override T Get(int ind)  {
             int originalIndex = ind;
 
             if (ind >= Max)
@@ -1196,10 +1239,36 @@ namespace SharedTools_Stuff
             return objs[vb.br[ind].value];
         }
 
+        public T GetIfExists(int ind) {
+           // int originalIndex = ind;
+
+            if (ind >= Max)
+                return default(T);
+
+            int d = depth;
+            VariableBranch vb = br;
+            int subSize = Max;
+
+            while (d > 0)
+            {
+                subSize /= branchSize;
+                int no = ind / subSize;
+                ind -= no * subSize;
+                if (vb.br[no] == null)
+                    return default(T);
+                d--;
+                vb = vb.br[no];
+            }
+
+            if (vb.br[ind] == null)
+                return default(T);
+
+            return objs[vb.br[ind].value];
+        }
+
     }
 
     // List trees
-
     public class UnnullableLists<T> : STDCountlessBase, IEnumerable {
 
         List<T>[] objs = new List<T>[0];
@@ -1451,7 +1520,7 @@ namespace SharedTools_Stuff
             List<List<T>> vals = GetAllObjs(out inds);
 
             for (int i = 0; i < inds.Count; i++)
-                cody.AddIfNotEmpty(inds[i].ToString(), vals[i]);
+                cody.Add_ifNotEmpty(inds[i].ToString(), vals[i]);
 
             return cody;
         }
@@ -1468,6 +1537,50 @@ namespace SharedTools_Stuff
 
     public static class ExtensionsForGenericCountless
     {
+
+        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, new() {
+
+            bool changed = false;
+            
+            if (edited > -1) {
+                var e = Cstd[edited];
+                if (e.isDefaultOrNull() || icon.Back.Click())
+                    edited = -1;
+                else {
+                    var pg = e as iPEGI;
+                    if (pg != null)
+                        changed |= pg.PEGI();
+                }
+            }
+
+            if (edited == -1)
+                foreach (var e in Cstd)
+                    if (e.Name_ClickInspect_PEGI().nl())
+                        edited = Cstd.currentEnumerationIndex;
+            
+            pegi.newLine();
+            return changed;
+        }
+
+        public static stdEncoder Encode(this Countless<string> c)
+        {
+            var cody = new stdEncoder();
+            List<int> inds;
+            List<string> vals = c.GetAllObjs(out inds);
+            for (int i = 0; i < inds.Count; i++)
+                cody.AddText(inds[i].ToString(), vals[i]);
+            return cody;
+        }
+
+        public static void DecodeInto(this string data, out Countless<string> c)
+        {
+            c = new Countless<string>();
+            var cody = new stdDecoder(data);
+            foreach (var tag in cody.enumerator)
+                c[tag.ToIntFromText()] = cody.getData();
+
+        }
+
         public static stdEncoder Encode(this Countless<float> c)
         {
             var cody = new stdEncoder();
@@ -1528,7 +1641,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static stdEncoder Encode(this Countless<String> c)
+       /* public static stdEncoder EncodeText(this Countless<String> c)
         {
             var cody = new stdEncoder();
             List<int> inds;
@@ -1538,13 +1651,39 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<String> c)
+        public static void DecodeIntoText(this string data, out Countless<String> c)
         {
             c = new Countless<String>();
             var cody = new stdDecoder(data);
             foreach (var tag in cody.enumerator)
                 c[tag.ToIntFromText()] = cody.getData();
+        }*/
+
+        public static int Get(this UnnullableSTD<CountlessInt> unn, int group, int index)
+        {
+            var tg = unn.GetIfExists(group);
+            if (tg == null)
+                return 0;
+            return tg[index];
         }
+
+        public static bool Get(this UnnullableSTD<CountlessBool> unn, int group, int index) {
+            var tg = unn.GetIfExists(group);
+            if (tg == null)
+                return false;
+            return tg[index];
+        }
+
+        public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: iSTD, new()
+        {
+            var tg = unn.GetIfExists(group);
+            if (tg == null)
+                return default(T);
+            return tg[index];
+        }
+
+        
+
     }
 
 

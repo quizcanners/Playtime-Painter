@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using StoryTriggerData;
 using SharedTools_Stuff;
 using UnityEditor;
 
@@ -94,11 +93,6 @@ namespace SharedTools_Stuff {
             return distance > 0 ? Mathf.Clamp01(speed*Time.deltaTime / distance) : 1;
         }
         
-        public override string getDefaultTagName()
-        {
-            return "frame";
-        }
-
         public SpeedAnimationFrame(SpeedAnimationFrame other) {
             if (other != null) {
                 other.localPos.Encode().ToString().DecodeInto(out localPos);
@@ -122,8 +116,16 @@ namespace SharedTools_Stuff {
         public SpeedAnimationFrame frame { get { return SpeedAnimationController.inspectedAnimationController.currentFrame; } }
         public static AnimatedElement inspectedAnimatedObject;
 
-        public int index;
-        public int GetIndex() { return index; }
+        [SerializeField] int index;
+       public int GetIndex()
+       {
+            return index;
+        }
+
+        public void SetIndex(int val)
+        {
+            index = val;
+        }
 
         [SerializeField] string _name;
         public string Name { get { return _name; } set { _name = value; } }
@@ -161,19 +163,16 @@ namespace SharedTools_Stuff {
         public Quaternion localRotation { get { return frame.localRotation[this]; } set { frame.localRotation[this] = value; } }
         public float shaderValue { get {
                 return frame.shaderValue[index];
-
             } set {
                 frame.shaderValue[index] = value;
             }
         }
 
-        public Vector3 deltaLocalPos { get { return transform.localPosition - localPos; } }
-        public Vector3 deltaLocalScale { get { return transform.localScale - LocalScale; } }
-        public float angleOfDeltaLocalRotation { get { return  Quaternion.Angle(transform.localRotation, localRotation); } }
+        public Vector3 deltaLocalPos { get { if (!transform) return Vector3.zero; return transform.localPosition - localPos; } }
+        public Vector3 deltaLocalScale { get { if (!transform) return Vector3.zero; return transform.localScale - LocalScale; } }
+        public float angleOfDeltaLocalRotation { get { if (!transform) return 0; return  Quaternion.Angle(transform.localRotation, localRotation); } }
         public float deltaShaderValue { get { return currentShaderValue - shaderValue; } }
         
-
-
         public void SetCurrentShaderValue(float value) {
             
             currentShaderValue = value;
@@ -238,7 +237,9 @@ namespace SharedTools_Stuff {
             if (this.PEGI_Name().nl() && transform)
                 transform.name = Name;
 
-            "Index".edit(50, ref index).nl();
+            var ind = index;
+            if ("Index:".edit(50, ref ind).nl())
+                index = ind;
             if ("Object".edit(70, ref transform).nl() && transform)
                 Name = transform.name;
 
@@ -260,39 +261,27 @@ namespace SharedTools_Stuff {
                     transform.PEGI(transformInLocalSpace); //"TF:".edit(() => transform).nl();
             }
    
-
-
-           
-
-
-
             inspectedAnimatedObject = null;
 
             return false;
         }
         
-        public override string getDefaultTagName()
-        {
-            return "animElement";
-        }
     }
     
     [ExecuteInEditMode]
     public class SpeedAnimationController : ComponentSTD {
 
         // Elements
-
         [SerializeField] List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
         [NonSerialized] public Countless<AnimatedElement> elements;
         [SerializeField] int keyElementIndex;
         public int indexForNewObject;
         public AnimatedElement keyElement { get { return (elements != null) ? elements[keyElementIndex] : null;  }
-            set { keyElementIndex = value.index; } }
+            set { keyElementIndex = value.GetIndex(); } }
         
         // Frames
-
         [SerializeField]  string std_Data;
-        [NonSerialized]  List<SpeedAnimationFrame> frames;
+        [NonSerialized] List<SpeedAnimationFrame> frames = new List<SpeedAnimationFrame>();
         [SerializeField] int frameIndex;
         public bool SetFrameIndex(int newIndex)
         {
@@ -323,7 +312,6 @@ namespace SharedTools_Stuff {
         public SpeedAnimationFrame previousFrame { get { if (frameIndex > 0) return frames[frameIndex - 1]; else return null; } }
 
         // Speed
-
         public SpeedSource speedSource;
         [SerializeField] float maxSpeed = 1;
         [SerializeField] AnimationCurve speedCurve;
@@ -338,10 +326,8 @@ namespace SharedTools_Stuff {
                 return curveSpeed ? maxSpeed * speedCurve.Evaluate(portion) : maxSpeed;
 
             } }
-
-
+        
         // Management
-
         [NonSerialized] bool isPaused;
         [NonSerialized] bool playInEditor;
         [NonSerialized] Action _callback;
@@ -374,13 +360,13 @@ namespace SharedTools_Stuff {
                     List<AnimatedElement> tmp;
                     data.DecodeInto(out tmp);
 
-                    foreach (var v in tmp)
-                    {
-                        if (elements[v.index] == null)
-                        {
+                    foreach (var v in tmp) {
+                        if (elements[v] == null) {
                             elementsUnsorted.Add(v);
-                            elements[v.index] = v;
+                            elements[v] = v;
                         }
+                        else
+                            elements[v].Decode(v.Encode());
                     }
                     break;
 
@@ -443,8 +429,11 @@ namespace SharedTools_Stuff {
         public int inspectedElement = -1;
         public bool inspectElements = false;
         float editor_FramePortion;
-
+        bool showDebug = false;
         public override bool PEGI() {
+
+            if (gameObject.isPrefab())
+                return false;
 
             bool changed = false;
 
@@ -560,13 +549,13 @@ namespace SharedTools_Stuff {
                 }
 
                 if (Application.isPlaying || !playInEditor) {
-                    var added = elementsUnsorted.PEGI(ref inspectedElement, true, ref changed);
+                    var added = elementsUnsorted.edit_PEGI(ref inspectedElement, true, ref changed);
                     if (added != null) {
                         added.Name = "New Element";
                         added.propertyName = "_Portion";
-                        added.index = indexForNewObject;
+                        added.SetIndex(indexForNewObject);
                         indexForNewObject += 1;
-                        elements[added.index] = added;
+                        elements[added.GetIndex()] = added;
                     } else if (changed) UpdateCountless(); 
 
                 }
@@ -579,8 +568,10 @@ namespace SharedTools_Stuff {
             if (playInEditor && !Application.isPlaying && currentFrame!= null)
                     changed |= "Frame".edit(50, ref editor_FramePortion, 0f, 1f).nl();
 
-            changed |= this.PEGI(ref STDexplorer).nl(); 
-
+            if ("Debug".foldout(ref showDebug))
+            {
+                changed |= base.PEGI().nl();
+            }
            
 
             if (!Application.isPlaying && playInEditor && changed)
@@ -611,7 +602,7 @@ namespace SharedTools_Stuff {
             elements.Clear();
 
             foreach (var el in elementsUnsorted)
-                elements[el.index] = el;
+                elements[el.GetIndex()] = el;
         }
 
         public void OnEnable()
@@ -647,11 +638,6 @@ namespace SharedTools_Stuff {
             std_Data = data;
         }
         
-        public override string getDefaultTagName()
-        {
-            return "SpeedAnim";
-        }
-
         public override void Reboot() {
 
             if (Application.isPlaying)

@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using UnityEngine.SceneManagement;
-using StoryTriggerData;
+
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;

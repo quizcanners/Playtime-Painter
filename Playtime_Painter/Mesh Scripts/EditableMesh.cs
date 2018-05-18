@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using StoryTriggerData;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
@@ -55,8 +54,8 @@ namespace Playtime_Painter {
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
             cody.AddText("n", meshName);
-            cody.AddIfNotEmpty(vertices);
-            cody.AddIfNotEmpty(triangles);
+            cody.Add_ifNotEmpty("vrt",vertices);
+            cody.Add_ifNotEmpty("tri",triangles);
             cody.Add("sub", submeshCount);
             cody.Add("wei", gotBoneWeights);
             cody.Add("bp", gotBindPos);
@@ -74,8 +73,8 @@ namespace Playtime_Painter {
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
-                case vertexpointDta.stdTag_vrt:  data.DecodeInto(out vertices); break;
-                case trisDta.stdTag_tri: data.DecodeInto(out triangles); break;
+                case "vrt":  data.DecodeInto(out vertices); break;
+                case "tri": data.DecodeInto(out triangles); break;
                 case "n": meshName = data; break;
                 case "sub":  submeshCount = data.ToInt(); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
@@ -899,7 +898,7 @@ namespace Playtime_Painter {
                 }
 
 
-                editableMeshOtherData.PEGI(ref explorefunction, false);
+                editableMeshOtherData.edit_PEGI(ref explorefunction, false);
 
             }
 

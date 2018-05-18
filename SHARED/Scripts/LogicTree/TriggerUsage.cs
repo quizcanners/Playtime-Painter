@@ -6,7 +6,7 @@ using System.Linq;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
 
     // Trigger usage is only used for PEGI. Logic engine will not need this to process triggers
@@ -29,11 +29,11 @@ namespace LogicTree
             return editTrigger_And_Value_PEGI(arg.triggerIndex, arg.group, so);
         }
 
-        public virtual void conditionPEGI(Condition c, Values so) {
+        public virtual void conditionPEGI(ConditionLogic c, Values so) {
    
         }
 
-        public virtual bool resultsPEGI(TargetedResult r, Values so) {
+        public virtual bool resultsPEGI(Result r, Values so) {
             return false;
         }
 
@@ -41,7 +41,7 @@ namespace LogicTree
             return false;
         }
 
-        public virtual bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public virtual bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             bool changed = false;
             Trigger t = group.triggers[ind];
             string before = t.name;
@@ -102,19 +102,23 @@ namespace LogicTree
             {(int)ResultType.Subtract, "-"},
         };
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.select(ref c._type, conditionUsages, 40);
             pegi.edit(ref c.compareValue, 40);
         }
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             bool changed = false;
-            changed |= pegi.select(ref r._type, resultUsages, 40);
+            int t = (int)r.type;
+            if (pegi.select(ref t, resultUsages, 40)) {
+                changed = true;
+                r.type = (ResultType)t;
+            }
             changed |= pegi.edit(ref r.updateValue, 40);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             if (so != null) 
@@ -142,7 +146,7 @@ namespace LogicTree
             { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.select(ref c._type, conditionUsages);
             pegi.edit(ref c.compareValue);
         }
@@ -154,10 +158,12 @@ namespace LogicTree
             {(int)ResultType.Set, "="},
         };
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             bool changed = false;
 
-            changed |= pegi.select(ref r._type, resultUsages);
+
+            int t = (int)r.type;
+            changed |= pegi.select(ref t, resultUsages);
             if (r.type!= ResultType.SetTimeGame)
                 changed |= pegi.edit(ref r.updateValue);
 
@@ -177,7 +183,7 @@ namespace LogicTree
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.select(ref c._type, conditionUsages);
             pegi.edit(ref c.compareValue);
         }
@@ -188,9 +194,16 @@ namespace LogicTree
             {(int)ResultType.Subtract, "-"},
         };
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             bool changed = false;
-            changed |= pegi.select(ref r._type, resultUsages);
+
+            int t = (int)r.type;
+            if (pegi.select(ref t, resultUsages, 40))
+            {
+                changed = true;
+                r.type = (ResultType)t;
+            }
+
             if (r.type != ResultType.SetTimeReal)
                 changed |= pegi.edit(ref r.updateValue);
             return changed;
@@ -203,19 +216,25 @@ namespace LogicTree
       
         public override string ToString() { return string.Format("Enums"); }
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.select(ref c._type, Usage_Number.conditionUsages);
             pegi.select(ref c.compareValue, c.trig.enm);
         }
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             bool changed = false;
-            changed |= pegi.select(ref r._type, Usage_Number.resultUsages);
+            int t = (int)r.type;
+            if (pegi.select(ref t, Usage_Number.resultUsages, 40))
+            {
+                changed = true;
+                r.type = (ResultType)t;
+            }
+            
             pegi.select(ref r.updateValue, r.trig.enm);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
             Trigger t = group.triggers[ind];
 
@@ -244,7 +263,7 @@ namespace LogicTree
 
         public override string ToString() { return string.Format("TagGroup"); }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             var changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             Trigger t = group.triggers[ind];
@@ -279,15 +298,22 @@ namespace LogicTree
             return changed;
         }
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.select(ref c._type, Usage_Number.conditionUsages);
             pegi.select(ref c.compareValue, c.trig.enm);
             //c.trig.enm.//select_or_Edit_PEGI(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             bool changed = false;
-            changed |= pegi.select(ref r._type, Usage_Number.resultUsages);
+
+            int t = (int)r.type;
+            if (pegi.select(ref t, Usage_Number.resultUsages, 40))
+            {
+                changed = true;
+                r.type = (ResultType)t;
+            }
+            
             pegi.select(ref r.updateValue, r.trig.enm);
             return changed;
         }
@@ -303,16 +329,16 @@ namespace LogicTree
 
         public override string ToString() { return string.Format("YesNo"); }
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.toggleInt(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
             if (so != null)
                 changed |= pegi.toggle(ind ,so.bools[group.GetHashCode()]);
@@ -327,15 +353,15 @@ namespace LogicTree
      
         public override string ToString() { return string.Format("Tag"); }
 
-        public override void conditionPEGI(Condition c, Values so) {
+        public override void conditionPEGI(ConditionLogic c, Values so) {
             pegi.toggleInt(ref c.compareValue);
         }
 
-        public override bool resultsPEGI(TargetedResult r, Values so) {
+        public override bool resultsPEGI(Result r, Values so) {
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroups group, Values so) {
+        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
             bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
 
             if (so != null) {

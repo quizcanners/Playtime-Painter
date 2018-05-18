@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
 
     public abstract class ValueIndex {
@@ -39,15 +39,15 @@ namespace LogicTree
         {
             get
             {
-                return TriggerGroups.all[groupIndex].triggers[triggerIndex];
+                return TriggerGroup.all[groupIndex].triggers[triggerIndex];
             }
         }
 
-        public TriggerGroups group
+        public TriggerGroup group
         {
             get
             {
-                return TriggerGroups.all[groupIndex];
+                return TriggerGroup.all[groupIndex];
             }
         }
 
@@ -64,19 +64,12 @@ namespace LogicTree
         public static string focusName;
         public static Values editedSo;
 
-        public bool PEGI(int index, ref int DeleteNo, Values so, string prefix)
+        public bool PEGI(int index, Values so, string prefix)
         {
             bool changed = false;
             editedSo = so;
 
-            if (icon.Delete.Click(20))
-            {
-                DeleteNo = index;
-                changed = true;
-            }
-
-            if (Trigger.edited != trig)
-            {
+            if (Trigger.edited != trig) {
                 if (icon.Edit.Click(20))
                     Trigger.edited = trig;
 
@@ -168,11 +161,11 @@ namespace LogicTree
             }
             pegi.newLine();
 
-            List<TriggerGroups> lst = TriggerGroups.all.GetAllObjsNoOrder();
+            List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
 
             for (int i = 0; i < lst.Count; i++)
             {
-                TriggerGroups gb = lst[i];
+                TriggerGroup gb = lst[i];
                 string gname = gb.ToString();
                 List<int> indxs;
                 List<Trigger> trl = gb.triggers.GetAllObjs(out indxs);

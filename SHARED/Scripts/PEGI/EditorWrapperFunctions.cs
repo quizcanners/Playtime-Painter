@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-using StoryTriggerData;
 using PlayerAndEditorGUI;
 using System.Linq.Expressions;
 using System.Reflection;

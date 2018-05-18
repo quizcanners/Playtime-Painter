@@ -17,18 +17,39 @@ namespace SharedTools_Stuff
         stdEncoder Encode(); 
         iSTD Decode(string data);
         bool Decode(string tag, string data);
-        string getDefaultTagName();
     }
 
-    // This class can be used for some backwards compatibility. 
-    public interface iKeepUnrecognizedSTD : iSTD
+  /* 
+   * Implementation Example:
+   * 
+   * public bool Decode(string tag, string data)
     {
-        // include as Default option in decode function:
-        //Example: default: Unrecognized(tag, data); 
-        void Unrecognized(string tag, string data);
+        switch (tag)
+        {
+            case "tf": data.DecodeInto(transform); break;
+            case "n": transform.name = data; break;
 
-        // Use cody.AddUnrecognized(this) in Encode, it will use this Function:
-        void SaveUnrecognized(stdEncoder cody);
+            default: return false;
+        }
+
+        return true;
+    }
+
+    public stdEncoder Encode()
+    {
+        var cody = new stdEncoder();
+        cody.Add("tf", transform);
+        cody.AddText("n", name);
+        return cody;
+    }
+    */
+
+
+    // This class can be used for some backwards compatibility. 
+    public interface iKeepUnrecognizedSTD : iSTD {
+        void Unrecognized(string tag, string data);
+        
+        stdEncoder SaveUnrecognized(stdEncoder cody);
     }
 
     [Serializable]
@@ -38,37 +59,38 @@ namespace SharedTools_Stuff
         protected List<string> unrecognizedData = new List<string>();
         
         public void Unrecognized(string tag, string data) {
-            unrecognizedTags.Add(tag);
-            unrecognizedData.Add(data);
+            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-        public void SaveUnrecognized(stdEncoder cody) {
+        public stdEncoder SaveUnrecognized(stdEncoder cody) {
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
         }
 
+        bool showUnrecognized = false;
         public static int inspectedUnrecognized = -1;
-        public override bool PEGI() {
-            bool changed = false;
-            //if (unrecognizedTags != null) {
-            if (unrecognizedTags.Count > 0)
-            {
-                "Unrecognized Tags".nl();
-                for (int i = 0; i < unrecognizedTags.Count; i++)
-                {
-                    if (icon.Delete.Click())
-                    {
-                        changed = true;
-                        unrecognizedTags.RemoveAt(i);
-                        unrecognizedData.RemoveAt(i);
-                        i--;
-                    }
-                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
-                        unrecognizedData[i].nl();
-                }
-            }
-            else "No Unrecognized Tags".nl();
 
+        public bool PEGI_Unrecognized()
+        {
+
+            bool changed = false;
+
+            pegi.nl();
+
+            var cnt = unrecognizedTags.Count;
+
+            if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
+                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+
+            return changed;
+        }
+
+        public override bool PEGI() {
+
+            bool changed = PEGI_Unrecognized();
+
+        
             return changed;
         }
     }
@@ -90,62 +112,78 @@ namespace SharedTools_Stuff
         public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
             return false; }
         public abstract bool Decode(string tag, string data);
-        public abstract string getDefaultTagName();
     }
 
-    [Serializable]
-    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD
-    {
+    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD {
 
-        public abstract stdEncoder Encode();
-        public abstract void Reboot();
+        public override string ToString()
+        {
+            return gameObject.name;
+        }
+
+        public virtual void Reboot() {
+
+        }
+
         public virtual iSTD Decode(string data) {
             Reboot();
             new stdDecoder(data).DecodeTagsFor(this);
             return this;
         }
-        public abstract bool Decode(string tag, string data);
-        public abstract string getDefaultTagName();
 
         protected List<string> unrecognizedTags = new List<string>();
         protected List<string> unrecognizedData = new List<string>();
 
-        public void Unrecognized(string tag, string data)
-        {
-            unrecognizedTags.Add(tag);
-            unrecognizedData.Add(data);
+        public void Unrecognized(string tag, string data) {
+            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
-
-        public void SaveUnrecognized(stdEncoder cody)
+        public stdEncoder SaveUnrecognized(stdEncoder cody)
         {
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
         }
 
-        public static int inspectedUnrecognized = -1;
-        public virtual bool PEGI()
-        {
+        public iSTD_Explorer explorer;
+
+        bool showUnrecognized = false;
+        [NonSerialized] public int inspectedUnrecognized = -1;
+        public virtual bool PEGI() {
+
             bool changed = false;
-            if (unrecognizedTags != null)
-            {
-                "Unrecognized Tags".nl();
-                for (int i = 0; i < unrecognizedTags.Count; i++)
-                {
-                    if (icon.Delete.Click())
-                    {
-                        changed = true;
-                        unrecognizedTags.RemoveAt(i);
-                        unrecognizedData.RemoveAt(i);
-                        i--;
-                    }
-                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
-                        unrecognizedData[i].nl();
-                }
+
+
+            changed |= this.PEGI(ref explorer).nl();
+
+            if (explorer == null) {
+
+                var cnt = unrecognizedTags.Count;
+
+                if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
+                    changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
             }
 
             return changed;
         }
 
+        public virtual bool Decode(string tag, string data)
+        {
+            switch (tag){
+                case "tf": data.DecodeInto(transform); break;
+                case "n": transform.name = data; break;
+
+                default: return false;
+            }
+
+            return true;
+        }
+
+        public virtual stdEncoder Encode() {
+            var cody = new stdEncoder();
+            cody.Add("tf", transform);
+            cody.AddText("n", name);
+            return cody;
+        }
     }
 
     public static class STDExtensions {
@@ -159,18 +197,32 @@ namespace SharedTools_Stuff
             return s;
         }
 
+        public static bool LoadOnDrop<T>(this T obj) where T: iSTD {
+            UnityEngine.Object myType = null;
+
+            if (pegi.edit(ref myType)) {
+                obj.Decode(ResourceLoader.LoadStory(myType));
+
+                ("Loaded " + myType.name).showNotification();
+
+                return true;
+            }
+
+            return false;
+        }
+
         public static iSTD SaveToResources(this iSTD s, string ResFolderPath, string InsideResPath, string filename) {
             ResourceSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
             return s;
         }
-
+        
         public static iSTD SaveToAssets(this iSTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.dataPath + Path.AddPreSlashIfNotEmpty() + "/", filename, s.Encode().ToString());
+            ResourceSaver.Save(Application.dataPath + Path.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
         public static iSTD SaveProgress(this iSTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.persistentDataPath + Path.AddPreSlashIfNotEmpty() + "/", filename, s.Encode().ToString());
+            ResourceSaver.Save(Application.persistentDataPath + Path.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
@@ -184,7 +236,7 @@ namespace SharedTools_Stuff
 		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:iSTD, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty() + "/" + fileName + ResourceSaver.fileType));
+            s.Decode(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + ResourceSaver.fileType));
 			return s;
 		}
 
@@ -201,7 +253,6 @@ namespace SharedTools_Stuff
 			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
-
 
         public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
             bool changed = false; 
@@ -221,6 +272,70 @@ namespace SharedTools_Stuff
             
 
             return changed;
+        }
+
+        public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
+            bool changed = false;
+            if (tags != null && tags.Count > 0) {
+               // ("Unrecognized Tags on "+el.ToString()).nl();
+
+                if (inspected < 0)
+                {
+
+                    for (int i = 0; i < tags.Count; i++)
+                    {
+                        if (icon.Delete.Click())
+                        {
+                            changed = true;
+                            tags.RemoveAt(i);
+                            data.RemoveAt(i);
+                            i--;
+                        }
+                        else
+                        {
+                            pegi.write(tags[i]);
+                            if (icon.Edit.Click().nl())
+                                inspected = i;
+                        }
+                    }
+                }
+                else
+                {
+                    if (inspected >= tags.Count || icon.Back.Click())
+                        inspected = -1;
+                    else
+                    {
+                        int i = inspected;
+                        var t = tags[i];
+                        if ("Tag".edit(40, ref t).nl())
+                            tags[i] = t;
+                        var d = data[i];
+                        if ("Data".edit(50, ref d).nl())
+                            data[i] = d;
+                    }
+                }
+            }
+
+            pegi.nl();
+
+            return changed;
+        }
+
+        public static void Unrecognized (this iKeepUnrecognizedSTD el, string tag, string data, ref List<string> unrecognizedTags, 
+            ref List<string> unrecognizedData) {
+          
+                if (unrecognizedTags.Contains(tag))
+                {
+                    int ind = unrecognizedTags.IndexOf(tag);
+                    unrecognizedTags[ind] = tag;
+                    unrecognizedData[ind] = data;
+                }
+                else
+                {
+                    unrecognizedTags.Add(tag);
+                    unrecognizedData.Add(data);
+                }
+            
         }
 
     }

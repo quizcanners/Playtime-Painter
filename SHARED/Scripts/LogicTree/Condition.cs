@@ -5,213 +5,12 @@ using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace LogicTree
+namespace STD_Logic
 {
-
     public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
-    public static class ConditionExtensionFunctions
-    {
 
-        public static bool TestConditions(this ConditionsWeb tree, Values ip) {
-            bool tmp = tree.ConditionsCascade(0, ip);
-            return tmp;
-        }
-
-        public static bool ConditionsCascade(this ConditionsWeb tree, int branch, Values ip) {
-            ConditionsBranch vb = tree.branches[branch];
-            switch (vb.type) {
-                case ConditionBranchType.AND:
-                    for (int i = 0; i < vb.vars.Count; i++)
-                        if (tree.vars[vb.vars[i]].TestFor(ip) == false) return false;
-                    for (int i = 0; i < vb.branches.Count; i++)
-                        if (ConditionsCascade(tree, vb.branches[i], ip) == false) return false;
-                    return true;
-                case ConditionBranchType.OR:
-                    for (int i = 0; i < vb.vars.Count; i++)
-                        if (tree.vars[vb.vars[i]].TestFor(ip) == true) return true;
-                    for (int i = 0; i < vb.branches.Count; i++)
-                        if (ConditionsCascade(tree, vb.branches[i], ip) == true) return true;
-                    return ((vb.vars.Count == 0) && (vb.branches.Count == 0));
-            }
-            return true;
-        }
-
-        public static void MakeConditionsTrue(this ConditionsWeb tree, Values ip) {
-            tree.MakeCondTrueCascade(0, ip);
-        }
-
-        static void MakeCondTrueCascade(this ConditionsWeb tree, int branch, Values ip) {
-            ConditionsBranch vb = tree.branches[branch];
-
-            switch ((ConditionBranchType)vb.type) {
-                case ConditionBranchType.AND:
-                    for (int i = 0; i < vb.vars.Count; i++)
-                        tree.vars[vb.vars[i]].ForceConditionTrue(ip);
-                    for (int i = 0; i < vb.branches.Count; i++)
-                        tree.MakeCondTrueCascade(vb.branches[i], ip);
-                    break;
-                case ConditionBranchType.OR:
-                    if (vb.vars.Count > 0) {
-                        tree.vars[vb.vars[0]].ForceConditionTrue(ip);
-                        return;
-                    }
-                    if (vb.branches.Count > 0) {
-                        tree.MakeCondTrueCascade( vb.branches[0], ip);
-                        return;
-                    }
-                    break;
-            }
-
-        }
-        
-        public static string ToStringSafe(this ConditionsWeb c, Values tell, bool showDetails)
-        {
-
-            bool AnyConditions = (c.vars.Count > 0);
-
-           return c.TestConditions(tell) + " " + (showDetails ? "..." :
-                     ((AnyConditions) ? "[" + c.vars.Count + "]: " + c.vars[0].ToString() : "UNCONDITIONAL"));
-        }
-        
-        public static ConditionsWeb lastTree = null;
-
-        public static List<int> browsingBranch = new List<int>();
-
-        public static bool PEGI(this ConditionsWeb tree, Values so) {
-
-            bool changed = false;
-
-                if (tree != lastTree) 
-                    browsingBranch.Clear();
-                lastTree = tree;
-
-                bool root = browsingBranch.Count == 0;
-
-            int brNo = root ? 0 : browsingBranch.last();//[browsingBranch.Count - 1];
-                ConditionsBranch wb = tree.branches[brNo];
-
-            if ((!root) && icon.Close.Click("Back",20)) browsingBranch.RemoveLast(1);
-
-                pegi.newLine();
-
-            if (pegi.Click("Logic: " + wb.type + (wb.type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)"), 
-                           (wb.type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : 
-                            "At least one condition or sub branch should be true")))
-                    wb.type = (wb.type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
-
-            pegi.newLine();
-
-            pegi.write("Conditions: ");
-            if (icon.Add.Click(25))
-                tree.addVar(wb);
-
-            pegi.newLine();
-
-            List<Condition> conds = tree.getAllFromBranch(wb);
-            int del = conds.PEGI(so);
-            if (del != -1) tree.DeleteVar(wb.vars[del]);
-
-            pegi.newLine();
-
-            pegi.write("Sub Branches: ");
-
-            if (icon.Add.Click(25))
-                tree.addBranch(wb);
-
-                pegi.newLine();
-
-                for (int i = 0; i < wb.branches.Count; i++) {
-                int index = wb.branches[i];
-
-                if (icon.Delete.Click(20))
-                {
-                    tree.DeleteBranch(index);
-                    changed = true;
-                }
-                else
-                {
-                    changed |= pegi.edit(ref tree.branches[index].description);
-                    if (icon.Edit.Click(20))
-                        browsingBranch.Add(index);
-                }
-                    pegi.newLine();
-                }
-                
-                pegi.newLine();
-            return changed;
-            }
-
-        public static Condition Add(this List<Condition> lst) {
-            Condition r = new Condition();
-
-            if (lst.Count > 0) {
-                Condition prev = lst.last();
-
-                r.groupIndex = prev.groupIndex;
-                r.triggerIndex = prev.triggerIndex;
-
-                // Making sure new trigger will not be a duplicate (a small quality of life improvement)
-
-                List<int> indxs;
-                r.group.triggers.GetAllObjs(out indxs);
-
-                foreach (Condition res in lst)
-                    if (res.groupIndex == r.groupIndex)
-                        indxs.Remove(res.triggerIndex);
-
-                if (indxs.Count > 0)
-                    r.triggerIndex = indxs[0];
-
-            }
-
-            lst.Add(r);
-
-            return r;
-        }
-
-        static int PEGI(this List<Condition> conds, Values so) {
-
-            bool changed = false;
-
-            int DeleteNo = -1;
-
-            for (int i = 0; i < conds.Count; i++) {
-                Condition cond = conds[i];
-
-                changed |= cond.PEGI(i, ref DeleteNo, so, "Cond");
-
-                cond.trig._usage.conditionPEGI(cond, so);
-
-                changed |= cond.searchAndAdd_PEGI(i);
-
-            }
-
-                return DeleteNo;
-
-            }
-
-        public static void ConditionsFoldout(ref ConditionsWeb cond, ref bool Show, string descr) {
-                bool AnyConditions = ((cond != null) && (cond.vars.Count > 0));
-                pegi.foldout(descr + (Show ? "..." :
-                  ((AnyConditions) ? "[" + cond.vars.Count + "]: " + cond.vars[0].ToString() : "UNCONDITIONAL")), ref Show);
-
-            }
-
-        public static string CompileBranchText(ConditionsWeb tree, int branch, Values ip) {
-                ConditionsBranch cb = tree.branches[branch];
-                int br = cb.branches.Count;
-                int Conds = cb.vars.Count;
-
-                return cb.type + ":" + tree.ConditionsCascade( branch, ip).ToString() + (br > 0 ? br + " br," : " ") + (Conds > 0 ? (tree.vars[cb.vars[0]].ToString()) +
-                    (Conds > 1 ? "+" + (Conds - 1) : "") : "");
-
-            }
-    }
-
-
-    [Serializable]
-    public class Condition : ValueIndex , iSTD {
+    public class ConditionLogic : ValueIndex , iSTD {
 
         public static string tag = "cond";
 
@@ -224,18 +23,18 @@ namespace LogicTree
             return tag;
         }
 
-        public stdEncoder Encode() {
+        public virtual stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddIfNotZero("v", compareValue);
-            cody.AddIfNotZero("ty",_type);
+            cody.Add_ifNotZero("v", compareValue);
+            cody.Add_ifNotZero("ty",_type);
             cody.Add("g", groupIndex);
             cody.Add("t", triggerIndex);
 
             return cody;
         }
 
-        public bool Decode(string subtag, string data) {
+        public virtual bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "v": compareValue = data.ToInt(); break;
                 case "ty": _type = data.ToInt(); break;
@@ -262,7 +61,7 @@ namespace LogicTree
             }
         }
 
-        public bool TestFor(Values st) {
+        public virtual bool TestFor(Values st) {
 
             int timeGap;
 
@@ -303,32 +102,86 @@ namespace LogicTree
             return -2;
         }
 
-
-        public Condition() {
-            groupIndex = TriggerGroups.browsed.GetHashCode();
+        public ConditionLogic() {
+            groupIndex = TriggerGroup.browsed.GetHashCode();
         }
 
         public override bool isBoolean(){
             return _type == (int)ConditionType.Bool;
         }
 
-
         public static bool unfoldPegi;
       
-
         public override string ToString()
         {
             return (trig.name) + " " + _type + " " + (isBoolean() ?
                                             (compareValue == 1 ? "True" : "false")
                                             : compareValue.ToString());
         }
+        
+    }
+
+    public static class ConditionLogicExtensions
+    {
+
+        public static bool edit(this string labes, ConditionsWeb web , Values so)
+        {
+            pegi.write(labes);
+            return web.PEGI(so);
+
+        }
+
+        public static bool edit(this string labes, ref List<ConditionLogic> list, Values so)
+        {
+            pegi.write(labes);
+            return list.PEGI(so);
+
+        }
+
+            public static bool PEGI(this List<ConditionLogic> list, Values so)
+        {
+            bool changed = false;
+
+            if (icon.Add.ClickUnfocus().nl())
+            {
+                changed = true;
+                list.Add(new ConditionLogic());
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (icon.Delete.ClickUnfocus(25))
+                {
+                    list.RemoveAt(i);
+                    changed = true;
+                    i--;
+                }
+                else
+                {
+                    var el = list[i];
+
+                    changed |= el.PEGI(i, so, "Cond");
+
+                    el.trig._usage.conditionPEGI(el, so);
+
+                    changed |= el.searchAndAdd_PEGI(i);
+
+                }
+
+                pegi.newLine();
+            }
+            
+            pegi.newLine();
+
+            return changed;
+        }
 
 
-     
 
-    
+ 
 
     }
+
 
 
 }

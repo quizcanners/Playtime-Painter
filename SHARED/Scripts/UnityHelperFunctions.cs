@@ -229,6 +229,16 @@ namespace SharedTools_Stuff
             return (s.Length == 0 || (s[s.Length - 1] == '/')) ? s : s + "/";
         }
 
+        public static string AddPreSlashIfNone(this string s)
+        {
+            return (s.Length == 0 || (s[0] != '/')) ? "/" + s : s;
+        }
+
+        public static string AddPostSlashIfNone(this string s)
+        {
+            return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s+ "/" : s;
+        }
+
         public static void DestroyWhatever(this UnityEngine.Object go)
         {
             if (Application.isPlaying)

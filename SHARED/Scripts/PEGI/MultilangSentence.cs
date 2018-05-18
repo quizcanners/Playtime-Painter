@@ -68,11 +68,6 @@ namespace PlayerAndEditorGUI
             return true;
         }
 
-        public override string getDefaultTagName()
-        {
-            return "txt";
-        }
-
         public override bool PEGI()
         {
             string tmp = ToString();

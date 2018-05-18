@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using StoryTriggerData;
+using SharedTools_Stuff;
 
-namespace SharedTools_Stuff
-{
-    
+
 #if UNITY_EDITOR
-    using UnityEditor;
+using UnityEditor;
 
     [CustomEditor(typeof(SpeedAnimationController))]
     public class SpeedAnimationControllerDrawer : Editor {
@@ -24,8 +22,16 @@ namespace SharedTools_Stuff
             ((iSTD_Explorer)target).inspect(serializedObject);
         }
     }
+    
+    [CustomEditor(typeof(GodMode))]
+    public class GodModeDrawer : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            ((GodMode)target).inspect(serializedObject);
 
+        }
+    }
 
 #endif
 
-}
