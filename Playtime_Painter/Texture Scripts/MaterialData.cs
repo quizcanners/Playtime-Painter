@@ -7,7 +7,10 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
     [Serializable]
-    public class MaterialData : iPEGI
+    public class MaterialData
+        #if !NO_PEGI
+        : iPEGI
+#endif
     {
 
       //  public static MaterialData lastFetched;
@@ -46,6 +49,7 @@ namespace Playtime_Painter
           //  Debug.Log("No material parameter assigned to data");
         }
 
+        #if !NO_PEGI
         public bool PEGI() {
             bool changed = false;
             "Material:".write(60, material);
@@ -62,6 +66,7 @@ namespace Playtime_Painter
 
             return changed;
         }
+#endif
     }
 
    

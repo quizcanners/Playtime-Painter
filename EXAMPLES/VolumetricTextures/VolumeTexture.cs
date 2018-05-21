@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 
     using UnityEditor;
 
@@ -26,7 +26,11 @@ namespace Playtime_Painter {
 
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterStuffMono, iPEGI, iGotName {
+    public class VolumeTexture : PainterStuffMono
+        #if !NO_PEGI
+        , iPEGI, iGotName
+#endif
+        {
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
         
@@ -221,6 +225,8 @@ namespace Playtime_Painter {
             }
         }
 
+        #if !NO_PEGI
+
         public virtual bool PEGI() {
             bool changed = false;
 
@@ -293,6 +299,8 @@ namespace Playtime_Painter {
             
             return changed;
         }
+
+#endif
 
         public virtual void UpdateMaterials() {
             materials.SetVolumeTexture(MaterialPropertyName, this);

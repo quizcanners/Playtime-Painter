@@ -14,8 +14,10 @@ namespace Playtime_Painter {
     namespace CombinedMaps {
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR 
         using UnityEditor;
+
+#if !NO_PEGI
         [CustomEditor(typeof(CombinedMapsControllerPlugin))]
         public class CombinedMapsControllerEditor : Editor
         {
@@ -26,6 +28,7 @@ namespace Playtime_Painter {
                 ef.end();
             }
         }
+#endif
 #endif
 
 
@@ -278,17 +281,22 @@ namespace Playtime_Painter {
                 return "Combined Maps";
             }
 
+            #if !NO_PEGI
             [SerializeField]
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
             {
-                return forCombinedMaps.edit_PEGI(ref browsedTextureSet, true);
+                return forCombinedMaps.edit(ref browsedTextureSet, true);
             }
+#endif
         }
 
 
         [Serializable]
-        public class TextureSetForForCombinedMaps : PainterStuff, iGotName, iPEGI
+        public class TextureSetForForCombinedMaps : PainterStuff
+            #if !NO_PEGI
+            , iGotName, iPEGI
+#endif
         {
 
             protected CombinedMapsControllerPlugin ctrl { get { return CombinedMapsControllerPlugin._inst; } }
@@ -329,6 +337,8 @@ namespace Playtime_Painter {
             }
 
             public string Name { get { return name; } set { name = value; } }
+
+            #if !NO_PEGI
 
             public bool PEGI()
             {
@@ -395,6 +405,8 @@ namespace Playtime_Painter {
                 return changed;
             }
 
+#endif
+
             public bool showProfile;
             public int selectedProfile = 0;
             public static PlaytimePainter currentPainter;
@@ -403,7 +415,10 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class TexturePackagingProfile : PainterStuff_STD, iGotName
+        public class TexturePackagingProfile : PainterStuff_STD
+            #if !NO_PEGI
+            , iGotName
+#endif
         {
 
             public bool isColor;
@@ -455,6 +470,8 @@ namespace Playtime_Painter {
 
             public static TexturePackagingProfile currentPEGI;
 
+
+            #if !NO_PEGI
             public override bool PEGI()
             {
                 return PEGI(null);
@@ -544,6 +561,8 @@ namespace Playtime_Painter {
 
                 return changed;
             }
+
+#endif
 
             void Combine(TextureSetForForCombinedMaps set, PlaytimePainter p)
             {
@@ -683,6 +702,8 @@ namespace Playtime_Painter {
                 return cody;
             }
 
+            #if !NO_PEGI
+
             public override bool PEGI()
             {
 
@@ -702,6 +723,8 @@ namespace Playtime_Painter {
 
                 return changed;
             }
+
+#endif
 
             public const string stdTag = "TexChan";
 
@@ -880,12 +903,16 @@ namespace Playtime_Painter {
                 return mipLevels;
             }
 
+            #if !NO_PEGI
+
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {
                 bool changed = ".".select(10, ref selectedChannel, channels).nl();
 
                 return changed;
             }
+
+#endif
 
         }
 

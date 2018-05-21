@@ -141,7 +141,7 @@ namespace Playtime_Painter {
             }
             return false;
         }
-
+#if !NO_PEGI
         public override bool BrushConfigPEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
@@ -171,7 +171,7 @@ namespace Playtime_Painter {
             }
             return changed;
         }
-
+#endif
         public override void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type)
         {
             if (br.IsA3Dbrush(pntr) && pntr.isAtlased())
@@ -226,8 +226,8 @@ namespace Playtime_Painter {
         public bool enabled;
         public Color col;
         public AtlasTextureCreator atlasCreator { get { return TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; } }
-
-
+#if !NO_PEGI
+         
         [SerializeField]
         bool foldoutAtlas = false;
         public bool PEGI()
@@ -294,10 +294,14 @@ namespace Playtime_Painter {
             return changed;
 
         }
+#endif
     }
 
     [System.Serializable]
-    public class MaterialAtlases : iGotName, iPEGI
+    public class MaterialAtlases
+        #if !NO_PEGI
+        : iGotName, iPEGI
+#endif
     {
         //public static List<MaterialAtlases> all = new List<MaterialAtlases>();
 
@@ -316,7 +320,7 @@ namespace Playtime_Painter {
 
         public string Name { get { return name; } set { name = value; } }
 
-        Shader atlasedShader;
+      
         public List<FieldAtlas> fields;
         public int matAtlasProfile;
 
@@ -373,7 +377,9 @@ namespace Playtime_Painter {
                     if (tex == null)
                     {
                         var note = painter.name + " no " + original + " texture. Using Color.";
+#if !NO_PEGI
                         note.showNotification();
+#endif
                         Debug.Log(note);
                     }
                     else
@@ -475,10 +481,10 @@ namespace Playtime_Painter {
 
             }
 #endif
-        }
+                    }
 
 
-        public void FindAtlas(int field)
+                    public void FindAtlas(int field)
         {
             var texMGMT = PainterManager.inst;
 
@@ -519,8 +525,10 @@ namespace Playtime_Painter {
                     fields.Add(ac);
                     ac.atlasedField = aTextures[i];
                 }
-                atlasedShader = destinationMaterial.shader;
 
+#if !NO_PEGI
+                atlasedShader = destinationMaterial.shader;
+#endif
 
                 foreach (var p in MaterialEditor.GetMaterialProperties(new Material[] { destinationMaterial }))
                     if (p.displayName.Contains(PainterConfig.isAtlasableDisaplyNameTag))
@@ -550,9 +558,10 @@ namespace Playtime_Painter {
                 for (int i = 0; i < fields.Count; i++)
                     FindAtlas(i);
 #endif
-        }
+            }
 
-
+#if !NO_PEGI
+        Shader atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         [SerializeField]
         private bool showHint;
@@ -560,7 +569,7 @@ namespace Playtime_Painter {
         {
             bool changed = false;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var painter = PlaytimePainter.inspectedPainter;
             inspectedAtlas = this;
 
@@ -647,7 +656,7 @@ namespace Playtime_Painter {
             return changed;
 
         }
-
+#endif
     }
     
     [Serializable]
@@ -667,7 +676,10 @@ namespace Playtime_Painter {
     }
 
     [Serializable]
-    public class AtlasTextureCreator : iGotName, iPEGI
+    public class AtlasTextureCreator
+        #if !NO_PEGI
+        : iGotName, iPEGI
+        #endif
     {
 
         static PainterConfig cfg { get { return PainterConfig.inst; } }
@@ -923,6 +935,8 @@ namespace Playtime_Painter {
         }
 #endif
 
+#if !NO_PEGI
+
         public bool PEGI()
         {
             bool changed = false;
@@ -978,7 +992,7 @@ namespace Playtime_Painter {
 
             return changed;
         }
-        
+#endif
     }
 
 }

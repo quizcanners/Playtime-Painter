@@ -11,12 +11,14 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     [System.Serializable]
     public class PainterManagerPluginBase : PainterStuffMono {
-
+#if !NO_PEGI
         PEGIcallDelegate plugins_ComponentPEGI;
+
         protected void PlugIn_PainterComponent(PEGIcallDelegate d) {
             plugins_ComponentPEGI += d;
             PlaytimePainter.plugins_ComponentPEGI += d;
         }
+#endif
 
         PainterBoolPlugin plugins_GizmoDraw;
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
@@ -45,12 +47,13 @@ namespace Playtime_Painter
             BrushConfig.brushConfigPegies += d;
         }
 
-
+        #if !NO_PEGI
         PEGIcallDelegate VertexEdgePEGIdelegates;
         protected void PlugIn_VertexEdgePEGI(PEGIcallDelegate d) {
             VertexEdgePEGIdelegates += d;
             VertexEdgeTool.PEGIdelegates += d;
         }
+#endif
 
         MeshToolBase.meshToolPlugBool showVerticesPlugs;
         protected void PlugIn_MeshToolShowVertex(MeshToolBase.meshToolPlugBool d) {
@@ -60,12 +63,15 @@ namespace Playtime_Painter
 
 
         public void OnDisable() {
+#if !NO_PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
+            
+            VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
+#endif
             PlaytimePainter.plugins_GizmoDraw -= plugins_GizmoDraw;
             BrushType.tex2DPaintPlugins -= tex2DPaintPlugins;
             GridNavigator.pluginNeedsGrid_Delegates -= pluginNeedsGrid_Delegates;
             BrushConfig.brushConfigPegies -= brushConfigPagies;
-            VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
             MeshToolBase.showVerticesPlugs -= showVerticesPlugs;
         }
 

@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.EventSystems;
+using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -39,10 +40,16 @@ namespace SharedTools_Stuff
 
         public static void UpdatePrefab(this GameObject gameObject)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
             var pf = PrefabUtility.GetPrefabObject(gameObject);
             if (pf != null)
+            {
                 PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.GetPrefabParent(gameObject), ReplacePrefabOptions.ConnectToPrefab);
+                (gameObject.name + " prefab Updated").showNotification();
+            } else {
+                (gameObject.name + " Not a prefab").showNotification();
+            }
+            gameObject.SetToDirty();
 #endif
         }
 
@@ -267,8 +274,90 @@ namespace SharedTools_Stuff
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
             AssetDatabase.CopyAsset(path + oldName + ResourceSaver.fileType, path + newName + ResourceSaver.fileType);
         }
+
 #endif
 
+        public static void RenameAsset<T>(this T obj, string newName) where T: UnityEngine.Object
+        {
+
+#if UNITY_EDITOR
+            var path = AssetDatabase.GetAssetPath(obj);
+            if (path != null && path.Length > 0) {
+                AssetDatabase.RenameAsset(path, newName);
+            }
+#endif
+                obj.name = newName;
+
+
+        }
+
+        public static T CreateScriptableObjectSameFolder<T>(this ScriptableObject el) where T : ScriptableObject
+        {
+            T added = null;
+
+
+#if UNITY_EDITOR
+            var path = AssetDatabase.GetAssetPath(el);
+            if (path != null && path.Length > 0)
+            {
+
+                added = ScriptableObject.CreateInstance(typeof(T)) as T;
+
+                string oldName = Path.GetFileName(path);
+
+                path = path.Replace(oldName, "");
+
+                string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
+
+                AssetDatabase.CreateAsset(added, assetPathAndName);
+
+                added.name = assetPathAndName.Substring(path.Length, assetPathAndName.Length - path.Length - 6);
+
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+#else
+            return ScriptableObject.CreateInstance(typeof(T)) as T;
+#endif
+
+            return added;
+        }
+
+        public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
+        {
+            T added = null;
+
+
+#if UNITY_EDITOR
+            var path = AssetDatabase.GetAssetPath(el);
+            if (path != null && path.Length>0) {
+
+                added = ScriptableObject.CreateInstance(el.GetType()) as T;
+
+                string oldName = Path.GetFileName(path);
+
+                path = path.Replace(oldName, "");
+
+        
+
+                string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
+
+                AssetDatabase.CreateAsset(added, assetPathAndName);
+
+
+
+                added.name = assetPathAndName.Substring(path.Length, assetPathAndName.Length - path.Length - 6);
+
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+#else
+            return ScriptableObject.CreateInstance(el.GetType()) as T;
+#endif
+            
+            return added;
+        }
+        
         public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
         {
 

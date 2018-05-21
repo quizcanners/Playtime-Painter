@@ -201,7 +201,7 @@ namespace Playtime_Painter{
                 _inst.meshToolsSTD = cody.ToString();
             }
         }
-        
+#if !NO_PEGI
         public bool PEGI()
         {
             PainterManager rtp = PainterManager.inst;
@@ -312,7 +312,7 @@ namespace Playtime_Painter{
 
             return changed;
         }
-
+#endif
         public PainterConfig() {
             brushConfig = new BrushConfig();
         }

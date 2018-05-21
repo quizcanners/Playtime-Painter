@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 using UnityEditor;
 
 namespace StoryTriggerData {

@@ -89,7 +89,7 @@ namespace STD_Logic {
 
             boolTags = new UnnullableSTD<CountlessBool>();
         }
-
+#if !NO_PEGI
         public override bool PEGI() {
             
             bool changed = false;
@@ -120,6 +120,6 @@ namespace STD_Logic {
             
             return changed;
         }
-
+#endif
     }
 }

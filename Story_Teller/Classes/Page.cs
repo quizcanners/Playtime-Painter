@@ -180,7 +180,7 @@ namespace StoryTriggerData{
 
             objectsLoaded = false;
         }
-
+#if !NO_PEGI
         public static Page browsedPage;
         int exploredObject = -1;
 
@@ -282,8 +282,8 @@ namespace StoryTriggerData{
 
         }
 
-
-       void OnDrawGizmosSelected() {
+#endif
+        void OnDrawGizmosSelected() {
             if (!objectsLoaded) {
                 UniverseLength rng = SpaceValues.tmpRange;
                 rng.CopyFrom(uReach).Divide(SpaceValues.universeScale).MultiplyBy(scale);

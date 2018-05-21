@@ -20,9 +20,14 @@ namespace Playtime_Painter{
     [HelpURL(WWW_Manual)]
     [AddComponentMenu("Mesh/Playtime Painter")]
     [ExecuteInEditMode]
-    public class PlaytimePainter : PlaytimeToolComponent, iSTD, iPEGI {
-
+    public class PlaytimePainter : PlaytimeToolComponent, iSTD
+#if !NO_PEGI
+        , iPEGI 
+#endif
+    {
+        #if !NO_PEGI
         public static PEGIcallDelegate plugins_ComponentPEGI;
+#endif
         public static PainterBoolPlugin plugins_GizmoDraw;
         
         public static bool isCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
@@ -251,8 +256,10 @@ namespace Playtime_Painter{
 
             if (isTerrainHeightTexture() && isOriginalShader)
             {
+                #if !NO_PEGI
                 if (stroke.mouseDwn)
                     "Can't edit without Preview".showNotification();
+                #endif
 
                 return false;
             }
@@ -262,8 +269,10 @@ namespace Playtime_Painter{
 
             if (imgData == null)
             {
+                #if !NO_PEGI
                 if (stroke.mouseDwn)
                     "No texture to edit".showNotification();
+                #endif
 
                 return false;
             }
@@ -549,15 +558,17 @@ namespace Playtime_Painter{
                     var extension = name.Substring(name.LastIndexOf(".") + 1);
 
                     if (extension != "png") {
+#if !NO_PEGI
                         ("Converting " + name + " to .png").showNotification();
+#endif
                         texture = t2d.CreatePngSameDirectory(texture.name);
                     }
                     
                 }
             }
 #endif
-            
-            string field = MaterialTexturePropertyName;
+
+                        string field = MaterialTexturePropertyName;
 
 		    if (texture == null) {
                 RemoveTextureFromMaterial(); //SetTextureOnMaterial((Texture)null);
@@ -646,14 +657,14 @@ namespace Playtime_Painter{
 
 		    texture.wrapMode = TextureWrapMode.Repeat;
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
             SaveTextureAsAsset(false);
 
             TextureImporter importer = id.texture2D.getTextureImporter();
             bool needReimport = importer.wasNotReadable();
             needReimport |= importer.wasWrongIsColor(false);
             if (needReimport) importer.SaveAndReimport();
-    #endif
+#endif
 
             SetTextureOnMaterial(id.texture2D);
             UpdateShaderGlobals();
@@ -687,7 +698,7 @@ namespace Playtime_Painter{
                
             texture.Apply(true, false);
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
             SaveTextureAsAsset(true);
 
             TextureImporter importer = id.texture2D.getTextureImporter();
@@ -698,7 +709,7 @@ namespace Playtime_Painter{
             if (needReimport) importer.SaveAndReimport();
 
 
-    #endif
+#endif
             
         }
 
@@ -783,7 +794,7 @@ namespace Playtime_Painter{
                         matDta.materials_TextureFields.Add(t);
                 }
             }
-    #endif
+#endif
 		    return matDta.materials_TextureFields;
         }
 
@@ -923,7 +934,7 @@ namespace Playtime_Painter{
             material.name = gameObject.name;
 
                 if (saveIt) {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     string fullPath = Application.dataPath + "/" + cfg.materialsFolderName;
                     Directory.CreateDirectory(fullPath);
 
@@ -938,7 +949,7 @@ namespace Playtime_Painter{
                         AssetDatabase.Refresh();
                         CheckPreviewShader();
                     }
-    #endif
+#endif
                 }
 
             OnChangedTexture_OnMaterial();
@@ -947,8 +958,9 @@ namespace Playtime_Painter{
 
                 if ((id != null) && (GetMaterial(false) != null))
                 UpdateOrSetTexTarget(id.destination);
-
+                #if !NO_PEGI
             ("Instantiating Material on " + gameObject.name).showNotification();
+            #endif
             return GetMaterial(false);
 
 
@@ -1596,9 +1608,9 @@ namespace Playtime_Painter{
                 if (meshRenderer == null)
                     meshRenderer = GetComponent<MeshRenderer>();
 
-    #if BUILD_WITH_PAINTER  
+#if BUILD_WITH_PAINTER
             //materials_TextureFields = getMaterialTextureNames();
-    #endif
+#endif
 
             }
 
@@ -1670,9 +1682,9 @@ namespace Playtime_Painter{
  
         public void FocusOnThisObject() {
 		
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityHelperFunctions.FocusOn(this.gameObject);
-    #endif
+#endif
             selectedInPlaytime = this;
             Update_Brush_Parameters_For_Preview_Shader();
             InitIfNotInited();
@@ -1768,7 +1780,7 @@ namespace Playtime_Painter{
 	    }
         
         public static PlaytimePainter inspectedPainter;
-
+#if !NO_PEGI
         public bool PEGI_MAIN() {
             inspectedPainter = this;
             texMGMT.focusedPainter = this;
@@ -2064,6 +2076,8 @@ namespace Playtime_Painter{
 
             return changed;
         }
+
+#endif
 
 #if UNITY_EDITOR
         void OnDrawGizmosSelected() {

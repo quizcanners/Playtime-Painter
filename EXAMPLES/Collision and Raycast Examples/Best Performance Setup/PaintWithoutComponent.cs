@@ -10,7 +10,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 
     using UnityEditor;
 
@@ -174,7 +174,7 @@ namespace Playtime_Painter
             }
         }
 #endif
-
+#if !NO_PEGI
         bool hint;
         public bool PEGI()
         {
@@ -203,5 +203,6 @@ namespace Playtime_Painter
                 pegi.writeHint("Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).");
             return changed;
         }
+#endif
     }
 }

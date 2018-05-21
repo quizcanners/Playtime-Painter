@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 namespace StoryTriggerData {
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR &&  !NO_PEGI
         using UnityEditor;
 
     [CustomEditor(typeof(Actor))]
@@ -350,6 +350,7 @@ namespace StoryTriggerData {
             }
         }
 
+#if !NO_PEGI
         public override bool PEGI() {
             bool changed =  base.PEGI();
 
@@ -380,7 +381,7 @@ namespace StoryTriggerData {
 
             return changed;
         }
-
+#endif
 
         private void OnDisable()
         {

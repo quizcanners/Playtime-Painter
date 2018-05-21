@@ -94,7 +94,7 @@ namespace StoryTriggerData {
             return true;
         }
 
-
+#if !NO_PEGI
         public bool browsing_interactions = false;
 
         public override bool PEGI() {
@@ -164,6 +164,6 @@ namespace StoryTriggerData {
 
 
         }
-
+#endif
     }
 }

@@ -9,12 +9,12 @@ namespace Playtime_Painter {
     {
 
         public class EditableMeshPreProcess {
-
+#if !NO_PEGI
             public virtual bool PEGI() {
                 "No configurations".nl();
                 return false;
             }
-
+#endif
         }
 
         public class Generate_Button : EditableMeshPreProcess
@@ -22,7 +22,7 @@ namespace Playtime_Painter {
 
            // float widthPercentage = 0.1f;
             vertexpointDta[] grid;
-
+#if !NO_PEGI
             public override bool PEGI() {
                 bool changed = false;
 
@@ -31,7 +31,7 @@ namespace Playtime_Painter {
 
                 return changed;
             }
-
+#endif
             void GenerateRoundedButton() {
 
 

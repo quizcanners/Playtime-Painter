@@ -6,6 +6,8 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
+    #if !NO_PEGI
+
     public static class PainterPEGI_Extensions {
 
         static PainterConfig cfg { get { return PainterConfig.inst; } }
@@ -160,9 +162,12 @@ namespace Playtime_Painter {
     }
 
         public static void TeachingNotification (this string text) {
+#if !NO_PEGI
             if (cfg.ShowTeachingNotifications)
                 text.showNotification();
+#endif
         }
 
 }
+#endif
 }

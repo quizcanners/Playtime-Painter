@@ -882,7 +882,7 @@ namespace Playtime_Painter {
            // Debug.Log("Dirty");
             dirty = true;
         }
-
+#if !NO_PEGI
         bool showGenerateFunctions = false;
         int explorefunction = -1;
         public static EditableMesh inspected;
@@ -898,13 +898,13 @@ namespace Playtime_Painter {
                 }
 
 
-                editableMeshOtherData.edit_PEGI(ref explorefunction, false);
+                editableMeshOtherData.edit(ref explorefunction, false);
 
             }
 
             return changed;
         }
-
+#endif
     }
 
     [Serializable]

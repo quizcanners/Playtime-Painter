@@ -182,7 +182,7 @@ namespace Playtime_Painter
         public VertexUVTool() {
             _inst = this;
         }
-        
+#if !NO_PEGI
         public override bool PEGI() {
 
             bool changed = false;
@@ -225,6 +225,8 @@ namespace Playtime_Painter
             return changed;
 
         }
+
+#endif
 
         public override string tooltip { get {
                 return ProjectionUV ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";

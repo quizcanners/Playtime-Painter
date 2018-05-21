@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if UNITY_EDITOR && !NO_PEGI
 
 using UnityEngine;
 using UnityEditor;
@@ -18,9 +18,21 @@ namespace  PlayerAndEditorGUI {
 
     public static class ef {
 
-        public static bool inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, iPEGI {
+       public static bool inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, iPEGI {
             if (o.gameObject.isPrefab())
                 return false;
+
+            start(so);
+            bool changed = o.PEGI();
+            end();
+
+            return changed;
+        }
+
+        public static bool inspect_so<T>(T o, SerializedObject so) where T : ScriptableObject, iPEGI
+        {
+            
+
 
             start(so);
             bool changed = o.PEGI();
@@ -315,10 +327,7 @@ namespace  PlayerAndEditorGUI {
             return false;
 
         }
-
-
-
-
+        
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD, new()
         {
             List<int> inds;
@@ -360,18 +369,7 @@ namespace  PlayerAndEditorGUI {
             }
             return false;
         }
-
-
-        public static bool select(List<string> name, SRLZ_TreeBool tree, ref int no)
-        {
-            List<int> inds = tree.GetAllBool();
-            List<string> filtered = new List<string>();
-            foreach (int i in inds)
-                filtered.Add(name[i]);
-
-            return select(ref no, filtered.ToArray());
-        }
-
+        
         public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IeditorDropdown
         {
             checkLine();
@@ -442,8 +440,7 @@ namespace  PlayerAndEditorGUI {
 
             return ind != before;
         }
-
-
+        
         public static bool select(ref int no, string[] from, int width)
         {
             checkLine();
@@ -471,14 +468,13 @@ namespace  PlayerAndEditorGUI {
             return false;
             //to = from[repName];
         }
-
-
+        
         public static bool select(ref int no, Dictionary<int, string> from)
         {
             checkLine();
             string[] options = new string[from.Count];
 
-            int ind = no;
+            int ind = -1;
 
             for (int i = 0; i < from.Count; i++)
             {
@@ -502,7 +498,7 @@ namespace  PlayerAndEditorGUI {
             checkLine();
             string[] options = new string[from.Count];
 
-            int ind = no;
+            int ind = -1;
 
             for (int i = 0; i < from.Count; i++)
             {
@@ -520,8 +516,7 @@ namespace  PlayerAndEditorGUI {
             }
             return false;
         }
-
-
+        
         public static bool select(ref int no, Texture[] tex)
         {
             if (tex.Length == 0) return false;
@@ -669,9 +664,7 @@ namespace  PlayerAndEditorGUI {
             field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowDrop);
             return tmp != field;
         }
-
-       
-
+        
         public static bool edit(int ind, CountlessInt tb)
         {
             int has = tb[ind];

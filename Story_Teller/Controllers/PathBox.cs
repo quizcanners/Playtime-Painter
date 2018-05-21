@@ -14,7 +14,7 @@ using STD_Logic;
 namespace StoryTriggerData {
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR &&  !NO_PEGI
     using UnityEditor;
 
     [CustomEditor(typeof(PathBox))]
@@ -25,13 +25,13 @@ namespace StoryTriggerData {
             ef.end();
         }
     }
-# endif
-  
+#endif
+
     [TagName(PathBox.tagName)]
     [ExecuteInEditMode]
     public class PathBox : STD_Poolable {
 
-        ConditionsWeb conditions;
+        ConditionBranch conditions;
 
         public const string tagName = "path";
 
@@ -51,7 +51,7 @@ namespace StoryTriggerData {
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
             transform.localRotation = Quaternion.identity;
-            conditions = new ConditionsWeb();
+            conditions = new ConditionBranch();
         }
 
         public override stdEncoder Encode() {
@@ -72,7 +72,7 @@ namespace StoryTriggerData {
         public override string getDefaultTagName() {
             return tagName;
         }
-
+#if !NO_PEGI
         public override bool PEGI() {
             "Path pegi".nl();
 
@@ -91,6 +91,8 @@ namespace StoryTriggerData {
             base.PEGI();
             return false;
         }
+
+#endif
 
         void OnDrawGizmos() {
             transform.DrawTransformedCubeGizmo(managedActors.Count>0 ?  Color.green : Color.white);

@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR &&  !NO_PEGI
 
     using UnityEditor;
 
@@ -132,7 +132,7 @@ namespace Playtime_Painter {
             }
         }
 
-
+#if !NO_PEGI
         public void PEGI() {
             ("Painting on " + paintingOn.Count + " objects").nl();
 
@@ -172,6 +172,6 @@ namespace Playtime_Painter {
             if (brush.ColorSliders_PEGI()) 
                 rendy.sharedMaterial.color = brush.colorLinear.ToGamma();
         }
-
+#endif
     }
 }

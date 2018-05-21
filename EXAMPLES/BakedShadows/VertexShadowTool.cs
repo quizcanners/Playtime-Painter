@@ -37,6 +37,7 @@ namespace Playtime_Painter
             return false;
         }
 
+        #if !NO_PEGI
         public override bool PEGI()
         {
             var col = globalBrush.colorLinear.ToGamma();
@@ -83,6 +84,6 @@ namespace Playtime_Painter
             }
             return false;
         }
-
+#endif
     }
 }

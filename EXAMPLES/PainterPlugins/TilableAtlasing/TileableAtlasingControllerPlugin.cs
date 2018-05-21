@@ -37,7 +37,7 @@ namespace Playtime_Painter {
 
         [SerializeField]
         protected int browsedAtlas;
-
+#if !NO_PEGI
         public static bool putEdgesBetweenSubmeshes()
         {
 
@@ -69,7 +69,7 @@ namespace Playtime_Painter {
             }
             return false;
         }
-
+#endif
         public override void OnEnable() {
 
             inst = this;
@@ -78,14 +78,15 @@ namespace Playtime_Painter {
 
             if (atlasedMaterials == null)
                 atlasedMaterials = new List<MaterialAtlases>();
-
+            #if !NO_PEGI
             PlugIn_VertexEdgePEGI(putEdgesBetweenSubmeshes);
-
+#endif
             PlugIn_CPUblitMethod(PaintTexture2D);
             
 
         }
 
+#if !NO_PEGI
         public override bool ConfigTab_PEGI()
         {
             bool changed = false;
@@ -137,7 +138,7 @@ namespace Playtime_Painter {
             else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
             {
                 showAtlases = false;
-                changed |= atlasedMaterials.edit_PEGI(ref inspectedPainter.selectedAtlasedMaterial, true).nl();
+                changed |= atlasedMaterials.edit(ref inspectedPainter.selectedAtlasedMaterial, true).nl();
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -148,7 +149,7 @@ namespace Playtime_Painter {
 
                 pegi.newLine();
 
-                atlases.edit_PEGI(ref browsedAtlas, true);
+                atlases.edit(ref browsedAtlas, true);
 
              
 
@@ -157,6 +158,8 @@ namespace Playtime_Painter {
             return changed;
 
         }
+
+#endif
 
         public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
             var pl = pntr.getPlugin<TileableAtlasingPainterPlugin>();
@@ -214,7 +217,7 @@ namespace Playtime_Painter {
                 return "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
             }
         }
-
+#if !NO_PEGI
         public override bool PEGI()
         {
 
@@ -236,7 +239,7 @@ namespace Playtime_Painter {
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
             return false;
         }
-
+#endif
         public override bool MouseEventPointedTriangle()
         {
 

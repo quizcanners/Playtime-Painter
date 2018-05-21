@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
     using UnityEditor;
     [CustomEditor(typeof(VolumePaintingPlugin))]
     public class VolumePaintingPluginEditor : Editor {
@@ -45,16 +45,17 @@ namespace Playtime_Painter {
 
             if (brush == null)
                 brush = Shader.Find("Editor/br_Volume");
-
+#if !NO_PEGI
             PlugIn_PainterComponent(Component_PEGI);
-
+            
+            PlugIn_BrushConfigPEGI(BrushConfigPEGI);
+#endif
             PlugIn_PainterGizmos(DrawGizmosOnPainter);
 
             PlugIn_NeedsGrid(needsGrid);
 
             PlugIn_CPUblitMethod(PaintTexture2D);
 
-            PlugIn_BrushConfigPEGI(BrushConfigPEGI);
 
         }
 
@@ -194,6 +195,7 @@ namespace Playtime_Painter {
             return false;
         }
 
+#if !NO_PEGI
         public bool Component_PEGI() {
             bool changed = false;
 
@@ -219,6 +221,8 @@ namespace Playtime_Painter {
             }
             return changed;
         }
+#endif
+
 
         public bool DrawGizmosOnPainter(PlaytimePainter pntr) {
             var volume = pntr.imgData.GetVolumeTextureData();
@@ -228,7 +232,7 @@ namespace Playtime_Painter {
 
             return false;
         }
-
+#if !NO_PEGI
         [SerializeField]
         bool exploreVolumeData = false;
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
@@ -301,11 +305,11 @@ namespace Playtime_Painter {
                 "No volumes found".nl();
 
             for (int i=0; i<VolumeTexture.all.Count; i++) 
-               changes |= VolumeTexture.all.edit_PEGI(ref exploredVolume, false);
+               changes |= VolumeTexture.all.edit(ref exploredVolume, false);
                 
             return changes;
         }
-        
+#endif
     }
 
     public static class VolumeEditingExtensions {

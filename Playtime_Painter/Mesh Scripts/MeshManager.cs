@@ -860,8 +860,10 @@ namespace Playtime_Painter {
 
         public void UpdateInputPlaytime()
         {
+            #if !NO_PEGI
             if (pegi.mouseOverUI)
                 return;
+            #endif
 
             RAYCAST_SELECT_MOUSEedit();
             PROCESS_KEYS();           
@@ -1004,10 +1006,14 @@ namespace Playtime_Painter {
             previouslyEdited = null;
             trisVerts = 0;
         }
-        
-        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
-        bool showReferences = false;
+
+
         int justLoaded;
+
+#if !NO_PEGI
+         List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
+        bool showReferences = false;
+      
         bool showTooltip;
         bool showCopyOptions;
         public bool PEGI()  {
@@ -1181,6 +1187,8 @@ namespace Playtime_Painter {
 
             return changed;
         }
+
+#endif
 
     }
 }

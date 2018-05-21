@@ -42,14 +42,14 @@ namespace Playtime_Painter
 
         public static List<List<string>> texts;
 
-
+        #if !NO_PEGI
         public static void nl(this msg m) { m.Get().nl(); }
         public static void nl(this msg m, int width) { m.Get().nl(width); }
         public static void nl(this msg m, string tip, int width) { m.Get().nl(tip, width); }
         public static void write(this msg m) { m.Get().write(); }
         public static void write(this msg m, int width) { m.Get().write(width); }
         public static void write(this msg m, string tip, int width) { m.Get().write(tip, width); }
-
+        #endif
 
         public static string Get(this msg s) {
 

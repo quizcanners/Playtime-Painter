@@ -48,14 +48,14 @@ namespace STD_Logic
 
         public TriggerUsage _usage { get { return TriggerUsage.get(usage); }  set { usage = value.index; } }
 
-       
 
+        #if !NO_PEGI
         public static void search_PEGI() {
             pegi.write("Search", 60);
             pegi.edit(ref searchField);//, GUILayout.Width(60));
             pegi.newLine();
         }
-
+#endif
         public bool SearchCompare(string groupName) {
             
             if ((searchField.Length == 0) || Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
@@ -105,11 +105,11 @@ namespace STD_Logic
 
         public const string storyTag_Trg = "Trg";
 
-    
+#if !NO_PEGI
         public override bool PEGI() {
             return TriggerUsage.select_PEGI(ref usage);
         }
-
+#endif
     }
 }
 

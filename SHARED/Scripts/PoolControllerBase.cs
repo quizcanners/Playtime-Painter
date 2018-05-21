@@ -57,7 +57,9 @@ namespace SharedTools_Stuff
         public abstract void DestroyAll();
         public abstract void OnDuringDestroy(int ind);
         public abstract void Deactivate(int i);
+        #if !NO_PEGI
         public abstract void PEGI();
+        #endif
         public abstract bool activeSelf(int i);
         public abstract GameObject getFreeGO();
         public abstract void AddToPool(GameObject go);
@@ -80,6 +82,8 @@ namespace SharedTools_Stuff
         public ArrayManager<T> ScrptArray = new ArrayManager<T>();
 
         bool locked = false;
+
+#if !NO_PEGI
 
         public override void PEGI()
         {
@@ -112,6 +116,8 @@ namespace SharedTools_Stuff
                     }
                 }
         }
+
+#endif
 
         public override bool activeSelf(int i)
         {

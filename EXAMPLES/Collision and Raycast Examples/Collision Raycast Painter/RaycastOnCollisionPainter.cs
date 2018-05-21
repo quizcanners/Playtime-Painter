@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 
     using UnityEditor;
 
@@ -99,7 +99,7 @@ namespace Playtime_Painter
 
         }
 
-
+#if !NO_PEGI
         public bool PEGI() {
             bool changed = false;
             ("Painting on " + paintingOn.Count + " objects").nl();
@@ -109,5 +109,6 @@ namespace Playtime_Painter
             changed |= brush.ColorSliders_PEGI();
             return changed;
         }
+#endif
     }
 }

@@ -8,7 +8,10 @@ using SharedTools_Stuff;
 namespace PlayerAndEditorGUI {
     
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour, iPEGI
+    public class GodMode : MonoBehaviour
+         #if !NO_PEGI
+        , iPEGI
+#endif
     {
 
         public static GodMode inst;
@@ -151,7 +154,8 @@ namespace PlayerAndEditorGUI {
         {
         }
 
-            public bool PEGI()
+        #if !NO_PEGI
+        public bool PEGI()
         {
             
             "Speed:".edit("Speed of movement", 50, ref speed).nl();
@@ -172,6 +176,6 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-
+        #endif
     }
 }

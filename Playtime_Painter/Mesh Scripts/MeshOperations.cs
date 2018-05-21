@@ -356,7 +356,7 @@ namespace Playtime_Painter
             }
 
         }
-
+#if !NO_PEGI
         void SomeOtherPathStuff()
         {
             var mm = meshMGMT;
@@ -395,6 +395,8 @@ namespace Playtime_Painter
 
 
         }
+
+#endif
 
         void ProcessPointOnALine(UVpoint a, UVpoint b, trisDta t)
         {

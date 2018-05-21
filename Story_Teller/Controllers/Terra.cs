@@ -12,7 +12,7 @@ using SharedTools_Stuff;
 namespace StoryTriggerData
 {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
     using UnityEditor;
 
     [ExecuteInEditMode]
@@ -85,7 +85,7 @@ namespace StoryTriggerData
             transform.localRotation = Quaternion.Euler(Vector3.zero);
         }
 
-
+#if !NO_PEGI
         public override bool PEGI()
         {
             bool changed = false;
@@ -115,7 +115,7 @@ namespace StoryTriggerData
             return changed;
         }
 
-
+#endif
 
         public const string tagName = "tera";
 

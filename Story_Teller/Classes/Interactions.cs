@@ -26,7 +26,7 @@ namespace StoryTriggerData
 
     [Serializable]
     public class DialogueChoice: abstract_STD  {
-        public ConditionsWeb conditions;
+        public ConditionBranch conditions;
         public Sentance text;
         public List<Sentance> texts2;
         public List<Result> results;
@@ -79,13 +79,13 @@ namespace StoryTriggerData
        
 
         void Clear() {
-            conditions = new ConditionsWeb();
+            conditions = new ConditionBranch();
             texts2 = new List<Sentance>();
             text = new Sentance(null);
             results = new List<Result>();
             calls = new List<STD_Call>();
         }
-
+#if !NO_PEGI
         public void PEGI(InteractionTarget so) {
             
             text.PEGI();
@@ -131,6 +131,7 @@ namespace StoryTriggerData
             pegi.newLine();
 
         }
+#endif
     }
 
     [Serializable]
@@ -140,7 +141,7 @@ namespace StoryTriggerData
     public class Interaction : abstract_STD {
 
         public string reference="";
-        public ConditionsWeb conditions;
+        public ConditionBranch conditions;
         public List<Sentance> Texts;
         public List<DialogueChoice> options;
         public List<Result> FinalResults;
@@ -192,7 +193,7 @@ namespace StoryTriggerData
         }
 
         void Clear() {
-            conditions = new ConditionsWeb();
+            conditions = new ConditionBranch();
             options = new List<DialogueChoice>();
             FinalResults = new List<Result>();
             editedOption = -1;
@@ -206,7 +207,7 @@ namespace StoryTriggerData
             FinalResults.apply(so);
         }
 
-
+#if !NO_PEGI
         public static bool unfoldPegi;
         public void PEGI( bool OneClickAction, InteractionTarget st) {
             
@@ -312,7 +313,8 @@ namespace StoryTriggerData
             if (showFinal_Results) 
                 FinalResults.PEGI(st);
         }
-        
+#endif
+
         void SwapReferencesInOptions(string from, string to) {
             foreach (DialogueChoice d in options)
                 if (d.goToReference == from)
@@ -372,7 +374,7 @@ namespace StoryTriggerData
         public string getShortDescription() {
             return "[" + elements.Count + "],[" + subBranches.Count + "]";
         }
-
+#if !NO_PEGI
         int browsedBranch = -1;
         public bool PEGI(InteractionTarget so) {
 
@@ -477,6 +479,8 @@ namespace StoryTriggerData
             return changed;
         }
 
+
+#endif
     }
 
 }

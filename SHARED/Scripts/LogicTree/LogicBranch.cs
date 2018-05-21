@@ -7,12 +7,16 @@ using System;
 
 namespace STD_Logic {
 
-    public class LogicBranch<T> : abstract_STD, iGotName where T: iSTD, new()
+    public class LogicBranch<T> : abstract_STD
+        #if !NO_PEGI
+        , iGotName 
+#endif
+        where T: iSTD, new()
     {
 
         public List<LogicBranch<T>> subBranches = new List<LogicBranch<T>>();
 
-        public ConditionsWeb conds = new ConditionsWeb();
+        public ConditionBranch conds = new ConditionBranch();
 
         public List<T> elements = new List<T>();
         
@@ -77,6 +81,9 @@ namespace STD_Logic {
         bool showConditions = false;
         int browsedElement = -1;
         int browsedBranch = -1;
+
+        #if !NO_PEGI
+       
         static string path;
         static bool isCalledFromAnotherBranch = false;
         public override bool PEGI() {
@@ -98,9 +105,14 @@ namespace STD_Logic {
                 if (browsedElement == -1)  {
                     pegi.nl();
 
-                    if ("Conditions".foldout(ref showConditions).nl()) {
-                        changed |= conds.PEGI(LogicMGMT.inst != null ? LogicMGMT.inst.inspectedValues() : null); //"Conditions:".edit(conds, ref browsedCondition, true);
-                    }
+                    Values vals = LogicMGMT.inst != null ? LogicMGMT.inst.inspectedValues() : null;
+
+                    bool isTrue = vals != null ? conds.TestFor(vals) : false;
+
+                    if (("Conditions" +( vals!= null ? "["+ (isTrue ? "True" : "False") +"]"  : " ")).foldout(ref showConditions).nl())
+                    
+                        changed |= conds.PEGI(vals); 
+                    
                     else
                     {
                         changed |= "Elements:".edit(elements, ref browsedElement, true);
@@ -133,6 +145,12 @@ namespace STD_Logic {
             return changed;
         }
 
-       
+#endif
     }
+
+    public interface iCleanMyself {
+        void StartFadeAway();
+        bool CancelFade(); // Returns true if it was possible to revert fading
+    }
+
 }

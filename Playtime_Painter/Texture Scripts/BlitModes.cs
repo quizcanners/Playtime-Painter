@@ -109,7 +109,7 @@ namespace Playtime_Painter
         public virtual bool showColorSliders { get { return true; } }
         public virtual Shader shaderForDoubleBuffer { get { return texMGMT.br_Multishade; } }
         public virtual Shader shaderForSingleBuffer { get { return texMGMT.br_Blit; } }
-
+#if !NO_PEGI
         public virtual bool PEGI() {
 
             ImageData id = inspectedImageData;
@@ -165,7 +165,7 @@ namespace Playtime_Painter
             
             return changed;
         }
-
+#endif
         public virtual void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
@@ -242,7 +242,7 @@ namespace Playtime_Painter
             public override bool supportedByTex2D { get { return false; } }
 
             public override Shader shaderForDoubleBuffer { get { return texMGMT.br_BlurN_SmudgeBrush; } }
-
+#if !NO_PEGI
             public override bool PEGI()
             {
 
@@ -253,9 +253,10 @@ namespace Playtime_Painter
                 pegi.newLine();
                 return brushChanged_RT;
             }
-        }
+#endif
+    }
 
-        public class BlitModeSamplingOffset : BlitMode
+    public class BlitModeSamplingOffset : BlitMode
         {
             protected override string shaderKeyword { get { return "BRUSH_SAMPLE_DISPLACE"; } }
 
@@ -280,7 +281,7 @@ namespace Playtime_Painter
                 currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * cfg.samplingMaskSize.x);
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * cfg.samplingMaskSize.y);
             }
-
+#if !NO_PEGI
         public override bool PEGI()
         {
             bool changed = base.PEGI();
@@ -294,7 +295,7 @@ namespace Playtime_Painter
 
             cfg.samplingMaskSize.Clamp(1, 512);
 
-            changed |= "Color Set On".selectEnum(ref method, typeof(ColorSetMethod)).nl();
+            changed |= "Color Set On".editEnum(ref method).nl();
 
             if (method == 2) {
                 changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
@@ -361,8 +362,8 @@ namespace Playtime_Painter
 
                 return changed;
             }
-
-            public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
+#endif
+        public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             var v4 = new Vector4(st.unRepeatedUV.x, st.unRepeatedUV.y, Mathf.Floor(st.unRepeatedUV.x), Mathf.Floor(st.unRepeatedUV.y));
 
@@ -402,7 +403,7 @@ namespace Playtime_Painter
             public override bool supportedByTex2D { get { return false; } }
 
             public override Shader shaderForDoubleBuffer { get { return texMGMT.br_BlurN_SmudgeBrush; } }
-
+#if !NO_PEGI
             public override bool PEGI()
             {
 
@@ -410,6 +411,7 @@ namespace Playtime_Painter
                 changed |= "Bloom Radius".edit(70,ref inspectedBrush.blurAmount, 1f, 8f).nl();
                 return changed;
             }
-        }
-
+#endif
     }
+
+}

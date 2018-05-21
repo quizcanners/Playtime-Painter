@@ -110,7 +110,7 @@ namespace Playtime_Painter {
         const int minPow = 2;
         
         public static Tool previousTool;
-
+#if !NO_PEGI
         public override void OnInspectorGUI() {
 
             bool changes = false;
@@ -422,7 +422,7 @@ namespace Playtime_Painter {
             painter.gameObject.end();
 
         }
-
+#endif
         bool textureSetterField() {
             string field = painter.MaterialTexturePropertyName;
             if ((field == null) || (field.Length == 0)) return false;

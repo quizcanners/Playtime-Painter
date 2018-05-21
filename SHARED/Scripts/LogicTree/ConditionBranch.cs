@@ -8,9 +8,13 @@ using PlayerAndEditorGUI;
 namespace STD_Logic
 {
 
-    public class ConditionsWeb : abstract_STD, iGotName {
+    public class ConditionBranch : abstract_STD
+        #if !NO_PEGI
+        , iGotName 
+#endif
+        {
         public List<ConditionLogic> conds = new List<ConditionLogic>();
-        public List<ConditionsWeb> branches = new List<ConditionsWeb>();
+        public List<ConditionBranch> branches = new List<ConditionBranch>();
 
         public ConditionBranchType type;
         public string description = "new branch";
@@ -57,12 +61,12 @@ namespace STD_Logic
             }
             return true;
         }
-
+        #if !NO_PEGI
         public override bool PEGI() {
             //return false;
              return PEGI(null);
         }
-        
+#endif
         public  bool TestFor(Values ip) {
 
             switch (type) {
@@ -74,7 +78,8 @@ namespace STD_Logic
                     return true;
                 case ConditionBranchType.OR:
                     foreach (var c in conds)
-                        if (c.TestFor(ip) == true) return true;
+                        if (c.TestFor(ip) == true)
+                            return true;
                     foreach (var b in branches)
                         if (b.TestFor(ip) == true) return true;
                     return ((conds.Count == 0) && (branches.Count == 0));
@@ -83,7 +88,8 @@ namespace STD_Logic
         }
 
 
-        public void ForceToTrue( Values ip) {
+        public void ForceToTrue(Values ip)
+        {
             switch (type)
             {
                 case ConditionBranchType.AND:
@@ -95,8 +101,8 @@ namespace STD_Logic
                 case ConditionBranchType.OR:
                     if (conds.Count > 0)
                     {
-                   
-                            conds[0].ForceConditionTrue(ip);
+
+                        conds[0].ForceConditionTrue(ip);
                         return;
                     }
                     if (branches.Count > 0)
@@ -132,7 +138,7 @@ namespace STD_Logic
         int browsedBranch = -1;
 
 
-
+#if !NO_PEGI
         static string path;
         static bool isCalledFromAnotherBranch = false;
         public bool PEGI(Values vals) {
@@ -151,16 +157,22 @@ namespace STD_Logic
                 pegi.newLine();
                 path.nl();
 
-                if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)"),
+                if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
+                    + (vals != null ?  (TestFor(vals) ? "True" : "false" ) : " ")
+                    
+                    
+                    ,
                        (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
-                        "At least one condition or sub branch should be true")))
+                        "At least one condition or sub branch should be true")
+                        
+                        ))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
                 pegi.newLine();
 
                 conds.PEGI(vals);
 
-                changed |= "Sub Branches".edit(branches, ref browsedBranch, true);
+                changed |= "Sub Conditions".edit(branches, ref browsedBranch, true);
 
             }
             else
@@ -181,14 +193,14 @@ namespace STD_Logic
 
       
 
-        public void ConditionsFoldout(ref ConditionsWeb cond, ref bool Show, string descr)
+        public void ConditionsFoldout(ref ConditionBranch cond, ref bool Show, string descr)
         {
             bool AnyConditions = ((cond != null) && (cond.conds.Count > 0));
             pegi.foldout(descr + (Show ? "..." :
               ((AnyConditions) ? "[" + cond.conds.Count + "]: " + cond.conds[0].ToString() : "UNCONDITIONAL")), ref Show);
 
         }
-
+#endif
 
     }
 

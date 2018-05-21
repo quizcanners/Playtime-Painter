@@ -54,7 +54,7 @@ namespace SharedTools_Stuff
         protected SRLZ_Branch[] path;
         protected int[] pathInd;
 
-
+#if !NO_PEGI
         void branchPEGI(SRLZ_Branch b, int tdepth)
         {
             pegi.newLine();
@@ -85,6 +85,8 @@ namespace SharedTools_Stuff
             pegi.write("ROOT: " + root);
             branchPEGI(branches[root], depth);
         }
+
+#endif
 
         protected void RemoveFromArray(int no)
         {

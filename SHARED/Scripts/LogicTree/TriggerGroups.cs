@@ -17,7 +17,11 @@ namespace STD_Logic
     
    
 
-    public class TriggerGroup : abstractKeepUnrecognized_STD, iGotName, iGotIndex {
+    public class TriggerGroup : abstractKeepUnrecognized_STD
+     #if !NO_PEGI
+        , iGotName, iGotIndex
+#endif
+    {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
 
@@ -169,7 +173,7 @@ namespace STD_Logic
               this.LoadFromAssets(GetAssetPath(), name);
 
         }
-
+         #if !NO_PEGI
         public override bool PEGI() {
             bool changed = false;
             changed |= (index+" Name").edit(60, ref name).nl();
@@ -306,6 +310,8 @@ namespace STD_Logic
 
             return changed;
         }
+
+#endif
 
         public virtual Type getIntegerEnums() {
             return null;

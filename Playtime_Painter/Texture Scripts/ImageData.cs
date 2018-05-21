@@ -17,7 +17,10 @@ namespace Playtime_Painter
     public enum texTarget { Texture2D, RenderTexture }
 
     [Serializable]
-    public class ImageData : PainterStuffScriptable, iPEGI
+    public class ImageData : PainterStuffScriptable
+        #if !NO_PEGI
+        , iPEGI
+        #endif
     {
 
         const float bytetocol = 1f / 255f;
@@ -503,7 +506,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-
+        #if !NO_PEGI
         public bool undo_redo_PEGI()
         {
             bool changed = false;
@@ -589,6 +592,7 @@ namespace Playtime_Painter
             }
             return changed;
         }
+#endif
     }
 
 }

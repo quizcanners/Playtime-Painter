@@ -7,8 +7,8 @@ using SharedTools_Stuff;
 
 
 namespace Playtime_Painter {
-    
-#if UNITY_EDITOR
+
+#if UNITY_EDITOR && !NO_PEGI
     using UnityEditor;
     [CustomEditor(typeof(ColorBleedControllerPlugin))]
     public class ColorBleedControlsEditor : Editor {
@@ -41,7 +41,7 @@ namespace Playtime_Painter {
             UnityHelperFunctions.SetKeyword("MODIFY_BRIGHTNESS", modifyBrightness);
             UnityHelperFunctions.SetKeyword("COLOR_BLEED", colorBleed);
         }
-        
+#if !NO_PEGI
         bool showHint;
         bool editFog;
         public override bool ConfigTab_PEGI() {
@@ -73,7 +73,7 @@ namespace Playtime_Painter {
                 var mode = (int)RenderSettings.fogMode;
                 if (mode != (int)FogMode.ExponentialSquared)
                     "Exponential Squared is recommended".writeHint();
-                if ("Mode".selectEnum(40, ref mode, typeof(FogMode)).nl())
+                if ("Mode".editEnum(ref mode).nl().nl())
                     RenderSettings.fogMode = (FogMode)mode;
                 float density = RenderSettings.fogDensity;
                 if ("Density".edit(60, ref density, 0f, 0.05f).nl())
@@ -90,5 +90,6 @@ namespace Playtime_Painter {
             }
             return changed;
         }
+#endif
     }
 }

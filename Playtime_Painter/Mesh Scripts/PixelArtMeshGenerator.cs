@@ -5,10 +5,10 @@ using PlayerAndEditorGUI;
 
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR 
 
 using UnityEditor;
-
+#if !NO_PEGI
 [CustomEditor(typeof(PixelArtMeshGenerator))]
 public class PixelArtMeshGeneratorEditor : Editor
 {
@@ -20,6 +20,7 @@ public class PixelArtMeshGeneratorEditor : Editor
         ef.end();
     }
 }
+#endif
 #endif
 
 public class PixelArtMeshGenerator : MonoBehaviour {
@@ -173,7 +174,7 @@ public class PixelArtMeshGenerator : MonoBehaviour {
         AssetDatabase.Refresh();
 #endif
     }
-
+#if !NO_PEGI
     public bool PEGI() {
         bool changed = false;
         changed |= "Mesh Filter".edit(ref mFilter).nl();
@@ -191,5 +192,6 @@ public class PixelArtMeshGenerator : MonoBehaviour {
 
         return changed;
     }
+#endif
 
 }

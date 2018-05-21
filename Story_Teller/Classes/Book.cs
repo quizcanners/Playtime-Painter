@@ -146,7 +146,7 @@ namespace StoryTriggerData {
 
         // *********************** COMPONENT MGMT
 
-    int browsedPage = -1;
+   
         string nameHold;
 
     public void RenameBook(string newName) {
@@ -166,7 +166,8 @@ namespace StoryTriggerData {
 #endif
         }
 
-
+#if !NO_PEGI
+         int browsedPage = -1;
         bool unfoldTriggerGroup = false;
 	public override bool PEGI(){
             bool changed = false;
@@ -258,7 +259,7 @@ namespace StoryTriggerData {
 
         }
 
-
+#endif
         public Page lerpTarget;
         [NonSerialized]
         public UniversePosition lerpPosition;

@@ -22,7 +22,7 @@ namespace PlayerAndEditorGUI
         {
             return "[" + s.Count + "]: " + (detail ? "..." : s[0].ToString());
         }
-
+#if !NO_PEGI
         public static void PEGI(this List<Sentance> options)
         {
             pegi.newLine();
@@ -38,7 +38,7 @@ namespace PlayerAndEditorGUI
             if (pegi.Click("Add Text"))
                 options.Add(new Sentance(null));
         }
-
+#endif
     }
 
     [Serializable]
@@ -67,7 +67,7 @@ namespace PlayerAndEditorGUI
             setTranslation((Languages)l, data);
             return true;
         }
-
+        #if !NO_PEGI
         public override bool PEGI()
         {
             string tmp = ToString();
@@ -78,7 +78,7 @@ namespace PlayerAndEditorGUI
             }
             return false;
         }
-
+#endif
         public override string ToString()
         {
             int no = (int)curlang;

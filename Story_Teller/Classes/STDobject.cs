@@ -85,7 +85,10 @@ namespace StoryTriggerData {
         
         public abstract void SetStaticPoolController(STD_Pool inst);
 
-        static string customTag = "";
+
+
+#if !NO_PEGI
+          static string customTag = "";
         static string customData = "";
 
         public virtual bool Call_PEGI() {
@@ -178,13 +181,13 @@ namespace StoryTriggerData {
 
             return changed;
         }
+#endif
+        /* public override void OnDestroy()
+         {
+             base.OnDestroy();
+             this.transform.Clear();
 
-       /* public override void OnDestroy()
-        {
-            base.OnDestroy();
-            this.transform.Clear();
-         
-        }*/
+         }*/
 
 
         public virtual void PostPositionUpdate() {

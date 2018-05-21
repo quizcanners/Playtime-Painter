@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR &&  !NO_PEGI
 using UnityEditor;
 
     [CustomEditor(typeof(SpeedAnimationController))]

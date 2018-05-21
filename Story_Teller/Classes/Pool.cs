@@ -101,11 +101,11 @@ namespace StoryTriggerData {
                 }
             }
         }
-
+        #if !NO_PEGI
         public void PEGI() {
             pool.PEGI();
         }
-
+#endif
         public STD_Pool() {
             poolIndex = counter;
             counter++;

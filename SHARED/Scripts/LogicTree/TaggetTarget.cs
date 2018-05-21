@@ -47,7 +47,7 @@ namespace STD_Logic
             else 
                 return TriggerGroup.all[groupIndex].taggedBool[triggerIndex];
         }
-        
+#if !NO_PEGI
         public override bool PEGI() {
             bool changed = false;
            
@@ -70,7 +70,9 @@ namespace STD_Logic
 
             return false;
         }
-        
+
+#endif
+
         public const string stdTag_TagTar = "tagTar";
         public string getDefaultTagName() {
             return stdTag_TagTar;

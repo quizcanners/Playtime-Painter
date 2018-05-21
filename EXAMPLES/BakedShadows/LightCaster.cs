@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 
     using UnityEditor;
 
@@ -73,7 +73,7 @@ namespace Playtime_Painter
             allProbes[index] = this;
         }
 
-        // Use this for initialization
+        #if !NO_PEGI
         public bool PEGI()
         {
             bool changed = false;
@@ -91,7 +91,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-
+#endif
         // Update is called once per frame
         void Update()
         {

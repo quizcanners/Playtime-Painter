@@ -52,7 +52,7 @@ namespace STD_Logic
         }
 
         public abstract bool isBoolean();
-
+#if !NO_PEGI
         public static Trigger selectedTrig;
         public static ValueIndex selected;
 
@@ -185,6 +185,6 @@ namespace STD_Logic
             return changed;
         }
 
-
+#endif
     }
 }

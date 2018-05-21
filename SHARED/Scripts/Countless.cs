@@ -127,6 +127,8 @@ namespace SharedTools_Stuff
         protected int[] pathInd;
         protected VariableBranch br;
 
+        #if !NO_PEGI
+
         public virtual bool PEGI()
         {
             ("Depth: " + depth).nl();
@@ -134,6 +136,7 @@ namespace SharedTools_Stuff
 
             return false;
         }
+#endif
 
         public CountlessBase()
         {
@@ -681,22 +684,24 @@ namespace SharedTools_Stuff
         {
             get { return Get(index); }
             set {
+#if !NO_PEGI
                 var igi = value as iGotIndex;
                 if (igi != null && igi.GetIndex() != index)
                 {
                     Debug.Log("setting "+value.ToString() + " with ind " + igi.GetIndex() + " at "+index);
                  //   igi.index = index;
                 }
-
+#endif
                 Set(index, value); }
         }
 
+#if !NO_PEGI
         public T this[iGotIndex i]
         {
             get { return Get(i.GetIndex()); }
             set { Set(i.GetIndex(), value); }
         }
-
+#endif
         void Set(int ind, T obj)
         {
             
@@ -901,7 +906,7 @@ namespace SharedTools_Stuff
         }
 
         public int currentEnumerationIndex;
-
+#if !NO_PEGI
         public override bool PEGI() {
             base.PEGI();
             foreach (var o in objs)
@@ -911,6 +916,7 @@ namespace SharedTools_Stuff
 
             return false;
         }
+#endif
 
     }
 
@@ -1175,7 +1181,7 @@ namespace SharedTools_Stuff
         }
 
         public int currentEnumerationIndex;
-
+        #if !NO_PEGI
         public override bool PEGI()
         {
             bool changed = false;
@@ -1184,7 +1190,7 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-
+#endif
     }
 
     // Unnulable classes will create new instances
@@ -1537,7 +1543,7 @@ namespace SharedTools_Stuff
 
     public static class ExtensionsForGenericCountless
     {
-
+        #if !NO_PEGI
         public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, new() {
 
             bool changed = false;
@@ -1561,7 +1567,7 @@ namespace SharedTools_Stuff
             pegi.newLine();
             return changed;
         }
-
+#endif
         public static stdEncoder Encode(this Countless<string> c)
         {
             var cody = new stdEncoder();

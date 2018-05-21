@@ -201,7 +201,7 @@ namespace StoryTriggerData {
 
             return cody;
         }
-
+#if !NO_PEGI
         public bool PEGIbase()
         {
             bool changed = false;
@@ -235,7 +235,7 @@ namespace StoryTriggerData {
             }
             return changed;
         }
-
+#endif
         void TransferToLargerScale(ref float smaller, ref float larger, float coeficient) {
             float d = (int)(smaller / coeficient);
             smaller -= d * coeficient;
@@ -763,7 +763,7 @@ namespace StoryTriggerData {
             tmp.Meters = Meters;
             return tmp;
         }
-        
+#if !NO_PEGI
         public bool PEGIbase()
         {
 
@@ -857,7 +857,7 @@ namespace StoryTriggerData {
             return changed;
         }
 
-       
+#endif
 
     }
 }

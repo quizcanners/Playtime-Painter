@@ -377,8 +377,10 @@ namespace SharedTools_Stuff
             BinaryFormatter bf = new BinaryFormatter();
             string full = fullPath + filename + fileType;
             FileStream file = File.Create(full);
+#if !NO_PEGI
             if (Application.isPlaying == false)
                 ("Saved To " + full).showNotification();
+#endif
             bf.Serialize(file, data);
             file.Close();
         }

@@ -2,9 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if !NO_PEGI
 using PlayerAndEditorGUI;
+#endif
 using SharedTools_Stuff;
 using UnityEditor;
+using STD_Logic;
 
 namespace SharedTools_Stuff {
 
@@ -24,7 +27,10 @@ namespace SharedTools_Stuff {
             cody.Add("lrot", localRotation.Encode());
             cody.Add("shadeVal", shaderValue.Encode());
             if (isOverrideSpeed)
+            {
+                cody.Add("src", (int)frameSpeedSource);
                 cody.Add("speed", frameSpeed);
+            }
 
             return cody;
         }
@@ -35,6 +41,7 @@ namespace SharedTools_Stuff {
         public Countless<float> shaderValue = new Countless<float>();
 
         public float frameSpeed = 0.1f;
+        public SpeedSource frameSpeedSource = SpeedSource.position;
         public bool isOverrideSpeed;
 
         public override bool Decode(string tag, string data) {
@@ -44,12 +51,13 @@ namespace SharedTools_Stuff {
                 case "lrot": data.DecodeInto(out localRotation); break;
                 case "shadeVal": data.DecodeInto(out shaderValue); break;
                 case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
+                case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
                 default: return false;
             }
 
             return true;
         }
-
+#if !NO_PEGI
         public override bool PEGI() {
 
             pegi.nl();
@@ -61,18 +69,19 @@ namespace SharedTools_Stuff {
 
                 if (frameSpeed == 0)
                     "Frame speed is 0, next frame is unreachable ".writeWarning();
+                
+                "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
+ 
             }
-
-
-
+            
             return false;
         }
-
+#endif
         public float GetDelta() {
 
             float speed = isOverrideSpeed ? frameSpeed : mgmt.frameSpeed;
 
-            var speedSource = mgmt.speedSource;
+            var speedSource = isOverrideSpeed ? frameSpeedSource : mgmt.speedSource;
 
             if (speed == 0)
                 return 0;
@@ -101,6 +110,7 @@ namespace SharedTools_Stuff {
                 other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
                 isOverrideSpeed = other.isOverrideSpeed;
                 frameSpeed = other.frameSpeed;
+                frameSpeedSource = other.frameSpeedSource;
             }
         }
 
@@ -110,7 +120,12 @@ namespace SharedTools_Stuff {
     }
     
     [Serializable]
-    public class AnimatedElement : abstractKeepUnrecognized_STD ,iPEGI, iGotName, iGotIndex {
+    public class AnimatedElement : abstractKeepUnrecognized_STD
+#if !NO_PEGI
+        ,iPEGI, iGotName, iGotIndex
+#endif
+
+    {
         [NonSerialized] MaterialPropertyBlock props;
         public SpeedAnimationController mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
         public SpeedAnimationFrame frame { get { return SpeedAnimationController.inspectedAnimationController.currentFrame; } }
@@ -159,8 +174,8 @@ namespace SharedTools_Stuff {
         public Vector3 localPos { get {
                 return frame.localPos[index];
             } set { frame.localPos[index] = value; } }
-        public Vector3 LocalScale { get { return frame.LocalScale[this]; } set { frame.LocalScale[index] = value; } }
-        public Quaternion localRotation { get { return frame.localRotation[this]; } set { frame.localRotation[this] = value; } }
+        public Vector3 LocalScale { get { return frame.LocalScale[GetIndex()]; } set { frame.LocalScale[index] = value; } }
+        public Quaternion localRotation { get { return frame.localRotation[GetIndex()]; } set { frame.localRotation[GetIndex()] = value; } }
         public float shaderValue { get {
                 return frame.shaderValue[index];
             } set {
@@ -224,7 +239,7 @@ namespace SharedTools_Stuff {
                 shaderValue = currentShaderValue;
            
         }
-        
+            #if !NO_PEGI
         [SerializeField] bool transformInLocalSpace = true;
         public override bool PEGI() {
             inspectedAnimatedObject = this;
@@ -265,14 +280,16 @@ namespace SharedTools_Stuff {
 
             return false;
         }
+#endif
         
     }
     
     [ExecuteInEditMode]
-    public class SpeedAnimationController : ComponentSTD {
+    public class SpeedAnimationController : ComponentSTD, iCleanMyself  {
 
         // Elements
         [SerializeField] List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
+
         [NonSerialized] public Countless<AnimatedElement> elements;
         [SerializeField] int keyElementIndex;
         public int indexForNewObject;
@@ -331,10 +348,9 @@ namespace SharedTools_Stuff {
         [NonSerialized] bool isPaused;
         [NonSerialized] bool playInEditor;
         [NonSerialized] Action _callback;
-        [SerializeField] iSTD_Explorer STDexplorer;
-        
-        public override stdEncoder Encode()
-        {
+        [NonSerialized] TestOnceCondition oneTimeCondition;
+
+        public override stdEncoder Encode()  {
             var cody = new stdEncoder();
             cody.AddText("frames", frames.Encode());
             cody.Add("elm", elementsUnsorted);
@@ -343,6 +359,7 @@ namespace SharedTools_Stuff {
             cody.Add("src", (int)speedSource);
             cody.Add("Nextind", indexForNewObject);
             cody.Add("KeyElement", keyElementIndex);
+            cody.Add("oneTimeCond", oneTimeCondition);
             return cody;
         }
 
@@ -359,17 +376,16 @@ namespace SharedTools_Stuff {
                 case "elm":
                     List<AnimatedElement> tmp;
                     data.DecodeInto(out tmp);
-
                     foreach (var v in tmp) {
-                        if (elements[v] == null) {
+                        if (elements[v.GetIndex()] == null) {
                             elementsUnsorted.Add(v);
-                            elements[v] = v;
+                            elements[v.GetIndex()] = v;
                         }
                         else
-                            elements[v].Decode(v.Encode());
+                            elements[v.GetIndex()].Decode(v.Encode());
                     }
                     break;
-
+                case "oneTimeCond": data.DecodeInto(out oneTimeCondition); break;
 
                 default: return false;
             }
@@ -410,8 +426,7 @@ namespace SharedTools_Stuff {
                         SetFrameIndex(frameIndex + 1);
 
                         if (isLastFrame) {
-                            if (_callback != null)
-                                _callback();
+                            _callback?.Invoke();
                             Destroy(gameObject);
                         }
                     }
@@ -425,154 +440,194 @@ namespace SharedTools_Stuff {
         }
         
         public static SpeedAnimationController inspectedAnimationController;
-        
+
+        float editor_FramePortion = 0;
+#if !NO_PEGI
         public int inspectedElement = -1;
         public bool inspectElements = false;
-        float editor_FramePortion;
-        bool showDebug = false;
+       
         public override bool PEGI() {
 
             if (gameObject.isPrefab())
                 return false;
 
-            bool changed = false;
+            bool changed = base.PEGI();
 
-            if (icon.save.Click()) {
-                OnDisable();
-                gameObject.UpdatePrefab();
+            if (showDebug) {
+                if (oneTimeCondition == null && "Add One Time Condition".Click().nl())
+                    oneTimeCondition = new TestOnceCondition();
 
-            }
-            if (icon.Load.Click().nl()) 
-                OnEnable();
-
-            inspectedAnimationController = this;
-
-            pegi.write("Speed From:", 70);
-            speedSource = (SpeedSource)pegi.editEnum(speedSource);
-            
-            if (keyElement != null)
-                ("of " + keyElement.Name).nl();
-            else  {
-                pegi.nl();
-                "No Key element".writeWarning();
-            }
-            pegi.newLine();
-
-            if (currentFrame == null || currentFrame.isOverrideSpeed == false) {
-                "Speed".foldout(ref curveSpeed);
-                changed |= pegi.edit(ref maxSpeed).nl();
-                if (curveSpeed)
-                changed |= "Curve:".edit(ref speedCurve).nl();
-            }
-            
-            ("Current: " + (frameIndex+1) + " of " + frames.Count).nl();
-
-            if (frameIndex > 0) {
-                if (icon.Undo.ClickUnfocus())
-                {
-                    changed = true;
-                    SetFrameIndex(frameIndex - 1);
+                if (oneTimeCondition != null) {
+                    if (icon.Delete.Click())
+                        oneTimeCondition = null;
+                    else
+                        changed |= oneTimeCondition.PEGI().nl();
                 }
-            }
-            else if (icon.UndoDisabled.Click())
-                "First Frame".showNotification();
-            
-            if (frameIndex < frames.Count - 1) {
-                if (icon.Redo.ClickUnfocus())
-                {
-                    changed = true;
-                    SetFrameIndex(frameIndex + 1);
-                }
-                
-            }
-            else if (icon.RedoDisabled.Click())
-                "Last Frame".showNotification();
-
-            if (Application.isPlaying)
-            {
-                if (isPaused && frames.Count > 0 && icon.Play.Click())
-                {
-                    isPaused = false;
-                    SetFrameIndex(0);
-                }
-
-                if (!isPaused && icon.Pause.Click())
-                    isPaused = true;
             }
             else
             {
-                if ((playInEditor ? icon.Pause : icon.Play).Click()) {
-                    playInEditor = !playInEditor;
-                    foreach (var el in elementsUnsorted)
-                        el.Set();
+                
+                if (icon.save.Click())
+                {
+                    OnDisable();
+                    gameObject.UpdatePrefab();
+
                 }
-            }
-            
-            if (icon.Add.Click())
-            {
-                if (frames.Count == 0)
-                    frames.Add(new SpeedAnimationFrame(null));
-                else {
-                    frames.Insert(frameIndex + 1, new SpeedAnimationFrame(currentFrame));
-                    SetFrameIndex(frameIndex+1);
+                if (icon.Load.Click().nl())
+                    OnEnable();
+
+                inspectedAnimationController = this;
+
+
+                pegi.write("Speed From:", 70);
+                if (currentFrame == null || !currentFrame.isOverrideSpeed)
+                    pegi.editEnum(ref speedSource);
+                else
+                    pegi.write(currentFrame.frameSpeedSource.ToString(), 50); //pegi.editEnum(ref currentFrame.frameSpeedSource);
+
+
+                if (keyElement != null)
+                    ("of " + keyElement.Name).nl();
+                else
+                {
+                    pegi.nl();
+                    "No Key element".writeWarning();
                 }
-            }
+                pegi.newLine();
 
-            if (icon.Search.Click()) {
-               
 
-                foreach (var e in elementsUnsorted) {
 
-                    if (e.Name.SameAs(transform.name))
+                ("Current: " + (frameIndex + 1) + " of " + frames.Count).nl();
+
+                if (frameIndex > 0)
+                {
+                    if (icon.Undo.ClickUnfocus())
                     {
-                        var ren = transform.GetComponent<Renderer>();
-                        if (ren) e.rendy = ren;
-                        e.transform = transform;
-                        break;
+                        changed = true;
+                        SetFrameIndex(frameIndex - 1);
+                    }
+                }
+                else if (icon.UndoDisabled.Click())
+                    "First Frame".showNotification();
+
+                if (frameIndex < frames.Count - 1)
+                {
+                    if (icon.Redo.ClickUnfocus())
+                    {
+                        changed = true;
+                        SetFrameIndex(frameIndex + 1);
                     }
 
-                    foreach (Transform t in transform) {
-                        if (t.name.SameAs(e.Name)) {
-                            var ren = t.GetComponent<Renderer>();
+                }
+                else if (icon.RedoDisabled.Click())
+                    "Last Frame".showNotification();
+
+                if (Application.isPlaying)
+                {
+                    if (isPaused && frames.Count > 0 && icon.Play.Click())
+                    {
+                        isPaused = false;
+                        SetFrameIndex(0);
+                    }
+
+                    if (!isPaused && icon.Pause.Click())
+                        isPaused = true;
+                }
+                else
+                {
+                    if ((playInEditor ? icon.Pause : icon.Play).Click())
+                    {
+                        playInEditor = !playInEditor;
+                        foreach (var el in elementsUnsorted)
+                            el.Set();
+                    }
+                }
+
+                if (icon.Add.Click())
+                {
+                    if (frames.Count == 0)
+                        frames.Add(new SpeedAnimationFrame(null));
+                    else
+                    {
+                        frames.Insert(frameIndex + 1, new SpeedAnimationFrame(currentFrame));
+                        SetFrameIndex(frameIndex + 1);
+                    }
+                }
+
+                if (icon.Search.Click())
+                {
+
+
+                    foreach (var e in elementsUnsorted)
+                    {
+
+                        if (e.Name.SameAs(transform.name))
+                        {
+                            var ren = transform.GetComponent<Renderer>();
                             if (ren) e.rendy = ren;
-                            e.transform = t;
+                            e.transform = transform;
                             break;
+                        }
+
+                        foreach (Transform t in transform)
+                        {
+                            if (t.name.SameAs(e.Name))
+                            {
+                                var ren = t.GetComponent<Renderer>();
+                                if (ren) e.rendy = ren;
+                                e.transform = t;
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            if (currentFrame != null) {
-                if (icon.Delete.Click().nl()) {
-                    frames.RemoveAt(frameIndex);
-                    SetFrameIndex(frameIndex - 1);
+
+
+
+
+                if (currentFrame != null)
+                {
+                    if (icon.Delete.Click().nl())
+                    {
+                        frames.RemoveAt(frameIndex);
+                        SetFrameIndex(frameIndex - 1);
+                    }
+
+                    pegi.newLine();
+
+                    if (currentFrame == null || currentFrame.isOverrideSpeed == false)
+                    {
+                        "Speed".foldout(ref curveSpeed);
+                        changed |= pegi.edit(ref maxSpeed).nl();
+                        if (curveSpeed)
+                            changed |= "Curve:".edit(ref speedCurve).nl();
+                    }
+
+                    if (Application.isPlaying || !playInEditor)
+                    {
+                        var added = elementsUnsorted.edit(ref inspectedElement, true, ref changed);
+                        if (added != null)
+                        {
+                            added.Name = "New Element";
+                            added.propertyName = "_Portion";
+                            added.SetIndex(indexForNewObject);
+                            indexForNewObject += 1;
+                            elements[added.GetIndex()] = added;
+                        }
+                        else if (changed) UpdateCountless();
+
+                    }
+                    else
+                        "Playback in progress".nl();
                 }
 
-                if (Application.isPlaying || !playInEditor) {
-                    var added = elementsUnsorted.edit_PEGI(ref inspectedElement, true, ref changed);
-                    if (added != null) {
-                        added.Name = "New Element";
-                        added.propertyName = "_Portion";
-                        added.SetIndex(indexForNewObject);
-                        indexForNewObject += 1;
-                        elements[added.GetIndex()] = added;
-                    } else if (changed) UpdateCountless(); 
+                pegi.newLine();
 
-                }
-                else
-                    "Playback in progress".nl();
-            }
-
-            pegi.newLine();
-
-            if (playInEditor && !Application.isPlaying && currentFrame!= null)
+                if (playInEditor && !Application.isPlaying && currentFrame != null)
                     changed |= "Frame".edit(50, ref editor_FramePortion, 0f, 1f).nl();
-
-            if ("Debug".foldout(ref showDebug))
-            {
-                changed |= base.PEGI().nl();
             }
-           
+
 
             if (!Application.isPlaying && playInEditor && changed)
                 AnimateToPortion(editor_FramePortion);
@@ -582,7 +637,9 @@ namespace SharedTools_Stuff {
 
             return changed;
         }
-     
+#endif
+
+
         void AnimateToPortion(float portion) {
 
             if (previousFrame != null)  {
@@ -649,6 +706,15 @@ namespace SharedTools_Stuff {
             if (frames == null)
                 frames = new List<SpeedAnimationFrame>();
 
+        }
+
+        public void StartFadeAway() {
+           
+        }
+
+        public bool CancelFade()
+        {
+            return true;
         }
     }
 }

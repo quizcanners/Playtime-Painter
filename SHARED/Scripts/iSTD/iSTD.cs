@@ -13,7 +13,11 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public interface iSTD : iPEGI{
+    public interface iSTD
+        #if !NO_PEGI
+        : iPEGI
+#endif 
+        {
         stdEncoder Encode(); 
         iSTD Decode(string data);
         bool Decode(string tag, string data);
@@ -68,9 +72,10 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        bool showUnrecognized = false;
-        public static int inspectedUnrecognized = -1;
 
+#if !NO_PEGI
+           bool showUnrecognized = false;
+        public static int inspectedUnrecognized = -1;
         public bool PEGI_Unrecognized()
         {
 
@@ -85,7 +90,7 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-
+       
         public override bool PEGI() {
 
             bool changed = PEGI_Unrecognized();
@@ -93,6 +98,7 @@ namespace SharedTools_Stuff
         
             return changed;
         }
+#endif
     }
 
 
@@ -109,8 +115,10 @@ namespace SharedTools_Stuff
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
+        #if !NO_PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
             return false; }
+#endif
         public abstract bool Decode(string tag, string data);
     }
 
@@ -145,26 +153,41 @@ namespace SharedTools_Stuff
         }
 
         public iSTD_Explorer explorer;
+        public bool showDebug;
 
+        #if !NO_PEGI
         bool showUnrecognized = false;
         [NonSerialized] public int inspectedUnrecognized = -1;
         public virtual bool PEGI() {
 
             bool changed = false;
 
+            if (!showDebug && icon.Config.Click())
+                showDebug = true;
 
-            changed |= this.PEGI(ref explorer).nl();
+           
 
-            if (explorer == null) {
+            if (showDebug)
+            {
 
-                var cnt = unrecognizedTags.Count;
+                if (icon.Exit.Click("Back to element inspection").nl())
+                    showDebug = false;
 
-                if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
-                    changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+
+                changed |= this.PEGI(ref explorer).nl();
+
+                if (explorer == null)
+                {
+
+                    var cnt = unrecognizedTags.Count;
+
+                    if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
+                        changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+                }
             }
-
             return changed;
         }
+#endif
 
         public virtual bool Decode(string tag, string data)
         {
@@ -198,8 +221,9 @@ namespace SharedTools_Stuff
         }
 
         public static bool LoadOnDrop<T>(this T obj) where T: iSTD {
-            UnityEngine.Object myType = null;
 
+#if !NO_PEGI
+             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 obj.Decode(ResourceLoader.LoadStory(myType));
 
@@ -207,7 +231,7 @@ namespace SharedTools_Stuff
 
                 return true;
             }
-
+#endif
             return false;
         }
 
@@ -255,8 +279,8 @@ namespace SharedTools_Stuff
 		}
 
         public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
-            bool changed = false; 
-
+            bool changed = false;
+            #if !NO_PEGI
             if (!exp) {
                 exp = mono.GetComponent<iSTD_Explorer>();
                 if (!exp && "Add iSTD Explorer".Click())
@@ -269,11 +293,11 @@ namespace SharedTools_Stuff
                 exp.inspectedSTD = mono;
                 changed |=exp.PEGI();
             }  
-            
+#endif
 
             return changed;
         }
-
+        #if !NO_PEGI
         public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
             bool changed = false;
             if (tags != null && tags.Count > 0) {
@@ -320,7 +344,7 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-
+#endif
         public static void Unrecognized (this iKeepUnrecognizedSTD el, string tag, string data, ref List<string> unrecognizedTags, 
             ref List<string> unrecognizedData) {
           

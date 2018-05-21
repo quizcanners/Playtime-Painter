@@ -9,6 +9,41 @@ namespace STD_Logic  {
     public enum ResultType { SetBool, Set, Add, Subtract, SetTimeReal, SetTimeGame, SetTagBool, SetTagInt }
     
     public static class ResultExtensionFunctions {
+
+        public static void apply(this ResultType type, int updateValue, ValueIndex dest, Values so)
+        {
+
+            switch (type)
+            {
+                case ResultType.SetBool: dest.SetBool(so, (updateValue > 0)); break;
+                case ResultType.Set: dest.SetInt(so, updateValue); break;
+                case ResultType.Add: so.ints[dest.groupIndex].Add(dest.triggerIndex, updateValue); break;
+                case ResultType.Subtract: so.ints[dest.groupIndex].Add(dest.triggerIndex, -updateValue); break;
+                case ResultType.SetTimeReal: dest.SetInt(so, LogicMGMT.RealTimeNow()); break;
+                case ResultType.SetTimeGame: dest.SetInt(so, (int)Time.time); break;
+                case ResultType.SetTagBool: so.SetTagBool(dest.groupIndex, dest.triggerIndex, updateValue > 0); break;
+                case ResultType.SetTagInt: so.SetTagEnum(dest.groupIndex, dest.triggerIndex, updateValue); break;
+            }
+
+        }
+
+        public static string GetText(this ResultType type) {
+
+            switch (type)
+            {
+                case ResultType.SetBool: return "Set";
+                case ResultType.Set: return "=";
+                case ResultType.Add: return "+";
+                case ResultType.Subtract: return "-";
+                case ResultType.SetTimeReal: return "Set To Real_Time_Now";
+                case ResultType.SetTimeGame: return "Set To Game_Now_Time";
+                case ResultType.SetTagBool: return "Set Bool Tag";
+                case ResultType.SetTagInt: return "Set Int Tag";
+                default: return type.ToString();
+            }
+
+        }
+
         public static string ToStringSafe(this List<Result> o, bool showDetail) {
             bool AnyFinals = ((o != null) && (o.Count > 0));
             return (AnyFinals ? "[" + o.Count + "]: " +
@@ -17,14 +52,16 @@ namespace STD_Logic  {
 
         public static void apply(this List<Result> results, Values to) {
 
-            if (results.Count > 0) {
-                for (int i = 0; i < results.Count; i++)
-                    results[i].apply(to);
+            if (results.Count > 0)
+            {
+                foreach (var r in results)
+                    r.apply(to);
 
                 LogicMGMT.AddLogicVersion();
             }
-        }
 
+        }
+#if !NO_PEGI
         public static bool edit(this string label, ref List<Result> res, Values vals)
         {
             pegi.write(label);
@@ -61,7 +98,9 @@ namespace STD_Logic  {
 
             return changed;
         }
-        
+
+#endif
+
         public static Result Add(this List<Result> lst) {
             Result r = new Result();
 
@@ -149,11 +188,11 @@ namespace STD_Logic  {
             return cody;
         }
 
-        public void apply(Values so)
-        {
+        public bool apply(Values so) {
 
-            switch (type)
-            {
+            type.apply(updateValue, this, so);
+
+          /*  switch (type)  {
                 case ResultType.SetBool: SetBool(so, (updateValue > 0)); break;
                 case ResultType.Set: SetInt(so, updateValue); break;
                 case ResultType.Add: so.ints[groupIndex].Add(triggerIndex, updateValue); break;
@@ -162,8 +201,11 @@ namespace STD_Logic  {
                 case ResultType.SetTimeGame: SetInt(so, (int)Time.time); break;
                 case ResultType.SetTagBool: so.SetTagBool(groupIndex, triggerIndex, updateValue > 0); break;
                 case ResultType.SetTagInt: so.SetTagEnum(groupIndex, triggerIndex, updateValue); break;
-            }
+            }*/
+            return true;
         }
+
+       
 
         public override bool isBoolean()
         {

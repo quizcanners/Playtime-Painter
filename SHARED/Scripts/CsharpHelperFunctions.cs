@@ -35,7 +35,7 @@ namespace SharedTools_Stuff
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
-
+#if !NO_PEGI
             var named = el as iGotName;
             if (named == null) return;
 
@@ -61,7 +61,7 @@ namespace SharedTools_Stuff
             }
 
             named.Name = tmpName;
-
+#endif
         }
 
 
@@ -76,11 +76,14 @@ namespace SharedTools_Stuff
 
         public static T AddWithUniqueName<T>(this List<T> list, string name) where T : new()
         {
+
             T e = new T();
             list.Add(e);
+            #if !NO_PEGI
             var named = e as iGotName;
             if (named != null)
                 named.Name = name;
+#endif
             e.AssignUniqueNameIn(list);
             return e;
         }

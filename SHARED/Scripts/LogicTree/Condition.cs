@@ -14,10 +14,8 @@ namespace STD_Logic
 
         public static string tag = "cond";
 
-        public int _type;
+        public ConditionType type;
         public int compareValue;
-
-        public ConditionType type { get { return (ConditionType)_type; } set { _type = (int)value; } }
 
         public string getDefaultTagName() {
             return tag;
@@ -27,7 +25,7 @@ namespace STD_Logic
             var cody = new stdEncoder();
 
             cody.Add_ifNotZero("v", compareValue);
-            cody.Add_ifNotZero("ty",_type);
+            cody.Add_ifNotZero("ty",(int)type);
             cody.Add("g", groupIndex);
             cody.Add("t", triggerIndex);
 
@@ -37,7 +35,7 @@ namespace STD_Logic
         public virtual bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "v": compareValue = data.ToInt(); break;
-                case "ty": _type = data.ToInt(); break;
+                case "ty": type = (ConditionType)data.ToInt(); break;
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 default: return false;
@@ -93,7 +91,7 @@ namespace STD_Logic
 
         public int isItClaimable( int dir, Values st) {
 
-            switch ((ConditionType)_type) {
+            switch (type) {
                 case ConditionType.Bool: if ((dir > 0) == (compareValue > 0)) return 1; break;
                 case ConditionType.Above: if ((GetInt(st) < compareValue) && (dir > 0)) return (compareValue - GetInt(st) + 1); break;
                 case ConditionType.Below: if ((GetInt(st) > compareValue) && (dir < 0)) return (GetInt(st) - compareValue + 1); break;
@@ -107,24 +105,24 @@ namespace STD_Logic
         }
 
         public override bool isBoolean(){
-            return _type == (int)ConditionType.Bool;
+            return type == (int)ConditionType.Bool;
         }
 
         public static bool unfoldPegi;
       
         public override string ToString()
         {
-            return (trig.name) + " " + _type + " " + (isBoolean() ?
+            return (trig.name) + " " + type + " " + (isBoolean() ?
                                             (compareValue == 1 ? "True" : "false")
                                             : compareValue.ToString());
         }
         
     }
-
+#if !NO_PEGI
     public static class ConditionLogicExtensions
     {
 
-        public static bool edit(this string labes, ConditionsWeb web , Values so)
+        public static bool edit(this string labes, ConditionBranch web , Values so)
         {
             pegi.write(labes);
             return web.PEGI(so);
@@ -175,13 +173,9 @@ namespace STD_Logic
 
             return changed;
         }
-
-
-
- 
-
+        
     }
-
+#endif
 
 
 }

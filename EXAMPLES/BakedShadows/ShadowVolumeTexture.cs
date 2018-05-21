@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
 
     using UnityEditor;
 
@@ -20,7 +20,7 @@ namespace Playtime_Painter {
         }
     }
 #endif
-    
+
     [System.Serializable]
     [ExecuteInEditMode]
     public class ShadowVolumeTexture : VolumeTexture {
@@ -124,7 +124,7 @@ namespace Playtime_Painter {
             base.UpdateMaterials();
             lights.UpdateLightOnMaterials(materials);
         }
-
+        #if !NO_PEGI
         public override bool PEGI() {
             
             bool changed = base.PEGI();
@@ -162,5 +162,6 @@ namespace Playtime_Painter {
 
             return changed;
         }
+#endif
     }
 }

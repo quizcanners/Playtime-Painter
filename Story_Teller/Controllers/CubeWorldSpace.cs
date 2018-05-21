@@ -11,7 +11,7 @@ using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR && !NO_PEGI
     using UnityEditor;
 
     [CustomEditor(typeof(CubeWorldSpace))]
@@ -22,7 +22,7 @@ namespace StoryTriggerData {
             ef.end();
         }
     }
-# endif
+#endif
 
 
 
@@ -76,7 +76,7 @@ namespace StoryTriggerData {
             transform.localRotation = Quaternion.Euler(Vector3.zero);
         }
 
-     
+#if !NO_PEGI
         public override bool PEGI() {
             bool changed = false;
             base.PEGI();
@@ -102,8 +102,8 @@ namespace StoryTriggerData {
 
             return changed;
         }
+#endif
 
- 
 
         public const string tagName = "cube";
 

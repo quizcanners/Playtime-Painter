@@ -7,10 +7,11 @@ using SharedTools_Stuff;
 
 namespace STD_Logic {
 
+
     public class TestOnceCondition : ConditionLogic
     {
 
-        public int _ResultType;
+        public ResultType resultType;
         public int updateValue;
 
         public override stdEncoder Encode()
@@ -18,8 +19,8 @@ namespace STD_Logic {
             var cody = new stdEncoder();
 
             cody.Add_ifNotZero("v", compareValue);
-            cody.Add_ifNotZero("ty", _type);
-            cody.Add_ifNotZero("rty", _ResultType);
+            cody.Add_ifNotZero("ty", (int)type);
+            cody.Add_ifNotZero("rty", (int)resultType);
             cody.Add("g", groupIndex);
             cody.Add("t", triggerIndex);
 
@@ -31,13 +32,35 @@ namespace STD_Logic {
             switch (subtag)
             {
                 case "v": compareValue = data.ToInt(); break;
-                case "ty": _type = data.ToInt(); break;
+                case "ty": type = (ConditionType)data.ToInt(); break;
+                case "rty": resultType = (ResultType)data.ToInt(); break;
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
+#if !NO_PEGI
+        public override bool PEGI() {
+
+            bool changed = false;
+
+            if (isBoolean() != (resultType == ResultType.SetBool))
+            {
+                if (("Wrong ResType: " + resultType.ToString() + ". FIX").Click())
+                    resultType = isBoolean() ? ResultType.SetBool : ResultType.Set;
+            } else {
+                changed |= PEGI(0, null, "Cond");
+
+                trig._usage.testOnceConditionPEGI(this, null);
+
+                changed |= searchAndAdd_PEGI(0);
+            }
+
+            return base.PEGI() || changed;
+        }
+
+#endif
 
         public override bool TestFor(Values st)
         {

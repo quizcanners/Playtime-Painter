@@ -27,7 +27,7 @@ namespace Playtime_Painter {
             }
 
         }
-
+#if !NO_PEGI
         public int browsedNode = -1;
 
         public virtual bool PEGI() {
@@ -81,7 +81,9 @@ namespace Playtime_Painter {
         
             return changed;
         }
-        
+
+#endif
+
         public void UpdateLightOnMaterials(List<Material> materials) {
 
             if (materials.Count>0) 
