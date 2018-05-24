@@ -31,6 +31,13 @@ namespace PlayerAndEditorGUI
         string NameForPEGI { get; set; }
     }
 
+    public interface iGotDisplayName
+    {
+        string NameForPEGIdisplay(); 
+    }
+
+   
+
     public interface iGotIndex
     {
         int GetIndex();
@@ -177,6 +184,11 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        public static void nl(this icon icon, int size)
+        {
+            pegi.write(icon.getIcon(), size);
+        }
+
         public static void checkLine()
         {
 
@@ -248,6 +260,21 @@ namespace PlayerAndEditorGUI
         public static void DropFocus()
         {
             FocusControl("_");
+        }
+
+        public static string ToPEGIstring(this object obj) {
+
+            if (obj == null) return "NULL";
+
+            var dn = obj as iGotDisplayName;
+            if (dn != null)
+                return dn.NameForPEGIdisplay();
+
+            var sn = obj as iGotName;
+            if (sn != null)
+                return sn.NameForPEGI;
+
+            return obj.ToString();
         }
 
         public static void FocusControl(string name)
@@ -509,7 +536,7 @@ namespace PlayerAndEditorGUI
                     {
                         if ((!val.isGenericNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
-                        lnms.Add(tmp.ToString());
+                        lnms.Add(tmp.ToPEGIstring());
                         indxs.Add(j);
                     }
                 }
@@ -552,7 +579,7 @@ namespace PlayerAndEditorGUI
                     T tmp = lst[j];
                     if (!tmp.isGenericNull())
                     {
-                        lnms.Add(tmp.ToString());
+                        lnms.Add(tmp.ToPEGIstring());
                         indxs.Add(j);
                     }
                 }
@@ -590,7 +617,7 @@ namespace PlayerAndEditorGUI
                     {
                         if ((!val.isGenericNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
-                        lnms.Add(tmp.ToString());
+                        lnms.Add(tmp.ToPEGIstring());
                         indxs.Add(j);
                     }
                 }
@@ -651,7 +678,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (ind == j)
                             jindx = indxs.Count;
-                        lnms.Add(lst[j].ToString());
+                        lnms.Add(lst[j].ToPEGIstring());
                         indxs.Add(j);
 
                     }
@@ -692,7 +719,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (ind == j)
                             jindx = indxs.Count;
-                        lnms.Add(lst[j].ToString());
+                        lnms.Add(lst[j].ToPEGIstring());
                         indxs.Add(j);
 
                     }
@@ -751,7 +778,7 @@ namespace PlayerAndEditorGUI
                     if (val.showInDropdown())
                     {
                         if (i == j) ind = ints.Count;
-                        lnms.Add(val.ToString());
+                        lnms.Add(val.ToPEGIstring());
                         ints.Add(j);
                     }
                 }
@@ -785,7 +812,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (no == inds[i])
                         tmpindex = i;
-                    filtered.Add(objs[i].ToString());
+                    filtered.Add(objs[i].ToPEGIstring());
                 }
 
                 if (select(ref tmpindex, filtered.ToArray()))
@@ -815,7 +842,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (no == inds[i])
                         tmpindex = i;
-                    filtered.Add(objs[i].ToString());
+                    filtered.Add(objs[i].ToPEGIstring());
                 }
 
                 if (select(ref tmpindex, filtered.ToArray()))
@@ -1241,6 +1268,8 @@ namespace PlayerAndEditorGUI
         }
 
         // Buttons
+        const int defaultButtonSize = 25;
+
         public static int selectedTab;
         public static void ClickTab(ref bool open, string text)
         {
@@ -1295,7 +1324,7 @@ namespace PlayerAndEditorGUI
 
             {
                 checkLine();
-                if (GUILayout.Button(tex, GUILayout.MaxWidth(width)))
+                if (GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)))
                 {
                     DropFocus();
                     return true;
@@ -1439,27 +1468,14 @@ namespace PlayerAndEditorGUI
 
         public static bool Click(this Texture img)
         {
-
-
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.Click(img, 25);
-            }
-            else
-#endif
-
-            {
-                checkLine();
-                return GUILayout.Button(img, GUILayout.MaxWidth(25), GUILayout.MaxHeight(25));
-            }
-
+            return img.Click(defaultButtonSize);
+            
         }
 
         public static bool Click(this Texture img, string tip)
         {
 
-            return   img.Click(  tip, 25);
+            return   img.Click(  tip, defaultButtonSize);
 
         }
 
@@ -1477,7 +1493,7 @@ namespace PlayerAndEditorGUI
 
             {
                 checkLine();
-                return GUILayout.Button(img, GUILayout.MaxWidth(size), GUILayout.MaxHeight(size));
+                return GUILayout.Button(img, GUILayout.MaxWidth(size+5), GUILayout.MaxHeight(size));
             }
 
         }
@@ -1498,13 +1514,6 @@ namespace PlayerAndEditorGUI
                 return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
             }
 
-        }
-
-        const int defaultButtonSize = 25;
-
-        public static void nl(this icon icon, int size)
-        {
-            pegi.write(icon.getIcon(), size);
         }
 
         public static bool Click(this icon icon)
@@ -1644,7 +1653,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
+                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
                 return false;
             }
 
@@ -1663,7 +1672,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
+                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
                 return false;
             }
 
@@ -2077,7 +2086,19 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-        
+
+        public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
+        {
+            write(text, tip, width);
+            return editEnum<T>(ref eval);
+        }
+
+        public static bool editEnum<T>(this string text, int width, ref T eval)
+        {
+            write(text, width);
+            return editEnum<T>(ref eval);
+        }
+
         public static bool editEnum<T>(this string text, ref T eval) {
             write(text);
             return editEnum<T>(ref eval);
@@ -2830,7 +2851,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToString());
+                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
             }
 
         }
@@ -3336,7 +3357,7 @@ namespace PlayerAndEditorGUI
                                 }
                             }
                             else
-                                write(el.ToString(), 120);
+                                write(el.ToPEGIstring(), 120);
 
                             if ((el is iPEGI) && icon.Enter.ClickUnfocus(25))
                                 edited = i;
@@ -3439,7 +3460,7 @@ namespace PlayerAndEditorGUI
                 }
             }
             else
-                write(el.ToString(), 120);
+                write(el.ToPEGIstring(), 120);
 
             if ((el is iPEGI) && icon.Enter.ClickUnfocus(25))
                 return true;

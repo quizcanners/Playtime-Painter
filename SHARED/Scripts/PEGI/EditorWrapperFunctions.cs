@@ -223,14 +223,14 @@ namespace  PlayerAndEditorGUI {
                 {
                     if ((!val.isGenericNull()) && val.Equals(tmp))
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToString());
+                    lnms.Add(j + ": " + tmp.ToPEGIstring());
                     inxs.Add(j);
 
                 }
             }
 
             if (jindx == -1 && val != null)
-                lnms.Add(">>"+val.ToString()+"<<");
+                lnms.Add(">>"+val.ToPEGIstring()+"<<");
 
             if (select(ref jindx, lnms.ToArray()) && (jindx< inxs.Count))
             {
@@ -255,14 +255,14 @@ namespace  PlayerAndEditorGUI {
                 {
                     if ((!val.isGenericNull()) && val.Equals(tmp))
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToString());
+                    lnms.Add(j + ": " + tmp.ToPEGIstring());
                     inxs.Add(j);
 
                 }
             }
 
             if (jindx == -1 && val != null)
-                lnms.Add(">>" + val.ToString() + "<<");
+                lnms.Add(">>" + val.ToPEGIstring() + "<<");
 
          //   if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
 
@@ -289,7 +289,7 @@ namespace  PlayerAndEditorGUI {
                 {
                     if (no == j)
                         jindx = indxs.Count;
-                    lnms.Add(j + ": " + lst[j].ToString());
+                    lnms.Add(j + ": " + lst[j].ToPEGIstring());
                     indxs.Add(j);
 
                 }
@@ -322,7 +322,7 @@ namespace  PlayerAndEditorGUI {
                 {
                     if (no == j)
                         jindx = indxs.Count;
-                    lnms.Add(j + ": " + lst[j].ToString());
+                    lnms.Add(j + ": " + lst[j].ToPEGIstring());
                     indxs.Add(j);
 
                 }
@@ -348,7 +348,7 @@ namespace  PlayerAndEditorGUI {
             {
                 if (no == inds[i])
                     tmpindex = i;
-                filtered.Add(i + ": " + objs[i].ToString());
+                filtered.Add(i + ": " + objs[i].ToPEGIstring());
             }
 
             if (select(ref tmpindex, filtered.ToArray()))
@@ -369,7 +369,7 @@ namespace  PlayerAndEditorGUI {
             {
                 if (no == inds[i])
                     tmpindex = i;
-                filtered.Add(objs[i].ToString());
+                filtered.Add(objs[i].ToPEGIstring());
             }
 
             if (select(ref tmpindex, filtered.ToArray()))
@@ -414,7 +414,7 @@ namespace  PlayerAndEditorGUI {
                 if (val.showInDropdown())
                 {
                     if (i == j) ind = ints.Count;
-                    lnms.Add(j + ": " + val.ToString());
+                    lnms.Add(j + ": " + val.ToPEGIstring());
                     ints.Add(j);
                 }
             }
@@ -443,7 +443,7 @@ namespace  PlayerAndEditorGUI {
             {
                 var e = lst[i];
 
-                lnms.Add(i + ": " + (e == null ? "Nothing" : e.ToString()));
+                lnms.Add(i + ": " + (e == null ? "Nothing" : e.ToPEGIstring()));
             }
             if (select(ref ind, lnms.ToArray()))
                 return true;
@@ -807,7 +807,7 @@ namespace  PlayerAndEditorGUI {
             if (edit(ref tmp))
             {
                 editedInteger = tmp;
-                editedIntegerIndex = elementIndex;//val.GetHashCode().ToString();
+                editedIntegerIndex = elementIndex;
             }
 
             elementIndex++;
@@ -831,7 +831,7 @@ namespace  PlayerAndEditorGUI {
             if (edit(ref tmp))
             {
                 editedInteger = tmp;
-                editedIntegerIndex = elementIndex;//val.GetHashCode().ToString();
+                editedIntegerIndex = elementIndex;
             }
 
             elementIndex++;

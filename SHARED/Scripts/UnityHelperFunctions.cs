@@ -280,14 +280,18 @@ namespace SharedTools_Stuff
         public static void RenameAsset<T>(this T obj, string newName) where T: UnityEngine.Object
         {
 
+            if (newName.Length > 0)
+            {
+
 #if UNITY_EDITOR
-            var path = AssetDatabase.GetAssetPath(obj);
-            if (path != null && path.Length > 0) {
-                AssetDatabase.RenameAsset(path, newName);
-            }
+                var path = AssetDatabase.GetAssetPath(obj);
+                if (path != null && path.Length > 0)
+                {
+                    AssetDatabase.RenameAsset(path, newName);
+                }
 #endif
                 obj.name = newName;
-
+            }
 
         }
 
