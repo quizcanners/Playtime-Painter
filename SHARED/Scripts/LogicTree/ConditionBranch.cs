@@ -9,7 +9,7 @@ namespace STD_Logic
 {
 
     public class ConditionBranch : abstract_STD
-        #if !NO_PEGI
+        #if PEGI
         , iGotName 
 #endif
         {
@@ -22,7 +22,7 @@ namespace STD_Logic
 
         
 
-        public string Name
+        public string NameForPEGI
         {
             get
             {
@@ -61,7 +61,7 @@ namespace STD_Logic
             }
             return true;
         }
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI() {
             //return false;
              return PEGI(null);
@@ -138,7 +138,7 @@ namespace STD_Logic
         int browsedBranch = -1;
 
 
-#if !NO_PEGI
+#if PEGI
         static string path;
         static bool isCalledFromAnotherBranch = false;
         public bool PEGI(Values vals) {
@@ -150,7 +150,7 @@ namespace STD_Logic
             if (!isCalledFromAnotherBranch)
                 path = "Cnds";
             else
-                path += "->" + Name;
+                path += "->" + NameForPEGI;
 
             if (browsedBranch == -1) {
                 
@@ -172,7 +172,7 @@ namespace STD_Logic
 
                 conds.PEGI(vals);
 
-                changed |= "Sub Conditions".edit(branches, ref browsedBranch, true);
+                changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
 
             }
             else

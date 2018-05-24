@@ -18,7 +18,7 @@ namespace Playtime_Painter
 
     [Serializable]
     public class ImageData : PainterStuffScriptable
-        #if !NO_PEGI
+        #if PEGI
         , iPEGI
         #endif
     {
@@ -506,7 +506,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-        #if !NO_PEGI
+        #if PEGI
         public bool undo_redo_PEGI()
         {
             bool changed = false;

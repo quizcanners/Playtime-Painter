@@ -191,7 +191,7 @@ namespace Playtime_Painter
                     "M - merge with nearest while dragging ";
             }
         }
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI() {
 
             bool changed = false;
@@ -309,7 +309,7 @@ namespace Playtime_Painter
                 m.selectedUV.vert.MergeWithNearest();
                 m.dragging = false;
                 m.edMesh.dirty = true;
-                #if !NO_PEGI
+                #if PEGI
                 "M - merge with nearest".TeachingNotification();
 #endif
             }
@@ -489,7 +489,7 @@ namespace Playtime_Painter
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-            cody.Add("inM", addToTrianglesAndLines); 
+            cody.Add_Bool("inM", addToTrianglesAndLines); 
             return cody;
         }
 
@@ -529,7 +529,7 @@ namespace Playtime_Painter
                     ;
             }
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI()
         {
 
@@ -622,14 +622,14 @@ namespace Playtime_Painter
                 {
                     int no = pointedTris.NumberOf(pointedTris.GetClosestTo(meshMGMT.collisionPosLocal));
                     pointedTris.DominantCourner[no] = !pointedTris.DominantCourner[no];
-                    #if !NO_PEGI
+                    #if PEGI
                     (pointedTris.DominantCourner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
 #endif
                 }
                 else
                 {
                     pointedTris.InvertNormal();
-#if !NO_PEGI
+#if PEGI
                     "Inverting Normals".TeachingNotification();
 #endif
                 }
@@ -647,7 +647,7 @@ namespace Playtime_Painter
             {
                 foreach (var t in meshMGMT.pointedLine.getAllTriangles_USES_Tris_Listing())
                     t.SetSharpCorners(!EditorInputManager.getAltKey());
-#if !NO_PEGI
+#if PEGI
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
 #endif
                 meshMGMT.edMesh.dirty = true;
@@ -665,7 +665,7 @@ namespace Playtime_Painter
 
                 m.pointedUV.vert.SmoothNormal = !m.pointedUV.vert.SmoothNormal;
                 m.edMesh.dirty = true;
-#if !NO_PEGI
+#if PEGI
                 "N - on Vertex - smooth Normal".TeachingNotification();
 #endif
             }
@@ -699,7 +699,7 @@ namespace Playtime_Painter
                     return "Click to set vertex as smooth/sharp" + Environment.NewLine;
                 }
             }
-#if !NO_PEGI
+#if PEGI
             public override bool PEGI()
             {
 
@@ -895,7 +895,7 @@ namespace Playtime_Painter
                 return " 1234 on Line - apply RGBA for Border.";
             }
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             if (("Paint All with Brush Color").Click())
                 meshMGMT.edMesh.PaintAll(cfg.brushConfig.colorLinear);
@@ -1002,7 +1002,7 @@ namespace Playtime_Painter
 
         public override string ToString() { return "vertex Edge"; }
         // public override MeshTool myTool { get { return MeshTool.VertexEdge; } }
-#if !NO_PEGI
+#if PEGI
         public static PEGIcallDelegate PEGIdelegates;
 #endif
 
@@ -1021,7 +1021,7 @@ namespace Playtime_Painter
         public override bool showTriangles { get { return false; } }
 
         public override bool showVerticesDefault { get { return !editingFlexibleEdge; } }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             bool changed = false;
             changed |= "Edge Strength: ".edit(ref edgeValue).nl();
@@ -1054,7 +1054,7 @@ namespace Playtime_Painter
 
             if ((EditorInputManager.GetMouseButton(0)))
             {
-#if !NO_PEGI
+#if PEGI
                 if (!pointedUV.vert.AllPointsUnique())
                     "Shared points found, Edge requires All Unique".showNotification();
 #endif
@@ -1197,8 +1197,8 @@ namespace Playtime_Painter
             var cody = new stdEncoder();
 
             cody.Add("v", edgeValue);
-            cody.Add("doCol", AlsoDoColor);
-            cody.Add("fe", editingFlexibleEdge);
+            cody.Add_Bool("doCol", AlsoDoColor);
+            cody.Add_Bool("fe", editingFlexibleEdge);
 
             return cody;
         }
@@ -1229,7 +1229,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.getControlKey())
             {
                 curSubmesh = (int)meshMGMT.pointedTris.submeshIndex;
-#if !NO_PEGI
+#if PEGI
                 ("Submesh " + curSubmesh).showNotification();
 #endif
             }
@@ -1244,7 +1244,7 @@ namespace Playtime_Painter
             }
             return false;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI()
         {
             ("Total Submeshes: " + editedMesh.submeshCount).nl();

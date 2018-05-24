@@ -110,7 +110,7 @@ namespace Playtime_Painter {
         const int minPow = 2;
         
         public static Tool previousTool;
-#if !NO_PEGI
+#if PEGI
         public override void OnInspectorGUI() {
 
             bool changes = false;
@@ -198,7 +198,7 @@ namespace Playtime_Painter {
 
                             if ((existsAtDestination == false) || sameTextureName)
                             {
-                                if (ef.Click(Icons_MGMT.getIcon(sameTextureName ? icon.save : icon.saveAsNew), (sameTextureName ? "Will Update " + Orig : "Will save as " + Dest), 25))
+                                if (ef.Click(Icons_MGMT.getIcon(sameTextureName ? icon.Save : icon.SaveAsNew), (sameTextureName ? "Will Update " + Orig : "Will save as " + Dest), 25))
                                 {
                                     if (sameTextureName)
                                         painter.RewriteOriginalTexture();
@@ -208,7 +208,7 @@ namespace Playtime_Painter {
                                     painter.OnChangedTexture_OnMaterial();
                                 }
                             }
-                            else if (existsAtDestination && (pegi.Click(icon.save, "Will replace " + Dest, 25)))
+                            else if (existsAtDestination && (pegi.Click(icon.Save, "Will replace " + Dest, 25)))
                                 painter.SaveTextureAsAsset(false);
 
 

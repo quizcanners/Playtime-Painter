@@ -173,7 +173,7 @@ namespace Playtime_Painter
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-            cody.Add("gtuv", ProjectionUV);
+            cody.Add_Bool("gtuv", ProjectionUV);
             cody.Add("offset", offset);
             cody.Add("tile", tiling);
             return cody;
@@ -182,7 +182,7 @@ namespace Playtime_Painter
         public VertexUVTool() {
             _inst = this;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
 
             bool changed = false;

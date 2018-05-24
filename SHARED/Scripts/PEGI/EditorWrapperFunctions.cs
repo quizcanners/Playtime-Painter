@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR && !NO_PEGI
+﻿#if PEGI && UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
@@ -32,8 +32,6 @@ namespace  PlayerAndEditorGUI {
         public static bool inspect_so<T>(T o, SerializedObject so) where T : ScriptableObject, iPEGI
         {
             
-
-
             start(so);
             bool changed = o.PEGI();
             end();
@@ -192,6 +190,8 @@ namespace  PlayerAndEditorGUI {
             return isFoldedOut;
         }
 
+
+
         public static bool foldout(string txt)
         {
             checkLine();
@@ -229,7 +229,10 @@ namespace  PlayerAndEditorGUI {
                 }
             }
 
-            if (select(ref jindx, lnms.ToArray()))
+            if (jindx == -1 && val != null)
+                lnms.Add(">>"+val.ToString()+"<<");
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx< inxs.Count))
             {
                 val = lst[inxs[jindx]];
                 return change;
@@ -258,7 +261,12 @@ namespace  PlayerAndEditorGUI {
                 }
             }
 
-            if (select(ref jindx, lnms.ToArray()))
+            if (jindx == -1 && val != null)
+                lnms.Add(">>" + val.ToString() + "<<");
+
+         //   if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
+
+                if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
             {
                 val = lst[inxs[jindx]];
                 return change;
@@ -286,6 +294,8 @@ namespace  PlayerAndEditorGUI {
 
                 }
             }
+
+
 
             if (select(ref jindx, lnms.ToArray(), width))
             {
@@ -1085,17 +1095,7 @@ namespace  PlayerAndEditorGUI {
             return (before != val) ? change : false;
         }
 
-        public static bool toggle(int ind, SRLZ_TreeBool tb)
-        {
-            checkLine();
-            bool has = tb[ind];
-            if (toggle(ref has))
-            {
-                tb[ind] = has;
-                return change;
-            }
-            return false;
-        }
+     
 
         public static bool Click(string txt, int width)
         {

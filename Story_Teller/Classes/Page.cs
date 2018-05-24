@@ -95,7 +95,7 @@ namespace StoryTriggerData{
                 cody.Add("size", uSize);
             if (!uReach.Equals(1))
                 cody.Add("radius", uReach);
-            if (noClamping) cody.Add("noClamp", noClamping);
+            if (noClamping) cody.Add_Bool("noClamp", noClamping);
         }
 
         public override stdEncoder Encode() { // Page and it's full content is saved in a saparate file
@@ -180,7 +180,7 @@ namespace StoryTriggerData{
 
             objectsLoaded = false;
         }
-#if !NO_PEGI
+#if PEGI
         public static Page browsedPage;
         int exploredObject = -1;
 

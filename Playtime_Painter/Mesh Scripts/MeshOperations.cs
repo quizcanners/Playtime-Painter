@@ -356,7 +356,7 @@ namespace Playtime_Painter
             }
 
         }
-#if !NO_PEGI
+#if PEGI
         void SomeOtherPathStuff()
         {
             var mm = meshMGMT;

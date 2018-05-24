@@ -14,7 +14,7 @@ using STD_Logic;
 namespace StoryTriggerData {
 
 
-#if UNITY_EDITOR &&  !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(PathBox))]
@@ -72,7 +72,7 @@ namespace StoryTriggerData {
         public override string getDefaultTagName() {
             return tagName;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             "Path pegi".nl();
 

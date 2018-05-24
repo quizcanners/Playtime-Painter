@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-    #if !NO_PEGI
+    #if PEGI
 
     public static class PainterPEGI_Extensions {
 
@@ -162,7 +162,7 @@ namespace Playtime_Painter {
     }
 
         public static void TeachingNotification (this string text) {
-#if !NO_PEGI
+#if PEGI
             if (cfg.ShowTeachingNotifications)
                 text.showNotification();
 #endif

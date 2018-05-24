@@ -201,7 +201,7 @@ namespace StoryTriggerData {
 
             return cody;
         }
-#if !NO_PEGI
+#if PEGI
         public bool PEGIbase()
         {
             bool changed = false;
@@ -763,7 +763,7 @@ namespace StoryTriggerData {
             tmp.Meters = Meters;
             return tmp;
         }
-#if !NO_PEGI
+#if PEGI
         public bool PEGIbase()
         {
 

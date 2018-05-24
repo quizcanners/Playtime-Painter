@@ -26,7 +26,7 @@ namespace Playtime_Painter
                 cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
         }
-#if !NO_PEGI
+#if PEGI
         public static int inspectedUnrecognized = -1;
         public override bool PEGI()
         {
@@ -65,7 +65,7 @@ namespace Playtime_Painter
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
-#if !NO_PEGI
+#if PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
 #endif
         public abstract bool Decode(string tag, string data);

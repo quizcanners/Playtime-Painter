@@ -40,7 +40,7 @@ namespace STD_Logic {
             }
             return true;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
 
             bool changed = false;

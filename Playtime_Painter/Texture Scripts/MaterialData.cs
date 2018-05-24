@@ -8,7 +8,7 @@ namespace Playtime_Painter
 {
     [Serializable]
     public class MaterialData
-        #if !NO_PEGI
+        #if PEGI
         : iPEGI
 #endif
     {
@@ -49,7 +49,7 @@ namespace Playtime_Painter
           //  Debug.Log("No material parameter assigned to data");
         }
 
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI() {
             bool changed = false;
             "Material:".write(60, material);

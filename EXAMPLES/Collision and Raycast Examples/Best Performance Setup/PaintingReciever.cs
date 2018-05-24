@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
 using UnityEditor;
 [CustomEditor(typeof(PaintingReciever))]
 public class PaintingRecieverEditor : Editor
@@ -143,7 +143,7 @@ public class PaintingRecieverEditor : Editor
         private void OnDisable() {
             if (fromRTmanager) Restore();
         }
-        #if !NO_PEGI
+        #if PEGI
         public virtual bool PEGI() {
 
             if ("Renderer Type:".edit(() => type).nl()) {

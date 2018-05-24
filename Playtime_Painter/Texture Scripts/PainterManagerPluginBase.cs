@@ -11,7 +11,7 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     [System.Serializable]
     public class PainterManagerPluginBase : PainterStuffMono {
-#if !NO_PEGI
+#if PEGI
         PEGIcallDelegate plugins_ComponentPEGI;
 
         protected void PlugIn_PainterComponent(PEGIcallDelegate d) {
@@ -47,7 +47,7 @@ namespace Playtime_Painter
             BrushConfig.brushConfigPegies += d;
         }
 
-        #if !NO_PEGI
+        #if PEGI
         PEGIcallDelegate VertexEdgePEGIdelegates;
         protected void PlugIn_VertexEdgePEGI(PEGIcallDelegate d) {
             VertexEdgePEGIdelegates += d;
@@ -63,7 +63,7 @@ namespace Playtime_Painter
 
 
         public void OnDisable() {
-#if !NO_PEGI
+#if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
             
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;

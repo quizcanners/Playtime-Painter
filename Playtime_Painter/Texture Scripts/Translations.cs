@@ -42,7 +42,7 @@ namespace Playtime_Painter
 
         public static List<List<string>> texts;
 
-        #if !NO_PEGI
+        #if PEGI
         public static void nl(this msg m) { m.Get().nl(); }
         public static void nl(this msg m, int width) { m.Get().nl(width); }
         public static void nl(this msg m, string tip, int width) { m.Get().nl(tip, width); }

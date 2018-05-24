@@ -9,7 +9,7 @@ namespace Playtime_Painter {
     {
 
         public class EditableMeshPreProcess {
-#if !NO_PEGI
+#if PEGI
             public virtual bool PEGI() {
                 "No configurations".nl();
                 return false;
@@ -22,7 +22,7 @@ namespace Playtime_Painter {
 
            // float widthPercentage = 0.1f;
             vertexpointDta[] grid;
-#if !NO_PEGI
+#if PEGI
             public override bool PEGI() {
                 bool changed = false;
 

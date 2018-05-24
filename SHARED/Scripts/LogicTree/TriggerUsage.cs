@@ -20,7 +20,7 @@ namespace STD_Logic
         }
 
         public static List<string> names = new List<string>();
-#if !NO_PEGI
+#if PEGI
         public static bool select_PEGI(ref int ind) {
             return pegi.select(ref ind, usgs, 45);
         }
@@ -140,7 +140,7 @@ namespace STD_Logic
     public class Usage_Boolean : TriggerUsage {
 
         public override string ToString() { return string.Format("YesNo"); }
-#if !NO_PEGI
+#if PEGI
         public override void conditionPEGI(ConditionLogic c, Values so) {
             if (!c.isBoolean()){
                 if (("Wrong Type: " + c.type.ToString() + " FIX").Click())
@@ -206,7 +206,7 @@ namespace STD_Logic
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
-#if !NO_PEGI
+#if PEGI
         public override void conditionPEGI(ConditionLogic c, Values so) {
 
             selectActionPEGI(ref c.type, conditionUsages);
@@ -252,7 +252,7 @@ namespace STD_Logic
     {
 
         public override string ToString() { return string.Format("Enums"); }
-#if !NO_PEGI
+#if PEGI
         public override void conditionPEGI(ConditionLogic c, Values so) {
        
             selectActionPEGI(ref c.type, Usage_Number.conditionUsages);

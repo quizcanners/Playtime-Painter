@@ -141,7 +141,7 @@ namespace Playtime_Painter {
             }
             return false;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool BrushConfigPEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
@@ -226,7 +226,7 @@ namespace Playtime_Painter {
         public bool enabled;
         public Color col;
         public AtlasTextureCreator atlasCreator { get { return TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; } }
-#if !NO_PEGI
+#if PEGI
          
         [SerializeField]
         bool foldoutAtlas = false;
@@ -299,7 +299,7 @@ namespace Playtime_Painter {
 
     [System.Serializable]
     public class MaterialAtlases
-        #if !NO_PEGI
+        #if PEGI
         : iGotName, iPEGI
 #endif
     {
@@ -318,7 +318,7 @@ namespace Playtime_Painter {
         public Material AtlasedMaterial;
         Material destinationMaterial { get { return AtlasedMaterial ? AtlasedMaterial : originalMaterial; } }
 
-        public string Name { get { return name; } set { name = value; } }
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
       
         public List<FieldAtlas> fields;
@@ -377,7 +377,7 @@ namespace Playtime_Painter {
                     if (tex == null)
                     {
                         var note = painter.name + " no " + original + " texture. Using Color.";
-#if !NO_PEGI
+#if PEGI
                         note.showNotification();
 #endif
                         Debug.Log(note);
@@ -526,7 +526,7 @@ namespace Playtime_Painter {
                     ac.atlasedField = aTextures[i];
                 }
 
-#if !NO_PEGI
+#if PEGI
                 atlasedShader = destinationMaterial.shader;
 #endif
 
@@ -560,7 +560,7 @@ namespace Playtime_Painter {
 #endif
             }
 
-#if !NO_PEGI
+#if PEGI
         Shader atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         [SerializeField]
@@ -677,7 +677,7 @@ namespace Playtime_Painter {
 
     [Serializable]
     public class AtlasTextureCreator
-        #if !NO_PEGI
+        #if PEGI
         : iGotName, iPEGI
         #endif
     {
@@ -690,7 +690,7 @@ namespace Playtime_Painter {
 
         public bool sRGB = true;
         
-        public string Name { get; set;}
+        public string NameForPEGI { get; set;}
 
         public List<string> targetFields;
 
@@ -712,7 +712,7 @@ namespace Playtime_Painter {
         
         public override string ToString()
         {
-            return Name;
+            return NameForPEGI;
         }
 
         void Init()
@@ -735,8 +735,8 @@ namespace Playtime_Painter {
         
         public AtlasTextureCreator(string nname)
         {
-            Name = nname;
-            Name = Name.GetUniqueName(TileableAtlasingControllerPlugin.inst.atlases);
+            NameForPEGI = nname;
+            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingControllerPlugin.inst.atlases);
             Init();
         }
 
@@ -905,7 +905,7 @@ namespace Playtime_Painter {
             string fullPath = Application.dataPath + lastPart;
             Directory.CreateDirectory(fullPath);
 
-            string fileName = Name + ".png";
+            string fileName = NameForPEGI + ".png";
             string relativePath = "Assets" + lastPart + fileName;
             fullPath += fileName;
 
@@ -935,7 +935,7 @@ namespace Playtime_Painter {
         }
 #endif
 
-#if !NO_PEGI
+#if PEGI
 
         public bool PEGI()
         {

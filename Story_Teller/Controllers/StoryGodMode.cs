@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 namespace StoryTriggerData
 {
 
-#if UNITY_EDITOR &&  !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(StoryGodMode))]

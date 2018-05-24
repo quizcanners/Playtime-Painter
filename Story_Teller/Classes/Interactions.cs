@@ -85,7 +85,7 @@ namespace StoryTriggerData
             results = new List<Result>();
             calls = new List<STD_Call>();
         }
-#if !NO_PEGI
+#if PEGI
         public void PEGI(InteractionTarget so) {
             
             text.PEGI();
@@ -207,7 +207,7 @@ namespace StoryTriggerData
             FinalResults.apply(so);
         }
 
-#if !NO_PEGI
+#if PEGI
         public static bool unfoldPegi;
         public void PEGI( bool OneClickAction, InteractionTarget st) {
             
@@ -374,7 +374,7 @@ namespace StoryTriggerData
         public string getShortDescription() {
             return "[" + elements.Count + "],[" + subBranches.Count + "]";
         }
-#if !NO_PEGI
+#if PEGI
         int browsedBranch = -1;
         public bool PEGI(InteractionTarget so) {
 

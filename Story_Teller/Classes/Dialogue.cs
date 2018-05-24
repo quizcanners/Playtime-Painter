@@ -218,7 +218,7 @@ namespace StoryTriggerData
             }
         }
 
-#if !NO_PEGI
+#if PEGI
         public static bool PEGI(InteractionTarget trg) {
             bool changed = false;
 

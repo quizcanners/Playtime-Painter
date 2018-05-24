@@ -118,7 +118,7 @@ namespace STD_Logic
         }
         
     }
-#if !NO_PEGI
+#if PEGI
     public static class ConditionLogicExtensions
     {
 

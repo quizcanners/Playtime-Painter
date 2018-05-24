@@ -130,7 +130,7 @@ public static class TextureEditorExtensionFunctions  {
                 cody.Add("size2D", brush.Brush2D_Radius/((float)id.width));
 
 
-            cody.Add("useMask", brush.useMask);
+            cody.Add_Bool("useMask", brush.useMask);
 
             if (brush.useMask)
                 cody.Add("mask", (int)brush.mask);
@@ -156,7 +156,7 @@ public static class TextureEditorExtensionFunctions  {
                 if (brush.useMask) {
                     cody.Add("Smask", brush.selectedSourceMask);
                     cody.Add("maskTil", brush.maskTiling);
-                    cody.Add("maskFlip", brush.flipMaskAlpha);
+                    cody.Add_Bool("maskFlip", brush.flipMaskAlpha);
                     cody.Add("maskOff", brush.maskOffset);
                 }
             }

@@ -11,7 +11,7 @@ using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(CubeWorldSpace))]
@@ -76,7 +76,7 @@ namespace StoryTriggerData {
             transform.localRotation = Quaternion.Euler(Vector3.zero);
         }
 
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             bool changed = false;
             base.PEGI();

@@ -11,11 +11,13 @@ namespace PlayerAndEditorGUI
 
     public enum icon
     {
-        save, NewMaterial, NewTexture, On, Off, Lock, Unlock, GPU, CPU, Round,
-        Square, PreviewShader, OriginalShader, saveAsNew, Undo, Redo, Painter,
-        UndoDisabled, RedoDisabled, Play, Record, Delete, Done, Edit, Close, Add,
-        Script, Config, Load, Pause, mesh, Discord, Docs, Email, Back, Red, Green, Blue, Alpha,
-        Hint, Copy, Paste, Search, Enter, Exit
+        Add, Animation, Audio, Back, Save, Close, Condition, Config, Copy, Discord, Delete, Done, Docs,
+        Edit, Enter, Exit, Email, FoldedOut,
+        NewMaterial, NewTexture, On, Off, Lock, Unlock, GPU, CPU, Round,
+        Square, PreviewShader, OriginalShader, SaveAsNew, StateMachine, Undo, Redo, Painter,
+        UndoDisabled, RedoDisabled, Play, Record,  
+        Script, Load, Pause, Mesh, Red, Green, Blue, Alpha,
+        Hint,  Paste, Search, Refresh
 
     }
 

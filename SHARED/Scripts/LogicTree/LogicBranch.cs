@@ -8,7 +8,7 @@ using System;
 namespace STD_Logic {
 
     public class LogicBranch<T> : abstract_STD
-        #if !NO_PEGI
+        #if PEGI
         , iGotName 
 #endif
         where T: iSTD, new()
@@ -22,7 +22,7 @@ namespace STD_Logic {
         
         public string name = "no name";
 
-        public string Name { get{ return name;  }
+        public string NameForPEGI { get{ return name;  }
             set { name = value; }
         }
 
@@ -82,7 +82,7 @@ namespace STD_Logic {
         int browsedElement = -1;
         int browsedBranch = -1;
 
-        #if !NO_PEGI
+        #if PEGI
        
         static string path;
         static bool isCalledFromAnotherBranch = false;
@@ -109,15 +109,18 @@ namespace STD_Logic {
 
                     bool isTrue = vals != null ? conds.TestFor(vals) : false;
 
-                    if (("Conditions" +( vals!= null ? "["+ (isTrue ? "True" : "False") +"]"  : " ")).foldout(ref showConditions).nl())
+                    if ( icon.Condition.foldout(
+                        ("Conditions" +( vals!= null ? "["+ (isTrue ? "True" : "False") +"]"  : " "))
+                        //"text"
+                        , ref showConditions).nl())
                     
                         changed |= conds.PEGI(vals); 
                     
                     else
                     {
-                        changed |= "Elements:".edit(elements, ref browsedElement, true);
+                        changed |= "Elements:".edit_List(elements, ref browsedElement, true);
 
-                        changed |= "Sub Branches:".edit(subBranches, ref browsedBranch, true);
+                        changed |= "Sub Branches:".edit_List(subBranches, ref browsedBranch, true);
                     }
 
                 } else  {

@@ -21,11 +21,11 @@ namespace Playtime_Painter{
     [AddComponentMenu("Mesh/Playtime Painter")]
     [ExecuteInEditMode]
     public class PlaytimePainter : PlaytimeToolComponent, iSTD
-#if !NO_PEGI
+#if PEGI
         , iPEGI 
 #endif
     {
-        #if !NO_PEGI
+        #if PEGI
         public static PEGIcallDelegate plugins_ComponentPEGI;
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
@@ -256,7 +256,7 @@ namespace Playtime_Painter{
 
             if (isTerrainHeightTexture() && isOriginalShader)
             {
-                #if !NO_PEGI
+                #if PEGI
                 if (stroke.mouseDwn)
                     "Can't edit without Preview".showNotification();
                 #endif
@@ -269,7 +269,7 @@ namespace Playtime_Painter{
 
             if (imgData == null)
             {
-                #if !NO_PEGI
+                #if PEGI
                 if (stroke.mouseDwn)
                     "No texture to edit".showNotification();
                 #endif
@@ -558,7 +558,7 @@ namespace Playtime_Painter{
                     var extension = name.Substring(name.LastIndexOf(".") + 1);
 
                     if (extension != "png") {
-#if !NO_PEGI
+#if PEGI
                         ("Converting " + name + " to .png").showNotification();
 #endif
                         texture = t2d.CreatePngSameDirectory(texture.name);
@@ -958,7 +958,7 @@ namespace Playtime_Painter{
 
                 if ((id != null) && (GetMaterial(false) != null))
                 UpdateOrSetTexTarget(id.destination);
-                #if !NO_PEGI
+                #if PEGI
             ("Instantiating Material on " + gameObject.name).showNotification();
             #endif
             return GetMaterial(false);
@@ -1780,7 +1780,7 @@ namespace Playtime_Painter{
 	    }
         
         public static PlaytimePainter inspectedPainter;
-#if !NO_PEGI
+#if PEGI
         public bool PEGI_MAIN() {
             inspectedPainter = this;
             texMGMT.focusedPainter = this;
@@ -1810,7 +1810,7 @@ namespace Playtime_Painter{
                     }
                     else
                     {
-                        if (icon.mesh.Click("Edit Mesh", 25))
+                        if (icon.Mesh.Click("Edit Mesh", 25))
                         {
 
 
@@ -1843,7 +1843,7 @@ namespace Playtime_Painter{
                     }
                 }
 
-                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.mesh : icon.Painter, icon.Config, "Settings", 25);
+                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings", 25);
             }
 
             if ((cfg.showConfig) || (PainterStuff.isNowPlaytimeAndDisabled))

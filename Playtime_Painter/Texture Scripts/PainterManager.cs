@@ -14,7 +14,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
     [CustomEditor(typeof(PainterManager))]
     public class RenderTexturePainterEditor : Editor {
 
@@ -177,7 +177,7 @@ namespace Playtime_Painter
                     if (c == null)
                         c = (PainterManagerPluginBase)gameObject.AddComponent(t);
                     _plugins.Add(c);
-                    #if !NO_PEGI
+                    #if PEGI
                     ("Painter Plugin " + c.ToString() + " added").showNotification();
 #endif
                 }
@@ -899,7 +899,7 @@ namespace Playtime_Painter
 #endif
         }
 
-#if !NO_PEGI
+#if PEGI
         bool showImgDatas;
         public void PEGI()
         {
@@ -920,7 +920,7 @@ namespace Playtime_Painter
             }
 
             if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                matDatas.edit(ref MaterialData.inspectedMaterial, true);
+                matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
 
 #if UNITY_EDITOR
             "Using layer:".nl();

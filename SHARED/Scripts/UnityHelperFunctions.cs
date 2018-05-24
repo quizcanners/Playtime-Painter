@@ -40,7 +40,7 @@ namespace SharedTools_Stuff
 
         public static void UpdatePrefab(this GameObject gameObject)
         {
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
             var pf = PrefabUtility.GetPrefabObject(gameObject);
             if (pf != null)
             {

@@ -49,7 +49,7 @@ namespace STD_Logic
         public TriggerUsage _usage { get { return TriggerUsage.get(usage); }  set { usage = value.index; } }
 
 
-        #if !NO_PEGI
+        #if PEGI
         public static void search_PEGI() {
             pegi.write("Search", 60);
             pegi.edit(ref searchField);//, GUILayout.Width(60));
@@ -79,7 +79,7 @@ namespace STD_Logic
             cody.AddText("n", name);
             cody.Add("u", usage);
             cody.AddIfNotEmpty("e", enm);
-            cody.Add ("s", isStatic);
+            cody.Add_Bool ("s", isStatic);
             return cody;
         }
 
@@ -105,7 +105,7 @@ namespace STD_Logic
 
         public const string storyTag_Trg = "Trg";
 
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             return TriggerUsage.select_PEGI(ref usage);
         }

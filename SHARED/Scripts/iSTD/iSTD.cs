@@ -14,7 +14,7 @@ namespace SharedTools_Stuff
 {
 
     public interface iSTD
-        #if !NO_PEGI
+        #if PEGI
         : iPEGI
 #endif 
         {
@@ -73,7 +73,7 @@ namespace SharedTools_Stuff
         }
 
 
-#if !NO_PEGI
+#if PEGI
            bool showUnrecognized = false;
         public static int inspectedUnrecognized = -1;
         public bool PEGI_Unrecognized()
@@ -115,7 +115,7 @@ namespace SharedTools_Stuff
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
-        #if !NO_PEGI
+        #if PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
             return false; }
 #endif
@@ -155,7 +155,7 @@ namespace SharedTools_Stuff
         public iSTD_Explorer explorer;
         public bool showDebug;
 
-        #if !NO_PEGI
+        #if PEGI
         bool showUnrecognized = false;
         [NonSerialized] public int inspectedUnrecognized = -1;
         public virtual bool PEGI() {
@@ -222,7 +222,7 @@ namespace SharedTools_Stuff
 
         public static bool LoadOnDrop<T>(this T obj) where T: iSTD {
 
-#if !NO_PEGI
+#if PEGI
              UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 obj.Decode(ResourceLoader.LoadStory(myType));
@@ -280,7 +280,7 @@ namespace SharedTools_Stuff
 
         public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
             bool changed = false;
-            #if !NO_PEGI
+            #if PEGI
             if (!exp) {
                 exp = mono.GetComponent<iSTD_Explorer>();
                 if (!exp && "Add iSTD Explorer".Click())
@@ -297,7 +297,7 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-        #if !NO_PEGI
+        #if PEGI
         public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
             bool changed = false;
             if (tags != null && tags.Count > 0) {

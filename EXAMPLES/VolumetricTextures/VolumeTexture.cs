@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
 
     using UnityEditor;
 
@@ -27,7 +27,7 @@ namespace Playtime_Painter {
     [ExecuteInEditMode]
     [Serializable]
     public class VolumeTexture : PainterStuffMono
-        #if !NO_PEGI
+        #if PEGI
         , iPEGI, iGotName
 #endif
         {
@@ -46,7 +46,7 @@ namespace Playtime_Painter {
 
         public List<Material> materials;
 
-        public string Name { get { return name; } set { name = value; } }
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
         public int height { get { return h_slices * h_slices; } }
 
@@ -225,7 +225,7 @@ namespace Playtime_Painter {
             }
         }
 
-        #if !NO_PEGI
+        #if PEGI
 
         public virtual bool PEGI() {
             bool changed = false;
@@ -284,7 +284,7 @@ namespace Playtime_Painter {
             int w = width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + height + "volume").nl();
 
-            "Matserials".edit(materials, true);
+            "Matserials".edit_List_Obj(materials, true);
 
             if (inspectedPainter != null) {
                 var pmat = inspectedPainter.material;

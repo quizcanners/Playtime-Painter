@@ -11,7 +11,7 @@ namespace Playtime_Painter
     using CombinedMaps;
 
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
 
     using UnityEditor;
 
@@ -111,7 +111,7 @@ namespace Playtime_Painter
                 terrain.terrainData.splatPrototypes = copyProts;
 
         }
-#if !NO_PEGI
+#if PEGI
         public bool PEGI() {
             bool changed = false;
 

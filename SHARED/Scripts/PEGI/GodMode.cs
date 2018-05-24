@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI {
     
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour
-         #if !NO_PEGI
+         #if PEGI
         , iPEGI
 #endif
     {
@@ -154,7 +154,7 @@ namespace PlayerAndEditorGUI {
         {
         }
 
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI()
         {
             

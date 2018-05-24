@@ -21,7 +21,7 @@ namespace SharedTools_Stuff
 
             var cody = new stdEncoder();
 
-            cody.Add("loc", local);
+            cody.Add_Bool("loc", local);
 
             if (local) {
                 cody.Add("pos", tf.localPosition);
@@ -207,7 +207,7 @@ namespace SharedTools_Stuff
             builder.AppendSplit(data);
         }
 
-        public void Add(string tag, bool val) {
+        public void Add_Bool(string tag, bool val) {
             checkLine();
 
             builder.AppendSplit(tag);
@@ -218,7 +218,7 @@ namespace SharedTools_Stuff
 
         public void Add_ifTrue(string tag, bool val) {
             if (val)
-                Add(tag, val);
+                Add_Bool(tag, val);
         }
 
         public void Add(string tag, iSTD other) {

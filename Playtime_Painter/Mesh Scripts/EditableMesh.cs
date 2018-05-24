@@ -57,8 +57,8 @@ namespace Playtime_Painter {
             cody.Add_ifNotEmpty("vrt",vertices);
             cody.Add_ifNotEmpty("tri",triangles);
             cody.Add("sub", submeshCount);
-            cody.Add("wei", gotBoneWeights);
-            cody.Add("bp", gotBindPos);
+            cody.Add_Bool("wei", gotBoneWeights);
+            cody.Add_Bool("bp", gotBindPos);
             cody.AddIfNotEmpty("bv", baseVertex);
             if (UV2distributeRow > 0) {
                 cody.Add("UV2dR", UV2distributeRow);
@@ -882,7 +882,7 @@ namespace Playtime_Painter {
            // Debug.Log("Dirty");
             dirty = true;
         }
-#if !NO_PEGI
+#if PEGI
         bool showGenerateFunctions = false;
         int explorefunction = -1;
         public static EditableMesh inspected;
@@ -898,7 +898,7 @@ namespace Playtime_Painter {
                 }
 
 
-                editableMeshOtherData.edit(ref explorefunction, false);
+                editableMeshOtherData.edit_List(ref explorefunction, false);
 
             }
 

@@ -20,7 +20,7 @@ namespace Playtime_Painter
         public string name = "";
 
         public const string folderName = "Mesh Profiles";
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI()
         {
 
@@ -29,7 +29,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
 
             string path = PainterConfig.inst.meshesFolderName + "/" + folderName;
-            if (icon.save.Click("Save To:" + path, 25).nl())
+            if (icon.Save.Click("Save To:" + path, 25).nl())
             {
                 this.SaveToAssets(path, name).RefreshAssetDatabase();
                 (name + " Saved to " + path).showNotification();
@@ -304,7 +304,7 @@ namespace Playtime_Painter
         public VertexDataTarget target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
         public List<VertexDataValue> vals;
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI()
         {
             bool changed = false;
@@ -475,7 +475,7 @@ namespace Playtime_Painter
             var cody = new stdEncoder();
 
            
-            cody.Add("en", enabled);
+            cody.Add_Bool("en", enabled);
             cody.Add("t", targetIndex);
 
             if (enabled) {

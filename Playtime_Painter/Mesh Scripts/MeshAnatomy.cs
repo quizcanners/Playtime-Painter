@@ -404,7 +404,7 @@ namespace Playtime_Painter
 
             cody.Add("pos", localPos);
 
-            cody.Add("smth", SmoothNormal);
+            cody.Add_Bool("smth", SmoothNormal);
 
             cody.Add("shad", shadowBake);
 

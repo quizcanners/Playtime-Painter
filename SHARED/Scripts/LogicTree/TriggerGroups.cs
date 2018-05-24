@@ -18,7 +18,7 @@ namespace STD_Logic
    
 
     public class TriggerGroup : abstractKeepUnrecognized_STD
-     #if !NO_PEGI
+     #if PEGI
         , iGotName, iGotIndex
 #endif
     {
@@ -59,7 +59,7 @@ namespace STD_Logic
 
         public string name = "Unnamed_Triggers";
 
-        public string Name { get { return name; } set { name = value; } }
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
         public override int GetHashCode()
         {
@@ -173,7 +173,7 @@ namespace STD_Logic
               this.LoadFromAssets(GetAssetPath(), name);
 
         }
-         #if !NO_PEGI
+         #if PEGI
         public override bool PEGI() {
             bool changed = false;
             changed |= (index+" Name").edit(60, ref name).nl();

@@ -8,7 +8,7 @@ using STD_Logic;
 namespace StoryTriggerData {
 
     public static class STD_CallExtensions {
-#if !NO_PEGI
+#if PEGI
         public static bool PEGI(this List<STD_Call> lst) {
             bool changed = false;
 
@@ -70,7 +70,7 @@ namespace StoryTriggerData {
         }
 
         public const string storyTag_resT = "resT";
-#if !NO_PEGI
+#if PEGI
         public static string returnTag = "";
         public static string returnData = "";
         public static string objectSearch="";

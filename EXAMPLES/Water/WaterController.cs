@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(WaterController))]
@@ -77,7 +77,7 @@ namespace Playtime_Painter
 
         }
 
-#if !NO_PEGI
+#if PEGI
         public bool PEGI() {
             bool changed = false;
             changed |= "Foam".edit(70, ref foamMask).nl();

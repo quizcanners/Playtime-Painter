@@ -622,7 +622,7 @@ namespace Playtime_Painter {
     public enum MegavoxelRole { Solid, Damaged, Decorative }
 
     [Serializable]
-    public class vertexAnimationFrame : CanCopy<vertexAnimationFrame> {
+    public class vertexAnimationFrame  {
         public Countless<Vector3> verts;
         [NonSerialized]
        // public vertAnimNo animTexLines;

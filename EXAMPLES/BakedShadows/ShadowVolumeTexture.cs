@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR 
 
     using UnityEditor;
 
@@ -124,7 +124,7 @@ namespace Playtime_Painter {
             base.UpdateMaterials();
             lights.UpdateLightOnMaterials(materials);
         }
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI() {
             
             bool changed = base.PEGI();

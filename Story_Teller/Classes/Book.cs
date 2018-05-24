@@ -166,7 +166,7 @@ namespace StoryTriggerData {
 #endif
         }
 
-#if !NO_PEGI
+#if PEGI
          int browsedPage = -1;
         bool unfoldTriggerGroup = false;
 	public override bool PEGI(){

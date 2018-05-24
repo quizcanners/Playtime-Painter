@@ -7,7 +7,7 @@ using Playtime_Painter;
 
 
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(BrushConfigOnly))]
@@ -25,7 +25,7 @@ using Playtime_Painter;
 
 public class BrushConfigOnly : MonoBehaviour  {
         public BrushConfig brush = new BrushConfig();
-#if !NO_PEGI
+#if PEGI
         public bool PEGI()
         {
             bool changed = false;

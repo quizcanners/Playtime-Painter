@@ -35,11 +35,11 @@ namespace SharedTools_Stuff
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
-#if !NO_PEGI
+#if PEGI
             var named = el as iGotName;
             if (named == null) return;
 
-            string tmpName = named.Name;
+            string tmpName = named.NameForPEGI;
             bool duplicate = true;
             int counter = 0;
 
@@ -50,17 +50,17 @@ namespace SharedTools_Stuff
                 foreach (var e in list)
                 {
                     var other = e as iGotName;
-                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.Name) == 0))
+                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.NameForPEGI) == 0))
                     {
                         duplicate = true;
                         counter++;
-                        tmpName = named.Name + counter.ToString();
+                        tmpName = named.NameForPEGI + counter.ToString();
                         break;
                     }
                 }
             }
 
-            named.Name = tmpName;
+            named.NameForPEGI = tmpName;
 #endif
         }
 
@@ -79,10 +79,10 @@ namespace SharedTools_Stuff
 
             T e = new T();
             list.Add(e);
-            #if !NO_PEGI
+            #if PEGI
             var named = e as iGotName;
             if (named != null)
-                named.Name = name;
+                named.NameForPEGI = name;
 #endif
             e.AssignUniqueNameIn(list);
             return e;

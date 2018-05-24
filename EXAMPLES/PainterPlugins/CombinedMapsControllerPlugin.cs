@@ -17,7 +17,7 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR 
         using UnityEditor;
 
-#if !NO_PEGI
+#if PEGI
         [CustomEditor(typeof(CombinedMapsControllerPlugin))]
         public class CombinedMapsControllerEditor : Editor
         {
@@ -281,12 +281,12 @@ namespace Playtime_Painter {
                 return "Combined Maps";
             }
 
-            #if !NO_PEGI
+            #if PEGI
             [SerializeField]
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
             {
-                return forCombinedMaps.edit(ref browsedTextureSet, true);
+                return forCombinedMaps.edit_List(ref browsedTextureSet, true);
             }
 #endif
         }
@@ -294,7 +294,7 @@ namespace Playtime_Painter {
 
         [Serializable]
         public class TextureSetForForCombinedMaps : PainterStuff
-            #if !NO_PEGI
+            #if PEGI
             , iGotName, iPEGI
 #endif
         {
@@ -336,9 +336,9 @@ namespace Playtime_Painter {
                 name = "Unnamed";
             }
 
-            public string Name { get { return name; } set { name = value; } }
+            public string NameForPEGI { get { return name; } set { name = value; } }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public bool PEGI()
             {
@@ -416,7 +416,7 @@ namespace Playtime_Painter {
 
         [Serializable]
         public class TexturePackagingProfile : PainterStuff_STD
-            #if !NO_PEGI
+            #if PEGI
             , iGotName
 #endif
         {
@@ -430,7 +430,7 @@ namespace Playtime_Painter {
             public bool glossNoiseFromBump;
             public bool glossNoiseFromHeight;
 
-            public string Name { get { return name; } set { name = value; } }
+            public string NameForPEGI { get { return name; } set { name = value; } }
 
             public override string ToString() { return name; }
 
@@ -453,7 +453,7 @@ namespace Playtime_Painter {
                 var cody = new stdEncoder();
 
                 cody.Add_ifNotEmpty("ch", channel);
-                cody.Add("c", isColor);
+                cody.Add_Bool("c", isColor);
                 cody.AddText("n", name);
                 cody.Add("b", bumpStrength);
                 cody.Add("fc", fillColor);
@@ -471,7 +471,7 @@ namespace Playtime_Painter {
             public static TexturePackagingProfile currentPEGI;
 
 
-            #if !NO_PEGI
+            #if PEGI
             public override bool PEGI()
             {
                 return PEGI(null);
@@ -489,7 +489,7 @@ namespace Playtime_Painter {
 
                 var path = PainterConfig.inst.texturesFolderName + "/" + folderName;
 
-                if (icon.save.Click("Will save to " + path, 25).nl())
+                if (icon.Save.Click("Will save to " + path, 25).nl())
                 {
                     this.SaveToAssets(path, name).RefreshAssetDatabase();
                     (name + " was saved to " + path).showNotification();
@@ -698,11 +698,11 @@ namespace Playtime_Painter {
                 var cody = new stdEncoder();
                 cody.Add_ifNotZero("s", sourceRole);
                 cody.Add_ifNotZero("c", sourceChannel);
-                cody.Add("f", flip);
+                cody.Add_Bool("f", flip);
                 return cody;
             }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public override bool PEGI()
             {
@@ -903,7 +903,7 @@ namespace Playtime_Painter {
                 return mipLevels;
             }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {

@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if UNITY_EDITOR && !NO_PEGI
+#if PEGI && UNITY_EDITOR
     using UnityEditor;
     [CustomEditor(typeof(ColorBleedControllerPlugin))]
     public class ColorBleedControlsEditor : Editor {
@@ -41,7 +41,7 @@ namespace Playtime_Painter {
             UnityHelperFunctions.SetKeyword("MODIFY_BRIGHTNESS", modifyBrightness);
             UnityHelperFunctions.SetKeyword("COLOR_BLEED", colorBleed);
         }
-#if !NO_PEGI
+#if PEGI
         bool showHint;
         bool editFog;
         public override bool ConfigTab_PEGI() {

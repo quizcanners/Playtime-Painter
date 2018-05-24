@@ -127,7 +127,7 @@ namespace SharedTools_Stuff
         protected int[] pathInd;
         protected VariableBranch br;
 
-        #if !NO_PEGI
+        #if PEGI
 
         public virtual bool PEGI()
         {
@@ -684,7 +684,7 @@ namespace SharedTools_Stuff
         {
             get { return Get(index); }
             set {
-#if !NO_PEGI
+#if PEGI
                 var igi = value as iGotIndex;
                 if (igi != null && igi.GetIndex() != index)
                 {
@@ -695,7 +695,7 @@ namespace SharedTools_Stuff
                 Set(index, value); }
         }
 
-#if !NO_PEGI
+#if PEGI
         public T this[iGotIndex i]
         {
             get { return Get(i.GetIndex()); }
@@ -906,7 +906,7 @@ namespace SharedTools_Stuff
         }
 
         public int currentEnumerationIndex;
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             base.PEGI();
             foreach (var o in objs)
@@ -1181,7 +1181,7 @@ namespace SharedTools_Stuff
         }
 
         public int currentEnumerationIndex;
-        #if !NO_PEGI
+        #if PEGI
         public override bool PEGI()
         {
             bool changed = false;
@@ -1543,7 +1543,7 @@ namespace SharedTools_Stuff
 
     public static class ExtensionsForGenericCountless
     {
-        #if !NO_PEGI
+        #if PEGI
         public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, new() {
 
             bool changed = false;

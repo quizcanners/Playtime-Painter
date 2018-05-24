@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 #if UNITY_EDITOR 
 
 using UnityEditor;
-#if !NO_PEGI
+#if PEGI
 [CustomEditor(typeof(PixelArtMeshGenerator))]
 public class PixelArtMeshGeneratorEditor : Editor
 {
@@ -174,7 +174,7 @@ public class PixelArtMeshGenerator : MonoBehaviour {
         AssetDatabase.Refresh();
 #endif
     }
-#if !NO_PEGI
+#if PEGI
     public bool PEGI() {
         bool changed = false;
         changed |= "Mesh Filter".edit(ref mFilter).nl();

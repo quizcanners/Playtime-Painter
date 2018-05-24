@@ -101,7 +101,7 @@ namespace StoryTriggerData {
                 }
             }
         }
-        #if !NO_PEGI
+        #if PEGI
         public void PEGI() {
             pool.PEGI();
         }

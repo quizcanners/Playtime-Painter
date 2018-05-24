@@ -61,7 +61,7 @@ namespace STD_Logic  {
             }
 
         }
-#if !NO_PEGI
+#if PEGI
         public static bool edit(this string label, ref List<Result> res, Values vals)
         {
             pegi.write(label);

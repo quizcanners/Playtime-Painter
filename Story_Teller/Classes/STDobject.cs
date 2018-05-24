@@ -87,7 +87,7 @@ namespace StoryTriggerData {
 
 
 
-#if !NO_PEGI
+#if PEGI
           static string customTag = "";
         static string customData = "";
 

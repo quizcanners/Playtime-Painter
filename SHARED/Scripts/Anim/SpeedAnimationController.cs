@@ -2,17 +2,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 using SharedTools_Stuff;
 using UnityEditor;
 using STD_Logic;
 
-namespace SharedTools_Stuff {
+
+    namespace STD_Animations
+{
 
     public enum SpeedSource { position, scale, shaderVal, rotation }
     
+    public static class STD_AnimationExtensions
+    {
+        public static void DecodeFrame (this Animated_STD_PEGI obj, string data) {
+            if (obj != null) {
+                var cody = new stdDecoder(data);
+                foreach (var tag in cody.enumerator)
+                    obj.DecodeFrame(tag, cody.getData());
+            }
+        }
+    } 
+
+    public interface Animated_STD_PEGI {
+        stdEncoder EncodeFrame();
+        bool DecodeFrame(string tag, string data);
+#if PEGI
+        bool Frame_PEGI();
+#endif
+    }
+
     public class SpeedAnimationFrame : abstractKeepUnrecognized_STD {
 
         public SpeedAnimationController mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
@@ -25,6 +46,7 @@ namespace SharedTools_Stuff {
             cody.Add("lpos", localPos.Encode());
             cody.Add("lsize", LocalScale.Encode());
             cody.Add("lrot", localRotation.Encode());
+            cody.Add("encData", customData.Encode());
             cody.Add("shadeVal", shaderValue.Encode());
             if (isOverrideSpeed)
             {
@@ -39,6 +61,7 @@ namespace SharedTools_Stuff {
         public Countless<Vector3> LocalScale = new Countless<Vector3>();
         public Countless<Quaternion> localRotation = new Countless<Quaternion>();
         public Countless<float> shaderValue = new Countless<float>();
+        public Countless<string> customData = new Countless<string>();
 
         public float frameSpeed = 0.1f;
         public SpeedSource frameSpeedSource = SpeedSource.position;
@@ -49,6 +72,7 @@ namespace SharedTools_Stuff {
                 case "lpos": data.DecodeInto(out localPos); break;
                 case "lsize": data.DecodeInto(out LocalScale); break;
                 case "lrot": data.DecodeInto(out localRotation); break;
+                case "encData": data.DecodeInto(out customData); break;
                 case "shadeVal": data.DecodeInto(out shaderValue); break;
                 case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
                 case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
@@ -57,23 +81,29 @@ namespace SharedTools_Stuff {
 
             return true;
         }
-#if !NO_PEGI
+
+#if PEGI
         public override bool PEGI() {
 
             pegi.nl();
 
-            "Override Speed".toggle(90,ref isOverrideSpeed).nl();
-            if (isOverrideSpeed) {
 
-                "Frame Speed".edit(ref frameSpeed).nl();
+            if (mgmt.keyElement == el)
+            {
+                "Override Speed".toggle(90, ref isOverrideSpeed).nl();
 
-                if (frameSpeed == 0)
-                    "Frame speed is 0, next frame is unreachable ".writeWarning();
-                
-                "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
- 
+                if (isOverrideSpeed)
+                {
+
+                    "Frame Speed".edit(ref frameSpeed).nl();
+
+                    if (frameSpeed == 0)
+                        "Frame speed is 0, next frame is unreachable ".writeWarning();
+
+                    "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
+
+                }
             }
-            
             return false;
         }
 #endif
@@ -121,7 +151,7 @@ namespace SharedTools_Stuff {
     
     [Serializable]
     public class AnimatedElement : abstractKeepUnrecognized_STD
-#if !NO_PEGI
+#if PEGI
         ,iPEGI, iGotName, iGotIndex
 #endif
 
@@ -143,9 +173,10 @@ namespace SharedTools_Stuff {
         }
 
         [SerializeField] string _name;
-        public string Name { get { return _name; } set { _name = value; } }
+        public string NameForPEGI { get { return _name; } set { _name = value; } }
         public Transform transform;
         public Renderer rendy;
+        public MonoBehaviour script;
         public string propertyName;
         public float currentShaderValue;
 
@@ -157,6 +188,12 @@ namespace SharedTools_Stuff {
             cody.AddText("n", _name);
             cody.AddText("prop", propertyName);
 
+            if (script) {
+                var asp = script as iSTD;
+                if (asp != null)
+                    cody.Add("stdDTA", asp.Encode());
+            }
+
             return cody;
         }
 
@@ -165,6 +202,12 @@ namespace SharedTools_Stuff {
                 case "i": index = data.ToInt(); break;
                 case "n": _name = data; break;
                 case "prop": propertyName = data; break;
+                case "stdDTA":
+                    if (script) {
+                        var asp = script as iSTD;
+                        if (asp != null)
+                            data.DecodeInto(asp); 
+                    } break;
                 default: return false;
             }
 
@@ -175,6 +218,7 @@ namespace SharedTools_Stuff {
                 return frame.localPos[index];
             } set { frame.localPos[index] = value; } }
         public Vector3 LocalScale { get { return frame.LocalScale[GetIndex()]; } set { frame.LocalScale[index] = value; } }
+        public string customData { get { return frame.customData[GetIndex()]; } set { frame.customData[index] = value; } }
         public Quaternion localRotation { get { return frame.localRotation[GetIndex()]; } set { frame.localRotation[GetIndex()] = value; } }
         public float shaderValue { get {
                 return frame.shaderValue[index];
@@ -187,7 +231,9 @@ namespace SharedTools_Stuff {
         public Vector3 deltaLocalScale { get { if (!transform) return Vector3.zero; return transform.localScale - LocalScale; } }
         public float angleOfDeltaLocalRotation { get { if (!transform) return 0; return  Quaternion.Angle(transform.localRotation, localRotation); } }
         public float deltaShaderValue { get { return currentShaderValue - shaderValue; } }
-        
+        public Animated_STD_PEGI animSTD { get { if (script) return (script as Animated_STD_PEGI); return null; } }
+
+
         public void SetCurrentShaderValue(float value) {
             
             currentShaderValue = value;
@@ -224,6 +270,7 @@ namespace SharedTools_Stuff {
             if (rendy)
                 SetCurrentShaderValue(shaderValue);
 
+            animSTD.DecodeFrame(customData);
         }
         
         public void Record() {
@@ -237,36 +284,61 @@ namespace SharedTools_Stuff {
             }
             if (rendy)
                 shaderValue = currentShaderValue;
-           
+
+            
+            var asp = animSTD;
+            if (asp != null) 
+                    customData = asp.EncodeFrame().ToString();
+            
         }
-            #if !NO_PEGI
+
+            #if PEGI
         [SerializeField] bool transformInLocalSpace = true;
+        [SerializeField] bool showDependencies = true;
         public override bool PEGI() {
             inspectedAnimatedObject = this;
 
             var key = mgmt.keyElement;
-
-            if ((key == null || key != this) && "Set As Key".Click())
-                mgmt.keyElement = this;
-
+            
             if (this.PEGI_Name().nl() && transform)
-                transform.name = Name;
+                transform.name = NameForPEGI;
 
-            var ind = index;
-            if ("Index:".edit(50, ref ind).nl())
-                index = ind;
-            if ("Object".edit(70, ref transform).nl() && transform)
-                Name = transform.name;
+            if ("Dependencies".foldout(ref showDependencies).nl())
+            {
 
-            "Renderer".edit(80, ref rendy).nl();
-            if (rendy)  {
-                "Property".edit(90, ref propertyName).nl();
+                if ((key == null || key != this) && "Set As Key".Click())
+                    mgmt.keyElement = this;
+
+                var ind = index;
+                if ("Index:".edit(50, ref ind).nl())
+                    index = ind;
+                if ("Transform".edit(80, ref transform).nl() && transform)
+                    NameForPEGI = transform.name;
+
+                "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
+
+                "Renderer".edit(80, ref rendy).nl();
+
+                mgmt.currentFrame.PEGI();
+            }
+
+            if (rendy)
+            {
+                "On Material".edit(90, ref propertyName).nl();
 
                 if (pegi.edit(ref currentShaderValue, 0, 1).nl())
                     SetCurrentShaderValue(currentShaderValue);
             }
 
-            mgmt.currentFrame.PEGI();
+          
+
+            if (script)
+            {
+                var asp = script as Animated_STD_PEGI;
+
+                if (asp != null) 
+                    asp.Frame_PEGI().nl();
+            }
 
             if (transform)
             {
@@ -290,7 +362,7 @@ namespace SharedTools_Stuff {
         // Elements
         [SerializeField] List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
 
-        [NonSerialized] public Countless<AnimatedElement> elements;
+        [NonSerialized] public Countless<AnimatedElement> elements = new Countless<AnimatedElement>();
         [SerializeField] int keyElementIndex;
         public int indexForNewObject;
         public AnimatedElement keyElement { get { return (elements != null) ? elements[keyElementIndex] : null;  }
@@ -304,7 +376,12 @@ namespace SharedTools_Stuff {
         {
             if (frameIndex != newIndex && newIndex < frames.Count && newIndex >= 0)
             {
+                if (Application.isPlaying)
+                    foreach (var el in elementsUnsorted)
+                    el.Set();
+
                 frameIndex = newIndex;
+
                 if (!Application.isPlaying)
                     foreach (var el in elementsUnsorted)
                         el.Set();
@@ -331,7 +408,7 @@ namespace SharedTools_Stuff {
         // Speed
         public SpeedSource speedSource;
         [SerializeField] float maxSpeed = 1;
-        [SerializeField] AnimationCurve speedCurve;
+        [SerializeField] AnimationCurve speedCurve = new AnimationCurve();
         [SerializeField] bool curveSpeed = false;
         public float frameSpeed { get {
 
@@ -354,7 +431,7 @@ namespace SharedTools_Stuff {
             var cody = new stdEncoder();
             cody.AddText("frames", frames.Encode());
             cody.Add("elm", elementsUnsorted);
-            cody.Add("curve", curveSpeed);
+            cody.Add_Bool("curve", curveSpeed);
             cody.Add("MaxSpeed", maxSpeed);
             cody.Add("src", (int)speedSource);
             cody.Add("Nextind", indexForNewObject);
@@ -442,7 +519,7 @@ namespace SharedTools_Stuff {
         public static SpeedAnimationController inspectedAnimationController;
 
         float editor_FramePortion = 0;
-#if !NO_PEGI
+#if PEGI
         public int inspectedElement = -1;
         public bool inspectElements = false;
        
@@ -467,7 +544,7 @@ namespace SharedTools_Stuff {
             else
             {
                 
-                if (icon.save.Click())
+                if (icon.Save.Click())
                 {
                     OnDisable();
                     gameObject.UpdatePrefab();
@@ -487,7 +564,7 @@ namespace SharedTools_Stuff {
 
 
                 if (keyElement != null)
-                    ("of " + keyElement.Name).nl();
+                    ("of " + keyElement.NameForPEGI).nl();
                 else
                 {
                     pegi.nl();
@@ -561,7 +638,7 @@ namespace SharedTools_Stuff {
                     foreach (var e in elementsUnsorted)
                     {
 
-                        if (e.Name.SameAs(transform.name))
+                        if (e.NameForPEGI.SameAs(transform.name))
                         {
                             var ren = transform.GetComponent<Renderer>();
                             if (ren) e.rendy = ren;
@@ -571,7 +648,7 @@ namespace SharedTools_Stuff {
 
                         foreach (Transform t in transform)
                         {
-                            if (t.name.SameAs(e.Name))
+                            if (t.name.SameAs(e.NameForPEGI))
                             {
                                 var ren = t.GetComponent<Renderer>();
                                 if (ren) e.rendy = ren;
@@ -606,10 +683,10 @@ namespace SharedTools_Stuff {
 
                     if (Application.isPlaying || !playInEditor)
                     {
-                        var added = elementsUnsorted.edit(ref inspectedElement, true, ref changed);
+                        var added = elementsUnsorted.edit_List(ref inspectedElement, true, ref changed);
                         if (added != null)
                         {
-                            added.Name = "New Element";
+                            added.NameForPEGI = "New Element";
                             added.propertyName = "_Portion";
                             added.SetIndex(indexForNewObject);
                             indexForNewObject += 1;

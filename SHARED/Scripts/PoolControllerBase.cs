@@ -57,7 +57,7 @@ namespace SharedTools_Stuff
         public abstract void DestroyAll();
         public abstract void OnDuringDestroy(int ind);
         public abstract void Deactivate(int i);
-        #if !NO_PEGI
+        #if PEGI
         public abstract void PEGI();
         #endif
         public abstract bool activeSelf(int i);
@@ -83,7 +83,7 @@ namespace SharedTools_Stuff
 
         bool locked = false;
 
-#if !NO_PEGI
+#if PEGI
 
         public override void PEGI()
         {

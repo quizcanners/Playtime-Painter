@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using STD_Animations;
 
-
-#if UNITY_EDITOR &&  !NO_PEGI
+#if PEGI && UNITY_EDITOR
 using UnityEditor;
 
     [CustomEditor(typeof(SpeedAnimationController))]

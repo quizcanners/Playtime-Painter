@@ -10,17 +10,17 @@ namespace SharedTools_Stuff
 
     [Serializable]
     public class savedISTD
-#if !NO_PEGI
+#if PEGI
         :iPEGI, iGotName 
 #endif
     {
         public string _name;
-        public string Name { get { return _name; }  set { _name = value; } }
+        public string NameForPEGI { get { return _name; }  set { _name = value; } }
         public string comment;
         public string data;
 
       iSTD std { get { return iSTD_Explorer.inspected.inspectedSTD; } }
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI() {
             bool changed = false;
 
@@ -29,7 +29,7 @@ namespace SharedTools_Stuff
             if (std != null) {
                 if (icon.Load.ClickUnfocus())
                     std.Decode(data);
-                if (icon.save.ClickUnfocus())
+                if (icon.Save.ClickUnfocus())
                     data = std.Encode().ToString();
                 if (icon.Copy.Click().nl())
                     STDExtensions.copyBufferValue = data; 
@@ -48,7 +48,7 @@ namespace SharedTools_Stuff
     }
 
     public class iSTD_Explorer : MonoBehaviour
-#if !NO_PEGI
+#if PEGI
         , iPEGI
 #endif
     {
@@ -67,7 +67,7 @@ namespace SharedTools_Stuff
         }
 
 
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI() {
             inspected = this;
             bool changed = false;
@@ -87,7 +87,7 @@ namespace SharedTools_Stuff
                     "Save Folder:".edit(80, ref fileFolderHolder).nl();
                     "File Name:".edit("No file extension", 80, ref fileNameHolder);
 
-                if (fileNameHolder.Length>0 && icon.save.Click("Save To Assets"))
+                if (fileNameHolder.Length>0 && icon.Save.Click("Save To Assets"))
                     inspectedSTD.SaveToAssets(fileFolderHolder, fileNameHolder).RefreshAssetDatabase();
 
                 pegi.nl();
@@ -117,13 +117,13 @@ namespace SharedTools_Stuff
                 
                 
 
-                var aded = "____ Saved States:".edit(states, ref inspectedState, true, ref changed);
+                var aded = "____ Saved States:".edit_List(states, ref inspectedState, true, ref changed);
 
            
 
                 if (aded != null && inspectedSTD != null) {
                     aded.data = inspectedSTD.Encode().ToString();
-                    aded.Name = inspectedSTD.ToString(); 
+                    aded.NameForPEGI = inspectedSTD.ToString(); 
                     aded.comment = DateTime.Now.ToString();
                     inspectedState = states.Count - 1;
                 }

@@ -860,7 +860,7 @@ namespace Playtime_Painter {
 
         public void UpdateInputPlaytime()
         {
-            #if !NO_PEGI
+            #if PEGI
             if (pegi.mouseOverUI)
                 return;
             #endif
@@ -1010,7 +1010,7 @@ namespace Playtime_Painter {
 
         int justLoaded;
 
-#if !NO_PEGI
+#if PEGI
          List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
       
@@ -1051,7 +1051,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (((AssetDatabase.GetAssetPath(target.getMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.getMesh().name)!=0))  && 
-                (icon.save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
+                (icon.Save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
 #endif
 
             pegi.newLine();
