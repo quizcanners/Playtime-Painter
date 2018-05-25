@@ -8,7 +8,9 @@ using System.Text.RegularExpressions;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 using SharedTools_Stuff;
 
 namespace StoryTriggerData {
@@ -99,7 +101,7 @@ namespace StoryTriggerData {
             pegi.writeOneTimeHint("This example shows how to set object's position, and set it as call data.", "callEditHint");
 
 
-            "POS".edit(() => transform.position);
+            "POS".edit(() => transform.position, this);
 
 
             if (icon.Done.Click(20).nl()) {

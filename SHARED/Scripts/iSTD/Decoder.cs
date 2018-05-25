@@ -38,7 +38,7 @@ namespace SharedTools_Stuff
             var cody = new stdDecoder(data);
             bool local = false;
 
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
             {
                 var d = cody.getData();
                 switch (tag)
@@ -309,7 +309,8 @@ namespace SharedTools_Stuff
     }
 
 
-    public class stdDecoder  {
+    public class stdDecoder //: IEnumerable<string>
+    {
 
         string data;
         int position;
@@ -327,10 +328,10 @@ namespace SharedTools_Stuff
             var unrec = storyComponent as iKeepUnrecognizedSTD;
 
             if (unrec == null)
-                foreach (var tag in enumerator)
+                foreach (var tag in this)
                     storyComponent.Decode(tag, getData());
             else
-                foreach (var tag in enumerator) {
+                foreach (var tag in this) {
                     var d = getData();
                     if (!storyComponent.Decode(tag, d))
                         unrec.Unrecognized(tag, d);
@@ -380,9 +381,14 @@ namespace SharedTools_Stuff
         }
 
         string _currentTag;
-        public IEnumerable<string> enumerator { get { while (NextTag()) { yield return _currentTag; } } }
+    // public IEnumerable<string> enumerator { get { while (NextTag()) { yield return _currentTag; } } }
 
-        public bool NextTag() {
+    public IEnumerator<string> GetEnumerator() {
+            while (NextTag()) 
+                yield return _currentTag;
+    }
+
+    public bool NextTag() {
             if (expectingGetData)
                 getData();
             return getTag() != null;

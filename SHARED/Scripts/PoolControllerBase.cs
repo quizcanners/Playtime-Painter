@@ -1,10 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 
 namespace SharedTools_Stuff
 {
+
+    public interface iManageDestroyOnPlay
+    {
+        void DestroyYourself();
+    }
 
     public class PoolableBase : MonoBehaviour
     {
@@ -285,8 +292,10 @@ namespace SharedTools_Stuff
             locked = true;
 
             for (int i = initializedCount - 1; i >= 0; i--)
-                if (scripts[i] != null)
+                if (scripts[i] != null) {
                     scripts[i].gameObject.DestroyWhatever();
+                    scripts[i] = null;
+                }
 
 
             ZeroCounts();

@@ -183,7 +183,7 @@ namespace Playtime_Painter{
             _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
 
             var encody = new stdDecoder(_inst.meshToolsSTD);
-            foreach (var tag in encody.enumerator) {
+            foreach (var tag in encody) {
                 var d = encody.getData();
                 foreach (var m in MeshToolBase.allTools)
                 if (m.ToString().SameAs(tag)) {

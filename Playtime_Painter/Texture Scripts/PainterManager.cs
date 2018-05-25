@@ -6,7 +6,9 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 using System;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 using UnityEngine.EventSystems;
 using System.Linq;
 using SharedTools_Stuff;
@@ -929,9 +931,9 @@ namespace Playtime_Painter
             pegi.newLine();
             "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-            "Textures to copy from".edit(() => sourceTextures).nl();
-            "Masks".edit(() => masks).nl();
-            "Decals".edit(() => decals).nl();
+            "Textures to copy from".edit(() => sourceTextures, this).nl();
+            "Masks".edit(() => masks, this).nl();
+            "Decals".edit(() => decals, this).nl();
         }
 
 #endif

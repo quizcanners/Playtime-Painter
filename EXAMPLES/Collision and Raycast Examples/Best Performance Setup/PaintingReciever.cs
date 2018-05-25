@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 using SharedTools_Stuff;
 
 
@@ -146,7 +148,7 @@ public class PaintingRecieverEditor : Editor
         #if PEGI
         public virtual bool PEGI() {
 
-            if ("Renderer Type:".edit(() => type).nl()) {
+            if ("Renderer Type:".edit(() => type, this).nl()) {
                 if ((type == RendererType.Skinned) && (skinnedMeshRenderer == null))
                     skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
                 if ((type == RendererType.regular) && (meshFilter == null)) {
@@ -161,12 +163,12 @@ public class PaintingRecieverEditor : Editor
             }
 
             if (type == RendererType.Skinned)
-                "   Skinned Mesh Renderer".edit(() => skinnedMeshRenderer).nl();
+                "   Skinned Mesh Renderer".edit(() => skinnedMeshRenderer, this).nl();
 
 
             if (type == RendererType.regular) {
-                "   Mesh Filter".edit(() => meshFilter).nl();
-                "   Renderer".edit(() => meshRenderer).nl();
+                "   Mesh Filter".edit(() => meshFilter, this).nl();
+                "   Renderer".edit(() => meshRenderer, this).nl();
             }
 
 
@@ -199,7 +201,7 @@ public class PaintingRecieverEditor : Editor
 
             if (this.gameObject.isStatic) {
                 "For STATIC Game Objects:".nl();
-                "   Original Mesh".edit("Static objects use Combined mesh, so original one will be needed for painting", () => originalMesh).nl();
+                "   Original Mesh".edit("Static objects use Combined mesh, so original one will be needed for painting", () => originalMesh, this).nl();
             }
 
             "For shaders which use Texcoord 2:".nl();
@@ -207,9 +209,9 @@ public class PaintingRecieverEditor : Editor
 
 
             if ((texture != null) || (matTex == null))
-                "Original Texture:".edit("Copy of this texture will be modified.", () => originalTexture).nl();
+                "Original Texture:".edit("Copy of this texture will be modified.", () => originalTexture, this).nl();
             "If not using Render Textures Pool:".nl();
-            "Texture".edit(() => texture);
+            "Texture".edit(() => texture, this);
             if ("Find".Click().nl())
             {
                 if (rendy && material)

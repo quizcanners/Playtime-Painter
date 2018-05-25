@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 using SharedTools_Stuff;
 
 namespace Playtime_Painter
@@ -115,7 +117,7 @@ namespace Playtime_Painter
         public bool PEGI() {
             bool changed = false;
 
-            "Merge Submasks".edit(() => mergeSubmasks).nl();
+            "Merge Submasks".edit(() => mergeSubmasks, this).nl();
             
             if (painter != null)
                 changed |= "Light Texture ".edit(ref lightTexture).nl();

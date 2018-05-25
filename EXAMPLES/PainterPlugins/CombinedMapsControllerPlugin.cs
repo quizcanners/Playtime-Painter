@@ -394,7 +394,7 @@ namespace Playtime_Painter {
                 else
                 if (icon.Add.Click("New Texture Packaging Profile", 25).nl())
                 {
-                    ctrl.texturePackagingSolutions.AddWithUniqueName();
+                    ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
                     selectedProfile = ctrl.texturePackagingSolutions.Count - 1;
                 }
 

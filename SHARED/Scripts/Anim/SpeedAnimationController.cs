@@ -20,7 +20,7 @@ using STD_Logic;
         public static void DecodeFrame (this Animated_STD_PEGI obj, string data) {
             if (obj != null) {
                 var cody = new stdDecoder(data);
-                foreach (var tag in cody.enumerator)
+                foreach (var tag in cody)
                     obj.DecodeFrame(tag, cody.getData());
             }
         }

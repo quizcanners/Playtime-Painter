@@ -7,7 +7,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 using System.Linq.Expressions;
 using System.Reflection;
 using UnityEditor.SceneManagement;

@@ -664,7 +664,8 @@ namespace SharedTools_Stuff
     }
     
     ///  Generic Trees
-    public class Countless<T> : CountlessBase, IEnumerable {
+    public class Countless<T> : CountlessBase //, IEnumerable
+    {
         
         T[] objs = new T[0];
         int firstFreeObj = 0;
@@ -1582,7 +1583,7 @@ namespace SharedTools_Stuff
         {
             c = new Countless<string>();
             var cody = new stdDecoder(data);
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
                 c[tag.ToIntFromText()] = cody.getData();
 
         }
@@ -1601,7 +1602,7 @@ namespace SharedTools_Stuff
         {
             c = new Countless<float>();
             var cody = new stdDecoder(data);
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
                 c[tag.ToIntFromText()] = cody.getData().ToFloat();
 
         }
@@ -1623,7 +1624,7 @@ namespace SharedTools_Stuff
         {
             c = new Countless<Vector3>();
             var cody = new stdDecoder(data);
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
                 c[tag.ToIntFromText()] = cody.getData().ToVector3();
 
         }
@@ -1642,7 +1643,7 @@ namespace SharedTools_Stuff
         {
             c = new Countless<Quaternion>();
             var cody = new stdDecoder(data);
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
                 c[tag.ToIntFromText()] = cody.getData().ToQuaternion();
 
         }
@@ -1661,7 +1662,7 @@ namespace SharedTools_Stuff
         {
             c = new Countless<String>();
             var cody = new stdDecoder(data);
-            foreach (var tag in cody.enumerator)
+            foreach (var tag in cody)
                 c[tag.ToIntFromText()] = cody.getData();
         }*/
 

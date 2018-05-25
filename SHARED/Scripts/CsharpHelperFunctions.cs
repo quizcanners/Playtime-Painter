@@ -64,20 +64,38 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        public static void AssignUniqueIndex<T>(this List<T> list, T el) {
+            var ind = el as iGotIndex;
+            if (ind != null)
+            {
+                int MaxIndex = ind.GetIndex();
+                foreach (var o in list)
+                {
+                    var oind = o as iGotIndex;
+                    if (oind != null)
+                        MaxIndex = Mathf.Max(MaxIndex, oind.GetIndex() + 1);
+                }
+                ind.SetIndex(MaxIndex);
+            }
+        }
 
-        public static T AddWithUniqueName<T>(this List<T> list) where T : new()
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new()
         {
 
+
+
             T e = new T();
+            list.AssignUniqueIndex(e);
             list.Add(e);
             e.AssignUniqueNameIn(list);
             return e;
         }
 
-        public static T AddWithUniqueName<T>(this List<T> list, string name) where T : new()
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new()
         {
 
             T e = new T();
+            list.AssignUniqueIndex(e);
             list.Add(e);
             #if PEGI
             var named = e as iGotName;
@@ -87,10 +105,7 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-
-     
-       
-
+        
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
             string value;
@@ -181,9 +196,7 @@ namespace SharedTools_Stuff
         {
             return name.Substring(index, name.Length - index);
         }
-
-
-
+        
         public static int FindMostSimilarFrom(this string s, string[] t)
         {
             int mostSimilar = -1;

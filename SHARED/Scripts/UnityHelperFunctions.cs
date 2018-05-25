@@ -11,7 +11,9 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.EventSystems;
+#if PEGI
 using PlayerAndEditorGUI;
+#endif
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -248,8 +250,13 @@ namespace SharedTools_Stuff
 
         public static void DestroyWhatever(this UnityEngine.Object go)
         {
-            if (Application.isPlaying)
-                UnityEngine.Object.Destroy(go);
+            if (Application.isPlaying) {
+                var clean = go as iManageDestroyOnPlay;
+                if (clean!= null)
+                    clean.DestroyYourself();
+                else
+                    UnityEngine.Object.Destroy(go);
+            }
             else
                 UnityEngine.Object.DestroyImmediate(go);
         }
@@ -326,7 +333,7 @@ namespace SharedTools_Stuff
 
             return added;
         }
-
+        
         public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
         {
             T added = null;
@@ -360,6 +367,118 @@ namespace SharedTools_Stuff
 #endif
             
             return added;
+        }
+        
+        public static bool TryAdd<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
+        {
+            if (ass == null)
+                return false;
+
+            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+            {
+                //Debug.Log("Is MOno "+ass.ToString());
+                var go = ass as GameObject;
+                if (go)
+                {
+                    var cmp = go.GetComponent<T>();
+                    if (cmp != null && !list.Contains(cmp))
+                    {
+
+                        list.Add(cmp);
+                        // Debug.Log("Added " + cmp.ToString() + " into " + typeof(T).ToString());
+                        return true;
+                    }
+                    //  else    Debug.Log("Failed on null "+(cmp == null));
+                } //else  Debug.Log("Not a GO");
+                return false;
+            }
+
+            if (ass.GetType() == typeof(T) || ass.GetType().IsSubclassOf(typeof(T)))
+            {
+                Debug.Log("is other " + ass.ToString());
+                T cst = ass as T;
+                if (!list.Contains(cst))
+                {
+                    list.Add(cst);
+                    Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
+                }
+                return true;
+            }
+            // else Debug.Log("Wrong path");
+            return false;
+
+        }
+
+        public static T CreateAsset_SO<T>(this List<T> objs, string path, string name) where T : ScriptableObject
+        {
+            return CreateAsset_SO<T, T>(path, name, objs);
+
+
+        }
+
+        public static T CreateAsset_SO_DONT_RENAME<T>(string path, string name) where T : ScriptableObject
+        {
+            return CreateAsset_SO<T, T>(path, name, null);
+        }
+
+        public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
+        {
+            var obj = typeof(UnityHelperFunctions)
+                .GetMethod("CreateAsset_SO_DONT_RENAME")
+                .MakeGenericMethod(t)
+                .Invoke(null, new object[] { path, name }) as T;
+
+            list.Add(obj);
+
+            return obj;
+        }
+
+        public static T CreateAsset_SO<T, G>(string path, string name, List<G> optionalList) where T : G where G : ScriptableObject
+        {
+            T asset = ScriptableObject.CreateInstance<T>();
+
+            #if PEGI
+
+            var nm = asset as iGotName;
+            if (nm != null)
+                nm.NameForPEGI = name;
+            
+            if (optionalList != null)
+            {
+
+                var ind = asset as iGotIndex;
+
+                if (ind != null)
+                {
+                    int maxInd = 0;
+                    foreach (var o in optionalList)
+                    {
+                        var io = o as iGotIndex;
+                        if (io != null)
+                            maxInd = Mathf.Max(io.GetIndex() + 1, maxInd);
+                    }
+                    ind.SetIndex(maxInd);
+                }
+                
+                optionalList.Add(asset);
+                
+            }
+#endif
+#if UNITY_EDITOR
+
+            string fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
+            Directory.CreateDirectory(fullPath);
+
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path.AddPostSlashIfNone() + name + ".asset");
+            
+            AssetDatabase.CreateAsset(asset, assetPathAndName);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+#endif
+
+
+
+            return asset;
         }
         
         public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
@@ -461,7 +580,7 @@ namespace SharedTools_Stuff
         public static bool DisplayNameContains(this Material m, string propertyName, string tag)
         {
             /*
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
                     try
                     {
                         var p = MaterialEditor.GetMaterialProperty(new Material[] { m }, propertyName);
@@ -471,7 +590,7 @@ namespace SharedTools_Stuff
                     } catch (Exception ex) {
                         Debug.Log("Materail "+m.name +" has no "+ propertyName+ " "+ex.ToString());
                     }
-            #endif
+#endif
             */
             return propertyName.Contains(tag);
         }
