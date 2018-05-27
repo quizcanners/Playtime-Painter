@@ -93,8 +93,7 @@ namespace Playtime_Painter {
 
         public const string stdTag_mesh = "mesh";
 
-        [NonSerialized]
-        public Mesh actualMesh;
+        [NonSerialized] public Mesh actualMesh;
 
         public void RemoveEmptyDots()
         {

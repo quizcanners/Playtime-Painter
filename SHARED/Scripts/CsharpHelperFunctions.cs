@@ -64,7 +64,11 @@ namespace SharedTools_Stuff
 #endif
         }
 
+
+
         public static void AssignUniqueIndex<T>(this List<T> list, T el) {
+
+#if PEGI
             var ind = el as iGotIndex;
             if (ind != null)
             {
@@ -77,6 +81,7 @@ namespace SharedTools_Stuff
                 }
                 ind.SetIndex(MaxIndex);
             }
+#endif
         }
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new()

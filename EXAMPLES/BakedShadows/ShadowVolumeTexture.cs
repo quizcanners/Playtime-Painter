@@ -132,7 +132,7 @@ namespace Playtime_Painter {
             changed |= lights.PEGI();
 
 
-            if (tex != null && tex.texture2D != null) {
+            if (imageData != null && imageData.texture2D != null) {
                 bool recalc = false;
 
                 if ("Recalculate ".Click().nl()) {

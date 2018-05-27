@@ -124,8 +124,8 @@ namespace Playtime_Painter
         }
 
         // ####################### Textures MGMT
-
-        public bool Equals(Texture tex)
+        
+        public bool Contains(Texture tex)
         {
             return (tex != null && tex == texture2D) || (renderTexture != null && renderTexture == tex);
         }
@@ -308,7 +308,6 @@ namespace Playtime_Painter
 
         public void TextureToRenderTexture(Texture2D tex)
         {
-            if (tex != null)
                 PainterManager.inst.Render(tex, this);
         }
 

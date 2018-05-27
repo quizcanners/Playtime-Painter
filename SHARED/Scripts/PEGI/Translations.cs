@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
 
-namespace Playtime_Painter
+namespace PlayerAndEditorGUI
 {
 
     // Add new lines of text to enum:
 
-    public enum msg  {Texture2D, RenderTexture, BrushType, BlitMode};
+    public enum msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement,
+        //LIST
+        HighlightElement, RemoveFromList, AddListElement, ReturnToListView};
 
     // Will be used as:   msg.Texture2D.Get();     - will get translation in current language.
 
@@ -25,13 +26,20 @@ namespace Playtime_Painter
             msg.RenderTexture.Add("Render Texture");
             msg.BrushType.Add("Brush Type");
             msg.BlitMode.Add("Blit Mode");
-
+            msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
+            msg.InspectElement.Add("Inspect PEGI of this element");
+            msg.HighlightElement.Add("Highlight this element in the project");
+            msg.RemoveFromList.Add("Remove this element from list");
+            msg.AddListElement.Add("Add element to a list");
+            msg.ReturnToListView.Add("Return to list view");
 
             WillBeTranslatingFrom(SystemLanguage.Ukrainian);
             msg.Texture2D.Add("Текстура");
             msg.RenderTexture.Add("Рендер Текстура");
             msg.BrushType.Add("Тип");
             msg.BlitMode.Add("Метод");
+
+            
 
 
             systemLanguage = (int)Application.systemLanguage;

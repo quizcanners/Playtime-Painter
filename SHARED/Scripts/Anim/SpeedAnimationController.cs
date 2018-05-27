@@ -6,9 +6,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 #endif
 using SharedTools_Stuff;
-using UnityEditor;
 using STD_Logic;
-
 
     namespace STD_Animations
 {
@@ -503,7 +501,8 @@ using STD_Logic;
                         SetFrameIndex(frameIndex + 1);
 
                         if (isLastFrame) {
-                            _callback?.Invoke();
+                            if (_callback != null)
+                                _callback.Invoke();
                             Destroy(gameObject);
                         }
                     }
@@ -511,7 +510,7 @@ using STD_Logic;
             }
         }
         
-        public void Init(System.Action callback)
+        public void Init(Action callback)
         {
             _callback = callback;
         }

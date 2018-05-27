@@ -87,7 +87,7 @@ namespace Playtime_Painter
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
         protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
         protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
-        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; } set { PainterStuff.applicationIsQuitting = value; } }
+        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
     }
 
@@ -105,7 +105,7 @@ namespace Playtime_Painter
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
         protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
         protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
-        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; } set { PainterStuff.applicationIsQuitting = value; } }
+        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
         
         }

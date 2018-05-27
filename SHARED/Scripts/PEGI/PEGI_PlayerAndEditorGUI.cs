@@ -1385,7 +1385,7 @@ namespace PlayerAndEditorGUI
             }
 
         }
-
+        
         public static bool ClickUnfocus(this Texture tex, string tip, int width)
         {
 
@@ -1407,8 +1407,7 @@ namespace PlayerAndEditorGUI
             }
 
         }
-
-
+        
         public static bool ClickUnfocus(this string text)
         {
 
@@ -1577,12 +1576,22 @@ namespace PlayerAndEditorGUI
         {
             return ClickUnfocus(icon.getIcon(), defaultButtonSize);
         }
-        
+
+        public static bool ClickUnfocus(this icon icon, msg text)
+        {
+            return ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
+        }
+
         public static bool ClickUnfocus(this icon icon, string text)
         {
-            return ClickUnfocus(icon.getIcon(), defaultButtonSize);
+            return ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
         }
-        
+
+        public static bool ClickUnfocus(this icon icon, msg text, int width)
+        {
+            return ClickUnfocus(icon.getIcon(), text.Get(), width);
+        }
+
         public static bool ClickUnfocus(this icon icon, string text, int width)
         {
             return ClickUnfocus(icon.getIcon(), text, width);
@@ -1645,7 +1654,7 @@ namespace PlayerAndEditorGUI
             {
                 checkLine();
                 int pre = key;
-                if (editDelayed(ref key, 40))
+                if (editDelayed(ref key,  40))
                     return dic.TryChangeKey(pre, key);
 
                 return false;
@@ -2261,16 +2270,24 @@ namespace PlayerAndEditorGUI
             }
         }
 
-
-        public static bool editDelayed(this string txt, ref int val, int width)
+        public static bool editDelayed(this string label, ref string val, int width)
         {
-            write(txt);
-            return editDelayed(ref val, width);
+            write(label, msg.editDelayed_HitEnter.Get(), width);
+
+            return editDelayed(ref val);
+
+
         }
 
-        public static bool editDelayed(this string txt, int width, ref string val)
+        public static bool editDelayed(this string label, ref int val, int width)
         {
-            write(txt, width);
+            write(label, msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val , width);
+        }
+
+        public static bool editDelayed(this string label, int width, ref string val)
+        {
+            write(label, width);
             return editDelayed(ref val);
         }
 
@@ -2312,8 +2329,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-
-
+        
         public static bool edit(ref string val)
         {
 
@@ -3276,13 +3292,13 @@ namespace PlayerAndEditorGUI
         }
 
         //Lists ...... of Monobehaviour
-        public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
         {
             write(label);
-            return list.edit_List(ref edited, allowDelete, ref added, names);
+            return list.edit_List_MB(ref edited, allowDelete, ref added, names);
         }
 
-        public static bool edit_List<T>(this List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
         {
             bool changed = false;
 
@@ -3295,7 +3311,7 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
 
-                if (icon.Add.ClickUnfocus().nl())
+                if (icon.Add.ClickUnfocus("New "+typeof(T).ToString()).nl())
                 {
                     changed = true;
                     list.Add(default(T));
@@ -3303,7 +3319,7 @@ namespace PlayerAndEditorGUI
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus(25))
+                    if (allowDelete && icon.Delete.ClickUnfocus("Delete From list",25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3518,7 +3534,7 @@ namespace PlayerAndEditorGUI
                 else
                     write(el.ToPEGIstring(), 120);
 
-                if ((el is iPEGI) && icon.Enter.ClickUnfocus(25))
+                if ((el is iPEGI) && icon.Enter.ClickUnfocus(msg.InspectElement,25))
                     return true;
             } else 
                 return pl.PEGI_inList();
@@ -3527,10 +3543,10 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        static bool clickHighlight (this UnityEngine.Object obj)
+        public static bool clickHighlight (this UnityEngine.Object obj)
         {
 #if UNITY_EDITOR
-            if (obj != null && icon.Search.Click())
+            if (obj != null && icon.Search.Click(msg.HighlightElement.Get()))
             {
                 EditorGUIUtility.PingObject(obj);
                 return true;
@@ -3570,7 +3586,7 @@ namespace PlayerAndEditorGUI
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus(25))
+                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(),25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3659,7 +3675,7 @@ namespace PlayerAndEditorGUI
         // ...... of New()
         static bool ListAddClick<T>(this List<T> list, ref T added) where T:new()
         {
-            if (icon.Add.ClickUnfocus().nl())
+            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()).nl())
             {
                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
                 {
@@ -3676,7 +3692,7 @@ namespace PlayerAndEditorGUI
 
         static bool ListAddClick<T>(this List<T> list)
         {
-            if (icon.Add.ClickUnfocus().nl()) {
+            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()).nl()) {
                     list.Add(default(T));
                 return true;
             }
@@ -3722,7 +3738,7 @@ namespace PlayerAndEditorGUI
                 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus(25))
+                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(),25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3760,7 +3776,7 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                if (icon.Exit.ClickUnfocus().nl())
+                if (icon.Exit.ClickUnfocus(msg.ReturnToListView.Get()).nl())
                 {
                     changed = true;
                     edited = -1;
@@ -3810,7 +3826,7 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                if (icon.Exit.ClickUnfocus().nl())
+                if (icon.Exit.ClickUnfocus(msg.ReturnToListView.Get()).nl())
                 {
                     changed = true;
                     edited = -1;

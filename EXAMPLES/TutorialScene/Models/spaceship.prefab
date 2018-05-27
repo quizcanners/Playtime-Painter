@@ -9,20 +9,20 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1258342921740440}
+  m_RootGameObject: {fileID: 1248733619948634}
   m_IsPrefabParent: 1
---- !u!1 &1258342921740440
+--- !u!1 &1248733619948634
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4959121970370144}
-  - component: {fileID: 33331880549986690}
-  - component: {fileID: 23971511490651074}
-  - component: {fileID: 64064053490836094}
-  - component: {fileID: 114361266080126048}
+  - component: {fileID: 4575553819946618}
+  - component: {fileID: 33045011458458326}
+  - component: {fileID: 23780216602016048}
+  - component: {fileID: 64123104577663970}
+  - component: {fileID: 114890652741716626}
   m_Layer: 0
   m_Name: spaceship
   m_TagString: Untagged
@@ -30,25 +30,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4959121970370144
+--- !u!4 &4575553819946618
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258342921740440}
-  m_LocalRotation: {x: 0.03846038, y: 0.937686, z: -0.08149955, w: -0.3355946}
-  m_LocalPosition: {x: -5.09, y: 35.3, z: 5.91}
-  m_LocalScale: {x: 6, y: 6, z: 6}
+  m_GameObject: {fileID: 1248733619948634}
+  m_LocalRotation: {x: 0.1474043, y: 0.52526474, z: 0.60354036, w: -0.58147055}
+  m_LocalPosition: {x: -1.54, y: 36.43, z: 5.19}
+  m_LocalScale: {x: 2.6066072, y: 2.6066074, z: 2.6066074}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 7.2980003, y: 219.853, z: 7.346}
---- !u!23 &23971511490651074
+  m_LocalEulerAnglesHint: {x: -53.655003, y: 313.073, z: -67.372}
+--- !u!23 &23780216602016048
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258342921740440}
+  m_GameObject: {fileID: 1248733619948634}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -56,7 +56,6 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 4111ec3737538d24eac860c521e3f96e, type: 2}
   - {fileID: 2100000, guid: 96e1aca8aa1e3c94dadf1a3061eba405, type: 2}
@@ -79,46 +78,46 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33331880549986690
+--- !u!33 &33045011458458326
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258342921740440}
-  m_Mesh: {fileID: 4300000, guid: 2a430f0b2b281f748b5cb85cc581045e, type: 2}
---- !u!64 &64064053490836094
+  m_GameObject: {fileID: 1248733619948634}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!64 &64123104577663970
 MeshCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258342921740440}
+  m_GameObject: {fileID: 1248733619948634}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
+  serializedVersion: 2
   m_Convex: 0
-  m_CookingOptions: 14
+  m_InflateMesh: 0
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: 2a430f0b2b281f748b5cb85cc581045e, type: 2}
---- !u!114 &114361266080126048
+--- !u!114 &114890652741716626
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1258342921740440}
+  m_GameObject: {fileID: 1248733619948634}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   attachedTools:
-  - {fileID: 114361266080126048}
-  meshRenderer: {fileID: 23971511490651074}
+  - {fileID: 114890652741716626}
+  meshRenderer: {fileID: 23780216602016048}
   skinnedMeshRendy: {fileID: 0}
   terrain: {fileID: 0}
   terrainCollider: {fileID: 0}
-  meshFilter: {fileID: 33331880549986690}
-  meshCollider: {fileID: 64064053490836094}
+  meshFilter: {fileID: 0}
+  meshCollider: {fileID: 0}
   terrainHeightTexture: {fileID: 0}
   meshEditing: 0
   selectedMeshProfile: 0
@@ -126,7 +125,7 @@ MonoBehaviour:
   _savedMeshData: 
   meshDataSavedFor: {fileID: 0}
   selectedSubmesh: 0
-  nameHolder: spaceship
+  nameHolder: unnamed
   selectedAtlasedMaterial: -1
   plugins:
   - {fileID: 0}
@@ -143,7 +142,7 @@ MonoBehaviour:
     useTexcoord2: 0
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
-    mouseDwn: 0
+    mouseDwn: 1
     firstStroke: 1
     mouseUp: 0
   playbackVectors: []

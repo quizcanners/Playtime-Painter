@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,6 +44,7 @@ public class brushMeshGenerator : MonoBehaviour {
             quad.vertices = qverts;
             quad.uv = quv;
             quad.triangles = qtris;
+                quad.name = "Quad";
         }
         return quad;
     }
@@ -60,7 +62,7 @@ public class brushMeshGenerator : MonoBehaviour {
 
     int[] segmentTris;
 
-    Mesh segmMesh = null;
+    [NonSerialized] Mesh segmMesh = null;
 
     void InitSegmentsIfNull() {
        // if ((segments != null) && (segments.Length == segmentsCount) && (segments[0]!= null)) return;
@@ -251,7 +253,8 @@ public class brushMeshGenerator : MonoBehaviour {
         prevB = toB;
 
         if (debug != null) debug.mesh = segmMesh;
-    
+
+            segmMesh.name = "Segmant Mesh";
 
         return segmMesh;
 
@@ -265,8 +268,8 @@ public class brushMeshGenerator : MonoBehaviour {
     public Vector3[] verts = new Vector3[8];
     public Vector2[] uv = new Vector2[8];
     public int[] tris = new int[18];
-    Mesh mesh;
-    public Mesh quad;
+    [NonSerialized] Mesh mesh;
+    [NonSerialized] public Mesh quad;
 
     public Mesh GetLongMesh(float length, float mwidth) {
 
@@ -290,6 +293,7 @@ public class brushMeshGenerator : MonoBehaviour {
         verts[7] = new Vector3(hwidth, -ends);
 
         mesh.vertices = verts;
+
 
         return mesh;
     }
@@ -327,7 +331,10 @@ public class brushMeshGenerator : MonoBehaviour {
             mesh.triangles = tris;
         }
         if (debug != null) debug.mesh = mesh;
-    }
+
+
+            mesh.name = "Long Mesh";
+        }
 
     public bool rebuild = false;
     public float width = 1;

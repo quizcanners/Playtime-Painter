@@ -70,11 +70,11 @@ namespace Playtime_Painter {
                 var col = RenderSettings.fogColor;
                 if ("Color".edit(ref col).nl()) 
                     RenderSettings.fogColor = col;
-                var mode = (int)RenderSettings.fogMode;
-                if (mode != (int)FogMode.ExponentialSquared)
+                var mode = RenderSettings.fogMode;
+                if (mode != FogMode.ExponentialSquared)
                     "Exponential Squared is recommended".writeHint();
                 if ("Mode".editEnum(ref mode).nl().nl())
-                    RenderSettings.fogMode = (FogMode)mode;
+                    RenderSettings.fogMode = mode;
                 float density = RenderSettings.fogDensity;
                 if ("Density".edit(60, ref density, 0f, 0.05f).nl())
                     RenderSettings.fogDensity = density;

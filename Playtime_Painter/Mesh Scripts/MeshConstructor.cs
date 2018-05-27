@@ -14,8 +14,6 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
-
-    [Serializable]
     public class MeshConstructor {
 
         public List<int>[] tris;

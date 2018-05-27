@@ -19,7 +19,32 @@ namespace Playtime_Painter{
             get
             {
                 if (_inst == null && !applicationIsQuitting)
-                    LoadOrInit();
+                {
+                    if (texMGMT.painterCfg != null)
+                        _inst = texMGMT.painterCfg;
+
+                    if (_inst == null)
+                    {
+                        _inst = new PainterConfig();
+                        texMGMT.painterCfg = _inst;
+                    }
+
+                    _inst.Init();
+
+                    _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName, _inst.vectorsFolderName);
+
+                    var encody = new stdDecoder(_inst.meshToolsSTD);
+                    foreach (var tag in encody)
+                    {
+                        var d = encody.getData();
+                        foreach (var m in MeshToolBase.allTools)
+                            if (m.ToString().SameAs(tag))
+                            {
+                                m.Decode(d);
+                                break;
+                            }
+                    }
+                }
 
                 return _inst;
             }
@@ -63,14 +88,13 @@ namespace Playtime_Painter{
         public const string isUV2DisaplyNameTag = "_UV2";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
-        public const string vertexColorRole = "VertexColorRole_"; // + R, G, B, A
+        public const string vertexColorRole = "VertexColorRole_";
 
         public string meshToolsSTD = null;
         
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
         public bool MakeVericesUniqueOnEdgeColoring;
-      //  public int MaxDistanceForTransformPosition = 100;
         public int SnapToGridSize = 1;
         public bool SnapToGrid = false;
         public bool newVerticesUnique = false;
@@ -104,8 +128,7 @@ namespace Playtime_Painter{
         public bool moreOptions = false;
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
-
-
+        
         public myIntVec2 samplingMaskSize;
 
         public int selectedSize = 4;
@@ -154,49 +177,25 @@ namespace Playtime_Painter{
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
 
             if (materialsFolderName == null)
+            {
                 materialsFolderName = "Materials";
-            if (texturesFolderName == null)
+                //if (texturesFolderName == null)
                 texturesFolderName = "Textures";
-            if (vectorsFolderName == null)
+                //if (vectorsFolderName == null)
                 vectorsFolderName = "Vectors";
-            if (meshesFolderName == null)
+                //if (meshesFolderName == null)
                 meshesFolderName = "Models";
-            if (atlasFolderName == null)
+                //if (atlasFolderName == null)
                 atlasFolderName = "ATLASES";
-            if (recordingNames == null)
+                //if (recordingNames == null)
                 recordingNames = new List<string>();
+            }
 
         }
-
-        public static void LoadOrInit() {
-
-            if (texMGMT.painterCfg != null)
-                _inst = texMGMT.painterCfg;
-
-            if (_inst == null){
-                _inst = new PainterConfig();
-                texMGMT.painterCfg = _inst;
-            }
-            
-            _inst.Init();
- 
-            _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName,_inst.vectorsFolderName);
-
-            var encody = new stdDecoder(_inst.meshToolsSTD);
-            foreach (var tag in encody) {
-                var d = encody.getData();
-                foreach (var m in MeshToolBase.allTools)
-                if (m.ToString().SameAs(tag)) {
-                    m.Decode(d);
-                    break;
-                }
-            }
-        }
-    
+        
         public static void SaveChanges() {
             stdEncoder cody = new stdEncoder();
             if (!applicationIsQuitting) {
-               // foreach (var mt in MeshToolBase.allTools)
                     cody.Add("e",MeshToolBase.allTools);
                 _inst.meshToolsSTD = cody.ToString();
             }

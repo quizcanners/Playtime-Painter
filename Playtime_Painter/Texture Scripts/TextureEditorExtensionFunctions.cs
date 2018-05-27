@@ -227,6 +227,29 @@ public static class TextureEditorExtensionFunctions  {
             return (id.destination == texTarget.RenderTexture) && (id.renderTexture == null);
         }
 
+        public static ImageData EnsureStaticInstance(this ImageData imgDTA)
+        {
+
+            if (imgDTA == null)
+                return null;
+
+            ImageData id = null;
+            if (imgDTA.texture2D != null)
+                id = imgDTA.texture2D.getImgDataIfExists();
+            else if (imgDTA.renderTexture != null)
+                id = imgDTA.renderTexture.getImgDataIfExists();
+            else
+                return null;
+
+            if (id == null)
+            {
+                PainterManager.inst.imgDatas.Add(imgDTA);
+                id = imgDTA;
+            }
+
+            return id;
+        }
+
         public static ImageData getImgDataIfExists(this Texture texture)
         {
             if (texture == null)
@@ -353,7 +376,7 @@ public static class TextureEditorExtensionFunctions  {
         }
 
         public static MaterialData GetMaterialData (this Material mat) {
-            return PainterManager.inst.getMaterialDataFor(mat);
+            return  (PainterManager.inst!= null) ? PainterManager.inst.getMaterialDataFor(mat) : null;
         }
 
 

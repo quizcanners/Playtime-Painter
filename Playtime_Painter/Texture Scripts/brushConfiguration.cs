@@ -247,7 +247,7 @@ namespace Playtime_Painter
                     pntr.RecordingMGMT();
 
                 if (!rendered)
-                    t.Paint(pntr, this, stroke);
+                    t.PaintRenderTexture(pntr, this, stroke);
             }
             
             return pntr;

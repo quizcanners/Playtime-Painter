@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ public class RenderBrush : PainterStuffMono {
 
     public MeshRenderer meshRendy;
     public MeshFilter meshFilter;
-    public Mesh modifiedMesh;
+    [NonSerialized] public Mesh modifiedMesh;
     public Bounds modifiedBound;
    
         SkinnedMeshRenderer changedSkinnedMeshRendy;

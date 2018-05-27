@@ -264,7 +264,7 @@ namespace Playtime_Painter
 
             public myIntVec2 currentPixel = new myIntVec2();
 
-            public int method;
+            public ColorSetMethod method;
 
             public override bool supportedByTex2D { get { return true; } }
 
@@ -297,7 +297,7 @@ namespace Playtime_Painter
 
             changed |= "Color Set On".editEnum(ref method).nl();
 
-            if (method == 2) {
+            if (method == ColorSetMethod.Manual) {
                 changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
 
                 currentPixel.Clamp(-cfg.samplingMaskSize.max, cfg.samplingMaskSize.max * 2);
@@ -372,14 +372,14 @@ namespace Playtime_Painter
             if (st.firstStroke)
             {
                 
-                    if (method == ((int)ColorSetMethod.MDownColor)) {
+                    if (method == (ColorSetMethod.MDownColor)) {
                     if (pntr) {
                         pntr.SampleTexture(st.uvTo);
                         fromColor(br, st.unRepeatedUV);
                     }
                     }
                     else
-                    if (method == ((int)ColorSetMethod.MDownPosition))
+                    if (method == (ColorSetMethod.MDownPosition))
                         fromUV(st.uvTo);
               
                 Shader.SetGlobalVector(PainterConfig.BRUSH_SAMPLING_DISPLACEMENT, new Vector4(

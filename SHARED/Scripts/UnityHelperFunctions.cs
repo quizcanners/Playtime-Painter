@@ -250,15 +250,19 @@ namespace SharedTools_Stuff
 
         public static void DestroyWhatever(this UnityEngine.Object go)
         {
-            if (Application.isPlaying) {
-                var clean = go as iManageDestroyOnPlay;
-                if (clean!= null)
-                    clean.DestroyYourself();
+            if (go != null)
+            {
+                if (Application.isPlaying)
+                {
+                    var clean = go as iManageDestroyOnPlay;
+                    if (clean != null)
+                        clean.DestroyYourself();
+                    else
+                        UnityEngine.Object.Destroy(go);
+                }
                 else
-                    UnityEngine.Object.Destroy(go);
+                    UnityEngine.Object.DestroyImmediate(go);
             }
-            else
-                UnityEngine.Object.DestroyImmediate(go);
         }
 
         public static Vector2 To01Space(this Vector2 v2)

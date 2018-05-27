@@ -59,8 +59,7 @@ namespace Playtime_Painter{
         public MeshFilter meshFilter;
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
-        [NonSerialized]
-        public Mesh colliderForSkinnedMesh;
+        [NonSerialized] public Mesh colliderForSkinnedMesh;
 
         public bool meshEditing = false;
 
@@ -107,7 +106,7 @@ namespace Playtime_Painter{
             }
         }
 
-        public MaterialData matDta {get { return texMGMT.getMaterialDataFor(material); } }
+        public MaterialData matDta {get { return material.GetMaterialData(); } }
 
         public ImageData imgData { get { return GetTextureOnMaterial().getImgData(); } }
 
@@ -724,8 +723,8 @@ namespace Playtime_Painter{
 
 		    if (nt == null)
 			    Debug.Log ("Change texture destroyed curigdata");
-		    if (previous!= null) 
-			    PainterManager.inst.Render (previous.currentTexture(), nt);
+
+			PainterManager.inst.Render (previous.currentTexture(), nt);
 
 		    UpdateOrSetTexTarget (texTarget.RenderTexture);
 
@@ -1526,7 +1525,7 @@ namespace Playtime_Painter{
                     rt.gameObject.DestroyWhatever();
 
             PainterStuff.applicationIsQuitting = false;
-	}
+	    }
 
         [MenuItem("Tools/" + PainterConfig.ToolName + "/Instantiate Painter Camera")]
         static void InstantiatePainterCamera() {
@@ -1594,8 +1593,10 @@ namespace Playtime_Painter{
         }
 
         public override void OnEnable() {
-		
-		    base.OnEnable ();
+
+            PainterStuff.applicationIsQuitting = false;
+
+            base.OnEnable ();
             if (plugins == null) 
                 plugins = new List<PainterPluginBase>();
              

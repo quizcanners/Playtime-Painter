@@ -40,7 +40,7 @@ namespace Playtime_Painter {
         public float size = 1;
         [NonSerialized]
         Color[] volume;
-        public ImageData tex;
+        public ImageData imageData; // TODO: Make sure Texture is not split between 2 imageDatas
 
         public virtual string MaterialPropertyName {get {return "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; } }
 
@@ -50,11 +50,11 @@ namespace Playtime_Painter {
 
         public int height { get { return h_slices * h_slices; } }
 
-        public int width{get { return ((tex == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): tex.width)) / h_slices;}}
+        public int width{get { return ((imageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): imageData.width)) / h_slices;}}
 
         public Vector4 posNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
 
-        public Vector4 slices4Shader {get { float w = (tex.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
+        public Vector4 slices4Shader {get { float w = (imageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
         
         public virtual bool needsToManageMaterials { get { return true; } }
 
@@ -113,10 +113,10 @@ namespace Playtime_Painter {
 
         public virtual void VolumeToTexture()
         {
-            if (tex == null)
+            if (imageData == null)
             {
                 if (TexturesPool._inst != null)
-                    tex = TexturesPool._inst.GetTexture2D().getImgData();
+                    imageData = TexturesPool._inst.GetTexture2D().getImgData();
                 else
                 {
                     Debug.Log("No Texture for Volume");
@@ -125,9 +125,9 @@ namespace Playtime_Painter {
                 UpdateTextureName();
             }
 
-            Color[] pixels = tex.pixels;//new Color32[tex.width * tex.width];
+            Color[] pixels = imageData.pixels;//new Color32[tex.width * tex.width];
 
-            int texSectorW = tex.width / h_slices;
+            int texSectorW = imageData.width / h_slices;
             int w = width;
 
             for (int hy = 0; hy < h_slices; hy++)
@@ -135,13 +135,13 @@ namespace Playtime_Painter {
                 for (int hx = 0; hx < h_slices; hx++)
                 {
 
-                    int hTex_index = (hy * tex.width + hx) * texSectorW;
+                    int hTex_index = (hy * imageData.width + hx) * texSectorW;
 
                     int h = hy * h_slices + hx;
 
                     for (int y = 0; y < w; y++)
                     {
-                        int yTex_index = hTex_index + y * tex.width;
+                        int yTex_index = hTex_index + y * imageData.width;
 
                         int yVolIndex = h * w * w + y * w;
 
@@ -155,8 +155,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            tex.SetAndApply(false);//SetPixels32(pixels);
-            //tex.//Apply(false);
+            imageData.SetAndApply(false);
             UpdateTextureName();
 
 
@@ -191,9 +190,9 @@ namespace Playtime_Painter {
         public int volumeToPixelIndex(int hx, int hy, int y, int x)
         {
 
-            int hTex_index = (hy * tex.width + hx) * tex.width / h_slices;
+            int hTex_index = (hy * imageData.width + hx) * imageData.width / h_slices;
 
-            int yTex_index = hTex_index + (y) * tex.width;
+            int yTex_index = hTex_index + (y) * imageData.width;
 
             int texIndex = yTex_index + x;
 
@@ -218,10 +217,10 @@ namespace Playtime_Painter {
         }
 
         public void UpdateTextureName() {
-            if (tex != null) {
-                tex.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
-                if (tex.texture2D != null) tex.texture2D.name = tex.SaveName;
-                if (tex.renderTexture != null) tex.renderTexture.name = tex.SaveName;
+            if (imageData != null) {
+                imageData.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
+                if (imageData.texture2D != null) imageData.texture2D.name = imageData.SaveName;
+                if (imageData.renderTexture != null) imageData.renderTexture.name = imageData.SaveName;
             }
         }
 
@@ -241,20 +240,20 @@ namespace Playtime_Painter {
                 Debug.Log("Clearing volume");
             }
 
-            var texture = tex.currentTexture();
+            var texture = imageData.currentTexture();
 
             if (texture == null)
-                tex = null;
+                imageData = null;
 
             if ("Texture".edit(60, ref texture).nl()) {
                 changed = true;
-                tex = texture == null ? null : texture.getImgData();
+                imageData = texture == null ? null : texture.getImgData();
             }
 
             changed |= "Volume Scale".edit(70,ref size).nl();
             size = Mathf.Max(0.0001f, size);
 
-                if (tex == null) {
+                if (imageData == null) {
 
                 if (TexturesPool._inst == null)
                     {
@@ -269,7 +268,7 @@ namespace Playtime_Painter {
                     }
                     else {
                     if ("Get From Pool".Click().nl()) {
-                        tex = TexturesPool._inst.GetTexture2D().getImgData();
+                        imageData = TexturesPool._inst.GetTexture2D().getImgData();
                         changed = true;
                     }
                     }
@@ -317,8 +316,10 @@ namespace Playtime_Painter {
         public virtual void OnEnable() {
             if (materials == null)
                 materials = new List<Material>();
+
+            imageData = imageData.EnsureStaticInstance();
+
             all.Add(this);
-            
         }
 
         public virtual void OnDisable() {
@@ -328,7 +329,7 @@ namespace Playtime_Painter {
 
         public virtual void OnDrawGizmosSelected()
         {
-            if (tex != null)
+            if (imageData != null)
             {
                 Vector3 center = transform.position;
                 var w = width;

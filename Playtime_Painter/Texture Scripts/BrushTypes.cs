@@ -255,15 +255,13 @@ namespace Playtime_Painter
             pntr.AfterStroke(st);
         }
 
-        public virtual void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public virtual void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
             BeforeStroke(pntr, br, st);
 
             if (st.crossedASeam())
                 st.uvFrom = st.uvTo;
-
-            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
             ImageData id = pntr.imgData;
 
@@ -323,37 +321,39 @@ namespace Playtime_Painter
         public static BrushTypePixel inst { get { initIfNull(); return _inst; } }
 
         protected override string shaderKeyword(bool texcoord2) { return "BRUSH_SQUARE"; }
+
         public override bool supportedByTex2D { get { return true; } }
 
         public override string ToString() { return "Pixel"; }
 
         public override bool isPixelPerfect { get { return true; } }
 
-        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
-            BeforeStroke(pntr, br, st);
+          
 
-            if (st.crossedASeam())
-                st.uvFrom = st.uvTo;
+           BeforeStroke(pntr, br, st);
 
-            if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
+             if (st.crossedASeam())
+                 st.uvFrom = st.uvTo;
 
-            ImageData id = pntr.imgData;
+             if (texMGMT.BigRT_pair == null) texMGMT.UpdateBuffersState();
 
-            texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
+             ImageData id = pntr.imgData;
 
-            rtbrush.localScale = Vector3.one * br.strokeWidth(id.width, false);
-            //Vector2 direction = st.delta_uv;
-            //  float length = direction.magnitude;
-            brushMesh = brushMeshGenerator.inst().GetQuad();//GetLongMesh(length * 256, br.strokeWidth(id.width, false));
-            rtbrush.localRotation = Quaternion.identity;//Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
+             texMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
 
-            rtbrush.localPosition = st.brushWorldPosition;// StrokeVector.brushWorldPositionFrom((st.uvFrom + st.uvTo) / 2);
+             rtbrush.localScale = Vector3.one * br.strokeWidth(id.width, false);
 
-            texMGMT.Render();
+             brushMesh = brushMeshGenerator.inst().GetQuad();
+             rtbrush.localRotation = Quaternion.identity;
 
-            AfterStroke(pntr, br, st);
+             rtbrush.localPosition = st.brushWorldPosition;
+
+             texMGMT.Render();
+
+             AfterStroke(pntr, br, st);
         }
 
     }
@@ -421,7 +421,7 @@ namespace Playtime_Painter
 
         Vector2 previousUV;
 
-        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
             BeforeStroke(pntr, br, st);
@@ -563,7 +563,7 @@ namespace Playtime_Painter
         public float LazyAngleSmoothed = 1;
         Vector2 previousDirectionLazy;
 
-        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
             BeforeStroke(pntr, br, st);
@@ -731,7 +731,7 @@ namespace Playtime_Painter
             Shader.SetGlobalVector(PainterConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
 
-        public override void Paint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
             ImageData id = pntr.imgData;

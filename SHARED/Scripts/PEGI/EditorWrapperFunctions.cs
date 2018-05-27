@@ -637,30 +637,6 @@ namespace  PlayerAndEditorGUI {
             newLine();
         }
 
-        public static void editOrselect(ref string to, string[] from)
-        {
-            checkLine();
-            to = EditorGUILayout.TextField(to);
-            int repName = EditorGUILayout.Popup(-1, from);
-            if (repName != -1)
-                to = from[repName];
-        }
-        
-        public static bool edit(this Editor e, string property)
-        {
-
-            // e.serializedObject.Update();
-            SerializedProperty tps = e.serializedObject.FindProperty(property);
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(tps, true);
-            if (EditorGUI.EndChangeCheck())
-            {
-                e.serializedObject.ApplyModifiedProperties();
-                return change;
-            }
-            return false;
-        }
-
         public static bool edit<T>(ref T field) where T : UnityEngine.Object
         {
             checkLine();
@@ -823,6 +799,8 @@ namespace  PlayerAndEditorGUI {
 
             if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex))
             {
+
+
                 EditorGUILayout.IntField(val);
                 val = editedInteger;
                 elementIndex++;

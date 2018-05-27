@@ -71,7 +71,7 @@ namespace Playtime_Painter
                             _inst.meshManager = new MeshManager();
 
                     }
-                    else _inst = null;
+                    else { _inst = null;}
                 }
                 return _inst;
             }
@@ -518,12 +518,13 @@ namespace Playtime_Painter
 
         public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, ImageData id, StrokeVector stroke, PlaytimePainter pntr)
         {
+            if (BigRT_pair == null) UpdateBuffersState();
 
             bool isDoubleBuffer = (id.renderTexture == null);
 
             bool useSingle = (!isDoubleBuffer) || bc.isSingleBufferBrush();
 
-            if ((!useSingle) && (!bufferUpdated))
+            if ((!useSingle) && (!secondBufferUpdated))
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
@@ -562,7 +563,7 @@ namespace Playtime_Painter
             rtcam.Render();
             brushRendy.gameObject.SetActive(false);
 
-            bufferUpdated = false;
+            secondBufferUpdated = false;
 
             if (brushRendy.deformedBounds)
                 brushRendy.RestoreBounds();
@@ -571,13 +572,13 @@ namespace Playtime_Painter
 
         public void Render(Texture tex, ImageData id)
         {
-            if (tex == null)
+            if (tex == null || id == null)
                 return;
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(tex, id.currentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
-            //rtcam.targetTexture = id.currentRenderTexture();
-            // brushRendy.PrepareForFullCopyOf(tex);
-            //  Render();
+
+            AfterRenderBlit(id.currentRenderTexture());
+
 
         }
 
@@ -586,9 +587,7 @@ namespace Playtime_Painter
             if (from == null) return;
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
-            //rtcam.targetTexture = to;
-            //brushRendy.PrepareForFullCopyOf(from);
-            // Render();
+            AfterRenderBlit(to);
         }
 
         public void Render(Color col, RenderTexture to)
@@ -596,6 +595,13 @@ namespace Playtime_Painter
             rtcam.targetTexture = to;
             brushRendy.PrepareColorPaint(col);
             Render();
+            AfterRenderBlit(to);
+        }
+
+        void AfterRenderBlit (Texture target)
+        {
+            if (BigRT_pair.Length>0 && BigRT_pair[0]!= null && BigRT_pair[0] == target)
+                secondBufferUpdated = false;
         }
 
         public void UpdateBufferTwo()
@@ -603,13 +609,13 @@ namespace Playtime_Painter
 
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
-            bufferUpdated = true;
+            secondBufferUpdated = true;
             //brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);
             //Set(rtp.pixPerfectCopy).Set(tex);
             // UpdateBufferSegment();
         }
 
-        public bool bufferUpdated = false;
+        public bool secondBufferUpdated = false;
         public void UpdateBufferSegment()
         {
             if (!DebugDisableSecondBufferUpdate)
@@ -618,7 +624,7 @@ namespace Playtime_Painter
                 rtcam.targetTexture = BigRT_pair[1];
                 brushRendy.Set(bufferCopy);
                 Render();
-                bufferUpdated = true;
+                secondBufferUpdated = true;
             }
         }
 
@@ -797,6 +803,18 @@ namespace Playtime_Painter
 #endif
 
 
+        }
+
+        private void OnDestroy()
+        {
+            if (!Application.isPlaying)
+            {
+                for (int i = 0; i < imgDatas.Count; i++)
+                {
+                    var id = imgDatas[i];
+                    id.DestroyWhatever();
+                }
+            }
         }
 
 #if UNITY_EDITOR
