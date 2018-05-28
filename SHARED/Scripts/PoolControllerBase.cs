@@ -13,6 +13,13 @@ namespace SharedTools_Stuff
         void DestroyYourself();
     }
 
+    public interface iManageFading
+    {
+
+        void FadeAway();
+        bool TryFadeIn();
+    }
+
     public class PoolableBase : MonoBehaviour
     {
         public PoolControllerBase poolController;

@@ -1077,7 +1077,35 @@ namespace PlayerAndEditorGUI
             return select_or_edit(ref obj, list);
         }
 
-        public static bool select_iGotIndex<T>(ref int ind, List<T> lst) where T : iGotIndex
+        public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst) where T : iGotIndex
+        {
+            write(label, tip);
+
+            return select_iGotIndex(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex<T>(this string label, string tip, int width, ref int ind, List<T> lst) where T : iGotIndex
+        {
+            write(label, tip, width);
+
+            return select_iGotIndex(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex<T>(this string label, int width, ref int ind, List<T> lst) where T : iGotIndex
+        {
+            write(label, width);
+
+            return select_iGotIndex(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex<T>(this string label, ref int ind, List<T> lst) where T : iGotIndex
+        {
+            write(label);
+
+            return select_iGotIndex(ref ind, lst);
+        }
+
+            public static bool select_iGotIndex<T>(ref int ind, List<T> lst) where T : iGotIndex
         {
 
             List<string> lnms = new List<string>();
@@ -3183,21 +3211,6 @@ namespace PlayerAndEditorGUI
             return edit<T>(null, tex, tip, -1, memberExpression, obj);
         }
 
-       /* public static bool edit<T>(this string label, Expression<Func<T>> memberExpression)
-        {
-            return edit<T>(label, null, null, -1, memberExpression, null);
-        }
-
-        public static bool edit<T>(this string label, string tip, Expression<Func<T>> memberExpression)
-        {
-            return edit<T>(label, null, tip, -1, memberExpression, null);
-        }
-
-        public static bool edit<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression)
-        {
-            return edit<T>(null, tex, tip, -1, memberExpression, null);
-        }
-        */
         public static bool edit<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
         {
 
@@ -3291,6 +3304,27 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        // ********************* LISTS
+
+        static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
+        {
+            bool changed = false;
+           
+
+            if (icon.Exit.ClickUnfocus(msg.ReturnToListView.Get()).nl())
+            {
+                changed = true;
+                index = -1;
+            }
+            else
+            {
+                var el = list[index];
+                var std = el != null ? list[index] as iPEGI : null;
+                if (std != null) changed |= std.PEGI();
+            }
+            return changed;
+        }
+
         //Lists ...... of Monobehaviour
         public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
         {
@@ -3311,7 +3345,7 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
 
-                if (icon.Add.ClickUnfocus("New "+typeof(T).ToString()).nl())
+                if (icon.Add.ClickUnfocus("New " + typeof(T).ToString()).nl())
                 {
                     changed = true;
                     list.Add(default(T));
@@ -3319,7 +3353,7 @@ namespace PlayerAndEditorGUI
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus("Delete From list",25))
+                    if (allowDelete && icon.Delete.ClickUnfocus("Delete From list", 25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3351,8 +3385,8 @@ namespace PlayerAndEditorGUI
 
 
             }
-            else
-            {
+            else changed |= list.ExitOrDrawPEGI(ref edited);
+            /*{
                 if (icon.Back.ClickUnfocus().nl())
                 {
                     changed = true;
@@ -3363,7 +3397,7 @@ namespace PlayerAndEditorGUI
                     var std = list[edited] as iPEGI;
                     if (std != null) changed |= std.PEGI();
                 }
-            }
+            }*/
 
             newLine();
 
@@ -3475,7 +3509,8 @@ namespace PlayerAndEditorGUI
 
 
             }
-            else
+            else changed |= list.ExitOrDrawPEGI(ref edited);
+            /*{
             {
                 if (icon.Exit.ClickUnfocus().nl())
                 {
@@ -3487,7 +3522,7 @@ namespace PlayerAndEditorGUI
                     var std = list[edited] as iPEGI;
                     if (std != null) changed |= std.PEGI();
                 }
-            }
+            }*/
 
             pegi.newLine();
             return added;
@@ -3558,7 +3593,7 @@ namespace PlayerAndEditorGUI
        
         static bool isMonoType<T>(List<T> list, int i)
         {
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+            if (typeof(T).IsAssignableFrom(typeof(MonoBehaviour)))
             {
                 GameObject mb = null;
                 if (edit(ref mb))
@@ -3630,7 +3665,8 @@ namespace PlayerAndEditorGUI
 
 
             }
-            else
+            else changed |= list.ExitOrDrawPEGI(ref edited);
+            /*{
             {
                 if (icon.Exit.ClickUnfocus().nl())
                 {
@@ -3642,7 +3678,7 @@ namespace PlayerAndEditorGUI
                     var std = list[edited] as iPEGI;
                     if (std != null) changed |= std.PEGI();
                 }
-            }
+            }*/
 
             pegi.newLine();
             return changed;
@@ -3774,7 +3810,8 @@ namespace PlayerAndEditorGUI
 
                
             }
-            else
+            else changed |= list.ExitOrDrawPEGI(ref edited);
+            /*
             {
                 if (icon.Exit.ClickUnfocus(msg.ReturnToListView.Get()).nl())
                 {
@@ -3786,7 +3823,7 @@ namespace PlayerAndEditorGUI
                     var std = list[edited] as iPEGI;
                     if (std != null) changed |= std.PEGI();
                 }
-            }
+            }*/
 
             pegi.newLine();
             return added;
@@ -3825,6 +3862,8 @@ namespace PlayerAndEditorGUI
                 
             }
             else
+                changed |= list.ExitOrDrawPEGI(ref edited);
+            /*
             {
                 if (icon.Exit.ClickUnfocus(msg.ReturnToListView.Get()).nl())
                 {
@@ -3836,7 +3875,7 @@ namespace PlayerAndEditorGUI
                     var std = list[edited] as iPEGI;
                     if (std != null) changed |= std.PEGI();
                 }
-            }
+            }*/
 
             pegi.newLine();
             return changed;
@@ -4020,53 +4059,53 @@ namespace PlayerAndEditorGUI
             public void Switch(object x, string name) { matches[x.GetType()](x); }
         }*/
 
-        /*
-                static List<MonoBehaviour> editorSubscribedMb = new List<MonoBehaviour>();
-#if UNITY_EDITOR
+            /*
+                    static List<MonoBehaviour> editorSubscribedMb = new List<MonoBehaviour>();
+    #if UNITY_EDITOR
 
-                public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, EditorApplication.CallbackFunction myMethodName) where T : MonoBehaviour
-                {
-
-                    if (!editorSubscribedMb.Contains(mb))
+                    public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, EditorApplication.CallbackFunction myMethodName) where T : MonoBehaviour
                     {
-                        if (icon.Play.Click())
+
+                        if (!editorSubscribedMb.Contains(mb))
                         {
-                            EditorApplication.update += myMethodName;
-                            editorSubscribedMb.Add(mb);
-                            return true;
+                            if (icon.Play.Click())
+                            {
+                                EditorApplication.update += myMethodName;
+                                editorSubscribedMb.Add(mb);
+                                return true;
+                            }
+
+                        }
+                        else
+                        {
+                            if ("Stop Updates".Click())
+                            {
+                                EditorApplication.update -= myMethodName;
+                                editorSubscribedMb.Remove(mb);
+                                return true;
+                            }
+
                         }
 
+
+
+
+                        return false;
                     }
-                    else
+    #else
+                    public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, Action myMethodName) where T : MonoBehaviour
                     {
-                        if ("Stop Updates".Click())
-                        {
-                            EditorApplication.update -= myMethodName;
-                            editorSubscribedMb.Remove(mb);
-                            return true;
-                        }
+                        return false;
+                    }
+    #endif
 
+                    public static bool isSubscribedToEditorUpdates(this MonoBehaviour mb)
+                    {
+                        return editorSubscribedMb.Contains(mb);
                     }
 
-
-
-
-                    return false;
-                }
-#else
-                public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, Action myMethodName) where T : MonoBehaviour
-                {
-                    return false;
-                }
-#endif
-
-                public static bool isSubscribedToEditorUpdates(this MonoBehaviour mb)
-                {
-                    return editorSubscribedMb.Contains(mb);
-                }
-
-            }*/
+                }*/
+        }
     }
-}
 
 #endif

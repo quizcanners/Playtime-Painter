@@ -399,12 +399,12 @@ namespace SharedTools_Stuff
 
             if (ass.GetType() == typeof(T) || ass.GetType().IsSubclassOf(typeof(T)))
             {
-                Debug.Log("is other " + ass.ToString());
+               // Debug.Log("is other " + ass.ToString());
                 T cst = ass as T;
                 if (!list.Contains(cst))
                 {
                     list.Add(cst);
-                    Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
+                   // Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
                 }
                 return true;
             }

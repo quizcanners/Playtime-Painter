@@ -111,6 +111,12 @@ namespace SharedTools_Stuff
             return e;
         }
         
+        public static T TryGet <T>(this List<T> list, int index)  {
+            if (list == null || index < 0 || index >= list.Count)
+                return default(T);
+            return list[index];
+        }
+
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
             string value;
