@@ -151,9 +151,9 @@ namespace STD_Logic {
 #endif
     }
 
-    public interface iCleanMyself {
+    /*public interface iCleanMyself {
         void StartFadeAway();
         bool CancelFade(); // Returns true if it was possible to revert fading
-    }
+    }*/
 
 }

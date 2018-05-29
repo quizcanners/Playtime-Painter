@@ -203,6 +203,20 @@ namespace SharedTools_Stuff
             return list[list.Count - 1];
         }
 
+        public static void Swap<T>(this List<T> list, int indexOfFirst)
+        {
+            T tmp = list[indexOfFirst];
+            list[indexOfFirst] = list[indexOfFirst+1];
+            list[indexOfFirst+1] = tmp;
+        }
+
+        public static void Swap<T>(IList<T> list, int indexA, int indexB)
+        {
+            T tmp = list[indexA];
+            list[indexA] = list[indexB];
+            list[indexB] = tmp;
+        }
+
         public static string RemoveFirst(this string name, int index)
         {
             return name.Substring(index, name.Length - index);

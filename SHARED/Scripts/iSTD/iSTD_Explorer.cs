@@ -72,16 +72,21 @@ namespace SharedTools_Stuff
             inspected = this;
             bool changed = false;
 
-            if (inspectedSTD == null)
-            {
-                MonoBehaviour mono = null;
-                if ("Target: ".edit(ref mono).nl()) {
-                    if (mono != null)
-                        inspectedSTD = mono as iSTD;
+                 UnityEngine.Object obj = inspectedSTD == null ? null : inspectedSTD as UnityEngine.Object;
+                if ("Target Obj: ".edit(60,ref obj)) {
+                    if (obj != null)
+                        inspectedSTD = obj as iSTD;
                 }
+
+
+            MonoBehaviour mono = inspectedSTD == null ? null : inspectedSTD as MonoBehaviour;
+            if ("Target Obj: ".edit(60,ref mono).nl())
+            {
+                if (mono != null)
+                    inspectedSTD = mono as iSTD;
             }
-                
-                if (inspectedSTD != null && inspectedState == -1) {
+
+            if (inspectedSTD != null && inspectedState == -1) {
 
       
                     "Save Folder:".edit(80, ref fileFolderHolder).nl();

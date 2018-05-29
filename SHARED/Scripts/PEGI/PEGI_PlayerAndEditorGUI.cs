@@ -3325,6 +3325,36 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        static bool editingOrder = false;
+
+        static bool edit_List_Order<T>(this List<T> list) {
+            if (!editingOrder)
+            {
+                if (icon.Edit.Click("Change Order"))
+                    editingOrder = true;
+            } else
+            {
+                if (icon.Done.Click("Finish moving"))
+                    editingOrder = false;
+            }
+
+
+            if (editingOrder) {
+                pegi.nl();
+                for (int i=0; i<list.Count; i++)
+                {
+                    if (i > 0 && icon.Up.Click())
+                        list.Swap(i - 1);
+                    if ((i < list.Count - 1) && icon.Down.Click())
+                        list.Swap(i);
+                }
+
+
+            }
+
+            return false;
+        }
+
         //Lists ...... of Monobehaviour
         public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
         {
@@ -3345,45 +3375,52 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
 
-                if (icon.Add.ClickUnfocus("New " + typeof(T).ToString()).nl())
-                {
-                    changed = true;
-                    list.Add(default(T));
-                }
+               
 
-                for (int i = 0; i < list.Count; i++)
-                {
-                    if (allowDelete && icon.Delete.ClickUnfocus("Delete From list", 25))
+                    if (icon.Add.ClickUnfocus("New " + typeof(T).ToString()).nl())
                     {
-                        list.RemoveAt(i);
                         changed = true;
-                        i--;
+                        list.Add(default(T));
                     }
-                    else
+
+                changed |= list.edit_List_Order();
+
+                if (!editingOrder)
+                {
+
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        var el = list[i];
-                        if (el == null)
+                        if (allowDelete && icon.Delete.ClickUnfocus("Delete From list", 25))
                         {
-                            T obj = null;
-                            if (i.ToString().edit(ref obj, i, names))
-                            {
-                                if (obj)
-                                {
-                                    list[i] = obj.GetComponent<T>();
-                                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
-                                }
-                            }
+                            list.RemoveAt(i);
+                            changed = true;
+                            i--;
                         }
                         else
                         {
-                            if (list[i].Name_ClickInspect_PEGI())
-                                edited = i;
+                            var el = list[i];
+                            if (el == null)
+                            {
+                                T obj = null;
+                                if (i.ToString().edit(ref obj, i, names))
+                                {
+                                    if (obj)
+                                    {
+                                        list[i] = obj.GetComponent<T>();
+                                        if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (list[i].Name_ClickInspect_PEGI())
+                                    edited = i;
+                            }
                         }
+                        newLine();
                     }
-                    newLine();
+
                 }
-
-
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
             /*{
@@ -3420,13 +3457,16 @@ namespace PlayerAndEditorGUI
             int before = edited;
             edited = Mathf.Clamp(edited, -1, list.Count - 1);
             changed |= (edited != before);
-            
+
             if (edited == -1)
             {
                 if (icon.Add.Click().nl())
                     list.Add(null);
+                changed |= list.edit_List_Order();
 
-                for (int i = 0; i < list.Count; i++)
+                if (!editingOrder)
+                {
+                    for (int i = 0; i < list.Count; i++)
                 {
                     if (icon.Delete.ClickUnfocus(25))
                     {
@@ -3452,7 +3492,7 @@ namespace PlayerAndEditorGUI
                                 var n = named.NameForPEGI;
                                 if (editDelayed(ref n, 120))
                                 {
-                                  
+
                                     el.RenameAsset(n);
                                     named.NameForPEGI = n;
                                 }
@@ -3499,14 +3539,14 @@ namespace PlayerAndEditorGUI
                                 }
                             }
 #endif
-                            }
-                        
+                        }
+
 
                     }
 
                     pegi.newLine();
                 }
-
+            }
 
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
@@ -3593,15 +3633,17 @@ namespace PlayerAndEditorGUI
        
         static bool isMonoType<T>(List<T> list, int i)
         {
-            if (typeof(T).IsAssignableFrom(typeof(MonoBehaviour)))
+            if ((typeof(MonoBehaviour)).IsAssignableFrom(typeof(T)))
             {
                 GameObject mb = null;
                 if (edit(ref mb))
                 {
                     list[i] = mb.GetComponent<T>();
                     if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
+                  
                 }
                 return true;
+
             }
             return false;
         }
@@ -3619,9 +3661,13 @@ namespace PlayerAndEditorGUI
             {
                 changed |= list.ListAddClick<T>();
 
-                for (int i = 0; i < list.Count; i++)
+                changed |= list.edit_List_Order();
+
+                if (!editingOrder)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(),25))
+                    for (int i = 0; i < list.Count; i++)
+                {
+                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(), 25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3663,7 +3709,7 @@ namespace PlayerAndEditorGUI
                     pegi.newLine();
                 }
 
-
+            }
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
             /*{
@@ -3767,14 +3813,17 @@ namespace PlayerAndEditorGUI
             int before = edited;
             edited = Mathf.Clamp(edited, -1, list.Count - 1);
             changed |= (edited != before);
-            
+
             if (edited == -1)
             {
                 changed |= list.ListAddClick<T>(ref added);
-                
-                for (int i = 0; i < list.Count; i++)
+                changed |= list.edit_List_Order();
+
+                if (!editingOrder)
                 {
-                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(),25))
+                    for (int i = 0; i < list.Count; i++)
+                {
+                    if (allowDelete && icon.Delete.ClickUnfocus(msg.RemoveFromList.Get(), 25))
                     {
                         list.RemoveAt(i);
                         changed = true;
@@ -3790,7 +3839,7 @@ namespace PlayerAndEditorGUI
 
                                 write("use edit_List_Obj");
 
-                             
+
                             }
                         }
                         else
@@ -3808,7 +3857,7 @@ namespace PlayerAndEditorGUI
                     pegi.newLine();
                 }
 
-               
+            }
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
             /*
@@ -3842,24 +3891,27 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
                 changed |= list.ListAddClick<T>();
+                changed |= list.edit_List_Order();
 
-                for (int i = 0; i < list.Count; i++)
+                if (!editingOrder)
                 {
-                   
-                        var el = list[i];
-                        if (el == null)
-                            write("NULL");
-                        else {
+                    for (int i = 0; i < list.Count; i++)
+                {
 
-                            if (list[i].Name_ClickInspect_PEGI())
-                                edited = i;
+                    var el = list[i];
+                    if (el == null)
+                        write("NULL");
+                    else {
 
-                            (list[i] as UnityEngine.Object).clickHighlight();
-                        }
-                        
+                        if (list[i].Name_ClickInspect_PEGI())
+                            edited = i;
+
+                        (list[i] as UnityEngine.Object).clickHighlight();
+                    }
+
                     pegi.newLine();
                 }
-                
+            }
             }
             else
                 changed |= list.ExitOrDrawPEGI(ref edited);

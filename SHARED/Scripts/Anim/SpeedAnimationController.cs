@@ -11,6 +11,11 @@ using STD_Logic;
     namespace STD_Animations
 {
 
+    public interface iCallAfterIFinish
+    {
+        void SetCallback(Action OnFinish);
+    }
+
     public enum SpeedSource { position, scale, shaderVal, rotation }
     
     public static class STD_AnimationExtensions
@@ -355,7 +360,8 @@ using STD_Logic;
     }
     
     [ExecuteInEditMode]
-    public class SpeedAnimationController : ComponentSTD, iCleanMyself  {
+    public class SpeedAnimationController : ComponentSTD, iManageFading, iCallAfterIFinish
+    {
 
         // Elements
         [SerializeField] List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
@@ -422,8 +428,13 @@ using STD_Logic;
         // Management
         [NonSerialized] bool isPaused;
         [NonSerialized] bool playInEditor;
-        [NonSerialized] Action _callback;
         [NonSerialized] TestOnceCondition oneTimeCondition;
+
+        public Action onFinish;
+        public void SetCallback(Action OnFinish)
+        {
+            onFinish += OnFinish;
+        }
 
         public override stdEncoder Encode()  {
             var cody = new stdEncoder();
@@ -500,21 +511,18 @@ using STD_Logic;
                     {
                         SetFrameIndex(frameIndex + 1);
 
-                        if (isLastFrame) {
-                            if (_callback != null)
-                                _callback.Invoke();
+                        if (isLastFrame)
+                        {
+                            if (onFinish != null)
+                                onFinish();
                             Destroy(gameObject);
                         }
+                        
                     }
                 }
             }
         }
-        
-        public void Init(Action callback)
-        {
-            _callback = callback;
-        }
-        
+       
         public static SpeedAnimationController inspectedAnimationController;
 
         float editor_FramePortion = 0;
@@ -714,8 +722,7 @@ using STD_Logic;
             return changed;
         }
 #endif
-
-
+        
         void AnimateToPortion(float portion) {
 
             if (previousFrame != null)  {
@@ -752,7 +759,7 @@ using STD_Logic;
             if (currentFrame != null)
                 foreach (var el in elementsUnsorted)
                     el.Set();
-            
+
             inspectedAnimationController = null;
         }
 
@@ -784,13 +791,16 @@ using STD_Logic;
 
         }
 
-        public void StartFadeAway() {
-           
+        public void FadeAway()
+        {
+            
         }
 
-        public bool CancelFade()
+        public bool TryFadeIn()
         {
-            return true;
+            return false;
         }
+
+     
     }
 }

@@ -180,6 +180,18 @@ namespace SharedTools_Stuff
         
 
         // STD
+        public static T DecodeInto_ifSTD<T>(this string data, T val)
+        {
+            if (val != null)
+            {
+                var asSTD = val as iSTD;
+                if (asSTD != null)
+                    data.DecodeInto(asSTD);
+            }
+
+            return val;
+        }
+
         public static T DecodeInto<T> (this string data, out T val) where T: iSTD, new() {
             val = new T();
             new stdDecoder(data).DecodeTagsFor(val);

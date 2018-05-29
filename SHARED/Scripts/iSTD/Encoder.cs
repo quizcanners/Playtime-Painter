@@ -234,6 +234,20 @@ namespace SharedTools_Stuff
             }
         }
 
+        public bool Add_ifSTD<T>(string tag, T obj)
+        {
+            if (obj != null)
+            {
+                var objstd = obj as iSTD;
+                if (objstd != null)
+                {
+                    Add(tag, objstd);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public override string ToString() {
             checkLine();
             return builder.ToString();
