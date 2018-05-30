@@ -1562,8 +1562,8 @@ namespace SharedTools_Stuff
 
             if (edited == -1)
                 foreach (var e in Cstd)
-                    if (e.Name_ClickInspect_PEGI().nl())
-                        edited = Cstd.currentEnumerationIndex;
+                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited).nl();
+                       
             
             pegi.newLine();
             return changed;

@@ -26,7 +26,7 @@ namespace  PlayerAndEditorGUI {
 
             start(so);
             bool changed = o.PEGI();
-            end();
+            end(o.gameObject);
 
             return changed;
         }
@@ -36,7 +36,7 @@ namespace  PlayerAndEditorGUI {
             
             start(so);
             bool changed = o.PEGI();
-            end();
+            end(o);
 
             return changed;
         }
@@ -53,10 +53,23 @@ namespace  PlayerAndEditorGUI {
 
         public static bool end(GameObject go)
         {
-            if ((changes) && (!Application.isPlaying))
+            if (changes) 
+            {
+                if (!Application.isPlaying)
                 EditorSceneManager.MarkSceneDirty((go == null) ? EditorSceneManager.GetActiveScene() : go.scene);
+                
+                EditorUtility.SetDirty(go);
+            }
 
+            newLine();
+            return changes;
+        }
 
+        public static bool end<T>(T obj) where T :UnityEngine.Object  
+        {
+            if (changes)
+                EditorUtility.SetDirty(obj);
+            
             newLine();
             return changes;
         }
@@ -210,7 +223,7 @@ namespace  PlayerAndEditorGUI {
             elementIndex = -1;
         }
 
-        public static bool select<T>(ref T val, List<T> lst)
+      /*  public static bool select<T>(ref T val, List<T> lst)
         {
             checkLine();
 
@@ -240,9 +253,9 @@ namespace  PlayerAndEditorGUI {
                 return change;
             }
             return false;
-        }
+        }*/
 
-        public static bool select<T>(ref T val, T[] lst)
+     /*   public static bool select<T>(ref T val, T[] lst)
         {
             checkLine();
 
@@ -266,15 +279,14 @@ namespace  PlayerAndEditorGUI {
             if (jindx == -1 && val != null)
                 lnms.Add(">>" + val.ToPEGIstring() + "<<");
 
-         //   if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
-
+   
                 if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
             {
                 val = lst[inxs[jindx]];
                 return change;
             }
             return false;
-        }
+        }*/
 
         public static bool select<T>(ref int no, List<T> lst, int width)
         {
@@ -1136,7 +1148,19 @@ namespace  PlayerAndEditorGUI {
             GUIContent c = new GUIContent();
             c.image = icon;
 
-            EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width+5), GUILayout.MaxWidth(width));
+        }
+
+        public static void write(Texture icon, string tip, int width)
+        {
+
+            checkLine();
+
+            GUIContent c = new GUIContent();
+            c.image = icon;
+            c.tooltip = tip;
+
+            EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
         }
 
         public static void write(string text, int width)

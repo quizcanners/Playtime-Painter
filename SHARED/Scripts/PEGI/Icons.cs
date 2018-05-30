@@ -17,7 +17,7 @@ namespace PlayerAndEditorGUI
         Square, PreviewShader, OriginalShader, SaveAsNew, StateMachine, Undo, Redo, Painter,
         UndoDisabled, RedoDisabled, Play, Record,  
         Script, Load, Pause, Mesh, Red, Green, Blue, Alpha,
-        Hint,  Paste, Search, Refresh, Up, Down
+        Hint,  Paste, Search, Refresh, Up, Down, Warning, List
 
     }
 
