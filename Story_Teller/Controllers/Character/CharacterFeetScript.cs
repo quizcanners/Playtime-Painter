@@ -105,7 +105,7 @@ public class CharacterFeetScript : MonoBehaviour {
 
                 float speedByTime = stepSpeed * Time.deltaTime;
 
-                cur.position = MyMath.Lerp(cur.position, dest, speedByTime);
+                cur.position = MyMath.Lerp(cur.position, dest, stepSpeed);
                 
                 stepDistanceLeft -= speedByTime;
 

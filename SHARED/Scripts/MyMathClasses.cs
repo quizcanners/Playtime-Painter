@@ -59,28 +59,28 @@ namespace SharedTools_Stuff
         {
 
             float dist = Vector3.Distance(from, to);
-            return Vector3.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed / dist) : 1);
+            return Vector3.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed*Time.deltaTime / dist) : 1);
 
         }
 
-        public static Vector2 Lerp(Vector2 from, Vector2 to, float speed)
+        public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed)
         {
 
             float dist = Vector2.Distance(from, to);
-            return Vector2.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed / dist) : 1);
+            return Vector2.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed*Time.deltaTime / dist) : 1);
 
         }
 
         public static void Lerp(ref float from, float to, float speed)
         {
             float dist = Mathf.Abs(from - to);
-            from = Mathf.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed / dist) : 1);
+            from = Mathf.Lerp(from, to, dist > 0 ? Mathf.Clamp01(speed*Time.deltaTime / dist) : 1);
         }
 
-        public static Quaternion Lerp(Quaternion from, Quaternion to, float speed)
+        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed)
         {
             float dist = Quaternion.Angle(from, to);
-            float portion = (dist > 0) ? speed / dist : 1;
+            float portion = (dist > 0) ? speed*Time.deltaTime / dist : 1;
             return Quaternion.Lerp(from, to, portion);
         }
 

@@ -152,11 +152,10 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public iSTD_Explorer explorer;
+        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
         public bool showDebug;
 
         #if PEGI
-        bool showUnrecognized = false;
         [NonSerialized] public int inspectedUnrecognized = -1;
         public virtual bool PEGI() {
 
@@ -169,21 +168,11 @@ namespace SharedTools_Stuff
 
             if (showDebug)
             {
-
                 if (icon.Exit.Click("Back to element inspection").nl())
                     showDebug = false;
-
-
-                changed |= this.PEGI(ref explorer).nl();
-
-                if (explorer == null)
-                {
-
-                    var cnt = unrecognizedTags.Count;
-
-                    if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
-                        changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
-                }
+                
+                explorer.PEGI(this);
+                
             }
             return changed;
         }
@@ -277,7 +266,7 @@ namespace SharedTools_Stuff
 			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
-
+        /*
         public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
             bool changed = false;
             #if PEGI
@@ -290,13 +279,14 @@ namespace SharedTools_Stuff
             }
             else
             {
-                exp.inspectedSTD = mono;
+                exp.ConnectSTD = mono;
                 changed |=exp.PEGI();
             }  
 #endif
 
             return changed;
         }
+        */
         #if PEGI
         public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
             bool changed = false;

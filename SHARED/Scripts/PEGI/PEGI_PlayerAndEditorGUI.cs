@@ -297,6 +297,13 @@ namespace PlayerAndEditorGUI
 
             if (obj == null) return "NULL";
 
+            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
+            {
+                var uobj = obj as UnityEngine.Object;
+                if (uobj == null)
+                    return "NULL";
+            }
+
             var dn = obj as iGotDisplayName;
             if (dn != null)
                 return dn.NameForPEGIdisplay();
@@ -674,7 +681,7 @@ namespace PlayerAndEditorGUI
 
         public static bool select_SameClass<T,G>(ref T val, List<G> lst) where T : class where G : class
         {
-
+            bool changed = false;
             bool same = typeof(T) == typeof(G);
 
                 checkLine();
@@ -691,18 +698,21 @@ namespace PlayerAndEditorGUI
                     {
                         if ((!val.isGenericNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
-                        lnms.Add(tmp.ToPEGIstring());
+                        lnms.Add(j.ToString()+":"+tmp.ToPEGIstring());
                         indxs.Add(j);
                     }
                 }
 
-                if (select(ref jindx, lnms.ToArray()))
+            if (jindx == -1 && val != null)
+                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
                 {
                     val = lst[indxs[jindx]] as T;
-                    return true;
+                    changed = true;
                 }
 
-                return false;
+                return changed;
             
         }
 
@@ -730,15 +740,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int ind, List<T> lst)
         {
 
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.select<T>(ref ind, lst);
-            }
-            else
-#endif
 
-            {
                 checkLine();
 
                 List<string> lnms = new List<string>();
@@ -758,14 +760,17 @@ namespace PlayerAndEditorGUI
                     }
                 }
 
-                if (select(ref jindx, lnms.ToArray()))
+            if (jindx == -1)
+                lnms.Add(">>" + ind.ToString() + "<<");
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
                 {
                     ind = indxs[jindx];
                     return true;
                 }
 
                 return false;
-            }
+            
         }
 
         public static bool select<T>(ref int ind, List<T> lst, int width)
@@ -780,7 +785,8 @@ namespace PlayerAndEditorGUI
 #endif
 
             {
-                checkLine();
+                return select(ref ind, lst);
+               /* checkLine();
 
                 List<string> lnms = new List<string>();
                 List<int> indxs = new List<int>();
@@ -805,7 +811,7 @@ namespace PlayerAndEditorGUI
                     return true;
                 }
 
-                return false;
+                return false;*/
             }
         }
 
@@ -1133,10 +1139,8 @@ namespace PlayerAndEditorGUI
 
 
         // ***************************** Select or edit
-
-            
-
-        public static bool select_or_edit<T>(ref T obj, List<T> list) where T : UnityEngine.Object
+        
+        public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list) where T : UnityEngine.Object
         {
             if (list == null || list.Count == 0)
                 return edit(ref obj);
@@ -1148,12 +1152,34 @@ namespace PlayerAndEditorGUI
                     changed = true;
                     obj = null;
                 }
+
+                if (text != null)
+                        write(text, hint, width);
+                  
+                
+
                  changed |=  select(ref obj, list);
                 return changed;
             }
         }
+        
+        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list) where T : UnityEngine.Object
+        {
+            return select_or_edit(name, null, 0, ref obj, list);
+        }
 
-        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class
+        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list) where T : UnityEngine.Object
+        {
+            // write(name, width);
+            return select_or_edit(name, null, width, ref obj, list);
+        }
+
+        public static bool select_or_edit<T>(ref T obj, List<T> list) where T : UnityEngine.Object
+        {
+            return select_or_edit(null, null, 0, ref obj, list);
+        }
+        
+        public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
             if (list == null || list.Count == 0)
                 return edit(ref obj);
@@ -1165,33 +1191,29 @@ namespace PlayerAndEditorGUI
                     changed = true;
                     obj = null;
                 }
-                select_SameClass(ref obj, list);
+
+
+                if (text != null)
+                    write(text, hint, width);
+
+                changed |= select_SameClass(ref obj, list);
                 return changed;
             }
         }
-
-        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list) where T : UnityEngine.Object
-        {
-            write(name);
-            return select_or_edit(ref obj, list);
-        }
-
-        public static bool select_SameClass_or_edit<T>(this string name, ref T obj, List<T> list) where T : UnityEngine.Object
-        {
-            write(name);
-            return select_SameClass_or_edit(ref obj, list);
-        }
         
-        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
-            write(name, width);
-            return select_or_edit(ref obj, list);
+            return select_SameClass_or_edit(null, null, 0, ref obj, list);
         }
 
-        public static bool select_SameClass_or_edit<T>(this string name, int width, ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
-            write(name, width);
-            return select_SameClass_or_edit(ref obj, list);
+            return select_SameClass_or_edit(name, null, 0, ref obj, list);
+        }
+      
+        public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
+        {
+            return select_SameClass_or_edit(name, null, width, ref obj, list);
         }
         
         public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst) where T : iGotIndex
@@ -1231,7 +1253,6 @@ namespace PlayerAndEditorGUI
 
             foreach (var el in lst)
             {
-
                 if (el != null)
                 {
                     int index = el.GetIndex();
@@ -1244,31 +1265,15 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (jindx == -1)
+                lnms.Add(">>" + ind.ToString() + "<<");
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
             {
-                if (ef.select(ref jindx, lnms.ToArray()))
-                {
                     ind = indxs[jindx];
                     return true;
-                }
             }
-            else
-#endif
 
-            {
-                checkLine();
-
-               
-
-                if (select(ref jindx, lnms.ToArray()))
-                {
-                    ind = indxs[jindx];
-                    return true;
-                }
-
-                
-            }
             return false;
         }
 
@@ -3195,7 +3200,9 @@ namespace PlayerAndEditorGUI
 
         public static void write(this string text, string tip, int width)
         {
-
+            if (width <= 0)
+                write(text, tip);
+            
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false)
             {
@@ -3461,6 +3468,13 @@ namespace PlayerAndEditorGUI
 
         // ********************* LISTS
 
+        const int listLabelWidth = 130;
+
+        static void write_ListLabel(this string label)
+        {
+            write(label);//, listLabelWidth);
+        }
+
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
             bool changed = false;
@@ -3488,6 +3502,9 @@ namespace PlayerAndEditorGUI
         static bool editingOrder = false;
 
         static bool edit_List_Order<T>(this List<T> list) {
+
+            bool changed = false;
+
             if (!editingOrder)
             {
                 if (icon.Edit.Click("Change Order"))
@@ -3504,9 +3521,15 @@ namespace PlayerAndEditorGUI
                 for (int i=0; i<list.Count; i++)
                 {
                     if (i > 0 && icon.Up.Click())
+                    {
+                        changed = true;
                         list.Swap(i - 1);
+                    }
                     if ((i < list.Count - 1) && icon.Down.Click())
+                    {
+                        changed = true;
                         list.Swap(i);
+                    }
 
                     var el = list[i];
 
@@ -3519,13 +3542,13 @@ namespace PlayerAndEditorGUI
 
             }
 
-            return false;
+            return changed;
         }
 
         //Lists ...... of Monobehaviour
         public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, Countless<string> names) where T : MonoBehaviour
         {
-            write(label);
+            label.write_ListLabel();
             return list.edit_List_MB(ref edited, allowDelete, ref added, names);
         }
 
@@ -3595,7 +3618,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List_SO<T>(this string label, List<T> list, ref int edited, ref bool changed) where T : ScriptableObject
         {
-            write(label);
+            label.write_ListLabel();
 
             return list.edit_List_SO(ref edited, ref changed);
         }
@@ -3721,7 +3744,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, List<T> list, ref int edited) where T : ScriptableObject
         {
-            write(label);
+            label.write_ListLabel();
 
             bool changed = false;
 
@@ -3893,13 +3916,13 @@ namespace PlayerAndEditorGUI
         
         public static bool edit_List_Obj<T>(this string label, List<T> list, bool allowDelete) where T : UnityEngine.Object
         {
-            write(label);
+            label.write_ListLabel();
             return (list.edit_List_Obj(allowDelete));
         }
         
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object
         {
-            write(label);
+            label.write_ListLabel();
             return list.edit_List_Obj(ref edited);
         }
 
@@ -3911,7 +3934,7 @@ namespace PlayerAndEditorGUI
         // ...... of New()
         static bool ListAddClick<T>(this List<T> list, ref T added) where T:new()
         {
-            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()).nl())
+            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
             {
                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
                 {
@@ -3937,7 +3960,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T : new()
         {
-            write(label);
+            label.write_ListLabel();
             return list.edit_List(ref edited, allowDelete);
         }
 
@@ -3957,7 +3980,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref bool changed) where T : new()
         {
-            write(label);
+            label.write_ListLabel();
             return list.edit_List(ref edited, allowDelete, ref changed);
         }
 

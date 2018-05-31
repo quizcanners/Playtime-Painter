@@ -140,7 +140,7 @@ namespace PlayerAndEditorGUI {
 
                 if (!OrbitingFocused)
                 {
-                    camTr.rotation = MyMath.Lerp(camTr.rotation, rot, 200 * Time.deltaTime);
+                    camTr.rotation = MyMath.Lerp(camTr.rotation, rot, 200);
                     if (Quaternion.Angle(camTr.rotation, rot) < 1)
                         OrbitingFocused = true;
                 }

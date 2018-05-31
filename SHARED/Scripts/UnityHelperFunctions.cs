@@ -1162,7 +1162,7 @@ namespace SharedTools_Stuff
                 {
                     if (!OrbitingFocused)
                     {
-                        cameraman.transform.rotation = MyMath.Lerp(cameraman.rotation, rot, 300 * Time.deltaTime);
+                        cameraman.transform.rotation = MyMath.Lerp(cameraman.rotation, rot, 300);
                         if (Quaternion.Angle(cameraman.rotation, rot) < 1)
                             OrbitingFocused = true;
                     }
