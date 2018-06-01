@@ -110,7 +110,7 @@ namespace Playtime_Painter
         {
             stdEncoder cody = new stdEncoder();
 
-            cody.AddText("n", name);
+            cody.Add_String("n", name);
             cody.Add_ifNotEmpty("sln", sln);
 
 

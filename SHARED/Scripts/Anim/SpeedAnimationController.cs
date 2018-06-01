@@ -188,8 +188,8 @@ using STD_Logic;
             var cody = new stdEncoder();
 
             cody.Add("i", index);
-            cody.AddText("n", _name);
-            cody.AddText("prop", propertyName);
+            cody.Add_String("n", _name);
+            cody.Add_String("prop", propertyName);
 
             if (script) {
                 var asp = script as iSTD;
@@ -438,7 +438,7 @@ using STD_Logic;
 
         public override stdEncoder Encode()  {
             var cody = new stdEncoder();
-            cody.AddText("frames", frames.Encode());
+            cody.Add_String("frames", frames.Encode());
             cody.Add("elm", elementsUnsorted);
             cody.Add_Bool("curve", curveSpeed);
             cody.Add("MaxSpeed", maxSpeed);

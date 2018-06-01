@@ -137,7 +137,7 @@ namespace STD_Logic
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); 
-            cody.AddText("n", name);
+            cody.Add_String("n", name);
             cody.Add("t",triggers);
             cody.Add("ind", index);
             return cody;

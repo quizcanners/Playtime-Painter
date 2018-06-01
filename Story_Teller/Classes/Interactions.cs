@@ -40,7 +40,7 @@ namespace StoryTriggerData
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); //EncodeData();
-            cody.AddIfNotEmpty("goto", goToReference);
+            cody.Add_IfNotEmpty("goto", goToReference);
             cody.Add("web", conditions);
             cody.Add("t",text);
             cody.Add_ifNotEmpty("t2", texts2);
@@ -153,7 +153,7 @@ namespace StoryTriggerData
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); //EncodeData();
-            cody.AddIfNotEmpty("ref", reference);
+            cody.Add_IfNotEmpty("ref", reference);
             cody.Add("Conds", conditions);
             cody.Add_ifNotEmpty("txt",Texts);
             cody.Add_ifNotEmpty("opt", options);
@@ -336,7 +336,7 @@ namespace StoryTriggerData
         {
             var cody = new stdEncoder();
 
-            cody.AddText("name", name);
+            cody.Add_String("name", name);
             cody.Add("cond", conds);
             cody.Add_ifNotEmpty("igr", subBranches);
             cody.Add_ifNotEmpty(Interaction.storyTag_intrct, elements);

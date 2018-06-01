@@ -57,6 +57,34 @@ namespace SharedTools_Stuff
 
 
 #if PEGI
+
+        public static bool PEGI_Static(iSTD target)
+        {
+            bool changed = false;
+            pegi.write("Load File:", 90);
+            target.LoadOnDrop().nl();
+            
+            if (icon.Copy.Click("Copy Component Data"))
+                STDExtensions.copyBufferValue = target.Encode().ToString();
+
+            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste Component Data"))
+                target.Decode(STDExtensions.copyBufferValue);
+
+            var comp = target as ComponentSTD;
+            if (comp != null)
+            {
+                if ("Clear Component".Click())
+                    comp.Reboot();
+            }
+
+            pegi.nl();
+
+            var iki = target as abstractKeepUnrecognized_STD;
+            if (iki != null)
+                iki.PEGI_Unrecognized().nl();
+            return changed;
+        }
+
         public bool PEGI(iSTD target)
         {
             bool changed = false;
@@ -69,36 +97,11 @@ namespace SharedTools_Stuff
                 "File Name:".edit("No file extension", 80, ref fileNameHolder);
 
                 if (fileNameHolder.Length > 0 && icon.Save.Click("Save To Assets"))
-                    inspectedSTD.SaveToAssets(fileFolderHolder, fileNameHolder).RefreshAssetDatabase();
+                    target.SaveToAssets(fileFolderHolder, fileNameHolder).RefreshAssetDatabase();
 
                 pegi.nl();
-
-                pegi.write("Load File:", 90);
-                inspectedSTD.LoadOnDrop().nl();
-
-          
-
-                if (icon.Copy.Click("Copy Component Data"))
-                    STDExtensions.copyBufferValue = inspectedSTD.Encode().ToString();
-
-                if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste Component Data"))
-                    inspectedSTD.Decode(STDExtensions.copyBufferValue);
                 
-                var comp = inspectedSTD as ComponentSTD;
-                if (comp != null)
-                {
-                    if ("Clear Component".Click())
-                        comp.Reboot();
-                }
-
-                pegi.nl();
-
-                var iki = inspectedSTD as abstractKeepUnrecognized_STD;
-                if (iki != null)
-                    iki.PEGI_Unrecognized().nl();
-
-              
-
+                PEGI_Static(target);
             }
 
             var aded = "____ Saved States:".edit_List(states, ref inspectedState, true, ref changed);
@@ -128,6 +131,11 @@ namespace SharedTools_Stuff
         public iSTD_ExplorerData data = new iSTD_ExplorerData();
 
 #if PEGI
+        public static bool PEGI_Static (iSTD target)
+        {
+            return iSTD_ExplorerData.PEGI_Static(target);
+        }
+
         public bool PEGI()
         {
 

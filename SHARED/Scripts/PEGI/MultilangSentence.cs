@@ -56,7 +56,7 @@ namespace PlayerAndEditorGUI
             stdEncoder enc = new stdEncoder();
             for (int i = 0; i < txt.Count; i++)
                 if (txt[i].Length > 0)
-                    enc.AddText(i.ToString(), txt[i]);
+                    enc.Add_String(i.ToString(), txt[i]);
             return enc;
         }
 

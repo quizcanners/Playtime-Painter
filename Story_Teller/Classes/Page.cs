@@ -87,9 +87,9 @@ namespace StoryTriggerData{
         }
 
         void encodeMeta(stdEncoder cody) {
-            cody.AddText("origin", OriginBook);
-            cody.AddText("name", gameObject.name);
-            cody.AddIfNotEmpty("URL", anotherBook);
+            cody.Add_String("origin", OriginBook);
+            cody.Add_String("name", gameObject.name);
+            cody.Add_IfNotEmpty("URL", anotherBook);
             cody.Add(UniversePosition.storyTag,sPOS);
             if (!uSize.Equals(10))
                 cody.Add("size", uSize);

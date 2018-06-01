@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "MilkLab/DBA/ToonyGloss" {
+Shader "Painter_Experimental/EyeGloss" {
 	Properties{
 
 	}

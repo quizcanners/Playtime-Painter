@@ -38,16 +38,16 @@ namespace StoryTriggerData {
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddText("name", gameObject.name);
-            cody.AddIfNotZero("pos", transform.localPosition);
+            cody.Add_String("name", gameObject.name);
+            cody.Add_IfNotZero("pos", transform.localPosition);
             if (strokeData != null) 
-                cody.AddText("playVectors", strokeData );
+                cody.Add_String("playVectors", strokeData );
 
             if ((painter.savedEditableMesh != null) && (painter.savedEditableMesh.Length > 0))
-                cody.AddText("mesh", painter.savedEditableMesh);
+                cody.Add_String("mesh", painter.savedEditableMesh);
 
-            cody.AddIfNotOne("scale", transform.localScale);
-            cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
+            cody.Add_IfNotOne("scale", transform.localScale);
+            cody.Add_IfNotZero("rot", transform.localRotation.eulerAngles);
             cody.Add(InteractionTarget.storyTag, stdValues);
             return cody;
         }

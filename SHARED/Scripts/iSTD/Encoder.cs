@@ -52,9 +52,9 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", v3.x.RoundTo(percision));
-            cody.AddIfNotZero("y", v3.y.RoundTo(percision));
-            cody.AddIfNotZero("z", v3.z.RoundTo(percision));
+            cody.Add_IfNotZero("x", v3.x.RoundTo(percision));
+            cody.Add_IfNotZero("y", v3.y.RoundTo(percision));
+            cody.Add_IfNotZero("z", v3.z.RoundTo(percision));
 
             return cody.ToString();
         }
@@ -63,8 +63,8 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", v2.x.RoundTo(percision));
-            cody.AddIfNotZero("y", v2.y.RoundTo(percision));
+            cody.Add_IfNotZero("x", v2.x.RoundTo(percision));
+            cody.Add_IfNotZero("y", v2.y.RoundTo(percision));
 
             return cody.ToString();
         }
@@ -73,10 +73,10 @@ namespace SharedTools_Stuff
         {
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", q.x.RoundTo6Dec());
-            cody.AddIfNotZero("y", q.y.RoundTo6Dec());
-            cody.AddIfNotZero("z", q.z.RoundTo6Dec());
-            cody.AddIfNotZero("w", q.w.RoundTo6Dec());
+            cody.Add_IfNotZero("x", q.x.RoundTo6Dec());
+            cody.Add_IfNotZero("y", q.y.RoundTo6Dec());
+            cody.Add_IfNotZero("z", q.z.RoundTo6Dec());
+            cody.Add_IfNotZero("w", q.w.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -85,10 +85,10 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", v4.x.RoundTo6Dec());
-            cody.AddIfNotZero("y", v4.y.RoundTo6Dec());
-            cody.AddIfNotZero("z", v4.z.RoundTo6Dec());
-            cody.AddIfNotZero("w", v4.w.RoundTo6Dec());
+            cody.Add_IfNotZero("x", v4.x.RoundTo6Dec());
+            cody.Add_IfNotZero("y", v4.y.RoundTo6Dec());
+            cody.Add_IfNotZero("z", v4.z.RoundTo6Dec());
+            cody.Add_IfNotZero("w", v4.w.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -97,9 +97,9 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", v3.x.RoundTo6Dec());
-            cody.AddIfNotZero("y", v3.y.RoundTo6Dec());
-            cody.AddIfNotZero("z", v3.z.RoundTo6Dec());
+            cody.Add_IfNotZero("x", v3.x.RoundTo6Dec());
+            cody.Add_IfNotZero("y", v3.y.RoundTo6Dec());
+            cody.Add_IfNotZero("z", v3.z.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -108,8 +108,8 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("x", v2.x.RoundTo6Dec());
-            cody.AddIfNotZero("y", v2.y.RoundTo6Dec());
+            cody.Add_IfNotZero("x", v2.x.RoundTo6Dec());
+            cody.Add_IfNotZero("y", v2.y.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -118,10 +118,10 @@ namespace SharedTools_Stuff
 
             stdEncoder cody = new stdEncoder();
 
-            cody.AddIfNotZero("r", col.r.RoundTo6Dec());
-            cody.AddIfNotZero("g", col.g.RoundTo6Dec());
-            cody.AddIfNotZero("b", col.b.RoundTo6Dec());
-            cody.AddIfNotZero("a", col.a.RoundTo6Dec());
+            cody.Add_IfNotZero("r", col.r.RoundTo6Dec());
+            cody.Add_IfNotZero("g", col.g.RoundTo6Dec());
+            cody.Add_IfNotZero("b", col.b.RoundTo6Dec());
+            cody.Add_IfNotZero("a", col.a.RoundTo6Dec());
 
             return cody.ToString();
         }
@@ -167,7 +167,7 @@ namespace SharedTools_Stuff
             dataExpected = false;
         }
 
-        public void AddText(string tag, String data) {
+        public void Add_String(string tag, String data) {
             checkLine();
 
             if (data == null)
@@ -265,37 +265,37 @@ namespace SharedTools_Stuff
 
         public void Add_ifNotNegative(string tag, int val) {
             if (val >= 0)
-                AddText(tag, val.ToString());
+                Add_String(tag, val.ToString());
         }
 
 
         public void Add(string tag, int val) {
-            AddText(tag, val.ToString());
+            Add_String(tag, val.ToString());
         }
 
         public void Add(string tag, uint val) {
-            AddText(tag, val.ToString());
+            Add_String(tag, val.ToString());
         }
 
 
         public void Add(string tag, Transform  tf)
         {
-            AddText(tag, tf.Encode(true));
+            Add_String(tag, tf.Encode(true));
         }
 
         // Optional encoding:
 
-        public bool AddIfNotEmpty(string tag, string val) {
+        public bool Add_IfNotEmpty(string tag, string val) {
 
             if ((val != null) && (val.Length > 0)) {
-                AddText(tag, val);
+                Add_String(tag, val);
                 return true;
             }
 
             return false;
         }
 
-        public bool AddIfNotEmpty(string tag, List<int> val) {
+        public bool Add_IfNotEmpty(string tag, List<int> val) {
 
             if (val.Count > 0) {
                 
@@ -310,7 +310,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool AddIfNotEmpty(string tag, List<uint> val){
+        public bool Add_IfNotEmpty(string tag, List<uint> val){
             if (val.Count > 0) {
                 stdEncoder cody = new stdEncoder();
                 foreach (uint i in val)
@@ -331,7 +331,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool AddIfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
+        public bool Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
         {
 
             if (val.Count > 0) {
@@ -341,20 +341,20 @@ namespace SharedTools_Stuff
                 foreach (var l in val)
                     sub.Add_ifNotEmpty("e",l);
 
-                AddText(tag, sub.ToString());
+                Add_String(tag, sub.ToString());
                 return true;
             }
 
             return false;
         }
         
-        public bool AddIfNotEmpty(string tag, Dictionary<int, string> dic) {
+        public bool Add_IfNotEmpty(string tag, Dictionary<int, string> dic) {
             if (dic.Count > 0) {
 
                 var sub = new stdEncoder();
 
                 foreach (var e in dic) 
-                    sub.AddText(e.Key.ToString(), e.Value);
+                    sub.Add_String(e.Key.ToString(), e.Value);
                 
                 Add(tag, sub);
                 return true;
@@ -362,7 +362,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool AddIfNotZero(string tag, float val) {
+        public bool Add_IfNotZero(string tag, float val) {
 
             if (Mathf.Abs(val) > float.Epsilon * 100) {
                 Add(tag, val.RoundTo6Dec());
@@ -375,14 +375,14 @@ namespace SharedTools_Stuff
         public bool Add_ifNotZero(string tag, int val) {
 
             if (val != 0) {
-                AddText(tag, val.ToString());
+                Add_String(tag, val.ToString());
                 return true;
             }
 
             return false;
         }
 
-        public bool AddIfNotZero(string tag, float val, float percision) {
+        public bool Add_IfNotZero(string tag, float val, float percision) {
 
             if (Mathf.Abs(val) > percision) {
                 Add(tag, val);
@@ -399,36 +399,36 @@ namespace SharedTools_Stuff
                 if (e != null)
                     sub.Add("e", e);
 
-            AddText(tag, sub.ToString());
+            Add_String(tag, sub.ToString());
         }
 
         public void Add (string tag, Matrix4x4 m) {
 
             stdEncoder sub = new stdEncoder();
 
-            sub.AddIfNotZero("00", m.m00);
-            sub.AddIfNotZero("01", m.m01);
-            sub.AddIfNotZero("02", m.m02);
-            sub.AddIfNotZero("03", m.m03);
+            sub.Add_IfNotZero("00", m.m00);
+            sub.Add_IfNotZero("01", m.m01);
+            sub.Add_IfNotZero("02", m.m02);
+            sub.Add_IfNotZero("03", m.m03);
 
-            sub.AddIfNotZero("10", m.m10);
-            sub.AddIfNotZero("11", m.m11);
-            sub.AddIfNotZero("12", m.m12);
-            sub.AddIfNotZero("13", m.m13);
+            sub.Add_IfNotZero("10", m.m10);
+            sub.Add_IfNotZero("11", m.m11);
+            sub.Add_IfNotZero("12", m.m12);
+            sub.Add_IfNotZero("13", m.m13);
 
-            sub.AddIfNotZero("20", m.m20);
-            sub.AddIfNotZero("21", m.m21);
-            sub.AddIfNotZero("22", m.m22);
-            sub.AddIfNotZero("23", m.m23);
+            sub.Add_IfNotZero("20", m.m20);
+            sub.Add_IfNotZero("21", m.m21);
+            sub.Add_IfNotZero("22", m.m22);
+            sub.Add_IfNotZero("23", m.m23);
 
-            sub.AddIfNotZero("30", m.m30);
-            sub.AddIfNotZero("31", m.m31);
-            sub.AddIfNotZero("32", m.m32);
-            sub.AddIfNotZero("33", m.m33);
+            sub.Add_IfNotZero("30", m.m30);
+            sub.Add_IfNotZero("31", m.m31);
+            sub.Add_IfNotZero("32", m.m32);
+            sub.Add_IfNotZero("33", m.m33);
 
             string data = sub.ToString();
 
-            AddText(tag, data);
+            Add_String(tag, data);
 
         }
 
@@ -452,42 +452,42 @@ namespace SharedTools_Stuff
                 
         }
 
-        public void Add(string tag, Quaternion q) { AddText(tag, q.Encode()); }
-        public void Add(string tag, Vector4 v4) { AddText(tag, v4.Encode()); }
-        public void Add(string tag, Vector3 v3) { AddText(tag, v3.Encode()); }
-        public void Add(string tag, Vector2 v2) { AddText(tag, v2.Encode()); }
-        public void Add(string tag, Vector3 v3, int percision) { AddText(tag, v3.Encode(percision)); }
-        public void Add(string tag, Vector2 v2, int percision) { AddText(tag, v2.Encode(percision)); }
+        public void Add(string tag, Quaternion q) { Add_String(tag, q.Encode()); }
+        public void Add(string tag, Vector4 v4) { Add_String(tag, v4.Encode()); }
+        public void Add(string tag, Vector3 v3) { Add_String(tag, v3.Encode()); }
+        public void Add(string tag, Vector2 v2) { Add_String(tag, v2.Encode()); }
+        public void Add(string tag, Vector3 v3, int percision) { Add_String(tag, v3.Encode(percision)); }
+        public void Add(string tag, Vector2 v2, int percision) { Add_String(tag, v2.Encode(percision)); }
 
         public void Add(string tag, Color col) {
-            AddText(tag, col.Encode());
+            Add_String(tag, col.Encode());
         }
 
-        public bool AddIfNotZero(string tag, Vector3 v3) {
+        public bool Add_IfNotZero(string tag, Vector3 v3) {
 
             if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) {
-                AddText(tag, v3.Encode());
+                Add_String(tag, v3.Encode());
                 return true;
             }
 
             return false;
         }
 
-        public bool AddIfNotOne(string tag, Vector3 v3)
+        public bool Add_IfNotOne(string tag, Vector3 v3)
         {
 
             if (!v3.Equals(Vector3.one)) {
-                AddText(tag, v3.Encode());
+                Add_String(tag, v3.Encode());
                 return true;
             }
 
             return false;
         }
         
-        public bool AddIfNotZero(string tag, Vector2 v2) {
+        public bool Add_IfNotZero(string tag, Vector2 v2) {
 
             if ((Math.Abs(v2.x) > Mathf.Epsilon) || (Math.Abs(v2.y) > Mathf.Epsilon)) {
-                AddText(tag, v2.Encode());
+                Add_String(tag, v2.Encode());
                 return true;
             }
 

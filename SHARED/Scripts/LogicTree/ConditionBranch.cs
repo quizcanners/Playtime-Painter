@@ -41,7 +41,7 @@ namespace STD_Logic
             cody.Add_ifNotEmpty("wb", branches);
             cody.Add_ifNotEmpty("v", conds);
             cody.Add_ifNotZero("t", (int)type);
-            cody.AddText("d", description);
+            cody.Add_String("d", description);
             cody.Add(TaggedTarget.stdTag_TagTar, targ);
             cody.Add_ifNotNegative("insB", browsedBranch);
             return cody;

@@ -197,8 +197,8 @@ namespace SharedTools_Stuff
 
             GetItAll(out inds, out vals);
 
-            cody.AddIfNotEmpty("inds", inds);
-            cody.AddIfNotEmpty("vals", vals);
+            cody.Add_IfNotEmpty("inds", inds);
+            cody.Add_IfNotEmpty("vals", vals);
 
             inds = null;
 
@@ -428,7 +428,7 @@ namespace SharedTools_Stuff
 
             List<int> inds = GetItAll();
 
-            cody.AddIfNotEmpty("inds", inds);
+            cody.Add_IfNotEmpty("inds", inds);
 
             inds = null;
 
@@ -947,7 +947,7 @@ namespace SharedTools_Stuff
             for (int i = 0; i < inds.Count; i++) {
                 var dta = vals[i].Encode().ToString();
                 //Debug.Log(inds[i] + " Encodingg " + dta);
-                cody.AddText(inds[i].ToString(), dta);
+                cody.Add_String(inds[i].ToString(), dta);
             }
 
             return cody;
@@ -1575,7 +1575,7 @@ namespace SharedTools_Stuff
             List<int> inds;
             List<string> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
-                cody.AddText(inds[i].ToString(), vals[i]);
+                cody.Add_String(inds[i].ToString(), vals[i]);
             return cody;
         }
 

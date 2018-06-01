@@ -27,6 +27,19 @@ namespace Playtime_Painter
 
         }
 
+        public static bool Contains(this List<vertexpointDta> lst, LineData ld)
+        {
+            return lst.Contains(ld.pnts[0].vert) && lst.Contains(ld.pnts[1].vert);
+        }
+
+        public static bool Contains(this List<vertexpointDta> lst, trisDta ld)
+        {
+            foreach (var p in ld.uvpnts)
+                if (!lst.Contains(p.vert))
+                    return false;
+            return true;
+        }
+
     }
 
     public class UVpoint : PainterStuffKeepUnrecognized_STD
@@ -298,9 +311,9 @@ namespace Playtime_Painter
         public override stdEncoder Encode() {
             var cody = new stdEncoder(); 
 
-            cody.AddIfNotZero("p", deltaPosition);
-            cody.AddIfNotZero("t", deltaTangent);
-            cody.AddIfNotZero("n", deltaNormal);
+            cody.Add_IfNotZero("p", deltaPosition);
+            cody.Add_IfNotZero("t", deltaTangent);
+            cody.Add_IfNotZero("n", deltaNormal);
 
             return cody;
         }
@@ -415,7 +428,7 @@ namespace Playtime_Painter
             cody.Add("edge", edgeStrength);
 
             if (shapes != null)
-                cody.AddIfNotEmpty(BlendFrame.tagName_bs, shapes);
+                cody.Add_IfNotEmpty(BlendFrame.tagName_bs, shapes);
 
             cody.Add_ifNotZero("gr", vertexGroup);
           

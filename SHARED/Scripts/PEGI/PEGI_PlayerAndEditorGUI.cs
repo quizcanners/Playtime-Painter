@@ -160,6 +160,27 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
+        public static bool inspect (this object other)
+        {
+            if (other == null)
+                return false;
+
+            var std = other as iPEGI;
+            
+
+            if (std != null)
+            {
+                var changes = std.PEGI();
+
+                if (changes || efChanges)
+                    other.SetToDirty();
+                
+                
+                return changes;
+            }
+            return false;
+        }
+
         public static void newLine()
         {
 #if UNITY_EDITOR
@@ -217,7 +238,7 @@ namespace PlayerAndEditorGUI
 
         public static void nl(this icon icon, int size)
         {
-            pegi.write(icon.getIcon(), size);
+            write(icon.getIcon(), size);
         }
 
         public static void checkLine()
@@ -301,7 +322,7 @@ namespace PlayerAndEditorGUI
             {
                 var uobj = obj as UnityEngine.Object;
                 if (uobj == null)
-                    return "NULL";
+                    return "NULL Object";
             }
 
             var dn = obj as iGotDisplayName;
@@ -347,6 +368,17 @@ namespace PlayerAndEditorGUI
 
             }
 
+        }
+
+        public static string thisMethodName()
+        {
+            return thisMethodName(1);
+        }
+
+        public static string thisMethodName(int up)
+        {
+            var frame = new StackFrame(up);
+            return frame.GetMethod().Name;
         }
 
         public static void NameNext(string name)
@@ -580,9 +612,9 @@ namespace PlayerAndEditorGUI
                 for (int j = 0; j < lst.Length; j++)
                 {
                     T tmp = lst[j];
-                    if (!tmp.isGenericNull())
+                    if (!tmp.isDefaultOrNull())
                     {
-                        if ((!val.isGenericNull()) && val.Equals(tmp))
+                        if ((!val.isDefaultOrNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
                         lnms.Add(j + ": " + tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -629,7 +661,7 @@ namespace PlayerAndEditorGUI
                 for (int j = 0; j < lst.Length; j++)
                 {
                     T tmp = lst[j];
-                    if (!tmp.isGenericNull())
+                    if (!tmp.isDefaultOrNull())
                     {
                         lnms.Add(tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -657,9 +689,9 @@ namespace PlayerAndEditorGUI
                 for (int j = 0; j < lst.Count; j++)
                 {
                     T tmp = lst[j];
-                    if (!tmp.isGenericNull())
+                    if (!tmp.isDefaultOrNull())
                     {
-                        if ((!val.isGenericNull()) && val.Equals(tmp))
+                        if ((!val.isDefaultOrNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
                         lnms.Add(j + ": " + tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -694,9 +726,9 @@ namespace PlayerAndEditorGUI
                 for (int j = 0; j < lst.Count; j++)
                 {
                     G tmp = lst[j];
-                    if (!tmp.isGenericNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
+                    if (!tmp.isDefaultOrNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
                     {
-                        if ((!val.isGenericNull()) && val.Equals(tmp))
+                        if ((!val.isDefaultOrNull()) && val.Equals(tmp))
                             jindx = lnms.Count;
                         lnms.Add(j.ToString()+":"+tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -1405,22 +1437,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool fold_enter_exit(this string txt, ref int selected, int current) {
-
             return icon.Enter.fold_enter_exit(txt, ref selected, current);
-
-           /* if (selected == current)
-            {
-                if (icon.Exit.ClickUnfocus(txt))
-                    selected = -1;
-            }
-            else if (selected == -1)
-            {
-                if (icon.Enter.ClickUnfocus(txt))
-                    selected = current;
-                write(txt);
-            }
-            
-            return (selected == current);*/
         }
         
         public static bool foldout(this string txt)
@@ -2860,7 +2877,7 @@ namespace PlayerAndEditorGUI
             {
                 checkLine();
                 bool before = val > 0;
-                if (pegi.toggle(ref before))
+                if (toggle(ref before))
                 {
                     val = before ? 1 : 0;
                     return true;
@@ -3253,7 +3270,7 @@ namespace PlayerAndEditorGUI
                 checkLine();
                 GUILayout.Label(text);
 
-                pegi.newLine();
+                newLine();
             }
 
         }
@@ -3293,7 +3310,7 @@ namespace PlayerAndEditorGUI
 
             if (PlayerPrefs.GetInt(name) != 0) return false;
 
-            pegi.newLine();
+            newLine();
 
             text += " (press OK)";
 
@@ -3451,18 +3468,11 @@ namespace PlayerAndEditorGUI
                     edited = -1;
                 }
                 else
-                {
-                    var std = dic.ElementAt(edited).Value as iPEGI;
-                    if (std != null)
-                    {
-                        changed |= std.PEGI();
-                        if (changed || efChanges)
-                            std.SetToDirty();
-                    }
-                }
+                     changed |= dic.ElementAt(edited).Value.inspect();
+                    
             }
 
-            pegi.newLine();
+            newLine();
             return changed;
         }
 
@@ -3486,16 +3496,8 @@ namespace PlayerAndEditorGUI
                 index = -1;
             }
             else
-            {
-                var el = list[index];
-                var std = el != null ? list[index] as iPEGI : null;
-                if (std != null) {
-                    changed |= std.PEGI();
-                    if (changed || efChanges)
-                        el.SetToDirty();
+                changed |= list[index].inspect();
                         
-                }
-            }
             return changed;
         }
 
@@ -3517,7 +3519,7 @@ namespace PlayerAndEditorGUI
             nl();
 
             if (editingOrder) {
-                pegi.nl();
+                nl();
                 for (int i=0; i<list.Count; i++)
                 {
                     if (i > 0 && icon.Up.Click())
@@ -3722,14 +3724,14 @@ namespace PlayerAndEditorGUI
 
                     }
 
-                    pegi.newLine();
+                    newLine();
                 }
             }
 
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
     
-            pegi.newLine();
+            newLine();
             return added;
         }
 
@@ -3871,7 +3873,7 @@ namespace PlayerAndEditorGUI
 
                             if (from != null && from.Count > 0)
                             {
-                                if (pegi.select(ref el, from))
+                                if (select(ref el, from))
                                     list[i] = el;
                             }
 
@@ -3895,7 +3897,7 @@ namespace PlayerAndEditorGUI
 
                     }
 
-                    pegi.newLine();
+                    newLine();
                 }
 
             }
@@ -3903,7 +3905,7 @@ namespace PlayerAndEditorGUI
             else changed |= list.ExitOrDrawPEGI(ref edited);
 
 
-            pegi.newLine();
+            newLine();
             return changed;
 
         }
@@ -4027,7 +4029,7 @@ namespace PlayerAndEditorGUI
 
                     }
 
-                    pegi.newLine();
+                    newLine();
                 }
 
             }
@@ -4035,7 +4037,7 @@ namespace PlayerAndEditorGUI
             else changed |= list.ExitOrDrawPEGI(ref edited);
 
 
-            pegi.newLine();
+            newLine();
             return added;
         }
 
@@ -4051,9 +4053,6 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
-                changed |= list.ListAddClick<T>();
-                changed |= list.edit_List_Order();
-
                 if (!editingOrder)
                 {
                     for (int i = 0; i < list.Count; i++)
@@ -4069,7 +4068,7 @@ namespace PlayerAndEditorGUI
                         (list[i] as UnityEngine.Object).clickHighlight();
                     }
 
-                    pegi.newLine();
+                    newLine();
                 }
             }
             }
@@ -4077,7 +4076,7 @@ namespace PlayerAndEditorGUI
                 changed |= list.ExitOrDrawPEGI(ref edited);
          
 
-            pegi.newLine();
+            newLine();
             return changed;
         }
 
@@ -4102,7 +4101,7 @@ namespace PlayerAndEditorGUI
                 changed = true;
             }
 
-            pegi.nl();
+            nl();
 
             return changed;
         }
@@ -4164,7 +4163,7 @@ namespace PlayerAndEditorGUI
 
             if (editedDic != dic)
             {
-                changed |= pegi.select(ref selected, dic);
+                changed |= select(ref selected, dic);
                 if (icon.Add.Click(20))
                 {
                     editedDic = dic;
@@ -4192,7 +4191,7 @@ namespace PlayerAndEditorGUI
 
             bool changed = false;
 
-            pegi.newLine();
+            newLine();
 
             for (int i = 0; i < dic.Count; i++)
             {
@@ -4203,13 +4202,13 @@ namespace PlayerAndEditorGUI
 
                 else
                 {
-                    changed |= pegi.editKey(ref dic, e.Key);
+                    changed |= editKey(ref dic, e.Key);
                     if (!changed)
-                        changed |= pegi.edit(ref dic, e.Key);
+                        changed |= edit(ref dic, e.Key);
                 }
-                pegi.newLine();
+                newLine();
             }
-            pegi.newLine();
+            newLine();
 
             changed |= dic.newElement_PEGI();
 
@@ -4219,10 +4218,10 @@ namespace PlayerAndEditorGUI
         public static bool newElement_PEGI(this Dictionary<int, string> dic)
         {
             bool changed = false;
-            pegi.newLine();
-            pegi.write("______New [Key, Value]");
-            pegi.newLine();
-            changed |= pegi.edit(ref newEnumKey); changed |= pegi.edit(ref newEnumName);
+            newLine();
+            write("______New [Key, Value]");
+            newLine();
+            changed |= edit(ref newEnumKey); changed |= edit(ref newEnumName);
             string dummy;
             bool isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
             bool isNewValue = !dic.ContainsValue(newEnumName);
@@ -4236,11 +4235,11 @@ namespace PlayerAndEditorGUI
             }
 
             if (!isNewIndex)
-                pegi.write("Index Takken by " + dummy);
+                write("Index Takken by " + dummy);
             else if (!isNewValue)
-                pegi.write("Value already assigned ");
+                write("Value already assigned ");
 
-            pegi.newLine();
+            newLine();
 
             return changed;
         }

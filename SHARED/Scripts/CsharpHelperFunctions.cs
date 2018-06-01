@@ -132,9 +132,9 @@ namespace SharedTools_Stuff
 
         public static bool isDefaultOrNull<T>(this T obj)
         {
-            return EqualityComparer<T>.Default.Equals(obj, default(T));
+            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         }
-
+        
         public static float RoundTo(this float val, int percision)
         {
             return (float)Math.Round(val, percision);
@@ -297,17 +297,14 @@ namespace SharedTools_Stuff
         {
 
             for (int i = 0; i < list.Count; i++)
-                if (list[i].isGenericNull())
+                if (list[i].isDefaultOrNull())
                 {
                     list.RemoveAt(i);
                     i--;
                 }
         }
 
-        public static bool isGenericNull<T>(this T obj)
-        {
-            return EqualityComparer<T>.Default.Equals(obj, default(T));
-        }
+    
 
         public static void SetMaximumLength<T>(this List<T> list, int Length)
         {

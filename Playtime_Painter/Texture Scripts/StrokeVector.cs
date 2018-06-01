@@ -65,7 +65,7 @@ namespace Playtime_Painter {
         s.Add("tP", posTo, 4);
 
         if (mouseUp)
-            s.AddText("Up", "_");
+            s.Add_String("Up", "_");
 
         return s;
     }
@@ -88,7 +88,7 @@ namespace Playtime_Painter {
                 s.Add("tU", uvTo, 4);
 
             if (mouseUp)
-                s.AddText("Up", "_");
+                s.Add_String("Up", "_");
 
             return s;
         }

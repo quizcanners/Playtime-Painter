@@ -29,7 +29,7 @@ namespace StoryTriggerData {
         var cody = new stdEncoder();
 
         cody.Add(InteractionTarget.storyTag, stdValues);
-            cody.AddIfNotZero("pos", transform.position);
+            cody.Add_IfNotZero("pos", transform.position);
 
             return cody;
 	}

@@ -23,6 +23,22 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+        public static double timeSinceStartup()
+        {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying)
+                return EditorApplication.timeSinceStartup;
+            else
+            #endif
+                return Time.realtimeSinceStartup;
+        }
+
+        public static bool TimePassedAbove(this double value, float interval)
+        {
+            return (timeSinceStartup() - value) > interval;
+        }
+
+
         public static void RepaintViews()
         {
 #if UNITY_EDITOR

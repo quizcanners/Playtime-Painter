@@ -31,7 +31,7 @@ namespace StoryTriggerData {
         
          public stdEncoder SaveUnrecognized(stdEncoder cody){
             for (int i=0; i<unrecognizedTags.Count; i++)
-                cody.AddText(unrecognizedTags[i], unrecognizedData[i]);
+                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
          }
  

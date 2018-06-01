@@ -56,9 +56,9 @@ namespace StoryTriggerData {
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-            cody.AddText("n", name);
+            cody.Add_String("n", name);
             cody.Add("size", transform.localScale);
-            cody.AddIfNotZero("pos", transform.localPosition);
+            cody.Add_IfNotZero("pos", transform.localPosition);
             cody.Add("rot", transform.localRotation.eulerAngles);
             cody.Add("c", conditions);
             return cody;

@@ -64,7 +64,7 @@ namespace StoryTriggerData {
         public override stdEncoder Encode() {
             stdEncoder cody = new stdEncoder();
 
-            cody.AddText(tag, _data);
+            cody.Add_String(tag, _data);
 
             return cody;
         }

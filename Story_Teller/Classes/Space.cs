@@ -193,11 +193,11 @@ namespace StoryTriggerData {
 
             var cody = new stdEncoder();
 
-            cody.AddIfNotZero("MP", MP, 0.0001f);
-            cody.AddIfNotZero("LY", LY, 0.0001f);
-            cody.AddIfNotZero("LM", LM, 0.0001f);
-            cody.AddIfNotZero("KM", KM, 0.0001f);
-            cody.AddIfNotZero("M", Meters, 0.0001f);
+            cody.Add_IfNotZero("MP", MP, 0.0001f);
+            cody.Add_IfNotZero("LY", LY, 0.0001f);
+            cody.Add_IfNotZero("LM", LM, 0.0001f);
+            cody.Add_IfNotZero("KM", KM, 0.0001f);
+            cody.Add_IfNotZero("M", Meters, 0.0001f);
 
             return cody;
         }
@@ -362,11 +362,11 @@ namespace StoryTriggerData {
 
             var cody = new stdEncoder();
 
-            cody.AddIfNotZero("MP", MP);
-            cody.AddIfNotZero("LY", LY);
-            cody.AddIfNotZero("LM", LM);
-            cody.AddIfNotZero("KM", KM);
-            cody.AddIfNotZero("M", Meters);
+            cody.Add_IfNotZero("MP", MP);
+            cody.Add_IfNotZero("LY", LY);
+            cody.Add_IfNotZero("LM", LM);
+            cody.Add_IfNotZero("KM", KM);
+            cody.Add_IfNotZero("M", Meters);
 
             return cody;
         }

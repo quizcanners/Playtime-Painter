@@ -148,10 +148,10 @@ namespace StoryTriggerData {
             cody.Add("speed", acceleration);
 
             if (controlledByPlayer) {
-                cody.AddText("p", "");
+                cody.Add_String("p", "");
             }
 
-            cody.AddText("n", gameObject.name);
+            cody.Add_String("n", gameObject.name);
             
             return cody;
         }

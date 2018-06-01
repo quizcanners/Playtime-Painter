@@ -454,7 +454,7 @@ namespace Playtime_Painter {
 
                 cody.Add_ifNotEmpty("ch", channel);
                 cody.Add_Bool("c", isColor);
-                cody.AddText("n", name);
+                cody.Add_String("n", name);
                 cody.Add("b", bumpStrength);
                 cody.Add("fc", fillColor);
 

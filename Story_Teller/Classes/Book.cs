@@ -64,7 +64,7 @@ namespace StoryTriggerData {
 
         public override stdEncoder Encode() {
             stdEncoder cody = new stdEncoder();
-            cody.AddText("name", gameObject.name);
+            cody.Add_String("name", gameObject.name);
 
             cody.Add("spos", UniversePosition.playerPosition);
 

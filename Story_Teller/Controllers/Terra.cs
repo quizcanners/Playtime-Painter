@@ -40,13 +40,13 @@ namespace StoryTriggerData
         {
             var cody = new stdEncoder();
 
-            cody.AddText("name", gameObject.name);
-            cody.AddIfNotZero("pos", transform.localPosition);
+            cody.Add_String("name", gameObject.name);
+            cody.Add_IfNotZero("pos", transform.localPosition);
             if (strokeData != null)
-                cody.AddText("playVectors", strokeData);
+                cody.Add_String("playVectors", strokeData);
 
-            cody.AddIfNotOne("scale", transform.localScale);
-            cody.AddIfNotZero("rot", transform.localRotation.eulerAngles);
+            cody.Add_IfNotOne("scale", transform.localScale);
+            cody.Add_IfNotZero("rot", transform.localRotation.eulerAngles);
             cody.Add("w_Noise", water.noise);
             cody.Add("w_Thick", water.thickness);
             cody.Add("w_Scale", water.upscale);

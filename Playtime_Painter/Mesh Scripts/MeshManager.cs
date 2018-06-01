@@ -233,7 +233,8 @@ namespace Playtime_Painter {
         public float dragDelay;
 
         [NonSerialized]
-        public bool dragging;
+        bool _dragging;
+        public bool dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.2f; } }
 
         public void DisconnectDragged()
         {
@@ -592,7 +593,7 @@ namespace Playtime_Painter {
         {
 
             MeshToolBase t = meshTool;
-            if (dragging)
+            if (_dragging)
                 t.KeysEventDragging();
 
             if ((t.showVertices) && (pointedUV != null))
@@ -611,7 +612,7 @@ namespace Playtime_Painter {
 
             bool pointingUV = Raycast_VertexIsPointed();
 
-            if (dragging)
+            if (_dragging)
                 meshTool.ManageDragging();
             else  {
 

@@ -1311,7 +1311,7 @@ namespace Playtime_Painter{
 
             if (stroke.mouseDwn) {
                 cody.Add(BrushConfig.storyTag, globalBrush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
-                cody.AddText("trg", id.TargetIsTexture2D() ? "C" : "G");
+                cody.Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
             }
 
             cody.Add(StrokeVector.storyTag, stroke.Encode(id.TargetIsRenderTexture() && globalBrush.IsA3Dbrush(this)));

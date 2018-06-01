@@ -143,7 +143,7 @@ namespace Playtime_Painter
         Vector3 originalPosition;
 
         Vector3 offset;
-
+        
         public override bool showGrid { get { return true; } }
   
         public override void AssignText(MarkerWithText mrkr, vertexpointDta vpoint)
@@ -398,7 +398,7 @@ namespace Playtime_Painter
                 draggedVertices.Clear();
                 draggedVertices.Add(pointedUV.vert);
 
-                m.dragDelay = 0.2f;
+          
             }
 
             return false;
@@ -406,36 +406,33 @@ namespace Playtime_Painter
         }
 
         public override bool MouseEventPointedLine() {
+
+            var m = meshMGMT;
+
             if (EditorInputManager.GetMouseButtonDown(0))
             {
-                var m = meshMGMT;
-                if (addToTrianglesAndLines)
-                
-                    meshMGMT.edMesh.insertIntoLine(meshMGMT.pointedLine.pnts[0].vert, meshMGMT.pointedLine.pnts[1].vert, meshMGMT.collisionPosLocal);
-                else
-                {
-                    m.dragging = true;
-                    originalPosition = GridNavigator.collisionPos;//uvPoint.vert.worldPos;
-                    GridNavigator.onGridPos = GridNavigator.collisionPos;
-                    draggedVertices.Clear();
-                    foreach (var uv in pointedLine.pnts)
-                        draggedVertices.Add(uv.vert);
-                }
+                m.dragging = true;
+                originalPosition = GridNavigator.collisionPos;//uvPoint.vert.worldPos;
+                GridNavigator.onGridPos = GridNavigator.collisionPos;
+                draggedVertices.Clear();
+                foreach (var uv in pointedLine.pnts)
+                    draggedVertices.Add(uv.vert);
             }
+
+            if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay>0 && draggedVertices.Contains(pointedLine))
+                    meshMGMT.edMesh.insertIntoLine(meshMGMT.pointedLine.pnts[0].vert, meshMGMT.pointedLine.pnts[1].vert, meshMGMT.collisionPosLocal);
+            
 
             return false;
         }
 
         public override bool MouseEventPointedTriangle() {
-            if (EditorInputManager.GetMouseButtonDown(0))  {
-                var m = meshMGMT;
+            var m = meshMGMT;
 
-                if (addToTrianglesAndLines) {
-                    if (cfg.newVerticesUnique)
-                        m.edMesh.insertIntoTriangleUniqueVerticles(m.pointedTris, m.collisionPosLocal);
-                    else
-                        m.edMesh.insertIntoTriangle(m.pointedTris, m.collisionPosLocal);
-                } else {
+            if (EditorInputManager.GetMouseButtonDown(0))  {
+                
+
+              
 
                     m.dragging = true;
                     originalPosition = GridNavigator.collisionPos;
@@ -443,9 +440,20 @@ namespace Playtime_Painter
                     draggedVertices.Clear();
                     foreach (var uv in pointedTris.uvpnts)
                     draggedVertices.Add(uv.vert);
-                }
+                
             }
-            return false;
+
+            if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay > 0 && draggedVertices.Contains(pointedTris))
+            {
+                if (cfg.newVerticesUnique)
+                    m.edMesh.insertIntoTriangleUniqueVerticles(m.pointedTris, m.collisionPosLocal);
+                else
+                    m.edMesh.insertIntoTriangle(m.pointedTris, m.collisionPosLocal);
+            }
+       
+
+
+                return false;
         }
 
         public override void MouseEventPointedNothing() {
@@ -465,8 +473,7 @@ namespace Playtime_Painter
                 m.dragDelay -= Time.deltaTime;
                 if ((m.dragDelay < 0) || (Application.isPlaying == false))
                 {
-                  //  if (m.selectedUV == null) { m.dragging = false; Debug.Log("no selected"); return; }
-                   
+
                     if ((GridNavigator.inst().angGridToCamera(GridNavigator.onGridPos) < 82)) {
 
                         Vector3 delta = GridNavigator.onGridPos - originalPosition;

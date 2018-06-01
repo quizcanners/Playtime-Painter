@@ -46,7 +46,7 @@ namespace STD_Logic {
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
 
-            cody.AddText("name", name);
+            cody.Add_String("name", name);
             cody.Add("cond", conds);
             cody.Add_ifNotEmpty("sub", subBranches);
             cody.Add("el", elements);

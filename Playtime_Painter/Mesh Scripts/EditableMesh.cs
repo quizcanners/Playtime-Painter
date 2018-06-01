@@ -53,13 +53,13 @@ namespace Playtime_Painter {
 
         public override stdEncoder Encode() {
             var cody = new stdEncoder();
-            cody.AddText("n", meshName);
+            cody.Add_String("n", meshName);
             cody.Add_ifNotEmpty("vrt",vertices);
             cody.Add_ifNotEmpty("tri",triangles);
             cody.Add("sub", submeshCount);
             cody.Add_Bool("wei", gotBoneWeights);
             cody.Add_Bool("bp", gotBindPos);
-            cody.AddIfNotEmpty("bv", baseVertex);
+            cody.Add_IfNotEmpty("bv", baseVertex);
             if (UV2distributeRow > 0) {
                 cody.Add("UV2dR", UV2distributeRow);
                 cody.Add("UV2cur", UV2distributeCurrent);
