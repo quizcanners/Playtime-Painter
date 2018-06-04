@@ -66,7 +66,7 @@ namespace StoryTriggerData
                 case "w_Noise": water.noise = data.ToFloat(); break;
                 case "w_Thick": water.thickness = data.ToFloat(); break;
                 case "w_Scale": water.upscale = data.ToFloat(); break;
-                case "w_Wet": water.wetAreaHeight = data.ToFloat(); water.setFoamDynamics(); break;
+                case "w_Wet": water.wetAreaHeight = data.ToFloat(); water.SetFoamDynamics(); break;
                 default: return false;
             }
             return true;

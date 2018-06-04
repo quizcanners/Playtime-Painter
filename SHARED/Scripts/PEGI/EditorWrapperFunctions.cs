@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using UnityEditor.SceneManagement;
 using SharedTools_Stuff;
-
+using UnityEngine.Events;
 
 namespace  PlayerAndEditorGUI {
 
@@ -1118,7 +1118,9 @@ namespace  PlayerAndEditorGUI {
             cont.tooltip = tip;
             return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
         }
-        
+
+    
+
         public static bool Click(Texture img, int width)
         {
             checkLine();
@@ -1132,6 +1134,16 @@ namespace  PlayerAndEditorGUI {
             cont.tooltip = tip;
             cont.image = img;
             return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            //return Click(img, tip, width,width + 10);
+        }
+
+        public static bool Click(Texture img, string tip, int width, int height)
+        {
+            checkLine();
+            GUIContent cont = new GUIContent();
+            cont.tooltip = tip;
+            cont.image = img;
+            return GUILayout.Button(cont, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)) ? change : false;
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object
@@ -1148,7 +1160,9 @@ namespace  PlayerAndEditorGUI {
             GUIContent c = new GUIContent();
             c.image = icon;
 
-            EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width+5), GUILayout.MaxWidth(width));
+            GUI.enabled = false;
+            GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
+            GUI.enabled = true;
         }
 
         public static void write(Texture icon, string tip, int width)
@@ -1160,7 +1174,11 @@ namespace  PlayerAndEditorGUI {
             c.image = icon;
             c.tooltip = tip;
 
-            EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
+            GUI.enabled = false;
+            GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
+            GUI.enabled = true;
+
+            //EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
         }
 
         public static void write(string text, int width)
@@ -1235,6 +1253,41 @@ namespace  PlayerAndEditorGUI {
             string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
             return defines.Contains(define);
         }
+
+        public static IEnumerable<T> DropAreaGUI<T>() where T : UnityEngine.Object
+        {
+            newLine();
+
+            Event evt = Event.current;
+            Rect drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
+            
+            GUILayout.Box("Drag & Drop");
+
+            switch (evt.type)
+            {
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                    if (!drop_area.Contains(evt.mousePosition))
+                        yield break;
+
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+                    if (evt.type == EventType.DragPerform)
+                    {
+                        DragAndDrop.AcceptDrag();
+
+                        foreach (UnityEngine.Object o in DragAndDrop.objectReferences)
+                        {
+                            var cnvrt = o as T;
+                            if (cnvrt)
+                                yield return cnvrt;
+                        }
+                    }
+                    break;
+            }
+            yield break;
+        }
+
         
     }
 }

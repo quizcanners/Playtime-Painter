@@ -16,12 +16,7 @@ namespace Playtime_Painter
 
         public override void OnInspectorGUI()
         {
-            ef.start(serializedObject);
-            ((WaterController)target).PEGI();
-
-   
-            ef.end();
-
+            ((WaterController)target).Nested_Inspect();
         }
     }
 #endif
@@ -29,7 +24,7 @@ namespace Playtime_Painter
 
 
     [ExecuteInEditMode]
-    public class WaterController : MonoBehaviour
+    public class WaterController : ComponentSTD
     {
 
         //    public Texture2D foamTexture;
@@ -37,7 +32,7 @@ namespace Playtime_Painter
         private void OnEnable()
         {
 
-            setFoamDynamics();
+            SetFoamDynamics();
             Shader.EnableKeyword("WATER_FOAM");
         }
 
@@ -56,7 +51,7 @@ namespace Playtime_Painter
         public float wetAreaHeight;
       
 
-        public void setFoamDynamics() {
+        public void SetFoamDynamics() {
             Shader.SetGlobalVector("_foamDynamics", new Vector4(thickness, noise, upscale, (300 - thickness)));
             Shader.SetGlobalTexture("_foam_MASK", foamMask);
         }
@@ -78,20 +73,29 @@ namespace Playtime_Painter
         }
 
 #if PEGI
-        public bool PEGI() {
-            bool changed = false;
-            changed |= "Foam".edit(70, ref foamMask).nl();
-            changed |= "Thickness:".edit(70, ref thickness, 5, 300).nl();
-            changed |= "Noise:".edit(50, ref noise, 0, 100).nl();
-            changed |= "Upscale:".edit(50, ref upscale, 1, 64).nl();
-            changed |= "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl();
-            if (changed)  {
-                setFoamDynamics();
-                UnityHelperFunctions.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-                this.SetToDirty();
+        public override bool PEGI() {
+            bool changed = base.PEGI();
+            if (!showDebug)
+            {
+                changed |= "Foam".edit(70, ref foamMask).nl();
+                changed |= "Thickness:".edit(70, ref thickness, 5, 300).nl();
+                changed |= "Noise:".edit(50, ref noise, 0, 100).nl();
+                changed |= "Upscale:".edit(50, ref upscale, 1, 64).nl();
+                changed |= "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl();
+                if (changed)
+                {
+                    SetFoamDynamics();
+                    UnityHelperFunctions.RepaintViews();  // UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    this.SetToDirty();
+                }
             }
-            
             return changed;
+        }
+
+        public override stdEncoder Encode()
+        {
+            var cody = base.EncodeUnrecognized();
+            return cody;
         }
 #endif
     }

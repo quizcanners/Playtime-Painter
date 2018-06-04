@@ -17,15 +17,18 @@ namespace Playtime_Painter
 
         public override void OnInspectorGUI()
         {
-            ef.start(serializedObject);
-            ((LightCaster)target).PEGI();
-            ef.end();
+            ((LightCaster)target).inspect(serializedObject);
         }
     }
 #endif
 
     [ExecuteInEditMode]
-    public class LightCaster : MonoBehaviour {
+    public class LightCaster : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
+
+    {
 
         public static Countless<LightCaster> allProbes = new Countless<LightCaster>();
         public static int FreeIndex = 0;

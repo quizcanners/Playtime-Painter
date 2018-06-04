@@ -7,7 +7,11 @@ using SharedTools_Stuff;
 namespace Playtime_Painter {
     
     [System.Serializable]
-    public class MaterialLightManager : PainterStuff {
+    public class MaterialLightManager : PainterStuff
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public int[] probes;
         public float[] bounceCoefficient = new float[3];

@@ -37,8 +37,7 @@ namespace SharedTools_Stuff
         {
             return (timeSinceStartup() - value) > interval;
         }
-
-
+        
         public static void RepaintViews()
         {
 #if UNITY_EDITOR
@@ -242,6 +241,14 @@ namespace SharedTools_Stuff
             }
 
             return co;
+        }
+
+        public static string RemoveAssetsPart(this string s)
+        {
+            var ind = s.IndexOf("Assets");
+            if (ind == 0 || ind == 1) return s.Substring(6+ind);
+            if (ind > 1) return s.Substring(0, ind);
+            return s;
         }
 
         public static string AddPreSlashIfNotEmpty(this string s)
@@ -753,8 +760,7 @@ namespace SharedTools_Stuff
             RenderTexture.active = curRT;
 
         }
-
-
+        
         public static string SetUniqueObjectName(this UnityEngine.Object obj, string folderName, string extension)
         {
 
@@ -773,7 +779,26 @@ namespace SharedTools_Stuff
 
             return fullpath;
         }
+        
+        public static string GetAssetFolder (this UnityEngine.Object obj)
+        {
+#if UNITY_EDITOR
+            string path = AssetDatabase.GetAssetPath(obj);
 
+            if (path != null && path.Length > 0) {
+
+                int ind = path.LastIndexOf("/");
+
+                if (ind > 0)
+                    path = path.Substring(0, ind);
+
+                return path;
+            }
+            return "";
+#else
+            return "";
+#endif
+        }
 
         public static bool SavedAsAsset(this UnityEngine.Object go)
         {

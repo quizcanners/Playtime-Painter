@@ -14,9 +14,9 @@ namespace Playtime_Painter {
     public class PainterBallEditor : Editor    {
 
         public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((PainterBall)target).PEGI();
-            ef.end();
+            //  ef.start(serializedObject);
+            ((PainterBall)target).inspect(serializedObject);
+           // ef.end();
         }
     }
 #endif
@@ -33,7 +33,11 @@ namespace Playtime_Painter {
 	}
 
     [ExecuteInEditMode]
-    public class PainterBall : MonoBehaviour {
+    public class PainterBall : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public MeshRenderer rendy;
         public Rigidbody rigid;
@@ -73,15 +77,12 @@ namespace Playtime_Painter {
             }*/
 
         }
-
-
-
+        
         public void OnTriggerEnter(Collider collider) {
             TryAddPainterFrom(collider.gameObject);
          
         }
-
-
+        
         void TryRemove(GameObject go)
         {
             foreach (paintingCollision p in paintingOn)
@@ -133,7 +134,7 @@ namespace Playtime_Painter {
         }
 
 #if PEGI
-        public void PEGI() {
+        public bool PEGI() {
             ("Painting on " + paintingOn.Count + " objects").nl();
 
             if ((_collider.isTrigger) && ("Make phisical".Click().nl()))
@@ -171,6 +172,8 @@ namespace Playtime_Painter {
 
             if (brush.ColorSliders_PEGI()) 
                 rendy.sharedMaterial.color = brush.colorLinear.ToGamma();
+
+            return false;
         }
 #endif
     }

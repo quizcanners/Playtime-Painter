@@ -16,14 +16,16 @@ using Playtime_Painter;
 
         public override void OnInspectorGUI()
         {
-            ef.start(serializedObject);
-        ((BrushConfigOnly)target).PEGI();
-        ef.end();
-    }
+        ((BrushConfigOnly)target).inspect(serializedObject);
+        }
     }
 #endif
 
-public class BrushConfigOnly : MonoBehaviour  {
+public class BrushConfigOnly : MonoBehaviour
+#if PEGI
+    , iPEGI
+#endif
+{
         public BrushConfig brush = new BrushConfig();
 #if PEGI
         public bool PEGI()

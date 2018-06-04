@@ -223,13 +223,7 @@ namespace SharedTools_Stuff
 
         public void Add(string tag, iSTD other) {
             if (other != null) {
-
                 var cody = other.Encode();
-
-                var unrec = other as iKeepUnrecognizedSTD;
-                if (unrec != null)
-                  unrec.SaveUnrecognized(cody);
-
                 Add(tag, cody);
             }
         }

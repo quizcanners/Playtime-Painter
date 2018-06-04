@@ -303,7 +303,7 @@ using STD_Logic;
 
             var key = mgmt.keyElement;
             
-            if (this.PEGI_Name().nl() && transform)
+            if (this.inspect_Name().nl() && transform)
                 transform.name = NameForPEGI;
 
             if ("Dependencies".foldout(ref showDependencies).nl())
@@ -348,7 +348,7 @@ using STD_Logic;
                 transform.PEGI_CopyPaste(ref transformInLocalSpace);
 
                 if (mgmt.transform != transform)
-                    transform.PEGI(transformInLocalSpace); //"TF:".edit(() => transform).nl();
+                    transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
             }
    
             inspectedAnimatedObject = null;
@@ -680,7 +680,7 @@ using STD_Logic;
 
                     pegi.newLine();
 
-                    if (currentFrame == null || currentFrame.isOverrideSpeed == false)
+                    if (inspectedElement == -1 && (currentFrame == null || currentFrame.isOverrideSpeed == false))
                     {
                         "Speed".foldout(ref curveSpeed);
                         changed |= pegi.edit(ref maxSpeed).nl();

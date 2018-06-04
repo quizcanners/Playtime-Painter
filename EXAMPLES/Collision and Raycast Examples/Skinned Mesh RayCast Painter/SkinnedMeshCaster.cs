@@ -15,16 +15,16 @@ namespace Playtime_Painter
     [CustomEditor(typeof(SkinnedMeshCaster))]
     public class SkinnedMeshCasterEditor : Editor
     {
-
         public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((SkinnedMeshCaster)target).PEGI().nl();
-            ef.end();
+            ((SkinnedMeshCaster)target).inspect(serializedObject);
         }
     }
 #endif
 
     public class SkinnedMeshCaster : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
     {
 
         public BrushConfig brush = new BrushConfig();

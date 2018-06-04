@@ -53,7 +53,7 @@ namespace SharedTools_Stuff
     public interface iKeepUnrecognizedSTD : iSTD {
         void Unrecognized(string tag, string data);
         
-        stdEncoder SaveUnrecognized(stdEncoder cody);
+        stdEncoder EncodeUnrecognized();
     }
 
     [Serializable]
@@ -66,7 +66,11 @@ namespace SharedTools_Stuff
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-        public stdEncoder SaveUnrecognized(stdEncoder cody) {
+       
+
+        public virtual stdEncoder EncodeUnrecognized()
+        {
+            var cody = new stdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -74,7 +78,7 @@ namespace SharedTools_Stuff
 
 
 #if PEGI
-           bool showUnrecognized = false;
+        bool showUnrecognized = false;
         public static int inspectedUnrecognized = -1;
         public bool PEGI_Unrecognized()
         {
@@ -145,8 +149,12 @@ namespace SharedTools_Stuff
         public void Unrecognized(string tag, string data) {
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
-        public stdEncoder SaveUnrecognized(stdEncoder cody)
+        
+        public abstract stdEncoder Encode();
+
+        public virtual stdEncoder EncodeUnrecognized()
         {
+            var cody = new stdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -163,9 +171,7 @@ namespace SharedTools_Stuff
 
             if (!showDebug && icon.Config.Click())
                 showDebug = true;
-
-           
-
+            
             if (showDebug)
             {
                 if (icon.Exit.Click("Back to element inspection").nl())
@@ -176,7 +182,7 @@ namespace SharedTools_Stuff
             }
             return changed;
         }
-#endif
+        #endif
 
         public virtual bool Decode(string tag, string data)
         {
@@ -190,12 +196,7 @@ namespace SharedTools_Stuff
             return true;
         }
 
-        public virtual stdEncoder Encode() {
-            var cody = new stdEncoder();
-            cody.Add("tf", transform);
-            cody.Add_String("n", name);
-            return cody;
-        }
+
     }
 
     public static class STDExtensions {
@@ -230,12 +231,12 @@ namespace SharedTools_Stuff
         }
         
         public static iSTD SaveToAssets(this iSTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.dataPath + Path.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
+            ResourceSaver.Save(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
         public static iSTD SaveProgress(this iSTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.persistentDataPath + Path.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
+            ResourceSaver.Save(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 

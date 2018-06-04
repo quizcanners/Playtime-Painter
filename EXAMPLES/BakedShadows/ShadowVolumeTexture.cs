@@ -14,9 +14,7 @@ namespace Playtime_Painter {
     public class ShadowVolumeTextureEditor : Editor {
 
         public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((ShadowVolumeTexture)target).PEGI();
-            ef.end();
+            ((ShadowVolumeTexture)target).inspect(serializedObject);
         }
     }
 #endif
@@ -129,7 +127,7 @@ namespace Playtime_Painter {
             
             bool changed = base.PEGI();
 
-            changed |= lights.PEGI();
+            changed |= lights.Nested_Inspect();
 
 
             if (imageData != null && imageData.texture2D != null) {

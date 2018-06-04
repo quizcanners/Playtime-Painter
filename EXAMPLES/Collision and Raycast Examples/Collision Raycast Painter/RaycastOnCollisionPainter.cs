@@ -16,14 +16,17 @@ namespace Playtime_Painter
     public class PainterCasterEditor : Editor{
 
         public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((RaycastOnCollisionPainter)target).PEGI().nl();
-            ef.end();
+            // ef.start(serializedObject);
+            ((RaycastOnCollisionPainter)target).inspect(serializedObject);
+            //ef.end();
         }
     }
 #endif
 
     public class RaycastOnCollisionPainter : MonoBehaviour
+#if PEGI
+        ,iPEGI
+#endif
     {
 
         public BrushConfig brush = new BrushConfig();

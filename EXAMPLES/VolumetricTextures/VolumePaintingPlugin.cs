@@ -252,7 +252,7 @@ namespace Playtime_Painter {
                 "Grid".toggle(50, ref useGrid).nl();
 
                 if ((volTex.name + " " + id.texture2D.volumeSize(volTex.h_slices).ToString()).foldout(ref exploreVolumeData).nl())
-                    changed |= volTex.PEGI();
+                    changed |= volTex.Nested_Inspect();
 
                 if (volTex.needsToManageMaterials) {
                     var pmat = inspectedPainter.material;

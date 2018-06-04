@@ -463,7 +463,7 @@ namespace Playtime_Painter {
 
             public const string folderName = "TexSolution";
 
-            public override string getDefaultTagName()
+            public override string GetDefaultTagName()
             {
                 return folderName;
             }
@@ -512,7 +512,7 @@ namespace Playtime_Painter {
                         if ((ch.flip ? "inverted" : "+0").Click("Copy as is or invert (1-X)"))
                             ch.flip = !ch.flip;
 
-                        changed |= ch.PEGI().nl();
+                        changed |= ch.Nested_Inspect().nl();
 
                         usingBumpStrength |= ch.role.usingBumpStrengthSlider(ch.sourceChannel);
                         usingColorSelector |= ch.role.usingColorSelector;
@@ -656,8 +656,7 @@ namespace Playtime_Painter {
                     if (needReimport) importer.SaveAndReimport();
 #endif
                 }
-
-
+                
                 TextureRole.Clear();
             }
 

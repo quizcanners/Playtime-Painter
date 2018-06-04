@@ -89,7 +89,7 @@ namespace Playtime_Painter {
             return true;
         }
 
-        public override string getDefaultTagName() { return stdTag_mesh; }
+        public override string GetDefaultTagName() { return stdTag_mesh; }
 
         public const string stdTag_mesh = "mesh";
 

@@ -21,6 +21,9 @@ namespace SharedTools_Stuff
     }
 
     public class PoolableBase : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
     {
         public PoolControllerBase poolController;
         public int poolIndex;
@@ -54,6 +57,9 @@ namespace SharedTools_Stuff
     }
 
     public abstract class PoolControllerBase
+        #if PEGI
+        : iPEGI
+#endif
     {
         public int initializedCount;
         public int activeMax;
@@ -72,7 +78,7 @@ namespace SharedTools_Stuff
         public abstract void OnDuringDestroy(int ind);
         public abstract void Deactivate(int i);
         #if PEGI
-        public abstract void PEGI();
+        public abstract bool PEGI();
         #endif
         public abstract bool activeSelf(int i);
         public abstract GameObject getFreeGO();
@@ -99,7 +105,7 @@ namespace SharedTools_Stuff
 
 #if PEGI
 
-        public override void PEGI()
+        public override bool PEGI()
         {
 
             if (browsedObject != -1)
@@ -129,6 +135,7 @@ namespace SharedTools_Stuff
                         pegi.newLine();
                     }
                 }
+            return false;
         }
 
 #endif

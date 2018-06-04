@@ -29,7 +29,8 @@ namespace StoryTriggerData {
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData); 
         }
         
-         public stdEncoder SaveUnrecognized(stdEncoder cody){
+         public stdEncoder EncodeUnrecognized(){
+            var cody = new stdEncoder();
             for (int i=0; i<unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -162,7 +163,6 @@ namespace StoryTriggerData {
                     if ((parentPage != null) && (pegi.Click("Test Conversion"))) {
                         Debug.Log("Debug Testing conversion");
                         var encode = Encode();
-                        SaveUnrecognized(encode);
 
                         Page pg = parentPage;
                         Deactivate();

@@ -45,7 +45,7 @@ namespace Playtime_Painter
     public class UVpoint : PainterStuffKeepUnrecognized_STD
     {
 
-        public override string getDefaultTagName() {
+        public override string GetDefaultTagName() {
             return stdTag_uv;
         }
         public const string stdTag_uv = "uv";
@@ -318,7 +318,7 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override string getDefaultTagName()
+        public override string GetDefaultTagName()
         {
             return tagName_bs;
         }
@@ -456,7 +456,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override string getDefaultTagName() { return stdTag_vrt;}
+        public override string GetDefaultTagName() { return stdTag_vrt;}
 
         public const string stdTag_vrt = "vrt";
 
@@ -849,7 +849,7 @@ namespace Playtime_Painter
 
         }
 
-        public override string getDefaultTagName() {
+        public override string GetDefaultTagName() {
             return stdTag_tri;
         }
 

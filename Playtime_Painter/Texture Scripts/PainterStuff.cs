@@ -19,9 +19,10 @@ namespace Playtime_Painter
         public void Unrecognized(string tag, string data) {
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
-
-        public stdEncoder SaveUnrecognized(stdEncoder cody)
+        
+        public stdEncoder EncodeUnrecognized()
         {
+            var cody = new stdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -69,7 +70,7 @@ namespace Playtime_Painter
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
 #endif
         public abstract bool Decode(string tag, string data);
-        public abstract string getDefaultTagName();
+        public abstract string GetDefaultTagName();
     }
 
 
@@ -83,7 +84,7 @@ namespace Playtime_Painter
         protected static BrushConfig inspectedBrush { get { return BrushConfig._inspectedBrush; } }
         protected static BrushConfig globalBrush { get { return cfg.brushConfig; } }
         protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
-        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip != null ? ip.imgData : null; } }
+        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
         protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
         protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
@@ -121,7 +122,7 @@ namespace Playtime_Painter
         protected static BrushConfig inspectedBrush { get { return BrushConfig._inspectedBrush; } }
         protected static BrushConfig globalBrush { get { return cfg.brushConfig; }  }
         protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
-        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip != null ? ip.imgData : null; } }
+        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
         protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
         protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }

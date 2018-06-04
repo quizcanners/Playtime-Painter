@@ -23,15 +23,18 @@ namespace Playtime_Painter
 
         public override void OnInspectorGUI()
         {
-            ef.start(serializedObject);
-            ((MergingTerrain)target).PEGI();
-            ef.end();
+            //ef.start(serializedObject);
+            ((MergingTerrain)target).inspect(serializedObject);
+           // ef.end();
         }
     }
 #endif
 
     [ExecuteInEditMode]
     public class MergingTerrain : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
     {
 
         public List<ChannelSetsForDefaultMaps> mergeSubmasks;

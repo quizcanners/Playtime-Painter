@@ -91,7 +91,7 @@ namespace Playtime_Painter
         }
 
         public const string storyTag = "brush";
-        public override string getDefaultTagName() { return storyTag; }
+        public override string GetDefaultTagName() { return storyTag; }
 
         public void MaskToggle(BrushMask flag)
         {

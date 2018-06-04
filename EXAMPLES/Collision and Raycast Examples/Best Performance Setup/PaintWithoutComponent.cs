@@ -20,16 +20,18 @@ namespace Playtime_Painter
 
         public override void OnInspectorGUI()
         {
-            ef.start(serializedObject);
-            ((PaintWithoutComponent)target).PEGI();
-            ef.end();
+            ((PaintWithoutComponent)target).inspect(serializedObject);
         }
     }
 #endif
 
 
 
-    public class PaintWithoutComponent : MonoBehaviour  {
+    public class PaintWithoutComponent : MonoBehaviour
+#if PEGI
+        ,iPEGI
+#endif
+    {
 
         public BrushConfig brush = new BrushConfig();
         public int shoots = 1;
@@ -112,7 +114,7 @@ namespace Playtime_Painter
                                     else if (reciver.type == PaintingReciever.RendererType.regular && reciver.meshFilter != null)
                                     {
                                         var mat = reciver.material;
-                                        if (mat != null && mat.isAtlased())
+                                        if (mat != null && mat.IsAtlased())
                                             BrushTypeSphere.PaintAtlased (rendTex, reciver.gameObject,
                                           reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterConfig.atlasedTexturesInARow));
                                         else

@@ -42,7 +42,7 @@ namespace Playtime_Painter {
         {
 
 
-            if (meshMGMT.target.isAtlased()) {
+            if (meshMGMT.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())
@@ -91,7 +91,7 @@ namespace Playtime_Painter {
         {
             bool changed = false;
 
-            if (inspectedPainter.isAtlased())
+            if (inspectedPainter.IsAtlased())
             {
 
                 "***** Selected Material Atlased *****".nl();
@@ -223,7 +223,7 @@ namespace Playtime_Painter {
 
             //"Edge Click as Chanel 2".toggle(ref atlasEdgeAsChanel2).nl();
 
-            if (!inspectedPainter.material.isAtlased())
+            if (!inspectedPainter.material.IsAtlased())
                 ("Atlasing will work with custom shader that has tilable sampling from atlas. The material with such shader is not detected. " +
                     "But who am I to tell you what to do, I'm just a computer, a humble" +
                     " servant of a human race ... for now").writeWarning();

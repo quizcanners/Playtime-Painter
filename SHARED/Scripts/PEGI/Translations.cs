@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI
 
     public enum msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement,
         //LIST
-        HighlightElement, RemoveFromList, AddListElement, ReturnToListView};
+        HighlightElement, RemoveFromList, AddListElement, ReturnToListView, MakeElementNull};
 
     // Will be used as:   msg.Texture2D.Get();     - will get translation in current language.
 
@@ -29,9 +29,10 @@ namespace PlayerAndEditorGUI
             msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
             msg.InspectElement.Add("Inspect PEGI of this element");
             msg.HighlightElement.Add("Highlight this element in the project");
-            msg.RemoveFromList.Add("Remove this element from list");
+            msg.RemoveFromList.Add("Remove this list element");
             msg.AddListElement.Add("Add element to a list");
             msg.ReturnToListView.Add("Return to list view");
+            msg.MakeElementNull.Add("Null this element.");
 
             WillBeTranslatingFrom(SystemLanguage.Ukrainian);
             msg.Texture2D.Add("Текстура");

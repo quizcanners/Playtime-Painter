@@ -8,6 +8,34 @@ using System;
 namespace SharedTools_Stuff
 {
 
+    public class ElementData : abstract_STD
+    {
+        public string name;
+        public string std_dta;
+        public string guid;
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "n": name = data; break;
+                case "std": std_dta = data; break;
+                case "guid": guid = data; break;
+                default: return false;
+            }
+            return true;
+        }
+
+        public override stdEncoder Encode()
+        {
+            var cody = new stdEncoder();
+            cody.Add_String("n", name);
+            cody.Add_String("std", std_dta);
+            cody.Add_String("guid", guid);
+            return cody;
+        }
+    }
+
     [Serializable]
     public class savedISTD
 #if PEGI
@@ -25,7 +53,7 @@ namespace SharedTools_Stuff
         {
             bool changed = false;
 
-            this.PEGI_Name().nl();
+            this.inspect_Name().nl();
 
             if (std != null)
             {
@@ -90,10 +118,17 @@ namespace SharedTools_Stuff
             bool changed = false;
             inspectedSTD = target;
             
-            if (inspectedSTD != null && inspectedState == -1)
+            if (target != null && inspectedState == -1)
             {
+
+                "Save Folder:".edit(80, ref fileFolderHolder);
+
+                var uobj = target as UnityEngine.Object;
+
+                if (uobj && icon.Done.Click("Use the same directory as current object")) 
+                    fileFolderHolder = uobj.GetAssetFolder();
                 
-                "Save Folder:".edit(80, ref fileFolderHolder).nl();
+                pegi.nl();
                 "File Name:".edit("No file extension", 80, ref fileNameHolder);
 
                 if (fileNameHolder.Length > 0 && icon.Save.Click("Save To Assets"))
@@ -106,10 +141,10 @@ namespace SharedTools_Stuff
 
             var aded = "____ Saved States:".edit_List(states, ref inspectedState, true, ref changed);
 
-            if (aded != null && inspectedSTD != null)
+            if (aded != null && target != null)
             {
-                aded.data = inspectedSTD.Encode().ToString();
-                aded.NameForPEGI = inspectedSTD.ToPEGIstring();
+                aded.data = target.Encode().ToString();
+                aded.NameForPEGI = target.ToPEGIstring();
                 aded.comment = DateTime.Now.ToString();
                 inspectedState = states.Count - 1;
             }

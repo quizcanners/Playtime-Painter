@@ -15,14 +15,15 @@ using UnityEditor;
 public class PaintingRecieverEditor : Editor
 {
     public override void OnInspectorGUI() {
-        ef.start(serializedObject);
-        ((PaintingReciever)target).PEGI().nl();
-            ef.end();
+            ((PaintingReciever)target).inspect(serializedObject);
         }
 }
 #endif
 
     public class PaintingReciever : MonoBehaviour
+#if PEGI
+        , iPEGI
+#endif
     {
 
         public enum RendererType {regular, Skinned, Terrain }
@@ -244,7 +245,7 @@ public class PaintingRecieverEditor : Editor
                     {
                         if (texture.GetType() == typeof(Texture2D))
                         {
-                            icon.Done.write(25);
+                            icon.Done.write();
                             "CPU brush will work if object has MeshCollider".nl();
 
                             if (originalTexture != null)
@@ -277,7 +278,7 @@ public class PaintingRecieverEditor : Editor
                         {
                             if (rendy)
                             {
-                                icon.Done.write(25);
+                                icon.Done.write();
                                 "Will paint if object has any collider".nl();
                                 if (skinnedMeshRenderer != null)
                                 {

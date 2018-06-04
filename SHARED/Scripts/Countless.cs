@@ -1246,8 +1246,9 @@ namespace SharedTools_Stuff
             return objs[vb.br[ind].value];
         }
 
-        public T GetIfExists(int ind) {
-           // int originalIndex = ind;
+        public T GetIfElementExists(int ind)
+        {
+            // int originalIndex = ind;
 
             if (ind >= Max)
                 return default(T);
@@ -1553,17 +1554,19 @@ namespace SharedTools_Stuff
                 var e = Cstd[edited];
                 if (e.isDefaultOrNull() || icon.Back.Click())
                     edited = -1;
-                else {
+                else
+                    changed |= e.Try_Nested_Inspect();
+                /*{
                     var pg = e as iPEGI;
                     if (pg != null)
                         changed |= pg.PEGI();
-                }
+                }*/
             }
 
             if (edited == -1)
                 foreach (var e in Cstd)
-                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited).nl();
-                       
+                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited, null).nl();
+            
             
             pegi.newLine();
             return changed;
@@ -1689,7 +1692,12 @@ namespace SharedTools_Stuff
             return tg[index];
         }
 
-        
+        public static T GetIfExists<T>(this UnnullableSTD<T> unn, int index) where T : iSTD, new()
+        {
+            if (unn != null)
+                return unn.GetIfElementExists(index);
+            return default(T);
+        }
 
     }
 
