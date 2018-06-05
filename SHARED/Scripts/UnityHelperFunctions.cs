@@ -783,6 +783,11 @@ namespace SharedTools_Stuff
         public static string GetAssetFolder (this UnityEngine.Object obj)
         {
 #if UNITY_EDITOR
+            
+            UnityEngine.Object parentObject = PrefabUtility.GetPrefabParent(obj);
+            if (parentObject != null)
+                obj = parentObject;
+               
             string path = AssetDatabase.GetAssetPath(obj);
 
             if (path != null && path.Length > 0) {

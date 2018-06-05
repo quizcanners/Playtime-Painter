@@ -3178,7 +3178,7 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
-                ef.write(text);
+                ef.write(text, text);
             }
             else
 #endif
@@ -3189,21 +3189,8 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this string text, int width)
-        {
-
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                ef.write(text, width);
-            }
-            else
-#endif
-            {
-                checkLine();
-                GUILayout.Label(text, GUILayout.MaxWidth(width));
-            }
-
+        public static void write(this string text, int width) {
+            text.write(text, width);
         }
 
         public static void write(this string text, string tip)
@@ -4167,26 +4154,27 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
-                    for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < list.Count; i++)
                 {
 
                     var el = list[i];
                     if (el == null)
                         write("NULL");
-                    else {
+                    else
+                    {
 
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
+                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
 
                         (list[i] as UnityEngine.Object).clickHighlight();
                     }
 
                     newLine();
                 }
-            
+
             }
             else
                 changed |= list.ExitOrDrawPEGI(ref edited);
-         
+
 
             newLine();
             return changed;

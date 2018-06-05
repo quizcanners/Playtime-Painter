@@ -66,8 +66,6 @@ namespace SharedTools_Stuff
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-       
-
         public virtual stdEncoder EncodeUnrecognized()
         {
             var cody = new stdEncoder();
@@ -75,31 +73,29 @@ namespace SharedTools_Stuff
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
         }
-
+        
+        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
 
 #if PEGI
-        bool showUnrecognized = false;
+        public bool showDebug;
         public static int inspectedUnrecognized = -1;
-        public bool PEGI_Unrecognized()
-        {
-
-            bool changed = false;
-
-            pegi.nl();
-
-            var cnt = unrecognizedTags.Count;
-
-            if (cnt > 0 && ("Unrecognized for " + ToString() + "[" + cnt + "]").foldout(ref showUnrecognized).nl())
-                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
-
-            return changed;
-        }
-       
-        public override bool PEGI() {
-
-            bool changed = PEGI_Unrecognized();
-
         
+        public override bool PEGI() {
+            bool changed = false;
+           
+            if (!showDebug && icon.Config.Click())
+                showDebug = true;
+
+            if (showDebug)
+            {
+                if (icon.Exit.Click("Back to element inspection").nl())
+                    showDebug = false;
+
+                explorer.PEGI(this);
+
+                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+            }
+
             return changed;
         }
 #endif
@@ -178,7 +174,7 @@ namespace SharedTools_Stuff
                     showDebug = false;
                 
                 explorer.PEGI(this);
-                
+                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
             }
             return changed;
         }
@@ -291,8 +287,15 @@ namespace SharedTools_Stuff
         #if PEGI
         public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
             bool changed = false;
+
+            pegi.nl();
+
+            var cnt = tags.Count;
+
+            if (cnt > 0 && ("Unrecognized for " + el.ToPEGIstring() + "[" + cnt + "]").nl())
+               
+               
             if (tags != null && tags.Count > 0) {
-               // ("Unrecognized Tags on "+el.ToString()).nl();
 
                 if (inspected < 0)
                 {

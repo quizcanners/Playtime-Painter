@@ -107,7 +107,7 @@ namespace StoryTriggerData {
 
             if (icon.Done.Click(20).nl()) {
                 STD_Call.returnTag = "pos";
-                STD_Call.returnData = transform.position.Encode(3);
+                STD_Call.returnData = transform.position.Encode(3).ToString();
                 dataSet = true;
             }
 

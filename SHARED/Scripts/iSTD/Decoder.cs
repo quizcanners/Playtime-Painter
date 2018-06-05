@@ -32,7 +32,7 @@ namespace SharedTools_Stuff
           
         }
         
-        public static string DecodeInto(this string data, Transform tf)
+        public static void DecodeInto(this string data, Transform tf)
         {
 
             var cody = new stdDecoder(data);
@@ -49,10 +49,31 @@ namespace SharedTools_Stuff
                     case "rot": if (local) tf.localRotation = d.ToQuaternion(); else tf.rotation = d.ToQuaternion(); break;
                 }
             }
-
-            return cody.ToString();
         }
-        
+
+        public static void DecodeInto(this string data, RectTransform tf)
+        {
+
+            var cody = new stdDecoder(data);
+
+            foreach (var tag in cody)
+            {
+                var d = cody.getData();
+                switch (tag)
+                {
+                    case "tfBase": d.DecodeInto(tf.transform); break;
+                    case "aPos": tf.anchoredPosition = data.ToVector2(); break;
+                    case "aPos3D": tf.anchoredPosition3D = data.ToVector3(); break;
+                    case "aMax": tf.anchorMax = data.ToVector2(); break;
+                    case "aMin": tf.anchorMin = data.ToVector2(); break;
+                    case "ofMax": tf.offsetMax = data.ToVector2(); break;
+                    case "ofMin": tf.offsetMin = data.ToVector2(); break;
+                    case "pvt": tf.pivot = data.ToVector2(); break;
+                    case "deSize": tf.sizeDelta = data.ToVector2(); break;
+                }
+            }
+        }
+
         public static void DecodeInto (this string data, out Matrix4x4 m) {
             var cody = new stdDecoder(data);
              m = new Matrix4x4();
@@ -148,12 +169,34 @@ namespace SharedTools_Stuff
             Vector2 v2 = new Vector3();
 
             while (cody.gotData) {
-                switch (cody.getTag()) {
-                    case "x": v2.x = cody.getData().ToFloat(); break;
-                    case "y": v2.y = cody.getData().ToFloat(); break;
+                var tag = cody.getTag();
+                var dta = cody.getData();
+
+                switch (tag) {
+                    case "x": v2.x = dta.ToFloat(); break;
+                    case "y": v2.y = dta.ToFloat(); break;
                 }
             }
             return v2;
+        }
+
+        public static Rect ToRect(this string data)
+        {
+            stdDecoder cody = new stdDecoder(data);
+
+            Rect rect = new Rect();
+
+            while (cody.gotData)
+            {
+                var tag = cody.getTag();
+                var dta = cody.getData();
+                switch (tag)
+                {
+                    case "pos": rect.position = dta.ToVector2(); break;
+                    case "size": rect.size = dta.ToVector2(); break;
+                }
+            }
+            return rect;
         }
 
 
@@ -180,7 +223,7 @@ namespace SharedTools_Stuff
         
 
         // STD
-        public static T DecodeInto_ifSTD<T>(this string data, T val)
+        public static T TryDecodeInto<T>(this string data, T val)
         {
             if (val != null)
             {
@@ -253,7 +296,17 @@ namespace SharedTools_Stuff
         }
 
 
-        // ToSlistOfStorySaveable
+        // ToListOfSTD
+        public static void TryDecodeInto<T>(this string data, List<T> val) 
+        {
+            var cody = new stdDecoder(data);
+
+            while (cody.gotData)  {
+                var ind = cody.getTag().ToIntFromTextSafe(-1);
+                cody.getData().TryDecodeInto(val.TryGet(ind));
+            }
+        }
+
         public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : iSTD, new()
         {
             l = new List<List<T>>();

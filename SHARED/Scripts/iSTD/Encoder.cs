@@ -17,7 +17,7 @@ namespace SharedTools_Stuff
             builder.Append(stdEncoder.splitter);
         }
 
-        public static string Encode (this Transform tf, bool local) {
+        public static stdEncoder Encode (this Transform tf, bool local) {
 
             var cody = new stdEncoder();
 
@@ -33,10 +33,39 @@ namespace SharedTools_Stuff
                 cody.Add("rot", tf.rotation);
             }
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode<T>(this List<T> val) where T : iSTD {
+        public static stdEncoder Encode(this Rect rect, bool local)
+        {
+            var cody = new stdEncoder();
+
+            cody.Add("pos",rect.position);
+            cody.Add("size",rect.size);
+
+            return cody;
+        }
+
+            public static stdEncoder Encode(this RectTransform tf, bool local)
+        {
+
+            var cody = new stdEncoder();
+
+            cody.Add("tfBase", tf.transform.Encode(local));
+
+            cody.Add("aPos", tf.anchoredPosition);
+            cody.Add("aPos3D", tf.anchoredPosition3D);
+            cody.Add("aMax", tf.anchorMax);
+            cody.Add("aMin", tf.anchorMin);
+            cody.Add("ofMax", tf.offsetMax);
+            cody.Add("ofMin", tf.offsetMin);
+            cody.Add("pvt", tf.pivot);
+            cody.Add("deSize", tf.sizeDelta);
+
+            return cody;
+        }
+
+        public static stdEncoder Encode<T>(this List<T> val) where T : iSTD {
 
             stdEncoder cody = new stdEncoder();
 
@@ -45,10 +74,30 @@ namespace SharedTools_Stuff
                 if (v != null)
                 cody.Add("e", v.Encode());
 
-            return cody.ToString();
+            return cody;
         }
-        
-        public static string Encode(this Vector3 v3, int percision) {
+
+        public static stdEncoder TryEncode<T>(this List<T> val)
+        {
+            stdEncoder cody = new stdEncoder();
+            if (val != null)
+            {
+                for (int i = 0; i < val.Count; i++)
+                {
+                    var v = val[i];
+                    if (v != null)
+                    {
+                        var std = v as iSTD;
+                        if (std!= null)
+                            cody.Add(i.ToString(), std.Encode());
+                    }
+                   
+                }
+            }
+            return cody;
+        }
+
+        public static stdEncoder Encode(this Vector3 v3, int percision) {
 
             stdEncoder cody = new stdEncoder();
 
@@ -56,20 +105,20 @@ namespace SharedTools_Stuff
             cody.Add_IfNotZero("y", v3.y.RoundTo(percision));
             cody.Add_IfNotZero("z", v3.z.RoundTo(percision));
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Vector2 v2, int percision) {
+        public static stdEncoder Encode(this Vector2 v2, int percision) {
 
             stdEncoder cody = new stdEncoder();
 
             cody.Add_IfNotZero("x", v2.x.RoundTo(percision));
             cody.Add_IfNotZero("y", v2.y.RoundTo(percision));
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Quaternion q)
+        public static stdEncoder Encode(this Quaternion q)
         {
             stdEncoder cody = new stdEncoder();
 
@@ -78,10 +127,10 @@ namespace SharedTools_Stuff
             cody.Add_IfNotZero("z", q.z.RoundTo6Dec());
             cody.Add_IfNotZero("w", q.w.RoundTo6Dec());
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Vector4 v4) {
+        public static stdEncoder Encode(this Vector4 v4) {
 
             stdEncoder cody = new stdEncoder();
 
@@ -90,10 +139,10 @@ namespace SharedTools_Stuff
             cody.Add_IfNotZero("z", v4.z.RoundTo6Dec());
             cody.Add_IfNotZero("w", v4.w.RoundTo6Dec());
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Vector3 v3) {
+        public static stdEncoder Encode(this Vector3 v3) {
 
             stdEncoder cody = new stdEncoder();
 
@@ -101,20 +150,20 @@ namespace SharedTools_Stuff
             cody.Add_IfNotZero("y", v3.y.RoundTo6Dec());
             cody.Add_IfNotZero("z", v3.z.RoundTo6Dec());
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Vector2 v2) {
+        public static stdEncoder Encode(this Vector2 v2) {
 
             stdEncoder cody = new stdEncoder();
 
             cody.Add_IfNotZero("x", v2.x.RoundTo6Dec());
             cody.Add_IfNotZero("y", v2.y.RoundTo6Dec());
 
-            return cody.ToString();
+            return cody;
         }
 
-        public static string Encode(this Color col) {
+        public static stdEncoder Encode(this Color col) {
 
             stdEncoder cody = new stdEncoder();
 
@@ -123,7 +172,7 @@ namespace SharedTools_Stuff
             cody.Add_IfNotZero("b", col.b.RoundTo6Dec());
             cody.Add_IfNotZero("a", col.a.RoundTo6Dec());
 
-            return cody.ToString();
+            return cody;
         }
         
     }
@@ -261,8 +310,7 @@ namespace SharedTools_Stuff
             if (val >= 0)
                 Add_String(tag, val.ToString());
         }
-
-
+        
         public void Add(string tag, int val) {
             Add_String(tag, val.ToString());
         }
@@ -270,13 +318,16 @@ namespace SharedTools_Stuff
         public void Add(string tag, uint val) {
             Add_String(tag, val.ToString());
         }
-
-
+        
         public void Add(string tag, Transform  tf)
         {
-            Add_String(tag, tf.Encode(true));
+            Add(tag, tf.Encode(true));
         }
 
+        public void Add(string tag, Rect tf)
+        {
+            Add(tag, tf.Encode(true));
+        }
         // Optional encoding:
 
         public bool Add_IfNotEmpty(string tag, string val) {
@@ -446,21 +497,21 @@ namespace SharedTools_Stuff
                 
         }
 
-        public void Add(string tag, Quaternion q) { Add_String(tag, q.Encode()); }
-        public void Add(string tag, Vector4 v4) { Add_String(tag, v4.Encode()); }
-        public void Add(string tag, Vector3 v3) { Add_String(tag, v3.Encode()); }
-        public void Add(string tag, Vector2 v2) { Add_String(tag, v2.Encode()); }
-        public void Add(string tag, Vector3 v3, int percision) { Add_String(tag, v3.Encode(percision)); }
-        public void Add(string tag, Vector2 v2, int percision) { Add_String(tag, v2.Encode(percision)); }
+        public void Add(string tag, Quaternion q) { Add(tag, q.Encode()); }
+        public void Add(string tag, Vector4 v4) { Add(tag, v4.Encode()); }
+        public void Add(string tag, Vector3 v3) { Add(tag, v3.Encode()); }
+        public void Add(string tag, Vector2 v2) { Add(tag, v2.Encode()); }
+        public void Add(string tag, Vector3 v3, int percision) { Add(tag, v3.Encode(percision)); }
+        public void Add(string tag, Vector2 v2, int percision) { Add(tag, v2.Encode(percision)); }
 
         public void Add(string tag, Color col) {
-            Add_String(tag, col.Encode());
+            Add(tag, col.Encode());
         }
 
         public bool Add_IfNotZero(string tag, Vector3 v3) {
 
             if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) {
-                Add_String(tag, v3.Encode());
+                Add(tag, v3.Encode());
                 return true;
             }
 
@@ -471,7 +522,7 @@ namespace SharedTools_Stuff
         {
 
             if (!v3.Equals(Vector3.one)) {
-                Add_String(tag, v3.Encode());
+                Add(tag, v3.Encode());
                 return true;
             }
 
@@ -481,7 +532,7 @@ namespace SharedTools_Stuff
         public bool Add_IfNotZero(string tag, Vector2 v2) {
 
             if ((Math.Abs(v2.x) > Mathf.Epsilon) || (Math.Abs(v2.y) > Mathf.Epsilon)) {
-                Add_String(tag, v2.Encode());
+                Add(tag, v2.Encode());
                 return true;
             }
 

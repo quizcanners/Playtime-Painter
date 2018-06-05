@@ -438,7 +438,7 @@ using STD_Logic;
 
         public override stdEncoder Encode()  {
             var cody = new stdEncoder();
-            cody.Add_String("frames", frames.Encode());
+            cody.Add("frames", frames.Encode());
             cody.Add("elm", elementsUnsorted);
             cody.Add_Bool("curve", curveSpeed);
             cody.Add("MaxSpeed", maxSpeed);

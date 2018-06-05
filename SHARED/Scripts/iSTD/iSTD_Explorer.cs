@@ -107,9 +107,6 @@ namespace SharedTools_Stuff
 
             pegi.nl();
 
-            var iki = target as abstractKeepUnrecognized_STD;
-            if (iki != null)
-                iki.PEGI_Unrecognized().nl();
             return changed;
         }
 
