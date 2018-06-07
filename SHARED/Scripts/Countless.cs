@@ -921,7 +921,7 @@ namespace SharedTools_Stuff
 
     }
 
-    public class CountlessSTD<T> : STDCountlessBase, IEnumerable where T : iSTD, new() {
+    public class CountlessSTD<T> : STDCountlessBase, IEnumerable where T : iSTD , new() {
 
         protected T[] objs = new T[0];
         int firstFreeObj = 0;
@@ -1509,7 +1509,11 @@ namespace SharedTools_Stuff
         }
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T> where T : iSTD, new()
+    public class UnnulSTDLists<T> : UnnullableLists<T> where T : iSTD
+#if PEGI
+        , iPEGI
+#endif
+        , new()
     {
 
         public override bool Decode(string tag, string data)
@@ -1546,7 +1550,9 @@ namespace SharedTools_Stuff
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, new() {
+        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, iPEGI
+            
+            , new() {
 
             bool changed = false;
             

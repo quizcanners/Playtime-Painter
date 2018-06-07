@@ -14,9 +14,6 @@ namespace SharedTools_Stuff
 {
 
     public interface iSTD
-        #if PEGI
-        : iPEGI
-#endif 
         {
         stdEncoder Encode(); 
         iSTD Decode(string data);
@@ -103,7 +100,11 @@ namespace SharedTools_Stuff
 
 
     [Serializable]
-    public abstract class abstract_STD : iSTD {
+    public abstract class abstract_STD : iSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public abstract stdEncoder Encode();
         public virtual iSTD Decode(string data) {
@@ -122,7 +123,11 @@ namespace SharedTools_Stuff
         public abstract bool Decode(string tag, string data);
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD {
+    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public override string ToString()
         {
@@ -206,10 +211,11 @@ namespace SharedTools_Stuff
             return s;
         }
 
-        public static bool LoadOnDrop<T>(this T obj) where T: iSTD {
+        public static bool LoadOnDrop<T>(this T obj) where T: iSTD
+        {
 
 #if PEGI
-             UnityEngine.Object myType = null;
+            UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 obj.Decode(ResourceLoader.LoadStory(myType));
 

@@ -131,7 +131,11 @@ namespace STD_Logic  {
 
     }
     
-    public class Result : ValueIndex, iSTD {
+    public class Result : ValueIndex, iSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public TaggedTarget targ;
 

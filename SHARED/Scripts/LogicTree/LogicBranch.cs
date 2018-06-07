@@ -128,7 +128,7 @@ namespace STD_Logic {
                         browsedElement = -1;
                     else {
                         
-                        changed |= elements[browsedElement].PEGI();
+                        changed |= elements[browsedElement].Try_Nested_Inspect();
                     }
                 }
 

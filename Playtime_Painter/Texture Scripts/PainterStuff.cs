@@ -55,8 +55,12 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public abstract class PainterStuff_STD : PainterStuff, iSTD {
-        public abstract stdEncoder Encode();
+    public abstract class PainterStuff_STD : PainterStuff, iSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
+    public abstract stdEncoder Encode();
         public iSTD Decode(string data) {
             new stdDecoder(data).DecodeTagsFor(this);
             return this;

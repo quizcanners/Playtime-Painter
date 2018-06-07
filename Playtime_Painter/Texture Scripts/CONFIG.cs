@@ -176,18 +176,13 @@ namespace Playtime_Painter{
 
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
 
-            if (materialsFolderName == null)
+            if (atlasFolderName == null || atlasFolderName.Length == 0)
             {
                 materialsFolderName = "Materials";
-                //if (texturesFolderName == null)
                 texturesFolderName = "Textures";
-                //if (vectorsFolderName == null)
                 vectorsFolderName = "Vectors";
-                //if (meshesFolderName == null)
                 meshesFolderName = "Models";
-                //if (atlasFolderName == null)
                 atlasFolderName = "ATLASES";
-                //if (recordingNames == null)
                 recordingNames = new List<string>();
             }
 
@@ -244,10 +239,10 @@ namespace Playtime_Painter{
             }
             pegi.newLine();
 
-            bool gotDefine = pegi.GetDefine(PainterConfig.enablePainterForBuild);
+            bool gotDefine = UnityHelperFunctions.GetDefine(PainterConfig.enablePainterForBuild);
 
             if ("Enable Painter for Playtime & Build".toggle(ref gotDefine).nl())
-                pegi.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
+                UnityHelperFunctions.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
 
             if (gotDefine) {
                 if ("Enable PlayTime UI".toggle(ref cfg.enablePainterUIonPlay).nl())

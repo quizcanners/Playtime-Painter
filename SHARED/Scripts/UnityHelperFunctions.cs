@@ -23,6 +23,37 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+        public static bool GetDefine(this string define)
+        {
+
+#if UNITY_EDITOR
+            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+            return defines.Contains(define);
+#else
+        return true;
+#endif
+        }
+
+        public static void SetDefine(this string val, bool to)
+        {
+
+#if UNITY_EDITOR
+
+            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+
+            if (defines.Contains(val) == to) return;
+
+            if (to)
+                defines += " ; " + val;
+            else
+                defines = defines.Replace(val, "");
+            
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
+#endif
+        }
+
         public static double timeSinceStartup()
         {
             #if UNITY_EDITOR

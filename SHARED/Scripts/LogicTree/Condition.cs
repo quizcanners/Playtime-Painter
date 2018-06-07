@@ -10,7 +10,11 @@ namespace STD_Logic
     public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
 
-    public class ConditionLogic : ValueIndex , iSTD {
+    public class ConditionLogic : ValueIndex , iSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public static string tag = "cond";
 

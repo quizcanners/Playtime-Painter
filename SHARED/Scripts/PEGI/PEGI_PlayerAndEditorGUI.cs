@@ -3334,26 +3334,7 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-
-        public static bool GetDefine(this string define)
-        {
-
-#if UNITY_EDITOR
-            return ef.GetDefine(define);
-#else
-        return true;
-#endif
-        }
-
-        public static void SetDefine(this string val, bool to)
-        {
-
-#if UNITY_EDITOR
-
-            ef.SetDefine(val, to);
-#endif
-        }
-
+        
         public static bool edit<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
         {
             return edit<T>(label, null, null, -1, memberExpression, obj);
@@ -4479,3 +4460,5 @@ namespace PlayerAndEditorGUI
     }
 
 #endif
+
+

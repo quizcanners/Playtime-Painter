@@ -384,7 +384,7 @@ namespace Playtime_Painter
             {
                 "Lock to use Transform tools".writeWarning();
                 if ("Hide Transform tool".Click().nl())
-                    Tools.current = Tool.None;
+                    PlaytimePainter.HideUnityTool();
             }
 #endif
 

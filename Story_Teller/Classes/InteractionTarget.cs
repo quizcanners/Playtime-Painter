@@ -20,7 +20,11 @@ namespace StoryTriggerData {
 
         // This one merges interaction and STD values
 
-    public class InteractionTarget : Values, iSTD {
+    public class InteractionTarget : Values, iSTD
+#if PEGI
+        , iPEGI
+#endif
+    {
 
         public const string storyTag = "story";
 

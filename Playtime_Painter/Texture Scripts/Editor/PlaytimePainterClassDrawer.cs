@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+
 #if UNITY_EDITOR
 
 namespace Playtime_Painter {
@@ -110,12 +111,13 @@ namespace Playtime_Painter {
         const int minPow = 2;
         
         public static Tool previousTool;
-#if PEGI
+
         public override void OnInspectorGUI() {
 
-            bool changes = false;
-
             painter = (PlaytimePainter)target;
+#if PEGI
+
+              bool changes = false;
 
             if  (painter.gameObject.isPrefab()) {
                 "Inspecting a prefab.".nl();
@@ -132,8 +134,7 @@ namespace Playtime_Painter {
                     PlaytimeToolComponent.enabledTool = typeof(PlaytimePainter);//  customTools.Painter;
                     CloseAllButThis(painter);
                     painter.CheckPreviewShader();
-                    previousTool = Tools.current;
-                    Tools.current = Tool.None;
+                    PlaytimePainter.HideUnityTool();
                 }
                 painter.gameObject.end();
                 return;
@@ -145,6 +146,7 @@ namespace Playtime_Painter {
                     MeshManager.inst.DisconnectMesh();
                     painter.SetOriginalShaderOnThis();
                     painter.UpdateOrSetTexTarget(texTarget.Texture2D);
+                    PlaytimePainter.RestoreUnityTool();
                 }
             }
 
@@ -419,10 +421,17 @@ namespace Playtime_Painter {
             if (changes)
                 painter.Update_Brush_Parameters_For_Preview_Shader();
 
-            painter.gameObject.end();
 
-        }
+            painter.gameObject.end();
+#else
+            if (GUILayout.Button("Enable PEGI"))
+            {
+                GodMode.EnablePegi();
+            }
+
 #endif
+        }
+
         bool textureSetterField() {
             string field = painter.MaterialTexturePropertyName;
             if ((field == null) || (field.Length == 0)) return false;

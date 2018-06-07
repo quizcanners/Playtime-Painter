@@ -352,7 +352,8 @@ namespace  PlayerAndEditorGUI {
 
         }
         
-        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD, new()
+        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD
+            , new()
         {
             List<int> inds;
             List<T> objs = tree.GetAllObjs(out inds);
@@ -1230,30 +1231,6 @@ namespace  PlayerAndEditorGUI {
             EditorGUILayout.ObjectField(tex, typeof(Texture2D), true);
         }
         
-        public static void SetDefine(string val, bool to)
-        {
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-
-            if (defines.Contains(val) == to) return;
-
-            if (to)
-                defines += " ; " + val;
-            else
-                defines = defines.Replace(val, "");
-
-
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
-        }
-
-        public static bool GetDefine(string define)
-        {
-
-            BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            return defines.Contains(define);
-        }
-
         public static IEnumerable<T> DropAreaGUI<T>() where T : UnityEngine.Object
         {
             newLine();

@@ -92,11 +92,14 @@ namespace Playtime_Painter
             return changed;
         }
 
+    
+#endif
+
         public override stdEncoder Encode()
         {
             var cody = base.EncodeUnrecognized();
             return cody;
         }
-#endif
+
     }
 }

@@ -10,7 +10,11 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex {
+    public abstract class ValueIndex
+        #if PEGI
+        : iPEGI
+#endif
+    {
 
         public int groupIndex;
         public int triggerIndex;

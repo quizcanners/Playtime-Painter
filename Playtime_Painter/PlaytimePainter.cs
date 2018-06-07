@@ -1836,7 +1836,10 @@ namespace Playtime_Painter{
                                 UpdateOrSetTexTarget(texTarget.Texture2D);
 
 #if UNITY_EDITOR
-                            else Tools.current = Tool.None;
+                            if (i.lockEditing)
+                                PlaytimePainter.RestoreUnityTool();
+                            else
+                                PlaytimePainter.HideUnityTool();
 #endif
 
                         }
@@ -2081,6 +2084,21 @@ namespace Playtime_Painter{
 #endif
 
 #if UNITY_EDITOR
+        static Tool previousEditorTool = Tool.None;
+        public static void RestoreUnityTool()
+        {
+            if (previousEditorTool != Tool.None && Tools.current == Tool.None)
+                Tools.current = previousEditorTool;
+        }
+
+        public static void HideUnityTool()
+        {
+            if (Tools.current != Tool.None) {
+                previousEditorTool = Tools.current;
+                Tools.current = Tool.None;
+            }
+        }
+
         void OnDrawGizmosSelected() {
 
             if (meshEditing) {
