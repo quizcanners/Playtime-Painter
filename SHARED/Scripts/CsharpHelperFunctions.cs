@@ -64,9 +64,45 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        public static T TryGetLast<T>(this T[] array)
+        {
 
+            if (array == null || array.Length == 0)
+                return default(T);
 
-        public static void AssignUniqueIndex<T>(this List<T> list, T el) {
+            return array[array.Length - 1];
+
+        }
+
+        public static T TryGet<T>(this T[] array, int index)
+        {
+
+            if (array == null || array.Length <= index || index < 0)
+                return default(T);
+
+            return array[index];
+
+        }
+
+        public static T TryGetLast<T>(this List<T> list)
+        {
+
+            if (list == null || list.Count == 0)
+                return default(T);
+
+            return list[list.Count - 1];
+
+        }
+
+        public static T TryGet<T>(this List<T> list, int index)
+        {
+            if (list == null || index < 0 || index >= list.Count || index < 0)
+                return default(T);
+            return list[index];
+        }
+
+        public static void AssignUniqueIndex<T>(this List<T> list, T el)
+        {
 
 #if PEGI
             var ind = el as iGotIndex;
@@ -102,7 +138,7 @@ namespace SharedTools_Stuff
             T e = new T();
             list.AssignUniqueIndex(e);
             list.Add(e);
-            #if PEGI
+#if PEGI
             var named = e as iGotName;
             if (named != null)
                 named.NameForPEGI = name;
@@ -110,12 +146,8 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-        
-        public static T TryGet <T>(this List<T> list, int index)  {
-            if (list == null || index < 0 || index >= list.Count)
-                return default(T);
-            return list[index];
-        }
+
+
 
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
@@ -129,12 +161,11 @@ namespace SharedTools_Stuff
             return false;
         }
 
-
         public static bool isDefaultOrNull<T>(this T obj)
         {
             return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         }
-        
+
         public static float RoundTo(this float val, int percision)
         {
             return (float)Math.Round(val, percision);
@@ -145,21 +176,57 @@ namespace SharedTools_Stuff
             return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
         }
 
-        public static void timerFrom()
+        public static int timerLastSection = 0;
+
+        public static void timerStart()
         {
             stopWatch.Start();
         }
 
-        public static void timerTo(string Label)
+        public static string timerEnd(string Label)
         {
-            UnityEngine.Debug.Log(Label + ": " + stopWatch.ElapsedTicks);
-            stopWatch.Reset();
+            return timerEnd(Label, true);
         }
 
-        public static void timerTo()
+        public static string timerEnd(string Label, bool logIt)
         {
-            timerTo("Ticks");
+            long ticks = stopWatch.ElapsedTicks;
 
+            string timeText = "";
+
+            timerLastSection = (int)ticks;
+
+            if (ticks < 10000)
+                timeText = ticks.ToString();
+            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + "ticks";
+
+            string text = Label + ": " + timeText;
+
+#if UNITY_EDITOR
+            if (logIt)
+                UnityEngine.Debug.Log(text);
+#endif
+
+            stopWatch.Reset();
+
+            return text;
+        }
+
+        public static string timerSection(string labelForEndedSection)
+        {
+            return timerSection(labelForEndedSection, true);
+        }
+
+        public static string timerSection(string labelForEndedSection, bool logIt)
+        {
+            var txt = timerEnd(labelForEndedSection, logIt);
+            stopWatch.Start();
+            return txt;
+        }
+
+        public static string timerEnd()
+        {
+            return timerEnd("Ticks", true);
         }
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
@@ -206,8 +273,8 @@ namespace SharedTools_Stuff
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
             T tmp = list[indexOfFirst];
-            list[indexOfFirst] = list[indexOfFirst+1];
-            list[indexOfFirst+1] = tmp;
+            list[indexOfFirst] = list[indexOfFirst + 1];
+            list[indexOfFirst + 1] = tmp;
         }
 
         public static void Swap<T>(IList<T> list, int indexA, int indexB)
@@ -221,7 +288,7 @@ namespace SharedTools_Stuff
         {
             return name.Substring(index, name.Length - index);
         }
-        
+
         public static int FindMostSimilarFrom(this string s, string[] t)
         {
             int mostSimilar = -1;
@@ -304,7 +371,7 @@ namespace SharedTools_Stuff
                 }
         }
 
-    
+
 
         public static void SetMaximumLength<T>(this List<T> list, int Length)
         {

@@ -1124,6 +1124,8 @@ namespace  PlayerAndEditorGUI {
 
         public static bool Click(Texture img, int width)
         {
+         
+
             checkLine();
             return GUILayout.Button(img, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
@@ -1182,6 +1184,22 @@ namespace  PlayerAndEditorGUI {
             //EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
         }
 
+        public static void write(Texture icon, string tip, int width, int height)
+        {
+
+            checkLine();
+
+            GUIContent c = new GUIContent();
+            c.image = icon;
+            c.tooltip = tip;
+
+            GUI.enabled = false;
+            GUILayout.Button(c,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
+            GUI.enabled = true;
+
+            //EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
+        }
+        
         public static void write(string text, int width)
         {
 

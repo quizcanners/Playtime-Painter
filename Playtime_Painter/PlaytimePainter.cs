@@ -25,7 +25,10 @@ namespace Playtime_Painter{
         , iPEGI 
 #endif
     {
-        #if PEGI
+
+        #region StaticGetters
+
+#if PEGI
         public static PEGIcallDelegate plugins_ComponentPEGI;
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
@@ -43,7 +46,7 @@ namespace Playtime_Painter{
         protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
 
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-
+        
         public override string ToolName() { return PainterConfig.ToolName; }
 
         private bool needsGrid { get { return this.needsGrid(); } }
@@ -51,6 +54,10 @@ namespace Playtime_Painter{
         public override Texture ToolIcon() {
             return icon.Painter.getIcon();
         }
+
+        #endregion
+
+        #region Dependencies
 
         public Renderer meshRenderer;
         public SkinnedMeshRenderer skinnedMeshRendy;
@@ -140,9 +147,11 @@ namespace Playtime_Painter{
         public int selectedTexture {
             get { var md = matDta; return md == null ? 0 : md._selectedTexture; }
             set { var md = matDta; if (md!= null) md._selectedTexture = value; } }
-        
-        // ************************** PAINTING *****************************
-  
+
+        #endregion
+
+        #region painting
+
         public StrokeVector stroke = new StrokeVector();
 	   
         public static PlaytimePainter currently_Painted_Object;
@@ -395,7 +404,9 @@ namespace Playtime_Painter{
 			    return ((imgData.TargetIsTexture2D()) || (globalBrushType.startPaintingTheMomentMouseIsDown));
         }
 
-        // ************************* PREVIEW MGMT ***************************
+        #endregion
+
+        #region previewMGMT
 
         public static Material previewHolderMaterial;
         public static Shader previewHolderOriginalShader;
@@ -488,7 +499,9 @@ namespace Playtime_Painter{
             }
         }
 
-        // ************************** TEXTURE MGMT *************************
+        #endregion
+
+        #region  TEXTURE MGMT 
 
         public void UpdateTylingFromMaterial() {
 
@@ -730,7 +743,9 @@ namespace Playtime_Painter{
 
         }
 
-        // ************************* Material MGMT
+        #endregion
+        
+        #region Material MGMT
 
         public Material[] GetMaterials()
         {
@@ -965,18 +980,9 @@ namespace Playtime_Painter{
 
         }
 
-      /*  public Renderer getRenderer() {
-
-                if (meshRenderer != null)
-                    return meshRenderer;
-                else if (skinnedMeshRendy != null)
-                    return skinnedMeshRendy;
-                else 
-                    return null;
-
-            }*/
-
-        // *************************** Terrain MGMT
+        #endregion
+        
+        #region Terrain_MGMT
 
         float tilingY = 8;
 
@@ -1155,9 +1161,11 @@ namespace Playtime_Painter{
         public bool isTerrainControlTexture() {
             return ((imgData != null) && (terrain != null) && (MaterialTexturePropertyName.Contains(PainterConfig.terrainControl)));
         }
-        
-        // ************************** RECORDING & PLAYBACK ****************************
-        
+
+        #endregion
+
+        #region Playback & Recoding
+
         public static List<PlaytimePainter> playbackPainters = new List<PlaytimePainter>();
 
         public List<string> playbackVectors = new List<string>();
@@ -1344,14 +1352,9 @@ namespace Playtime_Painter{
             return this;
         }
 
-        public const string storyTag = "painter";
+        #endregion
 
-        public string getDefaultTagName()
-        {
-            return storyTag;
-        }
-
-        // ************************** SAVING *******************************
+        #region Saving
 
 #if UNITY_EDITOR
 
@@ -1473,10 +1476,12 @@ namespace Playtime_Painter{
                         Debug.Log(ex);
                     }
             }
-    
+
 #endif
 
-        //*************************** COMPONENT MGMT ****************************
+        #endregion
+
+        #region COMPONENT MGMT 
 
         public bool LockTextureEditing { get { if (meshEditing || cfg.showConfig) return true;
                 var i = imgData; return i == null ? true : i.lockEditing; }
@@ -1691,7 +1696,9 @@ namespace Playtime_Painter{
             InitIfNotInited();
         }
 
-        //************************** UPDATES  **************************
+        #endregion
+
+        #region UPDATES  
 
         public bool textureWasChanged = false;
         
@@ -1760,7 +1767,9 @@ namespace Playtime_Painter{
                 }
         }
 
-        // ********************* PEGI **********************************
+        #endregion
+
+        #region PEGI 
 
         public override void OnGUI() {
 #if !BUILD_WITH_PAINTER
@@ -2116,7 +2125,9 @@ namespace Playtime_Painter{
         }
 #endif
 
-        // **********************************   Mesh Editing *****************************
+        #endregion
+
+        #region Mesh Editing 
 
         public bool isEditingThisMesh { get { return isCurrentTool() && meshEditing && (MeshManager.inst.target == this); } }
 
@@ -2150,5 +2161,6 @@ namespace Playtime_Painter{
             return false;
         }
 
+        #endregion
     }
 }
