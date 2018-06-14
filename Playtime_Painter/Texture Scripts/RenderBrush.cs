@@ -8,7 +8,7 @@ namespace Playtime_Painter{
 [ExecuteInEditMode]
 public class RenderBrush : PainterStuffMono {
 
-		public static PainterManager rtp {get {return PainterManager.inst;}}
+		//public static PainterManager rtp {get {return PainterManager.inst;}}
 
     public MeshRenderer meshRendy;
     public MeshFilter meshFilter;
@@ -146,27 +146,42 @@ public class RenderBrush : PainterStuffMono {
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
         }
-
-        public RenderBrush PrepareForFullCopyOf (Texture tex){
-            
-            return PrepareForFullCopyOf(tex, null);
-        }
-
-        public RenderBrush PrepareForFullCopyOf(Texture tex, RenderTexture onto)
+        
+        public RenderBrush PrepareForFullCopyOf(Texture tex, RenderTexture onto, Shader shade)
         {
 
-            float size = PainterManager.orthoSize * 2;
-            float aspectRatio = (float)tex.width / (float)tex.height;
-            if (onto != null) {
+            if (tex != null && onto != null)
+            {
+
+               
+                float size = PainterManager.orthoSize * 2;
+                float aspectRatio = (float)tex.width / (float)tex.height;
+
                 float ar2 = onto.width / onto.height;
-                aspectRatio = ar2/aspectRatio;
+
+                aspectRatio = ar2 / aspectRatio;
                 texMGMT.rtcam.targetTexture = onto;
+
+                transform.localScale = new Vector3(size * aspectRatio, size, 0);
+                transform.localPosition = Vector3.forward * 10;
+                transform.localRotation = Quaternion.identity;
+                meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+
+                if (aspectRatio!= 1)
+                Shader.SetGlobalFloat("_BufferCopyAspectRatio", 1f/aspectRatio);
+
+                Set(tex);
+                
+                if (shade == null)
+                    shade = texMGMT.pixPerfectCopy;
+                Set(shade);
+                
+                texMGMT.Render();
+
+                if (aspectRatio != 1)
+                    Shader.SetGlobalFloat("_BufferCopyAspectRatio", 1);
+
             }
-            transform.localScale = new Vector3(size * aspectRatio, size, 0);
-            transform.localPosition = Vector3.forward * 10;
-            transform.localRotation = Quaternion.identity;
-            meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
-            Set(rtp.pixPerfectCopy).Set(tex);
 
             return this;
         }
@@ -178,12 +193,10 @@ public class RenderBrush : PainterStuffMono {
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
-            Set(rtp.br_ColorFill).Set(col);
+            Set(texMGMT.br_ColorFill).Set(col);
         }
 
-
-      
-
+        
     // Use this for initialization
     void Awake () {
         if (meshRendy == null)

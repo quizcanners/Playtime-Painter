@@ -204,10 +204,8 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static void nl()
-        {
-            newLine();
-        }
+        public static void nl() => newLine();
+        
 
         public static bool nl(this bool value)
         {
@@ -243,10 +241,8 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static void nl(this icon icon, int size)
-        {
-            write(icon.getIcon(), size);
-        }
+        public static void nl(this icon icon, int size) => write(icon.getIcon(), size);
+        
 
         #endregion
 
@@ -285,13 +281,9 @@ namespace PlayerAndEditorGUI
 #endif
 
         }
-
-        // ############ GUI
-        public static void DropFocus()
-        {
-            FocusControl("_");
-        }
-
+        
+        public static void DropFocus() => FocusControl("_");
+        
         public static string ToPEGIstring(this Type type)
         {
            
@@ -364,22 +356,12 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static string thisMethodName()
-        {
-            return thisMethodName(1);
-        }
-
-        public static string thisMethodName(int up)
-        {
-            var frame = new StackFrame(up);
-            return frame.GetMethod().Name;
-        }
-
-        public static void NameNext(string name)
-        {
-            GUI.SetNextControlName(name);
-        }
-
+        public static string thisMethodName() => thisMethodName(1);
+        
+        public static string thisMethodName(int up) => (new StackFrame(up)).GetMethod().Name;
+        
+        public static void NameNext(string name) => GUI.SetNextControlName(name);
+        
         public static int NameNextUnique(ref string name)
         {
             name += focusInd.ToString();
@@ -516,26 +498,14 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this icon icon)
-        {
-            write(icon.getIcon(), defaultButtonSize);
-        }
-
-        public static void write(this icon icon, int size)
-        {
-            write(icon.getIcon(), size);
-        }
-
-        public static void write(this icon icon, string tip, int size)
-        {
-            write(icon.getIcon(), tip, size);
-        }
-
-        public static void write(this icon icon, string tip, int width, int height)
-        {
-            write(icon.getIcon(), tip, width, height);
-        }
-
+        public static void write(this icon icon) => write(icon.getIcon(), defaultButtonSize);
+        
+        public static void write(this icon icon, int size) =>  write(icon.getIcon(), size);
+        
+        public static void write(this icon icon, string tip, int size) => write(icon.getIcon(), tip, size);
+        
+        public static void write(this icon icon, string tip, int width, int height) => write(icon.getIcon(), tip, width, height);
+        
         public static void write(this string text)
         {
 
@@ -553,11 +523,8 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this string text, int width)
-        {
-            text.write(text, width);
-        }
-
+        public static void write(this string text, int width) => text.write(text, width);
+        
         public static void write(this string text, string tip)
         {
 
@@ -663,11 +630,8 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
-        public static void resetOneTimeHint(this string name)
-        {
-            PlayerPrefs.SetInt(name, 0);
-        }
-
+        public static void resetOneTimeHint(this string name) => PlayerPrefs.SetInt(name, 0);
+        
         public static bool writeOneTimeHint(this string text, string name)
         {
 
@@ -1699,16 +1663,10 @@ namespace PlayerAndEditorGUI
             return state;
         }
 
-        public static bool foldout(this icon ico, string text, ref bool state)
-        {
-            return ico.getIcon().foldout(text, ref state);
-        }
-
-        public static bool foldout(this icon ico, string text, ref int selected, int current)
-        {
-            return ico.getIcon().foldout(text, ref selected, current);
-        }
-
+        public static bool foldout(this icon ico, string text, ref bool state) => ico.getIcon().foldout(text, ref state);
+        
+        public static bool foldout(this icon ico, string text, ref int selected, int current)=> ico.getIcon().foldout(text, ref selected, current);
+        
         public static bool fold_enter_exit(ref int selected, int current) {
 
             if (selected == current) {
@@ -1739,9 +1697,7 @@ namespace PlayerAndEditorGUI
             return (selected == current);
         }
 
-        public static bool fold_enter_exit(this string txt, ref int selected, int current) {
-            return icon.Enter.fold_enter_exit(txt, ref selected, current);
-        }
+        public static bool fold_enter_exit(this string txt, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, ref selected, current);
         
         public static bool foldout(this string txt)
         {
@@ -1766,10 +1722,8 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void foldIn()
-        {
-            selectedFold = -1;
-        }
+        public static void foldIn() => selectedFold = -1;
+        
 
         #endregion
 
@@ -1993,23 +1947,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool Click(this Texture img)
-        {
-            return img.Click(defaultButtonSize);
+        public static bool Click(this Texture img) =>  img.Click(defaultButtonSize);
             
-        }
-
-        public static bool Click(this Texture img, string tip)
-        {
-
-            return   img.Click(  tip, defaultButtonSize);
-
-        }
-
+        public static bool Click(this Texture img, string tip) => img.Click(tip, defaultButtonSize);
+        
         public static bool Click(this Texture img, int size)
         {
-
-
+            
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false)
             {
@@ -2060,26 +2004,15 @@ namespace PlayerAndEditorGUI
             }
 
         }
-
-
-        public static bool Click(this icon icon)
-        {
-            return Click(icon.getIcon(), defaultButtonSize);
-        }
-
-        public static bool ClickUnfocus(this icon icon)
-        {
-            return ClickUnfocus(icon.getIcon(), defaultButtonSize);
-        }
-
-        public static bool ClickUnfocus(this icon icon, msg text)
-        {
-            return ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
-        }
-
+        
+        public static bool Click(this icon icon) => Click(icon.getIcon(), defaultButtonSize);
+        
+        public static bool ClickUnfocus(this icon icon) =>  ClickUnfocus(icon.getIcon(), defaultButtonSize);
+        
+        public static bool ClickUnfocus(this icon icon, msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
+        
         public static bool ClickUnfocus(this icon icon, string text) => ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
         
-
         public static bool ClickUnfocus(this icon icon, msg text, int width) => ClickUnfocus(icon.getIcon(), text.Get(), width);
         
         public static bool ClickUnfocus(this icon icon, msg text, int width, int height) => ClickUnfocus(icon.getIcon(), text.Get(), width, height);
@@ -2206,11 +2139,8 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width)
-        {
-            return toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
-        }
-
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
+        
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width)
         {
 

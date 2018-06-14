@@ -24,6 +24,7 @@
 	float4 _brushAtlasSectionAndRows;
 	float4 _brushSamplingDisplacement;
 	float4 _brushPointedUV_Untiled;
+	float _BufferCopyAspectRatio;
 
 
 	inline bool isAcute(float a, float b, float c) {
@@ -78,7 +79,10 @@
 
 		tmp.zw = texcoord.xy-0.5;
 		float3 worldPos = mul (unity_ObjectToWorld, vertex).xyz-_RTcamPosition.xyz;
-		tmp.xy = worldPos.xy/256+0.5;
+		tmp.xy = worldPos.xy / 256;
+		tmp.x *= _BufferCopyAspectRatio;
+		
+		tmp.xy += 0.5;
 
 		return tmp;
 	}

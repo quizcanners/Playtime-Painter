@@ -271,7 +271,7 @@ namespace Playtime_Painter
 
             bool square = (width == height);
             if ((!square) || (!Mathf.IsPowerOfTwo(width)))
-                return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height));
+                return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height), brushRendy_bufferCopy );
             else
             {
                 int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
@@ -570,16 +570,7 @@ namespace Playtime_Painter
 
         public RenderTexture Render(Texture from, RenderTexture to, Shader shade)
         {
-            if (to != null && from != null && shade != null)
-            {
-                rtcam.targetTexture = to;
-                brushRendy.PrepareForFullCopyOf(from);
-                brushRendy.Set(shade);
-                Render();
-            }
-           // else
-             //   Debug.Log("Something is null");
-
+            brushRendy.PrepareForFullCopyOf(from, to, shade);
             return to;
         }
 
