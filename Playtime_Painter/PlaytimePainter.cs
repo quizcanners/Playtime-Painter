@@ -737,9 +737,9 @@ namespace Playtime_Painter{
 		    if (nt == null)
 			    Debug.Log ("Change texture destroyed curigdata");
 
-			PainterManager.inst.Render (previous.currentTexture(), nt);
+			PainterManager.inst.Blit (previous.currentTexture(), nt);
 
-		    UpdateOrSetTexTarget (texTarget.RenderTexture);
+            UpdateOrSetTexTarget (texTarget.RenderTexture);
 
         }
 

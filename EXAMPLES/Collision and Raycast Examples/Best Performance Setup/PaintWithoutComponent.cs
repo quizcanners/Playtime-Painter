@@ -18,10 +18,8 @@ namespace Playtime_Painter
     public class PaintWithoutComponentEditor : Editor
     {
 
-        public override void OnInspectorGUI()
-        {
-            ((PaintWithoutComponent)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((PaintWithoutComponent)target).inspect(serializedObject);
+        
     }
 #endif
 

@@ -15,9 +15,8 @@ namespace Playtime_Painter {
     public class VolumeTextureEditor : Editor
     {
 
-        public override void OnInspectorGUI() {
-            ((VolumeTexture)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((VolumeTexture)target).inspect(serializedObject);
+        
     }
 #endif
 

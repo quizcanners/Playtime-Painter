@@ -13,11 +13,8 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(PainterBall))]
     public class PainterBallEditor : Editor    {
 
-        public override void OnInspectorGUI() {
-            //  ef.start(serializedObject);
-            ((PainterBall)target).inspect(serializedObject);
-           // ef.end();
-        }
+        public override void OnInspectorGUI() => ((PainterBall)target).inspect(serializedObject);
+          
     }
 #endif
 

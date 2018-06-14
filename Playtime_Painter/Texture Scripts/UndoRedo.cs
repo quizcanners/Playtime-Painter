@@ -44,7 +44,7 @@ namespace Playtime_Painter {
 
 		public void Set (ImageData from, int globalOrder){
           
-            PainterManager.inst.Render(from.currentRenderTexture(), rt);
+            PainterManager.inst.Blit(from.currentRenderTexture(), rt);
 
             SetB(from, globalOrder);
 
@@ -158,9 +158,9 @@ namespace Playtime_Painter {
 
 			if (toRT) {
 				if (fromRT) 
-					rtp.Render (rtBackup.rt, id);
+					rtp.Blit (rtBackup.rt, id);
 				else 
-					rtp.Render (id.texture2D, id);
+					rtp.Blit (id.texture2D, id);
 				
 			} else if (fromRT) {
 					id.texture2D.CopyFrom (rtBackup.rt);

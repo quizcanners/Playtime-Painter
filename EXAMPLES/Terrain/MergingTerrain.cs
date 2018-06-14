@@ -21,12 +21,8 @@ namespace Playtime_Painter
     public class MergingTerrainEditor : Editor
     {
 
-        public override void OnInspectorGUI()
-        {
-            //ef.start(serializedObject);
-            ((MergingTerrain)target).inspect(serializedObject);
-           // ef.end();
-        }
+        public override void OnInspectorGUI() => ((MergingTerrain)target).inspect(serializedObject);
+         
     }
 #endif
 

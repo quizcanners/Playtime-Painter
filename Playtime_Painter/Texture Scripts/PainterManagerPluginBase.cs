@@ -10,9 +10,18 @@ namespace Playtime_Painter
 
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono {
+    public class PainterManagerPluginBase : PainterStuffMono
+#if PEGI
+        , iPEGI, iGotDisplayName
+#endif
+    {
 #if PEGI
         PEGIcallDelegate plugins_ComponentPEGI;
+
+        public virtual string NameForPEGIdisplay()
+        {
+            return ToString();
+        }
 
         protected void PlugIn_PainterComponent(PEGIcallDelegate d) {
             plugins_ComponentPEGI += d;
@@ -62,7 +71,7 @@ namespace Playtime_Painter
         }
 
 
-        public void OnDisable() {
+        public virtual void OnDisable() {
 #if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
             
@@ -77,9 +86,7 @@ namespace Playtime_Painter
 
         public virtual void OnEnable()  { }
 
-        //public virtual bool BrushConfigPEGI(ref bool overrideBlitModePEGI, BrushConfig br) { return false; }
-
-        public virtual bool ConfigTab_PEGI() { return false; }
+        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
 
         public virtual bool isA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
 
@@ -93,5 +100,11 @@ namespace Playtime_Painter
         public virtual Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) { return null; }
 
         public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) { return null; }
+
+        public virtual bool PEGI() {
+            return ConfigTab_PEGI();
+        }
+
+      
     }
 }

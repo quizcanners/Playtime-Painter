@@ -180,7 +180,7 @@ namespace Playtime_Painter
                         c = (PainterManagerPluginBase)gameObject.AddComponent(t);
                     _plugins.Add(c);
                     #if PEGI
-                    ("Painter Plugin " + c.ToString() + " added").showNotification();
+                    ("Painter Plugin " + c.ToPEGIstring() + " added").showNotification();
 #endif
                 }
             }
@@ -205,7 +205,8 @@ namespace Playtime_Painter
         public Shader br_Add = null;
         public Shader br_Copy = null;
         public Shader pixPerfectCopy = null;
-        public Shader bufferCopy = null;
+        public Shader brushRendy_bufferCopy = null;
+        public Shader Blit_Smoothed = null;
         public Shader br_Multishade = null;
         public Shader br_BlurN_SmudgeBrush = null;
         public Shader br_ColorFill = null;
@@ -221,8 +222,8 @@ namespace Playtime_Painter
 
         // ******************* Buffers MGMT
 
-        [NonSerialized]
-        RenderTexture[] squareBuffers = new RenderTexture[10];
+        [NonSerialized] RenderTexture[] squareBuffers = new RenderTexture[10];
+
         public RenderTexture GetSquareBuffer(int width)
         {
             int no = 9;
@@ -242,28 +243,23 @@ namespace Playtime_Painter
             }
 
             if (squareBuffers[no] == null)
-            {
                 squareBuffers[no] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-            }
+            
             return squareBuffers[no];
         }
 
         // Main Render Textures used for painting
         public RenderTexture[] BigRT_pair;
-
-        // Buffers used to resize texture to smaller size
+        
         [NonSerialized]
         List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
         public RenderTexture GetNonSquareBuffer(int width, int height)
         {
             foreach (RenderTexture r in nonSquareBuffers)
-            {
                 if ((r.width == width) && (r.height == height)) return r;
-            }
-
+            
             RenderTexture rt = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
             nonSquareBuffers.Add(rt);
-            //Debug.Log("Created new conversion buffer for "+width+" / "+height);
             return rt;
         }
 
@@ -275,38 +271,19 @@ namespace Playtime_Painter
 
             bool square = (width == height);
             if ((!square) || (!Mathf.IsPowerOfTwo(width)))
-            {
-                RenderTexture rt = GetNonSquareBuffer(width, height);
-                brushRendy.PrepareForFullCopyOf(BigRT_pair[0], rt);//PrepareFullCopyBrush(BigRT_pair[0]);
-                                                                   // brushRendy.Set(bufferCopy);
-                Render();
-                return rt;
-            }
+                return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height));
             else
             {
-
                 int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
-                RenderTexture from = GetSquareBuffer(tmpWidth);
-                rtcam.targetTexture = from;
-                brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);
-                brushRendy.Set(bufferCopy);
-
-                Render();
-
-                while (tmpWidth > width)
-                {
+ 
+                RenderTexture from = Render(BigRT_pair[0], GetSquareBuffer(tmpWidth));
+                
+                while (tmpWidth > width)  {
                     tmpWidth /= 2;
-                    RenderTexture to = GetSquareBuffer(tmpWidth);
-                    rtcam.targetTexture = to;
-                    brushRendy.PrepareForFullCopyOf(from);//PrepareFullCopyBrush(from);
-                    brushRendy.Set(bufferCopy);
-
-                    Render();
-                    from = to;
+                    from = Render(from, GetSquareBuffer(tmpWidth));
                 }
 
                 return from;
-
             }
 
         }
@@ -374,8 +351,7 @@ namespace Playtime_Painter
             PainterConfig cfg = PainterConfig.inst;
 
             rtcam.cullingMask = 1 << myLayer;
-
-            //if ((cfg.dontCreateDefaultRenderTexture == false) && 
+            
             if (!GotBuffers())
             {
                 // Debug.Log("Initing buffers");
@@ -384,19 +360,11 @@ namespace Playtime_Painter
                 BigRT_pair[1] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
                 BigRT_pair[0].wrapMode = TextureWrapMode.Repeat;
                 BigRT_pair[1].wrapMode = TextureWrapMode.Repeat;
+                BigRT_pair[0].name = "Painter Buffer 0 _ " + renderTextureSize;
+                BigRT_pair[1].name = "Painter Buffer 1 _ " + renderTextureSize;
 
             }
-            /* else if ((cfg.dontCreateDefaultRenderTexture) && GotBuffers())
-             {
-                 EmptyBufferTarget ();
 
-                 DestroyImmediate (BigRT_pair[0]);
-                 DestroyImmediate (BigRT_pair[1]);
-                 BigRT_pair = null;
-             }*/
-
-            /*  if (cfg.dontCreateDefaultRenderTexture == false)
-              {*/
 
             if (secondBufferDebug != null)
             {
@@ -404,8 +372,6 @@ namespace Playtime_Painter
                 if (secondBufferDebug.GetComponent<PlaytimePainter>() != null)
                     DestroyImmediate(secondBufferDebug.GetComponent<PlaytimePainter>());
             }
-            // }
-
 
             if (Camera.main != null)
                 Camera.main.cullingMask &= ~(1 << myLayer);
@@ -570,7 +536,7 @@ namespace Playtime_Painter
 
         }
 
-        public void Render(Texture tex, ImageData id)
+        public void Blit(Texture tex, ImageData id)
         {
             if (tex == null || id == null)
                 return;
@@ -581,14 +547,45 @@ namespace Playtime_Painter
 
 
         }
-
-        public void Render(Texture from, RenderTexture to)
+        
+        public void Blit(Texture from, RenderTexture to)
         {
-            if (from == null) return;
+           Blit(from, to, pixPerfectCopy);
+
+           /* if (from == null) return;
             brushRendy.Set(pixPerfectCopy);
+            Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
+            AfterRenderBlit(to);*/
+        }
+
+        public void Blit(Texture from, RenderTexture to, Shader blitShader)
+        {
+            // Render(from, to, pixPerfectCopy);
+
+            if (from == null) return;
+            brushRendy.Set(blitShader);
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
             AfterRenderBlit(to);
         }
+
+        public RenderTexture Render(Texture from, RenderTexture to, Shader shade)
+        {
+            if (to != null && from != null && shade != null)
+            {
+                rtcam.targetTexture = to;
+                brushRendy.PrepareForFullCopyOf(from);
+                brushRendy.Set(shade);
+                Render();
+            }
+           // else
+             //   Debug.Log("Something is null");
+
+            return to;
+        }
+
+        public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to , brushRendy_bufferCopy);
+
+        public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.currentTexture(), to, brushRendy_bufferCopy);
 
         public void Render(Color col, RenderTexture to)
         {
@@ -606,13 +603,9 @@ namespace Playtime_Painter
 
         public void UpdateBufferTwo()
         {
-
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
             secondBufferUpdated = true;
-            //brushRendy.PrepareForFullCopyOf(BigRT_pair[0]);
-            //Set(rtp.pixPerfectCopy).Set(tex);
-            // UpdateBufferSegment();
         }
 
         public bool secondBufferUpdated = false;
@@ -622,7 +615,7 @@ namespace Playtime_Painter
             {
                 brushRendy.Set(BigRT_pair[0]);
                 rtcam.targetTexture = BigRT_pair[1];
-                brushRendy.Set(bufferCopy);
+                brushRendy.Set(brushRendy_bufferCopy);
                 Render();
                 secondBufferUpdated = true;
             }
@@ -734,8 +727,10 @@ namespace Playtime_Painter
             if (masks == null) masks = new Texture[0];
 
             if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
+            
+            if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Editor/BufferBlit_Smooth");
 
-            if (bufferCopy == null) bufferCopy = Shader.Find("Editor/BufferCopier");
+            if (brushRendy_bufferCopy == null) brushRendy_bufferCopy = Shader.Find("Editor/BufferCopier");
 
             if (br_Blit == null) br_Blit = Shader.Find("Editor/br_Blit");
 

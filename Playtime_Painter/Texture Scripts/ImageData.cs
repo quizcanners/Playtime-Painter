@@ -130,10 +130,8 @@ namespace Playtime_Painter
             return (tex != null && tex == texture2D) || (renderTexture != null && renderTexture == tex);
         }
 
-        public RenderTexture AddRenderTexture()
-        {
-            return AddRenderTexture(width, height, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, FilterMode.Bilinear, null);
-        }
+        public RenderTexture AddRenderTexture() => AddRenderTexture(width, height, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, FilterMode.Bilinear, null);
+        
 
         public RenderTexture AddRenderTexture(int nwidth, int nheight, RenderTextureFormat format, RenderTextureReadWrite dataType, FilterMode filterMode, string global)
         {
@@ -159,16 +157,10 @@ namespace Playtime_Painter
             return renderTexture;
         }
 
-        public void Texture2D_To_RenderTexture()
-        {
-            if (texture2D != null)
-                PainterManager.inst.Render(texture2D, this);
-        }
+        public void Texture2D_To_RenderTexture() =>  PainterManager.inst.Render(texture2D, this.currentRenderTexture());
 
-        public void RenderTexture_To_Texture2D()
-        {
-            RenderTexture_To_Texture2D(texture2D);
-        }
+        public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
+        
 
         public void RenderTexture_To_Texture2D(Texture2D tex)
         {
@@ -177,7 +169,7 @@ namespace Playtime_Painter
 
             RenderTexture rt = renderTexture;
 
-            if (rt == null && texMGMT.imgDataUsingRendTex == this)
+            if (!rt && texMGMT.imgDataUsingRendTex == this)
                 rt = PainterManager.inst.painterRT_toBuffer(width, height);
             
             if (rt == null)
@@ -186,7 +178,7 @@ namespace Playtime_Painter
             tex.CopyFrom(rt);
 
             PixelsFromTexture2D(tex);
-            
+
             /* MAC: 
                     Linear Space
                         Big RT
@@ -222,11 +214,20 @@ namespace Playtime_Painter
 
             //  Debug.Log("We are linear: "+RenderTexturePainter.inst.isLinearColorSpace + " tex is sRGB: "+tex.isColorTexturee());
 
-            if ((PainterManager.inst.isLinearColorSpace) && (!tex.isColorTexturee()))
+            if (PainterManager.inst.isLinearColorSpace)
             {
-                pixelsToLinear();
-                //pixelsToGamma();
-                //Debug.Log("Pixels to gamma");
+                if (!tex.isColorTexturee())
+                {
+                    pixelsToLinear();
+                    //pixelsToGamma();
+                    Debug.Log("Pixels to Linear");
+                }
+
+#if UNITY_2017
+
+                if (renderTexture != null) 
+                    pixelsToGamma();
+#endif
             }
 
 
@@ -261,8 +262,7 @@ namespace Playtime_Painter
 
         public void Colorize(Color col)
         {
-            var p = pixels;
-            for (int i = 0; i < p.Length; i++)
+            for (int i = 0; i < pixels.Length; i++)
                 _pixels[i] = col;
 
         }
@@ -308,7 +308,7 @@ namespace Playtime_Painter
 
         public void TextureToRenderTexture(Texture2D tex)
         {
-                PainterManager.inst.Render(tex, this);
+                PainterManager.inst.Blit(tex, this);
         }
 
         public void PixelsFromTexture2D(Texture2D tex)
@@ -343,12 +343,12 @@ namespace Playtime_Painter
                 {
                     if (texture2D == null)
                         return;
-
-                    if (Application.isPlaying && painter.inited) // To avoid Clear to black when exiting playmode
-                        RenderTexture_To_Texture2D();
-
+                    
                     if (renderTexture == null)
                         PainterManager.inst.EmptyBufferTarget();
+                    else
+                        if (painter.inited) // To avoid Clear to black when exiting playmode
+                            RenderTexture_To_Texture2D();
 
                 }
                 destination = changeTo;
@@ -489,15 +489,11 @@ namespace Playtime_Painter
 
         public ImageData init(int renderTextureSize)
         {
-
-            Debug.Log("Creating rt data.");
-
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            //destination = dest.RenderTexture;
-            //Debug.Log("new RT");
             PainterManager.inst.imgDatas.Insert(0,this);
+            destination = texTarget.RenderTexture;
             return this;
         }
 
@@ -505,7 +501,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-        #if PEGI
+#if PEGI
         public bool undo_redo_PEGI()
         {
             bool changed = false;

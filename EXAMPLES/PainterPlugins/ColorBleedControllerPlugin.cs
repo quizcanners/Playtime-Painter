@@ -12,11 +12,8 @@ namespace Playtime_Painter {
     using UnityEditor;
     [CustomEditor(typeof(ColorBleedControllerPlugin))]
     public class ColorBleedControlsEditor : Editor {
-        public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((ColorBleedControllerPlugin)target).ConfigTab_PEGI();
-            ef.end();
-        }
+        public override void OnInspectorGUI() => ((ColorBleedControllerPlugin)target).inspect(serializedObject);
+        
     }
 #endif
 

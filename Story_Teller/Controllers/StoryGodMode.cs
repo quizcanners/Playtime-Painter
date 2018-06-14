@@ -11,10 +11,8 @@ namespace StoryTriggerData
     [CustomEditor(typeof(StoryGodMode))]
     public class StoryGodModeDrawer : Editor
     {
-        public override void OnInspectorGUI()
-        {
-            ((StoryGodMode)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((StoryGodMode)target).inspect(serializedObject);
+        
     }
 #endif
 

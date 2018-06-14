@@ -10,27 +10,24 @@ using UnityEditor;
 
     [CustomEditor(typeof(SpeedAnimationController))]
     public class SpeedAnimationControllerDrawer : Editor {
-        public override void OnInspectorGUI() {
-            ((SpeedAnimationController)target).inspect(serializedObject); 
-        }
+        public override void OnInspectorGUI() => ((SpeedAnimationController)target).inspect(serializedObject); 
+        
     }
 
     [CustomEditor(typeof(iSTD_Explorer))]
     public class iSTD_ExplorerDrawer : Editor
     {
-        public override void OnInspectorGUI() {
-            ((iSTD_Explorer)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((iSTD_Explorer)target).inspect(serializedObject);
+        
     }
     
     [CustomEditor(typeof(GodMode))]
     public class GodModeDrawer : Editor
     {
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() =>
             ((GodMode)target).inspect(serializedObject);
 
-        }
+        
     }
 
 #endif

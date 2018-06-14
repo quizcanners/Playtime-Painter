@@ -9,15 +9,9 @@ using Playtime_Painter;
 
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
-
     [CustomEditor(typeof(BrushConfigOnly))]
-    public class BrushConfigOnlyEditor : Editor
-    {
-
-        public override void OnInspectorGUI()
-        {
-        ((BrushConfigOnly)target).inspect(serializedObject);
-        }
+    public class BrushConfigOnlyEditor : Editor {
+        public override void OnInspectorGUI() => ((BrushConfigOnly)target).inspect(serializedObject);
     }
 #endif
 

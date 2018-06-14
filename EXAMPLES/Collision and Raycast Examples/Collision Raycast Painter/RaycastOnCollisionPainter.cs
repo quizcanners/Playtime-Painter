@@ -15,11 +15,8 @@ namespace Playtime_Painter
     [CustomEditor(typeof(RaycastOnCollisionPainter))]
     public class PainterCasterEditor : Editor{
 
-        public override void OnInspectorGUI() {
-            // ef.start(serializedObject);
-            ((RaycastOnCollisionPainter)target).inspect(serializedObject);
-            //ef.end();
-        }
+        public override void OnInspectorGUI() => ((RaycastOnCollisionPainter)target).inspect(serializedObject);
+           
     }
 #endif
 

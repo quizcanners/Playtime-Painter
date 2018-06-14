@@ -15,10 +15,8 @@ namespace Playtime_Painter
     public class BakedShadowsLightProbeEditor : Editor
     {
 
-        public override void OnInspectorGUI()
-        {
-            ((LightCaster)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((LightCaster)target).inspect(serializedObject);
+        
     }
 #endif
 

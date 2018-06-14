@@ -2077,55 +2077,26 @@ namespace PlayerAndEditorGUI
             return ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
         }
 
-        public static bool ClickUnfocus(this icon icon, string text)
-        {
-            return ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
-        }
-
-        public static bool ClickUnfocus(this icon icon, msg text, int width)
-        {
-            return ClickUnfocus(icon.getIcon(), text.Get(), width);
-        }
-
-        public static bool ClickUnfocus(this icon icon, msg text, int width, int height)
-        {
-            return ClickUnfocus(icon.getIcon(), text.Get(), width, height);
-        }
-
-        public static bool ClickUnfocus(this icon icon, string text, int width, int height)
-        {
-            return ClickUnfocus(icon.getIcon(), text, width, height);
-        }
-
-        public static bool ClickUnfocus(this icon icon, string text, int width)
-        {
-            return ClickUnfocus(icon.getIcon(), text, width);
-        }
-
-        public static bool ClickUnfocus(this icon icon,  int width)
-        {
-            return ClickUnfocus(icon.getIcon(), width);
-        }
-
-        public static bool Click(this icon icon, int size)
-        {
-            return Click(icon.getIcon(), size);
-        }
-
-        public static bool Click(this icon icon, string tip, int width, int height)
-        {
-            return Click(icon.getIcon(), tip, width, height);
-        }
+        public static bool ClickUnfocus(this icon icon, string text) => ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
         
-        public static bool Click(this icon icon, string tip, int size)
-        {
-            return Click(icon.getIcon(), tip, size);
-        }
 
-        public static bool Click(this icon icon, string tip)
-        {
-            return Click(icon.getIcon(), tip, defaultButtonSize);
-        }
+        public static bool ClickUnfocus(this icon icon, msg text, int width) => ClickUnfocus(icon.getIcon(), text.Get(), width);
+        
+        public static bool ClickUnfocus(this icon icon, msg text, int width, int height) => ClickUnfocus(icon.getIcon(), text.Get(), width, height);
+        
+        public static bool ClickUnfocus(this icon icon, string text, int width, int height) => ClickUnfocus(icon.getIcon(), text, width, height);
+        
+        public static bool ClickUnfocus(this icon icon, string text, int width) => ClickUnfocus(icon.getIcon(), text, width);
+        
+        public static bool ClickUnfocus(this icon icon,  int width) => ClickUnfocus(icon.getIcon(), width);
+        
+        public static bool Click(this icon icon, int size) => Click(icon.getIcon(), size);
+        
+        public static bool Click(this icon icon, string tip, int width, int height) => Click(icon.getIcon(), tip, width, height);
+        
+        public static bool Click(this icon icon, string tip, int size)  => Click(icon.getIcon(), tip, size);
+        
+        public static bool Click(this icon icon, string tip) => Click(icon.getIcon(), tip, defaultButtonSize);
         
         public static bool ClickToEditScript()
         {
@@ -3655,13 +3626,13 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        static void write_ListLabel(this string label, IList lst)
-        {
+        static void write_ListLabel(this string label, IList lst) =>
+        
            /* if (lst == editingOrder)
                 write(label, listLabelWidth);
             else*/
                 write(label);
-        }
+        
 
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
@@ -4069,9 +4040,8 @@ namespace PlayerAndEditorGUI
         // ...... of Object
 
         public static bool edit_List_Obj<T>(this List<T> list, ref int edited) where T : UnityEngine.Object
-        {
-            return list.edit_or_select_List_Obj(null, ref edited, true, null);
-        }
+            => list.edit_or_select_List_Obj(null, ref edited, true, null);
+        
 
         public static bool edit_List_Obj<T>(this List<T> list, bool allowDelete) where T : UnityEngine.Object
         {
@@ -4423,10 +4393,8 @@ namespace PlayerAndEditorGUI
             }
             return changed;
         }
-        public static bool inspect(this Transform tf)
-        {
-            return tf.inspect(_editLocalSpace);
-        }
+        public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
+        
 
         public static bool inspect_Name(this iGotName obj) {
             var n = obj.NameForPEGI;

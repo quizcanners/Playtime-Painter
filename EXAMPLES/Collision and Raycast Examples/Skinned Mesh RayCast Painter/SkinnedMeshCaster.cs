@@ -15,9 +15,8 @@ namespace Playtime_Painter
     [CustomEditor(typeof(SkinnedMeshCaster))]
     public class SkinnedMeshCasterEditor : Editor
     {
-        public override void OnInspectorGUI() {
-            ((SkinnedMeshCaster)target).inspect(serializedObject);
-        }
+        public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).inspect(serializedObject);
+        
     }
 #endif
 

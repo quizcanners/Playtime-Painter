@@ -232,175 +232,175 @@ namespace Playtime_Painter {
                     pegi.Space();
                     pegi.newLine();
 
-                // ef.write("Mat:", 30);
-                var mats = painter.GetMaterials();
-                if ((mats != null) && (mats.Length > 0))
+                if (!cfg.showConfig)
                 {
-                    int sm = painter.selectedSubmesh;
-                    if (pegi.select(ref sm, mats))
+
+                    var mats = painter.GetMaterials();
+                    if ((mats != null) && (mats.Length > 0))
                     {
-                        painter.SetOriginalShaderOnThis();
-                        painter.selectedSubmesh = sm;
-                        painter.OnChangedTexture_OnMaterial();
-                        image = painter.imgData;
-                        painter.CheckPreviewShader();
-                    }
-                }
-
-
-                Material mater = painter.material;
-
-                if (pegi.edit(ref mater))
-                    painter.material = mater;
-
-
-
-                if //((cfg.moreOptions || (mater == null) || (mater == rtp.defaultMaterial) || (image == null))
-                    //&& 
-                    (icon.NewMaterial.Click("Instantiate Material", 25).nl())
-                    //)
-                {
-                    changes = true;
-                    painter.InstantiateMaterial(true);
-                }
-
-               // pegi.newLine();
-
-                if ((mats != null) && (mats.Length > 1))
-                
-                    "Auto Select Material:".toggle("Material will be changed based on the submesh you are painting on", 120,
-                                                   ref painter.autoSelectMaterial_byNumberOfPointedSubmesh).nl();
-                
-
-                pegi.nl();
-                ef.Space();
-                ef.newLine();
-
-                //      pegi.write("Tex:", "Texture field on the material", 30);
-
-                if (painter.SelectTexture_PEGI())
-                {
-
-                    image = painter.imgData;
-                    if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.MaterialTexturePropertyName;
-                }
-
-                if (image != null)
-                    painter.UpdateTylingFromMaterial();
-
-                textureSetterField();
-
-                if (//((image == null) || (cfg.moreOptions)) &&
-                        (painter.isTerrainControlTexture() == false))
-                {
-
-                    bool isTerrainHeight = painter.isTerrainHeightTexture();
-
-                    int texScale = (!isTerrainHeight) ?
-                         ((int)Mathf.Pow(2, PainterConfig.inst.selectedSize + minPow))
-
-                        : (painter.terrain.terrainData.heightmapResolution - 1);
-
-                    List<string> texNames = painter.GetMaterialTextureNames();
-
-                    if (texNames.Count > painter.selectedTexture)
-                    {
-                        string param = painter.MaterialTexturePropertyName;
-
-                        if (pegi.Click(icon.NewTexture, (image == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
+                        int sm = painter.selectedSubmesh;
+                        if (pegi.select(ref sm, mats))
                         {
-                            changes = true;
-                            if (isTerrainHeight)
-                                painter.createTerrainHeightTexture(painter.nameHolder);
-                            else
-                                painter.createTexture2D(texScale, painter.nameHolder, cfg.newTextureIsColor);
-                        }
-
-
-
-                        if ((image == null) && (cfg.moreOptions) && ("Create Render Texture".Click()))
-                        {
-                            changes = true;
-                            painter.CreateRenderTexture(texScale, painter.nameHolder);
-                        }
-
-                        if ((image != null) && (cfg.moreOptions))
-                        {
-                            if ((image.renderTexture == null) && ("Add Render Tex".Click()))
-                            {
-                                changes = true;
-                                image.AddRenderTexture();
-                            }
-                            if (image.renderTexture != null)
-                            {
-
-                                if ("Replace RendTex".Click("Replace " + param + " with Rend Tex size: " + texScale))
-                                {
-                                    changes = true;
-                                    painter.CreateRenderTexture(texScale, painter.nameHolder);
-                                }
-                                if ("Remove RendTex".Click().nl())
-                                {
-                                    changes = true;
-                                    if (image.texture2D != null)
-                                    {
-                                        painter.UpdateOrSetTexTarget(texTarget.Texture2D);
-                                        image.renderTexture = null;
-                                    }
-                                    else
-                                    {
-
-                                        painter.RemoveTextureFromMaterial(); //SetTextureOnMaterial(null);
-                                    }
-
-                                }
-                            }
+                            painter.SetOriginalShaderOnThis();
+                            painter.selectedSubmesh = sm;
+                            painter.OnChangedTexture_OnMaterial();
+                            image = painter.imgData;
+                            painter.CheckPreviewShader();
                         }
                     }
-                    else
-                        "No Material's Texture selected".nl();
+
+
+                    Material mater = painter.material;
+
+                    if (pegi.edit(ref mater))
+                        painter.material = mater;
+
+
+
+                    if (icon.NewMaterial.Click("Instantiate Material", 25).nl())
+                    {
+                        changes = true;
+                        painter.InstantiateMaterial(true);
+                    }
+
+                    // pegi.newLine();
+
+                    if ((mats != null) && (mats.Length > 1))
+
+                        "Auto Select Material:".toggle("Material will be changed based on the submesh you are painting on", 120,
+                                                       ref painter.autoSelectMaterial_byNumberOfPointedSubmesh).nl();
+
 
                     pegi.nl();
-
-                    if (image == null)
-                        "_Name:".edit("Name for new texture", 40, ref painter.nameHolder).nl();
-
-
-
-                    if (!isTerrainHeight)
-                    {
-                        "Color:".toggle("Will the new texture be a Color Texture", 40, ref cfg.newTextureIsColor);
-                        ef.write("Size:", "Size of the new Texture", 40);
-                        if ((texSizes == null) || (texSizes.Length != range))
-                        {
-                            texSizes = new string[range];
-                            for (int i = 0; i < range; i++)
-                                texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
-                        }
-
-                        ef.select(ref PainterConfig.inst.selectedSize, texSizes, 60);
-                    }
+                    ef.Space();
                     ef.newLine();
-                }
 
-                ef.newLine();
-                ef.tab();
-                ef.newLine();
+                    //      pegi.write("Tex:", "Texture field on the material", 30);
 
-                List<ImageData> recentTexs;
-
-                string texName = painter.MaterialTexturePropertyName;
-
-                if ((texName != null) && (rtp.recentTextures.TryGetValue(texName, out recentTexs))
-                    && ((recentTexs.Count > 1) || (painter.imgData == null)))
-                {
-                    ef.write("Recent Texs:", 60);
-                    ImageData tmp = painter.imgData;//.exclusiveTexture();
-                    if (pegi.select(ref tmp, recentTexs))
+                    if (painter.SelectTexture_PEGI())
                     {
-                        painter.ChangeTexture(tmp.exclusiveTexture());
-                        changes = true;
+
+                        image = painter.imgData;
+                        if (image == null) painter.nameHolder = painter.gameObject.name + "_" + painter.MaterialTexturePropertyName;
                     }
+
+                    if (image != null)
+                        painter.UpdateTylingFromMaterial();
+
+                    textureSetterField();
+
+                    if ((painter.isTerrainControlTexture() == false))
+                    {
+
+                        bool isTerrainHeight = painter.isTerrainHeightTexture();
+
+                        int texScale = (!isTerrainHeight) ?
+                             ((int)Mathf.Pow(2, PainterConfig.inst.selectedSize + minPow))
+
+                            : (painter.terrain.terrainData.heightmapResolution - 1);
+
+                        List<string> texNames = painter.GetMaterialTextureNames();
+
+                        if (texNames.Count > painter.selectedTexture)
+                        {
+                            string param = painter.MaterialTexturePropertyName;
+
+                            if (pegi.Click(icon.NewTexture, (image == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
+                            {
+                                changes = true;
+                                if (isTerrainHeight)
+                                    painter.createTerrainHeightTexture(painter.nameHolder);
+                                else
+                                    painter.createTexture2D(texScale, painter.nameHolder, cfg.newTextureIsColor);
+                            }
+
+
+
+                            if ((image == null) && (cfg.moreOptions) && ("Create Render Texture".Click()))
+                            {
+                                changes = true;
+                                painter.CreateRenderTexture(texScale, painter.nameHolder);
+                            }
+
+                            if ((image != null) && (cfg.moreOptions))
+                            {
+                                if ((image.renderTexture == null) && ("Add Render Tex".Click()))
+                                {
+                                    changes = true;
+                                    image.AddRenderTexture();
+                                }
+                                if (image.renderTexture != null)
+                                {
+
+                                    if ("Replace RendTex".Click("Replace " + param + " with Rend Tex size: " + texScale))
+                                    {
+                                        changes = true;
+                                        painter.CreateRenderTexture(texScale, painter.nameHolder);
+                                    }
+                                    if ("Remove RendTex".Click().nl())
+                                    {
+                                        changes = true;
+                                        if (image.texture2D != null)
+                                        {
+                                            painter.UpdateOrSetTexTarget(texTarget.Texture2D);
+                                            image.renderTexture = null;
+                                        }
+                                        else
+                                        {
+
+                                            painter.RemoveTextureFromMaterial(); //SetTextureOnMaterial(null);
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                        else
+                            "No Material's Texture selected".nl();
+
+                        pegi.nl();
+
+                        if (image == null)
+                            "_Name:".edit("Name for new texture", 40, ref painter.nameHolder).nl();
+
+
+
+                        if (!isTerrainHeight)
+                        {
+                            "Color:".toggle("Will the new texture be a Color Texture", 40, ref cfg.newTextureIsColor);
+                            ef.write("Size:", "Size of the new Texture", 40);
+                            if ((texSizes == null) || (texSizes.Length != range))
+                            {
+                                texSizes = new string[range];
+                                for (int i = 0; i < range; i++)
+                                    texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
+                            }
+
+                            ef.select(ref PainterConfig.inst.selectedSize, texSizes, 60);
+                        }
+                        ef.newLine();
+                    }
+
+                    ef.newLine();
+                    ef.tab();
+                    ef.newLine();
+
+                    List<ImageData> recentTexs;
+
+                    string texName = painter.MaterialTexturePropertyName;
+
+                    if ((texName != null) && (rtp.recentTextures.TryGetValue(texName, out recentTexs))
+                        && ((recentTexs.Count > 1) || (painter.imgData == null)))
+                    {
+                        ef.write("Recent Texs:", 60);
+                        ImageData tmp = painter.imgData;//.exclusiveTexture();
+                        if (pegi.select(ref tmp, recentTexs))
+                        {
+                            painter.ChangeTexture(tmp.exclusiveTexture());
+                            changes = true;
+                        }
+                    }
+
                 }
 
                 ef.Space();

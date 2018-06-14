@@ -224,7 +224,7 @@ namespace Playtime_Painter{
                 else
                     for (int p = 0; p < rtp.plugins.Count; p++)
                     {
-                        rtp.plugins[p].ToString().write();
+                        rtp.plugins[p].ToPEGIstring().write();
                         if (icon.Edit.Click().nl()) rtp.browsedPlugin = p;
                     }
 

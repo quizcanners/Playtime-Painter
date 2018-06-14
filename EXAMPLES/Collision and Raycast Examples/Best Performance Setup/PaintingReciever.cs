@@ -14,9 +14,8 @@ using UnityEditor;
 [CustomEditor(typeof(PaintingReciever))]
 public class PaintingRecieverEditor : Editor
 {
-    public override void OnInspectorGUI() {
-            ((PaintingReciever)target).inspect(serializedObject);
-        }
+    public override void OnInspectorGUI() => ((PaintingReciever)target).inspect(serializedObject);
+        
 }
 #endif
 
@@ -76,7 +75,7 @@ public class PaintingRecieverEditor : Editor
         private void OnEnable()  {
 
             if ((originalTexture!= null) && (texture!= null) && (texture.GetType() == typeof(RenderTexture)))
-                PainterManager.inst.Render(originalTexture, (RenderTexture)texture);
+                PainterManager.inst.Blit(originalTexture, (RenderTexture)texture);
         }
 
         public Texture getTexture() {
@@ -102,7 +101,7 @@ public class PaintingRecieverEditor : Editor
 
                 var tex = originalTexture == null ? matTex : originalTexture;
                 if (tex != null)
-                PainterManager.inst.Render( tex , (RenderTexture) texture);
+                PainterManager.inst.Blit( tex , (RenderTexture) texture);
                 else
                     PainterManager.inst.Render(Color.black , (RenderTexture)texture);
 
@@ -139,7 +138,7 @@ public class PaintingRecieverEditor : Editor
                 ((Texture2D)texture).SetPixels(((Texture2D)originalTexture).GetPixels());
                 ((Texture2D)texture).Apply(true);
             } else 
-                PainterManager.inst.Render(originalTexture, (RenderTexture)texture);
+                PainterManager.inst.Blit(originalTexture, (RenderTexture)texture);
 
         }
 
