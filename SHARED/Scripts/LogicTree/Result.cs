@@ -167,10 +167,7 @@ namespace STD_Logic  {
             groupIndex = TriggerGroup.browsed.GetHashCode();
         }
 
-        public iSTD Decode(string data) {
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
+        public iSTD Decode(string data) => data.DecodeInto(this);
 
         public static string CompileResultText(Result res) {
             return res.trig.name + res.type + " " + res.updateValue;

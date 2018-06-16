@@ -73,6 +73,7 @@ namespace Playtime_Painter{
         public const string BRUSH_EDITED_UV_OFFSET = "_brushEditedUVoffset";
         public const string BRUSH_ATLAS_SECTION_AND_ROWS = "_brushAtlasSectionAndRows";
         public const string BRUSH_SAMPLING_DISPLACEMENT = "_brushSamplingDisplacement";
+        public const string DESTINATION_BUFFER = "_DestBuffer";
         //public const string BRUSH_IS_ATLASED = "BRUSH_IS_ATLASED";
         // Preview Constants
         public const string UV_NORMAL = "UV_NORMAL";
@@ -89,6 +90,8 @@ namespace Playtime_Painter{
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
         public const string vertexColorRole = "VertexColorRole_";
+        public const string bufferCopyAspectRation = "_BufferCopyAspectRatio";
+
 
         public string meshToolsSTD = null;
         

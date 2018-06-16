@@ -11,6 +11,13 @@ namespace SharedTools_Stuff
 
     public static class DecodeExtensions {
 
+        public static void ToAssetByGUID<T>(this string data, ref T val) where T : UnityEngine.Object
+        {
+            var ass = UnityHelperFunctions.GUIDtoAsset<T>(data);
+            if (ass)
+                val = ass;
+        }
+            
         public static void DecodeInto(this string data, out BoneWeight b) {
             var cody = new stdDecoder(data);
              b = new BoneWeight();
@@ -222,32 +229,6 @@ namespace SharedTools_Stuff
         }
         
 
-        // STD
-        public static T TryDecodeInto<T>(this string data, T val)
-        {
-            if (val != null)
-            {
-                var asSTD = val as iSTD;
-                if (asSTD != null)
-                    data.DecodeInto(asSTD);
-            }
-
-            return val;
-        }
-
-        public static T DecodeInto<T> (this string data, out T val) where T: iSTD, new() {
-            val = new T();
-            new stdDecoder(data).DecodeTagsFor(val);
-            return val;
-        }
-
-        public static T DecodeInto<T>(this string data, T val) where T : iSTD {
-            if (val != null)
-            new stdDecoder(data).DecodeTagsFor(val);
-            return val;
-        }
-
-
         // List (int)
         public static List<int> DecodeInto (this string data, out List<int> l ) {
 
@@ -296,6 +277,39 @@ namespace SharedTools_Stuff
         }
 
 
+        // STD
+        public static T DecodeInto<T>(this string data, T val) where T : iSTD
+        {
+            if (val != null)
+                new stdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new stdDecoder(data).DecodeTagsFor(Activator.CreateInstance<T>());
+
+        public static T TryDecodeInto<T>(this string data, T val)
+        {
+            if (val != null)
+                data.DecodeInto(val as iSTD);
+
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
+        {
+            val = new T();
+            new stdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data, Type childType) where T : iSTD, new()
+        {
+            T val = (T)Activator.CreateInstance(childType);
+            new stdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+
         // ToListOfSTD
         public static void TryDecodeInto<T>(this string data, List<T> val) 
         {
@@ -329,10 +343,36 @@ namespace SharedTools_Stuff
 
              l = new List<T>();
 
+            List<Type> tps = typeof(T).TryGetDerrivedClasses(); 
+
             while (cody.gotData) {
-                cody.getTag();
-                T tmp;
-                l.Add(cody.getData().DecodeInto(out tmp));
+                var tag = cody.getTag();
+                var dta = cody.getData();
+
+                var isNull = tag == stdEncoder.nullTag;
+                if (isNull)
+                    l.Add(default(T));
+                else
+                {
+                    if (tps != null)
+                    {
+                        var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+                        if (type != null)
+                            l.Add(dta.DecodeInto<T>(type));
+#if UNITY_EDITOR
+                        else
+                        {
+                            l.Add(dta.DecodeInto<T>());
+                            Debug.Log("Couldn't decode class no: " + tag + " for " + typeof(T).ToString());
+                        }
+#endif
+
+                    }
+                    else {
+                        T tmp;
+                        l.Add(dta.DecodeInto(out tmp));
+                    }
+                }
             }
 
             return l;
@@ -388,7 +428,7 @@ namespace SharedTools_Stuff
             position = 0;
         }
 
-        public void DecodeTagsFor(iSTD storyComponent) {
+        public T DecodeTagsFor<T>(T storyComponent) where T : iSTD{
 
             var unrec = storyComponent as iKeepUnrecognizedSTD;
 
@@ -401,6 +441,8 @@ namespace SharedTools_Stuff
                     if (!storyComponent.Decode(tag, d))
                         unrec.Unrecognized(tag, d);
                 }
+
+            return storyComponent;
         }
 
         string toNextSplitter() {

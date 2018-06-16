@@ -29,7 +29,7 @@ namespace Playtime_Painter{
         #region StaticGetters
 
 #if PEGI
-        public static PEGIcallDelegate plugins_ComponentPEGI;
+        public static pegi.CallDelegate plugins_ComponentPEGI;
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
         
@@ -1345,12 +1345,8 @@ namespace Playtime_Painter{
             }
             return true;
         }
-        
-        public iSTD Decode(string data)
-        {
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
+
+        public iSTD Decode(string data) => data.DecodeInto(this);
 
         #endregion
 
@@ -2057,7 +2053,7 @@ namespace Playtime_Painter{
                 pegi.nl();
 
                 if (plugins_ComponentPEGI != null)
-                foreach (PEGIcallDelegate p in plugins_ComponentPEGI.GetInvocationList())
+                foreach (pegi.CallDelegate p in plugins_ComponentPEGI.GetInvocationList())
                     changed |= p().nl();
             }
             pegi.newLine();

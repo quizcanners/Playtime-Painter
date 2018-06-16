@@ -7,7 +7,7 @@ using System;
 
 namespace STD_Logic {
 
-    public class LogicBranch<T> : abstract_STD
+    public class LogicBranch<T> : abstractKeepUnrecognized_STD 
         #if PEGI
         , iGotName 
 #endif
@@ -43,18 +43,14 @@ namespace STD_Logic {
             }
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
-
-            cody.Add_String("name", name);
-            cody.Add("cond", conds);
-            cody.Add_ifNotEmpty("sub", subBranches);
-            cody.Add("el", elements);
-            cody.Add_ifNotNegative("brE", browsedElement);
-            cody.Add_ifNotNegative("brB", browsedBranch);
-            cody.Add_ifTrue("conds", showConditions);
-            return cody;
-        }
+        public override stdEncoder Encode() => EncodeUnrecognized()
+            .Add_String("name", name)
+            .Add("cond", conds)
+            .Add_ifNotEmpty("sub", subBranches)
+            .Add("el", elements)
+            .Add_ifNotNegative("brE", browsedElement)
+            .Add_ifNotNegative("brB", browsedBranch)
+            .Add_ifTrue("conds", showConditions);
 
         public override bool Decode(string subtag, string data) {
             switch (subtag)

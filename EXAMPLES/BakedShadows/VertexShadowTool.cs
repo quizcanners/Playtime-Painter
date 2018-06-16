@@ -29,8 +29,8 @@ namespace Playtime_Painter
                 if (pointedTris.sameAsLastFrame)
                     return true;
                 BrushConfig bcf = cfg.brushConfig;
-                foreach (var uv in pointedTris.uvpnts)
-                bcf.colorLinear.ToV4(ref uv.vert.shadowBake, bcf.mask);
+                foreach (var uv in pointedTris.vertexes)
+                bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
                 meshMGMT.edMesh.dirty = true;
                 return true;
             }

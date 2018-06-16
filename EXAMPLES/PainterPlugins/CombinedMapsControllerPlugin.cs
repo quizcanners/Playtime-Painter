@@ -450,13 +450,13 @@ namespace Playtime_Painter {
 
             public override stdEncoder Encode()
             {
-                var cody = new stdEncoder();
+                var cody = new stdEncoder()
 
-                cody.Add_ifNotEmpty("ch", channel);
-                cody.Add_Bool("c", isColor);
-                cody.Add_String("n", name);
-                cody.Add("b", bumpStrength);
-                cody.Add("fc", fillColor);
+                .Add_ifNotEmpty("ch", channel)
+                .Add_Bool("c", isColor)
+                .Add_String("n", name)
+                .Add("b", bumpStrength)
+                .Add("fc", fillColor);
 
                 return cody;
             }
@@ -694,10 +694,10 @@ namespace Playtime_Painter {
 
             public override stdEncoder Encode()
             {
-                var cody = new stdEncoder();
-                cody.Add_ifNotZero("s", sourceRole);
-                cody.Add_ifNotZero("c", sourceChannel);
-                cody.Add_Bool("f", flip);
+                var cody = new stdEncoder()
+                .Add_ifNotZero("s", sourceRole)
+                .Add_ifNotZero("c", sourceChannel)
+                .Add_Bool("f", flip);
                 return cody;
             }
 

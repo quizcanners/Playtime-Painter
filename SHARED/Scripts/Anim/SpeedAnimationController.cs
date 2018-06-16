@@ -44,13 +44,12 @@ using STD_Logic;
         public AnimatedElement el { get { return AnimatedElement.inspectedAnimatedObject; } }
         
         public override stdEncoder Encode() {
-            var cody = new stdEncoder();
-
-            cody.Add("lpos", localPos.Encode());
-            cody.Add("lsize", LocalScale.Encode());
-            cody.Add("lrot", localRotation.Encode());
-            cody.Add("encData", customData.Encode());
-            cody.Add("shadeVal", shaderValue.Encode());
+            var cody = EncodeUnrecognized()
+            .Add("lpos", localPos.Encode())
+            .Add("lsize", LocalScale.Encode())
+            .Add("lrot", localRotation.Encode())
+            .Add("encData", customData.Encode())
+            .Add("shadeVal", shaderValue.Encode());
             if (isOverrideSpeed)
             {
                 cody.Add("src", (int)frameSpeedSource);
@@ -185,11 +184,10 @@ using STD_Logic;
 
         public override stdEncoder Encode()
         {
-            var cody = new stdEncoder();
-
-            cody.Add("i", index);
-            cody.Add_String("n", _name);
-            cody.Add_String("prop", propertyName);
+            var cody = EncodeUnrecognized()
+            .Add("i", index)
+            .Add_String("n", _name)
+            .Add_String("prop", propertyName);
 
             if (script) {
                 var asp = script as iSTD;
@@ -436,18 +434,15 @@ using STD_Logic;
             onFinish += OnFinish;
         }
 
-        public override stdEncoder Encode()  {
-            var cody = new stdEncoder();
-            cody.Add("frames", frames.Encode());
-            cody.Add("elm", elementsUnsorted);
-            cody.Add_Bool("curve", curveSpeed);
-            cody.Add("MaxSpeed", maxSpeed);
-            cody.Add("src", (int)speedSource);
-            cody.Add("Nextind", indexForNewObject);
-            cody.Add("KeyElement", keyElementIndex);
-            cody.Add("oneTimeCond", oneTimeCondition);
-            return cody;
-        }
+        public override stdEncoder Encode()  => EncodeUnrecognized()
+            .Add("frames", frames.Encode())
+            .Add("elm", elementsUnsorted)
+            .Add_Bool("curve", curveSpeed)
+            .Add("MaxSpeed", maxSpeed)
+            .Add("src", (int)speedSource)
+            .Add("Nextind", indexForNewObject)
+            .Add("KeyElement", keyElementIndex)
+            .Add("oneTimeCond", oneTimeCondition);
 
         public override bool Decode(string tag, string data)
         {

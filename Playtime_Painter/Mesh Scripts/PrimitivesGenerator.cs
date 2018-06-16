@@ -21,7 +21,7 @@ namespace Playtime_Painter {
         {
 
            // float widthPercentage = 0.1f;
-            vertexpointDta[] grid;
+            MeshPoint[] grid;
 #if PEGI
             public override bool PEGI() {
                 bool changed = false;

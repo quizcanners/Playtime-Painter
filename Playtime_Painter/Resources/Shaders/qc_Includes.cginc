@@ -24,7 +24,7 @@
 	float4 _brushAtlasSectionAndRows;
 	float4 _brushSamplingDisplacement;
 	float4 _brushPointedUV_Untiled;
-	float _BufferCopyAspectRatio;
+	float _BufferCopyAspectRatio = 1;
 
 
 	inline bool isAcute(float a, float b, float c) {

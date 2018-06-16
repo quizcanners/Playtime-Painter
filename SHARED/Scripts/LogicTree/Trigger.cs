@@ -75,11 +75,11 @@ namespace STD_Logic
         }
 
         public override stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
-            cody.Add_String("n", name);
-            cody.Add("u", usage);
-            cody.Add_IfNotEmpty("e", enm);
-            cody.Add_Bool ("s", isStatic);
+            stdEncoder cody = new stdEncoder()
+            .Add_String("n", name)
+            .Add("u", usage)
+            .Add_IfNotEmpty("e", enm)
+            .Add_Bool ("s", isStatic);
             return cody;
         }
 

@@ -35,17 +35,14 @@ namespace STD_Logic
             }
         }
 
-        public override stdEncoder Encode()
-        {
-            var cody = new stdEncoder();
-            cody.Add_ifNotEmpty("wb", branches);
-            cody.Add_ifNotEmpty("v", conds);
-            cody.Add_ifNotZero("t", (int)type);
-            cody.Add_String("d", description);
-            cody.Add(TaggedTarget.stdTag_TagTar, targ);
-            cody.Add_ifNotNegative("insB", browsedBranch);
-            return cody;
-        }
+        public override stdEncoder Encode() => new stdEncoder()
+            .Add_ifNotEmpty("wb", branches)
+            .Add_ifNotEmpty("v", conds)
+            .Add_ifNotZero("t", (int)type)
+            .Add_String("d", description)
+            .Add(TaggedTarget.stdTag_TagTar, targ)
+            .Add_ifNotNegative("insB", browsedBranch);
+        
 
         public override bool Decode(string subtag, string data)
         {

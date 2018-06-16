@@ -16,13 +16,13 @@ namespace STD_Logic {
 
         public override stdEncoder Encode()
         {
-            var cody = new stdEncoder();
+            var cody =  new stdEncoder()
 
-            cody.Add_ifNotZero("v", compareValue);
-            cody.Add_ifNotZero("ty", (int)type);
-            cody.Add_ifNotZero("rty", (int)resultType);
-            cody.Add("g", groupIndex);
-            cody.Add("t", triggerIndex);
+            .Add_ifNotZero("v", compareValue)
+            .Add_ifNotZero("ty", (int)type)
+            .Add_ifNotZero("rty", (int)resultType)
+            .Add("g", groupIndex)
+            .Add("t", triggerIndex);
 
             return cody;
         }

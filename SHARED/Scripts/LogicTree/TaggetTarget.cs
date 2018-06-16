@@ -78,11 +78,8 @@ namespace STD_Logic
             return stdTag_TagTar;
         }
 
-        public iSTD Decode(string data) {
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
-        
+        public iSTD Decode(string data) => data.DecodeInto(this);
+
     }
     
 }

@@ -242,9 +242,9 @@ namespace Playtime_Painter
                 var prMesh = freshPreviewMesh;
                 
                 Vector3 trgPos = m.target.transform.position;
-                foreach (vertexpointDta v in prMesh.vertices) {
+                foreach (MeshPoint v in prMesh.vertices) {
                     var pUV = PosToUV((v.worldPos - trgPos));
-                    foreach (UVpoint uv in v.uvpoints)
+                    foreach (Vertex uv in v.uvpoints)
                         uv.sharedEditedUV = pUV;
                 }
 
@@ -309,7 +309,7 @@ namespace Playtime_Painter
 
         public override bool showLines { get { return false; } }
 
-        public override void AssignText(MarkerWithText mrkr, vertexpointDta vpoint) {
+        public override void AssignText(MarkerWithText mrkr, MeshPoint vpoint) {
             var pvrt = meshMGMT.GetSelectedVert();
 
             if ((vpoint.uvpoints.Count > 1) || (pvrt == vpoint)) {
@@ -368,13 +368,13 @@ namespace Playtime_Painter
 
         public override bool MouseEventPointedLine() {
 
-            UVpoint a = pointedLine.pnts[0];
-            UVpoint b = pointedLine.pnts[1];
+            Vertex a = pointedLine.pnts[0];
+            Vertex b = pointedLine.pnts[1];
 
             if (Vector3.Distance(meshMGMT.collisionPosLocal, a.pos) < Vector3.Distance(meshMGMT.collisionPosLocal, b.pos))
-                meshMGMT.AssignSelected(editedMesh.GetUVpointAFromLine(a.vert, b.vert));
+                meshMGMT.AssignSelected(editedMesh.GetUVpointAFromLine(a.meshPoint, b.meshPoint));
             else
-                meshMGMT.AssignSelected(editedMesh.GetUVpointAFromLine(b.vert, a.vert));
+                meshMGMT.AssignSelected(editedMesh.GetUVpointAFromLine(b.meshPoint, a.meshPoint));
 
             return false;
 
@@ -393,7 +393,7 @@ namespace Playtime_Painter
                    // float portion = 1f / Mathf.Max(0.01f, MeshUVprojectionSize);
 
                     for (int i = 0; i < 3; i++) 
-                       pointedTris.uvpnts[i].editedUV = PosToUV(pointedTris.uvpnts[i].vert.worldPos - trgPos);
+                       pointedTris.vertexes[i].editedUV = PosToUV(pointedTris.vertexes[i].meshPoint.worldPos - trgPos);
 
                     editedMesh.dirty = true;
 
@@ -440,11 +440,11 @@ namespace Playtime_Painter
         
         public override void KeysEventPointedLine() {
             if ((KeyCode.Backspace.isDown()))  {
-                UVpoint a = pointedLine.pnts[0];
-                UVpoint b = pointedLine.pnts[1];
+                Vertex a = pointedLine.pnts[0];
+                Vertex b = pointedLine.pnts[1];
 
                 if (!EditorInputManager.getControlKey())
-                    meshMGMT.SwapLine(a.vert, b.vert);
+                    meshMGMT.SwapLine(a.meshPoint, b.meshPoint);
                 else
                     meshMGMT.DeleteLine(pointedLine);
 

@@ -25,7 +25,7 @@ namespace StoryTriggerData
     }
 
     [Serializable]
-    public class DialogueChoice: abstract_STD  {
+    public class DialogueChoice: abstractKeepUnrecognized_STD   {
         public ConditionBranch conditions;
         public Sentance text;
         public List<Sentance> texts2;
@@ -38,16 +38,14 @@ namespace StoryTriggerData
 
         public const string storyTag = "talkOpt";
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder(); //EncodeData();
-            cody.Add_IfNotEmpty("goto", goToReference);
-            cody.Add("web", conditions);
-            cody.Add("t",text);
-            cody.Add_ifNotEmpty("t2", texts2);
-            cody.Add_ifNotEmpty("res", results);
+        public override stdEncoder Encode() => EncodeUnrecognized()
+            .Add_IfNotEmpty("goto", goToReference)
+            .Add("web", conditions)
+            .Add("t",text)
+            .Add_ifNotEmpty("t2", texts2)
+            .Add_ifNotEmpty("res", results);
 
-            return cody;
-        }
+          
 
         public override bool Decode(string tag, string data) {
           
@@ -138,7 +136,7 @@ namespace StoryTriggerData
     public enum QOoptionType { Dialogue, PassiveLogic, Secret }
 
     [Serializable]
-    public class Interaction : abstract_STD {
+    public class Interaction : abstractKeepUnrecognized_STD {
 
         public string reference="";
         public ConditionBranch conditions;
@@ -151,16 +149,12 @@ namespace StoryTriggerData
         public static bool showOnEnter_Results;
 
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder(); //EncodeData();
-            cody.Add_IfNotEmpty("ref", reference);
-            cody.Add("Conds", conditions);
-            cody.Add_ifNotEmpty("txt",Texts);
-            cody.Add_ifNotEmpty("opt", options);
-            cody.Add_ifNotEmpty("fin", FinalResults);
-      
-            return cody;
-        }
+        public override stdEncoder Encode() => EncodeUnrecognized()
+            .Add_IfNotEmpty("ref", reference)
+            .Add("Conds", conditions)
+            .Add_ifNotEmpty("txt",Texts)
+            .Add_ifNotEmpty("opt", options)
+            .Add_ifNotEmpty("fin", FinalResults);
 
         public override bool Decode(string tag, string data) {
             //Debug.Log("Decoding " + tag + " with " + data);
@@ -331,24 +325,18 @@ namespace StoryTriggerData
         public bool isOneClickAction;
         public int EditorSelectedInteraction = -1;
 
-   
-        public override stdEncoder Encode()
-        {
-            var cody = new stdEncoder();
 
-            cody.Add_String("name", name);
-            cody.Add("cond", conds);
-            cody.Add_ifNotEmpty("igr", subBranches);
-            cody.Add_ifNotEmpty(Interaction.storyTag_intrct, elements);
-            cody.Add("base", base.Encode());
-            return cody;
-        }
+        public override stdEncoder Encode() => EncodeUnrecognized()
+            .Add_String("name", name)
+            .Add("cond", conds)
+            .Add_ifNotEmpty("igr", subBranches)
+            .Add_ifNotEmpty(Interaction.storyTag_intrct, elements);
+
 
         public override bool Decode(string subtag, string data)
         {
             switch (subtag)
             {
-
                 case "name": name = data; break;
                 case "cond": data.DecodeInto(conds); break;
                 case "igr": data.DecodeInto(out subBranches); break; 

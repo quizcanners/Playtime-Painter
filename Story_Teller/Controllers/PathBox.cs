@@ -54,15 +54,12 @@ namespace StoryTriggerData {
             conditions = new ConditionBranch();
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
-            cody.Add_String("n", name);
-            cody.Add("size", transform.localScale);
-            cody.Add_IfNotZero("pos", transform.localPosition);
-            cody.Add("rot", transform.localRotation.eulerAngles);
-            cody.Add("c", conditions);
-            return cody;
-        }
+        public override stdEncoder Encode() => EncodeUnrecognized()
+            .Add_String("n", name)
+            .Add("size", transform.localScale)
+            .Add_IfNotZero("pos", transform.localPosition)
+            .Add("rot", transform.localRotation.eulerAngles)
+            .Add("c", conditions);
 
         public static STD_Pool StoryPoolController;
         public override void SetStaticPoolController(STD_Pool inst) {

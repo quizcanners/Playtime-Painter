@@ -63,12 +63,10 @@ namespace StoryTriggerData {
         }
 
         public override stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
-            cody.Add_String("name", gameObject.name);
-
-            cody.Add("spos", UniversePosition.playerPosition);
-
-            cody.Add_ifNotEmpty("pages", HOMEpages);
+            stdEncoder cody = EncodeUnrecognized();
+            cody.Add_String("name", gameObject.name)
+            .Add("spos", SpaceValues.playerPosition)
+            .Add_ifNotEmpty("pages", HOMEpages);
 
             return cody;
         }

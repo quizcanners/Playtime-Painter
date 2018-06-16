@@ -61,15 +61,11 @@ namespace Playtime_Painter
 #endif
     {
     public abstract stdEncoder Encode();
-        public iSTD Decode(string data) {
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
 
-        public iSTD Decode(stdEncoder cody) {
-            new stdDecoder(cody.ToString()).DecodeTagsFor(this);
-            return this;
-        }
+        public iSTD Decode(string data) => data.DecodeInto(this);
+
+        public iSTD Decode(stdEncoder cody)  => new stdDecoder(cody.ToString()).DecodeTagsFor(this);
+
 #if PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
 #endif

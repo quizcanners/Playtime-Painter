@@ -147,13 +147,12 @@ public class RenderBrush : PainterStuffMono {
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
         }
         
-        public RenderBrush PrepareForFullCopyOf(Texture tex, RenderTexture onto, Shader shade)
+        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Shader shade)
         {
 
             if (tex != null && onto != null)
             {
-
-               
+                
                 float size = PainterManager.orthoSize * 2;
                 float aspectRatio = (float)tex.width / (float)tex.height;
 
@@ -167,19 +166,19 @@ public class RenderBrush : PainterStuffMono {
                 transform.localRotation = Quaternion.identity;
                 meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
 
-                if (aspectRatio!= 1)
-                Shader.SetGlobalFloat("_BufferCopyAspectRatio", 1f/aspectRatio);
-
+                Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1f/aspectRatio);
+               
                 Set(tex);
                 
                 if (shade == null)
                     shade = texMGMT.pixPerfectCopy;
+
                 Set(shade);
                 
                 texMGMT.Render();
 
                 if (aspectRatio != 1)
-                    Shader.SetGlobalFloat("_BufferCopyAspectRatio", 1);
+                    Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1);
 
             }
 
@@ -196,9 +195,14 @@ public class RenderBrush : PainterStuffMono {
             Set(texMGMT.br_ColorFill).Set(col);
         }
 
-        
-    // Use this for initialization
-    void Awake () {
+
+        private void OnEnable()
+        {
+            Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1f);
+        }
+
+        // Use this for initialization
+        void Awake () {
         if (meshRendy == null)
             meshRendy = GetComponent<MeshRenderer>();
 

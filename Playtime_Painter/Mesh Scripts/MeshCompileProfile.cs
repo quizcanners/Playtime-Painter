@@ -106,7 +106,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override stdEncoder Encode()
+        public override stdEncoder Encode() 
         {
             stdEncoder cody = new stdEncoder();
 

@@ -26,14 +26,11 @@ namespace SharedTools_Stuff
             return true;
         }
 
-        public override stdEncoder Encode()
-        {
-            var cody = new stdEncoder();
-            cody.Add_String("n", name);
-            cody.Add_String("std", std_dta);
-            cody.Add_String("guid", guid);
-            return cody;
-        }
+        public override stdEncoder Encode() => new stdEncoder()
+            .Add_String("n", name)
+            .Add_String("std", std_dta)
+            .Add_String("guid", guid);
+        
     }
 
     [Serializable]

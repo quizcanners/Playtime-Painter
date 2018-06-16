@@ -16,7 +16,7 @@ namespace Playtime_Painter
 
     public static class MeshAnatomyExtensions {
 
-        public static Vector3 SmoothVector (this List<trisDta> td) {
+        public static Vector3 SmoothVector (this List<Triangle> td) {
 
             var v = Vector3.zero;
 
@@ -27,22 +27,22 @@ namespace Playtime_Painter
 
         }
 
-        public static bool Contains(this List<vertexpointDta> lst, LineData ld)
+        public static bool Contains(this List<MeshPoint> lst, LineData ld)
         {
-            return lst.Contains(ld.pnts[0].vert) && lst.Contains(ld.pnts[1].vert);
+            return lst.Contains(ld.pnts[0].meshPoint) && lst.Contains(ld.pnts[1].meshPoint);
         }
 
-        public static bool Contains(this List<vertexpointDta> lst, trisDta ld)
+        public static bool Contains(this List<MeshPoint> lst, Triangle ld)
         {
-            foreach (var p in ld.uvpnts)
-                if (!lst.Contains(p.vert))
+            foreach (var p in ld.vertexes)
+                if (!lst.Contains(p.meshPoint))
                     return false;
             return true;
         }
 
     }
 
-    public class UVpoint : PainterStuffKeepUnrecognized_STD
+    public class Vertex : PainterStuffKeepUnrecognized_STD
     {
 
         public override string GetDefaultTagName() {
@@ -50,7 +50,7 @@ namespace Playtime_Painter
         }
         public const string stdTag_uv = "uv";
         
-        protected PlaytimePainter target { get { return MeshManager.inst.target; } }
+        protected PlaytimePainter painter { get { return MeshManager.inst.target; } }
 
         public int uvIndex;
         public int finalIndex;
@@ -58,21 +58,21 @@ namespace Playtime_Painter
 
         public bool tmpMark;
         public bool HasVertex;
-        public List<trisDta> tris = new List<trisDta>();
-        public UVpoint MyLastCopy;
-        public vertexpointDta vert;
+        public List<Triangle> tris = new List<Triangle>();
+        public Vertex MyLastCopy;
+        public MeshPoint meshPoint;
 
         public bool sameAsLastFrame { get { return this == editedMesh.LastFramePointedUV; } }
 
-        public Vector3 pos { get { return vert.localPos; } }
+        public Vector3 pos { get { return meshPoint.localPos; } }
         
-        void Init(vertexpointDta nvert)
+        void Init(MeshPoint nPoint)
         {
-            vert = nvert;
-            nvert.uvpoints.Add(this);
+            meshPoint = nPoint;
+            nPoint.uvpoints.Add(this);
         }
 
-        void Init (UVpoint other) {
+        void Init (Vertex other) {
             _color = other._color;
           
         }
@@ -109,9 +109,9 @@ namespace Playtime_Painter
             return tmp;
         }*/
 
-        public UVpoint GetConnectedUVinVert(vertexpointDta other)
+        public Vertex GetConnectedUVinVert(MeshPoint other)
         {
-            foreach (trisDta t in tris)
+            foreach (Triangle t in tris)
             {
                 if (t.includes(other))
                     return (t.GetByVert(other));
@@ -119,8 +119,8 @@ namespace Playtime_Painter
             return null;
         }
 
-        public List<trisDta> getTrianglesFromLine(UVpoint other) {
-            List<trisDta> lst = new List<trisDta>();
+        public List<Triangle> getTrianglesFromLine(Vertex other) {
+            List<Triangle> lst = new List<Triangle>();
 
                 foreach (var t in tris)
                     if (t.includes(other)) lst.Add(t);
@@ -128,73 +128,73 @@ namespace Playtime_Painter
             return lst;
         }
 
-        public UVpoint() {
-            Init(vertexpointDta.currentlyDecoded);
+        public Vertex() {
+            Init(MeshPoint.currentlyDecoded);
         }
 
-        public UVpoint(UVpoint other)
+        public Vertex(Vertex other)
         {
             Init(other);
-            Init(other.vert);
+            Init(other.meshPoint);
             uvIndex = other.uvIndex;
             
         }
 
-        public UVpoint(vertexpointDta nvert)
+        public Vertex(MeshPoint nvert)
         {
             Init(nvert);
 
-            if (vert.shared_v2s.Count == 0)
+            if (meshPoint.shared_v2s.Count == 0)
                 SetUVindexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
             else
                 uvIndex = 0;
         }
 
-        public UVpoint(vertexpointDta nvert, Vector2 uv_0)
+        public Vertex(MeshPoint nvert, Vector2 uv_0)
         {
             Init(nvert);
           
             SetUVindexBy(uv_0, Vector2.zero);
         }
 
-        public UVpoint(vertexpointDta nvert, Vector2 uv_0, Vector2 uv_1)
+        public Vertex(MeshPoint nvert, Vector2 uv_0, Vector2 uv_1)
         {
             Init(nvert);
             SetUVindexBy(uv_0, uv_1);
         }
 
-        public UVpoint(vertexpointDta nvert, UVpoint other)
+        public Vertex(MeshPoint nvert, Vertex other)
         {
             Init(other);
             Init(nvert);
             SetUVindexBy(other.GetUV(0), other.GetUV(1));
         }
 
-        public UVpoint(vertexpointDta nvert, string data) {
+        public Vertex(MeshPoint nvert, string data) {
             Init(nvert);
             Decode(data);
         }
 
-        public void AssignToNewVertex(vertexpointDta vp) {
-            Vector2[] myUV = vert.shared_v2s[uvIndex];
-            vert.uvpoints.Remove(this);
-            vert = vp;
-            vert.uvpoints.Add(this);
+        public void AssignToNewVertex(MeshPoint vp) {
+            Vector2[] myUV = meshPoint.shared_v2s[uvIndex];
+            meshPoint.uvpoints.Remove(this);
+            meshPoint = vp;
+            meshPoint.uvpoints.Add(this);
             SetUVindexBy(myUV);
         }
 
         public Vector2 editedUV {
-            get { return vert.shared_v2s[uvIndex][meshMGMT.editedUV]; }
+            get { return meshPoint.shared_v2s[uvIndex][meshMGMT.editedUV]; }
             set { SetUVindexBy(value); }
         }
 
         public Vector2 sharedEditedUV {
-            get { return vert.shared_v2s[uvIndex][meshMGMT.editedUV]; }
-            set { vert.shared_v2s[uvIndex][meshMGMT.editedUV] = value; }
+            get { return meshPoint.shared_v2s[uvIndex][meshMGMT.editedUV]; }
+            set { meshPoint.shared_v2s[uvIndex][meshMGMT.editedUV] = value; }
         }
 
         public Vector2 GetUV(int ind) {
-            return vert.shared_v2s[uvIndex][ind];
+            return meshPoint.shared_v2s[uvIndex][ind];
         }
 
         public bool SameUV(Vector2 uv, Vector2 uv1)
@@ -204,33 +204,33 @@ namespace Playtime_Painter
 
         public void SetUVindexBy(Vector2[] uvs)
         {
-            uvIndex = vert.getIndexFor(uvs[0], uvs[1]);
+            uvIndex = meshPoint.getIndexFor(uvs[0], uvs[1]);
         }
 
         public void SetUVindexBy(Vector2 uv_0, Vector2 uv_1)
         {
-            uvIndex = vert.getIndexFor(uv_0, uv_1);
+            uvIndex = meshPoint.getIndexFor(uv_0, uv_1);
         }
 
         public void SetUVindexBy(Vector2 uv_edited) {
             var uv_0 = meshMGMT.editedUV == 0 ? uv_edited : GetUV(0);
             var uv_1 = meshMGMT.editedUV == 1 ? uv_edited : GetUV(1);
 
-            uvIndex = vert.getIndexFor(uv_0, uv_1);
+            uvIndex = meshPoint.getIndexFor(uv_0, uv_1);
         }
 
-        public bool ConnectedTo(vertexpointDta other)
+        public bool ConnectedTo(MeshPoint other)
         {
-            foreach (trisDta t in tris)
+            foreach (Triangle t in tris)
                 if (t.includes(other))
                     return true;
 
             return false;
         }
 
-        public bool ConnectedTo(UVpoint other)
+        public bool ConnectedTo(Vertex other)
         {
-            foreach (trisDta t in tris)
+            foreach (Triangle t in tris)
                 if (t.includes(other))
                     return true;
 
@@ -275,7 +275,7 @@ namespace Playtime_Painter
                 return ch;
             else
             {
-                foreach (UVpoint u in vert.uvpoints) if (u != this)
+                foreach (Vertex u in meshPoint.uvpoints) if (u != this)
                     {
                         ch = GetZeroChanelIfOne(ref count);
                         if (count == 2) return ch;
@@ -286,7 +286,7 @@ namespace Playtime_Painter
             return ColorChanel.A;
         }
 
-        public static implicit operator int(UVpoint d)   {
+        public static implicit operator int(Vertex d)   {
             return d.finalIndex;
         }
     }
@@ -339,7 +339,7 @@ namespace Playtime_Painter
   
     } 
 
-    public class vertexpointDta : PainterStuffKeepUnrecognized_STD
+    public class MeshPoint : PainterStuffKeepUnrecognized_STD
     {
 
         // TEMPORATY DATA / NEEDS MANUAL UPDATE:
@@ -348,11 +348,11 @@ namespace Playtime_Painter
         public bool NormalIsSet;
         public float distanceToPointed;
         public Vector3 distanceToPointedV3;
-        public static vertexpointDta currentlyDecoded;
+        public static MeshPoint currentlyDecoded;
 
         // Data to save:
         public List<Vector2[]> shared_v2s = new List<Vector2[]>();
-        public List<UVpoint> uvpoints;
+        public List<Vertex> uvpoints;
         public Vector3 localPos;
         public bool SmoothNormal;
         public Vector4 shadowBake;
@@ -364,7 +364,7 @@ namespace Playtime_Painter
         public float edgeStrength;
         public int vertexGroup = 0;
 
-        public bool sameAsLastFrame { get { return this == editedMesh.LastFramePointedUV.vert; } }
+        public bool sameAsLastFrame { get { return this == editedMesh.LastFramePointedUV.meshPoint; } }
 
         public bool SetSmoothNormal(bool to)
         {
@@ -517,11 +517,11 @@ namespace Playtime_Painter
             if (dest.magnitude > 0) editedMesh.hasFrame[no] = true;
         }
         
-        public vertexpointDta() {
+        public MeshPoint() {
             Reboot(Vector3.zero);
         }
 
-        public vertexpointDta(Vector3 npos) {
+        public MeshPoint(Vector3 npos) {
             Reboot(npos);
         }
 
@@ -552,31 +552,31 @@ namespace Playtime_Painter
         void Reboot(Vector3 npos) {
             localPos = npos;
             anim = new Countless<Vector3>();
-            uvpoints = new List<UVpoint>();
+            uvpoints = new List<Vertex>();
 
             SmoothNormal = cfg.newVerticesSmooth;
         }
 
         public void clearColor(BrushMask bm) {
-            foreach (UVpoint uvi in uvpoints)
+            foreach (Vertex uvi in uvpoints)
                 bm.Transfer(ref uvi._color, Color.black);
         }
 
-        void SetChanel(ColorChanel chan, vertexpointDta other, float val)
+        void SetChanel(ColorChanel chan, MeshPoint other, float val)
         {
-            foreach (UVpoint u in uvpoints)
+            foreach (Vertex u in uvpoints)
                 if (u.ConnectedTo(other))
                     chan.SetChanel(ref u._color, val);
         }
 
-        public bool FlipChanelOnLine(ColorChanel chan, vertexpointDta other)
+        public bool FlipChanelOnLine(ColorChanel chan, MeshPoint other)
         {
             float val = 1;
 
             if (cfg.MakeVericesUniqueOnEdgeColoring)
                editedMesh.GiveLineUniqueVerticles_RefreshTrisListing(new LineData(this, other));
 
-            foreach (UVpoint u in uvpoints)
+            foreach (Vertex u in uvpoints)
                 if (u.ConnectedTo(other))
                     val *= u._color.GetChanel(chan) * u.GetConnectedUVinVert(other)._color.GetChanel(chan);
 
@@ -593,21 +593,21 @@ namespace Playtime_Painter
             return (val == 1);
         }
 
-        public void SetColorOnLine(Color col, BrushMask bm, vertexpointDta other)
+        public void SetColorOnLine(Color col, BrushMask bm, MeshPoint other)
         {
-            foreach (UVpoint u in uvpoints)
+            foreach (Vertex u in uvpoints)
                 if (u.ConnectedTo(other))
                     bm.Transfer(ref u._color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
 
         }
 
-        public void RemoveBorderFromLine(vertexpointDta other)
+        public void RemoveBorderFromLine(MeshPoint other)
         {
-            foreach (UVpoint u in uvpoints)
+            foreach (Vertex u in uvpoints)
                 if (u.ConnectedTo(other))
                     for (int i = 0; i < 4; i++)
                     {
-                        UVpoint ouv = u.GetConnectedUVinVert(other);
+                        Vertex ouv = u.GetConnectedUVinVert(other);
                         ColorChanel ch = (ColorChanel)i;
 
                         float val = u._color.GetChanel(ch) * ouv._color.GetChanel(ch);
@@ -647,17 +647,17 @@ namespace Playtime_Painter
             return nyu;
         }
         */
-        public float DistanceTo (vertexpointDta other) {
+        public float DistanceTo (MeshPoint other) {
             return (localPos - other.localPos).magnitude;
         }
 
-        public void MergeWith (vertexpointDta other) {
+        public void MergeWith (MeshPoint other) {
 
             for (int i = 0; i < other.uvpoints.Count; i++) {
-                UVpoint buv = other.uvpoints[i];
+                Vertex buv = other.uvpoints[i];
                 Vector2[] uvs = new Vector2[] { buv.GetUV(0), buv.GetUV(1) };
                 uvpoints.Add(buv);
-                buv.vert = this;
+                buv.meshPoint = this;
                 buv.SetUVindexBy(uvs);
             }
 
@@ -667,12 +667,12 @@ namespace Playtime_Painter
 
         public void MergeWithNearest() {
 
-            List<vertexpointDta> vrts = editedMesh.vertices;
+            List<MeshPoint> vrts = editedMesh.vertices;
 
-            vertexpointDta nearest = null;
+            MeshPoint nearest = null;
             float maxDist = float.MaxValue;
 
-            foreach (vertexpointDta v in vrts) {
+            foreach (MeshPoint v in vrts) {
                 float dist = v.DistanceTo(this);
                 if ((dist < maxDist) && (v != this))
                 {
@@ -686,12 +686,12 @@ namespace Playtime_Painter
 
         }
 
-        public List<trisDta> triangles()
+        public List<Triangle> triangles()
         {
-            List<trisDta> Alltris = new List<trisDta>();
+            List<Triangle> Alltris = new List<Triangle>();
 
-            foreach (UVpoint uvi in uvpoints)
-                foreach (trisDta tri in uvi.tris)
+            foreach (Vertex uvi in uvpoints)
+                foreach (Triangle tri in uvi.tris)
                     //if (!Alltris.Contains(tri))
                         Alltris.Add(tri);
             
@@ -707,9 +707,9 @@ namespace Playtime_Painter
             List<LineData> Alllines = new List<LineData>();
 
 
-            foreach (UVpoint uvi in uvpoints)
+            foreach (Vertex uvi in uvpoints)
             {
-                foreach (trisDta tri in uvi.tris)
+                foreach (Triangle tri in uvi.tris)
                 {
                     LineData[] lines;
                     lines = tri.GetLinesFor(uvi);
@@ -738,7 +738,7 @@ namespace Playtime_Painter
             return Alllines;
         }
 
-        public trisDta getTriangleFromLine(vertexpointDta other)
+        public Triangle getTriangleFromLine(MeshPoint other)
         {
             for (int i = 0; i < uvpoints.Count; i++)
             {
@@ -748,8 +748,8 @@ namespace Playtime_Painter
             return null;
         }
 
-        public List<trisDta> getTrianglesFromLine(vertexpointDta other) {
-            List<trisDta> lst = new List<trisDta>();
+        public List<Triangle> getTrianglesFromLine(MeshPoint other) {
+            List<Triangle> lst = new List<Triangle>();
             for (int i = 0; i < uvpoints.Count; i++) {
                 foreach (var t in uvpoints[i].tris) 
                     if (t.includes(other)) lst.Add(t);
@@ -772,14 +772,14 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public class trisDta : PainterStuffKeepUnrecognized_STD
+    public class Triangle : PainterStuffKeepUnrecognized_STD
     {
-        public vertexpointDta this[int index] {
-            get { return uvpnts[index].vert; }
+        public MeshPoint this[int index] {
+            get { return vertexes[index].meshPoint; }
         }
 
 
-        public UVpoint[] uvpnts = new UVpoint[3];
+        public Vertex[] vertexes = new Vertex[3];
         public bool[] DominantCourner = new bool[3];
         public float[] edgeWeight = new float[3];
         public Vector4 textureNo = new Vector4();
@@ -789,9 +789,9 @@ namespace Playtime_Painter
         public Vector3 GetNormal() {
 
             sharpNormal = MyMath.GetNormalOfTheTriangle(
-                    uvpnts[0].pos,
-                    uvpnts[1].pos,
-                    uvpnts[2].pos);
+                    vertexes[0].pos,
+                    vertexes[1].pos,
+                    vertexes[2].pos);
 
             return sharpNormal;
         }
@@ -800,7 +800,7 @@ namespace Playtime_Painter
 
         public float area { get
             {
-                return Vector3.Cross(uvpnts[0].pos - uvpnts[1].pos, uvpnts[0].pos - uvpnts[2].pos).magnitude * 0.5f;
+                return Vector3.Cross(vertexes[0].pos - vertexes[1].pos, vertexes[0].pos - vertexes[2].pos).magnitude * 0.5f;
                // V.magnitude * 0.5f;
 
 
@@ -808,22 +808,22 @@ namespace Playtime_Painter
             } }
 
         public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+            var cody = new stdEncoder()
 
-            cody.Add_ifTrue("f0", DominantCourner[0]);
-            cody.Add_ifTrue("f1", DominantCourner[1]);
-            cody.Add_ifTrue("f2", DominantCourner[2]);
+            .Add_ifTrue("f0", DominantCourner[0])
+            .Add_ifTrue("f1", DominantCourner[1])
+            .Add_ifTrue("f2", DominantCourner[2])
 
-            cody.Add("ew0", edgeWeight[0]);
-            cody.Add("ew1", edgeWeight[1]);
-            cody.Add("ew2", edgeWeight[2]);
+            .Add("ew0", edgeWeight[0])
+            .Add("ew1", edgeWeight[1])
+            .Add("ew2", edgeWeight[2]);
 
             for (int i = 0; i < 3; i++)
-                cody.Add(i.ToString(),uvpnts[i].finalIndex);
+                cody.Add(i.ToString(),vertexes[i].finalIndex);
 
-            cody.Add("tex", textureNo);
+            cody.Add("tex", textureNo)
 
-            cody.Add_ifNotZero("sub", submeshIndex);
+            .Add_ifNotZero("sub", submeshIndex);
            
 
             return cody;
@@ -840,9 +840,9 @@ namespace Playtime_Painter
                 case "ew1": edgeWeight[1] = data.ToFloat(); break;
                 case "ew2": edgeWeight[2] = data.ToFloat(); break;
                 case "sub": submeshIndex = data.ToInt(); break;
-                case "0": uvpnts[0] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
-                case "1": uvpnts[1] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
-                case "2": uvpnts[2] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
+                case "0": vertexes[0] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
+                case "1": vertexes[1] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
+                case "2": vertexes[2] = editedMesh.uvsByFinalIndex[data.ToInt()]; break;
                 default: return false;
             }
             return true;
@@ -855,7 +855,7 @@ namespace Playtime_Painter
 
         public const string stdTag_tri = "tri";
 
-        public trisDta CopySettingsFrom (trisDta td) {
+        public Triangle CopySettingsFrom (Triangle td) {
             for (int i = 0; i < 3; i++)
                 DominantCourner[i] = td.DominantCourner[i];
             textureNo = td.textureNo;
@@ -866,11 +866,11 @@ namespace Playtime_Painter
 
         public bool wasProcessed;
 
-        public bool isVertexIn(vertexpointDta vrt)
+        public bool isVertexIn(MeshPoint vrt)
         {
-            foreach (UVpoint v in uvpnts)
+            foreach (Vertex v in vertexes)
             {
-                if (v.vert == vrt) return true;
+                if (v.meshPoint == vrt) return true;
             }
             return false;
         }
@@ -909,32 +909,32 @@ namespace Playtime_Painter
 
         public void InvertNormal()
         {
-            UVpoint hold = uvpnts[0];
+            Vertex hold = vertexes[0];
 
-            uvpnts[0] = uvpnts[2];
-            uvpnts[2] = hold;
+            vertexes[0] = vertexes[2];
+            vertexes[2] = hold;
         }
 
-        public bool IsSamePoints(UVpoint[] other)
+        public bool IsSamePoints(Vertex[] other)
         {
-            foreach (UVpoint v in other)
+            foreach (Vertex v in other)
             {
                 bool same = false;
-                foreach (UVpoint v1 in uvpnts)
+                foreach (Vertex v1 in vertexes)
                 {
-                    if (v.vert == v1.vert) same = true;
+                    if (v.meshPoint == v1.meshPoint) same = true;
                 }
                 if (!same) return false;
             }
             return true;
         }
 
-        public bool IsSameUV(UVpoint[] other)
+        public bool IsSameUV(Vertex[] other)
         {
-            foreach (UVpoint v in other)
+            foreach (Vertex v in other)
             {
                 bool same = false;
-                foreach (UVpoint v1 in uvpnts)
+                foreach (Vertex v1 in vertexes)
                 {
                     if (v == v1) same = true;
                 }
@@ -943,103 +943,103 @@ namespace Playtime_Painter
             return true;
         }
 
-        public bool IsSameAs(vertexpointDta[] other)
+        public bool IsSameAs(MeshPoint[] other)
         {
-            foreach (vertexpointDta v in other)
+            foreach (MeshPoint v in other)
             {
                 bool same = false;
-                foreach (UVpoint v1 in uvpnts)
+                foreach (Vertex v1 in vertexes)
                 {
-                    if (v == v1.vert) same = true;
+                    if (v == v1.meshPoint) same = true;
                 }
                 if (!same) return false;
             }
             return true;
         }
 
-        public bool isNeighbourOf(trisDta td) {
+        public bool isNeighbourOf(Triangle td) {
             if (td == this) return false;
 
             int same = 0;
 
-            foreach (var u in td.uvpnts)
+            foreach (var u in td.vertexes)
                 for (int i = 0; i < 3; i++)
-                    if (uvpnts[i].vert == u.vert) { same++; break; }
+                    if (vertexes[i].meshPoint == u.meshPoint) { same++; break; }
 
             return same == 2;
         }
 
-        public void Change(UVpoint[] nvrts)
+        public void Change(Vertex[] nvrts)
         {
             for (int i = 0; i < 3; i++)
            // {
                // nvrts[i].editedUV = uvpnts[i].editedUV;
-                uvpnts[i] = nvrts[i];
+                vertexes[i] = nvrts[i];
             //}
         }
 
-        public bool includes(UVpoint vrt)
+        public bool includes(Vertex vrt)
         {
             for (int i = 0; i < 3; i++)
-                if (vrt == uvpnts[i]) return true;
+                if (vrt == vertexes[i]) return true;
             return false;
         }
 
-        public bool includes(vertexpointDta vrt)
+        public bool includes(MeshPoint vrt)
         {
             for (int i = 0; i < 3; i++)
-                if (vrt == uvpnts[i].vert) return true;
+                if (vrt == vertexes[i].meshPoint) return true;
             return false;
         }
 
-        public bool includes(vertexpointDta a, vertexpointDta b)
+        public bool includes(MeshPoint a, MeshPoint b)
         {
             int cnt = 0;
             for (int i = 0; i < 3; i++)
             {
-                if ((a == uvpnts[i].vert) || (b == uvpnts[i].vert)) cnt++;
+                if ((a == vertexes[i].meshPoint) || (b == vertexes[i].meshPoint)) cnt++;
             }
             return cnt > 1;
         }
 
         public bool includes(LineData ld)
         {
-            return (includes(ld.pnts[0].vert) && (includes(ld.pnts[1].vert)));
+            return (includes(ld.pnts[0].meshPoint) && (includes(ld.pnts[1].meshPoint)));
         }
 
         public bool PointOnTriangle()
         {
-            Vector3 va = uvpnts[0].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[0].pos);
-            Vector3 vb = uvpnts[1].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[1].pos);
-            Vector3 vc = uvpnts[2].vert.distanceToPointedV3;//point.DistanceV3To(uvpnts[2].pos);
+            Vector3 va = vertexes[0].meshPoint.distanceToPointedV3;//point.DistanceV3To(uvpnts[0].pos);
+            Vector3 vb = vertexes[1].meshPoint.distanceToPointedV3;//point.DistanceV3To(uvpnts[1].pos);
+            Vector3 vc = vertexes[2].meshPoint.distanceToPointedV3;//point.DistanceV3To(uvpnts[2].pos);
 
             float sum = Vector3.Angle(va, vb) + Vector3.Angle(va, vc) + Vector3.Angle(vb, vc);
             return (Mathf.Abs(sum - 360) < 0.01f);
         }
 
-        public int NumberOf(UVpoint pnt)
+        public int NumberOf(Vertex pnt)
         {
             for (int i = 0; i < 3; i++)
-                if (pnt == uvpnts[i]) return i;
+                if (pnt == vertexes[i]) return i;
 
             return -1;
         }
 
-        public UVpoint GetClosestTo(Vector3 fpos)
+        public Vertex GetClosestTo(Vector3 fpos)
         {
 
-            UVpoint nearest = uvpnts[0];
+            Vertex nearest = vertexes[0];
             for (int i = 1; i < 3; i++)
-                if ((fpos - uvpnts[i].pos).magnitude < (fpos - nearest.pos).magnitude) nearest = uvpnts[i];
+                if ((fpos - vertexes[i].pos).magnitude < (fpos - nearest.pos).magnitude) nearest = vertexes[i];
 
             return nearest;
 
         }
 
-        public UVpoint GetByVert(vertexpointDta vrt)
+        public Vertex GetByVert(MeshPoint vrt)
         {
             for (int i = 0; i < 3; i++)
-                if (uvpnts[i].vert == vrt) return uvpnts[i];
+                if (vertexes[i].meshPoint == vrt) return vertexes[i];
 
             Debug.Log("Error using Get By Vert");
             return null;//uvpnts[0];
@@ -1049,15 +1049,15 @@ namespace Playtime_Painter
         {
             Vector3 w = DistanceToWeight(localPos);
             var ind = meshMGMT.editedUV;
-            return uvpnts[0].GetUV(ind) * w.x + uvpnts[1].GetUV(ind) * w.y + uvpnts[2].GetUV(ind) * w.z;
+            return vertexes[0].GetUV(ind) * w.x + vertexes[1].GetUV(ind) * w.y + vertexes[2].GetUV(ind) * w.z;
         }
 
         public Vector3 DistanceToWeight(Vector3 localPos)
         {
 
-            Vector3 p1 = uvpnts[0].pos;
-            Vector3 p2 = uvpnts[1].pos;
-            Vector3 p3 = uvpnts[2].pos;
+            Vector3 p1 = vertexes[0].pos;
+            Vector3 p2 = vertexes[1].pos;
+            Vector3 p3 = vertexes[2].pos;
 
             Vector3 f1 = p1 - localPos;
             Vector3 f2 = p2 - localPos;
@@ -1080,81 +1080,81 @@ namespace Playtime_Painter
 
         }
 
-        public void AssignWeightedData (UVpoint to, Vector3 weight) {
+        public void AssignWeightedData (Vertex to, Vector3 weight) {
          
-            to._color = uvpnts[0]._color * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
-            to.vert.shadowBake = uvpnts[0].vert.shadowBake * weight.x + uvpnts[1].vert.shadowBake * weight.y + uvpnts[2].vert.shadowBake * weight.z;
-            UVpoint nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? uvpnts[0] : uvpnts[1]) : uvpnts[2];
-            to.vert.boneWeight = nearest.vert.boneWeight; //boneWeight. * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
+            to._color = vertexes[0]._color * weight.x + vertexes[1]._color * weight.y + vertexes[2]._color * weight.z;
+            to.meshPoint.shadowBake = vertexes[0].meshPoint.shadowBake * weight.x + vertexes[1].meshPoint.shadowBake * weight.y + vertexes[2].meshPoint.shadowBake * weight.z;
+            Vertex nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? vertexes[0] : vertexes[1]) : vertexes[2];
+            to.meshPoint.boneWeight = nearest.meshPoint.boneWeight; //boneWeight. * weight.x + uvpnts[1]._color * weight.y + uvpnts[2]._color * weight.z;
             //to.vert.submeshIndex = nearest.vert.submeshIndex;
         }
 
-        public void Replace(UVpoint point, UVpoint with)
+        public void Replace(Vertex point, Vertex with)
         {
             for (int i = 0; i < 3; i++)
-                if (uvpnts[i] == point)
+                if (vertexes[i] == point)
                 {
-                    uvpnts[i] = with;
+                    vertexes[i] = with;
                     return;
                 }
 
         }
 
-        public void Replace(int i, UVpoint with)
+        public void Replace(int i, Vertex with)
         {
-            uvpnts[i].tris.Remove(this);
-            uvpnts[i] = with;
+            vertexes[i].tris.Remove(this);
+            vertexes[i] = with;
             with.tris.Add(this);
 
         }
 
         public int NotOnLineIndex(LineData l) {
             for (int i = 0; i < 3; i++)
-                if ((uvpnts[i].vert != l.pnts[0].vert) && (uvpnts[i].vert != l.pnts[1].vert))
+                if ((vertexes[i].meshPoint != l.pnts[0].meshPoint) && (vertexes[i].meshPoint != l.pnts[1].meshPoint))
                     return i;
 
             return 0;
         }
-        public UVpoint NotOnLine(vertexpointDta a, vertexpointDta b)
+        public Vertex NotOnLine(MeshPoint a, MeshPoint b)
         {
             for (int i = 0; i < 3; i++)
-                if ((uvpnts[i].vert != a) && (uvpnts[i].vert != b))
-                    return uvpnts[i];
+                if ((vertexes[i].meshPoint != a) && (vertexes[i].meshPoint != b))
+                    return vertexes[i];
 
-            return uvpnts[0];
+            return vertexes[0];
         }
-        public UVpoint NotOnLine(LineData l)
+        public Vertex NotOnLine(LineData l)
         {
             for (int i = 0; i < 3; i++)
-                if ((uvpnts[i].vert != l.pnts[0].vert) && (uvpnts[i].vert != l.pnts[1].vert))
-                    return uvpnts[i];
+                if ((vertexes[i].meshPoint != l.pnts[0].meshPoint) && (vertexes[i].meshPoint != l.pnts[1].meshPoint))
+                    return vertexes[i];
 
-            return uvpnts[0];
+            return vertexes[0];
         }
-        public UVpoint NotOneOf(UVpoint[] others)
+        public Vertex NotOneOf(Vertex[] others)
         {
             for (int i = 0; i < 3; i++)
             {
                 bool same;
                 same = false;
-                foreach (UVpoint uvi in others)
-                    if (uvi.vert == uvpnts[i].vert) same = true;
+                foreach (Vertex uvi in others)
+                    if (uvi.meshPoint == vertexes[i].meshPoint) same = true;
 
-                if (!same) return uvpnts[i];
+                if (!same) return vertexes[i];
             }
             return null;
         }
         
-        public bool GiveUniqueVerticesAgainst(trisDta td)
+        public bool GiveUniqueVerticesAgainst(Triangle td)
         {
             bool changed = false;
             for (int i = 0; i < 3; i++)
             {
-                UVpoint u = uvpnts[i];
+                Vertex u = vertexes[i];
 
                 if (td.includes(u))
                 {
-                    uvpnts[i] = new UVpoint(u.vert);
+                    vertexes[i] = new Vertex(u.meshPoint);
                     changed = true;
                 }
             }
@@ -1162,17 +1162,17 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public void MergeAround(trisDta other, vertexpointDta vrt)
+        public void MergeAround(Triangle other, MeshPoint vrt)
         {
             // if (!includes(vrt)) Debug.Log("Error Using Merge Around");
 
             //Debug.Log("Using Merge Around");
             for (int i = 0; i < 3; i++)
             {
-                if (!includes(other.uvpnts[i].vert))
+                if (!includes(other.vertexes[i].meshPoint))
                 {
 
-                    Replace(GetByVert(vrt), other.uvpnts[i]);
+                    Replace(GetByVert(vrt), other.vertexes[i]);
                     return;
                 }
             }
@@ -1182,7 +1182,7 @@ namespace Playtime_Painter
 
         }
 
-        public void MakeTriangleVertUnique(UVpoint pnt)
+        public void MakeTriangleVertUnique(Vertex pnt)
         {
             // bool duplicant = false;
 
@@ -1197,7 +1197,7 @@ namespace Playtime_Painter
 
             if (pnt.tris.Count == 1) return;
 
-            UVpoint nuv = new UVpoint(pnt.vert, pnt);
+            Vertex nuv = new Vertex(pnt.meshPoint, pnt);
 
 
             Replace(pnt, nuv);
@@ -1207,50 +1207,50 @@ namespace Playtime_Painter
 
         }
         
-        public trisDta NewForCopiedVerticles()
+        public Triangle NewForCopiedVerticles()
         {
-            UVpoint[] nvpnts = new UVpoint[3];
+            Vertex[] nvpnts = new Vertex[3];
 
             for (int i = 0; i < 3; i++)
             {
-                if (uvpnts[i].MyLastCopy == null) { Debug.Log("Error: UV has not been copied!"); return null; }
+                if (vertexes[i].MyLastCopy == null) { Debug.Log("Error: UV has not been copied!"); return null; }
 
-                nvpnts[i] = uvpnts[i].MyLastCopy;
+                nvpnts[i] = vertexes[i].MyLastCopy;
             }
 
-            return new trisDta(nvpnts);
+            return new Triangle(nvpnts);
 
         }
 
-        public trisDta(UVpoint[] nvrts)
+        public Triangle(Vertex[] nvrts)
         {
             for (int i = 0; i < 3; i++)
             {
-                uvpnts[i] = nvrts[i];
-                uvpnts[i].tris.Add(this);
+                vertexes[i] = nvrts[i];
+                vertexes[i].tris.Add(this);
             }
         }
 
-        public trisDta() {
+        public Triangle() {
         }
 
-        public LineData[] GetLinesFor(UVpoint pnt)
+        public LineData[] GetLinesFor(Vertex pnt)
         {
 
             LineData[] ld = new LineData[2];
             int no = NumberOf(pnt);
-            ld[0] = new LineData(this, new UVpoint[] { uvpnts[no], uvpnts[(no + 1) % 3] });
-            ld[1] = new LineData(this, new UVpoint[] { uvpnts[(no + 2) % 3], uvpnts[no] });
+            ld[0] = new LineData(this, new Vertex[] { vertexes[no], vertexes[(no + 1) % 3] });
+            ld[1] = new LineData(this, new Vertex[] { vertexes[(no + 2) % 3], vertexes[no] });
 
             return ld;
 
 
         }
 
-        public List<trisDta> GetNeighboringTriangles() {
-            var lst = new List<trisDta>();
+        public List<Triangle> GetNeighboringTriangles() {
+            var lst = new List<Triangle>();
 
-            foreach (var u in uvpnts)
+            foreach (var u in vertexes)
                 foreach (var t in u.tris)
                     if (!lst.Contains(t) && t.isNeighbourOf(this))
                         lst.Add(t);
@@ -1258,26 +1258,26 @@ namespace Playtime_Painter
             return lst;
         }
 
-        public List<trisDta> GetNeighboringTrianglesUnprocessed(){
-            var lst = new List<trisDta>();
+        public List<Triangle> GetNeighboringTrianglesUnprocessed(){
+            var lst = new List<Triangle>();
 
-            foreach (var u in uvpnts)
-                foreach (var t in u.vert.triangles())
+            foreach (var u in vertexes)
+                foreach (var t in u.meshPoint.triangles())
                     if (!t.wasProcessed && !lst.Contains(t) && t.isNeighbourOf(this))
                         lst.Add(t);
             
             return lst;
         }
 
-        public LineData LineWith(trisDta other) {
+        public LineData LineWith(Triangle other) {
 
-            List<vertexpointDta> l = new List<vertexpointDta>(); //= new LineData();
+            List<MeshPoint> l = new List<MeshPoint>(); //= new LineData();
             
 
-            foreach (var u in uvpnts)
-                foreach (var u2 in other.uvpnts)
-                    if (u.vert == u2.vert) {
-                        l.Add(u.vert);
+            foreach (var u in vertexes)
+                foreach (var u2 in other.vertexes)
+                    if (u.meshPoint == u2.meshPoint) {
+                        l.Add(u.meshPoint);
                         break;
                 }
 
@@ -1305,13 +1305,13 @@ namespace Playtime_Painter
     [Serializable]
     public class LineData : PainterStuff
     {
-        public trisDta triangle;
-        public UVpoint[] pnts = new UVpoint[2];
+        public Triangle triangle;
+        public Vertex[] pnts = new Vertex[2];
         public int trianglesCount;
 
-        public vertexpointDta this[int index]
+        public MeshPoint this[int index]
         {
-            get { return pnts[index].vert; }
+            get { return pnts[index].meshPoint; }
         }
 
         public float localLength { get { return (this[0].localPos - this[1].localPos).magnitude; } }
@@ -1320,23 +1320,23 @@ namespace Playtime_Painter
 
         public bool sameAsLastFrame { get { return this.Equals(editedMesh.LastFramePointedLine); } }
 
-        public bool includes(UVpoint uv)
+        public bool includes(Vertex uv)
         {
             return ((uv == pnts[0]) || (uv == pnts[1]));
         }
 
-        public bool includes(vertexpointDta vp)
+        public bool includes(MeshPoint vp)
         {
-            return ((vp == pnts[0].vert) || (vp == pnts[1].vert));
+            return ((vp == pnts[0].meshPoint) || (vp == pnts[1].meshPoint));
         }
 
         public bool SameVerticles(LineData other)
         {
-            return (((other.pnts[0].vert == pnts[0].vert) && (other.pnts[1].vert == pnts[1].vert)) ||
-                ((other.pnts[0].vert == pnts[1].vert) && (other.pnts[1].vert == pnts[0].vert)));
+            return (((other.pnts[0].meshPoint == pnts[0].meshPoint) && (other.pnts[1].meshPoint == pnts[1].meshPoint)) ||
+                ((other.pnts[0].meshPoint == pnts[1].meshPoint) && (other.pnts[1].meshPoint == pnts[0].meshPoint)));
         }
 
-        public LineData(vertexpointDta a, vertexpointDta b)
+        public LineData(MeshPoint a, MeshPoint b)
         {
 
             triangle = a.getTriangleFromLine(b);
@@ -1345,7 +1345,7 @@ namespace Playtime_Painter
             trianglesCount = 0;
         }
 
-        public LineData(trisDta tri, UVpoint[] npoints)
+        public LineData(Triangle tri, Vertex[] npoints)
         {
             triangle = tri;
             pnts[0] = npoints[0];
@@ -1353,7 +1353,7 @@ namespace Playtime_Painter
             trianglesCount = 0;
         }
 
-        public LineData(trisDta tri, UVpoint a, UVpoint b)
+        public LineData(Triangle tri, Vertex a, Vertex b)
         {
             triangle = tri;
             pnts[0] = a;
@@ -1362,11 +1362,11 @@ namespace Playtime_Painter
             trianglesCount = 0;
         }
 
-        public trisDta getOtherTriangle() {
-            foreach (UVpoint uv0 in pnts)
-                foreach (UVpoint uv in uv0.vert.uvpoints)
-                    foreach (trisDta tri in uv.tris)
-                        if (tri != triangle && tri.includes(pnts[0].vert) && tri.includes(pnts[1].vert))
+        public Triangle getOtherTriangle() {
+            foreach (Vertex uv0 in pnts)
+                foreach (Vertex uv in uv0.meshPoint.uvpoints)
+                    foreach (Triangle tri in uv.tris)
+                        if (tri != triangle && tri.includes(pnts[0].meshPoint) && tri.includes(pnts[1].meshPoint))
                             return tri;
 
 
@@ -1374,18 +1374,18 @@ namespace Playtime_Painter
             
         }
 
-        public List<trisDta> getAllTriangles_USES_Tris_Listing()
+        public List<Triangle> getAllTriangles_USES_Tris_Listing()
         {
-            List<trisDta> allTris = new List<trisDta>();
+            List<Triangle> allTris = new List<Triangle>();
 
-            foreach (UVpoint uv0 in pnts)
+            foreach (Vertex uv0 in pnts)
             {
-                foreach (UVpoint uv in uv0.vert.uvpoints)
+                foreach (Vertex uv in uv0.meshPoint.uvpoints)
                 {
-                    foreach (trisDta tri in uv.tris)
+                    foreach (Triangle tri in uv.tris)
                     {
 
-                        if ((allTris.Contains(tri) == false) && tri.includes(pnts[0].vert) && (tri.includes(pnts[1].vert)))
+                        if ((allTris.Contains(tri) == false) && tri.includes(pnts[0].meshPoint) && (tri.includes(pnts[1].meshPoint)))
                             allTris.Add(tri);
 
                     }
@@ -1442,8 +1442,8 @@ namespace Playtime_Painter
 
             LineData ld = (LineData)obj;
 
-            return (ld.pnts[0].vert == pnts[0].vert && ld.pnts[1].vert == pnts[1].vert) 
-                || (ld.pnts[0].vert == pnts[1].vert && ld.pnts[1].vert == pnts[0].vert);
+            return (ld.pnts[0].meshPoint == pnts[0].meshPoint && ld.pnts[1].meshPoint == pnts[1].meshPoint) 
+                || (ld.pnts[0].meshPoint == pnts[1].meshPoint && ld.pnts[1].meshPoint == pnts[0].meshPoint);
 
         }
 

@@ -291,7 +291,7 @@ namespace Playtime_Painter {
                 if (pointedUV.sameAsLastFrame)
                     return true;
 
-                foreach (var uv in meshMGMT.pointedUV.vert.uvpoints )
+                foreach (var uv in meshMGMT.pointedUV.meshPoint.uvpoints )
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
@@ -307,7 +307,7 @@ namespace Playtime_Painter {
         public void SetAllTrianglesTextureTo(int no, int chanel)
         {
 
-            foreach (trisDta t in editedMesh.triangles)
+            foreach (Triangle t in editedMesh.triangles)
                 t.textureNo[chanel] = no;
 
             meshMGMT.edMesh.dirty = true;
@@ -316,7 +316,7 @@ namespace Playtime_Painter {
         public void SetAllTrianglesTextureTo(int no, int chanel, int submesh)
         {
 
-            foreach (trisDta t in editedMesh.triangles)
+            foreach (Triangle t in editedMesh.triangles)
                 if (t.submeshIndex == submesh)
                     t.textureNo[chanel] = no;
 
@@ -341,9 +341,9 @@ namespace Playtime_Painter {
 
         public override stdEncoder Encode()
         {
-            var cody = new stdEncoder();
-            cody.Add("cat", curAtlasTexture);
-            cody.Add("cac", curAtlasChanel);
+            var cody = new stdEncoder()
+            .Add("cat", curAtlasTexture)
+            .Add("cac", curAtlasChanel);
            // cody.Add("aec2", atlasEdgeAsChanel2);
             return cody;
         }

@@ -38,19 +38,19 @@ namespace StoryTriggerData
 
         public override stdEncoder Encode()
         {
-            var cody = new stdEncoder();
+            var cody = EncodeUnrecognized()
 
-            cody.Add_String("name", gameObject.name);
-            cody.Add_IfNotZero("pos", transform.localPosition);
+            .Add_String("name", gameObject.name)
+            .Add_IfNotZero("pos", transform.localPosition);
             if (strokeData != null)
                 cody.Add_String("playVectors", strokeData);
 
-            cody.Add_IfNotOne("scale", transform.localScale);
-            cody.Add_IfNotZero("rot", transform.localRotation.eulerAngles);
-            cody.Add("w_Noise", water.noise);
-            cody.Add("w_Thick", water.thickness);
-            cody.Add("w_Scale", water.upscale);
-            cody.Add("w_Wet", water.wetAreaHeight);
+            cody.Add_IfNotOne("scale", transform.localScale)
+            .Add_IfNotZero("rot", transform.localRotation.eulerAngles)
+            .Add("w_Noise", water.noise)
+            .Add("w_Thick", water.thickness)
+            .Add("w_Scale", water.upscale)
+            .Add("w_Wet", water.wetAreaHeight);
 
 
             return cody;

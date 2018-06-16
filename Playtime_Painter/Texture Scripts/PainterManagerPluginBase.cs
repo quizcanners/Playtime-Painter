@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
@@ -10,20 +11,21 @@ namespace Playtime_Painter
 
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono
+    public class PainterManagerPluginBase : PainterStuffMono, iKeepUnrecognizedSTD 
 #if PEGI
         , iPEGI, iGotDisplayName
 #endif
+        
     {
 #if PEGI
-        PEGIcallDelegate plugins_ComponentPEGI;
+        pegi.CallDelegate plugins_ComponentPEGI;
 
         public virtual string NameForPEGIdisplay()
         {
             return ToString();
         }
 
-        protected void PlugIn_PainterComponent(PEGIcallDelegate d) {
+        protected void PlugIn_PainterComponent(pegi.CallDelegate d) {
             plugins_ComponentPEGI += d;
             PlaytimePainter.plugins_ComponentPEGI += d;
         }
@@ -57,8 +59,8 @@ namespace Playtime_Painter
         }
 
         #if PEGI
-        PEGIcallDelegate VertexEdgePEGIdelegates;
-        protected void PlugIn_VertexEdgePEGI(PEGIcallDelegate d) {
+        pegi.CallDelegate VertexEdgePEGIdelegates;
+        protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d) {
             VertexEdgePEGIdelegates += d;
             VertexEdgeTool.PEGIdelegates += d;
         }
@@ -101,10 +103,53 @@ namespace Playtime_Painter
 
         public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) { return null; }
 
-        public virtual bool PEGI() {
-            return ConfigTab_PEGI();
+     
+        protected List<string> unrecognizedTags = new List<string>();
+        protected List<string> unrecognizedData = new List<string>();
+
+        public void Unrecognized(string tag, string data)
+        {
+            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
 
-      
+        public stdEncoder EncodeUnrecognized()
+        {
+            var cody = new stdEncoder();
+            for (int i = 0; i < unrecognizedTags.Count; i++)
+                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
+        }
+#if PEGI
+        public static int inspectedUnrecognized = -1;
+        public virtual bool PEGI()
+        {
+            bool changed =  ConfigTab_PEGI();
+            if (unrecognizedTags.Count > 0)
+            {
+                "Unrecognized Tags".nl();
+                for (int i = 0; i < unrecognizedTags.Count; i++)
+                {
+                    if (icon.Delete.Click())
+                    {
+                        changed = true;
+                        unrecognizedTags.RemoveAt(i);
+                        unrecognizedData.RemoveAt(i);
+                        i--;
+                    }
+                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
+                        unrecognizedData[i].nl();
+                }
+            }
+
+
+
+            return changed;
+        }
+#endif
+        public virtual stdEncoder Encode() => EncodeUnrecognized();
+
+        public virtual iSTD Decode(string data) => this;
+
+        public virtual bool Decode(string tag, string data) => true;
     }
 }

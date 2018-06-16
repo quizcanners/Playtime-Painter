@@ -19,38 +19,27 @@ namespace SharedTools_Stuff
         iSTD Decode(string data);
         bool Decode(string tag, string data);
     }
-
-  /* 
-   * Implementation Example:
-   * 
-   * public bool Decode(string tag, string data)
-    {
-        switch (tag)
-        {
-            case "tf": data.DecodeInto(transform); break;
-            case "n": transform.name = data; break;
-
-            default: return false;
-        }
-
-        return true;
-    }
-
-    public stdEncoder Encode()
-    {
-        var cody = new stdEncoder();
-        cody.Add("tf", transform);
-        cody.AddText("n", name);
-        return cody;
-    }
-    */
-
-
-    // This class can be used for some backwards compatibility. 
+    ///<summary> This class can be used for some backwards compatibility. </summary>
     public interface iKeepUnrecognizedSTD : iSTD {
         void Unrecognized(string tag, string data);
         
         stdEncoder EncodeUnrecognized();
+    }
+
+    ///<summary>For runtime initialization.
+    ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
+    ///<seealso cref="stdEncoder"/>
+    ///</summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DerrivedListAttribute : Attribute
+    {
+        List<Type> types;
+        public List<Type> DerrivedTypes  { get  {  return types; } }
+
+        public DerrivedListAttribute(params Type[] ntypes) 
+        {
+            types = new List<Type>(ntypes);
+        }
     }
 
     [Serializable]
@@ -107,10 +96,7 @@ namespace SharedTools_Stuff
     {
 
         public abstract stdEncoder Encode();
-        public virtual iSTD Decode(string data) {
-            new stdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
+        public virtual iSTD Decode(string data) => data.DecodeInto(this);
         public virtual iSTD Decode(stdEncoder cody) {
            
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
@@ -201,6 +187,16 @@ namespace SharedTools_Stuff
     }
 
     public static class STDExtensions {
+
+        public static List<Type> TryGetDerrivedClasses (this Type t)
+        {
+            List<Type> tps = null;
+            var att = t.ClassAttribute<DerrivedListAttribute>();
+            if (att != null)
+                tps = att.DerrivedTypes;
+
+            return tps;
+        }
 
         public static string copyBufferValue;
 

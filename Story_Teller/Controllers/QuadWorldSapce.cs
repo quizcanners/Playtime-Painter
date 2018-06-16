@@ -25,14 +25,9 @@ namespace StoryTriggerData {
 			return tagName;
 	    }
 
-    public override stdEncoder Encode  (){
-        var cody = new stdEncoder();
-
-        cody.Add(InteractionTarget.storyTag, stdValues);
-            cody.Add_IfNotZero("pos", transform.position);
-
-            return cody;
-	}
+    public override stdEncoder Encode  () =>EncodeUnrecognized()
+            .Add(InteractionTarget.storyTag, stdValues)
+            .Add_IfNotZero("pos", transform.position);
 
 	    public override bool Decode (string subtag, string data) {
 

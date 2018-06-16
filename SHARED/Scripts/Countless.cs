@@ -422,21 +422,10 @@ namespace SharedTools_Stuff
 
         }
 
-        public override stdEncoder Encode()
-        {
-            stdEncoder cody = new stdEncoder();
-
-            List<int> inds = GetItAll();
-
-            cody.Add_IfNotEmpty("inds", inds);
-
-            inds = null;
-
-            return cody;
-        }
+        public override stdEncoder Encode() => new stdEncoder().Add_IfNotEmpty("inds", GetItAll());
 
         public const string storyTag = "TreeBool";
-        public override string getDefaultTagName() { return storyTag; }
+        public override string getDefaultTagName() =>  storyTag; 
 
         public List<int> GetItAll()
         {

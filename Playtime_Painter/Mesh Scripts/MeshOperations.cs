@@ -27,16 +27,16 @@ namespace Playtime_Painter
 
             if (selectedLine == null) return;
 
-            List<trisDta> td = selectedLine.getAllTriangles_USES_Tris_Listing();
+            List<Triangle> td = selectedLine.getAllTriangles_USES_Tris_Listing();
 
             if (td.Count != 1) return;
 
 
 
-            UVpoint third = td[0].NotOnLine(selectedLine);
+            Vertex third = td[0].NotOnLine(selectedLine);
 
 
-            var alltris = third.vert.triangles();
+            var alltris = third.meshPoint.triangles();
 
             if (alltris.Count == 1)
             {
@@ -45,14 +45,14 @@ namespace Playtime_Painter
             }
 
             float MinDist = -1;
-            UVpoint fourth = null;
-            trisDta secondTris = null;
+            Vertex fourth = null;
+            Triangle secondTris = null;
 
-            foreach (trisDta tris in alltris)
+            foreach (Triangle tris in alltris)
             {
-                if (tris.includes(selectedLine.pnts[0].vert) != tris.includes(selectedLine.pnts[1].vert))
+                if (tris.includes(selectedLine.pnts[0].meshPoint) != tris.includes(selectedLine.pnts[1].meshPoint))
                 {
-                    UVpoint otherUV = tris.NotOneOf(new UVpoint[] { selectedLine.pnts[0], selectedLine.pnts[1], third });
+                    Vertex otherUV = tris.NotOneOf(new Vertex[] { selectedLine.pnts[0], selectedLine.pnts[1], third });
 
                     float sumDist;
                     float dist;
@@ -122,20 +122,20 @@ namespace Playtime_Painter
             Vector3 vector = mm.onGridLocal - previousCenterPos;
             float distance = vector.magnitude;
 
-            vertexpointDta a = new vertexpointDta(selectedLine.pnts[0].pos);
-            vertexpointDta b = new vertexpointDta(selectedLine.pnts[1].pos);
+            MeshPoint a = new MeshPoint(selectedLine.pnts[0].pos);
+            MeshPoint b = new MeshPoint(selectedLine.pnts[1].pos);
 
             editedMesh.vertices.Add(a);
             editedMesh.vertices.Add(b);
 
-            UVpoint aUV = new UVpoint(a, selectedLine.pnts[0].editedUV + uvChangeSpeed * distance);
-            UVpoint bUV = new UVpoint(b, selectedLine.pnts[1].editedUV + uvChangeSpeed * distance);
+            Vertex aUV = new Vertex(a, selectedLine.pnts[0].editedUV + uvChangeSpeed * distance);
+            Vertex bUV = new Vertex(b, selectedLine.pnts[1].editedUV + uvChangeSpeed * distance);
 
 
 
 
-            editedMesh.triangles.Add(new trisDta(new UVpoint[] { selectedLine.pnts[0], bUV, selectedLine.pnts[1] }));
-            trisDta headTris = new trisDta(new UVpoint[] { selectedLine.pnts[0], aUV, bUV });
+            editedMesh.triangles.Add(new Triangle(new Vertex[] { selectedLine.pnts[0], bUV, selectedLine.pnts[1] }));
+            Triangle headTris = new Triangle(new Vertex[] { selectedLine.pnts[0], aUV, bUV });
 
             editedMesh.triangles.Add(headTris);
 
@@ -198,10 +198,10 @@ namespace Playtime_Painter
                 case QuickMeshFunctions.DeleteTrianglesFully:
                     if ((Input.GetKey(KeyCode.G)) && (pointedTris != null))
                     {
-                        foreach (UVpoint uv in pointedTris.uvpnts)
+                        foreach (Vertex uv in pointedTris.vertexes)
                         {
-                            if ((uv.vert.uvpoints.Count == 1) && (uv.tris.Count == 1))
-                                editedMesh.vertices.Remove(uv.vert);
+                            if ((uv.meshPoint.uvpoints.Count == 1) && (uv.tris.Count == 1))
+                                editedMesh.vertices.Remove(uv.meshPoint);
                         }
 
                         editedMesh.triangles.Remove(pointedTris);
@@ -217,7 +217,7 @@ namespace Playtime_Painter
                     {
                         Vector3 tmp = pointedLine.pnts[0].pos;
                         tmp += (pointedLine.pnts[1].pos - pointedLine.pnts[0].pos) / 2;
-                        editedMesh.insertIntoLine(pointedLine.pnts[0].vert, pointedLine.pnts[1].vert, tmp);
+                        editedMesh.insertIntoLine(pointedLine.pnts[0].meshPoint, pointedLine.pnts[1].meshPoint, tmp);
 
                     }
                     break;
@@ -229,7 +229,7 @@ namespace Playtime_Painter
                         if (pointedTris != null)
                         {
                             for (int i = 0; i < 3; i++)
-                                pointedTris.uvpnts[i].tmpMark = false;
+                                pointedTris.vertexes[i].tmpMark = false;
                             bool[] found = new bool[3];
                             Color[] cols = new Color[3];
                             cols[0] = new Color(0, 1, 1, 1);
@@ -239,9 +239,9 @@ namespace Playtime_Painter
                             for (int j = 0; j < 3; j++)
                             {
                                 for (int i = 0; i < 3; i++)
-                                    if ((!found[j]) && (pointedTris.uvpnts[i]._color == cols[j]))
+                                    if ((!found[j]) && (pointedTris.vertexes[i]._color == cols[j]))
                                     {
-                                        pointedTris.uvpnts[i].tmpMark = true;
+                                        pointedTris.vertexes[i].tmpMark = true;
                                         found[j] = true;
                                     }
                             }
@@ -249,10 +249,10 @@ namespace Playtime_Painter
                             for (int j = 0; j < 3; j++)
                             {
                                 for (int i = 0; i < 3; i++)
-                                    if ((!found[j]) && (!pointedTris.uvpnts[i].tmpMark))
+                                    if ((!found[j]) && (!pointedTris.vertexes[i].tmpMark))
                                     {
-                                        pointedTris.uvpnts[i].tmpMark = true;
-                                        pointedTris.uvpnts[i]._color = cols[j];
+                                        pointedTris.vertexes[i].tmpMark = true;
+                                        pointedTris.vertexes[i]._color = cols[j];
                                         found[j] = true;
                                     }
                             }
@@ -262,9 +262,9 @@ namespace Playtime_Painter
                         }
                         else if (pointedLine != null)
                         {
-                            UVpoint a = pointedLine.pnts[0];
-                            UVpoint b = pointedLine.pnts[1];
-                            UVpoint lessTris = (a.tris.Count < b.tris.Count) ? a : b;
+                            Vertex a = pointedLine.pnts[0];
+                            Vertex b = pointedLine.pnts[1];
+                            Vertex lessTris = (a.tris.Count < b.tris.Count) ? a : b;
 
                             if ((a._color.r > 0.9f) && (b._color.r > 0.9f))
                                 lessTris._color.r = 0;
@@ -299,7 +299,7 @@ namespace Playtime_Painter
                     {
 
                         //	_Mesh.RefresVerticleTrisList();
-                        List<LineData> AllLines = pointedUV.vert.GetAllLines_USES_Tris_Listing();
+                        List<LineData> AllLines = pointedUV.meshPoint.GetAllLines_USES_Tris_Listing();
 
 
                         int linesFound = 0;
@@ -322,18 +322,18 @@ namespace Playtime_Painter
                         {
                             Vector3 norm = lines[0].HalfVectorToB(lines[1]);
 
-                            vertexpointDta hold = new vertexpointDta(pointedUV.pos);
+                            MeshPoint hold = new MeshPoint(pointedUV.pos);
 
                             if (meshMGMT.selectedUV != null)
-                                new UVpoint(hold, meshMGMT.selectedUV.GetUV(0), meshMGMT.selectedUV.GetUV(1));
+                                new Vertex(hold, meshMGMT.selectedUV.GetUV(0), meshMGMT.selectedUV.GetUV(1));
                             else
-                                new UVpoint(hold);
+                                new Vertex(hold);
 
                             meshMGMT.edMesh.vertices.Add(hold);
                             meshMGMT.MoveVertexToGrid(hold);
                             hold.localPos += norm * outlineWidth;
 
-                            UVpoint[] tri = new UVpoint[3];
+                            Vertex[] tri = new Vertex[3];
 
                             for (int i = 0; i < 2; i++)
                             {
@@ -341,7 +341,7 @@ namespace Playtime_Painter
                                 tri[1] = lines[i].pnts[1];
                                 tri[2] = lines[i].pnts[0];
 
-                                meshMGMT.edMesh.triangles.Add(new trisDta(tri));
+                                meshMGMT.edMesh.triangles.Add(new Triangle(tri));
                             }
 
                             meshMGMT.edMesh.dirty = true;
@@ -398,7 +398,7 @@ namespace Playtime_Painter
 
 #endif
 
-        void ProcessPointOnALine(UVpoint a, UVpoint b, trisDta t)
+        void ProcessPointOnALine(Vertex a, Vertex b, Triangle t)
         {
 
             if (EditorInputManager.GetMouseButtonDown(1))

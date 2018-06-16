@@ -498,7 +498,8 @@ namespace Playtime_Painter
 
             rtcam.targetTexture = id.currentRenderTexture();
 
-            if (isDoubleBuffer) Shader.SetGlobalTexture("_DestBuffer", (Texture)BigRT_pair[1]);
+            if (isDoubleBuffer)
+                Shader.SetGlobalTexture(PainterConfig.DESTINATION_BUFFER, BigRT_pair[1]);
 
             Shader shd = null;
             if (pntr != null)
@@ -570,7 +571,7 @@ namespace Playtime_Painter
 
         public RenderTexture Render(Texture from, RenderTexture to, Shader shade)
         {
-            brushRendy.PrepareForFullCopyOf(from, to, shade);
+            brushRendy.CopyBuffer(from, to, shade);
             return to;
         }
 

@@ -18,7 +18,11 @@ using SharedTools_Stuff;
 
 namespace PlayerAndEditorGUI
 {
-    
+
+    #region interfaces & Attributes
+
+
+
     public interface iPEGI
     {
         bool PEGI();
@@ -50,10 +54,18 @@ namespace PlayerAndEditorGUI
         void SetIndex(int index);
     }
 
-    public delegate bool PEGIcallDelegate();
+
+ 
+
+    #endregion
+
+    
 
     public static class pegi
     {
+
+        #region Other Stuff
+        public delegate bool CallDelegate();
 
         public class windowPositionData
         {
@@ -100,10 +112,9 @@ namespace PlayerAndEditorGUI
                 windowRect = new Rect(20, 20, 120, 400);
             }
         }
-
+        
         public delegate bool windowFunction();
-        //int windowID
-        // This class is an attempt to enable creation of component inspectors that can also render to the screen. 
+        
         static int elementIndex;
         static int focusInd;
 
@@ -113,139 +124,9 @@ namespace PlayerAndEditorGUI
         static int selectedFold = -1;
         public static int tabIndex; // will be reset on every NewLine;
         public static bool paintingPlayAreaGUI { get; private set; }
-        
+
         static bool lineOpen;
-
-        static bool efChanges { get
-            {
-#if UNITY_EDITOR
-                return ef.changes;
-#else
-            return false;
-#endif
-            }
-            set
-            {
-#if UNITY_EDITOR
-                ef.changes = value;
-#endif
-            }
-        }
-
-        public static void SetToDirty(this object obj)
-        {
-#if UNITY_EDITOR
-            var uobj = obj as UnityEngine.Object;
-            if (uobj)
-                UnityHelperFunctions.SetToDirty(uobj);
-#endif
-        }
-
-        public static bool inspect<T>(this T o, object so) where T : MonoBehaviour, iPEGI {
-#if UNITY_EDITOR
-                return ef.inspect(o, (SerializedObject)so);
-#else
-             "PEGI is compiled without UNITY_EDITOR directive".nl();
-                return false;
-#endif
-        }
-
-        public static bool inspect_so<T>(this T o, object so) where T : ScriptableObject, iPEGI {
-#if UNITY_EDITOR
-            return ef.inspect_so(o, (SerializedObject)so);
-#else
-             "PEGI is compiled without UNITY_EDITOR directive".nl();
-                return false;
-#endif
-        }
-
-        public static bool Nested_Inspect(this iPEGI pgi)
-        {
-            if (pgi == null)
-                return false;
-
-            if (pgi != null)
-            {
-                var changes = pgi.PEGI();
-
-                if (changes || efChanges)
-                    pgi.SetToDirty();
-                
-                return changes;
-            }
-            return false;
-        }
-
-        public static bool Try_Nested_Inspect (this object other)
-        {
-            if (other == null)
-                return false;
-
-            var pgi = other as iPEGI;
-
-            return pgi != null ? pgi.Nested_Inspect() : false;
-        }
-
-        #region New Line
-
-        public static void newLine()
-        {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                ef.newLine();
-            }
-            else
-#endif
-        if (lineOpen)
-            {
-                lineOpen = false;
-                GUILayout.EndHorizontal();
-            }
-        }
-
-        public static void nl() => newLine();
         
-
-        public static bool nl(this bool value)
-        {
-            newLine();
-            return value;
-        }
-
-        public static bool nl(this string value)
-        {
-            write(value);
-            newLine();
-            return false;
-        }
-
-        public static bool nl(this string value, string tip)
-        {
-            write(value, tip);
-            newLine();
-            return false;
-        }
-
-        public static bool nl(this string value, int width)
-        {
-            write(value, width);
-            newLine();
-            return false;
-        }
-
-        public static bool nl(this string value, string tip, int width)
-        {
-            write(value, tip, width);
-            newLine();
-            return false;
-        }
-
-        public static void nl(this icon icon, int size) => write(icon.getIcon(), size);
-        
-
-        #endregion
-
         public static void checkLine()
         {
 
@@ -275,25 +156,23 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
 
 
-            //   if (paintingPlayAreaGUI == false)
-            ef.end(go);
+           //if (paintingPlayAreaGUI == false)
+                ef.end(go);
 
 #endif
 
         }
-        
+
         public static void DropFocus() => FocusControl("_");
-        
+
         public static string ToPEGIstring(this Type type)
         {
-           
-                var name = type.ToString();
-                int ind = name.LastIndexOf(".");
-                return ind == -1 ? name : name.Substring(ind);
-            
+            var name = type.ToString();
+            int ind = name.LastIndexOf(".");
+            return ind == -1 ? name : name.Substring(ind+1);
         }
 
-       public static string ToPEGIstring(this object obj) {
+        public static string ToPEGIstring(this object obj) {
 
             if (obj == null) return "NULL";
 
@@ -314,7 +193,7 @@ namespace PlayerAndEditorGUI
 
             return obj.ToString();
         }
-
+        
         public static string needsAttention(this IList list)
         {
 
@@ -396,6 +275,67 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        #endregion
+
+        #region New Line
+
+        public static void newLine()
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                ef.newLine();
+            }
+            else
+#endif
+        if (lineOpen)
+            {
+                lineOpen = false;
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        public static void nl() => newLine();
+
+
+        public static bool nl(this bool value)
+        {
+            newLine();
+            return value;
+        }
+
+        public static bool nl(this string value)
+        {
+            write(value);
+            newLine();
+            return false;
+        }
+
+        public static bool nl(this string value, string tip)
+        {
+            write(value, tip);
+            newLine();
+            return false;
+        }
+
+        public static bool nl(this string value, int width)
+        {
+            write(value, width);
+            newLine();
+            return false;
+        }
+
+        public static bool nl(this string value, string tip, int width)
+        {
+            write(value, tip, width);
+            newLine();
+            return false;
+        }
+
+        public static void nl(this icon icon, int size) => write(icon.getIcon(), size);
+
+
+        #endregion
 
         #region WRITE
 
@@ -940,10 +880,30 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static bool select<T>(ref T val, List<T> list, Func<T,bool> lambda) {
+            var nList = list.Where(lambda);
+            return select(ref val, nList.ToArray());
+        }
+
+        public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda) {
+            write(text);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string text, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        {
+            write(text, width);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string text, string hint, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        {
+            write(text, hint, width);
+            return select(ref val, list, lambda);
+        }
+
         public static bool select<T>(ref T val, List<T> lst)
         {
-
-
                 checkLine();
 
                 List<string> lnms = new List<string>();
@@ -1657,7 +1617,7 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                if (tex.Click(text, 25))
+                if (tex.Click(text, defaultButtonSize))
                     state = true;
             }
             return state;
@@ -3377,68 +3337,9 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-        public static bool edit<G, T>(this Dictionary<G, T> dic, ref int edited, bool allowDelete)
-        {
-            bool changed = false;
-
-            int before = edited;
-            edited = Mathf.Clamp(edited, -1, dic.Count - 1);
-            changed |= (edited != before);
-
-            if (edited == -1)
-            {
-                for (int i = 0; i < dic.Count; i++)
-                {
-                    var item = dic.ElementAt(i);
-                    var itemKey = item.Key;
-                    if (allowDelete && icon.Delete.Click(25))
-                    {
-                        dic.Remove(itemKey);
-                        changed = true;
-                        i--;
-                    }
-                    else
-                    {
-                        var el = item.Value;
-
-                        var named = el as iGotName;
-                        if (named != null)
-                        {
-                            var n = named.NameForPEGI;
-                            if (edit(ref n, 120))
-                            {
-                                named.NameForPEGI = n;
-                            }
-                        }
-                        else
-                            write(el.ToPEGIstring(), 120);
-
-                        if ((el is iPEGI) && icon.Enter.ClickUnfocus(msg.InspectElement, 25))
-                            edited = i;
-
-                    }
-
-                    newLine();
-                }
-
-            }
-            else
-            {
-                if (icon.Back.Click(25).nl())
-                {
-                    changed = true;
-                    edited = -1;
-                }
-                else
-                    changed |= dic.ElementAt(edited).Value.Try_Nested_Inspect();
-
-            }
-
-            newLine();
-            return changed;
-        }
-
         #region LISTS
+
+        #region List MGMT Functions 
 
         const int listLabelWidth = 105;
         
@@ -3486,6 +3387,128 @@ namespace PlayerAndEditorGUI
             
         }
 
+        static IList addingNewOptionsInspected = null;
+        static string addingNewNameHolder = "New Name";
+        public static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added) where T : ScriptableObject
+        {
+            if (editingOrder != null && editingOrder == lst)
+                return false;
+
+            bool changed = false;
+
+            var types = typeof(T).TryGetDerrivedClasses();
+
+            pegi.edit(ref addingNewNameHolder);
+
+            if (addingNewNameHolder.Length > 1)
+            {
+                if (types == null)
+                {
+                    if (icon.Create.Click("Create new object").nl())
+                    {
+                        added = lst.CreateAsset_SO<T>("Assets/ScriptableObjects/", addingNewNameHolder);
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    bool selectingDerrived = lst == addingNewOptionsInspected;
+
+                    icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                    if (selectingDerrived)
+                        addingNewOptionsInspected = lst;
+                    else if (addingNewOptionsInspected == lst)
+                        addingNewOptionsInspected = null;
+
+                    if (selectingDerrived)
+                        foreach (var t in types)
+                        {
+                            var n = t.ToString();
+                            pegi.write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
+                            if (icon.Create.Click().nl())
+                            {
+                                added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
+                                changed = true;
+                            }
+                        }
+                }
+            }
+            pegi.nl();
+
+            return changed;
+
+        }
+
+        public static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
+        {
+            if (editingOrder != null && editingOrder == lst)
+                return false;
+            
+            bool changed = false;
+
+            var types = typeof(T).TryGetDerrivedClasses();
+            
+            pegi.edit(ref addingNewNameHolder);
+
+            if (addingNewNameHolder.Length > 1)
+            {
+                if (types == null)
+                {
+                    if (icon.Create.Click("Instantiate a new object").nl())
+                    {
+                        added = new T();
+                        lst.Add(added);
+                        changed = true;
+                    }
+                }
+                else
+                {
+
+                    bool selectingDerrived = lst == addingNewOptionsInspected;
+
+                    icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                    if (selectingDerrived)
+                        addingNewOptionsInspected = lst;
+                    else if (addingNewOptionsInspected == lst)
+                        addingNewOptionsInspected = null;
+
+                    if (selectingDerrived)
+                    {
+                        foreach (var t in types)
+                        {
+                            var n = t.ToString();
+                            pegi.write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
+                            if (icon.Create.Click().nl())
+                            {
+                                added = (T)Activator.CreateInstance(t);
+                                lst.Add(added);
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+            }
+            pegi.nl();
+
+            if (changed && added != null)
+            {
+                var nm = added as iGotName;
+                if (nm != null)
+                    nm.NameForPEGI = addingNewNameHolder;
+            }
+
+            return changed;
+        }
+
+        public static bool PEGI_InstantiateOptions<T>(this List<T> lst) where T : new()
+        {
+            T tmp = default(T);
+            return lst.PEGI_InstantiateOptions(ref tmp);
+
+        }
+        
         static void InspectionStart<T> (this List<T> list)  {
 
             ListSectionStartIndex = 0;
@@ -3529,13 +3552,13 @@ namespace PlayerAndEditorGUI
 
         }
         
-        static void InspectionEnd<T>(this List<T> list)
+        static bool InspectionEnd<T>(this List<T> list) 
         {
 
             var cnt = list.Count;
 
             if (cnt < SectionSizeOptimal * 2)
-                return;
+                return false;
 
             if (cnt > SectionSizeOptimal)
             {
@@ -3550,10 +3573,11 @@ namespace PlayerAndEditorGUI
                 }
                 else
                     icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-                nl();
-
+               
             }
+
+
+            return false;
         }
 
         static void write_ListLabel(this string label, IList lst) =>
@@ -3563,7 +3587,6 @@ namespace PlayerAndEditorGUI
             else*/
                 write(label);
         
-
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
             bool changed = false;
@@ -3597,7 +3620,7 @@ namespace PlayerAndEditorGUI
         
         static bool edit_List_Order<T>(this List<T> list, bool allowDelete) { //, UnnullableSTD<ElementData> datas ) {
             bool changed = false;
-
+            
             const int bttnWidth = 25;
 
             if (list != editingOrder) {
@@ -3634,31 +3657,35 @@ namespace PlayerAndEditorGUI
                     else icon.DownLast.write(bttnWidth);
 
                     var el = list[i];
-                    
-                    if (el != null)
-                    {
-                        if (allowDelete && icon.Delete.ClickUnfocus(msg.MakeElementNull, bttnWidth))
-                            list[i] = default(T);
 
-                        write(el.ToPEGIstring());
-                        
-                    }
-                    else
+                    if (allowDelete)
                     {
-                        if (allowDelete && icon.Close.ClickUnfocus(msg.RemoveFromList, bttnWidth))
+                        if (el != null && typeof(T).isUnityObject())
                         {
-                            list.RemoveAt(i);
-                            changed = true;
-                            i--;
-                            ListSectionMax--;
+                            if (icon.Delete.ClickUnfocus(msg.MakeElementNull, bttnWidth))
+                                list[i] = default(T);
                         }
-                        
-                        ("Empty " + typeof(T).ToPEGIstring()).write();
+                        else
+                        {
+                            if (icon.Close.ClickUnfocus(msg.RemoveFromList, bttnWidth))
+                            {
+                                list.RemoveAt(i);
+                                changed = true;
+                                i--;
+                                ListSectionMax--;
+                            }
+                        }
                     }
+
+                    if (el != null)
+                        write(el.ToPEGIstring());
+                    else
+                        ("Empty " + typeof(T).ToPEGIstring()).write();
                     
                     nl();
                 }
-                list.InspectionEnd();
+                list.InspectionEnd().nl();
+
             }
             return changed;
         }
@@ -3714,7 +3741,7 @@ namespace PlayerAndEditorGUI
             else
             {
                 changed |= pl.PEGI_inList(list, index, ref edited);
-                if (changed || efChanges)
+                if (changed || PEGI_Extensions.efChanges)
                     pl.SetToDirty();
             }
 
@@ -3779,6 +3806,43 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        static bool ListAddClick<T>(this List<T> list, ref T added) where T : new()
+        {
+
+            if (!typeof(T).isUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
+                return false;
+
+            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
+            {
+                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
+                {
+                    list.Add(default(T));
+                }
+                else
+                    added = list.AddWithUniqueNameAndIndex();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        static bool ListAddClick<T>(this List<T> list)
+        {
+
+            if (typeof(T).isUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
+                return false;
+
+            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
+            {
+                list.Add(default(T));
+                return true;
+            }
+            return false;
+        }
+
+
+        #endregion
 
         //Lists ...... of Monobehaviour
         public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas) where T : MonoBehaviour
@@ -3830,7 +3894,7 @@ namespace PlayerAndEditorGUI
                         }
                         newLine();
                     }
-                    list.InspectionEnd();
+                    list.InspectionEnd().nl();
                 }
                 else
                     list.list_DropOption();
@@ -3958,6 +4022,12 @@ namespace PlayerAndEditorGUI
                         newLine();
                     }
                     list.InspectionEnd();
+
+                    if (typeof(T).TryGetDerrivedClasses() != null)
+                        list.PEGI_InstantiateOptions_SO(ref added);
+
+                    nl();
+
                 }
                 else list.list_DropOption();
             }
@@ -3972,7 +4042,6 @@ namespace PlayerAndEditorGUI
         public static bool edit_List_Obj<T>(this List<T> list, ref int edited) where T : UnityEngine.Object
             => list.edit_or_select_List_Obj(null, ref edited, true, null);
         
-
         public static bool edit_List_Obj<T>(this List<T> list, bool allowDelete) where T : UnityEngine.Object
         {
             int edited = -1;
@@ -4045,7 +4114,7 @@ namespace PlayerAndEditorGUI
                             
                         newLine();
                     }
-                    list.InspectionEnd();
+                    list.InspectionEnd().nl();
                 }
                 else list.list_DropOption();
             }
@@ -4057,31 +4126,6 @@ namespace PlayerAndEditorGUI
 
 
         // ...... of New()
-        static bool ListAddClick<T>(this List<T> list, ref T added) where T:new()
-        {
-            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
-            {
-                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
-                {
-                    list.Add(default(T));
-                }
-                else
-                    added = list.AddWithUniqueNameAndIndex();
-
-                return true;
-            }
-
-            return false;
-        }
-
-        static bool ListAddClick<T>(this List<T> list)
-        {
-            if (icon.Add.ClickUnfocus(msg.AddListElement.Get())) {
-                    list.Add(default(T));
-                return true;
-            }
-            return false;
-        }
 
         public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T : new()
         {
@@ -4118,34 +4162,39 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
-                changed |= list.ListAddClick<T>(ref added);
+               
                 changed |= list.edit_List_Order(allowDelete);
 
                 if (list != editingOrder)
                 {
-
+                    changed |= list.ListAddClick<T>(ref added);
                     list.InspectionStart();
                     for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
-                 
+
                         var el = list[i];
                         if (el == null)
                         {
-                                if (!isMonoType<T>(list, i) && (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))))
+                            if (!isMonoType<T>(list, i))
+                            {
+                                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
                                     write("use edit_List_Obj");
+                                else
+                                    write("is NUll");
+                            }
                         }
                         else
-                        {
-
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null );
-                          //  (list[i] as UnityEngine.Object).clickHighlight();
-
-                        }
-                    newLine();
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
+                        
+                        newLine();
                     }
                     list.InspectionEnd();
 
-            }
+                   if (typeof(T).TryGetDerrivedClasses() != null)
+                        list.PEGI_InstantiateOptions(ref added);
+
+                    nl();
+                }
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
 
@@ -4191,77 +4240,70 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        #endregion
-
-        // ***************** ELEMENT DATA
-
-        public static void SaveElementDataFrom<T>(this UnnullableSTD<ElementData> datas, List<T> list)
+        public static bool edit<G, T>(this Dictionary<G, T> dic, ref int edited, bool allowDelete)
         {
-            for (int i = 0; i < list.Count; i++)
-                datas.SaveElementDataFrom(list, i);
-        }
-
-        public static void SaveElementDataFrom<T>(this UnnullableSTD<ElementData> datas, List<T> list, int i)
-        {
-            var el = list[i];
-            if (el != null)
-            {
-                var dta = datas[i];
-
-                dta.name = el.ToPEGIstring();
-
-                var std = el as iSTD;
-                if (std != null)
-                    dta.std_dta = std.Encode().ToString();
-
-#if UNITY_EDITOR
-                var uobj = el as UnityEngine.Object;
-
-                if (uobj)
-                {
-                    string path = AssetDatabase.GetAssetPath(uobj);
-                    if (path != null && path.Length > 0)
-                        dta.guid = AssetDatabase.AssetPathToGUID(path);
-
-                }
-#endif
-            }
-        }
-        
-        public static bool edit<T>(this ElementData dta, ref T field) where T : UnityEngine.Object
-        {
-
             bool changed = false;
 
-            if (field == null && dta != null)
-            {
+            int before = edited;
+            edited = Mathf.Clamp(edited, -1, dic.Count - 1);
+            changed |= (edited != before);
 
-                changed |= dta.name.edit(100, ref field);
-#if UNITY_EDITOR
-                if (dta.guid != null && icon.Search.Click("Find Object by guid").nl())
+            if (edited == -1)
+            {
+                for (int i = 0; i < dic.Count; i++)
                 {
-                    string path = AssetDatabase.GUIDToAssetPath(dta.guid);
-                    if (path != null && path.Length > 0)
+                    var item = dic.ElementAt(i);
+                    var itemKey = item.Key;
+                    if (allowDelete && icon.Delete.Click(25))
                     {
-                        field = AssetDatabase.LoadAssetAtPath<T>(path);
-                        if (field == null)
-                            UnityEngine.Debug.Log("Couldn't load "+dta.name);
+                        dic.Remove(itemKey);
+                        changed = true;
+                        i--;
                     }
                     else
-                        UnityEngine.Debug.Log("No asset path");
+                    {
+                        var el = item.Value;
 
-                    changed = true;
+                        var named = el as iGotName;
+                        if (named != null)
+                        {
+                            var n = named.NameForPEGI;
+                            if (edit(ref n, 120))
+                            {
+                                named.NameForPEGI = n;
+                            }
+                        }
+                        else
+                            write(el.ToPEGIstring(), 120);
+
+                        if ((el is iPEGI) && icon.Enter.ClickUnfocus(msg.InspectElement, 25))
+                            edited = i;
+
+                    }
+
+                    newLine();
                 }
-#endif
+
             }
             else
-                changed |= edit(ref field);
+            {
+                if (icon.Back.Click(25).nl())
+                {
+                    changed = true;
+                    edited = -1;
+                }
+                else
+                    changed |= dic.ElementAt(edited).Value.Try_Nested_Inspect();
 
+            }
+
+            newLine();
             return changed;
         }
 
-      
-        // Transform
+        #endregion
+        
+        #region Transform
         static bool _editLocalSpace = false;
         public static bool PEGI_CopyPaste(this Transform tf, ref bool editLocalSpace)
         {
@@ -4429,6 +4471,8 @@ namespace PlayerAndEditorGUI
             while (dic.TryGetValue(newEnumKey, out dummy)) newEnumKey++;
         }
 
+        #endregion
+
         /*
         class TypeSwitch
         {
@@ -4437,57 +4481,188 @@ namespace PlayerAndEditorGUI
             public void Switch(object x, string name) { matches[x.GetType()](x); }
         }*/
 
-            /*
-                    static List<MonoBehaviour> editorSubscribedMb = new List<MonoBehaviour>();
+        /*
+                static List<MonoBehaviour> editorSubscribedMb = new List<MonoBehaviour>();
 #if UNITY_EDITOR
 
-                    public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, EditorApplication.CallbackFunction myMethodName) where T : MonoBehaviour
+                public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, EditorApplication.CallbackFunction myMethodName) where T : MonoBehaviour
+                {
+
+                    if (!editorSubscribedMb.Contains(mb))
                     {
-
-                        if (!editorSubscribedMb.Contains(mb))
+                        if (icon.Play.Click())
                         {
-                            if (icon.Play.Click())
-                            {
-                                EditorApplication.update += myMethodName;
-                                editorSubscribedMb.Add(mb);
-                                return true;
-                            }
-
-                        }
-                        else
-                        {
-                            if ("Stop Updates".Click())
-                            {
-                                EditorApplication.update -= myMethodName;
-                                editorSubscribedMb.Remove(mb);
-                                return true;
-                            }
-
+                            EditorApplication.update += myMethodName;
+                            editorSubscribedMb.Add(mb);
+                            return true;
                         }
 
-
-
-
-                        return false;
                     }
+                    else
+                    {
+                        if ("Stop Updates".Click())
+                        {
+                            EditorApplication.update -= myMethodName;
+                            editorSubscribedMb.Remove(mb);
+                            return true;
+                        }
+
+                    }
+
+
+
+
+                    return false;
+                }
 #else
-                    public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, Action myMethodName) where T : MonoBehaviour
-                    {
-                        return false;
-                    }
+                public static bool SubscribeToEditorUpdate_PEGI<T>(this T mb, Action myMethodName) where T : MonoBehaviour
+                {
+                    return false;
+                }
 #endif
 
-                    public static bool isSubscribedToEditorUpdates(this MonoBehaviour mb)
-                    {
-                        return editorSubscribedMb.Contains(mb);
-                    }
+                public static bool isSubscribedToEditorUpdates(this MonoBehaviour mb)
+                {
+                    return editorSubscribedMb.Contains(mb);
+                }
 
-                }*/
+            }*/
+    }
+    
+
+    #region Extensions
+    public static class PEGI_Extensions
+    {
+      
+
+        public static bool efChanges
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return ef.changes;
+#else
+            return false;
+#endif
+            }
+            set
+            {
+#if UNITY_EDITOR
+                ef.changes = value;
+#endif
+            }
         }
 
+        public static bool inspect<T>(this T o, object so) where T : MonoBehaviour, iPEGI
+        {
+#if UNITY_EDITOR
+            return ef.inspect(o, (SerializedObject)so);
+#else
+             "PEGI is compiled without UNITY_EDITOR directive".nl();
+                return false;
+#endif
+        }
+
+        public static bool inspect_so<T>(this T o, object so) where T : ScriptableObject, iPEGI
+        {
+#if UNITY_EDITOR
+            return ef.inspect_so(o, (SerializedObject)so);
+#else
+             "PEGI is compiled without UNITY_EDITOR directive".nl();
+                return false;
+#endif
+        }
+
+        public static bool Nested_Inspect(this iPEGI pgi)
+        {
+            if (pgi == null)
+                return false;
+
+            if (pgi != null)
+            {
+                var changes = pgi.PEGI();
+
+                if (changes || efChanges)
+                    pgi.SetToDirty();
+
+                return changes;
+            }
+            return false;
+        }
+
+        public static bool Try_Nested_Inspect(this object other)
+        {
+            if (other == null)
+                return false;
+
+            var pgi = other as iPEGI;
+
+            return pgi != null ? pgi.Nested_Inspect() : false;
+        }
+        #endregion
+
+    #region Element Data
+
+        public static void SaveElementDataFrom<T>(this UnnullableSTD<ElementData> datas, List<T> list)
+        {
+            for (int i = 0; i < list.Count; i++)
+                datas.SaveElementDataFrom(list, i);
+        }
+
+        public static void SaveElementDataFrom<T>(this UnnullableSTD<ElementData> datas, List<T> list, int i)
+        {
+            var el = list[i];
+            if (el != null)
+            {
+                var dta = datas[i];
+
+                dta.name = el.ToPEGIstring();
+
+                var std = el as iSTD;
+                if (std != null)
+                    dta.std_dta = std.Encode().ToString();
+                
+                dta.guid = (el as UnityEngine.Object).GetGUID(dta.guid);
 
 
+            }
+        }
+
+        public static bool edit<T>(this ElementData dta, ref T field) where T : UnityEngine.Object
+        {
+
+            bool changed = false;
+
+            if (field == null && dta != null)
+            {
+
+                changed |= dta.name.edit(100, ref field);
+#if UNITY_EDITOR
+                if (dta.guid != null && icon.Search.Click("Find Object by guid").nl()) {
+                    var obj = UnityHelperFunctions.GUIDtoAsset<T>(dta.guid);
+
+                    if (obj)
+                    {
+                        field = obj;
+                        changed = true;
+                    }
+                    else
+                        (typeof(T).ToString() + " Not found ").showNotification();
+                }
+#endif
+            }
+            else
+                changed |= pegi.edit(ref field);
+
+            return changed;
+        }
+
+       
     }
+    #endregion
+
+
+}
 
 #endif
 

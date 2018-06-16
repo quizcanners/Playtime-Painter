@@ -23,6 +23,56 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+        public static bool isUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
+        
+
+        public static void SetToDirty(this object obj)
+        {
+#if UNITY_EDITOR
+            var uobj = obj as UnityEngine.Object;
+            if (uobj)
+                UnityHelperFunctions.SetToDirty(uobj);
+#endif
+        }
+
+        public static string GetGUID(this UnityEngine.Object obj, string current)
+        {
+            if (obj == null)
+                return current;
+
+#if UNITY_EDITOR
+            string path = AssetDatabase.GetAssetPath(obj);
+            if (path != null && path.Length > 0)
+                current = AssetDatabase.AssetPathToGUID(path);
+#endif
+            return current;
+        }
+
+        public static T GUIDtoAsset<T>(string guid) where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (path != null && path.Length > 0)
+               return AssetDatabase.LoadAssetAtPath<T>(path);
+#endif
+
+            return null;
+        }
+
+        public static string GetGUID (this UnityEngine.Object obj) => obj.GetGUID(null);
+        
+        public static T ClassAttribute<T>(this Type type) where T : Attribute  {
+            T attr = null;
+
+            if (type.IsClass) {
+                var attrs = type.GetCustomAttributes(typeof(T), true);
+                if (attrs.Length > 0)
+                    attr = (T)attrs[0];
+            }
+
+            return attr;
+        }
+
         public static bool GetDefine(this string define)
         {
 

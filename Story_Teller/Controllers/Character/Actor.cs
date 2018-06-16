@@ -141,17 +141,17 @@ namespace StoryTriggerData {
 
         public override stdEncoder Encode() {
 
-            stdEncoder cody = new stdEncoder();
+            var cody =
+                EncodeUnrecognized()
 
-            cody.Add("pos", transform.localPosition);
+            .Add("pos", transform.localPosition)
 
-            cody.Add("speed", acceleration);
+            .Add("speed", acceleration)
 
-            if (controlledByPlayer) {
+            .Add_String("n", gameObject.name);
+
+            if (controlledByPlayer) 
                 cody.Add_String("p", "");
-            }
-
-            cody.Add_String("n", gameObject.name);
             
             return cody;
         }

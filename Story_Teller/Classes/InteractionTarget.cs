@@ -61,18 +61,12 @@ namespace StoryTriggerData {
             Reboot();
         }
 
-        public override stdEncoder Encode()
-        {
-            var cody = new stdEncoder();
-
-            cody.Add("i", interactionGroup);
-            cody.Add_ifNotEmpty("ent", OnEnterResults);
-            cody.Add_ifNotEmpty("ext", OnExitResults);
-            cody.Add("qoType", (int)type);
-            cody.Add("base", base.Encode());
-
-            return cody;
-        }
+        public override stdEncoder Encode() => new stdEncoder()
+            .Add("i", interactionGroup)
+            .Add_ifNotEmpty("ent", OnEnterResults)
+            .Add_ifNotEmpty("ext", OnExitResults)
+            .Add("qoType", (int)type)
+            .Add("base", base.Encode());
 
         public override bool Decode(string tag, string data)
         {
