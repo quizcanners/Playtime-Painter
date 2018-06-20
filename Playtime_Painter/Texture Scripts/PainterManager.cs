@@ -155,6 +155,7 @@ namespace Playtime_Painter
                 else
                     for (int i = 0; i < _plugins.Count; i++)
                         if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
+         
 
                 return _plugins;
             }
@@ -722,6 +723,11 @@ namespace Playtime_Painter
             PainterStuff.applicationIsQuitting = false;
 
             _inst = this;
+
+            if (_plugins!= null)
+            for (int i = 0; i < _plugins.Count; i++)
+                if (_plugins[i] != null && !_plugins[i].enabled)
+                        _plugins[i].enabled = true; 
 
             if (meshManager == null)
                 meshManager = new MeshManager();

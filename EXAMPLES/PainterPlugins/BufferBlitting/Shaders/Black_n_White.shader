@@ -84,16 +84,14 @@
 
 		dcoln = useRight * dcolRight + dcoln * (1 - useRight);
 
-		float usingCurrent = max(0, 1 - useRight - useNoised);
-
 		float brN = length(dcoln.rgb);
 
 		float3 diff = col.rgb - dcoln.rgb;
-		diff *= diff;
+		diff = pow(diff,4);
 		float dist = saturate(diff.x + diff.y + diff.z);
-		float difference = (1.1+(0.2*brN) - dist*20); //dcoln.a;
+		float difference = (1.1+(0.2*brN) - dist*128); 
 		
-		float same = saturate((difference - 1) * 10);// *(1 - usingCurrent) + usingCurrent;
+		float same = saturate((difference - 1) * 10);
 
 		float alpha = min(dcoln.a, saturate((dcoln.a*same) * 2))*0.99;
 
@@ -127,13 +125,12 @@
 		dcol_0 = dcol_0 * dp + dcol_3 * (1 - dp);
 
 
-		dp = saturate((dcol_0.a - col.a) * 1024)*max(0,1-length(col.rgb- dcol_0.rgb)*8);
+		dp = saturate((dcol_0.a - col.a) * 1024)*max(0,1-length(col.rgb- dcol_0.rgb));
 		col = dcol_0 * dp + col * (1 - dp);
 
 		/*alpha = max(alpha,
 			min(min(dcol_3.a,dcol_1.a),
 				min(dcol_2.a,dcol_0.a)));*/
-
 
 		col.a = saturate(alpha - crn *10);
 

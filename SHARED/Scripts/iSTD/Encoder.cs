@@ -266,7 +266,52 @@ namespace SharedTools_Stuff
         public stdEncoder Add(string tag, Transform  tf) => Add(tag, tf.Encode(true));
         
         public stdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
-        
+
+        public stdEncoder Add(string tag, List<int> val)
+        {
+
+            stdEncoder cody = new stdEncoder();
+            foreach (int i in val)
+                cody.Add("e", i);
+
+            Add(tag, cody);
+
+            return this;
+        }
+
+        public stdEncoder Add(string tag, List<uint> val)
+        {
+
+            stdEncoder cody = new stdEncoder();
+            foreach (uint i in val)
+                cody.Add("e", i);
+            Add(tag, cody);
+
+            return this;
+        }
+
+        public stdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
+
+        public stdEncoder Add_GUID(string tag, UnityEngine.Object obj)
+        {
+            var guid = obj.GetGUID();
+            if (guid != null)
+                Add_String(tag, guid);
+
+            return this;
+        }
+
+        public stdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
+        public stdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
+        public stdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());
+        public stdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode());
+        public stdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode());
+        public stdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode());
+        public stdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision));
+        public stdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision));
+        public stdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
+
+
         // Optional encoding:
 
         public stdEncoder Add_IfNotEmpty(string tag, string val) {
@@ -274,30 +319,7 @@ namespace SharedTools_Stuff
                 Add_String(tag, val);
             return this;
         }
-
-        public stdEncoder Add_IfNotEmpty(string tag, List<int> val) {
-
-            if (val.Count > 0) {
-                
-                stdEncoder cody = new stdEncoder();
-                foreach (int i in val)
-                    cody.Add("e", i);
-
-                Add(tag, cody);
-            }
-            return this;
-        }
-
-        public stdEncoder Add_IfNotEmpty(string tag, List<uint> val){
-            if (val.Count > 0) {
-                stdEncoder cody = new stdEncoder();
-                foreach (uint i in val)
-                    cody.Add("e", i);
-                Add(tag, cody);
-            }
-            return this;
-        }
-
+        
         public stdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : iSTD {
 
             if (val.Count > 0) 
@@ -358,27 +380,6 @@ namespace SharedTools_Stuff
 
             return this;
         }
-
-        public stdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
-        
-        public stdEncoder Add_GUID (string tag, UnityEngine.Object obj)
-        {
-            var guid = obj.GetGUID();
-            if (guid != null)
-                Add_String(tag, guid);
-
-            return this;
-        }
-
-        public stdEncoder Add (string tag, Matrix4x4 m) => Add(tag, m.Encode());
-        public stdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
-        public stdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode()); 
-        public stdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode()); 
-        public stdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode()); 
-        public stdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode()); 
-        public stdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision)); 
-        public stdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision)); 
-        public stdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
         
         public stdEncoder  Add_IfNotZero(string tag, Vector3 v3) {
 

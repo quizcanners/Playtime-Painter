@@ -398,11 +398,6 @@ namespace SharedTools_Stuff
             return result;
         }
 
-        public static int ToIntFromText(this string text)
-        {
-            return Convert.ToInt32(text);
-        }
-
         public static int ToIntFromTextSafe(this string text, int defaultReturn)
         {
             int res;

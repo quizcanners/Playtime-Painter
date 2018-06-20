@@ -165,9 +165,10 @@ namespace Playtime_Painter {
 
             if (painter.meshEditing || (PainterStuff.isNowPlaytimeAndDisabled)) { painter.gameObject.end();  return; } 
 
-            if ((painter.meshRenderer != null) || (painter.terrain != null)) {
+            if ((painter.meshRenderer != null || painter.terrain != null) && !cfg.showConfig) {
 
-                if (!painter.LockTextureEditing) {
+             
+                    if (!painter.LockTextureEditing) {
                         ef.newLine();
 
                     if (!painter.isTerrainControlTexture()) {
@@ -232,8 +233,7 @@ namespace Playtime_Painter {
                     pegi.Space();
                     pegi.newLine();
 
-                if (!cfg.showConfig)
-                {
+               
 
                     var mats = painter.GetMaterials();
                     if ((mats != null) && (mats.Length > 0))
@@ -401,7 +401,7 @@ namespace Playtime_Painter {
                         }
                     }
 
-                }
+                
 
                 ef.Space();
                 ef.newLine();
@@ -409,15 +409,7 @@ namespace Playtime_Painter {
 
 
             }
-            else {
-                painter.meshRenderer = (Renderer)EditorGUILayout.ObjectField(painter.meshRenderer, typeof(Renderer), true);
-                if ((painter.meshRenderer != null) && (painter.meshRenderer.gameObject != painter.gameObject)) {
-                    painter.meshRenderer = null;
-                    //Debug.Log("Attach directly to GameObject with Renderer");
-                }
-
-            }
-
+           
             if (changes)
                 painter.Update_Brush_Parameters_For_Preview_Shader();
 

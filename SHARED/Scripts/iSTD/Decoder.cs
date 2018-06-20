@@ -213,7 +213,7 @@ namespace SharedTools_Stuff
         }
 
         public static int ToInt(this string data) {
-            return int.Parse(data);
+            return Convert.ToInt32(data); //int.Parse(data);
         }
 
         public static uint ToUInt(this string data)
@@ -285,7 +285,7 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new stdDecoder(data).DecodeTagsFor(Activator.CreateInstance<T>());
+        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new stdDecoder(data).DecodeTagsFor(new T());
 
         public static T TryDecodeInto<T>(this string data, T val)
         {
@@ -297,8 +297,7 @@ namespace SharedTools_Stuff
 
         public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
         {
-            val = new T();
-            new stdDecoder(data).DecodeTagsFor(val);
+            val = data.DecodeInto<T>();
             return val;
         }
 
@@ -308,8 +307,7 @@ namespace SharedTools_Stuff
             new stdDecoder(data).DecodeTagsFor(val);
             return val;
         }
-
-
+        
         // ToListOfSTD
         public static void TryDecodeInto<T>(this string data, List<T> val) 
         {

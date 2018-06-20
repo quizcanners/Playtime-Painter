@@ -5,15 +5,13 @@ using System;
 using PlayerAndEditorGUI;
 
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
 
     public interface iCountlessIndex
     {
         int CountlessIndex { get; set; }
     }
-
-
+    
     public abstract class CountlessBase {
 
         protected static VariableBranch[] branchPool = new VariableBranch[32];
@@ -204,8 +202,8 @@ namespace SharedTools_Stuff
 
             GetItAll(out inds, out vals);
 
-            cody.Add_IfNotEmpty("inds", inds);
-            cody.Add_IfNotEmpty("vals", vals);
+            cody.Add("inds", inds);
+            cody.Add("vals", vals);
             cody.Add("last", lastFreeIndex);
 
 
@@ -432,7 +430,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public override stdEncoder Encode() => new stdEncoder().Add_IfNotEmpty("inds", GetItAll()).Add("last", lastFreeIndex);
+        public override stdEncoder Encode() => new stdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
 
       //  public const string storyTag = "TreeBool";
       //  public override string getDefaultTagName() =>  storyTag; 
@@ -922,40 +920,48 @@ namespace SharedTools_Stuff
 
     }
 
-    public class CountlessSTD<T> : STDCountlessBase, IEnumerable where T : iSTD , new() {
+    public class CountlessSTD<T> : STDCountlessBase where T : iSTD , new() {
 
         protected T[] objs = new T[0];
         int firstFreeObj = 0;
 
-        public override bool Decode(string tag, string data)
-        {
-            T tmp;
-            int ind = tag.ToIntFromText();
-           // Debug.Log(ind + " decodding "+data);
-            this[ind] = data.DecodeInto(out tmp);
-           
-         
+        static List<int> tmpDecodeInds;
+        public override bool Decode(string tag, string data) {
+
+            switch (tag) {
+
+                case "inds": data.DecodeInto(out tmpDecodeInds); break;
+                case "vals": List<T> tmps; data.DecodeInto(out tmps);
+                    for (int i = 0; i < tmps.Count; i++)
+                        this[tmpDecodeInds[i]] = tmps[i];
+
+                    tmpDecodeInds = null;
+                    break;
+
+                default: 
+                    // Legacy method:
+            this[tag.ToInt()] = data.DecodeInto<T>(); break;
+        }
             return true;
         }
 
         public override stdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
-
+          
             List<int> inds;
             List<T> vals = GetAllObjs(out inds);
 
-            for (int i = 0; i < inds.Count; i++) {
-                var dta = vals[i].Encode().ToString();
-                //Debug.Log(inds[i] + " Encodingg " + dta);
-                cody.Add_String(inds[i].ToString(), dta);
-            }
+            var cody = new stdEncoder()
+                .Add("inds", inds)
+                .Add("vals", vals);
+
+            /*  for (int i = 0; i < inds.Count; i++) {
+                  var dta = vals[i].Encode().ToString();
+                  cody.Add_String(inds[i].ToString(), dta);
+              }*/
 
             return cody;
         }
-
-     //   public const string storyTag = "TreeObj";
-      //  public override string getDefaultTagName() { return storyTag; }
 
         public void Expand(ref T[] args, int add) // no instantiating
         {
@@ -1162,7 +1168,7 @@ namespace SharedTools_Stuff
             firstFreeObj = 0;
         }
 
-        public IEnumerator GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             List<int> indx;
             var all = GetAllObjs(out indx);
@@ -1183,12 +1189,37 @@ namespace SharedTools_Stuff
         }
 
         public int currentEnumerationIndex;
-        #if PEGI
+
+        int edited = -1;
+#if PEGI
+        
         public override bool PEGI()
         {
             bool changed = false;
 
+            if (edited == -1)  {
 
+                List<int> indxs;
+                var allElements = GetAllObjs(out indxs);
+
+                for (int i=0; i< allElements.Count; i++){
+                    var el = allElements[i];
+                        var pgi = el as iPEGI;
+
+                    el.ToPEGIstring().write();
+
+                    if (pgi != null && icon.Enter.Click())
+                        edited = indxs[i];
+                }
+
+            } else
+            {
+                if (icon.Exit.Click())
+                    edited = -1;
+                else
+                    this[edited].Try_Nested_Inspect();
+                
+            }
 
             return changed;
         }
@@ -1274,6 +1305,43 @@ namespace SharedTools_Stuff
 
             return objs[vb.br[ind].value];
         }
+
+        int edited = -1;
+#if PEGI
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            if (edited == -1)
+            {
+
+                List<int> indxs;
+                var allElements = GetAllObjs(out indxs);
+
+                for (int i = 0; i < allElements.Count; i++)
+                {
+                    var el = allElements[i];
+                    var pgi = el as iPEGI;
+
+                    el.ToPEGIstring().write();
+
+                    if (pgi != null && icon.Enter.Click())
+                        edited = indxs[i];
+                }
+
+            }
+            else
+            {
+                if (icon.Exit.Click())
+                    edited = -1;
+                else
+                    this[edited].Try_Nested_Inspect();
+
+            }
+
+            return changed;
+        }
+#endif
 
     }
 
@@ -1520,7 +1588,7 @@ namespace SharedTools_Stuff
         public override bool Decode(string tag, string data)
         {
             List<T> el; 
-            int index = tag.ToIntFromText();
+            int index = tag.ToInt();
             this[index] = data.DecodeInto(out el);
             return true;
         }
@@ -1551,7 +1619,7 @@ namespace SharedTools_Stuff
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T>, IEnumerable where T: iSTD, iPEGI
+        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, iPEGI
             
             , new() {
 
@@ -1594,7 +1662,7 @@ namespace SharedTools_Stuff
             c = new Countless<string>();
             var cody = new stdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToIntFromText()] = cody.getData();
+                c[tag.ToInt()] = cody.getData();
 
         }
 
@@ -1613,7 +1681,7 @@ namespace SharedTools_Stuff
             c = new Countless<float>();
             var cody = new stdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToIntFromText()] = cody.getData().ToFloat();
+                c[tag.ToInt()] = cody.getData().ToFloat();
 
         }
 
@@ -1635,7 +1703,7 @@ namespace SharedTools_Stuff
             c = new Countless<Vector3>();
             var cody = new stdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToIntFromText()] = cody.getData().ToVector3();
+                c[tag.ToInt()] = cody.getData().ToVector3();
 
         }
 
@@ -1654,7 +1722,7 @@ namespace SharedTools_Stuff
             c = new Countless<Quaternion>();
             var cody = new stdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToIntFromText()] = cody.getData().ToQuaternion();
+                c[tag.ToInt()] = cody.getData().ToQuaternion();
 
         }
 

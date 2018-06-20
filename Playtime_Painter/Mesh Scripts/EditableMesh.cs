@@ -59,7 +59,7 @@ namespace Playtime_Painter {
             cody.Add("sub", submeshCount);
             cody.Add_Bool("wei", gotBoneWeights);
             cody.Add_Bool("bp", gotBindPos);
-            cody.Add_IfNotEmpty("bv", baseVertex);
+            cody.Add("bv", baseVertex);
             if (UV2distributeRow > 0) {
                 cody.Add("UV2dR", UV2distributeRow);
                 cody.Add("UV2cur", UV2distributeCurrent);
