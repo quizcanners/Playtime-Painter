@@ -20,7 +20,7 @@ namespace STD_Logic
     [Serializable]
     public class Trigger : abstract_STD
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
 
@@ -78,8 +78,8 @@ namespace STD_Logic
             
         }
 
-        public override stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder()
+        public override StdEncoder Encode() {
+            StdEncoder cody = new StdEncoder()
             .Add_String("n", name)
             .Add("u", usage)
             .Add_IfNotEmpty("e", enm)

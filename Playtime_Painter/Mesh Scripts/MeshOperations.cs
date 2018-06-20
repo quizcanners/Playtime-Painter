@@ -23,7 +23,7 @@ namespace Playtime_Painter
 
         public void SetPathStart()
         {
-            var selectedLine = meshMGMT.selectedLine;
+            var selectedLine = meshMGMT.SelectedLine;
 
             if (selectedLine == null) return;
 
@@ -103,7 +103,7 @@ namespace Playtime_Painter
         }
         void ExtendPath()
         {
-            var selectedLine = meshMGMT.selectedLine;
+            var selectedLine = meshMGMT.SelectedLine;
             var mm = meshMGMT;
 
             if (updated == false) return;
@@ -189,9 +189,9 @@ namespace Playtime_Painter
         public void QUICK_G_Functions()
         {
 
-            var pointedTris = meshMGMT.pointedTris;
-            var pointedLine = meshMGMT.pointedLine;
-            var pointedUV = meshMGMT.pointedUV;
+            var pointedTris = meshMGMT.PointedTris;
+            var pointedLine = meshMGMT.PointedLine;
+            var pointedUV = meshMGMT.PointedUV;
 
             switch (quickMeshFunctionsExtensions.current)
             {
@@ -324,8 +324,8 @@ namespace Playtime_Painter
 
                             MeshPoint hold = new MeshPoint(pointedUV.pos);
 
-                            if (meshMGMT.selectedUV != null)
-                                new Vertex(hold, meshMGMT.selectedUV.GetUV(0), meshMGMT.selectedUV.GetUV(1));
+                            if (meshMGMT.SelectedUV != null)
+                                new Vertex(hold, meshMGMT.SelectedUV.GetUV(0), meshMGMT.SelectedUV.GetUV(1));
                             else
                                 new Vertex(hold);
 
@@ -360,7 +360,7 @@ namespace Playtime_Painter
         void SomeOtherPathStuff()
         {
             var mm = meshMGMT;
-            var selectedLine = mm.selectedLine;
+            var selectedLine = mm.SelectedLine;
 
 
             if (QuickMeshFunctions.Path.selected())

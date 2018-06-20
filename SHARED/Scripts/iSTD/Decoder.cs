@@ -19,11 +19,11 @@ namespace SharedTools_Stuff
         }
             
         public static void DecodeInto(this string data, out BoneWeight b) {
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
              b = new BoneWeight();
 
-            while (cody.gotData)
-                switch (cody.getTag()) {
+            while (cody.GotData)
+                switch (cody.GetTag()) {
                     case "i0": b.boneIndex0 = data.ToInt(); break;
                     case "w0": b.weight0 = data.ToFloat(); break;
 
@@ -42,12 +42,12 @@ namespace SharedTools_Stuff
         public static void DecodeInto(this string data, Transform tf)
         {
 
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             bool local = false;
 
             foreach (var tag in cody)
             {
-                var d = cody.getData();
+                var d = cody.GetData();
                 switch (tag)
                 {
                     case "loc": local = d.ToBool(); break;
@@ -61,11 +61,11 @@ namespace SharedTools_Stuff
         public static void DecodeInto(this string data, RectTransform tf)
         {
 
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
             {
-                var d = cody.getData();
+                var d = cody.GetData();
                 switch (tag)
                 {
                     case "tfBase": d.DecodeInto(tf.transform); break;
@@ -82,11 +82,11 @@ namespace SharedTools_Stuff
         }
 
         public static void DecodeInto (this string data, out Matrix4x4 m) {
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
              m = new Matrix4x4();
 
-            while (cody.gotData) 
-                switch (cody.getTag()) {
+            while (cody.GotData) 
+                switch (cody.GetTag()) {
 
                     case "00": m.m00 = data.ToFloat(); break;
                     case "01": m.m01 = data.ToFloat(); break;
@@ -117,18 +117,18 @@ namespace SharedTools_Stuff
         public static Quaternion ToQuaternion(this string data)
         {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             Quaternion q = new Quaternion();
 
-            while (cody.gotData)
+            while (cody.GotData)
             {
-                switch (cody.getTag())
+                switch (cody.GetTag())
                 {
-                    case "x": q.x = cody.getData().ToFloat(); break;
-                    case "y": q.y = cody.getData().ToFloat(); break;
-                    case "z": q.z = cody.getData().ToFloat(); break;
-                    case "w": q.w = cody.getData().ToFloat(); break;
+                    case "x": q.x = cody.GetData().ToFloat(); break;
+                    case "y": q.y = cody.GetData().ToFloat(); break;
+                    case "z": q.z = cody.GetData().ToFloat(); break;
+                    case "w": q.w = cody.GetData().ToFloat(); break;
                     default: Debug.Log("Uncnown component: " + cody.GetType()); break;
                 }
             }
@@ -137,16 +137,16 @@ namespace SharedTools_Stuff
         
         public static Vector4 ToVector4(this string data) {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             Vector4 v4 = new Vector4();
 
-            while (cody.gotData) {
-                switch (cody.getTag()) {
-                    case "x": v4.x = cody.getData().ToFloat(); break;
-                    case "y": v4.y = cody.getData().ToFloat(); break;
-                    case "z": v4.z = cody.getData().ToFloat(); break;
-                    case "w": v4.w = cody.getData().ToFloat(); break;
+            while (cody.GotData) {
+                switch (cody.GetTag()) {
+                    case "x": v4.x = cody.GetData().ToFloat(); break;
+                    case "y": v4.y = cody.GetData().ToFloat(); break;
+                    case "z": v4.z = cody.GetData().ToFloat(); break;
+                    case "w": v4.w = cody.GetData().ToFloat(); break;
                     default: Debug.Log("Uncnown component: "+cody.GetType()); break;
                 }
             }
@@ -155,15 +155,15 @@ namespace SharedTools_Stuff
         
         public static Vector3 ToVector3(this string data) {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             Vector3 v3 = new Vector3();
 
-            while (cody.gotData) {
-                switch (cody.getTag()) {
-                    case "x": v3.x = cody.getData().ToFloat(); break;
-                    case "y": v3.y = cody.getData().ToFloat(); break;
-                    case "z": v3.z = cody.getData().ToFloat(); break;
+            while (cody.GotData) {
+                switch (cody.GetTag()) {
+                    case "x": v3.x = cody.GetData().ToFloat(); break;
+                    case "y": v3.y = cody.GetData().ToFloat(); break;
+                    case "z": v3.z = cody.GetData().ToFloat(); break;
                 }
             }
             return v3;
@@ -171,13 +171,13 @@ namespace SharedTools_Stuff
 
         public static Vector2 ToVector2(this string data) {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             Vector2 v2 = new Vector3();
 
-            while (cody.gotData) {
-                var tag = cody.getTag();
-                var dta = cody.getData();
+            while (cody.GotData) {
+                var tag = cody.GetTag();
+                var dta = cody.GetData();
 
                 switch (tag) {
                     case "x": v2.x = dta.ToFloat(); break;
@@ -189,14 +189,14 @@ namespace SharedTools_Stuff
 
         public static Rect ToRect(this string data)
         {
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             Rect rect = new Rect();
 
-            while (cody.gotData)
+            while (cody.GotData)
             {
-                var tag = cody.getTag();
-                var dta = cody.getData();
+                var tag = cody.GetTag();
+                var dta = cody.GetData();
                 switch (tag)
                 {
                     case "pos": rect.position = dta.ToVector2(); break;
@@ -234,11 +234,11 @@ namespace SharedTools_Stuff
 
             l = new List<int>();
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
-            while (cody.gotData) {
-                cody.getTag();
-                l.Add(cody.getData().ToInt());
+            while (cody.GotData) {
+                cody.GetTag();
+                l.Add(cody.GetData().ToInt());
             }
 
             return l;
@@ -249,12 +249,12 @@ namespace SharedTools_Stuff
 
             l = new List<float>();
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
-            while (cody.gotData)
+            while (cody.GotData)
             {
-                cody.getTag();
-                l.Add(cody.getData().ToFloat());
+                cody.GetTag();
+                l.Add(cody.GetData().ToFloat());
             }
 
             return l;
@@ -265,12 +265,12 @@ namespace SharedTools_Stuff
 
              l = new List<uint>();
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
-            while (cody.gotData)
+            while (cody.GotData)
             {
-                cody.getTag();
-                l.Add(cody.getData().ToUInt());
+                cody.GetTag();
+                l.Add(cody.GetData().ToUInt());
             }
 
             return l;
@@ -281,11 +281,11 @@ namespace SharedTools_Stuff
         public static T DecodeInto<T>(this string data, T val) where T : iSTD
         {
             if (val != null)
-                new stdDecoder(data).DecodeTagsFor(val);
+                new StdDecoder(data).DecodeTagsFor(val);
             return val;
         }
 
-        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new stdDecoder(data).DecodeTagsFor(new T());
+        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
 
         public static T TryDecodeInto<T>(this string data, T val)
         {
@@ -304,18 +304,18 @@ namespace SharedTools_Stuff
         public static T DecodeInto<T>(this string data, Type childType) where T : iSTD, new()
         {
             T val = (T)Activator.CreateInstance(childType);
-            new stdDecoder(data).DecodeTagsFor(val);
+            new StdDecoder(data).DecodeTagsFor(val);
             return val;
         }
         
         // ToListOfSTD
         public static void TryDecodeInto<T>(this string data, List<T> val) 
         {
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            while (cody.gotData)  {
-                var ind = cody.getTag().ToIntFromTextSafe(-1);
-                cody.getData().TryDecodeInto(val.TryGet(ind));
+            while (cody.GotData)  {
+                var ind = cody.GetTag().ToIntFromTextSafe(-1);
+                cody.GetData().TryDecodeInto(val.TryGet(ind));
             }
         }
 
@@ -323,12 +323,12 @@ namespace SharedTools_Stuff
         {
             l = new List<List<T>>();
 
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            while (cody.gotData) {
-                cody.getTag();
+            while (cody.GotData) {
+                cody.GetTag();
                 List<T> el;
-                cody.getData().DecodeInto(out el);
+                cody.GetData().DecodeInto(out el);
                 l.Add(el);
             }
 
@@ -337,17 +337,17 @@ namespace SharedTools_Stuff
 
         public static List<T> DecodeInto<T>(this string data, out List<T> l) where T : iSTD, new() {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
              l = new List<T>();
 
             List<Type> tps = typeof(T).TryGetDerrivedClasses(); 
 
-            while (cody.gotData) {
-                var tag = cody.getTag();
-                var dta = cody.getData();
+            while (cody.GotData) {
+                var tag = cody.GetTag();
+                var dta = cody.GetData();
 
-                var isNull = tag == stdEncoder.nullTag;
+                var isNull = tag == StdEncoder.nullTag;
                 if (isNull)
                     l.Add(default(T));
                 else
@@ -377,12 +377,12 @@ namespace SharedTools_Stuff
         }
 
         public static void DecodeInto(this string data, out Dictionary<int, string> dic) {
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
 
             dic = new Dictionary<int, string>();
 
-            while (cody.gotData)
-                dic.Add(cody.getTag().ToInt(), cody.getData());
+            while (cody.GotData)
+                dic.Add(cody.GetTag().ToInt(), cody.GetData());
             
         }
         
@@ -393,16 +393,16 @@ namespace SharedTools_Stuff
         }
 
         public static Color ToColor(this string data) {
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             Color c = new Color();
-            while (cody.gotData) {
-                switch (cody.getTag()) {
-                    case "r": c.r = cody.getData().ToFloat(); break;
-                    case "g": c.g = cody.getData().ToFloat(); break;
-                    case "b": c.b = cody.getData().ToFloat(); break;
-                    case "a": c.a = cody.getData().ToFloat(); break;
+            while (cody.GotData) {
+                switch (cody.GetTag()) {
+                    case "r": c.r = cody.GetData().ToFloat(); break;
+                    case "g": c.g = cody.GetData().ToFloat(); break;
+                    case "b": c.b = cody.GetData().ToFloat(); break;
+                    case "a": c.a = cody.GetData().ToFloat(); break;
                     default:
-                        cody.getData(); break;
+                        cody.GetData(); break;
                 }
             }
 
@@ -412,14 +412,14 @@ namespace SharedTools_Stuff
     }
 
 
-    public class stdDecoder //: IEnumerable<string>
+    public class StdDecoder //: IEnumerable<string>
     {
 
         string data;
         int position;
         bool expectingGetData = false;
 
-        public stdDecoder(string dataStream) {
+        public StdDecoder(string dataStream) {
             data = dataStream;
             if (data == null)
                 data = "";
@@ -432,10 +432,10 @@ namespace SharedTools_Stuff
 
             if (unrec == null)
                 foreach (var tag in this)
-                    storyComponent.Decode(tag, getData());
+                    storyComponent.Decode(tag, GetData());
             else
                 foreach (var tag in this) {
-                    var d = getData();
+                    var d = GetData();
                     if (!storyComponent.Decode(tag, d))
                         unrec.Unrecognized(tag, d);
                 }
@@ -443,41 +443,41 @@ namespace SharedTools_Stuff
             return storyComponent;
         }
 
-        string toNextSplitter() {
+        string ToNextSplitter() {
             int start = position;
-            while (data[position] != stdEncoder.splitter)
+            while (data[position] != StdEncoder.splitter)
                 position++;
             position++;
             return data.Substring(start, position - start - 1);
         }
 
-        public bool gotData { get { return position < data.Length; } }
+        public bool GotData { get { return position < data.Length; } }
 
-        public string getTag() {
+        public string GetTag() {
 
             if (position >= data.Length)
                 return null;
 
             if (expectingGetData) {
                 
-                string hold = toNextSplitter();
+                string hold = ToNextSplitter();
                 Debug.Log("Was expecting Get Data for "+hold);
                 return hold;
             }
             expectingGetData = true;
 
-            _currentTag = toNextSplitter();
+            _currentTag = ToNextSplitter();
 
             return _currentTag;
         }
 
-        public string getData() {
+        public string GetData() {
 
             if (!expectingGetData)
                 Debug.Log("Was expecting Get Tag");
             expectingGetData = false;
             
-            int length = Int32.Parse(toNextSplitter());
+            int length = Int32.Parse(ToNextSplitter());
 
             string result = data.Substring(position, length);
             position += length + 1; // skipping tagtag
@@ -495,8 +495,8 @@ namespace SharedTools_Stuff
 
     public bool NextTag() {
             if (expectingGetData)
-                getData();
-            return getTag() != null;
+                GetData();
+            return GetTag() != null;
         }
     }
 }

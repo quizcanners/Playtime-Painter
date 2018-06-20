@@ -22,15 +22,15 @@ using STD_Logic;
     {
         public static void DecodeFrame (this Animated_STD_PEGI obj, string data) {
             if (obj != null) {
-                var cody = new stdDecoder(data);
+                var cody = new StdDecoder(data);
                 foreach (var tag in cody)
-                    obj.DecodeFrame(tag, cody.getData());
+                    obj.DecodeFrame(tag, cody.GetData());
             }
         }
     } 
 
     public interface Animated_STD_PEGI {
-        stdEncoder EncodeFrame();
+        StdEncoder EncodeFrame();
         bool DecodeFrame(string tag, string data);
 #if PEGI
         bool Frame_PEGI();
@@ -39,7 +39,7 @@ using STD_Logic;
 
     public class SpeedAnimationFrame : abstractKeepUnrecognized_STD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
 
     {
@@ -48,7 +48,7 @@ using STD_Logic;
 
         public AnimatedElement el { get { return AnimatedElement.inspectedAnimatedObject; } }
         
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
             var cody = EncodeUnrecognized()
             .Add("lpos", localPos.Encode())
             .Add("lsize", LocalScale.Encode())
@@ -159,7 +159,7 @@ using STD_Logic;
     [Serializable]
     public class AnimatedElement : abstractKeepUnrecognized_STD
 #if PEGI
-        ,iPEGI, iGotName, iGotIndex
+        ,IPEGI, IGotName, IGotIndex
 #endif
 
     {
@@ -187,7 +187,7 @@ using STD_Logic;
         public string propertyName;
         public float currentShaderValue;
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
             var cody = EncodeUnrecognized()
             .Add("i", index)
@@ -439,7 +439,7 @@ using STD_Logic;
             onFinish += OnFinish;
         }
 
-        public override stdEncoder Encode()  => EncodeUnrecognized()
+        public override StdEncoder Encode()  => EncodeUnrecognized()
             .Add("frames", frames.Encode())
             .Add("elm", elementsUnsorted)
             .Add_Bool("curve", curveSpeed)
@@ -532,7 +532,7 @@ using STD_Logic;
        
         public override bool PEGI() {
 
-            if (gameObject.isPrefab())
+            if (gameObject.IsPrefab())
                 return false;
 
             bool changed = base.PEGI();

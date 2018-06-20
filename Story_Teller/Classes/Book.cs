@@ -58,12 +58,12 @@ namespace StoryTriggerData {
 
         public override iSTD Decode(string data) {
             Reboot();
-            new stdDecoder(data).DecodeTagsFor(this);
+            new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
-        public override stdEncoder Encode() {
-            stdEncoder cody = EncodeUnrecognized();
+        public override StdEncoder Encode() {
+            StdEncoder cody = EncodeUnrecognized();
             cody.Add_String("name", gameObject.name)
             .Add("spos", SpaceValues.playerPosition)
             .Add_ifNotEmpty("pages", HOMEpages);
@@ -189,13 +189,13 @@ namespace StoryTriggerData {
                     pegi.write(s.ToString(),80); 
                     pegi.write(s.GetHashCode().ToString(),30);
 
-                    if (unfoldTriggerGroup && (TriggerGroup.browsed == s)) {
+                    if (unfoldTriggerGroup && (TriggerGroup.Browsed == s)) {
                         if (icon.Close.Click(20))
                             unfoldTriggerGroup = false;
                         pegi.newLine();
                         s.PEGI();
                     } else if (icon.Edit.Click(20)) {
-                        TriggerGroup.browsed = s;
+                        TriggerGroup.Browsed = s;
                         unfoldTriggerGroup = true;
                     }
 

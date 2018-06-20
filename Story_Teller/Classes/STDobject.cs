@@ -29,8 +29,8 @@ namespace StoryTriggerData {
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData); 
         }
         
-         public stdEncoder EncodeUnrecognized(){
-            var cody = new stdEncoder();
+         public StdEncoder EncodeUnrecognized(){
+            var cody = new StdEncoder();
             for (int i=0; i<unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -54,7 +54,7 @@ namespace StoryTriggerData {
             unrecognizedTags = new List<string>();
             unrecognizedData = new List<string>();
  
-            new stdDecoder(data).DecodeTagsFor(this);
+            new StdDecoder(data).DecodeTagsFor(this);
 
             return this;
         }
@@ -74,7 +74,7 @@ namespace StoryTriggerData {
 
         public abstract bool Decode(string tag, string data);
 
-        public abstract stdEncoder Encode();
+        public abstract StdEncoder Encode();
 
         public STD_Poolable LinkTo(Page p) {
             p.Link(this);

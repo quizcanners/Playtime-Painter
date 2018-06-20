@@ -12,11 +12,11 @@ namespace SharedTools_Stuff
 
     public static class EncodeExtensions {
 
-        public static void AppendSplit(this StringBuilder builder, string value) => builder.Append(value).Append(stdEncoder.splitter);
+        public static void AppendSplit(this StringBuilder builder, string value) => builder.Append(value).Append(StdEncoder.splitter);
         
-        public static stdEncoder Encode (this Transform tf, bool local) {
+        public static StdEncoder Encode (this Transform tf, bool local) {
 
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add_Bool("loc", local);
 
@@ -33,13 +33,13 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public static stdEncoder Encode(this Rect rect, bool local) => new stdEncoder()
+        public static StdEncoder Encode(this Rect rect, bool local) => new StdEncoder()
             .Add("pos",rect.position)
             .Add("size",rect.size);
             
-        public static stdEncoder Encode(this RectTransform tf, bool local)
+        public static StdEncoder Encode(this RectTransform tf, bool local)
         {
-            return new stdEncoder()
+            return new StdEncoder()
             .Add("tfBase", tf.transform.Encode(local))
             .Add("aPos", tf.anchoredPosition)
             .Add("aPos3D", tf.anchoredPosition3D)
@@ -51,9 +51,9 @@ namespace SharedTools_Stuff
             .Add("deSize", tf.sizeDelta);
         }
         
-        public static stdEncoder Encode<T>(this List<T> val) where T : iSTD
+        public static StdEncoder Encode<T>(this List<T> val) where T : iSTD
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             
             if (val != null)
             {
@@ -73,12 +73,14 @@ namespace SharedTools_Stuff
                             else
                             {
                                 cody.Add("e", v.Encode());
+#if PEGI
                                 Debug.Log("Type not listed: " + v.GetType() + " in " + typeof(T).ToPEGIstring());
+#endif
                             }
 #endif
                         }
                         else
-                            cody.Add_String(stdEncoder.nullTag, "");
+                            cody.Add_String(StdEncoder.nullTag, "");
                     }
                 }
                 else 
@@ -86,7 +88,7 @@ namespace SharedTools_Stuff
                     if (v != null)
                         cody.Add("e", v.Encode());
                     else
-                        cody.Add_String(stdEncoder.nullTag, "");
+                        cody.Add_String(StdEncoder.nullTag, "");
                 }
 
 
@@ -94,9 +96,9 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public static stdEncoder TryEncode<T>(this List<T> val)
+        public static StdEncoder TryEncode<T>(this List<T> val)
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             if (val != null)
             {
                 for (int i = 0; i < val.Count; i++)
@@ -114,22 +116,22 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public static stdEncoder Encode(this Vector3 v3, int percision) => new stdEncoder()
+        public static StdEncoder Encode(this Vector3 v3, int percision) => new StdEncoder()
             .Add_IfNotZero("x", v3.x.RoundTo(percision))
             .Add_IfNotZero("y", v3.y.RoundTo(percision))
             .Add_IfNotZero("z", v3.z.RoundTo(percision));
             
-        public static stdEncoder Encode(this Vector2 v2, int percision) => new stdEncoder()
+        public static StdEncoder Encode(this Vector2 v2, int percision) => new StdEncoder()
             .Add_IfNotZero("x", v2.x.RoundTo(percision))
             .Add_IfNotZero("y", v2.y.RoundTo(percision));
         
-        public static stdEncoder Encode(this Quaternion q) => new stdEncoder()
+        public static StdEncoder Encode(this Quaternion q) => new StdEncoder()
             .Add_IfNotZero("x", q.x.RoundTo6Dec())
             .Add_IfNotZero("y", q.y.RoundTo6Dec())
             .Add_IfNotZero("z", q.z.RoundTo6Dec())
             .Add_IfNotZero("w", q.w.RoundTo6Dec());
             
-        public static stdEncoder Encode(this BoneWeight bw) => new stdEncoder()
+        public static StdEncoder Encode(this BoneWeight bw) => new StdEncoder()
             .Add("i0", bw.boneIndex0)
             .Add("w0", bw.weight0)
             .Add("i1", bw.boneIndex1)
@@ -139,9 +141,9 @@ namespace SharedTools_Stuff
             .Add("i3", bw.boneIndex3)
             .Add("w3", bw.weight3);
             
-        public static stdEncoder Encode (this Matrix4x4 m)
+        public static StdEncoder Encode (this Matrix4x4 m)
         {
-                stdEncoder sub = new stdEncoder();
+                StdEncoder sub = new StdEncoder();
 
                 sub.Add_IfNotZero("00", m.m00);
                 sub.Add_IfNotZero("01", m.m01);
@@ -166,22 +168,22 @@ namespace SharedTools_Stuff
             return sub;
         }
 
-        public static stdEncoder Encode(this Vector4 v4) => new stdEncoder()
+        public static StdEncoder Encode(this Vector4 v4) => new StdEncoder()
             .Add_IfNotZero("x", v4.x.RoundTo6Dec())
             .Add_IfNotZero("y", v4.y.RoundTo6Dec())
             .Add_IfNotZero("z", v4.z.RoundTo6Dec())
             .Add_IfNotZero("w", v4.w.RoundTo6Dec());
 
-        public static stdEncoder Encode(this Vector3 v3) => new stdEncoder()
+        public static StdEncoder Encode(this Vector3 v3) => new StdEncoder()
             .Add_IfNotZero("x", v3.x.RoundTo6Dec())
             .Add_IfNotZero("y", v3.y.RoundTo6Dec())
             .Add_IfNotZero("z", v3.z.RoundTo6Dec());
 
-        public static stdEncoder Encode(this Vector2 v2) => new stdEncoder()
+        public static StdEncoder Encode(this Vector2 v2) => new StdEncoder()
             .Add_IfNotZero("x", v2.x.RoundTo6Dec())
             .Add_IfNotZero("y", v2.y.RoundTo6Dec());
         
-        public static stdEncoder Encode(this Color col) => new stdEncoder()
+        public static StdEncoder Encode(this Color col) => new StdEncoder()
             .Add_IfNotZero("r", col.r.RoundTo6Dec())
             .Add_IfNotZero("g", col.g.RoundTo6Dec())
             .Add_IfNotZero("b", col.b.RoundTo6Dec())
@@ -189,14 +191,14 @@ namespace SharedTools_Stuff
             
     }
     
-    public class stdEncoder
+    public class StdEncoder
     {
         public const char splitter = '|';
         public const string nullTag = "null";
 
         StringBuilder builder = new StringBuilder();
 
-        public stdEncoder Add_String(string tag, String data) {
+        public StdEncoder Add_String(string tag, String data) {
 
             if (data == null)
                 data = "";
@@ -207,36 +209,36 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add(string tag, stdEncoder cody)
+        public StdEncoder Add(string tag, StdEncoder cody)
         {
             if (cody!= null)
             Add_String(tag, cody.ToString());
             return this;
         }
         
-        public stdEncoder Add(string tag, float val) =>
+        public StdEncoder Add(string tag, float val) =>
             Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));
 
-        public stdEncoder Add(string tag, float val, int percision) => 
+        public StdEncoder Add(string tag, float val, int percision) => 
             Add_String(tag, val.RoundTo(percision).ToString(CultureInfo.InvariantCulture.NumberFormat));
         
-        public stdEncoder Add_Bool(string tag, bool val) =>
+        public StdEncoder Add_Bool(string tag, bool val) =>
             Add_String(tag, val ? "y" : "n");
         
-        public stdEncoder Add_ifTrue(string tag, bool val) {
+        public StdEncoder Add_ifTrue(string tag, bool val) {
             if (val)
                 Add_Bool(tag, val);
             return this;
         }
 
-        public stdEncoder Add(string tag, iSTD other) {
+        public StdEncoder Add(string tag, iSTD other) {
             if (other != null) 
                 Add(tag, other.Encode());
             
             return this;
         }
 
-        public stdEncoder TryAdd<T>(string tag, T obj)
+        public StdEncoder TryAdd<T>(string tag, T obj)
         {
             if (obj != null)
             {
@@ -253,24 +255,24 @@ namespace SharedTools_Stuff
             return builder.ToString();
         }
 
-        public stdEncoder Add_ifNotNegative(string tag, int val) {
+        public StdEncoder Add_ifNotNegative(string tag, int val) {
             if (val >= 0)
                 Add_String(tag, val.ToString());
             return this;
         }
         
-        public stdEncoder Add(string tag, int val) => Add_String(tag, val.ToString());
+        public StdEncoder Add(string tag, int val) => Add_String(tag, val.ToString());
         
-        public stdEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
+        public StdEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
         
-        public stdEncoder Add(string tag, Transform  tf) => Add(tag, tf.Encode(true));
+        public StdEncoder Add(string tag, Transform  tf) => Add(tag, tf.Encode(true));
         
-        public stdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
+        public StdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
 
-        public stdEncoder Add(string tag, List<int> val)
+        public StdEncoder Add(string tag, List<int> val)
         {
 
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             foreach (int i in val)
                 cody.Add("e", i);
 
@@ -279,10 +281,10 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add(string tag, List<uint> val)
+        public StdEncoder Add(string tag, List<uint> val)
         {
 
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             foreach (uint i in val)
                 cody.Add("e", i);
             Add(tag, cody);
@@ -290,9 +292,9 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
+        public StdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
 
-        public stdEncoder Add_GUID(string tag, UnityEngine.Object obj)
+        public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
         {
             var guid = obj.GetGUID();
             if (guid != null)
@@ -301,26 +303,26 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
-        public stdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
-        public stdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());
-        public stdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode());
-        public stdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode());
-        public stdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode());
-        public stdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision));
-        public stdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision));
-        public stdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
+        public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
+        public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
+        public StdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());
+        public StdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode());
+        public StdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode());
+        public StdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode());
+        public StdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision));
+        public StdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision));
+        public StdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
 
 
         // Optional encoding:
 
-        public stdEncoder Add_IfNotEmpty(string tag, string val) {
+        public StdEncoder Add_IfNotEmpty(string tag, string val) {
             if ((val != null) && (val.Length > 0)) 
                 Add_String(tag, val);
             return this;
         }
         
-        public stdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : iSTD {
+        public StdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : iSTD {
 
             if (val.Count > 0) 
                 Add(tag, val);
@@ -328,12 +330,12 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
         {
 
             if (val.Count > 0) {
 
-                stdEncoder sub = new stdEncoder();
+                StdEncoder sub = new StdEncoder();
 
                 foreach (var l in val)
                     sub.Add_ifNotEmpty("e",l);
@@ -343,10 +345,10 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public stdEncoder Add_IfNotEmpty(string tag, Dictionary<int, string> dic) {
+        public StdEncoder Add_IfNotEmpty(string tag, Dictionary<int, string> dic) {
             if (dic.Count > 0) {
 
-                var sub = new stdEncoder();
+                var sub = new StdEncoder();
 
                 foreach (var e in dic) 
                     sub.Add_String(e.Key.ToString(), e.Value);
@@ -356,7 +358,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add_IfNotZero(string tag, float val) {
+        public StdEncoder Add_IfNotZero(string tag, float val) {
 
             if (Mathf.Abs(val) > float.Epsilon * 100) 
                 Add(tag, val.RoundTo6Dec());
@@ -364,7 +366,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add_ifNotZero(string tag, int val) {
+        public StdEncoder Add_ifNotZero(string tag, int val) {
 
             if (val != 0) 
                 Add_String(tag, val.ToString());
@@ -372,7 +374,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add_IfNotZero(string tag, float val, float percision) {
+        public StdEncoder Add_IfNotZero(string tag, float val, float percision) {
 
             if (Mathf.Abs(val) > percision) 
                 Add(tag, val);
@@ -381,7 +383,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public stdEncoder  Add_IfNotZero(string tag, Vector3 v3) {
+        public StdEncoder  Add_IfNotZero(string tag, Vector3 v3) {
 
             if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) 
                 Add(tag, v3.Encode());
@@ -389,14 +391,14 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public stdEncoder Add_IfNotOne(string tag, Vector3 v3) {
+        public StdEncoder Add_IfNotOne(string tag, Vector3 v3) {
             if (!v3.Equals(Vector3.one)) 
                 Add(tag, v3.Encode());
 
             return this;
         }
         
-        public stdEncoder Add_IfNotZero(string tag, Vector2 v2) {
+        public StdEncoder Add_IfNotZero(string tag, Vector2 v2) {
 
             if ((Math.Abs(v2.x) > Mathf.Epsilon) || (Math.Abs(v2.y) > Mathf.Epsilon)) 
                 Add(tag, v2.Encode());

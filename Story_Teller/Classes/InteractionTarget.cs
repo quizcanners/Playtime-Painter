@@ -22,7 +22,7 @@ namespace StoryTriggerData {
 
     public class InteractionTarget : Values, iSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -61,7 +61,7 @@ namespace StoryTriggerData {
             Reboot();
         }
 
-        public override stdEncoder Encode() => new stdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add("i", interactionGroup)
             .Add_ifNotEmpty("ent", OnEnterResults)
             .Add_ifNotEmpty("ext", OnExitResults)

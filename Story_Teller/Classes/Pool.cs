@@ -11,15 +11,15 @@ namespace StoryTriggerData {
         public static List<T> ToListOfStoryPoolablesOfTag<T>(this string data, string prefabTag) where T : STD_Poolable
         {
 
-            stdDecoder cody = new stdDecoder(data);
+            StdDecoder cody = new StdDecoder(data);
 
             List<T> l = new List<T>();
 
-            while (cody.gotData)
+            while (cody.GotData)
             {
-                cody.getTag();
+                cody.GetTag();
                 T tmp = (T)STD_Pool.getOne(prefabTag);
-                l.Add(cody.getData().DecodeInto(tmp));
+                l.Add(cody.GetData().DecodeInto(tmp));
             }
 
             return l;

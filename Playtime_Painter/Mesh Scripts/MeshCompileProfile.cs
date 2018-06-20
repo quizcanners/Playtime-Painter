@@ -15,7 +15,7 @@ namespace Playtime_Painter
     [Serializable]
     public class MeshPackagingProfile : abstract_STD
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
         public List<VertexSolution> sln;
@@ -109,9 +109,9 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override stdEncoder Encode() 
+        public override StdEncoder Encode() 
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             cody.Add_String("n", name);
             cody.Add_ifNotEmpty("sln", sln);
@@ -273,8 +273,8 @@ namespace Playtime_Painter
             return vertDataType.getValue(valueIndex);
         }
 
-        public override stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            StdEncoder cody = new StdEncoder();
             cody.Add("t", typeIndex);
             cody.Add("v", valueIndex);
             return cody;
@@ -297,7 +297,7 @@ namespace Playtime_Painter
     [Serializable]
     public class VertexSolution : abstract_STD
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
         public int sameSizeDataIndex;
@@ -477,8 +477,8 @@ namespace Playtime_Painter
 
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
 
            
             cody.Add_Bool("en", enabled);

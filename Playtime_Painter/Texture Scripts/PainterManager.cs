@@ -873,7 +873,7 @@ namespace Playtime_Painter
 #endif
 
 #if UNITY_EDITOR
-            EditorApplication.update -= meshManager.editingUpdate;
+            EditorApplication.update -= meshManager.EditingUpdate;
 #endif
 
 
@@ -974,10 +974,10 @@ namespace Playtime_Painter
 
             if ((l.Count > 0) && (!StrokeVector.PausePlayback))
             {
-                if (l.last() == null)
+                if (l.Last() == null)
                     l.RemoveLast(1);
                 else
-                    l.last().PlaybeckVectors();
+                    l.Last().PlaybeckVectors();
             }
 
             PlaytimeToolComponent.CheckRefocus();
@@ -1018,7 +1018,7 @@ namespace Playtime_Painter
             foreach (var p in PlaytimePainter.playbackPainters)
                 p.playbackVectors.Clear();
 
-            PlaytimePainter.cody = new stdDecoder(null);
+            PlaytimePainter.cody = new StdDecoder(null);
         }
 
         void OnApplicationQuit()

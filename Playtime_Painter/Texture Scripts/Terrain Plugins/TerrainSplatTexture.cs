@@ -14,7 +14,7 @@ namespace Playtime_Painter
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainTexture)))
             {
-                int no = fieldName[0].charToInt();
+                int no = fieldName[0].CharToInt();
                 tex = painter.terrain.terrainData.splatPrototypes[no].texture;
                 return true;
             }
@@ -41,7 +41,7 @@ namespace Playtime_Painter
             {
                 if (fieldName.Contains(PainterConfig.terrainTexture))
                 {
-                    int no = fieldName[0].charToInt();
+                    int no = fieldName[0].CharToInt();
 
                     SplatPrototype[] splats = painter.terrain.terrainData.splatPrototypes;
                     if (splats.Length <= no) return true; ;
@@ -67,8 +67,8 @@ namespace Playtime_Painter
             {
                 if (fieldName.Contains(PainterConfig.terrainTexture))
                 {
-                    int no = fieldName[0].charToInt();
-                    painter.terrain.setSplashPrototypeTexture(id.texture2D, no);
+                    int no = fieldName[0].CharToInt();
+                    painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
                     if (tex.GetType() != typeof(Texture2D))
 
                         //else
@@ -77,11 +77,11 @@ namespace Playtime_Painter
                     {
 
 #if UNITY_EDITOR
-                        UnityEditor.TextureImporter timp = ((Texture2D)tex).getTextureImporter();
+                        UnityEditor.TextureImporter timp = ((Texture2D)tex).GetTextureImporter();
                         if (timp != null)
                         {
-                            bool needReimport = timp.wasClamped();
-                            needReimport |= timp.hadNoMipmaps();
+                            bool needReimport = timp.WasClamped();
+                            needReimport |= timp.HadNoMipmaps();
 
                             if (needReimport)
                                 timp.SaveAndReimport();

@@ -86,7 +86,7 @@ namespace StoryTriggerData{
             return true;
         }
 
-        void encodeMeta(stdEncoder cody) {
+        void encodeMeta(StdEncoder cody) {
             cody.Add_String("origin", OriginBook);
             cody.Add_String("name", gameObject.name);
             cody.Add_IfNotEmpty("URL", anotherBook);
@@ -98,7 +98,7 @@ namespace StoryTriggerData{
             if (noClamping) cody.Add_Bool("noClamp", noClamping);
         }
 
-        public override stdEncoder Encode() { // Page and it's full content is saved in a saparate file
+        public override StdEncoder Encode() { // Page and it's full content is saved in a saparate file
 
             var cody = EncodeUnrecognized(); //new stdEncoder();
 
@@ -107,8 +107,8 @@ namespace StoryTriggerData{
             return cody;
         }
 
-        public stdEncoder EncodeContent() {
-            var cody = new stdEncoder();
+        public StdEncoder EncodeContent() {
+            var cody = new StdEncoder();
 
             foreach (STD_Poolable sc in linkedObjects)
                 cody.Add(sc.getDefaultTagName(),sc.Encode());
@@ -123,7 +123,7 @@ namespace StoryTriggerData{
 
         public void LoadContent() {
             if (!objectsLoaded)
-                new stdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
+                new StdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
             objectsLoaded = true;
         }
 

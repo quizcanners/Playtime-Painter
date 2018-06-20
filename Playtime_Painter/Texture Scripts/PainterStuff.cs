@@ -20,9 +20,9 @@ namespace Playtime_Painter
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-        public stdEncoder EncodeUnrecognized()
+        public StdEncoder EncodeUnrecognized()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -57,14 +57,14 @@ namespace Playtime_Painter
     [Serializable]
     public abstract class PainterStuff_STD : PainterStuff, iSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
-    public abstract stdEncoder Encode();
+    public abstract StdEncoder Encode();
 
         public iSTD Decode(string data) => data.DecodeInto(this);
 
-        public iSTD Decode(stdEncoder cody)  => new stdDecoder(cody.ToString()).DecodeTagsFor(this);
+        public iSTD Decode(StdEncoder cody)  => new StdDecoder(cody.ToString()).DecodeTagsFor(this);
 
 #if PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
@@ -86,8 +86,8 @@ namespace Playtime_Painter
         protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
         protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
+        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
         protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
     }
@@ -104,8 +104,8 @@ namespace Playtime_Painter
         protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
         protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip != null ? ip.imgData : null; } }
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
+        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
         protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
         
@@ -124,8 +124,8 @@ namespace Playtime_Painter
         protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
         protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.inst.edMesh; } }
+        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
         public static bool applicationIsQuitting;
 
         public static bool isNowPlaytimeAndDisabled { get

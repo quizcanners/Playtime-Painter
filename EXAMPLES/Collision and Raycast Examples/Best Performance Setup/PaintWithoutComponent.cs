@@ -18,7 +18,7 @@ namespace Playtime_Painter
     public class PaintWithoutComponentEditor : Editor
     {
 
-        public override void OnInspectorGUI() => ((PaintWithoutComponent)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((PaintWithoutComponent)target).Inspect(serializedObject);
         
     }
 #endif
@@ -27,7 +27,7 @@ namespace Playtime_Painter
 
     public class PaintWithoutComponent : MonoBehaviour
 #if PEGI
-        ,iPEGI
+        ,IPEGI
 #endif
     {
 

@@ -69,7 +69,7 @@ namespace StoryTriggerData {
     [Serializable]
     public class UniverseLength : SpaceValues
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
         public static readonly UniverseLength one = new UniverseLength(1);
@@ -192,9 +192,9 @@ namespace StoryTriggerData {
             return true;
         }
 
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
 
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add_IfNotZero("MP", MP, 0.0001f);
             cody.Add_IfNotZero("LY", LY, 0.0001f);
@@ -340,7 +340,7 @@ namespace StoryTriggerData {
     [Serializable]
     public class UniversePosition : SpaceValues
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
 
@@ -364,9 +364,9 @@ namespace StoryTriggerData {
             return this;
         }
 
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
 
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add_IfNotZero("MP", MP);
             cody.Add_IfNotZero("LY", LY);

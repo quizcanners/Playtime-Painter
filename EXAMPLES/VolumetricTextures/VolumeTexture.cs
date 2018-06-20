@@ -15,7 +15,7 @@ namespace Playtime_Painter {
     public class VolumeTextureEditor : Editor
     {
 
-        public override void OnInspectorGUI() => ((VolumeTexture)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((VolumeTexture)target).Inspect(serializedObject);
         
     }
 #endif
@@ -24,7 +24,7 @@ namespace Playtime_Painter {
     [Serializable]
     public class VolumeTexture : PainterStuffMono
         #if PEGI
-        , iPEGI, iGotName
+        , IPEGI, IGotName
 #endif
         {
 
@@ -259,7 +259,7 @@ namespace Playtime_Painter {
                     if ("Create Pool".Click().nl())
                         {
                             tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(tmpWidth, 128, 2048));
-                            TexturesPool.inst.width = tmpWidth;
+                            TexturesPool.Inst.width = tmpWidth;
                         }
                     }
                     else {

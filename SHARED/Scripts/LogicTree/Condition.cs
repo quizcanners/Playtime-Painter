@@ -12,7 +12,7 @@ namespace STD_Logic
 
     public class ConditionLogic : ValueIndex , iSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -25,8 +25,8 @@ namespace STD_Logic
             return tag;
         }
 
-        public virtual stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public virtual StdEncoder Encode() {
+            var cody = new StdEncoder();
 
             cody.Add_ifNotZero("v", compareValue);
             cody.Add_ifNotZero("ty",(int)type);
@@ -48,7 +48,7 @@ namespace STD_Logic
         }
 
         public iSTD Decode(string data) {
-            new stdDecoder(data).DecodeTagsFor(this);
+            new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
@@ -105,7 +105,7 @@ namespace STD_Logic
         }
 
         public ConditionLogic() {
-            groupIndex = TriggerGroup.browsed.GetHashCode();
+            groupIndex = TriggerGroup.Browsed.GetHashCode();
         }
 
         public override bool isBoolean(){

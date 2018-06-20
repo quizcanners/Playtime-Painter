@@ -12,7 +12,7 @@ namespace STD_Logic
 
     public abstract class ValueIndex
         #if PEGI
-        : iPEGI
+        : IPEGI
 #endif
     {
 
@@ -150,7 +150,7 @@ namespace STD_Logic
 
             Trigger.searchMatchesFound = 0;
 
-            if (KeyCode.Return.isDown())
+            if (KeyCode.Return.IsDown())
             {
                 pegi.FocusControl("none");
                 changed = true;

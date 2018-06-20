@@ -26,7 +26,7 @@ namespace SharedTools_Stuff
             return true;
         }
 
-        public override stdEncoder Encode() => new stdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add_String("n", name)
             .Add_String("std", std_dta)
             .Add_String("guid", guid);
@@ -36,7 +36,7 @@ namespace SharedTools_Stuff
     [Serializable]
     public class savedISTD
 #if PEGI
-        : iPEGI, iGotName
+        : IPEGI, IGotName
 #endif
     {
         public string _name;
@@ -153,7 +153,7 @@ namespace SharedTools_Stuff
 
     public class iSTD_Explorer : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
         public iSTD ConnectSTD;

@@ -100,24 +100,24 @@ namespace Playtime_Painter {
                 width = bump.width;
                 height = bump.height;
 
-                TextureImporter importer = bump.getTextureImporter();
-                bool needReimport = importer.wasNotReadable();
-                needReimport |= importer.wasNotSingleChanel();
+                TextureImporter importer = bump.GetTextureImporter();
+                bool needReimport = importer.WasNotReadable();
+                needReimport |= importer.WasNotSingleChanel();
                 if (needReimport) importer.SaveAndReimport();
 
                 if (normalReady != null)
                 {
-                    importer = normalReady.getTextureImporter();
-                    needReimport = importer.wasNotReadable();
-                    needReimport |= importer.wasWrongIsColor(false);
-                    needReimport |= importer.wasMarkedAsNormal();
+                    importer = normalReady.GetTextureImporter();
+                    needReimport = importer.WasNotReadable();
+                    needReimport |= importer.WasWrongIsColor(false);
+                    needReimport |= importer.WasMarkedAsNormal();
                     if (needReimport) importer.SaveAndReimport();
                 }
 
-                importer = ambient.getTextureImporter();
-                needReimport = importer.wasNotReadable();
-                needReimport |= importer.wasWrongIsColor(false);
-                needReimport |= importer.wasNotSingleChanel();
+                importer = ambient.GetTextureImporter();
+                needReimport = importer.WasNotReadable();
+                needReimport |= importer.WasWrongIsColor(false);
+                needReimport |= importer.WasNotSingleChanel();
                 if (needReimport) importer.SaveAndReimport();
 
                 try
@@ -174,11 +174,11 @@ namespace Playtime_Painter {
                 if ((Result == null) || (Result.width != width) || (Result.height != height))
                     Result = bump.CreatePngSameDirectory(name + "_MASKnMAPS");
 
-                TextureImporter resImp = Result.getTextureImporter();
-                needReimport = resImp.wasClamped();
-                needReimport |= resImp.wasWrongIsColor(false);
-                needReimport |= resImp.wasNotReadable();
-                needReimport |= resImp.hadNoMipmaps();
+                TextureImporter resImp = Result.GetTextureImporter();
+                needReimport = resImp.WasClamped();
+                needReimport |= resImp.WasWrongIsColor(false);
+                needReimport |= resImp.WasNotReadable();
+                needReimport |= resImp.HadNoMipmaps();
 
 
                 if (needReimport)
@@ -186,7 +186,7 @@ namespace Playtime_Painter {
 
                 Result.SetPixels(dst);
                 Result.Apply();
-                Result.saveTexture();
+                Result.SaveTexture();
 
                 return Result;
             }
@@ -200,23 +200,23 @@ namespace Playtime_Painter {
                     return null;
                 }
 
-                TextureImporter ti = gloss.getTextureImporter();
-                bool needReimport = ti.wasNotSingleChanel();
-                needReimport |= ti.wasNotReadable();
+                TextureImporter ti = gloss.GetTextureImporter();
+                bool needReimport = ti.WasNotSingleChanel();
+                needReimport |= ti.WasNotReadable();
                 if (needReimport) ti.SaveAndReimport();
 
 
-                ti = diffuse.getTextureImporter();
-                needReimport = ti.wasAlphaNotTransparency();
-                needReimport |= ti.wasNotReadable();
+                ti = diffuse.GetTextureImporter();
+                needReimport = ti.WasAlphaNotTransparency();
+                needReimport |= ti.WasNotReadable();
                 if (needReimport) ti.SaveAndReimport();
 
                 Texture2D product = diffuse.CreatePngSameDirectory(newName + "_COLOR");
 
-                TextureImporter importer = product.getTextureImporter();
-                needReimport = importer.wasNotReadable();
-                needReimport |= importer.wasClamped();
-                needReimport |= importer.hadNoMipmaps();
+                TextureImporter importer = product.GetTextureImporter();
+                needReimport = importer.WasNotReadable();
+                needReimport |= importer.WasClamped();
+                needReimport |= importer.HadNoMipmaps();
                 if (needReimport)
                     importer.SaveAndReimport();
 
@@ -252,7 +252,7 @@ namespace Playtime_Painter {
 
                 product.SetPixels(dstColor);
                 product.Apply();
-                product.saveTexture();
+                product.SaveTexture();
 
                 return product;
             }
@@ -295,7 +295,7 @@ namespace Playtime_Painter {
         [Serializable]
         public class TextureSetForForCombinedMaps : PainterStuff
             #if PEGI
-            , iGotName, iPEGI
+            , IGotName, IPEGI
 #endif
         {
 
@@ -417,7 +417,7 @@ namespace Playtime_Painter {
         [Serializable]
         public class TexturePackagingProfile : PainterStuff_STD
             #if PEGI
-            , iGotName
+            , IGotName
 #endif
         {
 
@@ -448,9 +448,9 @@ namespace Playtime_Painter {
                 return true;
             }
 
-            public override stdEncoder Encode()
+            public override StdEncoder Encode()
             {
-                var cody = new stdEncoder()
+                var cody = new StdEncoder()
 
                 .Add_ifNotEmpty("ch", channel)
                 .Add_Bool("c", isColor)
@@ -645,13 +645,13 @@ namespace Playtime_Painter {
                     set.LastProduct = tex;
 
 #if UNITY_EDITOR
-                    set.LastProduct = tex.saveTextureAsAsset(PainterConfig.inst.texturesFolderName, ref set.name, false);
+                    set.LastProduct = tex.SaveTextureAsAsset(PainterConfig.inst.texturesFolderName, ref set.name, false);
 
-                    TextureImporter importer = set.LastProduct.getTextureImporter();
+                    TextureImporter importer = set.LastProduct.GetTextureImporter();
 
-                    bool needReimport = importer.wasNotReadable();
-                    needReimport |= importer.wasWrongIsColor(isColor);
-                    needReimport |= importer.wasClamped();
+                    bool needReimport = importer.WasNotReadable();
+                    needReimport |= importer.WasWrongIsColor(isColor);
+                    needReimport |= importer.WasClamped();
 
                     if (needReimport) importer.SaveAndReimport();
 #endif
@@ -673,7 +673,7 @@ namespace Playtime_Painter {
         [Serializable]
         public class TextureChannel : abstract_STD
 #if PEGI
-            ,iPEGI
+            ,IPEGI
 #endif
         {
             public bool enabled;
@@ -695,9 +695,9 @@ namespace Playtime_Painter {
                 return true;
             }
 
-            public override stdEncoder Encode()
+            public override StdEncoder Encode()
             {
-                var cody = new stdEncoder()
+                var cody = new StdEncoder()
                 .Add_ifNotZero("s", sourceRole)
                 .Add_ifNotZero("c", sourceChannel)
                 .Add_Bool("f", flip);
@@ -801,11 +801,11 @@ namespace Playtime_Painter {
                     {
 
 #if UNITY_EDITOR
-                        var importer = tex.getTextureImporter();
-                        bool needReimport = importer.wasNotReadable();
+                        var importer = tex.GetTextureImporter();
+                        bool needReimport = importer.WasNotReadable();
 
                         //needReimport |= importer.wasWrongIsColor(isColor);
-                        if (importer.wasMarkedAsNormal())
+                        if (importer.WasMarkedAsNormal())
                         {
                             wasNormal = true;
                             needReimport = true;
@@ -1212,8 +1212,8 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
                 if (tex != null)
                 {
-                    var imp = tex.getTextureImporter();
-                    if (imp.wasMarkedAsNormal(wasMarkedAsNormal))
+                    var imp = tex.GetTextureImporter();
+                    if (imp.WasMarkedAsNormal(wasMarkedAsNormal))
                         imp.SaveAndReimport();
                 }
 #endif

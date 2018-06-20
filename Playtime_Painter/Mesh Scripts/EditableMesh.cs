@@ -51,8 +51,8 @@ namespace Playtime_Painter {
         public List<EditableMeshPreProcess> editableMeshOtherData; 
         public CountlessBool hasFrame = new CountlessBool();
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             cody.Add_String("n", meshName);
             cody.Add_ifNotEmpty("vrt",vertices);
             cody.Add_ifNotEmpty("tri",triangles);
@@ -169,7 +169,7 @@ namespace Playtime_Painter {
 
         public void AddTextureAnimDisplacement()
         {
-            MeshManager m = MeshManager.inst;
+            MeshManager m = MeshManager.Inst;
             if (m.target != null)
             {
                 PlaytimePainter em = m.target;
@@ -434,7 +434,7 @@ namespace Playtime_Painter {
                     actualMesh.GetBlendShapeFrameVertices(s, f, pos, nrms, tng);
 
                 for (int v = 0; v < vCnt; v++) 
-                    vertices[v].shapes.last().Add(new BlendFrame(pos[v], nrms[v], tng[v]));
+                    vertices[v].shapes.Last().Add(new BlendFrame(pos[v], nrms[v], tng[v]));
                 
                 }
             }
@@ -511,7 +511,7 @@ namespace Playtime_Painter {
             }
 
 
-            var tf = MeshManager.inst.target.transform;
+            var tf = MeshManager.Inst.target.transform;
 
             triangles.AddRange(edm.triangles);
 

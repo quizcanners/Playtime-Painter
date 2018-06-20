@@ -218,7 +218,7 @@ namespace Playtime_Painter {
     [System.Serializable]
     public class FieldAtlas 
         #if PEGI
-        :iPEGI
+        :IPEGI
 #endif
     {
         static PainterManager TexMGMT { get { return PainterManager.inst; } }
@@ -303,7 +303,7 @@ namespace Playtime_Painter {
     [System.Serializable]
     public class MaterialAtlases
         #if PEGI
-        : iGotName, iPEGI
+        : IGotName, IPEGI
 #endif
     {
         //public static List<MaterialAtlases> all = new List<MaterialAtlases>();
@@ -360,7 +360,7 @@ namespace Playtime_Painter {
             painter.UpdateOrSetTexTarget(texTarget.Texture2D);
 
             Material mat = painter.GetMaterial(false);
-            List<string> tfields = mat.getTextures();
+            List<string> tfields = mat.GetTextures();
 
             int index = 0;
             List<FieldAtlas> passedFields = new List<FieldAtlas>();
@@ -453,22 +453,22 @@ namespace Playtime_Painter {
                     AtlasedMaterial.SetTexture(f.atlasedField, ac.a_texture);
                 }
 
-                MeshManager.inst.EditMesh(painter, true);
+                MeshManager.Inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshManager.inst.edMesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshManager.Inst.edMesh.Encode().ToString();
 
                 painter.selectedMeshProfile = matAtlasProfile;
 
                 if ((tyling != Vector2.one) || (offset != Vector2.zero))
                 {
-                    MeshManager.inst.edMesh.TileAndOffsetUVs(offset, tyling, 0);
+                    MeshManager.Inst.edMesh.TileAndOffsetUVs(offset, tyling, 0);
                     Debug.Log("offsetting " + offset + " tyling " + tyling);
                 }
 
                 TriangleAtlasTool.inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubmesh);
-                MeshManager.inst.Redraw();
-                MeshManager.inst.DisconnectMesh();
+                MeshManager.Inst.Redraw();
+                MeshManager.Inst.DisconnectMesh();
 
                 AtlasedMaterial.SetFloat(PainterConfig.atlasedTexturesInARow, atlPlug.atlasRows);
                 painter.material = AtlasedMaterial;
@@ -516,11 +516,11 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
 
             if (originalMaterial != null)
-                originalTextures = originalMaterial.getTextures();
+                originalTextures = originalMaterial.GetTextures();
 
             if ((DestinationMaterial != null) && (DestinationMaterial.HasProperty(PainterConfig.isAtlasedProperty)))
             {
-                List<string> aTextures = DestinationMaterial.getTextures();
+                List<string> aTextures = DestinationMaterial.GetTextures();
                 fields.Clear();
                 for (int i = 0; i < aTextures.Count; i++)
                 {
@@ -547,7 +547,7 @@ namespace Playtime_Painter {
                         fields[i].originField = i;
                 else if (originalMaterial != null)
                 {
-                    var orTexs = originalMaterial.getTextures();
+                    var orTexs = originalMaterial.GetTextures();
                     foreach (var f in fields)
                         for (int i = 0; i < orTexs.Count; i++)
                             if (orTexs[i].SameAs(f.atlasedField))
@@ -681,7 +681,7 @@ namespace Playtime_Painter {
     [Serializable]
     public class AtlasTextureCreator
         #if PEGI
-        : iGotName, iPEGI
+        : IGotName, IPEGI
         #endif
     {
 
@@ -923,15 +923,15 @@ namespace Playtime_Painter {
             foreach (var t in textures)
                 if ((t != null) && (t.texture != null))
                 {
-                    other = t.texture.getTextureImporter();
+                    other = t.texture.GetTextureImporter();
                     break;
                 }
 
-            TextureImporter ti = a_texture.getTextureImporter();
-            bool needReimport = ti.wasNotReadable();
+            TextureImporter ti = a_texture.GetTextureImporter();
+            bool needReimport = ti.WasNotReadable();
             if (other != null)
-                needReimport |= ti.wasWrongIsColor(other.sRGBTexture);
-            needReimport |= ti.wasClamped();
+                needReimport |= ti.WasWrongIsColor(other.sRGBTexture);
+            needReimport |= ti.WasClamped();
 
             if (needReimport) ti.SaveAndReimport();
 

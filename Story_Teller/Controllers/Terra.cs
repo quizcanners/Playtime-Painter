@@ -36,7 +36,7 @@ namespace StoryTriggerData
         PlaytimePainter painter;
         WaterController water;
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
             var cody = EncodeUnrecognized()
 

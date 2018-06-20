@@ -15,7 +15,7 @@ namespace Playtime_Painter
     public class BakedShadowsLightProbeEditor : Editor
     {
 
-        public override void OnInspectorGUI() => ((LightCaster)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((LightCaster)target).Inspect(serializedObject);
         
     }
 #endif
@@ -23,7 +23,7 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class LightCaster : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
 
     {

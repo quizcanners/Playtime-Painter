@@ -20,8 +20,8 @@ namespace  PlayerAndEditorGUI {
 
     public static class ef {
 
-       public static bool inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, iPEGI {
-            if (o.gameObject.isPrefab())
+       public static bool Inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, IPEGI {
+            if (o.gameObject.IsPrefab())
                 return false;
 
             start(so);
@@ -31,7 +31,7 @@ namespace  PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool inspect_so<T>(T o, SerializedObject so) where T : ScriptableObject, iPEGI
+        public static bool Inspect_so<T>(T o, SerializedObject so) where T : ScriptableObject, IPEGI
         {
             
             start(so);
@@ -762,7 +762,7 @@ namespace  PlayerAndEditorGUI {
         {
             checkLine();
 
-            if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex))
+            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
             {
                 EditorGUILayout.IntField(val, GUILayout.Width(width));
                 val = editedInteger;
@@ -786,7 +786,7 @@ namespace  PlayerAndEditorGUI {
         {
             checkLine();
 
-            if (KeyCode.Return.isDown() && (elementIndex == editedIntegerIndex))
+            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
             {
 
 
@@ -895,7 +895,7 @@ namespace  PlayerAndEditorGUI {
             checkLine();
 
 
-            if (KeyCode.Return.isDown())
+            if (KeyCode.Return.IsDown())
             {
                 if (text.GetHashCode().ToString() == editedHash)
                 {
@@ -922,7 +922,7 @@ namespace  PlayerAndEditorGUI {
         {
             checkLine();
 
-            if (KeyCode.Return.isDown() && (text.GetHashCode().ToString() == editedHash))
+            if (KeyCode.Return.IsDown() && (text.GetHashCode().ToString() == editedHash))
             {
                 EditorGUILayout.TextField(text);
                 text = editedText;

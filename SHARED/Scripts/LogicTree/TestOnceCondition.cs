@@ -14,9 +14,9 @@ namespace STD_Logic {
         public ResultType resultType;
         public int updateValue;
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            var cody =  new stdEncoder()
+            var cody =  new StdEncoder()
 
             .Add_ifNotZero("v", compareValue)
             .Add_ifNotZero("ty", (int)type)

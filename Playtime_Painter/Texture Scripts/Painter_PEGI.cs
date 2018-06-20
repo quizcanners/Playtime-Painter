@@ -10,8 +10,8 @@ namespace Playtime_Painter {
 
     public static class PainterPEGI_Extensions {
 
-        static PainterConfig cfg { get { return PainterConfig.inst; } }
-        static PainterManager rtp { get { return PainterManager.inst; } }
+        static PainterConfig Cfg { get { return PainterConfig.inst; } }
+        static PainterManager TexMGMT { get { return PainterManager.inst; } }
 
         public static bool SelectTexture_PEGI(this PlaytimePainter p) {
         int ind = p.selectedTexture;
@@ -103,11 +103,11 @@ namespace Playtime_Painter {
         bool changed = false;
         pegi.newLine();
 
-            if (PlaytimePainter.cody.gotData) {
+            if (PlaytimePainter.cody.GotData) {
                 "Playback In progress".nl();
 
                 if (icon.Close.Click("Cancel All Playbacks",20))
-                    rtp.CancelAllPlaybacks();
+                    TexMGMT.CancelAllPlaybacks();
 
                 if (StrokeVector.PausePlayback) {
                     if (icon.Play.Click("Continue Playback", 20))
@@ -123,25 +123,25 @@ namespace Playtime_Painter {
 
                 var id = trg.imgData;
 
-                bool gotVectors = cfg.recordingNames.Count > 0;
+                bool gotVectors = Cfg.recordingNames.Count > 0;
 
-                cfg.browsedRecord = Mathf.Max(0, Mathf.Min(cfg.browsedRecord, cfg.recordingNames.Count - 1));
+                Cfg.browsedRecord = Mathf.Max(0, Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
 
                 if (gotVectors) {
-                    pegi.select(ref cfg.browsedRecord, cfg.recordingNames);
+                    pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
                     if (pegi.Click(icon.Play, "Play stroke vectors on current mesh", 18)) {
-                        trg.PlayByFilename(cfg.recordingNames[cfg.browsedRecord]);
+                        trg.PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
                         changed = true;
                     }
                     if (pegi.Click(icon.Record, "Continue Recording", 18)) {
-                        id.SaveName = cfg.recordingNames[cfg.browsedRecord];
+                        id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
                         id.ContinueRecording();
                         "Recording resumed".showNotification();
                     }
 
                     if (pegi.Click(icon.Delete, "Delete", 18)) {
                         changed = true;
-                        cfg.RemoveRecord();
+                        Cfg.RemoveRecord();
                     }
                 }
 
@@ -163,7 +163,7 @@ namespace Playtime_Painter {
 
         public static void TeachingNotification (this string text) {
 #if PEGI
-            if (cfg.ShowTeachingNotifications)
+            if (Cfg.ShowTeachingNotifications)
                 text.showNotification();
 #endif
         }

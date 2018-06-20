@@ -22,7 +22,7 @@ namespace SharedTools_Stuff
 
     public class PoolableBase : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
         public PoolControllerBase poolController;
@@ -58,7 +58,7 @@ namespace SharedTools_Stuff
 
     public abstract class PoolControllerBase
         #if PEGI
-        : iPEGI
+        : IPEGI
 #endif
     {
         public int initializedCount;

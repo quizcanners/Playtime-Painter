@@ -54,9 +54,9 @@ namespace Playtime_Painter {
 
         }
 
-    public override stdEncoder Encode() {
+    public override StdEncoder Encode() {
 
-        stdEncoder s = new stdEncoder();
+        StdEncoder s = new StdEncoder();
 
         if (mouseDwn) s.Add("fU", uvFrom, 4);
         if (mouseDwn) s.Add("fP", posFrom, 4);
@@ -71,9 +71,9 @@ namespace Playtime_Painter {
     }
 
 
-        public stdEncoder Encode(bool worldSpace) {
+        public StdEncoder Encode(bool worldSpace) {
 
-            stdEncoder s = new stdEncoder();
+            StdEncoder s = new StdEncoder();
 
             if (mouseDwn) {
                 if (worldSpace)

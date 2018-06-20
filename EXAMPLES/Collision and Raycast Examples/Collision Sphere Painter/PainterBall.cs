@@ -13,7 +13,7 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(PainterBall))]
     public class PainterBallEditor : Editor    {
 
-        public override void OnInspectorGUI() => ((PainterBall)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((PainterBall)target).Inspect(serializedObject);
           
     }
 #endif
@@ -32,7 +32,7 @@ namespace Playtime_Painter {
     [ExecuteInEditMode]
     public class PainterBall : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 

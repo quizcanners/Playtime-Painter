@@ -41,12 +41,12 @@ namespace Playtime_Painter
         
         //protected MeshManager mgmt { get { return MeshManager.inst; } }
        // protected PainterConfig cfg { get { return PainterConfig.inst; } }
-        protected LineData pointedLine { get { return meshMGMT.pointedLine; } }
-        protected Triangle pointedTris { get { return meshMGMT.pointedTris; } }
-        protected Triangle selectedTris { get { return meshMGMT.selectedTris; } }
-        protected Vertex pointedUV { get { return meshMGMT.pointedUV; } }
-        protected Vertex selectedUV { get { return meshMGMT.selectedUV; } }
-        protected MeshPoint pointedVertex { get { return meshMGMT.pointedUV.meshPoint; } }
+        protected LineData pointedLine { get { return meshMGMT.PointedLine; } }
+        protected Triangle pointedTris { get { return meshMGMT.PointedTris; } }
+        protected Triangle selectedTris { get { return meshMGMT.SelectedTris; } }
+        protected Vertex pointedUV { get { return meshMGMT.PointedUV; } }
+        protected Vertex selectedUV { get { return meshMGMT.SelectedUV; } }
+        protected MeshPoint pointedVertex { get { return meshMGMT.PointedUV.meshPoint; } }
         protected EditableMesh freshPreviewMesh {  get { if (meshMGMT.previewMesh == null)  {
                     meshMGMT.previewEdMesh = new EditableMesh();
                     meshMGMT.previewEdMesh.Decode(meshMGMT.edMesh.Encode());
@@ -114,7 +114,7 @@ namespace Playtime_Painter
             return ToString();
         }
 
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
             return null;
         }
 
@@ -158,7 +158,7 @@ namespace Playtime_Painter
 
                 if (pvrt == vpoint)
                 {
-                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(meshMGMT.selectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
+                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(meshMGMT.SelectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
                         (vpoint.SmoothNormal ? "s" : "")) : "";
                   
 
@@ -200,7 +200,7 @@ namespace Playtime_Painter
 
             PainterConfig sd = PainterConfig.inst;
 
-            if (mgm.meshTool.showGrid) {
+            if (mgm.MeshTool.showGrid) {
                 "Snap to grid:".toggle(100, ref sd.SnapToGrid);
 
                 if (sd.SnapToGrid)
@@ -304,10 +304,10 @@ namespace Playtime_Painter
         public override void KeysEventDragging()
         {
             var m = meshMGMT;
-            if ((KeyCode.M.isDown()) && (m.selectedUV != null))
+            if ((KeyCode.M.IsDown()) && (m.SelectedUV != null))
             {
-                m.selectedUV.meshPoint.MergeWithNearest();
-                m.dragging = false;
+                m.SelectedUV.meshPoint.MergeWithNearest();
+                m.Dragging = false;
                 m.edMesh.dirty = true;
                 #if PEGI
                 "M - merge with nearest".TeachingNotification();
@@ -320,31 +320,31 @@ namespace Playtime_Painter
 
             var m = meshMGMT;
 
-            if (KeyCode.Delete.isDown())
+            if (KeyCode.Delete.IsDown())
             {
                 //Debug.Log("Deleting");
                 if (!EditorInputManager.getControlKey())
                 {
-                    if (m.pointedUV.meshPoint.uvpoints.Count == 1)
+                    if (m.PointedUV.meshPoint.uvpoints.Count == 1)
                     {
-                        if (!m.DeleteVertHEAL(meshMGMT.pointedUV.meshPoint))
-                            m.DeleteUv(meshMGMT.pointedUV);
+                        if (!m.DeleteVertHEAL(meshMGMT.PointedUV.meshPoint))
+                            m.DeleteUv(meshMGMT.PointedUV);
                     }
                     else
-                        while (m.pointedUV.meshPoint.uvpoints.Count > 1)
-                            m.edMesh.MoveTris(m.pointedUV.meshPoint.uvpoints[1], m.pointedUV.meshPoint.uvpoints[0]); 
+                        while (m.PointedUV.meshPoint.uvpoints.Count > 1)
+                            m.edMesh.MoveTris(m.PointedUV.meshPoint.uvpoints[1], m.PointedUV.meshPoint.uvpoints[0]); 
                     
 
                 }
                 else
-                    m.DeleteUv(m.pointedUV);
+                    m.DeleteUv(m.PointedUV);
                 m.edMesh.dirty = true;
             }
         }
 
         public override void KeysEventPointedTriangle()
         {
-            if (KeyCode.Backspace.isDown() || KeyCode.Delete.isDown())
+            if (KeyCode.Backspace.IsDown() || KeyCode.Delete.IsDown())
             {
                 meshMGMT.edMesh.triangles.Remove(pointedTris);
                 foreach (var uv in pointedTris.vertexes)
@@ -355,7 +355,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            if (KeyCode.U.isDown())
+            if (KeyCode.U.IsDown())
                 pointedTris.MakeTriangleVertUnique(pointedUV);
 
           /*  if (KeyCode.N.isDown())
@@ -386,14 +386,14 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0)) {
                 var m = meshMGMT;
 
-                if ((m.trisVerts < 3) && (m.pointedUV != null) && (!m.isInTrisSet(m.pointedUV.meshPoint)))
-                    m.AddToTrisSet(m.pointedUV);
+                if ((m.TrisVerts < 3) && (m.PointedUV != null) && (!m.IsInTrisSet(m.PointedUV.meshPoint)))
+                    m.AddToTrisSet(m.PointedUV);
 
-                if ((EditorInputManager.getAltKey() && (m.selectedUV.meshPoint.uvpoints.Count > 1)))
+                if ((EditorInputManager.getAltKey() && (m.SelectedUV.meshPoint.uvpoints.Count > 1)))
                     m.DisconnectDragged();
 
-                m.dragging = true;
-                m.AssignSelected(m.pointedUV);
+                m.Dragging = true;
+                m.AssignSelected(m.PointedUV);
                 originalPosition = pointedUV.meshPoint.worldPos;
                 draggedVertices.Clear();
                 draggedVertices.Add(pointedUV.meshPoint);
@@ -411,7 +411,7 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonDown(0))
             {
-                m.dragging = true;
+                m.Dragging = true;
                 originalPosition = GridNavigator.collisionPos;//uvPoint.vert.worldPos;
                 GridNavigator.onGridPos = GridNavigator.collisionPos;
                 draggedVertices.Clear();
@@ -420,7 +420,7 @@ namespace Playtime_Painter
             }
 
             if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay>0 && draggedVertices.Contains(pointedLine))
-                    meshMGMT.edMesh.insertIntoLine(meshMGMT.pointedLine.pnts[0].meshPoint, meshMGMT.pointedLine.pnts[1].meshPoint, meshMGMT.collisionPosLocal);
+                    meshMGMT.edMesh.insertIntoLine(meshMGMT.PointedLine.pnts[0].meshPoint, meshMGMT.PointedLine.pnts[1].meshPoint, meshMGMT.collisionPosLocal);
             
 
             return false;
@@ -434,7 +434,7 @@ namespace Playtime_Painter
 
               
 
-                    m.dragging = true;
+                    m.Dragging = true;
                     originalPosition = GridNavigator.collisionPos;
                     GridNavigator.onGridPos = GridNavigator.collisionPos;
                     draggedVertices.Clear();
@@ -446,9 +446,9 @@ namespace Playtime_Painter
             if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay > 0 && draggedVertices.Contains(pointedTris))
             {
                 if (cfg.newVerticesUnique)
-                    m.edMesh.insertIntoTriangleUniqueVerticles(m.pointedTris, m.collisionPosLocal);
+                    m.edMesh.insertIntoTriangleUniqueVerticles(m.PointedTris, m.collisionPosLocal);
                 else
-                    m.edMesh.insertIntoTriangle(m.pointedTris, m.collisionPosLocal);
+                    m.edMesh.insertIntoTriangle(m.PointedTris, m.collisionPosLocal);
             }
        
 
@@ -466,7 +466,7 @@ namespace Playtime_Painter
             var m = meshMGMT;
 
             if ((EditorInputManager.GetMouseButtonUp(0)) || (EditorInputManager.GetMouseButton(0) == false)) {
-                m.dragging = false;
+                m.Dragging = false;
                 if (m.dragDelay<0)
                     editedMesh.dirty_Position = true;
             } else {
@@ -481,7 +481,7 @@ namespace Playtime_Painter
                         if (delta.magnitude > 0)
                         {
 
-                            m.trisVerts = 0;
+                            m.TrisVerts = 0;
 
                             foreach (var v in draggedVertices)
                                 v.worldPos += delta; // m.onGridLocal;
@@ -494,8 +494,8 @@ namespace Playtime_Painter
             }
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             cody.Add_Bool("inM", addToTrianglesAndLines); 
             return cody;
         }
@@ -622,7 +622,7 @@ namespace Playtime_Painter
         public override void KeysEventPointedTriangle()
         {
   
-            if (KeyCode.N.isDown())
+            if (KeyCode.N.IsDown())
             {
 
                 if (!EditorInputManager.getAltKey())
@@ -650,9 +650,9 @@ namespace Playtime_Painter
 
         public override void KeysEventPointedLine()
         {
-            if (KeyCode.N.isDown())
+            if (KeyCode.N.IsDown())
             {
-                foreach (var t in meshMGMT.pointedLine.getAllTriangles_USES_Tris_Listing())
+                foreach (var t in meshMGMT.PointedLine.getAllTriangles_USES_Tris_Listing())
                     t.SetSharpCorners(!EditorInputManager.getAltKey());
 #if PEGI
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
@@ -666,11 +666,11 @@ namespace Playtime_Painter
 
          
 
-            if (KeyCode.N.isDown())
+            if (KeyCode.N.IsDown())
             {
                 var m = meshMGMT;
 
-                m.pointedUV.meshPoint.SmoothNormal = !m.pointedUV.meshPoint.SmoothNormal;
+                m.PointedUV.meshPoint.SmoothNormal = !m.PointedUV.meshPoint.SmoothNormal;
                 m.edMesh.dirty = true;
 #if PEGI
                 "N - on Vertex - smooth Normal".TeachingNotification();
@@ -926,10 +926,10 @@ namespace Playtime_Painter
             if ((EditorInputManager.GetMouseButtonDown(0))) {
                 if (EditorInputManager.getControlKey())
                 
-                    bcf.mask.Transfer(ref m.pointedUV._color, bcf.colorLinear.ToGamma());
+                    bcf.mask.Transfer(ref m.PointedUV._color, bcf.colorLinear.ToGamma());
                 
                 else
-                    foreach (Vertex uvi in m.pointedUV.meshPoint.uvpoints)
+                    foreach (Vertex uvi in m.PointedUV.meshPoint.uvpoints)
                         bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.colorLinear.ToGamma());
 
                 m.edMesh.dirty_Color = true;
@@ -1066,7 +1066,7 @@ namespace Playtime_Painter
                     "Shared points found, Edge requires All Unique".showNotification();
 #endif
                 if (EditorInputManager.getControlKey()) {
-                    edgeValue = meshMGMT.pointedUV.meshPoint.edgeStrength;
+                    edgeValue = meshMGMT.PointedUV.meshPoint.edgeStrength;
                     if (AlsoDoColor) globalBrush.colorLinear.From(pointedUV._color);
                        
                             // foreach (UVpoint uvi in m.pointedUV.vert.uvpoints)
@@ -1078,7 +1078,7 @@ namespace Playtime_Painter
                     if (pointedUV.sameAsLastFrame)
                         return true;
 
-                    meshMGMT.pointedUV.meshPoint.edgeStrength = shiftInvertedVelue;
+                    meshMGMT.PointedUV.meshPoint.edgeStrength = shiftInvertedVelue;
                     if (AlsoDoColor)
                     {
                         var col = globalBrush.colorLinear.ToGamma();
@@ -1199,9 +1199,9 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add("v", edgeValue);
             cody.Add_Bool("doCol", AlsoDoColor);
@@ -1235,17 +1235,17 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.getControlKey())
             {
-                curSubmesh = (int)meshMGMT.pointedTris.submeshIndex;
+                curSubmesh = (int)meshMGMT.PointedTris.submeshIndex;
 #if PEGI
                 ("Submesh " + curSubmesh).showNotification();
 #endif
             }
 
-            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.getControlKey() && (meshMGMT.pointedTris.submeshIndex != curSubmesh))  {
+            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.getControlKey() && (meshMGMT.PointedTris.submeshIndex != curSubmesh))  {
                 if (pointedTris.sameAsLastFrame)
                     return true;
-                meshMGMT.pointedTris.submeshIndex = curSubmesh;
-                    editedMesh.submeshCount = Mathf.Max(meshMGMT.pointedTris.submeshIndex + 1, editedMesh.submeshCount);
+                meshMGMT.PointedTris.submeshIndex = curSubmesh;
+                    editedMesh.submeshCount = Mathf.Max(meshMGMT.PointedTris.submeshIndex + 1, editedMesh.submeshCount);
                     editedMesh.dirty = true;
                 return true;
             }
@@ -1260,8 +1260,8 @@ namespace Playtime_Painter
             return false;
         }
 #endif
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             if (curSubmesh != 0)
                 cody.Add("sm", curSubmesh);
             return cody;

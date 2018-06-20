@@ -14,14 +14,14 @@ using UnityEditor;
 [CustomEditor(typeof(PaintingReciever))]
 public class PaintingRecieverEditor : Editor
 {
-    public override void OnInspectorGUI() => ((PaintingReciever)target).inspect(serializedObject);
+    public override void OnInspectorGUI() => ((PaintingReciever)target).Inspect(serializedObject);
         
 }
 #endif
 
     public class PaintingReciever : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -184,7 +184,7 @@ public class PaintingRecieverEditor : Editor
            // pegi.nl();
 
             if (material) {
-                var lst = material.getTextures();
+                var lst = material.GetTextures();
                 if (lst.Count > 0) {
                     "   Property".select(ref textureField, lst).nl();
                 }
@@ -314,7 +314,7 @@ public class PaintingRecieverEditor : Editor
                         {
                             "No Render Texture Pool found".write();
                             if ("Create".Click().nl())
-                                (TexturesPool.inst.gameObject.name + " created").showNotification(); //new GameObject().AddComponent<TexturesPool>().gameObject.name = "Texture Pool";
+                                (TexturesPool.Inst.gameObject.name + " created").showNotification(); //new GameObject().AddComponent<TexturesPool>().gameObject.name = "Texture Pool";
                         }
                     }
                 }

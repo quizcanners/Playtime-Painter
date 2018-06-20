@@ -10,7 +10,7 @@ namespace STD_Logic
 
     public class ConditionBranch : abstract_STD
         #if PEGI
-        , iGotName , iPEGI
+        , IGotName , IPEGI
 #endif
         {
         public List<ConditionLogic> conds = new List<ConditionLogic>();
@@ -35,7 +35,7 @@ namespace STD_Logic
             }
         }
 
-        public override stdEncoder Encode() => new stdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add_ifNotEmpty("wb", branches)
             .Add_ifNotEmpty("v", conds)
             .Add_ifNotZero("t", (int)type)

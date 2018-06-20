@@ -9,7 +9,7 @@ namespace Playtime_Painter {
     [System.Serializable]
     public class MaterialLightManager : PainterStuff
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 

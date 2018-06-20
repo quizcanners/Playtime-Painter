@@ -13,7 +13,7 @@ namespace Playtime_Painter
     [System.Serializable]
     public class PainterManagerPluginBase : PainterStuffMono, iKeepUnrecognizedSTD 
 #if PEGI
-        , iPEGI, iGotDisplayName
+        , IPEGI, IGotDisplayName
 #endif
         
     {
@@ -79,6 +79,7 @@ namespace Playtime_Painter
 #if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
+          
 #endif
             PlaytimePainter.plugins_GizmoDraw -= plugins_GizmoDraw;
             BrushType.tex2DPaintPlugins -= tex2DPaintPlugins;
@@ -89,9 +90,9 @@ namespace Playtime_Painter
 
         public virtual void OnEnable()  { }
 
-        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
+       
 
-        public virtual bool isA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
+        public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
 
         public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
           
@@ -113,14 +114,17 @@ namespace Playtime_Painter
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
 
-        public stdEncoder EncodeUnrecognized()
+        public StdEncoder EncodeUnrecognized()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
         }
 #if PEGI
+
+        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
+
         public static int inspectedUnrecognized = -1;
         public virtual bool PEGI()
         {
@@ -147,7 +151,7 @@ namespace Playtime_Painter
             return changed;
         }
 #endif
-        public virtual stdEncoder Encode() => EncodeUnrecognized();
+        public virtual StdEncoder Encode() => EncodeUnrecognized();
 
         public virtual iSTD Decode(string data) => this;
 

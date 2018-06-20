@@ -15,14 +15,14 @@ namespace Playtime_Painter
     [CustomEditor(typeof(RaycastOnCollisionPainter))]
     public class PainterCasterEditor : Editor{
 
-        public override void OnInspectorGUI() => ((RaycastOnCollisionPainter)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((RaycastOnCollisionPainter)target).Inspect(serializedObject);
            
     }
 #endif
 
     public class RaycastOnCollisionPainter : MonoBehaviour
 #if PEGI
-        ,iPEGI
+        ,IPEGI
 #endif
     {
 

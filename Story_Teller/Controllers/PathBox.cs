@@ -54,7 +54,7 @@ namespace StoryTriggerData {
             conditions = new ConditionBranch();
         }
 
-        public override stdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() => EncodeUnrecognized()
             .Add_String("n", name)
             .Add("size", transform.localScale)
             .Add_IfNotZero("pos", transform.localPosition)
@@ -152,7 +152,7 @@ namespace StoryTriggerData {
 
                     fromWallDistance = (1 - Mathf.Abs(localPos)) * localScale;
 
-                    if (localVelocity.isNaN())
+                    if (localVelocity.IsNaN())
                         Debug.Log("Pre Wall created to Nan");
 
                 }
@@ -174,7 +174,7 @@ namespace StoryTriggerData {
                     localPos += signedAmount;
                     localVelocity -= signedAmount;
 
-                    if (localVelocity.isNaN())
+                    if (localVelocity.IsNaN())
                         Debug.Log("In Wall turned to Nan");
 
                 }

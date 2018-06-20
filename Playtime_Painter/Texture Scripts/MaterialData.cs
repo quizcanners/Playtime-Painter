@@ -9,7 +9,7 @@ namespace Playtime_Painter
     [Serializable]
     public class MaterialData
         #if PEGI
-        : iPEGI
+        : IPEGI
 #endif
     {
 

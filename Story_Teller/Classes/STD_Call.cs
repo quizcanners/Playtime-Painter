@@ -46,7 +46,7 @@ namespace StoryTriggerData {
 
     public class STD_Call : abstract_STD
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
 
@@ -65,8 +65,8 @@ namespace StoryTriggerData {
             return true;
         }
 
-        public override stdEncoder Encode() {
-            stdEncoder cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            StdEncoder cody = new StdEncoder();
 
             cody.Add_String(tag, _data);
 

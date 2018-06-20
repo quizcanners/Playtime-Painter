@@ -13,7 +13,10 @@ namespace Playtime_Painter
     public class TexturesPool : PainterStuffMono  {
 
         public static TexturesPool _inst;
-        public static TexturesPool inst { get { if (_inst == null && !applicationIsQuitting) new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool"; return _inst; } }
+        public static TexturesPool Inst { get {
+                if (_inst == null && !applicationIsQuitting)
+                    new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool";
+                return _inst; } }
 
         public int width = 256;
 
@@ -28,10 +31,12 @@ namespace Playtime_Painter
                 return t2dList.RemoveLast();
             else
             {
-                var rt = new Texture2D(width, width, TextureFormat.ARGB32, false);
-                rt.wrapMode = TextureWrapMode.Repeat;
-                rt.name = "Tex2D_fromPool";
+                var rt = new Texture2D(width, width, TextureFormat.ARGB32, false) {
+                    wrapMode = TextureWrapMode.Repeat,
+                    name = "Tex2D_fromPool"
+            };
                 return rt;
+
             }
         }
 
@@ -39,10 +44,11 @@ namespace Playtime_Painter
             if (rtList.Count > 0)
                 return rtList.RemoveLast();
             else {
-                var rt = new RenderTexture(width, width, 0);
-                rt.wrapMode = TextureWrapMode.Repeat;
-                rt.useMipMap = false;
-                rt.name = "RenderTexture_fromPool";
+                var rt = new RenderTexture(width, width, 0) {
+                wrapMode = TextureWrapMode.Repeat,
+                useMipMap = false,
+                name = "RenderTexture_fromPool"
+            };
                 return rt;
             }
         }

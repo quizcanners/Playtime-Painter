@@ -79,8 +79,8 @@ namespace STD_Logic
             RealTimeNow();
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             
             return cody;
         }

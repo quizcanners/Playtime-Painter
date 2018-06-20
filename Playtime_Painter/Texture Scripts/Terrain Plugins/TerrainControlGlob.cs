@@ -13,7 +13,7 @@ namespace Playtime_Painter
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainControl)))
             {
-                tex = painter.terrain.terrainData.alphamapTextures[fieldName[0].charToInt()];
+                tex = painter.terrain.terrainData.alphamapTextures[fieldName[0].CharToInt()];
                 return true;
             }
             return false;
@@ -51,7 +51,7 @@ namespace Playtime_Painter
             {
                 if (fieldName.Contains(PainterConfig.terrainControl))
                 {
-                    int no = fieldName[0].charToInt();
+                    int no = fieldName[0].CharToInt();
 
                     if (no == 0)
                         Shader.SetGlobalTexture(PainterConfig.terrainControl, tex);

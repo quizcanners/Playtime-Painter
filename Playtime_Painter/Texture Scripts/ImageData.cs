@@ -19,7 +19,7 @@ namespace Playtime_Painter
     [Serializable]
     public class ImageData : PainterStuffScriptable
         #if PEGI
-        , iPEGI
+        , IPEGI
         #endif
     {
 
@@ -221,7 +221,7 @@ namespace Playtime_Painter
 
             if (PainterManager.inst.isLinearColorSpace)
             {
-                if (!tex.isColorTexturee())
+                if (!tex.IsColorTexture())
                 {
                     converted = true;
                     pixelsToLinear();
@@ -377,7 +377,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             if (texture != null)
             {
-                var imp = texture.getTextureImporter();
+                var imp = texture.GetTextureImporter();
                 if (imp != null)
                 {
 

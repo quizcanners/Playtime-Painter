@@ -91,7 +91,7 @@ public class AddCubeCfg {
       //  Debug.Log("Original: ");
        // WriteCubeCfg(w);
 
-        AddCubeCfg tmp = Playtime_Painter.MeshManager.inst.tmpCubeCfg;
+        AddCubeCfg tmp = Playtime_Painter.MeshManager.Inst.tmpCubeCfg;
        // tmp.p[13] = BlockSetting.Full;
         //p[13] = BlockSetting.Full;
         tmp.CopyFrom(this);

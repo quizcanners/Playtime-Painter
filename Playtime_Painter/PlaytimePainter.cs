@@ -22,7 +22,7 @@ namespace Playtime_Painter{
     [ExecuteInEditMode]
     public class PlaytimePainter : PlaytimeToolComponent, iSTD
 #if PEGI
-        , iPEGI 
+        , IPEGI 
 #endif
     {
 
@@ -43,7 +43,7 @@ namespace Playtime_Painter{
 
         protected static PainterManager texMGMT { get { return PainterManager.inst; } }
 
-        protected static MeshManager meshMGMT { get { return MeshManager.inst; } }
+        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
 
         protected static GridNavigator grid { get { return GridNavigator.inst(); } }
         
@@ -562,7 +562,7 @@ namespace Playtime_Painter{
             if ((texture != null) && (texture.GetType() == typeof(Texture2D)))
             {
                 var t2d = (Texture2D)texture;
-                var imp = t2d.getTextureImporter();
+                var imp = t2d.GetTextureImporter();
                 if (imp != null)
                 {
 
@@ -672,9 +672,9 @@ namespace Playtime_Painter{
 #if UNITY_EDITOR
             SaveTextureAsAsset(false);
 
-            TextureImporter importer = id.texture2D.getTextureImporter();
-            bool needReimport = importer.wasNotReadable();
-            needReimport |= importer.wasWrongIsColor(false);
+            TextureImporter importer = id.texture2D.GetTextureImporter();
+            bool needReimport = importer.WasNotReadable();
+            needReimport |= importer.WasWrongIsColor(false);
             if (needReimport) importer.SaveAndReimport();
 #endif
 
@@ -713,10 +713,10 @@ namespace Playtime_Painter{
 #if UNITY_EDITOR
             SaveTextureAsAsset(true);
 
-            TextureImporter importer = id.texture2D.getTextureImporter();
+            TextureImporter importer = id.texture2D.GetTextureImporter();
 
-            bool needReimport = importer.wasNotReadable();
-            needReimport |= importer.wasWrongIsColor(isColor);
+            bool needReimport = importer.WasNotReadable();
+            needReimport |= importer.WasWrongIsColor(isColor);
 
             if (needReimport) importer.SaveAndReimport();
 
@@ -798,10 +798,10 @@ namespace Playtime_Painter{
 
  
             if (terrain == null) {
-                matDta.materials_TextureFields = GetMaterial(false).getTextures();
+                matDta.materials_TextureFields = GetMaterial(false).GetTextures();
     
             } else {
-                List<string> tmp = GetMaterial(false).getTextures();
+                List<string> tmp = GetMaterial(false).GetTextures();
 
                 foreach (string t in tmp) {
                     if ((!t.Contains("_Splat")) && (!t.Contains("_Normal")))
@@ -1170,7 +1170,7 @@ namespace Playtime_Painter{
 
         public List<string> playbackVectors = new List<string>();
 
-        public static stdDecoder cody = new stdDecoder("");
+        public static StdDecoder cody = new StdDecoder("");
 
         public void PlayStrokeData(string strokeData)
         {
@@ -1191,19 +1191,19 @@ namespace Playtime_Painter{
         public void PlaybeckVectors()
         {
 
-            if (cody.gotData)
+            if (cody.GotData)
             {
                 // string tag = cody.getTag();
                 //string data = cody.getData();
                 //Debug.Log("TAG: "+tag + " DATA: "+data);
 
-                Decode(cody.getTag(), cody.getData());
+                Decode(cody.GetTag(), cody.GetData());
             }
             else
             {
                 if (playbackVectors.Count > 0)
                 {
-                    cody = new stdDecoder(playbackVectors.last());
+                    cody = new StdDecoder(playbackVectors.Last());
                     playbackVectors.RemoveLast(1);
                 }
                 else
@@ -1311,9 +1311,9 @@ namespace Playtime_Painter{
             }
         }
 
-        public stdEncoder Encode()
+        public StdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             var id = imgData;
 
@@ -1415,7 +1415,7 @@ namespace Playtime_Painter{
 		
 		    OnBeforeSaveTexture ();
             var id = imgData;
-            id.texture2D = id.texture2D.rewriteOriginalTexture_NewName(name);
+            id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(name);
 
 		    OnPostSaveTexture ();
 	    }
@@ -1424,7 +1424,7 @@ namespace Playtime_Painter{
 		
 		    OnBeforeSaveTexture ();
             var id = imgData;
-            id.texture2D = id.texture2D.rewriteOriginalTexture();
+            id.texture2D = id.texture2D.RewriteOriginalTexture();
 
 		    OnPostSaveTexture ();
         }
@@ -1434,7 +1434,7 @@ namespace Playtime_Painter{
 		    OnBeforeSaveTexture ();
 
             var id = imgData;
-            id.texture2D = id.texture2D.saveTextureAsAsset(cfg.texturesFolderName, ref id.SaveName, asNew);
+            id.texture2D = id.texture2D.SaveTextureAsAsset(cfg.texturesFolderName, ref id.SaveName, asNew);
 
             id.texture2D.Reimport_IfNotReadale();
 
@@ -1592,9 +1592,9 @@ namespace Playtime_Painter{
             if ((id!= null) && (id.currentTexture().isBigRenderTexturePair()))
                     UpdateOrSetTexTarget(texTarget.Texture2D);
                
-            if ((PainterManager._inst != null) && (MeshManager.inst.target == this)) {
-                    MeshManager.inst.DisconnectMesh();
-                    MeshManager.inst.previouslyEdited = this;
+            if ((PainterManager._inst != null) && (MeshManager.Inst.target == this)) {
+                    MeshManager.Inst.DisconnectMesh();
+                    MeshManager.Inst.previouslyEdited = this;
             }
         }
 
@@ -1726,7 +1726,7 @@ namespace Playtime_Painter{
         public void Update() {
 
                 if (isEditingThisMesh && (Application.isPlaying))
-                        MeshManager.inst.DRAW_Lines(false);
+                        MeshManager.Inst.DRAW_Lines(false);
 
             if (textureWasChanged) 
                 OnChangedTexture_OnMaterial();
@@ -1874,7 +1874,7 @@ namespace Playtime_Painter{
                 {
 
                     MeshManager mg = meshMGMT;
-                    mg.undo_redo_PEGI();
+                    mg.Undo_redo_PEGI();
 
                     pegi.newLine();
 
@@ -2113,7 +2113,7 @@ namespace Playtime_Painter{
 
             if (meshEditing) {
                 if (!Application.isPlaying)
-                    MeshManager.inst.DRAW_Lines(true);
+                    MeshManager.Inst.DRAW_Lines(true);
             }
 
             if ((isOriginalShader) && (!LockTextureEditing) && (last_MouseOver_Object == this) && isCurrentTool() && globalBrush.IsA3Dbrush(this) && !cfg.showConfig)
@@ -2130,9 +2130,9 @@ namespace Playtime_Painter{
 
         #region Mesh Editing 
 
-        public bool isEditingThisMesh { get { return isCurrentTool() && meshEditing && (MeshManager.inst.target == this); } }
+        public bool isEditingThisMesh { get { return isCurrentTool() && meshEditing && (MeshManager.Inst.target == this); } }
 
-        public MeshManager meshManager { get { return MeshManager.inst; } }
+        public MeshManager meshManager { get { return MeshManager.Inst; } }
 
         public int GetAnimationUVy()
         {

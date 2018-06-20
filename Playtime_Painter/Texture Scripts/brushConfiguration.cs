@@ -39,9 +39,9 @@ namespace Playtime_Painter
         public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
         public static BrushConfigPEGIplugin brushConfigPegies;
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             // No use for this one yet
 
@@ -173,7 +173,7 @@ namespace Playtime_Painter
             if (pntr != null)
                 foreach (var pl in texMGMT.plugins)
                 {
-                    isA3d = pl.isA3Dbrush(pntr, this, ref overrideOther);
+                    isA3d = pl.IsA3Dbrush(pntr, this, ref overrideOther);
                     if (overrideOther) break;
                 }
 
@@ -432,7 +432,7 @@ namespace Playtime_Painter
             string letter = m.ToString();
             bool maskVal = mask.GetFlag(m);
 
-            if (inspectedPainter != null && inspectedPainter.meshEditing && meshMGMT.meshTool == VertexColorTool.inst) {
+            if (inspectedPainter != null && inspectedPainter.meshEditing && meshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = inspectedPainter.material;
                 if (mat != null) {
@@ -500,10 +500,10 @@ namespace Playtime_Painter
             else if ((painter != null) && painter.isTerrainControlTexture())
             {
                 // Debug.Log("Is control texture");
-                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.getSplashPrototypeTexture(0), slider);
-                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.getSplashPrototypeTexture(1), slider);
-                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.getSplashPrototypeTexture(2), slider);
-                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.getSplashPrototypeTexture(3), slider);
+                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider);
+                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider);
+                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider);
+                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider);
             }
             else
             {

@@ -139,7 +139,7 @@ namespace StoryTriggerData {
             return true;
         }
 
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
 
             var cody =
                 EncodeUnrecognized()

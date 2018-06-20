@@ -25,7 +25,7 @@ namespace StoryTriggerData {
 			return tagName;
 	    }
 
-    public override stdEncoder Encode  () =>EncodeUnrecognized()
+    public override StdEncoder Encode  () =>EncodeUnrecognized()
             .Add(InteractionTarget.storyTag, stdValues)
             .Add_IfNotZero("pos", transform.position);
 

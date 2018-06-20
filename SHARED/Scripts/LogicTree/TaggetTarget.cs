@@ -15,9 +15,9 @@ namespace STD_Logic
       
         public int targValue; // if zero - we are talking about bool target
 
-        public stdEncoder Encode() {
+        public StdEncoder Encode() {
 
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             cody.Add("g", groupIndex);
             cody.Add("t",triggerIndex);
             cody.Add_ifNotZero("v", targValue);

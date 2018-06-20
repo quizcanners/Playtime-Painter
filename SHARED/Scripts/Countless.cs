@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 
 namespace SharedTools_Stuff {
 
-    public interface iCountlessIndex
+    public interface ICountlessIndex
     {
         int CountlessIndex { get; set; }
     }
@@ -91,12 +91,13 @@ namespace SharedTools_Stuff {
             }
 
         }
-        protected static VariableBranch getNewBranch()
+        protected static VariableBranch GetNewBranch()
         {
             if (brPoolMax == 0)
             {
-                VariableBranch vb = new VariableBranch();
-                vb.br = new VariableBranch[branchSize];
+                VariableBranch vb = new VariableBranch() {
+                    br = new VariableBranch[branchSize]
+            };
                 //Debug.Log("Creating new branch ");
                 return vb;
             }
@@ -104,7 +105,7 @@ namespace SharedTools_Stuff {
             //Debug.Log("Returning existing branch");
             return branchPool[brPoolMax];
         }
-        protected static VariableBranch getNewFruit()
+        protected static VariableBranch GetNewFruit()
         {
 
             if (frPoolMax == 0)
@@ -146,7 +147,7 @@ namespace SharedTools_Stuff {
         {
             Max = branchSize;
             depth = 0;
-            br = getNewBranch();
+            br = GetNewBranch();
         }
 
         public delegate void VariableTreeFunk(ref int dst, int ind, int val);
@@ -156,13 +157,13 @@ namespace SharedTools_Stuff {
     public abstract class STDCountlessBase : CountlessBase, iSTD
     {
 
-        public virtual stdEncoder Encode() {
+        public virtual StdEncoder Encode() {
             return null; }
 
         public virtual iSTD Decode(string data)
         {
             Clear();
-            new stdDecoder(data).DecodeTagsFor(this);
+            new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
@@ -194,9 +195,9 @@ namespace SharedTools_Stuff {
 
         }
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             List<int> vals;
 
@@ -295,7 +296,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
                     newbr.value++;
@@ -317,14 +318,14 @@ namespace SharedTools_Stuff {
                     subSize /= branchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
-                    if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                    if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
                     vb = vb.br[no];
                 }
 
                 if (vb.br[ind] == null)
                 {
-                    vb.br[ind] = getNewFruit();
+                    vb.br[ind] = GetNewFruit();
                     vb.value += 1;
                 }
 
@@ -373,7 +374,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -392,14 +393,14 @@ namespace SharedTools_Stuff {
                 subSize /= branchSize;
                 int no = ind / subSize;
                 ind -= no * subSize;
-                if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
                 vb = vb.br[no];
             }
 
             if (vb.br[ind] == null)
             {
-                vb.br[ind] = getNewFruit();
+                vb.br[ind] = GetNewFruit();
                 vb.value += 1;
             }
 
@@ -430,7 +431,7 @@ namespace SharedTools_Stuff {
 
         }
 
-        public override stdEncoder Encode() => new stdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
+        public override StdEncoder Encode() => new StdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
 
       //  public const string storyTag = "TreeBool";
       //  public override string getDefaultTagName() =>  storyTag; 
@@ -528,7 +529,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -547,7 +548,7 @@ namespace SharedTools_Stuff {
                 subSize /= branchSize;
                 int no = ind / subSize;
                 ind -= no * subSize;
-                if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
                 path[d] = vb;
                 pathInd[d] = no;
@@ -556,7 +557,7 @@ namespace SharedTools_Stuff {
 
             if (vb.br[ind] == null)
             {
-                vb.br[ind] = getNewFruit();
+                vb.br[ind] = GetNewFruit();
                 vb.value += 1;
             }
 
@@ -596,7 +597,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -616,7 +617,7 @@ namespace SharedTools_Stuff {
                 subSize /= branchSize;
                 int no = ind / subSize;
                 ind -= no * subSize;
-                if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
                 path[d] = vb;
                 pathInd[d] = no;
@@ -626,7 +627,7 @@ namespace SharedTools_Stuff {
             if (vb.br[ind] == null)
             {
 
-                vb.br[ind] = getNewFruit();
+                vb.br[ind] = GetNewFruit();
                 vb.value += 1;
             }
 
@@ -683,7 +684,7 @@ namespace SharedTools_Stuff {
             get { return Get(index); }
             set {
 #if PEGI
-                var igi = value as iGotIndex;
+                var igi = value as IGotIndex;
                 if (igi != null && igi.GetIndex() != index)
                 {
                     Debug.Log("setting "+value.ToString() + " with ind " + igi.GetIndex() + " at "+index);
@@ -694,7 +695,7 @@ namespace SharedTools_Stuff {
         }
 
 #if PEGI
-        public T this[iGotIndex i]
+        public T this[IGotIndex i]
         {
             get { return Get(i.GetIndex()); }
             set { Set(i.GetIndex(), value); }
@@ -705,13 +706,13 @@ namespace SharedTools_Stuff {
             
             if (ind >= Max)
             {
-                if (obj.isDefaultOrNull())
+                if (obj.IsDefaultOrNull())
                     return;
                 while (ind >= Max)
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
                     newbr.value++;
@@ -725,25 +726,25 @@ namespace SharedTools_Stuff {
             VariableBranch vb = br;
             int subSize = Max;
 
-            if (!obj.isDefaultOrNull())
+            if (!obj.IsDefaultOrNull())
             {
                 while (d > 0)
                 {
                     subSize /= branchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
-                    if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                    if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
                     vb = vb.br[no];
                 }
 
                 if (vb.br[ind] == null)
                 {
-                    vb.br[ind] = getNewFruit();
+                    vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 
                     int cnt = objs.Length;
-                    while ((firstFreeObj < cnt) && (!objs[firstFreeObj].isDefaultOrNull())) firstFreeObj++;
+                    while ((firstFreeObj < cnt) && (!objs[firstFreeObj].IsDefaultOrNull())) firstFreeObj++;
                     if (firstFreeObj >= cnt)
                         Expand(ref objs, branchSize);
 
@@ -826,7 +827,7 @@ namespace SharedTools_Stuff {
         {
             List<T> tmp = new List<T>();
             for (int i = 0; i < objs.Length; i++)
-                if (!objs[i].isDefaultOrNull())
+                if (!objs[i].IsDefaultOrNull())
                     tmp.Add(objs[i]);
 
             return tmp;
@@ -888,17 +889,12 @@ namespace SharedTools_Stuff {
 
         public virtual bool NotEmpty => objs.Length > 0;
 
-        public string getDefaultTagName()
-        {
-            return "cntless";
-        }
-
         public IEnumerator<T> GetEnumerator() {
             List<int> indx;
             List<T> all = GetAllObjs(out indx);
             for (int i = 0; i < all.Count; i++) {
                 var e = all[i];
-                if (!e.isDefaultOrNull()) {
+                if (!e.IsDefaultOrNull()) {
                     currentEnumerationIndex = indx[i];
                     yield return e;
                 }
@@ -934,9 +930,9 @@ namespace SharedTools_Stuff {
                 case "vals": List<T> tmps; data.DecodeInto(out tmps);
                     for (int i = 0; i < tmps.Count; i++)
                         this[tmpDecodeInds[i]] = tmps[i];
-
                     tmpDecodeInds = null;
                     break;
+                case "brws": edited = data.ToInt(); break;
 
                 default: 
                     // Legacy method:
@@ -945,15 +941,16 @@ namespace SharedTools_Stuff {
             return true;
         }
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
           
             List<int> inds;
             List<T> vals = GetAllObjs(out inds);
 
-            var cody = new stdEncoder()
+            var cody = new StdEncoder()
                 .Add("inds", inds)
-                .Add("vals", vals);
+                .Add("vals", vals)
+                .Add_ifNotNegative("brws", edited);
 
             /*  for (int i = 0; i < inds.Count; i++) {
                   var dta = vals[i].Encode().ToString();
@@ -993,7 +990,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
                     newbr.value++;
@@ -1014,14 +1011,14 @@ namespace SharedTools_Stuff {
                     subSize /= branchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
-                    if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                    if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
                     vb = vb.br[no];
                 }
 
                 if (vb.br[ind] == null)
                 {
-                    vb.br[ind] = getNewFruit();
+                    vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 
                     int cnt = objs.Length;
@@ -1180,7 +1177,7 @@ namespace SharedTools_Stuff {
 
                 //Debug.Log("Enum " + indx[i] + " " +e.ToString());
 
-                if (!e.isDefaultOrNull())
+                if (!e.IsDefaultOrNull())
                 {
                     currentEnumerationIndex = indx[i];
                     yield return e;
@@ -1204,7 +1201,7 @@ namespace SharedTools_Stuff {
 
                 for (int i=0; i< allElements.Count; i++){
                     var el = allElements[i];
-                        var pgi = el as iPEGI;
+                        var pgi = el as IPEGI;
 
                     el.ToPEGIstring().write();
 
@@ -1306,42 +1303,6 @@ namespace SharedTools_Stuff {
             return objs[vb.br[ind].value];
         }
 
-        int edited = -1;
-#if PEGI
-        public override bool PEGI()
-        {
-            bool changed = false;
-
-            if (edited == -1)
-            {
-
-                List<int> indxs;
-                var allElements = GetAllObjs(out indxs);
-
-                for (int i = 0; i < allElements.Count; i++)
-                {
-                    var el = allElements[i];
-                    var pgi = el as iPEGI;
-
-                    el.ToPEGIstring().write();
-
-                    if (pgi != null && icon.Enter.Click())
-                        edited = indxs[i];
-                }
-
-            }
-            else
-            {
-                if (icon.Exit.Click())
-                    edited = -1;
-                else
-                    this[edited].Try_Nested_Inspect();
-
-            }
-
-            return changed;
-        }
-#endif
 
     }
 
@@ -1381,7 +1342,7 @@ namespace SharedTools_Stuff {
                 {
                     depth++;
                     Max *= branchSize;
-                    VariableBranch newbr = getNewBranch();
+                    VariableBranch newbr = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
                     newbr.value++;
@@ -1402,14 +1363,14 @@ namespace SharedTools_Stuff {
                     subSize /= branchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
-                    if (vb.br[no] == null) { vb.br[no] = getNewBranch(); vb.value++; }
+                    if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
                     vb = vb.br[no];
                 }
 
                 if (vb.br[ind] == null)
                 {
-                    vb.br[ind] = getNewFruit();
+                    vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 
                     int cnt = objs.Length;
@@ -1573,14 +1534,14 @@ namespace SharedTools_Stuff {
         public IEnumerator GetEnumerator()
         {
             foreach (var e in objs)
-                if (!e.isDefaultOrNull())
+                if (!e.IsDefaultOrNull())
                     yield return e;
         }
     }
 
     public class UnnulSTDLists<T> : UnnullableLists<T> where T : iSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
         , new()
     {
@@ -1593,9 +1554,9 @@ namespace SharedTools_Stuff {
             return true;
         }
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             List<int> inds;
             List<List<T>> vals = GetAllObjs(out inds);
@@ -1619,7 +1580,7 @@ namespace SharedTools_Stuff {
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, iPEGI
+        public static bool Edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, IPEGI
             
             , new() {
 
@@ -1627,7 +1588,7 @@ namespace SharedTools_Stuff {
             
             if (edited > -1) {
                 var e = Cstd[edited];
-                if (e.isDefaultOrNull() || icon.Back.Click())
+                if (e.IsDefaultOrNull() || icon.Back.Click())
                     edited = -1;
                 else
                     changed |= e.Try_Nested_Inspect();
@@ -1647,9 +1608,9 @@ namespace SharedTools_Stuff {
             return changed;
         }
 #endif
-        public static stdEncoder Encode(this Countless<string> c)
+        public static StdEncoder Encode(this Countless<string> c)
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             List<int> inds;
             List<string> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1660,15 +1621,15 @@ namespace SharedTools_Stuff {
         public static void DecodeInto(this string data, out Countless<string> c)
         {
             c = new Countless<string>();
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToInt()] = cody.getData();
+                c[tag.ToInt()] = cody.GetData();
 
         }
 
-        public static stdEncoder Encode(this Countless<float> c)
+        public static StdEncoder Encode(this Countless<float> c)
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             List<int> inds;
             List<float> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1679,15 +1640,15 @@ namespace SharedTools_Stuff {
         public static void DecodeInto(this string data, out Countless<float> c)
         {
             c = new Countless<float>();
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToInt()] = cody.getData().ToFloat();
+                c[tag.ToInt()] = cody.GetData().ToFloat();
 
         }
 
-        public static stdEncoder Encode(this Countless<Vector3> c)
+        public static StdEncoder Encode(this Countless<Vector3> c)
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             if (c != null)
             {
                 List<int> inds;
@@ -1701,15 +1662,15 @@ namespace SharedTools_Stuff {
         public static void DecodeInto(this string data, out Countless<Vector3> c)
         {
             c = new Countless<Vector3>();
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToInt()] = cody.getData().ToVector3();
+                c[tag.ToInt()] = cody.GetData().ToVector3();
 
         }
 
-        public static stdEncoder Encode(this Countless<Quaternion> c)
+        public static StdEncoder Encode(this Countless<Quaternion> c)
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             List<int> inds;
             List<Quaternion> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1720,9 +1681,9 @@ namespace SharedTools_Stuff {
         public static void DecodeInto(this string data, out Countless<Quaternion> c)
         {
             c = new Countless<Quaternion>();
-            var cody = new stdDecoder(data);
+            var cody = new StdDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToInt()] = cody.getData().ToQuaternion();
+                c[tag.ToInt()] = cody.GetData().ToQuaternion();
 
         }
 

@@ -49,7 +49,7 @@ namespace SharedTools_Stuff
         Color l_col { get { return new Color(r, g, b, a); } }
 
 
-        public override stdEncoder Encode() => new stdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add("r", r)
             .Add("g", g)
             .Add("b", b)

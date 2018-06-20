@@ -231,9 +231,9 @@ namespace Playtime_Painter {
             "Atlas Texture: ".edit(ref curAtlasTexture).nl();
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
-            if (meshMGMT.selectedTris != null)
+            if (meshMGMT.SelectedTris != null)
             {
-                ("Selected tris uses Atlas Texture " + meshMGMT.selectedTris.textureNo[0]).nl();
+                ("Selected tris uses Atlas Texture " + meshMGMT.SelectedTris.textureNo[0]).nl();
             }
 
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
@@ -248,7 +248,7 @@ namespace Playtime_Painter {
                 
 
                 if (EditorInputManager.getControlKey())
-                    curAtlasTexture = (int)meshMGMT.pointedTris.textureNo[curAtlasChanel];
+                    curAtlasTexture = (int)meshMGMT.PointedTris.textureNo[curAtlasChanel];
                 else if (pointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
                 {
                     if (pointedTris.sameAsLastFrame)
@@ -272,7 +272,7 @@ namespace Playtime_Painter {
                 if (pointedLine.sameAsLastFrame)
                     return true;
 
-                foreach (var t in meshMGMT.pointedLine.getAllTriangles_USES_Tris_Listing())
+                foreach (var t in meshMGMT.PointedLine.getAllTriangles_USES_Tris_Listing())
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
@@ -291,7 +291,7 @@ namespace Playtime_Painter {
                 if (pointedUV.sameAsLastFrame)
                     return true;
 
-                foreach (var uv in meshMGMT.pointedUV.meshPoint.uvpoints )
+                foreach (var uv in meshMGMT.PointedUV.meshPoint.uvpoints )
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
@@ -332,16 +332,16 @@ namespace Playtime_Painter {
             if (keyDown != -1)
             {
                 curAtlasTexture = keyDown;
-                meshMGMT.pointedTris.textureNo[curAtlasChanel] = keyDown;
+                meshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
                 meshMGMT.edMesh.dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
 
         }
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            var cody = new stdEncoder()
+            var cody = new StdEncoder()
             .Add("cat", curAtlasTexture)
             .Add("cac", curAtlasChanel);
            // cody.Add("aec2", atlasEdgeAsChanel2);

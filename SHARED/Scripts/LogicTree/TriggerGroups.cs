@@ -19,7 +19,7 @@ namespace STD_Logic
 
     public class TriggerGroup : abstractKeepUnrecognized_STD
      #if PEGI
-        , iGotName, iGotIndex, iPEGI
+        , IGotName, IGotIndex, IPEGI
     #endif
     {
 
@@ -34,11 +34,11 @@ namespace STD_Logic
 
             foreach (Type group in triggerGroups) {
                 TriggerGroup s = (TriggerGroup)Activator.CreateInstance(group);
-                browsed = s;
+                Browsed = s;
             }
         }
 
-        public static TriggerGroup browsed
+        public static TriggerGroup Browsed
         {
             get { return all[browsedGroup]; }
             set { browsedGroup = value.GetHashCode(); }
@@ -89,7 +89,7 @@ namespace STD_Logic
             
 #if UNITY_EDITOR
 
-            Type type = getIntegerEnums();
+            Type type = GetIntegerEnums();
 
             if (type != null) {
 
@@ -111,7 +111,7 @@ namespace STD_Logic
             }
 
             //Boolean enums
-            type = getBooleanEnums();
+            type = GetBooleanEnums();
 
             if (type != null) {
 
@@ -135,8 +135,8 @@ namespace STD_Logic
 #endif
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder(); 
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder(); 
             cody.Add_String("n", name);
             cody.Add("t",triggers);
             cody.Add("ind", index);
@@ -230,7 +230,7 @@ namespace STD_Logic
 
         }
 
-        public bool searchTriggers_PEGI() {
+        public bool SearchTriggers_PEGI() {
 
             bool changed = false;
 
@@ -281,7 +281,7 @@ namespace STD_Logic
             Trigger selectedTrig = arg!= null ? arg.trig : null;
 
             if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) 
-                && (selectedTrig == null || !Trigger.searchField.isIncludedIn(selectedTrig.name)))  {
+                && (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)))  {
 
                 if ((selectedTrig != null)
                     && pegi.Click("Rename " + selectedTrig.name)) {
@@ -301,9 +301,9 @@ namespace STD_Logic
                     changed = true;
                 }
 
-                int slctd = browsed.GetHashCode();
+                int slctd = Browsed.GetHashCode();
                 if (pegi.select(ref slctd, all))
-                    browsed = all[slctd];
+                    Browsed = all[slctd];
 
                 pegi.newLine();
             }
@@ -313,11 +313,11 @@ namespace STD_Logic
 
 #endif
 
-        public virtual Type getIntegerEnums() {
+        public virtual Type GetIntegerEnums() {
             return null;
         }
 
-        public virtual Type getBooleanEnums() {
+        public virtual Type GetBooleanEnums() {
             return null;
         }
 

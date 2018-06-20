@@ -35,11 +35,11 @@ namespace StoryTriggerData
             return typeof(Example_PlayerStats).Name;
         }
 
-        public override Type getIntegerEnums() {
+        public override Type GetIntegerEnums() {
             return typeof(integers);
         }
 
-        public override Type getBooleanEnums() {
+        public override Type GetBooleanEnums() {
             return typeof(booleans);
         }
 

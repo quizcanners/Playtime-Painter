@@ -36,7 +36,7 @@ namespace SharedTools_Stuff
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
 #if PEGI
-            var named = el as iGotName;
+            var named = el as IGotName;
             if (named == null) return;
 
             string tmpName = named.NameForPEGI;
@@ -49,7 +49,7 @@ namespace SharedTools_Stuff
 
                 foreach (var e in list)
                 {
-                    var other = e as iGotName;
+                    var other = e as IGotName;
                     if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.NameForPEGI) == 0))
                     {
                         duplicate = true;
@@ -105,13 +105,13 @@ namespace SharedTools_Stuff
         {
 
 #if PEGI
-            var ind = el as iGotIndex;
+            var ind = el as IGotIndex;
             if (ind != null)
             {
                 int MaxIndex = ind.GetIndex();
                 foreach (var o in list)
                 {
-                    var oind = o as iGotIndex;
+                    var oind = o as IGotIndex;
                     if (oind != null)
                         MaxIndex = Mathf.Max(MaxIndex, oind.GetIndex() + 1);
                 }
@@ -139,7 +139,7 @@ namespace SharedTools_Stuff
             list.AssignUniqueIndex(e);
             list.Add(e);
 #if PEGI
-            var named = e as iGotName;
+            var named = e as IGotName;
             if (named != null)
                 named.NameForPEGI = name;
 #endif
@@ -161,7 +161,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public static bool isDefaultOrNull<T>(this T obj)
+        public static bool IsDefaultOrNull<T>(this T obj)
         {
             return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         }
@@ -178,17 +178,17 @@ namespace SharedTools_Stuff
 
         public static int timerLastSection = 0;
 
-        public static void timerStart()
+        public static void TimerStart()
         {
             stopWatch.Start();
         }
 
-        public static string timerEnd(string Label)
+        public static string TimerEnd(string Label)
         {
-            return timerEnd(Label, true);
+            return TimerEnd(Label, true);
         }
 
-        public static string timerEnd(string Label, bool logIt)
+        public static string TimerEnd(string Label, bool logIt)
         {
             long ticks = stopWatch.ElapsedTicks;
 
@@ -212,21 +212,21 @@ namespace SharedTools_Stuff
             return text;
         }
 
-        public static string timerSection(string labelForEndedSection)
+        public static string TimerSection(string labelForEndedSection)
         {
-            return timerSection(labelForEndedSection, true);
+            return TimerSection(labelForEndedSection, true);
         }
 
-        public static string timerSection(string labelForEndedSection, bool logIt)
+        public static string TimerSection(string labelForEndedSection, bool logIt)
         {
-            var txt = timerEnd(labelForEndedSection, logIt);
+            var txt = TimerEnd(labelForEndedSection, logIt);
             stopWatch.Start();
             return txt;
         }
 
-        public static string timerEnd()
+        public static string TimerEnd()
         {
-            return timerEnd("Ticks", true);
+            return TimerEnd("Ticks", true);
         }
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
@@ -265,7 +265,7 @@ namespace SharedTools_Stuff
             return last;
         }
 
-        public static T last<T>(this List<T> list)
+        public static T Last<T>(this List<T> list)
         {
             return list[list.Count - 1];
         }
@@ -364,7 +364,7 @@ namespace SharedTools_Stuff
         {
 
             for (int i = 0; i < list.Count; i++)
-                if (list[i].isDefaultOrNull())
+                if (list[i].IsDefaultOrNull())
                 {
                     list.RemoveAt(i);
                     i--;
@@ -407,13 +407,13 @@ namespace SharedTools_Stuff
                 return defaultReturn;
         }
 
-        public static int charToInt(this char c)
+        public static int CharToInt(this char c)
         {
 
             return (int)(c - '0');
         }
 
-        public static bool isIncludedIn(this string sub, string big)
+        public static bool IsIncludedIn(this string sub, string big)
         {
             return Regex.IsMatch(big, sub, RegexOptions.IgnoreCase);
         }

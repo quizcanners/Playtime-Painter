@@ -105,7 +105,7 @@ namespace STD_Logic  {
             Result r = new Result();
 
             if (lst.Count > 0) {
-                Result prev = lst.last();
+                Result prev = lst.Last();
 
                 r.groupIndex = prev.groupIndex;
                 r.triggerIndex = prev.triggerIndex;
@@ -133,7 +133,7 @@ namespace STD_Logic  {
     
     public class Result : ValueIndex, iSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -164,7 +164,7 @@ namespace STD_Logic  {
         }
 
         public Result() {
-            groupIndex = TriggerGroup.browsed.GetHashCode();
+            groupIndex = TriggerGroup.Browsed.GetHashCode();
         }
 
         public iSTD Decode(string data) => data.DecodeInto(this);
@@ -178,9 +178,9 @@ namespace STD_Logic  {
         public ResultType type;
         public int updateValue;
 
-        public stdEncoder Encode()
+        public StdEncoder Encode()
         {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
 
             cody.Add_ifNotZero("ty", (int)type);
             cody.Add_ifNotZero("val", updateValue);

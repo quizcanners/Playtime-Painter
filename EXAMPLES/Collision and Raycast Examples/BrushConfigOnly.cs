@@ -11,13 +11,13 @@ using Playtime_Painter;
     using UnityEditor;
     [CustomEditor(typeof(BrushConfigOnly))]
     public class BrushConfigOnlyEditor : Editor {
-        public override void OnInspectorGUI() => ((BrushConfigOnly)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((BrushConfigOnly)target).Inspect(serializedObject);
     }
 #endif
 
 public class BrushConfigOnly : MonoBehaviour
 #if PEGI
-    , iPEGI
+    , IPEGI
 #endif
 {
         public BrushConfig brush = new BrushConfig();

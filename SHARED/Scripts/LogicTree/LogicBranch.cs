@@ -9,7 +9,7 @@ namespace STD_Logic {
 
     public class LogicBranch<T> : abstractKeepUnrecognized_STD 
         #if PEGI
-        , iGotName , iPEGI
+        , IGotName , IPEGI
 #endif
         where T: iSTD, new()
     {
@@ -43,7 +43,7 @@ namespace STD_Logic {
             }
         }
 
-        public override stdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() => EncodeUnrecognized()
             .Add_String("name", name)
             .Add("cond", conds)
             .Add_ifNotEmpty("sub", subBranches)

@@ -110,8 +110,8 @@ public static class TextureEditorExtensionFunctions  {
             return mat.shaderKeywords.Contains(PainterConfig.UV_PROJECTED);
         }
 
-        public static stdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
-            stdEncoder cody = new stdEncoder();
+        public static StdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
+            StdEncoder cody = new StdEncoder();
 
             var id = painter.imgData;
 

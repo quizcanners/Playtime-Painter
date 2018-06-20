@@ -44,7 +44,7 @@ namespace PlayerAndEditorGUI
     [Serializable]
     public class Sentance : abstract_STD
 #if PEGI
-            , iPEGI
+            , IPEGI
 #endif
     {
 
@@ -54,9 +54,9 @@ namespace PlayerAndEditorGUI
 
         public List<string> txt;
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
-            stdEncoder enc = new stdEncoder();
+            StdEncoder enc = new StdEncoder();
             for (int i = 0; i < txt.Count; i++)
                 if (txt[i].Length > 0)
                     enc.Add_String(i.ToString(), txt[i]);

@@ -71,7 +71,7 @@ public class GridNavigator : PainterStuffMono {
     
    public  void Deactivateverts() {
 
-        for (int i = 0; i < MeshManager.inst.vertsShowMax; i++) {
+        for (int i = 0; i < MeshManager.Inst.vertsShowMax; i++) {
             if (verts[i] == null)
                 Debug.Log("Got Nu  sdfdsll");
             verts[i].go.SetActive(false);
@@ -87,7 +87,7 @@ public class GridNavigator : PainterStuffMono {
     }
 
     float AngleClamp(Quaternion ang) {
-        float res = Quaternion.Angle(gameObject.tryGetCameraTransform().rotation, ang);
+        float res = Quaternion.Angle(gameObject.TryGetCameraTransform().rotation, ang);
         if (res > 90)
             res = 180 - res;
         return res;
@@ -95,7 +95,7 @@ public class GridNavigator : PainterStuffMono {
 
     public float angGridToCamera(Vector3 hitpos)
     {
-        float ang = (Vector3.Angle(getGridPerpendicularVector(), hitpos - gameObject.tryGetCameraTransform().position));
+        float ang = (Vector3.Angle(getGridPerpendicularVector(), hitpos - gameObject.TryGetCameraTransform().position));
         if (ang > 90)
             ang = 180 - ang;
         return ang;
@@ -174,7 +174,7 @@ public class GridNavigator : PainterStuffMono {
 
     public void ClosestAxis(bool horToo)
     {
-        float ang = gameObject.tryGetCameraTransform().rotation.x;
+        float ang = gameObject.TryGetCameraTransform().rotation.x;
         if ((!horToo) || (ang < 35 || ang > 300))
         {
             float x = AngleClamp(xgrid);
@@ -198,7 +198,7 @@ public class GridNavigator : PainterStuffMono {
             g_side = Gridside.xz;
 
         if (before != g_side && meshMGMT.target != null)
-            meshMGMT.meshTool.OnGridChange();
+            meshMGMT.MeshTool.OnGridChange();
 
     }
     
@@ -263,9 +263,9 @@ public class GridNavigator : PainterStuffMono {
 
         Shader.SetGlobalVector("_GridDotPosition", new Vector4(onGridPos.x, onGridPos.y, onGridPos.z));
 
-        dot.transform.rotation = gameObject.tryGetCameraTransform().rotation;
+        dot.transform.rotation = gameObject.TryGetCameraTransform().rotation;
 
-        Transform cam = gameObject.tryGetCameraTransform();
+        Transform cam = gameObject.TryGetCameraTransform();
 
         float dist = Mathf.Max(0.1f, (cam.position - transform.position).magnitude * 2);
 

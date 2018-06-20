@@ -79,7 +79,7 @@ namespace Playtime_Painter {
             return (useGrid && p.GetVolumeTexture() != null);
         }
 
-        public override bool isA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) {
+        public override bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) {
            if (pntr.GetVolumeTexture() != null) {
                 overrideOther = true;
                 return true;

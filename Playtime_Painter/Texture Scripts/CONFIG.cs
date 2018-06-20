@@ -33,10 +33,10 @@ namespace Playtime_Painter{
 
                     _inst.recordingNames.AddResourceIfNew(_inst.texturesFolderName, _inst.vectorsFolderName);
 
-                    var encody = new stdDecoder(_inst.meshToolsSTD);
+                    var encody = new StdDecoder(_inst.meshToolsSTD);
                     foreach (var tag in encody)
                     {
-                        var d = encody.getData();
+                        var d = encody.GetData();
                         foreach (var m in MeshToolBase.allTools)
                             if (m.ToString().SameAs(tag))
                             {
@@ -193,7 +193,7 @@ namespace Playtime_Painter{
         }
         
         public static void SaveChanges() {
-            stdEncoder cody = new stdEncoder();
+            StdEncoder cody = new StdEncoder();
             if (!applicationIsQuitting) {
                     cody.Add("e",MeshToolBase.allTools);
                 _inst.meshToolsSTD = cody.ToString();
@@ -250,7 +250,7 @@ namespace Playtime_Painter{
 
             if (gotDefine) {
                 if ("Enable PlayTime UI".toggle(ref cfg.enablePainterUIonPlay).nl())
-                    MeshManager.inst.DisconnectMesh();
+                    MeshManager.Inst.DisconnectMesh();
             }
 
             if (!isNowPlaytimeAndDisabled) {

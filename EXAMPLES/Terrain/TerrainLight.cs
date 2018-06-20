@@ -87,11 +87,11 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
                     if (tex is Texture2D)
                     {
-                        UnityEditor.TextureImporter timp = ((Texture2D)tex).getTextureImporter();
+                        UnityEditor.TextureImporter timp = ((Texture2D)tex).GetTextureImporter();
                         if (timp != null)
                         {
-                            bool needReimport = timp.wasClamped();
-                            needReimport |= timp.hadNoMipmaps();
+                            bool needReimport = timp.WasClamped();
+                            needReimport |= timp.HadNoMipmaps();
 
                             if (needReimport)
                                 timp.SaveAndReimport();

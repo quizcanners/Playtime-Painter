@@ -59,7 +59,7 @@ namespace Playtime_Painter
         // Update is called once per frame
         void Update() {
 
-            if ((Application.isPlaying) || (gameObject.isFocused()))
+            if ((Application.isPlaying) || (gameObject.IsFocused()))
                 MyTime += Time.deltaTime;
             
             foamParameters.x = MyTime;
@@ -95,7 +95,7 @@ namespace Playtime_Painter
     
 #endif
 
-        public override stdEncoder Encode()
+        public override StdEncoder Encode()
         {
             var cody = base.EncodeUnrecognized();
             return cody;

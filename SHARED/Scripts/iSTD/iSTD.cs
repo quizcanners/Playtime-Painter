@@ -15,7 +15,7 @@ namespace SharedTools_Stuff
 
     public interface iSTD
         {
-        stdEncoder Encode(); 
+        StdEncoder Encode(); 
         iSTD Decode(string data);
         bool Decode(string tag, string data);
     }
@@ -23,12 +23,12 @@ namespace SharedTools_Stuff
     public interface iKeepUnrecognizedSTD : iSTD {
         void Unrecognized(string tag, string data);
         
-        stdEncoder EncodeUnrecognized();
+        StdEncoder EncodeUnrecognized();
     }
 
     ///<summary>For runtime initialization.
     ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
-    ///<seealso cref="stdEncoder"/>
+    ///<seealso cref="StdEncoder"/>
     ///</summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class DerrivedListAttribute : Attribute
@@ -53,9 +53,9 @@ namespace SharedTools_Stuff
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-        public virtual stdEncoder EncodeUnrecognized()
+        public virtual StdEncoder EncodeUnrecognized()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;
@@ -93,11 +93,11 @@ namespace SharedTools_Stuff
     public abstract class abstract_STD : iSTD
     {
 
-        public abstract stdEncoder Encode();
+        public abstract StdEncoder Encode();
         public virtual iSTD Decode(string data) => data.DecodeInto(this);
-        public virtual iSTD Decode(stdEncoder cody) {
+        public virtual iSTD Decode(StdEncoder cody) {
            
-            new stdDecoder(cody.ToString()).DecodeTagsFor(this);
+            new StdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
 
@@ -106,7 +106,7 @@ namespace SharedTools_Stuff
 
     public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -121,7 +121,7 @@ namespace SharedTools_Stuff
 
         public virtual iSTD Decode(string data) {
             Reboot();
-            new stdDecoder(data).DecodeTagsFor(this);
+            new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
@@ -132,11 +132,11 @@ namespace SharedTools_Stuff
             this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
         }
         
-        public abstract stdEncoder Encode();
+        public abstract StdEncoder Encode();
 
-        public virtual stdEncoder EncodeUnrecognized()
+        public virtual StdEncoder EncodeUnrecognized()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
             for (int i = 0; i < unrecognizedTags.Count; i++)
                 cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
             return cody;

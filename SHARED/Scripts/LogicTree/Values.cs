@@ -10,7 +10,7 @@ namespace STD_Logic {
 
     public class Values: abstractKeepUnrecognized_STD
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -20,8 +20,8 @@ namespace STD_Logic {
         public UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
         public CountlessBool groupsToShowInBrowser = new CountlessBool();
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             cody.Add("ints", ints);
             cody.Add("bools", bools);
             cody.Add("tags", boolTags);
@@ -112,9 +112,9 @@ namespace STD_Logic {
                 foreach (TriggerGroup td in TriggerGroup.all) 
                     td.PEGI(this);
   
-                TriggerGroup.browsed.AddTrigger_PEGI(null);
+                TriggerGroup.Browsed.AddTrigger_PEGI(null);
                 
-                groupsToShowInBrowser[TriggerGroup.browsed.GetHashCode()] = true;
+                groupsToShowInBrowser[TriggerGroup.Browsed.GetHashCode()] = true;
                 
             pegi.nl();
 

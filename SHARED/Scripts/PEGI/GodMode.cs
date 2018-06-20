@@ -12,7 +12,7 @@ namespace PlayerAndEditorGUI {
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour
          #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
@@ -110,7 +110,7 @@ namespace PlayerAndEditorGUI {
         public void SpinAround()
         {
 
-            Transform camTr = gameObject.tryGetCameraTransform();
+            Transform camTr = gameObject.TryGetCameraTransform();
             if (Input.GetMouseButtonDown(2))
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

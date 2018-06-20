@@ -15,14 +15,14 @@ namespace Playtime_Painter
     [CustomEditor(typeof(SkinnedMeshCaster))]
     public class SkinnedMeshCasterEditor : Editor
     {
-        public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).Inspect(serializedObject);
         
     }
 #endif
 
     public class SkinnedMeshCaster : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 

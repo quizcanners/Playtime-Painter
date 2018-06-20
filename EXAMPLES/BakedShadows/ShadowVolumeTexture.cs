@@ -13,7 +13,7 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(ShadowVolumeTexture))]
     public class ShadowVolumeTextureEditor : Editor {
 
-        public override void OnInspectorGUI() => ((ShadowVolumeTexture)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((ShadowVolumeTexture)target).Inspect(serializedObject);
         
     }
 #endif

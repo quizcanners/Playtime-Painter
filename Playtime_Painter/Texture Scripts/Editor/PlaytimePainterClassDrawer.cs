@@ -31,7 +31,7 @@ namespace Playtime_Painter {
                 if (painter.meshEditing)
                 {
 
-                    PlaytimePainter edited = MeshManager.inst.target;
+                    PlaytimePainter edited = MeshManager.Inst.target;
 
                     allowRefocusing = false;
 
@@ -39,7 +39,7 @@ namespace Playtime_Painter {
 
                         if ((pointedPainter != edited) && (pointedPainter.meshEditing) 
                             && (pointedPainter.savedEditableMesh != null ) && L_mouseDwn && (e.button == 0)) {
-                            MeshManager.inst.EditMesh(pointedPainter, false);
+                            MeshManager.Inst.EditMesh(pointedPainter, false);
                             allowRefocusing = true;
                         }
 
@@ -47,7 +47,7 @@ namespace Playtime_Painter {
                           //  allowRefocusing = true;
                     }
 
-                    if ((((e.button == 1) && (!MeshManager.inst.dragging))
+                    if ((((e.button == 1) && (!MeshManager.Inst.Dragging))
                         || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
 
                         navigating = true;
@@ -89,7 +89,7 @@ namespace Playtime_Painter {
                 painter.FeedEvents(e);
 
                 if (painter.meshEditing)
-                MeshManager.inst.UpdateInputEditorTime(e,  L_mouseUp, L_mouseDwn);
+                MeshManager.Inst.UpdateInputEditorTime(e,  L_mouseUp, L_mouseDwn);
 
                 
             }
@@ -119,7 +119,7 @@ namespace Playtime_Painter {
 
               bool changes = false;
 
-            if  (painter.gameObject.isPrefab()) {
+            if  (painter.gameObject.IsPrefab()) {
                 "Inspecting a prefab.".nl();
                 return;
             }
@@ -143,7 +143,7 @@ namespace Playtime_Painter {
                 if ((isCurrentTool() && (painter.terrain != null) && (Application.isPlaying == false) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter.terrain) == true)) ||
                     (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 25))) {
                     PlaytimeToolComponent.enabledTool = null; //customTools.Disabled;
-                    MeshManager.inst.DisconnectMesh();
+                    MeshManager.Inst.DisconnectMesh();
                     painter.SetOriginalShaderOnThis();
                     painter.UpdateOrSetTexTarget(texTarget.Texture2D);
                     PlaytimePainter.RestoreUnityTool();

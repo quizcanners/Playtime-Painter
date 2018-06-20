@@ -133,7 +133,7 @@ namespace Playtime_Painter
             ZoomingAndSelection();
             //MeshUVediting();
 
-            Vector2 v2 = MeshManager.inst.selectedUV.editedUV;
+            Vector2 v2 = MeshManager.Inst.SelectedUV.editedUV;
             UpdateSamplerMaterial(v2);
 #endif
         }
@@ -171,8 +171,8 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
             cody.Add_Bool("gtuv", ProjectionUV);
             cody.Add("offset", offset);
             cody.Add("tile", tiling);
@@ -305,7 +305,7 @@ namespace Playtime_Painter
 
         public override bool showGrid { get { return ProjectionUV; } }
 
-        public override bool showVerticesDefault { get { return !ProjectionUV && !meshMGMT.dragging; } }
+        public override bool showVerticesDefault { get { return !ProjectionUV && !meshMGMT.Dragging; } }
 
         public override bool showLines { get { return false; } }
 
@@ -317,11 +317,11 @@ namespace Playtime_Painter
                 Texture tex = meshMGMT.target.meshRenderer.sharedMaterial.mainTexture;
 
                 if (pvrt == vpoint) {
-                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(meshMGMT.selectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
+                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(meshMGMT.SelectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
                         (vpoint.SmoothNormal ? "s" : "")) : "";
                     float tsize = tex == null ? 128 : tex.width;
                        mrkr.textm.text +=
-                        ("uv: " + (meshMGMT.selectedUV.editedUV.x * tsize) + "," + (meshMGMT.selectedUV.editedUV.y * tsize));
+                        ("uv: " + (meshMGMT.SelectedUV.editedUV.x * tsize) + "," + (meshMGMT.SelectedUV.editedUV.y * tsize));
                 }
                 else
                     mrkr.textm.text = vpoint.uvpoints.Count.ToString() +
@@ -336,7 +336,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0)) {
                 meshMGMT.AssignSelected(pointedUV); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
                 lastCalculatedUV = pointedUV.editedUV;
-                meshMGMT.dragging = true;
+                meshMGMT.Dragging = true;
             }
 
             /*
@@ -387,7 +387,7 @@ namespace Playtime_Painter
                     if (pointedTris.sameAsLastFrame)
                         return true;
 
-                    if (meshMGMT.selectedUV == null) meshMGMT.selectedUV = editedMesh.vertices[0].uvpoints[0];
+                    if (meshMGMT.SelectedUV == null) meshMGMT.SelectedUV = editedMesh.vertices[0].uvpoints[0];
 
                     Vector3 trgPos = meshMGMT.target.transform.position;
                    // float portion = 1f / Mathf.Max(0.01f, MeshUVprojectionSize);
@@ -427,19 +427,19 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonUp(0)) {
 
-                    meshMGMT.selectedUV.sharedEditedUV = lastCalculatedUV;
+                    meshMGMT.SelectedUV.sharedEditedUV = lastCalculatedUV;
                     editedMesh.dirty = true;
-                    meshMGMT.dragging = false;
+                    meshMGMT.Dragging = false;
             }
 
 
             if (!EditorInputManager.GetMouseButton(0)) 
-                meshMGMT.dragging = false;
+                meshMGMT.Dragging = false;
             
         }
         
         public override void KeysEventPointedLine() {
-            if ((KeyCode.Backspace.isDown()))  {
+            if ((KeyCode.Backspace.IsDown()))  {
                 Vertex a = pointedLine.pnts[0];
                 Vertex b = pointedLine.pnts[1];
 

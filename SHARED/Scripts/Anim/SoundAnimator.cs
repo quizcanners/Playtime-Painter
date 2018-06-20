@@ -44,9 +44,9 @@ namespace STD_Animations
             return true;
         }
 
-        public stdEncoder EncodeFrame()
+        public StdEncoder EncodeFrame()
         {
-            var cody = new stdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add_Bool("rand", playRandom);
             if (!playRandom)

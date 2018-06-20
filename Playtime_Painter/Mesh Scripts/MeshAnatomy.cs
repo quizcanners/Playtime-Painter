@@ -50,7 +50,7 @@ namespace Playtime_Painter
         }
         public const string stdTag_uv = "uv";
         
-        protected PlaytimePainter painter { get { return MeshManager.inst.target; } }
+        protected PlaytimePainter painter { get { return MeshManager.Inst.target; } }
 
         public int uvIndex;
         public int finalIndex;
@@ -77,8 +77,8 @@ namespace Playtime_Painter
           
         }
         
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
 
             cody.Add("i", finalIndex);
             cody.Add("uvi", uvIndex);
@@ -308,8 +308,8 @@ namespace Playtime_Painter
             }
             return true;
         }
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder(); 
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder(); 
 
             cody.Add_IfNotZero("p", deltaPosition);
             cody.Add_IfNotZero("t", deltaTangent);
@@ -375,7 +375,7 @@ namespace Playtime_Painter
         }
 
         public Vector3 worldPos { get {
-                PlaytimePainter emc = MeshManager.inst.target;
+                PlaytimePainter emc = MeshManager.Inst.target;
                 if (emc.AnimatedVertices())   {
                     int animNo = emc.GetVertexAnimationNumber();
                     return emc.transform.TransformPoint(localPos + anim[animNo]);
@@ -405,8 +405,8 @@ namespace Playtime_Painter
             return normal;
         }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder();
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder();
 
             foreach (var lst in shared_v2s) {
                 cody.Add("u0", lst[0]);
@@ -438,8 +438,8 @@ namespace Playtime_Painter
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "u0":  shared_v2s.Add(new Vector2[2]); 
-                            shared_v2s.last()[0] = data.ToVector2(); break;
-                case "u1":  shared_v2s.last()[1] = data.ToVector2(); break;
+                            shared_v2s.Last()[0] = data.ToVector2(); break;
+                case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
                 case "uvs": currentlyDecoded = this;
                     data.DecodeInto(out uvpoints); break;
                 case "pos": localPos = data.ToVector3(); break;
@@ -526,7 +526,7 @@ namespace Playtime_Painter
         }
 
         public void PixPerfect() {
-            var trg = MeshManager.inst.target;
+            var trg = MeshManager.Inst.target;
 
             if ((trg!= null) && (trg.imgData!= null)){
                 var id = trg.imgData;
@@ -807,8 +807,8 @@ namespace Playtime_Painter
 
             } }
 
-        public override stdEncoder Encode() {
-            var cody = new stdEncoder()
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder()
 
             .Add_ifTrue("f0", DominantCourner[0])
             .Add_ifTrue("f1", DominantCourner[1])

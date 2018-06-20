@@ -23,10 +23,8 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
-        public static bool isUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
+        public static bool IsUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
         
-
-
         public static void SetToDirty(this object obj)
         {
 #if UNITY_EDITOR
@@ -105,7 +103,7 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static double timeSinceStartup()
+        public static double TimeSinceStartup()
         {
             #if UNITY_EDITOR
             if (!Application.isPlaying)
@@ -117,7 +115,7 @@ namespace SharedTools_Stuff
 
         public static bool TimePassedAbove(this double value, float interval)
         {
-            return (timeSinceStartup() - value) > interval;
+            return (TimeSinceStartup() - value) > interval;
         }
         
         public static void RepaintViews()
@@ -232,7 +230,7 @@ namespace SharedTools_Stuff
             return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
         }
 
-        public static bool isNaN(this float f)
+        public static bool IsNaN(this float f)
         {
             return float.IsNaN(f);
         }
@@ -450,7 +448,7 @@ namespace SharedTools_Stuff
                 AssetDatabase.Refresh();
             }
 #else
-            return ScriptableObject.CreateInstance(typeof(T)) as T;
+            added = ScriptableObject.CreateInstance(typeof(T)) as T;
 #endif
 
             return added;
@@ -485,9 +483,9 @@ namespace SharedTools_Stuff
                 AssetDatabase.Refresh();
             }
 #else
-            return ScriptableObject.CreateInstance(el.GetType()) as T;
+            added = ScriptableObject.CreateInstance(el.GetType()) as T;
 #endif
-            
+
             return added;
         }
         
@@ -561,21 +559,21 @@ namespace SharedTools_Stuff
 
             #if PEGI
 
-            var nm = asset as iGotName;
+            var nm = asset as IGotName;
             if (nm != null)
                 nm.NameForPEGI = name;
             
             if (optionalList != null)
             {
 
-                var ind = asset as iGotIndex;
+                var ind = asset as IGotIndex;
 
                 if (ind != null)
                 {
                     int maxInd = 0;
                     foreach (var o in optionalList)
                     {
-                        var io = o as iGotIndex;
+                        var io = o as IGotIndex;
                         if (io != null)
                             maxInd = Mathf.Max(io.GetIndex() + 1, maxInd);
                     }
@@ -671,7 +669,7 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static List<string> getTextures(this Material m)
+        public static List<string> GetTextures(this Material m)
         {
             List<string> tnames = new List<string>();
 #if UNITY_EDITOR
@@ -717,7 +715,7 @@ namespace SharedTools_Stuff
             return propertyName.Contains(tag);
         }
 
-        public static bool isPrefab(this GameObject go)
+        public static bool IsPrefab(this GameObject go)
         {
 #if UNITY_EDITOR
 
@@ -750,7 +748,7 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static bool isFocused(this GameObject go) {
+        public static bool IsFocused(this GameObject go) {
 
 #if UNITY_EDITOR
             UnityEngine.Object[] tmp = Selection.objects;
@@ -774,21 +772,21 @@ namespace SharedTools_Stuff
 
             if ((!Application.isPlaying) && (e.type != EventType.KeyDown)) return -1;
 
-            if (KeyCode.Alpha0.isDown()) return 0;
-            if (KeyCode.Alpha1.isDown()) return 1;
-            if (KeyCode.Alpha2.isDown()) return 2;
-            if (KeyCode.Alpha3.isDown()) return 3;
-            if (KeyCode.Alpha4.isDown()) return 4;
-            if (KeyCode.Alpha5.isDown()) return 5;
-            if (KeyCode.Alpha6.isDown()) return 6;
-            if (KeyCode.Alpha7.isDown()) return 7;
-            if (KeyCode.Alpha8.isDown()) return 8;
-            if (KeyCode.Alpha9.isDown()) return 9;
+            if (KeyCode.Alpha0.IsDown()) return 0;
+            if (KeyCode.Alpha1.IsDown()) return 1;
+            if (KeyCode.Alpha2.IsDown()) return 2;
+            if (KeyCode.Alpha3.IsDown()) return 3;
+            if (KeyCode.Alpha4.IsDown()) return 4;
+            if (KeyCode.Alpha5.IsDown()) return 5;
+            if (KeyCode.Alpha6.IsDown()) return 6;
+            if (KeyCode.Alpha7.IsDown()) return 7;
+            if (KeyCode.Alpha8.IsDown()) return 8;
+            if (KeyCode.Alpha9.IsDown()) return 9;
 
             return -1;
         }
 
-        public static bool isDown(this KeyCode k)
+        public static bool IsDown(this KeyCode k)
         {
             bool down = false;
 #if UNITY_EDITOR
@@ -800,7 +798,7 @@ namespace SharedTools_Stuff
             return down;
         }
 
-        public static bool isUp(this KeyCode k)
+        public static bool IsUp(this KeyCode k)
         {
 
             bool up = false;
@@ -942,10 +940,10 @@ namespace SharedTools_Stuff
 
             var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            var imp = tex.getTextureImporter();
-            bool needReimport = imp.wasNotReadable();
-            needReimport |= imp.wasClamped();
-            needReimport |= imp.wasWrongIsColor(diffuse.isColorTexturee());
+            var imp = tex.GetTextureImporter();
+            bool needReimport = imp.WasNotReadable();
+            needReimport |= imp.WasClamped();
+            needReimport |= imp.WasWrongIsColor(diffuse.IsColorTexture());
             if (needReimport)
                 imp.SaveAndReimport();
 
@@ -953,7 +951,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static void saveTexture(this Texture2D tex)
+        public static void SaveTexture(this Texture2D tex)
         {
 
             byte[] bytes = tex.EncodeToPNG();
@@ -978,10 +976,10 @@ namespace SharedTools_Stuff
             return path.Replace("Assets", "");
         }
 
-        public static Texture2D rewriteOriginalTexture_NewName(this Texture2D tex, string name)
+        public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
         {
             if (name == tex.name)
-                return tex.rewriteOriginalTexture();
+                return tex.RewriteOriginalTexture();
 
             //Debug.Log("Rewriting original texture");
 
@@ -1007,7 +1005,7 @@ namespace SharedTools_Stuff
             return result;
         }
 
-        public static Texture2D rewriteOriginalTexture(this Texture2D tex)
+        public static Texture2D RewriteOriginalTexture(this Texture2D tex)
         {
             //Debug.Log("Rewriting original texture");
 
@@ -1028,7 +1026,7 @@ namespace SharedTools_Stuff
             return result;
         }
 
-        public static Texture2D saveTextureAsAsset(this Texture2D tex, string folderName, ref string textureName, bool saveAsNew)
+        public static Texture2D SaveTextureAsAsset(this Texture2D tex, string folderName, ref string textureName, bool saveAsNew)
         {
 
             byte[] bytes = tex.EncodeToPNG();
@@ -1060,7 +1058,7 @@ namespace SharedTools_Stuff
             return result;
         }
 
-        public static GameObject getFocused()
+        public static GameObject GetFocused()
         {
 
             UnityEngine.Object[] tmp = Selection.objects;
@@ -1068,7 +1066,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static void focusOnGame()
+        public static void FocusOnGame()
         {
 
             System.Reflection.Assembly assembly = typeof(UnityEditor.EditorWindow).Assembly;
@@ -1107,7 +1105,7 @@ namespace SharedTools_Stuff
 
 #endif
 
-        public static void setSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
+        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
 
             if (terrain == null) return;
@@ -1126,7 +1124,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static Texture getSplashPrototypeTexture(this Terrain terrain, int ind)
+        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
         {
 
             SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
@@ -1220,7 +1218,7 @@ namespace SharedTools_Stuff
             }
         }
 
-        public static Transform tryGetCameraTransform(this GameObject go)
+        public static Transform TryGetCameraTransform(this GameObject go)
         {
             Camera c = null;
             if (Application.isPlaying)
@@ -1311,12 +1309,12 @@ namespace SharedTools_Stuff
             }
         }
 
-        public static bool isColorTexturee(this Texture2D tex)
+        public static bool IsColorTexture(this Texture2D tex)
         {
 #if UNITY_EDITOR
             if (tex == null) return true;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
             if (importer != null)
                 return importer.sRGBTexture;
@@ -1326,7 +1324,7 @@ namespace SharedTools_Stuff
 
 #if UNITY_EDITOR
 
-        public static TextureImporter getTextureImporter(this Texture2D tex)
+        public static TextureImporter GetTextureImporter(this Texture2D tex)
         {
             return AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
         }
@@ -1334,8 +1332,8 @@ namespace SharedTools_Stuff
 
         public static void ReimportToMatchImportConfigOf(this Texture2D dest, Texture2D original)
         {
-            TextureImporter dst = dest.getTextureImporter();
-            TextureImporter org = original.getTextureImporter();
+            TextureImporter dst = dest.GetTextureImporter();
+            TextureImporter org = original.GetTextureImporter();
 
             if ((dst == null) || (org == null)) return;
 
@@ -1365,7 +1363,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static bool hadNoMipmaps(this TextureImporter importer)
+        public static bool HadNoMipmaps(this TextureImporter importer)
         {
 
             bool needsReimport = false;
@@ -1384,12 +1382,12 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasMarkedAsNormal()))
+            if ((importer != null) && (importer.WasMarkedAsNormal()))
                 importer.SaveAndReimport();
         }
-        public static bool wasMarkedAsNormal(this TextureImporter importer)
+        public static bool WasMarkedAsNormal(this TextureImporter importer)
         {
 
             /*  bool needsReimport = false;
@@ -1399,10 +1397,10 @@ namespace SharedTools_Stuff
                   needsReimport = true;
               }*/
 
-            return wasMarkedAsNormal(importer, false);
+            return WasMarkedAsNormal(importer, false);
 
         }
-        public static bool wasMarkedAsNormal(this TextureImporter importer, bool convertToNormal)
+        public static bool WasMarkedAsNormal(this TextureImporter importer, bool convertToNormal)
         {
 
             bool needsReimport = false;
@@ -1423,12 +1421,12 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasClamped()))
+            if ((importer != null) && (importer.WasClamped()))
                 importer.SaveAndReimport();
         }
-        public static bool wasClamped(this TextureImporter importer)
+        public static bool WasClamped(this TextureImporter importer)
         {
 
             bool needsReimport = false;
@@ -1448,12 +1446,12 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasNotReadable()))
+            if ((importer != null) && (importer.WasNotReadable()))
                 importer.SaveAndReimport();
         }
-        public static bool wasNotReadable(this TextureImporter importer)
+        public static bool WasNotReadable(this TextureImporter importer)
         {
 
             bool needsReimport = false;
@@ -1487,12 +1485,12 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasWrongIsColor(value)))
+            if ((importer != null) && (importer.WasWrongIsColor(value)))
                 importer.SaveAndReimport();
         }
-        public static bool wasWrongIsColor(this TextureImporter importer, bool isColor)
+        public static bool WasWrongIsColor(this TextureImporter importer, bool isColor)
         {
 
             bool needsReimport = false;
@@ -1510,12 +1508,12 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasNotSingleChanel()))
+            if ((importer != null) && (importer.WasNotSingleChanel()))
                 importer.SaveAndReimport();
         }
-        public static bool wasNotSingleChanel(this TextureImporter importer)
+        public static bool WasNotSingleChanel(this TextureImporter importer)
         {
 
             bool needsReimport = false;
@@ -1547,13 +1545,13 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasAlphaNotTransparency()))
+            if ((importer != null) && (importer.WasAlphaNotTransparency()))
                 importer.SaveAndReimport();
 
         }
-        public static bool wasAlphaNotTransparency(this TextureImporter importer)
+        public static bool WasAlphaNotTransparency(this TextureImporter importer)
         {
 
             bool needsReimport = false;
@@ -1584,13 +1582,13 @@ namespace SharedTools_Stuff
         {
             if (tex == null) return;
 
-            TextureImporter importer = tex.getTextureImporter();
+            TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.wasWrongMaxSize(width)))
+            if ((importer != null) && (importer.WasWrongMaxSize(width)))
                 importer.SaveAndReimport();
 
         }
-        public static bool wasWrongMaxSize(this TextureImporter importer, int width)
+        public static bool WasWrongMaxSize(this TextureImporter importer, int width)
         {
 
             bool needsReimport = false;

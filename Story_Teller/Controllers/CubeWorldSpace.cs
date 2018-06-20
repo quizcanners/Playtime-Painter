@@ -35,7 +35,7 @@ namespace StoryTriggerData {
         PlaytimePainter painter;
 
 
-        public override stdEncoder Encode() {
+        public override StdEncoder Encode() {
             var cody = EncodeUnrecognized(); //new stdEncoder();
 
             cody.Add_String("name", gameObject.name);

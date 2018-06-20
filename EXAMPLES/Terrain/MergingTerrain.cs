@@ -21,7 +21,7 @@ namespace Playtime_Painter
     public class MergingTerrainEditor : Editor
     {
 
-        public override void OnInspectorGUI() => ((MergingTerrain)target).inspect(serializedObject);
+        public override void OnInspectorGUI() => ((MergingTerrain)target).Inspect(serializedObject);
          
     }
 #endif
@@ -29,7 +29,7 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class MergingTerrain : MonoBehaviour
 #if PEGI
-        , iPEGI
+        , IPEGI
 #endif
     {
 
