@@ -19,6 +19,22 @@ namespace STD_Logic
         public int groupIndex;
         public int triggerIndex;
 
+        protected StdEncoder EncodeIndex() => new StdEncoder()
+            .Add("gi", groupIndex)
+            .Add("ti", triggerIndex);
+        
+        protected bool DecodeIndex(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "gi": groupIndex = data.ToInt(); break;
+                case "ti": triggerIndex = data.ToInt(); break;
+                default: return false;
+            }
+            return true;
+        }
+        
+
         public int GetInt(Values st) {
             return st.ints[groupIndex][triggerIndex];
         }

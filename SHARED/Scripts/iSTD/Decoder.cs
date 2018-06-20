@@ -17,7 +17,9 @@ namespace SharedTools_Stuff
             if (ass)
                 val = ass;
         }
-            
+
+        public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
+      
         public static void DecodeInto(this string data, out BoneWeight b) {
             var cody = new StdDecoder(data);
              b = new BoneWeight();
@@ -415,18 +417,26 @@ namespace SharedTools_Stuff
     public class StdDecoder //: IEnumerable<string>
     {
 
+        public delegate bool DecodeDelegate(string tag, string data);
+
         string data;
         int position;
         bool expectingGetData = false;
 
-        public StdDecoder(string dataStream) {
+        public StdDecoder(string dataStream)
+        {
             data = dataStream;
             if (data == null)
                 data = "";
             position = 0;
         }
 
-        public T DecodeTagsFor<T>(T storyComponent) where T : iSTD{
+        public void DecodeTagsFor (DecodeDelegate dec) {
+            foreach (var tag in this)
+                dec(tag, GetData());
+        }
+
+        public T DecodeTagsFor<T>(T storyComponent) where T : iSTD {
 
             var unrec = storyComponent as iKeepUnrecognizedSTD;
 
@@ -434,7 +444,8 @@ namespace SharedTools_Stuff
                 foreach (var tag in this)
                     storyComponent.Decode(tag, GetData());
             else
-                foreach (var tag in this) {
+                foreach (var tag in this)
+                {
                     var d = GetData();
                     if (!storyComponent.Decode(tag, d))
                         unrec.Unrecognized(tag, d);
@@ -443,7 +454,8 @@ namespace SharedTools_Stuff
             return storyComponent;
         }
 
-        string ToNextSplitter() {
+        string ToNextSplitter()
+        {
             int start = position;
             while (data[position] != StdEncoder.splitter)
                 position++;
@@ -453,15 +465,17 @@ namespace SharedTools_Stuff
 
         public bool GotData { get { return position < data.Length; } }
 
-        public string GetTag() {
+        public string GetTag()
+        {
 
             if (position >= data.Length)
                 return null;
 
-            if (expectingGetData) {
-                
+            if (expectingGetData)
+            {
+
                 string hold = ToNextSplitter();
-                Debug.Log("Was expecting Get Data for "+hold);
+                Debug.Log("Was expecting Get Data for " + hold);
                 return hold;
             }
             expectingGetData = true;
@@ -471,12 +485,13 @@ namespace SharedTools_Stuff
             return _currentTag;
         }
 
-        public string GetData() {
+        public string GetData()
+        {
 
             if (!expectingGetData)
                 Debug.Log("Was expecting Get Tag");
             expectingGetData = false;
-            
+
             int length = Int32.Parse(ToNextSplitter());
 
             string result = data.Substring(position, length);
@@ -486,14 +501,15 @@ namespace SharedTools_Stuff
         }
 
         string _currentTag;
-    // public IEnumerable<string> enumerator { get { while (NextTag()) { yield return _currentTag; } } }
 
-    public IEnumerator<string> GetEnumerator() {
-            while (NextTag()) 
+        public IEnumerator<string> GetEnumerator()
+        {
+            while (NextTag())
                 yield return _currentTag;
-    }
+        }
 
-    public bool NextTag() {
+        public bool NextTag()
+        {
             if (expectingGetData)
                 GetData();
             return GetTag() != null;

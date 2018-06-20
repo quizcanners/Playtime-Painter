@@ -12,7 +12,11 @@ namespace SharedTools_Stuff {
         int CountlessIndex { get; set; }
     }
     
-    public abstract class CountlessBase {
+    public abstract class CountlessBase
+#if PEGI
+        : IPEGI
+#endif
+    {
 
         protected static VariableBranch[] branchPool = new VariableBranch[32];
         protected static VariableBranch[] fruitPool = new VariableBranch[32];
@@ -258,7 +262,7 @@ namespace SharedTools_Stuff {
 
         int Get(int ind)
         {
-            if (ind >= Max)
+            if (ind >= Max || ind<0)
                 return 0;
 
             int d = depth;
@@ -483,9 +487,11 @@ namespace SharedTools_Stuff {
         bool Get(int ind)
         {
 
-#if UNITY_EDITOR
-            if (ind < 0) Debug.LogError("Sending " + ind + " as index to Variable Tree, that is a nono");
-#endif
+//#if UNITY_EDITOR
+            if (ind < 0)
+                return false;
+                //Debug.LogError("Sending " + ind + " as index to Variable Tree, that is a nono");
+//#endif
 
             int bitNo = ind % 32;
             ind /= 32;
@@ -656,9 +662,7 @@ namespace SharedTools_Stuff {
 
             return rslt;
         }
-
-      
-
+        
     }
     
     ///  Generic Trees
@@ -799,7 +803,7 @@ namespace SharedTools_Stuff {
 
         T Get(int ind)
         {
-            if (ind >= Max)
+            if (ind >= Max || ind<0)
                 return default(T);
 
             int d = depth;
@@ -902,21 +906,48 @@ namespace SharedTools_Stuff {
         }
 
         public int currentEnumerationIndex;
+        int edited = -1;
 #if PEGI
-        public override bool PEGI() {
-            base.PEGI();
-            foreach (var o in objs)
-                if (o == null) "null".nl();
-                else
-                    o.ToString().nl();
 
-            return false;
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            if (edited == -1)
+            {
+
+                List<int> indxs;
+                var allElements = GetAllObjs(out indxs);
+
+                for (int i = 0; i < allElements.Count; i++)
+                {
+                    var ind = indxs[i];
+                    var el = allElements[i];
+
+                    if (icon.Delete.Click())
+                        this[ind] = default(T);
+                    else
+                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited, null);
+                }
+
+            }
+            else
+            {
+                if (icon.List.Click("Back to elements window"))
+                    edited = -1;
+                else
+                    this[edited].Try_Nested_Inspect();
+            }
+            return changed;
         }
 #endif
 
     }
 
-    public class CountlessSTD<T> : STDCountlessBase where T : iSTD , new() {
+    public class CountlessSTD<T> : STDCountlessBase where T : iSTD , new()
+
+
+    {
 
         protected T[] objs = new T[0];
         int firstFreeObj = 0;
@@ -933,7 +964,7 @@ namespace SharedTools_Stuff {
                     tmpDecodeInds = null;
                     break;
                 case "brws": edited = data.ToInt(); break;
-
+                case "last": lastFreeIndex = data.ToInt(); break;
                 default: 
                     // Legacy method:
             this[tag.ToInt()] = data.DecodeInto<T>(); break;
@@ -950,7 +981,8 @@ namespace SharedTools_Stuff {
             var cody = new StdEncoder()
                 .Add("inds", inds)
                 .Add("vals", vals)
-                .Add_ifNotNegative("brws", edited);
+                .Add_ifNotNegative("brws", edited)
+                .Add("last", lastFreeIndex);
 
             /*  for (int i = 0; i < inds.Count; i++) {
                   var dta = vals[i].Encode().ToString();
@@ -1134,7 +1166,7 @@ namespace SharedTools_Stuff {
 
         protected virtual T Get(int ind)
         {
-            if (ind >= Max)
+            if (ind >= Max || ind<0)
                 return default(T);
 
             int d = depth;
@@ -1158,6 +1190,8 @@ namespace SharedTools_Stuff {
             return objs[vb.br[ind].value];
         }
 
+        public virtual T GetIfExists(int ind) => Get(ind);
+        
         public override void Clear()
         {
             base.Clear();
@@ -1199,25 +1233,30 @@ namespace SharedTools_Stuff {
                 List<int> indxs;
                 var allElements = GetAllObjs(out indxs);
 
-                for (int i=0; i< allElements.Count; i++){
+                if (icon.Add.Click().nl()) {
+                    while (!this.GetIfExists(lastFreeIndex).IsDefaultOrNull())
+                        lastFreeIndex++;
+
+                    this[lastFreeIndex] = new T();
+                }
+
+                for (int i = 0; i < allElements.Count; i++)  {
+                    var ind = indxs[i];
                     var el = allElements[i];
-                        var pgi = el as IPEGI;
-
-                    el.ToPEGIstring().write();
-
-                    if (pgi != null && icon.Enter.Click())
-                        edited = indxs[i];
+                 
+                    if (icon.Delete.Click())
+                        this[ind] = default(T);
+                    else
+                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited, null);
                 }
 
             } else
             {
-                if (icon.Exit.Click())
+                if (icon.List.Click("Back to elements window"))
                     edited = -1;
                 else
                     this[edited].Try_Nested_Inspect();
-                
             }
-
             return changed;
         }
 #endif
@@ -1275,7 +1314,7 @@ namespace SharedTools_Stuff {
             return objs[vb.br[ind].value];
         }
 
-        public T GetIfElementExists(int ind)
+        public override T GetIfExists(int ind)
         {
             // int originalIndex = ind;
 
@@ -1302,8 +1341,7 @@ namespace SharedTools_Stuff {
 
             return objs[vb.br[ind].value];
         }
-
-
+        
     }
 
     // List trees
@@ -1498,6 +1536,9 @@ namespace SharedTools_Stuff {
 
         List<T> Get(int ind)
         {
+            if (ind < 0)
+                return null;
+
             int originalIndex = ind;
 
             if (ind >= Max)
@@ -1707,14 +1748,14 @@ namespace SharedTools_Stuff {
 
         public static int Get(this UnnullableSTD<CountlessInt> unn, int group, int index)
         {
-            var tg = unn.GetIfExists(group);
+            var tg = GetIfExists(unn, group);
             if (tg == null)
                 return 0;
             return tg[index];
         }
 
         public static bool Get(this UnnullableSTD<CountlessBool> unn, int group, int index) {
-            var tg = unn.GetIfExists(group);
+            var tg = GetIfExists(unn, group);
             if (tg == null)
                 return false;
             return tg[index];
@@ -1722,7 +1763,7 @@ namespace SharedTools_Stuff {
 
         public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: iSTD, new()
         {
-            var tg = unn.GetIfExists(group);
+            var tg = GetIfExists(unn, group);
             if (tg == null)
                 return default(T);
             return tg[index];
@@ -1731,7 +1772,7 @@ namespace SharedTools_Stuff {
         public static T GetIfExists<T>(this UnnullableSTD<T> unn, int index) where T : iSTD, new()
         {
             if (unn != null)
-                return unn.GetIfElementExists(index);
+                return unn.GetIfExists(index);
             return default(T);
         }
 

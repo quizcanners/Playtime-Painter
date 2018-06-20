@@ -8,8 +8,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
-
-
+    
     public class ConditionLogic : ValueIndex , iSTD
 #if PEGI
         , IPEGI
@@ -25,21 +24,21 @@ namespace STD_Logic
             return tag;
         }
 
-        public virtual StdEncoder Encode() {
-            var cody = new StdEncoder();
+        public virtual StdEncoder Encode() => new StdEncoder()
 
-            cody.Add_ifNotZero("v", compareValue);
-            cody.Add_ifNotZero("ty",(int)type);
-            cody.Add("g", groupIndex);
-            cody.Add("t", triggerIndex);
+            .Add_ifNotZero("v", compareValue)
+            .Add_ifNotZero("ty", (int)type)
+            .Add("ind", EncodeIndex());
 
-            return cody;
-        }
 
         public virtual bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "v": compareValue = data.ToInt(); break;
                 case "ty": type = (ConditionType)data.ToInt(); break;
+                case "ind": data.DecodeInto(DecodeIndex); break;
+
+
+                // Legacy
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 default: return false;
@@ -114,12 +113,11 @@ namespace STD_Logic
 
         public static bool unfoldPegi;
       
-        public override string ToString()
-        {
-            return (trig.name) + " " + type + " " + (isBoolean() ?
+        public override string ToString() =>
+             (trig.name) + " " + type + " " + (isBoolean() ?
                                             (compareValue == 1 ? "True" : "false")
                                             : compareValue.ToString());
-        }
+        
         
     }
 #if PEGI

@@ -3845,9 +3845,7 @@ namespace PlayerAndEditorGUI
             bool changed = false;
 
             var pl = el as IPEGI_ListInspect;
-
-          
-
+            
             var uo = el as UnityEngine.Object;
 
             var need = el as INeedAttention;
@@ -3900,10 +3898,10 @@ namespace PlayerAndEditorGUI
             if (datas != null)
             {
                 var std = el as iSTD;
-                if ((datas.GetIfElementExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name " + (std != null ? "configuration." : "."), 25, 25))
+                if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name " + (std != null ? "configuration." : "."), 25, 25))
                     datas.SaveElementDataFrom(list, index);
 
-                var dta = datas.GetIfExists(index);
+                var dta = ExtensionsForGenericCountless.GetIfExists(datas, index);
                 if (std != null && dta != null && dta.std_dta != null && icon.Load.Click("Load STD", 25, 25))
                     dta.std_dta.DecodeInto(std);
 
@@ -4027,7 +4025,7 @@ namespace PlayerAndEditorGUI
                         {
                             T obj = null;
 
-                            if (datas.GetIfExists(i).edit(ref obj))
+                            if (ExtensionsForGenericCountless.GetIfExists(datas, i).edit(ref obj))
                             {
                                 if (obj)
                                 {
@@ -4120,7 +4118,7 @@ namespace PlayerAndEditorGUI
                             var el = list[i];
                             if (el == null)
                             {
-                                if (datas.GetIfExists(i).edit(ref el))
+                                if (ExtensionsForGenericCountless.GetIfExists(datas, i).edit(ref el))
                                     list[i] = el;
 
                             }
@@ -4249,7 +4247,7 @@ namespace PlayerAndEditorGUI
                                // if (!isMonoType<T>(list, i))
                                // {
                                    // UnityEngine.Object so = null;
-                                    if (datas.GetIfElementExists(i).edit(ref el))
+                                    if (datas.GetIfExists(i).edit(ref el))
                                         list[i] = el;
                                // }
                             }
