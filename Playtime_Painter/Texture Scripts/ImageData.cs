@@ -28,6 +28,7 @@ namespace Playtime_Painter
         public RenderTexture renderTexture;
         public static Texture2D sampler;
         public Texture2D texture2D;
+        public Texture other;
         public int width = 128;
         public int height = 128;
         public bool useTexcoord2;
@@ -127,12 +128,11 @@ namespace Playtime_Painter
         
         public bool Contains(Texture tex)
         {
-            return (tex != null && tex == texture2D) || (renderTexture != null && renderTexture == tex);
+            return  tex != null && ((texture2D && tex == texture2D) || (renderTexture && renderTexture == tex) || (other && tex == other));
         }
 
         public RenderTexture AddRenderTexture() => AddRenderTexture(width, height, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, FilterMode.Bilinear, null);
         
-
         public RenderTexture AddRenderTexture(int nwidth, int nheight, RenderTextureFormat format, RenderTextureReadWrite dataType, FilterMode filterMode, string global)
         {
 
@@ -157,11 +157,12 @@ namespace Playtime_Painter
             return renderTexture;
         }
 
-        public void Texture2D_To_RenderTexture() =>  PainterManager.inst.Render(texture2D, this.currentRenderTexture());
+        public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
 
+        public void TextureToRenderTexture(Texture2D tex) => PainterManager.inst.Render(tex, this.currentRenderTexture(), texMGMT.pixPerfectCopy);
+        
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
         
-
         public void RenderTexture_To_Texture2D(Texture2D tex)
         {
             if (texture2D == null)
@@ -170,14 +171,18 @@ namespace Playtime_Painter
             RenderTexture rt = renderTexture;
 
             if (!rt && texMGMT.imgDataUsingRendTex == this)
-                rt = PainterManager.inst.painterRT_toBuffer(width, height);
+                rt = PainterManager.inst.GetDownscaledBigRT(width, height);
             
             if (rt == null)
                 return;
             
+            
+
             tex.CopyFrom(rt);
 
             PixelsFromTexture2D(tex);
+
+            bool converted = false;
 
             /* MAC: 
                     Linear Space
@@ -218,15 +223,16 @@ namespace Playtime_Painter
             {
                 if (!tex.isColorTexturee())
                 {
+                    converted = true;
                     pixelsToLinear();
-                    //pixelsToGamma();
-                    Debug.Log("Pixels to Linear");
                 }
 
 #if UNITY_2017
 
-                if (renderTexture != null) 
+                if (renderTexture != null) {
                     pixelsToGamma();
+                converted = true;
+}
 #endif
             }
 
@@ -234,7 +240,11 @@ namespace Playtime_Painter
             //if (!RenderTexturePainter.inst.isLinearColorSpace)
             //pixelsToLinear ();
 
-            SetAndApply(true);
+            if (converted)
+                SetAndApply(true);
+            else
+                texture2D.Apply(true);
+           // 
 
         }
 
@@ -283,7 +293,7 @@ namespace Playtime_Painter
 
             PainterManager rtp = PainterManager.inst;
             int size = PainterManager.renderTextureSize / 4;
-            RenderTexture.active = (renderTexture == null) ? rtp.painterRT_toBuffer(size, size) : renderTexture;
+            RenderTexture.active = (renderTexture == null) ? rtp.GetDownscaledBigRT(size, size) : renderTexture;
 
             if (sampler == null) sampler = new Texture2D(8, 8);
 
@@ -306,24 +316,15 @@ namespace Playtime_Painter
             return pix;
         }
 
-        public void TextureToRenderTexture(Texture2D tex)
-        {
-                PainterManager.inst.Blit(tex, this);
-        }
-
+      
         public void PixelsFromTexture2D(Texture2D tex)
         {
-
             if (tex == null)
-            {
-                Debug.Log("Texture 2D was not assigned");
                 return;
-            }
-
+            
             pixels = tex.GetPixels();
             width = tex.width;
             height = tex.height;
-
         }
 
         public void ChangeDestination(texTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
@@ -444,6 +445,8 @@ namespace Playtime_Painter
             else
                  if (tex.GetType() == typeof(RenderTexture))
                 useRenderTexture((RenderTexture)tex);
+            else
+                other = tex;
 
             PainterManager.inst.imgDatas.Insert(0,this);
             return this;

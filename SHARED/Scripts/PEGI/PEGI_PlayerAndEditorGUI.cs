@@ -125,6 +125,23 @@ namespace PlayerAndEditorGUI
         public static int tabIndex; // will be reset on every NewLine;
         public static bool paintingPlayAreaGUI { get; private set; }
 
+        static GUIStyle head = null;
+        static GUIStyle heading
+        {
+            get
+            {
+                if (head == null)
+                    head = new GUIStyle() {
+                        margin = new RectOffset(10, 10, 10, 10),
+                        fontSize = 15,
+                        richText = true,
+                        wordWrap = true
+                    };
+                   
+                return head;
+            }
+        }
+
         static bool lineOpen;
         
         public static void checkLine()
@@ -273,6 +290,22 @@ namespace PlayerAndEditorGUI
                 checkLine();
                 GUILayout.Space(10);
             }
+        }
+
+        public static void Line(Color col)
+        {
+            nl();
+
+            GUIStyle horizontalLine;
+            horizontalLine = new GUIStyle();
+            horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
+            horizontalLine.margin = new RectOffset(0, 0, 4, 4);
+            horizontalLine.fixedHeight = 1;
+
+            var c = GUI.color;
+            GUI.color = col;
+            GUILayout.Box(GUIContent.none, horizontalLine);
+            GUI.color = c;
         }
 
         #endregion
@@ -461,6 +494,39 @@ namespace PlayerAndEditorGUI
                 GUILayout.Label(text);
             }
 
+        }
+
+        public static void write(this string text, GUIStyle style)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                ef.write(text, text, style);
+            }
+            else
+#endif
+            {
+                checkLine();
+                GUILayout.Label(text,style);
+            }
+        }
+
+        public static void write(this string text, string hint, GUIStyle style)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                ef.write(text, hint, style);
+            }
+            else
+#endif
+            {
+                checkLine();
+                GUIContent cont = new GUIContent();
+                cont.text = text;
+                cont.tooltip = hint;
+                GUILayout.Label(cont, style);
+            }
         }
 
         public static void write(this string text, int width) => text.write(text, width);
@@ -784,8 +850,7 @@ namespace PlayerAndEditorGUI
                 {
                     for (int i = 0; i < from.Length; i++)
                     {
-                        if (i != no) //write("Selected: "+from[i]);
-                                     // else
+                        if (i != no) 
                             if (Click(i + ": " + from[i], width))
                             {
                                 no = i;
@@ -805,8 +870,6 @@ namespace PlayerAndEditorGUI
 
         public static bool select<T>(ref T val, T[] lst)
         {
-
-
                 checkLine();
 
                 List<string> lnms = new List<string>();
@@ -843,46 +906,114 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int ind, T[] lst)
         {
 
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.select<T>(ref ind, lst);
-            }
-            else
-#endif
-
-            {
                 checkLine();
 
-                List<string> lnms = new List<string>();
-                List<int> indxs = new List<int>();
+                var lnms = new string[lst.Length];
 
-                //int jindx = -1;
                 int before = ind;
                 ind = ind.ClampZeroTo(lst.Length);
 
-                // var val = lst[ind];
 
-                for (int j = 0; j < lst.Length; j++)
+                for (int i = 0; i < lst.Length; i++)
                 {
-                    T tmp = lst[j];
-                    if (!tmp.isDefaultOrNull())
-                    {
-                        lnms.Add(tmp.ToPEGIstring());
-                        indxs.Add(j);
-                    }
+                    var e = lst[i];
+                    lnms[i] = (i + ": " + (e == null ? "Nothing" : e.ToPEGIstring()));
                 }
 
-                if (select(ref ind, lnms.ToArray()))
+                if (select(ref ind, lnms))
                     return true;
 
                 return before != ind;
-            }
+            
         }
 
-        public static bool select<T>(ref T val, List<T> list, Func<T,bool> lambda) {
-            var nList = list.Where(lambda);
-            return select(ref val, nList.ToArray());
+        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda)
+        {
+            checkLine();
+
+            List<string> lnms = new List<string>();
+            List<int> indxs = new List<int>();
+
+            int jindx = -1;
+
+            for (int j = 0; j < lst.Count; j++)
+            {
+                T tmp = lst[j];
+
+                if ((!tmp.isDefaultOrNull()) && lambda(tmp))
+                {
+                    if (val == j)
+                        jindx = lnms.Count;
+                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    indxs.Add(j);
+                }
+            }
+
+            if (jindx == -1 && val >= 0)
+                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+            
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            {
+                val = indxs[jindx];
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda)
+        {
+            bool changed = false;
+
+            checkLine();
+
+            var lnms = new List<string>();
+            var indxs = new List<int>();
+
+            int jindx = -1;
+
+            for (int j = 0; j < lst.Count; j++)
+            {
+                var tmp = lst[j];
+                if (!tmp.isDefaultOrNull() && lambda(tmp))
+                {
+                    if ((jindx == -1) && tmp.Equals(val))
+                        jindx = lnms.Count;
+
+                    lnms.Add(j.ToString() + ":" + tmp.ToPEGIstring());
+                    indxs.Add(j);
+                }
+            }
+
+            if (jindx == -1 && val != null)
+                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            {
+                val = lst[indxs[jindx]];
+                changed = true;
+            }
+
+            return changed;
+            
+        }
+
+        public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string label, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label, width);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string label, string tip, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label, tip, width);
+            return select(ref val, list, lambda);
         }
 
         public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda) {
@@ -916,7 +1047,7 @@ namespace PlayerAndEditorGUI
                     T tmp = lst[j];
                     if (!tmp.isDefaultOrNull())
                     {
-                        if ((!val.isDefaultOrNull()) && val.Equals(tmp))
+                        if ((!val.isDefaultOrNull()) && tmp.Equals(val))
                             jindx = lnms.Count;
                         lnms.Add(j + ": " + tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -953,7 +1084,7 @@ namespace PlayerAndEditorGUI
                     G tmp = lst[j];
                     if (!tmp.isDefaultOrNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
                     {
-                        if ((!val.isDefaultOrNull()) && val.Equals(tmp))
+                        if (tmp.Equals(val))
                             jindx = lnms.Count;
                         lnms.Add(j.ToString()+":"+tmp.ToPEGIstring());
                         indxs.Add(j);
@@ -1043,32 +1174,7 @@ namespace PlayerAndEditorGUI
 
             {
                 return select(ref ind, lst);
-               /* checkLine();
-
-                List<string> lnms = new List<string>();
-                List<int> indxs = new List<int>();
-
-                int jindx = -1;
-
-                for (int j = 0; j < lst.Count; j++)
-                {
-                    if (lst[j] != null)
-                    {
-                        if (ind == j)
-                            jindx = indxs.Count;
-                        lnms.Add(lst[j].ToPEGIstring());
-                        indxs.Add(j);
-
-                    }
-                }
-
-                if (select(ref jindx, lnms.ToArray(), width))
-                {
-                    ind = indxs[jindx];
-                    return true;
-                }
-
-                return false;*/
+              
             }
         }
 
@@ -1161,6 +1267,17 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
+        {
+            label.write(width);
+            return select<T>(ref no, tree);
+        }
+
+        public static bool select<T>(this string label, ref int no, Countless<T> tree) {
+            label.write();
+            return select<T>(ref no, tree);
+        }
+
         public static bool select<T>(ref int no, Countless<T> tree)
         {
 #if UNITY_EDITOR
@@ -1182,7 +1299,72 @@ namespace PlayerAndEditorGUI
                     filtered.Add(objs[i].ToPEGIstring());
                 }
 
-                if (select(ref tmpindex, filtered.ToArray()))
+
+                if (tmpindex == -1)
+                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
+
+
+                    if (select(ref tmpindex, filtered.ToArray()) && tmpindex< inds.Count)
+                {
+                    no = inds[tmpindex];
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+            label.write(width);
+            return select<T>(ref no, tree, lambda);
+        }
+
+        public static bool select<T>(this string label, ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+            label.write();
+            return select<T>(ref no, tree, lambda);
+        }
+
+        public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.select(ref no, tree);
+            }
+            else
+#endif
+            {
+                List<int> unfinds;
+                List<int> inds = new List<int>();
+                List<T> objs = tree.GetAllObjs(out unfinds);
+                List<string> filtered = new List<string>();
+                int tmpindex = -1;
+                int j=0;
+                for (int i = 0; i < objs.Count; i++)
+                {
+
+                    var el = objs[i];
+                    
+                    if (el != null && lambda(el))
+                    {
+                        inds.Add(unfinds[i]);
+                        if (no == inds[j])
+                            tmpindex = j;
+                        filtered.Add(objs[i].ToPEGIstring());
+                        j++;
+                    }
+                }
+
+
+
+                if (tmpindex == -1)
+                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
+
+
+                if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
+
+                  //  if (select(ref tmpindex, filtered.ToArray()))
                 {
                     no = inds[tmpindex];
                     return true;
@@ -1435,7 +1617,7 @@ namespace PlayerAndEditorGUI
         {
             return select_or_edit(null, null, 0, ref obj, list);
         }
-        
+
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
             if (list == null || list.Count == 0)
@@ -3361,13 +3543,20 @@ namespace PlayerAndEditorGUI
                 return;
             }
 
+
+            if (Count > listShowMax * 3)
+            {
+                SectionSizeOptimal = listShowMax;
+                return;
+            }
+
             SectionSizeOptimal = ListSectionOptimal[Count];
 
             if (SectionSizeOptimal == 0)
             {
                 int bestdifference = 999;
                 
-                for (int i=listShowMax-3; i< listShowMax+3; i++)
+                for (int i=listShowMax-2; i< listShowMax+2; i++)
                 {
                     int difference = i - (Count % i);
 
@@ -3517,6 +3706,8 @@ namespace PlayerAndEditorGUI
 
             SetOptimalSectionFor(ListSectionMax);
 
+          
+
             if (ListSectionMax >= SectionSizeOptimal * 2)
             {
                 if (!listInspectionIndexes.TryGetValue(list, out ListSectionStartIndex))
@@ -3544,9 +3735,13 @@ namespace PlayerAndEditorGUI
                     if (changed)
                         listInspectionIndexes[list] = ListSectionStartIndex;
                 }
+                else  Line(Color.gray);
+
 
                 ListSectionMax = Mathf.Min(ListSectionMax, ListSectionStartIndex + SectionSizeOptimal);
             }
+            else if (list.Count > 0)
+                Line(Color.gray);
 
             nl();
 
@@ -3569,13 +3764,13 @@ namespace PlayerAndEditorGUI
                     if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
                         ListSectionStartIndex += SectionSizeOptimal;
                         listInspectionIndexes[list] = ListSectionStartIndex;
-                    }
+                    } 
                 }
                 else
                     icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
                
-            }
-
+            } else if (list.Count > 0)
+                Line(Color.gray);
 
             return false;
         }
@@ -3585,7 +3780,7 @@ namespace PlayerAndEditorGUI
            /* if (lst == editingOrder)
                 write(label, listLabelWidth);
             else*/
-                write(label);
+                write(label, heading);
         
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
@@ -3624,10 +3819,10 @@ namespace PlayerAndEditorGUI
             const int bttnWidth = 25;
 
             if (list != editingOrder) {
-                if (icon.Edit.Click("Change Order"))
+                if (icon.Edit.Click("Change Order", 28))
                     editingOrder = list;
             } else {
-                if (icon.Done.Click("Finish moving"))
+                if (icon.Done.Click("Finish moving", 28))
                     editingOrder = null;
             }
 
@@ -4301,6 +4496,8 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        // ....... of Countless
+        
         #endregion
         
         #region Transform

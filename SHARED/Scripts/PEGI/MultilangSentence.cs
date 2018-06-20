@@ -43,6 +43,9 @@ namespace PlayerAndEditorGUI
 
     [Serializable]
     public class Sentance : abstract_STD
+#if PEGI
+            , iPEGI
+#endif
     {
 
         public static bool showTexts;
@@ -68,7 +71,7 @@ namespace PlayerAndEditorGUI
             return true;
         }
         #if PEGI
-        public override bool PEGI()
+        public virtual bool PEGI()
         {
             string tmp = ToString();
             if (pegi.editBig(ref tmp))

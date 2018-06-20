@@ -26,6 +26,7 @@ namespace SharedTools_Stuff
         public static bool isUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
         
 
+
         public static void SetToDirty(this object obj)
         {
 #if UNITY_EDITOR
@@ -368,6 +369,19 @@ namespace SharedTools_Stuff
                     UnityEngine.Object.DestroyImmediate(go);
             }
         }
+
+        public static void ToLinear (this Color[] list)
+        {
+            for (int i = 0; i < list.Length; i++)
+                list[i] = list[i].linear;
+        }
+
+        public static void ToGamma(this Color[] list)
+        {
+            for (int i = 0; i < list.Length; i++)
+                list[i] = list[i].gamma;
+        }
+
 
         public static Vector2 To01Space(this Vector2 v2)
         {
@@ -820,21 +834,19 @@ namespace SharedTools_Stuff
         public static void CopyFrom(this Texture2D tex, RenderTexture rt)
         {
 
+          
+
+            if (rt == null || tex == null)
+            {
+#if UNITY_EDITOR
+                Debug.Log("Texture is null");
+#endif
+                return;
+            }
+
             RenderTexture curRT = RenderTexture.active;
 
             RenderTexture.active = rt;
-
-            if (RenderTexture.active == null)
-            {
-                Debug.Log("Active is null");
-                return;
-            }
-
-            if (tex == null)
-            {
-                Debug.Log("Texture is null");
-                return;
-            }
 
             tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
 

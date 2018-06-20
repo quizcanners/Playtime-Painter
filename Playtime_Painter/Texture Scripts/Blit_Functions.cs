@@ -132,12 +132,15 @@ public static class Blit_Functions {
 
         public static bool Paint(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
 
-            Vector2 uvCoords = stroke.uvFrom;
+        Vector2 uvCoords = stroke.uvFrom;
 
         brAlpha = brushAlpha;
 
         bc.PrepareCPUBlit();
-            
+
+            if (image == null || image.pixels == null)
+                return false;
+
         int ihalf = (int)(half-0.5f);
         bool smooth = bc.type(true) != BrushTypePixel.inst;
         if (smooth) ihalf += 1;

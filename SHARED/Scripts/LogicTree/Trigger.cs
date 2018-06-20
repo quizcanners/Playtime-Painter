@@ -18,9 +18,13 @@ namespace STD_Logic
 
 
     [Serializable]
-    public class Trigger : abstract_STD {
+    public class Trigger : abstract_STD
+#if PEGI
+            , iPEGI
+#endif
+    {
 
-       // public static string searched = "";
+        // public static string searched = "";
         public static string TriggerEdControlName;
         public static string EditedtextHold;
         public static int focusIndex = -2;
@@ -106,7 +110,7 @@ namespace STD_Logic
         public const string storyTag_Trg = "Trg";
 
 #if PEGI
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             return TriggerUsage.select_PEGI(ref usage);
         }
 #endif

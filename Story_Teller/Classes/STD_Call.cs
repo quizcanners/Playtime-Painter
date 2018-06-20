@@ -44,7 +44,11 @@ namespace StoryTriggerData {
 #endif
     }
 
-    public class STD_Call : abstract_STD {
+    public class STD_Call : abstract_STD
+#if PEGI
+            , iPEGI
+#endif
+    {
 
         public string tag = "null";
         public string _data = "null";
@@ -77,7 +81,7 @@ namespace StoryTriggerData {
         public static STD_Poolable browsedForCalls;
         public static STD_Call edited;
 
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             bool changed = false;
             pegi.newLine();
             pegi.write(getDescription());

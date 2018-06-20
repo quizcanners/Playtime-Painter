@@ -19,8 +19,8 @@ namespace STD_Logic
 
     public class TriggerGroup : abstractKeepUnrecognized_STD
      #if PEGI
-        , iGotName, iGotIndex
-#endif
+        , iGotName, iGotIndex, iPEGI
+    #endif
     {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();

@@ -46,7 +46,7 @@ namespace Playtime_Painter {
             if (brush == null)
                 brush = Shader.Find("Editor/br_Volume");
 #if PEGI
-            PlugIn_PainterComponent(Component_PEGI);
+            PlugIn_PainterComponent = Component_PEGI;
             
             PlugIn_BrushConfigPEGI(BrushConfigPEGI);
 #endif

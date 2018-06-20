@@ -25,9 +25,11 @@ namespace Playtime_Painter
             return ToString();
         }
 
-        protected void PlugIn_PainterComponent(pegi.CallDelegate d) {
-            plugins_ComponentPEGI += d;
-            PlaytimePainter.plugins_ComponentPEGI += d;
+        protected pegi.CallDelegate PlugIn_PainterComponent { set
+            {
+                plugins_ComponentPEGI += value;
+                PlaytimePainter.plugins_ComponentPEGI += value;
+            }
         }
 #endif
 
@@ -76,7 +78,6 @@ namespace Playtime_Painter
         public virtual void OnDisable() {
 #if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
-            
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
 #endif
             PlaytimePainter.plugins_GizmoDraw -= plugins_GizmoDraw;

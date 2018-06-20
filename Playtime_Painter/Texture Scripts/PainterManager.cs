@@ -81,6 +81,8 @@ namespace Playtime_Painter
 
         public const int renderTextureSize = 2048;
 
+        [NonSerialized] public WebCamTexture webCamTexture;
+        
         public List<ImageData> imgDatas = new List<ImageData>();
 
         public List<MaterialData> matDatas = new List<MaterialData>();
@@ -250,7 +252,9 @@ namespace Playtime_Painter
 
         // Main Render Textures used for painting
         public RenderTexture[] BigRT_pair;
-        
+        public int bigRTversion = 0;
+
+
         [NonSerialized]
         List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
         public RenderTexture GetNonSquareBuffer(int width, int height)
@@ -263,29 +267,88 @@ namespace Playtime_Painter
             return rt;
         }
 
-        public RenderTexture painterRT_toBuffer(int width, int height)
-        {
+        public RenderTexture GetDownscaledBigRT(int width, int height) => Downscale_ToBuffer(BigRT_pair[0], width, height);
+        // {
 
-            if (BigRT_pair[0] == null)
+        /* if (BigRT_pair[0] == null)
+             return null;
+
+         bool square = (width == height);
+         if ((!square) || (!Mathf.IsPowerOfTwo(width)))
+             return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height), brushRendy_bufferCopy );
+         else
+         {
+             int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
+
+             RenderTexture from = Render(BigRT_pair[0], GetSquareBuffer(tmpWidth));
+
+             while (tmpWidth > width)  {
+                 tmpWidth /= 2;
+                 from = Render(from, GetSquareBuffer(tmpWidth));
+             }
+
+             return from;*/
+
+
+        //}
+
+
+        //  }
+
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material mat) => Downscale_ToBuffer(tex, width, height, mat, null);
+
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Shader shade) => Downscale_ToBuffer(tex, width, height, null, shade);
+
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, brushRendy_bufferCopy);
+       /* {
+
+            if (tex == null)
                 return null;
 
             bool square = (width == height);
             if ((!square) || (!Mathf.IsPowerOfTwo(width)))
-                return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height), brushRendy_bufferCopy );
+                return Render(tex, GetNonSquareBuffer(width, height), brushRendy_bufferCopy);
             else
             {
-                int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
- 
-                RenderTexture from = Render(BigRT_pair[0], GetSquareBuffer(tmpWidth));
-                
-                while (tmpWidth > width)  {
+                int tmpWidth = Mathf.Max(tex.width / 2, width);
+
+                RenderTexture from = Render(tex, GetSquareBuffer(tmpWidth), brushRendy_bufferCopy);
+
+                while (tmpWidth > width)
+                {
                     tmpWidth /= 2;
-                    from = Render(from, GetSquareBuffer(tmpWidth));
+                    from = Render(from, GetSquareBuffer(tmpWidth), brushRendy_bufferCopy);
                 }
 
                 return from;
             }
 
+        }*/
+
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material, Shader shader) {
+
+            if (tex == null)
+                return null;
+
+            if (!shader) shader = brushRendy_bufferCopy;
+
+            bool square = (width == height);
+            if ((!square) || (!Mathf.IsPowerOfTwo(width)))
+                return Render(tex, GetNonSquareBuffer(width, height), shader);
+            else
+            {
+                int tmpWidth = Mathf.Max(tex.width / 2, width);
+                
+                RenderTexture from = material ? Render(tex, GetSquareBuffer(tmpWidth), material) : Render(tex, GetSquareBuffer(tmpWidth),  shader);
+
+                while (tmpWidth > width)
+                {
+                    tmpWidth /= 2;
+                    from = material ? Render(from, GetSquareBuffer(tmpWidth), material) : Render(from, GetSquareBuffer(tmpWidth), shader);
+                }
+
+                return from;
+            }
         }
 
         // Assign some quad to this to see second buffer on it
@@ -521,21 +584,8 @@ namespace Playtime_Painter
 
         // **************************   Rendering calls
 
-        public void Render()
-        {
-            transform.rotation = Quaternion.identity;
-            Shader.SetGlobalVector("_RTcamPosition", transform.position);
-
-            brushRendy.gameObject.SetActive(true);
-            rtcam.Render();
-            brushRendy.gameObject.SetActive(false);
-
-            secondBufferUpdated = false;
-
-            if (brushRendy.deformedBounds)
-                brushRendy.RestoreBounds();
-
-        }
+    
+            // Blit doesn't work well with non power of 2 size
 
         public void Blit(Texture tex, ImageData id)
         {
@@ -568,6 +618,22 @@ namespace Playtime_Painter
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
             AfterRenderBlit(to);
         }
+        
+        public void Render()
+        {
+            transform.rotation = Quaternion.identity;
+            Shader.SetGlobalVector("_RTcamPosition", transform.position);
+
+            brushRendy.gameObject.SetActive(true);
+            rtcam.Render();
+            brushRendy.gameObject.SetActive(false);
+
+            secondBufferUpdated = false;
+
+            if (brushRendy.deformedBounds)
+                brushRendy.RestoreBounds();
+
+        }
 
         public RenderTexture Render(Texture from, RenderTexture to, Shader shade)
         {
@@ -575,9 +641,17 @@ namespace Playtime_Painter
             return to;
         }
 
+        public RenderTexture Render(Texture from, RenderTexture to, Material mat)
+        {
+            brushRendy.CopyBuffer(from, to, mat);
+            return to;
+        }
+
         public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to , brushRendy_bufferCopy);
 
         public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.currentTexture(), to, brushRendy_bufferCopy);
+
+        public RenderTexture Render(Texture from, ImageData to) => Render(from, to.currentRenderTexture(), brushRendy_bufferCopy);
 
         public void Render(Color col, RenderTexture to)
         {
@@ -589,8 +663,11 @@ namespace Playtime_Painter
 
         void AfterRenderBlit (Texture target)
         {
-            if (BigRT_pair.Length>0 && BigRT_pair[0]!= null && BigRT_pair[0] == target)
+            if (BigRT_pair.Length > 0 && BigRT_pair[0] != null && BigRT_pair[0] == target)
+            {
+               // bigRTversion++;
                 secondBufferUpdated = false;
+            }
         }
 
         public void UpdateBufferTwo()
@@ -598,6 +675,7 @@ namespace Playtime_Painter
             brushRendy.Set(pixPerfectCopy);
             Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
             secondBufferUpdated = true;
+            bigRTversion++;
         }
 
         public bool secondBufferUpdated = false;
@@ -610,6 +688,7 @@ namespace Playtime_Painter
                 brushRendy.Set(brushRendy_bufferCopy);
                 Render();
                 secondBufferUpdated = true;
+                bigRTversion++;
             }
         }
 
@@ -774,6 +853,8 @@ namespace Playtime_Painter
         {
             PainterStuff.applicationIsQuitting = true;
 
+            StopCamera();
+
             if (PlaytimePainter.isCurrent_Tool())
                 PlaytimeToolComponent.SetPrefs();
 
@@ -845,8 +926,43 @@ namespace Playtime_Painter
             meshManager.Update();
         }
 
+        public void StopCamera()
+        {
+            if (webCamTexture != null)
+            {
+                webCamTexture.Stop();
+                webCamTexture.DestroyWhatever();
+                webCamTexture = null;
+            }
+        }
+
+        float cameraUnusedTime = 0f;
+        public Texture GetWebCamTexture()
+        {
+            cameraUnusedTime = 0;
+
+
+            if (webCamTexture == null)
+                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
+
+            if (!webCamTexture.isPlaying)
+                webCamTexture.Play();
+
+
+            return webCamTexture;
+        }
+
+
         public void combinedUpdate()
         {
+
+            if (webCamTexture && webCamTexture.isPlaying)
+            {
+                cameraUnusedTime += Time.deltaTime;
+
+                if (cameraUnusedTime > 10f)
+                    webCamTexture.Stop();
+            }
 
             List<PlaytimePainter> l = PlaytimePainter.playbackPainters;
 

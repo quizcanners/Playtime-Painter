@@ -672,6 +672,9 @@ namespace Playtime_Painter {
 
         [Serializable]
         public class TextureChannel : abstract_STD
+#if PEGI
+            ,iPEGI
+#endif
         {
             public bool enabled;
             public bool flip = false;
@@ -703,7 +706,7 @@ namespace Playtime_Painter {
 
             #if PEGI
 
-            public override bool PEGI()
+            public virtual bool PEGI()
             {
 
                 bool changed = false;

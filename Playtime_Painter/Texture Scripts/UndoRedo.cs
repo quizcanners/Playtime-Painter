@@ -158,28 +158,35 @@ namespace Playtime_Painter {
 
 			if (toRT) {
 				if (fromRT) 
-					rtp.Blit (rtBackup.rt, id);
+					rtp.Render (rtBackup.rt, id);
 				else 
-					rtp.Blit (id.texture2D, id);
+					rtp.Render (id.texture2D, id);
 				
 			} else if (fromRT) {
 					id.texture2D.CopyFrom (rtBackup.rt);
                     id.PixelsFromTexture2D (id.texture2D);
 
+                bool converted = false;
+
                 if ((PainterManager.inst.isLinearColorSpace) && (!rtBackup.exclusive))
+                {
+                    converted = true;
                     id.pixelsToGamma();
+                }
                 //else
-                 //   id.pixelsToLinear();
-               // if (!RenderTexturePainter.inst.isLinearColorSpace)
+                //   id.pixelsToLinear();
+                // if (!RenderTexturePainter.inst.isLinearColorSpace)
                 //{
-                  //  Debug.Log("Pixels to lnear");
-      
-                 //   id.pixelsToLinear();
+                //  Debug.Log("Pixels to lnear");
+
+                //   id.pixelsToLinear();
                 //}
 
                 // In Linear dont turn to gamma if saved from Exclusive Render Texture
-                  
-                id.SetAndApply(true);
+                if (converted)
+                    id.SetAndApply(true);
+                else
+                    id.texture2D.Apply(true);
             } 
 
 			if (fromRT)

@@ -74,6 +74,7 @@ namespace Playtime_Painter{
         public const string BRUSH_ATLAS_SECTION_AND_ROWS = "_brushAtlasSectionAndRows";
         public const string BRUSH_SAMPLING_DISPLACEMENT = "_brushSamplingDisplacement";
         public const string DESTINATION_BUFFER = "_DestBuffer";
+        public const string SOURCE_TEXTURE = "_SourceTexture";
         //public const string BRUSH_IS_ATLASED = "BRUSH_IS_ATLASED";
         // Preview Constants
         public const string UV_NORMAL = "UV_NORMAL";

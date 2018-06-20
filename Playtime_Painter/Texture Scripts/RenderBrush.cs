@@ -146,8 +146,12 @@ public class RenderBrush : PainterStuffMono {
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
         }
-        
-        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Shader shade)
+
+        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
+
+        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Material mat) => CopyBuffer(tex, onto, mat, null);
+
+        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Material material, Shader shade)
         {
 
             if (tex != null && onto != null)
@@ -168,15 +172,26 @@ public class RenderBrush : PainterStuffMono {
 
                 Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1f/aspectRatio);
                
-                Set(tex);
+                if (material)
+                {
+                    var tmpMat = meshRendy.material;
+                    meshRendy.material = material;
+                    if (tex)
+                        Set(tex);
+                    texMGMT.Render();
+                    meshRendy.material = tmpMat;
+                }
+                else
+                {
+                  
+                    if (shade == null)
+                        shade = texMGMT.pixPerfectCopy;
+                    Set(shade);
+                    Set(tex);
+                    texMGMT.Render();
+                }
                 
-                if (shade == null)
-                    shade = texMGMT.pixPerfectCopy;
-
-                Set(shade);
-                
-                texMGMT.Render();
-
+               
                 if (aspectRatio != 1)
                     Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1);
 

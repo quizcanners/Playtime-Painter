@@ -10,7 +10,7 @@ namespace STD_Logic
 
     public class ConditionBranch : abstract_STD
         #if PEGI
-        , iGotName 
+        , iGotName , iPEGI
 #endif
         {
         public List<ConditionLogic> conds = new List<ConditionLogic>();
@@ -59,7 +59,7 @@ namespace STD_Logic
             return true;
         }
         #if PEGI
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             //return false;
              return PEGI(null);
         }

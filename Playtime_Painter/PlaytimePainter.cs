@@ -737,7 +737,7 @@ namespace Playtime_Painter{
 		    if (nt == null)
 			    Debug.Log ("Change texture destroyed curigdata");
 
-			PainterManager.inst.Blit (previous.currentTexture(), nt);
+			PainterManager.inst.Render (previous.currentTexture(), nt);
 
             UpdateOrSetTexTarget (texTarget.RenderTexture);
 
@@ -1479,8 +1479,13 @@ namespace Playtime_Painter{
 
         #region COMPONENT MGMT 
 
-        public bool LockTextureEditing { get { if (meshEditing || cfg.showConfig) return true;
-                var i = imgData; return i == null ? true : i.lockEditing; }
+        public bool LockTextureEditing { get { if (meshEditing) return true;
+                var i = imgData; return i == null ? true : 
+                    
+                    i.lockEditing || i.other!=null;
+
+
+            }
         set { var i = imgData; if (i != null) i.lockEditing = value; }
         }
         public bool forcedMeshCollider;

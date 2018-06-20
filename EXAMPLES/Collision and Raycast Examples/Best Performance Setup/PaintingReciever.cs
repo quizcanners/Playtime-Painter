@@ -101,7 +101,7 @@ public class PaintingRecieverEditor : Editor
 
                 var tex = originalTexture == null ? matTex : originalTexture;
                 if (tex != null)
-                PainterManager.inst.Blit( tex , (RenderTexture) texture);
+                    PainterManager.inst.Blit( tex , (RenderTexture) texture);
                 else
                     PainterManager.inst.Render(Color.black , (RenderTexture)texture);
 

@@ -43,7 +43,8 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public abstract class abstractKeepUnrecognized_STD : abstract_STD, iKeepUnrecognizedSTD {
+    public abstract class abstractKeepUnrecognized_STD : abstract_STD, iKeepUnrecognizedSTD
+    {
      
         protected List<string> unrecognizedTags = new List<string>();
         protected List<string> unrecognizedData = new List<string>();
@@ -66,7 +67,7 @@ namespace SharedTools_Stuff
         public bool showDebug;
         public static int inspectedUnrecognized = -1;
         
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             bool changed = false;
            
             if (!showDebug && icon.Config.Click())
@@ -90,9 +91,6 @@ namespace SharedTools_Stuff
 
     [Serializable]
     public abstract class abstract_STD : iSTD
-#if PEGI
-        , iPEGI
-#endif
     {
 
         public abstract stdEncoder Encode();
@@ -102,10 +100,7 @@ namespace SharedTools_Stuff
             new stdDecoder(cody.ToString()).DecodeTagsFor(this);
             return this;
         }
-        #if PEGI
-        public virtual bool PEGI() { pegi.nl(); (GetType()+" class has no PEGI() function.").nl();
-            return false; }
-#endif
+
         public abstract bool Decode(string tag, string data);
     }
 

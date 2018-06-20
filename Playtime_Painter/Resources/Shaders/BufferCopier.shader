@@ -49,8 +49,7 @@
 
 
 	float4 frag(v2f i) : COLOR{
-		float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0));
-		return col;
+		return tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0));
 	}
 		ENDCG
 	}

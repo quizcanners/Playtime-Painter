@@ -5,10 +5,10 @@
 
 	sampler2D _SourceTexture;
 	sampler2D _DestBuffer;
+	float4 _DestBuffer_TexelSize;
 	sampler2D _SourceMask;
 	sampler2D _VolDecalHeight;
     sampler2D _VolDecalOverlay;
-    float4 _DestBuffer_TexelSize;
 	float4 _brushForm; // x - alpha, y - sphere scale, z - uvspace scale
 	float4 _PaintersSection;
 	float4 _brushMask;
@@ -26,6 +26,22 @@
 	float4 _brushPointedUV_Untiled;
 	float _BufferCopyAspectRatio = 1;
 
+	/*float3 Hue(float H)
+	{
+		float R = abs(H * 6 - 3) - 1;
+		float G = 2 - abs(H * 6 - 2);
+		float B = 2 - abs(H * 6 - 4);
+		return saturate(float3(R, G, B));
+	}
+
+	float4 HSVtoRGB(in float3 HSV)
+	{
+		return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z, 1);
+	}*/
+
+	inline float random(float2 st) {
+		return frac(sin(dot(st.xy+_Time.x, float2(12.9898f, 78.233f)))* 43758.5453123f);
+	}
 
 	inline bool isAcute(float a, float b, float c) {
         if (c == 0) return true;

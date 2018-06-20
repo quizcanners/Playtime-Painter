@@ -68,6 +68,9 @@ namespace StoryTriggerData {
 
     [Serializable]
     public class UniverseLength : SpaceValues
+#if PEGI
+            , iPEGI
+#endif
     {
         public static readonly UniverseLength one = new UniverseLength(1);
 
@@ -216,7 +219,7 @@ namespace StoryTriggerData {
             return changed;
         }
 
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             bool changed = false;
             if (expand)
             {
@@ -336,6 +339,9 @@ namespace StoryTriggerData {
 
     [Serializable]
     public class UniversePosition : SpaceValues
+#if PEGI
+            , iPEGI
+#endif
     {
 
         public override bool Decode(string tag, string data) {
@@ -806,7 +812,7 @@ namespace StoryTriggerData {
             return changed;
         }
 
-        public override bool PEGI() {
+        public virtual bool PEGI() {
             bool changed = false;
             if (expand)
             {

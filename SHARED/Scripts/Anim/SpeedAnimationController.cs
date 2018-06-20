@@ -37,7 +37,12 @@ using STD_Logic;
 #endif
     }
 
-    public class SpeedAnimationFrame : abstractKeepUnrecognized_STD {
+    public class SpeedAnimationFrame : abstractKeepUnrecognized_STD
+#if PEGI
+        , iPEGI
+#endif
+
+    {
 
         public SpeedAnimationController mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
 

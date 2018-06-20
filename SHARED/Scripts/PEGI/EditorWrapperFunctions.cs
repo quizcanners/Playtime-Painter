@@ -204,9 +204,7 @@ namespace  PlayerAndEditorGUI {
 
             return isFoldedOut;
         }
-
-
-
+        
         public static bool foldout(string txt)
         {
             checkLine();
@@ -442,28 +440,6 @@ namespace  PlayerAndEditorGUI {
             }
             return changed;
 
-        }
-
-        public static bool select<T>(ref int ind, T[] lst)
-        {
-            checkLine();
-
-            List<string> lnms = new List<string>();
-            //List<int> indxs = new List<int>();
-
-            int before = ind;
-            ind = ind.ClampZeroTo(lst.Length);
-
-            for (int i = 0; i < lst.Length; i++)
-            {
-                var e = lst[i];
-
-                lnms.Add(i + ": " + (e == null ? "Nothing" : e.ToPEGIstring()));
-            }
-            if (select(ref ind, lnms.ToArray()))
-                return true;
-
-            return ind != before;
         }
         
         public static bool select(ref int no, string[] from, int width)
@@ -1233,6 +1209,26 @@ namespace  PlayerAndEditorGUI {
             checkLine();
 
             EditorGUILayout.LabelField(text);
+        }
+
+        public static void write(string text, GUIStyle style )
+        {
+            checkLine();
+            EditorGUILayout.LabelField("", style);
+        }
+
+        public static void write(string text, string hint, GUIStyle style)
+        {
+            checkLine();
+            EditorGUILayout.LabelField(new GUIContent(text, hint), style);
+        }
+
+        public static void write(string text, string hint, int width , GUIStyle style)
+        {
+            checkLine();
+            EditorGUILayout.LabelField(new GUIContent(text, hint), style, GUILayout.MaxWidth(width));
+
+            //  EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         }
 
         public static void writeHint(string text, MessageType type)

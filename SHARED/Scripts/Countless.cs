@@ -8,6 +8,12 @@ using PlayerAndEditorGUI;
 namespace SharedTools_Stuff
 {
 
+    public interface iCountlessIndex
+    {
+        int CountlessIndex { get; set; }
+    }
+
+
     public abstract class CountlessBase {
 
         protected static VariableBranch[] branchPool = new VariableBranch[32];
@@ -16,7 +22,6 @@ namespace SharedTools_Stuff
         protected static int frPoolMax = 0;
         protected static ArrayManager<VariableBranch> array = new ArrayManager<VariableBranch>();
         protected static int branchSize = 8;
-
         protected static void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
@@ -126,6 +131,7 @@ namespace SharedTools_Stuff
         protected VariableBranch[] path;
         protected int[] pathInd;
         protected VariableBranch br;
+        protected int lastFreeIndex;
 
         #if PEGI
 
@@ -152,7 +158,8 @@ namespace SharedTools_Stuff
     public abstract class STDCountlessBase : CountlessBase, iSTD
     {
 
-        public virtual stdEncoder Encode() { return null; }
+        public virtual stdEncoder Encode() {
+            return null; }
 
         public virtual iSTD Decode(string data)
         {
@@ -163,7 +170,6 @@ namespace SharedTools_Stuff
 
         public virtual bool Decode(string subtag, string data) { return true; }
 
-        public virtual string getDefaultTagName() { return "TreeBase not implemented"; }
 
     }
 
@@ -183,6 +189,7 @@ namespace SharedTools_Stuff
                         Set(inds[i], vals[i]);
                     inds = null;
                     break;
+                case "last": lastFreeIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -199,14 +206,16 @@ namespace SharedTools_Stuff
 
             cody.Add_IfNotEmpty("inds", inds);
             cody.Add_IfNotEmpty("vals", vals);
+            cody.Add("last", lastFreeIndex);
+
 
             inds = null;
 
             return cody;
         }
 
-        public const string storyTag = "TreeInt";
-        public override string getDefaultTagName() { return storyTag; }
+     //   public const string storyTag = "TreeInt";
+       // public override string getDefaultTagName() { return storyTag; }
 
         public void GetItAll(out List<int> inds, out List<int> vals)
         {
@@ -416,16 +425,17 @@ namespace SharedTools_Stuff
 
                     inds = null;
                     break;
+                case "last": lastFreeIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
 
         }
 
-        public override stdEncoder Encode() => new stdEncoder().Add_IfNotEmpty("inds", GetItAll());
+        public override stdEncoder Encode() => new stdEncoder().Add_IfNotEmpty("inds", GetItAll()).Add("last", lastFreeIndex);
 
-        public const string storyTag = "TreeBool";
-        public override string getDefaultTagName() =>  storyTag; 
+      //  public const string storyTag = "TreeBool";
+      //  public override string getDefaultTagName() =>  storyTag; 
 
         public List<int> GetItAll()
         {
@@ -877,15 +887,17 @@ namespace SharedTools_Stuff
             objs = new T[0];
             firstFreeObj = 0;
         }
-        
+
+        public virtual bool NotEmpty => objs.Length > 0;
+
         public string getDefaultTagName()
         {
             return "cntless";
         }
 
-        public IEnumerator GetEnumerator() {
+        public IEnumerator<T> GetEnumerator() {
             List<int> indx;
-            var all = GetAllObjs(out indx);
+            List<T> all = GetAllObjs(out indx);
             for (int i = 0; i < all.Count; i++) {
                 var e = all[i];
                 if (!e.isDefaultOrNull()) {
@@ -942,8 +954,8 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public const string storyTag = "TreeObj";
-        public override string getDefaultTagName() { return storyTag; }
+     //   public const string storyTag = "TreeObj";
+      //  public override string getDefaultTagName() { return storyTag; }
 
         public void Expand(ref T[] args, int add) // no instantiating
         {
@@ -1526,8 +1538,8 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public const string storyTag = "TreeObj";
-        public override string getDefaultTagName() { return storyTag; }
+     //   public const string storyTag = "TreeObj";
+      //  public override string getDefaultTagName() { return storyTag; }
     }
     
     public class VariableBranch

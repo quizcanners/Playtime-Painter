@@ -32,8 +32,7 @@ namespace StoryTriggerData
         public List<Result> results;
         public List<STD_Call> calls;
         public string goToReference;
-
-
+        
         public static bool unfoldPegi;
 
         public const string storyTag = "talkOpt";
@@ -44,9 +43,7 @@ namespace StoryTriggerData
             .Add("t",text)
             .Add_ifNotEmpty("t2", texts2)
             .Add_ifNotEmpty("res", results);
-
-          
-
+        
         public override bool Decode(string tag, string data) {
           
            switch (tag) {
@@ -73,9 +70,7 @@ namespace StoryTriggerData
                 Decode(data);
           
         }
-
-       
-
+        
         void Clear() {
             conditions = new ConditionBranch();
             texts2 = new List<Sentance>();
@@ -147,8 +142,7 @@ namespace StoryTriggerData
         public static bool showFinal_Results;
         public static bool showOnExit_Results;
         public static bool showOnEnter_Results;
-
-
+        
         public override stdEncoder Encode() => EncodeUnrecognized()
             .Add_IfNotEmpty("ref", reference)
             .Add("Conds", conditions)
@@ -169,12 +163,9 @@ namespace StoryTriggerData
             }
             return true;
         }
-
-
-
+        
         public const string storyTag_intrct = "intrct";
-
-
+        
         public Interaction() {
             Clear();
         }

@@ -234,10 +234,12 @@ public static class TextureEditorExtensionFunctions  {
                 return null;
 
             ImageData id = null;
-            if (imgDTA.texture2D != null)
+            if (imgDTA.texture2D)
                 id = imgDTA.texture2D.getImgDataIfExists();
-            else if (imgDTA.renderTexture != null)
+            else if (imgDTA.renderTexture)
                 id = imgDTA.renderTexture.getImgDataIfExists();
+            else if (imgDTA.other != null)
+                id = imgDTA.other.getImgDataIfExists();
             else
                 return null;
 
@@ -264,7 +266,7 @@ public static class TextureEditorExtensionFunctions  {
 
             for (int i = 0; i < lst.Count; i++) {
                 ImageData id = lst[i];
-                if ((texture == id.texture2D) || (texture == id.renderTexture)) {
+                if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
                     rid = id;
                     if (i > 3) 
                         PainterManager.inst.imgDatas.Move(i, 0);
@@ -346,6 +348,10 @@ public static class TextureEditorExtensionFunctions  {
         {
             if (id == null)
                 return null;
+
+            if (id.other != null)
+                return id.other;
+
             switch (id.destination)
             {
                 case texTarget.RenderTexture:
@@ -360,6 +366,10 @@ public static class TextureEditorExtensionFunctions  {
         {
             if (id == null)
                 return null;
+
+            if (id.other)
+                return id.other;
+
             switch (id.destination)
             {
                 case texTarget.RenderTexture:

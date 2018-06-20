@@ -9,7 +9,7 @@ namespace STD_Logic {
 
     public class LogicBranch<T> : abstractKeepUnrecognized_STD 
         #if PEGI
-        , iGotName 
+        , iGotName , iPEGI
 #endif
         where T: iSTD, new()
     {

@@ -14,6 +14,9 @@ namespace Playtime_Painter
 
     [Serializable]
     public class MeshPackagingProfile : abstract_STD
+#if PEGI
+            , iPEGI
+#endif
     {
         public List<VertexSolution> sln;
 
@@ -21,7 +24,7 @@ namespace Playtime_Painter
 
         public const string folderName = "Mesh Profiles";
         #if PEGI
-        public override bool PEGI()
+        public virtual bool PEGI()
         {
 
             "Profile Name: ".edit(80, ref name);
@@ -292,7 +295,10 @@ namespace Playtime_Painter
 
 
     [Serializable]
-    public class VertexSolution : abstract_STD 
+    public class VertexSolution : abstract_STD
+#if PEGI
+            , iPEGI
+#endif
     {
         public int sameSizeDataIndex;
         public int targetIndex;
@@ -305,7 +311,7 @@ namespace Playtime_Painter
 
         public List<VertexDataValue> vals;
         #if PEGI
-        public override bool PEGI()
+        public virtual bool PEGI()
         {
             bool changed = false;
 
