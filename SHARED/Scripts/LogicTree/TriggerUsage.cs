@@ -21,28 +21,15 @@ namespace STD_Logic
 
         public static List<string> names = new List<string>();
 #if PEGI
-        public static bool select_PEGI(ref int ind) {
-            return pegi.select(ref ind, usgs, 45);
-        }
+        public static bool selectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
+        
+        public bool inspect(ValueIndex arg, Values so) => inspect(arg.triggerIndex, arg.Group);
+        
+        public virtual void inspect(ConditionLogic c) { }
 
-        public bool editTrigger_And_Value_PEGI(ValueIndex arg, Values so) {
-            return editTrigger_And_Value_PEGI(arg.triggerIndex, arg.group, so);
-        }
-
-        public virtual void conditionPEGI(ConditionLogic c, Values so) {
-   
-        }
-
-        public virtual bool resultsPEGI(Result r, Values so) {
-            return false;
-        }
-
-        public virtual void testOnceConditionPEGI(TestOnceCondition c, Values so) {
-            conditionPEGI(c, so);
-
-        }
-
-        public virtual bool selectActionPEGI(ref ResultType r, Dictionary<int, string> resultUsages) {
+        public abstract bool inspect(Result r);// => false;
+        
+        public virtual bool select(ref ResultType r, Dictionary<int, string> resultUsages) {
             bool changed = false;
             int t = (int)r;
 
@@ -61,9 +48,8 @@ namespace STD_Logic
             }
             return changed;
         }
-
-
-        public virtual bool selectActionPEGI(ref ConditionType c, Dictionary<int, string> conditionUsages)
+        
+        public virtual bool select(ref ConditionType c, Dictionary<int, string> conditionUsages)
         {
             bool changed = false;
             int t = (int)c;
@@ -85,9 +71,8 @@ namespace STD_Logic
             }
             return changed;
         }
-
-
-              public virtual bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
+        
+        public virtual bool inspect(int ind, TriggerGroup group) {
             bool changed = false;
             Trigger t = group.triggers[ind];
             string before = t.name;
@@ -105,8 +90,7 @@ namespace STD_Logic
         public virtual bool hasMoreTriggerOptions() {
             return false;
         }
-
-  
+        
         public virtual bool usingBool() {
             return false;
         }
@@ -118,11 +102,11 @@ namespace STD_Logic
         public static Usage_Boolean boolean = new Usage_Boolean(0);
         public static Usage_Number number = new Usage_Number(1);
         public static Usage_StringEnum enumer = new Usage_StringEnum(2);
-        // public static Usage_BoolTag boolTag = new Usage_BoolTag(3);
-        // public static Usage_IntTag intTag = new Usage_IntTag(4);
-        // public static Usage_GameTimeStemp timestamp = new Usage_GameTimeStemp(5);
-        // public static Usage_RealTimestemp realTime = new Usage_RealTimestemp(6);
-        // public static Usage_Pointer pointer = new Usage_Pointer(7);
+        public static Usage_BoolTag boolTag = new Usage_BoolTag(3);
+        public static Usage_IntTag intTag = new Usage_IntTag(4);
+        public static Usage_GameTimeStemp timestamp = new Usage_GameTimeStemp(5);
+        public static Usage_RealTimestemp realTime = new Usage_RealTimestemp(6);
+     //   public static Usage_Pointer pointer = new Usage_Pointer(7);
 
         public int index;
 
@@ -141,29 +125,14 @@ namespace STD_Logic
 
         public override string ToString() { return string.Format("YesNo"); }
 #if PEGI
-        public override void conditionPEGI(ConditionLogic c, Values so) {
-            if (!c.isBoolean()){
-                if (("Wrong Type: " + c.type.ToString() + " FIX").Click())
-                    c.type = ConditionType.Bool;
-            }
+        public override void inspect(ConditionLogic c) {
+            if (!c.isBoolean())
+                ("Wrong Type: " + c.isBoolean()).write();
              else 
-            pegi.toggleInt(ref c.compareValue);
+                pegi.toggle(ref ((ConditionLogicBool)c).compareValue);
         }
-
-        public override void testOnceConditionPEGI(TestOnceCondition c, Values so) {
-            conditionPEGI(c, so);
-
-            if (!c.isBoolean()) {
-                if (("Wrong Type:" + c.resultType.ToString() + ". Change To Bool").Click())
-                    c.resultType = ResultType.SetBool;
-                
-            }
-
-            pegi.toggleInt(ref c.updateValue);
-
-        }
-
-        public override bool resultsPEGI(Result r, Values so) {
+        
+        public override bool inspect(Result r) {
 
             if (!r.isBoolean())
             {
@@ -178,9 +147,11 @@ namespace STD_Logic
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so)
+        public override bool inspect(int ind, TriggerGroup group)
         {
-            bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
+            Values so = Values.inspected;
+
+            bool changed = base.inspect(ind, group);
             if (so != null)
                 changed |= pegi.toggle(ind, so.bools[group.GetHashCode()]);
 
@@ -207,36 +178,32 @@ namespace STD_Logic
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
 #if PEGI
-        public override void conditionPEGI(ConditionLogic c, Values so) {
+        public override void inspect(ConditionLogic c) {
 
-            selectActionPEGI(ref c.type, conditionUsages);
-            
-            pegi.edit(ref c.compareValue, 40);
+            var num = c as ConditionLogicInt;
+
+            if (num == null)
+                "Condition is not a number".write();
+            else
+            {
+                select(ref num.type, conditionUsages);
+
+                pegi.edit(ref num.compareValue, 40);
+            }
         }
 
-        public override void testOnceConditionPEGI(TestOnceCondition c, Values so)
-        {
-            conditionPEGI(c, so);
-
-            pegi.newLine();
-            "If true:".write(60);
-            selectActionPEGI(ref c.resultType, resultUsages);
-
-            pegi.edit(ref c.updateValue, 40);
-        }
-
-        public override bool resultsPEGI(Result r, Values so) {
+        public override bool inspect(Result r) {
             bool changed = false;
 
-            changed |= selectActionPEGI(ref r.type, resultUsages);
+            changed |= select(ref r.type, resultUsages);
 
             changed |= pegi.edit(ref r.updateValue, 40);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
-            bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
-
+        public override bool inspect(int ind, TriggerGroup group) {
+            bool changed = base.inspect(ind, group);
+            Values so = Values.inspected;
             if (so != null) 
                 changed |= pegi.edit(ind, so.ints[group.GetHashCode()]);
 
@@ -253,38 +220,37 @@ namespace STD_Logic
 
         public override string ToString() { return string.Format("Enums"); }
 #if PEGI
-        public override void conditionPEGI(ConditionLogic c, Values so) {
-       
-            selectActionPEGI(ref c.type, Usage_Number.conditionUsages);
 
-            pegi.select(ref c.compareValue, c.trig.enm);
+        public override void inspect(ConditionLogic c) {
+
+
+            var num = c as ConditionLogicInt;
+
+            if (num != null)
+            {
+                select(ref num.type, Usage_Number.conditionUsages);
+
+                pegi.select(ref num.compareValue, num.Trigger.enm);
+            }
+            else
+                "Incorrect type".write();
         }
 
-        public override void testOnceConditionPEGI(TestOnceCondition c, Values so) {
-            conditionPEGI(c, so);
-
-            pegi.newLine();
-            "If true:".write(60);
-            selectActionPEGI(ref c.resultType , Usage_Number.resultUsages);
-
-            pegi.select(ref c.updateValue, c.trig.enm);
-        }
-
-        public override bool resultsPEGI(Result r, Values so)
+        public override bool inspect(Result r)
         {
             bool changed = false;
 
-            changed |= selectActionPEGI(ref r.type, Usage_Number.resultUsages);
-
-
-
-            pegi.select(ref r.updateValue, r.trig.enm);
+            changed |= select(ref r.type, Usage_Number.resultUsages);
+            
+            pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
         }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so)
+        public override bool inspect(int ind, TriggerGroup group)
         {
-            bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
+            Values so = Values.inspected;
+
+            bool changed = base.inspect(ind, group);
             Trigger t = group.triggers[ind];
 
             if (so != null)
@@ -311,13 +277,13 @@ namespace STD_Logic
         public Usage_StringEnum(int index) : base(index) { }
     }
 
-    /*
-    public class Usage_Pointer : TriggerUsage {
+    
+   /* public class Usage_Pointer : TriggerUsage {
       
         public override string ToString() { return string.Format("Pointer"); }
 
         public Usage_Pointer(int index) : base(index) { }
-    }
+    }*/
 
     public class Usage_GameTimeStemp : TriggerUsage {
        
@@ -328,14 +294,20 @@ namespace STD_Logic
             { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
 
-        public override void conditionPEGI(ConditionLogic c, Values so) {
+        public override void inspect(ConditionLogic c) {
 
-            int ty = (int)c.type;
-            if (pegi.select(ref ty, conditionUsages))
-                c.type = (ConditionType)ty;
+            var num = c as ConditionLogicInt;
 
-            
-            pegi.edit(ref c.compareValue);
+            if (num == null)
+                "Condition is not a number".write();
+            else
+            {
+                select(ref num.type, conditionUsages);
+
+                pegi.edit(ref num.compareValue, 40);
+            }
+
+           
         }
 
         public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
@@ -345,11 +317,10 @@ namespace STD_Logic
             {(int)ResultType.Set, ResultType.Set.GetText()},
         };
 
-        public override bool resultsPEGI(Result r, Values so) {
+        public override bool inspect(Result r) {
             bool changed = false;
-
-
-            changed |= selectActionPEGI(r, resultUsages);
+            
+            changed |= select(ref r.type , resultUsages);
 
             if (r.type!= ResultType.SetTimeGame)
                 changed |= pegi.edit(ref r.updateValue);
@@ -370,13 +341,18 @@ namespace STD_Logic
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
 
-        public override void conditionPEGI(ConditionLogic c, Values so) {
-       
-            int ty = (int)c.type;
-            if (pegi.select(ref ty, conditionUsages))
-                c.type = (ConditionType)ty;
+        public override void inspect(ConditionLogic c) {
 
-            pegi.edit(ref c.compareValue);
+            var num = c as ConditionLogicInt;
+
+            if (num == null)
+                "Condition is not a number".write();
+            else
+            {
+                select(ref num.type, conditionUsages);
+
+                pegi.edit(ref num.compareValue, 40);
+            }
         }
 
         public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
@@ -385,10 +361,10 @@ namespace STD_Logic
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
 
-        public override bool resultsPEGI(Result r, Values so) {
+        public override bool inspect(Result r) {
             bool changed = false;
 
-            changed |= selectActionPEGI(r, resultUsages);
+            changed |= select(ref r.type, resultUsages);
 
           
             if (r.type != ResultType.SetTimeReal)
@@ -403,8 +379,10 @@ namespace STD_Logic
 
         public override string ToString() { return string.Format("TagGroup"); }
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
-            var changed = base.editTrigger_And_Value_PEGI(ind, group, so);
+        public override bool inspect(int ind, TriggerGroup group) {
+            var changed = base.inspect(ind, group);
+
+            Values so = Values.inspected;
 
             Trigger t = group.triggers[ind];
 
@@ -438,29 +416,34 @@ namespace STD_Logic
             return changed;
         }
 
-        public override void conditionPEGI(ConditionLogic c, Values so) {
-            int ty = (int)c.type;
-            if (pegi.select(ref ty, Usage_Number.conditionUsages))
-                c.type = (ConditionType)ty;
-            pegi.select(ref c.compareValue, c.trig.enm);
-            //c.trig.enm.//select_or_Edit_PEGI(ref c.compareValue);
-        }
+        public override void inspect(ConditionLogic c) {
 
-        public override bool resultsPEGI(Result r, Values so) {
-            bool changed = false;
+            var num = c as ConditionLogicInt;
 
-            changed |= selectActionPEGI(r, Usage_Number.resultUsages);
+            if (num == null)
+                "Condition is not a number".write();
+            else
+            {
+                select(ref num.type, Usage_Number.conditionUsages);
 
+                pegi.select(ref num.compareValue, num.Trigger.enm);
+            }
 
          
+        }
+
+        public override bool inspect(Result r) {
+            bool changed = false;
+
+            changed |= select(ref r.type, Usage_Number.resultUsages);
+
             
-            pegi.select(ref r.updateValue, r.trig.enm);
+            pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
         }
 
-        public override bool hasMoreTriggerOptions() {
-            return true;
-        }
+        public override bool hasMoreTriggerOptions() => true;
+        
 
         public Usage_IntTag(int index) : base(index) { }
     }
@@ -469,16 +452,23 @@ namespace STD_Logic
      
         public override string ToString() { return string.Format("Tag"); }
 
-        public override void conditionPEGI(ConditionLogic c, Values so) {
-            pegi.toggleInt(ref c.compareValue);
+        public override void inspect(ConditionLogic c) {
+
+            var num = c as ConditionLogicBool;
+
+            if (num == null)
+                "Condition is not a bool".write();
+            else
+                pegi.toggle(ref num.compareValue);
         }
 
-        public override bool resultsPEGI(Result r, Values so) {
-            return pegi.toggleInt(ref r.updateValue);
-        }
+        public override bool inspect(Result r) => pegi.toggleInt(ref r.updateValue);
+        
 
-        public override bool editTrigger_And_Value_PEGI(int ind, TriggerGroup group, Values so) {
-            bool changed = base.editTrigger_And_Value_PEGI(ind, group, so);
+        public override bool inspect(int ind, TriggerGroup group) {
+            bool changed = base.inspect(ind, group);
+
+            Values so = Values.inspected;
 
             if (so != null) {
                 int gr = group.GetHashCode();
@@ -495,7 +485,7 @@ namespace STD_Logic
         public Usage_BoolTag(int index) : base(index) { }
     }
 
-    */
+    
 
 
 }

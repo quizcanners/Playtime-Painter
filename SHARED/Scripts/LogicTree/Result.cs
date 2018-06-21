@@ -70,6 +70,9 @@ namespace STD_Logic  {
 
         public static bool PEGI(this List<Result> res, Values vals) {
             bool changed = false;
+
+            Values.inspected = vals;
+
             if (icon.Add.Click(25))
                 res.Add();
             
@@ -84,9 +87,9 @@ namespace STD_Logic  {
                 if (icon.Delete.Click())
                     DeleteNo = i;
 
-                changed |= r.PEGI(i, vals, "Res");
+                changed |= r.PEGI(i, "Res");
 
-                changed |= r.trig._usage.resultsPEGI(r, vals);
+                changed |= r.Trigger._usage.inspect(r);
 
                 changed |= r.searchAndAdd_PEGI(i);
 
@@ -96,6 +99,7 @@ namespace STD_Logic  {
                 res.RemoveAt(DeleteNo);
             pegi.newLine();
 
+            Values.inspected = null;
             return changed;
         }
 
@@ -113,7 +117,7 @@ namespace STD_Logic  {
                 // Making sure new trigger will not be a duplicate (a small quality of life improvement)
 
                 List<int> indxs;
-                r.group.triggers.GetAllObjs(out indxs);
+                r.Group.triggers.GetAllObjs(out indxs);
 
                 foreach (Result res in lst)
                     if (res.groupIndex == r.groupIndex)
@@ -159,7 +163,7 @@ namespace STD_Logic  {
 
         public override string ToString()
         {
-			Trigger t = trig;
+			Trigger t = Trigger;
             return   t == null ? "???" : t.name + type + " " + updateValue;
         }
 
@@ -170,7 +174,7 @@ namespace STD_Logic  {
         public iSTD Decode(string data) => data.DecodeInto(this);
 
         public static string CompileResultText(Result res) {
-            return res.trig.name + res.type + " " + res.updateValue;
+            return res.Trigger.name + res.type + " " + res.updateValue;
         }
         
         public static int exploredResult = -1;

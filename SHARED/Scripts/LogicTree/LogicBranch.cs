@@ -84,7 +84,7 @@ namespace STD_Logic {
         static bool isCalledFromAnotherBranch = false;
         public override bool PEGI() {
             bool changed = false;
-
+            
             browsedBranch = Mathf.Min(browsedBranch, subBranches.Count-1);
 
             if (!isCalledFromAnotherBranch)
@@ -95,14 +95,12 @@ namespace STD_Logic {
             if (browsedBranch == -1)
             {
                 browsedElement = Mathf.Min(browsedElement, elements.Count - 1);
-                pegi.newLine();
-                path.nl();
+             
 
                 if (browsedElement == -1)  {
-                    pegi.nl();
-
+       
                     Values vals = LogicMGMT.inst != null ? LogicMGMT.inst.inspectedValues() : null;
-
+                    
                     bool isTrue = vals != null ? conds.TestFor(vals) : false;
 
                     if ( icon.Condition.foldout(

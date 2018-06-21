@@ -56,7 +56,7 @@ namespace StoryTriggerData {
         public TaggedTarget targ;
 
         public string getDescription() {
-            return tag + (targ == null ? "_this" : targ.trig.name); 
+            return tag + (targ == null ? "_this" : targ.Trigger.name); 
         }
 
         public override bool Decode(string subtag, string data) {

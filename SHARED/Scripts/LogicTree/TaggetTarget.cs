@@ -39,7 +39,7 @@ namespace STD_Logic
             return targValue == 0;
         }
         
-        public string tagName { get { return trig.name + (isBoolean() ?  "" : trig.enm[triggerIndex]);}}
+        public string tagName { get { return Trigger.name + (isBoolean() ?  "" : Trigger.enm[triggerIndex]);}}
 
         public List<Values> getObjectsByTag() {
             if (targValue > 0)
@@ -51,14 +51,14 @@ namespace STD_Logic
         public override bool PEGI() {
             bool changed = false;
            
-            if (Trigger.edited != trig) {
+            if (Trigger.edited != Trigger) {
                 if (icon.Edit.Click(20))
-                    Trigger.edited = trig;
+                    Trigger.edited = Trigger;
 
                 string focusName = "Tt";
                 int index = pegi.NameNextUnique(ref focusName);
 
-                string tmpname = trig.name;
+                string tmpname = Trigger.name;
 
                 if (Trigger.focusIndex == index)
                     changed |= pegi.edit(ref Trigger.searchField);

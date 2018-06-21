@@ -189,6 +189,8 @@ namespace STD_Logic
             
             bool changed = false;
 
+            Values.inspected = so;
+
             int showMax = 20;
             
             foreach (Trigger t in triggers)
@@ -213,7 +215,7 @@ namespace STD_Logic
                             Trigger.edited = null;
                     }
 
-                    changed |= t._usage.editTrigger_And_Value_PEGI(triggers.currentEnumerationIndex, this, so).nl();
+                    changed |= t._usage.inspect(triggers.currentEnumerationIndex, this).nl();
                     
                     if (t._usage.hasMoreTriggerOptions()) {
                         pegi.Space();
@@ -226,6 +228,8 @@ namespace STD_Logic
 
             pegi.nl();
 
+
+            Values.inspected = null;
             return changed;
 
         }
@@ -233,6 +237,8 @@ namespace STD_Logic
         public bool SearchTriggers_PEGI() {
 
             bool changed = false;
+            
+
 
             List<int> indxs;
             List<Trigger> lt = triggers.GetAllObjs(out indxs);
@@ -257,7 +263,7 @@ namespace STD_Logic
                             Trigger.edited = null;
                     }
 
-                    changed |= t._usage.editTrigger_And_Value_PEGI(indxs[i], this, null);
+                    changed |= t._usage.inspect(indxs[i], this);
 
                     pegi.newLine();
 
@@ -278,33 +284,36 @@ namespace STD_Logic
 
             bool changed = false;
 
-            Trigger selectedTrig = arg!= null ? arg.trig : null;
+            Trigger selectedTrig = arg!= null ? arg.Trigger : null;
 
-            if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) 
-                && (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)))  {
+            if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) )
+              //  
+            {
 
-                if ((selectedTrig != null)
+                if ((selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField))
                     && pegi.Click("Rename " + selectedTrig.name)) {
                     selectedTrig.name = Trigger.searchField;
                     changed = true;
                 }
-                
-                if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
-                    
-                    int ind = triggers.AddNew();
-                    if (arg != null) {
-                        arg.groupIndex = GetHashCode();
-                        arg.triggerIndex = ind;
+
+                if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
+                   if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
+
+                        int ind = triggers.AddNew();
+                        if (arg != null) {
+                            arg.groupIndex = GetHashCode();
+                            arg.triggerIndex = ind;
+                        }
+                        Trigger t = triggers[ind];
+                        t.name = Trigger.searchField;
+                        changed = true;
                     }
-                    Trigger t = triggers[ind];
-                    t.name = Trigger.searchField;
-                    changed = true;
+
+                    int slctd = Browsed.GetHashCode();
+                    if (pegi.select(ref slctd, all))
+                        Browsed = all[slctd];
+
                 }
-
-                int slctd = Browsed.GetHashCode();
-                if (pegi.select(ref slctd, all))
-                    Browsed = all[slctd];
-
                 pegi.newLine();
             }
 

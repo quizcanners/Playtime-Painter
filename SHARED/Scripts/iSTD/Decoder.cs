@@ -293,10 +293,11 @@ namespace SharedTools_Stuff
         {
             if (val != null)
                 data.DecodeInto(val as iSTD);
-
             return val;
         }
 
+        public static T TryDecodeInto<T>(this string data) where T: new() => data.TryDecodeInto(new T());
+        
         public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
         {
             val = data.DecodeInto<T>();
@@ -309,7 +310,32 @@ namespace SharedTools_Stuff
             new StdDecoder(data).DecodeTagsFor(val);
             return val;
         }
-        
+
+        public static T TryDecodeInto<T>(this string data, Type childType) where T : new()
+        {
+            T val = (T)Activator.CreateInstance(childType);
+            var std = val as iSTD;
+            if (std != null)
+                data.DecodeInto(std);
+
+            return val;
+        }
+
+        public static T TryDecodeInto<T>(this iSTD ovj, Type childType) //where T : new()
+        {
+            T val = (T)Activator.CreateInstance(childType);
+
+            if (ovj != null)
+            {
+                var std = val as iSTD;
+
+                if (std != null)
+                    ovj.Encode().ToString().DecodeInto(std);
+            }
+
+            return val;
+        }
+
         // ToListOfSTD
         public static void TryDecodeInto<T>(this string data, List<T> val) 
         {

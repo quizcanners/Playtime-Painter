@@ -188,13 +188,24 @@ namespace SharedTools_Stuff
             .Add_IfNotZero("g", col.g.RoundTo6Dec())
             .Add_IfNotZero("b", col.b.RoundTo6Dec())
             .Add_IfNotZero("a", col.a.RoundTo6Dec());
-            
+
+  //      public static T DecodeInto<T>(this StdEncoder cody) where T : iSTD, new() => cody.ToString().DecodeInto<T>();
+
+//        public static T TryDecodeInto<T>(this StdEncoder cody) where T :  new() => cody.ToString().TryDecodeInto<T>();
+
+ //       public static T DecodeInto<T>(this StdEncoder cody, Type type) where T : iSTD, new() => cody.ToString().DecodeInto<T>(type);
+
+  
+
     }
-    
+
     public class StdEncoder
     {
         public const char splitter = '|';
         public const string nullTag = "null";
+
+        public delegate StdEncoder EncodeDelegate();
+
 
         StringBuilder builder = new StringBuilder();
 
@@ -206,6 +217,13 @@ namespace SharedTools_Stuff
             builder.AppendSplit(tag);
             builder.AppendSplit(data.Length.ToString());
             builder.AppendSplit(data);
+            return this;
+        }
+
+        public StdEncoder Add(string tag, EncodeDelegate cody)
+        {
+            if (cody != null)
+                Add(tag, cody());
             return this;
         }
 
@@ -383,7 +401,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder  Add_IfNotZero(string tag, Vector3 v3) {
+        public StdEncoder Add_IfNotZero(string tag, Vector3 v3) {
 
             if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) 
                 Add(tag, v3.Encode());

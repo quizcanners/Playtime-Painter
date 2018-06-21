@@ -195,7 +195,9 @@ namespace StoryTriggerData
 #if PEGI
         public static bool unfoldPegi;
         public void PEGI( bool OneClickAction, InteractionTarget st) {
-            
+
+            Values.inspected = st;
+
             pegi.write("Reference name:",80);
 
             string modified = reference;
@@ -297,6 +299,9 @@ namespace StoryTriggerData
 
             if (showFinal_Results) 
                 FinalResults.PEGI(st);
+
+            Values.inspected = null;
+
         }
 #endif
 
@@ -356,6 +361,8 @@ namespace StoryTriggerData
 #if PEGI
         int browsedBranch = -1;
         public bool PEGI(InteractionTarget so) {
+
+            Values.inspected = so;
 
             bool changed = false;
 
@@ -455,6 +462,9 @@ namespace StoryTriggerData
                 }
                 
             }
+
+            Values.inspected = null;
+
             return changed;
         }
 

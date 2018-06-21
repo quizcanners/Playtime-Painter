@@ -8,20 +8,23 @@ using PlayerAndEditorGUI;
 namespace STD_Logic
 {
 
-    public class ConditionBranch : abstract_STD
+    
+
+    public class ConditionBranch : abstractKeepUnrecognized_STD 
         #if PEGI
         , IGotName , IPEGI
 #endif
         {
+
+        public enum ConditionBranchType { OR, AND }
+
         public List<ConditionLogic> conds = new List<ConditionLogic>();
         public List<ConditionBranch> branches = new List<ConditionBranch>();
 
         public ConditionBranchType type;
         public string description = "new branch";
         public TaggedTarget targ;
-
         
-
         public string NameForPEGI
         {
             get
@@ -35,7 +38,7 @@ namespace STD_Logic
             }
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override StdEncoder Encode() => EncodeUnrecognized()
             .Add_ifNotEmpty("wb", branches)
             .Add_ifNotEmpty("v", conds)
             .Add_ifNotZero("t", (int)type)
@@ -43,7 +46,6 @@ namespace STD_Logic
             .Add(TaggedTarget.stdTag_TagTar, targ)
             .Add_ifNotNegative("insB", browsedBranch);
         
-
         public override bool Decode(string subtag, string data)
         {
             switch (subtag)
@@ -59,11 +61,8 @@ namespace STD_Logic
             return true;
         }
         #if PEGI
-        public virtual bool PEGI() {
-            //return false;
-             return PEGI(null);
-        }
-#endif
+            public override bool PEGI() => PEGI(null);
+        #endif
         public  bool TestFor(Values ip) {
 
             switch (type) {
@@ -83,8 +82,7 @@ namespace STD_Logic
             }
             return true;
         }
-
-
+        
         public void ForceToTrue(Values ip)
         {
             switch (type)
@@ -114,7 +112,6 @@ namespace STD_Logic
 
         public string ToString(Values tell, bool showDetails)
         {
-
             bool AnyConditions = (conds.Count > 0);
 
             return TestFor(tell) + " " + (showDetails ? "..." :
@@ -130,8 +127,7 @@ namespace STD_Logic
                 (Conds > 1 ? "+" + (Conds - 1) : "") : "");
 
         }
-
-
+        
         int browsedBranch = -1;
 
 
@@ -139,6 +135,8 @@ namespace STD_Logic
         static string path;
         static bool isCalledFromAnotherBranch = false;
         public bool PEGI(Values vals) {
+
+            Values.inspected = vals;
 
             browsedBranch = Mathf.Min(browsedBranch, branches.Count - 1);
 
@@ -150,24 +148,18 @@ namespace STD_Logic
                 path += "->" + NameForPEGI;
 
             if (browsedBranch == -1) {
-                
-                pegi.newLine();
+
                 path.nl();
 
                 if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
                     + (vals != null ?  (TestFor(vals) ? "True" : "false" ) : " ")
-                    
-                    
                     ,
                        (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
                         "At least one condition or sub branch should be true")
-                        
                         ))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                pegi.newLine();
-
-                conds.PEGI(vals);
+                conds.edit_List(true);
 
                 changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
 
@@ -185,11 +177,10 @@ namespace STD_Logic
             
             pegi.newLine();
 
+            Values.inspected = null;
             return changed;
         }
-
-      
-
+        
         public void ConditionsFoldout(ref ConditionBranch cond, ref bool Show, string descr)
         {
             bool AnyConditions = ((cond != null) && (cond.conds.Count > 0));
@@ -201,7 +192,7 @@ namespace STD_Logic
 
     }
 
-    public enum ConditionBranchType { OR, AND }
+   
 
  
 }

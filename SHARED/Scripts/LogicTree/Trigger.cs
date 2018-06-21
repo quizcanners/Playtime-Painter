@@ -20,7 +20,7 @@ namespace STD_Logic
     [Serializable]
     public class Trigger : abstract_STD
 #if PEGI
-            , IPEGI
+            , IPEGI, IGotDisplayName 
 #endif
     {
 
@@ -111,8 +111,10 @@ namespace STD_Logic
 
 #if PEGI
         public virtual bool PEGI() {
-            return TriggerUsage.select_PEGI(ref usage);
+            return TriggerUsage.selectUsage(ref usage);
         }
+
+        public string NameForPEGIdisplay() => name;
 #endif
     }
 }

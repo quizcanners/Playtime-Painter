@@ -630,9 +630,11 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-#endregion
-        
+        #endregion
+
 #region SELECT
+
+        #region Extended Select
 
         public static bool select(this string text, int width, ref int value, string[] array)
         {
@@ -711,6 +713,136 @@ namespace PlayerAndEditorGUI
             write(text, tip, width);
             return select(ref ind, lst);
         }
+        
+        public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string label, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label, width);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string label, string tip, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        {
+            write(label, tip, width);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda)
+        {
+            write(text);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string text, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        {
+            write(text, width);
+            return select(ref val, list, lambda);
+        }
+
+        public static bool select<T>(this string text, string hint, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        {
+            write(text, hint, width);
+            return select(ref val, list, lambda);
+        }
+        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
+        {
+            label.write(width);
+            return select<T>(ref no, tree);
+        }
+
+        public static bool select<T>(this string label, ref int no, Countless<T> tree)
+        {
+            label.write();
+            return select<T>(ref no, tree);
+        }
+
+        public static bool select<T>(ref int no, Countless<T> tree)
+        {
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.select(ref no, tree);
+            }
+            else
+#endif
+            {
+                List<int> inds;
+                List<T> objs = tree.GetAllObjs(out inds);
+                List<string> filtered = new List<string>();
+                int tmpindex = -1;
+                for (int i = 0; i < objs.Count; i++)
+                {
+                    if (no == inds[i])
+                        tmpindex = i;
+                    filtered.Add(objs[i].ToPEGIstring());
+                }
+
+
+                if (tmpindex == -1)
+                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
+
+
+                if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
+                {
+                    no = inds[tmpindex];
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+            label.write(width);
+            return select<T>(ref no, tree, lambda);
+        }
+
+        public static bool select<T>(this string label, ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+            label.write();
+            return select<T>(ref no, tree, lambda);
+        }
+
+        public static bool selectOrAdd(ref int no, ref Texture[] tex)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.selectOrAdd(ref no, ref tex);
+            }
+            else
+#endif
+            {
+
+
+                return select(ref no, tex);
+            }
+        }
+
+        public static bool select<T>(ref int ind, List<T> lst, int width)
+        {
+
+#if UNITY_EDITOR
+            if (paintingPlayAreaGUI == false)
+            {
+                return ef.select(ref ind, lst, width);
+            }
+            else
+#endif
+
+            {
+                return select(ref ind, lst);
+
+            }
+        }
+
+        #endregion
 
         public static bool select(ref int no, List<string> from)
         {
@@ -958,41 +1090,6 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda)
-        {
-            write(label);
-            return select(ref val, list, lambda);
-        }
-
-        public static bool select<T>(this string label, int width, ref int val, List<T> list, Func<T, bool> lambda)
-        {
-            write(label, width);
-            return select(ref val, list, lambda);
-        }
-
-        public static bool select<T>(this string label, string tip, int width, ref int val, List<T> list, Func<T, bool> lambda)
-        {
-            write(label, tip, width);
-            return select(ref val, list, lambda);
-        }
-
-        public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda) {
-            write(text);
-            return select(ref val, list, lambda);
-        }
-
-        public static bool select<T>(this string text, int width, ref T val, List<T> list, Func<T, bool> lambda)
-        {
-            write(text, width);
-            return select(ref val, list, lambda);
-        }
-
-        public static bool select<T>(this string text, string hint, int width, ref T val, List<T> list, Func<T, bool> lambda)
-        {
-            write(text, hint, width);
-            return select(ref val, list, lambda);
-        }
-
         public static bool select<T>(ref T val, List<T> lst)
         {
                 checkLine();
@@ -1026,7 +1123,41 @@ namespace PlayerAndEditorGUI
                 return false;
             
         }
+        
+        public static bool select(ref Type val, List<Type> lst, string textForCurrent)
+        {
+            checkLine();
 
+            List<string> lnms = new List<string>();
+            List<int> indxs = new List<int>();
+
+            int jindx = -1;
+
+            for (int j = 0; j < lst.Count; j++)
+            {
+                Type tmp = lst[j];
+                if (!tmp.IsDefaultOrNull())
+                {
+                    if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
+                        jindx = lnms.Count;
+                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    indxs.Add(j);
+                }
+            }
+
+            if (jindx == -1 && val != null)
+                lnms.Add(textForCurrent);
+
+            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            {
+                val = lst[indxs[jindx]];
+                return true;
+            }
+
+            return false;
+
+        }
+        
         public static bool select_SameClass<T,G>(ref T val, List<G> lst) where T : class where G : class
         {
             bool changed = false;
@@ -1120,24 +1251,7 @@ namespace PlayerAndEditorGUI
                 return false;
             
         }
-
-        public static bool select<T>(ref int ind, List<T> lst, int width)
-        {
-
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.select(ref ind, lst, width);
-            }
-            else
-#endif
-
-            {
-                return select(ref ind, lst);
-              
-            }
-        }
-
+        
         public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IeditorDropdown
         {
 
@@ -1226,65 +1340,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-
-        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
-        {
-            label.write(width);
-            return select<T>(ref no, tree);
-        }
-
-        public static bool select<T>(this string label, ref int no, Countless<T> tree) {
-            label.write();
-            return select<T>(ref no, tree);
-        }
-
-        public static bool select<T>(ref int no, Countless<T> tree)
-        {
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.select(ref no, tree);
-            }
-            else
-#endif
-            {
-                List<int> inds;
-                List<T> objs = tree.GetAllObjs(out inds);
-                List<string> filtered = new List<string>();
-                int tmpindex = -1;
-                for (int i = 0; i < objs.Count; i++)
-                {
-                    if (no == inds[i])
-                        tmpindex = i;
-                    filtered.Add(objs[i].ToPEGIstring());
-                }
-
-
-                if (tmpindex == -1)
-                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
-
-
-                    if (select(ref tmpindex, filtered.ToArray()) && tmpindex< inds.Count)
-                {
-                    no = inds[tmpindex];
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-            label.write(width);
-            return select<T>(ref no, tree, lambda);
-        }
-
-        public static bool select<T>(this string label, ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-            label.write();
-            return select<T>(ref no, tree, lambda);
-        }
-
+        
         public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
         {
 #if UNITY_EDITOR
@@ -1518,24 +1574,7 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
         }
-
-        public static bool selectOrAdd(ref int no, ref Texture[] tex)
-        {
-
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
-            {
-                return ef.selectOrAdd(ref no, ref tex);
-            }
-            else
-#endif
-            {
-
-
-                return select(ref no, tex);
-            }
-        }
-
+        
 
         // ***************************** Select or edit
         
@@ -3783,6 +3822,9 @@ namespace PlayerAndEditorGUI
             if (list == editingOrder)
             {
                 list.InspectionStart();
+
+                var derr = typeof(T).TryGetDerrivedClasses();
+
                 for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                 {
                     if (i > 0)
@@ -3825,6 +3867,14 @@ namespace PlayerAndEditorGUI
                             }
                         }
                     }
+
+                    if (el!= null && derr!= null) {
+                        var ty = el.GetType();
+                        if (select(ref ty, derr, el.ToPEGIstring())) 
+                            list[i] = (el as iSTD).TryDecodeInto<T>(ty);
+                    }
+
+
 
                     if (el != null)
                         write(el.ToPEGIstring());

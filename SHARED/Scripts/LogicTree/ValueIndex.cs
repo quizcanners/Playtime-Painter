@@ -12,7 +12,7 @@ namespace STD_Logic
 
     public abstract class ValueIndex
         #if PEGI
-        : IPEGI
+        : IPEGI, IGotDisplayName 
 #endif
     {
 
@@ -35,41 +35,24 @@ namespace STD_Logic
         }
         
 
-        public int GetInt(Values st) {
-            return st.ints[groupIndex][triggerIndex];
-        }
-
-        public void SetInt(Values st, int value) {
-            st.ints[groupIndex][triggerIndex] = value;
-        }
-
+        public int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
+        
+        public void SetInt(Values st, int value)  =>  st.ints[groupIndex][triggerIndex] = value;
+        
         public bool GetBool(Values st)
         {
-            if (groupIndex < 0) Debug.Log("group is " + groupIndex);
-            if (triggerIndex < 0) Debug.Log("trigger index is " + triggerIndex);
+            if (groupIndex < 0)
+                Debug.Log("group is " + groupIndex);
+            if (triggerIndex < 0)
+                Debug.Log("trigger index is " + triggerIndex);
             return st.bools[groupIndex][triggerIndex];
         }
 
-        public void SetBool(Values st, bool value)
-        {
-            st.bools[groupIndex][triggerIndex] = value;
-        }
+        public void SetBool(Values st, bool value) =>  st.bools[groupIndex][triggerIndex] = value;
+        
+        public Trigger Trigger => Group.triggers[triggerIndex];
 
-        public Trigger trig
-        {
-            get
-            {
-                return TriggerGroup.all[groupIndex].triggers[triggerIndex];
-            }
-        }
-
-        public TriggerGroup group
-        {
-            get
-            {
-                return TriggerGroup.all[groupIndex];
-            }
-        }
+        public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
         public abstract bool isBoolean();
 #if PEGI
@@ -84,20 +67,20 @@ namespace STD_Logic
         public static string focusName;
         public static Values editedSo;
 
-        public bool PEGI(int index, Values so, string prefix)
+        public bool PEGI(int index,  string prefix)
         {
             bool changed = false;
-            editedSo = so;
+            editedSo = Values.inspected;
 
-            if (Trigger.edited != trig) {
+            if (Trigger.edited != Trigger) {
                 if (icon.Edit.Click(20))
-                    Trigger.edited = trig;
+                    Trigger.edited = Trigger;
 
                 focusName = prefix + index;
 
                 pegi.NameNext(focusName);
 
-                string tmpname = trig.name;
+                string tmpname = Trigger.name;
 
                 if (Trigger.focusIndex == index)
                     changed |= pegi.edit(ref Trigger.searchField);
@@ -119,13 +102,13 @@ namespace STD_Logic
             pegi.Space();
             pegi.newLine();
 
-            Trigger t = trig;
+            Trigger t = Trigger;
 
             if (t == Trigger.edited)
             {
                 t.PEGI();
                 pegi.newLine();
-                changed |= t._usage.editTrigger_And_Value_PEGI(this, null);
+                changed |= t._usage.inspect(this, null);
             }
 
             if ((pegi.nameFocused == (focusName)) && (t != Trigger.edited))
@@ -135,15 +118,15 @@ namespace STD_Logic
                 if (Trigger.focusIndex != index)
                 {
                     Trigger.focusIndex = index;
-                    Trigger.searchField = trig.name;
+                    Trigger.searchField = Trigger.name;
                 }
 
                 pegi.newLine();
 
                 if (search_PEGI(Trigger.searchField, editedSo))
-                    Trigger.searchField = trig.name;
+                    Trigger.searchField = Trigger.name;
 
-                selectedTrig = trig;
+                selectedTrig = Trigger;
 
             }
             else if (index == Trigger.focusIndex) Trigger.focusIndex = -2;
@@ -152,7 +135,7 @@ namespace STD_Logic
             pegi.newLine();
 
             if (selected == this)
-                changed |= group.AddTrigger_PEGI(this);
+                changed |= Group.AddTrigger_PEGI(this);
 
             return changed;
         }
@@ -162,7 +145,9 @@ namespace STD_Logic
 
             bool changed = false;
 
-            Trigger current = trig;
+            bool showedFirst = false;
+
+            Trigger current = Trigger;
 
             Trigger.searchMatchesFound = 0;
 
@@ -172,14 +157,7 @@ namespace STD_Logic
                 changed = true;
             }
             pegi.newLine();
-            pegi.write(current.name);
-
-            if (pegi.Click("<>", 20))
-            {
-                pegi.FocusControl("none");
-                changed = true;
-            }
-            pegi.newLine();
+          
 
             List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
 
@@ -193,8 +171,23 @@ namespace STD_Logic
                 {
                     Trigger t = trl[j];
                     int indx = indxs[j];
-                    if (((groupIndex != gb.GetHashCode()) || (triggerIndex != indx)) && t.SearchCompare(gname))
-                    {//search.SearchCompare(t.name)) {
+                    if (((groupIndex != gb.GetIndex()) || (triggerIndex != indx)) && t.SearchCompare(gname))
+                    {
+                        if (!showedFirst)
+                        {
+                            pegi.write(current.name);
+
+                            if (icon.Done.Click())//pegi.Click("<>", 20))
+                            {
+                                pegi.FocusControl("none");
+                                changed = true;
+                            }
+                            pegi.newLine();
+                            showedFirst = true;
+                        }
+
+
+
                         Trigger.searchMatchesFound++;
                         pegi.write(t.name + "_" + indx);
                         if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetHashCode(); pegi.DropFocus(); pegi.newLine(); return true; }
@@ -205,6 +198,7 @@ namespace STD_Logic
             return changed;
         }
 
+        public string NameForPEGIdisplay() => Trigger.ToPEGIstring();
 #endif
     }
 }

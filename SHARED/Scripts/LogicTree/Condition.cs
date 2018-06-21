@@ -7,54 +7,108 @@ using SharedTools_Stuff;
 
 namespace STD_Logic
 {
-    public enum ConditionType { Bool , Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
-    
-    public class ConditionLogic : ValueIndex , iSTD
+    public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
+
+    [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
+    public class ConditionLogic : ValueIndex, iSTD
 #if PEGI
-        , IPEGI
+        , IPEGI, IPEGI_ListInspect 
 #endif
     {
 
-        public static string tag = "cond";
+        public virtual StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
 
-        public ConditionType type;
-        public int compareValue;
+        public virtual bool Decode(string subtag, string data) => true;
+        
+        public iSTD Decode(string data) => data.DecodeInto(this);
 
-        public string getDefaultTagName() {
-            return tag;
+        public virtual void ForceConditionTrue(Values st) { }
+
+        public virtual bool TestFor(Values st) => false;
+
+        public virtual int isItClaimable( int dir, Values st) => -2;
+        
+        public override bool isBoolean() => false;
+
+#if PEGI
+        
+        public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+
+            bool changed = PEGI(ind, "Cond");
+
+            Trigger._usage.inspect(this);
+
+            changed |= searchAndAdd_PEGI(ind);
+
+            return changed;
         }
 
-        public virtual StdEncoder Encode() => new StdEncoder()
+#endif
 
-            .Add_ifNotZero("v", compareValue)
-            .Add_ifNotZero("ty", (int)type)
+        public static bool unfoldPegi;
+
+        public ConditionLogic()
+        {
+            groupIndex = TriggerGroup.Browsed.GetIndex();
+        }
+
+    }
+
+    public class ConditionLogicBool : ConditionLogic
+    {
+        public bool compareValue;
+
+        public override StdEncoder Encode() => new StdEncoder()
+            .Add_ifTrue("b", compareValue)
             .Add("ind", EncodeIndex());
 
-
-        public virtual bool Decode(string subtag, string data) {
-            switch (subtag) {
-                case "v": compareValue = data.ToInt(); break;
-                case "ty": type = (ConditionType)data.ToInt(); break;
+        public override bool Decode(string subtag, string data)
+        {
+            switch (subtag)
+            {
+                case "b": compareValue = data.ToBool(); break;
                 case "ind": data.DecodeInto(DecodeIndex); break;
-
-
-                // Legacy
-                case "g": groupIndex = data.ToInt(); break;
-                case "t": triggerIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
+        
+        public override void ForceConditionTrue(Values st) =>  SetBool(st, compareValue);
+        
+        public override bool TestFor(Values st) => GetBool(st) == compareValue;
 
-        public iSTD Decode(string data) {
-            new StdDecoder(data).DecodeTagsFor(this);
-            return this;
+        public override int isItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
+        
+        public override bool isBoolean() => true;
+    }
+
+    public class ConditionLogicInt : ConditionLogic
+    {
+        public ConditionType type;
+        public int compareValue;
+
+        public override StdEncoder Encode() => new StdEncoder()
+            .Add_ifNotZero("v", compareValue)
+            .Add_ifNotZero("ty", (int)type)
+            .Add("ind", EncodeIndex);
+
+        public override bool Decode(string subtag, string data)
+        {
+            switch (subtag)
+            {
+                case "v": compareValue = data.ToInt(); break;
+                case "ty": type = (ConditionType)data.ToInt(); break;
+                case "ind": data.DecodeInto(DecodeIndex); break;
+                default: return false;
+            }
+            return true;
         }
+        
+        public override void ForceConditionTrue(Values st)
+        {
 
-        public void ForceConditionTrue(Values st) {
-
-            switch (type) {
-                case ConditionType.Bool:  SetBool(st,compareValue > 0); break;
+            switch (type)
+            {
                 case ConditionType.Above: SetInt(st, compareValue + 1); break;
                 case ConditionType.Below: SetInt(st, compareValue - 1); break;
                 case ConditionType.Equals: SetInt(st, compareValue); break;
@@ -62,12 +116,12 @@ namespace STD_Logic
             }
         }
 
-        public virtual bool TestFor(Values st) {
-
+        public override bool TestFor(Values st)
+        {
             int timeGap;
 
-            switch (type) {
-                case ConditionType.Bool: if (GetBool(st) == ((compareValue > 0) ? true : false)) return true; break;
+            switch (type)
+            {
                 case ConditionType.Above: if (GetInt(st) > compareValue) return true; break;
                 case ConditionType.Below: if (GetInt(st) < compareValue) return true; break;
                 case ConditionType.Equals: if (GetInt(st) == compareValue) return true; break;
@@ -86,98 +140,52 @@ namespace STD_Logic
                     timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
                     if (timeGap < compareValue) { LogicMGMT.inst.AddTimeListener(compareValue - timeGap); return true; }
                     break;
-                    
+
             }
-            //Debug.Log ("No pass on: " + glob.triggers.triggers [cond.TriggerNo].name+ " with "+cond.Type);
             return false;
         }
 
-        public int isItClaimable( int dir, Values st) {
-
-            switch (type) {
-                case ConditionType.Bool: if ((dir > 0) == (compareValue > 0)) return 1; break;
+        public override int isItClaimable(int dir, Values st)
+        {
+            switch (type)
+            {
                 case ConditionType.Above: if ((GetInt(st) < compareValue) && (dir > 0)) return (compareValue - GetInt(st) + 1); break;
                 case ConditionType.Below: if ((GetInt(st) > compareValue) && (dir < 0)) return (GetInt(st) - compareValue + 1); break;
                 case ConditionType.Equals: if ((GetInt(st) > compareValue) == (dir < 0)) return Mathf.Abs(GetInt(st) - compareValue); break;
             }
             return -2;
         }
-
-        public ConditionLogic() {
-            groupIndex = TriggerGroup.Browsed.GetHashCode();
-        }
-
-        public override bool isBoolean(){
-            return type == (int)ConditionType.Bool;
-        }
-
-        public static bool unfoldPegi;
-      
-        public override string ToString() =>
-             (trig.name) + " " + type + " " + (isBoolean() ?
-                                            (compareValue == 1 ? "True" : "false")
-                                            : compareValue.ToString());
-        
-        
     }
-#if PEGI
-    public static class ConditionLogicExtensions
+
+
+    public class TestOnceCondition : ConditionLogicBool
     {
-
-        public static bool edit(this string labes, ConditionBranch web , Values so)
-        {
-            pegi.write(labes);
-            return web.PEGI(so);
-
-        }
-
-        public static bool edit(this string labes, ref List<ConditionLogic> list, Values so)
-        {
-            pegi.write(labes);
-            return list.PEGI(so);
-
-        }
-
-            public static bool PEGI(this List<ConditionLogic> list, Values so)
-        {
-            bool changed = false;
-
-            if (icon.Add.ClickUnfocus().nl())
-            {
-                changed = true;
-                list.Add(new ConditionLogic());
-            }
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (icon.Delete.ClickUnfocus(25))
-                {
-                    list.RemoveAt(i);
-                    changed = true;
-                    i--;
-                }
-                else
-                {
-                    var el = list[i];
-
-                    changed |= el.PEGI(i, so, "Cond");
-
-                    el.trig._usage.conditionPEGI(el, so);
-
-                    changed |= el.searchAndAdd_PEGI(i);
-
-                }
-
-                pegi.newLine();
-            }
-            
-            pegi.newLine();
-
-            return changed;
-        }
         
-    }
+#if PEGI
+        public override bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            bool changed = PEGI(0, "Cond");
+
+            Trigger._usage.inspect(this);
+
+            changed |= searchAndAdd_PEGI(0);
+
+            return base.PEGI() || changed;
+        }
 #endif
+
+        public override bool TestFor(Values st)
+        {
+            bool value = base.TestFor(st);
+
+            if (value)
+                ResultType.SetBool.apply(compareValue ? 0 : 1, this, st);
+
+            return value;
+        }
+
+    }
+
 
 
 }

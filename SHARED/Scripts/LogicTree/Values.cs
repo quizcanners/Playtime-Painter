@@ -94,10 +94,14 @@ namespace STD_Logic {
             boolTags = new UnnullableSTD<CountlessBool>();
         }
 #if PEGI
+        public static Values inspected;
+
         public override bool PEGI() {
             
             bool changed = false;
-            
+
+            inspected = this;
+
                 if ("quest++".Click().nl())
                     LogicMGMT.AddLogicVersion();
                 
