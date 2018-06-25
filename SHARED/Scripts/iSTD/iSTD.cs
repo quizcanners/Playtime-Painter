@@ -43,7 +43,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public abstract class abstractKeepUnrecognized_STD : abstract_STD, iKeepUnrecognizedSTD
+    public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, iKeepUnrecognizedSTD
     {
      
         protected List<string> unrecognizedTags = new List<string>();
@@ -63,6 +63,10 @@ namespace SharedTools_Stuff
         
         public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
 
+        public override StdEncoder Encode() => EncodeUnrecognized();
+
+        public override bool Decode(string tag, string data) => false;
+        
 #if PEGI
         public bool showDebug;
         public static int inspectedUnrecognized = -1;
@@ -90,7 +94,7 @@ namespace SharedTools_Stuff
 
 
     [Serializable]
-    public abstract class abstract_STD : iSTD
+    public abstract class Abstract_STD : iSTD
     {
 
         public abstract StdEncoder Encode();
@@ -180,6 +184,74 @@ namespace SharedTools_Stuff
 
 
     }
+
+
+    public abstract class ScriptableSTD : ScriptableObject, iKeepUnrecognizedSTD
+#if PEGI
+        , IPEGI
+#endif
+    {
+
+        public virtual iSTD Decode(string data) {
+            new StdDecoder(data).DecodeTagsFor(this);
+            return this;
+        }
+
+        protected List<string> unrecognizedTags = new List<string>();
+        protected List<string> unrecognizedData = new List<string>();
+
+        public void Unrecognized(string tag, string data) => this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
+        
+        public abstract StdEncoder Encode();
+
+        public virtual StdEncoder EncodeUnrecognized()
+        {
+            var cody = new StdEncoder();
+            for (int i = 0; i < unrecognizedTags.Count; i++)
+                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
+            return cody;
+        }
+
+        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
+        public bool showDebug;
+
+#if PEGI
+        [NonSerialized] public int inspectedUnrecognized = -1;
+        public virtual bool PEGI()
+        {
+
+            bool changed = false;
+
+            if (!showDebug && icon.Config.Click())
+                showDebug = true;
+
+            if (showDebug)
+            {
+                if (icon.Exit.Click("Back to element inspection").nl())
+                    showDebug = false;
+
+                explorer.PEGI(this);
+                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+            }
+            return changed;
+        }
+#endif
+
+        public virtual bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "n": this.name = data; break;
+
+                default: return false;
+            }
+
+            return true;
+        }
+
+
+    }
+
 
     public static class STDExtensions {
 

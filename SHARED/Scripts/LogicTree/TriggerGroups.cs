@@ -15,17 +15,13 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-   
-
-    public class TriggerGroup : abstractKeepUnrecognized_STD
+    public class TriggerGroup : AbstractKeepUnrecognized_STD
      #if PEGI
         , IGotName, IGotIndex, IPEGI
     #endif
     {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
-
-        public const string StoriesFolderName = "Stories";
 
         public static void FindAllTriggerGroups() {
             all = new UnnullableSTD<TriggerGroup>();
@@ -41,41 +37,26 @@ namespace STD_Logic
         public static TriggerGroup Browsed
         {
             get { return all[browsedGroup]; }
-            set { browsedGroup = value.GetHashCode(); }
+            set { browsedGroup = value.GetIndex(); }
         }
 
         public UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
 
-        int index;
-        public int GetIndex()
-        {
-            return index;
-        }
-
-        public void SetIndex(int val)
-        {
-            index = val;
-        }
+        public bool showInInspectorBrowser = true;
 
         public string name = "Unnamed_Triggers";
-
+        int index;
+        public int GetIndex() => index;
+        public void SetIndex(int val) =>  index = val;
+        
         public string NameForPEGI { get { return name; } set { name = value; } }
 
-        public override int GetHashCode()
-        {
-            return index;
-        }
-
+        public override int GetHashCode() => index;
+        
         static int browsedGroup;
 
-        public override string ToString() {
-            return name;
-        }
-
-        public string GetAssetPath() {
-            return StoriesFolderName + "/" + ToString();
-        }
-
+        public override string ToString() => name;
+        
         [NonSerialized]
         public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
 
@@ -140,56 +121,57 @@ namespace STD_Logic
             cody.Add_String("n", name);
             cody.Add("t",triggers);
             cody.Add("ind", index);
+            cody.Add_ifTrue("show", showInInspectorBrowser);
             return cody;
         }
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "n": name = data; break;
-                case "t": triggers.Decode(data); break;
+                case "t":  data.DecodeInto(out triggers); break; 
                 case "ind": index = data.ToInt(); break;
+                case "show": showInInspectorBrowser = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
         
-        public static void SaveAll()  {
+        public static void SaveAll(string path)  {
             foreach (TriggerGroup s in all)
-                s.Save();
+                s.Save(path);
         }
 
-        public void Save()
+        public void Save(string path)
         {
-            this.SaveToAssets(GetAssetPath(), name);
+            this.SaveToAssets(path, name);
         }
 
-        public static void LoadAll() {
+        public static void LoadAll(string path) {
             foreach (TriggerGroup s in all)
-                s.Load();
+                s.Load(path);
         }
 
-        public void Load()
+        public void Load(string path)
         {
-              this.LoadFromAssets(GetAssetPath(), name);
+              this.LoadFromAssets(path, name);
 
         }
+
          #if PEGI
+       
         public override bool PEGI() {
-            bool changed = false;
-            changed |= (index+" Name").edit(60, ref name).nl();
-            
-            Trigger.search_PEGI();
-
-            changed |= PEGI(null);
-
-            return changed;
-        }
-        
-        public bool PEGI(Values so) {
             
             bool changed = false;
 
-            Values.inspected = so;
+            if (Values.inspected == null)
+            {
+                changed |= base.PEGI();
+                if (showDebug)
+                    return changed;
+
+                changed |= (index + " Name").edit(60, ref name).nl();
+                Trigger.search_PEGI();
+            }
 
             int showMax = 20;
             
@@ -228,8 +210,7 @@ namespace STD_Logic
 
             pegi.nl();
 
-
-            Values.inspected = null;
+            
             return changed;
 
         }
@@ -301,7 +282,7 @@ namespace STD_Logic
 
                         int ind = triggers.AddNew();
                         if (arg != null) {
-                            arg.groupIndex = GetHashCode();
+                            arg.groupIndex = index;
                             arg.triggerIndex = ind;
                         }
                         Trigger t = triggers[ind];
@@ -309,7 +290,7 @@ namespace STD_Logic
                         changed = true;
                     }
 
-                    int slctd = Browsed.GetHashCode();
+                    int slctd = Browsed.GetIndex();
                     if (pegi.select(ref slctd, all))
                         Browsed = all[slctd];
 
@@ -320,7 +301,7 @@ namespace STD_Logic
             return changed;
         }
 
-#endif
+        #endif
 
         public virtual Type GetIntegerEnums() {
             return null;

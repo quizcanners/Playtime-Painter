@@ -37,7 +37,7 @@ using STD_Logic;
 #endif
     }
 
-    public class SpeedAnimationFrame : abstractKeepUnrecognized_STD
+    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD
 #if PEGI
         , IPEGI
 #endif
@@ -157,7 +157,7 @@ using STD_Logic;
     }
     
     [Serializable]
-    public class AnimatedElement : abstractKeepUnrecognized_STD
+    public class AnimatedElement : AbstractKeepUnrecognized_STD
 #if PEGI
         ,IPEGI, IGotName, IGotIndex
 #endif

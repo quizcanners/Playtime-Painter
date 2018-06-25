@@ -6,18 +6,6 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-#if PEGI && UNITY_EDITOR 
-
-    using UnityEditor;
-
-    [CustomEditor(typeof(ShadowVolumeTexture))]
-    public class ShadowVolumeTextureEditor : Editor {
-
-        public override void OnInspectorGUI() => ((ShadowVolumeTexture)target).Inspect(serializedObject);
-        
-    }
-#endif
-
     [System.Serializable]
     [ExecuteInEditMode]
     public class ShadowVolumeTexture : VolumeTexture {

@@ -13,7 +13,7 @@ namespace Playtime_Painter
 
 
     [Serializable]
-    public class MeshPackagingProfile : abstract_STD
+    public class MeshPackagingProfile : Abstract_STD
 #if PEGI
             , IPEGI
 #endif
@@ -261,7 +261,7 @@ namespace Playtime_Painter
 
 
     [Serializable]
-    public class VertexDataValue : abstract_STD {
+    public class VertexDataValue : Abstract_STD {
 
         public int typeIndex;
         public int valueIndex;
@@ -295,7 +295,7 @@ namespace Playtime_Painter
 
 
     [Serializable]
-    public class VertexSolution : abstract_STD
+    public class VertexSolution : Abstract_STD
 #if PEGI
             , IPEGI
 #endif

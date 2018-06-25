@@ -7,19 +7,6 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
 
-#if PEGI && UNITY_EDITOR
-
-    using UnityEditor;
-
-    [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureEditor : Editor
-    {
-
-        public override void OnInspectorGUI() => ((VolumeTexture)target).Inspect(serializedObject);
-        
-    }
-#endif
-
     [ExecuteInEditMode]
     [Serializable]
     public class VolumeTexture : PainterStuffMono

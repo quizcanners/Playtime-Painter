@@ -17,18 +17,6 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR 
         using UnityEditor;
 
-#if PEGI
-        [CustomEditor(typeof(CombinedMapsControllerPlugin))]
-        public class CombinedMapsControllerEditor : Editor
-        {
-            public override void OnInspectorGUI()
-            {
-                ef.start(serializedObject);
-                ((CombinedMapsControllerPlugin)target).ConfigTab_PEGI();
-                ef.end();
-            }
-        }
-#endif
 #endif
 
 
@@ -261,6 +249,9 @@ namespace Playtime_Painter {
 
         [Serializable]
         public class CombinedMapsControllerPlugin : PainterManagerPluginBase
+#if PEGI
+        , IPEGI
+#endif
         {
             public static CombinedMapsControllerPlugin _inst;
 
@@ -671,7 +662,7 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class TextureChannel : abstract_STD
+        public class TextureChannel : Abstract_STD
 #if PEGI
             ,IPEGI
 #endif

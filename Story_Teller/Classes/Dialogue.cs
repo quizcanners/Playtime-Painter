@@ -53,8 +53,8 @@ namespace StoryTriggerData
 
                         for (int j = 0; j < si.options.Count; j++)
                             if (si.options[j].conditions.TestFor(browsedObj))
-                                si.options[j].results.apply(browsedObj);
-                        si.FinalResults.apply(browsedObj);
+                                si.options[j].results.Apply(browsedObj);
+                        si.FinalResults.Apply(browsedObj);
                     }
             }
 
@@ -114,7 +114,7 @@ namespace StoryTriggerData
         }
 
         public static void StartInteractions(InteractionTarget so) {
-            so.OnEnterResults.apply(so);
+            so.OnEnterResults.Apply(so);
             browsedObj = so;
             BackToInitials();
            
@@ -122,7 +122,7 @@ namespace StoryTriggerData
 
         public static void CloseInteractions() {
             if (browsedObj != null)
-                browsedObj.OnExitResults.apply(browsedObj);
+                browsedObj.OnExitResults.Apply(browsedObj);
             
             browsedObj = null;
         }
@@ -192,14 +192,14 @@ namespace StoryTriggerData
                 case 3:
                     //Debug.Log("case 3");
                     option = possibleOptions[no];
-                    option.results.apply( browsedObj);
+                    option.results.Apply( browsedObj);
                     continuationReference = option.goToReference;
-                    interaction.FinalResults.apply(browsedObj);
+                    interaction.FinalResults.Apply(browsedObj);
                     textNo = -1;
                     goto case 5;
 
                 case 4: //Debug.Log("case 4"); 
-                    interaction.FinalResults.apply( browsedObj); BackToInitials(); break;
+                    interaction.FinalResults.Apply( browsedObj); BackToInitials(); break;
 
                 case 5:
                     //Debug.Log("In case 5");

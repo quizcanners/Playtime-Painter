@@ -7,18 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
 
-    using UnityEditor;
-
-    [CustomEditor(typeof(LightCaster))]
-    public class BakedShadowsLightProbeEditor : Editor
-    {
-
-        public override void OnInspectorGUI() => ((LightCaster)target).Inspect(serializedObject);
-        
-    }
-#endif
 
     [ExecuteInEditMode]
     public class LightCaster : MonoBehaviour

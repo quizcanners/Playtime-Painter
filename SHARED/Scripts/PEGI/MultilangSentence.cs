@@ -42,7 +42,7 @@ namespace PlayerAndEditorGUI
     }
 
     [Serializable]
-    public class Sentance : abstract_STD
+    public class Sentance : Abstract_STD
 #if PEGI
             , IPEGI
 #endif

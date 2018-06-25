@@ -970,7 +970,7 @@ namespace  PlayerAndEditorGUI {
         public static bool editBig(ref string text)
         {
             BeginCheckLine();
-            text = EditorGUILayout.TextArea(text);
+            text = EditorGUILayout.TextArea(text, GUILayout.MaxHeight(100));
             return EndCheckLine();
         }
 

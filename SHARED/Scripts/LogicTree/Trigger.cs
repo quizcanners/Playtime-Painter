@@ -18,7 +18,7 @@ namespace STD_Logic
 
 
     [Serializable]
-    public class Trigger : abstract_STD
+    public class Trigger : Abstract_STD
 #if PEGI
             , IPEGI, IGotDisplayName 
 #endif

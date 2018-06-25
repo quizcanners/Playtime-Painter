@@ -56,7 +56,7 @@
 		float4 col = tex2Dlod(_SourceTexture, float4(1 - i.texcoord.x, i.texcoord.y, 0, 0));
 		col.a = 0;
 
-		_Noise = 128;
+		_Noise = 64;
 
 		// Noised Sampling
 		duv.x += (random(duv) * 2 - 1)*_Noise*_DestBuffer_TexelSize.x;
@@ -70,11 +70,19 @@
 
 		float4 dcolRight = tex2Dlod(_DestBuffer, float4(duv, 0, 0));
 
-		float nDiff = length(col.rgb - dcoln.rgb)*(1.1- dcoln.a);
 
-		float curDiff = length(col.rgb - dcol0.rgb)*(1.1 - dcol0.a);
+		float3 colnorm = normalize(col.rgb);
+		float3 nnorm = normalize(dcoln.rgb);
+		float3 zeronorm = normalize(dcol0.rgb);
+		float3 rnorm = normalize(dcolRight.rgb);
 
-		float rightDiff = length(col.rgb - dcolRight.rgb)*(1.1 - dcolRight.a);
+		float nDiff = length(colnorm.rgb - nnorm.rgb)*(1.1- dcoln.a);
+
+		float curDiff = length(colnorm.rgb - zeronorm.rgb)*(1.1 - dcol0.a);
+
+		float rightDiff = length(colnorm.rgb - rnorm.rgb)*(1.1 - dcolRight.a);
+
+
 
 		float useNoised = saturate((curDiff - nDiff) * 1024);
 
@@ -84,16 +92,20 @@
 
 		dcoln = useRight * dcolRight + dcoln * (1 - useRight);
 
+
+		bool usingOther = saturate(useNoised + useRight);
+
+
 		float brN = length(dcoln.rgb);
 
 		float3 diff = col.rgb - dcoln.rgb;
-		diff = pow(diff,4);
+		//diff = pow(diff,2);
 		float dist = saturate(diff.x + diff.y + diff.z);
-		float difference = (1.1+(0.2*brN) - dist*128); 
+	//	float difference = (1.1+(0.1*brN) - dist*128); 
 		
-		float same = saturate((difference - 1) * 10);
+	//	float same = saturate((difference - 1) * 10);
 
-		float alpha = min(dcoln.a, saturate((dcoln.a*same) * 2))*0.99;
+		float alpha = saturate(dcoln.a - dist)*(0.992+(saturate(brN) + usingOther)*0.004);
 
 		col =  dcoln * alpha + col * (1 - alpha);
 		
@@ -125,14 +137,14 @@
 		dcol_0 = dcol_0 * dp + dcol_3 * (1 - dp);
 
 
-		dp = saturate((dcol_0.a - col.a) * 1024)*max(0,1-length(col.rgb- dcol_0.rgb));
+		dp = saturate((dcol_0.a - col.a) * 1024)*saturate(1 - length(col.rgb - dcol_0.rgb)*8);
 		col = dcol_0 * dp + col * (1 - dp);
 
 		/*alpha = max(alpha,
 			min(min(dcol_3.a,dcol_1.a),
 				min(dcol_2.a,dcol_0.a)));*/
 
-		col.a = saturate(alpha - crn *10);
+		col.a = saturate(alpha);// -crn * 10);
 
 		return  col;
 	}

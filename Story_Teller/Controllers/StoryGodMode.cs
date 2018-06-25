@@ -2,19 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+
 namespace StoryTriggerData
 {
 
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-
-    [CustomEditor(typeof(StoryGodMode))]
-    public class StoryGodModeDrawer : Editor
-    {
-        public override void OnInspectorGUI() => ((StoryGodMode)target).Inspect(serializedObject);
-        
-    }
-#endif
 
     public class StoryGodMode : GodMode
     {
@@ -71,7 +62,7 @@ namespace StoryTriggerData
                 {
                     SpaceValues.playerPosition.Add(transform.position);
                     transform.position = Vector3.zero;
-                    Book.instBook.AfterPlayerSpacePosUpdate();
+                    Book.Inst.AfterPlayerSpacePosUpdate();
                 }
             }
         }

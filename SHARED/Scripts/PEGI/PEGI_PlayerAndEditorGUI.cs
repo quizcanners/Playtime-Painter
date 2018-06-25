@@ -1,5 +1,4 @@
-﻿#if PEGI
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,49 +15,57 @@ using System.Linq.Expressions;
 using System.Reflection;
 using SharedTools_Stuff;
 
+#region interfaces & Attributes
+
+public interface IPEGI
+{
+#if PEGI
+    bool PEGI();
+#endif
+}
+
+public interface INeedAttention
+{
+#if PEGI
+    string NeedAttention();
+#endif
+}
+
+public interface IPEGI_ListInspect
+{
+#if PEGI
+    bool PEGI_inList(IList list, int ind, ref int edited);
+#endif
+}
+
+public interface IGotName
+{
+#if PEGI
+    string NameForPEGI { get; set; }
+#endif
+}
+
+public interface IGotDisplayName
+{
+#if PEGI
+    string NameForPEGIdisplay();
+#endif
+}
+
+public interface IGotIndex
+{
+#if PEGI
+    int GetIndex();
+    void SetIndex(int index);
+#endif
+}
+
+#endregion
+
+#if PEGI
 #pragma warning disable IDE1006 // Naming Styles
 namespace PlayerAndEditorGUI
 {
-
-#region interfaces & Attributes
-
-
-
-    public interface IPEGI
-    {
-        bool PEGI();
-    }
-
-    public interface INeedAttention
-    {
-        string NeedAttention();
-    }
-
-    public interface IPEGI_ListInspect
-    {
-        bool PEGI_inList(IList list, int ind, ref int edited);
-    }
-
-    public interface IGotName
-    {
-        string NameForPEGI { get; set; }
-    }
-
-    public interface IGotDisplayName
-    {
-        string NameForPEGIdisplay(); 
-    }
-    
-    public interface IGotIndex
-    {
-        int GetIndex();
-        void SetIndex(int index);
-    }
-    
-#endregion
-
-    
-
     public static class pegi
     {
 
@@ -3781,10 +3788,8 @@ namespace PlayerAndEditorGUI
            
 
             if (icon.List.ClickUnfocus(msg.ReturnToListView.Get()).nl())
-            {
-                changed = true;
                 index = -1;
-            }
+            
             else
                 changed |= list[index].Try_Nested_Inspect();
                         
@@ -3957,7 +3962,8 @@ namespace PlayerAndEditorGUI
 
             }
 
-            uo.clickHighlight();
+            if (pl == null)
+                uo.clickHighlight();
 
             return changed;
         }
@@ -4127,6 +4133,19 @@ namespace PlayerAndEditorGUI
             label.write_ListLabel(list);
 
             bool changed = false;
+
+            list.edit_List_SO<T>(ref edited, ref changed, null);
+
+            return changed;
+        }
+
+        public static bool edit_List_SO<T>(this string label, List<T> list) where T : ScriptableObject
+        {
+            label.write_ListLabel(list);
+
+            bool changed = false;
+
+            int edited = -1;
 
             list.edit_List_SO<T>(ref edited, ref changed, null);
 
@@ -4401,6 +4420,14 @@ namespace PlayerAndEditorGUI
         }
 
         // ...... of not New
+        public static bool write_List<T>(this string label, List<T> list, ref int edited)
+        {
+            nl();
+            label.write_ListLabel(list);
+
+            return list.write_List<T>(ref edited);
+        }
+
         public static bool write_List<T>(this List<T> list, ref int edited) 
         {
             bool changed = false;
@@ -4411,6 +4438,8 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
+                pegi.nl();
+
                 for (int i = 0; i < list.Count; i++)
                 {
 
@@ -4418,12 +4447,8 @@ namespace PlayerAndEditorGUI
                     if (el == null)
                         write("NULL");
                     else
-                    {
-
                         changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
-
-                      //  (list[i] as UnityEngine.Object).clickHighlight();
-                    }
+                    
 
                     newLine();
                 }
@@ -4436,7 +4461,7 @@ namespace PlayerAndEditorGUI
             newLine();
             return changed;
         }
-
+        
         public static bool edit<G, T>(this Dictionary<G, T> dic, ref int edited, bool allowDelete)
         {
             bool changed = false;

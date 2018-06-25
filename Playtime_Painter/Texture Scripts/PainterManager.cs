@@ -16,23 +16,13 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
-    [CustomEditor(typeof(PainterManager))]
-    public class RenderTexturePainterEditor : Editor {
 
-        public override void OnInspectorGUI()
-        {
-            ef.start(serializedObject);
-            ((PainterManager)target).PEGI();
-            ef.end();
-        }
-
-    }
-
-#endif
 
     [ExecuteInEditMode]
     public class PainterManager : PainterStuffMono
+#if PEGI
+        , IPEGI
+#endif
     {
 
         [SerializeField]
@@ -166,6 +156,10 @@ namespace Playtime_Painter
 
             if (_plugins == null)
                 _plugins = new List<PainterManagerPluginBase>();
+            else
+                for (int i = 0; i < _plugins.Count; i++)
+                    if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
+
 
             browsedPlugin = -1;
             List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<PainterManagerPluginBase>();
@@ -184,9 +178,14 @@ namespace Playtime_Painter
                     _plugins.Add(c);
                     #if PEGI
                     ("Painter Plugin " + c.ToPEGIstring() + " added").showNotification();
-#endif
+                    #endif
                 }
             }
+            
+                for (int i = 0; i < _plugins.Count; i++)
+                    if (_plugins[i] != null && !_plugins[i].enabled)
+                        _plugins[i].enabled = true;
+
         }
         public void DeletePlugins()
         {
@@ -269,62 +268,12 @@ namespace Playtime_Painter
         }
 
         public RenderTexture GetDownscaledBigRT(int width, int height) => Downscale_ToBuffer(BigRT_pair[0], width, height);
-        // {
-
-        /* if (BigRT_pair[0] == null)
-             return null;
-
-         bool square = (width == height);
-         if ((!square) || (!Mathf.IsPowerOfTwo(width)))
-             return  Render(BigRT_pair[0], GetNonSquareBuffer(width, height), brushRendy_bufferCopy );
-         else
-         {
-             int tmpWidth = Mathf.Max(renderTextureSize / 2, width);
-
-             RenderTexture from = Render(BigRT_pair[0], GetSquareBuffer(tmpWidth));
-
-             while (tmpWidth > width)  {
-                 tmpWidth /= 2;
-                 from = Render(from, GetSquareBuffer(tmpWidth));
-             }
-
-             return from;*/
-
-
-        //}
-
-
-        //  }
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material mat) => Downscale_ToBuffer(tex, width, height, mat, null);
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Shader shade) => Downscale_ToBuffer(tex, width, height, null, shade);
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, brushRendy_bufferCopy);
-       /* {
-
-            if (tex == null)
-                return null;
-
-            bool square = (width == height);
-            if ((!square) || (!Mathf.IsPowerOfTwo(width)))
-                return Render(tex, GetNonSquareBuffer(width, height), brushRendy_bufferCopy);
-            else
-            {
-                int tmpWidth = Mathf.Max(tex.width / 2, width);
-
-                RenderTexture from = Render(tex, GetSquareBuffer(tmpWidth), brushRendy_bufferCopy);
-
-                while (tmpWidth > width)
-                {
-                    tmpWidth /= 2;
-                    from = Render(from, GetSquareBuffer(tmpWidth), brushRendy_bufferCopy);
-                }
-
-                return from;
-            }
-
-        }*/
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material, Shader shader) {
 
@@ -352,7 +301,6 @@ namespace Playtime_Painter
             }
         }
 
-        // Assign some quad to this to see second buffer on it
         public MeshRenderer secondBufferDebug;
 
         // This are used in case user started to use Render Texture on another target. Data is moved to previous Material's Texture2D so that Render Texture Buffer can be used with new target. 
@@ -583,11 +531,6 @@ namespace Playtime_Painter
 
         }
 
-        // **************************   Rendering calls
-
-    
-            // Blit doesn't work well with non power of 2 size
-
         public void Blit(Texture tex, ImageData id)
         {
             if (tex == null || id == null)
@@ -696,11 +639,6 @@ namespace Playtime_Painter
 
         // *******************  Component MGMT
 
-        /* void PlayModeStateChanged(PlayModeStateChange state) {
-             PainterConfig.SaveChanges();
-             autodisabledBufferTarget = null;            
-         }*/
-
         public void ClearEmptyDatas()
         {
             for (int i = 0; i < imgDatas.Count; i++)
@@ -724,10 +662,8 @@ namespace Playtime_Painter
 
             _inst = this;
 
-            if (_plugins!= null)
-            for (int i = 0; i < _plugins.Count; i++)
-                if (_plugins[i] != null && !_plugins[i].enabled)
-                        _plugins[i].enabled = true; 
+       
+       
 
             if (meshManager == null)
                 meshManager = new MeshManager();
@@ -852,7 +788,10 @@ namespace Playtime_Painter
 #endif
 
             autodisabledBufferTarget = null;
-            
+
+            RefreshPlugins();
+
+
         }
 
         private void OnDisable()
@@ -957,8 +896,7 @@ namespace Playtime_Painter
 
             return webCamTexture;
         }
-
-
+        
         public void combinedUpdate()
         {
 
@@ -1029,38 +967,38 @@ namespace Playtime_Painter
         }
 
 #if PEGI
-        bool showImgDatas;
-        public void PEGI()
+        [SerializeField] bool showImgDatas;
+        [SerializeField] int inspectedImgData = -1;
+        public bool PEGI()
         {
 
             pegi.nl();
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
-            if (rtcam == null) { "no camera".nl(); return; }
+            if (rtcam == null) { "no camera".nl(); return false; }
 
             if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
-            {
-                for (int i = 0; i < imgDatas.Count; i++)
-                {
-                    if (icon.Delete.Click() || imgDatas[i] == null) { imgDatas[i].DestroyWhatever(); imgDatas.RemoveAt(i); i--; }
-                    else { imgDatas[i].ToString().write(imgDatas[i].texture2D); pegi.nl(); }
-                }
-            }
+                "Image Datas".edit_List_SO(imgDatas, ref inspectedImgData);
 
-            if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
+            if (inspectedImgData == -1)
+            {
+                if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
+                    matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
 
 #if UNITY_EDITOR
-            "Using layer:".nl();
-            myLayer = EditorGUILayout.LayerField(myLayer);
+                "Using layer:".nl();
+                myLayer = EditorGUILayout.LayerField(myLayer);
 #endif
-            pegi.newLine();
-            "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
+                pegi.newLine();
+                "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-            "Textures to copy from".edit(() => sourceTextures, this).nl();
-            "Masks".edit(() => masks, this).nl();
-            "Decals".edit(() => decals, this).nl();
+                "Textures to copy from".edit(() => sourceTextures, this).nl();
+                "Masks".edit(() => masks, this).nl();
+                "Decals".edit(() => decals, this).nl();
+            }
+
+            return false;
         }
 
 #endif

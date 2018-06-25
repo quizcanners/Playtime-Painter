@@ -3,29 +3,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Playtime_Painter{
+namespace Playtime_Painter
+{
 
-[ExecuteInEditMode]
-public class RenderBrush : PainterStuffMono {
+    [ExecuteInEditMode]
+    public class RenderBrush : PainterStuffMono
+    {
 
-		//public static PainterManager rtp {get {return PainterManager.inst;}}
+        //public static PainterManager rtp {get {return PainterManager.inst;}}
 
-    public MeshRenderer meshRendy;
-    public MeshFilter meshFilter;
-    [NonSerialized] public Mesh modifiedMesh;
-    public Bounds modifiedBound;
-   
+        public MeshRenderer meshRendy;
+        public MeshFilter meshFilter;
+        [NonSerialized] public Mesh modifiedMesh;
+        public Bounds modifiedBound;
+
         SkinnedMeshRenderer changedSkinnedMeshRendy;
         GameObject changedGameObject;
-    Material replacedTargetsMaterial;
+        Material replacedTargetsMaterial;
         Material[] replacedBrushesMaterials;
         int modifiedSubmesh;
-    int replacedLayer;
+        int replacedLayer;
         public bool deformedBounds;
 
-    public void RestoreBounds() {
-           // return;
-           if (replacedTargetsMaterial!= null) {
+        public void RestoreBounds()
+        {
+            // return;
+            if (replacedTargetsMaterial != null)
+            {
 
                 var lst = changedSkinnedMeshRendy.sharedMaterials;
                 lst[modifiedSubmesh] = replacedTargetsMaterial;
@@ -36,7 +40,8 @@ public class RenderBrush : PainterStuffMono {
                 replacedTargetsMaterial = null;
                 meshRendy.enabled = true;
 
-            } else
+            }
+            else
             {
                 transform.parent = PainterManager.inst.transform;
                 modifiedMesh.bounds = modifiedBound;
@@ -47,19 +52,18 @@ public class RenderBrush : PainterStuffMono {
             deformedBounds = false;
 
         }
-
-
-
-        public void UseMeshAsBrush (PlaytimePainter painter) {
+        
+        public void UseMeshAsBrush(PlaytimePainter painter)
+        {
 
             GameObject go = painter.gameObject;
             Transform camTransform = PainterManager.inst.transform;
 
             var skinny = painter.skinnedMeshRendy;
 
-            if (skinny != null) 
+            if (skinny != null)
                 UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);
-            else 
+            else
                 UseMeshAsBrush(go, painter.getMesh(), new List<int> { painter.selectedSubmesh });
         }
 
@@ -88,7 +92,8 @@ public class RenderBrush : PainterStuffMono {
             deformedBounds = true;
         }
 
-        public void UseMeshAsBrush (GameObject go, Mesh mesh, List<int> selectedSubmeshes) {
+        public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
+        {
 
             Transform camTransform = PainterManager.inst.transform;
 
@@ -123,12 +128,14 @@ public class RenderBrush : PainterStuffMono {
             deformedBounds = true;
         }
 
-    public RenderBrush  Set(Shader shade) {
-        meshRendy.sharedMaterial.shader = shade;
+        public RenderBrush Set(Shader shade)
+        {
+            meshRendy.sharedMaterial.shader = shade;
             return this;
-    }
+        }
 
-        public RenderBrush Set(Texture tex) {
+        public RenderBrush Set(Texture tex)
+        {
             meshRendy.sharedMaterial.SetTexture("_MainTex", tex);
             return this;
         }
@@ -139,9 +146,10 @@ public class RenderBrush : PainterStuffMono {
             return this;
         }
 
-        public void FullScreenQuad() {
+        public void FullScreenQuad()
+        {
             float size = PainterManager.orthoSize * 2;
-            transform.localScale = new Vector3(size , size, 0);
+            transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
@@ -156,7 +164,7 @@ public class RenderBrush : PainterStuffMono {
 
             if (tex != null && onto != null)
             {
-                
+
                 float size = PainterManager.orthoSize * 2;
                 float aspectRatio = (float)tex.width / (float)tex.height;
 
@@ -170,8 +178,8 @@ public class RenderBrush : PainterStuffMono {
                 transform.localRotation = Quaternion.identity;
                 meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
 
-                Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1f/aspectRatio);
-               
+                Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1f / aspectRatio);
+
                 if (material)
                 {
                     var tmpMat = meshRendy.material;
@@ -183,17 +191,17 @@ public class RenderBrush : PainterStuffMono {
                 }
                 else
                 {
-                  
+
                     if (shade == null)
                         shade = texMGMT.pixPerfectCopy;
                     Set(shade);
                     Set(tex);
                     texMGMT.Render();
                 }
-                
-               
+
+
                 if (aspectRatio != 1)
-                    Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1);
+                    Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1);
 
             }
 
@@ -203,32 +211,39 @@ public class RenderBrush : PainterStuffMono {
         public void PrepareColorPaint(Color col)
         {
             float size = PainterManager.orthoSize * 2;
-            transform.localScale = new Vector3(size , size, 0);
+            transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
             Set(texMGMT.br_ColorFill).Set(col);
         }
-
-
+        
         private void OnEnable()
         {
-            Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRation, 1f);
+            if (!meshRendy)
+                meshRendy = GetComponent<MeshRenderer>();
+
+            if (!meshFilter)
+                meshFilter = GetComponent<MeshFilter>();
+
+            Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1f);
         }
 
         // Use this for initialization
-        void Awake () {
-        if (meshRendy == null)
-            meshRendy = GetComponent<MeshRenderer>();
+        void Awake()
+        {
+            if (meshRendy == null)
+                meshRendy = GetComponent<MeshRenderer>();
 
-        if (meshFilter == null)
-            meshFilter = GetComponent<MeshFilter>();
+            if (meshFilter == null)
+                meshFilter = GetComponent<MeshFilter>();
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-}
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+    }
 }

@@ -19,7 +19,7 @@ namespace Playtime_Painter
     [Serializable]
     public class ImageData : PainterStuffScriptable
         #if PEGI
-        , IPEGI
+        , IPEGI, IPEGI_ListInspect 
         #endif
     {
 
@@ -589,6 +589,16 @@ namespace Playtime_Painter
                 changed = true;
             }
             return changed;
+        }
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            this.ToPEGIstring().write(60 ,texture2D);
+            if (icon.Enter.Click())
+                edited = ind;
+            texture2D.clickHighlight();
+
+            return false;
         }
 #endif
     }

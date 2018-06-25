@@ -17,121 +17,87 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 using STD_Logic;
 
-namespace StoryTriggerData {
+namespace StoryTriggerData
+{
 
-   
+
     [ExecuteInEditMode]
-    public class Book : LogicMGMT {
+    public class Book : LogicMGMT
+    {
 
-       public static Book instBook { get { return (Book)inst; } }
+        public static Book Inst { get { return (Book)inst; } }
 
         public InteractionTarget stdValues = new InteractionTarget();
-
-        public const string storyTag = "HOME";
-
-        public static List<Page> HOMEpages;
-
-        public List<String> OtherBooks;
         
+        public const string StoriesFolderName = "Stories";
+
+        public const string PagesFolderName = "Pages";
+
+        public const string BookSOname = "Book";
+
+        public const string PrefabsResourceFolder = "stdPrefabs";
+
+        public const string TriggersFolderName = "Triggers";
+
+        [NonSerialized]
+        public List<Page> HOMEpages;
 
         // *********************** SAVING/LOADING  MGMT
-        [NonSerialized]
-        bool Loaded;
-      
-        public override bool Decode(string tag, string data) {
+ 
+        public void SaveChanges()
+        {
 
-            switch (tag) {
-                case "name": gameObject.name = data; break;
-                case "spos": UniversePosition.playerPosition.Decode(data); AfterPlayerSpacePosUpdate();  break;
-                case "pages":HOMEpages = data.ToListOfStoryPoolablesOfTag<Page>(Page.storyTag); break;
-                default: return false;
-            }
-            return true;
         }
 
-        public override void Reboot() {
-            HOMEpages = new List<Page>();
+        public void OnDisable()
+        {
+            UnityHelperFunctions.FocusOn(this);
             if (!Application.isPlaying)
-                STD_Pool.DestroyAll();
-            Loaded = false;
-        }
-
-        public override iSTD Decode(string data) {
-            Reboot();
-            new StdDecoder(data).DecodeTagsFor(this);
-            return this;
-        }
-
-        public override StdEncoder Encode() {
-            StdEncoder cody = EncodeUnrecognized();
-            cody.Add_String("name", gameObject.name)
-            .Add("spos", SpaceValues.playerPosition)
-            .Add_ifNotEmpty("pages", HOMEpages);
-
-            return cody;
-        }
-
-        public static string PrefabsResourceFolder = "stdPrefabs";
-
-        public void LoadOrInit() {
-            Decode(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, gameObject.name, storyTag));
-            Loaded = true;
-        }
-
-        public void SaveChanges() {
+            {
 #if UNITY_EDITOR
-            if (Loaded) {
-                TriggerGroup.SaveAll();
+                TriggerGroup.SaveAll(StoriesFolderName + "/" + TriggersFolderName);
 
                 foreach (Page p in Page.myPoolController.scripts)
                     if ((p != null) && (p.gameObject.activeSelf))
                         p.SavePageContent();
 
-                inst.SaveToResources(TriggerGroup.StoriesFolderName, gameObject.name, storyTag);
                 AssetDatabase.Refresh();
-            }
 #endif
-        }
-        
-        public void OnDisable() {
-                UnityHelperFunctions.FocusOn(this.gameObject);
-            if (!Application.isPlaying)
-                SaveChanges();
-                Reboot();
-            
+            }
+
         }
 
-        public override void OnEnable() {
+        public override void OnEnable()
+        {
 
             base.OnEnable();
 
             STD_Pool.InitStoryPoolsIfNull();
 
-            LoadOrInit();
-
+            HOMEpages = new List<Page>();
+            if (!Application.isPlaying)
+                STD_Pool.DestroyAll();
+            
 #if UNITY_EDITOR
 
             EditorApplication.update -= CombinedUpdate;
             if (!Application.isPlaying)
                 EditorApplication.update += CombinedUpdate;
 
-            try {
-                DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + TriggerGroup.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources");
+            try
+            {
+              //  DirectoryInfo levelDirectoryPath = new DirectoryInfo(Application.dataPath + StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources");
 
-                FileInfo[] fileInfo = levelDirectoryPath.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+             //   FileInfo[] fileInfo = levelDirectoryPath.GetFiles("*.*", SearchOption.TopDirectoryOnly);
 
-                foreach (FileInfo file in fileInfo) {
-                    // file name check
-                    //if (file.Name == "something") {
+                //foreach (FileInfo file in fileInfo)
+                //{
+                    //if ((file.Extension == ResourceSaver.fileType) && (!file.Name.Substring(0, file.Name.Length - ResourceSaver.fileType.Length).Equals(gameObject.name)))
 
-                    //}
-                    // file extension check
-                    if ((file.Extension == ResourceSaver.fileType) && (!file.Name.Substring(0, file.Name.Length-ResourceSaver.fileType.Length).Equals(gameObject.name))) {
-                        UnityEngine.Debug.Log("Found another book" + file.Name);
-                    }
-                    // etc.
-                }
-            } catch(Exception ex) {
+                //}
+            }
+            catch (Exception ex)
+            {
                 UnityEngine.Debug.Log(ex.ToString());
             }
 
@@ -143,118 +109,114 @@ namespace StoryTriggerData {
         }
 
         // *********************** COMPONENT MGMT
-
-   
-        string nameHold;
-
-    public void RenameBook(string newName) {
-#if UNITY_EDITOR
-
-            string path = "Assets" + TriggerGroup.StoriesFolderName.AddPreSlashIfNotEmpty() + "/Resources/";
-
-            foreach (Page p in HOMEpages)
-                if (p.OriginBook == this.gameObject.name)
-                    p.OriginBook = newName;
-
-            AssetDatabase.RenameAsset(path + gameObject.name,  newName);
-            AssetDatabase.RenameAsset(path + gameObject.name+ ResourceSaver.fileType, newName + ResourceSaver.fileType);
-            gameObject.name = newName;
-            OnDisable();
-            LoadOrInit();
-#endif
-        }
-
+        
+       
 #if PEGI
-         int browsedPage = -1;
+        int browsedPage = -1;
         bool unfoldTriggerGroup = false;
-	public override bool PEGI(){
-            bool changed = false;
-            PoolController<Page> pool = Page.myPoolController;
+        public override bool PEGI()
+        {
+            bool changed = base.PEGI();
 
-            if (browsedPage >= pool.initializedCount)
-                browsedPage = -1;
+            if (!showDebug)
+            {
 
-            if (browsedPage == -1) {
+                PoolController<Page> pool = Page.myPoolController;
 
-                pegi.write("A BOOK BY: ", 60);
-                string nameHold = gameObject.name;
-                if (pegi.editDelayed(ref nameHold).nl())
-                    RenameBook(nameHold);
+                if (browsedPage >= pool.initializedCount)
+                    browsedPage = -1;
 
-                pegi.writeOneTimeHint("You need to press Enter in the end to rename Books, Pages and Triggers", "bookRename");
-                pegi.newLine();
-                "Trigger groups: ".nl();
+                if (browsedPage == -1)
+                {
 
-                foreach (TriggerGroup s in TriggerGroup.all.GetAllObjsNoOrder()) {
-                    pegi.write(s.ToString(),80); 
-                    pegi.write(s.GetHashCode().ToString(),30);
-
-                    if (unfoldTriggerGroup && (TriggerGroup.Browsed == s)) {
-                        if (icon.Close.Click(20))
-                            unfoldTriggerGroup = false;
-                        pegi.newLine();
-                        s.PEGI();
-                    } else if (icon.Edit.Click(20)) {
-                        TriggerGroup.Browsed = s;
-                        unfoldTriggerGroup = true;
-                    }
-
+                    pegi.writeOneTimeHint("You need to press Enter in the end to rename Books, Pages and Triggers", "bookRename");
                     pegi.newLine();
-                }
+                    "Trigger groups: ".nl();
 
+                    foreach (TriggerGroup s in TriggerGroup.all.GetAllObjsNoOrder())
+                    {
+                        pegi.write(s.ToString(), 80);
+                        pegi.write(s.GetIndex().ToString(), 30);
 
-                if (Loaded) { 
-                pegi.write("Pages :");
+                        if (unfoldTriggerGroup && (TriggerGroup.Browsed == s))
+                        {
+                            if (icon.Close.Click(20))
+                                unfoldTriggerGroup = false;
+                            pegi.newLine();
+                            s.PEGI();
+                        }
+                        else if (icon.Edit.Click(20))
+                        {
+                            TriggerGroup.Browsed = s;
+                            unfoldTriggerGroup = true;
+                        }
 
-                if (icon.Add.Click(25).nl()) {
-                    Page sp = pool.getOne();
-                    sp.Decode(null);
-                    HOMEpages.Add(sp);
-                    sp.OriginBook = this.gameObject.name;
-                }
-
-                int Delete = -1;
-
-                for (int i = 0; i < HOMEpages.Count; i++  ) {
-                    Page p = HOMEpages[i];
-                    if (p == null) HOMEpages.RemoveAt(i);
-                    else {
-                        if (icon.Delete.Click(20)) Delete = i;
-
-                        string holder = p.gameObject.name;
-                        if (pegi.editDelayed(ref holder))
-                            p.RenamePage(holder);//gameObject.name = holder;
-
-                        if (icon.Edit.Click(20).nl())
-                            browsedPage = p.poolIndex;
-
-                    }
+                        pegi.newLine();
                     }
 
-                if (Delete != -1)
-                    HOMEpages[Delete].Deactivate();
+                    pegi.write("Pages :");
 
-                
-                    if ("Clear All".Click()) Reboot();
+                    if (icon.Add.Click(25).nl())
+                    {
+                        Page sp = pool.getOne();
+                        sp.Decode(null);
+                        HOMEpages.Add(sp);
+                        sp.OriginBook = this.name;
+                    }
+
+                    int Delete = -1;
+
+                    for (int i = 0; i < HOMEpages.Count; i++)
+                    {
+                        Page p = HOMEpages[i];
+                        if (p == null) HOMEpages.RemoveAt(i);
+                        else
+                        {
+                            if (icon.Delete.Click(20)) Delete = i;
+
+                            string holder = p.gameObject.name;
+                            if (pegi.editDelayed(ref holder))
+                                p.RenamePage(holder);//gameObject.name = holder;
+
+                            if (icon.Edit.Click(20).nl())
+                                browsedPage = p.poolIndex;
+
+                        }
+                    }
+
+                    if (Delete != -1)
+                        HOMEpages[Delete].Deactivate();
 
                     if ("Save And Clear".Click()) OnDisable();
-                } else 
-                if ("Load All".Click()) LoadOrInit();
 
-                pegi.newLine();
+                    pegi.newLine();
 
-                if (UniversePosition.playerPosition.PEGI())
-                    AfterPlayerSpacePosUpdate();
+                    if (SpaceValues.playerPosition.PEGI())
+                        AfterPlayerSpacePosUpdate();
 
-            } else {
-                if (pegi.Click("< Pages"))
-                    browsedPage = -1;
+
+                }
                 else
-                pool.scripts[browsedPage].PEGI();
+                {
+                    if (pegi.Click("< Pages"))
+                        browsedPage = -1;
+                    else
+                        pool.scripts[browsedPage].PEGI();
+                }
             }
-
             return changed;
 
+        }
+
+        [MenuItem("Tools/"+ StoriesFolderName+ "/Instantiate Book..")]
+        public static void CreateBook() => UnityHelperFunctions.CreateAsset_SO_DONT_RENAME<Book>(StoriesFolderName, BookSOname);
+        
+        public static bool InstantiateBookPEGI()
+        {
+            if (Inst == null && "Add Book".Click())
+                CreateBook();
+
+            return false;
         }
 
 #endif
@@ -262,14 +224,17 @@ namespace StoryTriggerData {
         [NonSerialized]
         public UniversePosition lerpPosition;
 
-        public void AfterPlayerSpacePosUpdate() {
+        public void AfterPlayerSpacePosUpdate()
+        {
             Vector3 v3 = SpaceValues.playerPosition.Meters;
-            Shader.SetGlobalVector("_wrldOffset", new Vector4(v3.x, v3.y, v3.z,0));
+            Shader.SetGlobalVector("_wrldOffset", new Vector4(v3.x, v3.y, v3.z, 0));
         }
 
-        void CombinedUpdate() {
+        void CombinedUpdate()
+        {
 
-            if (lerpTarget != null) {
+            if (lerpTarget != null)
+            {
 
                 if ((lerpTarget.enabled == false) || (SpaceValues.playerPosition.LerpTo(lerpTarget.sPOS, lerpTarget.uReach, Application.isPlaying ? Time.deltaTime : 0.5f) < 1)) lerpTarget = null;
                 AfterPlayerSpacePosUpdate();
@@ -280,12 +245,13 @@ namespace StoryTriggerData {
                 if (SpaceValues.playerPosition.LerpTo(lerpPosition, UniverseLength.one, Application.isPlaying ? Time.deltaTime : 0.5f) < 1) lerpPosition = null;
                 AfterPlayerSpacePosUpdate();
             }
-            
 
-           
+
+
         }
 
-        override public void Update() {
+        override public void Update()
+        {
 
             base.Update();
 
@@ -297,7 +263,7 @@ namespace StoryTriggerData {
             foreach (var p in HOMEpages)
                 p.PostPositionUpdate();
         }
-        
+
 
     }
 }

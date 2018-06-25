@@ -91,7 +91,7 @@ namespace Playtime_Painter{
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
         public const string vertexColorRole = "VertexColorRole_";
-        public const string bufferCopyAspectRation = "_BufferCopyAspectRatio";
+        public const string bufferCopyAspectRatio = "_BufferCopyAspectRatio";
 
 
         public string meshToolsSTD = null;

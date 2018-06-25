@@ -25,7 +25,7 @@ namespace StoryTriggerData
     }
 
     [Serializable]
-    public class DialogueChoice: abstractKeepUnrecognized_STD   {
+    public class DialogueChoice: AbstractKeepUnrecognized_STD   {
         public ConditionBranch conditions;
         public Sentance text;
         public List<Sentance> texts2;
@@ -95,7 +95,7 @@ namespace StoryTriggerData
             if (pegi.foldout("___Results:", ref Interaction.showOnExit_Results)){
                 ConditionLogic.unfoldPegi = false;
 
-               results.PEGI(so);
+               results.Inspect(so);
             }
 
             pegi.newLine();
@@ -131,7 +131,7 @@ namespace StoryTriggerData
     public enum QOoptionType { Dialogue, PassiveLogic, Secret }
 
     [Serializable]
-    public class Interaction : abstractKeepUnrecognized_STD {
+    public class Interaction : AbstractKeepUnrecognized_STD {
 
         public string reference="";
         public ConditionBranch conditions;
@@ -188,8 +188,8 @@ namespace StoryTriggerData
 
         public void Execute( InteractionTarget so) {
             for (int j = 0; j < options.Count; j++)
-                if (options[j].conditions.TestFor(so)) { options[j].results.apply(so); break; }
-            FinalResults.apply(so);
+                if (options[j].conditions.TestFor(so)) { options[j].results.Apply(so); break; }
+            FinalResults.Apply(so);
         }
 
 #if PEGI
@@ -298,7 +298,7 @@ namespace StoryTriggerData
             }
 
             if (showFinal_Results) 
-                FinalResults.PEGI(st);
+                FinalResults.Inspect(st);
 
             Values.inspected = null;
 

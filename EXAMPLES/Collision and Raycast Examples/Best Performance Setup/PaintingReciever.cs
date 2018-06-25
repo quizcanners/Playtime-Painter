@@ -1,23 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if PEGI
 using PlayerAndEditorGUI;
-#endif
 using SharedTools_Stuff;
 
 
 namespace Playtime_Painter {
 
-#if PEGI && UNITY_EDITOR
-using UnityEditor;
-[CustomEditor(typeof(PaintingReciever))]
-public class PaintingRecieverEditor : Editor
-{
-    public override void OnInspectorGUI() => ((PaintingReciever)target).Inspect(serializedObject);
-        
-}
-#endif
+
 
     public class PaintingReciever : MonoBehaviour
 #if PEGI

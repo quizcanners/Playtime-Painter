@@ -38,7 +38,7 @@ namespace StoryTriggerData {
  
         public abstract void Reboot();
 
-        public abstract string getDefaultTagName();
+        public abstract string GetObjectTag();
 
         public virtual iSTD Decode(string data) {
 
@@ -47,7 +47,7 @@ namespace StoryTriggerData {
             gameObject.SetFlagsOnItAndChildren(HideFlags.DontSave);//AddFlagsOnItAndChildren(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
             //colors &= ~(Blah.BLUE | Blah.RED)
 
-            gameObject.name = "new " + getDefaultTagName();
+            gameObject.name = "new " + GetObjectTag();
             
             Reboot();
                  
@@ -69,7 +69,7 @@ namespace StoryTriggerData {
         }
 
         public override string ToString() {
-            return getDefaultTagName();
+            return GetObjectTag();
         }
 
         public abstract bool Decode(string tag, string data);
@@ -167,7 +167,7 @@ namespace StoryTriggerData {
                         Page pg = parentPage;
                         Deactivate();
 
-                        pg.Decode(getDefaultTagName(), encode.ToString());
+                        pg.Decode(GetObjectTag(), encode.ToString());
                     }  
                 }
 

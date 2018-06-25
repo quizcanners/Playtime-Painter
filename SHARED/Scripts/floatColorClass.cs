@@ -15,7 +15,7 @@ namespace SharedTools_Stuff
     public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
 
     [System.Serializable]
-    public class linearColor : abstract_STD
+    public class linearColor : Abstract_STD
     {
         public float r, g, b, a;
 

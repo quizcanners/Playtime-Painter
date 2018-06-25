@@ -11,7 +11,7 @@ namespace Playtime_Painter
     public class TerrainLight : PainterPluginBase
     {
     
-        public MergingTerrain mergingTerrain;
+        public MergingTerrainController mergingTerrain;
         public int testData;
 
         public override bool BrushConfigPEGI()
@@ -30,7 +30,7 @@ namespace Playtime_Painter
         void findMergingTerrain(PlaytimePainter pntr)
         {
             if ((mergingTerrain == null) && (pntr.terrain != null))
-                mergingTerrain = pntr.GetComponent<MergingTerrain>();
+                mergingTerrain = pntr.GetComponent<MergingTerrainController>();
         }
 
         public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)

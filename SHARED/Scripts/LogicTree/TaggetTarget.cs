@@ -11,11 +11,11 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-    public class TaggedTarget: ValueIndex, iSTD {  // if there are zero
+    public class TaggedTarget: ValueIndex {  // if there are zero
       
         public int targValue; // if zero - we are talking about bool target
 
-        public StdEncoder Encode() {
+        public override StdEncoder Encode() {
 
             StdEncoder cody = new StdEncoder();
             cody.Add("g", groupIndex);
@@ -25,7 +25,7 @@ namespace STD_Logic
             return cody;
         }
 
-        public bool Decode(string tag, string data) {
+        public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "g" : groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
@@ -35,11 +35,11 @@ namespace STD_Logic
             return true;
         }
         
-        public override bool isBoolean() {
+        public override bool IsBoolean() {
             return targValue == 0;
         }
         
-        public string tagName { get { return Trigger.name + (isBoolean() ?  "" : Trigger.enm[triggerIndex]);}}
+        public string tagName { get { return Trigger.name + (IsBoolean() ?  "" : Trigger.enm[triggerIndex]);}}
 
         public List<Values> getObjectsByTag() {
             if (targValue > 0)
@@ -72,13 +72,7 @@ namespace STD_Logic
         }
 
 #endif
-
-        public const string stdTag_TagTar = "tagTar";
-        public string getDefaultTagName() {
-            return stdTag_TagTar;
-        }
-
-        public iSTD Decode(string data) => data.DecodeInto(this);
+        
 
     }
     

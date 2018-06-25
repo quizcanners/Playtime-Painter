@@ -10,7 +10,7 @@ namespace STD_Logic
 
     
 
-    public class ConditionBranch : abstractKeepUnrecognized_STD 
+    public class ConditionBranch : AbstractKeepUnrecognized_STD 
         #if PEGI
         , IGotName , IPEGI
 #endif
@@ -43,7 +43,7 @@ namespace STD_Logic
             .Add_ifNotEmpty("v", conds)
             .Add_ifNotZero("t", (int)type)
             .Add_String("d", description)
-            .Add(TaggedTarget.stdTag_TagTar, targ)
+            .Add("tag", targ)
             .Add_ifNotNegative("insB", browsedBranch);
         
         public override bool Decode(string subtag, string data)
@@ -52,7 +52,7 @@ namespace STD_Logic
             {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
                 case "d": description = data; break;
-                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
+                case "tag": data.DecodeInto(out targ); break;
                 case "wb": data.DecodeInto(out branches); break;
                 case "v": data.DecodeInto(out conds); break;
                 case "insB": browsedBranch = data.ToInt(); break;

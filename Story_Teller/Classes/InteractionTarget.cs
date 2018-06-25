@@ -120,7 +120,7 @@ namespace StoryTriggerData {
                         Interaction.showOnExit_Results = false;
                         Trigger.showTriggers = false;
 
-                        OnEnterResults.PEGI(this);
+                        OnEnterResults.Inspect(this);
 
                     }
                     pegi.newLine();
@@ -128,7 +128,7 @@ namespace StoryTriggerData {
                         Interaction.showOnEnter_Results = false;
                         Trigger.showTriggers = false;
 
-                        OnExitResults.PEGI(this);
+                        OnExitResults.Inspect(this);
 
                     }
                     pegi.newLine();
@@ -155,8 +155,8 @@ namespace StoryTriggerData {
 
             for (int i = 0; i < lst.Count; i++) {
                 TriggerGroup td = lst[i];
-                pegi.write(td + "_" + td.GetHashCode(), 230);
-                pegi.toggle(td.GetHashCode(), groupsToShowInBrowser);
+                pegi.write(td + "_" + td.GetIndex(), 230);
+                pegi.toggle(ref td.showInInspectorBrowser);
                 pegi.newLine();
             }
 

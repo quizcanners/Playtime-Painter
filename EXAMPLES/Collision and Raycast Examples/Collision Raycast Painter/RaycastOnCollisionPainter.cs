@@ -8,17 +8,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
 
-    using UnityEditor;
-
-    [CustomEditor(typeof(RaycastOnCollisionPainter))]
-    public class PainterCasterEditor : Editor{
-
-        public override void OnInspectorGUI() => ((RaycastOnCollisionPainter)target).Inspect(serializedObject);
-           
-    }
-#endif
 
     public class RaycastOnCollisionPainter : MonoBehaviour
 #if PEGI

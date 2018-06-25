@@ -12,25 +12,15 @@ using SharedTools_Stuff;
 namespace StoryTriggerData
 {
 
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
 
-    [ExecuteInEditMode]
-    [CustomEditor(typeof(Terra))]
-    public class TerraDrawer : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            ef.start(serializedObject);
-            ((Terra)target).PEGI();
-            ef.end();
-        }
-    }
-# endif
 
     [ExecuteInEditMode]
     [TagName(Terra.tagName)]
-    public class Terra : STD_Poolable {
+    public class Terra : STD_Poolable
+#if PEGI
+        , IPEGI
+#endif
+    {
 
         string strokeData;
         PlaytimePainter painter;
@@ -119,7 +109,7 @@ namespace StoryTriggerData
 
         public const string tagName = "tera";
 
-        public override string getDefaultTagName()
+        public override string GetObjectTag()
         {
             return tagName;
         }

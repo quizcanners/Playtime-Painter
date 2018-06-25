@@ -5,19 +5,6 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
-#if PEGI && UNITY_EDITOR
-
-    using UnityEditor;
-
-   
-    [CustomEditor(typeof(PainterBall))]
-    public class PainterBallEditor : Editor    {
-
-        public override void OnInspectorGUI() => ((PainterBall)target).Inspect(serializedObject);
-          
-    }
-#endif
-
 
     public class paintingCollision {
 		public StrokeVector vector;

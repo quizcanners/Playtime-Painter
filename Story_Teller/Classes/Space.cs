@@ -29,7 +29,7 @@ namespace StoryTriggerData {
 
     }
 
-    public abstract class SpaceValues : abstract_STD {
+    public abstract class SpaceValues : Abstract_STD {
         public const float accuracyLimit = 2048;
 
         public static float lightYearsInMegaparsec = 3260000;
@@ -852,7 +852,7 @@ namespace StoryTriggerData {
 
             if (("Camera Pos " + playerPosition.ToString()).foldout(ref editing, 3).nl()) {
                 changed |= playerPosition.PEGIbase();
-                if (changed) Book.instBook.AfterPlayerSpacePosUpdate();
+                if (changed) Book.Inst.AfterPlayerSpacePosUpdate();
             }
 
             if (("Universe Scale " + universeScale.ToString()).foldout(ref editing, 4).nl()) {

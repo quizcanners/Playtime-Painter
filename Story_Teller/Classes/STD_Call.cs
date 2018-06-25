@@ -44,7 +44,7 @@ namespace StoryTriggerData {
 #endif
     }
 
-    public class STD_Call : abstract_STD
+    public class STD_Call : Abstract_STD
 #if PEGI
             , IPEGI
 #endif

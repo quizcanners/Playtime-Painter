@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 namespace STD_Logic {
 
 
-    public class Values: abstractKeepUnrecognized_STD
+    public class Values: AbstractKeepUnrecognized_STD
 #if PEGI
         , IPEGI
 #endif
@@ -18,7 +18,7 @@ namespace STD_Logic {
         public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
         public UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
         public UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
-        public CountlessBool groupsToShowInBrowser = new CountlessBool();
+        //public CountlessBool groupsToShowInBrowser = new CountlessBool();
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
@@ -41,6 +41,8 @@ namespace STD_Logic {
             return true;
         }
 
+        public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.GetIndex(), tagIndex, value);
+
         public void SetTagBool(int groupIndex, int tagIndex, bool value) {
 
             boolTags[groupIndex][tagIndex] = value;
@@ -58,6 +60,8 @@ namespace STD_Logic {
             else if (value)
                 s.taggedBool[tagIndex].Add(this);
         }
+
+        public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.GetIndex(), tagIndex, value);
 
         public void SetTagEnum(int groupIndex, int tagIndex, int value) {
 
@@ -114,11 +118,11 @@ namespace STD_Logic {
                 Trigger.searchMatchesFound = 0;
 
                 foreach (TriggerGroup td in TriggerGroup.all) 
-                    td.PEGI(this);
+                    td.PEGI();
   
                 TriggerGroup.Browsed.AddTrigger_PEGI(null);
                 
-                groupsToShowInBrowser[TriggerGroup.Browsed.GetHashCode()] = true;
+                TriggerGroup.Browsed.showInInspectorBrowser = true;
                 
             pegi.nl();
 

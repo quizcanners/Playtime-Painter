@@ -536,6 +536,8 @@ namespace SharedTools_Stuff
 
         }
 
+
+        // The function below uses this function's name
         public static T CreateAsset_SO_DONT_RENAME<T>(string path, string name) where T : ScriptableObject
         {
             return CreateAsset_SO<T, T>(path, name, null);
@@ -585,6 +587,9 @@ namespace SharedTools_Stuff
             }
 #endif
 #if UNITY_EDITOR
+
+            if (!path.Contains("Assets"))
+                path = "Assets" + path.AddPreSlashIfNotEmpty();
 
             string fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
             Directory.CreateDirectory(fullPath);
@@ -820,10 +825,10 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static void FocusOn(GameObject go)
+        public static void FocusOn(UnityEngine.Object go)
         {
 #if UNITY_EDITOR
-            GameObject[] tmp = new GameObject[1];
+            UnityEngine.Object[] tmp = new UnityEngine.Object[1];
             tmp[0] = go;
             Selection.objects = tmp;
 #endif

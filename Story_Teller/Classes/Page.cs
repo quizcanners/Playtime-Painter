@@ -13,7 +13,9 @@ namespace StoryTriggerData{
     [ExecuteInEditMode]
     public class Page : STD_Poolable {
 
-        List<STD_Poolable> linkedObjects;
+        List<STD_Poolable> linkedObjects = new List<STD_Poolable>();
+
+        static Book mgmt => Book.Inst;
 
         public const string storyTag = "page";
 
@@ -29,7 +31,7 @@ namespace StoryTriggerData{
         public bool noClamping;
         public string OriginBook;
 
-        public override string getDefaultTagName() {
+        public override string GetObjectTag() {
             return storyTag;
         }
 
@@ -110,34 +112,37 @@ namespace StoryTriggerData{
         public StdEncoder EncodeContent() {
             var cody = new StdEncoder();
 
+
             foreach (STD_Poolable sc in linkedObjects)
-                cody.Add(sc.getDefaultTagName(),sc.Encode());
+                if (sc != null)
+                cody.Add(sc.GetObjectTag(),sc);
 
             return cody;
         }
 
         public void SavePageContent() {
             if (objectsLoaded)
-                ResourceSaver.SaveToResources(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
+                ResourceSaver.SaveToResources(Book.StoriesFolderName, GerResourcePath(), gameObject.name, EncodeContent().ToString());
         }
 
         public void LoadContent() {
             if (!objectsLoaded)
-                new StdDecoder(ResourceLoader.LoadStoryFromResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
+                new StdDecoder(ResourceLoader.LoadStoryFromResource(Book.StoriesFolderName, GerResourcePath(), gameObject.name)).DecodeTagsFor(this);
             objectsLoaded = true;
         }
 
         public void RenamePage(string newName) {
 #if UNITY_EDITOR
             bool duplicate = false;
-            foreach (Page p in Book.HOMEpages) {
+            if (mgmt && mgmt.HOMEpages!= null)
+            foreach (Page p in mgmt.HOMEpages) {
                 if ((p.gameObject.name == gameObject.name) && (p.gameObject != this.gameObject)) { duplicate = true; break; } //
             }
 
-            string path = "Assets/" + TriggerGroup.StoriesFolderName + "/Resources/" + GerResourcePath() + "/";
+            string path = "Assets/" + Book.StoriesFolderName + "/Resources/" + GerResourcePath() + "/";
 
             if (duplicate)
-                UnityHelperFunctions.DuplicateResource(TriggerGroup.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
+                UnityHelperFunctions.DuplicateResource(Book.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
             else
                 UnityEditor.AssetDatabase.RenameAsset(path + gameObject.name + ResourceSaver.fileType, newName + ResourceSaver.fileType);
 
@@ -152,7 +157,7 @@ namespace StoryTriggerData{
 
             clearPage();
             if (parentPage == null)
-                Book.HOMEpages.Remove(this);
+                Book.Inst.HOMEpages.Remove(this);
             base.Deactivate();
         }
 
@@ -192,12 +197,10 @@ namespace StoryTriggerData{
             browsedPage = this;
 
             if (exploredObject >= 0) {
-
                 if ((linkedObjects.Count <= exploredObject) || ("< Pools".Click(35)))
                     exploredObject = -1;
                 else
                     linkedObjects[exploredObject].PEGI();
-
             }
 
             if (exploredObject == -1) {
@@ -212,14 +215,12 @@ namespace StoryTriggerData{
                 }
 
                 (objectsLoaded ? "loaded" : "not loaded").nl(60);
-
-
+                
                 if ("Location: ".edit(60, ref anotherBook).nl()) {
                     if (anotherBook[anotherBook.Length - 1] == '/')
                         anotherBook = anotherBook.Substring(0, anotherBook.Length - 1);
                 }
-
-
+                
                 if ("config".foldout(ref notsafeCFG)) {
 
                     if ("Clear".Click().nl())
@@ -233,7 +234,7 @@ namespace StoryTriggerData{
                 pegi.newLine();
 
                 if ((!objectsLoaded) && ("Load".Click()))
-                    Book.instBook.lerpTarget = this; 
+                    Book.Inst.lerpTarget = this; 
                 
                 if ((objectsLoaded) && ("Save".Click()))
                     SavePageContent();
@@ -296,9 +297,7 @@ namespace StoryTriggerData{
         UniverseLength dist = new UniverseLength();
      
         public override void PostPositionUpdate() {
-
-
-
+            
             if (noClamping)
                 transform.position = sPOS.ToV3unclamped(uReach);
             else {
@@ -317,10 +316,13 @@ namespace StoryTriggerData{
                 clearPage();
             }
 
-
-
-            for (int i = linkedObjects.Count - 1; i >= 0; i--)
-                linkedObjects[i].PostPositionUpdate();
+            if (linkedObjects != null)
+                for (int i = linkedObjects.Count - 1; i >= 0; i--)
+                {
+                    var lo = linkedObjects[i];
+                    if (lo)
+                        lo.PostPositionUpdate();
+                }
         }
 
         public static PoolController<Page> myPoolController;

@@ -8,17 +8,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
 
-    using UnityEditor;
-
-    [CustomEditor(typeof(SkinnedMeshCaster))]
-    public class SkinnedMeshCasterEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).Inspect(serializedObject);
-        
-    }
-#endif
 
     public class SkinnedMeshCaster : MonoBehaviour
 #if PEGI

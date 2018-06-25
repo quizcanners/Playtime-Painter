@@ -10,21 +10,6 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
-
-    using UnityEditor;
-
-    [CustomEditor(typeof(PaintWithoutComponent))]
-    public class PaintWithoutComponentEditor : Editor
-    {
-
-        public override void OnInspectorGUI() => ((PaintWithoutComponent)target).Inspect(serializedObject);
-        
-    }
-#endif
-
-
-
     public class PaintWithoutComponent : MonoBehaviour
 #if PEGI
         ,IPEGI

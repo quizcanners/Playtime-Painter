@@ -19,7 +19,7 @@ using SharedTools_Stuff;
 
 namespace STD_Logic
 {
-    public class LogicMGMT : ComponentSTD {
+    public class LogicMGMT : ScriptableSTD  {
 
         public static LogicMGMT inst;
 
@@ -48,7 +48,7 @@ namespace STD_Logic
         bool waiting;
         float timeToWait = -1;
 
-        public virtual Values inspectedValues()
+        public virtual Values InspectedValues()
         {
             return null;
         }
@@ -85,17 +85,11 @@ namespace STD_Logic
             return cody;
         }
 
-        public override void Reboot()
-        {
-
-        }
-
         public override bool Decode(string tag, string data)
         {
 
             return true;
         }
-
-      
+        
     }
 }

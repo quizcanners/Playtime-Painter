@@ -8,23 +8,17 @@ using SharedTools_Stuff;
 namespace StoryTriggerData {
 
 
-#if PEGI && UNITY_EDITOR
-        using UnityEditor;
 
-    [CustomEditor(typeof(Actor))]
-    public class ActorDrawer : Editor {
-            public override void OnInspectorGUI() {
-                ef.start(serializedObject);
-                ((Actor)target).PEGI();
-            ef.end();
-        }
-        }
-#endif
 
 
     [TagName(tagName)]
     [ExecuteInEditMode]
-    public class Actor : STD_Poolable {
+    public class Actor : STD_Poolable
+#if PEGI
+        , IPEGI 
+#endif
+
+    {
 
         public static Actor controlled;
 
@@ -389,7 +383,7 @@ namespace StoryTriggerData {
                 controlled = null;
         }
 
-        public override string getDefaultTagName() {
+        public override string GetObjectTag() {
             return tagName;
         }
 

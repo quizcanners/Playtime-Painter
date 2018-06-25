@@ -6,23 +6,6 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
-
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-
-    [CustomEditor(typeof(WaterController))]
-    public class WaterEditor : Editor
-    {
-
-        public override void OnInspectorGUI()
-        {
-            ((WaterController)target).Nested_Inspect();
-        }
-    }
-#endif
-
-
-
     [ExecuteInEditMode]
     public class WaterController : ComponentSTD
     {

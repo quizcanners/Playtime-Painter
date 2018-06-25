@@ -906,8 +906,10 @@ namespace SharedTools_Stuff {
         }
 
         public int currentEnumerationIndex;
-        int edited = -1;
+
 #if PEGI
+
+          int edited = -1;
 
         public override bool PEGI()
         {

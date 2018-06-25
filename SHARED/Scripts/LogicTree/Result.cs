@@ -10,9 +10,8 @@ namespace STD_Logic  {
     
     public static class ResultExtensionFunctions {
 
-        public static void apply(this ResultType type, int updateValue, ValueIndex dest, Values so)
+        public static void Apply(this ResultType type, int updateValue, ValueIndex dest, Values so)
         {
-
             switch (type)
             {
                 case ResultType.SetBool: dest.SetBool(so, (updateValue > 0)); break;
@@ -24,7 +23,6 @@ namespace STD_Logic  {
                 case ResultType.SetTagBool: so.SetTagBool(dest.groupIndex, dest.triggerIndex, updateValue > 0); break;
                 case ResultType.SetTagInt: so.SetTagEnum(dest.groupIndex, dest.triggerIndex, updateValue); break;
             }
-
         }
 
         public static string GetText(this ResultType type) {
@@ -50,25 +48,26 @@ namespace STD_Logic  {
                  (showDetail ? "..." : o[0].ToString()) : " NONE");
         }
 
-        public static void apply(this List<Result> results, Values to) {
+        public static void Apply(this List<Result> results, Values to) {
 
             if (results.Count > 0)
             {
                 foreach (var r in results)
-                    r.apply(to);
+                    r.Apply(to);
 
                 LogicMGMT.AddLogicVersion();
             }
 
         }
+
 #if PEGI
-        public static bool edit(this string label, ref List<Result> res, Values vals)
+        public static bool Inspect(this string label, ref List<Result> res, Values vals)
         {
             pegi.write(label);
-            return res.PEGI(vals);
+            return res.Inspect(vals);
         }
 
-        public static bool PEGI(this List<Result> res, Values vals) {
+        public static bool Inspect(this List<Result> res, Values vals) {
             bool changed = false;
 
             Values.inspected = vals;
@@ -91,7 +90,7 @@ namespace STD_Logic  {
 
                 changed |= r.Trigger._usage.inspect(r);
 
-                changed |= r.searchAndAdd_PEGI(i);
+                changed |= r.SearchAndAdd_PEGI(i);
 
             }
             
@@ -102,7 +101,6 @@ namespace STD_Logic  {
             Values.inspected = null;
             return changed;
         }
-
 #endif
 
         public static Result Add(this List<Result> lst) {
@@ -135,90 +133,59 @@ namespace STD_Logic  {
 
     }
     
-    public class Result : ValueIndex, iSTD
+    public class Result : ValueIndex
 #if PEGI
-        , IPEGI
+        , IPEGI, IGotDisplayName 
 #endif
     {
 
         public TaggedTarget targ;
-
-        public bool Decode(string subtag, string data) {
+        public ResultType type;
+        public int updateValue;
+        
+        public override bool Decode(string subtag, string data) {
             switch (subtag) {
                 case "ty": type = (ResultType)data.ToInt(); break;
                 case "val": updateValue = data.ToInt(); break;
+                case "tag": data.DecodeInto(out targ); break;
+                case "ind": data.DecodeInto(DecodeIndex); break;
+                    //Legacy: 
                 case "g": groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
-                case TaggedTarget.stdTag_TagTar: data.DecodeInto(out targ); break;
                 default: return false;
             }
             return true;
         }
         
-        public const string storyTag_res = "res";
-
-        public string getDefaultTagName() {
-            return storyTag_res;
-        }
-
-        public override string ToString()
-        {
-			Trigger t = Trigger;
-            return   t == null ? "???" : t.name + type + " " + updateValue;
-        }
-
-        public Result() {
-            groupIndex = TriggerGroup.Browsed.GetHashCode();
-        }
-
-        public iSTD Decode(string data) => data.DecodeInto(this);
-
-        public static string CompileResultText(Result res) {
-            return res.Trigger.name + res.type + " " + res.updateValue;
-        }
-        
-        public static int exploredResult = -1;
-
-        public ResultType type;
-        public int updateValue;
-
-        public StdEncoder Encode()
+        public override StdEncoder Encode()
         {
             StdEncoder cody = new StdEncoder();
 
             cody.Add_ifNotZero("ty", (int)type);
             cody.Add_ifNotZero("val", updateValue);
-            cody.Add("g", groupIndex);
-            cody.Add("t", triggerIndex);
+            cody.Add("ind", EncodeIndex);
+            //cody.Add("g", groupIndex);
+            //cody.Add("t", triggerIndex);
+            cody.Add("tag", targ);
             return cody;
         }
-
-        public bool apply(Values so) {
-
-            type.apply(updateValue, this, so);
-
-          /*  switch (type)  {
-                case ResultType.SetBool: SetBool(so, (updateValue > 0)); break;
-                case ResultType.Set: SetInt(so, updateValue); break;
-                case ResultType.Add: so.ints[groupIndex].Add(triggerIndex, updateValue); break;
-                case ResultType.Subtract: so.ints[groupIndex].Add(triggerIndex, -updateValue); break;
-                case ResultType.SetTimeReal: SetInt(so, LogicMGMT.RealTimeNow()); break;
-                case ResultType.SetTimeGame: SetInt(so, (int)Time.time); break;
-                case ResultType.SetTagBool: so.SetTagBool(groupIndex, triggerIndex, updateValue > 0); break;
-                case ResultType.SetTagInt: so.SetTagEnum(groupIndex, triggerIndex, updateValue); break;
-            }*/
-            return true;
-        }
-
-       
-
-        public override bool isBoolean()
+        
+#if PEGI
+        public override string NameForPEGIdisplay() => base.NameForPEGIdisplay() + type + " " + updateValue;
+#endif
+        public static string CompileResultText(Result res) => res.Trigger.name + res.type + " " + res.updateValue;
+        
+        public static int exploredResult = -1;
+        
+        public void Apply(Values to) => type.Apply(updateValue, this, to);
+           
+        public override bool IsBoolean() => ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
+        
+        public Result()
         {
-            return ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
+            groupIndex = TriggerGroup.Browsed.GetIndex();
         }
-
-       
-
+        
     }
 
 }

@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
 [Serializable]
-    public class StrokeVector : abstract_STD {
+    public class StrokeVector : Abstract_STD {
 
 	public Vector2 uvFrom;
 	public Vector3 posFrom;

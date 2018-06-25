@@ -7,7 +7,7 @@ using System;
 
 namespace STD_Logic {
 
-    public class LogicBranch<T> : abstractKeepUnrecognized_STD 
+    public class LogicBranch<T> : AbstractKeepUnrecognized_STD 
         #if PEGI
         , IGotName , IPEGI
 #endif
@@ -99,7 +99,7 @@ namespace STD_Logic {
 
                 if (browsedElement == -1)  {
        
-                    Values vals = LogicMGMT.inst != null ? LogicMGMT.inst.inspectedValues() : null;
+                    Values vals = LogicMGMT.inst != null ? LogicMGMT.inst.InspectedValues() : null;
                     
                     bool isTrue = vals != null ? conds.TestFor(vals) : false;
 

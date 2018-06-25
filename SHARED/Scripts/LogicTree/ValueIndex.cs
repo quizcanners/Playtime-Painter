@@ -10,14 +10,19 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex
+    public abstract class ValueIndex : iSTD
         #if PEGI
-        : IPEGI, IGotDisplayName 
+        , IPEGI, IGotDisplayName 
 #endif
     {
 
         public int groupIndex;
         public int triggerIndex;
+
+        public iSTD Decode(string data) => data.DecodeInto(this);
+
+        public abstract StdEncoder Encode();
+        public abstract bool Decode(string tag, string data);
 
         protected StdEncoder EncodeIndex() => new StdEncoder()
             .Add("gi", groupIndex)
@@ -34,27 +39,19 @@ namespace STD_Logic
             return true;
         }
         
-
         public int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
         
-        public void SetInt(Values st, int value)  =>  st.ints[groupIndex][triggerIndex] = value;
+        public void SetInt(Values st, int value) => st.ints[groupIndex][triggerIndex] = value;
         
-        public bool GetBool(Values st)
-        {
-            if (groupIndex < 0)
-                Debug.Log("group is " + groupIndex);
-            if (triggerIndex < 0)
-                Debug.Log("trigger index is " + triggerIndex);
-            return st.bools[groupIndex][triggerIndex];
-        }
-
+        public bool GetBool(Values st) => st.bools[groupIndex][triggerIndex];
+        
         public void SetBool(Values st, bool value) =>  st.bools[groupIndex][triggerIndex] = value;
         
         public Trigger Trigger => Group.triggers[triggerIndex];
 
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
-        public abstract bool isBoolean();
+        public abstract bool IsBoolean();
 #if PEGI
         public static Trigger selectedTrig;
         public static ValueIndex selected;
@@ -65,12 +62,10 @@ namespace STD_Logic
         }
 
         public static string focusName;
-        public static Values editedSo;
 
         public bool PEGI(int index,  string prefix)
         {
             bool changed = false;
-            editedSo = Values.inspected;
 
             if (Trigger.edited != Trigger) {
                 if (icon.Edit.Click(20))
@@ -94,7 +89,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public bool searchAndAdd_PEGI(int index)
+        public bool SearchAndAdd_PEGI(int index)
         {
             bool changed = false;
 
@@ -123,7 +118,7 @@ namespace STD_Logic
 
                 pegi.newLine();
 
-                if (search_PEGI(Trigger.searchField, editedSo))
+                if (Search_PEGI(Trigger.searchField, Values.inspected))
                     Trigger.searchField = Trigger.name;
 
                 selectedTrig = Trigger;
@@ -140,7 +135,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public bool search_PEGI(string search, Values so)
+        public bool Search_PEGI(string search, Values so)
         {
 
             bool changed = false;
@@ -190,7 +185,7 @@ namespace STD_Logic
 
                         Trigger.searchMatchesFound++;
                         pegi.write(t.name + "_" + indx);
-                        if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetHashCode(); pegi.DropFocus(); pegi.newLine(); return true; }
+                        if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetIndex(); pegi.DropFocus(); pegi.newLine(); return true; }
                         pegi.newLine();
                     }
                 }
@@ -198,7 +193,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public string NameForPEGIdisplay() => Trigger.ToPEGIstring();
+        public virtual string NameForPEGIdisplay() => Trigger.ToPEGIstring();
 #endif
     }
 }

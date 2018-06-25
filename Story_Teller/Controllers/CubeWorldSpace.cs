@@ -11,24 +11,14 @@ using SharedTools_Stuff;
 
 namespace StoryTriggerData {
 
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-
-    [CustomEditor(typeof(CubeWorldSpace))]
-    public class CubeWorldSpaceDrawer : Editor {
-        public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((CubeWorldSpace)target).PEGI();
-            ef.end();
-        }
-    }
-#endif
-
-
 
     [ExecuteInEditMode]
     [TagName(CubeWorldSpace.tagName)]
-    public class CubeWorldSpace : STD_Poolable {
+    public class CubeWorldSpace : STD_Poolable
+#if PEGI
+        , IPEGI
+#endif
+    {
 
 
         string strokeData;
@@ -107,7 +97,7 @@ namespace StoryTriggerData {
 
         public const string tagName = "cube";
 
-        public override string getDefaultTagName() {
+        public override string GetObjectTag() {
             return tagName;
         }
 

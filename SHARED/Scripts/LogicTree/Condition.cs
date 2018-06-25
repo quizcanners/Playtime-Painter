@@ -16,19 +16,17 @@ namespace STD_Logic
 #endif
     {
 
-        public virtual StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
+        public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
 
-        public virtual bool Decode(string subtag, string data) => true;
+        public override bool Decode(string subtag, string data) => true;
         
-        public iSTD Decode(string data) => data.DecodeInto(this);
-
         public virtual void ForceConditionTrue(Values st) { }
 
         public virtual bool TestFor(Values st) => false;
 
         public virtual int isItClaimable( int dir, Values st) => -2;
         
-        public override bool isBoolean() => false;
+        public override bool IsBoolean() => false;
 
 #if PEGI
         
@@ -38,7 +36,7 @@ namespace STD_Logic
 
             Trigger._usage.inspect(this);
 
-            changed |= searchAndAdd_PEGI(ind);
+            changed |= SearchAndAdd_PEGI(ind);
 
             return changed;
         }
@@ -79,7 +77,7 @@ namespace STD_Logic
 
         public override int isItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
         
-        public override bool isBoolean() => true;
+        public override bool IsBoolean() => true;
     }
 
     public class ConditionLogicInt : ConditionLogic
@@ -168,7 +166,7 @@ namespace STD_Logic
 
             Trigger._usage.inspect(this);
 
-            changed |= searchAndAdd_PEGI(0);
+            changed |= SearchAndAdd_PEGI(0);
 
             return base.PEGI() || changed;
         }
@@ -179,7 +177,7 @@ namespace STD_Logic
             bool value = base.TestFor(st);
 
             if (value)
-                ResultType.SetBool.apply(compareValue ? 0 : 1, this, st);
+                ResultType.SetBool.Apply(compareValue ? 0 : 1, this, st);
 
             return value;
         }

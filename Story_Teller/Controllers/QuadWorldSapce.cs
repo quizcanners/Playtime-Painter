@@ -21,7 +21,7 @@ namespace StoryTriggerData {
 
 	    public const string tagName = "quad";
 
-	    public override string getDefaultTagName () {
+	    public override string GetObjectTag () {
 			return tagName;
 	    }
 

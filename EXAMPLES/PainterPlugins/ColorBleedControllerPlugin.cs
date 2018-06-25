@@ -7,17 +7,7 @@ using SharedTools_Stuff;
 
 
 namespace Playtime_Painter {
-
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-    [CustomEditor(typeof(ColorBleedControllerPlugin))]
-    public class ColorBleedControlsEditor : Editor {
-        public override void OnInspectorGUI() => ((ColorBleedControllerPlugin)target).Inspect(serializedObject);
-        
-    }
-#endif
-
-    [Serializable]
+    
     public class ColorBleedControllerPlugin : PainterManagerPluginBase  {
 
         public float eyeBrightness = 1;

@@ -14,22 +14,14 @@ using STD_Logic;
 namespace StoryTriggerData {
 
 
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-
-    [CustomEditor(typeof(PathBox))]
-    public class PathBoxDrawer : Editor {
-        public override void OnInspectorGUI() {
-            ef.start(serializedObject);
-            ((PathBox)target).PEGI();
-            ef.end();
-        }
-    }
-#endif
-
     [TagName(PathBox.tagName)]
     [ExecuteInEditMode]
-    public class PathBox : STD_Poolable {
+    public class PathBox : STD_Poolable
+#if PEGI
+        , IPEGI
+#endif
+
+    {
 
         ConditionBranch conditions;
 
@@ -66,7 +58,7 @@ namespace StoryTriggerData {
             StoryPoolController = inst;
         }
 
-        public override string getDefaultTagName() {
+        public override string GetObjectTag() {
             return tagName;
         }
 #if PEGI
@@ -102,11 +94,7 @@ namespace StoryTriggerData {
                 
 
         }
-
-
-
-
-
+        
 		public void OnDeactivate(){
 			
 			foreach (var a in managedActors)
@@ -200,10 +188,7 @@ namespace StoryTriggerData {
 
 
         }
-
-
         
-
         Vector3 localVelocity = Vector3.zero;
         Vector3 localPos = Vector3.zero;
         public void TryManageVelocity (Actor actor){

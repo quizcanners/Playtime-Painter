@@ -5,25 +5,15 @@ using PlayerAndEditorGUI;
 using System;
 using SharedTools_Stuff;
 
-
 namespace Playtime_Painter {
-
-#if PEGI && UNITY_EDITOR
-    using UnityEditor;
-    [CustomEditor(typeof(VolumePaintingPlugin))]
-    public class VolumePaintingPluginEditor : Editor {
-        public override void OnInspectorGUI()
-        {
-            ef.start(serializedObject);
-            ((VolumePaintingPlugin)target).ConfigTab_PEGI();
-            ef.end();
-        }
-    }
-#endif
 
     [Serializable]
     [ExecuteInEditMode]
-    public class VolumePaintingPlugin : PainterManagerPluginBase {
+    public class VolumePaintingPlugin : PainterManagerPluginBase
+#if PEGI
+        , IPEGI
+#endif
+    {
         public const string VOLUME_H_SLICES = "VOLUME_H_SLICES";
         public const string VOLUME_POSITION_N_SIZE = "VOLUME_POSITION_N_SIZE";
         public const string VolumeTextureTag = "_VOL";
