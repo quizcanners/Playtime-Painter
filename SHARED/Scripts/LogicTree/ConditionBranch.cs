@@ -60,9 +60,7 @@ namespace STD_Logic
             }
             return true;
         }
-        #if PEGI
-            public override bool PEGI() => PEGI(null);
-        #endif
+
         public  bool TestFor(Values ip) {
 
             switch (type) {
@@ -134,13 +132,16 @@ namespace STD_Logic
 #if PEGI
         static string path;
         static bool isCalledFromAnotherBranch = false;
-        public bool PEGI(Values vals) {
+        public override bool PEGI() {
 
-            Values.inspected = vals;
+            //Values.inspected = vals;
 
             browsedBranch = Mathf.Min(browsedBranch, branches.Count - 1);
 
-            bool changed = false;
+            bool changed = base.PEGI();
+
+            if (showDebug)
+                return changed;
 
             if (!isCalledFromAnotherBranch)
                 path = "Cnds";
@@ -152,7 +153,7 @@ namespace STD_Logic
                 path.nl();
 
                 if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
-                    + (vals != null ?  (TestFor(vals) ? "True" : "false" ) : " ")
+                    + (Values.inspected != null ?  (TestFor(Values.inspected) ? "True" : "false" ) : " ")
                     ,
                        (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
                         "At least one condition or sub branch should be true")
@@ -171,7 +172,7 @@ namespace STD_Logic
                 if (sub.browsedBranch == -1 && icon.Exit.Click())
                     browsedBranch = -1;
                 else
-                    changed |= sub.PEGI(vals);
+                    changed |= sub.PEGI();
                 isCalledFromAnotherBranch = false;
             }
             

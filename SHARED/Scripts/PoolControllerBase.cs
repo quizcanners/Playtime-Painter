@@ -15,7 +15,6 @@ namespace SharedTools_Stuff
 
     public interface iManageFading
     {
-
         void FadeAway();
         bool TryFadeIn();
     }
@@ -53,7 +52,6 @@ namespace SharedTools_Stuff
                 poolController.Deactivate(poolIndex);
 
         }
-
     }
 
     public abstract class PoolControllerBase
@@ -97,8 +95,7 @@ namespace SharedTools_Stuff
     public class PoolController<T> : PoolControllerBase where T : PoolableBase, new()
     {
         public T[] scripts;
-
-
+        
         public ArrayManager<T> ScrptArray = new ArrayManager<T>();
 
         bool locked = false;
@@ -208,9 +205,7 @@ namespace SharedTools_Stuff
 
             _activeAmount++;
         }
-
-
-
+        
         public T getOne()
         {
             while ((firstFree < initializedCount) && (scripts[firstFree].gameObject.activeSelf) && (firstFree < _BufferSize)) firstFree++;

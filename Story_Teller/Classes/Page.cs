@@ -9,19 +9,14 @@ using STD_Logic;
 
 namespace StoryTriggerData{
 
-    [TagName(Page.storyTag)]
+    [StoryTagName(Page.storyTag)]
     [ExecuteInEditMode]
     public class Page : STD_Poolable {
 
         List<STD_Poolable> linkedObjects = new List<STD_Poolable>();
 
         static Book mgmt => Book.Inst;
-
-        public const string storyTag = "page";
-
-        [NonSerialized]
-        public string anotherBook;
-
+        
         [NonSerialized]
         public float sceneScale;
         public UniversePosition sPOS = new UniversePosition();
@@ -31,13 +26,11 @@ namespace StoryTriggerData{
         public bool noClamping;
         public string OriginBook;
 
-        public override string GetObjectTag() {
-            return storyTag;
-        }
+        public const string storyTag = "page";
 
+        public override string GetObjectTag() => storyTag;
+        
         public string GerResourcePath() {
-            if ((anotherBook != null) && (anotherBook.Length > 0))
-                return anotherBook;  // Another book or web address
 
             if (parentPage == null)
                 return OriginBook; // this book
@@ -50,10 +43,7 @@ namespace StoryTriggerData{
                 myPoolController.AddToPool(this.gameObject);
 
              gameObject.hideFlags = HideFlags.DontSave;
-            //gameObject.AddFlagsOnItAndChildren(HideFlags.DontSave);
-
-            anotherBook = "";
-
+            
             linkedObjects = new List<STD_Poolable>();
 
             noClamping = false;
@@ -72,7 +62,6 @@ namespace StoryTriggerData{
             switch (tag) {
                 case "name": gameObject.name = data; break;
                 case "origin": OriginBook = data; break;
-                case "URL": anotherBook = data; break;
                 case "size": uSize = new UniverseLength(data); break;
                 case "radius": uReach = new UniverseLength(data); break;
                 case UniversePosition.storyTag: sPOS.Decode(data); break;
@@ -91,7 +80,6 @@ namespace StoryTriggerData{
         void encodeMeta(StdEncoder cody) {
             cody.Add_String("origin", OriginBook);
             cody.Add_String("name", gameObject.name);
-            cody.Add_IfNotEmpty("URL", anotherBook);
             cody.Add(UniversePosition.storyTag,sPOS);
             if (!uSize.Equals(10))
                 cody.Add("size", uSize);
@@ -139,7 +127,7 @@ namespace StoryTriggerData{
                 if ((p.gameObject.name == gameObject.name) && (p.gameObject != this.gameObject)) { duplicate = true; break; } //
             }
 
-            string path = "Assets/" + Book.StoriesFolderName + "/Resources/" + GerResourcePath() + "/";
+            string path = "Assets/" + Book.StoriesFolderName.AddPostSlashIfNotEmpty() + "Resources" + GerResourcePath().AddPreSlashIfNotEmpty() + "/";
 
             if (duplicate)
                 UnityHelperFunctions.DuplicateResource(Book.StoriesFolderName, GerResourcePath(), gameObject.name, newName);
@@ -215,11 +203,6 @@ namespace StoryTriggerData{
                 }
 
                 (objectsLoaded ? "loaded" : "not loaded").nl(60);
-                
-                if ("Location: ".edit(60, ref anotherBook).nl()) {
-                    if (anotherBook[anotherBook.Length - 1] == '/')
-                        anotherBook = anotherBook.Substring(0, anotherBook.Length - 1);
-                }
                 
                 if ("config".foldout(ref notsafeCFG)) {
 
@@ -327,9 +310,8 @@ namespace StoryTriggerData{
 
         public static PoolController<Page> myPoolController;
 
-        public override void SetStaticPoolController(STD_Pool inst) {
-            myPoolController = (PoolController<Page>)inst.pool;
-        }
+        public override void SetStaticPoolController(STD_Pool inst) => myPoolController = (PoolController<Page>)inst.pool;
+        
        
 }
 }

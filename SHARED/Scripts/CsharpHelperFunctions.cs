@@ -101,6 +101,20 @@ namespace SharedTools_Stuff
             return list[index];
         }
 
+        public static int TryGetIndexOrAdd<T>(this List<T> list, T obj)
+        {
+            int ind = -1;
+            if (list != null && obj != null){
+                ind = list.IndexOf(obj);
+                if (ind == -1){
+                    list.Add(obj);
+                    ind = list.Count - 1;
+                }
+                
+            }
+            return ind;
+        }
+
         public static void AssignUniqueIndex<T>(this List<T> list, T el)
         {
 

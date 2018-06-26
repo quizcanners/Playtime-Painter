@@ -108,7 +108,7 @@ namespace STD_Logic {
                         //"text"
                         , ref showConditions).nl())
                     
-                        changed |= conds.PEGI(vals); 
+                        changed |= conds.PEGI(); 
                     
                     else
                     {

@@ -28,7 +28,7 @@ namespace StoryTriggerData {
 
     }
 
-    public class TagName : Attribute {
+    public class StoryTagName : Attribute {
 
 		string tag;
 
@@ -40,7 +40,7 @@ namespace StoryTriggerData {
 			}
 		}
 
-		public TagName( string tagname)
+		public StoryTagName( string tagname)
 		{
 			tag = tagname;
 		}
@@ -116,8 +116,8 @@ namespace StoryTriggerData {
 
 		public string getCodeTag() {
 			var dnAttribute = typeof(T).GetCustomAttributes(
-				typeof(TagName), true
-			).FirstOrDefault() as TagName;
+				typeof(StoryTagName), true
+			).FirstOrDefault() as StoryTagName;
 			if (dnAttribute != null) 
 				return dnAttribute.Tag;
 			

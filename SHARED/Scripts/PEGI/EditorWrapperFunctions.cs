@@ -44,7 +44,8 @@ namespace  PlayerAndEditorGUI {
         public static void start(SerializedObject so)
         {
             elementIndex = 0;
-            searchBarInd = 0;
+            PEGI_Extensions.focusInd = 0;
+            //  searchBarInd = 0;
             lineOpen = false;
             serObj = so;
             changes = false;
@@ -108,63 +109,57 @@ namespace  PlayerAndEditorGUI {
         static bool lineOpen = false;
         static int selectedFold = -1;
         public static string searchBarInput = "";
-        static int selectedSearchBar = 0;
+       // static int selectedSearchBar = 0;
         static int elementIndex;
-        static int searchBarInd;
+       // static int searchBarInd;
         public static bool searchInFocus = false;
         public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
         public static SerializedObject serObj;
+        /*
+                public static List<int> search(List<string> from)
+                {
+                    checkLine();
+                    searchInFocus = false;
+                    List<int> inds = new List<int>();
+                    string FullName = "ef_SRCH" + searchBarInd;
+                    string tmp = "";
+                    GUI.SetNextControlName(FullName);
+                    if (selectedSearchBar == searchBarInd)
+                        searchBarInput = EditorGUILayout.TextField(searchBarInput);
+                    else
+                        tmp = EditorGUILayout.TextField(tmp);
 
-        public static List<int> search(List<string> from)
-        {
-            checkLine();
-            searchInFocus = false;
-            List<int> inds = new List<int>();
-            string FullName = "ef_SRCH" + searchBarInd;
-            string tmp = "";
-            GUI.SetNextControlName(FullName);
-            if (selectedSearchBar == searchBarInd)
-                searchBarInput = EditorGUILayout.TextField(searchBarInput);
-            else
-                tmp = EditorGUILayout.TextField(tmp);
+                    if (GUI.GetNameOfFocusedControl() == FullName)
+                    {
+                        selectedSearchBar = searchBarInd;
+                        searchInFocus = true;
+                    }
 
-            if (GUI.GetNameOfFocusedControl() == FullName)
-            {
-                selectedSearchBar = searchBarInd;
-                searchInFocus = true;
-            }
+                    if (selectedSearchBar == searchBarInd)
+                    {
+                        if (tmp.Length > 0) searchBarInput = tmp;
+                        selectedSearchBar = searchBarInd;
 
-            if (selectedSearchBar == searchBarInd)
-            {
-                if (tmp.Length > 0) searchBarInput = tmp;
-                selectedSearchBar = searchBarInd;
+                        int lim = searchBarInput.Length < 2 ? Mathf.Min(10, from.Count) : from.Count;
+
+                        for (int i = 0; i < lim; i++)
+                            if (String.Compare(searchBarInput, from[i]) == 0)
+                                inds.Add(i);
+
+                        ef.newLine();
+                        if ((lim < from.Count) && (searchInFocus)) ef.write("showing " + lim + " out of " + from.Count);
+
+                    }
+
+                    searchBarInd++;
+                    return inds;
+                }
 
 
-
-                int lim = searchBarInput.Length < 2 ? Mathf.Min(10, from.Count) : from.Count;
-
-                for (int i = 0; i < lim; i++)
-                    if (String.Compare(searchBarInput, from[i]) == 0)
-                        inds.Add(i);
-
-                ef.newLine();
-                if ((lim < from.Count) && (searchInFocus)) ef.write("showing " + lim + " out of " + from.Count);
-
-            }
-
-            searchBarInd++;
-            return inds;
-        }
-
-        public static void focusTextInControl(string name)
-        {
-            EditorGUI.FocusTextInControl(name);
-        }
-
-        public static void NameNext(string name)
-        {
-            GUI.SetNextControlName(name);
-        }
+                public static void NameNext(string name)
+                {
+                    GUI.SetNextControlName(name);
+                }  
 
         public static string nameFocused
         {
@@ -173,6 +168,8 @@ namespace  PlayerAndEditorGUI {
                 return GUI.GetNameOfFocusedControl();
             }
         }
+         */
+
 
         public static bool isFoldedOut { get { return pegi.isFoldedOut; } set { pegi.isFoldedOut = value; } }
 
@@ -893,8 +890,7 @@ namespace  PlayerAndEditorGUI {
         public static bool editDelayed(ref string text)
         {
             checkLine();
-
-
+            
             if (KeyCode.Return.IsDown())
             {
                 if (text.GetHashCode().ToString() == editedHash)
@@ -912,9 +908,7 @@ namespace  PlayerAndEditorGUI {
                 editedHash = text.GetHashCode().ToString();
                 changes = false;
             }
-
-
-
+            
             return false;//(String.Compare(before, text) != 0);
         }
 

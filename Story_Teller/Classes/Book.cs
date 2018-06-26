@@ -19,8 +19,7 @@ using STD_Logic;
 
 namespace StoryTriggerData
 {
-
-
+    
     [ExecuteInEditMode]
     public class Book : LogicMGMT
     {
@@ -121,6 +120,12 @@ namespace StoryTriggerData
             if (!showDebug)
             {
 
+                Page pg = null;
+
+                pegi.nl();
+
+                "Test".select(ref pg, HOMEpages).nl();
+                
                 PoolController<Page> pool = Page.myPoolController;
 
                 if (browsedPage >= pool.initializedCount)
@@ -193,6 +198,8 @@ namespace StoryTriggerData
 
                     if (SpaceValues.playerPosition.PEGI())
                         AfterPlayerSpacePosUpdate();
+
+
 
 
                 }

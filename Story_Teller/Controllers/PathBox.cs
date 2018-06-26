@@ -14,7 +14,7 @@ using STD_Logic;
 namespace StoryTriggerData {
 
 
-    [TagName(PathBox.tagName)]
+    [StoryTagName(PathBox.tagName)]
     [ExecuteInEditMode]
     public class PathBox : STD_Poolable
 #if PEGI

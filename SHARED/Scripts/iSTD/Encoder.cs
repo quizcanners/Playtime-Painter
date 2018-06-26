@@ -188,15 +188,7 @@ namespace SharedTools_Stuff
             .Add_IfNotZero("g", col.g.RoundTo6Dec())
             .Add_IfNotZero("b", col.b.RoundTo6Dec())
             .Add_IfNotZero("a", col.a.RoundTo6Dec());
-
-  //      public static T DecodeInto<T>(this StdEncoder cody) where T : iSTD, new() => cody.ToString().DecodeInto<T>();
-
-//        public static T TryDecodeInto<T>(this StdEncoder cody) where T :  new() => cody.ToString().TryDecodeInto<T>();
-
- //       public static T DecodeInto<T>(this StdEncoder cody, Type type) where T : iSTD, new() => cody.ToString().DecodeInto<T>(type);
-
-  
-
+        
     }
 
     public class StdEncoder
@@ -204,10 +196,64 @@ namespace SharedTools_Stuff
         public const char splitter = '|';
         public const string nullTag = "null";
 
+        StringBuilder builder = new StringBuilder();
+
         public delegate StdEncoder EncodeDelegate();
 
+        #region Unity_Objects
 
-        StringBuilder builder = new StringBuilder();
+        static iSTD_SerializeNestedReferences keeper;
+
+        public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
+        {
+            var guid = obj.GetGUID();
+            if (guid != null)
+                Add_String(tag, guid);
+
+            return this;
+        }
+
+        public StdEncoder Add_Referance(string tag, UnityEngine.Object obj) => Add(tag, obj, keeper);
+
+        public StdEncoder Add(string tag, UnityEngine.Object obj, iSTD_SerializeNestedReferences referencesKeeper)
+        {
+            if (referencesKeeper != null && obj)
+            {
+                int ind = referencesKeeper.GetISTDreferenceIndex(obj);
+                if (ind != -1)
+                    Add(tag, ind);
+            }
+            return this;
+        }
+
+        public StdEncoder Add_Referance<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add<T>(tag, objs,keeper);
+
+        public StdEncoder Add<T>(string tag, List<T> objs, iSTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        {
+            if (referencesKeeper != null && objs!= null)
+            {
+                var indxs = new List<int>();
+
+                foreach (var o in objs)
+                    indxs.Add(referencesKeeper.GetISTDreferenceIndex(o));
+              
+                Add(tag, indxs);
+            }
+            return this;
+        }
+
+        public StdEncoder Add(string tag, iSTD other, iSTD_SerializeNestedReferences referencesKeeper)
+        {
+            var prevKeeper = keeper;
+            keeper = referencesKeeper;
+
+            Add(tag, other);   
+
+            keeper = prevKeeper;
+            return this;
+        }
+
+        #endregion
 
         public StdEncoder Add_String(string tag, String data) {
 
@@ -250,8 +296,18 @@ namespace SharedTools_Stuff
         }
 
         public StdEncoder Add(string tag, iSTD other) {
-            if (other != null) 
+            if (other != null)
+            {
+                var rk = other as iSTD_SerializeNestedReferences;
+                if (rk != null)
+                {
+
+                    Add(tag, other.Encode());
+
+                }
+                else
                 Add(tag, other.Encode());
+            }
             
             return this;
         }
@@ -311,16 +367,7 @@ namespace SharedTools_Stuff
         }
 
         public StdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
-
-        public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
-        {
-            var guid = obj.GetGUID();
-            if (guid != null)
-                Add_String(tag, guid);
-
-            return this;
-        }
-
+        
         public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
         public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
         public StdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());

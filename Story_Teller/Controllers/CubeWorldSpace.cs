@@ -13,7 +13,7 @@ namespace StoryTriggerData {
 
 
     [ExecuteInEditMode]
-    [TagName(CubeWorldSpace.tagName)]
+    [StoryTagName(CubeWorldSpace.tagName)]
     public class CubeWorldSpace : STD_Poolable
 #if PEGI
         , IPEGI
@@ -38,7 +38,7 @@ namespace StoryTriggerData {
 
             cody.Add_IfNotOne("scale", transform.localScale);
             cody.Add_IfNotZero("rot", transform.localRotation.eulerAngles);
-            cody.Add(InteractionTarget.storyTag, stdValues);
+           // cody.Add(InteractionTarget.storyTag, stdValues);
             return cody;
         }
 
@@ -50,7 +50,7 @@ namespace StoryTriggerData {
                 case "mesh": painter.TryLoadMesh(data); break;
                 case "scale": transform.localScale = data.ToVector3();  break;
                 case "rot": transform.localRotation = Quaternion.Euler(data.ToVector3()); break;
-                case InteractionTarget.storyTag: data.DecodeInto(out stdValues); break;
+               // case InteractionTarget.storyTag: data.DecodeInto(out stdValues); break;
                 default: return false;
             }
             return true;
@@ -60,7 +60,7 @@ namespace StoryTriggerData {
             if (painter == null) 
                 painter = GetComponent<PlaytimePainter>();
 
-            stdValues = new InteractionTarget();
+          //  stdValues = new InteractionTarget();
             transform.localScale = Vector3.one;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(Vector3.zero);
@@ -71,7 +71,7 @@ namespace StoryTriggerData {
             bool changed = false;
             base.PEGI();
 
-            if (!stdValues.browsing_interactions) {
+           // if (!stdValues.browsing_interactions) {
 
                 pegi.ClickToEditScript();
 
@@ -88,7 +88,7 @@ namespace StoryTriggerData {
                     strokeData = null;
 
                 pegi.newLine();
-            }
+         //   }
 
             return changed;
         }

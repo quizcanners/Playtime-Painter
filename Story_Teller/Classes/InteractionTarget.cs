@@ -20,13 +20,14 @@ namespace StoryTriggerData {
 
         // This one merges interaction and STD values
 
-    public class InteractionTarget : Values, iSTD
+    public class InteractionTarget : AbstractKeepUnrecognized_STD //Values, 
+      //  iSTD
 #if PEGI
         , IPEGI
 #endif
     {
 
-        public const string storyTag = "story";
+       // public const string storyTag = "story";
 
         public InteractionBranch interactionGroup;
         public List<string> interactionReferences;
@@ -46,10 +47,8 @@ namespace StoryTriggerData {
         
         public int myQuestVersion = -1;
         
-        public void UpdateLogic()
-        {
-            myQuestVersion = LogicMGMT.currentLogicVersion;
-        }
+        public void UpdateLogic() =>  myQuestVersion = LogicMGMT.currentLogicVersion;
+        
 
         public void Update()
         {
@@ -61,12 +60,12 @@ namespace StoryTriggerData {
             Reboot();
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override StdEncoder Encode() => EncodeUnrecognized()
             .Add("i", interactionGroup)
             .Add_ifNotEmpty("ent", OnEnterResults)
             .Add_ifNotEmpty("ext", OnExitResults)
-            .Add("qoType", (int)type)
-            .Add("base", base.Encode());
+            .Add("qoType", (int)type);
+           // .Add("base", base.Encode());
 
         public override bool Decode(string tag, string data)
         {
@@ -86,8 +85,8 @@ namespace StoryTriggerData {
                 case "ent": data.DecodeInto(out OnEnterResults); break;
                 case "ext": data.DecodeInto(out OnExitResults); break;
                 case "qoType": type = (QOoptionType)data.ToInt(); break;
-                default:
-                    return base.Decode(tag, data);
+                default: return false;
+                  //  return base.Decode(tag, data);
             }
             return true;
         }
@@ -97,7 +96,10 @@ namespace StoryTriggerData {
 
         public override bool PEGI() {
 
-            bool changed = false;  
+            bool changed = base.PEGI();
+
+            if (showDebug)
+                return changed;
 
             if (!browsing_interactions) {
                 
@@ -105,10 +107,8 @@ namespace StoryTriggerData {
 
                     pegi.newLine();
 
-                    changed |= base.PEGI().nl();
-
-               
-
+                   // changed |= base.PEGI().nl();
+                    
                     pegi.write("Interactions: ", interactionGroup.getShortDescription());
 
                     if (icon.Edit.Click("Edit Interaction Tree", 20))
@@ -120,7 +120,7 @@ namespace StoryTriggerData {
                         Interaction.showOnExit_Results = false;
                         Trigger.showTriggers = false;
 
-                        OnEnterResults.Inspect(this);
+                        OnEnterResults.Inspect(null);
 
                     }
                     pegi.newLine();
@@ -128,7 +128,7 @@ namespace StoryTriggerData {
                         Interaction.showOnEnter_Results = false;
                         Trigger.showTriggers = false;
 
-                        OnExitResults.Inspect(this);
+                        OnExitResults.Inspect(null);
 
                     }
                     pegi.newLine();

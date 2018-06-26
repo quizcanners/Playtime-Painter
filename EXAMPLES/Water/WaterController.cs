@@ -78,11 +78,9 @@ namespace Playtime_Painter
     
 #endif
 
-        public override StdEncoder Encode()
-        {
-            var cody = base.EncodeUnrecognized();
-            return cody;
-        }
+        public override StdEncoder Encode() => EncodeUnrecognized();
 
+        public override bool Decode(string tag, string data) => false;
+        
     }
 }

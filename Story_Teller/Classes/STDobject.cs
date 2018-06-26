@@ -16,9 +16,9 @@ using SharedTools_Stuff;
 namespace StoryTriggerData {
 
     [ExecuteInEditMode]
-    public abstract class STD_Poolable : PoolableBase, iKeepUnrecognizedSTD {
-
-        public InteractionTarget stdValues;
+    public abstract class STD_Poolable : PoolableBase, iKeepUnrecognizedSTD,
+        IGotDisplayName
+        {
 
         public Page parentPage;
 
@@ -41,11 +41,7 @@ namespace StoryTriggerData {
         public abstract string GetObjectTag();
 
         public virtual iSTD Decode(string data) {
-
-            //gameObject.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
-            //gameObject.hideFlags &= ~(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
-            gameObject.SetFlagsOnItAndChildren(HideFlags.DontSave);//AddFlagsOnItAndChildren(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
-            //colors &= ~(Blah.BLUE | Blah.RED)
+            gameObject.SetFlagsOnItAndChildren(HideFlags.DontSave);
 
             gameObject.name = "new " + GetObjectTag();
             
@@ -60,16 +56,8 @@ namespace StoryTriggerData {
         }
 
         public override void Deactivate() {
-            if (stdValues != null)
-                stdValues.removeAllTags();
-
             UnLink();
-
             base.Deactivate();
-        }
-
-        public override string ToString() {
-            return GetObjectTag();
         }
 
         public abstract bool Decode(string tag, string data);
@@ -134,10 +122,10 @@ namespace StoryTriggerData {
 
             changed |= base.PEGI();
 
-            if ((stdValues == null) || (!stdValues.browsing_interactions)) {
-                pegi.newLine();
+       //     if ((stdValues == null) || (!stdValues.browsing_interactions)) {
+         //       pegi.newLine();
 
-                if ((stdValues == null) || (Dialogue.browsedObj != stdValues)) {
+           //     if ((stdValues == null) || (Dialogue.browsedObj != stdValues)) {
 
                     pegi.write(parentPage == null ? "UnLinked" : "Ownership: " + parentPage.gameObject.name);
 
@@ -169,31 +157,26 @@ namespace StoryTriggerData {
 
                         pg.Decode(GetObjectTag(), encode.ToString());
                     }  
-                }
+                //}
 
-                if (stdValues!= null)
-                    Dialogue.PEGI(stdValues);
+            //    if (stdValues!= null)
+          //          Dialogue.PEGI(stdValues);
 
                 pegi.newLine();
 
-            }
+       //     }
 
-            if (stdValues!= null)
-                stdValues.PEGI();
+          //  if (stdValues!= null)
+            //    stdValues.PEGI();
 
             return changed;
         }
 #endif
-        /* public override void OnDestroy()
-         {
-             base.OnDestroy();
-             this.transform.Clear();
-
-         }*/
-
 
         public virtual void PostPositionUpdate() {
 
         }
+
+        public string NameForPEGIdisplay() => GetObjectTag();
     }
 }

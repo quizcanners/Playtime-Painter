@@ -286,9 +286,15 @@ namespace SharedTools_Stuff
                 new StdDecoder(data).DecodeTagsFor(val);
             return val;
         }
-
+        
+        public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
+        {
+            val = data.DecodeInto<T>();
+            return val;
+        }
+        
         public static T DecodeInto<T>(this string data) where T : iSTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
-
+        
         public static T TryDecodeInto<T>(this string data, T val)
         {
             if (val != null)
@@ -298,12 +304,6 @@ namespace SharedTools_Stuff
 
         public static T TryDecodeInto<T>(this string data) where T: new() => data.TryDecodeInto(new T());
         
-        public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
-        {
-            val = data.DecodeInto<T>();
-            return val;
-        }
-
         public static T DecodeInto<T>(this string data, Type childType) where T : iSTD, new()
         {
             T val = (T)Activator.CreateInstance(childType);
@@ -336,7 +336,62 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        // ToListOfSTD
+
+        // STD with references
+        static iSTD_SerializeNestedReferences keeper;
+
+        public static T DecodeInto<T>(this string data, out T val, iSTD_SerializeNestedReferences referencesKeeper)
+            where T : iSTD, new()
+        {
+            val = data.DecodeInto<T>(referencesKeeper);
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data, iSTD_SerializeNestedReferences referencesKeeper) where T : iSTD, new() => data.DecodeInto(new T(), referencesKeeper);
+        
+        public static T Decode_Referance<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
+
+        public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.DecodeInto(out list, keeper);
+
+        public static T DecodeInto<T>(this string data, T val, iSTD_SerializeNestedReferences referencesKeeper) where T : iSTD
+        {
+            var prevKeeper = keeper;
+            keeper = referencesKeeper;
+
+            var obj = new StdDecoder(data).DecodeTagsFor(val);
+
+            keeper = prevKeeper;
+
+            return obj;
+        }
+
+        public static T Decode<T>(this string data, ref T val, iSTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        {
+            var ind = data.ToInt();
+            if (referencesKeeper != null) {
+                T getting = referencesKeeper.GetISTDreferenced<T>(ind);
+                if (getting != null)
+                    val = getting; 
+            }
+
+            return val;
+        }
+
+        public static List<T> DecodeInto<T>(this string data, out List<T> list, iSTD_SerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
+        {
+            list = new List<T>();
+
+            if (referencesKeeper != null) {
+
+                List<int> indxs; data.DecodeInto(out indxs);
+
+                foreach (var i in indxs)
+                    list.Add(referencesKeeper.GetISTDreferenced<T>(i));
+            }
+            return list;
+        }
+        
+            // ToListOfSTD
         public static void TryDecodeInto<T>(this string data, List<T> val) 
         {
             var cody = new StdDecoder(data);

@@ -10,7 +10,7 @@ using SharedTools_Stuff;
 namespace StoryTriggerData {
 
 
-[TagName(QuadWorldSapce.tagName)]
+[StoryTagName(QuadWorldSapce.tagName)]
     public class QuadWorldSapce : STD_Poolable {
 
         public static STD_Pool StoryPoolController;
@@ -26,13 +26,13 @@ namespace StoryTriggerData {
 	    }
 
     public override StdEncoder Encode  () =>EncodeUnrecognized()
-            .Add(InteractionTarget.storyTag, stdValues)
+           // .Add(InteractionTarget.storyTag, stdValues)
             .Add_IfNotZero("pos", transform.position);
 
 	    public override bool Decode (string subtag, string data) {
 
             switch (subtag) {
-                case InteractionTarget.storyTag: stdValues.Decode(data); break;
+              //  case InteractionTarget.storyTag: stdValues.Decode(data); break;
 			    case "pos" : transform.position = data.ToVector3(); break;
                 default: return false;
             }

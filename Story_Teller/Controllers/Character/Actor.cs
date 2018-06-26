@@ -4,6 +4,7 @@ using UnityEngine;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using STD_Logic;
 
 namespace StoryTriggerData {
 
@@ -11,7 +12,7 @@ namespace StoryTriggerData {
 
 
 
-    [TagName(tagName)]
+    [StoryTagName(tagName)]
     [ExecuteInEditMode]
     public class Actor : STD_Poolable
 #if PEGI
@@ -358,7 +359,7 @@ namespace StoryTriggerData {
 
             "Acceleration ".edit(ref acceleration).nl();
 
-            if ((stdValues == null) || (!stdValues.browsing_interactions)) {
+            if (Values.inspected == null) {//|| (!Values.inspected.browsing_interactions)) {
                 if ("Controlled by player: ".toggle(ref controlledByPlayer).nl()) {
                     if (controlledByPlayer) {
                         if (controlled != null) controlled.controlledByPlayer = false;

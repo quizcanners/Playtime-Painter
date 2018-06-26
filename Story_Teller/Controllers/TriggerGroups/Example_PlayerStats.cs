@@ -50,19 +50,19 @@ namespace StoryTriggerData
     public static class EXAMPLE_PlayerStats_Extensions
     {
 
-        public static int Get(this InteractionTarget st, Example_PlayerStats.integers ind) {
+        public static int Get(this Values st, Example_PlayerStats.integers ind) {
             return st.ints[Example_PlayerStats.group][(int)ind];
         }
 
-        public static void Set(this InteractionTarget st, Example_PlayerStats.integers ind, int value) {
+        public static void Set(this Values st, Example_PlayerStats.integers ind, int value) {
             st.ints[Example_PlayerStats.group][(int)ind] = value;
         }
 
-        public static bool Get(this InteractionTarget st, Example_PlayerStats.booleans ind) {
+        public static bool Get(this Values st, Example_PlayerStats.booleans ind) {
             return st.bools[Example_PlayerStats.group][(int)ind];
         }
 
-        public static void Set(this InteractionTarget st, Example_PlayerStats.booleans ind, bool value) {
+        public static void Set(this Values st, Example_PlayerStats.booleans ind, bool value) {
             st.bools[Example_PlayerStats.group][(int)ind] = value;
         }
 

@@ -87,7 +87,7 @@ namespace StoryTriggerData
             if (pegi.foldout("___Conditions:", ref ConditionLogic.unfoldPegi)) {
                 Interaction.showOnExit_Results = false;
 
-                conditions.PEGI(so);
+                conditions.PEGI();
             }
 
             pegi.newLine();
@@ -95,7 +95,7 @@ namespace StoryTriggerData
             if (pegi.foldout("___Results:", ref Interaction.showOnExit_Results)){
                 ConditionLogic.unfoldPegi = false;
 
-               results.Inspect(so);
+               results.Inspect(Values.inspected);
             }
 
             pegi.newLine();
@@ -188,15 +188,15 @@ namespace StoryTriggerData
 
         public void Execute( InteractionTarget so) {
             for (int j = 0; j < options.Count; j++)
-                if (options[j].conditions.TestFor(so)) { options[j].results.Apply(so); break; }
-            FinalResults.Apply(so);
+                if (options[j].conditions.TestFor(Values.inspected)) { options[j].results.Apply(Values.inspected); break; }
+            FinalResults.Apply(Values.inspected);
         }
 
 #if PEGI
         public static bool unfoldPegi;
         public void PEGI( bool OneClickAction, InteractionTarget st) {
 
-            Values.inspected = st;
+          //  Values.inspected = st;
 
             pegi.write("Reference name:",80);
 
@@ -247,7 +247,7 @@ namespace StoryTriggerData
             pegi.newLine();
 
             if (ConditionLogic.unfoldPegi) 
-                conditions.PEGI(st);
+                conditions.PEGI();
 
             if (Sentance.showTexts) 
                         Texts.PEGI();
@@ -298,7 +298,7 @@ namespace StoryTriggerData
             }
 
             if (showFinal_Results) 
-                FinalResults.Inspect(st);
+                FinalResults.Inspect(Values.inspected);
 
             Values.inspected = null;
 
@@ -362,7 +362,7 @@ namespace StoryTriggerData
         int browsedBranch = -1;
         public bool PEGI(InteractionTarget so) {
 
-            Values.inspected = so;
+          //  Values.inspected = so;
 
             bool changed = false;
 
@@ -388,7 +388,7 @@ namespace StoryTriggerData
                     if (pegi.foldout("Condition Tree: ", ref ConditionLogic.unfoldPegi)) {
                         Interaction.unfoldPegi = false;
                         pegi.newLine();
-                        conds.PEGI(so);
+                        conds.PEGI();
                     }
                     pegi.newLine();
                     pegi.Space();

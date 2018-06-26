@@ -18,7 +18,6 @@ namespace STD_Logic {
         public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
         public UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
         public UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
-        //public CountlessBool groupsToShowInBrowser = new CountlessBool();
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder();

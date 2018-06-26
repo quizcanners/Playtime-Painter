@@ -15,7 +15,7 @@ namespace StoryTriggerData
 
 
     [ExecuteInEditMode]
-    [TagName(Terra.tagName)]
+    [StoryTagName(Terra.tagName)]
     public class Terra : STD_Poolable
 #if PEGI
         , IPEGI
@@ -69,7 +69,7 @@ namespace StoryTriggerData
             if (water == null)
                 water = GetComponentInChildren<WaterController>();
 
-            stdValues = new InteractionTarget();
+          //  stdValues = new InteractionTarget();
             transform.localScale = Vector3.one;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.Euler(Vector3.zero);
@@ -81,8 +81,8 @@ namespace StoryTriggerData
             bool changed = false;
             base.PEGI();
 
-            if (!stdValues.browsing_interactions)
-            {
+         //   if (!stdValues.browsing_interactions)
+          //  {
 
                 pegi.ClickToEditScript();
 
@@ -100,7 +100,7 @@ namespace StoryTriggerData
                     strokeData = null;
 
                 pegi.newLine();
-            }
+          //  }
 
             return changed;
         }
