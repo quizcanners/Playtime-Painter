@@ -10,9 +10,9 @@ namespace StoryTriggerData
 
     public static class Dialogue {
 
-        public static InteractionBranch root { get {return browsedObj.interactionGroup; } }
+        public static InteractionBranch Root { get {return browsedObj.interactionGroup; } }
 
-        public static string singleText { get { return _optText.Count > 0 ? _optText[0] : null; } set { _optText.Clear(); _optText.Add(value); } }
+        public static string SingleText { get { return _optText.Count > 0 ? _optText[0] : null; } set { _optText.Clear(); _optText.Add(value); } }
 
         public static InteractionTarget browsedObj;
 
@@ -22,8 +22,8 @@ namespace StoryTriggerData
         
         public static bool ScrollOptsDirty;
 
-        static bool checkOptions(Interaction ia) {
-            clearTexts();
+        static bool CheckOptions(Interaction ia) {
+            ClearTexts();
             Debug.Log("Adding options ");
             int cnt = 0;
             //for (int i = 0; i < tmp.Count; i++)
@@ -45,7 +45,7 @@ namespace StoryTriggerData
                 return false;
         }
         
-        static void updatePassiveLogic(InteractionBranch gr) {
+        static void UpdatePassiveLogic(InteractionBranch gr) {
 
             foreach (Interaction si in gr.elements){
                 if (browsedObj.type == QOoptionType.PassiveLogic)
@@ -59,7 +59,7 @@ namespace StoryTriggerData
             }
 
             foreach (InteractionBranch sgr in gr.subBranches)
-                updatePassiveLogic(sgr);
+                UpdatePassiveLogic(sgr);
         }
 
         static void CollectInteractions(InteractionBranch gr) {
@@ -81,12 +81,12 @@ namespace StoryTriggerData
         
         public static void BackToInitials() {
             LogicMGMT.AddLogicVersion();
-            clearTexts();
+            ClearTexts();
 
-            updatePassiveLogic(root);
+            UpdatePassiveLogic(Root);
 
             textCount = 0;
-            CollectInteractions(root);
+            CollectInteractions(Root);
 
             if (textCount == 0)
                 CloseInteractions();
@@ -135,17 +135,17 @@ namespace StoryTriggerData
 
         static int QuestVersion;
         public static void DistantUpdate() {
-            if (root != null) {
+            if (Root != null) {
                 if (QuestVersion != LogicMGMT.currentLogicVersion) {
 
                     switch (InteractionStage) {
                         case 0: BackToInitials(); break;
-                        case 1: gotBigText(); break;
-                        case 3: checkOptions(interaction); break;
+                        case 1: GotBigText(); break;
+                        case 3: CheckOptions(interaction); break;
                         case 5:
                             List<Sentance> tmp = option.texts2;
                             if (tmp.Count > textNo) 
-                                singleText = tmp[textNo].ToString();
+                                SingleText = tmp[textNo].ToString();
                             break;
                     }
                     QuestVersion = LogicMGMT.currentLogicVersion;
@@ -153,16 +153,16 @@ namespace StoryTriggerData
             }
         }
 
-        static void clearTexts(){
+        static void ClearTexts(){
             _optText.Clear();
             ScrollOptsDirty = true;
             possibleInteractions.Clear();
         }
 
-        static bool gotBigText()
+        static bool GotBigText()
         {
             if (textNo < interaction.Texts.Count) {
-                singleText=interaction.Texts[textNo].ToString(); 
+                SingleText=interaction.Texts[textNo].ToString(); 
                 return true;
             }
             return false;
@@ -182,13 +182,13 @@ namespace StoryTriggerData
                     continuationReference = null;
                     //Debug.Log("case 1"); 
                     textNo++;
-                    if (gotBigText()) break;
+                    if (GotBigText()) break;
                     InteractionStage++;
                     goto case 2;
                 case 2:
                     //Debug.Log("case 2"); 
                     InteractionStage++;
-                    if (!checkOptions(interaction)) goto case 4; break; // if no options available
+                    if (!CheckOptions(interaction)) goto case 4; break; // if no options available
                 case 3:
                     //Debug.Log("case 3");
                     option = possibleOptions[no];
@@ -206,7 +206,7 @@ namespace StoryTriggerData
                     List<Sentance> txts = option.texts2;
                     if ((txts.Count > textNo + 1)) {
                         textNo++;
-                        singleText = txts[textNo].ToString();
+                        SingleText = txts[textNo].ToString();
                         InteractionStage = 5;
                         break;
                     }

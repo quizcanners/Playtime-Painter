@@ -13,6 +13,7 @@ namespace STD_Logic {
         , IPEGI
 #endif
     {
+        public static Values inspected;
 
         public UnnullableSTD<CountlessBool> bools = new UnnullableSTD<CountlessBool>();
         public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
@@ -79,7 +80,7 @@ namespace STD_Logic {
                 s.taggedInts[tagIndex][value].Add(this);
         }
         
-        public void removeAllTags() {
+        public void RemoveAllTags() {
             List<int> groupInds;
             List<CountlessBool> lsts = boolTags.GetAllObjs(out groupInds);
             //Stories.all.GetAllObjs(out inds);
@@ -96,9 +97,8 @@ namespace STD_Logic {
 
             boolTags = new UnnullableSTD<CountlessBool>();
         }
-#if PEGI
-        public static Values inspected;
 
+#if PEGI
         public override bool PEGI() {
             
             bool changed = false;

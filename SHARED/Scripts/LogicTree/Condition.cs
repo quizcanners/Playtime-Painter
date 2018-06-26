@@ -24,7 +24,7 @@ namespace STD_Logic
 
         public virtual bool TestFor(Values st) => false;
 
-        public virtual int isItClaimable( int dir, Values st) => -2;
+        public virtual int IsItClaimable( int dir, Values st) => -2;
         
         public override bool IsBoolean() => false;
 
@@ -75,7 +75,7 @@ namespace STD_Logic
         
         public override bool TestFor(Values st) => GetBool(st) == compareValue;
 
-        public override int isItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
+        public override int IsItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
         
         public override bool IsBoolean() => true;
     }
@@ -143,7 +143,7 @@ namespace STD_Logic
             return false;
         }
 
-        public override int isItClaimable(int dir, Values st)
+        public override int IsItClaimable(int dir, Values st)
         {
             switch (type)
             {
