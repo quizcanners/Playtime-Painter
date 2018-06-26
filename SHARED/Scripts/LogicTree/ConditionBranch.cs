@@ -61,46 +61,51 @@ namespace STD_Logic
             return true;
         }
 
-        public  bool TestFor(Values ip) {
+        public bool TestFor(Values vals) {
+
+            vals = targ.TryGetValues(vals);
 
             switch (type) {
                 case ConditionBranchType.AND:
                     foreach (var c in conds)
-                        if (c.TestFor(ip) == false) return false;
+                        if (c.TestFor(vals) == false) return false;
                     foreach (var b in branches)
-                        if (b.TestFor(ip) == false) return false;
+                        if (b.TestFor(vals) == false) return false;
                     return true;
                 case ConditionBranchType.OR:
                     foreach (var c in conds)
-                        if (c.TestFor(ip) == true)
+                        if (c.TestFor(vals) == true)
                             return true;
                     foreach (var b in branches)
-                        if (b.TestFor(ip) == true) return true;
+                        if (b.TestFor(vals) == true) return true;
                     return ((conds.Count == 0) && (branches.Count == 0));
             }
             return true;
         }
         
-        public void ForceToTrue(Values ip)
+        public void ForceToTrue(Values vals)
         {
+
+            vals = targ.TryGetValues(vals);
+
             switch (type)
             {
                 case ConditionBranchType.AND:
                     foreach (var c in conds)
-                        c.ForceConditionTrue(ip);
+                        c.ForceConditionTrue(vals);
                     foreach (var b in branches)
-                        b.ForceToTrue(ip);
+                        b.ForceToTrue(vals);
                     break;
                 case ConditionBranchType.OR:
                     if (conds.Count > 0)
                     {
 
-                        conds[0].ForceConditionTrue(ip);
+                        conds[0].ForceConditionTrue(vals);
                         return;
                     }
                     if (branches.Count > 0)
                     {
-                        branches[0].ForceToTrue(ip);
+                        branches[0].ForceToTrue(vals);
                         return;
                     }
                     break;
@@ -116,12 +121,14 @@ namespace STD_Logic
                       ((AnyConditions) ? "[" + conds.Count + "]: " + conds[0].ToString() : "UNCONDITIONAL"));
         }
 
-        public string CompileBranchText(Values ip) {
+        public string CompileBranchText(Values vals) {
+
+            vals = targ.TryGetValues(vals);
 
             int br = branches.Count;
             int Conds = conds.Count;
 
-            return type + ":" + TestFor(ip).ToString() + (br > 0 ? br + " br," : " ") + (Conds > 0 ? (conds[0].ToString()) +
+            return type + ":" + TestFor(vals).ToString() + (br > 0 ? br + " br," : " ") + (Conds > 0 ? (conds[0].ToString()) +
                 (Conds > 1 ? "+" + (Conds - 1) : "") : "");
 
         }
@@ -134,51 +141,55 @@ namespace STD_Logic
         static bool isCalledFromAnotherBranch = false;
         public override bool PEGI() {
 
-            //Values.inspected = vals;
+            var tmpVals = Values.current;
+            Values.current = targ.TryGetValues(tmpVals);
 
             browsedBranch = Mathf.Min(browsedBranch, branches.Count - 1);
 
             bool changed = base.PEGI();
 
-            if (showDebug)
-                return changed;
-
-            if (!isCalledFromAnotherBranch)
-                path = "Cnds";
-            else
-                path += "->" + NameForPEGI;
-
-            if (browsedBranch == -1) {
-
-                path.nl();
-
-                if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
-                    + (Values.inspected != null ?  (TestFor(Values.inspected) ? "True" : "false" ) : " ")
-                    ,
-                       (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
-                        "At least one condition or sub branch should be true")
-                        ))
-                    type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
-
-                conds.edit_List(true);
-
-                changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
-
-            }
-            else
+            if (!showDebug)
             {
-                isCalledFromAnotherBranch = true;
-                var sub = branches[browsedBranch];
-                if (sub.browsedBranch == -1 && icon.Exit.Click())
-                    browsedBranch = -1;
+     
+
+                if (!isCalledFromAnotherBranch)
+                    path = "Cnds";
                 else
-                    changed |= sub.PEGI();
-                isCalledFromAnotherBranch = false;
+                    path += "->" + NameForPEGI;
+
+                if (browsedBranch == -1)
+                {
+
+                    path.nl();
+
+                    if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
+                        + (Values.current != null ? (TestFor(Values.current) ? "True" : "false") : " ")
+                        ,
+                           (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
+                            "At least one condition or sub branch should be true")
+                            ))
+                        type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
+
+                    conds.edit_List(true);
+
+                    changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
+
+                }
+                else
+                {
+                    isCalledFromAnotherBranch = true;
+                    var sub = branches[browsedBranch];
+                    if (sub.browsedBranch == -1 && icon.Exit.Click())
+                        browsedBranch = -1;
+                    else
+                        changed |= sub.PEGI();
+                    isCalledFromAnotherBranch = false;
+                }
             }
-            
             pegi.newLine();
 
-            Values.inspected = null;
+           Values.current = tmpVals;
+
             return changed;
         }
         

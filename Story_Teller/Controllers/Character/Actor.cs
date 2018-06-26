@@ -359,7 +359,7 @@ namespace StoryTriggerData {
 
             "Acceleration ".edit(ref acceleration).nl();
 
-            if (Values.inspected == null) {//|| (!Values.inspected.browsing_interactions)) {
+            if (Values.current == null) {//|| (!Values.inspected.browsing_interactions)) {
                 if ("Controlled by player: ".toggle(ref controlledByPlayer).nl()) {
                     if (controlledByPlayer) {
                         if (controlled != null) controlled.controlledByPlayer = false;

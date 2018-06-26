@@ -26,8 +26,6 @@ namespace StoryTriggerData
 
         public static Book Inst { get { return (Book)inst; } }
 
-        public InteractionTarget stdValues = new InteractionTarget();
-        
         public const string StoriesFolderName = "Stories";
 
         public const string PagesFolderName = "Pages";
@@ -43,14 +41,8 @@ namespace StoryTriggerData
 
         // *********************** SAVING/LOADING  MGMT
  
-        public void SaveChanges()
-        {
-
-        }
-
         public void OnDisable()
         {
-            UnityHelperFunctions.FocusOn(this);
             if (!Application.isPlaying)
             {
 #if UNITY_EDITOR
@@ -59,8 +51,6 @@ namespace StoryTriggerData
                 foreach (Page p in Page.myPoolController.scripts)
                     if ((p != null) && (p.gameObject.activeSelf))
                         p.SavePageContent();
-
-                AssetDatabase.Refresh();
 #endif
             }
 
@@ -109,23 +99,17 @@ namespace StoryTriggerData
 
         // *********************** COMPONENT MGMT
         
-       
 #if PEGI
         int browsedPage = -1;
-        bool unfoldTriggerGroup = false;
         public override bool PEGI()
         {
             bool changed = base.PEGI();
 
-            if (!showDebug)
+            if (!showDebug && browsedStuff == -1 )
             {
-
-                Page pg = null;
 
                 pegi.nl();
 
-                "Test".select(ref pg, HOMEpages).nl();
-                
                 PoolController<Page> pool = Page.myPoolController;
 
                 if (browsedPage >= pool.initializedCount)
@@ -136,29 +120,7 @@ namespace StoryTriggerData
 
                     pegi.writeOneTimeHint("You need to press Enter in the end to rename Books, Pages and Triggers", "bookRename");
                     pegi.newLine();
-                    "Trigger groups: ".nl();
-
-                    foreach (TriggerGroup s in TriggerGroup.all.GetAllObjsNoOrder())
-                    {
-                        pegi.write(s.ToString(), 80);
-                        pegi.write(s.GetIndex().ToString(), 30);
-
-                        if (unfoldTriggerGroup && (TriggerGroup.Browsed == s))
-                        {
-                            if (icon.Close.Click(20))
-                                unfoldTriggerGroup = false;
-                            pegi.newLine();
-                            s.PEGI();
-                        }
-                        else if (icon.Edit.Click(20))
-                        {
-                            TriggerGroup.Browsed = s;
-                            unfoldTriggerGroup = true;
-                        }
-
-                        pegi.newLine();
-                    }
-
+                 
                     pegi.write("Pages :");
 
                     if (icon.Add.Click(25).nl())
@@ -215,17 +177,13 @@ namespace StoryTriggerData
 
         }
 
-        [MenuItem("Tools/"+ StoriesFolderName+ "/Instantiate Book..")]
-        public static void CreateBook() => UnityHelperFunctions.CreateAsset_SO_DONT_RENAME<Book>(StoriesFolderName, BookSOname);
-        
-        public static bool InstantiateBookPEGI()
+        [MenuItem("Tools/" + StoriesFolderName + "/Instantiate Book..")]
+        public static void CreateBook()
         {
-            if (Inst == null && "Add Book".Click())
-                CreateBook();
-
-            return false;
+            if (inst == null)
+                inst = new GameObject().AddComponent<Book>();
+            inst.name = "BOOK";
         }
-
 #endif
         public Page lerpTarget;
         [NonSerialized]
@@ -262,15 +220,14 @@ namespace StoryTriggerData
 
             base.Update();
 
-            if (StoryGodMode.inst != null)
-                StoryGodMode.inst.DistantUpdate();
+            if (GodMode.inst != null)
+                GodMode.inst.DistantUpdate();
 
             if (Application.isPlaying)
                 CombinedUpdate();
             foreach (var p in HOMEpages)
                 p.PostPositionUpdate();
         }
-
-
+        
     }
 }

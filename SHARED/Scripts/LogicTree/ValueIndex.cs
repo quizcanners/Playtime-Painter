@@ -11,8 +11,8 @@ namespace STD_Logic
 {
 
     public abstract class ValueIndex : iSTD
-        #if PEGI
-        , IPEGI, IGotDisplayName 
+#if PEGI
+        , IPEGI, IGotDisplayName
 #endif
     {
 
@@ -27,7 +27,7 @@ namespace STD_Logic
         protected StdEncoder EncodeIndex() => new StdEncoder()
             .Add("gi", groupIndex)
             .Add("ti", triggerIndex);
-        
+
         protected bool DecodeIndex(string tag, string data)
         {
             switch (tag)
@@ -38,16 +38,16 @@ namespace STD_Logic
             }
             return true;
         }
-        
+
         public int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
-        
+
         public void SetInt(Values st, int value) => st.ints[groupIndex][triggerIndex] = value;
-        
+
         public bool GetBool(Values st) => st.bools[groupIndex][triggerIndex];
-        
-        public void SetBool(Values st, bool value) =>  st.bools[groupIndex][triggerIndex] = value;
-        
-        public Trigger Trigger => Group.triggers[triggerIndex];
+
+        public void SetBool(Values st, bool value) => st.bools[groupIndex][triggerIndex] = value;
+
+        public Trigger Trigger { get { return Group[triggerIndex]; } set { groupIndex = value.groupIndex; triggerIndex = value.triggerIndex; } }
 
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
@@ -63,11 +63,12 @@ namespace STD_Logic
 
         public static string focusName;
 
-        public bool PEGI(int index,  string prefix)
+        public bool PEGI(int index, string prefix)
         {
             bool changed = false;
 
-            if (Trigger.edited != Trigger) {
+            if (Trigger.edited != Trigger)
+            {
                 if (icon.Edit.Click(20))
                     Trigger.edited = Trigger;
 
@@ -103,7 +104,7 @@ namespace STD_Logic
             {
                 t.PEGI();
                 pegi.newLine();
-                changed |= t._usage.inspect(this, null);
+                changed |= t._usage.inspect(t);
             }
 
             if ((pegi.nameFocused == (focusName)) && (t != Trigger.edited))
@@ -118,7 +119,7 @@ namespace STD_Logic
 
                 pegi.newLine();
 
-                if (Search_PEGI(Trigger.searchField, Values.inspected))
+                if (Search_PEGI(Trigger.searchField, Values.current))
                     Trigger.searchField = Trigger.name;
 
                 selectedTrig = Trigger;
@@ -140,8 +141,6 @@ namespace STD_Logic
 
             bool changed = false;
 
-            bool showedFirst = false;
-
             Trigger current = Trigger;
 
             Trigger.searchMatchesFound = 0;
@@ -152,48 +151,89 @@ namespace STD_Logic
                 changed = true;
             }
             pegi.newLine();
-          
 
-            List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
 
-            for (int i = 0; i < lst.Count; i++)
+            // List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
+
+            int searchMax = 20;
+
+            current.ToPEGIstring().write();
+
+            if (icon.Done.Click().nl())
             {
-                TriggerGroup gb = lst[i];
-                string gname = gb.ToString();
-                List<int> indxs;
-                List<Trigger> trl = gb.triggers.GetAllObjs(out indxs);
-                for (int j = 0; j < trl.Count; j++)
+                pegi.FocusControl("none");
+                changed = true;
+            }
+            else
+                foreach (var gb in TriggerGroup.all)
                 {
-                    Trigger t = trl[j];
-                    int indx = indxs[j];
-                    if (((groupIndex != gb.GetIndex()) || (triggerIndex != indx)) && t.SearchCompare(gname))
+                    var lst = gb.GetFilteredList(ref searchMax);
+                    foreach (var t in lst)
                     {
-                        if (!showedFirst)
+                        if (t != current)
                         {
-                            pegi.write(current.name);
-
-                            if (icon.Done.Click())//pegi.Click("<>", 20))
+                            Trigger.searchMatchesFound++;
+                            t.ToPEGIstring().write();
+                            if (icon.Done.ClickUnfocus(20).nl())
                             {
-                                pegi.FocusControl("none");
+                                Trigger = t;
                                 changed = true;
                             }
-                            pegi.newLine();
-                            showedFirst = true;
                         }
-
-
-
-                        Trigger.searchMatchesFound++;
-                        pegi.write(t.name + "_" + indx);
-                        if (icon.Done.Click(20)) { changed = true; triggerIndex = indx; groupIndex = gb.GetIndex(); pegi.DropFocus(); pegi.newLine(); return true; }
-                        pegi.newLine();
                     }
                 }
-            }
             return changed;
         }
 
         public virtual string NameForPEGIdisplay() => Trigger.ToPEGIstring();
 #endif
     }
+
+    public static class ValueSettersExtensions
+    {
+        public static bool Get(this UnnullableSTD<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnnullableSTD<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+
+        public static int Get(this UnnullableSTD<CountlessInt> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnnullableSTD<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+
+
+#if PEGI
+        public static bool Toogle(this UnnullableSTD<CountlessBool> uc, ValueIndex ind)
+        {
+            var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
+            if (pegi.toggle(ref tmp))
+            {
+                uc.Set(ind, tmp);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Edit(this UnnullableSTD<CountlessInt> uc, ValueIndex ind)
+        {
+            var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
+            if (pegi.edit(ref tmp))
+            {
+                uc.Set(ind, tmp);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Select(this UnnullableSTD<CountlessInt> uc, Trigger t)
+        {
+            var tmp = uc.Get(t);
+            if (pegi.select(ref tmp, t.enm))
+            {
+                uc.Set(t, tmp);
+                return true;
+            }
+            return false;
+        }
+
+#endif
+
+    }
+
 }

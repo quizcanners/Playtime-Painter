@@ -23,7 +23,7 @@ namespace STD_Logic
 #if PEGI
         public static bool selectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
         
-        public bool inspect(ValueIndex arg, Values so) => inspect(arg.triggerIndex, arg.Group);
+        public bool inspect(ValueIndex arg) => inspect(arg.Trigger);
         
         public virtual void inspect(ConditionLogic c) { }
 
@@ -72,9 +72,8 @@ namespace STD_Logic
             return changed;
         }
         
-        public virtual bool inspect(int ind, TriggerGroup group) {
+        public virtual bool inspect(Trigger t) {
             bool changed = false;
-            Trigger t = group.triggers[ind];
             string before = t.name;
             if (pegi.editDelayed(ref before, 150 - (hasMoreTriggerOptions() ? 30 : 0))) {
                 Trigger.searchField = before;
@@ -91,9 +90,8 @@ namespace STD_Logic
             return false;
         }
         
-        public virtual bool usingBool() {
-            return false;
-        }
+        public virtual bool usingBool => false;
+        
 
         public virtual bool usingEnum() {
             return false;
@@ -147,13 +145,13 @@ namespace STD_Logic
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool inspect(int ind, TriggerGroup group)
+        public override bool inspect(Trigger t)
         {
-            Values so = Values.inspected;
+            Values so = Values.current;
 
-            bool changed = base.inspect(ind, group);
+            bool changed = base.inspect(t);
             if (so != null)
-                changed |= pegi.toggle(ind, so.bools[group.GetIndex()]);
+                changed |= so.bools.Toogle(t); 
 
             return changed;
         }
@@ -201,11 +199,11 @@ namespace STD_Logic
             return changed;
         }
 
-        public override bool inspect(int ind, TriggerGroup group) {
-            bool changed = base.inspect(ind, group);
-            Values so = Values.inspected;
-            if (so != null) 
-                changed |= pegi.edit(ind, so.ints[group.GetIndex()]);
+        public override bool inspect(Trigger t) {
+            bool changed = base.inspect(t);
+            Values so = Values.current;
+            if (so != null)
+                changed |= so.ints.Edit(t);
 
             return changed;
         }
@@ -246,15 +244,14 @@ namespace STD_Logic
             return changed;
         }
 
-        public override bool inspect(int ind, TriggerGroup group)
+        public override bool inspect(Trigger t)
         {
-            Values so = Values.inspected;
+            Values so = Values.current;
 
-            bool changed = base.inspect(ind, group);
-            Trigger t = group.triggers[ind];
+            bool changed = base.inspect(t);
 
             if (so != null)
-                changed |= pegi.select(so.ints[group.GetIndex()], ind, t.enm);
+                changed |= so.ints.Select(t); 
 
             pegi.newLine();
 
@@ -389,16 +386,16 @@ namespace STD_Logic
 
         #if PEGI
 
-        public override bool inspect(int ind, TriggerGroup group) {
-            var changed = base.inspect(ind, group);
+        public override bool inspect(Trigger t) {
+            var changed = base.inspect(t);
 
-            Values so = Values.inspected;
+            Values vals = Values.current;
 
-            Trigger t = group.triggers[ind];
+            //so.enumTags.Select(t);
 
-            int value = so.enumTags[group.GetIndex()][ind];
-            if ((so != null) && (pegi.select(ref value, t.enm))) {
-                so.SetTagEnum(group, ind, value);
+            int value = vals.GetTagEnum(t);//[group.GetIndex()][ind];
+            if (pegi.select(ref value, t.enm)) {
+                vals.SetTagEnum(t, value);
                 changed = true;
             }
 
@@ -479,17 +476,16 @@ namespace STD_Logic
 
         public override bool inspect(Result r) => pegi.toggleInt(ref r.updateValue);
         
-        public override bool inspect(int ind, TriggerGroup group) {
-            bool changed = base.inspect(ind, group);
+        public override bool inspect(Trigger t) {
+            bool changed = base.inspect(t);
 
-            Values so = Values.inspected;
+            Values so = Values.current;
 
             if (so != null) {
-                int gr = group.GetIndex();
-                bool val = so.boolTags[gr][ind];
+                bool val = so.GetTagBool(t);
                 if (pegi.toggle(ref val)) {
                     changed = true; 
-                    so.SetTagBool(group, ind, val);
+                    so.SetTagBool(t, val);
                 }
             }
 

@@ -1821,16 +1821,21 @@ namespace PlayerAndEditorGUI
             else if (selected == -1 && icon.Enter.Click())
                 selected = current;
 
-            return (selected == current);
+            pegi.isFoldedOut = (selected == current);
+
+            return pegi.isFoldedOut;
         }
         
         public static bool fold_enter_exit(this icon ico, string txt, ref int selected, int current)
         {
 
+         
+
             if (selected == current)
             {
                 if (icon.Exit.ClickUnfocus(txt))
                     selected = -1;
+             
             }
             else if (selected == -1)
             {
@@ -1839,7 +1844,9 @@ namespace PlayerAndEditorGUI
                 write(txt);
             }
 
-            return (selected == current);
+            pegi.isFoldedOut = (selected == current);
+
+            return pegi.isFoldedOut;
         }
 
         public static bool fold_enter_exit(this string txt, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, ref selected, current);

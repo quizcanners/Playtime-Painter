@@ -13,12 +13,15 @@ namespace STD_Logic {
         , IPEGI
 #endif
     {
-        public static Values inspected;
+
+        public static Values global = new Values();
+
+        public static Values current; // => global;
 
         public UnnullableSTD<CountlessBool> bools = new UnnullableSTD<CountlessBool>();
         public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
-        public UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
-        public UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
+        UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
+        UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
@@ -41,6 +44,12 @@ namespace STD_Logic {
             return true;
         }
 
+        public bool GetTagBool(ValueIndex ind) => boolTags.Get(ind);
+
+        public int GetTagEnum(ValueIndex ind) => enumTags.Get(ind);
+
+        public void SetTagBool(ValueIndex ind, bool value) => SetTagBool(ind.groupIndex, ind.triggerIndex, value);
+
         public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.GetIndex(), tagIndex, value);
 
         public void SetTagBool(int groupIndex, int tagIndex, bool value) {
@@ -62,6 +71,8 @@ namespace STD_Logic {
         }
 
         public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.GetIndex(), tagIndex, value);
+
+        public void SetTagEnum(ValueIndex ind, int value) => SetTagEnum(ind.groupIndex, ind.triggerIndex, value);
 
         public void SetTagEnum(int groupIndex, int tagIndex, int value) {
 
@@ -103,7 +114,7 @@ namespace STD_Logic {
             
             bool changed = false;
 
-            inspected = this;
+            current = this;
 
                 if ("quest++".Click().nl())
                     LogicMGMT.AddLogicVersion();
@@ -133,4 +144,8 @@ namespace STD_Logic {
         }
 #endif
     }
+
+
+   
+
 }

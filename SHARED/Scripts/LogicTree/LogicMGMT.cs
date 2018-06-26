@@ -19,10 +19,12 @@ using SharedTools_Stuff;
 
 namespace STD_Logic
 {
-    public class LogicMGMT : ScriptableSTD  {
+    public class LogicMGMT : ComponentSTD   {
 
         public static LogicMGMT inst;
 
+        bool waiting;
+        float timeToWait = -1;
         public static int currentLogicVersion = 0;
         public static void AddLogicVersion()
         {
@@ -38,21 +40,13 @@ namespace STD_Logic
 
             return RealTimeOnStartUp + (int)Time.realtimeSinceStartup;
         }
+        
+        public override StdEncoder Encode() => EncodeUnrecognized();
 
-        public virtual void OnEnable() {
+        public override bool Decode(string tag, string data) => false;
 
-            inst = this;
-
-        }
-
-        bool waiting;
-        float timeToWait = -1;
-
-        public virtual Values InspectedValues()
-        {
-            return null;
-        }
-
+        public virtual void OnEnable()  =>  inst = this;
+        
         public void AddTimeListener(float seconds)
         {
             seconds += 0.5f;
@@ -74,22 +68,42 @@ namespace STD_Logic
             }
         }
 
-        public void Awake()
+        public void Awake() => RealTimeNow();
+
+
+#if PEGI
+        [SerializeField] protected int browsedStuff = -1;
+        [SerializeField] protected int inspectedTriggerGroup = -1;
+        [SerializeField] protected int tmpIndex = -1;
+        public override bool PEGI()
         {
-            RealTimeNow();
-        }
+            var changed =  base.PEGI();
 
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder();
-            
-            return cody;
-        }
+            pegi.nl();
 
-        public override bool Decode(string tag, string data)
-        {
+            if ("Trigger Groups".fold_enter_exit(ref browsedStuff, 0))
+            {
 
-            return true;
+                pegi.nl();
+                "Trigger Groups".nl();
+
+                changed |= TriggerGroup.all.Inspect<UnnullableSTD<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
+
+                if (inspectedTriggerGroup == -1)
+                {
+                    "At Index: ".edit(60, ref tmpIndex);
+                    if (tmpIndex >= 0 && ExtensionsForGenericCountless.GetIfExists(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnfocus("Create New Group"))
+                    {
+                        TriggerGroup.all[tmpIndex].NameForPEGI = "Group " + tmpIndex.ToString();//.GetIndex();
+                        tmpIndex++;
+                    }
+                    pegi.nl();
+                }
+            }
+
+
+            return changed;
         }
-        
+# endif
     }
 }

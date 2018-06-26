@@ -70,7 +70,7 @@ namespace STD_Logic  {
         public static bool Inspect(this List<Result> res, Values vals) {
             bool changed = false;
 
-            Values.inspected = vals;
+            Values.current = vals;
 
             if (icon.Add.Click(25))
                 res.Add();
@@ -98,7 +98,7 @@ namespace STD_Logic  {
                 res.RemoveAt(DeleteNo);
             pegi.newLine();
 
-            Values.inspected = null;
+            Values.current = null;
             return changed;
         }
 #endif
@@ -108,12 +108,14 @@ namespace STD_Logic  {
 
             if (lst.Count > 0) {
                 Result prev = lst.Last();
-
+                
                 r.groupIndex = prev.groupIndex;
                 r.triggerIndex = prev.triggerIndex;
 
-                // Making sure new trigger will not be a duplicate (a small quality of life improvement)
 
+
+                // Making sure new trigger will not be a duplicate (a small quality of life improvement)
+                /*
                 List<int> indxs;
                 r.Group.triggers.GetAllObjs(out indxs);
 
@@ -123,6 +125,7 @@ namespace STD_Logic  {
 
                 if (indxs.Count > 0)
                     r.triggerIndex = indxs[0];
+                    */
 
             }
 
@@ -139,7 +142,7 @@ namespace STD_Logic  {
 #endif
     {
 
-        public TaggedTarget targ;
+       // public TaggedTarget targ;
         public ResultType type;
         public int updateValue;
         
@@ -147,11 +150,7 @@ namespace STD_Logic  {
             switch (subtag) {
                 case "ty": type = (ResultType)data.ToInt(); break;
                 case "val": updateValue = data.ToInt(); break;
-                case "tag": data.DecodeInto(out targ); break;
                 case "ind": data.DecodeInto(DecodeIndex); break;
-                    //Legacy: 
-                case "g": groupIndex = data.ToInt(); break;
-                case "t": triggerIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -160,13 +159,9 @@ namespace STD_Logic  {
         public override StdEncoder Encode()
         {
             StdEncoder cody = new StdEncoder();
-
             cody.Add_ifNotZero("ty", (int)type);
             cody.Add_ifNotZero("val", updateValue);
             cody.Add("ind", EncodeIndex);
-            //cody.Add("g", groupIndex);
-            //cody.Add("t", triggerIndex);
-            cody.Add("tag", targ);
             return cody;
         }
         

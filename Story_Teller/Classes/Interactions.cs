@@ -95,7 +95,7 @@ namespace StoryTriggerData
             if (pegi.foldout("___Results:", ref Interaction.showOnExit_Results)){
                 ConditionLogic.unfoldPegi = false;
 
-               results.Inspect(Values.inspected);
+               results.Inspect(Values.current);
             }
 
             pegi.newLine();
@@ -188,8 +188,8 @@ namespace StoryTriggerData
 
         public void Execute( InteractionTarget so) {
             for (int j = 0; j < options.Count; j++)
-                if (options[j].conditions.TestFor(Values.inspected)) { options[j].results.Apply(Values.inspected); break; }
-            FinalResults.Apply(Values.inspected);
+                if (options[j].conditions.TestFor(Values.current)) { options[j].results.Apply(Values.current); break; }
+            FinalResults.Apply(Values.current);
         }
 
 #if PEGI
@@ -298,9 +298,9 @@ namespace StoryTriggerData
             }
 
             if (showFinal_Results) 
-                FinalResults.Inspect(Values.inspected);
+                FinalResults.Inspect(Values.current);
 
-            Values.inspected = null;
+            Values.current = null;
 
         }
 #endif
@@ -463,7 +463,7 @@ namespace StoryTriggerData
                 
             }
 
-            Values.inspected = null;
+            Values.current = null;
 
             return changed;
         }

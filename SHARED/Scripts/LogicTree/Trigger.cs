@@ -15,12 +15,10 @@ using SharedTools_Stuff;
 
 namespace STD_Logic
 {
-
-
-    [Serializable]
-    public class Trigger : Abstract_STD
+    
+    public class Trigger : ValueIndex
 #if PEGI
-            , IPEGI, IGotDisplayName 
+            , IPEGI, IGotDisplayName , IPEGI_ListInspect
 #endif
     {
 
@@ -35,9 +33,9 @@ namespace STD_Logic
         public static int searchMatchesFound;
 
         public static Trigger edited;
-
         public string name = "";
         public bool isStatic;
+
         public Dictionary<int, string> enm;
 
         public string this[int index] {
@@ -52,15 +50,16 @@ namespace STD_Logic
 
         public TriggerUsage _usage { get { return TriggerUsage.get(usage); }  set { usage = value.index; } }
 
+        public override bool IsBoolean() => _usage.usingBool;
 
-        #if PEGI
+#if PEGI
         public static void search_PEGI() {
             pegi.write("Search", 60);
             pegi.edit(ref searchField);//, GUILayout.Width(60));
             pegi.newLine();
         }
 #endif
-        public bool SearchCompare(string groupName) {
+        public bool SearchWithGroupName(string groupName) {
             
             if ((searchField.Length == 0) || Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
 
@@ -100,6 +99,7 @@ namespace STD_Logic
 
         }
 
+        
 
         public Trigger() {
             if (enm == null)
@@ -110,13 +110,51 @@ namespace STD_Logic
         public const string storyTag_Trg = "Trg";
 
 #if PEGI
-        public virtual bool PEGI() {
-            return TriggerUsage.selectUsage(ref usage);
+        public override bool PEGI() {
+            bool changed = "static".toggle(50, ref isStatic);
+
+            changed |= TriggerUsage.selectUsage(ref usage);
+
+            if (_usage.hasMoreTriggerOptions())
+            {
+                if (icon.Close.Click(20))
+                    Trigger.edited = null;
+            }
+
+            changed |= _usage.inspect(this).nl();
+
+            if (_usage.hasMoreTriggerOptions())
+            {
+                pegi.Space();
+                pegi.newLine();
+            }
+
+            return changed;
         }
 
-        public string NameForPEGIdisplay() => name;
+        public override string NameForPEGIdisplay() => name;
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+
+            bool chnaged = false;
+
+            name.write();
+
+            if (icon.Edit.Click(20))
+                Trigger.edited = this;
+
+            return chnaged;
+        }
+
+      
 #endif
     }
+
+
+
+  
+
 }
 
 

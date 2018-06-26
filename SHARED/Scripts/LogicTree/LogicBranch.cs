@@ -99,9 +99,9 @@ namespace STD_Logic {
 
                 if (browsedElement == -1)  {
        
-                    Values vals = LogicMGMT.inst != null ? LogicMGMT.inst.InspectedValues() : null;
+                    Values vals = Values.global;
                     
-                    bool isTrue = vals != null ? conds.TestFor(vals) : false;
+                    bool isTrue = conds.TestFor(vals);
 
                     if ( icon.Condition.foldout(
                         ("Conditions" +( vals!= null ? "["+ (isTrue ? "True" : "False") +"]"  : " "))

@@ -1623,7 +1623,7 @@ namespace SharedTools_Stuff {
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool Edit_PEGI<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, IPEGI
+        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, IPEGI
             
             , new() {
 

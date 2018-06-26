@@ -12,7 +12,7 @@ namespace STD_Logic
 {
     
     public class TaggedTarget: ValueIndex {  // if there are zero
-      
+        
         public int targValue; // if zero - we are talking about bool target
 
         public override StdEncoder Encode() {
@@ -76,4 +76,23 @@ namespace STD_Logic
 
     }
     
+    public static class TaggedExtensions
+    {
+
+        public static Values TryGetValues(this TaggedTarget trg, Values current)
+        {
+            if (trg != null)  {
+                var val = trg.getObjectsByTag();
+
+                if (val != null && val.Count > 0)
+                    current = val[0];
+
+            } else if (current == null)
+                current = Values.global;
+
+            return current;
+        } 
+
+    }
+
 }

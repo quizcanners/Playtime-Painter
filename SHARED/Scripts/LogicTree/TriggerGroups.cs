@@ -34,27 +34,47 @@ namespace STD_Logic
             }
         }
 
+
+        static int browsedGroup = -1;
         public static TriggerGroup Browsed
         {
-            get { return all[browsedGroup]; }
-            set { browsedGroup = value.GetIndex(); }
+            get { return browsedGroup >= 0 ? all[browsedGroup] : null; }
+            set { browsedGroup = value != null ? value.GetIndex() : -1;  }
         }
 
-        public UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
+        UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
+
+        public Trigger this[int index]
+        {
+            get {
+                if (index >= 0)
+                {
+                    var ready = triggers.GetIfExists(index);
+                    if (ready != null)
+                        return ready;
+
+                    ready = triggers[index];
+                    ready.groupIndex = GetIndex();
+                    ready.triggerIndex = index;
+
+                    return ready;
+                }
+                else return null;
+            }
+        }
 
         public bool showInInspectorBrowser = true;
 
-        public string name = "Unnamed_Triggers";
+    //    int inspectedTrigger = -1;
+
+        string name = "Unnamed_Triggers";
         int index;
+
         public int GetIndex() => index;
         public void SetIndex(int val) =>  index = val;
         
         public string NameForPEGI { get { return name; } set { name = value; } }
-
-        public override int GetHashCode() => index;
         
-        static int browsedGroup;
-
         public override string ToString() => name;
         
         [NonSerialized]
@@ -116,20 +136,23 @@ namespace STD_Logic
 #endif
         }
 
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder(); 
-            cody.Add_String("n", name);
-            cody.Add("t",triggers);
-            cody.Add("ind", index);
-            cody.Add_ifTrue("show", showInInspectorBrowser);
-            return cody;
-        }
+        public override StdEncoder Encode() => EncodeUnrecognized()
+            .Add_String("n", name)
+            .Add("ind", index)
+            .Add("t", triggers)
+            .Add_ifTrue("show", showInInspectorBrowser);
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "n": name = data; break;
-                case "t":  data.DecodeInto(out triggers); break; 
                 case "ind": index = data.ToInt(); break;
+                case "t":  data.DecodeInto(out triggers);
+                    foreach (var t in triggers) {
+                        t.groupIndex = index;
+                        t.triggerIndex = triggers.currentEnumerationIndex;
+                    }
+
+                    break; 
                 case "show": showInInspectorBrowser = data.ToBool(); break;
                 default: return false;
             }
@@ -157,13 +180,41 @@ namespace STD_Logic
 
         }
 
-         #if PEGI
-       
+#if PEGI
+
+        string lastFilteredString = "";
+        List<Trigger> filteredList = new List<Trigger>();
+        public List<Trigger> GetFilteredList(ref int showMax)
+        {
+            if (lastFilteredString.SameAs(Trigger.searchField))
+                return filteredList;
+            else
+            {
+                filteredList.Clear();
+                foreach (Trigger t in triggers)
+                    if (t.SearchWithGroupName(name)) {
+                        showMax--;
+
+                        Trigger.searchMatchesFound++;
+
+                        filteredList.Add(t);
+
+                        if (showMax < 0)
+                            break;
+                    }
+            }
+            return filteredList;
+        }
+
+        public static TriggerGroup inspected;
+
         public override bool PEGI() {
-            
+
+            inspected = this;
+
             bool changed = false;
 
-            if (Values.inspected == null)
+            if (Values.current == null)
             {
                 changed |= base.PEGI();
                 if (showDebug)
@@ -172,45 +223,36 @@ namespace STD_Logic
                 changed |= (index + " Name").edit(60, ref name).nl();
                 Trigger.search_PEGI();
             }
-
-            int showMax = 20;
             
-            foreach (Trigger t in triggers)
+            if (Trigger.edited != null)
             {
+                if (icon.Close.Click())
+                    Trigger.edited = null;
 
-                if (t.SearchCompare(name))
+                Trigger.edited.PEGI();
+            }
+            else
+            {
+                int showMax = 20;
+
+                var lst = GetFilteredList(ref showMax);
+
+                "Triggers".write_List(lst);
+
+              /*  foreach (var t in lst)
                 {
-                    showMax--;
-
-                    Trigger.searchMatchesFound++;
 
                     t.PEGI();
 
-                    if (t._usage.hasMoreTriggerOptions())
-                    {
-                        if (Trigger.edited != t)
-                        {
-                            if (icon.Edit.Click(20))
-                                Trigger.edited = t;
-                        }
-                        else if (icon.Close.Click(20))
-                            Trigger.edited = null;
-                    }
+                  
 
-                    changed |= t._usage.inspect(triggers.currentEnumerationIndex, this).nl();
-                    
-                    if (t._usage.hasMoreTriggerOptions()) {
-                        pegi.Space();
-                        pegi.newLine();
-                    }
-
-                }
-                if (showMax < 0) break;
+                }*/
             }
 
             pegi.nl();
 
-            
+            inspected = null;
+
             return changed;
 
         }
@@ -219,8 +261,6 @@ namespace STD_Logic
 
             bool changed = false;
             
-
-
             List<int> indxs;
             List<Trigger> lt = triggers.GetAllObjs(out indxs);
 
@@ -244,7 +284,7 @@ namespace STD_Logic
                             Trigger.edited = null;
                     }
 
-                    changed |= t._usage.inspect(indxs[i], this);
+                    changed |= t._usage.inspect(t);
 
                     pegi.newLine();
 
@@ -268,7 +308,6 @@ namespace STD_Logic
             Trigger selectedTrig = arg!= null ? arg.Trigger : null;
 
             if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) )
-              //  
             {
 
                 if ((selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField))
@@ -279,14 +318,14 @@ namespace STD_Logic
 
                 if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
-
                         int ind = triggers.AddNew();
-                        if (arg != null) {
-                            arg.groupIndex = index;
-                            arg.triggerIndex = ind;
-                        }
-                        Trigger t = triggers[ind];
+                        Trigger t = this[ind];
                         t.name = Trigger.searchField;
+                        t.groupIndex = GetIndex();
+                        t.triggerIndex = ind;
+
+                        if (arg != null) arg.Trigger = t;
+                        
                         changed = true;
                     }
 

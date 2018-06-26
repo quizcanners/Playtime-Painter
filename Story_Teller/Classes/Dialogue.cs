@@ -28,7 +28,7 @@ namespace StoryTriggerData
             int cnt = 0;
             //for (int i = 0; i < tmp.Count; i++)
             foreach (DialogueChoice dio in ia.options)  
-            if (dio.conditions.TestFor(Values.inspected)) {
+            if (dio.conditions.TestFor(Values.current)) {
                     _optText.Add(dio.text.ToString());
                     possibleOptions.Add(dio);
                     cnt++;
@@ -49,12 +49,12 @@ namespace StoryTriggerData
 
             foreach (Interaction si in gr.elements){
                 if (browsedObj.type == QOoptionType.PassiveLogic)
-                    if (si.conditions.TestFor(Values.inspected)) {
+                    if (si.conditions.TestFor(Values.current)) {
 
                         for (int j = 0; j < si.options.Count; j++)
-                            if (si.options[j].conditions.TestFor(Values.inspected))
-                                si.options[j].results.Apply(Values.inspected);
-                        si.FinalResults.Apply(Values.inspected);
+                            if (si.options[j].conditions.TestFor(Values.current))
+                                si.options[j].results.Apply(Values.current);
+                        si.FinalResults.Apply(Values.current);
                     }
             }
 
@@ -65,7 +65,7 @@ namespace StoryTriggerData
         static void CollectInteractions(InteractionBranch gr) {
             foreach (Interaction si in gr.elements) {
                 if (browsedObj.type == QOoptionType.Dialogue) {
-                    if (si.conditions.TestFor(Values.inspected)) {
+                    if (si.conditions.TestFor(Values.current)) {
                         _optText.Add(si.Texts[0].ToString());
                         possibleInteractions.Add(si);
                         textCount++;
@@ -114,7 +114,7 @@ namespace StoryTriggerData
         }
 
         public static void StartInteractions(InteractionTarget so) {
-            so.OnEnterResults.Apply(Values.inspected);
+            so.OnEnterResults.Apply(Values.current);
             browsedObj = so;
             BackToInitials();
            
@@ -122,7 +122,7 @@ namespace StoryTriggerData
 
         public static void CloseInteractions() {
             if (browsedObj != null)
-                browsedObj.OnExitResults.Apply(Values.inspected);
+                browsedObj.OnExitResults.Apply(Values.current);
             
             browsedObj = null;
         }
@@ -192,14 +192,14 @@ namespace StoryTriggerData
                 case 3:
                     //Debug.Log("case 3");
                     option = possibleOptions[no];
-                    option.results.Apply(Values.inspected);
+                    option.results.Apply(Values.current);
                     continuationReference = option.goToReference;
-                    interaction.FinalResults.Apply(Values.inspected);
+                    interaction.FinalResults.Apply(Values.current);
                     textNo = -1;
                     goto case 5;
 
                 case 4: //Debug.Log("case 4"); 
-                    interaction.FinalResults.Apply(Values.inspected); BackToInitials(); break;
+                    interaction.FinalResults.Apply(Values.current); BackToInitials(); break;
 
                 case 5:
                     //Debug.Log("In case 5");

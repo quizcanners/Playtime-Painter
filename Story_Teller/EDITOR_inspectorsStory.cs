@@ -30,7 +30,7 @@ namespace StoryTriggerData
     [CustomEditor(typeof(Book))]
     public class StoryLinkControllerDrawer : Editor
     {
-        public override void OnInspectorGUI() => ((Book)target).Inspect_so(serializedObject);
+        public override void OnInspectorGUI() => ((Book)target).Inspect(serializedObject);
     }
     
     [CustomEditor(typeof(Terra))]
