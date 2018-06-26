@@ -14,7 +14,7 @@ namespace Playtime_Painter
         public delegate bool meshToolPlugBool(MeshToolBase tool, out bool val);
         public static meshToolPlugBool showVerticesPlugs;
 
-        protected static bool dirty { get { return editedMesh.dirty; } set { editedMesh.dirty = value; } }
+        protected static bool dirty { get { return editedMesh.Dirty; } set { editedMesh.Dirty = value; } }
 
         static List<MeshToolBase> _allTools;
 
@@ -217,21 +217,21 @@ namespace Playtime_Painter
             if (pegi.Click("Sharp All")) {
                 foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                     vr.SmoothNormal = false;
-                mgm.edMesh.dirty = true;
+                mgm.edMesh.Dirty = true;
                 cfg.newVerticesSmooth = false;
             }
 
             if (pegi.Click("Smooth All").nl()) {
                 foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                     vr.SmoothNormal = true;
-                mgm.edMesh.dirty = true;
+                mgm.edMesh.Dirty = true;
                 cfg.newVerticesSmooth = true;
             }
 
             "Add Unique:".toggle(70, ref cfg.newVerticesUnique);
             if (pegi.Click("All shared")) {
                 mgm.edMesh.AllVerticesShared();
-                mgm.edMesh.dirty = true;
+                mgm.edMesh.Dirty = true;
                 cfg.newVerticesUnique = false;
             }
 
@@ -239,7 +239,7 @@ namespace Playtime_Painter
             {
                 foreach (Triangle t in editedMesh.triangles)
                     mgm.edMesh.GiveTriangleUniqueVerticles(t);
-                mgm.edMesh.dirty = true;
+                mgm.edMesh.Dirty = true;
                 cfg.newVerticesUnique = true;
             }
             pegi.newLine();
@@ -308,7 +308,7 @@ namespace Playtime_Painter
             {
                 m.SelectedUV.meshPoint.MergeWithNearest();
                 m.Dragging = false;
-                m.edMesh.dirty = true;
+                m.edMesh.Dirty = true;
                 #if PEGI
                 "M - merge with nearest".TeachingNotification();
 #endif
@@ -338,7 +338,7 @@ namespace Playtime_Painter
                 }
                 else
                     m.DeleteUv(m.PointedUV);
-                m.edMesh.dirty = true;
+                m.edMesh.Dirty = true;
             }
         }
 
@@ -351,7 +351,7 @@ namespace Playtime_Painter
                     if (uv.meshPoint.uvpoints.Count == 1 && uv.tris.Count == 1)
                         editedMesh.vertices.Remove(uv.meshPoint);
 
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
                 return;
             }
 
@@ -420,7 +420,7 @@ namespace Playtime_Painter
             }
 
             if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay>0 && draggedVertices.Contains(pointedLine))
-                    meshMGMT.edMesh.insertIntoLine(meshMGMT.PointedLine.pnts[0].meshPoint, meshMGMT.PointedLine.pnts[1].meshPoint, meshMGMT.collisionPosLocal);
+                    meshMGMT.edMesh.InsertIntoLine(meshMGMT.PointedLine.pnts[0].meshPoint, meshMGMT.PointedLine.pnts[1].meshPoint, meshMGMT.collisionPosLocal);
             
 
             return false;
@@ -446,9 +446,9 @@ namespace Playtime_Painter
             if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.dragDelay > 0 && draggedVertices.Contains(pointedTris))
             {
                 if (cfg.newVerticesUnique)
-                    m.edMesh.insertIntoTriangleUniqueVerticles(m.PointedTris, m.collisionPosLocal);
+                    m.edMesh.InsertIntoTriangleUniqueVerticles(m.PointedTris, m.collisionPosLocal);
                 else
-                    m.edMesh.insertIntoTriangle(m.PointedTris, m.collisionPosLocal);
+                    m.edMesh.InsertIntoTriangle(m.PointedTris, m.collisionPosLocal);
             }
        
 
@@ -555,14 +555,14 @@ namespace Playtime_Painter
             if ("Sharp All".Click()) {
                 foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                     vr.SmoothNormal = false;
-                m.edMesh.dirty = true;
+                m.edMesh.Dirty = true;
                 cfg.newVerticesSmooth = false;
             }
 
             if ("Smooth All".Click().nl()) {
                 foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                     vr.SmoothNormal = true;
-                m.edMesh.dirty = true;
+                m.edMesh.Dirty = true;
                 cfg.newVerticesSmooth = true;
             }
 
@@ -576,7 +576,7 @@ namespace Playtime_Painter
            
 
             if (EditorInputManager.GetMouseButton(0)) 
-                editedMesh.dirty |= pointedTris.SetSharpCorners(SetTo);
+                editedMesh.Dirty |= pointedTris.SetSharpCorners(SetTo);
 
             return false;
         }
@@ -616,7 +616,7 @@ namespace Playtime_Painter
                 }
             }
 
-            editedMesh.dirty = true;
+            editedMesh.Dirty = true;
         }
 
         public override void KeysEventPointedTriangle()
@@ -641,7 +641,7 @@ namespace Playtime_Painter
 #endif
                 }
 
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
 
             }
 
@@ -657,7 +657,7 @@ namespace Playtime_Painter
 #if PEGI
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
 #endif
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
             }
         }
 
@@ -671,7 +671,7 @@ namespace Playtime_Painter
                 var m = meshMGMT;
 
                 m.PointedUV.meshPoint.SmoothNormal = !m.PointedUV.meshPoint.SmoothNormal;
-                m.edMesh.dirty = true;
+                m.edMesh.Dirty = true;
 #if PEGI
                 "N - on Vertex - smooth Normal".TeachingNotification();
 #endif
@@ -721,7 +721,7 @@ namespace Playtime_Painter
                 {
                     foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                         vr.SmoothNormal = false;
-                    m.edMesh.dirty = true;
+                    m.edMesh.Dirty = true;
                     cfg.newVerticesSmooth = false;
                 }
 
@@ -729,7 +729,7 @@ namespace Playtime_Painter
                 {
                     foreach (MeshPoint vr in meshMGMT.edMesh.vertices)
                         vr.SmoothNormal = true;
-                    m.edMesh.dirty = true;
+                    m.edMesh.Dirty = true;
                     cfg.newVerticesSmooth = true;
                 }
 
@@ -737,14 +737,14 @@ namespace Playtime_Painter
                 if ("All shared".Click())
                 {
                     m.edMesh.AllVerticesShared();
-                    m.edMesh.dirty = true;
+                    m.edMesh.Dirty = true;
                     cfg.newVerticesUnique = false;
                 }
 
                 if ("All unique".Click().nl())
                 {
                     foreach (Triangle t in editedMesh.triangles)
-                        m.edMesh.dirty |= m.edMesh.GiveTriangleUniqueVerticles(t);
+                        m.edMesh.Dirty |= m.edMesh.GiveTriangleUniqueVerticles(t);
                     cfg.newVerticesUnique = true;
                 }
 
@@ -762,12 +762,12 @@ namespace Playtime_Painter
                     if (MergeUnmerge)
                     {
                         if (EditorInputManager.getShiftKey())
-                            editedMesh.dirty |= pointedTris.SetAllVerticesShared();
+                            editedMesh.Dirty |= pointedTris.SetAllVerticesShared();
                         else
-                            editedMesh.dirty |= editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                            editedMesh.Dirty |= editedMesh.GiveTriangleUniqueVerticles(pointedTris);
                     }
                     else
-                        editedMesh.dirty |= pointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
+                        editedMesh.Dirty |= pointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
                 }
 
                 return false;
@@ -780,12 +780,12 @@ namespace Playtime_Painter
                     if (MergeUnmerge)
                     {
                         if (EditorInputManager.getShiftKey())
-                            editedMesh.dirty |= pointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
+                            editedMesh.Dirty |= pointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
                         else
-                            editedMesh.dirty |= pointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                            editedMesh.Dirty |= pointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
                     }
                     else
-                        editedMesh.dirty |= pointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
+                        editedMesh.Dirty |= pointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
                 }
 
                 return false;
@@ -991,7 +991,7 @@ namespace Playtime_Painter
             if ((ind > 0) && (ind < 5))
             {
                 a.meshPoint.FlipChanelOnLine((ColorChanel)(ind - 1), b.meshPoint);
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
                 Event.current.Use();
             }
           
@@ -1085,7 +1085,7 @@ namespace Playtime_Painter
                         foreach (Vertex uvi in pointedUV.meshPoint.uvpoints)
                             globalBrush.mask.Transfer(ref uvi._color, col);
                     }
-                    meshMGMT.edMesh.dirty = true;
+                    meshMGMT.edMesh.Dirty = true;
 
                     return true;
                 }
@@ -1183,7 +1183,7 @@ namespace Playtime_Painter
                     globalBrush.mask.Transfer(ref uvi._color, col);
             }
 
-            meshMGMT.edMesh.dirty = true;
+            meshMGMT.edMesh.Dirty = true;
 
         }
 
@@ -1246,7 +1246,7 @@ namespace Playtime_Painter
                     return true;
                 meshMGMT.PointedTris.submeshIndex = curSubmesh;
                     editedMesh.submeshCount = Mathf.Max(meshMGMT.PointedTris.submeshIndex + 1, editedMesh.submeshCount);
-                    editedMesh.dirty = true;
+                    editedMesh.Dirty = true;
                 return true;
             }
             return false;

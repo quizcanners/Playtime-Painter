@@ -40,7 +40,7 @@ namespace Playtime_Painter {
         Vector4[] edgeData;
         Vector3[] edgeWeightedOnly;
         Vector4[] shadowBake;
-        Countless<vertexAnimationFrame> anims; // outer tree - animation no, inner - vertices
+        //Countless<vertexAnimationFrame> anims; // outer tree - animation no, inner - vertices
         int[] originalIndex;
 
         public MeshPackagingProfile profile;
@@ -594,7 +594,7 @@ namespace Playtime_Painter {
             return mesh;
         }
 
-        public bool valid { get { return ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); } }
+        public bool Valid { get { return ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); } }
 
         public void AssignMeshAsCollider(MeshCollider c)  {
             c.sharedMesh = null;
@@ -619,26 +619,6 @@ namespace Playtime_Painter {
 
     public enum MegavoxelRole { Solid, Damaged, Decorative }
 
-    [Serializable]
-    public class vertexAnimationFrame  {
-        public Countless<Vector3> verts;
-        [NonSerialized]
-       // public vertAnimNo animTexLines;
-
-        public static ArrayManager<vertexAnimationFrame> array = new ArrayManager<vertexAnimationFrame>();
-        public ArrayManager<vertexAnimationFrame> getArrMan() {
-            return array;
-        }
-
-        public vertexAnimationFrame DeepCopy() {
-            vertexAnimationFrame tmp = new vertexAnimationFrame();
-            return tmp;
-        }
-
-        public vertexAnimationFrame() {
-            verts = new Countless<Vector3>();
-        }
-    }
-
+   
 
 }

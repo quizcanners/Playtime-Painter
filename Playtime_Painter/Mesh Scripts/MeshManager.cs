@@ -148,7 +148,7 @@ namespace Playtime_Painter {
 
                 MeshConstructor mc = new MeshConstructor(edMesh, target.meshProfile, target.meshFilter.sharedMesh);
 
-                if (!edMesh.dirty_Vertices && !edMesh.dirty_Normals && editedMesh.dirty) {
+                if (!edMesh.dirty_Vertices && !edMesh.dirty_Normals && editedMesh.Dirty) {
 
                     if (editedMesh.dirty_Position)
                         mc.UpdateMesh<MeshSolutions.vertexPos>();
@@ -163,7 +163,7 @@ namespace Playtime_Painter {
 
             }
 
-            edMesh.dirty = false;
+            edMesh.Dirty = false;
 
             //  if (_meshTool == MeshTool.VertexAnimation)
             //{
@@ -205,7 +205,7 @@ namespace Playtime_Painter {
                     if (t.IsSamePoints(TrisSet))
                     {
                         t.Change(TrisSet);
-                        edMesh.dirty = true;
+                        edMesh.Dirty = true;
                         TrisVerts = 0;
                         return;
                     }
@@ -225,7 +225,7 @@ namespace Playtime_Painter {
                 }
 
                 TrisVerts = 0;
-                edMesh.dirty = true;
+                edMesh.Dirty = true;
             }
         }
 
@@ -245,7 +245,7 @@ namespace Playtime_Painter {
 
             SelectedUV.AssignToNewVertex(temp);
 
-            edMesh.dirty = true;//_Mesh.GenerateMesh(_targetPiece);
+            edMesh.Dirty = true;//_Mesh.GenerateMesh(_targetPiece);
         }
 
         public void MoveVertexToGrid(MeshPoint vp)
@@ -262,7 +262,7 @@ namespace Playtime_Painter {
             if (Input.GetKey(KeyCode.LeftAlt))
             {
                 MoveVertexToGrid(SelectedUV.meshPoint);
-                edMesh.dirty = true;
+                edMesh.Dirty = true;
             }
             else
                 if (!EditorInputManager.getControlKey())
@@ -394,7 +394,7 @@ namespace Playtime_Painter {
 
 
 
-            edMesh.dirty = true;
+            edMesh.Dirty = true;
         }
 
         public void NullPoinedSelected()
@@ -458,7 +458,7 @@ namespace Playtime_Painter {
 
             tris.Replace(pnt, nuv);
 
-            edMesh.dirty = true;
+            edMesh.Dirty = true;
 
 
         }
@@ -501,7 +501,7 @@ namespace Playtime_Painter {
         void GetPointedTRIANGLESorLINE()
         {
 
-            edMesh.tagTrianglesUnprocessed();
+            edMesh.TagTrianglesUnprocessed();
 
             UpdateLocalSpaceV3s();
 
@@ -815,7 +815,7 @@ namespace Playtime_Painter {
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
 
-            if (edMesh.dirty) {
+            if (edMesh.Dirty) {
                 redoMoves.Clear();
                 undoMoves.Add(edMesh.Encode().ToString());
                 if (undoMoves.Count > 10)
@@ -981,12 +981,12 @@ namespace Playtime_Painter {
                     grid.verts[i] = v;
                     v.go = GameObject.Instantiate(grid.vertPrefab);
                     v.go.transform.parent = grid.transform;
-                    v.init();
+                    v.Init();
                 }
             }
 
-            grid.pointedVertex.init();
-            grid.selectedVertex.init();
+            grid.pointedVertex.Init();
+            grid.selectedVertex.Init();
 
 #if UNITY_EDITOR
             EditorApplication.update -= EditingUpdate;
@@ -1120,7 +1120,7 @@ namespace Playtime_Painter {
                             foreach (var p in selectedPainters)
                                 edMesh.MergeWith(p);
 
-                            edMesh.dirty = true;
+                            edMesh.Dirty = true;
 
                         }
                     }

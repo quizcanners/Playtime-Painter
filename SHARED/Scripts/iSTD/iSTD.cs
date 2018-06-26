@@ -32,6 +32,7 @@ namespace SharedTools_Stuff
         StdEncoder EncodeUnrecognized();
     }
 
+
     ///<summary>For runtime initialization.
     ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
     ///<seealso cref="StdEncoder"/>
@@ -67,7 +68,7 @@ namespace SharedTools_Stuff
             return cody;
         }
         
-        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
+        public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
         public override StdEncoder Encode() => EncodeUnrecognized();
 
@@ -160,7 +161,7 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
+        public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
         public bool showDebug;
 
         #if PEGI
@@ -235,7 +236,7 @@ namespace SharedTools_Stuff
             return cody;
         }
 
-        public iSTD_ExplorerData explorer = new iSTD_ExplorerData();
+        public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
         public bool showDebug;
 
 #if PEGI

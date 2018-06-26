@@ -587,7 +587,7 @@ namespace Playtime_Painter
 
 
 
-            editedMesh.dirty = true;
+            editedMesh.Dirty = true;
 
 
             return (val == 1);
@@ -1202,7 +1202,7 @@ namespace Playtime_Painter
 
             Replace(pnt, nuv);
 
-            editedMesh.dirty = true;
+            editedMesh.Dirty = true;
 
 
         }

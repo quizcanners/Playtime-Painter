@@ -30,7 +30,6 @@ namespace Playtime_Painter {
         }
 #if PEGI
         bool showHint;
-        bool editFog;
         public override bool ConfigTab_PEGI() {
             bool changed = false;
 

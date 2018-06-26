@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
-using Playtime_Painter.Mesh_Primitives;
 using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,7 +18,7 @@ namespace Playtime_Painter {
 
         // Could give each vertex a unique index and Use Countless class to store new data for it.
 
-        public bool dirty { get { return 
+        public bool Dirty { get { return 
                     dirty_Vertices || dirty_Color || dirty_Normals || dirty_Position;
             } set {
                 dirty_Vertices = value;
@@ -47,8 +46,7 @@ namespace Playtime_Painter {
         public string meshName = "unnamed";
         public List<MeshPoint> vertices = new List<MeshPoint>();
         public List<Triangle> triangles = new List<Triangle>();
-
-        public List<EditableMeshPreProcess> editableMeshOtherData; 
+        
         public CountlessBool hasFrame = new CountlessBool();
 
         public override StdEncoder Encode() {
@@ -403,8 +401,10 @@ namespace Playtime_Painter {
             gotBindPos = (actualMesh.bindposes != null) && (actualMesh.bindposes.Length == vCnt);
 
             for (int i = 0; i < vCnt; i++) {
-                var v = new MeshPoint(vrts[i]);
-                v.SmoothNormal = false;
+                var v = new MeshPoint(vrts[i])
+                {
+                    SmoothNormal = false
+                };
                 vertices.Add(v);
                 Vertex uv = new Vertex(vertices[i], gotUV1 ? actualMesh.uv[i] : Vector2.zero, gotUV2 ? actualMesh.uv2[i] : Vector2.zero);
                 if (gotColors)
@@ -459,14 +459,15 @@ namespace Playtime_Painter {
                 int[] indices = actualMesh.GetTriangles(s);
 
                 int tCnt = indices.Length / 3;
-               
+
                 for (int i = 0; i < tCnt; i++) {
-                   
-                    for (int e=0; e<3; e++)
+
+                    for (int e = 0; e < 3; e++)
                         pnts[e] = vertices[indices[i * 3 + e]].uvpoints[0];
 
-                    var t = new Triangle(pnts);
-                    t.submeshIndex = s;
+                    var t = new Triangle(pnts) {
+                        submeshIndex = s
+                    };
                     triangles.Add(t);
                 }
             }
@@ -492,7 +493,7 @@ namespace Playtime_Painter {
 
             actualMesh = new Mesh();
 
-            dirty = true;
+            Dirty = true;
         }
 
         public void MergeWith (PlaytimePainter other) {
@@ -626,7 +627,7 @@ namespace Playtime_Painter {
 
         }
 
-        public void tagTrianglesUnprocessed()
+        public void TagTrianglesUnprocessed()
         {
             foreach (Triangle t in triangles)
                 t.wasProcessed = false;
@@ -640,7 +641,7 @@ namespace Playtime_Painter {
                 foreach (Vertex uv in v.uvpoints)
                    bm.Transfer(ref uv._color, c);
             //Debug.Log("Dirty");
-            dirty = true;
+            Dirty = true;
         }
 
         public void SetShadowAll(linearColor col)
@@ -651,7 +652,7 @@ namespace Playtime_Painter {
             foreach (MeshPoint v in vertices)
                 bm.Transfer(ref v.shadowBake, c); 
                
-            dirty = true;
+            Dirty = true;
         }
 
         public void Displace(Vector3 by)
@@ -660,7 +661,7 @@ namespace Playtime_Painter {
                 vp.localPos += by;
         }
 
-        public MeshPoint insertIntoLine(MeshPoint a, MeshPoint b, Vector3 pos) {
+        public MeshPoint InsertIntoLine(MeshPoint a, MeshPoint b, Vector3 pos) {
             float dsta = Vector3.Distance(pos, a.localPos);
             float dstb = Vector3.Distance(pos, b.localPos);
             float sum = dsta + dstb;
@@ -742,7 +743,7 @@ namespace Playtime_Painter {
 
             }
 
-            dirty = true;
+            Dirty = true;
 
             if (cfg.pixelPerfectMeshEditing)
             newVrt.PixPerfect();
@@ -763,7 +764,7 @@ namespace Playtime_Painter {
                 }
         }
 
-        public MeshPoint insertIntoTriangle(Triangle a, Vector3 pos)
+        public MeshPoint InsertIntoTriangle(Triangle a, Vector3 pos)
         {
             // Debug.Log("Inserting into triangle");
             MeshPoint newVrt = new MeshPoint(pos);
@@ -793,11 +794,11 @@ namespace Playtime_Painter {
             if (cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
-            dirty = true;
+            Dirty = true;
             return newVrt;
         }
 
-        public MeshPoint insertIntoTriangleUniqueVerticles(Triangle a, Vector3 localPos)  {
+        public MeshPoint InsertIntoTriangleUniqueVerticles(Triangle a, Vector3 localPos)  {
 
             MeshPoint newVrt = new MeshPoint(localPos);
             vertices.Add(newVrt);
@@ -833,7 +834,7 @@ namespace Playtime_Painter {
             if (cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
-            dirty = true;
+            Dirty = true;
             return newVrt;
 
         }
@@ -879,27 +880,17 @@ namespace Playtime_Painter {
                 }
             }
            // Debug.Log("Dirty");
-            dirty = true;
+            Dirty = true;
         }
 #if PEGI
-        bool showGenerateFunctions = false;
-        int explorefunction = -1;
+        
+  
         public static EditableMesh inspected;
         public override bool PEGI()
         {
             bool changed = false;
 
-            if ("functions".foldout(ref showGenerateFunctions).nl()) {
-
-                if (editableMeshOtherData == null) {
-                    editableMeshOtherData = new List<EditableMeshPreProcess>();
-                    editableMeshOtherData.Add(new Generate_Button());
-                }
-
-
-                editableMeshOtherData.edit_List(ref explorefunction, false);
-
-            }
+           
 
             return changed;
         }
@@ -912,7 +903,7 @@ namespace Playtime_Painter {
         public GameObject go;
         public TextMesh textm;
 
-        public void init()
+        public void Init()
         {
             if (textm == null)
                 textm = go.GetComponentInChildren<TextMesh>();

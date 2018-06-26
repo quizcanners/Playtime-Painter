@@ -18,7 +18,6 @@ namespace Playtime_Painter
     {
 
         public List<ChannelSetsForDefaultMaps> mergeSubmasks;
-        Color[] col;
         [HideInInspector]
         public PlaytimePainter painter;
         [HideInInspector]
@@ -61,7 +60,7 @@ namespace Playtime_Painter
 
             if (terrain == null) terrain = GetComponent<Terrain>();
 
-            SplatPrototype[] copyProts = (terrain == null) ? null : terrain.GetCopyOfSplashPrototypes();
+            SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
 
             if (mergeSubmasks != null)
             {

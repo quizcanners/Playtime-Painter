@@ -16,7 +16,7 @@ namespace Playtime_Painter
                     return true;
                 BrushConfig bcf = cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref pointedVertex.shadowBake, bcf.mask);
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -31,7 +31,7 @@ namespace Playtime_Painter
                 BrushConfig bcf = cfg.brushConfig;
                 foreach (var uv in pointedTris.vertexes)
                 bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
-                meshMGMT.edMesh.dirty = true;
+                meshMGMT.edMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -46,7 +46,7 @@ namespace Playtime_Painter
             {
                 foreach (var v in editedMesh.vertices)
                     msk.Transfer(ref v.shadowBake, col);
-                editedMesh.dirty = true;
+                editedMesh.Dirty = true;
             }
             globalBrush.ColorSliders_PEGI().nl();
 
@@ -77,7 +77,7 @@ namespace Playtime_Painter
                                 }
                             }
 
-                            editedMesh.dirty = true;
+                            editedMesh.Dirty = true;
 
                             "Raycast Complete".showNotification();
                         }

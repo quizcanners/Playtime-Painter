@@ -183,7 +183,7 @@ namespace Playtime_Painter
 
             selectedLine = new LineData(headTris, aUV, bUV);
 
-            mm.edMesh.dirty = true;
+            mm.edMesh.Dirty = true;
         }
 
         public void QUICK_G_Functions()
@@ -209,7 +209,7 @@ namespace Playtime_Painter
                         pointedUV = null;
                         selectedUV = null;
                         pointedLine = null;*/
-                        editedMesh.dirty = true;
+                        editedMesh.Dirty = true;
                     }
                     break;
                 case QuickMeshFunctions.Line_Center_Vertex_Add:
@@ -217,7 +217,7 @@ namespace Playtime_Painter
                     {
                         Vector3 tmp = pointedLine.pnts[0].pos;
                         tmp += (pointedLine.pnts[1].pos - pointedLine.pnts[0].pos) / 2;
-                        editedMesh.insertIntoLine(pointedLine.pnts[0].meshPoint, pointedLine.pnts[1].meshPoint, tmp);
+                        editedMesh.InsertIntoLine(pointedLine.pnts[0].meshPoint, pointedLine.pnts[1].meshPoint, tmp);
 
                     }
                     break;
@@ -258,7 +258,7 @@ namespace Playtime_Painter
                             }
 
 
-                            editedMesh.dirty = true;
+                            editedMesh.Dirty = true;
                         }
                         else if (pointedLine != null)
                         {
@@ -273,7 +273,7 @@ namespace Playtime_Painter
                             else if ((a._color.b > 0.9f) && (b._color.b > 0.9f))
                                 lessTris._color.b = 0;
 
-                            editedMesh.dirty = true;
+                            editedMesh.Dirty = true;
 
                         }
                     }
@@ -344,7 +344,7 @@ namespace Playtime_Painter
                                 meshMGMT.edMesh.triangles.Add(new Triangle(tri));
                             }
 
-                            meshMGMT.edMesh.dirty = true;
+                            meshMGMT.edMesh.Dirty = true;
                         }
 
 

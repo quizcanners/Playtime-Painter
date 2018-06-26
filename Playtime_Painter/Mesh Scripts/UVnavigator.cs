@@ -210,7 +210,7 @@ namespace Playtime_Painter
 
                 if ("Projection UV Stop".Click()) {
                     ProjectionUV = false;
-                    editedMesh.dirty = true;
+                    editedMesh.Dirty = true;
                 }
             }
 
@@ -395,7 +395,7 @@ namespace Playtime_Painter
                     for (int i = 0; i < 3; i++) 
                        pointedTris.vertexes[i].editedUV = PosToUV(pointedTris.vertexes[i].meshPoint.worldPos - trgPos);
 
-                    editedMesh.dirty = true;
+                    editedMesh.Dirty = true;
 
                     return true;
                 } 
@@ -428,7 +428,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonUp(0)) {
 
                     meshMGMT.SelectedUV.sharedEditedUV = lastCalculatedUV;
-                    editedMesh.dirty = true;
+                    editedMesh.Dirty = true;
                     meshMGMT.Dragging = false;
             }
 
@@ -448,7 +448,7 @@ namespace Playtime_Painter
                 else
                     meshMGMT.DeleteLine(pointedLine);
 
-                editedMesh.dirty = true;
+                editedMesh.Dirty = true;
             }
         }
 

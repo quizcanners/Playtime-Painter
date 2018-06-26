@@ -1966,7 +1966,7 @@ namespace Playtime_Painter{
                             {
                                 pegi.newLine();
                                 if (meshProfile.PEGI().nl())
-                                    meshMGMT.edMesh.dirty = true;
+                                    meshMGMT.edMesh.Dirty = true;
 
                                 if ("Hint".foldout(ref VertexSolution.showHint).nl())
                                 {
@@ -1984,7 +1984,7 @@ namespace Playtime_Painter{
                         {
 
                             if ((" : ".select(20, ref selectedMeshProfile, cfg.meshPackagingSolutions)) && (isEditingThisMesh))
-                                PlaytimePainter.meshMGMT.edMesh.dirty = true;
+                                PlaytimePainter.meshMGMT.edMesh.Dirty = true;
                             if (icon.Add.Click(25).nl())
                             {
                                 cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());

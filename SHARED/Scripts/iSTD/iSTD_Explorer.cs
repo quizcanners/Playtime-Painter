@@ -15,7 +15,7 @@ namespace SharedTools_Stuff
 #endif
     {
         public iSTD ConnectSTD;
-        public iSTD_ExplorerData data = new iSTD_ExplorerData();
+        public ISTD_ExplorerData data = new ISTD_ExplorerData();
 
 #if PEGI
         /* public static bool PEGI_Static(iSTD target)
@@ -145,7 +145,7 @@ namespace SharedTools_Stuff
         , IPEGI, IGotName, IPEGI_ListInspect
 #endif
     {
-        iSTD std { get { return iSTD_ExplorerData.inspectedSTD; } }
+        iSTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
         public string tag;
         public string data;
@@ -290,7 +290,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class savedISTD
+    public class SavedISTD
 #if PEGI
         : IPEGI, IGotName
 #endif
@@ -299,7 +299,7 @@ namespace SharedTools_Stuff
         public string comment;
         public Exploring_STD dataExplorer = new Exploring_STD("root", "");
 
-        iSTD std { get { return iSTD_ExplorerData.inspectedSTD; } }
+        iSTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 #if PEGI
         public bool PEGI()
         {
@@ -311,12 +311,12 @@ namespace SharedTools_Stuff
 
                 this.inspect_Name();
 
-                if (std != null)
+                if (Std != null)
                 {
-                    if (icon.Load.ClickUnfocus("Decode Data into "+std.ToPEGIstring()))
-                        std.Decode(dataExplorer.data);
-                    if (icon.Save.ClickUnfocus("Save data from "+std.ToPEGIstring()))
-                        dataExplorer = new Exploring_STD (dataExplorer.tag, std.Encode().ToString());
+                    if (icon.Load.ClickUnfocus("Decode Data into "+Std.ToPEGIstring()))
+                        Std.Decode(dataExplorer.data);
+                    if (icon.Save.ClickUnfocus("Save data from "+Std.ToPEGIstring()))
+                        dataExplorer = new Exploring_STD (dataExplorer.tag, Std.Encode().ToString());
                 }
 
                 pegi.nl();
@@ -334,9 +334,9 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class iSTD_ExplorerData
+    public class ISTD_ExplorerData
     {
-        public List<savedISTD> states = new List<savedISTD>();
+        public List<SavedISTD> states = new List<SavedISTD>();
         public int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
         public string fileNameHolder = "file Name";

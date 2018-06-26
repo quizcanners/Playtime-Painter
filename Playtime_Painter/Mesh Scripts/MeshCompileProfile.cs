@@ -67,7 +67,7 @@ namespace Playtime_Painter
         {
 
 
-            if (!sm.valid)
+            if (!sm.Valid)
             {//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
                 Debug.Log("Got no stuff to regenerate mesh. ");
                 return false;
