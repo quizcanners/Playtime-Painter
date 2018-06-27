@@ -280,31 +280,31 @@ namespace SharedTools_Stuff
 
 
         // STD
-        public static T DecodeInto<T>(this string data, T val) where T : iSTD
+        public static T DecodeInto<T>(this string data, T val) where T : ISTD
         {
             if (val != null)
                 new StdDecoder(data).DecodeTagsFor(val);
             return val;
         }
         
-        public static T DecodeInto<T>(this string data, out T val) where T : iSTD, new()
+        public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
         {
             val = data.DecodeInto<T>();
             return val;
         }
         
-        public static T DecodeInto<T>(this string data) where T : iSTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
+        public static T DecodeInto<T>(this string data) where T : ISTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
         
         public static T TryDecodeInto<T>(this string data, T val)
         {
             if (val != null)
-                data.DecodeInto(val as iSTD);
+                data.DecodeInto(val as ISTD);
             return val;
         }
 
         public static T TryDecodeInto<T>(this string data) where T: new() => data.TryDecodeInto(new T());
         
-        public static T DecodeInto<T>(this string data, Type childType) where T : iSTD, new()
+        public static T DecodeInto<T>(this string data, Type childType) where T : ISTD, new()
         {
             T val = (T)Activator.CreateInstance(childType);
             new StdDecoder(data).DecodeTagsFor(val);
@@ -314,20 +314,20 @@ namespace SharedTools_Stuff
         public static T TryDecodeInto<T>(this string data, Type childType) where T : new()
         {
             T val = (T)Activator.CreateInstance(childType);
-            var std = val as iSTD;
+            var std = val as ISTD;
             if (std != null)
                 data.DecodeInto(std);
 
             return val;
         }
 
-        public static T TryDecodeInto<T>(this iSTD ovj, Type childType) //where T : new()
+        public static T TryDecodeInto<T>(this ISTD ovj, Type childType) //where T : new()
         {
             T val = (T)Activator.CreateInstance(childType);
 
             if (ovj != null)
             {
-                var std = val as iSTD;
+                var std = val as ISTD;
 
                 if (std != null)
                     ovj.Encode().ToString().DecodeInto(std);
@@ -338,22 +338,22 @@ namespace SharedTools_Stuff
 
 
         // STD with references
-        static iSTD_SerializeNestedReferences keeper;
+        static ISTD_SerializeNestedReferences keeper;
 
-        public static T DecodeInto<T>(this string data, out T val, iSTD_SerializeNestedReferences referencesKeeper)
-            where T : iSTD, new()
+        public static T DecodeInto<T>(this string data, out T val, ISTD_SerializeNestedReferences referencesKeeper)
+            where T : ISTD, new()
         {
             val = data.DecodeInto<T>(referencesKeeper);
             return val;
         }
 
-        public static T DecodeInto<T>(this string data, iSTD_SerializeNestedReferences referencesKeeper) where T : iSTD, new() => data.DecodeInto(new T(), referencesKeeper);
+        public static T DecodeInto<T>(this string data, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new() => data.DecodeInto(new T(), referencesKeeper);
         
         public static T Decode_Referance<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
 
         public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.DecodeInto(out list, keeper);
 
-        public static T DecodeInto<T>(this string data, T val, iSTD_SerializeNestedReferences referencesKeeper) where T : iSTD
+        public static T DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -365,7 +365,7 @@ namespace SharedTools_Stuff
             return obj;
         }
 
-        public static T Decode<T>(this string data, ref T val, iSTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public static T Decode<T>(this string data, ref T val, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
             var ind = data.ToInt();
             if (referencesKeeper != null) {
@@ -377,7 +377,7 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        public static List<T> DecodeInto<T>(this string data, out List<T> list, iSTD_SerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
+        public static List<T> DecodeInto<T>(this string data, out List<T> list, ISTD_SerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
         {
             list = new List<T>();
 
@@ -402,7 +402,7 @@ namespace SharedTools_Stuff
             }
         }
 
-        public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : iSTD, new()
+        public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : ISTD, new()
         {
             l = new List<List<T>>();
 
@@ -418,7 +418,7 @@ namespace SharedTools_Stuff
             return l;
         }
 
-        public static List<T> DecodeInto<T>(this string data, out List<T> l) where T : iSTD, new() {
+        public static List<T> DecodeInto<T>(this string data, out List<T> l) where T : ISTD, new() {
 
             StdDecoder cody = new StdDecoder(data);
 
@@ -517,9 +517,9 @@ namespace SharedTools_Stuff
                 dec(tag, GetData());
         }
 
-        public T DecodeTagsFor<T>(T storyComponent) where T : iSTD {
+        public T DecodeTagsFor<T>(T storyComponent) where T : ISTD {
 
-            var unrec = storyComponent as iKeepUnrecognizedSTD;
+            var unrec = (storyComponent as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
 
             if (unrec == null)
                 foreach (var tag in this)
@@ -529,7 +529,7 @@ namespace SharedTools_Stuff
                 {
                     var d = GetData();
                     if (!storyComponent.Decode(tag, d))
-                        unrec.Unrecognized(tag, d);
+                        unrec.Add(tag, d);
                 }
 
             return storyComponent;

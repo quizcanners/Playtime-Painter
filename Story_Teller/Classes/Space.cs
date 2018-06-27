@@ -321,7 +321,7 @@ namespace StoryTriggerData {
             Decode(data);
         }
 
-        public override iSTD Decode(string data) {
+        public override ISTD Decode(string data) {
             Zero();
             base.Decode(data);
             return this;
@@ -358,7 +358,7 @@ namespace StoryTriggerData {
 
         }
 
-        public override iSTD Decode(string data) {
+        public override ISTD Decode(string data) {
             Zero();
             base.Decode(data);
             return this;

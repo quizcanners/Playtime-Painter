@@ -20,7 +20,7 @@ namespace Playtime_Painter{
     [HelpURL(WWW_Manual)]
     [AddComponentMenu("Mesh/Playtime Painter")]
     [ExecuteInEditMode]
-    public class PlaytimePainter : PlaytimeToolComponent, iSTD
+    public class PlaytimePainter : PlaytimeToolComponent, ISTD
 #if PEGI
         , IPEGI 
 #endif
@@ -1346,7 +1346,7 @@ namespace Playtime_Painter{
             return true;
         }
 
-        public iSTD Decode(string data) => data.DecodeInto(this);
+        public ISTD Decode(string data) => data.DecodeInto(this);
 
         #endregion
 

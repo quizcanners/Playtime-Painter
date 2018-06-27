@@ -11,60 +11,30 @@ namespace Playtime_Painter
     public delegate bool PainterBoolPlugin(PlaytimePainter p);
 
     [Serializable]
-    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, iKeepUnrecognizedSTD  {
-  
-        protected List<string> unrecognizedTags = new List<string>();
-        protected List<string> unrecognizedData = new List<string>();
-
-        public void Unrecognized(string tag, string data) {
-            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
-        }
-        
-        public StdEncoder EncodeUnrecognized()
-        {
-            var cody = new StdEncoder();
-            for (int i = 0; i < unrecognizedTags.Count; i++)
-                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
-            return cody;
-        }
+    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, IKeepUnrecognizedSTD
 #if PEGI
-        public static int inspectedUnrecognized = -1;
-        public override bool PEGI()
-        {
-            bool changed = false;
-            if (unrecognizedTags.Count > 0)
-            {
-                "Unrecognized Tags".nl();
-                for (int i = 0; i < unrecognizedTags.Count; i++)
-                {
-                    if (icon.Delete.Click())
-                    {
-                        changed = true;
-                        unrecognizedTags.RemoveAt(i);
-                        unrecognizedData.RemoveAt(i);
-                        i--;
-                    }
-                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
-                        unrecognizedData[i].nl();
-                }
-            }
+      , IPEGI
+#endif
+    {
+        UnrecognizedSTD uTags = new UnrecognizedSTD();
+        public UnrecognizedSTD UnrecognizedSTD => uTags;
 
-            return changed;
-        }
+#if PEGI
+        public override bool PEGI() => uTags.Nested_Inspect();
 #endif
     }
 
     [Serializable]
-    public abstract class PainterStuff_STD : PainterStuff, iSTD
+    public abstract class PainterStuff_STD : PainterStuff, ISTD
 #if PEGI
         , IPEGI
 #endif
     {
     public abstract StdEncoder Encode();
 
-        public iSTD Decode(string data) => data.DecodeInto(this);
+        public ISTD Decode(string data) => data.DecodeInto(this);
 
-        public iSTD Decode(StdEncoder cody)  => new StdDecoder(cody.ToString()).DecodeTagsFor(this);
+        public ISTD Decode(StdEncoder cody)  => new StdDecoder(cody.ToString()).DecodeTagsFor(this);
 
 #if PEGI
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }

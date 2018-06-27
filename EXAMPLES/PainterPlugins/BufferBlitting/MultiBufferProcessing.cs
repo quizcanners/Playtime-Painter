@@ -15,7 +15,7 @@ namespace Playtime_Painter
     #region Manager
 
     [ExecuteInEditMode]
-    public class MultiBufferProcessing : PainterManagerPluginBase, iSTD
+    public class MultiBufferProcessing : PainterManagerPluginBase, ISTD
     {
 
         public static MultiBufferProcessing inst;
@@ -169,7 +169,7 @@ namespace Playtime_Painter
             return changed;
         }
 #endif
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add("s", buffers);
 
         public override bool Decode(string tag, string data)
@@ -181,8 +181,7 @@ namespace Playtime_Painter
             }
             return true;
         }
-
-
+        
     }
 
     #endregion
@@ -235,7 +234,7 @@ namespace Playtime_Painter
         public virtual bool BlitMethod(TextureBuffer sourceBuffer, Material material, Shader shader)
         {
             var trg = GetTargetTextureNext();
-            var src = sourceBuffer != null ? sourceBuffer.GetTextureNext() : null;
+            var src = sourceBuffer?.GetTextureNext();
 
             if (trg)
             {
@@ -282,7 +281,7 @@ namespace Playtime_Painter
 
 #endif
 
-        public override StdEncoder Encode() => EncodeUnrecognized().Add_ifTrue("show", showOnGUI);
+        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_ifTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -409,7 +408,7 @@ namespace Playtime_Painter
             return rt;
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add("w", width)
             .Add("c", (int)colorMode)
             .Add_ifTrue("show", showOnGUI);
@@ -574,11 +573,8 @@ namespace Playtime_Painter
 
         }
 
-        public override Texture GetTextureDisplay()
-        {
-            var sct = Target;
-            return sct != null ? sct.GetTextureDisplay() : null;
-        }
+        public override Texture GetTextureDisplay() => Target?.GetTextureDisplay();
+        
 
         public override bool CanBeTarget
         {
@@ -590,21 +586,12 @@ namespace Playtime_Painter
             }
         }
 
-        public override RenderTexture GetTargetTextureNext()
-        {
-            var t = Target;
-            return (t != null) ? t.GetTargetTextureNext() : null;
-        }
+        public override RenderTexture GetTargetTextureNext() => Target?.GetTargetTextureNext();
+        
 
 #if PEGI
         public override string NameForPEGIdisplay() => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
-
-        public override bool PEGI()
-        {
-            "Source".select(50, ref targetIndex, Mgmt.sections).nl();
-
-            return false;
-        }
+        public override bool PEGI() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
 
     }
@@ -700,7 +687,7 @@ namespace Playtime_Painter
 
 #endif
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("n", name)
             .Add_IfNotZero("w", width)
             .Add_ifTrue("l", linear)

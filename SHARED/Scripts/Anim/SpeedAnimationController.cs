@@ -49,7 +49,7 @@ using STD_Logic;
         public AnimatedElement el { get { return AnimatedElement.inspectedAnimatedObject; } }
         
         public override StdEncoder Encode() {
-            var cody = EncodeUnrecognized()
+            var cody =this.EncodeUnrecognized()
             .Add("lpos", localPos.Encode())
             .Add("lsize", LocalScale.Encode())
             .Add("lrot", localRotation.Encode())
@@ -189,13 +189,13 @@ using STD_Logic;
 
         public override StdEncoder Encode()
         {
-            var cody = EncodeUnrecognized()
+            var cody =this.EncodeUnrecognized()
             .Add("i", index)
             .Add_String("n", _name)
             .Add_String("prop", propertyName);
 
             if (script) {
-                var asp = script as iSTD;
+                var asp = script as ISTD;
                 if (asp != null)
                     cody.Add("stdDTA", asp.Encode());
             }
@@ -210,7 +210,7 @@ using STD_Logic;
                 case "prop": propertyName = data; break;
                 case "stdDTA":
                     if (script) {
-                        var asp = script as iSTD;
+                        var asp = script as ISTD;
                         if (asp != null)
                             data.DecodeInto(asp); 
                     } break;
@@ -439,7 +439,7 @@ using STD_Logic;
             onFinish += OnFinish;
         }
 
-        public override StdEncoder Encode()  => EncodeUnrecognized()
+        public override StdEncoder Encode()  =>this.EncodeUnrecognized()
             .Add("frames", frames.Encode())
             .Add("elm", elementsUnsorted)
             .Add_Bool("curve", curveSpeed)
@@ -779,7 +779,7 @@ using STD_Logic;
         }
         
         public override void Reboot() {
-
+            base.Reboot();
             if (Application.isPlaying)
                 frameIndex = 0;
 

@@ -90,7 +90,7 @@ namespace StoryTriggerData{
 
         public override StdEncoder Encode() { // Page and it's full content is saved in a saparate file
 
-            var cody = EncodeUnrecognized(); //new stdEncoder();
+            var cody =this.EncodeUnrecognized(); //new stdEncoder();
 
             encodeMeta(cody);
 

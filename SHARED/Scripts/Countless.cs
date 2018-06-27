@@ -158,13 +158,13 @@ namespace SharedTools_Stuff {
     }
 
 
-    public abstract class STDCountlessBase : CountlessBase, iSTD
+    public abstract class STDCountlessBase : CountlessBase, ISTD
     {
 
         public virtual StdEncoder Encode() {
             return null; }
 
-        public virtual iSTD Decode(string data)
+        public virtual ISTD Decode(string data)
         {
             Clear();
             new StdDecoder(data).DecodeTagsFor(this);
@@ -946,7 +946,7 @@ namespace SharedTools_Stuff {
 
     }
 
-    public class CountlessSTD<T> : STDCountlessBase where T : iSTD , new()
+    public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new()
 
 
     {
@@ -1265,7 +1265,7 @@ namespace SharedTools_Stuff {
     }
 
     // Unnulable classes will create new instances
-    public class UnnullableSTD<T> : CountlessSTD<T> where T : iSTD, new()  {
+    public class UnnullableSTD<T> : CountlessSTD<T> where T : ISTD, new()  {
 
         public static int IndexOfCurrentlyCreatedUnnulable;
 
@@ -1582,7 +1582,7 @@ namespace SharedTools_Stuff {
         }
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T> where T : iSTD
+    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD
 #if PEGI
         , IPEGI
 #endif
@@ -1623,7 +1623,7 @@ namespace SharedTools_Stuff {
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: iSTD, IPEGI
+        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: ISTD, IPEGI
             
             , new() {
 
@@ -1763,7 +1763,7 @@ namespace SharedTools_Stuff {
             return tg[index];
         }
 
-        public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: iSTD, new()
+        public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: ISTD, new()
         {
             var tg = GetIfExists(unn, group);
             if (tg == null)
@@ -1771,7 +1771,7 @@ namespace SharedTools_Stuff {
             return tg[index];
         }
 
-        public static T GetIfExists<T>(this UnnullableSTD<T> unn, int index) where T : iSTD, new()
+        public static T GetIfExists<T>(this UnnullableSTD<T> unn, int index) where T : ISTD, new()
         {
             if (unn != null)
                 return unn.GetIfExists(index);

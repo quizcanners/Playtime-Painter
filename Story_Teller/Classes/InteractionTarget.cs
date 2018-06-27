@@ -60,7 +60,7 @@ namespace StoryTriggerData {
             Reboot();
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add("i", interactionGroup)
             .Add_ifNotEmpty("ent", OnEnterResults)
             .Add_ifNotEmpty("ext", OnExitResults)

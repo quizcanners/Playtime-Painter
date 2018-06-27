@@ -51,7 +51,7 @@ namespace SharedTools_Stuff
             .Add("deSize", tf.sizeDelta);
         }
         
-        public static StdEncoder Encode<T>(this List<T> val) where T : iSTD
+        public static StdEncoder Encode<T>(this List<T> val) where T : ISTD
         {
             StdEncoder cody = new StdEncoder();
             
@@ -106,7 +106,7 @@ namespace SharedTools_Stuff
                     var v = val[i];
                     if (v != null)
                     {
-                        var std = v as iSTD;
+                        var std = v as ISTD;
                         if (std!= null)
                             cody.Add(i.ToString(), std.Encode());
                     }
@@ -202,7 +202,7 @@ namespace SharedTools_Stuff
 
         #region Unity_Objects
 
-        static iSTD_SerializeNestedReferences keeper;
+        static ISTD_SerializeNestedReferences keeper;
 
         public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
         {
@@ -215,7 +215,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add_Referance(string tag, UnityEngine.Object obj) => Add(tag, obj, keeper);
 
-        public StdEncoder Add(string tag, UnityEngine.Object obj, iSTD_SerializeNestedReferences referencesKeeper)
+        public StdEncoder Add(string tag, UnityEngine.Object obj, ISTD_SerializeNestedReferences referencesKeeper)
         {
             if (referencesKeeper != null && obj)
             {
@@ -228,7 +228,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add_Referance<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add<T>(tag, objs,keeper);
 
-        public StdEncoder Add<T>(string tag, List<T> objs, iSTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public StdEncoder Add<T>(string tag, List<T> objs, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
             if (referencesKeeper != null && objs!= null)
             {
@@ -242,7 +242,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add(string tag, iSTD other, iSTD_SerializeNestedReferences referencesKeeper)
+        public StdEncoder Add(string tag, ISTD other, ISTD_SerializeNestedReferences referencesKeeper)
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -295,10 +295,10 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add(string tag, iSTD other) {
+        public StdEncoder Add(string tag, ISTD other) {
             if (other != null)
             {
-                var rk = other as iSTD_SerializeNestedReferences;
+                var rk = other as ISTD_SerializeNestedReferences;
                 if (rk != null)
                 {
 
@@ -316,7 +316,7 @@ namespace SharedTools_Stuff
         {
             if (obj != null)
             {
-                var objstd = obj as iSTD;
+                var objstd = obj as ISTD;
                 if (objstd != null)
                     Add(tag, objstd);
                 
@@ -366,7 +366,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add<T>(string tag, List<T> val) where T : iSTD => Add(tag, val.Encode());
+        public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD => Add(tag, val.Encode());
         
         public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
         public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
@@ -387,7 +387,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : iSTD {
+        public StdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : ISTD {
 
             if (val.Count > 0) 
                 Add(tag, val);
@@ -395,7 +395,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : iSTD
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : ISTD
         {
 
             if (val.Count > 0) {

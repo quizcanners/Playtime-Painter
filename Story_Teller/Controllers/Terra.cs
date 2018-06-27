@@ -28,7 +28,7 @@ namespace StoryTriggerData
 
         public override StdEncoder Encode()
         {
-            var cody = EncodeUnrecognized()
+            var cody =this.EncodeUnrecognized()
 
             .Add_String("name", gameObject.name)
             .Add_IfNotZero("pos", transform.localPosition);

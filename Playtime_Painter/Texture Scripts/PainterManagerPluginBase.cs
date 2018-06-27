@@ -11,7 +11,7 @@ namespace Playtime_Painter
 
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono, iKeepUnrecognizedSTD 
+    public class PainterManagerPluginBase : PainterStuffMono, IKeepUnrecognizedSTD 
 #if PEGI
         , IPEGI, IGotDisplayName
 #endif
@@ -32,6 +32,9 @@ namespace Playtime_Painter
             }
         }
 #endif
+
+        UnrecognizedSTD uTags = new UnrecognizedSTD();
+        public UnrecognizedSTD UnrecognizedSTD => uTags;
 
         PainterBoolPlugin plugins_GizmoDraw;
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
@@ -89,9 +92,7 @@ namespace Playtime_Painter
         }
 
         public virtual void OnEnable()  { }
-
-       
-
+        
         public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
 
         public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
@@ -104,23 +105,9 @@ namespace Playtime_Painter
         public virtual Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) { return null; }
 
         public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) { return null; }
-
+        
      
-        protected List<string> unrecognizedTags = new List<string>();
-        protected List<string> unrecognizedData = new List<string>();
 
-        public void Unrecognized(string tag, string data)
-        {
-            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
-        }
-
-        public StdEncoder EncodeUnrecognized()
-        {
-            var cody = new StdEncoder();
-            for (int i = 0; i < unrecognizedTags.Count; i++)
-                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
-            return cody;
-        }
 #if PEGI
 
         public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
@@ -129,32 +116,14 @@ namespace Playtime_Painter
         public virtual bool PEGI()
         {
             bool changed =  ConfigTab_PEGI();
-            if (unrecognizedTags.Count > 0)
-            {
-                "Unrecognized Tags".nl();
-                for (int i = 0; i < unrecognizedTags.Count; i++)
-                {
-                    if (icon.Delete.Click())
-                    {
-                        changed = true;
-                        unrecognizedTags.RemoveAt(i);
-                        unrecognizedData.RemoveAt(i);
-                        i--;
-                    }
-                    else if (unrecognizedTags[i].foldout(ref inspectedUnrecognized, i).nl())
-                        unrecognizedData[i].nl();
-                }
-            }
-
-
-
+            changed |= uTags.PEGI();
             return changed;
         }
 #endif
-        public virtual StdEncoder Encode() => EncodeUnrecognized();
-
-        public virtual iSTD Decode(string data) => this;
+        public virtual ISTD Decode(string data) => this;
 
         public virtual bool Decode(string tag, string data) => true;
+
+        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
     }
 }

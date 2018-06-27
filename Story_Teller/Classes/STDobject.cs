@@ -13,49 +13,41 @@ using PlayerAndEditorGUI;
 #endif
 using SharedTools_Stuff;
 
-namespace StoryTriggerData {
+namespace StoryTriggerData
+{
 
     [ExecuteInEditMode]
-    public abstract class STD_Poolable : PoolableBase, iKeepUnrecognizedSTD,
-        IGotDisplayName
-        {
+    public abstract class STD_Poolable : PoolableBase, IKeepUnrecognizedSTD
+#if PEGI
+      , IPEGI, IGotDisplayName
+#endif
+    {
 
         public Page parentPage;
 
-        protected List<string> unrecognizedTags = new List<string>();
-        protected List<string> unrecognizedData = new List<string>();
+        UnrecognizedSTD uTags = new UnrecognizedSTD();
+        public UnrecognizedSTD UnrecognizedSTD => uTags;
 
-        public void Unrecognized(string tag, string data){
-            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData); 
-        }
-        
-         public StdEncoder EncodeUnrecognized(){
-            var cody = new StdEncoder();
-            for (int i=0; i<unrecognizedTags.Count; i++)
-                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
-            return cody;
-         }
- 
         public abstract void Reboot();
 
         public abstract string GetObjectTag();
 
-        public virtual iSTD Decode(string data) {
+        public virtual ISTD Decode(string data)
+        {
+
             gameObject.SetFlagsOnItAndChildren(HideFlags.DontSave);
 
             gameObject.name = "new " + GetObjectTag();
-            
+
             Reboot();
-                 
-            unrecognizedTags = new List<string>();
-            unrecognizedData = new List<string>();
- 
+
             new StdDecoder(data).DecodeTagsFor(this);
 
             return this;
         }
 
-        public override void Deactivate() {
+        public override void Deactivate()
+        {
             UnLink();
             base.Deactivate();
         }
@@ -64,25 +56,28 @@ namespace StoryTriggerData {
 
         public abstract StdEncoder Encode();
 
-        public STD_Poolable LinkTo(Page p) {
+        public STD_Poolable LinkTo(Page p)
+        {
             p.Link(this);
             return this;
         }
 
-        public void UnLink() {
+        public void UnLink()
+        {
             if (parentPage != null)
                 parentPage.Unlink(this);
         }
-        
+
         public abstract void SetStaticPoolController(STD_Pool inst);
 
 
 
 #if PEGI
-          static string customTag = "";
+        static string customTag = "";
         static string customData = "";
 
-        public virtual bool Call_PEGI() {
+        public virtual bool Call_PEGI()
+        {
             bool dataSet = false;
 
             pegi.newLine();
@@ -93,7 +88,8 @@ namespace StoryTriggerData {
             "POS".edit(() => transform.position, this);
 
 
-            if (icon.Done.Click(20).nl()) {
+            if (icon.Done.Click(20).nl())
+            {
                 STD_Call.returnTag = "pos";
                 STD_Call.returnData = transform.position.Encode(3).ToString();
                 dataSet = true;
@@ -105,7 +101,8 @@ namespace StoryTriggerData {
 
             "custom data:".edit(70, ref customData).nl();
 
-            if ((customTag.Length > 0) && "Return custom data".Click().nl()) {
+            if ((customTag.Length > 0) && "Return custom data".Click().nl())
+            {
                 STD_Call.returnTag = customTag;
                 STD_Call.returnData = customData;
                 dataSet = true;
@@ -115,65 +112,48 @@ namespace StoryTriggerData {
         }
 
         public static STD_Poolable browsed;
-        public override bool PEGI() {
+        public override bool PEGI()
+        {
             browsed = this;
 
             bool changed = false;
 
             changed |= base.PEGI();
 
-       //     if ((stdValues == null) || (!stdValues.browsing_interactions)) {
-         //       pegi.newLine();
 
-           //     if ((stdValues == null) || (Dialogue.browsedObj != stdValues)) {
 
-                    pegi.write(parentPage == null ? "UnLinked" : "Ownership: " + parentPage.gameObject.name);
+            pegi.write(parentPage == null ? "UnLinked" : "Ownership: " + parentPage.gameObject.name);
 
-                    pegi.ClickToEditScript();
+            pegi.ClickToEditScript();
 
-                    pegi.newLine();
+            pegi.newLine();
 
 #if UNITY_EDITOR
-                    if (unrecognizedTags.Count>0){
-                        "Unrecognized Tags:".nl();
-                        for (int i=0; i<unrecognizedTags.Count; i++){
-                            if (icon.Delete.Click(20)) {
-                                    unrecognizedTags.RemoveAt(i);
-                                    unrecognizedData.RemoveAt(i);
-                            } else 
-                                    (unrecognizedTags[i] + " | " + unrecognizedData[i]).nl();
-                        }
-                    }
-                    
-                    pegi.newLine();
+
+            changed |= uTags.Nested_Inspect();
+
+            pegi.newLine();
 #endif
 
-                    if ((parentPage != null) && (pegi.Click("Test Conversion"))) {
-                        Debug.Log("Debug Testing conversion");
-                        var encode = Encode();
+            if ((parentPage != null) && (pegi.Click("Test Conversion")))
+            {
+                Debug.Log("Debug Testing conversion");
+                var encode = Encode();
 
-                        Page pg = parentPage;
-                        Deactivate();
+                Page pg = parentPage;
+                Deactivate();
 
-                        pg.Decode(GetObjectTag(), encode.ToString());
-                    }  
-                //}
+                pg.Decode(GetObjectTag(), encode.ToString());
+            }
 
-            //    if (stdValues!= null)
-          //          Dialogue.PEGI(stdValues);
-
-                pegi.newLine();
-
-       //     }
-
-          //  if (stdValues!= null)
-            //    stdValues.PEGI();
+            pegi.newLine();
 
             return changed;
         }
 #endif
 
-        public virtual void PostPositionUpdate() {
+        public virtual void PostPositionUpdate()
+        {
 
         }
 

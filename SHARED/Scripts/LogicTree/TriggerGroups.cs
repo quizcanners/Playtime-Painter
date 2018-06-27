@@ -136,7 +136,7 @@ namespace STD_Logic
 #endif
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_String("n", name)
             .Add("ind", index)
             .Add("t", triggers)
@@ -305,7 +305,7 @@ namespace STD_Logic
 
             bool changed = false;
 
-            Trigger selectedTrig = arg!= null ? arg.Trigger : null;
+            Trigger selectedTrig = arg?.Trigger;
 
             if ((Trigger.searchMatchesFound==0) && (Trigger.searchField.Length > 3) )
             {

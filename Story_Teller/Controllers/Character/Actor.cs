@@ -137,7 +137,7 @@ namespace StoryTriggerData {
         public override StdEncoder Encode() {
 
             var cody =
-                EncodeUnrecognized()
+               this.EncodeUnrecognized()
 
             .Add("pos", transform.localPosition)
 

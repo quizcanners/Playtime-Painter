@@ -46,7 +46,7 @@ namespace StoryTriggerData {
             conditions = new ConditionBranch();
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_String("n", name)
             .Add("size", transform.localScale)
             .Add_IfNotZero("pos", transform.localPosition)

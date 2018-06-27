@@ -38,7 +38,7 @@ namespace STD_Logic
             }
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_ifNotEmpty("wb", branches)
             .Add_ifNotEmpty("v", conds)
             .Add_ifNotZero("t", (int)type)

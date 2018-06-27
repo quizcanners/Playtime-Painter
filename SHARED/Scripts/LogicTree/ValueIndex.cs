@@ -10,7 +10,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : iSTD
+    public abstract class ValueIndex : ISTD
 #if PEGI
         , IPEGI, IGotDisplayName
 #endif
@@ -19,7 +19,7 @@ namespace STD_Logic
         public int groupIndex;
         public int triggerIndex;
 
-        public iSTD Decode(string data) => data.DecodeInto(this);
+        public ISTD Decode(string data) => data.DecodeInto(this);
 
         public abstract StdEncoder Encode();
         public abstract bool Decode(string tag, string data);

@@ -11,7 +11,7 @@ namespace STD_Logic {
         #if PEGI
         , IGotName , IPEGI
 #endif
-        where T: iSTD, new()
+        where T: ISTD, new()
     {
 
         public List<LogicBranch<T>> subBranches = new List<LogicBranch<T>>();
@@ -43,7 +43,7 @@ namespace STD_Logic {
             }
         }
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_String("name", name)
             .Add("cond", conds)
             .Add_ifNotEmpty("sub", subBranches)

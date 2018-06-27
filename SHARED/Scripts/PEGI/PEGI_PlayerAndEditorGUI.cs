@@ -1315,7 +1315,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD, new()
+        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
 #if UNITY_EDITOR
             if (paintingPlayAreaGUI == false)
@@ -3880,7 +3880,7 @@ namespace PlayerAndEditorGUI
                     if (el!= null && derr!= null) {
                         var ty = el.GetType();
                         if (select(ref ty, derr, el.ToPEGIstring())) 
-                            list[i] = (el as iSTD).TryDecodeInto<T>(ty);
+                            list[i] = (el as ISTD).TryDecodeInto<T>(ty);
                     }
 
 
@@ -3956,7 +3956,7 @@ namespace PlayerAndEditorGUI
 
             if (datas != null)
             {
-                var std = el as iSTD;
+                var std = el as ISTD;
                 if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name " + (std != null ? "configuration." : "."), 25, 25))
                     datas.SaveElementDataFrom(list, index);
 

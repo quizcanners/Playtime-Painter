@@ -14,7 +14,7 @@ namespace SharedTools_Stuff
         , IPEGI
 #endif
     {
-        public iSTD ConnectSTD;
+        public ISTD ConnectSTD;
         public ISTD_ExplorerData data = new ISTD_ExplorerData();
 
 #if PEGI
@@ -30,14 +30,14 @@ namespace SharedTools_Stuff
             if ("Target Obj: ".edit(60, ref obj))
             {
                 if (obj != null)
-                    ConnectSTD = obj as iSTD;
+                    ConnectSTD = obj as ISTD;
             }
 
             MonoBehaviour mono = ConnectSTD == null ? null : ConnectSTD as MonoBehaviour;
             if ("Target Obj: ".edit(60, ref mono).nl())
             {
                 if (mono != null)
-                    ConnectSTD = mono as iSTD;
+                    ConnectSTD = mono as ISTD;
             }
 
             return data.PEGI(ConnectSTD);
@@ -69,7 +69,7 @@ namespace SharedTools_Stuff
             if (cmp != null)
                 componentType = cmp.GetType().ToPEGIstring();
 
-            var std = el as iSTD;
+            var std = el as ISTD;
             if (std != null)
                 std_dta = std.Encode().ToString();
 
@@ -145,7 +145,7 @@ namespace SharedTools_Stuff
         , IPEGI, IGotName, IPEGI_ListInspect
 #endif
     {
-        iSTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
+        ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
         public string tag;
         public string data;
@@ -299,7 +299,7 @@ namespace SharedTools_Stuff
         public string comment;
         public Exploring_STD dataExplorer = new Exploring_STD("root", "");
 
-        iSTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
+        ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 #if PEGI
         public bool PEGI()
         {
@@ -340,12 +340,12 @@ namespace SharedTools_Stuff
         public int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
         public string fileNameHolder = "file Name";
-        public static iSTD inspectedSTD;
+        public static ISTD inspectedSTD;
 
 
 #if PEGI
 
-        public static bool PEGI_Static(iSTD target)
+        public static bool PEGI_Static(ISTD target)
         {
             inspectedSTD = target;
 
@@ -368,7 +368,7 @@ namespace SharedTools_Stuff
             return changed;
         }
 
-        public bool PEGI(iSTD target)
+        public bool PEGI(ISTD target)
         {
             bool changed = false;
             inspectedSTD = target;

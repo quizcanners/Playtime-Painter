@@ -347,7 +347,7 @@ namespace  PlayerAndEditorGUI {
 
         }
         
-        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : iSTD
+        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD
             , new()
         {
             List<int> inds;

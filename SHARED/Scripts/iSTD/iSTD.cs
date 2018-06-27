@@ -13,23 +13,18 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public interface iSTD {
+    public interface ISTD {
         StdEncoder Encode(); 
-        iSTD Decode(string data);
+        ISTD Decode(string data);
         bool Decode(string tag, string data);
     }
 
-    public interface iSTD_SerializeNestedReferences
+    #region Nested
+
+    public interface ISTD_SerializeNestedReferences
     {
         int GetISTDreferenceIndex(UnityEngine.Object obj);
         T GetISTDreferenced<T>(int index) where T: UnityEngine.Object;
-    }
-
-    ///<summary> This class can be used for some backwards compatibility. </summary>
-    public interface iKeepUnrecognizedSTD : iSTD {
-        void Unrecognized(string tag, string data);
-        
-        StdEncoder EncodeUnrecognized();
     }
 
 
@@ -41,43 +36,152 @@ namespace SharedTools_Stuff
     public class DerrivedListAttribute : Attribute
     {
         List<Type> types;
-        public List<Type> DerrivedTypes  { get  {  return types; } }
+        public List<Type> DerrivedTypes { get { return types; } }
 
-        public DerrivedListAttribute(params Type[] ntypes) 
+        public DerrivedListAttribute(params Type[] ntypes)
         {
             types = new List<Type>(ntypes);
         }
     }
 
-    [Serializable]
-    public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, iKeepUnrecognizedSTD
+    #endregion
+
+    #region Unrecognized Tags Persistance
+
+    public interface IKeepUnrecognizedSTD : ISTD {
+       UnrecognizedSTD UnrecognizedSTD { get; }
+    }
+
+    public class UnrecognizedSTD
+#if PEGI
+        :IPEGI
+#endif
     {
-     
-        protected List<string> unrecognizedTags = new List<string>();
-        protected List<string> unrecognizedData = new List<string>();
-        
-        public void Unrecognized(string tag, string data) {
-            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
-        }
-        
-        public virtual StdEncoder EncodeUnrecognized()
+        protected List<string> tags = new List<string>();
+        protected List<string> datas = new List<string>();
+
+        public int Count { get { return tags.Count; } }
+
+        public void Clear() { tags = new List<string>(); datas = new List<string>(); }
+
+        public StdEncoder GetAll()
         {
             var cody = new StdEncoder();
-            for (int i = 0; i < unrecognizedTags.Count; i++)
-                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
+            for (int i = 0; i < tags.Count; i++)
+                cody.Add_String(tags[i], datas[i]);
             return cody;
         }
+
+        public void Add(string tag, string data)
+        {
+            if (tags.Contains(tag))
+            {
+                int ind = tags.IndexOf(tag);
+                tags[ind] = tag;
+                datas[ind] = data;
+            }
+            else
+            {
+                tags.Add(tag);
+                datas.Add(data);
+            }
+            
+        }
+
+        public UnrecognizedSTD()
+        {
+            Clear();
+        }
+
+#if PEGI
+        int inspected = -1;
+        bool foldout = false;
+        public bool PEGI( )
+        {
+            bool changed = false;
+
+            pegi.nl();
+
+            var cnt = tags.Count;
+
+            if (cnt > 0 && ("Unrecognized ["+cnt+"]").foldout(ref foldout))
+                {
+
+                    if (inspected < 0)
+                    {
+                        for (int i = 0; i < tags.Count; i++)
+                        {
+                            if (icon.Delete.Click())
+                            {
+                                changed = true;
+                                tags.RemoveAt(i);
+                                datas.RemoveAt(i);
+                                i--;
+                            }
+                            else
+                            {
+                                pegi.write(tags[i]);
+                                if (icon.Edit.Click().nl())
+                                    inspected = i;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (inspected >= tags.Count || icon.Back.Click())
+                            inspected = -1;
+                        else
+                        {
+                            int i = inspected;
+                            var t = tags[i];
+                            if ("Tag".edit(40, ref t).nl())
+                                tags[i] = t;
+                            var d = datas[i];
+                            if ("Data".edit(50, ref d).nl())
+                                datas[i] = d;
+                        }
+                    }
+                }
+
+            pegi.nl();
+
+            return changed;
+        }
+#endif
+
+    }
+
+
+    public abstract class Abstract_STD : ISTD
+    {
+
+        public abstract StdEncoder Encode();
+        public virtual ISTD Decode(string data) => data.DecodeInto(this);
+        public virtual ISTD Decode(StdEncoder cody)
+        {
+
+            new StdDecoder(cody.ToString()).DecodeTagsFor(this);
+            return this;
+        }
+        public abstract bool Decode(string tag, string data);
+    }
+
+
+    public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD
+    {
+
+        UnrecognizedSTD uTags = new UnrecognizedSTD();
+        public UnrecognizedSTD UnrecognizedSTD => uTags;
         
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
-        public override StdEncoder Encode() => EncodeUnrecognized();
+        public override StdEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tag, string data) => false;
         
 #if PEGI
         public bool showDebug;
-        public static int inspectedUnrecognized = -1;
-        
+
         public virtual bool PEGI() {
             bool changed = false;
            
@@ -91,7 +195,7 @@ namespace SharedTools_Stuff
 
                 explorer.PEGI(this);
 
-                changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+                changed |= uTags.Nested_Inspect();
             }
 
             return changed;
@@ -99,73 +203,56 @@ namespace SharedTools_Stuff
 #endif
     }
 
-
-    [Serializable]
-    public abstract class Abstract_STD : iSTD
-    {
-
-        public abstract StdEncoder Encode();
-        public virtual iSTD Decode(string data) => data.DecodeInto(this);
-        public virtual iSTD Decode(StdEncoder cody) {
-           
-            new StdDecoder(cody.ToString()).DecodeTagsFor(this);
-            return this;
-        }
-
-        public abstract bool Decode(string tag, string data);
-    }
-
-    public abstract class ComponentSTD : MonoBehaviour, iKeepUnrecognizedSTD, iSTD_SerializeNestedReferences
+    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences
 #if PEGI
-        , IPEGI, IGotDisplayName
+        , IPEGI, IGotDisplayName, IPEGI_ListInspect
 #endif
     {
-
-        public override string ToString() => gameObject.name;
-        
-        public virtual void Reboot() { }
-
-        public abstract bool Decode(string tag, string data);
-
-        public abstract StdEncoder Encode();
         
         [SerializeField]protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
 
         public int GetISTDreferenceIndex(UnityEngine.Object obj) 
             => _nestedReferences.TryGetIndexOrAdd(obj);
-
         public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object
             => _nestedReferences.TryGet(index) as T;
 
 
-        protected List<string> unrecognizedTags = new List<string>();
-        protected List<string> unrecognizedData = new List<string>();
+        UnrecognizedSTD uTags = new UnrecognizedSTD();
+        public UnrecognizedSTD UnrecognizedSTD => uTags;
 
-        public void Unrecognized(string tag, string data)
-        {
-            this.Unrecognized(tag, data, ref unrecognizedTags, ref unrecognizedData);
+        public virtual void Reboot() {
+            uTags.Clear();
         }
-
-        public virtual StdEncoder EncodeUnrecognized()
-        {
-            var cody = new StdEncoder();
-            for (int i = 0; i < unrecognizedTags.Count; i++)
-                cody.Add_String(unrecognizedTags[i], unrecognizedData[i]);
-
-            return cody;
-        }
+        public abstract bool Decode(string tag, string data);
+        public abstract StdEncoder Encode();
 
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
         public bool showDebug;
 
 #if PEGI
-        
         public string NameForPEGIdisplay() => gameObject.name;
+
+        public virtual bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            bool changed = false;
+            var n = gameObject.name;
+            if (pegi.editDelayed(ref n) && n.Length > 0)
+            {
+                gameObject.name = n;
+                changed = true;
+            }
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            this.clickHighlight();
+
+            return changed;
+        }
 
         [SerializeField] int inspectedStuff = -1;
         [SerializeField] int inspectedReference = -1;
-        [SerializeField] int inspectedUnrecognized = -1;
         public virtual bool PEGI()
         {
 
@@ -189,8 +276,8 @@ namespace SharedTools_Stuff
 
                 pegi.nl();
 
-                if (("Unrecognized Tags " + unrecognizedTags.Count).fold_enter_exit(ref inspectedStuff, 2))
-                    changed |= this.PEGI(ref unrecognizedTags, ref unrecognizedData, ref inspectedUnrecognized);
+                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2))
+                    changed |= uTags.Nested_Inspect();
 
                 pegi.nl();
 
@@ -199,14 +286,18 @@ namespace SharedTools_Stuff
         }
 #endif
 
-        public virtual iSTD Decode(string data)
+        public virtual ISTD Decode(string data)
         {
             Reboot();
             new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
 
+    
     }
+
+    #endregion
+
 
     public static class STDExtensions {
 
@@ -222,14 +313,14 @@ namespace SharedTools_Stuff
 
         public static string copyBufferValue;
 
-        public static iSTD RefreshAssetDatabase(this iSTD s) {
+        public static ISTD RefreshAssetDatabase(this ISTD s) {
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
 #endif
             return s;
         }
 
-        public static bool LoadOnDrop<T>(this T obj) where T: iSTD
+        public static bool LoadOnDrop<T>(this T obj) where T: ISTD
         {
 
 #if PEGI
@@ -245,43 +336,43 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public static iSTD SaveToResources(this iSTD s, string ResFolderPath, string InsideResPath, string filename) {
+        public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename) {
             ResourceSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
             return s;
         }
         
-        public static iSTD SaveToAssets(this iSTD s, string Path, string filename) {
+        public static ISTD SaveToAssets(this ISTD s, string Path, string filename) {
             ResourceSaver.Save(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
-        public static iSTD SaveProgress(this iSTD s, string Path, string filename) {
+        public static ISTD SaveProgress(this ISTD s, string Path, string filename) {
             ResourceSaver.Save(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
-		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:iSTD, new() {
+		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
             s.Decode(ResourceLoader.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
-		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:iSTD, new() {
+		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
             s.Decode(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + ResourceSaver.fileType));
 			return s;
 		}
 
-		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:iSTD, new() {
+		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
 			s.Decode(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
 			return s;
 		}
 
-		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:iSTD, new() {
+		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
 			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
@@ -308,77 +399,8 @@ namespace SharedTools_Stuff
             return changed;
         }
         */
-        #if PEGI
-        public static bool PEGI(this iKeepUnrecognizedSTD el, ref List<string> tags, ref List<string> data, ref int inspected)  {
-            bool changed = false;
 
-            pegi.nl();
-
-            var cnt = tags.Count;
-
-            if (cnt > 0 && ("Unrecognized for " + el.ToPEGIstring() + "[" + cnt + "]").nl())
-               
-               
-            if (tags != null && tags.Count > 0) {
-
-                if (inspected < 0)
-                {
-
-                    for (int i = 0; i < tags.Count; i++)
-                    {
-                        if (icon.Delete.Click())
-                        {
-                            changed = true;
-                            tags.RemoveAt(i);
-                            data.RemoveAt(i);
-                            i--;
-                        }
-                        else
-                        {
-                            pegi.write(tags[i]);
-                            if (icon.Edit.Click().nl())
-                                inspected = i;
-                        }
-                    }
-                }
-                else
-                {
-                    if (inspected >= tags.Count || icon.Back.Click())
-                        inspected = -1;
-                    else
-                    {
-                        int i = inspected;
-                        var t = tags[i];
-                        if ("Tag".edit(40, ref t).nl())
-                            tags[i] = t;
-                        var d = data[i];
-                        if ("Data".edit(50, ref d).nl())
-                            data[i] = d;
-                    }
-                }
-            }
-
-            pegi.nl();
-
-            return changed;
-        }
-#endif
-        public static void Unrecognized (this iKeepUnrecognizedSTD el, string tag, string data, ref List<string> unrecognizedTags, 
-            ref List<string> unrecognizedData) {
-          
-                if (unrecognizedTags.Contains(tag))
-                {
-                    int ind = unrecognizedTags.IndexOf(tag);
-                    unrecognizedTags[ind] = tag;
-                    unrecognizedData[ind] = data;
-                }
-                else
-                {
-                    unrecognizedTags.Add(tag);
-                    unrecognizedData.Add(data);
-                }
-            
-        }
-
+        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) => ur.UnrecognizedSTD.GetAll();
+  
     }
 }

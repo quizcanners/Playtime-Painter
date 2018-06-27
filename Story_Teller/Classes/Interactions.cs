@@ -37,7 +37,7 @@ namespace StoryTriggerData
 
         public const string storyTag = "talkOpt";
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("goto", goToReference)
             .Add("web", conditions)
             .Add("t",text)
@@ -143,7 +143,7 @@ namespace StoryTriggerData
         public static bool showOnExit_Results;
         public static bool showOnEnter_Results;
         
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("ref", reference)
             .Add("Conds", conditions)
             .Add_ifNotEmpty("txt",Texts)
@@ -322,7 +322,7 @@ namespace StoryTriggerData
         public int EditorSelectedInteraction = -1;
 
 
-        public override StdEncoder Encode() => EncodeUnrecognized()
+        public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_String("name", name)
             .Add("cond", conds)
             .Add_ifNotEmpty("igr", subBranches)
