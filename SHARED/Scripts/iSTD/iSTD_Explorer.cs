@@ -9,7 +9,7 @@ namespace SharedTools_Stuff
 {
 
 
-    public class iSTD_Explorer : MonoBehaviour
+    public class ISTD_Explorer : MonoBehaviour
 #if PEGI
         , IPEGI
 #endif
@@ -27,18 +27,14 @@ namespace SharedTools_Stuff
         {
 
             UnityEngine.Object obj = ConnectSTD == null ? null : ConnectSTD as UnityEngine.Object;
-            if ("Target Obj: ".edit(60, ref obj))
-            {
-                if (obj != null)
+            if ("Target Obj: ".edit(60, ref obj) && obj != null)
                     ConnectSTD = obj as ISTD;
-            }
+            
 
             MonoBehaviour mono = ConnectSTD == null ? null : ConnectSTD as MonoBehaviour;
-            if ("Target Obj: ".edit(60, ref mono).nl())
-            {
-                if (mono != null)
+            if ("Target Obj: ".edit(60, ref mono).nl() && mono != null)
                     ConnectSTD = mono as ISTD;
-            }
+            
 
             return data.PEGI(ConnectSTD);
 
@@ -48,9 +44,6 @@ namespace SharedTools_Stuff
     }
 
     public class ElementData : Abstract_STD
-#if PEGI
-        , IPEGI
-#endif
     {
         public string name;
         public string componentType;
@@ -58,17 +51,14 @@ namespace SharedTools_Stuff
         public string guid;
 
 #if PEGI
-
-
         public void Save<T>(T el)
         {
             name = el.ToPEGIstring();
 
             var cmp = el as Component;
-
-            if (cmp != null)
+            if ( cmp != null)
                 componentType = cmp.GetType().ToPEGIstring();
-
+            
             var std = el as ISTD;
             if (std != null)
                 std_dta = std.Encode().ToString();
@@ -78,12 +68,11 @@ namespace SharedTools_Stuff
 
         public bool Inspect<T>(ref T field) where T : UnityEngine.Object
         {
-
-            bool changed = false;
             
-                changed |= name.edit(100, ref field);
+            bool changed = name.edit(100, ref field);
+
 #if UNITY_EDITOR
-                if (guid != null && icon.Search.Click("Find Object " +componentType +" by guid").nl())
+            if (guid != null && icon.Search.Click("Find Object " +componentType +" by guid").nl())
                 {
                     var obj = UnityHelperFunctions.GUIDtoAsset<T>(guid);
 
@@ -133,10 +122,6 @@ namespace SharedTools_Stuff
             .Add_String("guid", guid)
             .Add_String ("t", componentType);
 
-        public bool PEGI()
-        {
-            throw new NotImplementedException();
-        }
     }
 
     [Serializable]
@@ -175,18 +160,28 @@ namespace SharedTools_Stuff
         }
 
 #if PEGI
+ 
+        public string NameForPEGI
+        {
+            get
+            {
+                return tag;
+            }
+
+            set
+            {
+                tag = value;
+            }
+        }
+
         public bool PEGI()
         {
-            
             if (tags == null && data.Contains("|"))
                 data.DecodeInto(this);
 
-            if (inspectedTag == -1 && tags == null)
-                    tag.write();
-            
-            if (tags!= null)
+            if (tags != null)
                 dirty |= tag.edit_List(tags, ref inspectedTag, true);
-            
+
             if (inspectedTag == -1)
             {
                 dirty |= "data".edit(40, ref data);
@@ -212,26 +207,13 @@ namespace SharedTools_Stuff
                     }
                 }
             }
-               
+
 
             pegi.nl();
 
             return dirty;
         }
-
-        public string NameForPEGI
-        {
-            get
-            {
-                return tag;
-            }
-
-            set
-            {
-                tag = value;
-            }
-        }
-
+        
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
 
@@ -239,7 +221,7 @@ namespace SharedTools_Stuff
 
             if (data != null && data.Contains("|"))
             {
-                changed |= pegi.edit(ref tag, 150);//  tag.write(60);
+                changed |= pegi.edit(ref tag);//  tag.write(60);
 
                 if (icon.Enter.Click("Explore data"))
                     edited = ind;
@@ -250,16 +232,17 @@ namespace SharedTools_Stuff
                 dirty |= pegi.edit(ref data);
             }
 
-
-            if (icon.Copy.Click("Copy current data to buffer"))
+            if (icon.Copy.Click("Copy " + tag + " data to buffer."))
+            {
                 STDExtensions.copyBufferValue = data;
+                STDExtensions.copyBufferTag = tag;
+            }
 
-            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste Component Data").nl()) {
+            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste "+ STDExtensions.copyBufferTag + " Data").nl()) {
                 dirty = true;
                 data = STDExtensions.copyBufferValue;
             }
-
-
+            
             return dirty | changed;
         }
 
@@ -290,42 +273,82 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class SavedISTD
+    public class SavedISTD 
 #if PEGI
-        : IPEGI, IGotName
+        : IPEGI, IGotName, IPEGI_ListInspect
 #endif
     {
+        
+        ISTD Std => ISTD_ExplorerData.inspectedSTD;
+
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
         public string comment;
-        public Exploring_STD dataExplorer = new Exploring_STD("root", "");
+        public Exploring_STD dataExplorer = new Exploring_STD("", "");
 
-        ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
+
 #if PEGI
+        public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
+
         public bool PEGI()
         {
             bool changed = false;
 
 
-            if (dataExplorer.inspectedTag == -1)
-            {
-
+            if (dataExplorer.inspectedTag == -1)  {
                 this.inspect_Name();
-
+                if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets"))
+                {
+                    ResourceSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    Std.RefreshAssetDatabase();
+                }
+   
+                pegi.nl();
+                
                 if (Std != null)
                 {
-                    if (icon.Load.ClickUnfocus("Decode Data into "+Std.ToPEGIstring()))
-                        Std.Decode(dataExplorer.data);
-                    if (icon.Save.ClickUnfocus("Save data from "+Std.ToPEGIstring()))
-                        dataExplorer = new Exploring_STD (dataExplorer.tag, Std.Encode().ToString());
+                    if (dataExplorer.tag.Length == 0)
+                        dataExplorer.tag = Std.ToPEGIstring() + " config";
+
+                    "Save To:".edit(50, ref Mgmt.fileFolderHolder);
+
+                    var uobj = Std as UnityEngine.Object;
+
+                    if (uobj && icon.Done.Click("Use the same directory as current object."))
+                        Mgmt.fileFolderHolder = uobj.GetAssetFolder();
+
+                    uobj.clickHighlight();
+
+                    pegi.nl();
                 }
 
-                pegi.nl();
 
                 "Comment:".editBig(ref comment).nl();
             }
 
-            dataExplorer.Nested_Inspect();
 
+          
+            
+            dataExplorer.Nested_Inspect();
+            
+            return changed;
+        }
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            bool changed = false;
+
+            pegi.edit(ref dataExplorer.tag, 100);
+
+            if (Std != null)
+            {
+                if (icon.Load.ClickUnfocus("Decode Data into " + Std.ToPEGIstring()))
+                    Std.Decode(dataExplorer.data);
+                if (icon.Save.ClickUnfocus("Save data from " + Std.ToPEGIstring()))
+                    dataExplorer = new Exploring_STD(dataExplorer.tag, Std.Encode().ToString());
+            }
+
+            if (icon.Enter.Click(comment))
+                edited = ind;
 
             return changed;
         }
@@ -339,8 +362,9 @@ namespace SharedTools_Stuff
         public List<SavedISTD> states = new List<SavedISTD>();
         public int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
-        public string fileNameHolder = "file Name";
+      //  public string fileNameHolder = "";
         public static ISTD inspectedSTD;
+        public bool SaveToFileOptions;
 
 
 #if PEGI
@@ -357,54 +381,47 @@ namespace SharedTools_Stuff
                 STDExtensions.copyBufferValue = target.Encode().ToString();
             
             var comp = target as ComponentSTD;
-            if (comp != null)
-            {
-                if ("Clear Component".Click())
+            if (comp != null && "Clear Component".Click())
                     comp.Reboot();
-            }
+            
 
             pegi.nl();
 
             return changed;
         }
-
+        
+        public static ISTD_ExplorerData inspected;
         public bool PEGI(ISTD target)
         {
             bool changed = false;
             inspectedSTD = target;
+            inspected = this;
 
-            if (target != null && inspectedState == -1)
-            {
-
-                "Save Folder:".edit(80, ref fileFolderHolder);
-
-                var uobj = target as UnityEngine.Object;
-
-                if (uobj && icon.Done.Click("Use the same directory as current object."))
-                    fileFolderHolder = uobj.GetAssetFolder();
-                
-                    uobj.clickHighlight();
-
-                pegi.nl();
-                "File Name:".edit("No file extension", 80, ref fileNameHolder);
-
-                if (fileNameHolder.Length > 0 && icon.Save.Click("Save To Assets"))
-                    target.SaveToAssets(fileFolderHolder, fileNameHolder).RefreshAssetDatabase();
-
-                pegi.nl();
-
-               // PEGI_Static(target);
-            }
-
-            var aded = "____ Saved States:".edit_List(states, ref inspectedState, true, ref changed);
+            var aded = "Saved CFGs:".edit_List(states, ref inspectedState, true, ref changed);
 
             if (aded != null && target != null)
             {
                 aded.dataExplorer.data = target.Encode().ToString();
                 aded.NameForPEGI = target.ToPEGIstring();
                 aded.comment = DateTime.Now.ToString();
-                inspectedState = states.Count - 1;
+                //inspectedState = states.Count - 1;
             }
+
+            if (inspectedState == -1)
+            {
+                UnityEngine.Object myType = null;
+                if ("From File:".edit(65, ref myType).nl()) {
+                    aded = new SavedISTD();
+                    aded.dataExplorer.data = ResourceLoader.LoadStory(myType);
+                    aded.NameForPEGI = myType.name;
+                    aded.comment = DateTime.Now.ToString();
+                    states.Add(aded);
+                }
+            }
+
+           
+
+           
 
 
             inspectedSTD = null;

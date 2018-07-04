@@ -150,8 +150,7 @@ namespace SharedTools_Stuff
 #endif
 
     }
-
-
+    
     public abstract class Abstract_STD : ISTD
     {
 
@@ -165,8 +164,7 @@ namespace SharedTools_Stuff
         }
         public abstract bool Decode(string tag, string data);
     }
-
-
+    
     public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD
     {
 
@@ -205,7 +203,7 @@ namespace SharedTools_Stuff
 
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences
 #if PEGI
-        , IPEGI, IGotDisplayName, IPEGI_ListInspect
+        , IPEGI, IPEGI_ListInspect, IGotName
 #endif
     {
         
@@ -220,7 +218,7 @@ namespace SharedTools_Stuff
 
         UnrecognizedSTD uTags = new UnrecognizedSTD();
         public UnrecognizedSTD UnrecognizedSTD => uTags;
-
+        
         public virtual void Reboot() {
             uTags.Clear();
         }
@@ -231,7 +229,18 @@ namespace SharedTools_Stuff
         public bool showDebug;
 
 #if PEGI
-        public string NameForPEGIdisplay() => gameObject.name;
+        public virtual string NameForPEGI
+        {
+            get
+            {
+                return gameObject.name;
+            }
+
+            set
+            {
+                gameObject.name = value;
+            }
+        }
 
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
@@ -263,23 +272,29 @@ namespace SharedTools_Stuff
 
             if (showDebug)
             {
-                if (icon.Edit.Click("Back to element inspection").nl())
+                if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
 
-                if (("STD Saves: " + explorer.states.Count).fold_enter_exit(ref inspectedStuff, 0))
+                if (inspectedStuff == -1)
+                    pegi.nl();
+
+                if (("STD Saves: " + explorer.states.Count).fold_enter_exit(ref inspectedStuff, 0).nl_ifTrue())
                     explorer.PEGI(this);
 
-                pegi.nl();
+                if (inspectedStuff == -1)
+                    pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1))
+                if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
 
-                pegi.nl();
+                if (inspectedStuff == -1)
+                    pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2))
+                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2).nl_ifTrue())
                     changed |= uTags.Nested_Inspect();
 
-                pegi.nl();
+                if (inspectedStuff == -1)
+                    pegi.nl();
 
             }
             return changed;
@@ -312,6 +327,7 @@ namespace SharedTools_Stuff
         }
 
         public static string copyBufferValue;
+        public static string copyBufferTag;
 
         public static ISTD RefreshAssetDatabase(this ISTD s) {
 #if UNITY_EDITOR
@@ -342,12 +358,13 @@ namespace SharedTools_Stuff
         }
         
         public static ISTD SaveToAssets(this ISTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
+            ResourceSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
+                //Save_ByFullPath(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 
         public static ISTD SaveProgress(this ISTD s, string Path, string filename) {
-            ResourceSaver.Save(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
+            ResourceSaver.Save_ByFullPath(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
         }
 

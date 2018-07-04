@@ -9,7 +9,7 @@ using SharedTools_Stuff;
 namespace STD_Animations
 {
 
-    public class SoundAnimator : MonoBehaviour, Animated_STD_PEGI
+    public class SoundAnimator : MonoBehaviour, IAnimated_STD_PEGI
     {
 
         public enum State { Nothing, Play }

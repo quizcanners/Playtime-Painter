@@ -296,9 +296,15 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static bool nl_ifTrue(this bool value)
+        {
+            if (value)
+                newLine();
+            return value;
+        }
+
         public static void nl() => newLine();
-
-
+        
         public static bool nl(this bool value)
         {
             newLine();
@@ -3779,12 +3785,11 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        static void write_ListLabel(this string label, IList lst) =>
-        
-           /* if (lst == editingOrder)
-                write(label, listLabelWidth);
-            else*/
-                write(label, heading);
+        static void write_ListLabel(this string label, IList lst, int inspected)
+
+
+        {
+            if (inspected == -1) write(label, heading); else write(label); }
         
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
@@ -3960,7 +3965,7 @@ namespace PlayerAndEditorGUI
                 if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name " + (std != null ? "configuration." : "."), 25, 25))
                     datas.SaveElementDataFrom(list, index);
 
-                var dta = ExtensionsForGenericCountless.GetIfExists(datas, index);
+                var dta = ExtensionsForGenericCountless.TryGet(datas, index);
                 if (std != null && dta != null && dta.std_dta != null && icon.Load.Click("Load STD", 25, 25))
                     dta.std_dta.DecodeInto(std);
 
@@ -4055,7 +4060,7 @@ namespace PlayerAndEditorGUI
         //Lists ...... of Monobehaviour
         public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas) where T : MonoBehaviour
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
             return list.edit_List_MB(ref edited, allowDelete, ref added, datas);
         }
 
@@ -4089,7 +4094,7 @@ namespace PlayerAndEditorGUI
                         {
                             T obj = null;
 
-                            if (ExtensionsForGenericCountless.GetIfExists(datas, i).Inspect(ref obj))
+                            if (datas.TryGet(i).TryInspect(ref obj))
                             {
                                 if (obj)
                                 {
@@ -4122,7 +4127,7 @@ namespace PlayerAndEditorGUI
         // ...... of Scriptable Object
         public static T edit_List_SO<T>(this string label, List<T> list, ref int edited, ref bool changed) where T : ScriptableObject
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
 
             return list.edit_List_SO(ref edited, ref changed, null);
         }
@@ -4138,7 +4143,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, List<T> list, ref int edited) where T : ScriptableObject
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
 
             bool changed = false;
 
@@ -4149,7 +4154,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, List<T> list) where T : ScriptableObject
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, -1);
 
             bool changed = false;
 
@@ -4162,7 +4167,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas) where T : ScriptableObject
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
 
             bool changed = false;
 
@@ -4194,13 +4199,11 @@ namespace PlayerAndEditorGUI
                     list.InspectionStart();
                     for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
-                       
                             var el = list[i];
                             if (el == null)
                             {
-                                if (ExtensionsForGenericCountless.GetIfExists(datas, i).Inspect(ref el))
+                                if (datas.TryGet(i).TryInspect(ref el))
                                     list[i] = el;
-
                             }
                             else
                             {
@@ -4212,10 +4215,6 @@ namespace PlayerAndEditorGUI
 
                                 if (path != null && path.Length > 0)
                                 {
-                                  //  el.clickHighlight();
-                                   /* if (icon.Search.Click())
-                                        EditorGUIUtility.PingObject(list[i]);*/// Selection.activeObject = list[i];
-
                                     if (icon.Copy.Click())
                                     {
 
@@ -4277,19 +4276,19 @@ namespace PlayerAndEditorGUI
         
         public static bool edit_List_Obj<T>(this string label, List<T> list, bool allowDelete) where T : UnityEngine.Object
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, -1);
             return (list.edit_List_Obj(allowDelete));
         }
         
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
             return list.edit_List_Obj(ref edited);
         }
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
             return list.edit_or_select_List_Obj(null, ref edited, true, datas);
         }
 
@@ -4316,7 +4315,6 @@ namespace PlayerAndEditorGUI
                     list.InspectionStart();
                     for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
-                       
                             var el = list[i];
                             if (el == null)
                             {
@@ -4326,21 +4324,15 @@ namespace PlayerAndEditorGUI
                                     if (select(ref el, from))
                                         list[i] = el;
                                 }
-                                
-                               // if (!isMonoType<T>(list, i))
-                               // {
-                                   // UnityEngine.Object so = null;
-                                    if (datas.GetIfExists(i).Inspect(ref el))
-                                        list[i] = el;
-                               // }
+
+                                if (datas.TryGet(i).TryInspect(ref el))
+                                   list[i] = el;
+                             
                             }
                             else
-                            {
-
                                 changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, datas);
 
-                              //  list[i].clickHighlight();
-                            }
+                             
                             
                         newLine();
                     }
@@ -4358,7 +4350,7 @@ namespace PlayerAndEditorGUI
         // ...... of New()
         public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T : new()
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
             return list.edit_List(ref edited, allowDelete);
         }
 
@@ -4378,7 +4370,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref bool changed) where T : new()
         {
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
             return list.edit_List(ref edited, allowDelete, ref changed);
         }
 
@@ -4439,7 +4431,7 @@ namespace PlayerAndEditorGUI
             int edited = -1;
 
             nl();
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
 
             return list.write_List<T>(ref edited);
         }
@@ -4447,7 +4439,7 @@ namespace PlayerAndEditorGUI
         public static bool write_List<T>(this string label, List<T> list, ref int edited)
         {
             nl();
-            label.write_ListLabel(list);
+            label.write_ListLabel(list, edited);
 
             return list.write_List<T>(ref edited);
         }
@@ -4776,9 +4768,9 @@ namespace PlayerAndEditorGUI
 
             }*/
     }
-    
 
-#region Extensions
+
+    #region Extensions
     public static class PEGI_Extensions
     {
 
@@ -4813,7 +4805,7 @@ namespace PlayerAndEditorGUI
         {
             var name = type.ToString();
             int ind = name.LastIndexOf(".");
-            return ind == -1 ? name : name.Substring(ind+1);
+            return ind == -1 ? name : name.Substring(ind + 1);
         }
 
         public static bool EfChanges
@@ -4880,9 +4872,16 @@ namespace PlayerAndEditorGUI
 
             return pgi != null ? pgi.Nested_Inspect() : false;
         }
-#endregion
 
-#region Element Data
+        public static bool TryInspect<T>(this ElementData el, ref T obj) where T : UnityEngine.Object
+        {
+            
+            if (el != null)
+                return el.Inspect(ref obj);
+            else
+                return pegi.edit(ref obj);
+            
+        }
 
         public static void SaveElementDataFrom<T>(this UnnullableSTD<ElementData> datas, List<T> list)
         {
@@ -4898,11 +4897,10 @@ namespace PlayerAndEditorGUI
         }
 
 
-        public static bool TryInspect<T>(this ElementData dta, ref T field) where T : UnityEngine.Object 
-            =>  (dta != null && field != null) ? dta.Inspect(ref field) : pegi.edit(ref field);
-               
-        }
-#endregion
+    }
+    #endregion
+
+
 
 
 }

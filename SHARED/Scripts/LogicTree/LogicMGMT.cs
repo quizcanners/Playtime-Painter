@@ -81,7 +81,7 @@ namespace STD_Logic
 
             pegi.nl();
 
-            if ("Trigger Groups".fold_enter_exit(ref browsedStuff, 0))
+            if (!showDebug && "Trigger Groups".fold_enter_exit(ref browsedStuff, 0))
             {
 
                 pegi.nl();
@@ -92,7 +92,7 @@ namespace STD_Logic
                 if (inspectedTriggerGroup == -1)
                 {
                     "At Index: ".edit(60, ref tmpIndex);
-                    if (tmpIndex >= 0 && ExtensionsForGenericCountless.GetIfExists(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnfocus("Create New Group"))
+                    if (tmpIndex >= 0 && ExtensionsForGenericCountless.TryGet(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnfocus("Create New Group"))
                     {
                         TriggerGroup.all[tmpIndex].NameForPEGI = "Group " + tmpIndex.ToString();//.GetIndex();
                         tmpIndex++;

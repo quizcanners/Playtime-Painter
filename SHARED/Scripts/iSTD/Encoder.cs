@@ -226,9 +226,9 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_Referance<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add<T>(tag, objs,keeper);
+        public StdEncoder Add_Referances<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References<T>(tag, objs,keeper);
 
-        public StdEncoder Add<T>(string tag, List<T> objs, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public StdEncoder Add_References<T>(string tag, List<T> objs, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
             if (referencesKeeper != null && objs!= null)
             {
@@ -253,6 +253,17 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add<T>(string tag, List<T> other, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
+        {
+            var prevKeeper = keeper;
+            keeper = referencesKeeper;
+
+            Add(tag, other);
+
+            keeper = prevKeeper;
+            return this;
+        }
+        
         #endregion
 
         public StdEncoder Add_String(string tag, String data) {

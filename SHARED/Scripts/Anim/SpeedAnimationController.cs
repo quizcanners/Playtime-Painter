@@ -2,368 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if PEGI
 using PlayerAndEditorGUI;
-#endif
 using SharedTools_Stuff;
 using STD_Logic;
 
     namespace STD_Animations
 {
 
-    public interface iCallAfterIFinish
-    {
-        void SetCallback(Action OnFinish);
-    }
-
-    public enum SpeedSource { position, scale, shaderVal, rotation }
-    
-    public static class STD_AnimationExtensions
-    {
-        public static void DecodeFrame (this Animated_STD_PEGI obj, string data) {
-            if (obj != null) {
-                var cody = new StdDecoder(data);
-                foreach (var tag in cody)
-                    obj.DecodeFrame(tag, cody.GetData());
-            }
-        }
-    } 
-
-    public interface Animated_STD_PEGI {
-        StdEncoder EncodeFrame();
-        bool DecodeFrame(string tag, string data);
-#if PEGI
-        bool Frame_PEGI();
-#endif
-    }
-
-    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD
-#if PEGI
-        , IPEGI
-#endif
-
-    {
-
-        public SpeedAnimationController mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
-
-        public AnimatedElement el { get { return AnimatedElement.inspectedAnimatedObject; } }
-        
-        public override StdEncoder Encode() {
-            var cody =this.EncodeUnrecognized()
-            .Add("lpos", localPos.Encode())
-            .Add("lsize", LocalScale.Encode())
-            .Add("lrot", localRotation.Encode())
-            .Add("encData", customData.Encode())
-            .Add("shadeVal", shaderValue.Encode());
-            if (isOverrideSpeed)
-            {
-                cody.Add("src", (int)frameSpeedSource);
-                cody.Add("speed", frameSpeed);
-            }
-
-            return cody;
-        }
-
-        public Countless<Vector3> localPos = new Countless<Vector3>();
-        public Countless<Vector3> LocalScale = new Countless<Vector3>();
-        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
-        public Countless<float> shaderValue = new Countless<float>();
-        public Countless<string> customData = new Countless<string>();
-
-        public float frameSpeed = 0.1f;
-        public SpeedSource frameSpeedSource = SpeedSource.position;
-        public bool isOverrideSpeed;
-
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
-                case "lpos": data.DecodeInto(out localPos); break;
-                case "lsize": data.DecodeInto(out LocalScale); break;
-                case "lrot": data.DecodeInto(out localRotation); break;
-                case "encData": data.DecodeInto(out customData); break;
-                case "shadeVal": data.DecodeInto(out shaderValue); break;
-                case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
-                case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
-                default: return false;
-            }
-
-            return true;
-        }
-
-#if PEGI
-        public override bool PEGI() {
-
-            pegi.nl();
-
-
-            if (mgmt.keyElement == el)
-            {
-                "Override Speed".toggle(90, ref isOverrideSpeed).nl();
-
-                if (isOverrideSpeed)
-                {
-
-                    "Frame Speed".edit(ref frameSpeed).nl();
-
-                    if (frameSpeed == 0)
-                        "Frame speed is 0, next frame is unreachable ".writeWarning();
-
-                    "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
-
-                }
-            }
-            return false;
-        }
-#endif
-        public float GetDelta() {
-
-            float speed = isOverrideSpeed ? frameSpeed : mgmt.frameSpeed;
-
-            var speedSource = isOverrideSpeed ? frameSpeedSource : mgmt.speedSource;
-
-            if (speed == 0)
-                return 0;
-
-            var key = mgmt.keyElement;
-
-            if (key == null)
-                return 0;
-            
-            float distance = 0;
-            switch (speedSource) {
-                case SpeedSource.scale: distance = key.deltaLocalScale.magnitude; break;
-                case SpeedSource.shaderVal: distance = Mathf.Abs(key.deltaShaderValue); break;
-                case SpeedSource.rotation: distance = Mathf.Abs(key.angleOfDeltaLocalRotation); break;
-                default: distance = key.deltaLocalPos.magnitude; break;
-            }
-
-            return distance > 0 ? Mathf.Clamp01(speed*Time.deltaTime / distance) : 1;
-        }
-        
-        public SpeedAnimationFrame(SpeedAnimationFrame other) {
-            if (other != null) {
-                other.localPos.Encode().ToString().DecodeInto(out localPos);
-                other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
-                other.localRotation.Encode().ToString().DecodeInto(out localRotation);
-                other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
-                isOverrideSpeed = other.isOverrideSpeed;
-                frameSpeed = other.frameSpeed;
-                frameSpeedSource = other.frameSpeedSource;
-            }
-        }
-
-        public SpeedAnimationFrame() {
-
-        }
-    }
-    
-    [Serializable]
-    public class AnimatedElement : AbstractKeepUnrecognized_STD
-#if PEGI
-        ,IPEGI, IGotName, IGotIndex
-#endif
-
-    {
-        [NonSerialized] MaterialPropertyBlock props;
-        public SpeedAnimationController mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
-        public SpeedAnimationFrame frame { get { return SpeedAnimationController.inspectedAnimationController.currentFrame; } }
-        public static AnimatedElement inspectedAnimatedObject;
-
-        [SerializeField] int index;
-       public int GetIndex()
-       {
-            return index;
-        }
-
-        public void SetIndex(int val)
-        {
-            index = val;
-        }
-
-        [SerializeField] string _name;
-        public string NameForPEGI { get { return _name; } set { _name = value; } }
-        public Transform transform;
-        public Renderer rendy;
-        public MonoBehaviour script;
-        public string propertyName;
-        public float currentShaderValue;
-
-        public override StdEncoder Encode()
-        {
-            var cody =this.EncodeUnrecognized()
-            .Add("i", index)
-            .Add_String("n", _name)
-            .Add_String("prop", propertyName);
-
-            if (script) {
-                var asp = script as ISTD;
-                if (asp != null)
-                    cody.Add("stdDTA", asp.Encode());
-            }
-
-            return cody;
-        }
-
-        public override bool Decode(string tag, string data) {
-            switch (tag)  {
-                case "i": index = data.ToInt(); break;
-                case "n": _name = data; break;
-                case "prop": propertyName = data; break;
-                case "stdDTA":
-                    if (script) {
-                        var asp = script as ISTD;
-                        if (asp != null)
-                            data.DecodeInto(asp); 
-                    } break;
-                default: return false;
-            }
-
-            return true;
-        }
-
-        public Vector3 localPos { get {
-                return frame.localPos[index];
-            } set { frame.localPos[index] = value; } }
-        public Vector3 LocalScale { get { return frame.LocalScale[GetIndex()]; } set { frame.LocalScale[index] = value; } }
-        public string customData { get { return frame.customData[GetIndex()]; } set { frame.customData[index] = value; } }
-        public Quaternion localRotation { get { return frame.localRotation[GetIndex()]; } set { frame.localRotation[GetIndex()] = value; } }
-        public float shaderValue { get {
-                return frame.shaderValue[index];
-            } set {
-                frame.shaderValue[index] = value;
-            }
-        }
-
-        public Vector3 deltaLocalPos { get { if (!transform) return Vector3.zero; return transform.localPosition - localPos; } }
-        public Vector3 deltaLocalScale { get { if (!transform) return Vector3.zero; return transform.localScale - LocalScale; } }
-        public float angleOfDeltaLocalRotation { get { if (!transform) return 0; return  Quaternion.Angle(transform.localRotation, localRotation); } }
-        public float deltaShaderValue { get { return currentShaderValue - shaderValue; } }
-        public Animated_STD_PEGI animSTD { get { if (script) return (script as Animated_STD_PEGI); return null; } }
-
-
-        public void SetCurrentShaderValue(float value) {
-            
-            currentShaderValue = value;
-            if (rendy) {
-                if (props == null) props = new MaterialPropertyBlock();
-                props.SetFloat(propertyName, value);
-                rendy.SetPropertyBlock(props);
-            }
-        }
-        
-        public void Animate(float portion) {
-            if (portion == 1)
-                Set();
-            else {
-                if (transform)
-                {
-                    transform.localPosition -= deltaLocalPos * portion;
-                    transform.localScale -= deltaLocalScale * portion;
-                    transform.localRotation = Quaternion.Lerp(transform.localRotation, localRotation, portion);
-                }
-
-                if (rendy)
-                    SetCurrentShaderValue(currentShaderValue - deltaShaderValue * portion);
-            }
-        }
-
-        public void Set()
-        {
-            if (transform) {
-                transform.localPosition = localPos;
-                transform.localScale = LocalScale;
-                transform.localRotation = localRotation;
-            }
-            if (rendy)
-                SetCurrentShaderValue(shaderValue);
-
-            animSTD.DecodeFrame(customData);
-        }
-        
-        public void Record() {
-            if (mgmt.currentFrame == null)
-                return;
-
-            if (transform != null) {
-                localPos = transform.localPosition;
-                LocalScale = transform.localScale;
-                localRotation = transform.localRotation;
-            }
-            if (rendy)
-                shaderValue = currentShaderValue;
-
-            
-            var asp = animSTD;
-            if (asp != null) 
-                    customData = asp.EncodeFrame().ToString();
-            
-        }
-
-            #if PEGI
-        [SerializeField] bool transformInLocalSpace = true;
-        [SerializeField] bool showDependencies = true;
-        public override bool PEGI() {
-            inspectedAnimatedObject = this;
-
-            var key = mgmt.keyElement;
-            
-            if (this.inspect_Name().nl() && transform)
-                transform.name = NameForPEGI;
-
-            if ("Dependencies".foldout(ref showDependencies).nl())
-            {
-
-                if ((key == null || key != this) && "Set As Key".Click())
-                    mgmt.keyElement = this;
-
-                var ind = index;
-                if ("Index:".edit(50, ref ind).nl())
-                    index = ind;
-                if ("Transform".edit(80, ref transform).nl() && transform)
-                    NameForPEGI = transform.name;
-
-                "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
-
-                "Renderer".edit(80, ref rendy).nl();
-
-                mgmt.currentFrame.PEGI();
-            }
-
-            if (rendy)
-            {
-                "On Material".edit(90, ref propertyName).nl();
-
-                if (pegi.edit(ref currentShaderValue, 0, 1).nl())
-                    SetCurrentShaderValue(currentShaderValue);
-            }
-
-          
-
-            if (script)
-            {
-                var asp = script as Animated_STD_PEGI;
-
-                if (asp != null) 
-                    asp.Frame_PEGI().nl();
-            }
-
-            if (transform)
-            {
-                transform.PEGI_CopyPaste(ref transformInLocalSpace);
-
-                if (mgmt.transform != transform)
-                    transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
-            }
-   
-            inspectedAnimatedObject = null;
-
-            return false;
-        }
-#endif
-        
-    }
-    
     [ExecuteInEditMode]
-    public class SpeedAnimationController : ComponentSTD, iManageFading, iCallAfterIFinish
+    public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish
     {
 
         // Elements
@@ -372,11 +19,14 @@ using STD_Logic;
         [NonSerialized] public Countless<AnimatedElement> elements = new Countless<AnimatedElement>();
         [SerializeField] int keyElementIndex;
         public int indexForNewObject;
-        public AnimatedElement keyElement { get { return (elements != null) ? elements[keyElementIndex] : null;  }
-            set { keyElementIndex = value.GetIndex(); } }
-        
+        public AnimatedElement KeyElement
+        {
+            get { return elements?[keyElementIndex]; }
+            set { keyElementIndex = value.GetIndex(); }
+        }
+
         // Frames
-        [SerializeField]  string std_Data;
+        [SerializeField] string std_Data;
         [NonSerialized] List<SpeedAnimationFrame> frames = new List<SpeedAnimationFrame>();
         [SerializeField] int frameIndex;
         public bool SetFrameIndex(int newIndex)
@@ -385,7 +35,7 @@ using STD_Logic;
             {
                 if (Application.isPlaying)
                     foreach (var el in elementsUnsorted)
-                    el.Set();
+                        el.Set();
 
                 frameIndex = newIndex;
 
@@ -397,7 +47,7 @@ using STD_Logic;
             }
             return false;
         }
-        public SpeedAnimationFrame currentFrame
+        public SpeedAnimationFrame CurrentFrame
         {
             get
             {
@@ -409,29 +59,32 @@ using STD_Logic;
                 return frames[frameIndex];
             }
         }
-        public SpeedAnimationFrame nextFrame { get { if (frames.Count > frameIndex + 1) return frames[frameIndex + 1]; else return null; } }
-        public SpeedAnimationFrame previousFrame { get { if (frameIndex > 0) return frames[frameIndex - 1]; else return null; } }
+        public SpeedAnimationFrame NextFrame { get { if (frames.Count > frameIndex + 1) return frames[frameIndex + 1]; else return null; } }
+        public SpeedAnimationFrame PreviousFrame { get { if (frameIndex > 0) return frames[frameIndex - 1]; else return null; } }
 
         // Speed
         public SpeedSource speedSource;
         [SerializeField] float maxSpeed = 1;
         [SerializeField] AnimationCurve speedCurve = new AnimationCurve();
         [SerializeField] bool curveSpeed = false;
-        public float frameSpeed { get {
+        public float FrameSpeed
+        {
+            get
+            {
 
                 float portion = 0.5f;
 
-                if (frames.Count > 0) 
+                if (frames.Count > 0)
                     portion = Mathf.Clamp01(((float)portion / (float)frames.Count) * (frameIndex * 2 + 1));
-                
+
                 return curveSpeed ? maxSpeed * speedCurve.Evaluate(portion) : maxSpeed;
 
-            } }
-        
+            }
+        }
+
         // Management
         [NonSerialized] bool isPaused;
         [NonSerialized] bool playInEditor;
-        [NonSerialized] TestOnceCondition oneTimeCondition;
 
         public Action onFinish;
         public void SetCallback(Action OnFinish)
@@ -439,15 +92,14 @@ using STD_Logic;
             onFinish += OnFinish;
         }
 
-        public override StdEncoder Encode()  =>this.EncodeUnrecognized()
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("frames", frames.Encode())
-            .Add("elm", elementsUnsorted)
+            .Add("elm", elementsUnsorted, this)
             .Add_Bool("curve", curveSpeed)
             .Add("MaxSpeed", maxSpeed)
             .Add("src", (int)speedSource)
             .Add("Nextind", indexForNewObject)
-            .Add("KeyElement", keyElementIndex)
-            .Add("oneTimeCond", oneTimeCondition);
+            .Add("KeyElement", keyElementIndex);
 
         public override bool Decode(string tag, string data)
         {
@@ -458,12 +110,14 @@ using STD_Logic;
                 case "src": speedSource = (SpeedSource)data.ToInt(); break;
                 case "KeyElement": keyElementIndex = data.ToInt(); break;
                 case "frames": data.DecodeInto(out frames); break;
-                case "Nextind":indexForNewObject = data.ToInt(); break;
+                case "Nextind": indexForNewObject = data.ToInt(); break;
                 case "elm":
                     List<AnimatedElement> tmp;
-                    data.DecodeInto(out tmp);
-                    foreach (var v in tmp) {
-                        if (elements[v.GetIndex()] == null) {
+                    data.DecodeInto(out tmp, this);
+                    foreach (var v in tmp)
+                    {
+                        if (elements[v.GetIndex()] == null)
+                        {
                             elementsUnsorted.Add(v);
                             elements[v.GetIndex()] = v;
                         }
@@ -471,13 +125,12 @@ using STD_Logic;
                             elements[v.GetIndex()].Decode(v.Encode());
                     }
                     break;
-                case "oneTimeCond": data.DecodeInto(out oneTimeCondition); break;
-
+          
                 default: return false;
             }
             return true;
         }
-        
+
         void Update()
         {
             inspectedAnimationController = this;
@@ -486,7 +139,7 @@ using STD_Logic;
             {
                 if (!playInEditor)
                 {
-                    if (currentFrame != null)
+                    if (CurrentFrame != null)
                         foreach (var el in elementsUnsorted)
                             el.Record();
                 }
@@ -498,11 +151,11 @@ using STD_Logic;
                 if (!isPaused)
             {
 
-                bool isLastFrame = nextFrame == null;
+                bool isLastFrame = NextFrame == null;
 
-                if (currentFrame != null)
+                if (CurrentFrame != null)
                 {
-                    float delta = currentFrame.GetDelta();
+                    float delta = CurrentFrame.GetDelta();
 
                     foreach (var el in elementsUnsorted)
                         el.Animate(delta);
@@ -513,44 +166,33 @@ using STD_Logic;
 
                         if (isLastFrame)
                         {
-                            if (onFinish != null)
-                                onFinish();
+                            onFinish?.Invoke();
                             Destroy(gameObject);
                         }
-                        
+
                     }
                 }
             }
         }
-       
+
         public static SpeedAnimationController inspectedAnimationController;
 
         float editor_FramePortion = 0;
 #if PEGI
         public int inspectedElement = -1;
         public bool inspectElements = false;
-       
-        public override bool PEGI() {
+
+        public override bool PEGI()
+        {
 
             if (gameObject.IsPrefab())
                 return false;
 
             bool changed = base.PEGI();
 
-            if (showDebug) {
-                if (oneTimeCondition == null && "Add One Time Condition".Click().nl())
-                    oneTimeCondition = new TestOnceCondition();
-
-                if (oneTimeCondition != null) {
-                    if (icon.Delete.Click())
-                        oneTimeCondition = null;
-                    else
-                        changed |= oneTimeCondition.PEGI().nl();
-                }
-            }
-            else
+            if (!showDebug)
             {
-                
+
                 if (icon.Save.Click())
                 {
                     OnDisable();
@@ -564,14 +206,14 @@ using STD_Logic;
 
 
                 pegi.write("Speed From:", 70);
-                if (currentFrame == null || !currentFrame.isOverrideSpeed)
+                if (CurrentFrame == null || !CurrentFrame.isOverrideSpeed)
                     pegi.editEnum(ref speedSource);
                 else
-                    pegi.write(currentFrame.frameSpeedSource.ToString(), 50); //pegi.editEnum(ref currentFrame.frameSpeedSource);
+                    pegi.write(CurrentFrame.frameSpeedSource.ToString(), 50); //pegi.editEnum(ref currentFrame.frameSpeedSource);
 
 
-                if (keyElement != null)
-                    ("of " + keyElement.NameForPEGI).nl();
+                if (KeyElement != null)
+                    ("of " + KeyElement.NameForPEGI).nl();
                 else
                 {
                     pegi.nl();
@@ -633,7 +275,7 @@ using STD_Logic;
                         frames.Add(new SpeedAnimationFrame(null));
                     else
                     {
-                        frames.Insert(frameIndex + 1, new SpeedAnimationFrame(currentFrame));
+                        frames.Insert(frameIndex + 1, new SpeedAnimationFrame(CurrentFrame));
                         SetFrameIndex(frameIndex + 1);
                     }
                 }
@@ -670,7 +312,7 @@ using STD_Logic;
 
 
 
-                if (currentFrame != null)
+                if (CurrentFrame != null)
                 {
                     if (icon.Delete.Click().nl())
                     {
@@ -680,7 +322,7 @@ using STD_Logic;
 
                     pegi.newLine();
 
-                    if (inspectedElement == -1 && (currentFrame == null || currentFrame.isOverrideSpeed == false))
+                    if (inspectedElement == -1 && (CurrentFrame == null || CurrentFrame.isOverrideSpeed == false))
                     {
                         "Speed".foldout(ref curveSpeed);
                         changed |= pegi.edit(ref maxSpeed).nl();
@@ -708,7 +350,7 @@ using STD_Logic;
 
                 pegi.newLine();
 
-                if (playInEditor && !Application.isPlaying && currentFrame != null)
+                if (playInEditor && !Application.isPlaying && CurrentFrame != null)
                     changed |= "Frame".edit(50, ref editor_FramePortion, 0f, 1f).nl();
             }
 
@@ -722,10 +364,12 @@ using STD_Logic;
             return changed;
         }
 #endif
-        
-        void AnimateToPortion(float portion) {
 
-            if (previousFrame != null)  {
+        void AnimateToPortion(float portion)
+        {
+
+            if (PreviousFrame != null)
+            {
                 frameIndex -= 1;
                 foreach (var el in elementsUnsorted)
                     el.Set();
@@ -749,14 +393,14 @@ using STD_Logic;
         {
 
             inspectedAnimationController = this;
-            
+
             Reboot();
 
             UpdateCountless();
 
             Decode(std_Data);
 
-            if (currentFrame != null)
+            if (CurrentFrame != null)
                 foreach (var el in elementsUnsorted)
                     el.Set();
 
@@ -767,18 +411,21 @@ using STD_Logic;
         {
             var data = "";
 
-            try {
-                 data = Encode().ToString();
+            try
+            {
+                data = Encode().ToString();
             }
-            catch(Exception ex) {
-                Debug.Log("Failed to Encode animation "+ex.ToString());
+            catch (Exception ex)
+            {
+                Debug.Log("Failed to Encode animation " + ex.ToString());
                 return;
             }
 
             std_Data = data;
         }
-        
-        public override void Reboot() {
+
+        public override void Reboot()
+        {
             base.Reboot();
             if (Application.isPlaying)
                 frameIndex = 0;
@@ -793,7 +440,7 @@ using STD_Logic;
 
         public void FadeAway()
         {
-            
+
         }
 
         public bool TryFadeIn()
@@ -801,6 +448,346 @@ using STD_Logic;
             return false;
         }
 
-     
+
     }
+    
+    public interface ICallAfterIFinish
+    {
+        void SetCallback(Action OnFinish);
+    }
+
+    public enum SpeedSource { position, scale, shaderVal, rotation }
+    
+    public static class STD_AnimationExtensions
+    {
+        public static void DecodeFrame (this IAnimated_STD_PEGI obj, string data) {
+            if (obj != null) {
+                var cody = new StdDecoder(data);
+                foreach (var tag in cody)
+                    obj.DecodeFrame(tag, cody.GetData());
+            }
+        }
+    } 
+
+    public interface IAnimated_STD_PEGI {
+        StdEncoder EncodeFrame();
+        bool DecodeFrame(string tag, string data);
+#if PEGI
+        bool Frame_PEGI();
+#endif
+    }
+
+    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD , IPEGI
+    {
+
+        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
+
+        public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
+        
+        public override StdEncoder Encode() {
+            var cody =this.EncodeUnrecognized()
+            .Add("lpos", localPos.Encode())
+            .Add("lsize", LocalScale.Encode())
+            .Add("lrot", localRotation.Encode())
+            .Add("encData", customData.Encode())
+            .Add("shadeVal", shaderValue.Encode());
+            if (isOverrideSpeed)
+            {
+                cody.Add("src", (int)frameSpeedSource);
+                cody.Add("speed", frameSpeed);
+            }
+
+            return cody;
+        }
+
+        public Countless<Vector3> localPos = new Countless<Vector3>();
+        public Countless<Vector3> LocalScale = new Countless<Vector3>();
+        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
+        public Countless<float> shaderValue = new Countless<float>();
+        public Countless<string> customData = new Countless<string>();
+
+        public float frameSpeed = 0.1f;
+        public SpeedSource frameSpeedSource = SpeedSource.position;
+        public bool isOverrideSpeed;
+
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
+                case "lpos": data.DecodeInto(out localPos); break;
+                case "lsize": data.DecodeInto(out LocalScale); break;
+                case "lrot": data.DecodeInto(out localRotation); break;
+                case "encData": data.DecodeInto(out customData); break;
+                case "shadeVal": data.DecodeInto(out shaderValue); break;
+                case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
+                case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+#if PEGI
+        public override bool PEGI() {
+
+            pegi.nl();
+
+
+            if (Mgmt.KeyElement == El)
+            {
+                "Override Speed".toggle(90, ref isOverrideSpeed).nl();
+
+                if (isOverrideSpeed)
+                {
+
+                    "Frame Speed".edit(ref frameSpeed).nl();
+
+                    if (frameSpeed == 0)
+                        "Frame speed is 0, next frame is unreachable ".writeWarning();
+
+                    "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
+
+                }
+            }
+            return false;
+        }
+#endif
+        public float GetDelta() {
+
+            float speed = isOverrideSpeed ? frameSpeed : Mgmt.FrameSpeed;
+
+            var speedSource = isOverrideSpeed ? frameSpeedSource : Mgmt.speedSource;
+
+            if (speed == 0)
+                return 0;
+
+            var key = Mgmt.KeyElement;
+
+            if (key == null)
+                return 0;
+            
+            float distance = 0;
+            switch (speedSource) {
+                case SpeedSource.scale: distance = key.DeltaLocalScale.magnitude; break;
+                case SpeedSource.shaderVal: distance = Mathf.Abs(key.DeltaShaderValue); break;
+                case SpeedSource.rotation: distance = Mathf.Abs(key.AngleOfDeltaLocalRotation); break;
+                default: distance = key.DeltaLocalPos.magnitude; break;
+            }
+
+            return distance > 0 ? Mathf.Clamp01(speed*Time.deltaTime / distance) : 1;
+        }
+        
+        public SpeedAnimationFrame(SpeedAnimationFrame other) {
+            if (other != null) {
+                other.localPos.Encode().ToString().DecodeInto(out localPos);
+                other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
+                other.localRotation.Encode().ToString().DecodeInto(out localRotation);
+                other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
+                isOverrideSpeed = other.isOverrideSpeed;
+                frameSpeed = other.frameSpeed;
+                frameSpeedSource = other.frameSpeedSource;
+            }
+        }
+
+        public SpeedAnimationFrame() {
+
+        }
+    }
+    
+    //[Serializable]
+    public class AnimatedElement : AbstractKeepUnrecognized_STD
+#if PEGI
+        ,IPEGI, IGotName, IGotIndex
+#endif
+
+    {
+        [NonSerialized] MaterialPropertyBlock props;
+        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
+        public SpeedAnimationFrame Frame { get { return SpeedAnimationController.inspectedAnimationController.CurrentFrame; } }
+        public static AnimatedElement inspectedAnimatedObject;
+
+        [SerializeField] int index;
+       public int GetIndex()
+       {
+            return index;
+        }
+
+        public void SetIndex(int val)
+        {
+            index = val;
+        }
+
+        [SerializeField] string _name;
+        public string NameForPEGI { get { return _name; } set { _name = value; } }
+        public Transform transform;
+        public Renderer rendy;
+        public MonoBehaviour script;
+        public string propertyName;
+        public float currentShaderValue;
+
+        public override StdEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized()
+            .Add("i", index)
+            .Add_String("n", _name)
+            .Add_String("prop", propertyName)
+            .Add_Referance("tf", transform)
+            .Add_Referance("ren", rendy)
+            .Add_Referance("scrpt", script);
+            if (script) {
+                var asp = script as ISTD;
+                if (asp != null)
+                    cody.Add("stdDTA", asp.Encode());
+            }
+
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data) {
+            switch (tag)  {
+                case "i": index = data.ToInt(); break;
+                case "n": _name = data; break;
+                case "prop": propertyName = data; break;
+                case "stdDTA": data.TryDecodeInto(script); break;
+                case "tf": data.Decode_Referance(ref transform); break;
+                case "ren": data.Decode_Referance(ref rendy);  break;
+                case "scrpt":  data.Decode_Referance(ref script); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        public Vector3 LocalPos { get {
+                return Frame.localPos[index];
+            } set { Frame.localPos[index] = value; } }
+        public Vector3 LocalScale { get { return Frame.LocalScale[GetIndex()]; } set { Frame.LocalScale[index] = value; } }
+        public string CustomData { get { return Frame.customData[GetIndex()]; } set { Frame.customData[index] = value; } }
+        public Quaternion LocalRotation { get { return Frame.localRotation[GetIndex()]; } set { Frame.localRotation[GetIndex()] = value; } }
+        public float ShaderValue { get {
+                return Frame.shaderValue[index];
+            } set {
+                Frame.shaderValue[index] = value;
+            }
+        }
+
+        public Vector3 DeltaLocalPos { get { if (!transform) return Vector3.zero; return transform.localPosition - LocalPos; } }
+        public Vector3 DeltaLocalScale { get { if (!transform) return Vector3.zero; return transform.localScale - LocalScale; } }
+        public float AngleOfDeltaLocalRotation { get { if (!transform) return 0; return  Quaternion.Angle(transform.localRotation, LocalRotation); } }
+        public float DeltaShaderValue { get { return currentShaderValue - ShaderValue; } }
+        public IAnimated_STD_PEGI AnimSTD => script as IAnimated_STD_PEGI;
+
+
+        public void SetCurrentShaderValue(float value) {
+            
+            currentShaderValue = value;
+            if (rendy) {
+                if (props == null) props = new MaterialPropertyBlock();
+                props.SetFloat(propertyName, value);
+                rendy.SetPropertyBlock(props);
+            }
+        }
+        
+        public void Animate(float portion) {
+            if (portion == 1)
+                Set();
+            else {
+                if (transform)
+                {
+                    transform.localPosition -= DeltaLocalPos * portion;
+                    transform.localScale -= DeltaLocalScale * portion;
+                    transform.localRotation = Quaternion.Lerp(transform.localRotation, LocalRotation, portion);
+                }
+
+                if (rendy)
+                    SetCurrentShaderValue(currentShaderValue - DeltaShaderValue * portion);
+            }
+        }
+
+        public void Set()
+        {
+            if (transform) {
+                transform.localPosition = LocalPos;
+                transform.localScale = LocalScale;
+                transform.localRotation = LocalRotation;
+            }
+            if (rendy)
+                SetCurrentShaderValue(ShaderValue);
+
+            AnimSTD.DecodeFrame(CustomData);
+        }
+        
+        public void Record() {
+            if (Mgmt.CurrentFrame == null)
+                return;
+
+            if (transform != null) {
+                LocalPos = transform.localPosition;
+                LocalScale = transform.localScale;
+                LocalRotation = transform.localRotation;
+            }
+            if (rendy)
+                ShaderValue = currentShaderValue;
+
+            
+            var asp = AnimSTD;
+            if (asp != null) 
+                    CustomData = asp.EncodeFrame().ToString();
+            
+        }
+
+            #if PEGI
+        [SerializeField] bool transformInLocalSpace = true;
+        [SerializeField] bool showDependencies = true;
+        public override bool PEGI() {
+            inspectedAnimatedObject = this;
+
+            var key = Mgmt.KeyElement;
+            
+            if (this.inspect_Name().nl() && transform)
+                transform.name = NameForPEGI;
+
+            if ("Dependencies".foldout(ref showDependencies).nl())
+            {
+
+                if ((key == null || key != this) && "Set As Key".Click())
+                    Mgmt.KeyElement = this;
+
+                var ind = index;
+                if ("Index:".edit(50, ref ind).nl())
+                    index = ind;
+                if ("Transform".edit(80, ref transform).nl() && transform)
+                    NameForPEGI = transform.name;
+
+                "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
+
+                "Renderer".edit(80, ref rendy).nl();
+
+                Mgmt.CurrentFrame.PEGI();
+            }
+
+            if (rendy)
+            {
+                "On Material".edit(90, ref propertyName).nl();
+
+                if (pegi.edit(ref currentShaderValue, 0, 1).nl())
+                    SetCurrentShaderValue(currentShaderValue);
+            }
+            
+            (script as IAnimated_STD_PEGI)?.Frame_PEGI().nl();
+            
+            if (transform)
+            {
+                transform.PEGI_CopyPaste(ref transformInLocalSpace);
+
+                if (Mgmt.transform != transform)
+                    transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
+            }
+   
+            inspectedAnimatedObject = null;
+
+            return false;
+        }
+#endif
+        
+    }
+    
 }

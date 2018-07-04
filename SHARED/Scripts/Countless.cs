@@ -1750,14 +1750,14 @@ namespace SharedTools_Stuff {
 
         public static int Get(this UnnullableSTD<CountlessInt> unn, int group, int index)
         {
-            var tg = GetIfExists(unn, group);
+            var tg = TryGet(unn, group);
             if (tg == null)
                 return 0;
             return tg[index];
         }
 
         public static bool Get(this UnnullableSTD<CountlessBool> unn, int group, int index) {
-            var tg = GetIfExists(unn, group);
+            var tg = TryGet(unn, group);
             if (tg == null)
                 return false;
             return tg[index];
@@ -1765,13 +1765,13 @@ namespace SharedTools_Stuff {
 
         public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: ISTD, new()
         {
-            var tg = GetIfExists(unn, group);
+            var tg = TryGet(unn, group);
             if (tg == null)
                 return default(T);
             return tg[index];
         }
 
-        public static T GetIfExists<T>(this UnnullableSTD<T> unn, int index) where T : ISTD, new()
+        public static T TryGet<T>(this UnnullableSTD<T> unn, int index) where T : ISTD, new()
         {
             if (unn != null)
                 return unn.GetIfExists(index);

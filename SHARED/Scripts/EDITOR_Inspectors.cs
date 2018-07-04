@@ -13,9 +13,9 @@ using UnityEditor;
         public override void OnInspectorGUI() => ((SpeedAnimationController)target).Inspect(serializedObject); 
     }
 
-    [CustomEditor(typeof(iSTD_Explorer))]
-    public class iSTD_ExplorerDrawer : Editor  {
-        public override void OnInspectorGUI() => ((iSTD_Explorer)target).Inspect(serializedObject);
+    [CustomEditor(typeof(ISTD_Explorer))]
+    public class ISTD_ExplorerDrawer : Editor  {
+        public override void OnInspectorGUI() => ((ISTD_Explorer)target).Inspect(serializedObject);
     }
     
     [CustomEditor(typeof(GodMode))]

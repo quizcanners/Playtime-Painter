@@ -368,11 +368,13 @@ namespace SharedTools_Stuff
         }
 
 
+        public static void Save_ToAssets_ByRelativePath(string Path, string filename, string data) =>
+            Save_ByFullPath(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, data);
+        
 
-
-        public static void Save(string directory, string filename, string data)
+        public static void Save_ByFullPath(string fullDirectoryPath, string filename, string data)
         {
-            string fullPath = directory;
+            string fullPath = fullDirectoryPath;
             Directory.CreateDirectory(fullPath);
             BinaryFormatter bf = new BinaryFormatter();
             string full = fullPath + filename + fileType;
@@ -387,10 +389,10 @@ namespace SharedTools_Stuff
 
 
 
-        public static void SaveToResources(string ResFolderPath, string InsideResPath, string filename, string data)
-        {
-            Save(Application.dataPath + ResFolderPath.AddPreSlashIfNotEmpty() + "/Resources" + InsideResPath.AddPreSlashIfNotEmpty() + "/", filename, data);
-        }
+        public static void SaveToResources(string ResFolderPath, string InsideResPath, string filename, string data) =>
+        Save_ToAssets_ByRelativePath(ResFolderPath + "/Resources" + InsideResPath.AddPreSlashIfNotEmpty(), filename, data);
+          //  Save_ByFullPath(Application.dataPath + ResFolderPath.AddPreSlashIfNotEmpty() + "/Resources" + InsideResPath.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, data);
+        
 
     }
 

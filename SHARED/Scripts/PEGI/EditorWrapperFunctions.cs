@@ -15,6 +15,7 @@ using System.Reflection;
 using UnityEditor.SceneManagement;
 using SharedTools_Stuff;
 using UnityEngine.Events;
+using UnityEditorInternal;
 
 namespace  PlayerAndEditorGUI {
 
@@ -1273,8 +1274,94 @@ namespace  PlayerAndEditorGUI {
             yield break;
         }
 
-        
-    }
+
+
+        #region Reordable List
+        /*
+        static Dictionary<IList, ReorderableList> reorderableList = new Dictionary<IList, ReorderableList>();
+
+
+    
+
+        public static void Subscribe()
+        {
+            reorderableList = new ReorderableList(listExample.exxonComponents, typeof(ExxonMGMT), true, true, true, true);
+
+            reorderableList.drawHeaderCallback += DrawHeader;
+            reorderableList.drawElementCallback += DrawElement;
+
+            reorderableList.onAddCallback += AddItem;
+            reorderableList.onRemoveCallback += RemoveItem;
+        }
+
+        private void OnDisable()
+        {
+            reorderableList.drawHeaderCallback -= DrawHeader;
+            reorderableList.drawElementCallback -= DrawElement;
+
+            reorderableList.onAddCallback -= AddItem;
+            reorderableList.onRemoveCallback -= RemoveItem;
+        }
+
+        /// <summary>
+        /// Draws the header of the list
+        /// </summary>
+        /// <param name="rect"></param>
+        private void DrawHeader(Rect rect)
+        {
+            GUI.Label(rect, "Components");
+        }
+
+        /// <summary>
+        /// Draws one element of the list (ListItemExample)
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="index"></param>
+        /// <param name="active"></param>
+        /// <param name="focused"></param>
+        private void DrawElement(Rect rect, int index, bool active, bool focused)
+        {
+            var item = listExample.exxonComponents[index];
+
+            EditorGUI.BeginChangeCheck();
+            item.name = EditorGUI.TextField(new Rect(rect.x, rect.y, 100, rect.height), item.name);
+            // item.boolValue = EditorGUI.Toggle(new Rect(rect.x, rect.y, 18, rect.height), item.boolValue);
+            // item.stringvalue = EditorGUI.TextField(new Rect(rect.x + 18, rect.y, rect.width - 18, rect.height), item.stringvalue);
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorUtility.SetDirty(target);
+            }
+
+            // If you are using a custom PropertyDrawer, this is probably better
+            // EditorGUI.PropertyField(rect, serializedObject.FindProperty("list").GetArrayElementAtIndex(index));
+            // Although it is probably smart to cach the list as a private variable ;)
+        }
+
+        private void AddItem(ReorderableList list)
+        {
+            listExample.exxonComponents.Add(new ComponentAnimation());
+
+            EditorUtility.SetDirty(target);
+        }
+
+        private void RemoveItem(ReorderableList list)
+        {
+            listExample.exxonComponents.RemoveAt(list.index);
+
+            EditorUtility.SetDirty(target);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            reorderableList.DoLayoutList();
+        }
+    */
+
+
+    #endregion
+
+}
 }
 
 #endif

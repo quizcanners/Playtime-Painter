@@ -13,7 +13,7 @@ namespace SharedTools_Stuff
         void DestroyYourself();
     }
 
-    public interface iManageFading
+    public interface IManageFading
     {
         void FadeAway();
         bool TryFadeIn();

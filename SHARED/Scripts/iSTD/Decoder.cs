@@ -297,8 +297,7 @@ namespace SharedTools_Stuff
         
         public static T TryDecodeInto<T>(this string data, T val)
         {
-            if (val != null)
-                data.DecodeInto(val as ISTD);
+            data.DecodeInto(val as ISTD);
             return val;
         }
 
@@ -351,7 +350,7 @@ namespace SharedTools_Stuff
         
         public static T Decode_Referance<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
 
-        public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.DecodeInto(out list, keeper);
+        public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, keeper);
 
         public static T DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
@@ -363,6 +362,18 @@ namespace SharedTools_Stuff
             keeper = prevKeeper;
 
             return obj;
+        }
+
+       public static List<T> DecodeInto<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
+        {
+            var prevKeeper = keeper;
+            keeper = referencesKeeper;
+
+            data.DecodeInto(out val);
+
+            keeper = prevKeeper;
+
+            return val;
         }
 
         public static T Decode<T>(this string data, ref T val, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
@@ -377,13 +388,14 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        public static List<T> DecodeInto<T>(this string data, out List<T> list, ISTD_SerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
+        public static List<T> Decode_References<T>(this string data, out List<T> list, ISTD_SerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
         {
             list = new List<T>();
 
             if (referencesKeeper != null) {
 
-                List<int> indxs; data.DecodeInto(out indxs);
+                List<int> indxs;
+                data.DecodeInto(out indxs);
 
                 foreach (var i in indxs)
                     list.Add(referencesKeeper.GetISTDreferenced<T>(i));
