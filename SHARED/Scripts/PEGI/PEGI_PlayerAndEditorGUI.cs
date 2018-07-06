@@ -311,6 +311,13 @@ namespace PlayerAndEditorGUI
             return value;
         }
 
+        public static bool nl(this bool value, ref bool changed)
+        {
+            changed |= value;
+
+            return value.nl();
+        }
+
         public static bool nl(this string value)
         {
             write(value);
@@ -970,13 +977,13 @@ namespace PlayerAndEditorGUI
 
             if (jindx == -1 && val != null)
             {
-                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+                lnms.Add("[" + val.ToPEGIstring() + "]");
                 jindx = lnms.Count - 1;
             }
 
             int tmp = jindx;
 
-            if (select(ref tmp, lnms.ToArray()) && (jindx < count)) {
+            if (select(ref tmp, lnms.ToArray()) && (tmp < count)) {
                 jindx = tmp;
                 return true;
             }
@@ -1093,8 +1100,8 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool select<T>(ref T val, List<T> lst) => select<T>(ref val, lst, (x) => x.Equals(selecLambdaCurrentValue));
-       /* {
+        public static bool select<T>(ref T val, List<T> lst)// => select<T>(ref val, lst, (x) => x.Equals(selecLambdaCurrentValue));
+        {
                 checkLine();
             
                 List<string> lnms = new List<string>();
@@ -1122,7 +1129,7 @@ namespace PlayerAndEditorGUI
            
                 return false;
             
-        }*/
+        }
 
         public static bool select(ref Type val, List<Type> lst, string textForCurrent)
         {
@@ -1892,7 +1899,7 @@ namespace PlayerAndEditorGUI
 
 #endregion
 
-#region BUTTONS
+#region Click
         const int defaultButtonSize = 25;
 
         public static int selectedTab;
@@ -2167,7 +2174,12 @@ namespace PlayerAndEditorGUI
         }
         
         public static bool Click(this icon icon) => Click(icon.getIcon(), defaultButtonSize);
-        
+
+        public static bool ClickUnfocus(this icon icon, ref bool changed) {
+            changed |= ClickUnfocus(icon.getIcon(), defaultButtonSize);
+            return changed;
+        }
+
         public static bool ClickUnfocus(this icon icon) =>  ClickUnfocus(icon.getIcon(), defaultButtonSize);
         
         public static bool ClickUnfocus(this icon icon, msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
@@ -4065,7 +4077,7 @@ namespace PlayerAndEditorGUI
         static bool ListAddClick<T>(this List<T> list)
         {
 
-            if (typeof(T).IsUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
+            if (!typeof(T).IsUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
                 return false;
 
             if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))

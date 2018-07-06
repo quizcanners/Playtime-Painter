@@ -198,7 +198,7 @@ namespace SharedTools_Stuff
 #endif
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName
+    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention 
     {
         
         [SerializeField]protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
@@ -244,6 +244,14 @@ namespace SharedTools_Stuff
             }
         }
 
+        public virtual string NeedAttention()
+        {
+            if (nestedReferencesChanged && gameObject.IsPrefab())
+                return "Nested References changed";
+
+            return null;
+        }
+
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
             bool changed = false;
@@ -269,15 +277,15 @@ namespace SharedTools_Stuff
 
             bool changed = false;
 
-            bool prefabNeedSave = nestedReferencesChanged && gameObject.IsPrefab();
+            var attention = NeedAttention();
 
-            if (!showDebug && (prefabNeedSave ? icon.Warning.Click("Nested References changed") : icon.Config.Click()))
+            if (!showDebug && (attention!= null ? icon.Warning.Click(attention) : icon.Config.Click()))
                 showDebug = true;
 
             if (showDebug)
             {
 
-                if (prefabNeedSave && icon.Save.Click())
+                if (nestedReferencesChanged && gameObject.IsPrefab() && icon.Save.Click())
                     gameObject.UpdatePrefab();
 
                 if (icon.Edit.Click("Back to element inspection"))
@@ -316,7 +324,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-    
+      
     }
 
     #endregion
