@@ -226,7 +226,7 @@ namespace PlayerAndEditorGUI
 
         public static string thisMethodName() => thisMethodName(1);
         
-        public static string thisMethodName(int up) => (new StackFrame(up)).GetMethod().Name;
+        public static string thisMethodName(int up) => (new StackFrame(up))?.GetMethod()?.Name;
         
         public static void NameNext(string name) => GUI.SetNextControlName(name);
         
@@ -963,6 +963,27 @@ namespace PlayerAndEditorGUI
             }
         }
 
+
+        static bool select_Final<T>(T val, ref int jindx, List<string> lnms)
+        {
+            int count = lnms.Count;
+
+            if (jindx == -1 && val != null)
+            {
+                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+                jindx = lnms.Count - 1;
+            }
+
+            int tmp = jindx;
+
+            if (select(ref tmp, lnms.ToArray()) && (jindx < count)) {
+                jindx = tmp;
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool select<T>(ref T val, T[] lst)
         {
                 checkLine();
@@ -984,11 +1005,7 @@ namespace PlayerAndEditorGUI
                     }
                 }
 
-                if (jindx == -1 && val != null)
-                    lnms.Add(">>" + val.ToPEGIstring() + "<<");
-
-
-                if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+                if (select_Final(val, ref jindx, lnms)) 
                 {
                     val = lst[indxs[jindx]];
                     return true;
@@ -998,32 +1015,12 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool select<T>(ref int ind, T[] lst)
-        {
-
-                checkLine();
-
-                var lnms = new string[lst.Length];
-
-                int before = ind;
-                ind = ind.ClampZeroTo(lst.Length);
-
-
-                for (int i = 0; i < lst.Length; i++)
-                {
-                    var e = lst[i];
-                    lnms[i] = (i + ": " + (e == null ? "Nothing" : e.ToPEGIstring()));
-                }
-
-                if (select(ref ind, lnms))
-                    return true;
-
-                return before != ind;
-            
-        }
+        static object selecLambdaCurrentValue;
 
         public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda)
         {
+            selecLambdaCurrentValue = val;
+
             checkLine();
 
             List<string> lnms = new List<string>();
@@ -1044,10 +1041,11 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            if (jindx == -1 && val >= 0)
-                lnms.Add(">>" + val.ToPEGIstring() + "<<");
-            
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+           // if (jindx == -1 && val >= 0)
+              //  lnms.Add(">>" + val.ToPEGIstring() + "<<");
+
+            if (select_Final(val, ref jindx, lnms))
+              //  if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
             {
                 val = indxs[jindx];
                 return true;
@@ -1059,6 +1057,8 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda)
         {
             bool changed = false;
+
+            selecLambdaCurrentValue = val;
 
             checkLine();
 
@@ -1080,10 +1080,10 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            if (jindx == -1 && val != null)
-                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+           // if (jindx == -1 && val != null)
+             //   lnms.Add(">>" + val.ToPEGIstring() + "<<");
 
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(val, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
             {
                 val = lst[indxs[jindx]];
                 changed = true;
@@ -1093,17 +1093,10 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool select<T>(ref T val, List<T> lst)
-        {
+        public static bool select<T>(ref T val, List<T> lst) => select<T>(ref val, lst, (x) => x.Equals(selecLambdaCurrentValue));
+       /* {
                 checkLine();
-
-            //string tag = "slct";
-            //NameNextUnique(ref tag);
-
-
-           // if (nameFocused.SameAs(tag))
-              //  ("Dropdown : " + tag).Log();
-
+            
                 List<string> lnms = new List<string>();
                 List<int> indxs = new List<int>();
 
@@ -1120,11 +1113,8 @@ namespace PlayerAndEditorGUI
                         indxs.Add(j);
                     }
                 }
-
-                if (jindx == -1 && val != null)
-                    lnms.Add(">>" + val.ToPEGIstring() + "<<");
-
-                if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+                
+            if (select_Final(val, ref jindx, lnms))  
                 {
                     val = lst[indxs[jindx]];
                     return true;
@@ -1132,8 +1122,8 @@ namespace PlayerAndEditorGUI
            
                 return false;
             
-        }
-        
+        }*/
+
         public static bool select(ref Type val, List<Type> lst, string textForCurrent)
         {
             checkLine();
@@ -1192,10 +1182,10 @@ namespace PlayerAndEditorGUI
                     }
                 }
 
-            if (jindx == -1 && val != null)
-                lnms.Add(">>" + val.ToPEGIstring() + "<<");
+            // if (jindx == -1 && val != null)
+            //   lnms.Add(">>" + val.ToPEGIstring() + "<<");
 
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(val, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
                 {
                     val = lst[indxs[jindx]] as T;
                     changed = true;
@@ -1249,10 +1239,10 @@ namespace PlayerAndEditorGUI
                     }
                 }
 
-            if (jindx == -1)
-                lnms.Add(">>" + ind.ToString() + "<<");
+            // if (jindx == -1)
+            //   lnms.Add(">>" + ind.ToString() + "<<");
 
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(ind, ref ind, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
                 {
                     ind = indxs[jindx];
                     return true;
@@ -1384,13 +1374,13 @@ namespace PlayerAndEditorGUI
 
 
 
-                if (tmpindex == -1)
-                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
+                //  if (tmpindex == -1)
+                //    filtered.Add(">>" + no.ToPEGIstring() + "<<");
 
 
-                if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
+                if (select_Final(no, ref tmpindex, filtered))//if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
 
-                  //  if (select(ref tmpindex, filtered.ToArray()))
+                //  if (select(ref tmpindex, filtered.ToArray()))
                 {
                     no = inds[tmpindex];
                     return true;
@@ -1430,6 +1420,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        /*
         public static bool select<T>(ref int current)
         {
 #if UNITY_EDITOR
@@ -1460,7 +1451,23 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
+        */
+        public static bool select<T>(ref int ind, T[] lst)
+        {
 
+            checkLine();
+
+            var lnms = new List<string>();
+
+            ind = ind.ClampZeroTo(lst.Length);
+
+            for (int i = 0; i < lst.Length; i++)
+                lnms.Add(i + ": " + (lst[i].ToPEGIstring()));
+
+            return select_Final(ind, ref ind, lnms);
+
+        }
+        
         public static bool select(ref int current, Dictionary<int, string> from)
         {
 #if UNITY_EDITOR
@@ -3828,78 +3835,84 @@ namespace PlayerAndEditorGUI
             if (list != editingOrder) {
                 if (icon.Edit.Click("Change Order", 28))
                     editingOrder = list;
-            } else {
-                if (icon.Done.Click("Finish moving", 28))
+            } else   if (icon.Done.Click("Finish moving", 28))
                     editingOrder = null;
-            }
-
+            
             if (list == editingOrder)
             {
-                list.InspectionStart();
-
-                var derr = typeof(T).TryGetDerrivedClasses();
-
-                for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
+#if UNITY_EDITOR
+                if (!paintingPlayAreaGUI)
                 {
-                    if (i > 0)
+                    nl();
+                    ef.reorder_List(list);
+                }
+                else
+#endif
+                {
+                    list.InspectionStart();
+                    var derr = typeof(T).TryGetDerrivedClasses();
+                    for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
-                        if (icon.Up.Click("Move up", bttnWidth))
+                        if (i > 0)
                         {
-                            changed = true;
-                            list.Swap(i - 1);
-                        }
-                    }
-                    else
-                        icon.UpLast.write("Last", bttnWidth);
-
-                    if (i < list.Count - 1) {
-                        if (icon.Down.Click("Move down",bttnWidth))
-                        {
-                            changed = true;
-                            list.Swap(i);
-                        }
-                    }
-                    else icon.DownLast.write(bttnWidth);
-
-                    var el = list[i];
-
-                    if (allowDelete)
-                    {
-                        if (el != null && typeof(T).IsUnityObject())
-                        {
-                            if (icon.Delete.ClickUnfocus(msg.MakeElementNull, bttnWidth))
-                                list[i] = default(T);
-                        }
-                        else
-                        {
-                            if (icon.Close.ClickUnfocus(msg.RemoveFromList, bttnWidth))
+                            if (icon.Up.Click("Move up", bttnWidth))
                             {
-                                list.RemoveAt(i);
                                 changed = true;
-                                i--;
-                                ListSectionMax--;
+                                list.Swap(i - 1);
                             }
                         }
+                        else
+                            icon.UpLast.write("Last", bttnWidth);
+
+                        if (i < list.Count - 1)
+                        {
+                            if (icon.Down.Click("Move down", bttnWidth))
+                            {
+                                changed = true;
+                                list.Swap(i);
+                            }
+                        }
+                        else icon.DownLast.write(bttnWidth);
+
+                        var el = list[i];
+
+                        if (allowDelete)
+                        {
+                            if (el != null && typeof(T).IsUnityObject())
+                            {
+                                if (icon.Delete.ClickUnfocus(msg.MakeElementNull, bttnWidth))
+                                    list[i] = default(T);
+                            }
+                            else
+                            {
+                                if (icon.Close.ClickUnfocus(msg.RemoveFromList, bttnWidth))
+                                {
+                                    list.RemoveAt(i);
+                                    changed = true;
+                                    i--;
+                                    ListSectionMax--;
+                                }
+                            }
+                        }
+
+                        if (el != null && derr != null)
+                        {
+                            var ty = el.GetType();
+                            if (select(ref ty, derr, el.ToPEGIstring()))
+                                list[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        }
+
+                        if (el != null)
+                            write(el.ToPEGIstring());
+                        else
+                            ("Empty " + typeof(T).ToPEGIstring()).write();
+
+                        nl();
                     }
-
-                    if (el!= null && derr!= null) {
-                        var ty = el.GetType();
-                        if (select(ref ty, derr, el.ToPEGIstring())) 
-                            list[i] = (el as ISTD).TryDecodeInto<T>(ty);
-                    }
-
-
-
-                    if (el != null)
-                        write(el.ToPEGIstring());
-                    else
-                        ("Empty " + typeof(T).ToPEGIstring()).write();
-                    
-                    nl();
+                    list.InspectionEnd().nl();
                 }
-                list.InspectionEnd().nl();
-
             }
+            
             return changed;
         }
 
@@ -3939,7 +3952,17 @@ namespace PlayerAndEditorGUI
 
                 }
                 else
-                    write(el.ToPEGIstring(), 120 + defaultButtonSize*((uo == null ? 1 : 0)  + (pg == null ? 1 : 0) + (datas == null ? 1: 0)));
+
+                {
+
+
+                    if (uo == null && pg == null && datas == null)
+                        el.ToPEGIstring().write();
+                    else
+                        write(el.ToPEGIstring(), 120 + defaultButtonSize * ((uo == null ? 1 : 0) + (pg == null ? 1 : 0) + (datas == null ? 1 : 0)));
+                }
+
+                  //  write(el.ToPEGIstring(), 120 + defaultButtonSize*((uo == null ? 1 : 0)  + (pg == null ? 1 : 0) + (datas == null ? 1: 0)));
 
                 
                 if (pg != null)
@@ -4178,6 +4201,12 @@ namespace PlayerAndEditorGUI
         
         public static T edit_List_SO<T>(this List<T> list, ref int edited, ref bool changed, UnnullableSTD<ElementData> datas) where T : ScriptableObject
         {
+            if (list == null)
+            {
+                write("NULL list");
+                return null;
+            }
+
             T added = default(T);
 
             int before = edited;

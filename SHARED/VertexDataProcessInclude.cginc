@@ -26,8 +26,6 @@ struct v2fvd {
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
 
-
-
 static const float MERGE_POWER = 512;
 static const float TERABOUNCE = 0.2;
 

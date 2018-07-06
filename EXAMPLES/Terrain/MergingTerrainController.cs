@@ -62,18 +62,28 @@ namespace Playtime_Painter
 
             SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
 
+            int copyProtsCount = copyProts == null ? 0 : copyProts.Length;
+
+           
             if (mergeSubmasks != null)
             {
 
-                int max = Mathf.Min(copyProts.Length, mergeSubmasks.Count);
+             
 
-                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4)) {
+                int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
+
+                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4)) 
                     max++;
-                }
+                
 
-                if (copyProts.Length < max) {
-                    int toAdd = max - copyProts.Length;
-                    splatArrayFuncs.Expand(ref copyProts, toAdd);
+                if (copyProtsCount < max) {
+                    int toAdd = max - copyProtsCount;
+
+                    if (copyProts == null)
+                        copyProts = new SplatPrototype[max];
+                    else
+                        splatArrayFuncs.Expand(ref copyProts, toAdd);
+
                     for (int i = max - toAdd; i < max; i++)
                         copyProts[i] = new SplatPrototype();
                 }
@@ -89,10 +99,12 @@ namespace Playtime_Painter
                             copyProts[i].texture = tmp.Product_colorWithAlpha;
                     }
                 }
+
+                if (terrain)
+                    terrain.terrainData.splatPrototypes = copyProts;
             }
 
-            if (terrain != null)
-                terrain.terrainData.splatPrototypes = copyProts;
+         
 
         }
 #if PEGI

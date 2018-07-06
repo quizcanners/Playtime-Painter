@@ -565,6 +565,56 @@ namespace  PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool select_Type(ref Type current, List<Type> others, Rect rect)
+        {
+
+            string[] names = new string[others.Count];
+
+            int ind = -1;
+
+            for (int i = 0; i < others.Count; i++)
+            {
+                var el = others[i];
+                names[i] = el.ToPEGIstring();
+                if (el != null && el.Equals(current))
+                    ind = i;
+            }
+
+            int newNo = EditorGUI.Popup(rect, ind, names);
+            if (newNo != ind)
+            {
+                current = others[newNo];
+                return change;
+            }
+
+            return false;
+        }
+
+        public static bool select<T>(ref T current, List<T> others, Rect rect)
+        {
+
+            string[] names = new string[others.Count];
+
+            int ind = -1;
+
+            for (int i = 0; i < others.Count; i++)
+            {
+                var el = others[i];
+                names[i] = el.ToPEGIstring();
+                if (el != null && el.Equals(current))
+                    ind = i;
+            }
+
+            int newNo = EditorGUI.Popup(rect, ind, names);
+            if (newNo != ind)
+            {
+                current = others[newNo];
+                return change;
+            }
+
+            return false;
+        }
+
         public static bool edit(ref int current, Type type)
         {
             return select(ref current, type);
@@ -1273,90 +1323,95 @@ namespace  PlayerAndEditorGUI {
             }
             yield break;
         }
-
-
-
+        
         #region Reordable List
-        /*
+        
         static Dictionary<IList, ReorderableList> reorderableList = new Dictionary<IList, ReorderableList>();
 
-
-    
-
-        public static void Subscribe()
+        static ReorderableList GetReordable<T>(this List<T> list)
         {
-            reorderableList = new ReorderableList(listExample.exxonComponents, typeof(ExxonMGMT), true, true, true, true);
+            ReorderableList rl;
+            reorderableList.TryGetValue(list, out rl);
 
-            reorderableList.drawHeaderCallback += DrawHeader;
-            reorderableList.drawElementCallback += DrawElement;
+            if (rl == null)  {
+                rl = new ReorderableList(list, typeof(T), true, true, false, true);
+                reorderableList.Add(list, rl);
 
-            reorderableList.onAddCallback += AddItem;
-            reorderableList.onRemoveCallback += RemoveItem;
-        }
+                rl.drawHeaderCallback += DrawHeader;
+                rl.drawElementCallback += DrawElement;
 
-        private void OnDisable()
-        {
-            reorderableList.drawHeaderCallback -= DrawHeader;
-            reorderableList.drawElementCallback -= DrawElement;
-
-            reorderableList.onAddCallback -= AddItem;
-            reorderableList.onRemoveCallback -= RemoveItem;
-        }
-
-        /// <summary>
-        /// Draws the header of the list
-        /// </summary>
-        /// <param name="rect"></param>
-        private void DrawHeader(Rect rect)
-        {
-            GUI.Label(rect, "Components");
-        }
-
-        /// <summary>
-        /// Draws one element of the list (ListItemExample)
-        /// </summary>
-        /// <param name="rect"></param>
-        /// <param name="index"></param>
-        /// <param name="active"></param>
-        /// <param name="focused"></param>
-        private void DrawElement(Rect rect, int index, bool active, bool focused)
-        {
-            var item = listExample.exxonComponents[index];
-
-            EditorGUI.BeginChangeCheck();
-            item.name = EditorGUI.TextField(new Rect(rect.x, rect.y, 100, rect.height), item.name);
-            // item.boolValue = EditorGUI.Toggle(new Rect(rect.x, rect.y, 18, rect.height), item.boolValue);
-            // item.stringvalue = EditorGUI.TextField(new Rect(rect.x + 18, rect.y, rect.width - 18, rect.height), item.stringvalue);
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorUtility.SetDirty(target);
+                rl.onAddCallback += AddItem;
+                rl.onRemoveCallback += RemoveItem;
             }
 
-            // If you are using a custom PropertyDrawer, this is probably better
-            // EditorGUI.PropertyField(rect, serializedObject.FindProperty("list").GetArrayElementAtIndex(index));
-            // Although it is probably smart to cach the list as a private variable ;)
+            return rl;
         }
-
-        private void AddItem(ReorderableList list)
+        
+        static IList current_Reordered_List;
+        static Type current_Reordered_Type;
+        static List<Type> current_Reordered_ListTypes;
+        public static bool reorder_List<T>(List<T> l)
         {
-            listExample.exxonComponents.Add(new ComponentAnimation());
-
-            EditorUtility.SetDirty(target);
+            EditorGUI.BeginChangeCheck();
+            current_Reordered_ListTypes = typeof(T).TryGetDerrivedClasses();
+            current_Reordered_Type = typeof(T);
+            current_Reordered_List = l;
+            l.GetReordable().DoLayoutList();
+            return EditorGUI.EndChangeCheck();
         }
+        
+        static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering "+ current_Reordered_List.Count.ToString()+" "+current_Reordered_Type.ToPEGIstring()+"s");
 
-        private void RemoveItem(ReorderableList list)
+        static void DrawElement(Rect rect, int index, bool active, bool focused)
         {
-            listExample.exxonComponents.RemoveAt(list.index);
+            
+            var el = current_Reordered_List[index];
+         
 
-            EditorUtility.SetDirty(target);
+            if (el != null) {
+
+            
+                if (el != null && current_Reordered_ListTypes != null)
+                {
+                    var ty = el.GetType();
+
+                    GUIContent cont = new GUIContent();
+                    cont.tooltip = ty.ToString();
+                    cont.text = el.ToPEGIstring();
+
+                    rect.width = 100;
+                    EditorGUI.LabelField(rect, cont);
+                    rect.x += 100;
+                    
+                    if (select_Type(ref ty, current_Reordered_ListTypes, rect))
+                        current_Reordered_List[index] = (el as ISTD).TryDecodeInto<object>(ty);
+                }
+                else
+                {
+                    rect.width = 200;
+                    EditorGUI.LabelField(rect, el.ToPEGIstring());
+                }
+            } else
+            EditorGUI.LabelField(rect, "Empty " + current_Reordered_Type.ToPEGIstring());
+            
         }
 
-        public override void OnInspectorGUI()
+        static void AddItem(ReorderableList list)
         {
-            base.OnInspectorGUI();
-            reorderableList.DoLayoutList();
+           // currentList.Add(new ComponentAnimation());
         }
-    */
+
+        static void RemoveItem(ReorderableList list)
+        {
+            int i = list.index;
+            var el = current_Reordered_List[i];
+            if (el != null && current_Reordered_Type.IsUnityObject())
+                current_Reordered_List[i] = null;
+            else
+                current_Reordered_List.RemoveAt(i);
+        }
+
+    
 
 
     #endregion

@@ -49,13 +49,10 @@ namespace SharedTools_Stuff
     #region Unrecognized Tags Persistance
 
     public interface IKeepUnrecognizedSTD : ISTD {
-       UnrecognizedSTD UnrecognizedSTD { get; }
+       UnrecognizedTags_List UnrecognizedSTD { get; }
     }
 
-    public class UnrecognizedSTD
-#if PEGI
-        :IPEGI
-#endif
+    public class UnrecognizedTags_List :IPEGI
     {
         protected List<string> tags = new List<string>();
         protected List<string> datas = new List<string>();
@@ -88,7 +85,7 @@ namespace SharedTools_Stuff
             
         }
 
-        public UnrecognizedSTD()
+        public UnrecognizedTags_List()
         {
             Clear();
         }
@@ -168,8 +165,8 @@ namespace SharedTools_Stuff
     public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD
     {
 
-        UnrecognizedSTD uTags = new UnrecognizedSTD();
-        public UnrecognizedSTD UnrecognizedSTD => uTags;
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
@@ -201,23 +198,28 @@ namespace SharedTools_Stuff
 #endif
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences
-#if PEGI
-        , IPEGI, IPEGI_ListInspect, IGotName
-#endif
+    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName
     {
         
         [SerializeField]protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
+        bool nestedReferencesChanged;
 
-        public int GetISTDreferenceIndex(UnityEngine.Object obj) 
-            => _nestedReferences.TryGetIndexOrAdd(obj);
+        public int GetISTDreferenceIndex(UnityEngine.Object obj)
+        {
+            int before = _nestedReferences.Count;
+            var val = _nestedReferences.TryGetIndexOrAdd(obj);
+
+            nestedReferencesChanged |= _nestedReferences.Count != before;
+            
+            return val;
+        }
         public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object
             => _nestedReferences.TryGet(index) as T;
 
 
-        UnrecognizedSTD uTags = new UnrecognizedSTD();
-        public UnrecognizedSTD UnrecognizedSTD => uTags;
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
         public virtual void Reboot() {
             uTags.Clear();
@@ -267,11 +269,17 @@ namespace SharedTools_Stuff
 
             bool changed = false;
 
-            if (!showDebug && icon.Config.Click())
+            bool prefabNeedSave = nestedReferencesChanged && gameObject.IsPrefab();
+
+            if (!showDebug && (prefabNeedSave ? icon.Warning.Click("Nested References changed") : icon.Config.Click()))
                 showDebug = true;
 
             if (showDebug)
             {
+
+                if (prefabNeedSave && icon.Save.Click())
+                    gameObject.UpdatePrefab();
+
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
 

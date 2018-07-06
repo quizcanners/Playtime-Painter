@@ -16,8 +16,8 @@ namespace Playtime_Painter
       , IPEGI
 #endif
     {
-        UnrecognizedSTD uTags = new UnrecognizedSTD();
-        public UnrecognizedSTD UnrecognizedSTD => uTags;
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
 #if PEGI
         public override bool PEGI() => uTags.Nested_Inspect();

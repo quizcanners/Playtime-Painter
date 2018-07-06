@@ -724,7 +724,7 @@ namespace SharedTools_Stuff
         {
 #if UNITY_EDITOR
 
-            return PrefabUtility.GetPrefabObject(go) != null && PrefabUtility.GetPrefabParent(go) == null; // Is a prefab
+            return PrefabUtility.GetPrefabObject(go) && PrefabUtility.GetPrefabParent(go) == null; // Is a prefab
 #else
         return false;
 #endif

@@ -320,7 +320,7 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        public static T TryDecodeInto<T>(this ISTD ovj, Type childType) //where T : new()
+        public static T TryDecodeInto<T>(this ISTD ovj, Type childType) 
         {
             T val = (T)Activator.CreateInstance(childType);
 

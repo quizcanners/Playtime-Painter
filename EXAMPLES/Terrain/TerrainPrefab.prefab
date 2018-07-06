@@ -65,24 +65,12 @@ MonoBehaviour:
   meshCollider: {fileID: 0}
   terrainHeightTexture: {fileID: 2800000, guid: 9da58cdd9148caf448a96f5649c14fc9,
     type: 3}
+  meshEditing: 0
+  selectedMeshProfile: 0
+  meshNameHolder: 
   _savedMeshData: 
   meshDataSavedFor: {fileID: 0}
-  meshNameHolder: 
-  meshEditing: 0
-  usePreviewShader: 0
-  enableUNDO: 0
-  numberOfTexture2Dbackups: 3
-  numberOfRenderTextureBackups: 3
-  backupManually: 0
-  selectedMeshProfile: 0
-  materials_TextureFields:
-  - _TerrainColors
-  - 0__mergeControl
-  - _mergeTerrainHeight
-  - 0_mergeSplat_Dirt_COLOR
-  - 1_mergeSplat_Grass_COLOR
-  - 2_mergeSplat_Sand_COLOR
-  - 3_mergeSplat_Tiles_COLOR
+  selectedSubmesh: 0
   nameHolder: TerrainPrefab
   selectedAtlasedMaterial: -1
   plugins:
@@ -91,7 +79,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  selectedSubmesh: 0
   stroke:
     uvFrom: {x: 0.5064709, y: 0.4266441}
     posFrom: {x: 0, y: 0, z: 0}
@@ -105,7 +92,6 @@ MonoBehaviour:
     firstStroke: 0
     mouseUp: 0
   playbackVectors: []
-  LockEditing: 1
   forcedMeshCollider: 0
   autoSelectMaterial_byNumberOfPointedSubmesh: 1
   textureWasChanged: 0

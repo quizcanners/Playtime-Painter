@@ -25,8 +25,8 @@ namespace StoryTriggerData
 
         public Page parentPage;
 
-        UnrecognizedSTD uTags = new UnrecognizedSTD();
-        public UnrecognizedSTD UnrecognizedSTD => uTags;
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
         public abstract void Reboot();
 
