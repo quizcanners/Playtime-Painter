@@ -463,15 +463,17 @@ namespace SharedTools_Stuff
                     if (tps != null)
                     {
                         var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+                        if (type == null)
+                        {
+                            type = tps[0];
+                            #if UNITY_EDITOR
+                                Debug.Log("Couldn't decode class no: " + tag + " for " + typeof(T).ToString());
+                            #endif
+                        }
+
                         if (type != null)
                             l.Add(dta.DecodeInto<T>(type));
-#if UNITY_EDITOR
-                        else
-                        {
-                            l.Add(dta.DecodeInto<T>());
-                            Debug.Log("Couldn't decode class no: " + tag + " for " + typeof(T).ToString());
-                        }
-#endif
+
 
                     }
                     else {

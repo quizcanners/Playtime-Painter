@@ -124,6 +124,7 @@ namespace SharedTools_Stuff
             {
                 int MaxIndex = ind.IndexForPEGI;
                 foreach (var o in list)
+                    if (!el.Equals(o))
                 {
                     var oind = o as IGotIndex;
                     if (oind != null)
@@ -134,22 +135,18 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new()
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new() => list.AddWithUniqueNameAndIndex("New "
+#if PEGI
+            + typeof(T).ToPEGIstring()
+#endif
+            );
+
+
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new() => list.AddWithUniqueNameAndIndex(new T(), name);
+
+
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) where T : new()
         {
-
-
-
-            T e = new T();
-            list.AssignUniqueIndex(e);
-            list.Add(e);
-            e.AssignUniqueNameIn(list);
-            return e;
-        }
-
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new()
-        {
-
-            T e = new T();
             list.AssignUniqueIndex(e);
             list.Add(e);
 #if PEGI
@@ -160,7 +157,6 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-
 
 
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)

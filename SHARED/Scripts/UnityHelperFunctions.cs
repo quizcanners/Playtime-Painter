@@ -23,6 +23,33 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+
+#if PEGI
+        public static string GetMeaningfulHierarchyName (this GameObject go, int maxLook, int maxLength)
+        {
+          
+            string name = go.name;
+
+            Transform parent = go.transform.parent;
+
+            while (parent != null && maxLook > 0 && maxLength > 0)
+            {
+                string n = parent.name;
+
+                if (!n.SameAs("Text") && !n.SameAs("Button") && !n.SameAs("Image"))
+                {
+                    name += ">" + n;
+                    maxLength--;
+                }
+
+                parent = parent.parent;
+                maxLook--;
+            }
+
+            return name;
+        }
+#endif
+
         public static bool IsUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
         
         public static void SetToDirty(this object obj)
