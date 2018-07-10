@@ -577,9 +577,9 @@ namespace SharedTools_Stuff
                     {
                         var io = o as IGotIndex;
                         if (io != null)
-                            maxInd = Mathf.Max(io.GetIndex() + 1, maxInd);
+                            maxInd = Mathf.Max(io.IndexForPEGI + 1, maxInd);
                     }
-                    ind.SetIndex(maxInd);
+                    ind.IndexForPEGI = maxInd;
                 }
                 
                 optionalList.Add(asset);

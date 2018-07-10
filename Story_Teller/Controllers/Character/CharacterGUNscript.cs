@@ -28,7 +28,7 @@ namespace StoryTriggerData {
         public Vector3 pointerPosition;
         public float lookDistance = 1;
 
-        Quaternion gunDirection;
+     //   Quaternion gunDirection;
 
         public void OnEnable() {
             if (hero == null)

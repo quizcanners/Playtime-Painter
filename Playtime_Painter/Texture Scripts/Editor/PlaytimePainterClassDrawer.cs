@@ -99,7 +99,7 @@ namespace Playtime_Painter {
 
             base.GridUpdate(sceneview);
 
-            if (!isCurrentTool()) return;
+            if (!IsCurrentTool()) return;
 
             if ((painter != null) && (painter.textureWasChanged))
                 painter.Update();
@@ -140,7 +140,7 @@ namespace Playtime_Painter {
                 return;
             } else {
 
-                if ((isCurrentTool() && (painter.terrain != null) && (Application.isPlaying == false) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter.terrain) == true)) ||
+                if ((IsCurrentTool() && (painter.terrain != null) && (Application.isPlaying == false) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter.terrain) == true)) ||
                     (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 25))) {
                     PlaytimeToolComponent.enabledTool = null; //customTools.Disabled;
                     MeshManager.Inst.DisconnectMesh();

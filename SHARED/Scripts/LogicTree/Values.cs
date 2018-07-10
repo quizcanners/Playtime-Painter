@@ -50,7 +50,7 @@ namespace STD_Logic {
 
         public void SetTagBool(ValueIndex ind, bool value) => SetTagBool(ind.groupIndex, ind.triggerIndex, value);
 
-        public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.GetIndex(), tagIndex, value);
+        public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.IndexForPEGI , tagIndex, value);
 
         public void SetTagBool(int groupIndex, int tagIndex, bool value) {
 
@@ -70,7 +70,7 @@ namespace STD_Logic {
                 s.taggedBool[tagIndex].Add(this);
         }
 
-        public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.GetIndex(), tagIndex, value);
+        public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.IndexForPEGI, tagIndex, value);
 
         public void SetTagEnum(ValueIndex ind, int value) => SetTagEnum(ind.groupIndex, ind.triggerIndex, value);
 

@@ -55,8 +55,7 @@ public interface IGotDisplayName
 public interface IGotIndex
 {
 #if PEGI
-    int GetIndex();
-    void SetIndex(int index);
+    int IndexForPEGI { get; set; }
 #endif
 }
 
@@ -129,24 +128,7 @@ namespace PlayerAndEditorGUI
         static int selectedFold = -1;
         public static int tabIndex; // will be reset on every NewLine;
         public static bool paintingPlayAreaGUI { get; private set; }
-
-        static GUIStyle head = null;
-        static GUIStyle heading
-        {
-            get
-            {
-                if (head == null)
-                    head = new GUIStyle() {
-                        margin = new RectOffset(10, 10, 10, 10),
-                        fontSize = 15,
-                        richText = true,
-                        wordWrap = true
-                    };
-                   
-                return head;
-            }
-        }
-
+        
         static bool lineOpen;
         
         public static void checkLine()
@@ -970,6 +952,31 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        static bool select_Final(ref int val, ref int jindx, List<string> lnms)
+        {
+            int count = lnms.Count;
+
+            if (count == 0)
+                return edit(ref val);
+            else
+            {
+                if (jindx == -1)
+                {
+                    lnms.Add("[" + val.ToPEGIstring() + "]");
+                    jindx = lnms.Count - 1;
+                }
+
+                int tmp = jindx;
+
+                if (select(ref tmp, lnms.ToArray()) && (tmp < count))
+                {
+                    jindx = tmp;
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
         static bool select_Final<T>(T val, ref int jindx, List<string> lnms)
         {
@@ -1022,12 +1029,10 @@ namespace PlayerAndEditorGUI
             
         }
 
-        static object selecLambdaCurrentValue;
-
+ 
         public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda)
         {
-            selecLambdaCurrentValue = val;
-
+          
             checkLine();
 
             List<string> lnms = new List<string>();
@@ -1061,12 +1066,45 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda) where T : IGotIndex
+        {
+
+            checkLine();
+
+            List<string> lnms = new List<string>();
+            List<int> indxs = new List<int>();
+
+            int jindx = -1;
+
+            for (int j = 0; j < lst.Count; j++)
+            {
+                T tmp = lst[j];
+
+                if ((!tmp.IsDefaultOrNull()) && lambda(tmp))
+                {
+                    int ind = tmp.IndexForPEGI;
+
+                    if (val == ind)
+                        jindx = lnms.Count;
+                    lnms.Add(ind + ": " + tmp.ToPEGIstring());
+                    indxs.Add(ind);
+                }
+            }
+
+            if (select_Final(ref val, ref jindx, lnms))
+            {
+                val = indxs[jindx];
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda)
         {
             bool changed = false;
 
-            selecLambdaCurrentValue = val;
-
+       
             checkLine();
 
             var lnms = new List<string>();
@@ -1717,7 +1755,7 @@ namespace PlayerAndEditorGUI
             {
                 if (el != null)
                 {
-                    int index = el.GetIndex();
+                    int index = el.IndexForPEGI;
 
                     if (ind == index)
                         jindx = indxs.Count;
@@ -1727,10 +1765,12 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            if (jindx == -1)
-                lnms.Add(">>" + ind.ToString() + "<<");
+            //if (jindx == -1)
+            //  lnms.Add(">>" + ind.ToString() + "<<");
 
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+
+            if (select_Final(ind, ref jindx, lnms))
             {
                     ind = indxs[jindx];
                     return true;
@@ -1738,10 +1778,66 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
+        
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
 
-#endregion
+        public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst) where G : class, T where T : IGotIndex {
+            G val;
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst, out val); 
+        }
 
-#region Foldout    
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
+        {
+            write(label);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst, out val);
+        }
+
+            public static bool select_iGotIndex_SameClass<T,G>(ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
+        {
+
+            val = default(G);
+
+            List<string> lnms = new List<string>();
+            List<int> indxs = new List<int>();
+            List<G> els = new List<G>();
+            int jindx = -1;
+
+            foreach (var el in lst)
+            {
+                var g = el as G;
+
+                if (g != null)
+                {
+                    int index = g.IndexForPEGI;
+
+                    if (ind == index)
+                        jindx = indxs.Count;
+                    lnms.Add(el.ToPEGIstring());
+                    indxs.Add(index);
+                    els.Add(g);
+                }
+            }
+
+            if (lnms.Count == 0)
+                return edit(ref ind);
+            else
+            if (select_Final(ref ind, ref jindx, lnms))
+            {
+                ind = indxs[jindx];
+                val = els[jindx];
+                return true;
+            }
+
+            return false;
+        }
+        
+        #endregion
+
+        #region Foldout    
         public static bool foldout(this string txt, ref bool state)
         {
 
@@ -3805,10 +3901,9 @@ namespace PlayerAndEditorGUI
         }
 
         static void write_ListLabel(this string label, IList lst, int inspected)
-
-
         {
-            if (inspected == -1) write(label, heading); else write(label); }
+            if (inspected == -1) write(label, PEGI_Styles.ListLabel); else write(label);
+        }
         
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
@@ -4274,10 +4369,10 @@ namespace PlayerAndEditorGUI
                                                 {
                                                     var eeind = eee as IGotIndex;
                                                     if (eeind != null)
-                                                        max = Math.Max(max, eeind.GetIndex() + 1);
+                                                        max = Math.Max(max, eeind.IndexForPEGI + 1);
                                                 }
 
-                                            indx.SetIndex(max);
+                                            indx.IndexForPEGI = max;
                                         }
 
                                     }
@@ -4937,6 +5032,25 @@ namespace PlayerAndEditorGUI
                 datas[i].Save(el);
         }
 
+        public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
+        {
+            if (lst != null)
+            foreach (var el in lst)
+                if (el != null && el.IndexForPEGI == index)
+                    return el;
+
+            return default(T);
+        }
+
+        public static T GetByIGotIndex<T,G>(this List<T> lst, int index) where T : IGotIndex where G : T
+        {
+            if (lst != null)
+                foreach (var el in lst)
+                    if (el != null && el.IndexForPEGI == index && el.GetType() == typeof(G))
+                        return el;
+
+            return default(T);
+        }
 
     }
     #endregion

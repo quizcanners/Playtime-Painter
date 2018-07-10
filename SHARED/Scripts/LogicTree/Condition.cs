@@ -47,7 +47,7 @@ namespace STD_Logic
 
         public ConditionLogic()
         {
-            groupIndex = TriggerGroup.Browsed.GetIndex();
+            groupIndex = TriggerGroup.Browsed.IndexForPEGI;
         }
 
     }

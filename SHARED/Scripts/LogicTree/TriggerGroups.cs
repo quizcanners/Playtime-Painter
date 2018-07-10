@@ -39,7 +39,7 @@ namespace STD_Logic
         public static TriggerGroup Browsed
         {
             get { return browsedGroup >= 0 ? all[browsedGroup] : null; }
-            set { browsedGroup = value != null ? value.GetIndex() : -1;  }
+            set { browsedGroup = value != null ? value.IndexForPEGI : -1;  }
         }
 
         UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
@@ -54,7 +54,7 @@ namespace STD_Logic
                         return ready;
 
                     ready = triggers[index];
-                    ready.groupIndex = GetIndex();
+                    ready.groupIndex = IndexForPEGI;
                     ready.triggerIndex = index;
 
                     return ready;
@@ -70,8 +70,9 @@ namespace STD_Logic
         string name = "Unnamed_Triggers";
         int index;
 
-        public int GetIndex() => index;
-        public void SetIndex(int val) =>  index = val;
+
+        public int IndexForPEGI { get { return index; } set { index = value; } }
+
         
         public string NameForPEGI { get { return name; } set { name = value; } }
         
@@ -321,7 +322,7 @@ namespace STD_Logic
                         int ind = triggers.AddNew();
                         Trigger t = this[ind];
                         t.name = Trigger.searchField;
-                        t.groupIndex = GetIndex();
+                        t.groupIndex = IndexForPEGI;
                         t.triggerIndex = ind;
 
                         if (arg != null) arg.Trigger = t;
@@ -329,7 +330,7 @@ namespace STD_Logic
                         changed = true;
                     }
 
-                    int slctd = Browsed.GetIndex();
+                    int slctd = Browsed.IndexForPEGI ;
                     if (pegi.select(ref slctd, all))
                         Browsed = all[slctd];
 

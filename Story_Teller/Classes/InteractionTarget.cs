@@ -155,7 +155,7 @@ namespace StoryTriggerData {
 
             for (int i = 0; i < lst.Count; i++) {
                 TriggerGroup td = lst[i];
-                pegi.write(td + "_" + td.GetIndex(), 230);
+                pegi.write(td + "_" + td.IndexForPEGI, 230);
                 pegi.toggle(ref td.showInInspectorBrowser);
                 pegi.newLine();
             }

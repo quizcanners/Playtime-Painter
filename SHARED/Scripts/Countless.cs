@@ -689,9 +689,9 @@ namespace SharedTools_Stuff {
             set {
 #if PEGI
                 var igi = value as IGotIndex;
-                if (igi != null && igi.GetIndex() != index)
+                if (igi != null && igi.IndexForPEGI != index)
                 {
-                    Debug.Log("setting "+value.ToString() + " with ind " + igi.GetIndex() + " at "+index);
+                    Debug.Log("setting "+value.ToString() + " with ind " + igi.IndexForPEGI + " at "+index);
                  //   igi.index = index;
                 }
 #endif
@@ -701,8 +701,8 @@ namespace SharedTools_Stuff {
 #if PEGI
         public T this[IGotIndex i]
         {
-            get { return Get(i.GetIndex()); }
-            set { Set(i.GetIndex(), value); }
+            get { return Get(i.IndexForPEGI); }
+            set { Set(i.IndexForPEGI, value); }
         }
 #endif
         void Set(int ind, T obj)

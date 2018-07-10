@@ -1141,12 +1141,8 @@ namespace  PlayerAndEditorGUI {
             return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
         }
 
-    
-
         public static bool Click(Texture img, int width)
         {
-         
-
             checkLine();
             return GUILayout.Button(img, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
@@ -1157,8 +1153,7 @@ namespace  PlayerAndEditorGUI {
             GUIContent cont = new GUIContent();
             cont.tooltip = tip;
             cont.image = img;
-            return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
-            //return Click(img, tip, width,width + 10);
+            return GUILayout.Button(cont,  GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
         public static bool Click(Texture img, string tip, int width, int height)
@@ -1167,7 +1162,7 @@ namespace  PlayerAndEditorGUI {
             GUIContent cont = new GUIContent();
             cont.tooltip = tip;
             cont.image = img;
-            return GUILayout.Button(cont, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)) ? change : false;
+            return GUILayout.Button(cont,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)) ? change : false;
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object

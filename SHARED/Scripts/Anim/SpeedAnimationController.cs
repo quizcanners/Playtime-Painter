@@ -22,7 +22,7 @@ using STD_Logic;
         public AnimatedElement KeyElement
         {
             get { return elements?[keyElementIndex]; }
-            set { keyElementIndex = value.GetIndex(); }
+            set { keyElementIndex = value.IndexForPEGI; }
         }
 
         // Frames
@@ -116,13 +116,13 @@ using STD_Logic;
                     data.DecodeInto(out tmp, this);
                     foreach (var v in tmp)
                     {
-                        if (elements[v.GetIndex()] == null)
+                        if (elements[v.IndexForPEGI] == null)
                         {
                             elementsUnsorted.Add(v);
-                            elements[v.GetIndex()] = v;
+                            elements[v.IndexForPEGI] = v;
                         }
                         else
-                            elements[v.GetIndex()].Decode(v.Encode());
+                            elements[v.IndexForPEGI].Decode(v.Encode());
                     }
                     break;
           
@@ -337,9 +337,9 @@ using STD_Logic;
                         {
                             added.NameForPEGI = "New Element";
                             added.propertyName = "_Portion";
-                            added.SetIndex(indexForNewObject);
+                            added.IndexForPEGI = indexForNewObject;
                             indexForNewObject += 1;
-                            elements[added.GetIndex()] = added;
+                            elements[added.IndexForPEGI] = added;
                         }
                         else if (changed) UpdateCountless();
 
@@ -386,7 +386,7 @@ using STD_Logic;
             elements.Clear();
 
             foreach (var el in elementsUnsorted)
-                elements[el.GetIndex()] = el;
+                elements[el.IndexForPEGI] = el;
         }
 
         public void OnEnable()
@@ -605,16 +605,9 @@ using STD_Logic;
         public static AnimatedElement inspectedAnimatedObject;
 
         [SerializeField] int index;
-       public int GetIndex()
-       {
-            return index;
-        }
 
-        public void SetIndex(int val)
-        {
-            index = val;
-        }
-
+        public int IndexForPEGI { get { return index; } set { index = value; } }
+        
         [SerializeField] string _name;
         public string NameForPEGI { get { return _name; } set { _name = value; } }
         public Transform transform;
@@ -659,9 +652,9 @@ using STD_Logic;
         public Vector3 LocalPos { get {
                 return Frame.localPos[index];
             } set { Frame.localPos[index] = value; } }
-        public Vector3 LocalScale { get { return Frame.LocalScale[GetIndex()]; } set { Frame.LocalScale[index] = value; } }
-        public string CustomData { get { return Frame.customData[GetIndex()]; } set { Frame.customData[index] = value; } }
-        public Quaternion LocalRotation { get { return Frame.localRotation[GetIndex()]; } set { Frame.localRotation[GetIndex()] = value; } }
+        public Vector3 LocalScale { get { return Frame.LocalScale[IndexForPEGI ]; } set { Frame.LocalScale[index] = value; } }
+        public string CustomData { get { return Frame.customData[IndexForPEGI ]; } set { Frame.customData[index] = value; } }
+        public Quaternion LocalRotation { get { return Frame.localRotation[IndexForPEGI]; } set { Frame.localRotation[IndexForPEGI] = value; } }
         public float ShaderValue { get {
                 return Frame.shaderValue[index];
             } set {

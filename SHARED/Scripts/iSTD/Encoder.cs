@@ -366,6 +366,20 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add(string tag, List<string> lst)
+        {
+            if (lst != null)
+            {
+                StdEncoder cody = new StdEncoder();
+                foreach (var s in lst)
+                    cody.Add_String("e", s);
+
+                Add(tag, cody);
+            }
+
+            return this;
+        }
+
         public StdEncoder Add(string tag, List<uint> val)
         {
 

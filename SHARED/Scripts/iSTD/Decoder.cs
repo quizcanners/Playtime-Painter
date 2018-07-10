@@ -222,16 +222,30 @@ namespace SharedTools_Stuff
         {
             return uint.Parse(data);
         }
-
-
+        
         // Float
         public static float ToFloat(this string data) {
             return float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
 
         }
         
+        // List (base type)
+        public static List<string> DecodeInto(this string data, out List<string> l)
+        {
 
-        // List (int)
+            l = new List<string>();
+
+            StdDecoder cody = new StdDecoder(data);
+
+            while (cody.GotData)
+            {
+                cody.GetTag();
+                l.Add(cody.GetData());
+            }
+
+            return l;
+        }
+
         public static List<int> DecodeInto (this string data, out List<int> l ) {
 
             l = new List<int>();
@@ -277,8 +291,7 @@ namespace SharedTools_Stuff
 
             return l;
         }
-
-
+        
         // STD
         public static T DecodeInto<T>(this string data, T val) where T : ISTD
         {

@@ -18,7 +18,7 @@ namespace PlayerAndEditorGUI
 
         //https://gamedev.stackexchange.com/questions/98291/how-do-i-create-a-custom-tool-in-unity
 
-        private static Tool previousTool;
+      //  private static Tool previousTool;
 
 
         public abstract bool AllowEditing(T targ);
@@ -35,7 +35,7 @@ namespace PlayerAndEditorGUI
         public static bool L_mouseDwn;
         public static bool L_mouseUp;
 
-        public bool isCurrentTool()
+        public bool IsCurrentTool()
         {
             return PlaytimeToolComponent.enabledTool == typeof(T);
         }
@@ -63,7 +63,7 @@ namespace PlayerAndEditorGUI
         public virtual void GridUpdate(SceneView sceneview)
         {
 
-            if (!isCurrentTool())
+            if (!IsCurrentTool())
                 return;
 
 
@@ -121,7 +121,7 @@ namespace PlayerAndEditorGUI
         public virtual void OnSceneGUI()
         {
 
-            if (isCurrentTool() && (painter != null) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter) == false))
+            if (IsCurrentTool() && (painter != null) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter) == false))
                 PlaytimeToolComponent.enabledTool = null;
 
             if (AllowEditing(painter))
@@ -129,7 +129,7 @@ namespace PlayerAndEditorGUI
 
                 GridUpdate(SceneView.currentDrawingSceneView);
 
-                if ((!navigating) && (isCurrentTool()))
+                if ((!navigating) && (IsCurrentTool()))
                     HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
 
             }

@@ -122,14 +122,14 @@ namespace SharedTools_Stuff
             var ind = el as IGotIndex;
             if (ind != null)
             {
-                int MaxIndex = ind.GetIndex();
+                int MaxIndex = ind.IndexForPEGI;
                 foreach (var o in list)
                 {
                     var oind = o as IGotIndex;
                     if (oind != null)
-                        MaxIndex = Mathf.Max(MaxIndex, oind.GetIndex() + 1);
+                        MaxIndex = Mathf.Max(MaxIndex, oind.IndexForPEGI  + 1);
                 }
-                ind.SetIndex(MaxIndex);
+                ind.IndexForPEGI = MaxIndex;
             }
 #endif
         }

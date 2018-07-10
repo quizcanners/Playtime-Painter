@@ -178,7 +178,7 @@ namespace STD_Logic  {
         
         public Result()
         {
-            groupIndex = TriggerGroup.Browsed.GetIndex();
+            groupIndex = TriggerGroup.Browsed.IndexForPEGI;
         }
         
     }
