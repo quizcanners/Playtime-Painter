@@ -4514,8 +4514,15 @@ namespace PlayerAndEditorGUI
         }
 
         public static T edit_List<T>(this List<T> list, ref int edited, bool allowDelete, ref bool changed) where T : new() {
+
             T added = default(T);
 
+            if (list == null)
+            {
+                "Empty List".nl();
+                return added;
+            }
+            
             int before = edited;
             edited = Mathf.Clamp(edited, -1, list.Count - 1);
             changed |= (edited != before);

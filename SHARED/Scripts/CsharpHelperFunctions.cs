@@ -32,6 +32,17 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        public static bool EnterLock (this bool l, ref bool loopLock)
+        {
+                if (loopLock == false)
+                {
+                    loopLock = true;
+                    return true;
+                }
+                return false;
+        }
+
+        public static void Unlock(this bool l, ref bool loopLock) { loopLock = false; }
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
@@ -140,11 +151,9 @@ namespace SharedTools_Stuff
             + typeof(T).ToPEGIstring()
 #endif
             );
-
-
+        
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new() => list.AddWithUniqueNameAndIndex(new T(), name);
-
-
+        
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) where T : new()
         {
             list.AssignUniqueIndex(e);
@@ -157,8 +166,7 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-
-
+        
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
             string value;
