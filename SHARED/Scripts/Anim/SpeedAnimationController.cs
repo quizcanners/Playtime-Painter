@@ -231,6 +231,7 @@ using STD_Logic;
                     {
                         changed = true;
                         SetFrameIndex(frameIndex - 1);
+                        editor_FramePortion = 1;
                     }
                 }
                 else if (icon.UndoDisabled.Click())
@@ -242,6 +243,7 @@ using STD_Logic;
                     {
                         changed = true;
                         SetFrameIndex(frameIndex + 1);
+                        editor_FramePortion = 0;
                     }
 
                 }
@@ -753,9 +755,9 @@ using STD_Logic;
                 "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
 
                 "Renderer".edit(80, ref rendy).nl();
-
-                Mgmt.CurrentFrame.PEGI();
             }
+
+            Mgmt.CurrentFrame.PEGI();
 
             if (rendy)
             {
@@ -767,12 +769,9 @@ using STD_Logic;
             
             (script as IAnimated_STD_PEGI)?.Frame_PEGI().nl();
             
-            if (transform)
-            {
+            if (transform) {
                 transform.PEGI_CopyPaste(ref transformInLocalSpace);
-
-                if (Mgmt.transform != transform)
-                    transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
+                transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
             }
    
             inspectedAnimatedObject = null;
