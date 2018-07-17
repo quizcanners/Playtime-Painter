@@ -44,7 +44,7 @@ namespace Playtime_Painter {
 
 		public void Set (ImageData from, int globalOrder){
           
-            PainterManager.inst.Blit(from.currentRenderTexture(), rt);
+            PainterManager.Inst.Blit(from.CurrentRenderTexture(), rt);
 
             SetB(from, globalOrder);
 
@@ -52,7 +52,7 @@ namespace Playtime_Painter {
 		}
 
         public RenderTextureBackup (ImageData from, int globalOrder){
-			RenderTexture frt = from.currentRenderTexture ();
+			RenderTexture frt = from.CurrentRenderTexture ();
 
 			rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32, 
 				frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear);
@@ -69,7 +69,7 @@ namespace Playtime_Painter {
 
 	
 	public class BackupsLineup {
-		public static PainterManager rtp { get { return PainterManager.inst; } }
+		public static PainterManager rtp { get { return PainterManager.Inst; } }
         public bool isUndo;
 		public int order = 0;
 
@@ -119,7 +119,7 @@ namespace Playtime_Painter {
 
 			bool fromRT = (tex2D.Count == 0) || ((rtex.Count > 0) && (tex2D [tex2D.Count - 1].order < rtex [rtex.Count - 1].order));
 
-			bool toRT = id.destination == texTarget.RenderTexture;
+			bool toRT = id.destination == TexTarget.RenderTexture;
 
             int toClear = id.recordedStrokes_forUndoRedo.Count;
 
@@ -152,7 +152,7 @@ namespace Playtime_Painter {
 
 
 			if (!fromRT) {
-                id.pixels = (Color[])pixBackup.pixels;//.Clone();
+                id.Pixels = (Color[])pixBackup.pixels;//.Clone();
 				id.SetAndApply (true);
 			}
 
@@ -168,10 +168,10 @@ namespace Playtime_Painter {
 
                 bool converted = false;
 
-                if ((PainterManager.inst.isLinearColorSpace) && (!rtBackup.exclusive))
+                if ((PainterManager.Inst.isLinearColorSpace) && (!rtBackup.exclusive))
                 {
                     converted = true;
-                    id.pixelsToGamma();
+                    id.PixelsToGamma();
                 }
                 //else
                 //   id.pixelsToLinear();
@@ -218,7 +218,7 @@ namespace Playtime_Painter {
 
 			if (maxTextures > 0) {
 				
-				Color[] copyPix = (Color[])id.pixels.Clone ();
+				Color[] copyPix = (Color[])id.Pixels.Clone ();
 
 				if (tex2D.Count < maxTextures)
                     tex2D.Add (new Texture2DBackup (copyPix, id, order));

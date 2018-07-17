@@ -9,10 +9,7 @@ namespace Playtime_Painter {
 
 
 
-    public class PaintingReciever : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class PaintingReciever : MonoBehaviour, IPEGI
     {
 
         public enum RendererType {regular, Skinned, Terrain }
@@ -31,29 +28,29 @@ namespace Playtime_Painter {
         [SerializeField]
         string textureField;
 
-        public Mesh mesh { get { return skinnedMeshRenderer != null ? skinnedMeshRenderer.sharedMesh : meshFilter != null ? meshFilter.sharedMesh : null; } }
-        public Renderer rendy { get { return meshRenderer != null ? meshRenderer : skinnedMeshRenderer; } }
-        public Material material { get {
-                if (rendy == null) return null;
-                if (materialIndex < rendy.sharedMaterials.Length)
-                    return rendy.sharedMaterials[materialIndex];
+        public Mesh Mesh { get { return skinnedMeshRenderer != null ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
+        public Renderer Rendy { get { return meshRenderer ?? skinnedMeshRenderer; } }
+        public Material Material { get {
+                if (Rendy == null) return null;
+                if (materialIndex < Rendy.sharedMaterials.Length)
+                    return Rendy.sharedMaterials[materialIndex];
                 return null; }  set {
-                if (materialIndex < rendy.sharedMaterials.Length)
+                if (materialIndex < Rendy.sharedMaterials.Length)
                 {
-                    var mats = rendy.sharedMaterials;
+                    var mats = Rendy.sharedMaterials;
                     mats[materialIndex] = value;
-                    rendy.materials = mats;
+                    Rendy.materials = mats;
                 }
             }
         }
-        public Texture matTex { get {
-                if (material == null) return null;
-                return material.HasProperty(textureField) ? material.GetTexture(textureField) : material.mainTexture;
+        public Texture MatTex { get {
+                if (Material == null) return null;
+                return Material.HasProperty(textureField) ? Material.GetTexture(textureField) : Material.mainTexture;
 
             } set {
-                if (material.HasProperty(textureField))
-                    material.SetTexture(textureField, value);
-                else material.mainTexture = value;   } }
+                if (Material.HasProperty(textureField))
+                    Material.SetTexture(textureField, value);
+                else Material.mainTexture = value;   } }
         
         public Texture texture;
         public Texture originalTexture;
@@ -65,37 +62,37 @@ namespace Playtime_Painter {
         private void OnEnable()  {
 
             if ((originalTexture!= null) && (texture!= null) && (texture.GetType() == typeof(RenderTexture)))
-                PainterManager.inst.Blit(originalTexture, (RenderTexture)texture);
+                PainterManager.Inst.Blit(originalTexture, (RenderTexture)texture);
         }
 
-        public Texture getTexture() {
+        public Texture GetTexture() {
             if (texture != null)
                 return texture;
 
             var rtm = TexturesPool._inst;
 
-            if (material == null) {
+            if (Material == null) {
                 Debug.Log("No Material ");
                 return null;
             }
 
             if (rtm!= null) {
                 
-                originalMaterial = material;
+                originalMaterial = Material;
 
                 texture = rtm.GetRenderTexture();
 
                 fromRTmanager = true;
              
-                material = Instantiate(originalMaterial);
+                Material = Instantiate(originalMaterial);
 
-                var tex = originalTexture == null ? matTex : originalTexture;
+                var tex = originalTexture ?? MatTex;
                 if (tex != null)
-                    PainterManager.inst.Blit( tex , (RenderTexture) texture);
+                    PainterManager.Inst.Blit( tex , (RenderTexture) texture);
                 else
-                    PainterManager.inst.Render(Color.black , (RenderTexture)texture);
+                    PainterManager.Inst.Render(Color.black , (RenderTexture)texture);
 
-                matTex = texture;
+                MatTex = texture;
             }
 
             return texture;
@@ -105,7 +102,7 @@ namespace Playtime_Painter {
             
             if ((fromRTmanager) && (originalMaterial!= null)) {
                 fromRTmanager = false;
-                material = originalMaterial;
+                Material = originalMaterial;
                 originalMaterial = null;
                 TexturesPool._inst.ReturnOne((RenderTexture)texture);
                 texture = null;
@@ -128,7 +125,7 @@ namespace Playtime_Painter {
                 ((Texture2D)texture).SetPixels(((Texture2D)originalTexture).GetPixels());
                 ((Texture2D)texture).Apply(true);
             } else 
-                PainterManager.inst.Blit(originalTexture, (RenderTexture)texture);
+                PainterManager.Inst.Blit(originalTexture, (RenderTexture)texture);
 
         }
 
@@ -163,9 +160,9 @@ namespace Playtime_Painter {
 
 
 
-            if ((rendy != null && (rendy.sharedMaterials.Length > 1)) || materialIndex != 0) {
+            if ((Rendy != null && (Rendy.sharedMaterials.Length > 1)) || materialIndex != 0) {
                 "If more then one material:".nl();
-                "   Material".select(ref materialIndex, rendy.sharedMaterials).nl();
+                "   Material".select(ref materialIndex, Rendy.sharedMaterials).nl();
             }
 
            // "Material: ".write(material);
@@ -173,8 +170,8 @@ namespace Playtime_Painter {
          //   "Texture: ".write(texture);
            // pegi.nl();
 
-            if (material) {
-                var lst = material.GetTextures();
+            if (Material) {
+                var lst = Material.GetTextures();
                 if (lst.Count > 0) {
                     "   Property".select(ref textureField, lst).nl();
                 }
@@ -198,22 +195,22 @@ namespace Playtime_Painter {
             "    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl();
 
 
-            if ((texture != null) || (matTex == null))
+            if ((texture != null) || (MatTex == null))
                 "Original Texture:".edit("Copy of this texture will be modified.", () => originalTexture, this).nl();
             "If not using Render Textures Pool:".nl();
             "Texture".edit(() => texture, this);
             if ("Find".Click().nl())
             {
-                if (rendy && material)
-                    texture = matTex;
+                if (Rendy && Material)
+                    texture = MatTex;
             }
             
             if (texture == null || texture.GetType() == typeof(RenderTexture)) {
                 "Mesh UV Offset".edit("Some Meshes have UV coordinates with displacement for some reason. " +
                     "If your object doesn't use a mesh collider to provide a UV offset, this will be used.", 80, ref meshUVoffset).nl();
-                if (mesh != null && "Offset from Mesh".Click().nl()) {
-                    int firstVertInSubmeshIndex = mesh.GetTriangles(materialIndex)[0];
-                    meshUVoffset = useTexcoord2 ? mesh.uv2[firstVertInSubmeshIndex] : mesh.uv[firstVertInSubmeshIndex];
+                if (Mesh != null && "Offset from Mesh".Click().nl()) {
+                    int firstVertInSubmeshIndex = Mesh.GetTriangles(materialIndex)[0];
+                    meshUVoffset = useTexcoord2 ? Mesh.uv2[firstVertInSubmeshIndex] : Mesh.uv[firstVertInSubmeshIndex];
 
                     meshUVoffset = new Vector2((int)meshUVoffset.x, (int)meshUVoffset.y);
 
@@ -221,10 +218,10 @@ namespace Playtime_Painter {
                 }
             }
 
-            if (material != null)
+            if (Material != null)
             {
 
-                if (!material.HasProperty(textureField) && material.mainTexture == null)
+                if (!Material.HasProperty(textureField) && Material.mainTexture == null)
                 {
                     "No Material Property Selected and no MainTex on Material".nl();
                 }
@@ -265,7 +262,7 @@ namespace Playtime_Painter {
                         }
                         else
                         {
-                            if (rendy)
+                            if (Rendy)
                             {
                                 icon.Done.write();
                                 "Will paint if object has any collider".nl();
@@ -292,7 +289,7 @@ namespace Playtime_Painter {
                         if (rtm != null)
                         {
                             "Render Texture Pool will be used to get texture".nl();
-                            if (rendy == null) "! Renderer needs to be Assigned.".nl();
+                            if (Rendy == null) "! Renderer needs to be Assigned.".nl();
                             else
                             {
                                 icon.Done.write("Component set up properly", 25);

@@ -7,10 +7,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
     [Serializable]
-    public class MaterialData
-        #if PEGI
-        : IPEGI
-#endif
+    public class MaterialData : IPEGI
     {
 
       //  public static MaterialData lastFetched;
@@ -30,7 +27,7 @@ namespace Playtime_Painter
 
         public void SetTextureOnLastTarget(ImageData id) {
             if (painterTarget)
-                painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.currentTexture(), material);
+                painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.CurrentTexture(), material);
         }
 
         public List<string> materials_TextureFields = new List<string>();

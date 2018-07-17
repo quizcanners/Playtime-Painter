@@ -10,10 +10,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : ISTD
-#if PEGI
-        , IPEGI, IGotDisplayName
-#endif
+    public abstract class ValueIndex : ISTD, IPEGI, IGotDisplayName
     {
 
         public int groupIndex;

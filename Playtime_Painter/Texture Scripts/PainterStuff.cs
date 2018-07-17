@@ -39,19 +39,19 @@ namespace Playtime_Painter
     public class PainterStuffScriptable : ScriptableObject
     {
 
-        protected static PainterManager texMGMT { get { return PainterManager.inst; } }
-        protected static Transform rtbrush { get { return texMGMT.brushRendy.transform; } }
-        protected static Mesh brushMesh { set { texMGMT.brushRendy.meshFilter.mesh = value; } }
-        protected static PainterConfig cfg { get { return PainterConfig.inst; } }
-        protected static BrushConfig inspectedBrush { get { return BrushConfig._inspectedBrush; } }
-        protected static BrushConfig globalBrush { get { return cfg.brushConfig; } }
-        protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
-        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
-        protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
-        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
-        protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
+        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
+        protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
+        protected static PainterConfig Cfg { get { return PainterConfig.Inst; } }
+        protected static BrushConfig InspectedBrush { get { return BrushConfig._inspectedBrush; } }
+        protected static BrushConfig GlobalBrush { get { return Cfg.brushConfig; } }
+        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
+        protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip ? ip.ImgData : null; } }
+        protected static GridNavigator Grid { get { return GridNavigator.inst(); } }
+        protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.edMesh; } }
+        protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
+        protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
     }
 
     public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedSTD, IPEGI
@@ -66,19 +66,19 @@ namespace Playtime_Painter
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized();
 
-        protected static PainterManager texMGMT { get { return PainterManager.inst; } }
-        protected static Transform rtbrush { get { return texMGMT.brushRendy.transform; } }
-        protected static Mesh brushMesh { set { texMGMT.brushRendy.meshFilter.mesh = value; } }
-        protected static PainterConfig cfg { get { return PainterConfig.inst; } }
-        protected static BrushConfig inspectedBrush { get { return BrushConfig._inspectedBrush; } }
-        protected static BrushConfig globalBrush { get { return cfg.brushConfig; } }
-        protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
-        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip != null ? ip.imgData : null; } }
-        protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
-        protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
-        protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
+        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
+        protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
+        protected static PainterConfig Cfg { get { return PainterConfig.Inst; } }
+        protected static BrushConfig InspectedBrush { get { return BrushConfig._inspectedBrush; } }
+        protected static BrushConfig GlobalBrush { get { return Cfg.brushConfig; } }
+        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
+        protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip?.ImgData; } }
+        protected static GridNavigator Grid { get { return GridNavigator.inst(); } }
+        protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.edMesh; } }
+        protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
+        protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
 
 #if PEGI
         public virtual bool PEGI() => uTags.PEGI();  
@@ -90,20 +90,20 @@ namespace Playtime_Painter
     [Serializable]
     public class PainterStuff {
 
-        protected static PainterManager texMGMT { get { return PainterManager.inst; } }
-        protected static Transform rtbrush { get { return texMGMT.brushRendy.transform; } }
-        protected static Mesh brushMesh { set { texMGMT.brushRendy.meshFilter.mesh = value; } }
-        protected static PainterConfig cfg { get { return PainterConfig.inst; } }
-        protected static BrushConfig inspectedBrush { get { return BrushConfig._inspectedBrush; } }
-        protected static BrushConfig globalBrush { get { return cfg.brushConfig; }  }
-        protected static PlaytimePainter inspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
-        protected static ImageData inspectedImageData { get { var ip = inspectedPainter; return ip ? ip.imgData : null; } }
-        protected static GridNavigator grid { get { return GridNavigator.inst(); } }
-        protected static MeshManager meshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
+        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
+        protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
+        protected static PainterConfig Cfg { get { return PainterConfig.Inst; } }
+        protected static BrushConfig InspectedBrush { get { return BrushConfig._inspectedBrush; } }
+        protected static BrushConfig GlobalBrush { get { return Cfg.brushConfig; }  }
+        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
+        protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip ? ip.ImgData : null; } }
+        protected static GridNavigator Grid { get { return GridNavigator.inst(); } }
+        protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.edMesh; } }
         public static bool applicationIsQuitting;
 
-        public static bool isNowPlaytimeAndDisabled { get
+        public static bool IsNowPlaytimeAndDisabled { get
             {
 #if !BUILD_WITH_PAINTER
                 if (Application.isPlaying)

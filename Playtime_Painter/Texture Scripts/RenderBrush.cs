@@ -43,7 +43,7 @@ namespace Playtime_Painter
             }
             else
             {
-                transform.parent = PainterManager.inst.transform;
+                transform.parent = PainterManager.Inst.transform;
                 modifiedMesh.bounds = modifiedBound;
 
                 meshRendy.materials = replacedBrushesMaterials;
@@ -57,7 +57,7 @@ namespace Playtime_Painter
         {
 
             GameObject go = painter.gameObject;
-            Transform camTransform = PainterManager.inst.transform;
+            Transform camTransform = PainterManager.Inst.transform;
 
             var skinny = painter.skinnedMeshRendy;
 
@@ -73,7 +73,7 @@ namespace Playtime_Painter
 
             meshRendy.enabled = false;
 
-            Transform camTransform = PainterManager.inst.transform;
+            Transform camTransform = PainterManager.Inst.transform;
 
             changedSkinnedMeshRendy = skinny;
             changedGameObject = go;
@@ -95,7 +95,7 @@ namespace Playtime_Painter
         public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
         {
 
-            Transform camTransform = PainterManager.inst.transform;
+            Transform camTransform = PainterManager.Inst.transform;
 
             Transform target = go.transform;
 
@@ -171,7 +171,7 @@ namespace Playtime_Painter
                 float ar2 = onto.width / onto.height;
 
                 aspectRatio = ar2 / aspectRatio;
-                texMGMT.rtcam.targetTexture = onto;
+                TexMGMT.rtcam.targetTexture = onto;
 
                 transform.localScale = new Vector3(size * aspectRatio, size, 0);
                 transform.localPosition = Vector3.forward * 10;
@@ -186,17 +186,17 @@ namespace Playtime_Painter
                     meshRendy.material = material;
                     if (tex)
                         Set(tex);
-                    texMGMT.Render();
+                    TexMGMT.Render();
                     meshRendy.material = tmpMat;
                 }
                 else
                 {
 
                     if (shade == null)
-                        shade = texMGMT.pixPerfectCopy;
+                        shade = TexMGMT.pixPerfectCopy;
                     Set(shade);
                     Set(tex);
-                    texMGMT.Render();
+                    TexMGMT.Render();
                 }
 
 
@@ -215,7 +215,7 @@ namespace Playtime_Painter
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
-            Set(texMGMT.br_ColorFill).Set(col);
+            Set(TexMGMT.br_ColorFill).Set(col);
         }
         
         private void OnEnable()

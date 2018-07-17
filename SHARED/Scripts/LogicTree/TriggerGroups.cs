@@ -15,10 +15,8 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-    public class TriggerGroup : AbstractKeepUnrecognized_STD
-     #if PEGI
-        , IGotName, IGotIndex, IPEGI
-    #endif
+    public class TriggerGroup : AbstractKeepUnrecognized_STD  , IGotName, IGotIndex, IPEGI
+
     {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
@@ -222,7 +220,7 @@ namespace STD_Logic
                     return changed;
 
                 changed |= (index + " Name").edit(60, ref name).nl();
-                Trigger.search_PEGI();
+                Trigger.Search_PEGI();
             }
             
             if (Trigger.edited != null)

@@ -20,7 +20,7 @@ namespace StoryTriggerData {
                         lst.RemoveAt(i);
                         i--;
                     } else {
-                        pegi.write(lst[i].getDescription());
+                        pegi.write(lst[i].GetDescription());
                         if (icon.Edit.Click(20))
                             STD_Call.edited = lst[i];
                     }
@@ -44,10 +44,8 @@ namespace StoryTriggerData {
 #endif
     }
 
-    public class STD_Call : Abstract_STD
-#if PEGI
-            , IPEGI
-#endif
+    public class STD_Call : Abstract_STD , IPEGI
+
     {
 
         public string tag = "null";
@@ -55,7 +53,7 @@ namespace StoryTriggerData {
 
         public TaggedTarget targ;
 
-        public string getDescription() {
+        public string GetDescription() {
             return tag + (targ == null ? "_this" : targ.Trigger.name); 
         }
 
@@ -84,7 +82,7 @@ namespace StoryTriggerData {
         public virtual bool PEGI() {
             bool changed = false;
             pegi.newLine();
-            pegi.write(getDescription());
+            pegi.write(GetDescription());
             pegi.newLine();
 
             if ((browsedForCalls != null) && (!browsedForCalls.gameObject.activeSelf))

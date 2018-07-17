@@ -11,10 +11,7 @@ namespace Playtime_Painter
 {
     
     [ExecuteInEditMode]
-    public class MergingTerrainController : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class MergingTerrainController : MonoBehaviour, IPEGI
     {
 
         public List<ChannelSetsForDefaultMaps> mergeSubmasks;
@@ -91,10 +88,10 @@ namespace Playtime_Painter
                 for (int i = 0; i < mergeSubmasks.Count; i++)  {
                     ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                     if (tmp.Product_combinedBump != null)
-                        Shader.SetGlobalTexture(PainterConfig.terrainNormalMap + i, tmp.Product_combinedBump.getDestinationTexture());
+                        Shader.SetGlobalTexture(PainterConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
 
                     if (tmp.Product_colorWithAlpha != null) {
-                        Shader.SetGlobalTexture(PainterConfig.terrainTexture + i, tmp.Product_colorWithAlpha.getDestinationTexture());
+                        Shader.SetGlobalTexture(PainterConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
                         if ((copyProts != null) && (copyProts.Length > i))
                             copyProts[i].texture = tmp.Product_colorWithAlpha;
                     }

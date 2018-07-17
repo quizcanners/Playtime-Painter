@@ -51,7 +51,7 @@ namespace Playtime_Painter
                     float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
                     float length = painter.terrain.terrainData.size.z / sp.tileSize.y;
 
-                    var id = painter.imgData;
+                    var id = painter.ImgData;
                     id.tiling = new Vector2(width, length);
                     id.offset = sp.tileOffset;
                     return true;
@@ -62,7 +62,7 @@ namespace Playtime_Painter
 
         public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
         {
-            Texture tex = id.currentTexture();
+            Texture tex = id.CurrentTexture();
             if (painter.terrain != null)
             {
                 if (fieldName.Contains(PainterConfig.terrainTexture))

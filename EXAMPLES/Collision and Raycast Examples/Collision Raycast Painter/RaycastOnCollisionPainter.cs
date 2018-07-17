@@ -10,16 +10,13 @@ namespace Playtime_Painter
 
 
 
-    public class RaycastOnCollisionPainter : MonoBehaviour
-#if PEGI
-        ,IPEGI
-#endif
+    public class RaycastOnCollisionPainter : MonoBehaviour, IPEGI
     {
 
         public BrushConfig brush = new BrushConfig();
-        List<paintingCollision> paintingOn = new List<paintingCollision>();
+        List<PaintingCollision> paintingOn = new List<PaintingCollision>();
 
-        paintingCollision getFor (GameObject go) {
+        PaintingCollision GetFor (GameObject go) {
   
             foreach (var col in paintingOn)
                 if (col.painter.gameObject == go) return col;
@@ -27,14 +24,14 @@ namespace Playtime_Painter
             PlaytimePainter pp = go.GetComponent<PlaytimePainter>();
             if (pp == null) return null;
 
-            paintingCollision ncol = new paintingCollision(pp);
+            PaintingCollision ncol = new PaintingCollision(pp);
             paintingOn.Add(ncol);
 
             return ncol;
         }
 
         private void OnCollisionExit(Collision collision) {
-            paintingCollision p = getFor(collision.gameObject);
+            PaintingCollision p = GetFor(collision.gameObject);
             if (p == null) return;
             p.vector.mouseUp = true;
             Paint(collision, p);
@@ -42,19 +39,19 @@ namespace Playtime_Painter
 
         private void OnCollisionEnter(Collision collision) {
 
-            paintingCollision p = getFor(collision.gameObject);
+            PaintingCollision p = GetFor(collision.gameObject);
             if (p == null) return;
             p.vector.mouseDwn = true;
             Paint(collision, p);
         }
 
         void OnCollisionStay(Collision collision) {
-            paintingCollision p = getFor(collision.gameObject);
+            PaintingCollision p = GetFor(collision.gameObject);
             if (p == null) return;
             Paint(collision, p);
         }
 
-        void Paint (Collision collision, paintingCollision pCont)
+        void Paint (Collision collision, PaintingCollision pCont)
         {
           
 

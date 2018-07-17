@@ -18,15 +18,15 @@ public class GridNavigator : PainterStuffMono {
     public static GridNavigator inst()  {
         if (_inst == null)
         {
-            if (!applicationIsQuitting)
+            if (!ApplicationIsQuitting)
             {
-                _inst = PainterManager.inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
+                _inst = PainterManager.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
                 if (_inst == null)
                 {
                     try
                     {
                         _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
-                        _inst.transform.parent = PainterManager.inst.transform;
+                        _inst.transform.parent = PainterManager.Inst.transform;
                         _inst.name = "grid";
                         _inst.gameObject.hideFlags = HideFlags.DontSave;
                     }
@@ -197,17 +197,17 @@ public class GridNavigator : PainterStuffMono {
         else if (delta < 0)
             g_side = Gridside.xz;
 
-        if (before != g_side && meshMGMT.target != null)
-            meshMGMT.MeshTool.OnGridChange();
+        if (before != g_side && MeshMGMT.target != null)
+            MeshMGMT.MeshTool.OnGridChange();
 
     }
     
     public void UpdatePositions() {
 
-        MeshManager m = meshMGMT;
-        var cfg = PainterConfig.inst;
+        MeshManager m = MeshMGMT;
+        var cfg = PainterConfig.Inst;
 
-        bool showGrid = m.target.needsGrid() || texMGMT.focusedPainter.needsGrid(); 
+        bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
         SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
 
@@ -294,8 +294,8 @@ public class GridNavigator : PainterStuffMono {
         rendy.sharedMaterial.SetFloat("_dy", dy / dist);
         rendy.sharedMaterial.SetFloat("_Size", dist / scale);
 
-        if (meshMGMT.target != null)
-            meshMGMT.UpdateLocalSpaceV3s(); 
+        if (MeshMGMT.target != null)
+            MeshMGMT.UpdateLocalSpaceV3s(); 
 
     }
 
@@ -307,7 +307,7 @@ public class GridNavigator : PainterStuffMono {
         if (Application.isPlaying) 
             ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
 
-        if (meshMGMT.target == null)
+        if (MeshMGMT.target == null)
             UpdatePositions();
         
     }

@@ -23,11 +23,11 @@ namespace Playtime_Painter
 
         public void SetPathStart()
         {
-            var selectedLine = meshMGMT.SelectedLine;
+            var selectedLine = MeshMGMT.SelectedLine;
 
             if (selectedLine == null) return;
 
-            List<Triangle> td = selectedLine.getAllTriangles_USES_Tris_Listing();
+            List<Triangle> td = selectedLine.GetAllTriangles_USES_Tris_Listing();
 
             if (td.Count != 1) return;
 
@@ -36,7 +36,7 @@ namespace Playtime_Painter
             Vertex third = td[0].NotOnLine(selectedLine);
 
 
-            var alltris = third.meshPoint.triangles();
+            var alltris = third.meshPoint.Triangles();
 
             if (alltris.Count == 1)
             {
@@ -50,17 +50,17 @@ namespace Playtime_Painter
 
             foreach (Triangle tris in alltris)
             {
-                if (tris.includes(selectedLine.pnts[0].meshPoint) != tris.includes(selectedLine.pnts[1].meshPoint))
+                if (tris.Includes(selectedLine.pnts[0].meshPoint) != tris.Includes(selectedLine.pnts[1].meshPoint))
                 {
                     Vertex otherUV = tris.NotOneOf(new Vertex[] { selectedLine.pnts[0], selectedLine.pnts[1], third });
 
                     float sumDist;
                     float dist;
-                    dist = Vector3.Distance(selectedLine.pnts[0].pos, otherUV.pos);
+                    dist = Vector3.Distance(selectedLine.pnts[0].Pos, otherUV.Pos);
                     sumDist = dist * dist;
-                    dist = Vector3.Distance(otherUV.pos, selectedLine.pnts[1].pos);
+                    dist = Vector3.Distance(otherUV.Pos, selectedLine.pnts[1].Pos);
                     sumDist += dist * dist;
-                    dist = Vector3.Distance(otherUV.pos, third.pos);
+                    dist = Vector3.Distance(otherUV.Pos, third.Pos);
                     sumDist += dist * dist;
 
 
@@ -79,15 +79,15 @@ namespace Playtime_Painter
                 return;
             }
 
-            Vector3 frontCenter = (selectedLine.pnts[0].pos + selectedLine.pnts[1].pos) / 2;
-            Vector3 backCenter = (third.pos + fourth.pos) / 2;
+            Vector3 frontCenter = (selectedLine.pnts[0].Pos + selectedLine.pnts[1].Pos) / 2;
+            Vector3 backCenter = (third.Pos + fourth.Pos) / 2;
 
             PrevDirection = frontCenter - backCenter;
 
             float distance = (frontCenter - backCenter).magnitude;
 
-            Vector2 frontCenterUV = (selectedLine.pnts[0].editedUV + selectedLine.pnts[1].editedUV) / 2;
-            Vector2 backCenterUV = (third.editedUV + fourth.editedUV) / 2;
+            Vector2 frontCenterUV = (selectedLine.pnts[0].EditedUV + selectedLine.pnts[1].EditedUV) / 2;
+            Vector2 backCenterUV = (third.EditedUV + fourth.EditedUV) / 2;
 
             uvChangeSpeed = (frontCenterUV - backCenterUV) / distance;
             width = selectedLine.Vector().magnitude;
@@ -103,17 +103,17 @@ namespace Playtime_Painter
         }
         void ExtendPath()
         {
-            var selectedLine = meshMGMT.SelectedLine;
-            var mm = meshMGMT;
+            var selectedLine = MeshMGMT.SelectedLine;
+            var mm = MeshMGMT;
 
             if (updated == false) return;
             if (selectedLine == null) { updated = false; return; }
 
-            meshMGMT.UpdateLocalSpaceV3s();
+            MeshMGMT.UpdateLocalSpaceV3s();
 
-            Vector3 previousCenterPos = selectedLine.pnts[0].pos;
+            Vector3 previousCenterPos = selectedLine.pnts[0].Pos;
 
-            Vector3 previousAB = selectedLine.pnts[1].pos - selectedLine.pnts[0].pos;
+            Vector3 previousAB = selectedLine.pnts[1].Pos - selectedLine.pnts[0].Pos;
 
             previousCenterPos += (previousAB / 2);
 
@@ -122,22 +122,22 @@ namespace Playtime_Painter
             Vector3 vector = mm.onGridLocal - previousCenterPos;
             float distance = vector.magnitude;
 
-            MeshPoint a = new MeshPoint(selectedLine.pnts[0].pos);
-            MeshPoint b = new MeshPoint(selectedLine.pnts[1].pos);
+            MeshPoint a = new MeshPoint(selectedLine.pnts[0].Pos);
+            MeshPoint b = new MeshPoint(selectedLine.pnts[1].Pos);
 
-            editedMesh.vertices.Add(a);
-            editedMesh.vertices.Add(b);
+            EditedMesh.vertices.Add(a);
+            EditedMesh.vertices.Add(b);
 
-            Vertex aUV = new Vertex(a, selectedLine.pnts[0].editedUV + uvChangeSpeed * distance);
-            Vertex bUV = new Vertex(b, selectedLine.pnts[1].editedUV + uvChangeSpeed * distance);
-
-
+            Vertex aUV = new Vertex(a, selectedLine.pnts[0].EditedUV + uvChangeSpeed * distance);
+            Vertex bUV = new Vertex(b, selectedLine.pnts[1].EditedUV + uvChangeSpeed * distance);
 
 
-            editedMesh.triangles.Add(new Triangle(new Vertex[] { selectedLine.pnts[0], bUV, selectedLine.pnts[1] }));
+
+
+            EditedMesh.triangles.Add(new Triangle(new Vertex[] { selectedLine.pnts[0], bUV, selectedLine.pnts[1] }));
             Triangle headTris = new Triangle(new Vertex[] { selectedLine.pnts[0], aUV, bUV });
 
-            editedMesh.triangles.Add(headTris);
+            EditedMesh.triangles.Add(headTris);
 
             //  
 
@@ -189,9 +189,9 @@ namespace Playtime_Painter
         public void QUICK_G_Functions()
         {
 
-            var pointedTris = meshMGMT.PointedTris;
-            var pointedLine = meshMGMT.PointedLine;
-            var pointedUV = meshMGMT.PointedUV;
+            var pointedTris = MeshMGMT.PointedTris;
+            var pointedLine = MeshMGMT.PointedLine;
+            var pointedUV = MeshMGMT.PointedUV;
 
             switch (quickMeshFunctionsExtensions.current)
             {
@@ -201,23 +201,23 @@ namespace Playtime_Painter
                         foreach (Vertex uv in pointedTris.vertexes)
                         {
                             if ((uv.meshPoint.uvpoints.Count == 1) && (uv.tris.Count == 1))
-                                editedMesh.vertices.Remove(uv.meshPoint);
+                                EditedMesh.vertices.Remove(uv.meshPoint);
                         }
 
-                        editedMesh.triangles.Remove(pointedTris);
+                        EditedMesh.triangles.Remove(pointedTris);
                         /*pointedTris = null;
                         pointedUV = null;
                         selectedUV = null;
                         pointedLine = null;*/
-                        editedMesh.Dirty = true;
+                        EditedMesh.Dirty = true;
                     }
                     break;
                 case QuickMeshFunctions.Line_Center_Vertex_Add:
                     if ((Input.GetKeyDown(KeyCode.G)) && (pointedLine != null))
                     {
-                        Vector3 tmp = pointedLine.pnts[0].pos;
-                        tmp += (pointedLine.pnts[1].pos - pointedLine.pnts[0].pos) / 2;
-                        editedMesh.InsertIntoLine(pointedLine.pnts[0].meshPoint, pointedLine.pnts[1].meshPoint, tmp);
+                        Vector3 tmp = pointedLine.pnts[0].Pos;
+                        tmp += (pointedLine.pnts[1].Pos - pointedLine.pnts[0].Pos) / 2;
+                        EditedMesh.InsertIntoLine(pointedLine.pnts[0].meshPoint, pointedLine.pnts[1].meshPoint, tmp);
 
                     }
                     break;
@@ -258,7 +258,7 @@ namespace Playtime_Painter
                             }
 
 
-                            editedMesh.Dirty = true;
+                            EditedMesh.Dirty = true;
                         }
                         else if (pointedLine != null)
                         {
@@ -273,7 +273,7 @@ namespace Playtime_Painter
                             else if ((a._color.b > 0.9f) && (b._color.b > 0.9f))
                                 lessTris._color.b = 0;
 
-                            editedMesh.Dirty = true;
+                            EditedMesh.Dirty = true;
 
                         }
                     }
@@ -322,15 +322,15 @@ namespace Playtime_Painter
                         {
                             Vector3 norm = lines[0].HalfVectorToB(lines[1]);
 
-                            MeshPoint hold = new MeshPoint(pointedUV.pos);
+                            MeshPoint hold = new MeshPoint(pointedUV.Pos);
 
-                            if (meshMGMT.SelectedUV != null)
-                                new Vertex(hold, meshMGMT.SelectedUV.GetUV(0), meshMGMT.SelectedUV.GetUV(1));
+                            if (MeshMGMT.SelectedUV != null)
+                                new Vertex(hold, MeshMGMT.SelectedUV.GetUV(0), MeshMGMT.SelectedUV.GetUV(1));
                             else
                                 new Vertex(hold);
 
-                            meshMGMT.edMesh.vertices.Add(hold);
-                            meshMGMT.MoveVertexToGrid(hold);
+                            MeshMGMT.edMesh.vertices.Add(hold);
+                            MeshMGMT.MoveVertexToGrid(hold);
                             hold.localPos += norm * outlineWidth;
 
                             Vertex[] tri = new Vertex[3];
@@ -341,10 +341,10 @@ namespace Playtime_Painter
                                 tri[1] = lines[i].pnts[1];
                                 tri[2] = lines[i].pnts[0];
 
-                                meshMGMT.edMesh.triangles.Add(new Triangle(tri));
+                                MeshMGMT.edMesh.triangles.Add(new Triangle(tri));
                             }
 
-                            meshMGMT.edMesh.Dirty = true;
+                            MeshMGMT.edMesh.Dirty = true;
                         }
 
 
@@ -359,7 +359,7 @@ namespace Playtime_Painter
 #if PEGI
         void SomeOtherPathStuff()
         {
-            var mm = meshMGMT;
+            var mm = MeshMGMT;
             var selectedLine = mm.SelectedLine;
 
 

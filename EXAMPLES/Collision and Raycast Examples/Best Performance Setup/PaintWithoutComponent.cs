@@ -10,10 +10,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public class PaintWithoutComponent : MonoBehaviour
-#if PEGI
-        ,IPEGI
-#endif
+    public class PaintWithoutComponent : MonoBehaviour, IPEGI
     {
 
         public BrushConfig brush = new BrushConfig();
@@ -56,14 +53,14 @@ namespace Playtime_Painter
                             if (recivers.Length > 1)
                             {
 
-                                var mats = reciver.rendy.materials;
+                                var mats = reciver.Rendy.materials;
 
                                 var material = mats[submesh % mats.Length];
 
                                 reciver = null;
 
                                 foreach (var r in recivers)
-                                    if (r.material == material)
+                                    if (r.Material == material)
                                     {
                                         reciver = r;
                                         break;
@@ -76,7 +73,7 @@ namespace Playtime_Painter
                         // ACTUAL PAINTING
 
                     if (reciver != null) {
-                        var tex = reciver.getTexture();
+                        var tex = reciver.GetTexture();
                         if (tex != null)
                         {
                             var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
@@ -85,18 +82,19 @@ namespace Playtime_Painter
 
                             if (rendTex != null)
                             {
-                                    var st = new StrokeVector(hit.point);
+                                    var st = new StrokeVector(hit.point)
+                                    {
+                                        unRepeatedUV = hit.collider.GetType() == typeof(MeshCollider) ?
+                                        (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor() : reciver.meshUVoffset,
 
-                                    st.unRepeatedUV = hit.collider.GetType() == typeof(MeshCollider) ? 
-                                        (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor()  : reciver.meshUVoffset;
-
-                                    st.useTexcoord2 = reciver.useTexcoord2;
+                                        useTexcoord2 = reciver.useTexcoord2
+                                    };
 
                                     if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer != null)
                                         BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, st, submesh);
                                     else if (reciver.type == PaintingReciever.RendererType.regular && reciver.meshFilter != null)
                                     {
-                                        var mat = reciver.material;
+                                        var mat = reciver.Material;
                                         if (mat != null && mat.IsAtlased())
                                             BrushTypeSphere.PaintAtlased (rendTex, reciver.gameObject,
                                           reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterConfig.atlasedTexturesInARow));
@@ -113,7 +111,7 @@ namespace Playtime_Painter
                                     Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
                                 Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush, null);
-                                var id = reciver.texture.getImgData();
+                                var id = reciver.texture.GetImgData();
 
                                 if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);
 
@@ -184,7 +182,7 @@ namespace Playtime_Painter
             changed |= brush.Mode_Type_PEGI().nl();
             changed |= brush.ColorSliders_PEGI();
 
-            if (brush.paintingRGB == false)
+            if (brush.PaintingRGB == false)
                 pegi.writeHint("Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).");
             return changed;
         }

@@ -12,11 +12,11 @@ namespace Playtime_Painter
         public override bool MouseEventPointedVertex() {
            
             if ((EditorInputManager.GetMouseButton(0))) {
-                if (pointedUV.sameAsLastFrame)
+                if (PointedUV.SameAsLastFrame)
                     return true;
-                BrushConfig bcf = cfg.brushConfig;
-                bcf.colorLinear.ToV4(ref pointedVertex.shadowBake, bcf.mask);
-                meshMGMT.edMesh.Dirty = true;
+                BrushConfig bcf = Cfg.brushConfig;
+                bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
+                MeshMGMT.edMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -26,12 +26,12 @@ namespace Playtime_Painter
         {
             if ((EditorInputManager.GetMouseButton(0)))
             {
-                if (pointedTris.sameAsLastFrame)
+                if (PointedTris.SameAsLastFrame)
                     return true;
-                BrushConfig bcf = cfg.brushConfig;
-                foreach (var uv in pointedTris.vertexes)
+                BrushConfig bcf = Cfg.brushConfig;
+                foreach (var uv in PointedTris.vertexes)
                 bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
-                meshMGMT.edMesh.Dirty = true;
+                MeshMGMT.edMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -40,17 +40,17 @@ namespace Playtime_Painter
         #if PEGI
         public override bool PEGI()
         {
-            var col = globalBrush.colorLinear.ToGamma();
-            var msk = globalBrush.mask;
+            var col = GlobalBrush.colorLinear.ToGamma();
+            var msk = GlobalBrush.mask;
             if ("Paint All".Click().nl())
             {
-                foreach (var v in editedMesh.vertices)
+                foreach (var v in EditedMesh.vertices)
                     msk.Transfer(ref v.shadowBake, col);
-                editedMesh.Dirty = true;
+                EditedMesh.Dirty = true;
             }
-            globalBrush.ColorSliders_PEGI().nl();
+            GlobalBrush.ColorSliders_PEGI().nl();
 
-            var mat = inspectedPainter.material;
+            var mat = InspectedPainter.Material;
 
             if (mat != null)  {
                 ShadowVolumeTexture shadVT = null;
@@ -60,9 +60,9 @@ namespace Playtime_Painter
 
                         if (shadVT != null && "Auto Raycast Shadows".Click().nl()) {
 
-                            foreach (var v in editedMesh.vertices) {
+                            foreach (var v in EditedMesh.vertices) {
 
-                                var vpos = v.worldPos + v.GetWorldNormal() * 0.001f;
+                                var vpos = v.WorldPos + v.GetWorldNormal() * 0.001f;
 
                                 for (int i = 0; i < 3; i++) {
                                     var pnt = shadVT.lights.GetLight(i);
@@ -77,7 +77,7 @@ namespace Playtime_Painter
                                 }
                             }
 
-                            editedMesh.Dirty = true;
+                            EditedMesh.Dirty = true;
 
                             "Raycast Complete".showNotification();
                         }

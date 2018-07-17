@@ -9,10 +9,8 @@ namespace Playtime_Painter {
 
     [Serializable]
     [ExecuteInEditMode]
-    public class VolumePaintingPlugin : PainterManagerPluginBase
-#if PEGI
-        , IPEGI
-#endif
+    public class VolumePaintingPlugin : PainterManagerPluginBase , IPEGI
+
     {
         public const string VOLUME_H_SLICES = "VOLUME_H_SLICES";
         public const string VOLUME_POSITION_N_SIZE = "VOLUME_POSITION_N_SIZE";
@@ -42,7 +40,7 @@ namespace Playtime_Painter {
 #endif
             PlugIn_PainterGizmos(DrawGizmosOnPainter);
 
-            PlugIn_NeedsGrid(needsGrid);
+            PlugIn_NeedsGrid(NeedsGrid);
 
             PlugIn_CPUblitMethod(PaintTexture2D);
 
@@ -65,7 +63,7 @@ namespace Playtime_Painter {
             return null;
         }
 
-        public bool needsGrid(PlaytimePainter p){ 
+        public bool NeedsGrid(PlaytimePainter p){ 
             return (useGrid && p.GetVolumeTexture() != null);
         }
 
@@ -81,7 +79,7 @@ namespace Playtime_Painter {
 
             int slices;
 
-            slices = image.texture2D.volumeSlices();
+            slices = image.texture2D.VolumeSlices();
 
             if (slices > 1) {
                 var volume = image.texture2D.GetVolumeTextureData();
@@ -93,17 +91,17 @@ namespace Playtime_Painter {
 
                 Vector3 pos = (stroke.posFrom - volume.transform.position) / volumeScale +0.5f*Vector3.one;
 
-                int height = volume.height;
+                int height = volume.Height;
                 int texWidth = image.width;
 
                 Blit_Functions.brAlpha = brushAlpha;
                 bc.PrepareCPUBlit();
                 Blit_Functions.half = bc.Size(true)/volumeScale;
 
-                var pixels = image.pixels;
+                var pixels = image.Pixels;
 
                 int ihalf = (int)(Blit_Functions.half - 0.5f);
-                bool smooth = bc.type(true) != BrushTypePixel.inst;
+                bool smooth = bc.Type(true) != BrushTypePixel.Inst;
                 if (smooth) ihalf += 1;
 
                 Blit_Functions._alphaMode = Blit_Functions.SphereAlpha;
@@ -162,23 +160,23 @@ namespace Playtime_Painter {
             var vt = pntr.GetVolumeTexture();
             if (vt != null) {
 
-                BrushTypeSphere.inst.BeforeStroke(pntr, bc, stroke);
+                BrushTypeSphere.Inst.BeforeStroke(pntr, bc, stroke);
 
-                Shader.SetGlobalVector(VOLUME_POSITION_N_SIZE+"_BRUSH", vt.posNsize4Shader);
-                Shader.SetGlobalVector(VOLUME_H_SLICES + "_BRUSH", vt.slices4Shader);
+                Shader.SetGlobalVector(VOLUME_POSITION_N_SIZE+"_BRUSH", vt.PosNsize4Shader);
+                Shader.SetGlobalVector(VOLUME_H_SLICES + "_BRUSH", vt.Slices4Shader);
                 if (stroke.mouseDwn)
                     stroke.posFrom = stroke.posTo;
 
                 stroke.useTexcoord2 = false;
 
-                texMGMT.ShaderPrepareStroke(bc, bc.speed * 0.05f, image, stroke, pntr);
+                TexMGMT.ShaderPrepareStroke(bc, bc.speed * 0.05f, image, stroke, pntr);
                 stroke.SetWorldPosInShader();
 
-                texMGMT.brushRendy.FullScreenQuad();
+                TexMGMT.brushRendy.FullScreenQuad();
 
-                texMGMT.Render();
+                TexMGMT.Render();
 
-                BrushTypeSphere.inst.AfterStroke(pntr, bc, stroke);
+                BrushTypeSphere.Inst.AfterStroke(pntr, bc, stroke);
 
                 return true;
             }
@@ -189,8 +187,8 @@ namespace Playtime_Painter {
         public bool Component_PEGI() {
             bool changed = false;
 
-            if (inspectedPainter && inspectedPainter.imgData == null)  {
-                var matProp = inspectedPainter.MaterialTexturePropertyName;
+            if (InspectedPainter && InspectedPainter.ImgData == null)  {
+                var matProp = InspectedPainter.MaterialTexturePropertyName;
                 if (matProp != null && matProp.Contains(VolumeTextureTag))  {
 
                     "Volume Texture Expected".nl();
@@ -201,7 +199,7 @@ namespace Playtime_Painter {
                         if (vol != null) {
                             if (String.Compare(vol.MaterialPropertyName, matProp) == 0) {
                                 if (vol.imageData != null)
-                                    vol.AddIfNew(inspectedPainter);
+                                    vol.AddIfNew(InspectedPainter);
                                 else
                                     "Volume Has No Texture".showNotification();
                             } else { ("Volume is for " + vol.MaterialPropertyName + " not " + matProp).showNotification();}
@@ -215,7 +213,7 @@ namespace Playtime_Painter {
 
 
         public bool DrawGizmosOnPainter(PlaytimePainter pntr) {
-            var volume = pntr.imgData.GetVolumeTextureData();
+            var volume = pntr.ImgData.GetVolumeTextureData();
 
             if (volume!= null && !pntr.LockTextureEditing) 
                  return volume.DrawGizmosOnPainter(pntr);
@@ -229,7 +227,7 @@ namespace Playtime_Painter {
         {
             bool changed = false;
 
-            PlaytimePainter p = inspectedPainter;
+            PlaytimePainter p = InspectedPainter;
          
             var volTex = p.GetVolumeTexture();
             
@@ -237,15 +235,15 @@ namespace Playtime_Painter {
 
                 overrideBlitMode = true;
 
-                var id = p.imgData;
+                var id = p.ImgData;
 
                 "Grid".toggle(50, ref useGrid).nl();
 
-                if ((volTex.name + " " + id.texture2D.volumeSize(volTex.h_slices).ToString()).foldout(ref exploreVolumeData).nl())
+                if ((volTex.name + " " + id.texture2D.VolumeSize(volTex.h_slices).ToString()).foldout(ref exploreVolumeData).nl())
                     changed |= volTex.Nested_Inspect();
 
-                if (volTex.needsToManageMaterials) {
-                    var pmat = inspectedPainter.material;
+                if (volTex.NeedsToManageMaterials) {
+                    var pmat = InspectedPainter.Material;
                     if (pmat != null) {
                         if (!volTex.materials.Contains(pmat)) {
                             if ("Add This Material".Click().nl())
@@ -263,15 +261,15 @@ namespace Playtime_Painter {
 
                 changed |= "Speed".edit(40, ref br.speed, 0.01f, 20).nl();
 
-                float maxScale = volTex.size * volTex.width *0.25f;
+                float maxScale = volTex.size * volTex.Width *0.25f;
 
                 changed |= "Scale:".edit(40,ref br.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f).nl();
             
-                if ((br.blitMode.usingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
+                if ((br.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
                 {
-                    if (texMGMT.sourceTextures.Count > 0) {
+                    if (TexMGMT.sourceTextures.Count > 0) {
                         pegi.write("Copy From:", 70);
-                        changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref texMGMT.sourceTextures);
+                        changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref TexMGMT.sourceTextures);
                     }
                 else
                     "Add Textures to Render Camera to copy from".nl();
@@ -305,18 +303,18 @@ namespace Playtime_Painter {
         public static VolumeTexture GetVolumeTexture(this PlaytimePainter p) {
             if (p == null)
                 return null;
-            var id = p.imgData;
-            if (id != null && id.texture2D!=null && id.texture2D.volumeSlices() > 1)
+            var id = p.ImgData;
+            if (id != null && id.texture2D!=null && id.texture2D.VolumeSlices() > 1)
                 return id.GetVolumeTextureData();
             return null;
         }
 
-        public static Vector3 volumeSize (this Texture2D tex, int slices) {      
+        public static Vector3 VolumeSize (this Texture2D tex, int slices) {      
             int w= tex.width/slices;
             return new Vector3(w, slices * slices, w);
         }
 
-        public static int volumeSlices (this Texture2D tex) {
+        public static int VolumeSlices (this Texture2D tex) {
             if (tex == null) return 1;
 
             string n = tex.name;
@@ -336,27 +334,27 @@ namespace Playtime_Painter {
         }
 
         public static void SetVolumeTexture(this Material material, string name, VolumeTexture vt) {
-            material.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, vt.posNsize4Shader);
-            material.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, vt.slices4Shader);
-            material.SetTexture(name, vt.imageData.currentTexture());
+            material.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, vt.PosNsize4Shader);
+            material.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, vt.Slices4Shader);
+            material.SetTexture(name, vt.imageData.CurrentTexture());
         }
         
         public static void SetVolumeTexture(this List<Material> materials, string name, VolumeTexture vt)
         {
             if (vt == null || vt.imageData == null) return;
          
-            var PnS = vt.posNsize4Shader;
-            var VhS = vt.slices4Shader;
+            var PnS = vt.PosNsize4Shader;
+            var VhS = vt.Slices4Shader;
 
             foreach (var m in materials) if (m != null) {
                 m.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, PnS );
                 m.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, VhS);
-                m.SetTexture(name, vt.imageData.currentTexture());
+                m.SetTexture(name, vt.imageData.CurrentTexture());
             }
         }
 
         public static VolumeTexture GetVolumeTextureData (this Texture tex) {
-            return GetVolumeTextureData(tex.getImgData());
+            return GetVolumeTextureData(tex.GetImgData());
             /* if (VolumePaintingPlugin._inst == null)
                 return null;
  

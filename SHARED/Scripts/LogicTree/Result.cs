@@ -136,10 +136,7 @@ namespace STD_Logic  {
 
     }
     
-    public class Result : ValueIndex
-#if PEGI
-        , IPEGI, IGotDisplayName 
-#endif
+    public class Result : ValueIndex, IPEGI, IGotDisplayName
     {
 
        // public TaggedTarget targ;

@@ -15,18 +15,18 @@ namespace Playtime_Painter{
     [Serializable]
     public class PainterConfig : PainterStuff  {
         static PainterConfig _inst;
-        public static PainterConfig inst {
+        public static PainterConfig Inst {
             get
             {
                 if (_inst == null && !applicationIsQuitting)
                 {
-                    if (texMGMT.painterCfg != null)
-                        _inst = texMGMT.painterCfg;
+                    if (TexMGMT.painterCfg != null)
+                        _inst = TexMGMT.painterCfg;
 
                     if (_inst == null)
                     {
                         _inst = new PainterConfig();
-                        texMGMT.painterCfg = _inst;
+                        TexMGMT.painterCfg = _inst;
                     }
 
                     _inst.Init();
@@ -37,7 +37,7 @@ namespace Playtime_Painter{
                     foreach (var tag in encody)
                     {
                         var d = encody.GetData();
-                        foreach (var m in MeshToolBase.allTools)
+                        foreach (var m in MeshToolBase.AllTools)
                             if (m.ToString().SameAs(tag))
                             {
                                 m.Decode(d);
@@ -109,7 +109,7 @@ namespace Playtime_Painter{
         public List<MeshPackagingProfile> meshPackagingSolutions;
 
         public int _meshTool;
-        public MeshToolBase meshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.allTools.Count - 1);  return MeshToolBase.allTools[_meshTool];} }
+        public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1);  return MeshToolBase.AllTools[_meshTool];} }
         public float bevelDetectionSensetivity = 6;
 
         public static string ToolPath() {
@@ -171,11 +171,13 @@ namespace Playtime_Painter{
             _inst = this;
 
             if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0)) {
-                meshPackagingSolutions = new List<MeshPackagingProfile>();
-				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Simple"));
-                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"));
-				meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"));
-                meshPackagingSolutions.Add((new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased"));
+                meshPackagingSolutions = new List<MeshPackagingProfile>
+                {
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Simple"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
+                };
             }
 
             if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
@@ -195,22 +197,22 @@ namespace Playtime_Painter{
         public static void SaveChanges() {
             StdEncoder cody = new StdEncoder();
             if (!applicationIsQuitting) {
-                    cody.Add("e",MeshToolBase.allTools);
+                    cody.Add("e",MeshToolBase.AllTools);
                 _inst.meshToolsSTD = cody.ToString();
             }
         }
 #if PEGI
         public bool PEGI()
         {
-            PainterManager rtp = PainterManager.inst;
-            BrushConfig brush = PainterConfig.inst.brushConfig;
+            PainterManager rtp = PainterManager.Inst;
+            BrushConfig brush = PainterConfig.Inst.brushConfig;
             bool changed = false;
 
-            if (!isNowPlaytimeAndDisabled)
+            if (!IsNowPlaytimeAndDisabled)
             {
 
               
-                rtp.browsedPlugin = Mathf.Clamp(rtp.browsedPlugin, -1, rtp.plugins.Count - 1);
+                rtp.browsedPlugin = Mathf.Clamp(rtp.browsedPlugin, -1, rtp.Plugins.Count - 1);
 
           
                 if (rtp.browsedPlugin != -1)
@@ -218,7 +220,7 @@ namespace Playtime_Painter{
                     if (icon.Back.Click().nl())
                         rtp.browsedPlugin = -1;
                     else  {
-                        var pl = rtp.plugins[rtp.browsedPlugin];
+                        var pl = rtp.Plugins[rtp.browsedPlugin];
                         if (pl.ConfigTab_PEGI().nl())
                             pl.SetToDirty();
 
@@ -226,9 +228,9 @@ namespace Playtime_Painter{
                     }
                 }
                 else
-                    for (int p = 0; p < rtp.plugins.Count; p++)
+                    for (int p = 0; p < rtp.Plugins.Count; p++)
                     {
-                        rtp.plugins[p].ToPEGIstring().write();
+                        rtp.Plugins[p].ToPEGIstring().write();
                         if (icon.Edit.Click().nl()) rtp.browsedPlugin = p;
                     }
 
@@ -249,11 +251,11 @@ namespace Playtime_Painter{
                 UnityHelperFunctions.SetDefine(PainterConfig.enablePainterForBuild, gotDefine);
 
             if (gotDefine) {
-                if ("Enable PlayTime UI".toggle(ref cfg.enablePainterUIonPlay).nl())
+                if ("Enable PlayTime UI".toggle(ref Cfg.enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
             }
 
-            if (!isNowPlaytimeAndDisabled) {
+            if (!IsNowPlaytimeAndDisabled) {
 
                 if (painter.meshEditing == false) {
                     if ("More options".toggle(80, ref moreOptions).nl())
@@ -266,7 +268,7 @@ namespace Playtime_Painter{
                     changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
                         ref brush.DontRedoMipmaps).nl();
 
-                    var id = painter.imgData;
+                    var id = painter.ImgData;
 
                     if (id != null)
                         changed |= id.PEGI();
@@ -298,13 +300,13 @@ namespace Playtime_Painter{
 #if UNITY_EDITOR
 
             if (icon.Discord.Click("Join Discord", 64))
-                PlaytimePainter.open_Discord();
+                PlaytimePainter.Open_Discord();
 
             if (icon.Docs.Click("Open Asset Documentation", 64))
-                PlaytimePainter.openWWW_Documentation();
+                PlaytimePainter.OpenWWW_Documentation();
 
             if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
-                PlaytimePainter.open_Email();
+                PlaytimePainter.Open_Email();
 
 #endif
 

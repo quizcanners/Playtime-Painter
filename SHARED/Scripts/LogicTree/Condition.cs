@@ -10,10 +10,7 @@ namespace STD_Logic
     public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
     [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
-    public class ConditionLogic : ValueIndex, ISTD
-#if PEGI
-        , IPEGI, IPEGI_ListInspect 
-#endif
+    public class ConditionLogic : ValueIndex, ISTD , IPEGI, IPEGI_ListInspect 
     {
 
         public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());

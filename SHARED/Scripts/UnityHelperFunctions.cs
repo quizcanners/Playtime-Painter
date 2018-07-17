@@ -384,7 +384,7 @@ namespace SharedTools_Stuff
             {
                 if (Application.isPlaying)
                 {
-                    var clean = go as iManageDestroyOnPlay;
+                    var clean = go as IManageDestroyOnPlay;
                     if (clean != null)
                         clean.DestroyYourself();
                     else

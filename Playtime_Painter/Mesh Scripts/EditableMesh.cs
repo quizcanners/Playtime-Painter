@@ -365,9 +365,9 @@ namespace Playtime_Painter {
         public void Edit(PlaytimePainter pntr) {
             //Temporary
             submeshCount = 1;
-            if (pntr.savedEditableMesh != null)
+            if (pntr.SavedEditableMesh != null)
             {
-                Decode(pntr.savedEditableMesh);
+                Decode(pntr.SavedEditableMesh);
                 if (triangles.Count == 0)
                     BreakMesh(pntr.meshFilter.sharedMesh);
 
@@ -375,7 +375,7 @@ namespace Playtime_Painter {
             else
             {
                 BreakMesh(pntr.meshFilter.sharedMesh);
-                pntr.selectedMeshProfile = pntr.GetMaterial(false).getMeshProfileByTag();
+                pntr.selectedMeshProfile = pntr.GetMaterial(false).GetMeshProfileByTag();
             }
 
             // Temporary
@@ -517,7 +517,7 @@ namespace Playtime_Painter {
             triangles.AddRange(edm.triangles);
 
             foreach (var v in edm.vertices) {
-                v.worldPos  =  other.transform.TransformPoint(v.localPos);
+                v.WorldPos  =  other.transform.TransformPoint(v.localPos);
                 vertices.Add(v);
             }
 
@@ -528,8 +528,8 @@ namespace Playtime_Painter {
             if (from == to) return false;
 
             foreach (var td in triangles)
-                if (td.includes(from)) {
-                    if (td.includes(to)) return false;
+                if (td.Includes(from)) {
+                    if (td.Includes(to)) return false;
                     td.Replace(from, to);
                 }
 
@@ -551,7 +551,7 @@ namespace Playtime_Painter {
         public void GiveLineUniqueVerticles_RefreshTrisListing(LineData ld)
         {
 
-            List<Triangle> trs = ld.getAllTriangles_USES_Tris_Listing();
+            List<Triangle> trs = ld.GetAllTriangles_USES_Tris_Listing();
 
             //  Debug.Log("Got "+trs.Count+" triangles");
 
@@ -607,7 +607,7 @@ namespace Playtime_Painter {
         public Vertex GetUVpointAFromLine(MeshPoint a, MeshPoint b)
         {
             for (int i = 0; i < triangles.Count; i++)
-                if (triangles[i].includes(a) && triangles[i].includes(b))
+                if (triangles[i].Includes(a) && triangles[i].Includes(b))
                     return triangles[i].GetByVert(a);
 
             // Debug.Log("Error getting from line");
@@ -635,7 +635,7 @@ namespace Playtime_Painter {
 
         public void PaintAll(linearColor col)
         {
-            BrushMask bm = cfg.brushConfig.mask;//glob.getBrush().brushMask;
+            BrushMask bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
             Color c = col.ToGamma();
             foreach (MeshPoint v in vertices)
                 foreach (Vertex uv in v.uvpoints)
@@ -646,7 +646,7 @@ namespace Playtime_Painter {
 
         public void SetShadowAll(linearColor col)
         {
-            BrushMask bm = cfg.brushConfig.mask;//glob.getBrush().brushMask;
+            BrushMask bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
             Color c = col.ToGamma();
 
             foreach (MeshPoint v in vertices)
@@ -671,12 +671,12 @@ namespace Playtime_Painter {
 
             vertices.Add(newVrt);
 
-            List<Triangle> tris = a.triangles();
+            List<Triangle> tris = a.Triangles();
 
             for (int i = 0; i < tris.Count; i++) {
                 Triangle tr = tris[i];
 
-                if (tr.includes(b)) {
+                if (tr.Includes(b)) {
 
                     Vertex auv;
                     Vertex buv;
@@ -707,7 +707,7 @@ namespace Playtime_Painter {
 
                     newUV = null;
 
-                    if ((cfg.newVerticesUnique) || (newVrt.uvpoints == null) || (newVrt.uvpoints.Count == 0))
+                    if ((Cfg.newVerticesUnique) || (newVrt.uvpoints == null) || (newVrt.uvpoints.Count == 0))
                         newUV = new Vertex(newVrt,uv, uv1);
                     else
                     {
@@ -729,7 +729,7 @@ namespace Playtime_Painter {
                     tr.Replace(auv, newUV);
                   
 
-                    if (cfg.newVerticesUnique) {
+                    if (Cfg.newVerticesUnique) {
                         var split = new Vertex(spliUV);
                         trb.Replace(spliUV, split);
                         var newB = new Vertex(newUV);
@@ -745,7 +745,7 @@ namespace Playtime_Painter {
 
             Dirty = true;
 
-            if (cfg.pixelPerfectMeshEditing)
+            if (Cfg.pixelPerfectMeshEditing)
             newVrt.PixPerfect();
 
             return newVrt;
@@ -757,7 +757,7 @@ namespace Playtime_Painter {
             Vertex b = ld.pnts[1];
 
             for (int i = 0; i < triangles.Count; i++)
-                if (triangles[i].includes(a.meshPoint, b.meshPoint))
+                if (triangles[i].Includes(a.meshPoint, b.meshPoint))
                 {
                     triangles.Remove(triangles[i]);
                     i--;
@@ -791,7 +791,7 @@ namespace Playtime_Painter {
             triangles.Add(c);
 
 
-            if (cfg.pixelPerfectMeshEditing)
+            if (Cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
             Dirty = true;
@@ -831,7 +831,7 @@ namespace Playtime_Painter {
             c.MakeTriangleVertUnique(c.vertexes[0]);
 
 
-            if (cfg.pixelPerfectMeshEditing)
+            if (Cfg.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
             Dirty = true;

@@ -14,10 +14,7 @@ namespace StoryTriggerData {
 
     [StoryTagName(tagName)]
     [ExecuteInEditMode]
-    public class Actor : STD_Poolable
-#if PEGI
-        , IPEGI 
-#endif
+    public class Actor : STD_Poolable, IPEGI
 
     {
 
@@ -237,13 +234,13 @@ namespace StoryTriggerData {
 
         }
 
-        void findNearestPathBox() {
+        void FindNearestPathBox() {
 
             float MaxDistance = 999999;
 
 
             for (int i = 0; i < PathBox.StoryPoolController.pool.initializedCount; i++) {
-                var path = (PathBox)PathBox.StoryPoolController.pool.getScript(i);
+                var path = (PathBox)PathBox.StoryPoolController.pool.GetScript(i);
                 if (path.gameObject.activeSelf) {
                     float dist = path.nearestDistance(transform.position);
                     if (dist < MaxDistance) {
@@ -283,7 +280,7 @@ namespace StoryTriggerData {
                     managedBy.TryManageVelocity(this);
                 
                 for ( int i=0; i<PathBox.StoryPoolController.pool.initializedCount; i++) {
-                    var path = (PathBox)PathBox.StoryPoolController.pool.getScript(i);
+                    var path = (PathBox)PathBox.StoryPoolController.pool.GetScript(i);
                     if ((path.gameObject.activeSelf) && (path != managedBy)) 
                         path.TryManageVelocity(this);
                 }
@@ -292,7 +289,7 @@ namespace StoryTriggerData {
                     if (nearest != null)
                         transform.position = Vector3.Lerp(transform.position, nearest.transform.position, Time.deltaTime);
                     else {
-                        findNearestPathBox();
+                        FindNearestPathBox();
                         if (nearest == null) unmanagedTime = 0;
                     }
                 }

@@ -17,10 +17,7 @@ namespace StoryTriggerData
 {
 
     [ExecuteInEditMode]
-    public abstract class STD_Poolable : PoolableBase, IKeepUnrecognizedSTD
-#if PEGI
-      , IPEGI, IGotDisplayName
-#endif
+    public abstract class STD_Poolable : PoolableBase, IKeepUnrecognizedSTD, IPEGI, IGotDisplayName
     {
 
         public Page parentPage;

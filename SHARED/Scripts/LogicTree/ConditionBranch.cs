@@ -10,10 +10,8 @@ namespace STD_Logic
 
     
 
-    public class ConditionBranch : AbstractKeepUnrecognized_STD 
-        #if PEGI
-        , IGotName , IPEGI
-#endif
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName , IPEGI
+
         {
 
         public enum ConditionBranchType { OR, AND }

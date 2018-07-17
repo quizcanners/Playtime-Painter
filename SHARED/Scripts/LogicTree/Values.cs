@@ -8,10 +8,8 @@ using SharedTools_Stuff;
 namespace STD_Logic {
 
 
-    public class Values: AbstractKeepUnrecognized_STD
-#if PEGI
-        , IPEGI
-#endif
+    public class Values: AbstractKeepUnrecognized_STD  , IPEGI
+
     {
 
         public static Values global = new Values();
@@ -123,7 +121,7 @@ namespace STD_Logic {
 
                 "Click Enter to apply renaming.".writeOneTimeHint("EntApplyTrig");
 
-                Trigger.search_PEGI();
+                Trigger.Search_PEGI();
 
                 Trigger.searchMatchesFound = 0;
 

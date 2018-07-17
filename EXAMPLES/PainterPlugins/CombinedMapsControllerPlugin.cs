@@ -57,7 +57,7 @@ namespace Playtime_Painter {
             static int width;
             static int height;
 
-            static int indexFrom(int x, int y)
+            static int IndexFrom(int x, int y)
             {
 
                 x %= width;
@@ -127,7 +127,7 @@ namespace Playtime_Painter {
                     for (int bx = 0; bx < width; bx++)
                     {
 
-                        int dstIndex = indexFrom(bx, by);
+                        int dstIndex = IndexFrom(bx, by);
 
                         if (normalReady)
                         {
@@ -138,10 +138,10 @@ namespace Playtime_Painter {
                         else
                         {
 
-                            xLeft = srcBmp[indexFrom(bx - 1, by)].a;
-                            xRight = srcBmp[indexFrom(bx + 1, by)].a;
-                            yUp = srcBmp[indexFrom(bx, by - 1)].a;
-                            yDown = srcBmp[indexFrom(bx, by + 1)].a;
+                            xLeft = srcBmp[IndexFrom(bx - 1, by)].a;
+                            xRight = srcBmp[IndexFrom(bx + 1, by)].a;
+                            yUp = srcBmp[IndexFrom(bx, by - 1)].a;
+                            yDown = srcBmp[IndexFrom(bx, by + 1)].a;
 
                             xDelta = (-xRight + xLeft) * strength;
 
@@ -230,7 +230,7 @@ namespace Playtime_Painter {
                 {
                     for (int bx = 0; bx < width; bx++)
                     {
-                        dstIndex = indexFrom(bx, by);
+                        dstIndex = IndexFrom(bx, by);
                         Color col;
                         col = dstColor[dstIndex];
                         col.a = srcBmp[dstIndex].a;
@@ -248,10 +248,7 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class CombinedMapsControllerPlugin : PainterManagerPluginBase
-#if PEGI
-        , IPEGI
-#endif
+        public class CombinedMapsControllerPlugin : PainterManagerPluginBase, IPEGI
         {
             public static CombinedMapsControllerPlugin _inst;
 
@@ -284,13 +281,11 @@ namespace Playtime_Painter {
 
 
         [Serializable]
-        public class TextureSetForForCombinedMaps : PainterStuff
-            #if PEGI
-            , IGotName, IPEGI
-#endif
+        public class TextureSetForForCombinedMaps : PainterStuff  , IGotName, IPEGI
+
         {
 
-            protected CombinedMapsControllerPlugin ctrl { get { return CombinedMapsControllerPlugin._inst; } }
+            protected CombinedMapsControllerPlugin Ctrl { get { return CombinedMapsControllerPlugin._inst; } }
 
             //public List<Texture2D> textures;
             public Texture2D Diffuse;
@@ -308,7 +303,7 @@ namespace Playtime_Painter {
 
             public string name;
 
-            public TexturePackagingProfile profile { get { return ctrl.texturePackagingSolutions[selectedProfile]; } }
+            public TexturePackagingProfile Profile { get { return Ctrl.texturePackagingSolutions[selectedProfile]; } }
 
             public Texture2D GetTexture()
             {
@@ -339,9 +334,9 @@ namespace Playtime_Painter {
 
                 changed |= "Name".edit(ref name).nl();
 
-                var id = inspectedImageData;
+                var id = InspectedImageData;
 
-                if (inspectedPainter != null && id != null)
+                if (InspectedPainter != null && id != null)
                 {
                     "Editing:".write(40);
                     pegi.write(id.texture2D);
@@ -358,9 +353,9 @@ namespace Playtime_Painter {
                 changed |= "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
                     "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl();
                 changed |= "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl();
-                var cfg = PainterConfig.inst;
+                var cfg = PainterConfig.Inst;
 
-                if (inspectedPainter == null)
+                if (InspectedPainter == null)
                 {
                     var frstTex = GetTexture();
                     changed |= "width:".edit(ref width).nl();
@@ -376,17 +371,17 @@ namespace Playtime_Painter {
 
                 changed |= "Packaging Profile".foldout(ref showProfile);
                 if (!showProfile)
-                    pegi.select(ref selectedProfile, ctrl.texturePackagingSolutions).nl();
+                    pegi.select(ref selectedProfile, Ctrl.texturePackagingSolutions).nl();
 
-                if ((selectedProfile < ctrl.texturePackagingSolutions.Count) && (showProfile))
+                if ((selectedProfile < Ctrl.texturePackagingSolutions.Count) && (showProfile))
 
-                    changed |= ctrl.texturePackagingSolutions[selectedProfile].PEGI(this).nl();
+                    changed |= Ctrl.texturePackagingSolutions[selectedProfile].PEGI(this).nl();
 
                 else
                 if (icon.Add.Click("New Texture Packaging Profile", 25).nl())
                 {
-                    ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
-                    selectedProfile = ctrl.texturePackagingSolutions.Count - 1;
+                    Ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
+                    selectedProfile = Ctrl.texturePackagingSolutions.Count - 1;
                 }
 
                 currentPainter = null;
@@ -470,7 +465,7 @@ namespace Playtime_Painter {
 
             public bool PEGI(TextureSetForForCombinedMaps sets)
             {
-                PlaytimePainter p = inspectedPainter;
+                PlaytimePainter p = InspectedPainter;
 
                 pegi.nl();
 
@@ -478,7 +473,7 @@ namespace Playtime_Painter {
 
                 bool changed = "Name".edit(80,ref name);
 
-                var path = PainterConfig.inst.texturesFolderName + "/" + folderName;
+                var path = PainterConfig.Inst.texturesFolderName + "/" + folderName;
 
                 if (icon.Save.Click("Will save to " + path, 25).nl())
                 {
@@ -505,9 +500,9 @@ namespace Playtime_Painter {
 
                         changed |= ch.Nested_Inspect().nl();
 
-                        usingBumpStrength |= ch.role.usingBumpStrengthSlider(ch.sourceChannel);
-                        usingColorSelector |= ch.role.usingColorSelector;
-                        usingGlossMap |= ch.role.GetType() == typeof(TextureRole_Gloss);
+                        usingBumpStrength |= ch.Role.UsingBumpStrengthSlider(ch.sourceChannel);
+                        usingColorSelector |= ch.Role.UsingColorSelector;
+                        usingGlossMap |= ch.Role.GetType() == typeof(TextureRole_Gloss);
                     }
                     pegi.nl();
                 }
@@ -560,14 +555,14 @@ namespace Playtime_Painter {
                 TextureRole.Clear();
 
                 int size;
-                var id = p == null ? null : p.imgData;
+                var id = p?.ImgData;
                 Color[] dst;
                 Texture2D tex = null;
 
                 if (id != null)
                 {
                     size = id.width * id.height;
-                    dst = id.pixels;
+                    dst = id.Pixels;
                     tex = id.texture2D;
                 }
                 else
@@ -590,7 +585,7 @@ namespace Playtime_Painter {
                     {
 
                         var ch = c.sourceChannel;
-                        var col = c.role.GetPixels(set, id);
+                        var col = c.Role.GetPixels(set, id);
 
                         if (c.flip)
                         for (int i = 0; i < size; i++)
@@ -600,7 +595,7 @@ namespace Playtime_Painter {
                             dst[i][colChan] = col[i][ch];
 
 
-                        var newMips = c.role.GetMipPixels(set, id);
+                        var newMips = c.Role.GetMipPixels(set, id);
                         for (int m = 1; m < tex.mipmapCount; m++)
                         {
                             var mlevel = mips[m - 1];
@@ -636,7 +631,7 @@ namespace Playtime_Painter {
                     set.LastProduct = tex;
 
 #if UNITY_EDITOR
-                    set.LastProduct = tex.SaveTextureAsAsset(PainterConfig.inst.texturesFolderName, ref set.name, false);
+                    set.LastProduct = tex.SaveTextureAsAsset(PainterConfig.Inst.texturesFolderName, ref set.name, false);
 
                     TextureImporter importer = set.LastProduct.GetTextureImporter();
 
@@ -662,17 +657,14 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class TextureChannel : Abstract_STD
-#if PEGI
-            ,IPEGI
-#endif
+        public class TextureChannel : Abstract_STD, IPEGI
         {
             public bool enabled;
             public bool flip = false;
             public int sourceRole;
             public int sourceChannel;
 
-            public TextureRole role { get { return TextureRole.all[sourceRole]; } set { sourceRole = value.index; } }
+            public TextureRole Role { get { return TextureRole.All[sourceRole]; } set { sourceRole = value.index; } }
 
             public override bool Decode(string tag, string data)
             {
@@ -705,7 +697,7 @@ namespace Playtime_Painter {
                 if (enabled)
                 {
 
-                    var rls = TextureRole.all;
+                    var rls = TextureRole.All;
 
                     changed |= pegi.select(ref sourceRole, rls);
 
@@ -729,21 +721,23 @@ namespace Playtime_Painter {
         {
 
             static List<TextureRole> _allRoles;
-            public static List<TextureRole> all
+            public static List<TextureRole> All
             {
                 get
                 {
                     if (_allRoles == null)
                     {
-                        _allRoles = new List<TextureRole>();
-                        _allRoles.Add(new TextureRole_Diffuse());
-                        _allRoles.Add(new TextureRole_Height());
-                        _allRoles.Add(new TextureRole_Normal());
-                        _allRoles.Add(new TextureRole_Result());
-                        _allRoles.Add(new TextureRole_FillColor());
-                        _allRoles.Add(new TextureRole_Ambient());
-                        _allRoles.Add(new TextureRole_Gloss());
-                        _allRoles.Add(new TextureRole_Reflectivity());
+                        _allRoles = new List<TextureRole>
+                        {
+                            new TextureRole_Diffuse(),
+                            new TextureRole_Height(),
+                            new TextureRole_Normal(),
+                            new TextureRole_Result(),
+                            new TextureRole_FillColor(),
+                            new TextureRole_Ambient(),
+                            new TextureRole_Gloss(),
+                            new TextureRole_Reflectivity()
+                        };
                     }
                     return _allRoles;
                 }
@@ -772,13 +766,13 @@ namespace Playtime_Painter {
 
             protected bool wasNormal;
 
-            public virtual bool usingBumpStrengthSlider(int sourceChannel) { return false; }
-            public virtual bool usingColorSelector { get { return false; } }
-            public virtual bool isColor { get { return false; } }
+            public virtual bool UsingBumpStrengthSlider(int sourceChannel) { return false; }
+            public virtual bool UsingColorSelector { get { return false; } }
+            public virtual bool IsColor { get { return false; } }
             // public virtual bool sourceSingleChannel { get { return false; } }
             //public virtual bool productSingleChannel { get { return false; } }
-            public virtual List<string> channels { get { return chans; } }
-            public virtual Color DefaultColor { get { return isColor ? Color.white : Color.grey; } }
+            public virtual List<string> Channels { get { return chans; } }
+            public virtual Color DefaultColor { get { return IsColor ? Color.white : Color.grey; } }
 
 
             static List<string> chans = new List<string> { "R", "G", "B", "A" };
@@ -900,7 +894,7 @@ namespace Playtime_Painter {
 
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {
-                bool changed = ".".select(10, ref selectedChannel, channels).nl();
+                bool changed = ".".select(10, ref selectedChannel, Channels).nl();
 
                 return changed;
             }
@@ -922,7 +916,7 @@ namespace Playtime_Painter {
             public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
             {
 
-                if (id != null) return id.pixels;
+                if (id != null) return id.Pixels;
 
                 if (_pixels == null)
                     ExtractPixels(set.LastProduct, set.width, set.height);
@@ -935,9 +929,9 @@ namespace Playtime_Painter {
 
         public class TextureRole_FillColor : TextureRole
         {
-            public override bool isColor { get { return true; } }
+            public override bool IsColor { get { return true; } }
 
-            public override bool usingColorSelector { get { return true; } }
+            public override bool UsingColorSelector { get { return true; } }
 
             public override string ToString() { return "Fill Color"; }
 
@@ -948,7 +942,7 @@ namespace Playtime_Painter {
 
                 if (_pixels == null)
                 {
-                    var col = set.profile.fillColor.ToGamma();
+                    var col = set.Profile.fillColor.ToGamma();
                     var size = width * height;
                     _pixels = new Color[size];
                     for (int i = 0; i < size; i++)
@@ -962,7 +956,7 @@ namespace Playtime_Painter {
 
         public class TextureRole_Diffuse : TextureRole
             {
-                public override bool isColor { get { return true; } }
+                public override bool IsColor { get { return true; } }
 
                 public override string ToString() { return "Color"; }
 
@@ -992,8 +986,8 @@ namespace Playtime_Painter {
                 {
                     ExtractPixels(set.Gloss ? set.Gloss : set.Reflectivity, width, height);
 
-                    if (set.profile.glossNoiseFromHeight && set.HeightMap != null)
-                        GlossMipmapsFromHeightNoise(set.HeightMap, width, height, set.profile.bumpNoiseInGlossFraction);
+                    if (set.Profile.glossNoiseFromHeight && set.HeightMap != null)
+                        GlossMipmapsFromHeightNoise(set.HeightMap, width, height, set.Profile.bumpNoiseInGlossFraction);
                 }
 
                 return _pixels;
@@ -1113,18 +1107,18 @@ namespace Playtime_Painter {
         public class TextureRole_Height : TextureRole
         {
             public override string ToString() { return "Height"; }
-            public override bool usingBumpStrengthSlider(int channel) { return channel < 2; }
+            public override bool UsingBumpStrengthSlider(int channel) { return channel < 2; }
 
             // public override bool sourceSingleChannel { get { return true; } }
 
-            public override List<string> channels { get { return chans; } }
+            public override List<string> Channels { get { return chans; } }
 
             static List<string> chans = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
 
             static int width;
             static int height;
 
-            static int indexFrom(int x, int y)
+            static int IndexFrom(int x, int y)
             {
 
                 x %= width;
@@ -1142,7 +1136,7 @@ namespace Playtime_Painter {
                 height = id == null ? set.height : id.height;
                 if (_pixels == null)
                 {
-                    ExtractPixels(set.HeightMap != null ? set.HeightMap : set.Ambient, width, height);
+                    ExtractPixels(set.HeightMap ?? set.Ambient, width, height);
 
                     float xLeft;
                     float xRight;
@@ -1152,23 +1146,23 @@ namespace Playtime_Painter {
                     float yDelta;
                     float xDelta;
 
-                    float strength = set.profile.bumpStrength;
+                    float strength = set.Profile.bumpStrength;
 
                     for (int by = 0; by < height; by++)
                     {
                         for (int bx = 0; bx < width; bx++)
                         {
 
-                            int dstIndex = indexFrom(bx, by);
+                            int dstIndex = IndexFrom(bx, by);
 
                             var col = _pixels[dstIndex];
 
                             col.b = col.grayscale;
 
-                            xLeft = _pixels[indexFrom(bx - 1, by)].a;
-                            xRight = _pixels[indexFrom(bx + 1, by)].a;
-                            yUp = _pixels[indexFrom(bx, by - 1)].a;
-                            yDown = _pixels[indexFrom(bx, by + 1)].a;
+                            xLeft = _pixels[IndexFrom(bx - 1, by)].a;
+                            xRight = _pixels[IndexFrom(bx + 1, by)].a;
+                            yUp = _pixels[IndexFrom(bx, by - 1)].a;
+                            yDown = _pixels[IndexFrom(bx, by + 1)].a;
 
                             xDelta = (-xRight + xLeft) * strength;
 
@@ -1192,7 +1186,7 @@ namespace Playtime_Painter {
         {
             public override string ToString() { return "Normal"; }
 
-            public override bool usingBumpStrengthSlider(int channel) { return true; }
+            public override bool UsingBumpStrengthSlider(int channel) { return true; }
 
             public bool wasMarkedAsNormal = false;
 

@@ -203,7 +203,7 @@ namespace StoryTriggerData
             string modified = reference;
             if (pegi.editDelayed(ref modified)) {
                 var lst = new List<Interaction>();
-                st.interactionGroup.getAllInteractions(ref lst);
+                st.interactionGroup.GetAllInteractions(ref lst);
                 Debug.Log("Looping interactions "+lst.Count);
 
                 if (st.interactionReferences.Contains(modified)) {

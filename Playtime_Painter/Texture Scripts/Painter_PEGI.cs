@@ -10,14 +10,14 @@ namespace Playtime_Painter {
 
     public static class PainterPEGI_Extensions {
 
-        static PainterConfig Cfg { get { return PainterConfig.inst; } }
-        static PainterManager TexMGMT { get { return PainterManager.inst; } }
+        static PainterConfig Cfg { get { return PainterConfig.Inst; } }
+        static PainterManager TexMGMT { get { return PainterManager.Inst; } }
 
         public static bool SelectTexture_PEGI(this PlaytimePainter p) {
-        int ind = p.selectedTexture;
+        int ind = p.SelectedTexture;
         if (pegi.select(ref ind, p.GetMaterialTextureNames())) {
             p.SetOriginalShaderOnThis();
-            p.selectedTexture = ind;
+            p.SelectedTexture = ind;
             p.OnChangedTexture_OnMaterial();
             p.CheckPreviewShader();
             return true;
@@ -28,7 +28,7 @@ namespace Playtime_Painter {
         public static bool NewTextureOptions_PEGI(this PlaytimePainter p) {
             bool changes = false;
 
-            if (p.imgData != null) return changes;
+            if (p.ImgData != null) return changes;
 
         if (p.MaterialTexturePropertyName == null) {
             pegi.write("This material has no textures");
@@ -40,7 +40,7 @@ namespace Playtime_Painter {
         if (pegi.Click("Create Mask") || color) {
             List<string> texes = p.GetMaterialTextureNames();
                 if (texes.Count > 0) {
-                    p.createTexture2D(256, "New " + p.MaterialTexturePropertyName, color);
+                    p.CreateTexture2D(256, "New " + p.MaterialTexturePropertyName, color);
                     changes = true;
                 }
             
@@ -52,26 +52,26 @@ namespace Playtime_Painter {
         public static bool PreviewShaderToggle_PEGI(this PlaytimePainter painter) {
 
             bool changed = false;
-            if (painter.isTerrainHeightTexture())
+            if (painter.IsTerrainHeightTexture())
             {
                 Texture tht = painter.terrainHeightTexture;
 
                 if (tht != null) {
                   
-                        if ((!painter.isOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
+                        if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
                         {
                             painter.Preview_To_UnityTerrain();
                             painter.Unity_To_Preview(); 
 
-                            painter.matDta.usePreviewShader = false;
+                            painter.MatDta.usePreviewShader = false;
                             painter.SetOriginalShaderOnThis();
 
                             changed = true;
                         }
-                        PainterConfig.inst.brushConfig.MaskSet(BrushMask.A, true);
+                        PainterConfig.Inst.brushConfig.MaskSet(BrushMask.A, true);
                     
-                    if (tht.getImgData() != null)
-                        if ((painter.isOriginalShader) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
+                    if (tht.GetImgData() != null)
+                        if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
                             painter.Unity_To_Preview();
                             
                             painter.SetPreviewShader();
@@ -81,16 +81,16 @@ namespace Playtime_Painter {
                 }  
             } else {
                 
-                if ((painter.isOriginalShader ) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
+                if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
                 {
                     
                     painter.SetPreviewShader();
                     changed = true;
                 }
 
-                if ((!painter.isOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Return to Original Shader", 45)))
+                if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Return to Original Shader", 45)))
                 {
-                    painter.matDta.usePreviewShader = false;
+                    painter.MatDta.usePreviewShader = false;
                     painter.SetOriginalShaderOnThis();
                     changed = true;
                 }
@@ -121,7 +121,7 @@ namespace Playtime_Painter {
             } else {
 
 
-                var id = trg.imgData;
+                var id = trg.ImgData;
 
                 bool gotVectors = Cfg.recordingNames.Count > 0;
 

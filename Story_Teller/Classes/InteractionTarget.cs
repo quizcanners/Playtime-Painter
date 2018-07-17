@@ -20,11 +20,7 @@ namespace StoryTriggerData {
 
         // This one merges interaction and STD values
 
-    public class InteractionTarget : AbstractKeepUnrecognized_STD //Values, 
-      //  iSTD
-#if PEGI
-        , IPEGI
-#endif
+    public class InteractionTarget : AbstractKeepUnrecognized_STD, IPEGI
     {
 
        // public const string storyTag = "story";
@@ -40,8 +36,10 @@ namespace StoryTriggerData {
 
         public void Reboot() {
             myQuestVersion = 0;
-            interactionGroup = new InteractionBranch();
-            interactionGroup.name = "ROOT";
+            interactionGroup = new InteractionBranch
+            {
+                name = "ROOT"
+            };
             interactionReferences = new List<string>();
         }
         
@@ -75,7 +73,7 @@ namespace StoryTriggerData {
                     interactionGroup = new InteractionBranch(data);
 
                     List<Interaction> lst = new List<Interaction>();
-                    interactionGroup.getAllInteractions(ref lst);
+                    interactionGroup.GetAllInteractions(ref lst);
 
                     foreach (Interaction si in lst)
                         if (si.reference.Length > 0)
@@ -149,7 +147,7 @@ namespace StoryTriggerData {
             return changed;
         }
         
-        public void groupFilter_PEGI() {
+        public void GroupFilter_PEGI() {
 
             List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
 

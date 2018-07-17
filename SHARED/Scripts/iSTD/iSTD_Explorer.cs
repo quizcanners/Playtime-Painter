@@ -9,10 +9,7 @@ namespace SharedTools_Stuff
 {
 
 
-    public class ISTD_Explorer : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class ISTD_Explorer : MonoBehaviour, IPEGI
     {
         public ISTD ConnectSTD;
         public ISTD_ExplorerData data = new ISTD_ExplorerData();
@@ -125,10 +122,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class Exploring_STD : Abstract_STD
-#if PEGI
-        , IPEGI, IGotName, IPEGI_ListInspect
-#endif
+    public class Exploring_STD : Abstract_STD , IPEGI, IGotName, IPEGI_ListInspect
     {
         ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
@@ -273,10 +267,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class SavedISTD 
-#if PEGI
-        : IPEGI, IGotName, IPEGI_ListInspect
-#endif
+    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect
     {
         
         ISTD Std => ISTD_ExplorerData.inspectedSTD;

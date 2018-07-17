@@ -12,10 +12,7 @@ namespace SharedTools_Stuff {
         int CountlessIndex { get; set; }
     }
     
-    public abstract class CountlessBase
-#if PEGI
-        : IPEGI
-#endif
+    public abstract class CountlessBase : IPEGI
     {
 
         protected static VariableBranch[] branchPool = new VariableBranch[32];
@@ -1582,10 +1579,7 @@ namespace SharedTools_Stuff {
         }
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD
-#if PEGI
-        , IPEGI
-#endif
+    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD, IPEGI
         , new()
     {
 

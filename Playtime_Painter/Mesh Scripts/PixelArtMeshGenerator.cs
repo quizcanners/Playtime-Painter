@@ -11,14 +11,11 @@ namespace Playtime_Painter
 {
 
 
-    public class PixelArtMeshGenerator : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class PixelArtMeshGenerator : MonoBehaviour, IPEGI
     {
         static int width = 8;
         static float halfPix = 0;
-        static vert[] verts;// = new List<vert>();
+        static Vert[] verts;// = new List<vert>();
         static List<int> tris = new List<int>();
 
         public int testWidth = 8;
@@ -27,14 +24,14 @@ namespace Playtime_Painter
 
         public MeshFilter mFilter;
 
-        enum picV { lup = 0, rup = 1, rdwn = 2, ldwn = 3 };
+        enum PicV { lup = 0, rup = 1, rdwn = 2, ldwn = 3 };
 
-        class vert
+        class Vert
         {
             public Vector3 pos;// = new Vector3();
             public Vector4 uv;// = new Vector2();
 
-            public vert(int x, int y, picV p, float borderPercent)
+            public Vert(int x, int y, PicV p, float borderPercent)
             {
                 uv = new Vector4(halfPix + (float)x / (float)width, halfPix + (float)y / (float)width                                                     // normal coordinate
 
@@ -48,10 +45,10 @@ namespace Playtime_Painter
 
                 switch (p)
                 {
-                    case picV.ldwn: offf += new Vector3(-off, off, 0); break;
-                    case picV.lup: offf += new Vector3(-off, -off, 0); break;
-                    case picV.rdwn: offf += new Vector3(off, off, 0); break;
-                    case picV.rup: offf += new Vector3(off, -off, 0); break;
+                    case PicV.ldwn: offf += new Vector3(-off, off, 0); break;
+                    case PicV.lup: offf += new Vector3(-off, -off, 0); break;
+                    case PicV.rdwn: offf += new Vector3(off, off, 0); break;
+                    case PicV.rup: offf += new Vector3(off, -off, 0); break;
                 }
 
                 pos += offf;
@@ -62,54 +59,54 @@ namespace Playtime_Painter
             }
         }
 
-        static int getIndOf(int x, int y, picV p)
+        static int GetIndOf(int x, int y, PicV p)
         {
             return (y * width + x) * 4 + (int)p;
         }
 
         void JoinDiagonal(int x, int y)
         {
-            tris.Add(getIndOf(x, y, picV.rdwn));
-            tris.Add(getIndOf(x + 1, y, picV.ldwn));
-            tris.Add(getIndOf(x, y + 1, picV.rup));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
+            tris.Add(GetIndOf(x + 1, y, PicV.ldwn));
+            tris.Add(GetIndOf(x, y + 1, PicV.rup));
 
-            tris.Add(getIndOf(x, y + 1, picV.rup));
-            tris.Add(getIndOf(x + 1, y, picV.ldwn));
-            tris.Add(getIndOf(x + 1, y + 1, picV.lup));
+            tris.Add(GetIndOf(x, y + 1, PicV.rup));
+            tris.Add(GetIndOf(x + 1, y, PicV.ldwn));
+            tris.Add(GetIndOf(x + 1, y + 1, PicV.lup));
         }
 
         void JoinDown(int x, int y)
         {
-            tris.Add(getIndOf(x, y, picV.ldwn));
-            tris.Add(getIndOf(x, y, picV.rdwn));
-            tris.Add(getIndOf(x, y + 1, picV.lup));
+            tris.Add(GetIndOf(x, y, PicV.ldwn));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
+            tris.Add(GetIndOf(x, y + 1, PicV.lup));
 
-            tris.Add(getIndOf(x, y, picV.rdwn));
-            tris.Add(getIndOf(x, y + 1, picV.rup));
-            tris.Add(getIndOf(x, y + 1, picV.lup));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
+            tris.Add(GetIndOf(x, y + 1, PicV.rup));
+            tris.Add(GetIndOf(x, y + 1, PicV.lup));
 
         }
 
         void JoinRight(int x, int y)
         {
-            tris.Add(getIndOf(x, y, picV.rup));
-            tris.Add(getIndOf(x + 1, y, picV.lup));
-            tris.Add(getIndOf(x, y, picV.rdwn));
+            tris.Add(GetIndOf(x, y, PicV.rup));
+            tris.Add(GetIndOf(x + 1, y, PicV.lup));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
 
-            tris.Add(getIndOf(x + 1, y, picV.lup));
-            tris.Add(getIndOf(x + 1, y, picV.ldwn));
-            tris.Add(getIndOf(x, y, picV.rdwn));
+            tris.Add(GetIndOf(x + 1, y, PicV.lup));
+            tris.Add(GetIndOf(x + 1, y, PicV.ldwn));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
         }
 
         void FillPixel(int x, int y)
         {
-            tris.Add(getIndOf(x, y, picV.lup));
-            tris.Add(getIndOf(x, y, picV.rup));
-            tris.Add(getIndOf(x, y, picV.ldwn));
+            tris.Add(GetIndOf(x, y, PicV.lup));
+            tris.Add(GetIndOf(x, y, PicV.rup));
+            tris.Add(GetIndOf(x, y, PicV.ldwn));
 
-            tris.Add(getIndOf(x, y, picV.rup));
-            tris.Add(getIndOf(x, y, picV.rdwn));
-            tris.Add(getIndOf(x, y, picV.ldwn));
+            tris.Add(GetIndOf(x, y, PicV.rup));
+            tris.Add(GetIndOf(x, y, PicV.rdwn));
+            tris.Add(GetIndOf(x, y, PicV.ldwn));
         }
 
         public Mesh GenerateMesh(int w)
@@ -121,7 +118,7 @@ namespace Playtime_Painter
 
             int pixls = width * width;
 
-            verts = new vert[pixls * 4];
+            verts = new Vert[pixls * 4];
             tris.Clear();
 
             Vector3[] fverts = new Vector3[verts.Length];
@@ -136,8 +133,8 @@ namespace Playtime_Painter
 
                     for (int p = 0; p < 4; p++)
                     {
-                        int ind = getIndOf(x, y, (picV)p);
-                        verts[ind] = new vert(x, y, (picV)p, thickness);
+                        int ind = GetIndOf(x, y, (PicV)p);
+                        verts[ind] = new Vert(x, y, (PicV)p, thickness);
                         fverts[ind] = verts[ind].pos;
                         uvs[ind] = verts[ind].uv;
                     }

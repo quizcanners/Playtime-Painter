@@ -6,10 +6,8 @@ using Playtime_Painter;
 
 
 
-public class BrushConfigOnly : MonoBehaviour
-#if PEGI
-    , IPEGI
-#endif
+public class BrushConfigOnly : MonoBehaviour  , IPEGI
+
 {
         public BrushConfig brush = new BrushConfig();
 #if PEGI

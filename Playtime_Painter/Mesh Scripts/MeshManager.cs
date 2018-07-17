@@ -18,11 +18,11 @@ namespace Playtime_Painter {
         
         public static MeshManager Inst { get
             {
-                return PainterManager.inst.meshManager;
+                return PainterManager.Inst.meshManager;
             }
         }
 
-        public static Transform Transform { get { return PainterManager.inst.transform; } }
+        public static Transform Transform { get { return PainterManager.Inst.transform; } }
 
         public static float animTextureSize = 128;
 
@@ -33,7 +33,7 @@ namespace Playtime_Painter {
 			return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
         }
         
-        public MeshToolBase MeshTool { get { return PainterConfig.inst.meshTool; } }
+        public MeshToolBase MeshTool { get { return PainterConfig.Inst.MeshTool; } }
 
         public int editedUV = 0;
         public static Vector3 editorMousePos;
@@ -125,10 +125,10 @@ namespace Playtime_Painter {
             
             if (target != null)  {
                 MeshTool.OnDeSelectTool();
-                target.savedEditableMesh = edMesh.Encode().ToString();
+                target.SavedEditableMesh = edMesh.Encode().ToString();
                 target = null;
             }
-            grid.Deactivateverts();
+            Grid.Deactivateverts();
             GridNavigator.inst().SetEnabled(false, false);
             undoMoves.Clear();
             redoMoves.Clear();
@@ -146,15 +146,15 @@ namespace Playtime_Painter {
  
             if (target != null) {
 
-                MeshConstructor mc = new MeshConstructor(edMesh, target.meshProfile, target.meshFilter.sharedMesh);
+                MeshConstructor mc = new MeshConstructor(edMesh, target.MeshProfile, target.meshFilter.sharedMesh);
 
-                if (!edMesh.dirty_Vertices && !edMesh.dirty_Normals && editedMesh.Dirty) {
+                if (!edMesh.dirty_Vertices && !edMesh.dirty_Normals && EditedMesh.Dirty) {
 
-                    if (editedMesh.dirty_Position)
-                        mc.UpdateMesh<MeshSolutions.vertexPos>();
+                    if (EditedMesh.dirty_Position)
+                        mc.UpdateMesh<MeshSolutions.VertexPos>();
 
                     if (edMesh.dirty_Color)
-                        mc.UpdateMesh<MeshSolutions.vertexColor>();
+                        mc.UpdateMesh<MeshSolutions.VertexColor>();
 
                 } else {
                     target.meshFilter.sharedMesh = mc.Construct();
@@ -240,7 +240,7 @@ namespace Playtime_Painter {
         {
             Debug.Log("Disconnecting dragged");
 
-            MeshPoint temp = new MeshPoint(SelectedUV.pos);
+            MeshPoint temp = new MeshPoint(SelectedUV.Pos);
             edMesh.vertices.Add(temp);
 
             SelectedUV.AssignToNewVertex(temp);
@@ -267,17 +267,17 @@ namespace Playtime_Painter {
             else
                 if (!EditorInputManager.getControlKey())
             {
-                GridNavigator.onGridPos = SelectedUV.meshPoint.worldPos;
+                GridNavigator.onGridPos = SelectedUV.meshPoint.WorldPos;
                 //  Debug.Log("Moving grid pos to " + GridNavigator.onGridPos);
                // UpdateLocalSpaceV3s();
-                grid.UpdatePositions();
+                Grid.UpdatePositions();
                 // Debug.Log("Result: "+GridNavigator.onGridPos);
             }
 
             //trisVerts = 0;
 
             if (UVnavigator._inst != null)
-                UVnavigator._inst.CenterOnUV(SelectedUV.editedUV);
+                UVnavigator._inst.CenterOnUV(SelectedUV.EditedUV);
         }
 
         public bool DeleteVertHEAL(MeshPoint vert)
@@ -291,7 +291,7 @@ namespace Playtime_Painter {
 
             for (int i = 0; i < edMesh.triangles.Count; i++)
             {
-                if (edMesh.triangles[i].includes(vert))
+                if (edMesh.triangles[i].Includes(vert))
                 {
                     if (cnt == 3) return false;
                     trs[cnt] = edMesh.triangles[i];
@@ -328,7 +328,7 @@ namespace Playtime_Painter {
             for (int i = 0; i < edMesh.triangles.Count; i++)
             {
                 Triangle tmp = edMesh.triangles[i];
-                if (tmp.includes(a, b))
+                if (tmp.Includes(a, b))
                 {
                     if (cnt == 2) return;
                     trs[cnt] = tmp;
@@ -372,7 +372,7 @@ namespace Playtime_Painter {
 
             for (int i = 0; i < edMesh.triangles.Count; i++)
             {
-                if (edMesh.triangles[i].includes(uv))
+                if (edMesh.triangles[i].Includes(uv))
                 {
                     edMesh.triangles.RemoveAt(i);
                     i--;
@@ -433,7 +433,7 @@ namespace Playtime_Painter {
             if (!EditorInputManager.getControlKey())
                 AddToTrisSet(hold.uvpoints[0]);
 
-            if (cfg.pixelPerfectMeshEditing)
+            if (Cfg.pixelPerfectMeshEditing)
                 hold.PixPerfect();
 
             return hold;
@@ -476,19 +476,19 @@ namespace Playtime_Painter {
 
             acc *= percision;
 
-            if (MyMath.isPointOnLine(t.vertexes[0].meshPoint.distanceToPointed, t.vertexes[1].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[0].pos, t.vertexes[1].pos), acc))
+            if (MyMath.isPointOnLine(t.vertexes[0].meshPoint.distanceToPointed, t.vertexes[1].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[0].Pos, t.vertexes[1].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[0], t.vertexes[1], t);
                 return true;
             }
 
-            if (MyMath.isPointOnLine(t.vertexes[1].meshPoint.distanceToPointed, t.vertexes[2].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[1].pos, t.vertexes[2].pos), acc))
+            if (MyMath.isPointOnLine(t.vertexes[1].meshPoint.distanceToPointed, t.vertexes[2].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[1].Pos, t.vertexes[2].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[1], t.vertexes[2], t);
                 return true;
             }
 
-            if (MyMath.isPointOnLine(t.vertexes[2].meshPoint.distanceToPointed, t.vertexes[0].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[2].pos, t.vertexes[0].pos), acc))
+            if (MyMath.isPointOnLine(t.vertexes[2].meshPoint.distanceToPointed, t.vertexes[0].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[2].Pos, t.vertexes[0].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[2], t.vertexes[0], t);
                 return true;
@@ -521,7 +521,7 @@ namespace Playtime_Painter {
 
                                 PointedTris = t;
 
-                                if (MeshTool.showLines)
+                                if (MeshTool.ShowLines)
                                     ProcessLinesOnTriangle(PointedTris);
 
                                 return;
@@ -596,11 +596,11 @@ namespace Playtime_Painter {
             if (_dragging)
                 t.KeysEventDragging();
 
-            if ((t.showVertices) && (PointedUV != null))
+            if ((t.ShowVertices) && (PointedUV != null))
                 t.KeysEventPointedVertex();
-            else if ((t.showLines) && (PointedLine != null))
+            else if ((t.ShowLines) && (PointedLine != null))
                 t.KeysEventPointedLine();
-            else if ((t.showTriangles) && (PointedTris != null))
+            else if ((t.ShowTriangles) && (PointedTris != null))
                 t.KeysEventPointedTriangle();
         }
 
@@ -633,28 +633,28 @@ namespace Playtime_Painter {
 
                 MeshToolBase t = MeshTool;
 
-                if ((t.showVertices) && (PointedUV != null))
+                if ((t.ShowVertices) && (PointedUV != null))
                 {
                     if (t.MouseEventPointedVertex())
-                        editedMesh.SetLastPointed(PointedUV);
-                    else editedMesh.ClearLastPointed();
+                        EditedMesh.SetLastPointed(PointedUV);
+                    else EditedMesh.ClearLastPointed();
                 }
-                else if ((t.showLines) && (PointedLine != null))
+                else if ((t.ShowLines) && (PointedLine != null))
                 {
                     if (t.MouseEventPointedLine())
-                        editedMesh.SetLastPointed(PointedLine);
-                    else editedMesh.ClearLastPointed();
+                        EditedMesh.SetLastPointed(PointedLine);
+                    else EditedMesh.ClearLastPointed();
                 }
-                else if ((t.showTriangles) && (PointedTris != null))
+                else if ((t.ShowTriangles) && (PointedTris != null))
                 {
                     if (t.MouseEventPointedTriangle())
-                        editedMesh.SetLastPointed(PointedTris);
-                    else editedMesh.ClearLastPointed();
+                        EditedMesh.SetLastPointed(PointedTris);
+                    else EditedMesh.ClearLastPointed();
                 }
                 else
                 {
                     t.MouseEventPointedNothing();
-                    editedMesh.ClearLastPointed();
+                    EditedMesh.ClearLastPointed();
                 }
 
               
@@ -664,10 +664,10 @@ namespace Playtime_Painter {
 
         void SORT_AND_UPDATE_UI() {
 
-            if (grid == null)
+            if (Grid == null)
                 return;
 
-            if (grid.verts[0].go == null)
+            if (Grid.verts[0].go == null)
                 InitVertsIfNUll();
 
            // if (_meshTool == MeshTool.vertices)
@@ -679,30 +679,30 @@ namespace Playtime_Painter {
 
             float scaling = 16;
 
-            grid.selectedVertex.go.SetActiveTo(false);
-            grid.pointedVertex.go.SetActiveTo(false);
+            Grid.selectedVertex.go.SetActiveTo(false);
+            Grid.pointedVertex.go.SetActiveTo(false);
 
             for (int i = 0; i < vertsShowMax; i++)
-                grid.verts[i].go.SetActiveTo(false);
+                Grid.verts[i].go.SetActiveTo(false);
 
-            if (MeshTool.showVertices)
+            if (MeshTool.ShowVertices)
             for (int i = 0; i < vertsShowMax; i++)
                 if (edMesh.vertices.Count > i)  {
-                    MarkerWithText mrkr = grid.verts[i];
+                    MarkerWithText mrkr = Grid.verts[i];
                     MeshPoint vpoint = edMesh.vertices[i];
 
-                    Vector3 worldPos = vpoint.worldPos;
+                    Vector3 worldPos = vpoint.WorldPos;
                     float tmpScale;
                     tmpScale = Vector3.Distance(worldPos,
                         Transform.gameObject.TryGetCameraTransform().position) / scaling;
                         
                     if (GetPointedVert() == vpoint)
                     {
-                        mrkr = grid.pointedVertex; tmpScale *= 2;
+                        mrkr = Grid.pointedVertex; tmpScale *= 2;
                     }
                     else if (GetSelectedVert() == edMesh.vertices[i])
                     {
-                        mrkr = grid.selectedVertex;
+                        mrkr = Grid.selectedVertex;
                             tmpScale *= 1.5f;
                     }
 
@@ -741,16 +741,16 @@ namespace Playtime_Painter {
 
 			//Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
 
-            if (MeshTool.showTriangles)
+            if (MeshTool.ShowTriangles)
             {
-                if ((PointedTris != null) && ((PointedTris != SelectedTris) || (!MeshTool.showSelectedTriangle)))
+                if ((PointedTris != null) && ((PointedTris != SelectedTris) || (!MeshTool.ShowSelectedTriangle)))
                     OutlineTriangle(PointedTris, Color.cyan, Color.gray);
 
-                if ((SelectedTris != null) && (MeshTool.showSelectedTriangle))
+                if ((SelectedTris != null) && (MeshTool.ShowSelectedTriangle))
                     OutlineTriangle(SelectedTris, Color.blue, Color.white);
             }
 
-            if (MeshTool.showLines)
+            if (MeshTool.ShowLines)
             {
                 if (PointedLine != null)
                     Line(PointedLine.pnts[0].meshPoint, PointedLine.pnts[1].meshPoint, Color.green );
@@ -763,7 +763,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            if (MeshTool.showVertices)
+            if (MeshTool.ShowVertices)
             {
 
                 if (PointedUV != null)
@@ -771,7 +771,7 @@ namespace Playtime_Painter {
                     for (int i = 0; i < edMesh.triangles.Count; i++)
                     {
                         Triangle td = edMesh.triangles[i];
-                        if (td.includes(PointedUV))
+                        if (td.Includes(PointedUV))
                         {
 
                             Line(td.vertexes[1].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
@@ -810,7 +810,7 @@ namespace Playtime_Painter {
             if (Application.isPlaying)
                 UpdateInputPlaytime();
 
-             grid.UpdatePositions();
+             Grid.UpdatePositions();
             
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
@@ -898,7 +898,7 @@ namespace Playtime_Painter {
             if (PointedUV == null) return false;
             foreach (Triangle t in edMesh.triangles)
             {
-                if (t.includes(uvi) && t.includes(PointedUV)) return true;
+                if (t.Includes(uvi) && t.Includes(PointedUV)) return true;
             }
             return false;
         }
@@ -917,8 +917,8 @@ namespace Playtime_Painter {
 
         void Line(MeshPoint a, MeshPoint b, Color col, Color colb) {
 
-            Vector3 v3a = a.worldPos;
-            Vector3 v3b = b.worldPos;
+            Vector3 v3a = a.WorldPos;
+            Vector3 v3b = b.WorldPos;
             Vector3 diff = (v3b - v3a) / 2;
             Line(v3a, v3a + diff, col);
             Line(v3b, v3b - diff, colb);
@@ -926,7 +926,7 @@ namespace Playtime_Painter {
 
         void Line(MeshPoint a, MeshPoint b, Color col) {
           
-            Line(a.worldPos, b.worldPos, col);
+            Line(a.WorldPos, b.WorldPos, col);
         }
         
         public bool GizmoLines = false;
@@ -965,32 +965,32 @@ namespace Playtime_Painter {
         
         void InitVertsIfNUll()
         {
-            if (grid == null)
+            if (Grid == null)
                 return;
             
-            if (grid.vertPrefab == null)
-                grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
+            if (Grid.vertPrefab == null)
+                Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
 
-            if ((grid.verts == null) || (grid.verts.Length == 0) || (grid.verts[0].go == null))
+            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (Grid.verts[0].go == null))
             {
-                grid.verts = new MarkerWithText[vertsShowMax];
+                Grid.verts = new MarkerWithText[vertsShowMax];
 
                 for (int i = 0; i < vertsShowMax; i++)
                 {
                     MarkerWithText v = new MarkerWithText();
-                    grid.verts[i] = v;
-                    v.go = GameObject.Instantiate(grid.vertPrefab);
-                    v.go.transform.parent = grid.transform;
+                    Grid.verts[i] = v;
+                    v.go = GameObject.Instantiate(Grid.vertPrefab);
+                    v.go.transform.parent = Grid.transform;
                     v.Init();
                 }
             }
 
-            grid.pointedVertex.Init();
-            grid.selectedVertex.Init();
+            Grid.pointedVertex.Init();
+            Grid.selectedVertex.Init();
 
 #if UNITY_EDITOR
             EditorApplication.update -= EditingUpdate;
-            if (!PainterManager.inst.ApplicationIsAboutToEnterPlayMode())
+            if (!PainterManager.Inst.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += EditingUpdate;
 #endif
         }
@@ -1029,7 +1029,7 @@ namespace Playtime_Painter {
 
             changed |= target.PreviewShaderToggle_PEGI();
 
-            if ((!target.isOriginalShader) && ("preview".select(45, ref meshSHaderMode.selected, meshSHaderMode.allModes).nl()))
+            if ((!target.IsOriginalShader) && ("preview".select(45, ref meshSHaderMode.selected, meshSHaderMode.allModes).nl()))
                 meshSHaderMode.selected.Apply();
 
             pegi.Space();
@@ -1038,8 +1038,8 @@ namespace Playtime_Painter {
 
             var previousTool = MeshTool;
 
-            if ("tool".select(70, ref cfg._meshTool, MeshToolBase.allTools).nl()) {
-                grid.vertexPointMaterial.SetColor("_Color", MeshTool.vertColor);
+            if ("tool".select(70, ref Cfg._meshTool, MeshToolBase.AllTools).nl()) {
+                Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
@@ -1064,7 +1064,7 @@ namespace Playtime_Painter {
             pegi.newLine();
 
             if ("Hint".foldout(ref showTooltip).nl())
-                pegi.writeHint(MeshTool.tooltip);
+                pegi.writeHint(MeshTool.Tooltip);
             
             if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
 
@@ -1140,17 +1140,17 @@ namespace Playtime_Painter {
             if (edMesh != null)
                 edMesh.PEGI().nl();
 
-            grid.vertexPointMaterial.SetColor("_Color", MeshTool.vertColor);
+            Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
 
             if ((!Application.isPlaying) && ("references".foldout(ref showReferences).nl()))  {
 
-                "vertexPointMaterial".write(grid.vertexPointMaterial);
+                "vertexPointMaterial".write(Grid.vertexPointMaterial);
                 pegi.newLine();
 
-                "vertexPrefab".edit(ref grid.vertPrefab).nl();
+                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
                 "Max Vert Markers ".edit(ref vertsShowMax).nl();
-                "pointedVertex".edit(ref grid.pointedVertex.go).nl();
-                "SelectedVertex".edit(ref grid.selectedVertex.go).nl();
+                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
+                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
             }
 
             EditableMesh.inspected = null;

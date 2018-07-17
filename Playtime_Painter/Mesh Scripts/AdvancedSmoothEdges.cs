@@ -17,7 +17,7 @@ namespace Playtime_Painter
 
         }
 
-        public override float[] getValue(int no) {
+        public override float[] GetValue(int no) {
             
             for (int i = 0; i < MeshSolutions.vcnt; i++)
                 MeshSolutions.chanelMedium[i] = vertices[i][no];

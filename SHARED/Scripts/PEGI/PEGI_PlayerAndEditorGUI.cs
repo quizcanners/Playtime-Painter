@@ -3047,7 +3047,7 @@ namespace PlayerAndEditorGUI
                 string before = val.ToString();
                 if (edit(ref before))
                 {
-                    val.setTranslation(before);
+                    val.SetTranslation(before);
                     return true;
                 }
                 return false;
@@ -4049,7 +4049,7 @@ namespace PlayerAndEditorGUI
                 var named = el as IGotName;
                 if (named != null)
                 {
-                    var so = uo != null ? el as ScriptableObject : null;
+                    var so = uo as ScriptableObject;
                     var n = named.NameForPEGI;
                     if (so)
                     {

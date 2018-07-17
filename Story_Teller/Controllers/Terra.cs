@@ -16,10 +16,7 @@ namespace StoryTriggerData
 
     [ExecuteInEditMode]
     [StoryTagName(Terra.tagName)]
-    public class Terra : STD_Poolable
-#if PEGI
-        , IPEGI
-#endif
+    public class Terra : STD_Poolable, IPEGI
     {
 
         string strokeData;
@@ -86,7 +83,7 @@ namespace StoryTriggerData
 
                 pegi.ClickToEditScript();
 
-                PainterConfig pcfg = PainterConfig.inst;
+                PainterConfig pcfg = PainterConfig.Inst;
 
                 string recordName = pcfg.recordingNames.Count > 0 ? pcfg.recordingNames[pcfg.browsedRecord] : null;
 

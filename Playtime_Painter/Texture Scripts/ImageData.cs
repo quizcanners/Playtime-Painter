@@ -14,7 +14,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public enum texTarget { Texture2D, RenderTexture }
+    public enum TexTarget { Texture2D, RenderTexture }
     
     public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName
     {
@@ -22,7 +22,7 @@ namespace Playtime_Painter
         const float bytetocol = 1f / 255f;
         public static Texture2D sampler;
 
-        public texTarget destination;
+        public TexTarget destination;
         public RenderTexture renderTexture;
         public Texture2D texture2D;
         public Texture other;
@@ -30,7 +30,7 @@ namespace Playtime_Painter
         public int height = 128;
         public bool useTexcoord2;
         public bool lockEditing;
-        public bool needsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
+        public bool NeedsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
 
         public int numberOfTexture2Dbackups = 0;
         public int numberOfRenderTextureBackups = 0;
@@ -58,7 +58,7 @@ namespace Playtime_Painter
         public override bool Decode(string tag, string data)
         {
             switch (tag) {
-                case "dst": destination = (texTarget)data.ToInt(); break;
+                case "dst": destination = (TexTarget)data.ToInt(); break;
                 case "tex2D": data.Decode_Referance(ref texture2D); break; 
                 case "other": data.Decode_Referance(ref other); break;
                 case "w": width = data.ToInt(); break;
@@ -79,7 +79,7 @@ namespace Playtime_Painter
 
         public Color[] _pixels;
 
-        public Color[] pixels
+        public Color[] Pixels
         {
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
@@ -110,7 +110,7 @@ namespace Playtime_Painter
             if (backupManually) return;
 
 
-            if (destination == texTarget.RenderTexture)
+            if (destination == TexTarget.RenderTexture)
             {
                 if (numberOfRenderTextureBackups > 0)
                     cache.undo.backupRenderTexture(numberOfRenderTextureBackups, this);
@@ -138,13 +138,13 @@ namespace Playtime_Painter
         {
             StartRecording();
 
-            recordedStrokes.Add(cfg.GetRecordingData(SaveName));
+            recordedStrokes.Add(Cfg.GetRecordingData(SaveName));
         }
 
         public void SaveRecording()
         {
 
-            cfg.RemoveRecord(SaveName);
+            Cfg.RemoveRecord(SaveName);
 
             StringBuilder bildy = new StringBuilder();
 
@@ -153,9 +153,9 @@ namespace Playtime_Painter
 
             string text = bildy.ToString();
 
-            ResourceSaver.SaveToResources(cfg.texturesFolderName, cfg.vectorsFolderName, SaveName, text);
+            ResourceSaver.SaveToResources(Cfg.texturesFolderName, Cfg.vectorsFolderName, SaveName, text);
 
-            cfg.recordingNames.Add(SaveName);
+            Cfg.recordingNames.Add(SaveName);
 
             recording = false;
 
@@ -178,22 +178,24 @@ namespace Playtime_Painter
         public RenderTexture AddRenderTexture(int nwidth, int nheight, RenderTextureFormat format, RenderTextureReadWrite dataType, FilterMode filterMode, string global)
         {
 
-            if (destination == texTarget.RenderTexture)
+            if (destination == TexTarget.RenderTexture)
                 RenderTexture_To_Texture2D();
 
 
             width = nwidth;
             height = nheight;
 
-            renderTexture = new RenderTexture(width, height, 0, format, dataType);
-            renderTexture.filterMode = filterMode;
+            renderTexture = new RenderTexture(width, height, 0, format, dataType)
+            {
+                filterMode = filterMode,
 
-            renderTexture.name = SaveName;
+                name = SaveName
+            };
 
             if ((global != null) && (global.Length > 0))
                 Shader.SetGlobalTexture(global, renderTexture);
 
-            if (destination == texTarget.RenderTexture)
+            if (destination == TexTarget.RenderTexture)
                 Texture2D_To_RenderTexture();
 
             return renderTexture;
@@ -201,7 +203,7 @@ namespace Playtime_Painter
 
         public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
 
-        public void TextureToRenderTexture(Texture2D tex) => PainterManager.inst.Render(tex, this.currentRenderTexture(), texMGMT.pixPerfectCopy);
+        public void TextureToRenderTexture(Texture2D tex) => PainterManager.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMT.pixPerfectCopy);
         
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
         
@@ -212,8 +214,8 @@ namespace Playtime_Painter
 
             RenderTexture rt = renderTexture;
 
-            if (!rt && texMGMT.imgDataUsingRendTex == this)
-                rt = PainterManager.inst.GetDownscaledBigRT(width, height);
+            if (!rt && TexMGMT.imgDataUsingRendTex == this)
+                rt = PainterManager.Inst.GetDownscaledBigRT(width, height);
             
             if (rt == null)
                 return;
@@ -261,12 +263,12 @@ namespace Playtime_Painter
 
             //  Debug.Log("We are linear: "+RenderTexturePainter.inst.isLinearColorSpace + " tex is sRGB: "+tex.isColorTexturee());
 
-            if (PainterManager.inst.isLinearColorSpace)
+            if (PainterManager.Inst.isLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
                 {
                     converted = true;
-                    pixelsToLinear();
+                    PixelsToLinear();
                 }
 
 #if UNITY_2017
@@ -290,16 +292,16 @@ namespace Playtime_Painter
 
         }
 
-        public void pixelsToGamma()
+        public void PixelsToGamma()
         {
-            var p = pixels;
+            var p = Pixels;
             for (int i = 0; i < p.Length; i++)
                 _pixels[i] = _pixels[i].gamma;
         }
 
-        public void pixelsToLinear()
+        public void PixelsToLinear()
         {
-            var p = pixels;
+            var p = Pixels;
             for (int i = 0; i < p.Length; i++)
                 _pixels[i] = _pixels[i].linear;
         }
@@ -314,15 +316,15 @@ namespace Playtime_Painter
 
         public void Colorize(Color col)
         {
-            for (int i = 0; i < pixels.Length; i++)
+            for (int i = 0; i < Pixels.Length; i++)
                 _pixels[i] = col;
 
         }
 
         public Color SampleAT(Vector2 uv)
         {
-            return (destination == texTarget.Texture2D) ?
-            pixel(uvToPixelNumber(uv)) :
+            return (destination == TexTarget.Texture2D) ?
+            Pixel(UvToPixelNumber(uv)) :
                 SampleRenderTexture(uv);
         }
 
@@ -333,9 +335,9 @@ namespace Playtime_Painter
 
             // Debug.Log("Sampling Render Texture");
 
-            PainterManager rtp = PainterManager.inst;
+            PainterManager rtp = PainterManager.Inst;
             int size = PainterManager.renderTextureSize / 4;
-            RenderTexture.active = (renderTexture == null) ? rtp.GetDownscaledBigRT(size, size) : renderTexture;
+            RenderTexture.active = renderTexture ?? rtp.GetDownscaledBigRT(size, size);
 
             if (sampler == null) sampler = new Texture2D(8, 8);
 
@@ -352,7 +354,7 @@ namespace Playtime_Painter
 
             var pix = sampler.GetPixel(0, 0);
 
-            if (PainterManager.inst.isLinearColorSpace)
+            if (PainterManager.Inst.isLinearColorSpace)
                 pix = pix.linear;
 
             return pix;
@@ -363,22 +365,22 @@ namespace Playtime_Painter
             if (tex == null)
                 return;
             
-            pixels = tex.GetPixels();
+            Pixels = tex.GetPixels();
             width = tex.width;
             height = tex.height;
         }
 
-        public void ChangeDestination(texTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
+        public void ChangeDestination(TexTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
         {
 
             if (changeTo != destination)
             {
                 //   Debug.Log("Changing destination");
 
-                if (changeTo == texTarget.RenderTexture)
+                if (changeTo == TexTarget.RenderTexture)
                 {
                     if (renderTexture == null)
-                        PainterManager.inst.changeBufferTarget(this, mat, parameter, painter);
+                        PainterManager.Inst.ChangeBufferTarget(this, mat, parameter, painter);
                     TextureToRenderTexture(texture2D);
                 }
                 else
@@ -387,7 +389,7 @@ namespace Playtime_Painter
                         return;
                     
                     if (renderTexture == null)
-                        PainterManager.inst.EmptyBufferTarget();
+                        PainterManager.Inst.EmptyBufferTarget();
                     else
                         if (painter.inited) // To avoid Clear to black when exiting playmode
                             RenderTexture_To_Texture2D();
@@ -438,7 +440,7 @@ namespace Playtime_Painter
             PixelsFromTexture2D(texture2D);
         }
 
-        public Color pixel(myIntVec2 v)
+        public Color Pixel(myIntVec2 v)
         {
             v.x %= width;
             while (v.x < 0)
@@ -448,7 +450,7 @@ namespace Playtime_Painter
             while (v.y < 0)
                 v.y += height;
 
-            return pixels[((int)v.y) * width + (int)v.x];
+            return Pixels[((int)v.y) * width + (int)v.x];
         }
 
         public int pixelNo(myIntVec2 v)
@@ -465,7 +467,7 @@ namespace Playtime_Painter
             return y * width + x;
         }
 
-        public myIntVec2 uvToPixelNumber(Vector2 uv)
+        public myIntVec2 UvToPixelNumber(Vector2 uv)
         {
             return new myIntVec2(uv.x * width, uv.y * height);
         }
@@ -477,7 +479,7 @@ namespace Playtime_Painter
             texture2D.Apply(mipmaps);
         }
 
-        public ImageData init(Texture tex)
+        public ImageData Init(Texture tex)
         {
             //  Debug.Log("Creating image data for ."+tex.name);
 
@@ -489,7 +491,7 @@ namespace Playtime_Painter
             else
                 other = tex;
 
-            PainterManager.inst.imgDatas.Insert(0,this);
+            PainterManager.Inst.imgDatas.Insert(0,this);
             return this;
         }
 
@@ -498,7 +500,7 @@ namespace Playtime_Painter
             renderTexture = rt;
             width = rt.width;
             height = rt.height;
-            destination = texTarget.RenderTexture;
+            destination = TexTarget.RenderTexture;
 
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(rt);
@@ -517,7 +519,7 @@ namespace Playtime_Painter
         {
 
             From(tex);
-            destination = texTarget.Texture2D;
+            destination = TexTarget.Texture2D;
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(tex);
             if (!string.IsNullOrEmpty(path))
@@ -531,22 +533,22 @@ namespace Playtime_Painter
                 SaveName = "New img";
         }
 
-        public ImageData init(int renderTextureSize)
+        public ImageData Init(int renderTextureSize)
         {
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            PainterManager.inst.imgDatas.Insert(0,this);
-            destination = texTarget.RenderTexture;
+            PainterManager.Inst.imgDatas.Insert(0,this);
+            destination = TexTarget.RenderTexture;
             return this;
         }
 
-        public bool gotUNDO()
+        public bool GotUNDO()
         {
             return cache.undo.gotData();
         }
 #if PEGI
-        public bool undo_redo_PEGI()
+        public bool Undo_redo_PEGI()
         {
             bool changed = false;
 

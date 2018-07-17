@@ -36,7 +36,7 @@ namespace Playtime_Painter {
         {
 
             for (int i = 0; i < 3; i++)
-                if (globalBrush.mask.GetFlag(i)) {
+                if (GlobalBrush.mask.GetFlag(i)) {
                 var l = lights.GetLight(i);
                 if (l!= null) {
                     Gizmos.color =  i == 0 ? Color.red : (i == 1 ? Color.green : Color.blue);

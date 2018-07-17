@@ -15,7 +15,7 @@ namespace StoryTriggerData {
 
     public static class SpaceDistanceExtensions {
        
-        public static string label (this SpaceValues.lvl en) {
+        public static string Label (this SpaceValues.lvl en) {
             switch ((int)en) {
                 case 0: return "meters";
                 case 1: return "kilometers";
@@ -67,10 +67,8 @@ namespace StoryTriggerData {
 
 
     [Serializable]
-    public class UniverseLength : SpaceValues
-#if PEGI
-            , IPEGI
-#endif
+    public class UniverseLength : SpaceValues , IPEGI
+
     {
         public static readonly UniverseLength one = new UniverseLength(1);
 
@@ -265,7 +263,7 @@ namespace StoryTriggerData {
             return this;
         }
 
-        public bool biggerThen(UniverseLength o) {
+        public bool BiggerThen(UniverseLength o) {
             if (MP != o.MP) return MP > o.MP;
             if (LY != o.LY) return LY > o.LY;
             if (LM != o.LM) return LM > o.LM;
@@ -275,7 +273,7 @@ namespace StoryTriggerData {
             return false;
         }
 
-        public bool biggerThen (float length) {
+        public bool BiggerThen (float length) {
             return !(((MP + LY + LM) <= 0) && ((KM * meters_In_Kilometer + Meters) < length));
         }
 
@@ -338,10 +336,7 @@ namespace StoryTriggerData {
     }
 
     [Serializable]
-    public class UniversePosition : SpaceValues
-#if PEGI
-            , IPEGI
-#endif
+    public class UniversePosition : SpaceValues, IPEGI
     {
 
         public override bool Decode(string tag, string data) {
@@ -509,7 +504,7 @@ namespace StoryTriggerData {
             tmpDist.Meters += 2;
             tmpDist.Subtract(rad);
 
-            float nearVal = (!tmpDist.biggerThen(999)) ? tmpDist.Meters + tmpDist.KM*meters_In_Kilometer : meters_In_Kilometer;
+            float nearVal = (!tmpDist.BiggerThen(999)) ? tmpDist.Meters + tmpDist.KM*meters_In_Kilometer : meters_In_Kilometer;
 
           //  if (nearVal < 20)
             //    Debug.Log("Close near val. "+tmpDist);
@@ -567,8 +562,8 @@ namespace StoryTriggerData {
 
             Vector3 tmp = playerPosition.DistAndDirectionUnscaledTo(tmpDist, this);
 
-            isInsidePlanet = scale.biggerThen(tmpDist);
-            isInReach = reach.biggerThen(tmpDist);
+            isInsidePlanet = scale.BiggerThen(tmpDist);
+            isInReach = reach.BiggerThen(tmpDist);
            
 
             tmpScale.CopyFrom(scale).Divide(universeScale);
@@ -614,7 +609,7 @@ namespace StoryTriggerData {
             Vector3 tmp = playerPosition.DistAndDirectionUnscaledTo(tmpDist, this);
 
 
-            isInReach = reach.biggerThen(tmpDist);
+            isInReach = reach.BiggerThen(tmpDist);
 
             tmpDist.Divide(universeScale);
 
@@ -761,12 +756,14 @@ namespace StoryTriggerData {
         }
 
         public UniversePosition GetCopy() {
-            UniversePosition tmp = new UniversePosition();
-            tmp.MP = MP;
-            tmp.LY = LY;
-            tmp.LM = LM;
-            tmp.KM = KM;
-            tmp.Meters = Meters;
+            UniversePosition tmp = new UniversePosition
+            {
+                MP = MP,
+                LY = LY,
+                LM = LM,
+                KM = KM,
+                Meters = Meters
+            };
             return tmp;
         }
 #if PEGI

@@ -17,7 +17,9 @@ using SharedTools_Stuff;
 using UnityEngine.Events;
 using UnityEditorInternal;
 
-namespace  PlayerAndEditorGUI {
+#pragma warning disable IDE1006 // Naming Styles
+
+namespace PlayerAndEditorGUI {
 
     public static class ef {
 
@@ -951,7 +953,7 @@ namespace  PlayerAndEditorGUI {
             string before = val.ToString();
             if (edit(ref before))
             {
-                val.setTranslation(before);
+                val.SetTranslation(before);
                 return change;
             }
             return false;
@@ -1061,9 +1063,11 @@ namespace  PlayerAndEditorGUI {
             checkLine();
 
             bool before = val;
-            GUIContent cont = new GUIContent();
-            cont.text = text;
-            cont.tooltip = tip;
+            GUIContent cont = new GUIContent
+            {
+                text = text,
+                tooltip = tip
+            };
             val = EditorGUILayout.Toggle(cont, val);
             return (before != val) ? change : false;
         }
@@ -1085,18 +1089,22 @@ namespace  PlayerAndEditorGUI {
         public static bool Click(string txt, string tip)
         {
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.text = txt;
-            cont.tooltip = tip;
+            GUIContent cont = new GUIContent
+            {
+                text = txt,
+                tooltip = tip
+            };
             return GUILayout.Button(cont) ? change : false;
         }
 
         public static bool Click(string txt, string tip, int width)
         {
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.text = txt;
-            cont.tooltip = tip;
+            GUIContent cont = new GUIContent
+            {
+                text = txt,
+                tooltip = tip
+            };
             return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
         }
 
@@ -1109,18 +1117,22 @@ namespace  PlayerAndEditorGUI {
         public static bool Click(Texture img, string tip, int width)
         {
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.tooltip = tip;
-            cont.image = img;
+            GUIContent cont = new GUIContent
+            {
+                tooltip = tip,
+                image = img
+            };
             return GUILayout.Button(cont,  GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
         public static bool Click(Texture img, string tip, int width, int height)
         {
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.tooltip = tip;
-            cont.image = img;
+            GUIContent cont = new GUIContent
+            {
+                tooltip = tip,
+                image = img
+            };
             return GUILayout.Button(cont,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)) ? change : false;
         }
 
@@ -1135,8 +1147,10 @@ namespace  PlayerAndEditorGUI {
 
             checkLine();
 
-            GUIContent c = new GUIContent();
-            c.image = icon;
+            GUIContent c = new GUIContent
+            {
+                image = icon
+            };
 
             GUI.enabled = false;
             GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
@@ -1148,9 +1162,11 @@ namespace  PlayerAndEditorGUI {
 
             checkLine();
 
-            GUIContent c = new GUIContent();
-            c.image = icon;
-            c.tooltip = tip;
+            GUIContent c = new GUIContent
+            {
+                image = icon,
+                tooltip = tip
+            };
 
             GUI.enabled = false;
             GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
@@ -1164,9 +1180,11 @@ namespace  PlayerAndEditorGUI {
 
             checkLine();
 
-            GUIContent c = new GUIContent();
-            c.image = icon;
-            c.tooltip = tip;
+            GUIContent c = new GUIContent
+            {
+                image = icon,
+                tooltip = tip
+            };
 
             GUI.enabled = false;
             GUILayout.Button(c,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
@@ -1187,9 +1205,11 @@ namespace  PlayerAndEditorGUI {
         {
 
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.text = text;
-            cont.tooltip = tip;
+            GUIContent cont = new GUIContent
+            {
+                text = text,
+                tooltip = tip
+            };
             EditorGUILayout.LabelField(cont);
         }
 
@@ -1197,9 +1217,11 @@ namespace  PlayerAndEditorGUI {
         {
 
             checkLine();
-            GUIContent cont = new GUIContent();
-            cont.text = text;
-            cont.tooltip = tip;
+            GUIContent cont = new GUIContent
+            {
+                text = text,
+                tooltip = tip
+            };
             EditorGUILayout.LabelField(cont, GUILayout.MaxWidth(width));
         }
 
@@ -1329,9 +1351,11 @@ namespace  PlayerAndEditorGUI {
                 {
                     var ty = el.GetType();
 
-                    GUIContent cont = new GUIContent();
-                    cont.tooltip = ty.ToString();
-                    cont.text = el.ToPEGIstring();
+                    GUIContent cont = new GUIContent
+                    {
+                        tooltip = ty.ToString(),
+                        text = el.ToPEGIstring()
+                    };
 
                     rect.width = 100;
                     EditorGUI.LabelField(rect, cont);
@@ -1372,5 +1396,5 @@ namespace  PlayerAndEditorGUI {
 
 }
 }
-
+#pragma warning restore IDE1006 // Naming Styles
 #endif

@@ -57,8 +57,8 @@ namespace StoryTriggerData {
                 PoolControllerBase pcb = all[i].pool;
 
                 for (int o = 0; o < pcb.initializedCount; o++)
-                    if (pcb.activeSelf(o)) 
-                        yield return (STD_Poolable)pcb.getScript(o);
+                    if (pcb.ActiveSelf(o)) 
+                        yield return (STD_Poolable)pcb.GetScript(o);
             }
         }
 
@@ -76,7 +76,7 @@ namespace StoryTriggerData {
         public static STD_Poolable getOne(string tag) {
             STD_Pool cp;
             if (stdPoolsDictionary.TryGetValue(tag, out cp))
-                return (STD_Poolable)cp.pool.getScript();
+                return (STD_Poolable)cp.pool.GetScript();
             return null;
         }
 

@@ -125,7 +125,7 @@ namespace StoryTriggerData
 
                     if (icon.Add.Click(25).nl())
                     {
-                        Page sp = pool.getOne();
+                        Page sp = pool.GetOne();
                         sp.Decode(null);
                         HOMEpages.Add(sp);
                         sp.OriginBook = this.name;

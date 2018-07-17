@@ -96,15 +96,13 @@ public static class TextureEditorExtensionFunctions  {
 		return false;
 	}
 
-		public static float strokeWidth (this BrushConfig br, float pixWidth, bool world){
-			return br.Size(world) / (pixWidth) * 2 * PainterManager.orthoSize;
-		}
+		public static float StrokeWidth (this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterManager.orthoSize;
+		
 
-        public static bool isSingleBufferBrush(this BrushConfig b) { 
-                return (PainterManager.inst.isLinearColorSpace && b.blitMode.supportedBySingleBuffer && b.type(false).supportedBySingleBuffer && b.paintingRGB);
-        }
+        public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterManager.Inst.isLinearColorSpace && b.BlitMode.SupportedBySingleBuffer && b.Type(false).SupportedBySingleBuffer && b.PaintingRGB);
         
-        public static bool isProjected(this Material mat)
+        
+        public static bool IsProjected(this Material mat)
         {
             if (mat == null) return false;
             return mat.shaderKeywords.Contains(PainterConfig.UV_PROJECTED);
@@ -114,12 +112,12 @@ public static class TextureEditorExtensionFunctions  {
          
 
 
-            var id = painter.imgData;
+            var id = painter.ImgData;
 
             bool rt = id.TargetIsRenderTexture();
 
-            BlitMode mode = brush.blitMode;
-            BrushType type = brush.type(!rt);
+            BlitMode mode = brush.BlitMode;
+            BrushType type = brush.Type(!rt);
 
             bool worldSpace = rt && brush.IsA3Dbrush(painter);
             
@@ -141,10 +139,10 @@ public static class TextureEditorExtensionFunctions  {
 
         
 
-            if (mode.showColorSliders)
+            if (mode.ShowColorSliders)
                 cody.Add("bc", brush.colorLinear);
 
-            if (mode.usingSourceTexture)
+            if (mode.UsingSourceTexture)
                 cody.Add("source", brush.selectedSourceTexture);
 
             if (rt) {
@@ -152,7 +150,7 @@ public static class TextureEditorExtensionFunctions  {
                 if ((mode.GetType() == typeof(BlitModeBlur)))
                     cody.Add("blur", brush.blurAmount);
 
-                if (type.isUsingDecals) {
+                if (type.IsUsingDecals) {
                     cody.Add("decA", brush.decalAngle)
                     .Add("decNo", brush.selectedDecal);
                 }
@@ -171,13 +169,13 @@ public static class TextureEditorExtensionFunctions  {
             return cody;
         }
         
-        public static bool needsGrid (this PlaytimePainter pntr) {
+        public static bool NeedsGrid (this PlaytimePainter pntr) {
             if (pntr == null || !pntr.enabled) return false;
             
             if (!pntr.meshEditing) {
 
-                if (!pntr.LockTextureEditing && !PainterConfig.inst.showConfig && PlaytimePainter.isCurrent_Tool()) {
-                    if (pntr.globalBrushType.needsGrid) return true;
+                if (!pntr.LockTextureEditing && !PainterConfig.Inst.showConfig && PlaytimePainter.IsCurrent_Tool()) {
+                    if (pntr.GlobalBrushType.NeedsGrid) return true;
 
                     if (GridNavigator.pluginNeedsGrid_Delegates != null)
                     foreach (PainterBoolPlugin p in GridNavigator.pluginNeedsGrid_Delegates.GetInvocationList())
@@ -185,7 +183,7 @@ public static class TextureEditorExtensionFunctions  {
                 }
                 return false;
             }
-            else return PainterManager.inst.meshManager.target == pntr && PainterConfig.inst.meshTool.showGrid;
+            else return PainterManager.Inst.meshManager.target == pntr && PainterConfig.Inst.MeshTool.ShowGrid;
         }
 
         public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
@@ -212,19 +210,19 @@ public static class TextureEditorExtensionFunctions  {
         public static bool TargetIsTexture2D(this ImageData id)
         {
             if (id == null) return false;
-            return id.destination == texTarget.Texture2D;
+            return id.destination == TexTarget.Texture2D;
         }
 
         public static bool TargetIsRenderTexture(this ImageData id)
         {
             if (id == null) return false;
-            return id.destination == texTarget.RenderTexture;
+            return id.destination == TexTarget.RenderTexture;
         }
 
         public static bool TargetIsBigRenderTexture(this ImageData id)
         {
             if (id == null) return false;
-            return (id.destination == texTarget.RenderTexture) && (id.renderTexture == null);
+            return (id.destination == TexTarget.RenderTexture) && (id.renderTexture == null);
         }
 
         public static ImageData EnsureStaticInstance(this ImageData imgDTA)
@@ -235,41 +233,41 @@ public static class TextureEditorExtensionFunctions  {
 
             ImageData id = null;
             if (imgDTA.texture2D)
-                id = imgDTA.texture2D.getImgDataIfExists();
+                id = imgDTA.texture2D.GetImgDataIfExists();
             else if (imgDTA.renderTexture)
-                id = imgDTA.renderTexture.getImgDataIfExists();
+                id = imgDTA.renderTexture.GetImgDataIfExists();
             else if (imgDTA.other != null)
-                id = imgDTA.other.getImgDataIfExists();
+                id = imgDTA.other.GetImgDataIfExists();
             else
                 return null;
 
             if (id == null)
             {
-                PainterManager.inst.imgDatas.Add(imgDTA);
+                PainterManager.Inst.imgDatas.Add(imgDTA);
                 id = imgDTA;
             }
 
             return id;
         }
 
-        public static ImageData getImgDataIfExists(this Texture texture)
+        public static ImageData GetImgDataIfExists(this Texture texture)
         {
             if (texture == null)
                 return null;
 
-            if (texture.isBigRenderTexturePair() && PainterManager.inst.imgDataUsingRendTex != null)
-                return PainterManager.inst.imgDataUsingRendTex;
+            if (texture.IsBigRenderTexturePair() && PainterManager.Inst.imgDataUsingRendTex != null)
+                return PainterManager.Inst.imgDataUsingRendTex;
 
             ImageData rid = null;
 
-            var lst = PainterManager.inst.imgDatas;
+            var lst = PainterManager.Inst.imgDatas;
 
             for (int i = 0; i < lst.Count; i++) {
                 ImageData id = lst[i];
                 if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
                     rid = id;
                     if (i > 3) 
-                        PainterManager.inst.imgDatas.Move(i, 0);
+                        PainterManager.Inst.imgDatas.Move(i, 0);
                     break;
                 }
             }
@@ -277,22 +275,22 @@ public static class TextureEditorExtensionFunctions  {
             return rid;
         }
         
-        public static ImageData getImgData(this Texture texture)
+        public static ImageData GetImgData(this Texture texture)
         {
             if (texture == null)
                 return null;
 
-            var nid = texture.getImgDataIfExists();
+            var nid = texture.GetImgDataIfExists();
 
             if (nid == null)
-                nid = new ImageData().init(texture);
+                nid = new ImageData().Init(texture);
             
             return nid;
         }
 
-        public static bool isBigRenderTexturePair(this Texture tex)
+        public static bool IsBigRenderTexturePair(this Texture tex)
         {
-            return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.inst.BigRT_pair[0])));
+            return ((tex != null) && PainterManager.GotBuffers() && ((tex == PainterManager.Inst.BigRT_pair[0])));
         }
 
         public static bool ContainsDuplicant(this List<ImageData> texs, ImageData other)
@@ -311,24 +309,24 @@ public static class TextureEditorExtensionFunctions  {
             return false;
         }
 
-        public static Texture getDestinationTexture(this Texture texture)
+        public static Texture GetDestinationTexture(this Texture texture)
         {
 
-            ImageData id = texture.getImgDataIfExists();
+            ImageData id = texture.GetImgDataIfExists();
             if (id != null)
-                return id.currentTexture();
+                return id.CurrentTexture();
 
             return texture;
         }
 
-        public static RenderTexture currentRenderTexture(this ImageData id)
+        public static RenderTexture CurrentRenderTexture(this ImageData id)
         {
             if (id == null)
                 return null;
-            return id.renderTexture == null ? PainterManager.inst.BigRT_pair[0] : id.renderTexture;
+            return id.renderTexture ?? PainterManager.Inst.BigRT_pair[0];
         }
 
-        public static Texture exclusiveTexture(this ImageData id)
+        public static Texture ExclusiveTexture(this ImageData id)
         {
             if (id == null)
                 return null;
@@ -338,15 +336,15 @@ public static class TextureEditorExtensionFunctions  {
 
             switch (id.destination)
             {
-                case texTarget.RenderTexture:
+                case TexTarget.RenderTexture:
                     return id.renderTexture == null ? (Texture)id.texture2D : (Texture)id.renderTexture;
-                case texTarget.Texture2D:
+                case TexTarget.Texture2D:
                     return id.texture2D;
             }
             return null;
         }
 
-        public static Texture currentTexture(this ImageData id)
+        public static Texture CurrentTexture(this ImageData id)
         {
             if (id == null)
                 return null;
@@ -356,21 +354,21 @@ public static class TextureEditorExtensionFunctions  {
 
             switch (id.destination)
             {
-                case texTarget.RenderTexture:
+                case TexTarget.RenderTexture:
                     if (id.renderTexture != null)
                         return id.renderTexture;
-                    if (PainterManager.inst.imgDataUsingRendTex == id)
-                        return PainterManager.inst.BigRT_pair[0];
-                    id.destination = texTarget.Texture2D;
+                    if (PainterManager.Inst.imgDataUsingRendTex == id)
+                        return PainterManager.Inst.BigRT_pair[0];
+                    id.destination = TexTarget.Texture2D;
                     return id.texture2D;
-                case texTarget.Texture2D:
+                case TexTarget.Texture2D:
                     return id.texture2D;
             }
             return null;
         }
 
         public static MaterialData GetMaterialData (this Material mat) {
-            return  (PainterManager.inst!= null) ? PainterManager.inst.getMaterialDataFor(mat) : null;
+            return  PainterManager.Inst?.GetMaterialDataFor(mat);
         }
 
 

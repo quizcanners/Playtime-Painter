@@ -28,41 +28,41 @@ namespace Playtime_Painter {
 
         public string NameForPEGI { get { return name; } set { name = value; } }
 
-        public int height { get { return h_slices * h_slices; } }
+        public int Height { get { return h_slices * h_slices; } }
 
-        public int width{get { return ((imageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): imageData.width)) / h_slices;}}
+        public int Width{get { return ((imageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): imageData.width)) / h_slices;}}
 
-        public Vector4 posNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
+        public Vector4 PosNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
 
-        public Vector4 slices4Shader {get { float w = (imageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
+        public Vector4 Slices4Shader {get { float w = (imageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
         
-        public virtual bool needsToManageMaterials { get { return true; } }
+        public virtual bool NeedsToManageMaterials { get { return true; } }
 
         public virtual Color GetColorFor(Vector3 pos)
         {
             float magnitude = (LastCenterPosTMP - pos).magnitude;
 
-            return Color.white * (width * size * 0.5f - magnitude);
+            return Color.white * (Width * size * 0.5f - magnitude);
         }
 
         Vector3 LastCenterPosTMP;
         public virtual void RecalculateVolume(Vector3 center) {
             LastCenterPosTMP = center;
-            int w = width;
-            int volumeLength = w * w * height;
+            int w = Width;
+            int volumeLength = w * w * Height;
 
             if (volume == null || volume.Length != volumeLength)
                 volume = new Color[volumeLength];
 
-            int hw = width / 2;
+            int hw = Width / 2;
 
             Vector3 pos = Vector3.zero;
 
-            for (int h = 0; h < height; h++)  {
+            for (int h = 0; h < Height; h++)  {
                 pos.y = center.y + h * size;
                 for (int y = 0; y < w; y++)  {
                     pos.z = center.z + ((float)(y - hw)) * size;
-                    int index = (h * width + y) * width;
+                    int index = (h * Width + y) * Width;
 
                     for (int x = 0; x < w; x++) {
                         pos.x = center.x + ((float)(x - hw)) * size;
@@ -76,14 +76,14 @@ namespace Playtime_Painter {
         }
 
         public virtual void AddIfNew(PlaytimePainter p) {
-            AddIfNew(p.material);
+            AddIfNew(p.Material);
         }
 
         public bool AddIfNew (Material mat) {
             if (!materials.Contains(mat))
             {
                 materials.Add(mat);
-                if (needsToManageMaterials)
+                if (NeedsToManageMaterials)
                     UpdateMaterials();
 
                 return true;
@@ -96,7 +96,7 @@ namespace Playtime_Painter {
             if (imageData == null)
             {
                 if (TexturesPool._inst != null)
-                    imageData = TexturesPool._inst.GetTexture2D().getImgData();
+                    imageData = TexturesPool._inst.GetTexture2D().GetImgData();
                 else
                 {
                     Debug.Log("No Texture for Volume");
@@ -105,10 +105,10 @@ namespace Playtime_Painter {
                 UpdateTextureName();
             }
 
-            Color[] pixels = imageData.pixels;//new Color32[tex.width * tex.width];
+            Color[] pixels = imageData.Pixels;//new Color32[tex.width * tex.width];
 
             int texSectorW = imageData.width / h_slices;
-            int w = width;
+            int w = Width;
 
             for (int hy = 0; hy < h_slices; hy++)
             {
@@ -144,30 +144,30 @@ namespace Playtime_Painter {
         public int positionToVolumeIndex(Vector3 pos)
         {
             pos /= size;
-            int hw = width / 2;
+            int hw = Width / 2;
 
-            int y = (int)Mathf.Clamp(pos.y, 0, height - 1);
+            int y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
             int z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
             int x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
 
-            return ((y * width + z) * width + x);
+            return ((y * Width + z) * Width + x);
         }
         
-        public int positionToPixelIndex(Vector3 pos) {
+        public int PositionToPixelIndex(Vector3 pos) {
             pos /= size;
-            int hw = width / 2;
+            int hw = Width / 2;
 
-            int y = (int)Mathf.Clamp(pos.y, 0, height - 1);
+            int y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
             int z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
             int x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
 
             int hy = y / h_slices;
             int hx = y % h_slices;
 
-            return volumeToPixelIndex(hx, hy, z, x);
+            return VolumeToPixelIndex(hx, hy, z, x);
         }
 
-        public int volumeToPixelIndex(int hx, int hy, int y, int x)
+        public int VolumeToPixelIndex(int hx, int hy, int y, int x)
         {
 
             int hTex_index = (hy * imageData.width + hx) * imageData.width / h_slices;
@@ -182,15 +182,15 @@ namespace Playtime_Painter {
         public Vector3 VolumeIndexToPosition(int index)
         {
 
-            int plane = width * width;
+            int plane = Width * Width;
             int y = index / plane;
             int z = (index - y * plane);
 
             int x = z;
-            z /= width;
-            x -= z * width;
+            z /= Width;
+            x -= z * Width;
 
-            int hw = width / 2;
+            int hw = Width / 2;
             Vector3 v3 = new Vector3(x - hw, y - hw, z - hw) * size;
 
             return v3;
@@ -215,19 +215,19 @@ namespace Playtime_Painter {
                 changed = true;
             }
             
-            if (volume != null && volume.Length != width * width * height)  {
+            if (volume != null && volume.Length != Width * Width * Height)  {
                 volume = null;
                 Debug.Log("Clearing volume");
             }
 
-            var texture = imageData.currentTexture();
+            var texture = imageData.CurrentTexture();
 
             if (texture == null)
                 imageData = null;
 
             if ("Texture".edit(60, ref texture).nl()) {
                 changed = true;
-                imageData = texture == null ? null : texture.getImgData();
+                imageData = texture?.GetImgData();
             }
 
             changed |= "Volume Scale".edit(70,ref size).nl();
@@ -248,7 +248,7 @@ namespace Playtime_Painter {
                     }
                     else {
                     if ("Get From Pool".Click().nl()) {
-                        imageData = TexturesPool._inst.GetTexture2D().getImgData();
+                        imageData = TexturesPool._inst.GetTexture2D().GetImgData();
                         changed = true;
                     }
                     }
@@ -260,13 +260,13 @@ namespace Playtime_Painter {
             if (changed)
                 UpdateTextureName();
 
-            int w = width;
-                ("Will result in X:" + w + " Z:" + w + " Y:" + height + "volume").nl();
+            int w = Width;
+                ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
 
             "Matserials".edit_List_Obj(materials, true);
 
-            if (inspectedPainter != null) {
-                var pmat = inspectedPainter.material;
+            if (InspectedPainter != null) {
+                var pmat = InspectedPainter.Material;
                 if (pmat != null &&  materials.Contains(pmat) && "Remove This Material".Click().nl())
                    materials.Remove(pmat);
             }
@@ -312,10 +312,10 @@ namespace Playtime_Painter {
             if (imageData != null)
             {
                 Vector3 center = transform.position;
-                var w = width;
-                center.y += height * 0.5f * size;
+                var w = Width;
+                center.y += Height * 0.5f * size;
                 Gizmos.color = Color.green;
-                Gizmos.DrawWireCube(center, new Vector3(w, height, w) * size);
+                Gizmos.DrawWireCube(center, new Vector3(w, Height, w) * size);
             }
         }
 

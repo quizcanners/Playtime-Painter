@@ -10,10 +10,7 @@ namespace Playtime_Painter
 
 
     [ExecuteInEditMode]
-    public class LightCaster : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class LightCaster : MonoBehaviour, IPEGI
 
     {
 

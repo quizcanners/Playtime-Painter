@@ -162,7 +162,7 @@ namespace Playtime_Painter
                 if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl())
                 {
                     changed = true;
-                    inspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay());
+                    InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay());
                 }
             }
 
@@ -207,7 +207,7 @@ namespace Playtime_Painter
 
         protected static MultiBufferProcessing Mgmt { get { return MultiBufferProcessing.inst; } }
 
-        protected static PainterManager TexMGMT { get { return PainterManager.inst; } }
+        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
 
         public virtual string NameForPEGIdisplay() => "Override This";
 
@@ -244,7 +244,7 @@ namespace Playtime_Painter
                 if (material)
                     Graphics.Blit(src, trg, material);
                 else
-                    PainterManager.inst.Render(src, trg, shader);
+                    PainterManager.Inst.Render(src, trg, shader);
                 AfterRender();
 
                 Version++;
@@ -294,14 +294,11 @@ namespace Playtime_Painter
         }
     }
 
-    public class CustomImageData : TextureBuffer
-#if PEGI
-           , IPEGI_ListInspect, IPEGI
-#endif
+    public class CustomImageData : TextureBuffer  , IPEGI_ListInspect, IPEGI
     {
 
         ImageData id;
-        Texture Texture => id.currentTexture();
+        Texture Texture => id.CurrentTexture();
 
 
 
@@ -313,7 +310,7 @@ namespace Playtime_Painter
         {
             switch (tag)
             {
-                case "t": Texture tmp = Texture; data.ToAssetByGUID(ref tmp); if (tmp != null) id = Texture.getImgData(); break;
+                case "t": Texture tmp = Texture; data.ToAssetByGUID(ref tmp); if (tmp != null) id = Texture.GetImgData(); break;
                 case "show": showOnGUI = data.ToBool(); break;
                 default: return false;
             }
@@ -336,7 +333,7 @@ namespace Playtime_Painter
             "Source".select(50, ref id, TexMGMT.imgDatas);
             Texture tmp = Texture;
             if ("Texture".edit(ref tmp).nl() && (tmp != null))
-                id = tmp.getImgData();
+                id = tmp.GetImgData();
 
             return false;
         }
@@ -383,10 +380,7 @@ namespace Playtime_Painter
 
     }
 
-    public class OnDemandRT : TextureBuffer
-#if PEGI
-           , IPEGI
-#endif
+    public class OnDemandRT : TextureBuffer, IPEGI
     {
         RenderTexture rt;
         public int width = 512;
@@ -596,10 +590,7 @@ namespace Playtime_Painter
 
     }
 
-    public class Downscaler : TextureBuffer
-#if PEGI
-            , IPEGI
-#endif
+    public class Downscaler : TextureBuffer, IPEGI
     {
         string name;
         int width = 64;
@@ -716,10 +707,7 @@ namespace Playtime_Painter
     #region Section
 
     [Serializable]
-    public class RenderSection : PainterStuff
-#if PEGI
-        , IPEGI, IGotDisplayName, IPEGI_ListInspect
-#endif
+    public class RenderSection : PainterStuff , IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
         enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 

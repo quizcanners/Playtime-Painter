@@ -42,10 +42,8 @@ namespace PlayerAndEditorGUI
     }
 
     [Serializable]
-    public class Sentance : Abstract_STD
-#if PEGI
-            , IPEGI
-#endif
+    public class Sentance : Abstract_STD , IPEGI
+
     {
 
         public static bool showTexts;
@@ -67,7 +65,7 @@ namespace PlayerAndEditorGUI
         {
 
             int l = subtag.ToInt();
-            setTranslation((Languages)l, data);
+            SetTranslation((Languages)l, data);
             return true;
         }
         #if PEGI
@@ -76,7 +74,7 @@ namespace PlayerAndEditorGUI
             string tmp = ToString();
             if (pegi.editBig(ref tmp))
             {
-                setTranslation(tmp);
+                SetTranslation(tmp);
                 return true;
             }
             return false;
@@ -105,24 +103,24 @@ namespace PlayerAndEditorGUI
         public Sentance(string str, Languages len)
         {
             txt = new List<string>();
-            setTranslation(len, str);
+            SetTranslation(len, str);
         }
 
-        public void setTranslation(Languages len, string text)
+        public void SetTranslation(Languages len, string text)
         {
             int no = (int)len;
             while (txt.Count <= no) txt.Add("");
             txt[no] = text;
         }
 
-        public void setTranslation(string text)
+        public void SetTranslation(string text)
         {
             int no = (int)curlang;
             while (txt.Count <= no) txt.Add("");
             txt[no] = text;
         }
 
-        public string getTranslation(Languages len)
+        public string GetTranslation(Languages len)
         {
             int no = (int)len;
             while (txt.Count <= no) txt.Add("");

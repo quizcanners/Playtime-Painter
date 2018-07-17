@@ -6,39 +6,37 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter {
 
 
-    public class paintingCollision {
+    public class PaintingCollision {
 		public StrokeVector vector;
 		public PlaytimePainter painter;
 
-		public paintingCollision (PlaytimePainter p){
+		public PaintingCollision (PlaytimePainter p){
 			painter = p;
 			vector = new StrokeVector ();
 		}
 	}
 
     [ExecuteInEditMode]
-    public class PainterBall : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class PainterBall : MonoBehaviour  , IPEGI
+
     {
 
         public MeshRenderer rendy;
         public Rigidbody rigid;
         public SphereCollider _collider;
 
-		public List<paintingCollision> paintingOn = new List<paintingCollision>();
+		public List<PaintingCollision> paintingOn = new List<PaintingCollision>();
         public BrushConfig brush = new BrushConfig();
 
-        paintingCollision TryAddPainterFrom( GameObject go) {
+        PaintingCollision TryAddPainterFrom( GameObject go) {
             PlaytimePainter target = go.GetComponent<PlaytimePainter>();
 
             if (target != null && !target.LockTextureEditing)   {
-                paintingCollision col = new paintingCollision(target);
+                PaintingCollision col = new PaintingCollision(target);
                 paintingOn.Add(col);
                 col.vector.posFrom = transform.position;
                 col.vector.firstStroke = true;
-                target.UpdateOrSetTexTarget(texTarget.RenderTexture);
+                target.UpdateOrSetTexTarget(TexTarget.RenderTexture);
 
                 return col;
             }
@@ -69,7 +67,7 @@ namespace Playtime_Painter {
         
         void TryRemove(GameObject go)
         {
-            foreach (paintingCollision p in paintingOn)
+            foreach (PaintingCollision p in paintingOn)
                 if (p.painter.gameObject == go)
                 {
                     paintingOn.Remove(p);
@@ -89,7 +87,7 @@ namespace Playtime_Painter {
         }
 
         public void OnEnable()  {
-            brush.typeSet(false, BrushTypeSphere.inst);
+            brush.TypeSet(false, BrushTypeSphere.Inst);
             if (rendy == null) 
                 rendy = GetComponent<MeshRenderer>();
             if (rigid == null)
@@ -105,7 +103,7 @@ namespace Playtime_Painter {
 
             brush.Brush3D_Radius = transform.lossyScale.x*0.7f;
 
-			foreach (paintingCollision col in paintingOn){
+			foreach (PaintingCollision col in paintingOn){
 				PlaytimePainter p = col.painter;
 				if (brush.IsA3Dbrush(p)) {
                     StrokeVector v = col.vector;
@@ -148,7 +146,7 @@ namespace Playtime_Painter {
             if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI().nl())) {
                 if ((brush.TargetIsTex2D) || (!brush.IsA3Dbrush(null))) {
                     brush.TargetIsTex2D = false;
-                    brush.typeSet(false,  BrushTypeSphere.inst);
+                    brush.TypeSet(false,  BrushTypeSphere.Inst);
 
                     pegi.resetOneTimeHint("PaintBall_brushHint");
                 }

@@ -10,10 +10,7 @@ namespace Playtime_Painter
 
 
 
-    public class SkinnedMeshCaster : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class SkinnedMeshCaster : MonoBehaviour, IPEGI
     {
 
         public BrushConfig brush = new BrushConfig();

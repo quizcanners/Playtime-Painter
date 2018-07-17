@@ -34,7 +34,7 @@ namespace Playtime_Painter
         public PlaytimePainter focusedPainter;
 
         public static PainterManager _inst;
-        public static PainterManager inst
+        public static PainterManager Inst
         {
             get
             {
@@ -78,7 +78,7 @@ namespace Playtime_Painter
 
         public List<MaterialData> matDatas = new List<MaterialData>();
 
-        public MaterialData getMaterialDataFor(Material mat)
+        public MaterialData GetMaterialDataFor(Material mat)
         {
             if (mat == null)
                 return null;
@@ -126,7 +126,7 @@ namespace Playtime_Painter
         private List<PainterManagerPluginBase> _plugins;
         public int browsedPlugin;
 
-        public List<PainterManagerPluginBase> plugins
+        public List<PainterManagerPluginBase> Plugins
         {
             get
             {
@@ -310,7 +310,7 @@ namespace Playtime_Painter
             if (imgDataUsingRendTex.texture2D != null) //&& (Application.isPlaying == false))
                 imgDataUsingRendTex.RenderTexture_To_Texture2D();
 
-            imgDataUsingRendTex.destination = texTarget.Texture2D;
+            imgDataUsingRendTex.destination = TexTarget.Texture2D;
 
             foreach (var m in materialsUsingTendTex)
                 m.SetTextureOnLastTarget(imgDataUsingRendTex);
@@ -319,7 +319,7 @@ namespace Playtime_Painter
             imgDataUsingRendTex = null;
         }
 
-        public void changeBufferTarget(ImageData newTarget, MaterialData mat, string parameter, PlaytimePainter painter)
+        public void ChangeBufferTarget(ImageData newTarget, MaterialData mat, string parameter, PlaytimePainter painter)
         {
 
             if (newTarget != imgDataUsingRendTex)
@@ -333,7 +333,7 @@ namespace Playtime_Painter
                     if (imgDataUsingRendTex.texture2D != null)
                         imgDataUsingRendTex.RenderTexture_To_Texture2D();
 
-                    imgDataUsingRendTex.destination = texTarget.Texture2D;
+                    imgDataUsingRendTex.destination = TexTarget.Texture2D;
 
                     foreach (var m in materialsUsingTendTex)
                         m.SetTextureOnLastTarget(imgDataUsingRendTex);
@@ -351,7 +351,7 @@ namespace Playtime_Painter
         public void UpdateBuffersState()
         {
 
-            PainterConfig cfg = PainterConfig.inst;
+            PainterConfig cfg = PainterConfig.Inst;
 
             rtcam.cullingMask = 1 << myLayer;
             
@@ -382,7 +382,7 @@ namespace Playtime_Painter
 
         public static bool GotBuffers()
         {
-            return ((inst.BigRT_pair != null) && (_inst.BigRT_pair.Length > 0) && (_inst.BigRT_pair[0] != null));
+            return ((Inst.BigRT_pair != null) && (_inst.BigRT_pair.Length > 0) && (_inst.BigRT_pair[0] != null));
         }
 
 
@@ -419,10 +419,10 @@ namespace Playtime_Painter
         public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2, PlaytimePainter pntr)
         {
 
-            var brushType = brush.type(!RendTex);
+            var brushType = brush.Type(!RendTex);
 
             bool is3Dbrush = brush.IsA3Dbrush(pntr);
-            bool isDecal = (RendTex) && (brushType.isUsingDecals);
+            bool isDecal = (RendTex) && (brushType.IsUsingDecals);
 
             Color c = brush.colorLinear.ToGamma();
 
@@ -461,14 +461,14 @@ namespace Playtime_Painter
                 , brush.Size(is3Dbrush) / textureWidth // z - scale for uv space
                 , brush.blurAmount)); // w - blur amount
 
-            brushType.setKeyword(texcoord2);
+            brushType.SetKeyword(texcoord2);
 
             if (texcoord2) Shader.EnableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
             else Shader.DisableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
 
-            brush.blitMode.setKeyword().SetGlobalShaderParameters();
+            brush.BlitMode.SetKeyword().SetGlobalShaderParameters();
 
-            if (brush.blitMode.GetType() == typeof(BlitModeSamplingOffset))
+            if (brush.BlitMode.GetType() == typeof(BlitModeSamplingOffset))
             {
                 Shader.EnableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
 
@@ -478,10 +478,10 @@ namespace Playtime_Painter
             else
             {
                 Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-                BlitModeExtensions.SetShaderToggle(PainterConfig.inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+                BlitModeExtensions.SetShaderToggle(PainterConfig.Inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
-            if ((RendTex) && (brush.blitMode.usingSourceTexture))
+            if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
                 Shader.SetGlobalTexture("_SourceTexture", sourceTextures.TryGet(brush.selectedSourceTexture));
 
         }
@@ -492,7 +492,7 @@ namespace Playtime_Painter
 
             bool isDoubleBuffer = (id.renderTexture == null);
 
-            bool useSingle = (!isDoubleBuffer) || bc.isSingleBufferBrush();
+            bool useSingle = (!isDoubleBuffer) || bc.IsSingleBufferBrush();
 
             if ((!useSingle) && (!secondBufferUpdated))
                 UpdateBufferTwo();
@@ -500,14 +500,14 @@ namespace Playtime_Painter
             if (stroke.firstStroke)
                 Shader_BrushCFG_Update(bc, brushAlpha, id.width, id.TargetIsRenderTexture(), stroke.useTexcoord2, pntr);
 
-            rtcam.targetTexture = id.currentRenderTexture();
+            rtcam.targetTexture = id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 Shader.SetGlobalTexture(PainterConfig.DESTINATION_BUFFER, BigRT_pair[1]);
 
             Shader shd = null;
             if (pntr != null)
-                foreach (var pl in plugins)
+                foreach (var pl in Plugins)
                 {
                     Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
                     if (bs != null)
@@ -517,7 +517,7 @@ namespace Playtime_Painter
                     }
                 }
 
-            if (shd == null) shd = useSingle ? bc.blitMode.shaderForSingleBuffer : bc.blitMode.shaderForDoubleBuffer;
+            if (shd == null) shd = useSingle ? bc.BlitMode.ShaderForSingleBuffer : bc.BlitMode.ShaderForDoubleBuffer;
 
             brushRendy.Set(shd);
 
@@ -528,9 +528,9 @@ namespace Playtime_Painter
             if (tex == null || id == null)
                 return;
             brushRendy.Set(pixPerfectCopy);
-            Graphics.Blit(tex, id.currentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
+            Graphics.Blit(tex, id.CurrentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
 
-            AfterRenderBlit(id.currentRenderTexture());
+            AfterRenderBlit(id.CurrentRenderTexture());
 
 
         }
@@ -585,9 +585,9 @@ namespace Playtime_Painter
 
         public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to , brushRendy_bufferCopy);
 
-        public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.currentTexture(), to, brushRendy_bufferCopy);
+        public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.CurrentTexture(), to, brushRendy_bufferCopy);
 
-        public RenderTexture Render(Texture from, ImageData to) => Render(from, to.currentRenderTexture(), brushRendy_bufferCopy);
+        public RenderTexture Render(Texture from, ImageData to) => Render(from, to.CurrentRenderTexture(), brushRendy_bufferCopy);
 
         public void Render(Color col, RenderTexture to)
         {
@@ -672,9 +672,9 @@ namespace Playtime_Painter
 
             isLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
 
-            EditorApplication.update -= combinedUpdate;
+            EditorApplication.update -= CombinedUpdate;
             if (!this.ApplicationIsAboutToEnterPlayMode())
-                EditorApplication.update += combinedUpdate;
+                EditorApplication.update += CombinedUpdate;
 
             //  EditorApplication.playModeStateChanged -= PlayModeStateChanged; // painterConfig.SaveChanges;
             //  EditorApplication.playModeStateChanged += PlayModeStateChanged; // painterConfig.SaveChanges;
@@ -745,9 +745,9 @@ namespace Playtime_Painter
             rtcam.enabled = Application.isPlaying;
 
 #if UNITY_EDITOR
-            EditorApplication.update -= combinedUpdate;
+            EditorApplication.update -= CombinedUpdate;
             if (EditorApplication.isPlayingOrWillChangePlaymode == false)
-                EditorApplication.update += combinedUpdate;
+                EditorApplication.update += CombinedUpdate;
 #endif
 
             UpdateBuffersState();
@@ -769,7 +769,7 @@ namespace Playtime_Painter
 
             StopCamera();
 
-            if (PlaytimePainter.isCurrent_Tool())
+            if (PlaytimePainter.IsCurrent_Tool())
                 PlaytimeToolComponent.SetPrefs();
 
 #if UNITY_EDITOR
@@ -790,7 +790,7 @@ namespace Playtime_Painter
             
             for (int i = 0; i < imgDatas.Count; i++) {
                 var id = imgDatas[i];
-                if (id == null || (!id.needsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
+                if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
             }
             
             for (int index = 0; index < matDatas.Count; index++) {
@@ -851,7 +851,7 @@ namespace Playtime_Painter
         public void Update()
         {
             if (Application.isPlaying)
-                combinedUpdate();
+                CombinedUpdate();
 
             meshManager.Update();
         }
@@ -882,7 +882,7 @@ namespace Playtime_Painter
             return webCamTexture;
         }
         
-        public void combinedUpdate()
+        public void CombinedUpdate()
         {
 
             if (webCamTexture && webCamTexture.isPlaying)
@@ -905,7 +905,7 @@ namespace Playtime_Painter
 
             PlaytimeToolComponent.CheckRefocus();
 
-            if ((PainterConfig.inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
+            if ((PainterConfig.Inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
             {
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
@@ -919,13 +919,13 @@ namespace Playtime_Painter
 
             if ((p != null) && (Application.isPlaying == false))
             {
-                if ((p.imgData == null))
+                if ((p.ImgData == null))
                 {
                     PlaytimePainter.currently_Painted_Object = null;
                 }
                 else
                 {
-                    PainterConfig.inst.brushConfig.Paint(p.stroke, p);
+                    PainterConfig.Inst.brushConfig.Paint(p.stroke, p);
                     p.Update();
                 }
                 

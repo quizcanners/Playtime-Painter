@@ -94,7 +94,7 @@ public static class Blit_Functions {
     }
         
         public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr) {
-            ImageData id = texture.getImgData();
+            ImageData id = texture.GetImgData();
 
             id.offset = offset;
             id.tiling = tiling;
@@ -106,18 +106,18 @@ public static class Blit_Functions {
                 return;
             }
 
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.getImgData(), bc, pntr);
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
         }
 
         public static void PrepareCPUBlit (this BrushConfig bc) {
             half = (bc.Size(false)) / 2;
-            bool smooth = bc.type(true) != BrushTypePixel.inst;
+            bool smooth = bc.Type(true) != BrushTypePixel.Inst;
             if (smooth)
                 _alphaMode = circleAlpha;
             else
                 _alphaMode = noAlpha;
 
-            _blitMode = bc.blitMode.BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
+            _blitMode = bc.BlitMode.BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
 
             alpha = 1;
 
@@ -138,20 +138,20 @@ public static class Blit_Functions {
 
         bc.PrepareCPUBlit();
 
-            if (image == null || image.pixels == null)
+            if (image == null || image.Pixels == null)
                 return false;
 
         int ihalf = (int)(half-0.5f);
-        bool smooth = bc.type(true) != BrushTypePixel.inst;
+        bool smooth = bc.Type(true) != BrushTypePixel.Inst;
         if (smooth) ihalf += 1;
         
-        myIntVec2 tmp = image.uvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+        myIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
 		int fromx = tmp.x - ihalf;
 
 		tmp.y -= ihalf;
 
-            var pixels = image.pixels;
+            var pixels = image.Pixels;
 
         for (y = -ihalf; y < ihalf + 1; y++) {
            

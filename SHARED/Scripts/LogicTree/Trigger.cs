@@ -16,10 +16,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-    public class Trigger : ValueIndex
-#if PEGI
-            , IPEGI, IGotDisplayName , IPEGI_ListInspect
-#endif
+    public class Trigger : ValueIndex , IPEGI, IGotDisplayName , IPEGI_ListInspect
     {
 
         // public static string searched = "";
@@ -53,7 +50,7 @@ namespace STD_Logic
         public override bool IsBoolean() => _usage.usingBool;
 
 #if PEGI
-        public static void search_PEGI() {
+        public static void Search_PEGI() {
             pegi.write("Search", 60);
             pegi.edit(ref searchField);//, GUILayout.Width(60));
             pegi.newLine();

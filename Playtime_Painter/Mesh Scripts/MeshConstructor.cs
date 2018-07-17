@@ -194,7 +194,7 @@ namespace Playtime_Painter {
                         Vertex up1 = tri.vertexes[1];
                         Vertex up2 = tri.vertexes[2];
 
-                        var tris = up1.meshPoint.getTrianglesFromLine(up2.meshPoint);
+                        var tris = up1.meshPoint.GetTrianglesFromLine(up2.meshPoint);
 
                         var nrm = tris.SmoothVector();
 
@@ -222,7 +222,7 @@ namespace Playtime_Painter {
                         Vertex up0 = tri.vertexes[0];
                         Vertex up2 = tri.vertexes[2];
 
-                        var tris = up0.meshPoint.getTrianglesFromLine(up2.meshPoint);
+                        var tris = up0.meshPoint.GetTrianglesFromLine(up2.meshPoint);
 
                         var nrm = tris.SmoothVector();
 
@@ -249,7 +249,7 @@ namespace Playtime_Painter {
                         Vertex up0 = tri.vertexes[0];
                         Vertex up1 = tri.vertexes[1];
 
-                        var tris = up0.meshPoint.getTrianglesFromLine(up1.meshPoint);
+                        var tris = up0.meshPoint.GetTrianglesFromLine(up1.meshPoint);
 
                         var nrm = tris.SmoothVector();
 
@@ -282,9 +282,9 @@ namespace Playtime_Painter {
                         var i2 = t.vertexes[1];
                         var i3 = t.vertexes[2];
 
-                        Vector3 v1 = t.vertexes[0].pos;
-                        Vector3 v2 = t.vertexes[1].pos;
-                        Vector3 v3 = t.vertexes[2].pos;
+                        Vector3 v1 = t.vertexes[0].Pos;
+                        Vector3 v2 = t.vertexes[1].Pos;
+                        Vector3 v3 = t.vertexes[2].Pos;
 
                         Vector2 w1 = t.vertexes[0].GetUV(0);// texcoords[i1];
                         Vector2 w2 = t.vertexes[1].GetUV(0);
@@ -440,7 +440,7 @@ namespace Playtime_Painter {
 
                 // ********* Calculating Normals
 
-                tri.sharpNormal = tri.GetNormal() * tri.area;
+                tri.sharpNormal = tri.GetNormal() * tri.Area;
 
                 for (int no = 0; no < 3; no++)
                 {

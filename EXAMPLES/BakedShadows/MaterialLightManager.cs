@@ -7,10 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter {
     
     [System.Serializable]
-    public class MaterialLightManager : PainterStuff
-#if PEGI
-        , IPEGI
-#endif
+    public class MaterialLightManager : PainterStuff, IPEGI
     {
 
         public int[] probes;

@@ -7,11 +7,7 @@ using System;
 
 namespace STD_Logic {
 
-    public class LogicBranch<T> : AbstractKeepUnrecognized_STD 
-        #if PEGI
-        , IGotName , IPEGI
-#endif
-        where T: ISTD, new()
+    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI  where T: ISTD, new()
     {
 
         public List<LogicBranch<T>> subBranches = new List<LogicBranch<T>>();
@@ -67,11 +63,11 @@ namespace STD_Logic {
             return true;
         }
 
-        public void getAllInteractions(ref List<T> lst)
+        public void GetAllInteractions(ref List<T> lst)
         {
             lst.AddRange(elements);
             foreach (LogicBranch<T> ig in subBranches)
-                ig.getAllInteractions(ref lst);
+                ig.GetAllInteractions(ref lst);
         }
 
         bool showConditions = false;

@@ -42,14 +42,14 @@ namespace Playtime_Painter {
         {
 
 
-            if (meshMGMT.target.IsAtlased()) {
+            if (MeshMGMT.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())
                 {
 
-                    editedMesh.TagTrianglesUnprocessed();
-                    foreach (var t in editedMesh.triangles) if (!t.wasProcessed)
+                    EditedMesh.TagTrianglesUnprocessed();
+                    foreach (var t in EditedMesh.triangles) if (!t.wasProcessed)
                         {
 
                             t.wasProcessed = true;
@@ -59,11 +59,11 @@ namespace Playtime_Painter {
                                 if (t.textureNo[TriangleAtlasTool.inst.curAtlasChanel] != nt.textureNo[TriangleAtlasTool.inst.curAtlasChanel])
                                 {
                                     var ln = t.LineWith(nt);
-                                    if (ln != null) VertexEdgeTool.putEdgeOnLine(ln);
+                                    if (ln != null) VertexEdgeTool.PutEdgeOnLine(ln);
                                     else Debug.Log("null line discoveredd");
                                 }
                         }
-                    editedMesh.Dirty = true;
+                    EditedMesh.Dirty = true;
 
                 }
             }
@@ -91,13 +91,13 @@ namespace Playtime_Painter {
         {
             bool changed = false;
 
-            if (inspectedPainter.IsAtlased())
+            if (InspectedPainter.IsAtlased())
             {
 
                 "***** Selected Material Atlased *****".nl();
 #if UNITY_EDITOR
 
-                var m = inspectedPainter.getMesh();
+                var m = InspectedPainter.getMesh();
                 if (m != null && AssetDatabase.GetAssetPath(m).Length == 0)
                 {
                     "Atlased Mesh is not saved".nl();
@@ -105,31 +105,31 @@ namespace Playtime_Painter {
                     if ("Mesh Name".edit(80, ref n))
                         m.name = n;
                     if (icon.Save.Click().nl())
-                        inspectedPainter.SaveMesh();
+                        InspectedPainter.SaveMesh();
                 }
 
 #endif
 
 
-                var atlPlug = inspectedPainter.getPlugin<TileableAtlasingPainterPlugin>();
+                var atlPlug = InspectedPainter.GetPlugin<TileableAtlasingPainterPlugin>();
 
                 if ("Undo Atlasing".Click())
                 {
-                    inspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials;
+                    InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials;
 
                     if (atlPlug.preAtlasingMesh != null)
-                        inspectedPainter.meshFilter.mesh = atlPlug.preAtlasingMesh;
-                    inspectedPainter.savedEditableMesh = atlPlug.preAtlasingSavedMesh;
+                        InspectedPainter.meshFilter.mesh = atlPlug.preAtlasingMesh;
+                    InspectedPainter.SavedEditableMesh = atlPlug.preAtlasingSavedMesh;
 
                     atlPlug.preAtlasingMaterials = null;
                     atlPlug.preAtlasingMesh = null;
-                    inspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                 }
 
                 if ("Not Atlased".Click().nl())
                 {
                     atlPlug.preAtlasingMaterials = null;
-                    inspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
                 }
 
                 pegi.newLine();
@@ -138,7 +138,7 @@ namespace Playtime_Painter {
             else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
             {
                 showAtlases = false;
-                changed |= atlasedMaterials.edit_List(ref inspectedPainter.selectedAtlasedMaterial, true).nl();
+                changed |= atlasedMaterials.edit_List(ref InspectedPainter.selectedAtlasedMaterial, true).nl();
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -162,7 +162,7 @@ namespace Playtime_Painter {
 #endif
 
         public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
-            var pl = pntr.getPlugin<TileableAtlasingPainterPlugin>();
+            var pl = pntr.GetPlugin<TileableAtlasingPainterPlugin>();
             if (pl != null) return pl.PaintTexture2D(stroke, brushAlpha, image, bc, pntr);
             else return false;
         }
@@ -173,7 +173,7 @@ namespace Playtime_Painter {
 
         public override string ToString() { return "triangle Atlas Textures"; }
 
-        public override bool showLines
+        public override bool ShowLines
         {
             get
             {
@@ -181,7 +181,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public override bool showVerticesDefault {
+        public override bool ShowVerticesDefault {
             get {
                 return true;
             }
@@ -198,7 +198,7 @@ namespace Playtime_Painter {
             {
                 if (_inst == null)
                 {
-                    var a = allTools;
+                    var a = AllTools;
                     return _inst;
                 }
                 return _inst;
@@ -210,7 +210,7 @@ namespace Playtime_Painter {
             _inst = this;
         }
 
-        public override string tooltip
+        public override string Tooltip
         {
             get
             {
@@ -223,7 +223,7 @@ namespace Playtime_Painter {
 
             //"Edge Click as Chanel 2".toggle(ref atlasEdgeAsChanel2).nl();
 
-            if (!inspectedPainter.material.IsAtlased())
+            if (!InspectedPainter.Material.IsAtlased())
                 ("Atlasing will work with custom shader that has tilable sampling from atlas. The material with such shader is not detected. " +
                     "But who am I to tell you what to do, I'm just a computer, a humble" +
                     " servant of a human race ... for now").writeWarning();
@@ -231,9 +231,9 @@ namespace Playtime_Painter {
             "Atlas Texture: ".edit(ref curAtlasTexture).nl();
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
-            if (meshMGMT.SelectedTris != null)
+            if (MeshMGMT.SelectedTris != null)
             {
-                ("Selected tris uses Atlas Texture " + meshMGMT.SelectedTris.textureNo[0]).nl();
+                ("Selected tris uses Atlas Texture " + MeshMGMT.SelectedTris.textureNo[0]).nl();
             }
 
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
@@ -248,13 +248,13 @@ namespace Playtime_Painter {
                 
 
                 if (EditorInputManager.getControlKey())
-                    curAtlasTexture = (int)meshMGMT.PointedTris.textureNo[curAtlasChanel];
-                else if (pointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
+                    curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
+                else if (PointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
                 {
-                    if (pointedTris.sameAsLastFrame)
+                    if (PointedTris.SameAsLastFrame)
                         return true;
-                    pointedTris.textureNo[curAtlasChanel] = curAtlasTexture;
-                    meshMGMT.edMesh.Dirty = true;
+                    PointedTris.textureNo[curAtlasChanel] = curAtlasTexture;
+                    MeshMGMT.edMesh.Dirty = true;
                     return true;
                 }
 
@@ -269,14 +269,14 @@ namespace Playtime_Painter {
             if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.getControlKey())
             {
 
-                if (pointedLine.sameAsLastFrame)
+                if (PointedLine.SameAsLastFrame)
                     return true;
 
-                foreach (var t in meshMGMT.PointedLine.getAllTriangles_USES_Tris_Listing())
+                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
-                        meshMGMT.edMesh.Dirty = true;
+                        MeshMGMT.edMesh.Dirty = true;
                     }
                 return true;
             }
@@ -288,14 +288,14 @@ namespace Playtime_Painter {
             if (EditorInputManager.GetMouseButton(0))
             {
 
-                if (pointedUV.sameAsLastFrame)
+                if (PointedUV.SameAsLastFrame)
                     return true;
 
-                foreach (var uv in meshMGMT.PointedUV.meshPoint.uvpoints )
+                foreach (var uv in MeshMGMT.PointedUV.meshPoint.uvpoints )
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
-                        meshMGMT.edMesh.Dirty = true;
+                        MeshMGMT.edMesh.Dirty = true;
                     }
                 return true;
             }
@@ -307,20 +307,20 @@ namespace Playtime_Painter {
         public void SetAllTrianglesTextureTo(int no, int chanel)
         {
 
-            foreach (Triangle t in editedMesh.triangles)
+            foreach (Triangle t in EditedMesh.triangles)
                 t.textureNo[chanel] = no;
 
-            meshMGMT.edMesh.Dirty = true;
+            MeshMGMT.edMesh.Dirty = true;
         }
 
         public void SetAllTrianglesTextureTo(int no, int chanel, int submesh)
         {
 
-            foreach (Triangle t in editedMesh.triangles)
+            foreach (Triangle t in EditedMesh.triangles)
                 if (t.submeshIndex == submesh)
                     t.textureNo[chanel] = no;
 
-            meshMGMT.edMesh.Dirty = true;
+            MeshMGMT.edMesh.Dirty = true;
         }
 
         public override void KeysEventPointedTriangle()
@@ -332,8 +332,8 @@ namespace Playtime_Painter {
             if (keyDown != -1)
             {
                 curAtlasTexture = keyDown;
-                meshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
-                meshMGMT.edMesh.Dirty = true;
+                MeshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
+                MeshMGMT.edMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
 

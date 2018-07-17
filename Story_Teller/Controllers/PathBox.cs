@@ -16,11 +16,7 @@ namespace StoryTriggerData {
 
     [StoryTagName(PathBox.tagName)]
     [ExecuteInEditMode]
-    public class PathBox : STD_Poolable
-#if PEGI
-        , IPEGI
-#endif
-
+    public class PathBox : STD_Poolable, IPEGI
     {
 
         ConditionBranch conditions;

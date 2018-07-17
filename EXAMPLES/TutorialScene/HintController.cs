@@ -13,29 +13,29 @@ public class HintController : MonoBehaviour {
 
     string text = "";
 
-    hintStage stage;
+    HintStage stage;
 
-    enum hintStage {enableTool, draw, addTool, addTexture, renderTexture, WellDone}
+    enum HintStage {enableTool, draw, addTool, addTexture, renderTexture, WellDone}
 
     public GameObject picture;
     public GameObject ship;
     public float timer = 5f;
 
-    void setStage(hintStage st) {
+    void SetStage(HintStage st) {
         stage = st;
         string ntext = "Well Done! Remember to save your textures before entering/exiting playmode.";
         string mb = (Application.isPlaying) ? "RIGHT MOUSE BUTTON" : "LEFT MOUSE BUTTON";
 
             switch (stage) {
-            case hintStage.enableTool:
+            case HintStage.enableTool:
                 ntext = "Select the cube with " + mb +" and click 'On/Off' to start using painter."; break;
-            case hintStage.draw:
+            case HintStage.draw:
                 ntext = "Draw on the cube. \n You can LOCK EDITING for selected object."; break;
-            case hintStage.addTool:
+            case HintStage.addTool:
                 ntext = "Picture to the right has no tool attached. \n Select it and \n Click 'Add Component'->'Mesh'->'TextureEditor'"; break;
-            case hintStage.addTexture:
+            case HintStage.addTexture:
                 ntext = "Ship on the left has no texture. Select him with " +mb+ " and click 'Create Texture'"; break;
-            case hintStage.renderTexture:
+            case HintStage.renderTexture:
                 int size = PainterManager.renderTextureSize;
                 ntext = "Change MODE to Render Texture. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n" +
                     "When using Render Texture to edit different texture2D, \n pixels will be updated at previous one."; break;
@@ -47,7 +47,7 @@ public class HintController : MonoBehaviour {
 	// Use this for initialization
 	void OnEnable () {
      
-       setStage(hintStage.enableTool);
+       SetStage(HintStage.enableTool);
         style.wordWrap = true;
         
     }
@@ -55,7 +55,7 @@ public class HintController : MonoBehaviour {
     public GUIStyle style;
     PlaytimePainter pp;
 
-    PlaytimePainter shipPainter() {
+    PlaytimePainter ShipPainter() {
         if (pp == null)
          pp = ship.GetComponent<PlaytimePainter>();
         return pp;
@@ -77,15 +77,15 @@ public class HintController : MonoBehaviour {
 
         switch (stage) {
 
-		case hintStage.enableTool:  if (PlaytimeToolComponent.enabledTool == typeof(PlaytimePainter)) {  setStage(hintStage.draw); timer = 3f; } break;
-		case hintStage.draw: if (PlaytimeToolComponent.enabledTool != typeof(PlaytimePainter)) { setStage(hintStage.enableTool); break; } if (timer < 0) { setStage(hintStage.addTool); } break;
-               case hintStage.addTool: if (picture.GetComponent<PlaytimePainter>() != null) { setStage(hintStage.addTexture); } break;
-                 case hintStage.addTexture:
+		case HintStage.enableTool:  if (PlaytimeToolComponent.enabledTool == typeof(PlaytimePainter)) {  SetStage(HintStage.draw); timer = 3f; } break;
+		case HintStage.draw: if (PlaytimeToolComponent.enabledTool != typeof(PlaytimePainter)) { SetStage(HintStage.enableTool); break; } if (timer < 0) { SetStage(HintStage.addTool); } break;
+               case HintStage.addTool: if (picture.GetComponent<PlaytimePainter>() != null) { SetStage(HintStage.addTexture); } break;
+                 case HintStage.addTexture:
 
-                if ((shipPainter()!= null) && (shipPainter().imgData != null)) setStage(hintStage.renderTexture); break;
+                if ((ShipPainter()!= null) && (ShipPainter().ImgData != null)) SetStage(HintStage.renderTexture); break;
 
-                 case hintStage.renderTexture: if ((shipPainter() != null) && (shipPainter().imgData != null)
-                    && (shipPainter().imgData.TargetIsRenderTexture())) setStage(hintStage.WellDone); break;
+                 case HintStage.renderTexture: if ((ShipPainter() != null) && (ShipPainter().ImgData != null)
+                    && (ShipPainter().ImgData.TargetIsRenderTexture())) SetStage(HintStage.WellDone); break;
                        
                 }
 

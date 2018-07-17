@@ -232,7 +232,7 @@ namespace StoryTriggerData{
                         pegi.write(up.pool.prefab);
 
                         if (icon.Add.Click(20))
-                            STD_Pool.all[i].pool.getFreeGO().GetComponent<STD_Poolable>().LinkTo(this).Decode(null);
+                            STD_Pool.all[i].pool.GetFreeGO().GetComponent<STD_Poolable>().LinkTo(this).Decode(null);
 
                         int Delete = -1;
 

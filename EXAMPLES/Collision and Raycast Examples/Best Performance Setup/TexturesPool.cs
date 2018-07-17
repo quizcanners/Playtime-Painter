@@ -14,7 +14,7 @@ namespace Playtime_Painter
 
         public static TexturesPool _inst;
         public static TexturesPool Inst { get {
-                if (_inst == null && !applicationIsQuitting)
+                if (_inst == null && !ApplicationIsQuitting)
                     new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool";
                 return _inst; } }
 

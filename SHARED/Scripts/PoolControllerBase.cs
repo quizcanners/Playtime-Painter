@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 namespace SharedTools_Stuff
 {
 
-    public interface iManageDestroyOnPlay
+    public interface IManageDestroyOnPlay
     {
         void DestroyYourself();
     }
@@ -19,10 +19,7 @@ namespace SharedTools_Stuff
         bool TryFadeIn();
     }
 
-    public class PoolableBase : MonoBehaviour
-#if PEGI
-        , IPEGI
-#endif
+    public class PoolableBase : MonoBehaviour, IPEGI
     {
         public PoolControllerBase poolController;
         public int poolIndex;
@@ -54,10 +51,7 @@ namespace SharedTools_Stuff
         }
     }
 
-    public abstract class PoolControllerBase
-        #if PEGI
-        : IPEGI
-#endif
+    public abstract class PoolControllerBase : IPEGI
     {
         public int initializedCount;
         public int activeMax;
@@ -67,10 +61,10 @@ namespace SharedTools_Stuff
         public GameObject prefab;
         public int browsedObject = -1; // For Component Browsing
         protected int _activeAmount;
-        public int activeAmount { get { return _activeAmount; } }
+        public int ActiveAmount { get { return _activeAmount; } }
 
         protected abstract void ExpandArrays();
-        protected abstract void init(int bufferSize);
+        protected abstract void Init(int bufferSize);
         public abstract void DeactivateAll();
         public abstract void DestroyAll();
         public abstract void OnDuringDestroy(int ind);
@@ -78,16 +72,16 @@ namespace SharedTools_Stuff
         #if PEGI
         public abstract bool PEGI();
         #endif
-        public abstract bool activeSelf(int i);
-        public abstract GameObject getFreeGO();
+        public abstract bool ActiveSelf(int i);
+        public abstract GameObject GetFreeGO();
         public abstract void AddToPool(GameObject go);
-        public abstract Component getScript();
-        public abstract Component getScript(int i);
+        public abstract Component GetScript();
+        public abstract Component GetScript(int i);
 
         public PoolControllerBase(int lim, GameObject pref)
         {
             prefab = pref;
-            init(lim);
+            Init(lim);
         }
 
     }
@@ -137,7 +131,7 @@ namespace SharedTools_Stuff
 
 #endif
 
-        public override bool activeSelf(int i)
+        public override bool ActiveSelf(int i)
         {
             return scripts[i].gameObject.activeSelf;
         }
@@ -206,7 +200,7 @@ namespace SharedTools_Stuff
             _activeAmount++;
         }
         
-        public T getOne()
+        public T GetOne()
         {
             while ((firstFree < initializedCount) && (scripts[firstFree].gameObject.activeSelf) && (firstFree < _BufferSize)) firstFree++;
             if (firstFree >= _BufferSize) { ExpandArrays(); }
@@ -214,9 +208,9 @@ namespace SharedTools_Stuff
             return GetOrInstantiate();
         }
 
-        public T getOne(Transform parent)
+        public T GetOne(Transform parent)
         {
-            T tmp = getOne();
+            T tmp = GetOne();
             tmp.transform.parent = parent;
             return tmp;
         }
@@ -229,22 +223,22 @@ namespace SharedTools_Stuff
             activeMax = 0;
         }
 
-        public override Component getScript(int i)
+        public override Component GetScript(int i)
         {
             return scripts[i];
         }
 
-        public override Component getScript()
+        public override Component GetScript()
         {
-            return getOne();
+            return GetOne();
         }
 
-        public override GameObject getFreeGO()
+        public override GameObject GetFreeGO()
         {
-            return getOne().gameObject;
+            return GetOne().gameObject;
         }
 
-        protected override void init(int bufferSize)
+        protected override void Init(int bufferSize)
         {
             ZeroCounts();
             _BufferSize = bufferSize;

@@ -595,10 +595,7 @@ using STD_Logic;
     }
     
     //[Serializable]
-    public class AnimatedElement : AbstractKeepUnrecognized_STD
-#if PEGI
-        ,IPEGI, IGotName, IGotIndex
-#endif
+    public class AnimatedElement : AbstractKeepUnrecognized_STD  ,IPEGI, IGotName, IGotIndex
 
     {
         [NonSerialized] MaterialPropertyBlock props;

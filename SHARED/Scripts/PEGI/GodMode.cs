@@ -10,10 +10,7 @@ using UnityEditor;
 namespace PlayerAndEditorGUI {
     
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour
-         #if PEGI
-        , IPEGI
-#endif
+    public class GodMode : MonoBehaviour, IPEGI
     {
 
         public static GodMode inst;

@@ -14,10 +14,7 @@ namespace StoryTriggerData {
 
     [ExecuteInEditMode]
     [StoryTagName(CubeWorldSpace.tagName)]
-    public class CubeWorldSpace : STD_Poolable
-#if PEGI
-        , IPEGI
-#endif
+    public class CubeWorldSpace : STD_Poolable, IPEGI
     {
 
 
@@ -33,8 +30,8 @@ namespace StoryTriggerData {
             if (strokeData != null) 
                 cody.Add_String("playVectors", strokeData );
 
-            if ((painter.savedEditableMesh != null) && (painter.savedEditableMesh.Length > 0))
-                cody.Add_String("mesh", painter.savedEditableMesh);
+            if ((painter.SavedEditableMesh != null) && (painter.SavedEditableMesh.Length > 0))
+                cody.Add_String("mesh", painter.SavedEditableMesh);
 
             cody.Add_IfNotOne("scale", transform.localScale);
             cody.Add_IfNotZero("rot", transform.localRotation.eulerAngles);
@@ -75,7 +72,7 @@ namespace StoryTriggerData {
 
                 pegi.ClickToEditScript();
 
-                PainterConfig pcfg = PainterConfig.inst;
+                PainterConfig pcfg = PainterConfig.Inst;
 
                 string recordName = pcfg.recordingNames.Count > 0 ? pcfg.recordingNames[pcfg.browsedRecord] : null;
 
