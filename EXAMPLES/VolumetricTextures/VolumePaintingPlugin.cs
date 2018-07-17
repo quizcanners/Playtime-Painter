@@ -269,15 +269,13 @@ namespace Playtime_Painter {
             
                 if ((br.blitMode.usingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
                 {
-                    if (texMGMT.sourceTextures.Length > 0)
-                    {
-                        br.selectedSourceTexture = Mathf.Min(br.selectedSourceTexture, texMGMT.sourceTextures.Length - 1);
+                    if (texMGMT.sourceTextures.Count > 0) {
                         pegi.write("Copy From:", 70);
                         changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref texMGMT.sourceTextures);
                     }
                 else
                     "Add Textures to Render Camera to copy from".nl();
-            }
+                }
                 
             }
             if (changed) this.SetToDirty();

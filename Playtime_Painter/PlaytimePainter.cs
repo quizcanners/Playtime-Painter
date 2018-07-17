@@ -590,7 +590,7 @@ namespace Playtime_Painter{
 		    var id = texture.getImgDataIfExists();
             
             if (id == null)  {
-                id = ScriptableObject.CreateInstance<ImageData>().init(texture);
+                id = new ImageData().init(texture);
                 id.useTexcoord2 = GetMaterial(false).DisplayNameContains(field, PainterConfig.isUV2DisaplyNameTag);
             }
 
@@ -728,7 +728,7 @@ namespace Playtime_Painter{
         public void CreateRenderTexture (int size, string name) {
 		    ImageData previous = imgData;
 
-            var nt = ScriptableObject.CreateInstance<ImageData>().init(size);
+            var nt = new ImageData().init(size);
 
             nt.SaveName = name;
 
@@ -1318,11 +1318,11 @@ namespace Playtime_Painter{
             var id = imgData;
 
             if (stroke.mouseDwn) {
-                cody.Add(BrushConfig.storyTag, globalBrush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
+                cody.Add("brush", globalBrush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
                 cody.Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
             }
 
-            cody.Add(StrokeVector.storyTag, stroke.Encode(id.TargetIsRenderTexture() && globalBrush.IsA3Dbrush(this)));
+            cody.Add("s", stroke.Encode(id.TargetIsRenderTexture() && globalBrush.IsA3Dbrush(this)));
 
             return cody;
         }
@@ -1333,11 +1333,11 @@ namespace Playtime_Painter{
             switch (tag)
             {
                 case "trg": UpdateOrSetTexTarget(data.Equals("C") ? texTarget.Texture2D : texTarget.RenderTexture); break;
-                case BrushConfig.storyTag:
+                case "brush":
                     InitIfNotInited();
                     globalBrush.Decode(data);
                     globalBrush.Brush2D_Radius *= id == null ? 256 : id.width; break;
-                case StrokeVector.storyTag:
+                case "s":
                     stroke.Decode(data);
                     globalBrush.Paint(stroke, this);
                     break;

@@ -9,10 +9,7 @@ namespace Playtime_Painter {
 
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterStuffMono
-        #if PEGI
-        , IPEGI, IGotName
-#endif
+    public class VolumeTexture : PainterStuffMono, IPEGI, IGotName
         {
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
@@ -209,7 +206,7 @@ namespace Playtime_Painter {
 
         #if PEGI
 
-        public virtual bool PEGI() {
+        public override bool PEGI() {
             bool changed = false;
 
             string n = name;

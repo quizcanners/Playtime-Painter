@@ -15,18 +15,15 @@ namespace Playtime_Painter
 {
 
     public enum texTarget { Texture2D, RenderTexture }
-
-    [Serializable]
-    public class ImageData : PainterStuffScriptable
-        #if PEGI
-        , IPEGI, IPEGI_ListInspect 
-        #endif
+    
+    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName
     {
 
         const float bytetocol = 1f / 255f;
+        public static Texture2D sampler;
+
         public texTarget destination;
         public RenderTexture renderTexture;
-        public static Texture2D sampler;
         public Texture2D texture2D;
         public Texture other;
         public int width = 128;
@@ -38,8 +35,48 @@ namespace Playtime_Painter
         public int numberOfTexture2Dbackups = 0;
         public int numberOfRenderTextureBackups = 0;
         public bool backupManually;
+        public Vector2 tiling = Vector2.one;
+        public Vector2 offset = Vector2.zero;
+        public string SaveName = "No Name";
 
-        [NonSerialized]
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("dst", (int)destination)
+            .Add_Referance("tex2D", texture2D)
+            .Add_Referance("other", other)
+            .Add("w", width)
+            .Add("h", height)
+            .Add_Bool("useUV2", useTexcoord2)
+            .Add_Bool("Lock", lockEditing)
+            .Add("2dUndo", numberOfTexture2Dbackups)
+            .Add("rtBackups", numberOfRenderTextureBackups)
+            .Add_Bool("b", backupManually)
+            .Add("tl", tiling)
+            .Add("off", offset)
+            .Add_String("sn", SaveName);
+
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "dst": destination = (texTarget)data.ToInt(); break;
+                case "tex2D": data.Decode_Referance(ref texture2D); break; 
+                case "other": data.Decode_Referance(ref other); break;
+                case "w": width = data.ToInt(); break;
+                case "h": height = data.ToInt(); break;
+                case "useUV2": useTexcoord2 = data.ToBool(); break;
+                case "Lock": lockEditing = data.ToBool(); break;
+                case "2dUndo": numberOfTexture2Dbackups = data.ToInt(); break;
+                case "rtBackups": numberOfRenderTextureBackups = data.ToInt(); break;
+                case "b": backupManually = data.ToBool(); break;
+                case "tl": tiling = data.ToVector2(); break;
+                case "off": offset = data.ToVector2(); break;
+                case "sn": SaveName = data; break;
+            default: return false;
+        }
+        return true;
+        }
+
+
         public Color[] _pixels;
 
         public Color[] pixels
@@ -48,19 +85,26 @@ namespace Playtime_Painter
             set { _pixels = value; }
         }
 
-        [NonSerialized]
-        public UndoCache cache = new UndoCache();
-
-        public Vector2 tiling = Vector2.one;
-        public Vector2 offset = Vector2.zero;
-        public string SaveName = "No Name";
-
-        public override string ToString()
+        public string NameForPEGI
         {
-            return (texture2D != null ? texture2D.name : (renderTexture != null ? renderTexture.name : SaveName));
+            get
+            {
+                return SaveName;
+            }
+
+            set
+            {
+                SaveName = value;
+            }
         }
 
-
+        public UndoCache cache = new UndoCache();
+        
+      /*  public override string ToString()
+        {
+            return (texture2D != null ? texture2D.name : (renderTexture != null ? renderTexture.name : SaveName));
+        }*/
+        
         public void Backup()
         {
             if (backupManually) return;
@@ -79,9 +123,7 @@ namespace Playtime_Painter
         }
 
         // ##################### For Stroke Vector Recording
-        [NonSerialized]
         public List<string> recordedStrokes = new List<string>();
-        [NonSerialized]
         public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
         public bool recording;
 
@@ -315,8 +357,7 @@ namespace Playtime_Painter
 
             return pix;
         }
-
-      
+        
         public void PixelsFromTexture2D(Texture2D tex)
         {
             if (tex == null)
@@ -564,7 +605,7 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public bool PEGI()
+        public override bool PEGI()
         {
             bool changed = false;
 
@@ -600,6 +641,7 @@ namespace Playtime_Painter
 
             return false;
         }
+
 #endif
     }
 

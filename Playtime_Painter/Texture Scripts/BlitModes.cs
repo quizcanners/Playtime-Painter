@@ -151,9 +151,8 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if ((inspectedBrush.blitMode.usingSourceTexture) && (id == null || id.TargetIsRenderTexture())) {
-                if (texMGMT.sourceTextures.Length > 0)
+                if (texMGMT.sourceTextures.Count > 0)
                 {
-                    inspectedBrush.selectedSourceTexture = Mathf.Min(inspectedBrush.selectedSourceTexture, texMGMT.sourceTextures.Length - 1);
                     pegi.write("Copy From:", 70);
                     changed |= pegi.selectOrAdd(ref inspectedBrush.selectedSourceTexture, ref texMGMT.sourceTextures);
                 }

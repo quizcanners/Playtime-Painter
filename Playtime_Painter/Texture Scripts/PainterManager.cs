@@ -15,18 +15,19 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
-
-
-
+    
     [ExecuteInEditMode]
-    public class PainterManager : PainterStuffMono
-#if PEGI
-        , IPEGI
-#endif
+    public class PainterManager : PainterStuffMono, IPEGI, ISTD_SerializeNestedReferences
     {
 
         [SerializeField]
         public PainterConfig painterCfg;
+
+        public string STDdata = "";
+
+        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
+        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
         public MeshManager meshManager = new MeshManager();
 
@@ -115,22 +116,12 @@ namespace Playtime_Painter
         [NonSerialized]
         public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
 
-        public Texture[] sourceTextures;
+        public List<Texture> sourceTextures = new List<Texture>();
 
-        public Texture getSourceTexture(int ind)
-        {
-            return ind < sourceTextures.Length ? sourceTextures[ind] : null;
-        }
+        public List<Texture> masks = new List<Texture>();
 
-        public Texture[] masks;
-
-        public VolumetricDecal[] decals;
-
-        public VolumetricDecal GetDecal(int no)
-        {
-            return ((decals.Length > no) && (decals[no].showInDropdown())) ? decals[no] : null;
-        }
-
+        public List<VolumetricDecal> decals = new List<VolumetricDecal>();
+        
         [SerializeField]
         private List<PainterManagerPluginBase> _plugins;
         public int browsedPlugin;
@@ -413,7 +404,8 @@ namespace Playtime_Painter
         public void Shader_UpdateDecal(BrushConfig brush)
         {
 
-            VolumetricDecal vd = GetDecal(brush.selectedDecal);
+            VolumetricDecal vd = decals.TryGet(brush.selectedDecal);
+
             if (vd != null)
             {
                 Shader.SetGlobalTexture("_VolDecalHeight", vd.heightMap);
@@ -448,8 +440,8 @@ namespace Playtime_Painter
 
             if (isDecal) Shader_UpdateDecal(brush);
 
-            int ind = brush.selectedSourceMask;
-            Shader.SetGlobalTexture("_SourceMask", ((ind < masks.Length) && (ind >= 0) && (brush.useMask) && (RendTex)) ? masks[ind] : null);
+            if (brush.useMask && RendTex) 
+                Shader.SetGlobalTexture("_SourceMask", masks.TryGet(brush.selectedSourceMask));
 
             Shader.SetGlobalVector("_maskDynamics", new Vector4(
                 brush.maskTiling,
@@ -490,7 +482,7 @@ namespace Playtime_Painter
             }
 
             if ((RendTex) && (brush.blitMode.usingSourceTexture))
-                Shader.SetGlobalTexture("_SourceTexture", getSourceTexture(brush.selectedSourceTexture));
+                Shader.SetGlobalTexture("_SourceTexture", sourceTextures.TryGet(brush.selectedSourceTexture));
 
         }
 
@@ -638,38 +630,16 @@ namespace Playtime_Painter
 
 
         // *******************  Component MGMT
-
-        public void ClearEmptyDatas()
-        {
-            for (int i = 0; i < imgDatas.Count; i++)
-            {
-                var id = imgDatas[i];
-                if (id == null || (!id.needsToBeSaved)) { imgDatas.RemoveAt(i); id.DestroyWhatever(); i--; }
-            }
-
-
-            for (int index = 0; index < matDatas.Count; index++)
-            {
-                var md = matDatas[index];
-                if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
-            }
-        }
-
         private void OnEnable()
         {
 
             PainterStuff.applicationIsQuitting = false;
 
             _inst = this;
-
-       
-       
-
+            
             if (meshManager == null)
                 meshManager = new MeshManager();
-
-            ClearEmptyDatas();
-
+           
             meshManager.OnEnable();
 
             rtcam.cullingMask = 1 << myLayer;
@@ -736,9 +706,6 @@ namespace Playtime_Painter
             brushRendy.gameObject.layer = myLayer;
             
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
-            if (sourceTextures == null) sourceTextures = new Texture[0];
-            if (masks == null) masks = new Texture[0];
-
             if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
             
             if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Editor/BufferBlit_Smooth");
@@ -791,6 +758,8 @@ namespace Playtime_Painter
 
             RefreshPlugins();
 
+            STDdata.DecodeInto(this);
+
 
         }
 
@@ -803,10 +772,6 @@ namespace Playtime_Painter
             if (PlaytimePainter.isCurrent_Tool())
                 PlaytimeToolComponent.SetPrefs();
 
-            ClearEmptyDatas();
-
-
-
 #if UNITY_EDITOR
             BeforeClosing();
 #endif
@@ -816,19 +781,39 @@ namespace Playtime_Painter
 #endif
 
 
+            STDdata = Encode().ToString();
+
         }
 
-        private void OnDestroy()
+        public override StdEncoder Encode()
         {
-            if (!Application.isPlaying)
-            {
-                for (int i = 0; i < imgDatas.Count; i++)
-                {
-                    var id = imgDatas[i];
-                    id.DestroyWhatever();
-                }
+            
+            for (int i = 0; i < imgDatas.Count; i++) {
+                var id = imgDatas[i];
+                if (id == null || (!id.needsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
             }
+            
+            for (int index = 0; index < matDatas.Count; index++) {
+                var md = matDatas[index];
+                if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
+            }
+
+            var cody = this.EncodeUnrecognized().Add("imgs", imgDatas, this);
+
+            return cody;
         }
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "imgs": data.DecodeInto(out imgDatas, this); break;
+                default: return false;
+
+            }
+             return true;            
+        }
+
 
 #if UNITY_EDITOR
 
@@ -969,7 +954,7 @@ namespace Playtime_Painter
 #if PEGI
         [SerializeField] bool showImgDatas;
         [SerializeField] int inspectedImgData = -1;
-        public bool PEGI()
+        public override bool PEGI()
         {
 
             pegi.nl();
@@ -979,7 +964,7 @@ namespace Playtime_Painter
             if (rtcam == null) { "no camera".nl(); return false; }
 
             if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
-                "Image Datas".edit_List_SO(imgDatas, ref inspectedImgData);
+                "Image Datas".edit_List(imgDatas, ref inspectedImgData, true);
 
             if (inspectedImgData == -1)
             {
@@ -1000,7 +985,7 @@ namespace Playtime_Painter
 
             return false;
         }
-
+        
 #endif
     }
 }

@@ -620,47 +620,6 @@ namespace  PlayerAndEditorGUI {
             return select(ref current, type);
         }
 
-        public static bool selectOrAdd(ref int selected, ref Texture[] texes)
-        {
-
-            bool changed = ef.select(ref selected, texes);
-            Texture tex = texes[selected];
-            Texture newTex = (Texture)EditorGUILayout.ObjectField(tex, typeof(Texture), true);
-            if (newTex != tex)
-            {
-                for (int i = 0; i < texes.Length; i++)
-                    if (texes[i] == newTex)
-                    {
-                        selected = i;
-                        ef.newLine();
-                        return change;
-                    }
-
-                bool assigned = false;
-
-                for (int i = 0; i < texes.Length; i++)
-                    if (texes[i] == null)
-                    {
-                        assigned = true;
-                        selected = i;
-                        i = texes.Length;
-                    }
-
-                if (!assigned)
-                {
-                    selected = texes.Length;
-                    tarray.Expand(ref texes, 1);
-                }
-
-                texes[selected] = newTex;
-
-                return change;
-
-            }
-            ef.newLine();
-            return changed;
-        }
-
         public static void tab()
         {
             checkLine();

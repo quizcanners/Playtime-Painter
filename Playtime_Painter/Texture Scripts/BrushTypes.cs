@@ -139,10 +139,8 @@ namespace Playtime_Painter
             if (BrushConfig.inspectedIsCPUbrush)
                 return change;
 
-            if (PainterManager.inst.masks.Length > 0)
+            if (PainterManager.inst.masks.Count > 0)
             {
-
-                inspectedBrush.selectedSourceMask =inspectedBrush.selectedSourceMask.ClampZeroTo(PainterManager.inst.masks.Length);
 
                 pegi.Space();
                 pegi.newLine();
@@ -181,8 +179,7 @@ namespace Playtime_Painter
                     }
 
                     pegi.newLine();
-
-                    //  if (PainterConfig.inst.moreOptions || inspectedBrush.flipMaskAlpha)
+                    
                     change |= pegi.toggle(ref inspectedBrush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
 
                     pegi.newLine();
@@ -509,11 +506,13 @@ namespace Playtime_Painter
         public override bool PEGI()
         {
 
-            bool brushChanged_RT = false;
-            brushChanged_RT |= pegi.select<VolumetricDecal>(ref inspectedBrush.selectedDecal, PainterManager.inst.decals);
-            pegi.newLine();
+            bool changes = false;
 
-            if (PainterManager.inst.GetDecal(inspectedBrush.selectedDecal) == null)
+            changes |= pegi.select(ref inspectedBrush.selectedDecal, texMGMT.decals).nl();
+
+            var decal = texMGMT.decals.TryGet(inspectedBrush.selectedDecal);
+
+            if (decal == null)
                 pegi.write("Select valid decal; Assign to Painter Camera.");
             pegi.newLine();
 
@@ -526,7 +525,7 @@ namespace Playtime_Painter
             if (inspectedBrush.decalRotationMethod == DecalRotationMethod.Set)
             {
                 "Angle:".write("Decal rotation", 60);
-                brushChanged_RT |= pegi.edit(ref inspectedBrush.decalAngle, -90, 450);
+                changes |= pegi.edit(ref inspectedBrush.decalAngle, -90, 450);
             }
             else if (inspectedBrush.decalRotationMethod == DecalRotationMethod.StrokeDirection)
             {
@@ -537,7 +536,7 @@ namespace Playtime_Painter
             if (!inspectedBrush.mask.GetFlag(BrushMask.A))
                 pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");
 
-            return brushChanged_RT;
+            return changes;
 
         }
 #endif

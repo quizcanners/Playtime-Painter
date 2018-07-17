@@ -201,21 +201,19 @@ namespace SharedTools_Stuff
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention 
     {
         
-        [SerializeField]protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+    
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         bool nestedReferencesChanged;
 
+        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public int GetISTDreferenceIndex(UnityEngine.Object obj)
         {
             int before = _nestedReferences.Count;
-            var val = _nestedReferences.TryGetIndexOrAdd(obj);
-
-            nestedReferencesChanged |= _nestedReferences.Count != before;
-            
-            return val;
+            int index = _nestedReferences.TryGetIndexOrAdd(obj);
+            if (before != _nestedReferences.Count) nestedReferencesChanged = true;
+            return index;
         }
-        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object
-            => _nestedReferences.TryGet(index) as T;
+        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
@@ -328,6 +326,8 @@ namespace SharedTools_Stuff
     }
 
     #endregion
+
+
 
 
     public static class STDExtensions {

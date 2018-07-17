@@ -44,12 +44,6 @@ namespace Playtime_Painter
 
     public class Vertex : PainterStuffKeepUnrecognized_STD
     {
-
-        public override string GetDefaultTagName() {
-            return stdTag_uv;
-        }
-        public const string stdTag_uv = "uv";
-        
         protected PlaytimePainter painter { get { return MeshManager.Inst.target; } }
 
         public int uvIndex;
@@ -318,10 +312,7 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override string GetDefaultTagName()
-        {
-            return tagName_bs;
-        }
+
 
         public BlendFrame()
         {
@@ -335,7 +326,7 @@ namespace Playtime_Painter
             deltaTangent = tang;
         }
 
-        public const string tagName_bs = "bs";    
+       // public const string tagName_bs = "bs";    
   
     } 
 
@@ -428,7 +419,7 @@ namespace Playtime_Painter
             cody.Add("edge", edgeStrength);
 
             if (shapes != null)
-                cody.Add_IfNotEmpty(BlendFrame.tagName_bs, shapes);
+                cody.Add_IfNotEmpty("bs", shapes);
 
             cody.Add_ifNotZero("gr", vertexGroup);
           
@@ -449,16 +440,16 @@ namespace Playtime_Painter
                     break;
                 case "biP":  data.DecodeInto(out bindPoses);  break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
-                case BlendFrame.tagName_bs: data.DecodeInto(out shapes); break;
+                case "bs": data.DecodeInto(out shapes); break;
                 case "gr": vertexGroup = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
 
-        public override string GetDefaultTagName() { return stdTag_vrt;}
+     //   public override string GetDefaultTagName() { return stdTag_vrt;}
 
-        public const string stdTag_vrt = "vrt";
+      //  public const string stdTag_vrt = "vrt";
 
         public int getIndexFor(Vector2 uv_0, Vector2 uv_1) {
             int cnt = shared_v2s.Count;
@@ -849,11 +840,11 @@ namespace Playtime_Painter
 
         }
 
-        public override string GetDefaultTagName() {
+       /* public override string GetDefaultTagName() {
             return stdTag_tri;
-        }
+        }*/
 
-        public const string stdTag_tri = "tri";
+       // public const string stdTag_tri = "tri";
 
         public Triangle CopySettingsFrom (Triangle td) {
             for (int i = 0; i < 3; i++)

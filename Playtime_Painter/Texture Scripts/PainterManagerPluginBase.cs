@@ -11,10 +11,7 @@ namespace Playtime_Painter
 
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono, IKeepUnrecognizedSTD 
-#if PEGI
-        , IPEGI, IGotDisplayName
-#endif
+    public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName
         
     {
 #if PEGI
@@ -33,9 +30,6 @@ namespace Playtime_Painter
         }
 #endif
 
-        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
-        public UnrecognizedTags_List UnrecognizedSTD => uTags;
-
         PainterBoolPlugin plugins_GizmoDraw;
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
         {
@@ -49,8 +43,7 @@ namespace Playtime_Painter
             tex2DPaintPlugins += d;
             BrushType.tex2DPaintPlugins += d;
         }
-
- 
+        
         PainterBoolPlugin pluginNeedsGrid_Delegates;
         protected void PlugIn_NeedsGrid(PainterBoolPlugin d) {
             pluginNeedsGrid_Delegates += d;
@@ -109,21 +102,15 @@ namespace Playtime_Painter
      
 
 #if PEGI
-
         public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
-
-        public static int inspectedUnrecognized = -1;
-        public virtual bool PEGI()
+        
+        public override bool PEGI()
         {
             bool changed =  ConfigTab_PEGI();
-            changed |= uTags.PEGI();
+            changed |= base.PEGI();
             return changed;
         }
 #endif
-        public virtual ISTD Decode(string data) => this;
-
-        public virtual bool Decode(string tag, string data) => true;
-
-        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
+      
     }
 }

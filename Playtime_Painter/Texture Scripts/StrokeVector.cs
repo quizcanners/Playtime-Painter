@@ -133,7 +133,7 @@ namespace Playtime_Painter {
             
         }
 
-        public const string storyTag = "s";
+      //  public const string storyTag = "s";
 
         public void SetWorldPosInShader()
         {

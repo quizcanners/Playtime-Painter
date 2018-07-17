@@ -10,11 +10,7 @@ namespace Playtime_Painter
 
     public delegate bool PainterBoolPlugin(PlaytimePainter p);
 
-    [Serializable]
-    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, IKeepUnrecognizedSTD
-#if PEGI
-      , IPEGI
-#endif
+    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, IKeepUnrecognizedSTD, IPEGI
     {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -25,10 +21,7 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public abstract class PainterStuff_STD : PainterStuff, ISTD
-#if PEGI
-        , IPEGI
-#endif
+    public abstract class PainterStuff_STD : PainterStuff, ISTD  , IPEGI
     {
     public abstract StdEncoder Encode();
 
@@ -40,7 +33,6 @@ namespace Playtime_Painter
         public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
 #endif
         public abstract bool Decode(string tag, string data);
-        public abstract string GetDefaultTagName();
     }
 
 
@@ -62,8 +54,17 @@ namespace Playtime_Painter
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
     }
 
-    public class PainterStuffMono : MonoBehaviour
+    public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedSTD, IPEGI
     {
+
+        protected UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+
+        public virtual ISTD Decode(string data) => this;
+
+        public virtual bool Decode(string tag, string data) => true;
+
+        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
 
         protected static PainterManager texMGMT { get { return PainterManager.inst; } }
         protected static Transform rtbrush { get { return texMGMT.brushRendy.transform; } }
@@ -78,8 +79,12 @@ namespace Playtime_Painter
         protected static EditableMesh editedMesh { get { return MeshManager.Inst.edMesh; } }
         protected static bool applicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool isNowPlaytimeAndDisabled { get { return PainterStuff.isNowPlaytimeAndDisabled; } }
-        
-        }
+
+#if PEGI
+        public virtual bool PEGI() => uTags.PEGI();  
+#endif
+
+    }
 
 
     [Serializable]

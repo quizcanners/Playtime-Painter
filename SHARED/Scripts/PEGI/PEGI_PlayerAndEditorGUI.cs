@@ -800,21 +800,31 @@ namespace PlayerAndEditorGUI
             return select<T>(ref no, tree, lambda);
         }
 
-        public static bool selectOrAdd(ref int no, ref Texture[] tex)
+        public static bool selectOrAdd(ref int selected, ref List<Texture> texes)
         {
+            bool change = select(ref selected, texes);
 
-#if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            Texture tex = texes.TryGet(selected);
+
+            if (edit(ref tex))
             {
-                return ef.selectOrAdd(ref no, ref tex);
+                change = true;
+                if (tex == null)
+                    selected = -1;
+                else
+                {
+                    int ind = texes.IndexOf(tex);
+                    if (ind >= 0)
+                        selected = ind;
+                    else
+                    {
+                        selected = texes.Count;
+                        texes.Add(tex);
+                    }
+                }
             }
-            else
-#endif
-            {
-
-
-                return select(ref no, tex);
-            }
+            
+            return change;
         }
 
         public static bool select<T>(ref int ind, List<T> lst, int width)

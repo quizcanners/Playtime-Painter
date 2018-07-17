@@ -452,12 +452,12 @@ namespace Playtime_Painter {
                 return cody;
             }
 
-            public const string folderName = "TexSolution";
+           public const string folderName = "TexSolution";
 
-            public override string GetDefaultTagName()
+          /*  public override string GetDefaultTagName()
             {
                 return folderName;
-            }
+            }*/
 
             public static TexturePackagingProfile currentPEGI;
 

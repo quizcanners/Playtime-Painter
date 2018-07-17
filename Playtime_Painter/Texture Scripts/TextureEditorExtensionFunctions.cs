@@ -111,7 +111,8 @@ public static class TextureEditorExtensionFunctions  {
         }
 
         public static StdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
-            StdEncoder cody = new StdEncoder();
+         
+
 
             var id = painter.imgData;
 
@@ -119,10 +120,12 @@ public static class TextureEditorExtensionFunctions  {
 
             BlitMode mode = brush.blitMode;
             BrushType type = brush.type(!rt);
-            
-            cody.Add(rt ? "typeGPU" : "typeCPU", brush._type(!rt));
-            
+
             bool worldSpace = rt && brush.IsA3Dbrush(painter);
+            
+            StdEncoder cody = new StdEncoder()
+
+            .Add(rt ? "typeGPU" : "typeCPU", brush._type(!rt));
 
             if (worldSpace)
                 cody.Add("size3D", brush.Brush3D_Radius);
@@ -130,12 +133,13 @@ public static class TextureEditorExtensionFunctions  {
                 cody.Add("size2D", brush.Brush2D_Radius/((float)id.width));
 
 
-            cody.Add_Bool("useMask", brush.useMask);
+            cody.Add_Bool("useMask", brush.useMask)
+            .Add("mode", brush._bliTMode);
 
             if (brush.useMask)
                 cody.Add("mask", (int)brush.mask);
 
-            cody.Add("mode", brush._bliTMode);
+        
 
             if (mode.showColorSliders)
                 cody.Add("bc", brush.colorLinear);
@@ -149,25 +153,21 @@ public static class TextureEditorExtensionFunctions  {
                     cody.Add("blur", brush.blurAmount);
 
                 if (type.isUsingDecals) {
-                    cody.Add("decA", brush.decalAngle);
-                    cody.Add("decNo", brush.selectedDecal);
+                    cody.Add("decA", brush.decalAngle)
+                    .Add("decNo", brush.selectedDecal);
                 }
 
                 if (brush.useMask) {
-                    cody.Add("Smask", brush.selectedSourceMask);
-                    cody.Add("maskTil", brush.maskTiling);
-                    cody.Add_Bool("maskFlip", brush.flipMaskAlpha);
-                    cody.Add("maskOff", brush.maskOffset);
+                    cody.Add("Smask", brush.selectedSourceMask)
+                    .Add("maskTil", brush.maskTiling)
+                    .Add_Bool("maskFlip", brush.flipMaskAlpha)
+                    .Add("maskOff", brush.maskOffset);
                 }
             }
 
-
-
-            cody.Add("hard",brush.Hardness);
-            cody.Add("speed", brush.speed);
-          
-
-
+            cody.Add("hard",brush.Hardness)
+            .Add("speed", brush.speed);
+     
             return cody;
         }
         
@@ -274,35 +274,19 @@ public static class TextureEditorExtensionFunctions  {
                 }
             }
 
-
-
             return rid;
         }
-
-        //static ImageData recentImgDta;
-        //static Texture recentTexture;
+        
         public static ImageData getImgData(this Texture texture)
         {
             if (texture == null)
                 return null;
 
-          //  if (recentTexture != null && texture == recentTexture && recentImgDta != null)
-            //    return recentImgDta;
-
-            //Debug.Log("Looping trough texture datas");
-
             var nid = texture.getImgDataIfExists();
 
             if (nid == null)
-            //{
-              //  Debug.Log("Creating imgDATA for " + texture.name);
-                nid = ScriptableObject.CreateInstance<ImageData>().init(texture);
-            //}
-            //else Debug.Log("Returning for "+texture.name);
-
-            //recentImgDta = nid;
-            //recentTexture = texture;
-
+                nid = new ImageData().init(texture);
+            
             return nid;
         }
 

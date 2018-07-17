@@ -110,9 +110,9 @@ namespace Playtime_Painter
 
         public virtual void ManageDragging() { }
 
-        public override string GetDefaultTagName() {
-            return ToString();
-        }
+      
+
+
 
         public override StdEncoder Encode() {
             return null;
