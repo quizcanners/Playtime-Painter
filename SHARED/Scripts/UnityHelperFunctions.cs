@@ -168,7 +168,7 @@ namespace SharedTools_Stuff
             var pf = PrefabUtility.GetPrefabObject(gameObject);
             if (pf != null)
             {
-                PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.GetPrefabParent(gameObject), ReplacePrefabOptions.ConnectToPrefab);
+                PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.GetCorrespondingObjectFromSource(gameObject), ReplacePrefabOptions.ConnectToPrefab);
                 (gameObject.name + " prefab Updated").showNotification();
             } else {
                 (gameObject.name + " Not a prefab").showNotification();
@@ -751,7 +751,7 @@ namespace SharedTools_Stuff
         {
 #if UNITY_EDITOR
 
-            return PrefabUtility.GetPrefabObject(go) && PrefabUtility.GetPrefabParent(go) == null; // Is a prefab
+            return PrefabUtility.GetPrefabObject(go) && PrefabUtility.GetCorrespondingObjectFromSource(go) == null; // Is a prefab
 #else
         return false;
 #endif
@@ -907,7 +907,7 @@ namespace SharedTools_Stuff
         {
 #if UNITY_EDITOR
             
-            UnityEngine.Object parentObject = PrefabUtility.GetPrefabParent(obj);
+            UnityEngine.Object parentObject = PrefabUtility.GetCorrespondingObjectFromSource(obj);
             if (parentObject != null)
                 obj = parentObject;
                

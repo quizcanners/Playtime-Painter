@@ -67,24 +67,24 @@ namespace Playtime_Painter
 
         public virtual void SetGlobalShaderParameters() {}
 
-        public BlitMode()
+        public BlitMode(int ind)
         {
-            index = _allModes.Count;
+            index = ind;//AllModes.Count;
         }
 
         protected static void InstantiateBrushes()
         {
             _allModes = new List<BlitMode>
             {
-                new BlitModeAlphaBlit(),
-                new BlitModeAdd(),
-                new BlitModeSubtract(),
-                new BlitModeCopy(),
-                new BlitModeMin(),
-                new BlitModeMax(),
-                new BlitModeBlur(),
-                new BlitModeBloom(),
-                new BlitModeSamplingOffset()
+                new BlitModeAlphaBlit(0),
+                new BlitModeAdd(1),
+                new BlitModeSubtract(2),
+                new BlitModeCopy(3),
+                new BlitModeMin(4),
+                new BlitModeMax(5),
+                new BlitModeBlur(6),
+                new BlitModeBloom(7),
+                new BlitModeSamplingOffset(8)
             };
             // The code below uses reflection to find all classes that are child classes of BlitMode.
             // The code above adds them manually to save some compilation time,
@@ -176,7 +176,11 @@ namespace Playtime_Painter
         {
             public override string ToString() { return "Alpha Blit"; }
             protected override string ShaderKeyword { get { return "BRUSH_NORMAL"; } }
+        public BlitModeAlphaBlit(int ind) : base(ind)
+        {
+            
         }
+    }
 
         public class BlitModeAdd : BlitMode
         {
@@ -189,22 +193,25 @@ namespace Playtime_Painter
             public override Shader ShaderForSingleBuffer { get { return TexMGMT.br_Add; } }
             public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AddBlit; } }
 
-            public BlitModeAdd()
+            public BlitModeAdd(int ind) : base(ind)
             {
                 _inst = this;
             }
         }
 
-        public class BlitModeSubtract : BlitMode
-        {
-            public override string ToString() { return "Subtract"; }
-            protected override string ShaderKeyword { get { return "BRUSH_SUBTRACT"; } }
+    public class BlitModeSubtract : BlitMode
+    {
+        public override string ToString() { return "Subtract"; }
+        protected override string ShaderKeyword { get { return "BRUSH_SUBTRACT"; } }
 
-            //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
-            public override bool SupportedBySingleBuffer { get { return false; } }
+        //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
+        public override bool SupportedBySingleBuffer { get { return false; } }
 
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
-        }
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
+
+        public BlitModeSubtract(int ind) : base(ind){}
+
+    }
 
         public class BlitModeCopy : BlitMode
         {
@@ -215,7 +222,9 @@ namespace Playtime_Painter
             public override bool SupportedByTex2D { get { return false; } }
             public override bool UsingSourceTexture { get { return true; } }
             public override Shader ShaderForSingleBuffer { get { return TexMGMT.br_Copy; } }
-        }
+
+        public BlitModeCopy(int ind) : base(ind) { }
+    }
 
         public class BlitModeMin : BlitMode
         {
@@ -223,7 +232,8 @@ namespace Playtime_Painter
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
             public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MinBlit; } }
-        }
+        public BlitModeMin(int ind) : base(ind) { }
+    }
 
         public class BlitModeMax : BlitMode
         {
@@ -231,7 +241,8 @@ namespace Playtime_Painter
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
             public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MaxBlit; } }
-        }
+        public BlitModeMax(int ind) : base(ind) { }
+    }
 
         public class BlitModeBlur : BlitMode
         {
@@ -254,11 +265,16 @@ namespace Playtime_Painter
                 return brushChanged_RT;
             }
 #endif
+
+        public BlitModeBlur(int ind) : base(ind) { }
+
     }
 
     public class BlitModeSamplingOffset : BlitMode
         {
-            protected override string ShaderKeyword { get { return "BRUSH_SAMPLE_DISPLACE"; } }
+        public BlitModeSamplingOffset(int ind) : base(ind) { }
+
+        protected override string ShaderKeyword { get { return "BRUSH_SAMPLE_DISPLACE"; } }
 
             public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
@@ -402,7 +418,9 @@ namespace Playtime_Painter
             public override bool SupportedBySingleBuffer { get { return false; } }
             public override bool SupportedByTex2D { get { return false; } }
 
-            public override Shader ShaderForDoubleBuffer { get { return TexMGMT.br_BlurN_SmudgeBrush; } }
+        public BlitModeBloom(int ind) : base(ind) { }
+
+        public override Shader ShaderForDoubleBuffer { get { return TexMGMT.br_BlurN_SmudgeBrush; } }
 #if PEGI
             public override bool PEGI()
             {

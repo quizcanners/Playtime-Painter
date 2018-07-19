@@ -4,7 +4,7 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: BrushMaterial
   m_Shader: {fileID: 4800000, guid: 5d4c30d1d90b10244bd976b05af957a9, type: 3}

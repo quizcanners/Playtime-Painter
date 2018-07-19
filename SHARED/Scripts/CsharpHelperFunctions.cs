@@ -283,11 +283,8 @@ namespace SharedTools_Stuff
             return last;
         }
 
-        public static T Last<T>(this List<T> list)
-        {
-            return list[list.Count - 1];
-        }
-
+        public static T Last<T>(this List<T> list) => list.Count>0 ? list[list.Count - 1] : default(T);
+        
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
             T tmp = list[indexOfFirst];

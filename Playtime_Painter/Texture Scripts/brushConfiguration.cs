@@ -274,7 +274,7 @@ namespace Playtime_Painter
 
             var bm = BlitMode;
 
-            changed |= pegi.select(ref _bliTMode, BlitMode.AllModes.ToArray(), true);
+            changed |= pegi.select(ref _bliTMode, BlitMode.AllModes);
 
             pegi.newLine();
             pegi.Space();
