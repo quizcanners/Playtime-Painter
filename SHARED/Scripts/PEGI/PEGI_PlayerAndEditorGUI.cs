@@ -113,7 +113,7 @@ namespace PlayerAndEditorGUI
 
             public windowPositionData()
             {
-                windowRect = new Rect(20, 20, 120, 400);
+                windowRect = new Rect(20, 20, 250, 400);
             }
         }
 
@@ -137,7 +137,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
 
                 ef.checkLine();
@@ -197,7 +197,7 @@ namespace PlayerAndEditorGUI
         public static void FocusControl(string name)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 EditorGUI.FocusTextInControl(name);
             }
@@ -227,7 +227,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.Space();
             }
@@ -340,16 +340,18 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(field);
             }
             else
 #endif
-            {
                 checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
-            }
+
+            /* {
+                 checkLine();
+                 write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
+             }*/
 
         }
 
@@ -378,7 +380,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(img, width);
             }
@@ -397,7 +399,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(img, tip, width);
             }
@@ -415,7 +417,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(img, tip, width, height);
             }
@@ -491,7 +493,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(text, tip);
             }
@@ -511,7 +513,7 @@ namespace PlayerAndEditorGUI
                 write(text, tip);
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(text, tip, width);
             }
@@ -529,7 +531,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.writeHint(text, MessageType.Warning);
                 ef.newLine();
@@ -547,7 +549,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.writeHint(text, MessageType.Info);
                 ef.newLine();
@@ -600,7 +602,7 @@ namespace PlayerAndEditorGUI
             text += " (press OK)";
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.writeHint(text, MessageType.Info);
             }
@@ -756,7 +758,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, Countless<T> tree)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, tree);
             }
@@ -831,7 +833,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref ind, lst, width);
             }
@@ -849,7 +851,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int no, List<string> from)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, from.ToArray());
             }
@@ -888,7 +890,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int no, string[] from)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, from);
             }
@@ -927,7 +929,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int no, string[] from, int width)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, from, width);
             }
@@ -1311,7 +1313,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select<T>(ref i, ar, clampValue);
             }
@@ -1369,7 +1371,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, tree);
             }
@@ -1399,7 +1401,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, tree);
             }
@@ -1447,7 +1449,7 @@ namespace PlayerAndEditorGUI
         public static bool selectEnum(ref int current, Type type)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref current, type);
             }
@@ -1479,7 +1481,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int current)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref current, typeof(T));
             }
@@ -1526,7 +1528,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int current, Dictionary<int, string> from)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref current, from);
             }
@@ -1561,7 +1563,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int current, Dictionary<int, string> from, int width)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref current, from, width);
             }
@@ -1611,7 +1613,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.select(ref no, tex);
             }
@@ -1855,7 +1857,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.foldout(txt, ref state);
             }
@@ -1880,7 +1882,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.foldout(txt, ref selected, current);
             }
@@ -1985,7 +1987,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.foldout(txt);
             }
@@ -2023,7 +2025,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 if (ef.Click(text, width))
                 {
@@ -2051,7 +2053,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 if (ef.Click(tex, width))
                 {
@@ -2079,7 +2081,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 if (ef.Click(tex, tip, width))
                 {
@@ -2101,7 +2103,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 if (ef.Click(tex, tip, width, height))
                 {
@@ -2123,7 +2125,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 if (ef.Click(text))
                 {
@@ -2151,7 +2153,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(text, width);
             }
@@ -2170,7 +2172,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(text);
             }
@@ -2189,7 +2191,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(text, tip);
             }
@@ -2209,7 +2211,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(text, tip, width);
             }
@@ -2232,7 +2234,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(img, size);
             }
@@ -2251,7 +2253,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(img, tip, size);
             }
@@ -2269,7 +2271,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.Click(img, tip, width, height);
             }
@@ -2345,7 +2347,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.toggleInt(ref val);
             }
@@ -2367,7 +2369,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.toggle(ref val);
             }
@@ -2385,7 +2387,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(text, width);
                 return ef.toggle(ref val);
@@ -2404,7 +2406,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.toggle(ref val, text, tip);
             }
@@ -2427,7 +2429,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width);
             }
@@ -2460,7 +2462,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 ef.write(text, tip, width);
                 return ef.toggle(ref val);
@@ -2479,7 +2481,7 @@ namespace PlayerAndEditorGUI
         public static bool toggle(int ind, CountlessBool tb)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.toggle(ind, tb);
             }
@@ -2552,7 +2554,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editKey(ref dic, key);
             }
@@ -2572,7 +2574,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref dic, atKey);
             }
@@ -2594,7 +2596,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(name, ref val);
             }
@@ -2612,18 +2614,19 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref field);
             }
             else
 #endif
-            {
+                checkLine();
+            /*  {
                 checkLine();
                 write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
                 return false;
-            }
-
+            }*/
+            return false;
         }
 
         public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
@@ -2631,25 +2634,26 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref field, allowDrop);
             }
             else
 #endif
-            {
+                checkLine();
+            /* {
                 checkLine();
                 write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
                 return false;
-            }
-
+            }*/
+            return false;
         }
 
         public static bool edit(GameObject go)
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
 
                 string name = go.name;
@@ -2679,7 +2683,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2697,7 +2701,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(label, ref val);
             }
@@ -2721,7 +2725,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2739,7 +2743,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2760,7 +2764,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(label, ref val);
             }
@@ -2782,7 +2786,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2803,7 +2807,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, min, max);
             }
@@ -2824,7 +2828,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, min, max);
             }
@@ -2855,7 +2859,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref Color col)
         {
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref col);
             }
@@ -2872,7 +2876,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, min, max);
             }
@@ -2891,7 +2895,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2920,7 +2924,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, width);
             }
@@ -2948,7 +2952,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -2976,7 +2980,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(label, ref val);
             }
@@ -2992,7 +2996,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, (int)min, (int)max);
             }
@@ -3012,7 +3016,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editPOW(ref val, min, max);
             }
@@ -3036,7 +3040,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(val);
             }
@@ -3112,7 +3116,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editDelayed(ref val);
             }
@@ -3147,7 +3151,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editDelayed(ref val, width);
             }
@@ -3205,7 +3209,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editDelayed(ref val, width);
             }
@@ -3242,7 +3246,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val);
             }
@@ -3265,7 +3269,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.edit(ref val, width);
             }
@@ -3288,7 +3292,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 return ef.editBig(ref val);
             }
@@ -3329,38 +3333,93 @@ namespace PlayerAndEditorGUI
 
         public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
         {
-            write(label);
-            return edit(ref field);
+
+#if UNITY_EDITOR
+
+            if (!paintingPlayAreaGUI)
+            {
+                write(label);
+                return edit(ref field);
+            }
+           
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : UnityEngine.Object
         {
-            write(label);
-            return edit(ref field, allowDrop);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label);
+                return edit(ref field, allowDrop);
+            }
+           
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit<T>(this string label, int width, ref T field) where T : UnityEngine.Object
         {
-            write(label, width);
-            return edit(ref field);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, width);
+                return edit(ref field);
+            }
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
         {
-            write(label, width);
-            return edit(ref field, allowDrop);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, width);
+                return edit(ref field, allowDrop);
+            }
+          
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
         {
-            write(label, tip, width);
-            return edit(ref field);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, tip, width);
+                return edit(ref field);
+            }
+           
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
         {
-            write(label, tip, width);
-            return edit(ref field, allowDrop);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, tip, width);
+                return edit(ref field, allowDrop);
+            }
+           
+#endif
+           
+                return false;
+            
         }
 
         public static bool edit(this string label, ref myIntVec2 val)
@@ -3402,7 +3461,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
                 int before = val[ind];
                 if (ef.edit(ref before, 45))
@@ -3599,7 +3658,7 @@ namespace PlayerAndEditorGUI
             bool changes = false;
 #if UNITY_EDITOR
 
-            if (paintingPlayAreaGUI == false)
+            if (!paintingPlayAreaGUI)
             {
 
                 SerializedObject sobj = (obj == null ? ef.serObj : GetSerObj(obj)); //new SerializedObject(obj));
@@ -3655,11 +3714,11 @@ namespace PlayerAndEditorGUI
 
 #endif
 
-        #endregion
+#endregion
 
-        #region LISTS
+#region LISTS
 
-        #region List MGMT Functions 
+#region List MGMT Functions 
 
         const int listLabelWidth = 105;
 
@@ -3670,7 +3729,7 @@ namespace PlayerAndEditorGUI
         static int SectionSizeOptimal = 0;
         static int ListSectionMax = 0;
         static int ListSectionStartIndex = 0;
-        static CountlessInt ListSectionOptimal = new CountlessInt();
+        static readonly CountlessInt ListSectionOptimal = new CountlessInt();
 
         static void SetOptimalSectionFor(int Count)
         {
@@ -4191,7 +4250,7 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
 
         //Lists ...... of Monobehaviour
@@ -4930,7 +4989,7 @@ namespace PlayerAndEditorGUI
     }
 
 
-    #region Extensions
+#region Extensions
     public static class PEGI_Extensions
     {
 
@@ -5077,7 +5136,7 @@ namespace PlayerAndEditorGUI
         }
 
     }
-    #endregion
+#endregion
 
 
 

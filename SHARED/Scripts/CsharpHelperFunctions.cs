@@ -196,17 +196,29 @@ namespace SharedTools_Stuff
 
         public static int timerLastSection = 0;
 
+        static string timerStartLabel = null;
+
         public static void TimerStart()
         {
+            timerStartLabel = null;
             stopWatch.Start();
         }
 
-        public static string TimerEnd(string Label)
+        public static void  TimerStart(this string Label)
         {
-            return TimerEnd(Label, true);
+            timerStartLabel = Label;
+            stopWatch.Start();
         }
 
-        public static string TimerEnd(string Label, bool logIt)
+        public static string TimerEnd(this string Label) => Label.TimerEnd(true);
+        
+        public static string TimerEnd(this string Label, bool logIt) => TimerEnd( Label,  logIt, logIt);
+
+        public static string TimerEnd(this string Label, bool logIt, int treshold ) => TimerEnd(Label, logIt, logIt, treshold);
+
+        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer) => TimerEnd(Label, logInEditor, logInPlayer, 0);
+        
+        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
         {
             long ticks = stopWatch.ElapsedTicks;
 
@@ -215,36 +227,37 @@ namespace SharedTools_Stuff
             timerLastSection = (int)ticks;
 
             if (ticks < 10000)
-                timeText = ticks.ToString();
-            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + "ticks";
+                timeText = ticks.ToString()+" ticks";
+            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + " ticks";
 
-            string text = Label + ": " + timeText;
+            string text = "";
+            if (timerStartLabel != null)
+                text += timerStartLabel + "->";
+            text += Label + ": " + timeText;
 
-#if UNITY_EDITOR
-            if (logIt)
+            timerStartLabel = null;
+
+            if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
                 UnityEngine.Debug.Log(text);
-#endif
 
             stopWatch.Reset();
 
             return text;
         }
 
-        public static string TimerSection(string labelForEndedSection)
-        {
-            return TimerSection(labelForEndedSection, true);
-        }
+        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
 
-        public static string TimerSection(string labelForEndedSection, bool logIt)
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logTreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logTreshold);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer) => labelForEndedSection.TimerEnd_Restart(logInEditor, logInPlayer, 0);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
         {
-            var txt = TimerEnd(labelForEndedSection, logIt);
+            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
             stopWatch.Start();
             return txt;
-        }
-
-        public static string TimerEnd()
-        {
-            return TimerEnd("Ticks", true);
         }
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)

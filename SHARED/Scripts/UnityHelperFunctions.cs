@@ -50,6 +50,13 @@ namespace SharedTools_Stuff
         }
 #endif
 
+        public static void SetActive(this List<GameObject> goList, bool to)
+        {
+            if (goList != null)
+                foreach (var go in goList)
+                    if (go) go.SetActive(to);
+        }
+
         public static bool IsUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
         
         public static void SetToDirty(this object obj)
@@ -162,20 +169,36 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        public static UnityEngine.Object GetPrefab(this UnityEngine.Object obj)
+        {
+#if UNITY_EDITOR
+
+#if UNITY_2018_2_OR_NEWER
+            return PrefabUtility.GetCorrespondingObjectFromSource(obj);
+#else
+               return PrefabUtility.GetPrefabParent(obj);
+#endif
+#else
+    return null;
+#endif
+
+
+        }
+
         public static void UpdatePrefab(this GameObject gameObject)
         {
 #if PEGI && UNITY_EDITOR
             var pf = PrefabUtility.GetPrefabObject(gameObject);
             if (pf != null)
             {
-                PrefabUtility.ReplacePrefab(gameObject, PrefabUtility.GetCorrespondingObjectFromSource(gameObject), ReplacePrefabOptions.ConnectToPrefab);
+                PrefabUtility.ReplacePrefab(gameObject, gameObject.GetPrefab(), ReplacePrefabOptions.ConnectToPrefab);
                 (gameObject.name + " prefab Updated").showNotification();
             } else {
                 (gameObject.name + " Not a prefab").showNotification();
             }
             gameObject.SetToDirty();
 #endif
-        }
+            }
 
         public static float Angle(this Vector2 vec)
         {
@@ -747,16 +770,7 @@ namespace SharedTools_Stuff
             return propertyName.Contains(tag);
         }
 
-        public static bool IsPrefab(this GameObject go)
-        {
-#if UNITY_EDITOR
-
-            return PrefabUtility.GetPrefabObject(go) && PrefabUtility.GetCorrespondingObjectFromSource(go) == null; // Is a prefab
-#else
-        return false;
-#endif
-
-        }
+        public static bool IsPrefab(this GameObject go) => go.scene.name == null;
 
         public static void SetActiveTo(this GameObject go, bool setTo)
         {
@@ -906,8 +920,8 @@ namespace SharedTools_Stuff
         public static string GetAssetFolder (this UnityEngine.Object obj)
         {
 #if UNITY_EDITOR
-            
-            UnityEngine.Object parentObject = PrefabUtility.GetCorrespondingObjectFromSource(obj);
+
+            UnityEngine.Object parentObject = obj.GetPrefab();
             if (parentObject != null)
                 obj = parentObject;
                

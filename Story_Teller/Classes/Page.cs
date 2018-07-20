@@ -15,7 +15,7 @@ namespace StoryTriggerData{
 
         List<STD_Poolable> linkedObjects = new List<STD_Poolable>();
 
-        static Book mgmt => Book.Inst;
+        static Book Mgmt => Book.Inst;
         
         [NonSerialized]
         public float sceneScale;
@@ -77,7 +77,7 @@ namespace StoryTriggerData{
             return true;
         }
 
-        void encodeMeta(StdEncoder cody) {
+        void EncodeMeta(StdEncoder cody) {
             cody.Add_String("origin", OriginBook);
             cody.Add_String("name", gameObject.name);
             cody.Add(UniversePosition.storyTag,sPOS);
@@ -92,7 +92,7 @@ namespace StoryTriggerData{
 
             var cody =this.EncodeUnrecognized(); //new stdEncoder();
 
-            encodeMeta(cody);
+            EncodeMeta(cody);
 
             return cody;
         }
@@ -122,8 +122,8 @@ namespace StoryTriggerData{
         public void RenamePage(string newName) {
 #if UNITY_EDITOR
             bool duplicate = false;
-            if (mgmt && mgmt.HOMEpages!= null)
-            foreach (Page p in mgmt.HOMEpages) {
+            if (Mgmt && Mgmt.HOMEpages!= null)
+            foreach (Page p in Mgmt.HOMEpages) {
                 if ((p.gameObject.name == gameObject.name) && (p.gameObject != this.gameObject)) { duplicate = true; break; } //
             }
 
@@ -143,7 +143,7 @@ namespace StoryTriggerData{
             if (Application.isPlaying == false)
                 SavePageContent();
 
-            clearPage();
+            ClearPage();
             if (parentPage == null)
                 Book.Inst.HOMEpages.Remove(this);
             base.Deactivate();
@@ -165,7 +165,7 @@ namespace StoryTriggerData{
             linkedObjects.Add(sb);
         }
 
-        public void clearPage() {
+        public void ClearPage() {
             for (int i = linkedObjects.Count - 1; i >= 0; i--)
                 linkedObjects[i].Deactivate();
 
@@ -207,7 +207,7 @@ namespace StoryTriggerData{
                 if ("config".foldout(ref notsafeCFG)) {
 
                     if ("Clear".Click().nl())
-                        clearPage();
+                        ClearPage();
 
                     if ("Don't scale: ".toggle(ref noClamping).nl())
                         transform.localScale = Vector3.one;
@@ -296,7 +296,7 @@ namespace StoryTriggerData{
             else if (objectsLoaded && (!UniversePosition.isInReach)) {
                 if (Application.isPlaying == false)
                     SavePageContent();
-                clearPage();
+                ClearPage();
             }
 
             if (linkedObjects != null)
