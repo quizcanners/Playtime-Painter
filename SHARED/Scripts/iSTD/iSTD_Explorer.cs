@@ -401,19 +401,26 @@ namespace SharedTools_Stuff
             if (inspectedState == -1)
             {
                 UnityEngine.Object myType = null;
-                if ("From File:".edit(65, ref myType).nl()) {
+                if ("From File:".edit(65, ref myType)) {
                     aded = new SavedISTD();
                     aded.dataExplorer.data = ResourceLoader.LoadStory(myType);
                     aded.NameForPEGI = myType.name;
                     aded.comment = DateTime.Now.ToString();
                     states.Add(aded);
                 }
+
+                var selfSTD = target as IKeepMySTD;
+
+                if (selfSTD != null)
+                {
+                    if (icon.Save.Click("Save On itself"))
+                        selfSTD.config_STD = selfSTD.Encode().ToString();
+                    var slfData = selfSTD.config_STD;
+                    if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
+                        slfData.DecodeInto(target);
+                 }
+                pegi.nl();
             }
-
-           
-
-           
-
 
             inspectedSTD = null;
 

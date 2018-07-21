@@ -20,14 +20,17 @@ namespace SharedTools_Stuff
     }
 
     #region Nested
-
+    
+    ///<summary>For runtime initialization.
+    ///<para> Best used on Scriptable Objects. They don't loose referances. Prefabs needs to be updated and scenes saved to keep any referances</para>
+    ///<seealso cref="StdEncoder"/>
+    ///</summary>
     public interface ISTD_SerializeNestedReferences
     {
         int GetISTDreferenceIndex(UnityEngine.Object obj);
         T GetISTDreferenced<T>(int index) where T: UnityEngine.Object;
     }
-
-
+    
     ///<summary>For runtime initialization.
     ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
     ///<seealso cref="StdEncoder"/>
@@ -51,6 +54,12 @@ namespace SharedTools_Stuff
     public interface IKeepUnrecognizedSTD : ISTD {
        UnrecognizedTags_List UnrecognizedSTD { get; }
     }
+
+    public interface IKeepMySTD : ISTD
+    {
+        string config_STD { get; set; }
+    }
+
 
     public class UnrecognizedTags_List :IPEGI
     {
@@ -321,8 +330,7 @@ namespace SharedTools_Stuff
             new StdDecoder(data).DecodeTagsFor(this);
             return this;
         }
-
-      
+        
     }
 
     #endregion

@@ -259,8 +259,7 @@ namespace Playtime_Painter
 
                 bool brushChanged_RT = base.PEGI();
                 pegi.newLine();
-                pegi.write("Blur Amount", 70);
-                brushChanged_RT |= pegi.edit(ref InspectedBrush.blurAmount, 1f, 8f);
+                brushChanged_RT |= "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f);
                 pegi.newLine();
                 return brushChanged_RT;
             }
