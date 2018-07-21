@@ -203,7 +203,7 @@ namespace Playtime_Painter
 
         public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
 
-        public void TextureToRenderTexture(Texture2D tex) => PainterManager.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMT.pixPerfectCopy);
+        public void TextureToRenderTexture(Texture2D tex) => PainterManager.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMTdata.pixPerfectCopy);
         
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
         
@@ -453,7 +453,7 @@ namespace Playtime_Painter
             return Pixels[((int)v.y) * width + (int)v.x];
         }
 
-        public int pixelNo(myIntVec2 v)
+        public int PixelNo(myIntVec2 v)
         {
             int x = v.x;
             int y = v.y;
@@ -484,10 +484,10 @@ namespace Playtime_Painter
             //  Debug.Log("Creating image data for ."+tex.name);
 
             if (tex.GetType() == typeof(Texture2D))
-                useTex2D((Texture2D)tex);
+                UseTex2D((Texture2D)tex);
             else
                  if (tex.GetType() == typeof(RenderTexture))
-                useRenderTexture((RenderTexture)tex);
+                UseRenderTexture((RenderTexture)tex);
             else
                 other = tex;
 
@@ -495,7 +495,7 @@ namespace Playtime_Painter
             return this;
         }
 
-        void useRenderTexture(RenderTexture rt)
+        void UseRenderTexture(RenderTexture rt)
         {
             renderTexture = rt;
             width = rt.width;
@@ -515,7 +515,7 @@ namespace Playtime_Painter
                 SaveName = "New img";
         }
 
-        void useTex2D(Texture2D tex)
+        void UseTex2D(Texture2D tex)
         {
 
             From(tex);

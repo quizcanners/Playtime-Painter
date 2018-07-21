@@ -61,6 +61,73 @@ namespace SharedTools_Stuff
     }
 
 
+    public class STD_ReferancesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD
+    {
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+
+        protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
+        
+        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
+        
+        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+
+        public StdEncoder Encode() => this.EncodeUnrecognized();
+
+        public ISTD Decode(string data) => data.DecodeInto(this);
+
+        public bool Decode(string tag, string data) => false;
+        
+        public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
+
+        public bool showDebug;
+
+#if PEGI
+
+        [SerializeField] int inspectedStuff = -1;
+        [SerializeField] int inspectedReference = -1;
+        public virtual bool PEGI()
+        {
+
+            bool changed = false;
+            
+            if (!showDebug && icon.Config.Click())
+                showDebug = true;
+
+            if (showDebug)
+            {
+                if (icon.Edit.Click("Back to element inspection"))
+                    showDebug = false;
+
+                if (inspectedStuff == -1)
+                    pegi.nl();
+
+                if (("STD Saves: " + explorer.states.Count).fold_enter_exit(ref inspectedStuff, 0).nl_ifTrue())
+                    explorer.PEGI(this);
+
+                if (inspectedStuff == -1)
+                    pegi.nl();
+
+                if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
+                    "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
+
+                if (inspectedStuff == -1)
+                    pegi.nl();
+
+                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2).nl_ifTrue())
+                    changed |= uTags.Nested_Inspect();
+
+                if (inspectedStuff == -1)
+                    pegi.nl();
+
+            }
+            return changed;
+        }
+        
+#endif
+    }
+
     public class UnrecognizedTags_List :IPEGI
     {
         protected List<string> tags = new List<string>();

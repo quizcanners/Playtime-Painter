@@ -10,9 +10,9 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public interface IeditorDropdown
+    public interface IEditorDropdown
     {
-        bool showInDropdown();
+        bool ShowInDropdown();
     }
 
     //public enum customTools {Disabled, Painter, MeshEdit }
@@ -40,18 +40,15 @@ namespace SharedTools_Stuff
         #if PEGI
         public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
         #endif
-        public virtual string playtimeWindowName { get { return gameObject.name; } }
+        public virtual string PlaytimeWindowName => gameObject.name; 
 
         public virtual void OnGUI()
         {
-
-            //Debug.Log("Selected: "+selectedInPlaytime);
-
             if (selectedInPlaytime == null)
                 selectedInPlaytime = this;
             #if PEGI
             if (selectedInPlaytime == this)
-                windowPosition.Render(PEGI, playtimeWindowName);
+                windowPosition.Render(PEGI, PlaytimeWindowName);
 #endif
         }
         #if PEGI
@@ -67,7 +64,7 @@ namespace SharedTools_Stuff
 
         public static Type enabledTool;
 
-        public static int getToolIndex(Type type)
+        public static int GetToolIndex(Type type)
         {
             if (type == null)
                 return -1;
@@ -80,22 +77,21 @@ namespace SharedTools_Stuff
 
         public PlaytimeToolComponent[] attachedTools;
 
-        static void checkToolList()
+        static void CheckToolList()
         {
             if (tools == null)
-            {
                 tools = CsharpFuncs.GetAllChildTypesOf<PlaytimeToolComponent>().ToArray();
-            }
+            
         }
 
         public virtual void OnEnable()
         {
-            checkToolList();
+            CheckToolList();
 
             if (attachedTools == null)
             {
                 attachedTools = new PlaytimeToolComponent[tools.Length];
-                int myInd = getToolIndex(GetType());
+                int myInd = GetToolIndex(GetType());
                 for (int i = 0; i < tools.Length; i++)
                 {
                     attachedTools[i] = (PlaytimeToolComponent)gameObject.GetComponent(tools[i]);
@@ -106,20 +102,16 @@ namespace SharedTools_Stuff
 
         public virtual void OnDestroy()
         {
-            int myInd = getToolIndex(GetType());
+            int myInd = GetToolIndex(GetType());
             for (int i = 0; i < attachedTools.Length; i++)
                 attachedTools[i].RemoveOther(myInd);
         }
 
-        public virtual Texture ToolIcon()
-        {
-            return null;
-        }
+        public virtual Texture ToolIcon() => null;
+        
 
-        public virtual string ToolName()
-        {
-            return GetType().ToString();
-        }
+        public virtual string ToolName() => GetType().ToString();
+        
 
         #if PEGI
         public void ToolSelector()
@@ -138,7 +130,7 @@ namespace SharedTools_Stuff
         public bool ToolManagementPEGI()
         {
             bool changed = false;
-            if (!isCurrentTool())
+            if (!IsCurrentTool())
             {
                 if (pegi.Click(icon.Off.getIcon(), "Click to Enable Tool", 35))
                 {
@@ -156,7 +148,7 @@ namespace SharedTools_Stuff
             }
 
 
-            if ((changed) && (!isCurrentTool()))
+            if ((changed) && (!IsCurrentTool()))
                 windowPosition.collapse();
 
 
@@ -165,14 +157,12 @@ namespace SharedTools_Stuff
 
 #endif
 
-        public bool isCurrentTool()
-        {
-            return ((enabledTool != null) && (enabledTool == this.GetType()));
-        }
+        public bool IsCurrentTool() => ((enabledTool != null) && (enabledTool == this.GetType()));
+        
 
-        public static void setTool(int index)
+        public static void SetTool(int index)
         {
-            checkToolList();
+            CheckToolList();
             if ((index >= 0) && (tools.Length > index))
                 enabledTool = tools[index];
             else
@@ -181,15 +171,11 @@ namespace SharedTools_Stuff
 
         public const string ToolsFolder = "Tools";
 
-        public static void SetPrefs()
-        {
-            PlayerPrefs.SetInt("Tool", getToolIndex(enabledTool));
-        }
+        public static void SetPrefs() =>  PlayerPrefs.SetInt("Tool", GetToolIndex(enabledTool));
+        
 
-        public static void GetPrefs()
-        {
-            setTool(PlayerPrefs.GetInt("Tool"));
-        }
+        public static void GetPrefs() =>  SetTool(PlayerPrefs.GetInt("Tool"));
+        
 
         // Tags to prevent tools from effecting certain objects:
 

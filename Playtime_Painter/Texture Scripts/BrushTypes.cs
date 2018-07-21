@@ -28,7 +28,7 @@ namespace Playtime_Painter
 
     }
 
-    public abstract class BrushType : PainterStuff, IeditorDropdown
+    public abstract class BrushType : PainterStuff, IEditorDropdown
     {
 
         public static Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
@@ -73,7 +73,7 @@ namespace Playtime_Painter
             return from;
         }
 
-        public virtual bool showInDropdown()
+        public virtual bool ShowInDropdown()
         {
             if (PlaytimePainter.inspectedPainter == null)
                 return false;

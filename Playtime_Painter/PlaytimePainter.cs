@@ -30,23 +30,25 @@ namespace Playtime_Painter{
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
         
-        public static bool IsCurrent_Tool() { return enabledTool == typeof(PlaytimePainter); }
+        public static bool IsCurrent_Tool() => enabledTool == typeof(PlaytimePainter); 
 
-        protected static PainterConfig Cfg { get { return PainterConfig.Inst; } }
+        protected static PainterConfig Cfg => PainterConfig.Inst; 
 
-        protected static BrushConfig GlobalBrush { get { return PainterConfig.Inst.brushConfig; } }
+        protected static BrushConfig GlobalBrush => PainterConfig.Inst.brushConfig; 
 
-        public BrushType GlobalBrushType { get { return GlobalBrush.Type(ImgData.TargetIsTexture2D()); } }
+        public BrushType GlobalBrushType => GlobalBrush.Type(ImgData.TargetIsTexture2D()); 
 
-        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        protected static PainterManager TexMGMT => PainterManager.Inst; 
 
-        protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
+        protected static PainterManagerDataHolder TexMGMTdata => PainterManagerDataHolder.dataHolder;
 
-        protected static GridNavigator Grid { get { return GridNavigator.inst(); } }
+        protected static MeshManager MeshMGMT => MeshManager.Inst; 
+
+        protected static GridNavigator Grid => GridNavigator.inst(); 
         
-        public override string ToolName() { return PainterConfig.ToolName; }
+        public override string ToolName() => PainterConfig.ToolName; 
 
-        private bool NeedsGrid { get { return this.NeedsGrid(); } }
+        private bool NeedsGrid => this.NeedsGrid(); 
 
         public override Texture ToolIcon() {
             return icon.Painter.getIcon();
@@ -252,7 +254,7 @@ namespace Playtime_Painter{
         bool CanPaint()
         {
 
-            if (!isCurrentTool()) return false;
+            if (!IsCurrentTool()) return false;
 
             last_MouseOver_Object = this;
 
@@ -413,7 +415,7 @@ namespace Playtime_Painter{
         public void CheckPreviewShader()   {
             if (MatDta == null)
                 return;
-            if ((!isCurrentTool()) || (LockTextureEditing && !IsEditingThisMesh))
+            if ((!IsCurrentTool()) || (LockTextureEditing && !IsEditingThisMesh))
                 SetOriginalShaderOnThis();
             else if ((MatDta.usePreviewShader) && (IsOriginalShader))
                 SetPreviewShader();
@@ -448,10 +450,10 @@ namespace Playtime_Painter{
             Shader shd = null;
 
             if (meshEditing)
-                shd = TexMGMT.mesh_Preview;
+                shd = TexMGMTdata.mesh_Preview;
             else
             {
-                if (terrain != null) shd = TexMGMT.TerrainPreview;
+                if (terrain != null) shd = TexMGMTdata.TerrainPreview;
                 else
                 {
 
@@ -462,7 +464,7 @@ namespace Playtime_Painter{
                     }
 
                     if (shd == null)
-                        shd = TexMGMT.br_Preview;
+                        shd = TexMGMTdata.br_Preview;
                 }
             }
 
@@ -931,7 +933,7 @@ namespace Playtime_Painter{
             if ((mat == null) && (terrain != null))
             {
 
-                mat = new Material(TexMGMT.TerrainPreview);
+                mat = new Material(TexMGMTdata.TerrainPreview);
 
                 terrain.materialTemplate = mat;
                 terrain.materialType = Terrain.MaterialType.Custom;
@@ -1589,7 +1591,7 @@ namespace Playtime_Painter{
             if ((id!= null) && (id.CurrentTexture().IsBigRenderTexturePair()))
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
                
-            if ((PainterManager._inst != null) && (MeshManager.Inst.target == this)) {
+            if ((TexMGMT) && (MeshManager.Inst.target == this)) {
                     MeshManager.Inst.DisconnectMesh();
                     MeshManager.Inst.previouslyEdited = this;
             }
@@ -1781,7 +1783,7 @@ namespace Playtime_Painter{
 
         }
 
-        public override string playtimeWindowName {
+        public override string PlaytimeWindowName {
 		    get {
 			    return gameObject.name+" "+MaterialTexturePropertyName;
 		    }
@@ -2070,7 +2072,7 @@ namespace Playtime_Painter{
 
                 ToolManagementPEGI ();
 
-            if (isCurrentTool())  {
+            if (IsCurrentTool())  {
 
                 changed |= PEGI_MAIN().nl();
                 
@@ -2113,7 +2115,7 @@ namespace Playtime_Painter{
                     MeshManager.Inst.DRAW_Lines(true);
             }
 
-            if ((IsOriginalShader) && (!LockTextureEditing) && (last_MouseOver_Object == this) && isCurrentTool() && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
+            if ((IsOriginalShader) && (!LockTextureEditing) && (last_MouseOver_Object == this) && IsCurrentTool() && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
 
             if (plugins_GizmoDraw != null)
@@ -2127,7 +2129,7 @@ namespace Playtime_Painter{
 
         #region Mesh Editing 
 
-        public bool IsEditingThisMesh { get { return isCurrentTool() && meshEditing && (MeshManager.Inst.target == this); } }
+        public bool IsEditingThisMesh { get { return IsCurrentTool() && meshEditing && (MeshManager.Inst.target == this); } }
 
         public MeshManager MeshManager { get { return MeshManager.Inst; } }
 

@@ -39,6 +39,7 @@ namespace Playtime_Painter
     public class PainterStuffScriptable : ScriptableObject
     {
 
+        protected static PainterManagerDataHolder TexMGMTdata { get { return PainterManagerDataHolder.dataHolder; } }
         protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
@@ -66,6 +67,7 @@ namespace Playtime_Painter
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized();
 
+        protected static PainterManagerDataHolder TexMGMTdata { get { return PainterManagerDataHolder.dataHolder; } }
         protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
@@ -90,6 +92,7 @@ namespace Playtime_Painter
     [Serializable]
     public class PainterStuff {
 
+        protected static PainterManagerDataHolder TexMGMTdata { get { return PainterManagerDataHolder.dataHolder; } }
         protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }

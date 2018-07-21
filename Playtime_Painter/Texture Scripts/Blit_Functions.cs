@@ -160,7 +160,7 @@ public static class Blit_Functions {
             for (x = -ihalf; x < ihalf + 1; x++) {
                
                 if (_alphaMode())
-						_blitMode(ref pixels[image.pixelNo(tmp)]);
+						_blitMode(ref pixels[image.PixelNo(tmp)]);
                 
 					tmp.x += 1;
             }

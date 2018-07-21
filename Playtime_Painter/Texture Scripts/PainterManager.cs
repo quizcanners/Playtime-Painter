@@ -19,26 +19,33 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class PainterManager : PainterStuffMono, IPEGI, ISTD_SerializeNestedReferences
     {
+        
+        [SerializeField] PainterManagerDataHolder dataHolder;
 
-        [SerializeField]
-        public PainterConfig painterCfg;
+        public static PainterManagerDataHolder Data
+        {
+            get
+            {
+                if (!_inst)
+                    return PainterManagerDataHolder.dataHolder;
 
-        public string STDdata = "";
+                if (_inst.dataHolder == null)
+                    _inst.dataHolder = PainterManagerDataHolder.dataHolder;
 
-        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
-        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
-        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+                return _inst.dataHolder;
+            }
+        }
 
-        public MeshManager meshManager = new MeshManager();
+        static PainterManager _inst;
 
-        public PlaytimePainter focusedPainter;
-
-        public static PainterManager _inst;
         public static PainterManager Inst
         {
             get
             {
-                if (_inst == null) {
+                if (_inst == null)
+                {
+                    if (Data) _inst = Data.scenePainterManager;
+
                     if (!PainterStuff.applicationIsQuitting)
                     {
 
@@ -62,12 +69,34 @@ namespace Playtime_Painter
                             _inst.meshManager = new MeshManager();
 
                     }
-                    else { _inst = null;}
+                    else { _inst = null; }
                 }
                 return _inst;
             }
+
+            set
+            {
+                _inst = value;
+                if (Data)
+                    Data.scenePainterManager = value;
+            }
         }
 
+
+        [SerializeField]
+        public PainterConfig painterCfg;
+
+        public string STDdata = "";
+
+        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
+        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+
+        public MeshManager meshManager = new MeshManager();
+
+        public PlaytimePainter focusedPainter;
+
+ 
         public bool isLinearColorSpace;
 
         public const int renderTextureSize = 2048;
@@ -193,21 +222,6 @@ namespace Playtime_Painter
         public bool DebugDisableSecondBufferUpdate;
         public RenderBrush brushRendy = null;
 
-        // Brush shaders
-        public Shader br_Blit = null;
-        public Shader br_Add = null;
-        public Shader br_Copy = null;
-        public Shader pixPerfectCopy = null;
-        public Shader brushRendy_bufferCopy = null;
-        public Shader Blit_Smoothed = null;
-        public Shader br_Multishade = null;
-        public Shader br_BlurN_SmudgeBrush = null;
-        public Shader br_ColorFill = null;
-
-        public Shader mesh_Preview = null;
-        public Shader br_Preview = null;
-        public Shader TerrainPreview = null;
-
         public Material defaultMaterial;
 
         static Vector3 prevPosPreview;
@@ -244,8 +258,7 @@ namespace Playtime_Painter
         // Main Render Textures used for painting
         public RenderTexture[] BigRT_pair;
         public int bigRTversion = 0;
-
-
+        
         [NonSerialized]
         List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
         public RenderTexture GetNonSquareBuffer(int width, int height)
@@ -264,14 +277,14 @@ namespace Playtime_Painter
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Shader shade) => Downscale_ToBuffer(tex, width, height, null, shade);
 
-        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, brushRendy_bufferCopy);
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, Data.brushRendy_bufferCopy);
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material, Shader shader) {
 
             if (tex == null)
                 return null;
 
-            if (!shader) shader = brushRendy_bufferCopy;
+            if (!shader) shader = Data.brushRendy_bufferCopy;
 
             bool square = (width == height);
             if ((!square) || (!Mathf.IsPowerOfTwo(width)))
@@ -527,7 +540,7 @@ namespace Playtime_Painter
         {
             if (tex == null || id == null)
                 return;
-            brushRendy.Set(pixPerfectCopy);
+            brushRendy.Set(Data.pixPerfectCopy);
             Graphics.Blit(tex, id.CurrentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
 
             AfterRenderBlit(id.CurrentRenderTexture());
@@ -537,7 +550,7 @@ namespace Playtime_Painter
         
         public void Blit(Texture from, RenderTexture to)
         {
-           Blit(from, to, pixPerfectCopy);
+           Blit(from, to, Data.pixPerfectCopy);
 
            /* if (from == null) return;
             brushRendy.Set(pixPerfectCopy);
@@ -583,11 +596,11 @@ namespace Playtime_Painter
             return to;
         }
 
-        public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to , brushRendy_bufferCopy);
+        public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to , Data. brushRendy_bufferCopy);
 
-        public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.CurrentTexture(), to, brushRendy_bufferCopy);
+        public RenderTexture Render(ImageData from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushRendy_bufferCopy);
 
-        public RenderTexture Render(Texture from, ImageData to) => Render(from, to.CurrentRenderTexture(), brushRendy_bufferCopy);
+        public RenderTexture Render(Texture from, ImageData to) => Render(from, to.CurrentRenderTexture(), Data.brushRendy_bufferCopy);
 
         public void Render(Color col, RenderTexture to)
         {
@@ -608,7 +621,7 @@ namespace Playtime_Painter
 
         public void UpdateBufferTwo()
         {
-            brushRendy.Set(pixPerfectCopy);
+            brushRendy.Set(Data.pixPerfectCopy);
             Graphics.Blit(BigRT_pair[0], BigRT_pair[1]);
             secondBufferUpdated = true;
             bigRTversion++;
@@ -621,7 +634,7 @@ namespace Playtime_Painter
             {
                 brushRendy.Set(BigRT_pair[0]);
                 rtcam.targetTexture = BigRT_pair[1];
-                brushRendy.Set(brushRendy_bufferCopy);
+                brushRendy.Set(Data.brushRendy_bufferCopy);
                 Render();
                 secondBufferUpdated = true;
                 bigRTversion++;
@@ -635,8 +648,9 @@ namespace Playtime_Painter
 
             PainterStuff.applicationIsQuitting = false;
 
-            _inst = this;
-            
+            Inst = this;
+
+
             if (meshManager == null)
                 meshManager = new MeshManager();
            
@@ -706,30 +720,7 @@ namespace Playtime_Painter
             brushRendy.gameObject.layer = myLayer;
             
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
-            if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
-            
-            if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Editor/BufferBlit_Smooth");
-
-            if (brushRendy_bufferCopy == null) brushRendy_bufferCopy = Shader.Find("Editor/BufferCopier");
-
-            if (br_Blit == null) br_Blit = Shader.Find("Editor/br_Blit");
-
-            if (br_Add == null) br_Add = Shader.Find("Editor/br_Add");
-
-            if (br_Copy == null) br_Copy = Shader.Find("Editor/br_Copy");
-
-            if (br_Multishade == null) br_Multishade = Shader.Find("Editor/br_Multishade");
-
-            if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Editor/BlurN_SmudgeBrush");
-
-            if (br_ColorFill == null) br_ColorFill = Shader.Find("Editor/br_ColorFill");
-
-            if (br_Preview == null) br_Preview = Shader.Find("Editor/br_Preview");
-
-            if (mesh_Preview == null) mesh_Preview = Shader.Find("Editor/MeshEditorAssist");
-
-            //if (br_TerrainPreview == null) 
-            TerrainPreview = Shader.Find("Editor/TerrainPreview");
+           
 
             transform.position = Vector3.up * 3000;
             if (rtcam == null)
@@ -956,6 +947,14 @@ namespace Playtime_Painter
         [SerializeField] int inspectedImgData = -1;
         public override bool PEGI()
         {
+
+#if UNITY_EDITOR
+            if (Data == null)  {
+                "No data Holder detected".nl();
+                if ("Create".Click())
+                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterManagerDataHolder>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data");
+            }
+#endif
 
             pegi.nl();
 

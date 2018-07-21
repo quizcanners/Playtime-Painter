@@ -1311,7 +1311,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IeditorDropdown
+        public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
         {
 
 #if UNITY_EDITOR
@@ -1335,11 +1335,11 @@ namespace PlayerAndEditorGUI
                 if (clampValue)
                 {
                     i = i.ClampZeroTo(ar.Length);
-                    if (ar[i].showInDropdown() == false)
+                    if (ar[i].ShowInDropdown() == false)
                         for (int v = 0; v < ar.Length; v++)
                         {
                             T val = ar[v];
-                            if (val.showInDropdown())
+                            if (val.ShowInDropdown())
                             {
                                 i = v;
                                 changed = true;
@@ -1351,7 +1351,7 @@ namespace PlayerAndEditorGUI
                 for (int j = 0; j < ar.Length; j++)
                 {
                     T val = ar[j];
-                    if (val.showInDropdown())
+                    if (val.ShowInDropdown())
                     {
                         if (i == j) ind = ints.Count;
                         lnms.Add(val.ToPEGIstring());

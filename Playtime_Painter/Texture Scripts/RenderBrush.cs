@@ -193,7 +193,7 @@ namespace Playtime_Painter
                 {
 
                     if (shade == null)
-                        shade = TexMGMT.pixPerfectCopy;
+                        shade = TexMGMTdata.pixPerfectCopy;
                     Set(shade);
                     Set(tex);
                     TexMGMT.Render();
@@ -215,7 +215,7 @@ namespace Playtime_Painter
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
             meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
-            Set(TexMGMT.br_ColorFill).Set(col);
+            Set(TexMGMTdata.br_ColorFill).Set(col);
         }
         
         private void OnEnable()

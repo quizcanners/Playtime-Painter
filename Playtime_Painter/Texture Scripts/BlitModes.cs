@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public abstract class BlitMode : PainterStuff, IeditorDropdown
+    public abstract class BlitMode : PainterStuff, IEditorDropdown
     {
 
         private static List<BlitMode> _allModes;
@@ -25,7 +25,7 @@ namespace Playtime_Painter
             }
         }
 
-        public virtual bool showInDropdown() {
+        public virtual bool ShowInDropdown() {
 
             bool CPU = BrushConfig.InspectedIsCPUbrush;
 
@@ -108,8 +108,8 @@ namespace Playtime_Painter
         public virtual bool SupportedBySingleBuffer { get { return true; } }
         public virtual bool UsingSourceTexture { get { return false; } }
         public virtual bool ShowColorSliders { get { return true; } }
-        public virtual Shader ShaderForDoubleBuffer { get { return TexMGMT.br_Multishade; } }
-        public virtual Shader ShaderForSingleBuffer { get { return TexMGMT.br_Blit; } }
+        public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade; 
+        public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit; 
 #if PEGI
         public virtual bool PEGI() {
 
@@ -187,11 +187,11 @@ namespace Playtime_Painter
             static BlitModeAdd _inst;
             public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
 
-            public override string ToString() { return "Add"; }
-            protected override string ShaderKeyword { get { return "BRUSH_ADD"; } }
+            public override string ToString() => "Add"; 
+            protected override string ShaderKeyword => "BRUSH_ADD"; 
 
-            public override Shader ShaderForSingleBuffer { get { return TexMGMT.br_Add; } }
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AddBlit; } }
+            public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Add; 
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D => Blit_Functions.AddBlit; 
 
             public BlitModeAdd(int ind) : base(ind)
             {
@@ -215,13 +215,13 @@ namespace Playtime_Painter
 
         public class BlitModeCopy : BlitMode
         {
-            public override string ToString() { return "Copy"; }
-            protected override string ShaderKeyword { get { return "BRUSH_COPY"; } }
-            public override bool ShowColorSliders { get { return false; } }
+            public override string ToString() => "Copy"; 
+            protected override string ShaderKeyword => "BRUSH_COPY"; 
+            public override bool ShowColorSliders => false; 
 
-            public override bool SupportedByTex2D { get { return false; } }
-            public override bool UsingSourceTexture { get { return true; } }
-            public override Shader ShaderForSingleBuffer { get { return TexMGMT.br_Copy; } }
+            public override bool SupportedByTex2D => false; 
+            public override bool UsingSourceTexture => true; 
+            public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Copy; 
 
         public BlitModeCopy(int ind) : base(ind) { }
     }
@@ -246,13 +246,13 @@ namespace Playtime_Painter
 
         public class BlitModeBlur : BlitMode
         {
-            public override string ToString() { return "Blur"; }
-            protected override string ShaderKeyword { get { return "BRUSH_BLUR"; } }
-            public override bool ShowColorSliders { get { return false; } }
-            public override bool SupportedBySingleBuffer { get { return false; } }
-            public override bool SupportedByTex2D { get { return false; } }
+            public override string ToString() => "Blur"; 
+            protected override string ShaderKeyword => "BRUSH_BLUR"; 
+            public override bool ShowColorSliders => false; 
+            public override bool SupportedBySingleBuffer => false; 
+            public override bool SupportedByTex2D => false; 
 
-            public override Shader ShaderForDoubleBuffer { get { return TexMGMT.br_BlurN_SmudgeBrush; } }
+            public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
 #if PEGI
             public override bool PEGI()
             {
@@ -410,16 +410,16 @@ namespace Playtime_Painter
 
         public class BlitModeBloom : BlitMode
         {
-            public override string ToString() { return "Bloom"; }
-            protected override string ShaderKeyword { get { return "BRUSH_BLOOM"; } }
+            public override string ToString() => "Bloom"; 
+            protected override string ShaderKeyword => "BRUSH_BLOOM"; 
 
-            public override bool ShowColorSliders { get { return false; } }
-            public override bool SupportedBySingleBuffer { get { return false; } }
-            public override bool SupportedByTex2D { get { return false; } }
+            public override bool ShowColorSliders => false; 
+            public override bool SupportedBySingleBuffer => false; 
+            public override bool SupportedByTex2D => false; 
 
         public BlitModeBloom(int ind) : base(ind) { }
 
-        public override Shader ShaderForDoubleBuffer { get { return TexMGMT.br_BlurN_SmudgeBrush; } }
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
 #if PEGI
             public override bool PEGI()
             {

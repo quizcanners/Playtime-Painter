@@ -12,7 +12,7 @@ public enum VolumetricDecalType {Add, Dent}
 
 
 [Serializable]
-public class VolumetricDecal : IeditorDropdown {
+public class VolumetricDecal : IEditorDropdown {
     public String decalName;
     public VolumetricDecalType type;
     public Texture2D heightMap;
@@ -26,7 +26,7 @@ public class VolumetricDecal : IeditorDropdown {
 
 
 
-	public bool showInDropdown() {
+	public bool ShowInDropdown() {
         return ((heightMap != null) && (overlay != null));
     }
 }
