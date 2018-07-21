@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f00a24d0cf2bc1419989e56fe129b03, type: 3}
+  m_Name: Painter_Data
+  m_EditorClassIdentifier: 
+  _nestedReferences: []
+  explorer:
+    states: []
+    inspectedState: -1
+    fileFolderHolder: STDEncodes
+    SaveToFileOptions: 0
+  showDebug: 0
+  inspectedStuff: -1
+  inspectedReference: -1
+  scenePainterManager: {fileID: 0}
+  br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
+  br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
+  br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
+  pixPerfectCopy: {fileID: 4800000, guid: 2c53ba0be849dbf4aa4be3323d13167c, type: 3}
+  brushRendy_bufferCopy: {fileID: 4800000, guid: 5d4c30d1d90b10244bd976b05af957a9,
+    type: 3}
+  Blit_Smoothed: {fileID: 4800000, guid: 7d5254122746ac1459eacee12007478c, type: 3}
+  br_Multishade: {fileID: 4800000, guid: 33684419dd9bb2846b34f5ad27c14ebf, type: 3}
+  br_BlurN_SmudgeBrush: {fileID: 4800000, guid: 84f2bad6db8604a46b3073f13f79c839,
+    type: 3}
+  br_ColorFill: {fileID: 4800000, guid: 84c227f7b81af824eb575393648fa7a0, type: 3}
+  mesh_Preview: {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
+  br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
+  TerrainPreview: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}

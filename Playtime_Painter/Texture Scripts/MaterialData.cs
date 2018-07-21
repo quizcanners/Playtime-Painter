@@ -10,9 +10,6 @@ namespace Playtime_Painter
     public class MaterialData : IPEGI
     {
 
-      //  public static MaterialData lastFetched;
-      //  public static Material lastFetchedFor;
-
         public static int inspectedMaterial = -1;
         public static bool showMatDatas;
 

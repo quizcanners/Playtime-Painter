@@ -100,6 +100,8 @@ namespace SharedTools_Stuff
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
 
+                this.clickHighlight();
+
                 if (inspectedStuff == -1)
                     pegi.nl();
 

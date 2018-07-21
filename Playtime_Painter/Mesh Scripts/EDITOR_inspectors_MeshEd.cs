@@ -19,5 +19,12 @@ namespace Playtime_Painter
     {
         public override void OnInspectorGUI() => ((PainterManager)target).Inspect(serializedObject);
     }
+
+   /* [CustomEditor(typeof(PainterManagerDataHolder ))]
+    public class PainterManagerDataHolderEditor : Editor
+    {
+        public override void OnInspectorGUI() => ((PainterManagerDataHolder)target).Inspect_so(serializedObject);
+    }*/
+
 }
 #endif

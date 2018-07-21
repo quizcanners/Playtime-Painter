@@ -650,12 +650,6 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c7ec0cf439a55fa47bb3d344c1d4616c, type: 2}
   m_IsPrefabAsset: 0
---- !u!114 &248863023 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
-    type: 2}
-  m_PrefabInternal: {fileID: 1728036927}
-  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
 --- !u!1001 &293357181
 Prefab:
   m_ObjectHideFlags: 0
@@ -1799,6 +1793,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d12a17cafa5c145a6a83e8c6f744ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
   painterCfg:
     meshToolsSTD: e|115|e|16|cat|1|0|cac|1|0||e|8|inM|1|n||e|23|v|1|1|doCol|1|n|fe|1|n||e|0||e|40|gtuv|1|n|offset|0||tile|12|x|1|1|y|1|1||||
     allowEditingInFinalBuild: 0
@@ -2236,9 +2231,7 @@ MonoBehaviour:
     selectedSize: 4
     recordingNames: []
     browsedRecord: 0
-  STDdata: imgs|138|e|131|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|||
-  _nestedReferences:
-  - {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
+  STDdata: imgs|413|e|131|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL||e|130|dst|1|0|tex2D|1|1|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight||e|131|dst|1|0|tex2D|1|2|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|||
   meshManager:
     editedUV: 0
     previouslyEdited: {fileID: 0}
@@ -2247,15 +2240,9 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     GizmoLines: 1
-  focusedPainter: {fileID: 248863023}
+  focusedPainter: {fileID: 1728036928}
   isLinearColorSpace: 1
   matDatas:
-  - material: {fileID: 2100000, guid: e829d7372209603439bb14bd0754fcab, type: 2}
-    _selectedTexture: 0
-    usePreviewShader: 0
-    materials_TextureFields:
-    - _MainTex_ATL
-    - _BumpMapC_ATL
   - material: {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
     _selectedTexture: 0
     usePreviewShader: 0
@@ -2288,6 +2275,12 @@ MonoBehaviour:
     materials_TextureFields:
     - _MainTex
     - _BumpMapC
+  - material: {fileID: 2100000, guid: e829d7372209603439bb14bd0754fcab, type: 2}
+    _selectedTexture: 0
+    usePreviewShader: 0
+    materials_TextureFields:
+    - _MainTex_ATL
+    - _BumpMapC_ATL
   sourceTextures:
   - {fileID: 2800000, guid: 319e4c66e8837cc4486d5c61f4a93cc0, type: 3}
   - {fileID: 2800000, guid: 5e86b369a34809646abe936354e61806, type: 3}
@@ -2320,20 +2313,6 @@ MonoBehaviour:
     type: 2}
   DebugDisableSecondBufferUpdate: 0
   brushRendy: {fileID: 1411142340}
-  br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
-  br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
-  br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
-  pixPerfectCopy: {fileID: 4800000, guid: 2c53ba0be849dbf4aa4be3323d13167c, type: 3}
-  brushRendy_bufferCopy: {fileID: 4800000, guid: 5d4c30d1d90b10244bd976b05af957a9,
-    type: 3}
-  Blit_Smoothed: {fileID: 4800000, guid: 7d5254122746ac1459eacee12007478c, type: 3}
-  br_Multishade: {fileID: 4800000, guid: 33684419dd9bb2846b34f5ad27c14ebf, type: 3}
-  br_BlurN_SmudgeBrush: {fileID: 4800000, guid: 84f2bad6db8604a46b3073f13f79c839,
-    type: 3}
-  br_ColorFill: {fileID: 4800000, guid: 84c227f7b81af824eb575393648fa7a0, type: 3}
-  mesh_Preview: {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
-  br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
-  TerrainPreview: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   BigRT_pair:
   - {fileID: 1146093982}
@@ -4323,6 +4302,12 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 2}
   m_IsPrefabAsset: 0
+--- !u!114 &1728036928 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+    type: 2}
+  m_PrefabInternal: {fileID: 1728036927}
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
 --- !u!114 &1729016031
 MonoBehaviour:
   m_ObjectHideFlags: 0

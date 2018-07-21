@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PlayerAndEditorGUI;
 
 
 namespace Playtime_Painter
@@ -27,6 +28,14 @@ namespace Playtime_Painter
         public Shader mesh_Preview = null;
         public Shader br_Preview = null;
         public Shader TerrainPreview = null;
+
+        public override bool PEGI()
+        {
+            bool changed =  base.PEGI();
+
+            "Painter Data".nl();
+            return changed;
+        }
 
         public void OnEnable()
         {
@@ -59,7 +68,7 @@ namespace Playtime_Painter
             TerrainPreview = Shader.Find("Editor/TerrainPreview");
 #endif
 
-            Debug.Log("Painter Manager Enabled");
+           // Debug.Log("Painter Manager Enabled");
 
         }
     }

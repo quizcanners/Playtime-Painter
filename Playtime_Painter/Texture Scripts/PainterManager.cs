@@ -17,7 +17,7 @@ namespace Playtime_Painter
 {
     
     [ExecuteInEditMode]
-    public class PainterManager : PainterStuffMono, IPEGI, ISTD_SerializeNestedReferences
+    public class PainterManager : PainterStuffMono, IPEGI, IKeepMySTD
     {
         
         [SerializeField] PainterManagerDataHolder dataHolder;
@@ -88,15 +88,23 @@ namespace Playtime_Painter
 
         public string STDdata = "";
 
-        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
-        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
-        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+        public string config_STD
+        {
+            get
+            {
+                return STDdata;
+            }
+
+            set
+            {
+                STDdata = value;
+            }
+        }
 
         public MeshManager meshManager = new MeshManager();
 
         public PlaytimePainter focusedPainter;
-
- 
+        
         public bool isLinearColorSpace;
 
         public const int renderTextureSize = 2048;
@@ -170,7 +178,7 @@ namespace Playtime_Painter
                 return _plugins;
             }
         }
-
+        
         public void RefreshPlugins()
         {
 
@@ -778,7 +786,6 @@ namespace Playtime_Painter
 
         public override StdEncoder Encode()
         {
-            
             for (int i = 0; i < imgDatas.Count; i++) {
                 var id = imgDatas[i];
                 if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
@@ -789,18 +796,16 @@ namespace Playtime_Painter
                 if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
             }
 
-            var cody = this.EncodeUnrecognized().Add("imgs", imgDatas, this);
+            var cody = this.EncodeUnrecognized().Add("imgs", imgDatas, Data);
 
             return cody;
         }
 
         public override bool Decode(string tag, string data)
         {
-            switch (tag)
-            {
-                case "imgs": data.DecodeInto(out imgDatas, this); break;
+            switch (tag) {
+                case "imgs": data.DecodeInto(out imgDatas, Data); break;
                 default: return false;
-
             }
              return true;            
         }
@@ -949,10 +954,20 @@ namespace Playtime_Painter
         {
 
 #if UNITY_EDITOR
-            if (Data == null)  {
-                "No data Holder detected".nl();
-                if ("Create".Click())
-                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterManagerDataHolder>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data");
+            if (Data == null)
+            {
+                "No data Holder detected".edit(ref dataHolder);
+                if ("Create".Click().nl())
+                {
+                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterManagerDataHolder>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                }
+            }
+            else if ("Delete data".Click().nl())
+            {
+                PainterManagerDataHolder.dataHolder = null;
+                dataHolder = null;
             }
 #endif
 
@@ -961,6 +976,10 @@ namespace Playtime_Painter
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return false; }
+
+
+            if (Data)
+                Data.Nested_Inspect().nl();
 
             if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
                 "Image Datas".edit_List(imgDatas, ref inspectedImgData, true);
