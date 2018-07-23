@@ -3524,23 +3524,31 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        static string sliderText (this string label, float val) => (paintingPlayAreaGUI) ? label + " [" + val.ToString() + "]" :  label;
+        static void sliderText(this string label, float val, string tip, int width)
+        {
+            if (paintingPlayAreaGUI)
+                write(label + " [" + val.ToString() + "]", width);
+            else
+                write(label);
+        }
         
         public static bool edit(this string label, ref float val, float min, float max)
         {
-            write(label.sliderText(val));
+            label.sliderText(val, label, 90);
+
             return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, ref int val, int min, int max)
         {
-            write(label.sliderText(val));
+
+           label.sliderText(val, label, 90);
             return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, int width, ref int val, int min, int max)
         {
-            write(label.sliderText(val), width);
+            label.sliderText(val, label, width);
             return edit(ref val, min, max);
         }
 
@@ -3552,19 +3560,19 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
         {
-            write(label.sliderText(val), tip, width);
+            label.sliderText(val, tip, width);
             return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, int width, ref float val, float min, float max)
         {
-            write(label.sliderText(val), width);
+            label.sliderText(val, label, width);
             return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, string tip, int width, ref float val, float min, float max)
         {
-            write(label.sliderText(val), tip, width);
+            label.sliderText(val, tip, width);
             return edit(ref val, min, max);
         }
 
