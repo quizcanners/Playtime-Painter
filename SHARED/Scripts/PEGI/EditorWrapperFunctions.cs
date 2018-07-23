@@ -765,58 +765,6 @@ namespace PlayerAndEditorGUI {
             return (val != pre) ? change : false;
         }
 
-        static int editedIntegerIndex;
-        static int editedInteger;
-        public static bool editDelayed(ref int val, int width)
-        {
-            checkLine();
-
-            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
-            {
-                EditorGUILayout.IntField(val, GUILayout.Width(width));
-                val = editedInteger;
-                elementIndex++;
-                return change;
-            }
-
-            int tmp = val;
-            if (edit(ref tmp))
-            {
-                editedInteger = tmp;
-                editedIntegerIndex = elementIndex;
-            }
-
-            elementIndex++;
-
-            return false;//(String.Compare(before, text) != 0);
-        }
-
-        public static bool editDelayed(ref int val)
-        {
-            checkLine();
-
-            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
-            {
-
-
-                EditorGUILayout.IntField(val);
-                val = editedInteger;
-                elementIndex++;
-                return change;
-            }
-
-            int tmp = val;
-            if (edit(ref tmp))
-            {
-                editedInteger = tmp;
-                editedIntegerIndex = elementIndex;
-            }
-
-            elementIndex++;
-
-            return false;//(String.Compare(before, text) != 0);
-        }
-
         public static bool edit(string name, ref AnimationCurve val) {
 
             BeginCheckLine();
@@ -947,7 +895,86 @@ namespace PlayerAndEditorGUI {
 
             return false;//(String.Compare(before, text) != 0);
         }
+        
+        static int editedIntegerIndex;
+        static int editedInteger;
+        public static bool editDelayed(ref int val, int width)
+        {
+            checkLine();
 
+            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
+            {
+                EditorGUILayout.IntField(val, GUILayout.Width(width));
+                val = editedInteger;
+                elementIndex++; editedIntegerIndex = -1;
+                return change;
+            }
+
+            int tmp = val;
+            if (edit(ref tmp))
+            {
+                editedInteger = tmp;
+                editedIntegerIndex = elementIndex;
+            }
+
+            elementIndex++;
+
+            return false;//(String.Compare(before, text) != 0);
+        }
+
+        static int editedFloatIndex;
+        static float editedFloat;
+        public static bool editDelayed(ref float val, int width)
+        {
+            checkLine();
+
+            if (KeyCode.Return.IsDown() && (elementIndex == editedFloatIndex))
+            {
+                EditorGUILayout.FloatField(val, GUILayout.Width(width));
+                val = editedFloat;
+                elementIndex++;
+                editedFloatIndex = -1;
+                return change;
+            }
+
+            var tmp = val;
+            if (edit(ref tmp))
+            {
+                editedFloat = tmp;
+                editedFloatIndex = elementIndex;
+            }
+
+            elementIndex++;
+
+            return false;//(String.Compare(before, text) != 0);
+        }
+
+        public static bool editDelayed(ref int val)
+        {
+            checkLine();
+
+            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
+            {
+
+
+                EditorGUILayout.IntField(val);
+                val = editedInteger;
+                elementIndex++;
+                return change;
+            }
+
+            int tmp = val;
+            if (edit(ref tmp))
+            {
+                editedInteger = tmp;
+                editedIntegerIndex = elementIndex;
+            }
+
+            elementIndex++;
+
+            return false;//(String.Compare(before, text) != 0);
+        }
+        
         public static bool edit(Sentance val)
         {
             string before = val.ToString();

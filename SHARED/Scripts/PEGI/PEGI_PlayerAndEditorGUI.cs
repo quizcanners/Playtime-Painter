@@ -3226,13 +3226,16 @@ namespace PlayerAndEditorGUI
 
                 checkLine();
 
-                int tmp = val;
+                int tmp = (editedIntegerIndex == elementIndex) ? editedInteger : val;
 
                 if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
                 {
                     edit(ref tmp);
                     val = editedInteger;
+                    editedIntegerIndex = -1;
+
                     elementIndex++;
+
                     return true;
                 }
 
@@ -3248,6 +3251,54 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
+
+
+
+        static string editedFloat;
+        static int editedFloatIndex;
+        public static bool editDelayed(ref float val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editDelayed(ref val, width);
+            }
+            else
+#endif
+            {
+
+                checkLine();
+
+                string tmp = (editedFloatIndex == elementIndex) ? editedFloat : val.ToString();
+
+                if (KeyCode.Return.IsDown() && (elementIndex == editedFloatIndex))
+                {
+                    edit(ref tmp);
+
+                    float newValue;
+                    if (float.TryParse(editedFloat, out newValue))
+                        val = newValue;
+                    elementIndex++;
+
+                    editedFloatIndex = -1;
+
+                    return true;
+                }
+
+
+                if (edit(ref tmp))
+                {
+                    editedFloat = tmp;
+                    editedFloatIndex = elementIndex;
+                }
+
+                elementIndex++;
+
+                return false;
+            }
+        }
+
 
         public static bool edit(ref string val)
         {
