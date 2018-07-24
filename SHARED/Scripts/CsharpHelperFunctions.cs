@@ -24,6 +24,8 @@ namespace SharedTools_Stuff
     {
         static Stopwatch stopWatch = new Stopwatch();
 
+        public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
+
         public static void Log(this string text)
         {
 

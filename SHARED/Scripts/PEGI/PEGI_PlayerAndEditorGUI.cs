@@ -61,10 +61,11 @@ public interface IGotIndex
 
 #endregion
 
-#if PEGI
+
 #pragma warning disable IDE1006 // Naming Styles
 namespace PlayerAndEditorGUI
 {
+#if PEGI
     public static class pegi
     {
 
@@ -3251,9 +3252,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-
-
-
+        
         static string editedFloat;
         static int editedFloatIndex;
         public static bool editDelayed(ref float val, int width)
@@ -5069,14 +5068,11 @@ namespace PlayerAndEditorGUI
 
             }*/
     }
-
+#endif
 
     #region Extensions
     public static class PEGI_Extensions
     {
-
-        public static int focusInd;
-
         public static string ToPEGIstring(this object obj)
         {
 
@@ -5109,6 +5105,9 @@ namespace PlayerAndEditorGUI
             return ind == -1 ? name : name.Substring(ind + 1);
         }
 
+#if PEGI
+        public static int focusInd;
+        
         public static bool EfChanges
         {
             get
@@ -5250,7 +5249,7 @@ namespace PlayerAndEditorGUI
 
             return default(T);
         }
-
+#endif
     }
     #endregion
 
@@ -5259,6 +5258,6 @@ namespace PlayerAndEditorGUI
 
 }
 #pragma warning restore IDE1006 // Naming Styles
-#endif
+
 
 
