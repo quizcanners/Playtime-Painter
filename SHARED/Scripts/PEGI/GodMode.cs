@@ -34,24 +34,6 @@ namespace PlayerAndEditorGUI {
         // Update is called once per frame
         protected float rotationY;
 
-#if UNITY_EDITOR
-
-        [MenuItem("Tools/" + "PEGI" + "/Enable")]
-        public static void EnablePegi()
-        {
-            UnityHelperFunctions.SetDefine("PEGI", true);
-            UnityHelperFunctions.SetDefine("NO_PEGI", false);
-        }
-
-        [MenuItem("Tools/" + "PEGI" + "/Disable")]
-        public static void DisablePegi()
-        {
-            UnityHelperFunctions.SetDefine("PEGI", false);
-            UnityHelperFunctions.SetDefine("NO_PEGI", true);
-        }
-
-#endif
-
         public virtual void Update()
         {
 

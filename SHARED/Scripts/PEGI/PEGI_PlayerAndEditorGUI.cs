@@ -4715,11 +4715,54 @@ namespace PlayerAndEditorGUI
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
 
-
             newLine();
             return added;
         }
 
+        public static T edit_List<T>(this string label, List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T : new() {
+            label.write_ListLabel(list, -1);
+            return edit_List<T>(list, allowDelete, ref changed, lambda);
+        }
+
+
+        public static T edit_List<T>(this List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T : new()
+        {
+
+            T added = default(T);
+
+            if (list == null)
+            {
+                "Empty List".nl();
+                return added;
+            }
+
+                changed |= list.edit_List_Order(allowDelete);
+
+                if (list != editingOrder)
+                {
+                    changed |= list.ListAddClick(ref added);
+                    list.InspectionStart();
+                for (int i = ListSectionStartIndex; i < ListSectionMax; i++)
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+                    if ((el != null && !el.Equals(before)) || (el == null && before != null))
+                    {
+                        list[i] = el;
+                        changed = true;
+                    }
+                    nl();
+                }
+
+                    list.InspectionEnd();
+
+                    nl();
+                }
+      
+            newLine();
+            return added;
+        }
 
         // ...... of not New
         public static bool write_List<T>(this string label, List<T> list)

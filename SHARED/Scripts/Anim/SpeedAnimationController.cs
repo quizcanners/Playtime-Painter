@@ -6,7 +6,7 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 using STD_Logic;
 
-    namespace STD_Animations
+namespace STD_Animations
 {
 
     [ExecuteInEditMode]
@@ -83,6 +83,7 @@ using STD_Logic;
         }
 
         // Management
+        bool setFirstFrame;
         [NonSerialized] bool isPaused;
         [NonSerialized] bool playInEditor;
 
@@ -99,7 +100,8 @@ using STD_Logic;
             .Add("MaxSpeed", maxSpeed)
             .Add("src", (int)speedSource)
             .Add("Nextind", indexForNewObject)
-            .Add("KeyElement", keyElementIndex);
+            .Add("KeyElement", keyElementIndex)
+            .Add_Bool("first", setFirstFrame);
 
         public override bool Decode(string tag, string data)
         {
@@ -111,6 +113,7 @@ using STD_Logic;
                 case "KeyElement": keyElementIndex = data.ToInt(); break;
                 case "frames": data.DecodeInto(out frames); break;
                 case "Nextind": indexForNewObject = data.ToInt(); break;
+                case "first": setFirstFrame = data.ToBool(); break;
                 case "elm":
                     List<AnimatedElement> tmp;
                     data.DecodeInto(out tmp, this);
@@ -125,10 +128,17 @@ using STD_Logic;
                             elements[v.IndexForPEGI].Decode(v.Encode());
                     }
                     break;
-          
+
                 default: return false;
             }
             return true;
+        }
+
+        public override ISTD Decode(string data)
+        {
+            frameIndex = 0;
+
+            return base.Decode(data);
         }
 
         void Update()
@@ -155,7 +165,13 @@ using STD_Logic;
 
                 if (CurrentFrame != null)
                 {
-                    float delta = CurrentFrame.GetDelta();
+
+                    float delta;
+
+                    if (frameIndex == 0 && setFirstFrame)
+                        delta = 1;
+                    else
+                        delta = CurrentFrame.GetDelta();
 
                     foreach (var el in elementsUnsorted)
                         el.Animate(delta);
@@ -221,9 +237,10 @@ using STD_Logic;
                 }
                 pegi.newLine();
 
-
-
                 ("Current: " + (frameIndex + 1) + " of " + frames.Count).nl();
+
+                if (frameIndex == 0)
+                    "Set First Frame".toggle("Will first frame be set instead of transitioned to", 90, ref setFirstFrame).nl();
 
                 if (frameIndex > 0)
                 {
@@ -309,10 +326,6 @@ using STD_Logic;
                         }
                     }
                 }
-
-
-
-
 
                 if (CurrentFrame != null)
                 {
@@ -452,26 +465,29 @@ using STD_Logic;
 
 
     }
-    
+
     public interface ICallAfterIFinish
     {
         void SetCallback(Action OnFinish);
     }
 
     public enum SpeedSource { position, scale, shaderVal, rotation }
-    
+
     public static class STD_AnimationExtensions
     {
-        public static void DecodeFrame (this IAnimated_STD_PEGI obj, string data) {
-            if (obj != null) {
+        public static void DecodeFrame(this IAnimated_STD_PEGI obj, string data)
+        {
+            if (obj != null)
+            {
                 var cody = new StdDecoder(data);
                 foreach (var tag in cody)
                     obj.DecodeFrame(tag, cody.GetData());
             }
         }
-    } 
+    }
 
-    public interface IAnimated_STD_PEGI {
+    public interface IAnimated_STD_PEGI
+    {
         StdEncoder EncodeFrame();
         bool DecodeFrame(string tag, string data);
 #if PEGI
@@ -479,15 +495,16 @@ using STD_Logic;
 #endif
     }
 
-    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD , IPEGI
+    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD, IPEGI
     {
 
         public SpeedAnimationController Mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
 
         public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
-        
-        public override StdEncoder Encode() {
-            var cody =this.EncodeUnrecognized()
+
+        public override StdEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized()
             .Add("lpos", localPos.Encode())
             .Add("lsize", LocalScale.Encode())
             .Add("lrot", localRotation.Encode())
@@ -512,8 +529,10 @@ using STD_Logic;
         public SpeedSource frameSpeedSource = SpeedSource.position;
         public bool isOverrideSpeed;
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
                 case "lpos": data.DecodeInto(out localPos); break;
                 case "lsize": data.DecodeInto(out LocalScale); break;
                 case "lrot": data.DecodeInto(out localRotation); break;
@@ -528,7 +547,8 @@ using STD_Logic;
         }
 
 #if PEGI
-        public override bool PEGI() {
+        public override bool PEGI()
+        {
 
             pegi.nl();
 
@@ -552,7 +572,8 @@ using STD_Logic;
             return false;
         }
 #endif
-        public float GetDelta() {
+        public float GetDelta()
+        {
 
             float speed = isOverrideSpeed ? frameSpeed : Mgmt.FrameSpeed;
 
@@ -565,20 +586,23 @@ using STD_Logic;
 
             if (key == null)
                 return 0;
-            
+
             float distance = 0;
-            switch (speedSource) {
+            switch (speedSource)
+            {
                 case SpeedSource.scale: distance = key.DeltaLocalScale.magnitude; break;
                 case SpeedSource.shaderVal: distance = Mathf.Abs(key.DeltaShaderValue); break;
                 case SpeedSource.rotation: distance = Mathf.Abs(key.AngleOfDeltaLocalRotation); break;
                 default: distance = key.DeltaLocalPos.magnitude; break;
             }
 
-            return distance > 0 ? Mathf.Clamp01(speed*Time.deltaTime / distance) : 1;
+            return distance > 0 ? Mathf.Clamp01(speed * Time.deltaTime / distance) : 1;
         }
-        
-        public SpeedAnimationFrame(SpeedAnimationFrame other) {
-            if (other != null) {
+
+        public SpeedAnimationFrame(SpeedAnimationFrame other)
+        {
+            if (other != null)
+            {
                 other.localPos.Encode().ToString().DecodeInto(out localPos);
                 other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
                 other.localRotation.Encode().ToString().DecodeInto(out localRotation);
@@ -589,13 +613,14 @@ using STD_Logic;
             }
         }
 
-        public SpeedAnimationFrame() {
+        public SpeedAnimationFrame()
+        {
 
         }
     }
-    
+
     //[Serializable]
-    public class AnimatedElement : AbstractKeepUnrecognized_STD  ,IPEGI, IGotName, IGotIndex
+    public class AnimatedElement : AbstractKeepUnrecognized_STD, IPEGI, IGotName, IGotIndex
 
     {
         [NonSerialized] MaterialPropertyBlock props;
@@ -606,7 +631,7 @@ using STD_Logic;
         [SerializeField] int index;
 
         public int IndexForPEGI { get { return index; } set { index = value; } }
-        
+
         [SerializeField] string _name;
         public string NameForPEGI { get { return _name; } set { _name = value; } }
         public Transform transform;
@@ -624,7 +649,8 @@ using STD_Logic;
             .Add_Referance("tf", transform)
             .Add_Referance("ren", rendy)
             .Add_Referance("scrpt", script);
-            if (script) {
+            if (script)
+            {
                 var asp = script as ISTD;
                 if (asp != null)
                     cody.Add("stdDTA", asp.Encode());
@@ -633,55 +659,71 @@ using STD_Logic;
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
-            switch (tag)  {
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
                 case "i": index = data.ToInt(); break;
                 case "n": _name = data; break;
                 case "prop": propertyName = data; break;
                 case "stdDTA": data.TryDecodeInto(script); break;
                 case "tf": data.Decode_Referance(ref transform); break;
-                case "ren": data.Decode_Referance(ref rendy);  break;
-                case "scrpt":  data.Decode_Referance(ref script); break;
+                case "ren": data.Decode_Referance(ref rendy); break;
+                case "scrpt": data.Decode_Referance(ref script); break;
                 default: return false;
             }
 
             return true;
         }
 
-        public Vector3 LocalPos { get {
+        public Vector3 LocalPos
+        {
+            get
+            {
                 return Frame.localPos[index];
-            } set { Frame.localPos[index] = value; } }
-        public Vector3 LocalScale { get { return Frame.LocalScale[IndexForPEGI ]; } set { Frame.LocalScale[index] = value; } }
-        public string CustomData { get { return Frame.customData[IndexForPEGI ]; } set { Frame.customData[index] = value; } }
+            }
+            set { Frame.localPos[index] = value; }
+        }
+        public Vector3 LocalScale { get { return Frame.LocalScale[IndexForPEGI]; } set { Frame.LocalScale[index] = value; } }
+        public string CustomData { get { return Frame.customData[IndexForPEGI]; } set { Frame.customData[index] = value; } }
         public Quaternion LocalRotation { get { return Frame.localRotation[IndexForPEGI]; } set { Frame.localRotation[IndexForPEGI] = value; } }
-        public float ShaderValue { get {
+        public float ShaderValue
+        {
+            get
+            {
                 return Frame.shaderValue[index];
-            } set {
+            }
+            set
+            {
                 Frame.shaderValue[index] = value;
             }
         }
 
         public Vector3 DeltaLocalPos { get { if (!transform) return Vector3.zero; return transform.localPosition - LocalPos; } }
         public Vector3 DeltaLocalScale { get { if (!transform) return Vector3.zero; return transform.localScale - LocalScale; } }
-        public float AngleOfDeltaLocalRotation { get { if (!transform) return 0; return  Quaternion.Angle(transform.localRotation, LocalRotation); } }
+        public float AngleOfDeltaLocalRotation { get { if (!transform) return 0; return Quaternion.Angle(transform.localRotation, LocalRotation); } }
         public float DeltaShaderValue { get { return currentShaderValue - ShaderValue; } }
         public IAnimated_STD_PEGI AnimSTD => script as IAnimated_STD_PEGI;
 
 
-        public void SetCurrentShaderValue(float value) {
-            
+        public void SetCurrentShaderValue(float value)
+        {
+
             currentShaderValue = value;
-            if (rendy) {
+            if (rendy)
+            {
                 if (props == null) props = new MaterialPropertyBlock();
                 props.SetFloat(propertyName, value);
                 rendy.SetPropertyBlock(props);
             }
         }
-        
-        public void Animate(float portion) {
+
+        public void Animate(float portion)
+        {
             if (portion == 1)
                 Set();
-            else {
+            else
+            {
                 if (transform)
                 {
                     transform.localPosition -= DeltaLocalPos * portion;
@@ -696,7 +738,8 @@ using STD_Logic;
 
         public void Set()
         {
-            if (transform) {
+            if (transform)
+            {
                 transform.localPosition = LocalPos;
                 transform.localScale = LocalScale;
                 transform.localRotation = LocalRotation;
@@ -706,12 +749,14 @@ using STD_Logic;
 
             AnimSTD.DecodeFrame(CustomData);
         }
-        
-        public void Record() {
+
+        public void Record()
+        {
             if (Mgmt.CurrentFrame == null)
                 return;
 
-            if (transform != null) {
+            if (transform != null)
+            {
                 LocalPos = transform.localPosition;
                 LocalScale = transform.localScale;
                 LocalRotation = transform.localRotation;
@@ -719,21 +764,22 @@ using STD_Logic;
             if (rendy)
                 ShaderValue = currentShaderValue;
 
-            
+
             var asp = AnimSTD;
-            if (asp != null) 
-                    CustomData = asp.EncodeFrame().ToString();
-            
+            if (asp != null)
+                CustomData = asp.EncodeFrame().ToString();
+
         }
 
-            #if PEGI
+#if PEGI
         [SerializeField] bool transformInLocalSpace = true;
         [SerializeField] bool showDependencies = true;
-        public override bool PEGI() {
+        public override bool PEGI()
+        {
             inspectedAnimatedObject = this;
 
             var key = Mgmt.KeyElement;
-            
+
             if (this.inspect_Name().nl() && transform)
                 transform.name = NameForPEGI;
 
@@ -763,20 +809,21 @@ using STD_Logic;
                 if (pegi.edit(ref currentShaderValue, 0, 1).nl())
                     SetCurrentShaderValue(currentShaderValue);
             }
-            
+
             (script as IAnimated_STD_PEGI)?.Frame_PEGI().nl();
-            
-            if (transform) {
+
+            if (transform)
+            {
                 transform.PEGI_CopyPaste(ref transformInLocalSpace);
                 transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
             }
-   
+
             inspectedAnimatedObject = null;
 
             return false;
         }
 #endif
-        
+
     }
-    
+
 }
