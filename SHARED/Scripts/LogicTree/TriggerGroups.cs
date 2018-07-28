@@ -32,7 +32,6 @@ namespace STD_Logic
             }
         }
 
-
         static int browsedGroup = -1;
         public static TriggerGroup Browsed
         {
@@ -68,10 +67,8 @@ namespace STD_Logic
         string name = "Unnamed_Triggers";
         int index;
 
-
         public int IndexForPEGI { get { return index; } set { index = value; } }
 
-        
         public string NameForPEGI { get { return name; } set { name = value; } }
         
         public override string ToString() => name;
@@ -163,21 +160,15 @@ namespace STD_Logic
                 s.Save(path);
         }
 
-        public void Save(string path)
-        {
-            this.SaveToAssets(path, name);
-        }
+        public void Save(string path) => this.SaveToAssets(path, name);
+        
 
         public static void LoadAll(string path) {
             foreach (TriggerGroup s in all)
                 s.Load(path);
         }
 
-        public void Load(string path)
-        {
-              this.LoadFromAssets(path, name);
-
-        }
+        public void Load(string path) => this.LoadFromAssets(path, name);
 
 #if PEGI
 
