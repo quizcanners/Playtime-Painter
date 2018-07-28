@@ -69,6 +69,7 @@ namespace SharedTools_Stuff
 
     public class STD_ReferancesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD
     {
+
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
@@ -76,15 +77,15 @@ namespace SharedTools_Stuff
         
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
-        public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
+        public virtual int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
         
-        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+        public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
-        public StdEncoder Encode() => this.EncodeUnrecognized();
+        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
 
-        public ISTD Decode(string data) => data.DecodeInto(this);
+        public virtual ISTD Decode(string data) => data.DecodeInto(this);
 
-        public bool Decode(string tag, string data) => false;
+        public virtual bool Decode(string tag, string data) => false;
         
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 

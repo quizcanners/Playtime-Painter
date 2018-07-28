@@ -7,12 +7,8 @@ using PlayerAndEditorGUI;
 
 namespace STD_Logic
 {
-
     
-
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName , IPEGI
-
-        {
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName , IPEGI {
 
         public enum ConditionBranchType { OR, AND }
 
@@ -133,7 +129,6 @@ namespace STD_Logic
         
         int browsedBranch = -1;
 
-
 #if PEGI
         static string path;
         static bool isCalledFromAnotherBranch = false;
@@ -201,8 +196,4 @@ namespace STD_Logic
 #endif
 
     }
-
-   
-
- 
 }
