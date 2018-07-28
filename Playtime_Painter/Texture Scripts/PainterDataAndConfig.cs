@@ -305,8 +305,7 @@ namespace Playtime_Painter
             }
 
         }
-
-
+        
         public void OnEnable()
         {
             dataHolder = this;
@@ -322,7 +321,6 @@ namespace Playtime_Painter
                 meshToolsSTD = cody.ToString();
             }
         }
-
-
+        
     }
 }
