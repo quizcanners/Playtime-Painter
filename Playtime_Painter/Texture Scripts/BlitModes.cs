@@ -131,7 +131,7 @@ namespace Playtime_Painter
             pegi.write("Scale:", 40);
 
             if (InspectedBrush.IsA3Dbrush(InspectedPainter))  {
-                Mesh m = PlaytimePainter.inspectedPainter.getMesh();
+                Mesh m = PlaytimePainter.inspectedPainter.GetMesh();
            
                 float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (PlaytimePainter.inspectedPainter == null ? 1 : PlaytimePainter.inspectedPainter.transform.lossyScale.magnitude);
 
@@ -397,7 +397,7 @@ namespace Playtime_Painter
                     if (method == (ColorSetMethod.MDownPosition))
                         FromUV(st.uvTo);
               
-                Shader.SetGlobalVector(PainterConfig.BRUSH_SAMPLING_DISPLACEMENT, new Vector4(
+                Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT, new Vector4(
                     ((float)currentPixel.x + 0.5f) / ((float)Cfg.samplingMaskSize.x),
 
                     ((float)currentPixel.y + 0.5f) / ((float)Cfg.samplingMaskSize.y),

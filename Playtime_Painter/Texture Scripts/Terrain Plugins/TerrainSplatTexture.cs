@@ -12,7 +12,7 @@ namespace Playtime_Painter
     {
         public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
-            if ((painter.terrain != null) && (fieldName.Contains(PainterConfig.terrainTexture)))
+            if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainTexture)))
             {
                 int no = fieldName[0].CharToInt();
                 tex = painter.terrain.terrainData.splatPrototypes[no].texture;
@@ -29,7 +29,7 @@ namespace Playtime_Painter
                 for (int i = 0; i < sp.Length; i++)
                 {
                     if (sp[i].texture != null)
-                        dest.Add(i + PainterConfig.terrainTexture + sp[i].texture.name);
+                        dest.Add(i + PainterDataAndConfig.terrainTexture + sp[i].texture.name);
                 }
             }
         }
@@ -39,7 +39,7 @@ namespace Playtime_Painter
 
             if (painter.terrain != null)
             {
-                if (fieldName.Contains(PainterConfig.terrainTexture))
+                if (fieldName.Contains(PainterDataAndConfig.terrainTexture))
                 {
                     int no = fieldName[0].CharToInt();
 
@@ -65,7 +65,7 @@ namespace Playtime_Painter
             Texture tex = id.CurrentTexture();
             if (painter.terrain != null)
             {
-                if (fieldName.Contains(PainterConfig.terrainTexture))
+                if (fieldName.Contains(PainterDataAndConfig.terrainTexture))
                 {
                     int no = fieldName[0].CharToInt();
                     painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);

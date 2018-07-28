@@ -72,7 +72,7 @@ namespace StoryTriggerData {
 
                 pegi.ClickToEditScript();
 
-                PainterConfig pcfg = PainterConfig.Inst;
+            PainterDataAndConfig pcfg = PainterDataAndConfig.dataHolder;
 
                 string recordName = pcfg.recordingNames.Count > 0 ? pcfg.recordingNames[pcfg.browsedRecord] : null;
 

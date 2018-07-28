@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 
 using STD_Animations;
 
-#if PEGI && UNITY_EDITOR
+#if UNITY_EDITOR
 using UnityEditor;
 
 namespace SharedTools_Stuff

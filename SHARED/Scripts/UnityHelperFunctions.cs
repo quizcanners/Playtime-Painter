@@ -798,8 +798,9 @@ namespace SharedTools_Stuff
 
 #if UNITY_EDITOR
             UnityEngine.Object[] tmp = Selection.objects;
-            if ((tmp == null) || (tmp.Length == 0))
+            if ((tmp == null) || (tmp.Length == 0) || tmp[0] == null)
                 return false;
+
             return (tmp[0].GetType() == typeof(GameObject)) && ((GameObject)tmp[0] == go);
 #else
         return false;

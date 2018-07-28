@@ -97,7 +97,7 @@ namespace Playtime_Painter
                                         var mat = reciver.Material;
                                         if (mat != null && mat.IsAtlased())
                                             BrushTypeSphere.PaintAtlased (rendTex, reciver.gameObject,
-                                          reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterConfig.atlasedTexturesInARow));
+                                          reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterDataAndConfig.atlasedTexturesInARow));
                                         else
                                         BrushTypeSphere.Paint(rendTex, reciver.gameObject,
                                             reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh } );

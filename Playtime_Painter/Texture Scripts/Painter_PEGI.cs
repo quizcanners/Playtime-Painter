@@ -10,8 +10,8 @@ namespace Playtime_Painter {
 
     public static class PainterPEGI_Extensions {
 
-        static PainterConfig Cfg { get { return PainterConfig.Inst; } }
-        static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
+        static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
 
         public static bool SelectTexture_PEGI(this PlaytimePainter p) {
         int ind = p.SelectedTexture;
@@ -68,7 +68,7 @@ namespace Playtime_Painter {
 
                             changed = true;
                         }
-                        PainterConfig.Inst.brushConfig.MaskSet(BrushMask.A, true);
+                    PainterDataAndConfig.dataHolder.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.GetImgData() != null)
                         if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {

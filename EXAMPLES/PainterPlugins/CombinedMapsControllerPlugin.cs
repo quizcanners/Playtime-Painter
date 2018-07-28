@@ -353,8 +353,7 @@ namespace Playtime_Painter {
                 changed |= "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
                     "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl();
                 changed |= "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl();
-                var cfg = PainterConfig.Inst;
-
+         
                 if (InspectedPainter == null)
                 {
                     var frstTex = GetTexture();
@@ -473,7 +472,7 @@ namespace Playtime_Painter {
 
                 bool changed = "Name".edit(80,ref name);
 
-                var path = PainterConfig.Inst.texturesFolderName + "/" + folderName;
+                var path = PainterDataAndConfig.dataHolder.texturesFolderName + "/" + folderName;
 
                 if (icon.Save.Click("Will save to " + path, 25).nl())
                 {
@@ -631,7 +630,7 @@ namespace Playtime_Painter {
                     set.LastProduct = tex;
 
 #if UNITY_EDITOR
-                    set.LastProduct = tex.SaveTextureAsAsset(PainterConfig.Inst.texturesFolderName, ref set.name, false);
+                    set.LastProduct = tex.SaveTextureAsAsset(PainterDataAndConfig.dataHolder.texturesFolderName, ref set.name, false);
 
                     TextureImporter importer = set.LastProduct.GetTextureImporter();
 
@@ -771,11 +770,11 @@ namespace Playtime_Painter {
             public virtual bool IsColor { get { return false; } }
             // public virtual bool sourceSingleChannel { get { return false; } }
             //public virtual bool productSingleChannel { get { return false; } }
-            public virtual List<string> Channels { get { return chans; } }
+            public virtual List<string> Channels { get { return Chanals; } }
             public virtual Color DefaultColor { get { return IsColor ? Color.white : Color.grey; } }
 
 
-            static List<string> chans = new List<string> { "R", "G", "B", "A" };
+            static readonly List<string> Chanals = new List<string> { "R", "G", "B", "A" };
 
             protected void ExtractPixels(Texture2D tex, int width, int height)
             {
@@ -1111,9 +1110,9 @@ namespace Playtime_Painter {
 
             // public override bool sourceSingleChannel { get { return true; } }
 
-            public override List<string> Channels { get { return chans; } }
+            public override List<string> Channels { get { return Chanals; } }
 
-            static List<string> chans = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
+            static readonly List<string> Chanals = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
 
             static int width;
             static int height;

@@ -1395,8 +1395,8 @@ namespace Playtime_Painter
 
             //Debug.Log("Vectors A "+ a + " and B "+ b);
 
-            Vector2 fromVector2 = GridNavigator.inst().InPlaneVector(a);
-            Vector2 toVector2 = GridNavigator.inst().InPlaneVector(b);
+            Vector2 fromVector2 = GridNavigator.Inst().InPlaneVector(a);
+            Vector2 toVector2 = GridNavigator.Inst().InPlaneVector(b);
 
             // Debug.Log("Vectors2 A " + fromVector2 + " and B " + toVector2);
 
@@ -1410,7 +1410,7 @@ namespace Playtime_Painter
 
 
 
-            return GridNavigator.inst().PlaneToWorldVector(mid).normalized;
+            return GridNavigator.Inst().PlaneToWorldVector(mid).normalized;
         }
 
         public override bool Equals(object obj)

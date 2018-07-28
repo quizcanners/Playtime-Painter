@@ -43,7 +43,7 @@ namespace Playtime_Painter
             }
             else
             {
-                transform.parent = PainterManager.Inst.transform;
+                transform.parent = PainterCamera.Inst.transform;
                 modifiedMesh.bounds = modifiedBound;
 
                 meshRendy.materials = replacedBrushesMaterials;
@@ -57,14 +57,14 @@ namespace Playtime_Painter
         {
 
             GameObject go = painter.gameObject;
-            Transform camTransform = PainterManager.Inst.transform;
+            Transform camTransform = PainterCamera.Inst.transform;
 
             var skinny = painter.skinnedMeshRendy;
 
             if (skinny != null)
                 UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);
             else
-                UseMeshAsBrush(go, painter.getMesh(), new List<int> { painter.selectedSubmesh });
+                UseMeshAsBrush(go, painter.GetMesh(), new List<int> { painter.selectedSubmesh });
         }
 
         public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int submesh)
@@ -73,7 +73,7 @@ namespace Playtime_Painter
 
             meshRendy.enabled = false;
 
-            Transform camTransform = PainterManager.Inst.transform;
+            Transform camTransform = PainterCamera.Inst.transform;
 
             changedSkinnedMeshRendy = skinny;
             changedGameObject = go;
@@ -95,7 +95,7 @@ namespace Playtime_Painter
         public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
         {
 
-            Transform camTransform = PainterManager.Inst.transform;
+            Transform camTransform = PainterCamera.Inst.transform;
 
             Transform target = go.transform;
 
@@ -148,7 +148,7 @@ namespace Playtime_Painter
 
         public void FullScreenQuad()
         {
-            float size = PainterManager.orthoSize * 2;
+            float size = PainterCamera.orthoSize * 2;
             transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
@@ -165,7 +165,7 @@ namespace Playtime_Painter
             if (tex != null && onto != null)
             {
 
-                float size = PainterManager.orthoSize * 2;
+                float size = PainterCamera.orthoSize * 2;
                 float aspectRatio = (float)tex.width / (float)tex.height;
 
                 float ar2 = onto.width / onto.height;
@@ -178,7 +178,7 @@ namespace Playtime_Painter
                 transform.localRotation = Quaternion.identity;
                 meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
 
-                Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1f / aspectRatio);
+                Shader.SetGlobalFloat(PainterDataAndConfig.bufferCopyAspectRatio, 1f / aspectRatio);
 
                 if (material)
                 {
@@ -201,7 +201,7 @@ namespace Playtime_Painter
 
 
                 if (aspectRatio != 1)
-                    Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1);
+                    Shader.SetGlobalFloat(PainterDataAndConfig.bufferCopyAspectRatio, 1);
 
             }
 
@@ -210,7 +210,7 @@ namespace Playtime_Painter
 
         public void PrepareColorPaint(Color col)
         {
-            float size = PainterManager.orthoSize * 2;
+            float size = PainterCamera.orthoSize * 2;
             transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
@@ -226,7 +226,7 @@ namespace Playtime_Painter
             if (!meshFilter)
                 meshFilter = GetComponent<MeshFilter>();
 
-            Shader.SetGlobalFloat(PainterConfig.bufferCopyAspectRatio, 1f);
+            Shader.SetGlobalFloat(PainterDataAndConfig.bufferCopyAspectRatio, 1f);
         }
 
         // Use this for initialization

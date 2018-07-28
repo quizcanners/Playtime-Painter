@@ -215,18 +215,26 @@ namespace SharedTools_Stuff
         }
 
         public static int ToInt(this string data) {
-            return Convert.ToInt32(data); //int.Parse(data);
+
+            int variable = 0;
+            int.TryParse(data, out variable);
+
+            return variable;
+            //return Convert.ToInt32(data); //int.Parse(data);
+        
         }
 
-        public static uint ToUInt(this string data)
-        {
-            return uint.Parse(data);
+        public static uint ToUInt(this string data) {
+            uint value;
+            uint.TryParse(data, out value);
+            return value;
         }
         
         // Float
         public static float ToFloat(this string data) {
-            return float.Parse(data, CultureInfo.InvariantCulture.NumberFormat);
-
+            float val;
+                float.TryParse(data, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat,out val);
+            return val;
         }
         
         // List (base type)

@@ -355,7 +355,7 @@ namespace Playtime_Painter
 
             changed |= p.PreviewShaderToggle_PEGI();
 
-            if ((PainterManager.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
+            if ((PainterCamera.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45))
@@ -436,7 +436,7 @@ namespace Playtime_Painter
 
                 var mat = InspectedPainter.Material;
                 if (mat != null) {
-                    var tag = mat.GetTag(PainterConfig.vertexColorRole + letter, false, null);
+                    var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + letter, false, null);
                     if (tag != null && tag.Length > 0)
                     {
                        

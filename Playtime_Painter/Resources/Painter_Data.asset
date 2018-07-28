@@ -11,7 +11,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f00a24d0cf2bc1419989e56fe129b03, type: 3}
   m_Name: Painter_Data
   m_EditorClassIdentifier: 
-  _nestedReferences: []
+  _nestedReferences:
+  - {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
+  - {fileID: 2100000, guid: 4111ec3737538d24eac860c521e3f96e, type: 2}
+  - {fileID: 2100000, guid: c3f44a42a8321804fa7b29439994b177, type: 2}
+  - {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
+  - {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
+  - {fileID: 2100000, guid: e829d7372209603439bb14bd0754fcab, type: 2}
+  - {fileID: 2800000, guid: b8432e0e7ec51b649af38d31e6b884d2, type: 3}
   explorer:
     states: []
     inspectedState: -1
@@ -35,3 +42,439 @@ MonoBehaviour:
   mesh_Preview: {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
   br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
   TerrainPreview: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
+  meshToolsSTD: e|115|e|16|cat|1|0|cac|1|0||e|8|inM|1|n||e|23|v|1|1|doCol|1|n|fe|1|n||e|0||e|40|gtuv|1|n|offset|0||tile|12|x|1|1|y|1|1||||
+  allowEditingInFinalBuild: 0
+  MakeVericesUniqueOnEdgeColoring: 0
+  SnapToGridSize: 1
+  SnapToGrid: 0
+  newVerticesUnique: 0
+  newVerticesSmooth: 1
+  pixelPerfectMeshEditing: 0
+  useGridForBrush: 0
+  meshPackagingSolutions:
+  - sln:
+    - sameSizeDataIndex: 0
+      targetIndex: 0
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 1
+      enabled: 1
+      vals:
+      - typeIndex: 1
+        valueIndex: 0
+      - typeIndex: 1
+        valueIndex: 1
+      - typeIndex: 10
+        valueIndex: 0
+      - typeIndex: 10
+        valueIndex: 0
+    - sameSizeDataIndex: 0
+      targetIndex: 2
+      enabled: 0
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 0
+      targetIndex: 3
+      enabled: 0
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 0
+      targetIndex: 4
+      enabled: 0
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 3
+      targetIndex: 5
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 4
+      targetIndex: 6
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 6
+      targetIndex: 7
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    name: Simple
+  - sln:
+    - sameSizeDataIndex: 0
+      targetIndex: 0
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 1
+      enabled: 1
+      vals:
+      - typeIndex: 1
+        valueIndex: 0
+      - typeIndex: 1
+        valueIndex: 1
+      - typeIndex: 9
+        valueIndex: 0
+      - typeIndex: 11
+        valueIndex: 3
+    - sameSizeDataIndex: -1
+      targetIndex: 2
+      enabled: 1
+      vals:
+      - typeIndex: 12
+        valueIndex: 0
+      - typeIndex: 12
+        valueIndex: 1
+      - typeIndex: 12
+        valueIndex: 2
+      - typeIndex: 11
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 3
+      enabled: 1
+      vals:
+      - typeIndex: 13
+        valueIndex: 0
+      - typeIndex: 13
+        valueIndex: 1
+      - typeIndex: 13
+        valueIndex: 2
+      - typeIndex: 11
+        valueIndex: 1
+    - sameSizeDataIndex: -1
+      targetIndex: 4
+      enabled: 1
+      vals:
+      - typeIndex: 14
+        valueIndex: 0
+      - typeIndex: 14
+        valueIndex: 1
+      - typeIndex: 14
+        valueIndex: 2
+      - typeIndex: 11
+        valueIndex: 2
+    - sameSizeDataIndex: 3
+      targetIndex: 5
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 4
+      targetIndex: 6
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 6
+      targetIndex: 7
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    name: Bevel
+  - sln:
+    - sameSizeDataIndex: 0
+      targetIndex: 0
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 1
+      enabled: 1
+      vals:
+      - typeIndex: 1
+        valueIndex: 0
+      - typeIndex: 1
+        valueIndex: 1
+      - typeIndex: 9
+        valueIndex: 0
+      - typeIndex: 10
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 2
+      enabled: 1
+      vals:
+      - typeIndex: 2
+        valueIndex: 0
+      - typeIndex: 2
+        valueIndex: 1
+      - typeIndex: 10
+        valueIndex: 0
+      - typeIndex: 10
+        valueIndex: 0
+    - sameSizeDataIndex: 8
+      targetIndex: 3
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 11
+      targetIndex: 4
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 3
+      targetIndex: 5
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 6
+      enabled: 1
+      vals:
+      - typeIndex: 5
+        valueIndex: 0
+      - typeIndex: 5
+        valueIndex: 1
+      - typeIndex: 5
+        valueIndex: 2
+      - typeIndex: 10
+        valueIndex: 0
+    - sameSizeDataIndex: 6
+      targetIndex: 7
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    name: AtlasedProjected
+  - sln:
+    - sameSizeDataIndex: 0
+      targetIndex: 0
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 1
+      enabled: 1
+      vals:
+      - typeIndex: 1
+        valueIndex: 0
+      - typeIndex: 1
+        valueIndex: 1
+      - typeIndex: 9
+        valueIndex: 0
+      - typeIndex: 9
+        valueIndex: 1
+    - sameSizeDataIndex: -1
+      targetIndex: 2
+      enabled: 1
+      vals:
+      - typeIndex: 2
+        valueIndex: 0
+      - typeIndex: 2
+        valueIndex: 1
+      - typeIndex: 10
+        valueIndex: 0
+      - typeIndex: 10
+        valueIndex: 0
+    - sameSizeDataIndex: 8
+      targetIndex: 3
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: -1
+      targetIndex: 4
+      enabled: 1
+      vals:
+      - typeIndex: 15
+        valueIndex: 0
+      - typeIndex: 15
+        valueIndex: 1
+      - typeIndex: 15
+        valueIndex: 2
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 3
+      targetIndex: 5
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 4
+      targetIndex: 6
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    - sameSizeDataIndex: 6
+      targetIndex: 7
+      enabled: 1
+      vals:
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+      - typeIndex: 0
+        valueIndex: 0
+    name: Standard_Atlased
+  _meshTool: 0
+  bevelDetectionSensetivity: 6
+  materialsFolderName: Materials
+  texturesFolderName: Textures
+  meshesFolderName: Models
+  vectorsFolderName: Vectors
+  atlasFolderName: ATLASES
+  enablePainterUIonPlay: 0
+  brushConfig:
+    mask: 7
+    _bliTMode: 0
+    inGPUtype: 0
+    inCPUtype: 0
+    repaintDelay: 0.016
+    selectedSourceTexture: 0
+    selectedSourceMask: 0
+    useMask: 0
+    randomMaskOffset: 0
+    selectedDecal: 0
+    maskTiling: 1
+    Hardness: 256
+    blurAmount: 1
+    decalAngle: 0
+    decalRotationMethod: 0
+    decalContinious: 0
+    decalAngleModifier: 0
+    flipMaskAlpha: 0
+    TargetIsTex2D: 0
+    Brush3D_Radius: 16
+    Brush2D_Radius: 16
+    speed: 10
+    MB1ToLinkPositions: 0
+    DontRedoMipmaps: 0
+    colorLinear:
+      r: 0
+      g: 1
+      b: 0
+      a: 1
+  disableNonMeshColliderInPlayMode: 0
+  previewAlphaChanel: 0
+  newTextureIsColor: 1
+  moreOptions: 0
+  showConfig: 0
+  ShowTeachingNotifications: 0
+  samplingMaskSize:
+    x: 0
+    y: 0
+  selectedSize: 4
+  recordingNames: []
+  browsedRecord: 0

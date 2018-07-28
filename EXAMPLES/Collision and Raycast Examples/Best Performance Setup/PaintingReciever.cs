@@ -62,7 +62,7 @@ namespace Playtime_Painter {
         private void OnEnable()  {
 
             if ((originalTexture!= null) && (texture!= null) && (texture.GetType() == typeof(RenderTexture)))
-                PainterManager.Inst.Blit(originalTexture, (RenderTexture)texture);
+                PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
         }
 
         public Texture GetTexture() {
@@ -88,9 +88,9 @@ namespace Playtime_Painter {
 
                 var tex = originalTexture ?? MatTex;
                 if (tex != null)
-                    PainterManager.Inst.Blit( tex , (RenderTexture) texture);
+                    PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
                 else
-                    PainterManager.Inst.Render(Color.black , (RenderTexture)texture);
+                    PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
 
                 MatTex = texture;
             }
@@ -125,7 +125,7 @@ namespace Playtime_Painter {
                 ((Texture2D)texture).SetPixels(((Texture2D)originalTexture).GetPixels());
                 ((Texture2D)texture).Apply(true);
             } else 
-                PainterManager.Inst.Blit(originalTexture, (RenderTexture)texture);
+                PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
 
         }
 

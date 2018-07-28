@@ -203,7 +203,7 @@ namespace Playtime_Painter
 
         public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
 
-        public void TextureToRenderTexture(Texture2D tex) => PainterManager.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMTdata.pixPerfectCopy);
+        public void TextureToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMTdata.pixPerfectCopy);
         
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
         
@@ -215,7 +215,7 @@ namespace Playtime_Painter
             RenderTexture rt = renderTexture;
 
             if (!rt && TexMGMT.imgDataUsingRendTex == this)
-                rt = PainterManager.Inst.GetDownscaledBigRT(width, height);
+                rt = PainterCamera.Inst.GetDownscaledBigRT(width, height);
             
             if (rt == null)
                 return;
@@ -263,7 +263,7 @@ namespace Playtime_Painter
 
             //  Debug.Log("We are linear: "+RenderTexturePainter.inst.isLinearColorSpace + " tex is sRGB: "+tex.isColorTexturee());
 
-            if (PainterManager.Inst.isLinearColorSpace)
+            if (PainterCamera.Inst.isLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
                 {
@@ -335,8 +335,8 @@ namespace Playtime_Painter
 
             // Debug.Log("Sampling Render Texture");
 
-            PainterManager rtp = PainterManager.Inst;
-            int size = PainterManager.renderTextureSize / 4;
+            PainterCamera rtp = PainterCamera.Inst;
+            int size = PainterCamera.renderTextureSize / 4;
             RenderTexture.active = renderTexture ?? rtp.GetDownscaledBigRT(size, size);
 
             if (sampler == null) sampler = new Texture2D(8, 8);
@@ -354,7 +354,7 @@ namespace Playtime_Painter
 
             var pix = sampler.GetPixel(0, 0);
 
-            if (PainterManager.Inst.isLinearColorSpace)
+            if (PainterCamera.Inst.isLinearColorSpace)
                 pix = pix.linear;
 
             return pix;
@@ -380,7 +380,7 @@ namespace Playtime_Painter
                 if (changeTo == TexTarget.RenderTexture)
                 {
                     if (renderTexture == null)
-                        PainterManager.Inst.ChangeBufferTarget(this, mat, parameter, painter);
+                        PainterCamera.Inst.ChangeBufferTarget(this, mat, parameter, painter);
                     TextureToRenderTexture(texture2D);
                 }
                 else
@@ -389,7 +389,7 @@ namespace Playtime_Painter
                         return;
                     
                     if (renderTexture == null)
-                        PainterManager.Inst.EmptyBufferTarget();
+                        PainterCamera.Inst.EmptyBufferTarget();
                     else
                         if (painter.inited) // To avoid Clear to black when exiting playmode
                             RenderTexture_To_Texture2D();
@@ -491,7 +491,7 @@ namespace Playtime_Painter
             else
                 other = tex;
 
-            PainterManager.Inst.imgDatas.Insert(0,this);
+            PainterCamera.Inst.imgDatas.Insert(0,this);
             return this;
         }
 
@@ -538,7 +538,7 @@ namespace Playtime_Painter
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            PainterManager.Inst.imgDatas.Insert(0,this);
+            PainterCamera.Inst.imgDatas.Insert(0,this);
             destination = TexTarget.RenderTexture;
             return this;
         }

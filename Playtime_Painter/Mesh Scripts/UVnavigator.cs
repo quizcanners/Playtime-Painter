@@ -257,7 +257,7 @@ namespace Playtime_Painter
 
             Vector2 uv = new Vector2();
  
-            switch (GridNavigator.inst().g_side) {
+            switch (GridNavigator.Inst().g_side) {
                 case Gridside.xy:
                     uv.x = diff.x;
                     uv.y = diff.y;

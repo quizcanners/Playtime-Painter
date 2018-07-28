@@ -10,7 +10,7 @@ namespace STD_Animations
 {
 
     [ExecuteInEditMode]
-    public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish
+    public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish, IKeepMySTD
     {
 
         // Elements
@@ -81,6 +81,8 @@ namespace STD_Animations
 
             }
         }
+
+        public string Config_STD { get {  return std_Data;  } set  { std_Data = value; } }
 
         // Management
         bool setFirstFrame;
@@ -212,7 +214,7 @@ namespace STD_Animations
                 if (icon.Save.Click())
                 {
                     OnDisable();
-                    gameObject.UpdatePrefab();
+                    this.UpdatePrefab(gameObject);//gameObject.UpdatePrefab();
 
                 }
                 if (icon.Load.Click().nl())

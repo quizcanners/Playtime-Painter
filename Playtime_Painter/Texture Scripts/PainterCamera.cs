@@ -17,28 +17,28 @@ namespace Playtime_Painter
 {
     
     [ExecuteInEditMode]
-    public class PainterManager : PainterStuffMono, IPEGI, IKeepMySTD
+    public class PainterCamera : PainterStuffMono, IPEGI, IKeepMySTD
     {
         
-        [SerializeField] PainterManagerDataHolder dataHolder;
+        [SerializeField] PainterDataAndConfig dataHolder;
 
-        public static PainterManagerDataHolder Data
+        public static PainterDataAndConfig Data
         {
             get
             {
                 if (!_inst)
-                    return PainterManagerDataHolder.dataHolder;
+                    return PainterDataAndConfig.dataHolder;
 
                 if (_inst.dataHolder == null)
-                    _inst.dataHolder = PainterManagerDataHolder.dataHolder;
+                    _inst.dataHolder = PainterDataAndConfig.dataHolder;
 
                 return _inst.dataHolder;
             }
         }
 
-        static PainterManager _inst;
+        static PainterCamera _inst;
 
-        public static PainterManager Inst
+        public static PainterCamera Inst
         {
             get
             {
@@ -50,7 +50,7 @@ namespace Playtime_Painter
                     {
 
 
-                        _inst = GameObject.FindObjectOfType<PainterManager>();
+                        _inst = GameObject.FindObjectOfType<PainterCamera>();
                         if (_inst == null)
                         {
                             if (_inst != null)
@@ -58,9 +58,9 @@ namespace Playtime_Painter
                             else
                             {
 #if UNITY_EDITOR
-                                GameObject go = Resources.Load("prefabs/" + PainterConfig.PainterCameraName) as GameObject;
-                                _inst = Instantiate(go).GetComponent<PainterManager>();
-                                _inst.name = PainterConfig.PainterCameraName;
+                                GameObject go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
+                                _inst = Instantiate(go).GetComponent<PainterCamera>();
+                                _inst.name = PainterDataAndConfig.PainterCameraName;
                                 _inst.RefreshPlugins();
 #endif
                             }
@@ -82,13 +82,9 @@ namespace Playtime_Painter
             }
         }
 
-
-        [SerializeField]
-        public PainterConfig painterCfg;
-
         public string STDdata = "";
 
-        public string config_STD
+        public string Config_STD
         {
             get
             {
@@ -124,7 +120,7 @@ namespace Playtime_Painter
             
             for (int i=0; i<matDatas.Count; i++) {
                 var md = matDatas[i];
-                if (md != null && md.material!= null) {
+                if (md != null && md.material) {
                     if (md.material == mat) {
                         data = md;
 
@@ -142,7 +138,6 @@ namespace Playtime_Painter
             if ( data == null) {
                 data = new MaterialData(mat);
                 matDatas.Add(data);
-               // Debug.Log("Creating material data for "+mat.ToString());
             }
 
        
@@ -237,7 +232,7 @@ namespace Playtime_Painter
 
         // ******************* Buffers MGMT
 
-        [NonSerialized] RenderTexture[] squareBuffers = new RenderTexture[10];
+        [NonSerialized] readonly RenderTexture[] squareBuffers = new RenderTexture[10];
 
         public RenderTexture GetSquareBuffer(int width)
         {
@@ -372,7 +367,7 @@ namespace Playtime_Painter
         public void UpdateBuffersState()
         {
 
-            PainterConfig cfg = PainterConfig.Inst;
+            var cfg = TexMGMTdata;
 
             rtcam.cullingMask = 1 << myLayer;
             
@@ -416,9 +411,9 @@ namespace Playtime_Painter
 
             previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
 
-            Shader.SetGlobalVector(PainterConfig.BRUSH_POINTED_UV, new Vector4(st.uvTo.x, st.uvTo.y, 0, previewAlpha));
-            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_FROM, new Vector4(prevPosPreview.x, prevPosPreview.y, prevPosPreview.z, size));
-            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_TO, new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_POINTED_UV, new Vector4(st.uvTo.x, st.uvTo.y, 0, previewAlpha));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, new Vector4(prevPosPreview.x, prevPosPreview.y, prevPosPreview.z, size));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
             prevPosPreview = st.posTo;
         }
 
@@ -484,8 +479,8 @@ namespace Playtime_Painter
 
             brushType.SetKeyword(texcoord2);
 
-            if (texcoord2) Shader.EnableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
-            else Shader.DisableKeyword(PainterConfig.BRUSH_TEXCOORD_2);
+            if (texcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
+            else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
 
             brush.BlitMode.SetKeyword().SetGlobalShaderParameters();
 
@@ -499,7 +494,7 @@ namespace Playtime_Painter
             else
             {
                 Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-                BlitModeExtensions.SetShaderToggle(PainterConfig.Inst.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+                BlitModeExtensions.SetShaderToggle(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
             if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
@@ -524,7 +519,7 @@ namespace Playtime_Painter
             rtcam.targetTexture = id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
-                Shader.SetGlobalTexture(PainterConfig.DESTINATION_BUFFER, BigRT_pair[1]);
+                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, BigRT_pair[1]);
 
             Shader shd = null;
             if (pntr != null)
@@ -697,14 +692,12 @@ namespace Playtime_Painter
             EditorApplication.update -= CombinedUpdate;
             if (!this.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += CombinedUpdate;
-
-            //  EditorApplication.playModeStateChanged -= PlayModeStateChanged; // painterConfig.SaveChanges;
-            //  EditorApplication.playModeStateChanged += PlayModeStateChanged; // painterConfig.SaveChanges;
+            
 
             if (brushPrefab == null)
             {
-                //string assetName = "Assets/" + painterConfig.ToolPath() + "/" + painterConfig.DependenciesFolder + "/prefabs/RenderCameraBrush.prefab";
-                GameObject go = Resources.Load("prefabs/RenderCameraBrush") as GameObject; //(GameObject)AssetDatabase.LoadAssetAtPath(assetName, typeof(GameObject));
+              
+                GameObject go = Resources.Load("prefabs/RenderCameraBrush") as GameObject; 
                 brushPrefab = go.GetComponent<RenderBrush>();
                 if (brushPrefab == null)
                 {
@@ -796,7 +789,9 @@ namespace Playtime_Painter
                 if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
             }
 
-            var cody = this.EncodeUnrecognized().Add("imgs", imgDatas, Data);
+            var cody = this.EncodeUnrecognized()
+                .Add("imgs", imgDatas, Data)
+                .Add("mats", matDatas, Data);
 
             return cody;
         }
@@ -805,6 +800,7 @@ namespace Playtime_Painter
         {
             switch (tag) {
                 case "imgs": data.DecodeInto(out imgDatas, Data); break;
+                case "mats": data.DecodeInto(out matDatas, Data); break;
                 default: return false;
             }
              return true;            
@@ -818,8 +814,7 @@ namespace Playtime_Painter
 
             if (PlaytimePainter.previewHolderMaterial != null)
                 PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
-
-            PainterConfig.SaveChanges();
+            
             if (materialsUsingTendTex.Count > 0)
                 autodisabledBufferTarget = materialsUsingTendTex[0].painterTarget;
             EmptyBufferTarget();
@@ -901,7 +896,7 @@ namespace Playtime_Painter
 
             PlaytimeToolComponent.CheckRefocus();
 
-            if ((PainterConfig.Inst.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
+            if ((TexMGMTdata.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
             {
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
@@ -921,7 +916,7 @@ namespace Playtime_Painter
                 }
                 else
                 {
-                    PainterConfig.Inst.brushConfig.Paint(p.stroke, p);
+                    TexMGMTdata.brushConfig.Paint(p.stroke, p);
                     p.Update();
                 }
                 
@@ -939,14 +934,7 @@ namespace Playtime_Painter
 
             PlaytimePainter.cody = new StdDecoder(null);
         }
-
-        void OnApplicationQuit()
-        {
-#if !UNITY_EDITOR && BUILD_WITH_PAINTER
-       //     painterConfig.SaveChanges();
-#endif
-        }
-
+        
 #if PEGI
         [SerializeField] bool showImgDatas;
         [SerializeField] int inspectedImgData = -1;
@@ -959,14 +947,14 @@ namespace Playtime_Painter
                 "No data Holder detected".edit(ref dataHolder);
                 if ("Create".Click().nl())
                 {
-                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterManagerDataHolder>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
+                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterDataAndConfig>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
             }
             else if ("Delete data".Click().nl())
             {
-                PainterManagerDataHolder.dataHolder = null;
+                PainterDataAndConfig.dataHolder = null;
                 dataHolder = null;
             }
 #endif
@@ -996,8 +984,8 @@ namespace Playtime_Painter
                 pegi.newLine();
                 "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-                "Textures to copy from".edit(() => sourceTextures, this).nl();
-                "Masks".edit(() => masks, this).nl();
+                "Source Textures".edit_List_Obj(sourceTextures, true).nl();
+                "Masks".edit_List_Obj(masks, true).nl();
                 "Decals".edit(() => decals, this).nl();
             }
 

@@ -150,7 +150,7 @@ namespace Playtime_Painter
                     b.localPos = mm.onGridLocal;
 
 
-                    Vector3 cross = Vector3.Cross(vector, GridNavigator.inst().getGridPerpendicularVector()).normalized * width / 2;
+                    Vector3 cross = Vector3.Cross(vector, GridNavigator.Inst().GetGridPerpendicularVector()).normalized * width / 2;
                     a.localPos += cross;
                     b.localPos += -cross;
 

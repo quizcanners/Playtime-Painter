@@ -40,7 +40,7 @@ namespace Playtime_Painter
             } }
         
         //protected MeshManager mgmt { get { return MeshManager.inst; } }
-       // protected PainterConfig cfg { get { return PainterConfig.inst; } }
+       // protected PainterDataAndConfig cfg { get { return PainterDataAndConfig.dataHolder; } }
         protected LineData PointedLine { get { return MeshMGMT.PointedLine; } }
         protected Triangle PointedTris { get { return MeshMGMT.PointedTris; } }
         protected Triangle SelectedTris { get { return MeshMGMT.SelectedTris; } }
@@ -198,7 +198,7 @@ namespace Playtime_Painter
 
             MeshManager mgm = MeshMGMT;
 
-            PainterConfig sd = PainterConfig.Inst;
+            PainterDataAndConfig sd = PainterDataAndConfig.dataHolder;
 
             if (mgm.MeshTool.ShowGrid) {
                 "Snap to grid:".toggle(100, ref sd.SnapToGrid);
@@ -474,7 +474,7 @@ namespace Playtime_Painter
                 if ((m.dragDelay < 0) || (Application.isPlaying == false))
                 {
 
-                    if ((GridNavigator.inst().angGridToCamera(GridNavigator.onGridPos) < 82)) {
+                    if ((GridNavigator.Inst().AngGridToCamera(GridNavigator.onGridPos) < 82)) {
 
                         Vector3 delta = GridNavigator.onGridPos - originalPosition;
 
@@ -541,8 +541,6 @@ namespace Playtime_Painter
         {
 
             MeshManager m = MeshMGMT;
-
-            PainterConfig sd = PainterConfig.Inst;
 
             "Dominance True".toggle(ref SetTo).nl();
        
@@ -711,8 +709,7 @@ namespace Playtime_Painter
             {
 
                 MeshManager m = MeshMGMT;
-
-                PainterConfig sd = PainterConfig.Inst;
+            
                 pegi.write("OnClick:", 60);
                 if ((MergeUnmerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
                     MergeUnmerge = !MergeUnmerge;

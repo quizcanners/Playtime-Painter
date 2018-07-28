@@ -38,12 +38,12 @@ namespace Playtime_Painter {
         [SerializeField]
         protected int browsedAtlas;
 #if PEGI
-        public static bool putEdgesBetweenSubmeshes()
+        public static bool PutEdgesBetweenSubmeshes()
         {
 
 
             if (MeshMGMT.target.IsAtlased()) {
-                "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.inst.curAtlasChanel);
+                "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.Inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())
                 {
@@ -56,7 +56,7 @@ namespace Playtime_Painter {
 
                             var ntris = t.GetNeighboringTrianglesUnprocessed();
                             foreach (var nt in ntris)
-                                if (t.textureNo[TriangleAtlasTool.inst.curAtlasChanel] != nt.textureNo[TriangleAtlasTool.inst.curAtlasChanel])
+                                if (t.textureNo[TriangleAtlasTool.Inst.curAtlasChanel] != nt.textureNo[TriangleAtlasTool.Inst.curAtlasChanel])
                                 {
                                     var ln = t.LineWith(nt);
                                     if (ln != null) VertexEdgeTool.PutEdgeOnLine(ln);
@@ -79,7 +79,7 @@ namespace Playtime_Painter {
             if (atlasedMaterials == null)
                 atlasedMaterials = new List<MaterialAtlases>();
             #if PEGI
-            PlugIn_VertexEdgePEGI(putEdgesBetweenSubmeshes);
+            PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
 #endif
             PlugIn_CPUblitMethod(PaintTexture2D);
             
@@ -97,7 +97,7 @@ namespace Playtime_Painter {
                 "***** Selected Material Atlased *****".nl();
 #if UNITY_EDITOR
 
-                var m = InspectedPainter.getMesh();
+                var m = InspectedPainter.GetMesh();
                 if (m != null && AssetDatabase.GetAssetPath(m).Length == 0)
                 {
                     "Atlased Mesh is not saved".nl();
@@ -123,13 +123,13 @@ namespace Playtime_Painter {
 
                     atlPlug.preAtlasingMaterials = null;
                     atlPlug.preAtlasingMesh = null;
-                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
                 }
 
                 if ("Not Atlased".Click().nl())
                 {
                     atlPlug.preAtlasingMaterials = null;
-                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterConfig.UV_ATLASED);
+                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
                 }
 
                 pegi.newLine();
@@ -193,7 +193,7 @@ namespace Playtime_Painter {
         public int curAtlasChanel = 0;
         public bool atlasEdgeAsChanel2 = true;
 
-        public static TriangleAtlasTool inst {
+        public static TriangleAtlasTool Inst {
             get
             {
                 if (_inst == null)

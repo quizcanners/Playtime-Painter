@@ -15,18 +15,18 @@ public enum Gridside { xz, xy, zy }
 
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
-    public static GridNavigator inst()  {
+    public static GridNavigator Inst()  {
         if (_inst == null)
         {
             if (!ApplicationIsQuitting)
             {
-                _inst = PainterManager.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
+                _inst = PainterCamera.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
                 if (_inst == null)
                 {
                     try
                     {
                         _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
-                        _inst.transform.parent = PainterManager.Inst.transform;
+                        _inst.transform.parent = PainterCamera.Inst.transform;
                         _inst.name = "grid";
                         _inst.gameObject.hideFlags = HideFlags.DontSave;
                     }
@@ -93,9 +93,9 @@ public class GridNavigator : PainterStuffMono {
         return res;
     }
 
-    public float angGridToCamera(Vector3 hitpos)
+    public float AngGridToCamera(Vector3 hitpos)
     {
-        float ang = (Vector3.Angle(getGridPerpendicularVector(), hitpos - gameObject.TryGetCameraTransform().position));
+        float ang = (Vector3.Angle(GetGridPerpendicularVector(), hitpos - gameObject.TryGetCameraTransform().position));
         if (ang > 90)
             ang = 180 - ang;
         return ang;
@@ -133,7 +133,7 @@ public class GridNavigator : PainterStuffMono {
         return Vector3.zero;
     }
 
-    public Vector3 getGridPerpendicularVector()
+    public Vector3 GetGridPerpendicularVector()
     {
         Vector3 Mirror = new Vector3();
         switch (g_side)
@@ -145,7 +145,7 @@ public class GridNavigator : PainterStuffMono {
         return Mirror;
     }
 
-    public Vector3 getGridMaskVector()
+    public Vector3 GetGridMaskVector()
     {
         Vector3 Mirror = Vector3.one;
         switch (g_side)
@@ -205,7 +205,7 @@ public class GridNavigator : PainterStuffMono {
     public void UpdatePositions() {
 
         MeshManager m = MeshMGMT;
-        var cfg = PainterConfig.Inst;
+        var cfg = PainterDataAndConfig.dataHolder;
 
         bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 

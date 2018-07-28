@@ -38,12 +38,13 @@ namespace SharedTools_Stuff
     [AttributeUsage(AttributeTargets.Class)]
     public class DerrivedListAttribute : Attribute
     {
-        List<Type> types;
-        public List<Type> DerrivedTypes { get { return types; } }
+        public readonly List<Type> derrivedTypes;
+       // public List<Type> DerrivedTypes { get { return _types; } }
+        
 
         public DerrivedListAttribute(params Type[] ntypes)
         {
-            types = new List<Type>(ntypes);
+            derrivedTypes = new List<Type>(ntypes);
         }
     }
 
@@ -55,9 +56,14 @@ namespace SharedTools_Stuff
        UnrecognizedTags_List UnrecognizedSTD { get; }
     }
 
+
+    ///<summary>Often controller may be storing his data in itself.
+    ///<para> Best to mark data [HideInInspector] </para>
+    ///<seealso cref="StdEncoder"/>
+    ///</summary>
     public interface IKeepMySTD : ISTD
     {
-        string config_STD { get; set; }
+        string Config_STD { get; set; }
     }
 
 
@@ -68,6 +74,7 @@ namespace SharedTools_Stuff
 
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         
+        [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
         
@@ -279,10 +286,11 @@ namespace SharedTools_Stuff
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention 
     {
         
-    
+  
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         bool nestedReferencesChanged;
 
+        [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public int GetISTDreferenceIndex(UnityEngine.Object obj)
         {
@@ -362,7 +370,7 @@ namespace SharedTools_Stuff
             {
 
                 if (nestedReferencesChanged && gameObject.IsPrefab() && icon.Save.Click())
-                    gameObject.UpdatePrefab();
+                    this.UpdatePrefab(gameObject);
 
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
@@ -414,7 +422,7 @@ namespace SharedTools_Stuff
             List<Type> tps = null;
             var att = t.ClassAttribute<DerrivedListAttribute>();
             if (att != null)
-                tps = att.DerrivedTypes;
+                tps = att.derrivedTypes;
 
             return tps;
         }
@@ -459,6 +467,20 @@ namespace SharedTools_Stuff
         public static ISTD SaveProgress(this ISTD s, string Path, string filename) {
             ResourceSaver.Save_ByFullPath(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
             return s;
+        }
+
+        public static void UpdatePrefab (this ISTD s, GameObject go) {
+            var iK = s as IKeepMySTD;
+
+            if (iK != null)
+                iK.UpdateSTDdata();
+
+            go.UpdatePrefab();
+        }
+
+        public static void UpdateSTDdata(this IKeepMySTD s) {
+            if (s != null)
+                s.Config_STD = s.Encode().ToString();
         }
 
 		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ISTD, new() {

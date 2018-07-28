@@ -18,11 +18,11 @@ namespace Playtime_Painter {
         
         public static MeshManager Inst { get
             {
-                return PainterManager.Inst.meshManager;
+                return PainterCamera.Inst.meshManager;
             }
         }
 
-        public static Transform Transform { get { return PainterManager.Inst.transform; } }
+        public static Transform Transform { get { return PainterCamera.Inst.transform; } }
 
         public static float animTextureSize = 128;
 
@@ -33,7 +33,7 @@ namespace Playtime_Painter {
 			return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
         }
         
-        public MeshToolBase MeshTool { get { return PainterConfig.Inst.MeshTool; } }
+        public MeshToolBase MeshTool { get { return PainterDataAndConfig.dataHolder.MeshTool; } }
 
         public int editedUV = 0;
         public static Vector3 editorMousePos;
@@ -129,7 +129,7 @@ namespace Playtime_Painter {
                 target = null;
             }
             Grid.Deactivateverts();
-            GridNavigator.inst().SetEnabled(false, false);
+            GridNavigator.Inst().SetEnabled(false, false);
             undoMoves.Clear();
             redoMoves.Clear();
         }
@@ -253,7 +253,7 @@ namespace Playtime_Painter {
             UpdateLocalSpaceV3s();
             Vector3 diff = onGridLocal - vp.localPos;
 
-            diff.Scale(GridNavigator.inst().getGridPerpendicularVector());
+            diff.Scale(GridNavigator.Inst().GetGridPerpendicularVector());
             vp.localPos += diff;
         }
         public void AssignSelected(Vertex newpnt)
@@ -945,8 +945,8 @@ namespace Playtime_Painter {
             Vector3 piecePos = target.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
-            Vector3 projected = GridNavigator.inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
-            Vector3 GridMask = GridNavigator.inst().getGridMaskVector() * 128 + projected;
+            Vector3 projected = GridNavigator.Inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
+            Vector3 GridMask = GridNavigator.Inst().GetGridMaskVector() * 128 + projected;
 
 
 
@@ -990,7 +990,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             EditorApplication.update -= EditingUpdate;
-            if (!PainterManager.Inst.ApplicationIsAboutToEnterPlayMode())
+            if (!PainterCamera.Inst.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += EditingUpdate;
 #endif
         }
@@ -1051,7 +1051,7 @@ namespace Playtime_Painter {
             "Mesh Name:".edit(70, ref target.meshNameHolder);
 
 #if UNITY_EDITOR
-            if (((AssetDatabase.GetAssetPath(target.getMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.getMesh().name)!=0))  && 
+            if (((AssetDatabase.GetAssetPath(target.GetMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.GetMesh().name)!=0))  && 
                 (icon.Save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
 #endif
 

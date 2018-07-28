@@ -36,7 +36,7 @@ public class HintController : MonoBehaviour {
             case HintStage.addTexture:
                 ntext = "Ship on the left has no texture. Select him with " +mb+ " and click 'Create Texture'"; break;
             case HintStage.renderTexture:
-                int size = PainterManager.renderTextureSize;
+                int size = PainterCamera.renderTextureSize;
                 ntext = "Change MODE to Render Texture. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n" +
                     "When using Render Texture to edit different texture2D, \n pixels will be updated at previous one."; break;
             }

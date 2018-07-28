@@ -353,11 +353,9 @@ namespace SharedTools_Stuff
         public List<SavedISTD> states = new List<SavedISTD>();
         public int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
-      //  public string fileNameHolder = "";
         public static ISTD inspectedSTD;
         public bool SaveToFileOptions;
-
-
+        
 #if PEGI
 
         public static bool PEGI_Static(ISTD target)
@@ -395,7 +393,6 @@ namespace SharedTools_Stuff
                 aded.dataExplorer.data = target.Encode().ToString();
                 aded.NameForPEGI = target.ToPEGIstring();
                 aded.comment = DateTime.Now.ToString();
-                //inspectedState = states.Count - 1;
             }
 
             if (inspectedState == -1)
@@ -414,8 +411,8 @@ namespace SharedTools_Stuff
                 if (selfSTD != null)
                 {
                     if (icon.Save.Click("Save On itself"))
-                        selfSTD.config_STD = selfSTD.Encode().ToString();
-                    var slfData = selfSTD.config_STD;
+                        selfSTD.UpdateSTDdata(); //Config_STD = selfSTD.Encode().ToString();
+                    var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
                         slfData.DecodeInto(target);
                  }

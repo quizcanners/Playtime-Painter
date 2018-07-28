@@ -12,7 +12,7 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : SceneViewEditable<PlaytimePainter> {
 
-        static PainterConfig cfg { get { return PainterConfig.Inst; } }
+        static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
             return (targ) && ((!targ.LockTextureEditing) || targ.IsEditingThisMesh);
@@ -82,7 +82,7 @@ namespace Playtime_Painter {
 
         public override void FeedEvents(Event e) {
             
-            GridNavigator.inst().FeedEvent(e);
+            GridNavigator.Inst().FeedEvent(e);
 
             if (painter != null) {
 
@@ -127,7 +127,7 @@ namespace Playtime_Painter {
             ef.start(serializedObject);
          
 
-            PainterManager rtp = PainterManager.Inst;
+            PainterCamera rtp = PainterCamera.Inst;
 
             if (!PlaytimePainter.IsCurrent_Tool()) {
                 if (pegi.Click(icon.Off, "Click to Enable Tool", 25)) {
@@ -165,7 +165,7 @@ namespace Playtime_Painter {
 
             if (painter.meshEditing || (PainterStuff.IsNowPlaytimeAndDisabled)) { painter.gameObject.end();  return; } 
 
-            if ((painter.meshRenderer != null || painter.terrain != null) && !cfg.showConfig) {
+            if ((painter.meshRenderer != null || painter.terrain != null) && !Cfg.showConfig) {
 
              
                     if (!painter.LockTextureEditing) {
@@ -287,7 +287,7 @@ namespace Playtime_Painter {
                     if (image != null)
                         painter.UpdateTylingFromMaterial();
 
-                    textureSetterField();
+                    TextureSetterField();
 
                     if ((painter.IsTerrainControlTexture() == false))
                     {
@@ -295,7 +295,7 @@ namespace Playtime_Painter {
                         bool isTerrainHeight = painter.IsTerrainHeightTexture();
 
                         int texScale = (!isTerrainHeight) ?
-                             ((int)Mathf.Pow(2, PainterConfig.Inst.selectedSize + minPow))
+                             ((int)Mathf.Pow(2, PainterDataAndConfig.dataHolder.selectedSize + minPow))
 
                             : (painter.terrain.terrainData.heightmapResolution - 1);
 
@@ -311,18 +311,18 @@ namespace Playtime_Painter {
                                 if (isTerrainHeight)
                                     painter.CreateTerrainHeightTexture(painter.nameHolder);
                                 else
-                                    painter.CreateTexture2D(texScale, painter.nameHolder, cfg.newTextureIsColor);
+                                    painter.CreateTexture2D(texScale, painter.nameHolder, Cfg.newTextureIsColor);
                             }
 
 
 
-                            if ((image == null) && (cfg.moreOptions) && ("Create Render Texture".Click()))
+                            if ((image == null) && (Cfg.moreOptions) && ("Create Render Texture".Click()))
                             {
                                 changes = true;
                                 painter.CreateRenderTexture(texScale, painter.nameHolder);
                             }
 
-                            if ((image != null) && (cfg.moreOptions))
+                            if ((image != null) && (Cfg.moreOptions))
                             {
                                 if ((image.renderTexture == null) && ("Add Render Tex".Click()))
                                 {
@@ -367,7 +367,7 @@ namespace Playtime_Painter {
 
                         if (!isTerrainHeight)
                         {
-                            "Color:".toggle("Will the new texture be a Color Texture", 40, ref cfg.newTextureIsColor);
+                            "Color:".toggle("Will the new texture be a Color Texture", 40, ref Cfg.newTextureIsColor);
                             ef.write("Size:", "Size of the new Texture", 40);
                             if ((texSizes == null) || (texSizes.Length != range))
                             {
@@ -376,7 +376,7 @@ namespace Playtime_Painter {
                                     texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
                             }
 
-                            ef.select(ref PainterConfig.Inst.selectedSize, texSizes, 60);
+                            ef.select(ref PainterDataAndConfig.dataHolder.selectedSize, texSizes, 60);
                         }
                         ef.newLine();
                     }
@@ -424,7 +424,7 @@ namespace Playtime_Painter {
 #endif
         }
 
-        bool textureSetterField() {
+        bool TextureSetterField() {
             string field = painter.MaterialTexturePropertyName;
             if ((field == null) || (field.Length == 0)) return false;
 

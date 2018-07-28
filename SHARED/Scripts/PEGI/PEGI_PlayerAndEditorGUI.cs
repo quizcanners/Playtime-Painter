@@ -2902,6 +2902,8 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref int val)
         {
 
+
+
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
@@ -3122,6 +3124,7 @@ namespace PlayerAndEditorGUI
         static string editedHash = "";
         public static bool editDelayed(ref string val)
         {
+            if (val.LengthIsTooLong()) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -3157,6 +3160,8 @@ namespace PlayerAndEditorGUI
 
         public static bool editDelayed(ref string val, int width)
         {
+
+            if (val.LengthIsTooLong()) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -3298,9 +3303,25 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        const int maxStringSize = 1000;
+
+        static bool LengthIsTooLong (this string label) {
+            if (label == null || label.Length < maxStringSize)
+                return false;
+            else
+            {
+                // editBig(ref label);
+                if (icon.Delete.Click())
+                    label = "";
+                write("String is too long " + label.Substring(0, 10));
+            }
+            return true;
+        }
 
         public static bool edit(ref string val)
         {
+
+            if (val.LengthIsTooLong()) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -3324,6 +3345,8 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(ref string val, int width)
         {
+
+            if (val.LengthIsTooLong()) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -4085,7 +4108,10 @@ namespace PlayerAndEditorGUI
                     editingOrder = list;
             }
             else if (icon.Done.Click("Finish moving", 28))
+            {
+                changed = true;
                 editingOrder = null;
+            }
 
             if (list == editingOrder)
             {
@@ -4093,7 +4119,7 @@ namespace PlayerAndEditorGUI
                 if (!paintingPlayAreaGUI)
                 {
                     nl();
-                    ef.reorder_List(list);
+                    changed |= ef.reorder_List(list);
                 }
                 else
 #endif
@@ -4169,10 +4195,17 @@ namespace PlayerAndEditorGUI
         {
             bool changed = false;
 
+            bool clickHighlightHandeled = false;
+
             var go = el as GameObject;
 
-            if (go != null)
-                el = go.TryGetPEGI();
+            IPEGI pg = null;
+
+            if (go != null) {
+                pg = go.TryGetPEGI();
+                if (pg != null)
+                    el = pg;
+            }
 
             var pl = el as IPEGI_ListInspect;
 
@@ -4183,7 +4216,8 @@ namespace PlayerAndEditorGUI
 
             if (pl == null)
             {
-                var pg = el as IPEGI;
+                if (pg == null)
+                    pg = el as IPEGI;
                 
                 var named = el as IGotName;
                 if (named != null)
@@ -4211,8 +4245,22 @@ namespace PlayerAndEditorGUI
                     if (uo == null && pg == null && datas == null)
                         el.ToPEGIstring().write();
                     else
+                    {
+                        Texture tex = null;
+
+                        if (uo) {
+                            tex = uo as Texture;
+                            if (tex)
+                            {
+                                uo.clickHighlight(tex); //, 25);
+                                clickHighlightHandeled = true;
+                            }
+                        }
+                        
                         write(el.ToPEGIstring(), 120 + defaultButtonSize * ((uo == null ? 1 : 0) + (pg == null ? 1 : 0) + (datas == null ? 1 : 0)));
-                }
+
+                    }
+                    }
 
                 //  write(el.ToPEGIstring(), 120 + defaultButtonSize*((uo == null ? 1 : 0)  + (pg == null ? 1 : 0) + (datas == null ? 1: 0)));
 
@@ -4226,6 +4274,7 @@ namespace PlayerAndEditorGUI
             }
             else
             {
+                clickHighlightHandeled = true;
                 changed |= pl.PEGI_inList(list, index, ref edited);
                 if (changed || PEGI_Extensions.EfChanges)
                     pl.SetToDirty();
@@ -4246,16 +4295,19 @@ namespace PlayerAndEditorGUI
 
             }
 
-            if (pl == null)
+            if (!clickHighlightHandeled)
                 uo.clickHighlight();
 
             return changed;
         }
 
-        public static bool clickHighlight(this UnityEngine.Object obj)
+        public static bool clickHighlight(this UnityEngine.Object obj) =>
+           obj.clickHighlight(icon.Search.getIcon());
+
+        public static bool clickHighlight(this UnityEngine.Object obj, Texture tex)
         {
 #if UNITY_EDITOR
-            if (obj != null && icon.Search.Click(msg.HighlightElement.Get()))
+            if (obj != null && tex.Click(msg.HighlightElement.Get()))
             {
                 EditorGUIUtility.PingObject(obj);
                 return true;
@@ -4576,6 +4628,12 @@ namespace PlayerAndEditorGUI
         public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
         {
 
+            if (list == null)
+            {
+                "NULL list".nl();
+                return false;
+            }
+
             bool changed = false;
 
             int before = edited;
@@ -4600,21 +4658,15 @@ namespace PlayerAndEditorGUI
                         if (el == null)
                         {
 
-                            if (from != null && from.Count > 0)
-                            {
-                                if (select(ref el, from))
+                            if (from != null && from.Count > 0 && select(ref el, from))
                                     list[i] = el;
-                            }
-
+                            
                             if (datas.TryGet(i).TryInspect(ref el))
                                 list[i] = el;
-
                         }
                         else
                             changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, datas);
-
-
-
+                        
                         newLine();
                     }
                     list.InspectionEnd().nl();
@@ -4626,8 +4678,7 @@ namespace PlayerAndEditorGUI
             return changed;
 
         }
-
-
+        
         // ...... of New()
         public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T : new()
         {
@@ -5121,12 +5172,10 @@ namespace PlayerAndEditorGUI
 
             if (obj == null) return "NULL";
 
-            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
-            {
-                var uobj = obj as UnityEngine.Object;
-                if (uobj == null)
+            var uobj = obj as UnityEngine.Object;
+
+            if ((uobj == null) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
                     return "NULL Object";
-            }
 
 #if PEGI
             var dn = obj as IGotDisplayName;
@@ -5138,6 +5187,9 @@ namespace PlayerAndEditorGUI
                 return sn.NameForPEGI;
 #endif
 
+            if (uobj)
+                return uobj.name;
+
             return obj.ToString();
         }
 
@@ -5147,6 +5199,35 @@ namespace PlayerAndEditorGUI
             int ind = name.LastIndexOf(".");
             return ind == -1 ? name : name.Substring(ind + 1);
         }
+        
+        public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
+        {
+#if PEGI
+#if UNITY_EDITOR
+            return ef.Inspect(o, (SerializedObject)so);
+#else
+             "PEGI is compiled without UNITY_EDITOR directive".nl();
+                return false;
+#endif
+#else
+            return false;
+#endif
+        }
+
+        public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
+        {
+#if PEGI
+#if UNITY_EDITOR
+            return ef.Inspect_so(o, (SerializedObject)so);
+#else
+             "PEGI is compiled without UNITY_EDITOR directive".nl();
+                return false;
+#endif
+#else
+            return false;
+#endif
+        }
+
 
 #if PEGI
         public static int focusInd;
@@ -5167,26 +5248,6 @@ namespace PlayerAndEditorGUI
                 ef.changes = value;
 #endif
             }
-        }
-
-        public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
-        {
-#if UNITY_EDITOR
-            return ef.Inspect(o, (SerializedObject)so);
-#else
-             "PEGI is compiled without UNITY_EDITOR directive".nl();
-                return false;
-#endif
-        }
-
-        public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
-        {
-#if UNITY_EDITOR
-            return ef.Inspect_so(o, (SerializedObject)so);
-#else
-             "PEGI is compiled without UNITY_EDITOR directive".nl();
-                return false;
-#endif
         }
 
         public static bool Nested_Inspect(this IPEGI pgi)
@@ -5294,7 +5355,7 @@ namespace PlayerAndEditorGUI
         }
 #endif
     }
-    #endregion
+#endregion
 
 
 

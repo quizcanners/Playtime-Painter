@@ -207,7 +207,7 @@ namespace Playtime_Painter
 
         protected static MultiBufferProcessing Mgmt { get { return MultiBufferProcessing.inst; } }
 
-        protected static PainterManager TexMGMT { get { return PainterManager.Inst; } }
+        protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
 
         public virtual string NameForPEGIdisplay() => "Override This";
 
@@ -239,12 +239,12 @@ namespace Playtime_Painter
             if (trg)
             {
                 if (src)
-                    Shader.SetGlobalTexture(PainterConfig.SOURCE_TEXTURE, src);
+                    Shader.SetGlobalTexture(PainterDataAndConfig.SOURCE_TEXTURE, src);
 
                 if (material)
                     Graphics.Blit(src, trg, material);
                 else
-                    PainterManager.Inst.Render(src, trg, shader);
+                    PainterCamera.Inst.Render(src, trg, shader);
                 AfterRender();
 
                 Version++;
@@ -369,7 +369,7 @@ namespace Playtime_Painter
 
         protected override RenderTexture RenderTexture()
         {
-            Shader.SetGlobalTexture(PainterConfig.DESTINATION_BUFFER, TexMGMT.BigRT_pair[1]);
+            Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, TexMGMT.BigRT_pair[1]);
             return TexMGMT.BigRT_pair[0];
         }
 
@@ -451,7 +451,7 @@ namespace Playtime_Painter
                 rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
             }
 
-            Shader.SetGlobalTexture(PainterConfig.DESTINATION_BUFFER, rts[1]);
+            Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, rts[1]);
             return rts[0];
         }
 

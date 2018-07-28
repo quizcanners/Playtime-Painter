@@ -29,14 +29,14 @@ namespace Playtime_Painter {
         public static bool PausePlayback;
 
 
-	public Vector2 delta_uv { get { return uvTo - uvFrom; } }
-	public Vector3 delta_WorldPos { get { return posTo - posFrom; } }
+	public Vector2 Delta_uv { get { return uvTo - uvFrom; } }
+	public Vector3 Delta_WorldPos { get { return posTo - posFrom; } }
 
     public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) {
             return brush.Paint(this, painter);
     }
 
-    public bool crossedASeam() {
+    public bool CrossedASeam() {
 
             if (mouseDwn)
                 return false;
@@ -96,8 +96,8 @@ namespace Playtime_Painter {
         public override bool Decode(string tag, string data) {
 
             switch (tag) {
-                case "fU": dwn(data.ToVector2());  break;
-                case "fP": dwn(data.ToVector3());  break;
+                case "fU": Dwn(data.ToVector2());  break;
+                case "fP": Dwn(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
                 case "tP": posTo = data.ToVector3(); break;
                 case "Up": mouseUp = true; break;
@@ -107,26 +107,26 @@ namespace Playtime_Painter {
 
         }
 
-        public void dwn( Vector3 pos) {
+        public void Dwn( Vector3 pos) {
 
-            dwn();
+            Dwn();
             posFrom = pos;
         }
 
-        public void dwn(Vector2 uv) {
+        public void Dwn(Vector2 uv) {
           //  "decoding down".Log();
-            dwn();
+            Dwn();
             uvFrom  = uv;
         }
 
-        public void dwn(Vector2 uv, Vector3 pos) {
+        public void Dwn(Vector2 uv, Vector3 pos) {
 
-            dwn();
+            Dwn();
             uvFrom = uv;
             posFrom = pos;
         }
 
-        void dwn() {
+        void Dwn() {
             firstStroke = true;
             mouseDwn = true;
             mouseUp = false;
@@ -137,21 +137,21 @@ namespace Playtime_Painter {
 
         public void SetWorldPosInShader()
         {
-            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_FROM, new Vector4(posFrom.x, posFrom.y, posFrom.z, 0));
-            Shader.SetGlobalVector(PainterConfig.BRUSH_WORLD_POS_TO, new Vector4(posTo.x, posTo.y, posTo.z, delta_WorldPos.magnitude));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, new Vector4(posFrom.x, posFrom.y, posFrom.z, 0));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude));
         }
 
-	public static Vector3 brushWorldPositionFrom (Vector2 uv) {  
-				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterManager.orthoSize;
+	public static Vector3 BrushWorldPositionFrom (Vector2 uv) {  
+				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterCamera.orthoSize;
 
 				return new Vector3 (v2.x, v2.y, 10);
     }
 
-      public  Vector3 brushWorldPosition
+      public  Vector3 BrushWorldPosition
         {
             get
             {
-                return brushWorldPositionFrom(uvTo);
+                return BrushWorldPositionFrom(uvTo);
             }
       }
 
@@ -168,7 +168,7 @@ namespace Playtime_Painter {
 
         public StrokeVector()
         {
-            dwn();
+            Dwn();
         }
 
         public StrokeVector (RaycastHit hit, bool texcoord2) {
@@ -176,21 +176,21 @@ namespace Playtime_Painter {
             //inMeshUV = hit.textureCoord;
             uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
             posFrom = posTo = hit.point;
-            dwn();
+            Dwn();
         }
 
         public StrokeVector(Vector3 pos)
         {
 
             posFrom = posTo = pos;
-            dwn();
+            Dwn();
         }
 
         public StrokeVector(Vector2 uv)
         {
 
             uvFrom = uvTo = uv;
-            dwn();
+            Dwn();
         }
 
         public StrokeVector(StrokeVector  other)
@@ -210,7 +210,7 @@ namespace Playtime_Painter {
             firstStroke = other.firstStroke ; // For cases like Lazy Brush, when painting doesn't start on the first frame.
             mouseUp = other.mouseDwn;
 
-            dwn();
+            Dwn();
         }
     }
 

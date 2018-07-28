@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
-    [Serializable]
-    public class MaterialData : IPEGI
+
+    public class MaterialData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName
     {
 
         public static int inspectedMaterial = -1;
@@ -16,6 +17,24 @@ namespace Playtime_Painter
         public Material material;
         public int _selectedTexture;
         public bool usePreviewShader = false;
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_Referance("mat", material)
+            .Add("texInd", _selectedTexture)
+            .Add_Bool("pv", usePreviewShader);
+
+        public override bool Decode(string tag, string data)
+        {
+           switch (tag)
+            {
+                case "mat": data.Decode_Referance(ref material); break;
+                case "texInd":  _selectedTexture = data.ToInt(); break;
+                case "pv": usePreviewShader = data.ToBool(); break;
+                default: return false;
+            }
+            return true;
+        }
+
 
         [NonSerialized]
         public string bufferParameterTarget; // which texture is currently using RenderTexture buffer
@@ -33,18 +52,25 @@ namespace Playtime_Painter
             material = mat;
         }
 
-        public override string ToString()
+        public MaterialData()  {   }
+
+        public string NameForPEGIdisplay() => material == null ? "Error" : material.name;
+
+
+#if PEGI
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            return material == null ? "Error" : material.name;
+            this.ToPEGIstring().write(60, material);
+            if (icon.Enter.Click())
+                edited = ind;
+            material.clickHighlight();
+
+            return false;
         }
 
-        public MaterialData()
-        {
-          //  Debug.Log("No material parameter assigned to data");
-        }
 
-        #if PEGI
-        public bool PEGI() {
+        public override bool PEGI() {
             bool changed = false;
             "Material:".write(60, material);
             pegi.nl();
@@ -60,6 +86,10 @@ namespace Playtime_Painter
 
             return changed;
         }
+
+   
+
+
 #endif
     }
 

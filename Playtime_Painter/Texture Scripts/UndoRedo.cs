@@ -44,7 +44,7 @@ namespace Playtime_Painter {
 
 		public void Set (ImageData from, int globalOrder){
           
-            PainterManager.Inst.Blit(from.CurrentRenderTexture(), rt);
+            PainterCamera.Inst.Blit(from.CurrentRenderTexture(), rt);
 
             SetB(from, globalOrder);
 
@@ -69,7 +69,7 @@ namespace Playtime_Painter {
 
 	
 	public class BackupsLineup {
-		public static PainterManager rtp { get { return PainterManager.Inst; } }
+		public static PainterCamera rtp { get { return PainterCamera.Inst; } }
         public bool isUndo;
 		public int order = 0;
 
@@ -168,7 +168,7 @@ namespace Playtime_Painter {
 
                 bool converted = false;
 
-                if ((PainterManager.Inst.isLinearColorSpace) && (!rtBackup.exclusive))
+                if ((PainterCamera.Inst.isLinearColorSpace) && (!rtBackup.exclusive))
                 {
                     converted = true;
                     id.PixelsToGamma();

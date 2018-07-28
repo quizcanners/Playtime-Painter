@@ -14,10 +14,10 @@ namespace Playtime_Painter
         public override void OnInspectorGUI() => ((PixelArtMeshGenerator)target).Inspect(serializedObject);
     }
     
-    [CustomEditor(typeof(PainterManager))]
+    [CustomEditor(typeof(PainterCamera))]
     public class RenderTexturePainterEditor : Editor
     {
-        public override void OnInspectorGUI() => ((PainterManager)target).Inspect(serializedObject);
+        public override void OnInspectorGUI() => ((PainterCamera)target).Inspect(serializedObject);
     }
 
    /* [CustomEditor(typeof(PainterManagerDataHolder ))]
