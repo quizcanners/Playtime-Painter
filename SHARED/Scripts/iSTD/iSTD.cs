@@ -376,6 +376,8 @@ namespace SharedTools_Stuff
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
 
+                (this.ToPEGIstring() + " Debug").write();
+
                 if (inspectedStuff == -1)
                     pegi.nl();
 

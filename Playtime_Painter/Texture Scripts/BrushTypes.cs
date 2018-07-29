@@ -140,7 +140,7 @@ namespace Playtime_Painter
             if (BrushConfig.InspectedIsCPUbrush)
                 return change;
 
-            if (PainterCamera.Inst.masks.Count > 0)
+            if (TexMGMTdata.masks.Count > 0)
             {
 
                 pegi.Space();
@@ -151,7 +151,7 @@ namespace Playtime_Painter
                 if (InspectedBrush.useMask)
                 {
 
-                    pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref PainterCamera.Inst.masks);
+                    pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks);
 
                     pegi.newLine();
 
@@ -511,9 +511,9 @@ namespace Playtime_Painter
 
             bool changes = false;
 
-            changes |= pegi.select(ref InspectedBrush.selectedDecal, TexMGMT.decals).nl();
+            changes |= pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).nl();
 
-            var decal = TexMGMT.decals.TryGet(InspectedBrush.selectedDecal);
+            var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
             if (decal == null)
                 pegi.write("Select valid decal; Assign to Painter Camera.");

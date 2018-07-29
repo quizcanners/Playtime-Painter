@@ -1232,7 +1232,7 @@ namespace SharedTools_Stuff {
                 List<int> indxs;
                 var allElements = GetAllObjs(out indxs);
 
-                if (icon.Add.Click().nl()) {
+                if (icon.Add.Click("Add "+typeof(T).ToPEGIstring()).nl()) {
                     while (!this.GetIfExists(lastFreeIndex).IsDefaultOrNull())
                         lastFreeIndex++;
 
@@ -1247,6 +1247,9 @@ namespace SharedTools_Stuff {
                         this[ind] = default(T);
                     else
                         el.Name_ClickInspect_PEGI<T>(null, ind, ref edited, null);
+
+                    pegi.nl();
+
                 }
 
             } else

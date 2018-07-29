@@ -400,10 +400,7 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class TexturePackagingProfile : PainterStuff_STD
-            #if PEGI
-            , IGotName
-#endif
+        public class TexturePackagingProfile : PainterStuff_STD  , IGotName
         {
 
             public bool isColor;
@@ -472,7 +469,7 @@ namespace Playtime_Painter {
 
                 bool changed = "Name".edit(80,ref name);
 
-                var path = PainterDataAndConfig.dataHolder.texturesFolderName + "/" + folderName;
+                var path = PainterCamera.Data.texturesFolderName + "/" + folderName;
 
                 if (icon.Save.Click("Will save to " + path, 25).nl())
                 {
@@ -630,7 +627,7 @@ namespace Playtime_Painter {
                     set.LastProduct = tex;
 
 #if UNITY_EDITOR
-                    set.LastProduct = tex.SaveTextureAsAsset(PainterDataAndConfig.dataHolder.texturesFolderName, ref set.name, false);
+                    set.LastProduct = tex.SaveTextureAsAsset(TexMGMTdata.texturesFolderName, ref set.name, false);
 
                     TextureImporter importer = set.LastProduct.GetTextureImporter();
 

@@ -133,8 +133,6 @@ namespace PlayerAndEditorGUI {
                     SpinCenter;
 
                 camTr.position = campos;
-                //   if ((Time.time - SpinStartTime) > 0.5f)
-
                 if (!OrbitingFocused)
                 {
                     camTr.rotation = MyMath.Lerp(camTr.rotation, rot, 200);
@@ -142,8 +140,7 @@ namespace PlayerAndEditorGUI {
                         OrbitingFocused = true;
                 }
                 else camTr.rotation = rot;
-                // }
-
+   
             }
         }
 

@@ -17,7 +17,7 @@ namespace Playtime_Painter
 {
     
     [ExecuteInEditMode]
-    public class PainterCamera : PainterStuffMono, IPEGI, IKeepMySTD
+    public class PainterCamera : PainterStuffMono, IPEGI
     {
         
         [SerializeField] PainterDataAndConfig dataHolder;
@@ -26,13 +26,11 @@ namespace Playtime_Painter
         {
             get
             {
-                if (!_inst)
-                    return PainterDataAndConfig.dataHolder;
+                if (_inst && _inst.dataHolder)
+                    return _inst.dataHolder;
+                
+                return null;
 
-                if (_inst.dataHolder == null)
-                    _inst.dataHolder = PainterDataAndConfig.dataHolder;
-
-                return _inst.dataHolder;
             }
         }
 
@@ -44,8 +42,7 @@ namespace Playtime_Painter
             {
                 if (_inst == null)
                 {
-                    if (Data) _inst = Data.scenePainterManager;
-
+              
                     if (!PainterStuff.applicationIsQuitting)
                     {
 
@@ -77,23 +74,7 @@ namespace Playtime_Painter
             set
             {
                 _inst = value;
-                if (Data)
-                    Data.scenePainterManager = value;
-            }
-        }
-
-        public string STDdata = "";
-
-        public string Config_STD
-        {
-            get
-            {
-                return STDdata;
-            }
-
-            set
-            {
-                STDdata = value;
+     
             }
         }
 
@@ -105,55 +86,6 @@ namespace Playtime_Painter
 
         public const int renderTextureSize = 2048;
 
-        [NonSerialized] public WebCamTexture webCamTexture;
-        
-        public List<ImageData> imgDatas = new List<ImageData>();
-
-        public List<MaterialData> matDatas = new List<MaterialData>();
-
-        public MaterialData GetMaterialDataFor(Material mat)
-        {
-            if (mat == null)
-                return null;
-
-            MaterialData data = null;
-            
-            for (int i=0; i<matDatas.Count; i++) {
-                var md = matDatas[i];
-                if (md != null && md.material) {
-                    if (md.material == mat) {
-                        data = md;
-
-                        if (i > 3)
-                            matDatas.Move(i, 0);
- 
-                        break;
-                    }
-                        
-                } else {
-                    matDatas.RemoveAt(i); i--;
-                }
-            }
-
-            if ( data == null) {
-                data = new MaterialData(mat);
-                matDatas.Add(data);
-            }
-
-       
-
-            return data;
-        }
-
-        [NonSerialized]
-        public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
-
-        public List<Texture> sourceTextures = new List<Texture>();
-
-        public List<Texture> masks = new List<Texture>();
-
-        public List<VolumetricDecal> decals = new List<VolumetricDecal>();
-        
         [SerializeField]
         private List<PainterManagerPluginBase> _plugins;
         public int browsedPlugin;
@@ -219,10 +151,10 @@ namespace Playtime_Painter
         }
 
         public Camera rtcam;
-        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+
         public RenderBrush brushPrefab;
-        public static float orthoSize = 128; // Orthographic size of the camera. 
-        public bool DebugDisableSecondBufferUpdate;
+        public const float orthoSize = 128; // Orthographic size of the camera. 
+
         public RenderBrush brushRendy = null;
 
         public Material defaultMaterial;
@@ -369,7 +301,10 @@ namespace Playtime_Painter
 
             var cfg = TexMGMTdata;
 
-            rtcam.cullingMask = 1 << myLayer;
+            if (!cfg)
+                return;
+
+            rtcam.cullingMask = 1 << cfg.myLayer;
             
             if (!GotBuffers())
             {
@@ -384,7 +319,6 @@ namespace Playtime_Painter
 
             }
 
-
             if (secondBufferDebug != null)
             {
                 secondBufferDebug.sharedMaterial.mainTexture = BigRT_pair[1];
@@ -393,7 +327,7 @@ namespace Playtime_Painter
             }
 
             if (Camera.main != null)
-                Camera.main.cullingMask &= ~(1 << myLayer);
+                Camera.main.cullingMask &= ~(1 << Data.myLayer);
         }
 
         public static bool GotBuffers()
@@ -420,7 +354,7 @@ namespace Playtime_Painter
         public void Shader_UpdateDecal(BrushConfig brush)
         {
 
-            VolumetricDecal vd = decals.TryGet(brush.selectedDecal);
+            VolumetricDecal vd = Data.decals.TryGet(brush.selectedDecal);
 
             if (vd != null)
             {
@@ -457,7 +391,7 @@ namespace Playtime_Painter
             if (isDecal) Shader_UpdateDecal(brush);
 
             if (brush.useMask && RendTex) 
-                Shader.SetGlobalTexture("_SourceMask", masks.TryGet(brush.selectedSourceMask));
+                Shader.SetGlobalTexture("_SourceMask", Data.masks.TryGet(brush.selectedSourceMask));
 
             Shader.SetGlobalVector("_maskDynamics", new Vector4(
                 brush.maskTiling,
@@ -498,7 +432,7 @@ namespace Playtime_Painter
             }
 
             if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
-                Shader.SetGlobalTexture("_SourceTexture", sourceTextures.TryGet(brush.selectedSourceTexture));
+                Shader.SetGlobalTexture("_SourceTexture", Data.sourceTextures.TryGet(brush.selectedSourceTexture));
 
         }
 
@@ -633,7 +567,7 @@ namespace Playtime_Painter
         public bool secondBufferUpdated = false;
         public void UpdateBufferSegment()
         {
-            if (!DebugDisableSecondBufferUpdate)
+            if (!Data.DebugDisableSecondBufferUpdate)
             {
                 brushRendy.Set(BigRT_pair[0]);
                 rtcam.targetTexture = BigRT_pair[1];
@@ -653,13 +587,16 @@ namespace Playtime_Painter
 
             Inst = this;
 
-
+            if (!Data)
+                dataHolder = Resources.Load("Painter_Data") as PainterDataAndConfig;
+            
             if (meshManager == null)
                 meshManager = new MeshManager();
            
             meshManager.OnEnable();
 
-            rtcam.cullingMask = 1 << myLayer;
+            if (Data)
+            rtcam.cullingMask = 1 << Data.myLayer;
 
             if (PlaytimeToolComponent.enabledTool == null)
             {
@@ -705,7 +642,8 @@ namespace Playtime_Painter
                 }
             }
 
-            UnityHelperFunctions.RenamingLayer(myLayer, "Painter Layer");
+            if (Data)
+                UnityHelperFunctions.RenamingLayer( Data.myLayer, "Painter Layer");
 
 #endif
 
@@ -718,7 +656,8 @@ namespace Playtime_Painter
                     brushRendy.transform.parent = this.transform;
                 }
             }
-            brushRendy.gameObject.layer = myLayer;
+            if (Data)
+            brushRendy.gameObject.layer = Data.myLayer;
             
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
            
@@ -749,17 +688,14 @@ namespace Playtime_Painter
             autodisabledBufferTarget = null;
 
             RefreshPlugins();
-
-            STDdata.DecodeInto(this);
-
-
         }
 
         private void OnDisable()
         {
             PainterStuff.applicationIsQuitting = true;
 
-            StopCamera();
+            if (Data)
+                Data.OnDisable();
 
             if (PlaytimePainter.IsCurrent_Tool())
                 PlaytimeToolComponent.SetPrefs();
@@ -772,41 +708,8 @@ namespace Playtime_Painter
             EditorApplication.update -= meshManager.EditingUpdate;
 #endif
 
-
-            STDdata = Encode().ToString();
-
         }
-
-        public override StdEncoder Encode()
-        {
-            for (int i = 0; i < imgDatas.Count; i++) {
-                var id = imgDatas[i];
-                if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
-            }
-            
-            for (int index = 0; index < matDatas.Count; index++) {
-                var md = matDatas[index];
-                if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
-            }
-
-            var cody = this.EncodeUnrecognized()
-                .Add("imgs", imgDatas, Data)
-                .Add("mats", matDatas, Data);
-
-            return cody;
-        }
-
-        public override bool Decode(string tag, string data)
-        {
-            switch (tag) {
-                case "imgs": data.DecodeInto(out imgDatas, Data); break;
-                case "mats": data.DecodeInto(out matDatas, Data); break;
-                default: return false;
-            }
-             return true;            
-        }
-
-
+        
 #if UNITY_EDITOR
 
         void BeforeClosing()
@@ -844,45 +747,17 @@ namespace Playtime_Painter
             if (Application.isPlaying)
                 CombinedUpdate();
 
-            meshManager.Update();
+            if (Data)
+                meshManager.Update();
         }
 
-        public void StopCamera()
-        {
-            if (webCamTexture != null)
-            {
-                webCamTexture.Stop();
-                webCamTexture.DestroyWhatever();
-                webCamTexture = null;
-            }
-        }
 
-        float cameraUnusedTime = 0f;
-        public Texture GetWebCamTexture()
-        {
-            cameraUnusedTime = 0;
-
-
-            if (webCamTexture == null)
-                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
-
-            if (!webCamTexture.isPlaying)
-                webCamTexture.Play();
-
-
-            return webCamTexture;
-        }
-        
         public void CombinedUpdate()
         {
+            if (!Data)
+                return;
 
-            if (webCamTexture && webCamTexture.isPlaying)
-            {
-                cameraUnusedTime += Time.deltaTime;
-
-                if (cameraUnusedTime > 10f)
-                    webCamTexture.Stop();
-            }
+                Data.RemoteUpdate();
 
             List<PlaytimePainter> l = PlaytimePainter.playbackPainters;
 
@@ -896,7 +771,7 @@ namespace Playtime_Painter
 
             PlaytimeToolComponent.CheckRefocus();
 
-            if ((TexMGMTdata.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
+            if (Data && (Data.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
             {
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
@@ -936,8 +811,8 @@ namespace Playtime_Painter
         }
         
 #if PEGI
-        [SerializeField] bool showImgDatas;
-        [SerializeField] int inspectedImgData = -1;
+   
+       
         public override bool PEGI()
         {
 
@@ -952,11 +827,7 @@ namespace Playtime_Painter
                     AssetDatabase.Refresh();
                 }
             }
-            else if ("Delete data".Click().nl())
-            {
-                PainterDataAndConfig.dataHolder = null;
-                dataHolder = null;
-            }
+          
 #endif
 
             pegi.nl();
@@ -969,25 +840,8 @@ namespace Playtime_Painter
             if (Data)
                 Data.Nested_Inspect().nl();
 
-            if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
-                "Image Datas".edit_List(imgDatas, ref inspectedImgData, true);
-
-            if (inspectedImgData == -1)
-            {
-                if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                    matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
-
-#if UNITY_EDITOR
-                "Using layer:".nl();
-                myLayer = EditorGUILayout.LayerField(myLayer);
-#endif
-                pegi.newLine();
-                "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
-
-                "Source Textures".edit_List_Obj(sourceTextures, true).nl();
-                "Masks".edit_List_Obj(masks, true).nl();
-                "Decals".edit(() => decals, this).nl();
-            }
+     
+            
 
             return false;
         }

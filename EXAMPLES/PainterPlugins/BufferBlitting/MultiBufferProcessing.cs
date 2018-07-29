@@ -209,6 +209,8 @@ namespace Playtime_Painter
 
         protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
 
+        protected static PainterDataAndConfig Data { get { return PainterCamera.Data; } }
+
         public virtual string NameForPEGIdisplay() => "Override This";
 
         public virtual Texture GetTextureNext() => null;
@@ -326,11 +328,11 @@ namespace Playtime_Painter
 #if PEGI
         public override string NameForPEGIdisplay() => "Custom: " + Texture.ToPEGIstring();
 
-        public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, TexMGMT.imgDatas);
+        public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgDatas);
 
         public override bool PEGI()
         {
-            "Source".select(50, ref id, TexMGMT.imgDatas);
+            "Source".select(50, ref id, Data.imgDatas);
             Texture tmp = Texture;
             if ("Texture".edit(ref tmp).nl() && (tmp != null))
                 id = tmp.GetImgData();
@@ -490,7 +492,7 @@ namespace Playtime_Painter
         {
             get
             {
-                var cam = TexMGMT ? TexMGMT.webCamTexture : null;
+                var cam = TexMGMT ? Data.webCamTexture : null;
 
                 return Mgmt
                     && (cam == null || cam.isPlaying == false || cam.didUpdateThisFrame);
@@ -499,13 +501,13 @@ namespace Playtime_Painter
 
         public override string NameForPEGIdisplay() => "Web Cam Tex";
 
-        public override Texture GetTextureDisplay() => TexMGMT.webCamTexture;
+        public override Texture GetTextureDisplay() => Data.webCamTexture;
 
-        public override Texture GetTextureNext() => TexMGMT.GetWebCamTexture();
+        public override Texture GetTextureNext() => Data.GetWebCamTexture();
 
         public override bool CanBeAssignedToPainter => true;
 
-        public override void Stop() => TexMGMT.webCamTexture.Stop();
+        public override void Stop() => Data.webCamTexture.Stop();
         
 
 #if PEGI
@@ -514,15 +516,15 @@ namespace Playtime_Painter
 
             "WebCam".write(60);
 
-            var cam = TexMGMT ? TexMGMT.webCamTexture : null;
+            var cam = TexMGMT ? Data.webCamTexture : null;
 
             if (cam != null && cam.isPlaying && icon.Pause.Click("Stop Camera"))
-                TexMGMT.StopCamera();
+                Data.StopCamera();
 
             if ((cam == null || !cam.isPlaying) && WebCamTexture.devices.Length > 0 && icon.Play.Click("Start Camera"))
             {
-                TexMGMT.webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
-                TexMGMT.webCamTexture.Play();
+                Data.webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
+                Data.webCamTexture.Play();
             }
             return false;
         }

@@ -26,11 +26,8 @@ namespace STD_Logic
         bool waiting;
         float timeToWait = -1;
         public static int currentLogicVersion = 0;
-        public static void AddLogicVersion()
-        {
-            currentLogicVersion++;
-        }
-
+        public static void AddLogicVersion() => currentLogicVersion++;
+        
         public static int RealTimeOnStartUp = 0;
 
         public static int RealTimeNow()
@@ -55,7 +52,9 @@ namespace STD_Logic
             waiting = true;
         }
 
-        public virtual void Update()
+        public virtual void DerrivedUpdate() { }
+
+        public void Update()
         {
             if (waiting)
             {
@@ -66,22 +65,28 @@ namespace STD_Logic
                     AddLogicVersion();
                 }
             }
+
+            DerrivedUpdate();
         }
 
         public void Awake() => RealTimeNow();
 
-
 #if PEGI
-        [SerializeField] protected int browsedStuff = -1;
+        [SerializeField] protected int inspectedLogicBranchStuff = -1;
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
         public override bool PEGI()
         {
-            var changed =  base.PEGI();
+            var changed = false;
+
+            if (inspectedLogicBranchStuff == -1)
+                changed |= base.PEGI();
+            else
+                showDebug = false;
 
             pegi.nl();
 
-            if (!showDebug && "Trigger Groups".fold_enter_exit(ref browsedStuff, 0))
+            if (!showDebug && icon.Condition.fold_enter_exit("Trigger Groups", ref inspectedLogicBranchStuff, 0))
             {
 
                 pegi.nl();
@@ -101,6 +106,7 @@ namespace STD_Logic
                 }
             }
 
+            pegi.nl();
 
             return changed;
         }

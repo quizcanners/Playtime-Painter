@@ -32,15 +32,13 @@ namespace Playtime_Painter{
         
         public static bool IsCurrent_Tool() => enabledTool == typeof(PlaytimePainter); 
 
-        protected static PainterDataAndConfig Cfg => PainterDataAndConfig.dataHolder; 
+        protected static PainterDataAndConfig Cfg => PainterCamera.Data; 
 
         protected static BrushConfig GlobalBrush => Cfg.brushConfig; 
 
         public BrushType GlobalBrushType => GlobalBrush.Type(ImgData.TargetIsTexture2D()); 
 
         protected static PainterCamera TexMGMT => PainterCamera.Inst; 
-
-        protected static PainterDataAndConfig TexMGMTdata => PainterDataAndConfig.dataHolder;
 
         protected static MeshManager MeshMGMT => MeshManager.Inst; 
 
@@ -450,10 +448,10 @@ namespace Playtime_Painter{
             Shader shd = null;
 
             if (meshEditing)
-                shd = TexMGMTdata.mesh_Preview;
+                shd = Cfg.mesh_Preview;
             else
             {
-                if (terrain != null) shd = TexMGMTdata.TerrainPreview;
+                if (terrain != null) shd = Cfg.TerrainPreview;
                 else
                 {
 
@@ -464,7 +462,7 @@ namespace Playtime_Painter{
                     }
 
                     if (shd == null)
-                        shd = TexMGMTdata.br_Preview;
+                        shd = Cfg.br_Preview;
                 }
             }
 
@@ -887,7 +885,7 @@ namespace Playtime_Painter{
 
             if (fieldName != null) {
                 if (id != null)
-                    TexMGMT.recentTextures.AddIfNew(fieldName, id);
+                    Cfg.recentTextures.AddIfNew(fieldName, id);
 
                 foreach (PainterPluginBase nt in plugins)
                     if (nt.setTextureOnMaterial(fieldName, id, this))    
@@ -933,7 +931,7 @@ namespace Playtime_Painter{
             if ((mat == null) && (terrain != null))
             {
 
-                mat = new Material(TexMGMTdata.TerrainPreview);
+                mat = new Material(Cfg.TerrainPreview);
 
                 terrain.materialTemplate = mat;
                 terrain.materialType = Terrain.MaterialType.Custom;
@@ -1777,8 +1775,8 @@ namespace Playtime_Painter{
 #endif
 
 #if BUILD_WITH_PAINTER
-                if (Cfg.enablePainterUIonPlay)
-                        base.OnGUI();
+                if (Cfg && Cfg.enablePainterUIonPlay)
+                   base.OnGUI();
 #endif
 
         }
@@ -1792,10 +1790,20 @@ namespace Playtime_Painter{
         public static PlaytimePainter inspectedPainter;
 #if PEGI
         public bool PEGI_MAIN() {
-            inspectedPainter = this;
+
             TexMGMT.focusedPainter = this;
+
+            if (!Cfg)
+            {
+                "No Painter Config Detected".nl();
+                return false;
+            }
+
+            inspectedPainter = this;
+          
             
             bool changed = false;
+
 
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
@@ -1864,7 +1872,7 @@ namespace Playtime_Painter{
 
                 pegi.newLine();
 
-                PainterDataAndConfig.dataHolder.Nested_Inspect();
+                Cfg.Nested_Inspect();
 
             }
             else
@@ -2043,7 +2051,7 @@ namespace Playtime_Painter{
 
                     changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
-                    if ((id.backupManually) && ("Backup for UNDO".nl()))
+                    if ((id.backupManually) && ("Backup for UNDO".Click()))
                         id.Backup();
 
                     //if (cfg.moreOptions || id.useTexcoord2)

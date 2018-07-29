@@ -205,7 +205,10 @@ public class GridNavigator : PainterStuffMono {
     public void UpdatePositions() {
 
         MeshManager m = MeshMGMT;
-        var cfg = PainterDataAndConfig.dataHolder;
+        var cfg = TexMGMTdata;
+
+        if (cfg == null)
+            return;
 
         bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
@@ -307,7 +310,7 @@ public class GridNavigator : PainterStuffMono {
         if (Application.isPlaying) 
             ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
 
-        if (MeshMGMT.target == null)
+        if (MeshMGMT.target == null && TexMGMTdata)
             UpdatePositions();
         
     }

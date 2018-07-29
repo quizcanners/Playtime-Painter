@@ -152,10 +152,10 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if ((InspectedBrush.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture())) {
-                if (TexMGMT.sourceTextures.Count > 0)
+                if (TexMGMTdata.sourceTextures.Count > 0)
                 {
                     pegi.write("Copy From:", 70);
-                    changed |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceTexture, ref TexMGMT.sourceTextures);
+                    changed |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures);
                 }
                 else
                     "Add Textures to Render Camera to copy from".nl();

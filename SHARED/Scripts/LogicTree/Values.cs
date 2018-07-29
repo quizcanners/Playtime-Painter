@@ -9,7 +9,6 @@ namespace STD_Logic {
 
 
     public class Values: AbstractKeepUnrecognized_STD  , IPEGI
-
     {
 
         public static Values global = new Values();
@@ -127,10 +126,12 @@ namespace STD_Logic {
 
                 foreach (TriggerGroup td in TriggerGroup.all) 
                     td.PEGI();
-  
+
+            if (TriggerGroup.Browsed != null)
+            {
                 TriggerGroup.Browsed.AddTrigger_PEGI(null);
-                
                 TriggerGroup.Browsed.showInInspectorBrowser = true;
+            }
                 
             pegi.nl();
 

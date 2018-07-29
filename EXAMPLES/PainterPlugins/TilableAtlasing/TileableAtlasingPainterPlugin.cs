@@ -627,7 +627,7 @@ namespace Playtime_Painter {
             foreach (var f in fields)
                 changed |= f.Nested_Inspect();
 
-            changed |= "Mesh Profile".select(110, ref matAtlasProfile, PainterDataAndConfig.dataHolder.meshPackagingSolutions).nl();
+            changed |= "Mesh Profile".select(110, ref matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
 
             if ((DestinationMaterial != null) && (!DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
             {
@@ -676,7 +676,7 @@ namespace Playtime_Painter {
     public class AtlasTextureCreator : IGotName, IPEGI
     {
 
-        static PainterDataAndConfig Cfg => PainterDataAndConfig.dataHolder;
+        static PainterDataAndConfig Cfg => PainterCamera.Data;
 
         public int AtlasSize = 2048;
 

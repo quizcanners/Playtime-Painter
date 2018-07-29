@@ -28,7 +28,7 @@ namespace Playtime_Painter
 
 #if UNITY_EDITOR
 
-            string path = PainterDataAndConfig.dataHolder.meshesFolderName + "/" + folderName;
+            string path = PainterCamera.Data.meshesFolderName + "/" + folderName;
             if (icon.Save.Click("Save To:" + path, 25).nl())
             {
                 this.SaveToAssets(path, name).RefreshAssetDatabase();
@@ -42,8 +42,8 @@ namespace Playtime_Painter
             {
                 var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Decode(ResourceLoader.LoadStory(myType)));
 
-                PainterDataAndConfig.dataHolder.meshPackagingSolutions.Add(msol);
-                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterDataAndConfig.dataHolder.meshPackagingSolutions.Count - 1;
+                PainterCamera.Data.meshPackagingSolutions.Add(msol);
+                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
             }
 #endif
 
@@ -519,7 +519,7 @@ namespace Playtime_Painter
 
             var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
 
-            var prf = PainterDataAndConfig.dataHolder.meshPackagingSolutions;
+            var prf = PainterCamera.Data.meshPackagingSolutions;
 
             for (int i = 0; i < prf.Count; i++)// (var s in PainterDataAndConfig.dataHolder.meshProfileSolutions)
                 if (String.Compare(prf[i].name, name) == 0) return i;

@@ -3,19 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-
+using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class PainterDataAndConfig : STD_ReferancesHolder
+    public class PainterDataAndConfig : STD_ReferancesHolder, IKeepMySTD
     {
-        public static PainterDataAndConfig dataHolder;
-
         public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
 
-        [SerializeField]public PainterCamera scenePainterManager;
+        public string STDdata = "";
+        public string Config_STD { get { return STDdata; }
+            set { STDdata = value; } }
 
         public Shader br_Blit = null;
         public Shader br_Add = null;
@@ -70,6 +73,69 @@ namespace Playtime_Painter
         public const string vertexColorRole = "VertexColorRole_";
         public const string bufferCopyAspectRatio = "_BufferCopyAspectRatio";
 
+        [NonSerialized] public WebCamTexture webCamTexture;
+
+        public List<ImageData> imgDatas = new List<ImageData>();
+
+        public List<MaterialData> matDatas = new List<MaterialData>();
+
+        public MaterialData GetMaterialDataFor(Material mat)
+        {
+            if (mat == null)
+                return null;
+
+            MaterialData data = null;
+
+            for (int i = 0; i < matDatas.Count; i++)
+            {
+                var md = matDatas[i];
+                if (md != null && md.material)
+                {
+                    if (md.material == mat)
+                    {
+                        data = md;
+
+                        if (i > 3)
+                            matDatas.Move(i, 0);
+
+                        break;
+                    }
+
+                }
+                else
+                {
+                    matDatas.RemoveAt(i); i--;
+                }
+            }
+
+            if (data == null)
+            {
+                data = new MaterialData(mat);
+                matDatas.Add(data);
+            }
+
+
+
+            return data;
+        }
+
+        [NonSerialized]
+        public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
+
+        public List<Texture> sourceTextures = new List<Texture>();
+
+        public List<Texture> masks = new List<Texture>();
+
+        public List<VolumetricDecal> decals = new List<VolumetricDecal>();
+
+        public List<MeshPackagingProfile> meshPackagingSolutions;
+
+        public int _meshTool;
+        public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
+        public float bevelDetectionSensetivity = 6;
+
+        public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
+
         public string meshToolsSTD = null;
 
         public static int DamAnimRendtexSize = 128;
@@ -81,14 +147,6 @@ namespace Playtime_Painter
         public bool newVerticesSmooth = true;
         public bool pixelPerfectMeshEditing = false;
         public bool useGridForBrush = false;
-
-        public List<MeshPackagingProfile> meshPackagingSolutions;
-
-        public int _meshTool;
-        public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
-        public float bevelDetectionSensetivity = 6;
-
-        public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
 
         public string materialsFolderName;
         public string texturesFolderName;
@@ -106,6 +164,11 @@ namespace Playtime_Painter
         public bool moreOptions = false;
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
+        public bool DebugDisableSecondBufferUpdate;
+        [SerializeField] bool showImgDatas;
+        [SerializeField] int inspectedImgData = -1;
+        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+
 
         public myIntVec2 samplingMaskSize;
 
@@ -138,6 +201,68 @@ namespace Playtime_Painter
             recordings.Remove(name);
             UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
         }
+
+        public override StdEncoder Encode() 
+        {
+            for (int i = 0; i < imgDatas.Count; i++)
+            {
+                var id = imgDatas[i];
+                if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
+            }
+
+            for (int index = 0; index < matDatas.Count; index++)
+            {
+                var md = matDatas[index];
+                if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
+            }
+
+            var cody = this.EncodeUnrecognized()
+                .Add("imgs", imgDatas, this)
+                .Add("mats", matDatas, this);
+
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "imgs": data.DecodeInto(out imgDatas, this); break;
+                case "mats": data.DecodeInto(out matDatas, this); break;
+                default: return false;
+            }
+            return true;
+        }
+        
+        public bool DatasPEGI()
+        {
+            bool changes = false;
+
+            if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
+                "Image Datas".edit_List(imgDatas, ref inspectedImgData, true);
+
+            if (inspectedImgData == -1)
+            {
+                if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
+                    matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
+
+#if UNITY_EDITOR
+                "Using layer:".nl();
+                myLayer = EditorGUILayout.LayerField(myLayer);
+#endif
+                pegi.newLine();
+                "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
+
+                "Source Textures".edit_List_Obj(sourceTextures, true).nl();
+                "Masks".edit_List_Obj(masks, true).nl();
+                "Decals".edit(() => decals, this).nl();
+               
+            }
+
+            return changes;
+        }
+
+        bool inspectLists = false;
 
         public override bool PEGI()
         {
@@ -215,6 +340,9 @@ namespace Playtime_Painter
 
                 }
 
+                if ("Lists".foldout(ref inspectLists))
+                    changed |= DatasPEGI();
+                
                 "Teaching Notifications".toggle("will show whatever you ae pressing on the screen.", 140, ref ShowTeachingNotifications).nl();
 
                 "Save Textures To:".edit(110, ref texturesFolderName).nl();
@@ -238,7 +366,44 @@ namespace Playtime_Painter
 
             return changed;
         }
-        
+
+        public void RemoteUpdate()
+        {
+            if (webCamTexture && webCamTexture.isPlaying)
+            {
+                cameraUnusedTime += Time.deltaTime;
+
+                if (cameraUnusedTime > 10f)
+                    webCamTexture.Stop();
+            }
+
+        }
+
+        public void StopCamera()
+        {
+            if (webCamTexture != null)
+            {
+                webCamTexture.Stop();
+                webCamTexture.DestroyWhatever();
+                webCamTexture = null;
+            }
+        }
+
+        float cameraUnusedTime = 0f;
+        public Texture GetWebCamTexture()
+        {
+            cameraUnusedTime = 0;
+
+
+            if (webCamTexture == null && WebCamTexture.devices.Length>0)
+                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
+
+            if (webCamTexture && !webCamTexture.isPlaying)
+                webCamTexture.Play();
+
+            return webCamTexture;
+        }
+
         public void Init()
         {
 
@@ -308,18 +473,22 @@ namespace Playtime_Painter
         
         public void OnEnable()
         {
-            dataHolder = this;
             Init();
+            STDdata.DecodeInto(this);
         }
 
-        private void OnDisable()
+        public void OnDisable()
         {
+            StopCamera();
+
             StdEncoder cody = new StdEncoder();
             if (!PainterStuff.applicationIsQuitting)
             {
                 cody.Add("e", MeshToolBase.AllTools);
                 meshToolsSTD = cody.ToString();
             }
+
+            STDdata = Encode().ToString();
         }
         
     }

@@ -491,7 +491,7 @@ namespace Playtime_Painter
             else
                 other = tex;
 
-            PainterCamera.Inst.imgDatas.Insert(0,this);
+            TexMGMTdata.imgDatas.Insert(0,this);
             return this;
         }
 
@@ -538,7 +538,7 @@ namespace Playtime_Painter
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            PainterCamera.Inst.imgDatas.Insert(0,this);
+            TexMGMTdata.imgDatas.Insert(0,this);
             destination = TexTarget.RenderTexture;
             return this;
         }

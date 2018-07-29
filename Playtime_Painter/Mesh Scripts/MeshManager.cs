@@ -33,7 +33,7 @@ namespace Playtime_Painter {
 			return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
         }
         
-        public MeshToolBase MeshTool { get { return PainterDataAndConfig.dataHolder.MeshTool; } }
+        public MeshToolBase MeshTool { get { return PainterCamera.Data.MeshTool; } }
 
         public int editedUV = 0;
         public static Vector3 editorMousePos;
@@ -794,6 +794,8 @@ namespace Playtime_Painter {
         }
 
         public void CombinedUpdate() {
+
+
 
             if (target == null)
                 return;

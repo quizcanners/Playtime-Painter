@@ -198,7 +198,7 @@ namespace Playtime_Painter
 
             MeshManager mgm = MeshMGMT;
 
-            PainterDataAndConfig sd = PainterDataAndConfig.dataHolder;
+            PainterDataAndConfig sd = TexMGMTdata;
 
             if (mgm.MeshTool.ShowGrid) {
                 "Snap to grid:".toggle(100, ref sd.SnapToGrid);

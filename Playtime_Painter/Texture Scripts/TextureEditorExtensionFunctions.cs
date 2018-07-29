@@ -174,7 +174,7 @@ public static class TextureEditorExtensionFunctions  {
             
             if (!pntr.meshEditing) {
 
-                if (!pntr.LockTextureEditing && !PainterDataAndConfig.dataHolder.showConfig && PlaytimePainter.IsCurrent_Tool()) {
+                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrent_Tool()) {
                     if (pntr.GlobalBrushType.NeedsGrid) return true;
 
                     if (GridNavigator.pluginNeedsGrid_Delegates != null)
@@ -183,7 +183,7 @@ public static class TextureEditorExtensionFunctions  {
                 }
                 return false;
             }
-            else return PainterCamera.Inst.meshManager.target == pntr && PainterDataAndConfig.dataHolder.MeshTool.ShowGrid;
+            else return PainterCamera.Inst.meshManager.target == pntr && PainterCamera.Data.MeshTool.ShowGrid;
         }
 
         public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
@@ -243,7 +243,7 @@ public static class TextureEditorExtensionFunctions  {
 
             if (id == null)
             {
-                PainterCamera.Inst.imgDatas.Add(imgDTA);
+                PainterCamera.Data.imgDatas.Add(imgDTA);
                 id = imgDTA;
             }
 
@@ -260,14 +260,14 @@ public static class TextureEditorExtensionFunctions  {
 
             ImageData rid = null;
 
-            var lst = PainterCamera.Inst.imgDatas;
+            var lst = PainterCamera.Data.imgDatas;
 
             for (int i = 0; i < lst.Count; i++) {
                 ImageData id = lst[i];
                 if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
                     rid = id;
                     if (i > 3) 
-                        PainterCamera.Inst.imgDatas.Move(i, 0);
+                        PainterCamera.Data.imgDatas.Move(i, 0);
                     break;
                 }
             }
@@ -368,7 +368,7 @@ public static class TextureEditorExtensionFunctions  {
         }
 
         public static MaterialData GetMaterialData (this Material mat) {
-            return  PainterCamera.Inst?.GetMaterialDataFor(mat);
+            return  PainterCamera.Data?.GetMaterialDataFor(mat);
         }
 
 

@@ -81,21 +81,35 @@ namespace PlayerAndEditorGUI
             {
                 paintingPlayAreaGUI = true;
 
-                elementIndex = 0;
-                lineOpen = false;
-                PEGI_Extensions.focusInd = 0;
+                try
+                {
 
-                GUI.backgroundColor = Color.white;
+                    elementIndex = 0;
+                    lineOpen = false;
+                    PEGI_Extensions.focusInd = 0;
 
-                funk();
+                    //GUI.backgroundColor = Color.white;
 
-                mouseOverUI = windowRect.Contains(Input.mousePosition);
+                    funk();
 
-                newLine();
-                GUI.DragWindow(new Rect(0, 0, 10000, 20));
-                newLine();
-                GUI.color = Color.white;
-                ("Tip:" + GUI.tooltip).nl();
+                    mouseOverUI = windowRect.Contains(Input.mousePosition);
+
+                    newLine();
+                    GUI.DragWindow(new Rect(0, 0, 10000, 20));
+                    newLine();
+                    //GUI.color = Color.white;
+
+                    if (GUI.tooltip != null && GUI.tooltip.Length > 0)
+                        ("Tip:" + GUI.tooltip).nl();
+                } catch (Exception  ex)
+                {
+#if UNITY_EDITOR
+                    UnityEngine.Debug.LogError(ex);
+#endif
+
+
+                } 
+
 
                 paintingPlayAreaGUI = false;
             }
@@ -134,13 +148,9 @@ namespace PlayerAndEditorGUI
 
         public static void checkLine()
         {
-
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
-
                 ef.checkLine();
             }
             else
@@ -151,9 +161,6 @@ namespace PlayerAndEditorGUI
                 GUILayout.BeginHorizontal();
                 lineOpen = true;
             }
-
-
-
         }
 
         public static void end(this GameObject go)
@@ -260,9 +267,9 @@ namespace PlayerAndEditorGUI
             GUI.color = c;
         }
 
-        #endregion
+#endregion
 
-        #region New Line
+                    #region New Line
 
         public static void newLine()
         {
@@ -302,40 +309,36 @@ namespace PlayerAndEditorGUI
             return value.nl();
         }
 
-        public static bool nl(this string value)
+        public static void nl(this string value)
         {
             write(value);
             newLine();
-            return false;
         }
 
-        public static bool nl(this string value, string tip)
+        public static void nl(this string value, string tip)
         {
             write(value, tip);
             newLine();
-            return false;
         }
 
-        public static bool nl(this string value, int width)
+        public static void nl(this string value, int width)
         {
             write(value, width);
             newLine();
-            return false;
         }
 
-        public static bool nl(this string value, string tip, int width)
+        public static void nl(this string value, string tip, int width)
         {
             write(value, tip, width);
             newLine();
-            return false;
         }
 
         public static void nl(this icon icon, int size) => write(icon.getIcon(), size);
 
 
-        #endregion
+                    #endregion
 
-        #region WRITE
+                    #region WRITE
 
         public static void write<T>(T field) where T : UnityEngine.Object
         {
@@ -626,11 +629,11 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+                    #endregion
 
-        #region SELECT
+                    #region SELECT
 
-        #region Extended Select
+                    #region Extended Select
 
         public static bool select(this string text, int width, ref int value, string[] array)
         {
@@ -848,7 +851,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        #endregion
+                    #endregion
 
         public static bool select(ref int no, List<string> from)
         {
@@ -1854,9 +1857,9 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+                    #endregion
 
-        #region Foldout    
+                    #region Foldout    
         public static bool foldout(this string txt, ref bool state)
         {
 
@@ -2015,9 +2018,9 @@ namespace PlayerAndEditorGUI
         public static void foldIn() => selectedFold = -1;
 
 
-        #endregion
+                    #endregion
 
-        #region Click
+                    #region Click
         const int defaultButtonSize = 25;
 
         public static int selectedTab;
@@ -2347,9 +2350,9 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+                    #endregion
 
-        #region Toggle
+                    #region Toggle
 
         public static bool toggleInt(ref int val)
         {
@@ -2554,9 +2557,9 @@ namespace PlayerAndEditorGUI
             return toggle(ref val);
         }
 
-        #endregion
+                    #endregion
 
-        #region edit
+                    #region edit
 
         public static bool editKey(ref Dictionary<int, string> dic, int key)
         {
@@ -3804,11 +3807,11 @@ namespace PlayerAndEditorGUI
 
 #endif
 
-        #endregion
+                    #endregion
 
-        #region LISTS
+                    #region LISTS
 
-        #region List MGMT Functions 
+                    #region List MGMT Functions 
 
         const int listLabelWidth = 105;
 
@@ -4063,6 +4066,9 @@ namespace PlayerAndEditorGUI
 
         static void write_ListLabel(this string label, IList lst, int inspected)
         {
+
+   
+
            // if (inspected == -1)
                 write(label, PEGI_Styles.ListLabel); //else write(label);
         }
@@ -4381,7 +4387,7 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+                    #endregion
 
 
         //Lists ...... of Monobehaviour
@@ -4725,7 +4731,9 @@ namespace PlayerAndEditorGUI
             }
 
             int before = edited;
-            edited = Mathf.Clamp(edited, -1, list.Count - 1);
+            if (edited >= list.Count)
+                edited = -1;
+
             changed |= (edited != before);
 
             if (edited == -1)
@@ -4774,8 +4782,7 @@ namespace PlayerAndEditorGUI
             label.write_ListLabel(list, -1);
             return edit_List<T>(list, allowDelete, ref changed, lambda);
         }
-
-
+        
         public static T edit_List<T>(this List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T : new()
         {
 
@@ -4931,9 +4938,9 @@ namespace PlayerAndEditorGUI
 
         // ....... of Countless
 
-        #endregion
+                    #endregion
 
-        #region Transform
+                    #region Transform
         static bool _editLocalSpace = false;
         public static bool PEGI_CopyPaste(this Transform tf, ref bool editLocalSpace)
         {
@@ -5105,7 +5112,7 @@ namespace PlayerAndEditorGUI
             while (dic.TryGetValue(newEnumKey, out dummy)) newEnumKey++;
         }
 
-        #endregion
+                    #endregion
 
         /*
         class TypeSwitch
@@ -5164,8 +5171,8 @@ namespace PlayerAndEditorGUI
     }
 #endif
 
-    #region Extensions
-    public static class PEGI_Extensions
+                    #region Extensions
+            public static class PEGI_Extensions
     {
         public static string ToPEGIstring(this object obj)
         {

@@ -38,8 +38,8 @@ namespace Playtime_Painter
 
     public class PainterStuffScriptable : ScriptableObject
     {
-        protected static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
-        protected static PainterDataAndConfig TexMGMTdata { get { return PainterDataAndConfig.dataHolder; } }
+        protected static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
+        protected static PainterDataAndConfig TexMGMTdata { get { return PainterCamera.Data; } }
         protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
@@ -65,8 +65,8 @@ namespace Playtime_Painter
         public virtual bool Decode(string tag, string data) => true;
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized();
-        protected static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
-        protected static PainterDataAndConfig TexMGMTdata { get { return PainterDataAndConfig.dataHolder; } }
+        protected static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
+        protected static PainterDataAndConfig TexMGMTdata { get { return PainterCamera.Data; } }
         protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }
@@ -90,8 +90,8 @@ namespace Playtime_Painter
     [Serializable]
     public class PainterStuff {
 
-        protected static PainterDataAndConfig TexMGMTdata { get { return PainterDataAndConfig.dataHolder; } }
-        protected static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
+        protected static PainterDataAndConfig TexMGMTdata { get { return PainterCamera.Data; } }
+        protected static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
         protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
         protected static Transform Rtbrush { get { return TexMGMT.brushRendy.transform; } }
         protected static Mesh BrushMesh { set { TexMGMT.brushRendy.meshFilter.mesh = value; } }

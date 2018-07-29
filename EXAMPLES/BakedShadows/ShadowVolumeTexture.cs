@@ -117,7 +117,7 @@ namespace Playtime_Painter {
             changed |= lights.Nested_Inspect();
 
 
-            if (imageData != null && imageData.texture2D != null) {
+            if (ImageData != null && ImageData.texture2D != null) {
                 bool recalc = false;
 
                 if ("Recalculate ".Click().nl()) {

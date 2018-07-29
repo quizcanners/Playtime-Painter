@@ -198,7 +198,7 @@ namespace Playtime_Painter {
                         var vol = VolumeTexture.all[tmp];
                         if (vol != null) {
                             if (String.Compare(vol.MaterialPropertyName, matProp) == 0) {
-                                if (vol.imageData != null)
+                                if (vol.ImageData != null)
                                     vol.AddIfNew(InspectedPainter);
                                 else
                                     "Volume Has No Texture".showNotification();
@@ -267,9 +267,9 @@ namespace Playtime_Painter {
             
                 if ((br.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
                 {
-                    if (TexMGMT.sourceTextures.Count > 0) {
+                    if (TexMGMTdata.sourceTextures.Count > 0) {
                         pegi.write("Copy From:", 70);
-                        changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref TexMGMT.sourceTextures);
+                        changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref TexMGMTdata.sourceTextures);
                     }
                 else
                     "Add Textures to Render Camera to copy from".nl();
@@ -336,12 +336,12 @@ namespace Playtime_Painter {
         public static void SetVolumeTexture(this Material material, string name, VolumeTexture vt) {
             material.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, vt.PosNsize4Shader);
             material.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, vt.Slices4Shader);
-            material.SetTexture(name, vt.imageData.CurrentTexture());
+            material.SetTexture(name, vt.ImageData.CurrentTexture());
         }
         
         public static void SetVolumeTexture(this List<Material> materials, string name, VolumeTexture vt)
         {
-            if (vt == null || vt.imageData == null) return;
+            if (vt == null || vt.ImageData == null) return;
          
             var PnS = vt.PosNsize4Shader;
             var VhS = vt.Slices4Shader;
@@ -349,7 +349,7 @@ namespace Playtime_Painter {
             foreach (var m in materials) if (m != null) {
                 m.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, PnS );
                 m.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, VhS);
-                m.SetTexture(name, vt.imageData.CurrentTexture());
+                m.SetTexture(name, vt.ImageData.CurrentTexture());
             }
         }
 
@@ -374,14 +374,14 @@ namespace Playtime_Painter {
             if (VolumePaintingPlugin._inst == null || id == null)
                 return null;
 
-            if (lastFetchedVT != null && lastFetchedVT.imageData != null && lastFetchedVT.imageData == id)
+            if (lastFetchedVT != null && lastFetchedVT.ImageData != null && lastFetchedVT.ImageData == id)
                 return lastFetchedVT;
 
             for (int i = 0; i < VolumeTexture.all.Count; i++)
             {
                 var vt = VolumeTexture.all[i];
                 if (vt == null) { VolumeTexture.all.RemoveAt(i); i--; }
-                else if (vt.imageData != null && id == vt.imageData) {
+                else if (vt.ImageData != null && id == vt.ImageData) {
                     lastFetchedVT = vt;
                     return vt;
                 }

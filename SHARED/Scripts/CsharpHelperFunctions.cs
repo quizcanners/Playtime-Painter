@@ -114,6 +114,15 @@ namespace SharedTools_Stuff
             return list[index];
         }
 
+        public static int TryGetIndex<T>(this List<T> list, T obj)
+        {
+            int ind = -1;
+            if (list != null && obj != null)
+                ind = list.IndexOf(obj);
+            
+            return ind;
+        }
+
         public static int TryGetIndexOrAdd<T>(this List<T> list, T obj)
         {
             int ind = -1;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
@@ -20,7 +21,13 @@ namespace Playtime_Painter {
         public float size = 1;
         [NonSerialized]
         Color[] volume;
-        public ImageData imageData; // TODO: Make sure Texture is not split between 2 imageDatas
+        [SerializeField]int imgDataIndex = -1;
+
+        public ImageData ImageData
+        {
+            get { return TexMGMTdata.imgDatas.TryGet(imgDataIndex); }
+            set { imgDataIndex = TexMGMTdata.imgDatas.TryGetIndex(value); }
+        }
 
         public virtual string MaterialPropertyName {get {return "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; } }
 
@@ -30,11 +37,11 @@ namespace Playtime_Painter {
 
         public int Height { get { return h_slices * h_slices; } }
 
-        public int Width{get { return ((imageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): imageData.width)) / h_slices;}}
+        public int Width{get { return ((ImageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): ImageData.width)) / h_slices;}}
 
         public Vector4 PosNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
 
-        public Vector4 Slices4Shader {get { float w = (imageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
+        public Vector4 Slices4Shader {get { float w = (ImageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
         
         public virtual bool NeedsToManageMaterials { get { return true; } }
 
@@ -93,10 +100,10 @@ namespace Playtime_Painter {
 
         public virtual void VolumeToTexture()
         {
-            if (imageData == null)
+            if (ImageData == null)
             {
                 if (TexturesPool._inst != null)
-                    imageData = TexturesPool._inst.GetTexture2D().GetImgData();
+                    ImageData = TexturesPool._inst.GetTexture2D().GetImgData();
                 else
                 {
                     Debug.Log("No Texture for Volume");
@@ -105,9 +112,9 @@ namespace Playtime_Painter {
                 UpdateTextureName();
             }
 
-            Color[] pixels = imageData.Pixels;//new Color32[tex.width * tex.width];
+            Color[] pixels = ImageData.Pixels;//new Color32[tex.width * tex.width];
 
-            int texSectorW = imageData.width / h_slices;
+            int texSectorW = ImageData.width / h_slices;
             int w = Width;
 
             for (int hy = 0; hy < h_slices; hy++)
@@ -115,13 +122,13 @@ namespace Playtime_Painter {
                 for (int hx = 0; hx < h_slices; hx++)
                 {
 
-                    int hTex_index = (hy * imageData.width + hx) * texSectorW;
+                    int hTex_index = (hy * ImageData.width + hx) * texSectorW;
 
                     int h = hy * h_slices + hx;
 
                     for (int y = 0; y < w; y++)
                     {
-                        int yTex_index = hTex_index + y * imageData.width;
+                        int yTex_index = hTex_index + y * ImageData.width;
 
                         int yVolIndex = h * w * w + y * w;
 
@@ -135,13 +142,13 @@ namespace Playtime_Painter {
                 }
             }
 
-            imageData.SetAndApply(false);
+            ImageData.SetAndApply(false);
             UpdateTextureName();
 
 
         }
 
-        public int positionToVolumeIndex(Vector3 pos)
+        public int PositionToVolumeIndex(Vector3 pos)
         {
             pos /= size;
             int hw = Width / 2;
@@ -170,9 +177,9 @@ namespace Playtime_Painter {
         public int VolumeToPixelIndex(int hx, int hy, int y, int x)
         {
 
-            int hTex_index = (hy * imageData.width + hx) * imageData.width / h_slices;
+            int hTex_index = (hy * ImageData.width + hx) * ImageData.width / h_slices;
 
-            int yTex_index = hTex_index + (y) * imageData.width;
+            int yTex_index = hTex_index + (y) * ImageData.width;
 
             int texIndex = yTex_index + x;
 
@@ -197,10 +204,10 @@ namespace Playtime_Painter {
         }
 
         public void UpdateTextureName() {
-            if (imageData != null) {
-                imageData.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
-                if (imageData.texture2D != null) imageData.texture2D.name = imageData.SaveName;
-                if (imageData.renderTexture != null) imageData.renderTexture.name = imageData.SaveName;
+            if (ImageData != null) {
+                ImageData.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
+                if (ImageData.texture2D != null) ImageData.texture2D.name = ImageData.SaveName;
+                if (ImageData.renderTexture != null) ImageData.renderTexture.name = ImageData.SaveName;
             }
         }
 
@@ -220,20 +227,20 @@ namespace Playtime_Painter {
                 Debug.Log("Clearing volume");
             }
 
-            var texture = imageData.CurrentTexture();
+            var texture = ImageData.CurrentTexture();
 
             if (texture == null)
-                imageData = null;
+                ImageData = null;
 
             if ("Texture".edit(60, ref texture).nl()) {
                 changed = true;
-                imageData = texture?.GetImgData();
+                ImageData = texture?.GetImgData();
             }
 
             changed |= "Volume Scale".edit(70,ref size).nl();
             size = Mathf.Max(0.0001f, size);
 
-                if (imageData == null) {
+                if (ImageData == null) {
 
                 if (TexturesPool._inst == null)
                     {
@@ -248,7 +255,7 @@ namespace Playtime_Painter {
                     }
                     else {
                     if ("Get From Pool".Click().nl()) {
-                        imageData = TexturesPool._inst.GetTexture2D().GetImgData();
+                        ImageData = TexturesPool._inst.GetTexture2D().GetImgData();
                         changed = true;
                     }
                     }
@@ -297,7 +304,7 @@ namespace Playtime_Painter {
             if (materials == null)
                 materials = new List<Material>();
 
-            imageData = imageData.EnsureStaticInstance();
+            ImageData = ImageData.EnsureStaticInstance();
 
             all.Add(this);
         }
@@ -309,7 +316,7 @@ namespace Playtime_Painter {
 
         public virtual void OnDrawGizmosSelected()
         {
-            if (imageData != null)
+            if (ImageData != null)
             {
                 Vector3 center = transform.position;
                 var w = Width;

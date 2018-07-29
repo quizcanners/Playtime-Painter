@@ -12,7 +12,7 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : SceneViewEditable<PlaytimePainter> {
 
-        static PainterDataAndConfig Cfg { get { return PainterDataAndConfig.dataHolder; } }
+        static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
 
         public override bool AllowEditing(PlaytimePainter targ) {
             return (targ) && ((!targ.LockTextureEditing) || targ.IsEditingThisMesh);
@@ -114,20 +114,32 @@ namespace Playtime_Painter {
 
         public override void OnInspectorGUI() {
 
-            painter = (PlaytimePainter)target;
+        
 #if PEGI
 
               bool changes = false;
+
+            painter = (PlaytimePainter)target;
 
             if  (painter.gameObject.IsPrefab()) {
                 "Inspecting a prefab.".nl();
                 return;
             }
 
+            PainterCamera rtp = PainterCamera.Inst;
+
+            if (!Cfg)
+            {
+                "No Config Detected".nl();
+                return;
+            }
+
+           
+
             ef.start(serializedObject);
          
 
-            PainterCamera rtp = PainterCamera.Inst;
+
 
             if (!PlaytimePainter.IsCurrent_Tool()) {
                 if (pegi.Click(icon.Off, "Click to Enable Tool", 25)) {
@@ -295,7 +307,7 @@ namespace Playtime_Painter {
                         bool isTerrainHeight = painter.IsTerrainHeightTexture();
 
                         int texScale = (!isTerrainHeight) ?
-                             ((int)Mathf.Pow(2, PainterDataAndConfig.dataHolder.selectedSize + minPow))
+                             ((int)Mathf.Pow(2, PainterCamera.Data.selectedSize + minPow))
 
                             : (painter.terrain.terrainData.heightmapResolution - 1);
 
@@ -376,7 +388,7 @@ namespace Playtime_Painter {
                                     texSizes[i] = Mathf.Pow(2, i + minPow).ToString();
                             }
 
-                            ef.select(ref PainterDataAndConfig.dataHolder.selectedSize, texSizes, 60);
+                            ef.select(ref PainterCamera.Data.selectedSize, texSizes, 60);
                         }
                         ef.newLine();
                     }
@@ -389,7 +401,7 @@ namespace Playtime_Painter {
 
                     string texName = painter.MaterialTexturePropertyName;
 
-                    if ((texName != null) && (rtp.recentTextures.TryGetValue(texName, out recentTexs))
+                    if ((texName != null) && (PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs))
                         && ((recentTexs.Count > 1) || (painter.ImgData == null)))
                     {
                         ef.write("Recent Texs:", 60);
