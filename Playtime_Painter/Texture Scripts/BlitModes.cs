@@ -277,7 +277,7 @@ namespace Playtime_Painter
 
             public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
-            public myIntVec2 currentPixel = new myIntVec2();
+            public MyIntVec2 currentPixel = new MyIntVec2();
 
             public ColorSetMethod method;
 
@@ -315,7 +315,7 @@ namespace Playtime_Painter
             if (method == ColorSetMethod.Manual) {
                 changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
 
-                currentPixel.Clamp(-Cfg.samplingMaskSize.max, Cfg.samplingMaskSize.max * 2);
+                currentPixel.Clamp(-Cfg.samplingMaskSize.Max, Cfg.samplingMaskSize.Max * 2);
             }
 
             var id = InspectedImageData;

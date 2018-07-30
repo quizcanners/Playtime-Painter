@@ -72,7 +72,7 @@ namespace Playtime_Painter {
 
                 Blit_Functions.csrc = bc.colorLinear.ToGamma();
 
-                myIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+                MyIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
                 int fromx = tmp.x - ihalf;
 
@@ -115,7 +115,7 @@ namespace Playtime_Painter {
             return false;
         }
 
-        public static myIntVec2 atlasSector = new myIntVec2();
+        public static MyIntVec2 atlasSector = new MyIntVec2();
         public static int sectorSize = 1;
 
         public override bool offsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)

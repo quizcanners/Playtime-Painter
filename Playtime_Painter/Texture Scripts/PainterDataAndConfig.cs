@@ -170,7 +170,7 @@ namespace Playtime_Painter
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
 
-        public myIntVec2 samplingMaskSize;
+        public MyIntVec2 samplingMaskSize;
 
         public int selectedSize = 4;
 
@@ -419,7 +419,7 @@ namespace Playtime_Painter
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
                 };
             
-            if (samplingMaskSize == null) samplingMaskSize = new myIntVec2(4);
+            if (samplingMaskSize == null) samplingMaskSize = new MyIntVec2(4);
 
             if (atlasFolderName == null || atlasFolderName.Length == 0)
             {

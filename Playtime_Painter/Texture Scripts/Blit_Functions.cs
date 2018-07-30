@@ -145,7 +145,7 @@ public static class Blit_Functions {
         bool smooth = bc.Type(true) != BrushTypePixel.Inst;
         if (smooth) ihalf += 1;
         
-        myIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+        MyIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
 		int fromx = tmp.x - ihalf;
 

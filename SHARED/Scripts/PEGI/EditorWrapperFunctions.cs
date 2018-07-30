@@ -802,7 +802,7 @@ namespace PlayerAndEditorGUI {
             return modified ? change : false;
         }
 
-        public static bool edit(ref myIntVec2 val)
+        public static bool edit(ref MyIntVec2 val)
         {
             checkLine();
             bool modified = false;
@@ -811,7 +811,7 @@ namespace PlayerAndEditorGUI {
             return modified ? change : false;
         }
 
-        public static bool edit(ref myIntVec2 val, int min, int max)
+        public static bool edit(ref MyIntVec2 val, int min, int max)
         {
             checkLine();
             bool modified = false;
@@ -820,7 +820,7 @@ namespace PlayerAndEditorGUI {
             return modified ? change : false;
         }
 
-        public static bool edit(ref myIntVec2 val, int min, myIntVec2 max)
+        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
         {
             checkLine();
             bool modified = false;

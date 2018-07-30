@@ -440,7 +440,7 @@ namespace Playtime_Painter
             PixelsFromTexture2D(texture2D);
         }
 
-        public Color Pixel(myIntVec2 v)
+        public Color Pixel(MyIntVec2 v)
         {
             v.x %= width;
             while (v.x < 0)
@@ -453,7 +453,7 @@ namespace Playtime_Painter
             return Pixels[((int)v.y) * width + (int)v.x];
         }
 
-        public int PixelNo(myIntVec2 v)
+        public int PixelNo(MyIntVec2 v)
         {
             int x = v.x;
             int y = v.y;
@@ -467,9 +467,9 @@ namespace Playtime_Painter
             return y * width + x;
         }
 
-        public myIntVec2 UvToPixelNumber(Vector2 uv)
+        public MyIntVec2 UvToPixelNumber(Vector2 uv)
         {
-            return new myIntVec2(uv.x * width, uv.y * height);
+            return new MyIntVec2(uv.x * width, uv.y * height);
         }
 
         public void SetAndApply(bool mipmaps)

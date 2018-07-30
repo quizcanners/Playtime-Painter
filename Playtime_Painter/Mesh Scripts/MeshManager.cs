@@ -476,19 +476,19 @@ namespace Playtime_Painter {
 
             acc *= percision;
 
-            if (MyMath.isPointOnLine(t.vertexes[0].meshPoint.distanceToPointed, t.vertexes[1].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[0].Pos, t.vertexes[1].Pos), acc))
+            if (MyMath.IsPointOnLine(t.vertexes[0].meshPoint.distanceToPointed, t.vertexes[1].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[0].Pos, t.vertexes[1].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[0], t.vertexes[1], t);
                 return true;
             }
 
-            if (MyMath.isPointOnLine(t.vertexes[1].meshPoint.distanceToPointed, t.vertexes[2].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[1].Pos, t.vertexes[2].Pos), acc))
+            if (MyMath.IsPointOnLine(t.vertexes[1].meshPoint.distanceToPointed, t.vertexes[2].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[1].Pos, t.vertexes[2].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[1], t.vertexes[2], t);
                 return true;
             }
 
-            if (MyMath.isPointOnLine(t.vertexes[2].meshPoint.distanceToPointed, t.vertexes[0].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[2].Pos, t.vertexes[0].Pos), acc))
+            if (MyMath.IsPointOnLine(t.vertexes[2].meshPoint.distanceToPointed, t.vertexes[0].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[2].Pos, t.vertexes[0].Pos), acc))
             {
                 ProcessPointOnALine(t.vertexes[2], t.vertexes[0], t);
                 return true;
