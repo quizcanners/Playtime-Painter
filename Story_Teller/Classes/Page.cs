@@ -67,7 +67,7 @@ namespace StoryTriggerData{
                 case UniversePosition.storyTag: sPOS.Decode(data); break;
                 case "noClamp": noClamping = data.ToBool(); break;
                 default:
-                    STD_Poolable storyObject = STD_Pool.getOne(tag);
+                    STD_Poolable storyObject = STD_Pool.GetOne(tag);
 
                     if (storyObject != null)
                         data.DecodeInto(storyObject.LinkTo(this));

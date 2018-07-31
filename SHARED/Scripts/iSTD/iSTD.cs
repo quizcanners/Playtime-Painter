@@ -83,7 +83,7 @@ namespace SharedTools_Stuff
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized();
 
-        public virtual ISTD Decode(string data) => data.DecodeInto(this);
+        public virtual ISTD Decode(string data) { data.DecodeInto(this); return this; }
 
         public virtual bool Decode(string tag, string data) => false;
         
@@ -238,7 +238,7 @@ namespace SharedTools_Stuff
     {
 
         public abstract StdEncoder Encode();
-        public virtual ISTD Decode(string data) => data.DecodeInto(this);
+        public virtual ISTD Decode(string data) { data.DecodeInto(this); return this; }
         public virtual ISTD Decode(StdEncoder cody)
         {
 

@@ -18,8 +18,9 @@ namespace StoryTriggerData {
             while (cody.GotData)
             {
                 cody.GetTag();
-                T tmp = (T)STD_Pool.getOne(prefabTag);
-                l.Add(cody.GetData().DecodeInto(tmp));
+                T tmp = (T)STD_Pool.GetOne(prefabTag);
+                cody.GetData().DecodeInto(tmp);
+                l.Add(tmp);
             }
 
             return l;
@@ -29,8 +30,7 @@ namespace StoryTriggerData {
     }
 
     public class StoryTagName : Attribute {
-
-		string tag;
+        readonly string tag;
 
 		public string Tag
 		{
@@ -51,7 +51,7 @@ namespace StoryTriggerData {
         public static bool DestroyingAll = false;
         public static STD_Pool[] all;
 
-        public static IEnumerable<STD_Poolable> allEnabledObjects() {
+        public static IEnumerable<STD_Poolable> AllEnabledObjects() {
             for (int i = 0; i < all.Length; i++) {
                 
                 PoolControllerBase pcb = all[i].pool;
@@ -73,7 +73,7 @@ namespace StoryTriggerData {
             DestroyingAll = false;
         }
 
-        public static STD_Poolable getOne(string tag) {
+        public static STD_Poolable GetOne(string tag) {
             STD_Pool cp;
             if (stdPoolsDictionary.TryGetValue(tag, out cp))
                 return (STD_Poolable)cp.pool.GetScript();
@@ -114,7 +114,7 @@ namespace StoryTriggerData {
 
 	public class STD_PoolGeneric<T> : STD_Pool where T: STD_Poolable, new() {
 
-		public string getCodeTag() {
+		public string GetCodeTag() {
 			var dnAttribute = typeof(T).GetCustomAttributes(
 				typeof(StoryTagName), true
 			).FirstOrDefault() as StoryTagName;
@@ -125,7 +125,7 @@ namespace StoryTriggerData {
 		}
 
 		public STD_PoolGeneric() {
-            storyTag = getCodeTag();
+            storyTag = GetCodeTag();
             pool = new PoolController<T> (8, Resources.Load(Book.PrefabsResourceFolder + "/" + storyTag) as GameObject);
             try {
                 pool.prefab.GetComponent<STD_Poolable>().SetStaticPoolController(this);

@@ -106,7 +106,7 @@ namespace StoryTriggerData {
 
                     int maxToShow = 20;
 
-                    foreach (STD_Poolable obj in STD_Pool.allEnabledObjects()) {
+                    foreach (STD_Poolable obj in STD_Pool.AllEnabledObjects()) {
                    
                         if (objectSearch.SearchCompare(obj.gameObject.name)) {
 

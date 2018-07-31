@@ -8,8 +8,7 @@ namespace SharedTools_Stuff {
     public enum StatLogging_ExampleEnum { Started, DataUpdated, DataProcessed, Ended }
     
     public class StatLogger: IPEGI {
-
-        UnnullableSTD<LogStat> allStats = new UnnullableSTD<LogStat>();
+        readonly UnnullableSTD<LogStat> allStats = new UnnullableSTD<LogStat>();
 
         List<LogStat> executionOrder = new List<LogStat>();
 
@@ -28,6 +27,8 @@ namespace SharedTools_Stuff {
 
                 processedStat.name = name;
 
+                processedStat.myIndex = index;
+
                 processedStat.addedToList = true;
             }
             else
@@ -36,7 +37,10 @@ namespace SharedTools_Stuff {
                 if (ind != 0)
                     executionOrder.Move(ind, 0);
             }
-            
+
+            if (processedStat.outputToLog)
+                Debug.Log(processedStat.ToPEGIstring());
+
             return this;
         }
 
@@ -47,18 +51,29 @@ namespace SharedTools_Stuff {
         public void Rename(string name) => processedStat.name = name;
 
 #if PEGI
+
+        int inspectedStat = -1;
         public bool PEGI()
         {
-            bool changed = "Logs".edit_List(executionOrder, true);
+            bool changed = false;
 
-
+            if (inspectedStat == -1)
+                "Logs".edit_List(executionOrder, ref inspectedStat, true);
+            else
+            {
+                if (icon.Back.Click())
+                    inspectedStat = -1;
+                else
+                    allStats[inspectedStat].PEGI();
+            }
             return changed;
         }
 #endif
     }
 
-    public class LogStat : AbstractKeepUnrecognized_STD, IPEGI, IGotDisplayName
+    public class LogStat : AbstractKeepUnrecognized_STD, IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
+        public int myIndex = 0;
         public bool addedToList = false;
         public string name;
         public int count = 0;
@@ -68,6 +83,7 @@ namespace SharedTools_Stuff {
         public int ends = 0;
         public int doubleStarts = 0;
         public int doubleEnds = 0;
+        public bool outputToLog = false;
 
         public void AddStart()
         {
@@ -88,6 +104,26 @@ namespace SharedTools_Stuff {
 #if PEGI
         public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "") + (starts > 0 ? " S:" + starts : "")
             + (ends > 0 ? "E: " + ends : " ");
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            this.ToPEGIstring().write();
+            if (icon.Edit.Click())
+                edited = myIndex;
+            return false;
+        }
+
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            "Name".edit(ref name).nl();
+
+            "Output To Log".toggle(ref outputToLog).nl();
+
+            return changed;
+        }
+
 #endif
     }
 

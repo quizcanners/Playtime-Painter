@@ -57,6 +57,22 @@ namespace SharedTools_Stuff
 
         static float SpeedToPortion (this float speed, float dist) => dist > 0 ? Mathf.Clamp01(speed* Time.deltaTime / dist) : 1;
 
+        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
+
+        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
+            return Quaternion.Lerp(from, to, portion);
+        }
+
+        public static Vector4 Lerp(Vector4 from, Vector4 to, float speed) => Vector4.Lerp(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
+
+        public static Vector4 Lerp(Vector4 from, Vector4 to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Vector4.Distance(from, to));
+            return Vector4.Lerp(from, to, portion);
+        }
+
         public static Vector3 Lerp(Vector3 from, Vector3 to, float speed) => Vector3.Lerp(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
         
         public static Vector3 Lerp(Vector3 from, Vector3 to, float speed, out float portion) {
@@ -71,20 +87,34 @@ namespace SharedTools_Stuff
             return Vector3.Lerp(from, to, portion);
         }
 
-        public static void Lerp(ref float from, float to, float speed) => from = Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from-to)));
-
-        public static void Lerp(ref float from, float to, float speed, out float portion)
+        public static bool Lerp(ref float from, float to, float speed)
         {
+            if (from == to)
+                return false;
+
+            from = Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+            return true;
+        }
+
+        public static bool Lerp(ref float from, float to, float speed, out float portion)
+        {
+            if (from == to) {
+                portion = 1;
+                return false;
+            }
+
             portion = speed.SpeedToPortion(Mathf.Abs(from-to));
             from = Mathf.Lerp(from, to, portion);
+
+            return true;
         }
-        
-        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
-    
-        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
+
+        public static float Lerp(float from, float to, float speed) => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+
+        public static float Lerp(float from, float to, float speed, out float portion)
         {
-            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
-            return Quaternion.Lerp(from, to, portion);
+            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
+            return Mathf.Lerp(from, to, portion);
         }
         
         public static bool IsAcute(float a, float b, float c)

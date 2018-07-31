@@ -16,7 +16,7 @@ namespace STD_Logic
         public int groupIndex;
         public int triggerIndex;
 
-        public ISTD Decode(string data) => data.DecodeInto(this);
+        public ISTD Decode(string data) { data.DecodeInto(this); return this; }
 
         public abstract StdEncoder Encode();
         public abstract bool Decode(string tag, string data);

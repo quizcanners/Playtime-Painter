@@ -330,7 +330,6 @@ namespace SharedTools_Stuff
                 var objstd = obj as ISTD;
                 if (objstd != null)
                     Add(tag, objstd);
-                
             }
             return this;
         }

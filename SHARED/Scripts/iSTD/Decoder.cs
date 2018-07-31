@@ -301,11 +301,13 @@ namespace SharedTools_Stuff
         }
         
         // STD
-        public static T DecodeInto<T>(this string data, T val) where T : ISTD
+        public static bool DecodeInto<T>(this string data, T val) where T : ISTD
         {
-            if (val != null)
+            if (val == null)
+                return false;
+            
                 new StdDecoder(data).DecodeTagsFor(val);
-            return val;
+            return true;
         }
         
         public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
@@ -316,13 +318,16 @@ namespace SharedTools_Stuff
         
         public static T DecodeInto<T>(this string data) where T : ISTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
         
-        public static T TryDecodeInto<T>(this string data, T val)
-        {
-            data.DecodeInto(val as ISTD);
-            return val;
-        }
+        public static bool TryDecodeInto<T>(this string data, T val) =>  data.DecodeInto(val as ISTD);
 
-        public static T TryDecodeInto<T>(this string data) where T: new() => data.TryDecodeInto(new T());
+
+
+        public static T TryDecodeInto<T>(this string data) where T : new()
+        {
+            var obj = new T();
+            data.TryDecodeInto(obj);
+            return obj;
+        }
         
         public static T DecodeInto<T>(this string data, Type childType) where T : ISTD, new()
         {
@@ -367,22 +372,33 @@ namespace SharedTools_Stuff
             return val;
         }
 
-        public static T DecodeInto<T>(this string data, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new() => data.DecodeInto(new T(), referencesKeeper);
+        public static T DecodeInto<T>(this string data, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
+        {
+            var obj = new T();
+            data.DecodeInto(obj, referencesKeeper);
+
+            return obj;
+        }
         
         public static T Decode_Referance<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
 
         public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, keeper);
 
-        public static T DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
+        public static bool DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
+            if (val != null)
+            {
 
-            var obj = new StdDecoder(data).DecodeTagsFor(val);
+                var prevKeeper = keeper;
+                keeper = referencesKeeper;
+                
+                new StdDecoder(data).DecodeTagsFor(val);
 
-            keeper = prevKeeper;
+                keeper = prevKeeper;
+                return true;
+            }
 
-            return obj;
+            return false;
         }
 
        public static List<T> DecodeInto<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
@@ -425,14 +441,21 @@ namespace SharedTools_Stuff
         }
         
             // ToListOfSTD
-        public static void TryDecodeInto<T>(this string data, List<T> val) 
+        public static bool TryDecodeInto<T>(this string data, List<T> val) 
         {
-            var cody = new StdDecoder(data);
+            if (val != null)
+            {
 
-            while (cody.GotData)  {
-                var ind = cody.GetTag().ToIntFromTextSafe(-1);
-                cody.GetData().TryDecodeInto(val.TryGet(ind));
+                var cody = new StdDecoder(data);
+
+                while (cody.GotData)
+                {
+                    var ind = cody.GetTag().ToIntFromTextSafe(-1);
+                    cody.GetData().TryDecodeInto(val.TryGet(ind));
+                }
+                return true;
             }
+            return false;
         }
 
         public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : ISTD, new()
