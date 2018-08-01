@@ -1306,7 +1306,7 @@ namespace PlayerAndEditorGUI
             // if (jindx == -1)
             //   lnms.Add(">>" + ind.ToString() + "<<");
 
-            if (select_Final(ind, ref ind, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(ind, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
             {
                 ind = indxs[jindx];
                 return true;
@@ -1418,8 +1418,8 @@ namespace PlayerAndEditorGUI
                 List<int> unfinds;
                 List<int> inds = new List<int>();
                 List<T> objs = tree.GetAllObjs(out unfinds);
-                List<string> filtered = new List<string>();
-                int tmpindex = -1;
+                List<string> lnms = new List<string>();
+                int jindx = -1;
                 int j = 0;
                 for (int i = 0; i < objs.Count; i++)
                 {
@@ -1430,8 +1430,8 @@ namespace PlayerAndEditorGUI
                     {
                         inds.Add(unfinds[i]);
                         if (no == inds[j])
-                            tmpindex = j;
-                        filtered.Add(objs[i].ToPEGIstring());
+                            jindx = j;
+                        lnms.Add(objs[i].ToPEGIstring());
                         j++;
                     }
                 }
@@ -1442,11 +1442,11 @@ namespace PlayerAndEditorGUI
                 //    filtered.Add(">>" + no.ToPEGIstring() + "<<");
 
 
-                if (select_Final(no, ref tmpindex, filtered))//if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
+                if (select_Final(no, ref jindx, lnms))//if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
 
                 //  if (select(ref tmpindex, filtered.ToArray()))
                 {
-                    no = inds[tmpindex];
+                    no = inds[jindx];
                     return true;
                 }
                 return false;

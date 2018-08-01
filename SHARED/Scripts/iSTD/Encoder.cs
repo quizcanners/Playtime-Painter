@@ -134,10 +134,13 @@ namespace SharedTools_Stuff
         public static StdEncoder Encode(this BoneWeight bw) => new StdEncoder()
             .Add("i0", bw.boneIndex0)
             .Add("w0", bw.weight0)
+
             .Add("i1", bw.boneIndex1)
             .Add("w1", bw.weight1)
+
             .Add("i2", bw.boneIndex2)
             .Add("w2", bw.weight2)
+
             .Add("i3", bw.boneIndex3)
             .Add("w3", bw.weight3);
             

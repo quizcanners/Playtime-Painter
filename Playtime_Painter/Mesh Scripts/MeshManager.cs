@@ -1139,9 +1139,6 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            if (edMesh != null)
-                edMesh.PEGI().nl();
-
             Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
 
             if ((!Application.isPlaying) && ("references".foldout(ref showReferences).nl()))  {

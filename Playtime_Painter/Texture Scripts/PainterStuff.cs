@@ -16,12 +16,12 @@ namespace Playtime_Painter
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
 #if PEGI
-        public override bool PEGI() => uTags.Nested_Inspect();
+        public virtual bool PEGI() => uTags.Nested_Inspect();
 #endif
     }
 
     [Serializable]
-    public abstract class PainterStuff_STD : PainterStuff, ISTD  , IPEGI
+    public abstract class PainterStuff_STD : PainterStuff, ISTD  
     {
     public abstract StdEncoder Encode();
 
@@ -29,9 +29,6 @@ namespace Playtime_Painter
 
         public ISTD Decode(StdEncoder cody)  => new StdDecoder(cody.ToString()).DecodeTagsFor(this);
 
-#if PEGI
-        public virtual bool PEGI() { pegi.nl(); (GetType() + " class has no PEGI() function.").nl(); return false; }
-#endif
         public abstract bool Decode(string tag, string data);
     }
 

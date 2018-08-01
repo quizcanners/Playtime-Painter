@@ -9,7 +9,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public abstract class MeshToolBase : PainterStuff_STD {
+    public abstract class MeshToolBase : PainterStuff_STD, IPEGI {
 
         public delegate bool meshToolPlugBool(MeshToolBase tool, out bool val);
         public static meshToolPlugBool showVerticesPlugs;
@@ -121,6 +121,9 @@ namespace Playtime_Painter
         public override bool Decode(string tag, string data) {
             return true;
         }
+
+        public virtual bool PEGI() => false;
+        
     }
 
     public class VertexPositionTool : MeshToolBase

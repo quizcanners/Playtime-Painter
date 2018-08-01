@@ -24,21 +24,24 @@ namespace SharedTools_Stuff
             var cody = new StdDecoder(data);
              b = new BoneWeight();
 
-            while (cody.GotData)
-                switch (cody.GetTag()) {
-                    case "i0": b.boneIndex0 = data.ToInt(); break;
-                    case "w0": b.weight0 = data.ToFloat(); break;
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "i0": b.boneIndex0 = d.ToInt(); break;
+                    case "w0": b.weight0 = d.ToFloat(); break;
 
-                    case "i1": b.boneIndex1 = data.ToInt(); break;
-                    case "w1": b.weight1 = data.ToFloat(); break;
+                    case "i1": b.boneIndex1 = d.ToInt(); break;
+                    case "w1": b.weight1 = d.ToFloat(); break;
 
-                    case "i2": b.boneIndex2 = data.ToInt(); break;
-                    case "w2": b.weight2 = data.ToFloat(); break;
+                    case "i2": b.boneIndex2 = d.ToInt(); break;
+                    case "w2": b.weight2 = d.ToFloat(); break;
 
-                    case "i3": b.boneIndex3 = data.ToInt(); break;
-                    case "w3": b.weight3 = data.ToFloat(); break;
+                    case "i3": b.boneIndex3 = d.ToInt(); break;
+                    case "w3": b.weight3 = d.ToFloat(); break;
                 }
-          
+            }
         }
         
         public static void DecodeInto(this string data, Transform tf)
@@ -71,14 +74,14 @@ namespace SharedTools_Stuff
                 switch (tag)
                 {
                     case "tfBase": d.DecodeInto(tf.transform); break;
-                    case "aPos": tf.anchoredPosition = data.ToVector2(); break;
-                    case "aPos3D": tf.anchoredPosition3D = data.ToVector3(); break;
-                    case "aMax": tf.anchorMax = data.ToVector2(); break;
-                    case "aMin": tf.anchorMin = data.ToVector2(); break;
-                    case "ofMax": tf.offsetMax = data.ToVector2(); break;
-                    case "ofMin": tf.offsetMin = data.ToVector2(); break;
-                    case "pvt": tf.pivot = data.ToVector2(); break;
-                    case "deSize": tf.sizeDelta = data.ToVector2(); break;
+                    case "aPos": tf.anchoredPosition = d.ToVector2(); break;
+                    case "aPos3D": tf.anchoredPosition3D = d.ToVector3(); break;
+                    case "aMax": tf.anchorMax = d.ToVector2(); break;
+                    case "aMin": tf.anchorMin = d.ToVector2(); break;
+                    case "ofMax": tf.offsetMax = d.ToVector2(); break;
+                    case "ofMin": tf.offsetMin = d.ToVector2(); break;
+                    case "pvt": tf.pivot = d.ToVector2(); break;
+                    case "deSize": tf.sizeDelta = d.ToVector2(); break;
                 }
             }
         }
@@ -87,32 +90,35 @@ namespace SharedTools_Stuff
             var cody = new StdDecoder(data);
              m = new Matrix4x4();
 
-            while (cody.GotData) 
-                switch (cody.GetTag()) {
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
 
-                    case "00": m.m00 = data.ToFloat(); break;
-                    case "01": m.m01 = data.ToFloat(); break;
-                    case "02": m.m02 = data.ToFloat(); break;
-                    case "03": m.m03 = data.ToFloat(); break;
+                    case "00": m.m00 = d.ToFloat(); break;
+                    case "01": m.m01 = d.ToFloat(); break;
+                    case "02": m.m02 = d.ToFloat(); break;
+                    case "03": m.m03 = d.ToFloat(); break;
 
-                    case "10": m.m10 = data.ToFloat(); break;
-                    case "11": m.m11 = data.ToFloat(); break;
-                    case "12": m.m12 = data.ToFloat(); break;
-                    case "13": m.m13 = data.ToFloat(); break;
+                    case "10": m.m10 = d.ToFloat(); break;
+                    case "11": m.m11 = d.ToFloat(); break;
+                    case "12": m.m12 = d.ToFloat(); break;
+                    case "13": m.m13 = d.ToFloat(); break;
 
-                    case "20": m.m20 = data.ToFloat(); break;
-                    case "21": m.m21 = data.ToFloat(); break;
-                    case "22": m.m22 = data.ToFloat(); break;
-                    case "23": m.m23 = data.ToFloat(); break;
+                    case "20": m.m20 = d.ToFloat(); break;
+                    case "21": m.m21 = d.ToFloat(); break;
+                    case "22": m.m22 = d.ToFloat(); break;
+                    case "23": m.m23 = d.ToFloat(); break;
 
-                    case "30": m.m30 = data.ToFloat(); break;
-                    case "31": m.m31 = data.ToFloat(); break;
-                    case "32": m.m32 = data.ToFloat(); break;
-                    case "33": m.m33 = data.ToFloat(); break;
+                    case "30": m.m30 = d.ToFloat(); break;
+                    case "31": m.m31 = d.ToFloat(); break;
+                    case "32": m.m32 = d.ToFloat(); break;
+                    case "33": m.m33 = d.ToFloat(); break;
 
-                    default: Debug.Log("Uncnown component: " + cody.GetType()); break;
+                    default: Debug.Log("Uncnown component: " + tag); break;
                 }
-
+            }
            // return m;
         }
 
@@ -123,14 +129,15 @@ namespace SharedTools_Stuff
 
             Quaternion q = new Quaternion();
 
-            while (cody.GotData)
+            foreach  (var tag in cody)
             {
-                switch (cody.GetTag())
+                var d = cody.GetData();
+                switch (tag)
                 {
-                    case "x": q.x = cody.GetData().ToFloat(); break;
-                    case "y": q.y = cody.GetData().ToFloat(); break;
-                    case "z": q.z = cody.GetData().ToFloat(); break;
-                    case "w": q.w = cody.GetData().ToFloat(); break;
+                    case "x": q.x = d.ToFloat(); break;
+                    case "y": q.y = d.ToFloat(); break;
+                    case "z": q.z = d.ToFloat(); break;
+                    case "w": q.w = d.ToFloat(); break;
                     default: Debug.Log("Uncnown component: " + cody.GetType()); break;
                 }
             }
@@ -143,13 +150,15 @@ namespace SharedTools_Stuff
 
             Vector4 v4 = new Vector4();
 
-            while (cody.GotData) {
-                switch (cody.GetTag()) {
-                    case "x": v4.x = cody.GetData().ToFloat(); break;
-                    case "y": v4.y = cody.GetData().ToFloat(); break;
-                    case "z": v4.z = cody.GetData().ToFloat(); break;
-                    case "w": v4.w = cody.GetData().ToFloat(); break;
-                    default: Debug.Log("Uncnown component: "+cody.GetType()); break;
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag) { 
+                    case "x": v4.x = d.ToFloat(); break;
+                    case "y": v4.y = d.ToFloat(); break;
+                    case "z": v4.z = d.ToFloat(); break;
+                    case "w": v4.w = d.ToFloat(); break;
+                    default: Debug.Log("Uncnown component: "+tag); break;
                 }
             }
             return v4;
@@ -161,11 +170,14 @@ namespace SharedTools_Stuff
 
             Vector3 v3 = new Vector3();
 
-            while (cody.GotData) {
-                switch (cody.GetTag()) {
-                    case "x": v3.x = cody.GetData().ToFloat(); break;
-                    case "y": v3.y = cody.GetData().ToFloat(); break;
-                    case "z": v3.z = cody.GetData().ToFloat(); break;
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "x": v3.x = d.ToFloat(); break;
+                    case "y": v3.y = d.ToFloat(); break;
+                    case "z": v3.z = d.ToFloat(); break;
                 }
             }
             return v3;
@@ -177,13 +189,13 @@ namespace SharedTools_Stuff
 
             Vector2 v2 = new Vector3();
 
-            while (cody.GotData) {
-                var tag = cody.GetTag();
-                var dta = cody.GetData();
-
-                switch (tag) {
-                    case "x": v2.x = dta.ToFloat(); break;
-                    case "y": v2.y = dta.ToFloat(); break;
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "x": v2.x = d.ToFloat(); break;
+                    case "y": v2.y = d.ToFloat(); break;
                 }
             }
             return v2;
@@ -195,14 +207,13 @@ namespace SharedTools_Stuff
 
             Rect rect = new Rect();
 
-            while (cody.GotData)
+            foreach (var tag in cody)
             {
-                var tag = cody.GetTag();
-                var dta = cody.GetData();
+                var d = cody.GetData();
                 switch (tag)
                 {
-                    case "pos": rect.position = dta.ToVector2(); break;
-                    case "size": rect.size = dta.ToVector2(); break;
+                    case "pos": rect.position = d.ToVector2(); break;
+                    case "size": rect.size = d.ToVector2(); break;
                 }
             }
             return rect;
@@ -245,12 +256,9 @@ namespace SharedTools_Stuff
 
             StdDecoder cody = new StdDecoder(data);
 
-            while (cody.GotData)
-            {
-                cody.GetTag();
+            foreach (var tag in cody)
                 l.Add(cody.GetData());
-            }
-
+            
             return l;
         }
 
@@ -260,11 +268,9 @@ namespace SharedTools_Stuff
 
             StdDecoder cody = new StdDecoder(data);
 
-            while (cody.GotData) {
-                cody.GetTag();
+            foreach (var tag in cody)
                 l.Add(cody.GetData().ToInt());
-            }
-
+            
             return l;
         }
 
@@ -275,11 +281,9 @@ namespace SharedTools_Stuff
 
             StdDecoder cody = new StdDecoder(data);
 
-            while (cody.GotData)
-            {
-                cody.GetTag();
+            foreach (var tag in cody)
                 l.Add(cody.GetData().ToFloat());
-            }
+            
 
             return l;
         }
@@ -291,11 +295,9 @@ namespace SharedTools_Stuff
 
             StdDecoder cody = new StdDecoder(data);
 
-            while (cody.GotData)
-            {
-                cody.GetTag();
+            foreach (var tag in cody)
                 l.Add(cody.GetData().ToUInt());
-            }
+            
 
             return l;
         }
@@ -480,11 +482,11 @@ namespace SharedTools_Stuff
 
              l = new List<T>();
 
-            List<Type> tps = typeof(T).TryGetDerrivedClasses(); 
+            List<Type> tps = typeof(T).TryGetDerrivedClasses();
 
-            while (cody.GotData) {
-                var tag = cody.GetTag();
-                var dta = cody.GetData();
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
 
                 var isNull = tag == StdEncoder.nullTag;
                 if (isNull)
@@ -503,13 +505,11 @@ namespace SharedTools_Stuff
                         }
 
                         if (type != null)
-                            l.Add(dta.DecodeInto<T>(type));
-
-
+                            l.Add(d.DecodeInto<T>(type));
                     }
                     else {
                         T tmp;
-                        l.Add(dta.DecodeInto(out tmp));
+                        l.Add(d.DecodeInto(out tmp));
                     }
                 }
             }
@@ -536,12 +536,15 @@ namespace SharedTools_Stuff
         public static Color ToColor(this string data) {
             var cody = new StdDecoder(data);
             Color c = new Color();
-            while (cody.GotData) {
-                switch (cody.GetTag()) {
-                    case "r": c.r = cody.GetData().ToFloat(); break;
-                    case "g": c.g = cody.GetData().ToFloat(); break;
-                    case "b": c.b = cody.GetData().ToFloat(); break;
-                    case "a": c.a = cody.GetData().ToFloat(); break;
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "r": c.r = d.ToFloat(); break;
+                    case "g": c.g = d.ToFloat(); break;
+                    case "b": c.b = d.ToFloat(); break;
+                    case "a": c.a = d.ToFloat(); break;
                     default:
                         cody.GetData(); break;
                 }

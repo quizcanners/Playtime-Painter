@@ -231,7 +231,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        public void setColor_OppositeTo(ColorChanel chan)
+        public void SetColor_OppositeTo(ColorChanel chan)
         {
             for (int i = 0; i < 3; i++)
             {
@@ -548,7 +548,7 @@ namespace Playtime_Painter
             SmoothNormal = Cfg.newVerticesSmooth;
         }
 
-        public void clearColor(BrushMask bm) {
+        public void ClearColor(BrushMask bm) {
             foreach (Vertex uvi in uvpoints)
                 bm.Transfer(ref uvi._color, Color.black);
         }
@@ -729,7 +729,7 @@ namespace Playtime_Painter
             return Alllines;
         }
 
-        public Triangle getTriangleFromLine(MeshPoint other)
+        public Triangle GetTriangleFromLine(MeshPoint other)
         {
             for (int i = 0; i < uvpoints.Count; i++)
             {
@@ -1317,7 +1317,7 @@ namespace Playtime_Painter
         public LineData(MeshPoint a, MeshPoint b)
         {
 
-            triangle = a.getTriangleFromLine(b);
+            triangle = a.GetTriangleFromLine(b);
             pnts[0] = a.uvpoints[0];
             pnts[1] = b.uvpoints[0];
             trianglesCount = 0;

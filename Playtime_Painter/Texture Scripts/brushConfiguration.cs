@@ -33,7 +33,7 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public class BrushConfig : PainterStuff_STD 
+    public class BrushConfig : PainterStuff_STD , IPEGI
     {
 
         public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
@@ -333,7 +333,7 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public override bool PEGI()  {
+        public virtual bool PEGI()  {
 
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 

@@ -400,7 +400,7 @@ namespace Playtime_Painter {
         }
 
         [Serializable]
-        public class TexturePackagingProfile : PainterStuff_STD  , IGotName
+        public class TexturePackagingProfile : PainterStuff_STD  , IGotName, IPEGI
         {
 
             public bool isColor;
@@ -454,11 +454,8 @@ namespace Playtime_Painter {
 
 
             #if PEGI
-            public override bool PEGI()
-            {
-                return PEGI(null);
-            }
-
+            public virtual bool PEGI() => PEGI(null);
+            
             public bool PEGI(TextureSetForForCombinedMaps sets)
             {
                 PlaytimePainter p = InspectedPainter;

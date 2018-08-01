@@ -87,10 +87,6 @@ namespace Playtime_Painter {
             return true;
         }
 
-       // public override string GetDefaultTagName() { return stdTag_mesh; }
-
-     //   public const string stdTag_mesh = "mesh";
-
         [NonSerialized] public Mesh actualMesh;
 
         public void RemoveEmptyDots()
@@ -182,7 +178,7 @@ namespace Playtime_Painter {
         float recalculateDelay;
 		int nearestVertCount = 50;
         public float distanceLimit = 1;
-		static float nearTarget = 64;
+		static readonly float nearTarget = 64;
 
         List<MeshPoint> sortVertsClose = new List<MeshPoint>();
         List<MeshPoint> sortVertsFar = new List<MeshPoint>();
@@ -860,7 +856,7 @@ namespace Playtime_Painter {
                     {
                         asCol[(int)c] = true;
                         asUV[i] = true;
-                        td.vertexes[i].setColor_OppositeTo(c);
+                        td.vertexes[i].SetColor_OppositeTo(c);
                       //  Debug.Log("Setting requested " + c);
                     }
                 }
@@ -873,7 +869,7 @@ namespace Playtime_Painter {
                             {
                                 asCol[(int)j] = true;
                                 asUV[i] = true;
-                                td.vertexes[i].setColor_OppositeTo((ColorChanel)j);
+                                td.vertexes[i].SetColor_OppositeTo((ColorChanel)j);
                                // Debug.Log("Setting leftover " + (ColorChanel)j);
                                 break;
                             }
@@ -883,17 +879,7 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 #if PEGI
-        
-  
         public static EditableMesh inspected;
-        public override bool PEGI()
-        {
-            bool changed = false;
-
-           
-
-            return changed;
-        }
 #endif
     }
 
