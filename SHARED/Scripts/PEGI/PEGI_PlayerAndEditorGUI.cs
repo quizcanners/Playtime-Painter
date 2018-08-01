@@ -2343,15 +2343,15 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool Click(this icon icon) => Click(icon.getIcon(), defaultButtonSize);
+        public static bool Click(this icon icon) => Click(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
 
         public static bool ClickUnfocus(this icon icon, ref bool changed)
         {
-            changed |= ClickUnfocus(icon.getIcon(), defaultButtonSize);
+            changed |= ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
             return changed;
         }
 
-        public static bool ClickUnfocus(this icon icon) => ClickUnfocus(icon.getIcon(), defaultButtonSize);
+        public static bool ClickUnfocus(this icon icon) => ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
 
         public static bool ClickUnfocus(this icon icon, msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
 
@@ -2365,7 +2365,7 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickUnfocus(this icon icon, string text, int width) => ClickUnfocus(icon.getIcon(), text, width);
 
-        public static bool ClickUnfocus(this icon icon, int width) => ClickUnfocus(icon.getIcon(), width);
+        public static bool ClickUnfocus(this icon icon,  int width) => ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), width);
 
         public static bool Click(this icon icon, int size) => Click(icon.getIcon(), size);
 
@@ -4242,10 +4242,23 @@ namespace PlayerAndEditorGUI
                     }
                     list.InspectionEnd().nl();
                 }
+
+                if (list.Count>0 && icon.Copy.Click("Copy List Elements"))
+                    listCopyBuffer = list;
+                if (listCopyBuffer != null) {
+                    if (icon.Delete.Click("Clean buffer"))
+                        listCopyBuffer = null;
+                    if (icon.Paste.Click("Try Paste " + listCopyBuffer.ToPEGIstring()))
+                    foreach (var e in listCopyBuffer)
+                        list.TryAdd(e);
+                }
+
             }
 
             return changed;
         }
+
+        static IList listCopyBuffer = null;
 
         public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, UnnullableSTD<ElementData> datas)
         {

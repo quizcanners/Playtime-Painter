@@ -115,7 +115,7 @@ namespace Playtime_Painter {
             undoMoves.Clear();
             redoMoves.Clear();
 
-            undoMoves.Add(edMesh.Encode().ToString());
+          //  undoMoves.Add(edMesh.Encode().ToString());
 
             MeshTool.OnSelectTool();
 
@@ -819,7 +819,7 @@ namespace Playtime_Painter {
 
             if (edMesh.Dirty) {
                 redoMoves.Clear();
-                undoMoves.Add(edMesh.Encode().ToString());
+               // undoMoves.Add(edMesh.Encode().ToString());
                 if (undoMoves.Count > 10)
                     undoMoves.RemoveAt(0);
                 Redraw();

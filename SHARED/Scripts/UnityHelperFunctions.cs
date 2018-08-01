@@ -539,7 +539,7 @@ namespace SharedTools_Stuff
             return added;
         }
         
-        public static bool TryAdd<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
+        public static bool TryAdd_UObj_ifNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
         {
             if (ass == null)
                 return false;

@@ -639,8 +639,11 @@ namespace STD_Animations
         public Transform transform;
         public Renderer rendy;
         public MonoBehaviour script;
+        public ParticleSystem particles; 
+
         public string propertyName;
         public float currentShaderValue;
+        bool enableEmission = false;
 
         public override StdEncoder Encode()
         {
@@ -650,7 +653,9 @@ namespace STD_Animations
             .Add_String("prop", propertyName)
             .Add_Referance("tf", transform)
             .Add_Referance("ren", rendy)
-            .Add_Referance("scrpt", script);
+            .Add_Referance("scrpt", script)
+            .Add_Referance("ps", particles)
+            .Add_Bool("em", enableEmission);
             if (script)
             {
                 var asp = script as ISTD;
@@ -672,6 +677,8 @@ namespace STD_Animations
                 case "tf": data.Decode_Referance(ref transform); break;
                 case "ren": data.Decode_Referance(ref rendy); break;
                 case "scrpt": data.Decode_Referance(ref script); break;
+                case "ps": data.Decode_Referance(ref particles); break;
+                case "em": enableEmission = data.ToBool(); break;
                 default: return false;
             }
 
@@ -722,6 +729,12 @@ namespace STD_Animations
 
         public void Animate(float portion)
         {
+            if (particles)
+            {
+                var em = particles.emission;
+                em.enabled = enableEmission;
+            }
+
             if (portion == 1)
                 Set();
             else
@@ -800,6 +813,10 @@ namespace STD_Animations
                 "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
 
                 "Renderer".edit(80, ref rendy).nl();
+                "Particles".edit(80, ref particles);
+                if (particles)
+                    pegi.toggle(ref enableEmission);
+                pegi.nl();
             }
 
             Mgmt.CurrentFrame.PEGI();

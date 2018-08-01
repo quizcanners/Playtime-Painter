@@ -77,6 +77,61 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        public static bool TryCast<T>(this object obj, out T result)
+        {
+            if (obj is T )
+            {
+                result = (T)obj;
+                return true;
+            }
+
+            result = default(T);
+            return false;
+        }
+
+        public static T TryCast<T>(this object obj)
+        {
+            if (obj is T)
+                return (T)obj;
+                
+            return default(T);
+        }
+
+        public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
+
+            public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew)  {
+            if (ass == null)
+                return false;
+
+            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+            {
+                var go = ass as GameObject;
+                if (go)
+                {
+                    var cmp = go.GetComponent<T>();
+                    if (cmp != null && !list.Contains(cmp))
+                    {
+                        list.Add(cmp);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            T cst;
+
+            ass.TryCast(out cst);
+
+            if (cst != null && (!onlyIfNew || !list.Contains(cst)))
+            {
+                list.Add((T)Convert.ChangeType(ass, typeof(T)));
+                return true;
+            }
+            return false;
+
+        }
+
+
         public static T TryGetLast<T>(this T[] array)
         {
 
@@ -409,9 +464,7 @@ namespace SharedTools_Stuff
                     i--;
                 }
         }
-
-
-
+        
         public static void SetMaximumLength<T>(this List<T> list, int Length)
         {
             while (list.Count > Length)
@@ -456,10 +509,7 @@ namespace SharedTools_Stuff
         {
             return Regex.IsMatch(big, sub, RegexOptions.IgnoreCase);
         }
-
-
-
-
+        
         public static string GetMemberName<T>(Expression<Func<T>> memberExpression)
         {
             MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
