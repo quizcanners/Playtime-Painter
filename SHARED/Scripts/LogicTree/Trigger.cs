@@ -45,9 +45,9 @@ namespace STD_Logic
         
         int usage;
 
-        public TriggerUsage _usage { get { return TriggerUsage.get(usage); }  set { usage = value.index; } }
+        public TriggerUsage _usage { get { return TriggerUsage.Get(usage); }  set { usage = value.index; } }
 
-        public override bool IsBoolean() => _usage.usingBool;
+        public override bool IsBoolean() => _usage.UsingBool;
 
 #if PEGI
         public static void Search_PEGI() {
@@ -110,17 +110,17 @@ namespace STD_Logic
         public override bool PEGI() {
             bool changed = "static".toggle(50, ref isStatic);
 
-            changed |= TriggerUsage.selectUsage(ref usage);
+            changed |= TriggerUsage.SelectUsage(ref usage);
 
-            if (_usage.hasMoreTriggerOptions())
+            if (_usage.HasMoreTriggerOptions())
             {
                 if (icon.Close.Click(20))
                     Trigger.edited = null;
             }
 
-            changed |= _usage.inspect(this).nl();
+            changed |= _usage.Inspect(this).nl();
 
-            if (_usage.hasMoreTriggerOptions())
+            if (_usage.HasMoreTriggerOptions())
             {
                 pegi.Space();
                 pegi.newLine();

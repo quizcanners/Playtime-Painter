@@ -474,7 +474,7 @@ namespace Playtime_Painter
         public void OnEnable()
         {
             Init();
-            STDdata.DecodeInto(this);
+            Decode(STDdata); //.DecodeTagsFor(this);
         }
 
         public void OnDisable()

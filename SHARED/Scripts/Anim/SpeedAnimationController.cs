@@ -34,14 +34,12 @@ namespace STD_Animations
             if (frameIndex != newIndex && newIndex < frames.Count && newIndex >= 0)
             {
                 if (Application.isPlaying)
-                    foreach (var el in elementsUnsorted)
-                        el.Set();
+                    Set();
 
                 frameIndex = newIndex;
 
                 if (!Application.isPlaying)
-                    foreach (var el in elementsUnsorted)
-                        el.Set();
+                    Set();
 
                 return true;
             }
@@ -138,9 +136,19 @@ namespace STD_Animations
 
         public override ISTD Decode(string data)
         {
+            inspectedAnimationController = this;
+
             frameIndex = 0;
 
-            return base.Decode(data);
+            var ret = base.Decode(data); //.DecodeTagsFor(this); // base.Decode(data);
+            
+            if (setFirstFrame && CurrentFrame != null)
+                Set();
+
+            inspectedAnimationController = null;
+
+            return this;
+
         }
 
         void Update()
@@ -170,9 +178,9 @@ namespace STD_Animations
 
                     float delta;
 
-                    if (frameIndex == 0 && setFirstFrame)
-                        delta = 1;
-                    else
+                    //if (frameIndex == 0 && setFirstFrame)
+                      //  delta = 1;
+                    //else
                         delta = CurrentFrame.GetDelta();
 
                     foreach (var el in elementsUnsorted)
@@ -239,7 +247,7 @@ namespace STD_Animations
                 }
                 pegi.newLine();
 
-                ("Current: " + (frameIndex + 1) + " of " + frames.Count).nl();
+             //   ("Current: " + (frameIndex + 1) + " of " + frames.Count).nl();
 
                 if (frameIndex == 0)
                     "Set First Frame".toggle("Will first frame be set instead of transitioned to", 90, ref setFirstFrame).nl();
@@ -285,8 +293,7 @@ namespace STD_Animations
                     if ((playInEditor ? icon.Pause : icon.Play).Click())
                     {
                         playInEditor = !playInEditor;
-                        foreach (var el in elementsUnsorted)
-                            el.Set();
+                        Set();
                     }
                 }
 
@@ -388,14 +395,19 @@ namespace STD_Animations
             if (PreviousFrame != null)
             {
                 frameIndex -= 1;
-                foreach (var el in elementsUnsorted)
-                    el.Set();
+                Set();
                 frameIndex += 1;
             }
 
             foreach (var el in elementsUnsorted)
                 el.Animate(portion);
 
+        }
+
+        void Set()
+        {
+            foreach (var el in elementsUnsorted)
+                el.Set();
         }
 
         void UpdateCountless()
@@ -416,11 +428,7 @@ namespace STD_Animations
             UpdateCountless();
 
             Decode(std_Data);
-
-            if (CurrentFrame != null)
-                foreach (var el in elementsUnsorted)
-                    el.Set();
-
+            
             inspectedAnimationController = null;
         }
 
@@ -511,7 +519,8 @@ namespace STD_Animations
             .Add("lsize", LocalScale.Encode())
             .Add("lrot", localRotation.Encode())
             .Add("encData", customData.Encode())
-            .Add("shadeVal", shaderValue.Encode());
+            .Add("shadeVal", shaderValue.Encode())
+            .Add("emt", emit);
             if (isOverrideSpeed)
             {
                 cody.Add("src", (int)frameSpeedSource);
@@ -526,6 +535,7 @@ namespace STD_Animations
         public Countless<Quaternion> localRotation = new Countless<Quaternion>();
         public Countless<float> shaderValue = new Countless<float>();
         public Countless<string> customData = new Countless<string>();
+        public CountlessBool emit = new CountlessBool();
 
         public float frameSpeed = 0.1f;
         public SpeedSource frameSpeedSource = SpeedSource.position;
@@ -542,6 +552,7 @@ namespace STD_Animations
                 case "shadeVal": data.DecodeInto(out shaderValue); break;
                 case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
                 case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
+                case "emt": data.DecodeInto(out emit); break;
                 default: return false;
             }
 
@@ -643,7 +654,6 @@ namespace STD_Animations
 
         public string propertyName;
         public float currentShaderValue;
-        bool enableEmission = false;
 
         public override StdEncoder Encode()
         {
@@ -654,8 +664,7 @@ namespace STD_Animations
             .Add_Referance("tf", transform)
             .Add_Referance("ren", rendy)
             .Add_Referance("scrpt", script)
-            .Add_Referance("ps", particles)
-            .Add_Bool("em", enableEmission);
+            .Add_Referance("ps", particles);
             if (script)
             {
                 var asp = script as ISTD;
@@ -678,7 +687,6 @@ namespace STD_Animations
                 case "ren": data.Decode_Referance(ref rendy); break;
                 case "scrpt": data.Decode_Referance(ref script); break;
                 case "ps": data.Decode_Referance(ref particles); break;
-                case "em": enableEmission = data.ToBool(); break;
                 default: return false;
             }
 
@@ -696,6 +704,7 @@ namespace STD_Animations
         public Vector3 LocalScale { get { return Frame.LocalScale[IndexForPEGI]; } set { Frame.LocalScale[index] = value; } }
         public string CustomData { get { return Frame.customData[IndexForPEGI]; } set { Frame.customData[index] = value; } }
         public Quaternion LocalRotation { get { return Frame.localRotation[IndexForPEGI]; } set { Frame.localRotation[IndexForPEGI] = value; } }
+        public bool Emit { get { return Frame.emit[IndexForPEGI]; } set { Frame.emit[IndexForPEGI] = value; } }
         public float ShaderValue
         {
             get
@@ -729,10 +738,11 @@ namespace STD_Animations
 
         public void Animate(float portion)
         {
-            if (particles)
-            {
-                var em = particles.emission;
-                em.enabled = enableEmission;
+            if (particles)  {
+                if (Emit)
+                    particles.Play();
+                else
+                    particles.Stop(false, ParticleSystemStopBehavior.StopEmitting);
             }
 
             if (portion == 1)
@@ -814,8 +824,13 @@ namespace STD_Animations
 
                 "Renderer".edit(80, ref rendy).nl();
                 "Particles".edit(80, ref particles);
-                if (particles)
-                    pegi.toggle(ref enableEmission);
+                if (particles) {
+                    bool emit = Emit;
+                    if (pegi.toggle(ref emit))
+                        Emit = emit;
+                }
+                
+
                 pegi.nl();
             }
 

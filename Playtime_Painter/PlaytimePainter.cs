@@ -1343,7 +1343,7 @@ namespace Playtime_Painter{
             return true;
         }
 
-        public ISTD Decode(string data) { data.DecodeInto(this); return this; }
+        public ISTD Decode(string data) => data.DecodeTagsFor(this);
 
         #endregion
 

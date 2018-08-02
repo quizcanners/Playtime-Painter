@@ -266,7 +266,7 @@ namespace STD_Logic
 
                     t.PEGI();
 
-                    if (t._usage.hasMoreTriggerOptions()) {
+                    if (t._usage.HasMoreTriggerOptions()) {
                         if (Trigger.edited != t) {
                             if (icon.Edit.Click(20))
                                 Trigger.edited = t;
@@ -274,11 +274,11 @@ namespace STD_Logic
                             Trigger.edited = null;
                     }
 
-                    changed |= t._usage.inspect(t);
+                    changed |= t._usage.Inspect(t);
 
                     pegi.newLine();
 
-                    if (t._usage.hasMoreTriggerOptions()) {
+                    if (t._usage.HasMoreTriggerOptions()) {
                         pegi.Space();
                         pegi.newLine();
                     }

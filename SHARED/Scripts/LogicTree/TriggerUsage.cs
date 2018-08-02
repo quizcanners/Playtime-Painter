@@ -15,21 +15,21 @@ namespace STD_Logic
         
         protected static List<TriggerUsage> usgs = new List<TriggerUsage>();
 
-        public static TriggerUsage get(int ind) {
+        public static TriggerUsage Get(int ind) {
             return usgs[ind];
         }
 
         public static List<string> names = new List<string>();
 #if PEGI
-        public static bool selectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
+        public static bool SelectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
         
-        public bool inspect(ValueIndex arg) => inspect(arg.Trigger);
+        public bool Inspect(ValueIndex arg) => Inspect(arg.Trigger);
         
-        public virtual void inspect(ConditionLogic c) { }
+        public virtual void Inspect(ConditionLogic c) { }
 
-        public abstract bool inspect(Result r);// => false;
+        public abstract bool Inspect(Result r);// => false;
         
-        public virtual bool select(ref ResultType r, Dictionary<int, string> resultUsages) {
+        public virtual bool Select(ref ResultType r, Dictionary<int, string> resultUsages) {
             bool changed = false;
             int t = (int)r;
 
@@ -49,7 +49,7 @@ namespace STD_Logic
             return changed;
         }
         
-        public virtual bool select(ref ConditionType c, Dictionary<int, string> conditionUsages)
+        public virtual bool Select(ref ConditionType c, Dictionary<int, string> conditionUsages)
         {
             bool changed = false;
             int t = (int)c;
@@ -72,10 +72,10 @@ namespace STD_Logic
             return changed;
         }
         
-        public virtual bool inspect(Trigger t) {
+        public virtual bool Inspect(Trigger t) {
             bool changed = false;
             string before = t.name;
-            if (pegi.editDelayed(ref before, 150 - (hasMoreTriggerOptions() ? 30 : 0))) {
+            if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions() ? 30 : 0))) {
                 Trigger.searchField = before;
                 t.name = before;
                 pegi.FocusControl("none");
@@ -86,14 +86,14 @@ namespace STD_Logic
 
 #endif
 
-        public virtual bool hasMoreTriggerOptions() {
+        public virtual bool HasMoreTriggerOptions() {
             return false;
         }
         
-        public virtual bool usingBool => false;
+        public virtual bool UsingBool => false;
         
 
-        public virtual bool usingEnum() {
+        public virtual bool UsingEnum() {
             return false;
         }
 
@@ -123,14 +123,14 @@ namespace STD_Logic
 
         public override string ToString() { return string.Format("YesNo"); }
 #if PEGI
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
             if (!c.IsBoolean())
                 ("Wrong Type: " + c.IsBoolean()).write();
              else 
                 pegi.toggle(ref ((ConditionLogicBool)c).compareValue);
         }
         
-        public override bool inspect(Result r) {
+        public override bool Inspect(Result r) {
 
             if (!r.IsBoolean())
             {
@@ -145,11 +145,11 @@ namespace STD_Logic
             return pegi.toggleInt(ref r.updateValue);
         }
 
-        public override bool inspect(Trigger t)
+        public override bool Inspect(Trigger t)
         {
             Values so = Values.current;
 
-            bool changed = base.inspect(t);
+            bool changed = base.Inspect(t);
             if (so != null)
                 changed |= so.bools.Toogle(t); 
 
@@ -176,7 +176,7 @@ namespace STD_Logic
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
 #if PEGI
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
@@ -184,23 +184,23 @@ namespace STD_Logic
                 "Condition is not a number".write();
             else
             {
-                select(ref num.type, conditionUsages);
+                Select(ref num.type, conditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
         }
 
-        public override bool inspect(Result r) {
+        public override bool Inspect(Result r) {
             bool changed = false;
 
-            changed |= select(ref r.type, resultUsages);
+            changed |= Select(ref r.type, resultUsages);
 
             changed |= pegi.edit(ref r.updateValue, 40);
             return changed;
         }
 
-        public override bool inspect(Trigger t) {
-            bool changed = base.inspect(t);
+        public override bool Inspect(Trigger t) {
+            bool changed = base.Inspect(t);
             Values so = Values.current;
             if (so != null)
                 changed |= so.ints.Edit(t);
@@ -219,14 +219,14 @@ namespace STD_Logic
         public override string ToString() { return string.Format("Enums"); }
 #if PEGI
 
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
 
             var num = c as ConditionLogicInt;
 
             if (num != null)
             {
-                select(ref num.type, Usage_Number.conditionUsages);
+                Select(ref num.type, Usage_Number.conditionUsages);
 
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
@@ -234,21 +234,21 @@ namespace STD_Logic
                 "Incorrect type".write();
         }
 
-        public override bool inspect(Result r)
+        public override bool Inspect(Result r)
         {
             bool changed = false;
 
-            changed |= select(ref r.type, Usage_Number.resultUsages);
+            changed |= Select(ref r.type, Usage_Number.resultUsages);
             
             pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
         }
 
-        public override bool inspect(Trigger t)
+        public override bool Inspect(Trigger t)
         {
             Values so = Values.current;
 
-            bool changed = base.inspect(t);
+            bool changed = base.Inspect(t);
 
             if (so != null)
                 changed |= so.ints.Select(t); 
@@ -266,7 +266,7 @@ namespace STD_Logic
 
 #endif
 
-        public override bool hasMoreTriggerOptions()
+        public override bool HasMoreTriggerOptions()
         {
             return true;
         }
@@ -292,7 +292,7 @@ namespace STD_Logic
         };
 
 #if PEGI
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
@@ -300,16 +300,16 @@ namespace STD_Logic
                 "Condition is not a number".write();
             else
             {
-                select(ref num.type, conditionUsages);
+                Select(ref num.type, conditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
         }
 
-         public override bool inspect(Result r) {
+         public override bool Inspect(Result r) {
             bool changed = false;
             
-            changed |= select(ref r.type , resultUsages);
+            changed |= Select(ref r.type , resultUsages);
 
             if (r.type!= ResultType.SetTimeGame)
                 changed |= pegi.edit(ref r.updateValue);
@@ -343,7 +343,7 @@ namespace STD_Logic
 
 #if PEGI
 
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
@@ -351,16 +351,16 @@ namespace STD_Logic
                 "Condition is not a number".write();
             else
             {
-                select(ref num.type, conditionUsages);
+                Select(ref num.type, conditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
         }
 
-          public override bool inspect(Result r) {
+          public override bool Inspect(Result r) {
             bool changed = false;
 
-            changed |= select(ref r.type, resultUsages);
+            changed |= Select(ref r.type, resultUsages);
 
           
             if (r.type != ResultType.SetTimeReal)
@@ -386,8 +386,8 @@ namespace STD_Logic
 
         #if PEGI
 
-        public override bool inspect(Trigger t) {
-            var changed = base.inspect(t);
+        public override bool Inspect(Trigger t) {
+            var changed = base.Inspect(t);
 
             Values vals = Values.current;
 
@@ -423,7 +423,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
@@ -431,7 +431,7 @@ namespace STD_Logic
                 "Condition is not a number".write();
             else
             {
-                select(ref num.type, Usage_Number.conditionUsages);
+                Select(ref num.type, Usage_Number.conditionUsages);
 
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
@@ -439,10 +439,10 @@ namespace STD_Logic
          
         }
 
-        public override bool inspect(Result r) {
+        public override bool Inspect(Result r) {
             bool changed = false;
 
-            changed |= select(ref r.type, Usage_Number.resultUsages);
+            changed |= Select(ref r.type, Usage_Number.resultUsages);
 
             
             pegi.select(ref r.updateValue, r.Trigger.enm);
@@ -451,7 +451,7 @@ namespace STD_Logic
 
 #endif
 
-        public override bool hasMoreTriggerOptions() => true;
+        public override bool HasMoreTriggerOptions() => true;
         
 
         public Usage_IntTag(int index) : base(index) { }
@@ -464,7 +464,7 @@ namespace STD_Logic
 
         #if PEGI
 
-        public override void inspect(ConditionLogic c) {
+        public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicBool;
 
@@ -474,10 +474,10 @@ namespace STD_Logic
                 pegi.toggle(ref num.compareValue);
         }
 
-        public override bool inspect(Result r) => pegi.toggleInt(ref r.updateValue);
+        public override bool Inspect(Result r) => pegi.toggleInt(ref r.updateValue);
         
-        public override bool inspect(Trigger t) {
-            bool changed = base.inspect(t);
+        public override bool Inspect(Trigger t) {
+            bool changed = base.Inspect(t);
 
             Values so = Values.current;
 

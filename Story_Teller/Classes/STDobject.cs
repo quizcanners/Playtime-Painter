@@ -38,9 +38,8 @@ namespace StoryTriggerData
 
             Reboot();
 
-            new StdDecoder(data).DecodeTagsFor(this);
-
-            return this;
+           return data.DecodeTagsFor(this);
+            
         }
 
         public override void Deactivate()

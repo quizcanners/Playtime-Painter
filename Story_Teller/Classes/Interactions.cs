@@ -334,7 +334,7 @@ namespace StoryTriggerData
             switch (subtag)
             {
                 case "name": name = data; break;
-                case "cond": data.DecodeInto(conds); break;
+                case "cond": conds.Decode(data); break;
                 case "igr": data.DecodeInto(out subBranches); break; 
                 case Interaction.storyTag_intrct:
                     data.DecodeInto(out elements); break;
@@ -355,7 +355,7 @@ namespace StoryTriggerData
             Decode(data);
         }
 
-        public string getShortDescription() {
+        public string GetShortDescription() {
             return "[" + elements.Count + "],[" + subBranches.Count + "]";
         }
 #if PEGI
@@ -441,7 +441,7 @@ namespace StoryTriggerData
 
                             pegi.edit(ref ig.name);
 
-                            pegi.write(ig.getShortDescription(), 35);
+                            pegi.write(ig.GetShortDescription(), 35);
 
                             if (icon.Edit.Click("Edit Interaction Sub Branch", 20).nl())
                                 browsedBranch = j;

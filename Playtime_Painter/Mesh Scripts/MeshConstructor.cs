@@ -55,7 +55,7 @@ namespace Playtime_Painter {
             get {
                 if (colors == null) {
                     colors = new Color[vertsCount];
-                    foreach (var vp in edMesh.vertices)
+                    foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.uvpoints)
                             colors[uvi] = uvi._color;
                 }
@@ -67,7 +67,7 @@ namespace Playtime_Painter {
             get {
                 if (shadowBake == null) {
                     shadowBake = new Vector4[vertsCount];
-                    foreach (var vp in edMesh.vertices)
+                    foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.uvpoints)
                             shadowBake[uvi] = vp.shadowBake;
                 }
@@ -78,7 +78,7 @@ namespace Playtime_Painter {
         public Vector2[] _uv { get {
                 if (uvs == null) {
                     uvs = new Vector2[vertsCount];
-                    foreach (var vp in edMesh.vertices)
+                    foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.uvpoints)
                             uvs[uvi] = uvi.GetUV(0);
                 }
@@ -90,7 +90,7 @@ namespace Playtime_Painter {
             get {
                 if (uvs1 == null) {
                     uvs1 = new Vector2[vertsCount];
-                    foreach (var vp in edMesh.vertices)
+                    foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.uvpoints)
                             uvs1[uvi] = uvi.GetUV(1);
                 }
@@ -351,7 +351,7 @@ namespace Playtime_Painter {
                 if (position == null) {
                     position = new Vector3[vertsCount];
 
-                    foreach (var vp in edMesh.vertices) {
+                    foreach (var vp in edMesh.meshPoints) {
                         var lp = vp.localPos;
                         foreach (var uvi in vp.uvpoints)
                             position[uvi] = lp;
@@ -370,7 +370,7 @@ namespace Playtime_Painter {
                 {
                     originalIndex = new int[vertsCount];
 
-                    foreach (var vp in edMesh.vertices)
+                    foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.uvpoints)
                             originalIndex[uvi] = vp.index;
 
@@ -423,7 +423,7 @@ namespace Playtime_Painter {
             sharpNormals = new Vector3[vertsCount];
             bool[] NormalForced = new bool[vertsCount];
 
-            foreach (var vp in edMesh.vertices)
+            foreach (var vp in edMesh.meshPoints)
             {
                 vp.NormalIsSet = false;
                 vp.normal = Vector3.zero;
@@ -483,7 +483,7 @@ namespace Playtime_Painter {
             }
 
 
-            foreach (var vp in edMesh.vertices)
+            foreach (var vp in edMesh.meshPoints)
                 if (vp.SmoothNormal)
                 {
                     vp.normal = vp.normal.normalized;
@@ -548,16 +548,16 @@ namespace Playtime_Painter {
             if (edMesh.gotBindPos)
             {
                 bindPoses = new Matrix4x4[vertsCount];
-                for (int i = 0; i < edMesh.vertices.Count; i++)
-                    bindPoses[i] = edMesh.vertices[i].bindPoses;
+                for (int i = 0; i < edMesh.meshPoints.Count; i++)
+                    bindPoses[i] = edMesh.meshPoints[i].bindPoses;
                 mesh.bindposes = bindPoses;
             }
 
             if (edMesh.gotBoneWeights)
             {
                 boneWeights = new BoneWeight[vertsCount];
-                for (int i = 0; i < edMesh.vertices.Count; i++)
-                    boneWeights[i] = edMesh.vertices[i].boneWeight;
+                for (int i = 0; i < edMesh.meshPoints.Count; i++)
+                    boneWeights[i] = edMesh.meshPoints[i].boneWeight;
                 mesh.boneWeights = boneWeights;
             }
 
@@ -567,7 +567,7 @@ namespace Playtime_Painter {
                 for (int s = 0; s < edMesh.shapes.Count; s++)
                 {
                     var name = edMesh.shapes[s];
-                    int frames = edMesh.vertices[0].shapes[s].Count;
+                    int frames = edMesh.meshPoints[0].shapes[s].Count;
 
                     for (int f = 0; f < frames; f++)
                     {

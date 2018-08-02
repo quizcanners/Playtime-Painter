@@ -237,12 +237,12 @@ namespace Playtime_Painter
             if (ProjectionUV)
             {
                 var m = MeshMGMT;
-                if ((m.target == null) || (m.edMesh.vertices == null) || (m.edMesh.vertices.Count < 1)) return;
+                if ((m.target == null) || (m.edMesh.meshPoints == null) || (m.edMesh.meshPoints.Count < 1)) return;
 
                 var prMesh = FreshPreviewMesh;
                 
                 Vector3 trgPos = m.target.transform.position;
-                foreach (MeshPoint v in prMesh.vertices) {
+                foreach (MeshPoint v in prMesh.meshPoints) {
                     var pUV = PosToUV((v.WorldPos - trgPos));
                     foreach (Vertex uv in v.uvpoints)
                         uv.SharedEditedUV = pUV;
@@ -285,7 +285,7 @@ namespace Playtime_Painter
 
         public override void OnDeSelectTool() {
 
-            foreach (var v in EditedMesh.vertices)
+            foreach (var v in EditedMesh.meshPoints)
                 v.CleanEmptyIndexes();
 
             if (ProjectionUV)
@@ -387,7 +387,7 @@ namespace Playtime_Painter
                     if (PointedTris.SameAsLastFrame)
                         return true;
 
-                    if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.vertices[0].uvpoints[0];
+                    if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.meshPoints[0].uvpoints[0];
 
                     Vector3 trgPos = MeshMGMT.target.transform.position;
                    // float portion = 1f / Mathf.Max(0.01f, MeshUVprojectionSize);

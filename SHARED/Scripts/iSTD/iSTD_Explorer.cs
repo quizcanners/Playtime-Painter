@@ -171,7 +171,7 @@ namespace SharedTools_Stuff
         public bool PEGI()
         {
             if (tags == null && data.Contains("|"))
-                data.DecodeInto(this);
+                Decode(data);//.DecodeTagsFor(this);
 
             if (tags != null)
                 dirty |= tag.edit_List(tags, ref inspectedTag, true);
@@ -196,7 +196,7 @@ namespace SharedTools_Stuff
                     if (icon.Load.Click("Load from data String").nl())
                     {
                         tags = null;
-                        data.DecodeInto(this);
+                        Decode(data);//.DecodeTagsFor(this);
                         dirty = false;
                     }
                 }
@@ -414,7 +414,7 @@ namespace SharedTools_Stuff
                         selfSTD.UpdateSTDdata(); //Config_STD = selfSTD.Encode().ToString();
                     var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
-                        slfData.DecodeInto(target);
+                        target.Decode(slfData); //.DecodeTagsFor(target);
                  }
                 pegi.nl();
             }

@@ -88,7 +88,7 @@ namespace STD_Logic  {
 
                 changed |= r.PEGI(i, "Res");
 
-                changed |= r.Trigger._usage.inspect(r);
+                changed |= r.Trigger._usage.Inspect(r);
 
                 changed |= r.SearchAndAdd_PEGI(i);
 

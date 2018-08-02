@@ -303,13 +303,13 @@ namespace SharedTools_Stuff
         }
         
         // STD
-        public static bool DecodeInto<T>(this string data, T val) where T : ISTD
+        public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
         {
             if (val == null)
-                return false;
+                return val;
             
                 new StdDecoder(data).DecodeTagsFor(val);
-            return true;
+            return val;
         }
         
         public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
@@ -320,9 +320,17 @@ namespace SharedTools_Stuff
         
         public static T DecodeInto<T>(this string data) where T : ISTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
         
-        public static bool TryDecodeInto<T>(this string data, T val) =>  data.DecodeInto(val as ISTD);
+        public static bool TryDecodeInto<T>(this string data, T val) =>  (val as ISTD).Decode_ifNotNull(data);
 
+        public static bool Decode_ifNotNull(this ISTD istd, string data) {
+            if (istd != null)
+            {
+                istd.Decode(data);
+                return true;
+            }
 
+            return false;
+        }
 
         public static T TryDecodeInto<T>(this string data) where T : new()
         {
@@ -343,7 +351,7 @@ namespace SharedTools_Stuff
             T val = (T)Activator.CreateInstance(childType);
             var std = val as ISTD;
             if (std != null)
-                data.DecodeInto(std);
+                std.Decode(data); //.DecodeTagsFor(std);
 
             return val;
         }
@@ -357,7 +365,7 @@ namespace SharedTools_Stuff
                 var std = val as ISTD;
 
                 if (std != null)
-                    ovj.Encode().ToString().DecodeInto(std);
+                    std.Decode(ovj.Encode().ToString()); //.DecodeTagsFor(std);
             }
 
             return val;
@@ -508,11 +516,12 @@ namespace SharedTools_Stuff
                             l.Add(d.DecodeInto<T>(type));
                     }
                     else {
-                        T tmp;
-                        l.Add(d.DecodeInto(out tmp));
+                        l.Add(d.DecodeInto<T>()); 
                     }
                 }
+                
             }
+            
 
             return l;
         }

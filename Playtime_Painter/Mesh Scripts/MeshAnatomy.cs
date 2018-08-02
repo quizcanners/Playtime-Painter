@@ -60,7 +60,7 @@ namespace Playtime_Painter
 
         public Vector3 Pos { get { return meshPoint.localPos; } }
         
-        void Init(MeshPoint nPoint)
+        void AddToList(MeshPoint nPoint)
         {
             meshPoint = nPoint;
             nPoint.uvpoints.Add(this);
@@ -68,7 +68,6 @@ namespace Playtime_Painter
 
         void Init (Vertex other) {
             _color = other._color;
-          
         }
         
         public override StdEncoder Encode() {
@@ -123,20 +122,20 @@ namespace Playtime_Painter
         }
 
         public Vertex() {
-            Init(MeshPoint.currentlyDecoded);
+            meshPoint = MeshPoint.currentlyDecoded;
         }
 
         public Vertex(Vertex other)
         {
             Init(other);
-            Init(other.meshPoint);
+            AddToList(other.meshPoint);
             uvIndex = other.uvIndex;
             
         }
 
         public Vertex(MeshPoint nvert)
         {
-            Init(nvert);
+            AddToList(nvert);
 
             if (meshPoint.shared_v2s.Count == 0)
                 SetUVindexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
@@ -146,26 +145,26 @@ namespace Playtime_Painter
 
         public Vertex(MeshPoint nvert, Vector2 uv_0)
         {
-            Init(nvert);
+            AddToList(nvert);
           
             SetUVindexBy(uv_0, Vector2.zero);
         }
 
         public Vertex(MeshPoint nvert, Vector2 uv_0, Vector2 uv_1)
         {
-            Init(nvert);
+            AddToList(nvert);
             SetUVindexBy(uv_0, uv_1);
         }
 
         public Vertex(MeshPoint nvert, Vertex other)
         {
             Init(other);
-            Init(nvert);
+            AddToList(nvert);
             SetUVindexBy(other.GetUV(0), other.GetUV(1));
         }
 
         public Vertex(MeshPoint nvert, string data) {
-            Init(nvert);
+            AddToList(nvert);
             Decode(data);
         }
 
@@ -404,6 +403,7 @@ namespace Playtime_Painter
                 cody.Add("u1", lst[1]);
             }
 
+            
             cody.Add_ifNotEmpty("uvs", uvpoints);
 
             cody.Add("pos", localPos);
@@ -432,7 +432,8 @@ namespace Playtime_Painter
                             shared_v2s.Last()[0] = data.ToVector2(); break;
                 case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
                 case "uvs": currentlyDecoded = this;
-                    data.DecodeInto(out uvpoints); break;
+                    data.DecodeInto(out uvpoints);
+                    break;
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": SmoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
@@ -652,13 +653,13 @@ namespace Playtime_Painter
                 buv.SetUVindexBy(uvs);
             }
 
-            EditedMesh.vertices.Remove(other);
+            EditedMesh.meshPoints.Remove(other);
 
         }
 
         public void MergeWithNearest() {
 
-            List<MeshPoint> vrts = EditedMesh.vertices;
+            List<MeshPoint> vrts = EditedMesh.meshPoints;
 
             MeshPoint nearest = null;
             float maxDist = float.MaxValue;

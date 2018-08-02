@@ -16,7 +16,7 @@ namespace STD_Logic
         public int groupIndex;
         public int triggerIndex;
 
-        public ISTD Decode(string data) { data.DecodeInto(this); return this; }
+        public ISTD Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract StdEncoder Encode();
         public abstract bool Decode(string tag, string data);
@@ -101,7 +101,7 @@ namespace STD_Logic
             {
                 t.PEGI();
                 pegi.newLine();
-                changed |= t._usage.inspect(t);
+                changed |= t._usage.Inspect(t);
             }
 
             if ((pegi.nameFocused == (focusName)) && (t != Trigger.edited))

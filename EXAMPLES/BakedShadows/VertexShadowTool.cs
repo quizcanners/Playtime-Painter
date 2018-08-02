@@ -44,7 +44,7 @@ namespace Playtime_Painter
             var msk = GlobalBrush.mask;
             if ("Paint All".Click().nl())
             {
-                foreach (var v in EditedMesh.vertices)
+                foreach (var v in EditedMesh.meshPoints)
                     msk.Transfer(ref v.shadowBake, col);
                 EditedMesh.Dirty = true;
             }
@@ -60,7 +60,7 @@ namespace Playtime_Painter
 
                         if (shadVT != null && "Auto Raycast Shadows".Click().nl()) {
 
-                            foreach (var v in EditedMesh.vertices) {
+                            foreach (var v in EditedMesh.meshPoints) {
 
                                 var vpos = v.WorldPos + v.GetWorldNormal() * 0.001f;
 

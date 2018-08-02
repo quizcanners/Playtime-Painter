@@ -107,7 +107,7 @@ namespace StoryTriggerData {
 
                    // changed |= base.PEGI().nl();
                     
-                    pegi.write("Interactions: ", interactionGroup.getShortDescription());
+                    pegi.write("Interactions: ", interactionGroup.GetShortDescription());
 
                     if (icon.Edit.Click("Edit Interaction Tree", 20))
                         browsing_interactions = true;

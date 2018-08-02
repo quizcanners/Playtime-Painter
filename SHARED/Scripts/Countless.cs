@@ -164,8 +164,7 @@ namespace SharedTools_Stuff {
         public virtual ISTD Decode(string data)
         {
             Clear();
-            new StdDecoder(data).DecodeTagsFor(this);
-            return this;
+            return data.DecodeTagsFor(this);
         }
 
         public virtual bool Decode(string subtag, string data) { return true; }

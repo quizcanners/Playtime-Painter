@@ -19,7 +19,7 @@ namespace StoryTriggerData {
             {
                 cody.GetTag();
                 T tmp = (T)STD_Pool.GetOne(prefabTag);
-                cody.GetData().DecodeInto(tmp);
+                tmp.Decode(cody.GetData());//.DecodeTagsFor(tmp);
                 l.Add(tmp);
             }
 

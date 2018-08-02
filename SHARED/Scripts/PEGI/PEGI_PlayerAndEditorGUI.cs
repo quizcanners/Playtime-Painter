@@ -4362,7 +4362,7 @@ namespace PlayerAndEditorGUI
 
                 var dta = ExtensionsForGenericCountless.TryGet(datas, index);
                 if (std != null && dta != null && dta.std_dta != null && icon.Load.Click("Load STD", 25, 25))
-                    dta.std_dta.DecodeInto(std);
+                    std.Decode(dta.std_dta); //.DecodeTagsFor(std);
 
             }
 

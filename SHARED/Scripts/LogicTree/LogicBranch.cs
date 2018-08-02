@@ -52,7 +52,7 @@ namespace STD_Logic {
             switch (subtag)
             {
                 case "name": name = data; break;
-                case "cond": data.DecodeInto(conds); break;
+                case "cond": conds.Decode(data); break;
                 case "sub": data.DecodeInto(out subBranches); break; //new List<InteractionGroup>(data); break;
                 case "el": data.DecodeInto(out elements); break;
                 case "brE": browsedElement = data.ToInt(); break;

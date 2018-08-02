@@ -31,7 +31,7 @@ namespace STD_Logic
 
             bool changed = PEGI(ind, "Cond");
 
-            Trigger._usage.inspect(this);
+            Trigger._usage.Inspect(this);
 
             changed |= SearchAndAdd_PEGI(ind);
 
@@ -161,7 +161,7 @@ namespace STD_Logic
         {
             bool changed = PEGI(0, "Cond");
 
-            Trigger._usage.inspect(this);
+            Trigger._usage.Inspect(this);
 
             changed |= SearchAndAdd_PEGI(0);
 

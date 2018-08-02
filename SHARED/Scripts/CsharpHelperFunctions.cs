@@ -79,10 +79,13 @@ namespace SharedTools_Stuff
 
         public static bool TryCast<T>(this object obj, out T result)
         {
-            if (obj is T )
+            if (obj != null)
             {
-                result = (T)obj;
-                return true;
+                if (obj is T)
+                {
+                    result = (T)obj;
+                    return true;
+                }
             }
 
             result = default(T);

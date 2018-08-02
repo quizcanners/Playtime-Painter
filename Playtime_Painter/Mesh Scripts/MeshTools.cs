@@ -218,14 +218,14 @@ namespace Playtime_Painter
 
             "Add Smooth:".toggle(70, ref Cfg.newVerticesSmooth);
             if (pegi.Click("Sharp All")) {
-                foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                     vr.SmoothNormal = false;
                 mgm.edMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
             }
 
             if (pegi.Click("Smooth All").nl()) {
-                foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                     vr.SmoothNormal = true;
                 mgm.edMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
@@ -257,7 +257,7 @@ namespace Playtime_Painter
                 "center".edit(ref offset).nl();
                 if ("Modify".Click().nl())
                 {
-                    foreach (var v in EditedMesh.vertices)
+                    foreach (var v in EditedMesh.meshPoints)
                         v.localPos += offset;
 
                     offset = -offset;
@@ -269,10 +269,10 @@ namespace Playtime_Painter
                 if ("Auto Center".Click().nl())
                 {
                     Vector3 avr = Vector3.zero;
-                    foreach (var v in EditedMesh.vertices)
+                    foreach (var v in EditedMesh.meshPoints)
                         avr += v.localPos;
 
-                    offset = - avr / EditedMesh.vertices.Count;
+                    offset = - avr / EditedMesh.meshPoints.Count;
                 }
 
             }
@@ -352,7 +352,7 @@ namespace Playtime_Painter
                 MeshMGMT.edMesh.triangles.Remove(PointedTris);
                 foreach (var uv in PointedTris.vertexes)
                     if (uv.meshPoint.uvpoints.Count == 1 && uv.tris.Count == 1)
-                        EditedMesh.vertices.Remove(uv.meshPoint);
+                        EditedMesh.meshPoints.Remove(uv.meshPoint);
 
                 MeshMGMT.edMesh.Dirty = true;
                 return;
@@ -554,14 +554,14 @@ namespace Playtime_Painter
             "Sensitivity".edit(60, ref Cfg.bevelDetectionSensetivity, 3, 30).nl();
 
             if ("Sharp All".Click()) {
-                foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                     vr.SmoothNormal = false;
                 m.edMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
             }
 
             if ("Smooth All".Click().nl()) {
-                foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                     vr.SmoothNormal = true;
                 m.edMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
@@ -585,7 +585,7 @@ namespace Playtime_Painter
         public void AutoAssignDominantNormalsForBeveling()
         {
 
-            foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+            foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                 vr.SmoothNormal = true;
 
             foreach (var t in EditedMesh.triangles) t.SetSharpCorners(true);
@@ -719,7 +719,7 @@ namespace Playtime_Painter
 
                 if ("Sharp All".Click())
                 {
-                    foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                    foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                         vr.SmoothNormal = false;
                     m.edMesh.Dirty = true;
                     Cfg.newVerticesSmooth = false;
@@ -727,7 +727,7 @@ namespace Playtime_Painter
 
                 if ("Smooth All".Click().nl())
                 {
-                    foreach (MeshPoint vr in MeshMGMT.edMesh.vertices)
+                    foreach (MeshPoint vr in MeshMGMT.edMesh.meshPoints)
                         vr.SmoothNormal = true;
                     m.edMesh.Dirty = true;
                     Cfg.newVerticesSmooth = true;

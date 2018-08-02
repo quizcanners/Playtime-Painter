@@ -135,7 +135,7 @@ namespace Playtime_Painter
         public override void OnEnable()
         {
             inst = this;
-            std_data.DecodeInto(this);
+            Decode(std_data); //.DecodeTagsFor(this);
 #if UNITY_EDITOR
             EditorApplication.update -= ManualUpdate;
             if (!this.ApplicationIsAboutToEnterPlayMode())

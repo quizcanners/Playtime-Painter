@@ -54,7 +54,9 @@ namespace SharedTools_Stuff
         public static StdEncoder Encode<T>(this List<T> val) where T : ISTD
         {
             StdEncoder cody = new StdEncoder();
-            
+
+           // int debugCount = 0;
+
             if (val != null)
             {
 
@@ -85,12 +87,14 @@ namespace SharedTools_Stuff
                 }
                 else 
                 foreach (var v in val) {
+                        //debugCount++;
                     if (v != null)
                         cody.Add("e", v.Encode());
                     else
                         cody.Add_String(StdEncoder.nullTag, "");
                 }
 
+              //  Debug.Log("Encoded "+ debugCount + " points");
 
             }
             return cody;

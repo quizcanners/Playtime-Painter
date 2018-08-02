@@ -70,7 +70,7 @@ namespace StoryTriggerData{
                     STD_Poolable storyObject = STD_Pool.GetOne(tag);
 
                     if (storyObject != null)
-                        data.DecodeInto(storyObject.LinkTo(this));
+                        storyObject.LinkTo(this).Decode(data); //.DecodeTagsFor();
                     else
                         return false; break;
             }

@@ -241,7 +241,7 @@ namespace Playtime_Painter {
             Debug.Log("Disconnecting dragged");
 
             MeshPoint temp = new MeshPoint(SelectedUV.Pos);
-            edMesh.vertices.Add(temp);
+            edMesh.meshPoints.Add(temp);
 
             SelectedUV.AssignToNewVertex(temp);
 
@@ -309,7 +309,7 @@ namespace Playtime_Painter {
            // if ((selectedLine != null) && (selectedLine.includes(vert))) selectedLine = null;
             //if ((selectedUV != null) && (selectedUV.vert == vert)) selectedUV = null;
 
-            edMesh.vertices.Remove(vert);
+            edMesh.meshPoints.Remove(vert);
 
 
             TrisVerts = 0;
@@ -389,7 +389,7 @@ namespace Playtime_Painter {
             if (vrt.uvpoints.Count == 0)
             {
 
-                edMesh.vertices.Remove(vrt);
+                edMesh.meshPoints.Remove(vrt);
             }
 
 
@@ -427,7 +427,7 @@ namespace Playtime_Painter {
             MeshPoint hold = new MeshPoint(pos);
             // hold.uv.Add(
             new Vertex(hold);
-            edMesh.vertices.Add(hold);
+            edMesh.meshPoints.Add(hold);
 
             // if (m_CapsLock)
             if (!EditorInputManager.getControlKey())
@@ -505,8 +505,8 @@ namespace Playtime_Painter {
 
             UpdateLocalSpaceV3s();
 
-            for (int i = 0; i < edMesh.vertices.Count; i++)
-                foreach (Vertex uv in edMesh.vertices[i].uvpoints)
+            for (int i = 0; i < edMesh.meshPoints.Count; i++)
+                foreach (Vertex uv in edMesh.meshPoints[i].uvpoints)
                     foreach (Triangle t in uv.tris)
                         if (!t.wasProcessed)
                         {
@@ -537,7 +537,7 @@ namespace Playtime_Painter {
             RaycastHit hit;
             PointedUV = null;
             bool VertexIsPointed = false;
-            if (edMesh.vertices.Count > 0)
+            if (edMesh.meshPoints.Count > 0)
             {
                 bool alt = EditorInputManager.getAltKey();
 
@@ -616,9 +616,9 @@ namespace Playtime_Painter {
                 MeshTool.ManageDragging();
             else  {
 
-                if ((pointingUV) && (currentUV <= edMesh.vertices[0].uvpoints.Count))   {
+                if ((pointingUV) && (currentUV <= edMesh.meshPoints[0].uvpoints.Count))   {
 
-                    var pointedVX = edMesh.vertices[0];
+                    var pointedVX = edMesh.meshPoints[0];
 
                     if (currentUV == pointedVX.uvpoints.Count) currentUV--;
 
@@ -687,9 +687,9 @@ namespace Playtime_Painter {
 
             if (MeshTool.ShowVertices)
             for (int i = 0; i < vertsShowMax; i++)
-                if (edMesh.vertices.Count > i)  {
+                if (edMesh.meshPoints.Count > i)  {
                     MarkerWithText mrkr = Grid.verts[i];
-                    MeshPoint vpoint = edMesh.vertices[i];
+                    MeshPoint vpoint = edMesh.meshPoints[i];
 
                     Vector3 worldPos = vpoint.WorldPos;
                     float tmpScale;
@@ -700,7 +700,7 @@ namespace Playtime_Painter {
                     {
                         mrkr = Grid.pointedVertex; tmpScale *= 2;
                     }
-                    else if (GetSelectedVert() == edMesh.vertices[i])
+                    else if (GetSelectedVert() == edMesh.meshPoints[i])
                     {
                         mrkr = Grid.selectedVertex;
                             tmpScale *= 1.5f;
@@ -755,9 +755,9 @@ namespace Playtime_Painter {
                 if (PointedLine != null)
                     Line(PointedLine.pnts[0].meshPoint, PointedLine.pnts[1].meshPoint, Color.green );
 
-                for (int i = 0; i < Mathf.Min(vertsShowMax, edMesh.vertices.Count); i++)
+                for (int i = 0; i < Mathf.Min(vertsShowMax, edMesh.meshPoints.Count); i++)
                 {
-                    MeshPoint vp = edMesh.vertices[i];
+                    MeshPoint vp = edMesh.meshPoints[i];
                     if (SameTrisAsPointed(vp))
                         Line(vp, PointedUV.meshPoint, Color.yellow);
                 }

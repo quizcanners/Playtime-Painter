@@ -125,8 +125,8 @@ namespace Playtime_Painter
             MeshPoint a = new MeshPoint(selectedLine.pnts[0].Pos);
             MeshPoint b = new MeshPoint(selectedLine.pnts[1].Pos);
 
-            EditedMesh.vertices.Add(a);
-            EditedMesh.vertices.Add(b);
+            EditedMesh.meshPoints.Add(a);
+            EditedMesh.meshPoints.Add(b);
 
             Vertex aUV = new Vertex(a, selectedLine.pnts[0].EditedUV + uvChangeSpeed * distance);
             Vertex bUV = new Vertex(b, selectedLine.pnts[1].EditedUV + uvChangeSpeed * distance);
@@ -201,7 +201,7 @@ namespace Playtime_Painter
                         foreach (Vertex uv in pointedTris.vertexes)
                         {
                             if ((uv.meshPoint.uvpoints.Count == 1) && (uv.tris.Count == 1))
-                                EditedMesh.vertices.Remove(uv.meshPoint);
+                                EditedMesh.meshPoints.Remove(uv.meshPoint);
                         }
 
                         EditedMesh.triangles.Remove(pointedTris);
@@ -329,7 +329,7 @@ namespace Playtime_Painter
                             else
                                 new Vertex(hold);
 
-                            MeshMGMT.edMesh.vertices.Add(hold);
+                            MeshMGMT.edMesh.meshPoints.Add(hold);
                             MeshMGMT.MoveVertexToGrid(hold);
                             hold.localPos += norm * outlineWidth;
 

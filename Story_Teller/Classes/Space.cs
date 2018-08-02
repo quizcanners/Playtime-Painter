@@ -15,7 +15,7 @@ namespace StoryTriggerData {
 
     public static class SpaceDistanceExtensions {
        
-        public static string Label (this SpaceValues.lvl en) {
+        public static string Label (this SpaceValues.Lvl en) {
             switch ((int)en) {
                 case 0: return "meters";
                 case 1: return "kilometers";
@@ -59,7 +59,7 @@ namespace StoryTriggerData {
 
         public int BrowsingScaleLevel = 0;
 
-        public enum lvl { Meters, KM, LM, LY, MP}
+        public enum Lvl { Meters, KM, LM, LY, MP}
 
         
 
