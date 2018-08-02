@@ -25,7 +25,7 @@ namespace Playtime_Painter {
 
         public ImageData ImageData
         {
-            get { return TexMGMTdata.imgDatas.TryGet(imgDataIndex); }
+            get { return TexMGMTdata?.imgDatas.TryGet(imgDataIndex); }
             set { imgDataIndex = TexMGMTdata.imgDatas.TryGetIndex(value); }
         }
 
