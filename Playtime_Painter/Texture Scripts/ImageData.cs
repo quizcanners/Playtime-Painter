@@ -16,7 +16,7 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
     
-    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName
+    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention
     {
 
         const float bytetocol = 1f / 255f;
@@ -38,6 +38,38 @@ namespace Playtime_Painter
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
+
+        
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
+
+            "Save Name".edit(ref SaveName).nl();
+
+            pegi.toggle(ref lockEditing, icon.Lock, icon.Unlock);
+
+            if (gotBacups)
+            {
+                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
+                pegi.writeOneTimeHint("This are not connected to Unity's " +
+                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
+                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+
+                changed |=
+                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
+                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
+                    "backup manually:".toggle(150, ref backupManually).nl();
+            }
+            else if ("Enable Undo/Redo".Click().nl())
+            {
+                numberOfTexture2Dbackups = 10;
+                numberOfRenderTextureBackups = 10;
+                changed = true;
+            }
+            return changed;
+        }
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("dst", (int)destination)
@@ -606,34 +638,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-
-        public override bool PEGI()
-        {
-            bool changed = false;
-
-            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
-
-            if (gotBacups)
-            {
-                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                pegi.writeOneTimeHint("This are not connected to Unity's " +
-                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
-
-                changed |=
-                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
-                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
-                    "backup manually:".toggle(150, ref backupManually).nl();
-            }
-            else if ("Enable Undo/Redo".Click().nl())
-            {
-                numberOfTexture2Dbackups = 10;
-                numberOfRenderTextureBackups = 10;
-                changed = true;
-            }
-            return changed;
-        }
-
+        
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
             this.ToPEGIstring().write(60 ,texture2D);
@@ -642,6 +647,13 @@ namespace Playtime_Painter
             texture2D.clickHighlight();
 
             return false;
+        }
+
+        public string NeedAttention()
+        {
+            if (numberOfTexture2Dbackups > 50) return "Too many backups";
+
+            return null;
         }
 
 #endif

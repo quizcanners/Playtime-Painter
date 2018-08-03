@@ -113,7 +113,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &116266780
+--- !u!114 &63814259
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,12 +121,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13af337fb9e66fd4aa4001710ab429b2, type: 3}
+  m_Script: {fileID: 11500000, guid: ed9d48e182d1a934aabf9ca6e9ac2f9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parentPainter: {fileID: 0}
-  mergingTerrain: {fileID: 0}
-  testData: 0
+  preAtlasingMaterials: []
+  preAtlasingMesh: {fileID: 0}
+  preAtlasingSavedMesh: 
+  inAtlasIndex: 3
+  atlasRows: 4
 --- !u!1 &136433662
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,6 +222,20 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 150.856, y: 239.621, z: -190.848}
+--- !u!114 &149415821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13af337fb9e66fd4aa4001710ab429b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentPainter: {fileID: 0}
+  mergingTerrain: {fileID: 0}
+  testData: 0
 --- !u!1001 &160964549
 Prefab:
   m_ObjectHideFlags: 0
@@ -1666,7 +1683,7 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     GizmoLines: 1
-  focusedPainter: {fileID: 1728036928}
+  focusedPainter: {fileID: 1898692891}
   isLinearColorSpace: 1
   _plugins:
   - {fileID: 753615959}
@@ -1713,7 +1730,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   std_data: s|0||
-  sections: []
+  sections:
+  - material: {fileID: 0}
+    shader: {fileID: 0}
+    previewMaterial: {fileID: 0}
+    targetBufferIndex: -1
+    sourceBufferIndex: -1
+    delayTime: 0
+    trigger: 0
+    enabled: 1
+  - material: {fileID: 0}
+    shader: {fileID: 0}
+    previewMaterial: {fileID: 0}
+    targetBufferIndex: -1
+    sourceBufferIndex: -1
+    delayTime: 0
+    trigger: 0
+    enabled: 1
+  - material: {fileID: 0}
+    shader: {fileID: 0}
+    previewMaterial: {fileID: 0}
+    targetBufferIndex: -1
+    sourceBufferIndex: -1
+    delayTime: 0
+    trigger: 0
+    enabled: 1
   GUITextureSize: 128
   editedBuffer: -1
   editedSection: -1
@@ -2084,23 +2125,6 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 195.658, y: 136.521, z: -140.611}
---- !u!114 &910784339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed9d48e182d1a934aabf9ca6e9ac2f9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentPainter: {fileID: 0}
-  preAtlasingMaterials: []
-  preAtlasingMesh: {fileID: 0}
-  preAtlasingSavedMesh: 
-  inAtlasIndex: 0
-  atlasRows: 4
 --- !u!1 &922905342
 GameObject:
   m_ObjectHideFlags: 0
@@ -2193,6 +2217,18 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 165.218, y: 344.042, z: -270.982}
+--- !u!114 &942070733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c1951d81717cdb41b60a879b5d6a553, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentPainter: {fileID: 0}
 --- !u!43 &954350397
 Mesh:
   m_ObjectHideFlags: 0
@@ -2627,6 +2663,18 @@ Prefab:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: ae956fc2634ffd945bc0f8823f40feba, type: 2}
   m_IsPrefabAsset: 0
+--- !u!114 &1191810319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19e0d3c31b51eee4797f9d0704e3a707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentPainter: {fileID: 0}
 --- !u!1001 &1194478227
 Prefab:
   m_ObjectHideFlags: 0
@@ -2793,30 +2841,6 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: accaa2035970c074e89aefe5d0b5faea, type: 2}
   m_IsPrefabAsset: 0
---- !u!114 &1359461567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f4d929f2684a76479ba914e3aa8fce6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentPainter: {fileID: 0}
---- !u!114 &1387162628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c1951d81717cdb41b60a879b5d6a553, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentPainter: {fileID: 0}
 --- !u!1 &1411142339
 GameObject:
   m_ObjectHideFlags: 0
@@ -3432,36 +3456,30 @@ Prefab:
         type: 2}
       propertyPath: plugins.Array.data[0]
       value: 
-      objectReference: {fileID: 910784339}
+      objectReference: {fileID: 63814259}
     - target: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 2}
       propertyPath: plugins.Array.data[1]
       value: 
-      objectReference: {fileID: 116266780}
+      objectReference: {fileID: 149415821}
     - target: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 2}
       propertyPath: plugins.Array.data[2]
       value: 
-      objectReference: {fileID: 1387162628}
+      objectReference: {fileID: 942070733}
     - target: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 2}
       propertyPath: plugins.Array.data[3]
       value: 
-      objectReference: {fileID: 1359461567}
+      objectReference: {fileID: 1858634210}
     - target: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 2}
       propertyPath: plugins.Array.data[4]
       value: 
-      objectReference: {fileID: 1986580469}
+      objectReference: {fileID: 1191810319}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 2}
   m_IsPrefabAsset: 0
---- !u!114 &1728036928 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
-    type: 2}
-  m_PrefabInternal: {fileID: 1728036927}
-  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
 --- !u!43 &1744233362
 Mesh:
   m_ObjectHideFlags: 0
@@ -4121,6 +4139,18 @@ Mesh:
   m_MeshMetrics[0]: 1
   m_MeshMetrics[1]: 1
   m_MeshOptimized: 0
+--- !u!114 &1858634210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4d929f2684a76479ba914e3aa8fce6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentPainter: {fileID: 0}
 --- !u!1 &1885912081
 GameObject:
   m_ObjectHideFlags: 0
@@ -4298,6 +4328,12 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef1f0d8951f744a4683c56539f1f68b0, type: 2}
   m_IsPrefabAsset: 0
+--- !u!114 &1898692891 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114409623194588454, guid: ef1f0d8951f744a4683c56539f1f68b0,
+    type: 2}
+  m_PrefabInternal: {fileID: 1898692890}
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
 --- !u!114 &1898692892 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114945857844550318, guid: ef1f0d8951f744a4683c56539f1f68b0,
@@ -4408,18 +4444,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentPainter: {fileID: 1815085832}
---- !u!114 &1986580469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19e0d3c31b51eee4797f9d0704e3a707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentPainter: {fileID: 0}
 --- !u!1001 &2014313639
 Prefab:
   m_ObjectHideFlags: 0

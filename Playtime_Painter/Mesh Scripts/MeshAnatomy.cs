@@ -121,6 +121,11 @@ namespace Playtime_Painter
             return lst;
         }
 
+        public void RunDebug()
+        {
+
+        }
+
         public Vertex() {
             meshPoint = MeshPoint.currentlyDecoded;
         }
@@ -353,6 +358,24 @@ namespace Playtime_Painter
         //public int submeshIndex;
         public float edgeStrength;
         public int vertexGroup = 0;
+
+        public void RunDebug()
+        {
+
+            for (int i=0; i<uvpoints.Count; i++) {
+                var up = uvpoints[i];
+                if (up.tris.Count == 0) {
+                    uvpoints.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            foreach (var v in uvpoints)
+                v.RunDebug();
+
+
+            CleanEmptyIndexes();
+        }
 
         public bool SameAsLastFrame { get { return this == EditedMesh.LastFramePointedUV.meshPoint; } }
 
@@ -777,6 +800,11 @@ namespace Playtime_Painter
         public Vector4 textureNo = new Vector4();
         public int submeshIndex;
         public Vector3 sharpNormal;
+
+        public void RunDebug()
+        {
+
+        }
 
         public Vector3 GetNormal() {
 

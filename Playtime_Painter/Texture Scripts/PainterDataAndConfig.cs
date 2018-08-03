@@ -340,7 +340,7 @@ namespace Playtime_Painter
 
                 }
 
-                if ("Lists".foldout(ref inspectLists))
+                if ("Lists".foldout(ref inspectLists).nl())
                     changed |= DatasPEGI();
                 
                 "Teaching Notifications".toggle("will show whatever you ae pressing on the screen.", 140, ref ShowTeachingNotifications).nl();

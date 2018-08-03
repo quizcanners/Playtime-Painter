@@ -1016,7 +1016,7 @@ namespace Playtime_Painter {
 #if PEGI
          List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
-      
+        bool inspectMesh = false;
         bool showTooltip;
         bool showCopyOptions;
         public bool PEGI()  {
@@ -1025,6 +1025,10 @@ namespace Playtime_Painter {
             EditableMesh.inspected = edMesh;
 
             pegi.newLine();
+
+            if (edMesh != null)
+                if ("Mesh ".foldout(ref inspectMesh).nl())
+                    changed |= edMesh.Nested_Inspect().nl();
             pegi.Space();
 
             pegi.newLine();

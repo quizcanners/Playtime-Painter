@@ -14,7 +14,7 @@ using UnityEditor;
 
 namespace Playtime_Painter {
 
-    public class EditableMesh : PainterStuff_STD {
+    public class EditableMesh : PainterStuff_STD, IPEGI {
 
         // Could give each vertex a unique index and Use Countless class to store new data for it.
 
@@ -48,6 +48,17 @@ namespace Playtime_Painter {
         public List<Triangle> triangles = new List<Triangle>();
         
         public CountlessBool hasFrame = new CountlessBool();
+
+        public void RunDebug()
+        {
+            foreach (var t in triangles)
+                t.RunDebug();
+
+            foreach (var m in meshPoints)
+                m.RunDebug();
+
+            Dirty = true;
+        }
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
@@ -357,6 +368,8 @@ namespace Playtime_Painter {
 
         }
         */
+
+           
 
         public void Edit(PlaytimePainter pntr) {
             //Temporary
@@ -877,6 +890,16 @@ namespace Playtime_Painter {
             }
            // Debug.Log("Dirty");
             Dirty = true;
+        }
+
+        public bool PEGI()
+        {
+            bool changed = false;
+
+            if ("Run Debug".Click().nl())
+                RunDebug();
+
+            return changed;
         }
 #if PEGI
         public static EditableMesh inspected;
