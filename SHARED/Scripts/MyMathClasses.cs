@@ -10,6 +10,14 @@ namespace SharedTools_Stuff
     public static class MyMath
     {
 
+        public static double Miliseconds_To_Seconds(this double interval) => (interval*0.001);
+
+        public static double Seconds_To_Miliseconds(this double interval) => (interval * 1000);
+
+        public static float Miliseconds_To_Seconds(this float interval) => (interval * 0.001f);
+
+        public static float Seconds_To_Miliseconds(this float interval) => (interval * 1000);
+
         public static float ClampZeroTo (this float value, float Max) {
             value = Mathf.Max(0, Mathf.Min(value, Max-1));
             return value;

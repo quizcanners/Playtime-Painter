@@ -1666,7 +1666,7 @@ namespace PlayerAndEditorGUI
             else
             {
                 bool changed = false;
-                if (icon.Delete.Click())
+                if (obj && icon.Delete.Click())
                 {
                     changed = true;
                     obj = null;
@@ -1705,7 +1705,7 @@ namespace PlayerAndEditorGUI
             else
             {
                 bool changed = false;
-                if (icon.Delete.Click())
+                if (obj && icon.Delete.Click())
                 {
                     changed = true;
                     obj = null;
@@ -1720,39 +1720,33 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class
-        {
-            return select_SameClass_or_edit(null, null, 0, ref obj, list);
-        }
+        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+             select_SameClass_or_edit(null, null, 0, ref obj, list);
+        
 
-        public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
-        {
-            return select_SameClass_or_edit(name, null, 0, ref obj, list);
-        }
+        public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+             select_SameClass_or_edit(name, null, 0, ref obj, list);
+        
 
-        public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
-        {
-            return select_SameClass_or_edit(name, null, width, ref obj, list);
-        }
+        public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+             select_SameClass_or_edit(name, null, width, ref obj, list);
+        
 
         public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst) where T : IGotIndex
         {
             write(label, tip);
-
             return select_iGotIndex(ref ind, lst);
         }
 
         public static bool select_iGotIndex<T>(this string label, string tip, int width, ref int ind, List<T> lst) where T : IGotIndex
         {
             write(label, tip, width);
-
             return select_iGotIndex(ref ind, lst);
         }
 
         public static bool select_iGotIndex<T>(this string label, int width, ref int ind, List<T> lst) where T : IGotIndex
         {
             write(label, width);
-
             return select_iGotIndex(ref ind, lst);
         }
 
@@ -1764,7 +1758,6 @@ namespace PlayerAndEditorGUI
 
         public static bool select_iGotIndex<T>(ref int ind, List<T> lst) where T : IGotIndex
         {
-
             List<string> lnms = new List<string>();
             List<int> indxs = new List<int>();
 
@@ -1783,12 +1776,7 @@ namespace PlayerAndEditorGUI
 
                 }
             }
-
-            //if (jindx == -1)
-            //  lnms.Add(">>" + ind.ToString() + "<<");
-
-            //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
-
+            
             if (select_Final(ind, ref jindx, lnms))
             {
                 ind = indxs[jindx];
@@ -1818,7 +1806,6 @@ namespace PlayerAndEditorGUI
 
         public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
         {
-
             val = default(G);
 
             List<string> lnms = new List<string>();
@@ -2981,6 +2968,52 @@ namespace PlayerAndEditorGUI
             }
 
         }
+
+        public static bool edit(ref double val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (String.Compare(before, newval) != 0)
+                {
+                    double newValue;
+                    if (double.TryParse(newval, out newValue))
+                    {
+                        val = newValue;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        }
+
+        public static bool edit(this string label, ref double val)
+        {
+            label.write();
+            return edit(ref val);
+        }
+
+
+        public static bool edit(this string label, int width, ref double val)
+        {
+            label.write(width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref double val)
+        {
+            label.write(tip, width);
+            return edit(ref val);
+        }
+
 
         public static bool edit(ref int val, int width)
         {
@@ -4153,7 +4186,7 @@ namespace PlayerAndEditorGUI
         }
 
         static bool edit_List_Order<T>(this List<T> list, bool allowDelete)
-        { //, UnnullableSTD<ElementData> datas ) {
+        { 
             bool changed = false;
 
             const int bttnWidth = 25;
@@ -4751,26 +4784,26 @@ namespace PlayerAndEditorGUI
         }
 
         // ...... of New()
-        public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T : new()
+        public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T :  new()
         {
             label.write_ListLabel(list, edited);
             return list.edit_List(ref edited, allowDelete);
         }
 
-        public static bool edit_List<T>(this List<T> list, ref int edited, bool allowDelete) where T : new()
+        public static bool edit_List<T>(this List<T> list, ref int edited, bool allowDelete) where T :  new()
         {
             bool changes = false;
             list.edit_List(ref edited, allowDelete, ref changes);
             return changes;
         }
 
-        public static bool edit_List<T>(this string label, List<T> list, bool allowDelete) where T : new()
+        public static bool edit_List<T>(this string label, List<T> list, bool allowDelete) where T :  new()
         {
             label.write_ListLabel(list, -1);
             return list.edit_List(allowDelete);
         }
 
-        public static bool edit_List<T>(this List<T> list, bool allowDelete) where T : new()
+        public static bool edit_List<T>(this List<T> list, bool allowDelete) where T :  new()
         {
             int edited = -1;
             bool changes = false;
@@ -4778,13 +4811,13 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref bool changed) where T : new()
+        public static T edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref bool changed) where T :  new()
         {
             label.write_ListLabel(list, edited);
             return list.edit_List(ref edited, allowDelete, ref changed);
         }
 
-        public static T edit_List<T>(this List<T> list, ref int edited, bool allowDelete, ref bool changed) where T : new()
+        public static T edit_List<T>(this List<T> list, ref int edited, bool allowDelete, ref bool changed) where T :  new()
         {
 
             T added = default(T);
@@ -4843,13 +4876,13 @@ namespace PlayerAndEditorGUI
             return added;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T : new()
+        public static T edit_List<T>(this string label, List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T :  new()
         {
             label.write_ListLabel(list, -1);
             return edit_List<T>(list, allowDelete, ref changed, lambda);
         }
 
-        public static T edit_List<T>(this List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T : new()
+        public static T edit_List<T>(this List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T :  new()
         {
 
             T added = default(T);
@@ -5116,7 +5149,6 @@ namespace PlayerAndEditorGUI
         public static int newEnumKey = 1;
         public static bool edit_PEGI(this Dictionary<int, string> dic)
         {
-
             bool changed = false;
 
             newLine();
@@ -5142,6 +5174,8 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
+
+
 
         public static bool newElement_PEGI(this Dictionary<int, string> dic)
         {

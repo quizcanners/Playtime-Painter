@@ -7,7 +7,7 @@ using System;
 
 namespace STD_Logic {
 
-    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI  where T: ISTD, new()
+    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI  where T: class, ISTD, new()
     {
 
         public List<LogicBranch<T>> subBranches = new List<LogicBranch<T>>();

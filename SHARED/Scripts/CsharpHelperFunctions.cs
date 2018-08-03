@@ -102,8 +102,8 @@ namespace SharedTools_Stuff
 
         public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
 
-            public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew)  {
-            if (ass == null)
+        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew)   {
+            if (ass == null || list == null)
                 return false;
 
             if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
@@ -127,14 +127,13 @@ namespace SharedTools_Stuff
 
             if (cst != null && (!onlyIfNew || !list.Contains(cst)))
             {
-                list.Add((T)Convert.ChangeType(ass, typeof(T)));
+                list.Add(cst);
                 return true;
             }
             return false;
 
         }
-
-
+        
         public static T TryGetLast<T>(this T[] array)
         {
 

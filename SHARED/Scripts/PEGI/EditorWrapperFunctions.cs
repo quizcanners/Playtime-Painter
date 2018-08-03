@@ -678,6 +678,15 @@ namespace PlayerAndEditorGUI {
             return (val != before) ? change : false;
         }
 
+        public static bool edit(ref double val)
+        {
+            checkLine();
+            double before = val;
+            val = EditorGUILayout.DoubleField(val);
+            return (val != before) ? change : false;
+        }
+
+
         public static bool edit(ref int val, int min, int max)
         {
             checkLine();
@@ -1387,7 +1396,13 @@ namespace PlayerAndEditorGUI {
                     rect.width = 100;
                     EditorGUI.LabelField(rect, cont);
                     rect.x += 100;
-                    
+
+                    var uo = el as UnityEngine.Object;
+                    if (uo) {
+                        ty.ToPEGIstring().write();
+                        uo.clickHighlight();
+                        }
+                    else 
                     if (select_Type(ref ty, current_Reordered_ListTypes, rect))
                         current_Reordered_List[index] = (el as ISTD).TryDecodeInto<object>(ty);
                 }

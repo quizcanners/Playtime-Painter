@@ -14,23 +14,36 @@ namespace SharedTools_Stuff {
 
         public LogStat processedStat = null;
 
-        public StatLogger Stat(int index, string name)
+        void Create (int index, string name)
+        {
+            if (executionOrder.Count == 0)
+                executionOrder.Add(processedStat);
+            else
+                executionOrder.Insert(0, processedStat);
+
+            processedStat.name = name;
+
+            processedStat.myIndex = index;
+
+            processedStat.addedToList = true;
+        }
+
+        public StatLogger Get(int index, string name)
         {
             processedStat = allStats[index];
 
             if (!processedStat.addedToList)
-            {
-                if (executionOrder.Count == 0)
-                    executionOrder.Add(processedStat);
-                else
-                    executionOrder.Insert(0, processedStat);
+                Create(index, name);
+            
+            return this;
+        }
 
-                processedStat.name = name;
+        public StatLogger StatMoveToFirst(int index, string name)
+        {
+            processedStat = allStats[index];
 
-                processedStat.myIndex = index;
-
-                processedStat.addedToList = true;
-            }
+            if (!processedStat.addedToList)
+                Create(index, name);
             else
             {
                 int ind = executionOrder.IndexOf(processedStat);
@@ -79,47 +92,58 @@ namespace SharedTools_Stuff {
         public int count = 0;
         public float value = 0;
 
-        public int starts = 0;
-        public int ends = 0;
-        public int doubleStarts = 0;
-        public int doubleEnds = 0;
-        public bool outputToLog = false;
+        Dictionary<string, string> events = new Dictionary<string, string>();
 
-        public void AddStart()
+        public string this[string key]
         {
-            if (starts > ends)
-                doubleStarts += 1;
-
-            starts += 1;
+            get
+            {
+                string retVal;
+                if (events.TryGetValue(key, out retVal))
+                    return retVal;
+                else return "Not Set";
+            }
+            set { events[key] = value;
+                if (outputToLog)
+                    Debug.Log(name + " "+key + value);
+            }
         }
 
-        public void AddEnd()
+        public bool outputToLog = false;
+        
+        void Reset()
         {
-            if (ends >= starts)
-                doubleEnds += 1;
-
-            ends += 1;
+            count = 0;
+            value = 0;
         }
 
 #if PEGI
-        public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "") + (starts > 0 ? " S:" + starts : "")
-            + (ends > 0 ? "E: " + ends : " ");
+        public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
-        {
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
             this.ToPEGIstring().write();
             if (icon.Edit.Click())
                 edited = myIndex;
             return false;
         }
 
+        int editedEvent = -1;
+
         public override bool PEGI()
         {
             bool changed = false;
 
-            "Name".edit(ref name).nl();
+            changed |= "Name".edit(ref name).nl();
 
-            "Output To Log".toggle(ref outputToLog).nl();
+            changed |= "Output To Log".toggle(ref outputToLog).nl();
+
+            if (count > 0 && ("Reset Count " + count).Click().nl())
+                    count = 0;
+
+            if (value > 0 && ("Reset Value " + value).Click().nl())
+                value = 0;
+
+            changed |= events.edit(ref editedEvent, true).nl();
 
             return changed;
         }
@@ -133,7 +157,7 @@ namespace SharedTools_Stuff {
     {
         public static StatLogger exampleLogger = new StatLogger();
 
-        public static StatLogger Log(this StatLogging_ExampleEnum log) => exampleLogger.Stat((int)log, log.ToString());
+        public static StatLogger Log(this StatLogging_ExampleEnum log) => exampleLogger.StatMoveToFirst((int)log, log.ToString());
 
     }
 
