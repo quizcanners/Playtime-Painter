@@ -4879,6 +4879,37 @@ namespace PlayerAndEditorGUI
         }
 
         // ...... of not New
+
+        public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)
+        {
+            label.write_ListLabel(list, -1);
+           return list.write_List(lambda);
+
+        }
+  
+
+        public static bool write_List<T>(this List<T> list, Func<T, bool> lambda) 
+        {
+            bool changed = false;
+           
+            if (list == null) {
+                "Empty List".nl();
+                return changed;
+            }
+            
+                list.InspectionStart();
+                for (int i = ListSectionStartIndex; i < ListSectionMax; i++) {
+                    changed |= lambda(list[i]);
+                    nl();
+                }
+                list.InspectionEnd();
+
+                nl();
+
+            return changed;
+        }
+
+
         public static bool write_List<T>(this string label, List<T> list)
         {
             int edited = -1;

@@ -8,8 +8,7 @@ using UnityEditor;
 using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-
-
+using System.IO;
 
 namespace Playtime_Painter
 {
@@ -39,6 +38,10 @@ namespace Playtime_Painter
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
 
+        #region SAVE IN PLAYER
+
+        List<string> playtimeSavedTextures = new List<string>();
+
         public string SaveInPlayer() {
             if (texture2D != null)
             {
@@ -47,22 +50,43 @@ namespace Playtime_Painter
 
                 var png = texture2D.EncodeToPNG();
 
-                string filename = string.Format("{0}/screenshots/{1}.png",
-                                           Application.persistentDataPath, SaveName);
-                
-                System.IO.File.WriteAllBytes(filename, png);
+                string path = Path.Combine(Application.persistentDataPath, "Saved Images");
 
-                string msg = string.Format("Saved {0} to {1}", SaveName, filename);
+                Directory.CreateDirectory(path);
+
+                string fullPath =  Path.Combine(path,"{0}.png".F(SaveName));
+                
+                System.IO.File.WriteAllBytes(fullPath, png);
+
+                string msg = string.Format("Saved {0} to {1}", SaveName, fullPath);
+
+                playtimeSavedTextures.Add(fullPath);
 
                 msg.showNotification();
                 Debug.Log(msg);
 
-                return filename;
+                return fullPath;
             }
 
             return "Save Failed";
         }
 
+        public void LoadInPlayer(string path)
+        {
+            if (File.Exists(path))
+            {
+                var fileData = File.ReadAllBytes(path);
+                if (!texture2D)
+                    texture2D = new Texture2D(2, 2);
+
+                if (texture2D.LoadImage(fileData))
+                    Init(texture2D);
+                else "Couldn't Load Image ".showNotification();
+            }
+        }
+
+        #endregion
+        
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("dst", (int)destination)
             .Add_Referance("tex2D", texture2D)
@@ -76,9 +100,9 @@ namespace Playtime_Painter
             .Add_Bool("b", backupManually)
             .Add("tl", tiling)
             .Add("off", offset)
-            .Add_String("sn", SaveName);
-
-
+            .Add_String("sn", SaveName)
+            .Add("svs", playtimeSavedTextures);
+        
         public override bool Decode(string tag, string data)
         {
             switch (tag) {
@@ -95,12 +119,12 @@ namespace Playtime_Painter
                 case "tl": tiling = data.ToVector2(); break;
                 case "off": offset = data.ToVector2(); break;
                 case "sn": SaveName = data; break;
+                case "svs": data.DecodeInto(out playtimeSavedTextures); break;
             default: return false;
         }
         return true;
         }
-
-
+        
         public Color[] _pixels;
 
         public Color[] Pixels
@@ -509,7 +533,8 @@ namespace Playtime_Painter
             else
                 other = tex;
 
-            TexMGMTdata.imgDatas.Insert(0,this);
+            if (!TexMGMTdata.imgDatas.Contains(this))
+                TexMGMTdata.imgDatas.Insert(0,this);
             return this;
         }
 
@@ -567,6 +592,18 @@ namespace Playtime_Painter
         }
 #if PEGI
 
+        bool LoadTexturePEGI(string path)
+        {
+            bool changed = false;
+
+            if ("Load {0}".F(path.Substring(path.LastIndexOf("/"))).Click())
+                LoadInPlayer(path);
+                
+            return changed;
+        }
+
+
+
         public override bool PEGI()
         {
             bool changed = false;
@@ -580,7 +617,9 @@ namespace Playtime_Painter
 
             pegi.toggle(ref lockEditing, icon.Lock, icon.Unlock);
 
-         
+
+            "Playtime Saved Textures".write_List(playtimeSavedTextures, LoadTexturePEGI);
+
 
             if (gotBacups)
             {

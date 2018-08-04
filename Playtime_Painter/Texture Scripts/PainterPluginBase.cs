@@ -24,10 +24,8 @@ namespace Playtime_Painter
 
         static List<Type> allTypes;
 
-        public static void updateList(PlaytimePainter pntr)
+        public static void UpdateList(PlaytimePainter pntr)
         {
-
-            // List<PainterPluginBase> lst,
 
             if (allTypes == null)
                 allTypes = CsharpFuncs.GetAllChildTypesOf<PainterPluginBase>();
@@ -70,7 +68,7 @@ namespace Playtime_Painter
                 if (!pntr.plugins.ContainsInstanceType(t))
                 {
                     Debug.Log("Creating instance of " + t.ToString());
-                    var np = (PainterPluginBase)ScriptableObject.CreateInstance(t);
+                    var np = (PainterPluginBase)CreateInstance(t);
                   
                     pntr.plugins.Add(np);  
 #if UNITY_EDITOR
@@ -82,7 +80,7 @@ namespace Playtime_Painter
 
         }
 
-        public virtual bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
+        public virtual bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
             //Debug.Log("Get Texture on " + this.GetType() + "  not implemented");
             return false;
@@ -90,7 +88,7 @@ namespace Playtime_Painter
 
         public virtual void OnUpdate(PlaytimePainter painter)  { }
 
-        public virtual bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter) => false;
+        public virtual bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter) => false;
         
         public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter) => false;
         
@@ -107,7 +105,7 @@ namespace Playtime_Painter
 
         }
 
-        public virtual bool offsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) { return false; }
+        public virtual bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) { return false; }
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 

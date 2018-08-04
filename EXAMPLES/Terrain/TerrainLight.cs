@@ -33,7 +33,7 @@ namespace Playtime_Painter
                 mergingTerrain = pntr.GetComponent<MergingTerrainController>();
         }
 
-        public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
+        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
         {
             if ((pntr.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainLight)))
             {
@@ -69,7 +69,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter pntr)
+        public override bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter pntr)
         {
           //  if (id == null)
             //    return;

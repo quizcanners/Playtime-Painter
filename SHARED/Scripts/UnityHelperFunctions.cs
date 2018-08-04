@@ -546,7 +546,6 @@ namespace SharedTools_Stuff
 
             if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
             {
-                //Debug.Log("Is MOno "+ass.ToString());
                 var go = ass as GameObject;
                 if (go)
                 {
@@ -644,7 +643,7 @@ namespace SharedTools_Stuff
             string fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
             Directory.CreateDirectory(fullPath);
 
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path.AddPostSlashIfNone() + name + ".asset");
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("{0}{1}.asset".F(path.AddPostSlashIfNone(), name));
             
             AssetDatabase.CreateAsset(asset, assetPathAndName);
             AssetDatabase.SaveAssets();

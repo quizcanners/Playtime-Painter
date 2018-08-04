@@ -346,7 +346,7 @@ namespace Playtime_Painter{
             if (id == null) return uv;
 
             foreach (var p in plugins)
-                if (p.offsetAndTileUV(hit, this, ref uv))
+                if (p.OffsetAndTileUV(hit, this, ref uv))
                     return uv;
 
             uv.Scale(id.tiling);
@@ -831,7 +831,7 @@ namespace Playtime_Painter{
 
             foreach (PainterPluginBase t in plugins) {
                 Texture tex = null;
-                if (t.getTexture(fieldName, ref tex, this))
+                if (t.GetTexture(fieldName, ref tex, this))
                     return tex;
             }
 
@@ -888,7 +888,7 @@ namespace Playtime_Painter{
                     Cfg.recentTextures.AddIfNew(fieldName, id);
 
                 foreach (PainterPluginBase nt in plugins)
-                    if (nt.setTextureOnMaterial(fieldName, id, this))
+                    if (nt.SetTextureOnMaterial(fieldName, id, this))
                         return;
             }
 
@@ -1594,7 +1594,7 @@ namespace Playtime_Painter{
                 plugins = new List<PainterPluginBase>();
 
 
-            PainterPluginBase.updateList(this);
+            PainterPluginBase.UpdateList(this);
 
             if (terrain != null)
                 UpdateShaderGlobals();

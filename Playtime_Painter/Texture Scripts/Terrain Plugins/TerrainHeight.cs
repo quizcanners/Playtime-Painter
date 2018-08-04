@@ -8,7 +8,7 @@ namespace Playtime_Painter
     public class TerrainHeight : PainterPluginBase
     {
 
-        public override bool getTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainHeight)))
             {
@@ -39,7 +39,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        public override bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
         {
             Texture tex = id.CurrentTexture();
             if (painter.terrain != null)

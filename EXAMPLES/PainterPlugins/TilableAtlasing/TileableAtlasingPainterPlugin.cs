@@ -118,7 +118,7 @@ namespace Playtime_Painter {
         public static MyIntVec2 atlasSector = new MyIntVec2();
         public static int sectorSize = 1;
 
-        public override bool offsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
+        public override bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
         {
             if (p.IsAtlased()) {
 
