@@ -148,11 +148,6 @@ namespace Playtime_Painter
 
         public UndoCache cache = new UndoCache();
         
-      /*  public override string ToString()
-        {
-            return (texture2D != null ? texture2D.name : (renderTexture != null ? renderTexture.name : SaveName));
-        }*/
-        
         public void Backup()
         {
             if (backupManually) return;
@@ -185,29 +180,19 @@ namespace Playtime_Painter
         public void ContinueRecording()
         {
             StartRecording();
-
-            recordedStrokes.Add(Cfg.GetRecordingData(SaveName));
+            recordedStrokes.AddRange(Cfg.StrokeRecordingsFromFile(SaveName));
         }
 
         public void SaveRecording()  {
-            Cfg.RemoveRecord(SaveName);
 
-            StringBuilder bildy = new StringBuilder();
-
-            foreach (string ass in recordedStrokes)
-                bildy.Append(ass);
-
-            string text = bildy.ToString();
-
-            ResourceSaver.SaveToResources(Cfg.texturesFolderName, Cfg.vectorsFolderName, SaveName, text);
+            var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
+            
+            StuffSaver.SaveToPersistantPath(Cfg.vectorsFolderName, SaveName, allStrokes);
 
             Cfg.recordingNames.Add(SaveName);
 
             recording = false;
             
-#if UNITY_EDITOR
-            AssetDatabase.Refresh();
-#endif
         }
 
         // ####################### Textures MGMT
@@ -601,9 +586,7 @@ namespace Playtime_Painter
                 
             return changed;
         }
-
-
-
+        
         public override bool PEGI()
         {
             bool changed = false;
@@ -641,8 +624,7 @@ namespace Playtime_Painter
             }
             return changed;
         }
-
-
+        
         public bool Undo_redo_PEGI()
         {
             bool changed = false;
@@ -683,7 +665,7 @@ namespace Playtime_Painter
                 ("Recording... " + recordedStrokes.Count + " vectors").nl();
                 "Will Save As ".edit(70, ref SaveName);
 
-                if (icon.Record.Click("Stop, don't save", 25))
+                if (icon.Close.Click("Stop, don't save", 25))
                     recording = false;
                 if (icon.Done.Click("Finish & Save", 25))
                     SaveRecording();

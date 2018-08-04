@@ -433,20 +433,13 @@ namespace SharedTools_Stuff
         public static string copyBufferValue;
         public static string copyBufferTag;
 
-        public static ISTD RefreshAssetDatabase(this ISTD s) {
-#if UNITY_EDITOR
-            AssetDatabase.Refresh();
-#endif
-            return s;
-        }
-
         public static bool LoadOnDrop<T>(this T obj) where T: ISTD
         {
 
 #if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                obj.Decode(ResourceLoader.LoadStory(myType));
+                obj.Decode(StuffLoader.LoadTextAsset(myType));
 
                 ("Loaded " + myType.name).showNotification();
 
@@ -457,20 +450,16 @@ namespace SharedTools_Stuff
         }
 
         public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename) {
-            ResourceSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
+            StuffSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
             return s;
         }
         
         public static ISTD SaveToAssets(this ISTD s, string Path, string filename) {
-            ResourceSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
-                //Save_ByFullPath(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
+            StuffSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static ISTD SaveProgress(this ISTD s, string Path, string filename) {
-            ResourceSaver.Save_ByFullPath(Application.persistentDataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, s.Encode().ToString());
-            return s;
-        }
+
 
         public static void UpdatePrefab (this ISTD s, GameObject go) {
             var iK = s as IKeepMySTD;
@@ -489,51 +478,30 @@ namespace SharedTools_Stuff
 		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(ResourceLoader.LoadStoryFromAssets(fullPath, name));
+            s.Decode(StuffLoader.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
 		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(ResourceLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + ResourceSaver.fileType));
+            s.Decode(StuffLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + StuffSaver.fileType));
 			return s;
 		}
 
 		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(ResourceLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
+			s.Decode(StuffLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
 			return s;
 		}
 
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(ResourceLoader.LoadStoryFromResource(subFolder, file));
+			s.Decode(StuffLoader.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
-        /*
-        public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
-            bool changed = false;
-            #if PEGI
-            if (!exp) {
-                exp = mono.GetComponent<iSTD_Explorer>();
-                if (!exp && "Add iSTD Explorer".Click())
-                    exp = mono.gameObject.AddComponent<iSTD_Explorer>();
-
-                changed |= exp != null;
-            }
-            else
-            {
-                exp.ConnectSTD = mono;
-                changed |=exp.PEGI();
-            }  
-#endif
-
-            return changed;
-        }
-        */
 
         public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) => ur.UnrecognizedSTD.GetAll();
   

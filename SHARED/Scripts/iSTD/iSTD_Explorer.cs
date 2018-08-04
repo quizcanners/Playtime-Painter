@@ -185,7 +185,7 @@ namespace SharedTools_Stuff
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = ResourceLoader.LoadStory(myType);
+                    data = StuffLoader.LoadTextAsset(myType);
                 }
 
                 if (dirty)
@@ -289,8 +289,8 @@ namespace SharedTools_Stuff
                 this.inspect_Name();
                 if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets"))
                 {
-                    ResourceSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
-                    Std.RefreshAssetDatabase();
+                    StuffSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    UnityHelperFunctions.RefreshAssetDatabase();
                 }
    
                 pegi.nl();
@@ -400,7 +400,7 @@ namespace SharedTools_Stuff
                 UnityEngine.Object myType = null;
                 if ("From File:".edit(65, ref myType)) {
                     aded = new SavedISTD();
-                    aded.dataExplorer.data = ResourceLoader.LoadStory(myType);
+                    aded.dataExplorer.data = StuffLoader.LoadTextAsset(myType);
                     aded.NameForPEGI = myType.name;
                     aded.comment = DateTime.Now.ToString();
                     states.Add(aded);

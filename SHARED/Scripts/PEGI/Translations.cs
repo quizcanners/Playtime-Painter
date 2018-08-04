@@ -7,7 +7,7 @@ namespace PlayerAndEditorGUI
 
     // Add new lines of text to enum:
 
-    public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement,
+    public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement, LockToolToUseTransform, HideTransformTool,
         //LIST
         HighlightElement, RemoveFromList, AddListElement, ReturnToListView, MakeElementNull};
 
@@ -33,12 +33,16 @@ namespace PlayerAndEditorGUI
             Msg.AddListElement.Add("Add element to a list");
             Msg.ReturnToListView.Add("Return to list view");
             Msg.MakeElementNull.Add("Null this element.");
+            Msg.LockToolToUseTransform.Add("Lock texture to use transform tools. Or click 'Hide transform tool'");
+            Msg.HideTransformTool.Add("Hide transform tool");
 
             WillBeTranslatingFrom(SystemLanguage.Ukrainian);
             Msg.Texture2D.Add("Текстура");
             Msg.RenderTexture.Add("Рендер Текстура");
             Msg.BrushType.Add("Тип");
             Msg.BlitMode.Add("Метод");
+            Msg.LockToolToUseTransform.Add("Постав блок на текстурі щоб рухати обєкт, або натисни на 'Приховати трансформації' щоб не мішали.");
+            Msg.HideTransformTool.Add("Приховати трансформації");
             
             systemLanguage = (int)Application.systemLanguage;
         }

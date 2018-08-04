@@ -53,7 +53,7 @@
 	float4 l2pos;
 	float4 l2col;
 	float4 _MainTex_TexelSize;
-	
+	float _AtlasTextures;
 
 	struct v2f {
 		float4 pos : SV_POSITION;

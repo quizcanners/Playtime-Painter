@@ -16,8 +16,26 @@ using UnityEditor;
 
 namespace SharedTools_Stuff
 {
+    public static class StuffDeleted
+    {
 
-    public static class ResourceLoader
+        public static bool DeleteFile_PersistantFolder(string subPath, string fileName)
+            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, StuffSaver.jsonFileType))));
+        
+        public static bool DeleteFile(string path)  {
+            if (File.Exists(path))
+            {
+                "Deleting {0}".F(path).showNotification();
+
+                File.Delete(path);
+                return true;
+            }
+            else
+                return false;
+        }
+    }
+
+    public static class StuffLoader
     {
 
         public static string Load(string fullPath)
@@ -41,9 +59,7 @@ namespace SharedTools_Stuff
             }
             return data;
         }
-
-
-
+        
         public static string LoadStoryFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
         {
 
@@ -53,19 +69,16 @@ namespace SharedTools_Stuff
 #if UNITY_EDITOR
 
             string resourceName = insideResourceFolder.AddPreSlashIfNotEmpty() + "/" + name;
-            string path = Application.dataPath + resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources" + resourceName + ResourceSaver.fileType;
-
-            //Debug.Log("Trying to load " + path);
+            string path = Application.dataPath + resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources" + resourceName + StuffSaver.fileType;
+            
             if (File.Exists(path))
             {
                 try
                 {
                     BinaryFormatter bf = new BinaryFormatter();
-                    //Debug.Log("Loading "+path);
-
+   
                     FileStream file = File.Open(path, FileMode.Open);
                     data = (string)bf.Deserialize(file);
-                    //Debug.Log("Loaded: "+data);
                     file.Close();
                 }
                 catch (Exception ex)
@@ -101,8 +114,7 @@ namespace SharedTools_Stuff
 
             return data;
         }
-
-
+        
         public static string LoadStoryFromResource(string insideResourceFolder, string name)
         {
             string resourceName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
@@ -131,9 +143,8 @@ namespace SharedTools_Stuff
 
             return data;
         }
-
-
-        public static string LoadStory(UnityEngine.Object o)
+        
+        public static string LoadTextAsset(UnityEngine.Object o)
         {
             string data = null;
 #if UNITY_EDITOR
@@ -142,7 +153,6 @@ namespace SharedTools_Stuff
             {
                 string subpath = Application.dataPath;
                 path = subpath.Substring(0, subpath.Length - 6) + path;
-                // Debug.Log("Loading "+path);
                 return Load(path);
             }
 
@@ -157,7 +167,7 @@ namespace SharedTools_Stuff
             string data = null;
 
 #if UNITY_EDITOR
-            string path = Application.dataPath + Folder.AddPreSlashIfNotEmpty() + "/" + name + ResourceSaver.fileType;
+            string path = Application.dataPath + Folder.AddPreSlashIfNotEmpty() + "/" + name + StuffSaver.fileType;
 
             if (File.Exists(path))
             {
@@ -181,41 +191,20 @@ namespace SharedTools_Stuff
             return data;
         }
 
-
-    }
-
-
-    public class ResourceLoader<T>
-    {
-        ResourceRequest rqst;
-
-        public bool TryUnpackAsset(ref T Arrangement)
+        public static string LoadFromPersistantData(string subPath, string filename)
         {
-            if (rqst.isDone)
-            {
-                TextAsset asset = rqst.asset as TextAsset;
-                BinaryFormatter bf = new BinaryFormatter();
-                using (MemoryStream ms = new MemoryStream(asset.bytes))
-                {
-                    Arrangement = (T)bf.Deserialize(ms);
-                }
-                Resources.UnloadAsset(asset);
-                return true;
-            }
-            else
-                return false;
+            var filePath = Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(filename, StuffSaver.jsonFileType));
+
+            if (File.Exists(filePath))
+                return File.ReadAllText(filePath);
+
+            return null;
         }
 
-        public bool RequestLoad(string pathNdName)
-        {
-            rqst = Resources.LoadAsync(pathNdName);
-            return (rqst == null) ? false : true;
-        }
-
-        public bool LoadResource(string pathNdName, ref T Arrangement)
+        public static bool LoadResource<T>(string pathNdName, ref T Arrangement)
         {
 #if UNITY_EDITOR
-            string path = Application.dataPath + "/Resources/" + pathNdName + ResourceSaver.fileType;
+            string path = Application.dataPath + "/Resources/" + pathNdName + StuffSaver.fileType;
 
             if (File.Exists(path))
             {
@@ -257,12 +246,10 @@ namespace SharedTools_Stuff
 #endif
         }
 
-
-
-        public bool LoadFrom(string path, string name, ref T _dta)
+        public static bool LoadFrom<T>(string path, string name, ref T _dta)
         {
 
-            string fullPath = path + "/" + name + ResourceSaver.fileType;
+            string fullPath = path + "/" + name + StuffSaver.fileType;
             if (File.Exists(fullPath))
             {
                 try
@@ -286,12 +273,9 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool LoadStreamingAssets(string fileName, ref T dta)
-        {
+        public static bool LoadStreamingAssets<T>(string fileName, ref T dta) {
 
             string filePath = Application.streamingAssetsPath + "/" + fileName + ".json";
-
-
 
             if (File.Exists(filePath))
             {
@@ -302,21 +286,51 @@ namespace SharedTools_Stuff
 
             return false;
         }
+
     }
 
-    public static class ResourceSaver
+
+    public class StuffLoaderAssync<T>
+    {
+        ResourceRequest rqst;
+
+        public bool TryUnpackAsset(ref T Arrangement)
+        {
+            if (rqst.isDone)
+            {
+                TextAsset asset = rqst.asset as TextAsset;
+                using (MemoryStream ms = new MemoryStream(asset.bytes))
+                {
+                    Arrangement = (T)((new BinaryFormatter()).Deserialize(ms));
+                }
+                Resources.UnloadAsset(asset);
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool RequestLoad(string pathNdName)
+        {
+            rqst = Resources.LoadAsync(pathNdName);
+            return (rqst == null) ? false : true;
+        }
+
+    }
+
+    public static class StuffSaver
     {
 
         public const string fileType = ".bytes";
 
+        public const string jsonFileType = ".json";
 
         public static void SaveStreamingAsset<G>(string fileName, G dta)
         {
             if (dta == null) return;
             Directory.CreateDirectory(Application.streamingAssetsPath);
             string dataAsJson = JsonUtility.ToJson(dta);
-            string filePath = Application.streamingAssetsPath + "/" + fileName + ".json";
-            //Debug.Log("Saving to "+ filePath);
+            string filePath = Path.Combine(Application.streamingAssetsPath, fileName + jsonFileType);
             File.WriteAllText(filePath, dataAsJson);
 
         }
@@ -324,11 +338,10 @@ namespace SharedTools_Stuff
         public static void SaveStreamingAsset<G>(string folderName, string fileName, G dta)
         {
             if (dta == null) return;
-            Directory.CreateDirectory(Application.streamingAssetsPath + "/" + folderName);
-            string dataAsJson = JsonUtility.ToJson(dta);
-            string filePath = Application.streamingAssetsPath + "/" + folderName + "/" + fileName + ".json";
-            //Debug.Log("Saving to " + filePath);
-            File.WriteAllText(filePath, dataAsJson);
+            var path = Path.Combine(Application.streamingAssetsPath, folderName);
+            Directory.CreateDirectory(path);
+            string filePath = Path.Combine(path, fileName + jsonFileType);
+            File.WriteAllText(filePath, JsonUtility.ToJson(dta));
 
         }
 
@@ -338,40 +351,14 @@ namespace SharedTools_Stuff
             Directory.CreateDirectory(fullPath);
             BinaryFormatter bf = new BinaryFormatter();
 
-            FileStream file = File.Create(fullPath + "/" + fileName + ResourceSaver.fileType);
+            FileStream file = File.Create(fullPath + "/" + fileName + fileType);
             bf.Serialize(file, dta);
             file.Close();
         }
-
-        public static void SaveToResources<G>(string path, string filename, G dta)
-        {
-            if (dta == null) return;
-            string fullPath = Application.dataPath + "/Resources/" + path;
-            Directory.CreateDirectory(fullPath);
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create(fullPath + "/" + filename + ResourceSaver.fileType);
-            bf.Serialize(file, dta);
-            file.Close();
-        }
-
-
-
-        public static void SaveToResources<G>(string fileName, G dta)
-        {
-            if (dta == null) return;
-            Directory.CreateDirectory(Application.dataPath + "/Resources");
-            string fullPath = Application.dataPath + "/Resources/" + fileName;
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create(fullPath + fileType);
-            bf.Serialize(file, dta);
-            file.Close();
-        }
-
-
+ 
         public static void Save_ToAssets_ByRelativePath(string Path, string filename, string data) =>
             Save_ByFullPath(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, data);
         
-
         public static void Save_ByFullPath(string fullDirectoryPath, string filename, string data)
         {
             string fullPath = fullDirectoryPath;
@@ -386,14 +373,17 @@ namespace SharedTools_Stuff
             bf.Serialize(file, data);
             file.Close();
         }
-
-
-
+        
         public static void SaveToResources(string ResFolderPath, string InsideResPath, string filename, string data) =>
         Save_ToAssets_ByRelativePath(ResFolderPath + "/Resources" + InsideResPath.AddPreSlashIfNotEmpty(), filename, data);
-          //  Save_ByFullPath(Application.dataPath + ResFolderPath.AddPreSlashIfNotEmpty() + "/Resources" + InsideResPath.AddPreSlashIfNotEmpty().AddPostSlashIfNone(), filename, data);
-        
 
-    }
+       public static void SaveToPersistantPath(string subPath, string filename, string data) {
+            var filePath = Path.Combine (Application.persistentDataPath, subPath);
+            Directory.CreateDirectory(filePath);
+            filePath = Path.Combine(filePath, "{0}{1}".F(filename, jsonFileType));
+            File.WriteAllText(filePath, data);
+        }
+      
+}
 
 }

@@ -50,6 +50,13 @@ namespace SharedTools_Stuff
         }
 #endif
 
+        public static void RefreshAssetDatabase()
+        {
+#if UNITY_EDITOR
+            AssetDatabase.Refresh();
+#endif
+        }
+
         public static void SetActive(this List<GameObject> goList, bool to)
         {
             if (goList != null)
@@ -449,7 +456,7 @@ namespace SharedTools_Stuff
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
-            AssetDatabase.CopyAsset(path + oldName + ResourceSaver.fileType, path + newName + ResourceSaver.fileType);
+            AssetDatabase.CopyAsset(path + oldName + StuffSaver.fileType, path + newName + StuffSaver.fileType);
         }
 
 #endif
@@ -663,7 +670,7 @@ namespace SharedTools_Stuff
 #if UNITY_EDITOR
             try
             {
-                string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources/" + insideAssetFolderAndName + ResourceSaver.fileType;
+                string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources/" + insideAssetFolderAndName + StuffSaver.fileType;
                 //Debug.Log("Deleting " +path);
                 //Application.dataPath + "/"+assetFolder + "/Resources/" + insideAssetFolderAndName);
                 AssetDatabase.DeleteAsset(path);
@@ -707,8 +714,8 @@ namespace SharedTools_Stuff
 
                 foreach (FileInfo file in fileInfo)
                 {
-                    string name = file.Name.Substring(0, file.Name.Length - ResourceSaver.fileType.Length);
-                    if ((file.Extension == ResourceSaver.fileType) && (!l.Contains(name)))
+                    string name = file.Name.Substring(0, file.Name.Length - StuffSaver.fileType.Length);
+                    if ((file.Extension == StuffSaver.fileType) && (!l.Contains(name)))
                     {
                         l.Add(name);
                     }

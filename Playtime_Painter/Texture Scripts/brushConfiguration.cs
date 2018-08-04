@@ -50,6 +50,68 @@ namespace Playtime_Painter
             return cody;
         }
 
+
+        public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
+        {
+
+            var id = painter.ImgData;
+
+            bool rt = id.TargetIsRenderTexture();
+
+            BlitMode mode = BlitMode;
+            BrushType type = Type(!rt);
+
+            bool worldSpace = rt && IsA3Dbrush(painter);
+
+            StdEncoder cody = new StdEncoder()
+
+            .Add(rt ? "typeGPU" : "typeCPU", _type(!rt));
+
+            if (worldSpace)
+                cody.Add("size3D", Brush3D_Radius);
+            else
+                cody.Add("size2D", Brush2D_Radius / ((float)id.width));
+
+
+            cody.Add_Bool("useMask", useMask)
+            .Add("mode", _bliTMode);
+
+            if (useMask)
+                cody.Add("mask", (int)mask);
+
+                cody.Add("bc", colorLinear);
+
+            if (mode.UsingSourceTexture)
+                cody.Add("source", selectedSourceTexture);
+
+            if (rt)
+            {
+
+                if ((mode.GetType() == typeof(BlitModeBlur)))
+                    cody.Add("blur", blurAmount);
+
+                if (type.IsUsingDecals)
+                {
+                    cody.Add("decA", decalAngle)
+                    .Add("decNo", selectedDecal);
+                }
+
+                if (useMask)
+                {
+                    cody.Add("Smask", selectedSourceMask)
+                    .Add("maskTil", maskTiling)
+                    .Add_Bool("maskFlip", flipMaskAlpha)
+                    .Add("maskOff", maskOffset);
+                }
+            }
+
+            cody.Add("hard", Hardness)
+            .Add("speed", speed);
+
+            return cody;
+        }
+
+
         public override bool Decode(string tag, string data)
         {
 
@@ -66,7 +128,7 @@ namespace Playtime_Painter
 
                 case "mode": _bliTMode = data.ToInt(); break;
 
-                case linearColor.toryTag: colorLinear.Decode(data); break;
+                case "bc": colorLinear.Decode(data); break;
 
                 case "source": selectedSourceTexture = data.ToInt(); break;
 
@@ -187,13 +249,13 @@ namespace Playtime_Painter
         public bool MB1ToLinkPositions;
         public bool DontRedoMipmaps;
 
-        public linearColor colorLinear;
+        public LinearColor colorLinear;
 
         [NonSerialized]
         public Vector2 SampledUV;
 
         public BrushConfig() {
-            colorLinear = new linearColor(Color.green);
+            colorLinear = new LinearColor(Color.green);
             mask = new BrushMask();
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
@@ -382,8 +444,8 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             if (Tools.current != Tool.None)
             {
-                "Lock to use Transform tools".writeWarning();
-                if ("Hide Transform tool".Click().nl())
+                Msg.LockToolToUseTransform.Get().writeWarning();
+                if (Msg.HideTransformTool.Get().Click().nl())
                     PlaytimePainter.HideUnityTool();
             }
 #endif

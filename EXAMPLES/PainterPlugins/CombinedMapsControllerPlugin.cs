@@ -408,7 +408,7 @@ namespace Playtime_Painter {
             public float bumpNoiseInGlossFraction = 0.1f;
             public List<TextureChannel> channel;
             public string name;
-            public linearColor fillColor;
+            public LinearColor fillColor;
             public bool glossNoiseFromBump;
             public bool glossNoiseFromHeight;
 
@@ -470,7 +470,8 @@ namespace Playtime_Painter {
 
                 if (icon.Save.Click("Will save to " + path, 25).nl())
                 {
-                    this.SaveToAssets(path, name).RefreshAssetDatabase();
+                    this.SaveToAssets(path, name);
+                    UnityHelperFunctions.RefreshAssetDatabase();
                     (name + " was saved to " + path).showNotification();
                 }
                 pegi.newLine();

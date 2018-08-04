@@ -41,15 +41,16 @@ namespace Playtime_Painter
         
         //protected MeshManager mgmt { get { return MeshManager.inst; } }
        // protected PainterDataAndConfig cfg { get { return PainterDataAndConfig.dataHolder; } }
-        protected LineData PointedLine { get { return MeshMGMT.PointedLine; } }
-        protected Triangle PointedTris { get { return MeshMGMT.PointedTris; } }
-        protected Triangle SelectedTris { get { return MeshMGMT.SelectedTris; } }
-        protected Vertex PointedUV { get { return MeshMGMT.PointedUV; } }
-        protected Vertex SelectedUV { get { return MeshMGMT.SelectedUV; } }
-        protected MeshPoint PointedVertex { get { return MeshMGMT.PointedUV.meshPoint; } }
-        protected EditableMesh FreshPreviewMesh {  get { if (MeshMGMT.previewMesh == null)  {
+        protected LineData PointedLine => MeshMGMT.PointedLine; 
+        protected Triangle PointedTris => MeshMGMT.PointedTris; 
+        protected Triangle SelectedTris => MeshMGMT.SelectedTris; 
+        protected Vertex PointedUV => MeshMGMT.PointedUV; 
+        protected Vertex SelectedUV => MeshMGMT.SelectedUV; 
+        protected MeshPoint PointedVertex => MeshMGMT.PointedUV.meshPoint; 
+        protected EditableMesh FreshPreviewMesh {  get {
+                if (MeshMGMT.previewMesh == null)  {
                     MeshMGMT.previewEdMesh = new EditableMesh();
-                    MeshMGMT.previewEdMesh.Decode(MeshMGMT.edMesh.Encode());
+                    MeshMGMT.previewEdMesh.Decode(MeshMGMT.edMesh.Encode().ToString());
                 }
                 return MeshMGMT.previewEdMesh;
             }
@@ -135,10 +136,6 @@ namespace Playtime_Painter
         public VertexPositionTool() {
             inst = this;
         }
-
-        //  Vector3 displace = new Vector3();
-
-        //enum meshElement { vertex, triangle, line }
 
         public bool addToTrianglesAndLines = false;
 
@@ -389,11 +386,6 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0)) {
                 var m = MeshMGMT;
 
-                if ((m.TrisVerts < 3) && (m.PointedUV != null) && (!m.IsInTrisSet(m.PointedUV.meshPoint)))
-                    m.AddToTrisSet(m.PointedUV);
-
-                if ((EditorInputManager.getAltKey() && (m.SelectedUV.meshPoint.uvpoints.Count > 1)))
-                    m.DisconnectDragged();
 
                 m.Dragging = true;
                 m.AssignSelected(m.PointedUV);
@@ -468,13 +460,29 @@ namespace Playtime_Painter
         {
             var m = MeshMGMT;
 
-            if ((EditorInputManager.GetMouseButtonUp(0)) || (EditorInputManager.GetMouseButton(0) == false)) {
+            bool beforeCouldDrag = m.dragDelay <= 0;
+
+            if (EditorInputManager.GetMouseButtonUp(0) || !EditorInputManager.GetMouseButton(0)) {
                 m.Dragging = false;
-                if (m.dragDelay<0)
+
+                if (beforeCouldDrag)
                     EditedMesh.dirty_Position = true;
+                else
+                       if ((m.TrisVerts < 3) && (m.SelectedUV != null) && (!m.IsInTrisSet(m.SelectedUV.meshPoint)))
+                    m.AddToTrisSet(m.SelectedUV);
+
             } else {
+
+              
+
                 m.dragDelay -= Time.deltaTime;
-                if ((m.dragDelay < 0) || (Application.isPlaying == false))
+
+                bool canDrag = m.dragDelay <= 0;
+
+                if (beforeCouldDrag != canDrag && EditorInputManager.getAltKey() && (m.SelectedUV.meshPoint.uvpoints.Count > 1))
+                        m.DisconnectDragged();
+               
+                if (canDrag || !Application.isPlaying)
                 {
 
                     if ((GridNavigator.Inst().AngGridToCamera(GridNavigator.onGridPos) < 82)) {
@@ -487,7 +495,7 @@ namespace Playtime_Painter
                             m.TrisVerts = 0;
 
                             foreach (var v in draggedVertices)
-                                v.WorldPos += delta; // m.onGridLocal;
+                                v.WorldPos += delta; 
 
                             originalPosition = GridNavigator.onGridPos;
                         }

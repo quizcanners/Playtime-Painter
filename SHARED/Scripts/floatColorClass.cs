@@ -15,7 +15,7 @@ namespace SharedTools_Stuff
     public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
 
     [System.Serializable]
-    public class linearColor : Abstract_STD
+    public class LinearColor : Abstract_STD
     {
         public float r, g, b, a;
 
@@ -46,18 +46,14 @@ namespace SharedTools_Stuff
         }
 
 
-        Color l_col { get { return new Color(r, g, b, a); } }
-
-
+        Color L_col { get { return new Color(r, g, b, a); } }
+        
         public override StdEncoder Encode() => new StdEncoder()
             .Add("r", r)
             .Add("g", g)
             .Add("b", b)
             .Add("a", a);
             
-
-
-
         public override bool Decode(string tag, string data)
         {
 
@@ -73,12 +69,10 @@ namespace SharedTools_Stuff
 
         }
 
-        public const string toryTag = "LCol";
 
-
-        public linearColor GetCopy()
+        public LinearColor GetCopy()
         {
-            return new linearColor(this);
+            return new LinearColor(this);
         }
 
         public float GetChanel(ColorChanel chan)
@@ -145,7 +139,7 @@ namespace SharedTools_Stuff
                 a = c.a;
         }
 
-        public void From(linearColor c, BrushMask bm)
+        public void From(LinearColor c, BrushMask bm)
         {
             if ((bm & BrushMask.R) != 0)
                 r = c.r;
@@ -157,7 +151,7 @@ namespace SharedTools_Stuff
                 a = c.a;
         }
 
-        public void CopyFrom(linearColor col)
+        public void CopyFrom(LinearColor col)
         {
             r = col.r;
             g = col.g;
@@ -167,7 +161,7 @@ namespace SharedTools_Stuff
 
         public Color ToGamma(float alpha)
         {
-            Color tmp = l_col.gamma;
+            Color tmp = L_col.gamma;
             tmp.a = alpha;
             return tmp;
         }
@@ -177,29 +171,16 @@ namespace SharedTools_Stuff
         public Color ToGamma()
         {
 
-            return l_col.gamma;
+            return L_col.gamma;
         }
 
         public void ToGamma(ref Color tmp)
         {
-            tmp = l_col.gamma;
+            tmp = L_col.gamma;
         }
 
-        public Vector4 ToV4()
-        {
-            Vector4 to = new Vector4();
-
-            to.x = r;
-
-            to.y = g;
-
-            to.z = b;
-
-            to.w = a;
-
-            return to;
-        }
-
+        public Vector4 Vector4 => new Vector4 ( r, g, b, a);
+    
         public void ToV4(ref Vector4 to, BrushMask bm)
         {
             if ((bm & BrushMask.R) != 0)
@@ -212,7 +193,7 @@ namespace SharedTools_Stuff
                 to.w = a;
         }
 
-        public void Add(linearColor other)
+        public void Add(LinearColor other)
         {
             r += other.r;
             g += other.g;
@@ -230,7 +211,7 @@ namespace SharedTools_Stuff
         }
 
 
-        public void LerpTo(linearColor other, float portion)
+        public void LerpTo(LinearColor other, float portion)
         {
             r += (other.r - r) * portion;
             g += (other.g - g) * portion;
@@ -239,7 +220,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public void AddPortion(linearColor other, Color portion)
+        public void AddPortion(LinearColor other, Color portion)
         {
             r += other.r * portion.r;
             g += other.g * portion.g;
@@ -247,7 +228,7 @@ namespace SharedTools_Stuff
             a += other.a * portion.a;
         }
 
-        public void AddPortion(linearColor other, float portion)
+        public void AddPortion(LinearColor other, float portion)
         {
             r += other.r * portion;
             g += other.g * portion;
@@ -271,9 +252,9 @@ namespace SharedTools_Stuff
             a *= val.a;
         }
 
-        public static Color Multiply(linearColor a, linearColor b)
+        public static Color Multiply(LinearColor a, LinearColor b)
         {
-            Color tmp = a.l_col.gamma * b.l_col.gamma;
+            Color tmp = a.L_col.gamma * b.L_col.gamma;
             return tmp;
         }
 
@@ -282,23 +263,23 @@ namespace SharedTools_Stuff
             r = g = b = a = 0;
         }
 
-        public linearColor()
+        public LinearColor()
         {
             r = g = b = a = 0;
         }
 
-        public linearColor(Color col)
+        public LinearColor(Color col)
         {
             From(col);
         }
 
-        public linearColor(linearColor col)
+        public LinearColor(LinearColor col)
         {
             CopyFrom(col);
         }
 
 
-        public static ArrayManager<linearColor> array = new ArrayManager<linearColor>();
+        public static ArrayManager<LinearColor> array = new ArrayManager<LinearColor>();
 
     }
 

@@ -108,67 +108,6 @@ public static class TextureEditorExtensionFunctions  {
             return mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
         }
 
-        public static StdEncoder EncodeStrokeFor(this BrushConfig brush, PlaytimePainter painter) {
-         
-
-
-            var id = painter.ImgData;
-
-            bool rt = id.TargetIsRenderTexture();
-
-            BlitMode mode = brush.BlitMode;
-            BrushType type = brush.Type(!rt);
-
-            bool worldSpace = rt && brush.IsA3Dbrush(painter);
-            
-            StdEncoder cody = new StdEncoder()
-
-            .Add(rt ? "typeGPU" : "typeCPU", brush._type(!rt));
-
-            if (worldSpace)
-                cody.Add("size3D", brush.Brush3D_Radius);
-            else
-                cody.Add("size2D", brush.Brush2D_Radius/((float)id.width));
-
-
-            cody.Add_Bool("useMask", brush.useMask)
-            .Add("mode", brush._bliTMode);
-
-            if (brush.useMask)
-                cody.Add("mask", (int)brush.mask);
-
-        
-
-            if (mode.ShowColorSliders)
-                cody.Add("bc", brush.colorLinear);
-
-            if (mode.UsingSourceTexture)
-                cody.Add("source", brush.selectedSourceTexture);
-
-            if (rt) {
-
-                if ((mode.GetType() == typeof(BlitModeBlur)))
-                    cody.Add("blur", brush.blurAmount);
-
-                if (type.IsUsingDecals) {
-                    cody.Add("decA", brush.decalAngle)
-                    .Add("decNo", brush.selectedDecal);
-                }
-
-                if (brush.useMask) {
-                    cody.Add("Smask", brush.selectedSourceMask)
-                    .Add("maskTil", brush.maskTiling)
-                    .Add_Bool("maskFlip", brush.flipMaskAlpha)
-                    .Add("maskOff", brush.maskOffset);
-                }
-            }
-
-            cody.Add("hard",brush.Hardness)
-            .Add("speed", brush.speed);
-     
-            return cody;
-        }
-        
         public static bool NeedsGrid (this PlaytimePainter pntr) {
             if (pntr == null || !pntr.enabled) return false;
             

@@ -640,7 +640,7 @@ namespace Playtime_Painter {
                 t.wasProcessed = false;
         }
 
-        public void PaintAll(linearColor col)
+        public void PaintAll(LinearColor col)
         {
             BrushMask bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
             Color c = col.ToGamma();
@@ -651,7 +651,7 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
-        public void SetShadowAll(linearColor col)
+        public void SetShadowAll(LinearColor col)
         {
             BrushMask bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
             Color c = col.ToGamma();

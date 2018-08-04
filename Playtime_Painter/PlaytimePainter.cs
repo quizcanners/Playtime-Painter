@@ -16,9 +16,10 @@ using SharedTools_Stuff;
 
 
 namespace Playtime_Painter{
-
-    [HelpURL(WWW_Manual)]
+    
     [AddComponentMenu("Mesh/Playtime Painter")]
+    [HelpURL(WWW_Manual)]
+    [DisallowMultipleComponent]
     [ExecuteInEditMode]
     public class PlaytimePainter : PlaytimeToolComponent, ISTD, IPEGI
     {
@@ -1168,20 +1169,12 @@ namespace Playtime_Painter{
 
         public static StdDecoder cody = new StdDecoder("");
 
-        public void PlayStrokeData(string strokeData)
-        {
-            if (!playbackPainters.Contains(this))
-                playbackPainters.Add(this);
-            StrokeVector.PausePlayback = false;
-            playbackVectors.Add(strokeData);
-        }
-
         public void PlayByFilename(string recordingName)
         {
             if (!playbackPainters.Contains(this))
                 playbackPainters.Add(this);
             StrokeVector.PausePlayback = false;
-            playbackVectors.Add(Cfg.GetRecordingData(recordingName));
+            playbackVectors.AddRange(Cfg.StrokeRecordingsFromFile(recordingName));
         }
 
         public void PlaybeckVectors() {
@@ -1191,8 +1184,8 @@ namespace Playtime_Painter{
             {
                 if (playbackVectors.Count > 0)
                 {
-                    cody = new StdDecoder(playbackVectors.Last());
-                    playbackVectors.RemoveLast(1);
+                    cody = new StdDecoder(playbackVectors[0]);
+                    playbackVectors.RemoveAt(0);
                 }
                 else
                     playbackPainters.Remove(this);
@@ -1317,12 +1310,13 @@ namespace Playtime_Painter{
 
         public bool Decode(string tag, string data)
         {
-            var id = ImgData;
+          
             switch (tag)
             {
                 case "trg": UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
                 case "brush":
-                    InitIfNotInited();
+                    //InitIfNotInited();
+                    var id = ImgData;
                     GlobalBrush.Decode(data);
                     GlobalBrush.Brush2D_Radius *= id == null ? 256 : id.width; break;
                 case "s":
@@ -2031,8 +2025,6 @@ namespace Playtime_Painter{
         public override bool PEGI () {
                 bool changed = false;
               
-           
-
                 ToolManagementPEGI ();
 
             if (IsCurrentTool())  {
@@ -2044,8 +2036,6 @@ namespace Playtime_Painter{
                         changed |= this.NewTextureOptions_PEGI().nl();
                 }
             }
-
-          
 
             if ((ImgData != null) && (changed))
                 Update_Brush_Parameters_For_Preview_Shader();

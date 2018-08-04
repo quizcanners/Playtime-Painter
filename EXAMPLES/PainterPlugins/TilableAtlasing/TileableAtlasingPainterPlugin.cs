@@ -774,7 +774,7 @@ namespace Playtime_Painter {
 
             int cnt = aSize / tSize;
 
-            linearColor tmp = new linearColor();
+            LinearColor tmp = new LinearColor();
 
 
             for (int ty = 0; ty < cnt; ty++)

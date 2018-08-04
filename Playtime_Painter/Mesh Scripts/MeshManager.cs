@@ -115,7 +115,7 @@ namespace Playtime_Painter {
             undoMoves.Clear();
             redoMoves.Clear();
 
-          //  undoMoves.Add(edMesh.Encode().ToString());
+            undoMoves.Add(edMesh.Encode().ToString());
 
             MeshTool.OnSelectTool();
 
@@ -234,7 +234,7 @@ namespace Playtime_Painter {
 
         [NonSerialized]
         bool _dragging;
-        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.2f; } }
+        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.4f; } }
 
         public void DisconnectDragged()
         {
@@ -815,7 +815,7 @@ namespace Playtime_Painter {
 
             if (edMesh.Dirty) {
                 redoMoves.Clear();
-               // undoMoves.Add(edMesh.Encode().ToString());
+                undoMoves.Add(edMesh.Encode().ToString());
                 if (undoMoves.Count > 10)
                     undoMoves.RemoveAt(0);
                 Redraw();

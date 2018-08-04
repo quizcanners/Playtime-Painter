@@ -28,7 +28,7 @@ namespace Playtime_Painter
 
     }
 
-    public abstract class BrushType : PainterStuff, IEditorDropdown
+    public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI
     {
 
         public static Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
@@ -188,7 +188,7 @@ namespace Playtime_Painter
 
 
             }
-            else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
+         //   else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
 
             if (InspectedPainter.NeedsGrid() && "Center Grid".Click().nl())
                 GridNavigator.onGridPos = InspectedPainter.transform.position;

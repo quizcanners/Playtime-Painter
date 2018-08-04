@@ -31,16 +31,16 @@ namespace Playtime_Painter
             string path = PainterCamera.Data.meshesFolderName + "/" + folderName;
             if (icon.Save.Click("Save To:" + path, 25).nl())
             {
-                this.SaveToAssets(path, name).RefreshAssetDatabase();
+                this.SaveToAssets(path, name);
+                UnityHelperFunctions.RefreshAssetDatabase();
                 (name + " Saved to " + path).showNotification();
-                AssetDatabase.Refresh();
             }
 
 
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType).nl())
             {
-                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Decode(ResourceLoader.LoadStory(myType)));
+                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Decode(StuffLoader.LoadTextAsset(myType)));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(msol);
                 PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;

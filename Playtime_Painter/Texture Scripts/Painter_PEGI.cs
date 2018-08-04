@@ -103,7 +103,7 @@ namespace Playtime_Painter {
         bool changed = false;
         pegi.newLine();
 
-            if (PlaytimePainter.cody.GotData) {
+            if (PlaytimePainter.playbackPainters.Count>0) {
                 "Playback In progress".nl();
 
                 if (icon.Close.Click("Cancel All Playbacks",20))
@@ -130,6 +130,7 @@ namespace Playtime_Painter {
                         trg.PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
                         changed = true;
                     }
+
                     if (icon.Record.Click("Continue Recording", 18)) {
                         id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
                         id.ContinueRecording();
@@ -138,7 +139,8 @@ namespace Playtime_Painter {
 
                     if (icon.Delete.Click("Delete", 18)) {
                         changed = true;
-                        Cfg.RemoveRecord();
+                        Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
+                      
                     }
                 }
 

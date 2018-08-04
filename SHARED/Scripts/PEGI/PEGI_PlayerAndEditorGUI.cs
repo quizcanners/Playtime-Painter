@@ -2850,7 +2850,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit(ref linearColor col)
+        public static bool edit(ref LinearColor col)
         {
             Color c = col.ToGamma();
             if (edit(ref c))
@@ -3448,7 +3448,7 @@ namespace PlayerAndEditorGUI
             return selectEnum(ref current, typeof(T));
         }
 
-        public static bool edit(this string label, ref linearColor col)
+        public static bool edit(this string label, ref LinearColor col)
         {
             write(label);
             return edit(ref col);
@@ -3645,7 +3645,7 @@ namespace PlayerAndEditorGUI
             if (paintingPlayAreaGUI)
                 "{0} [{1}]".F(label,val.ToString()).write(width);
             else
-                write(label);
+                write(label, tip, width);
         }
 
         public static bool edit(this string label, ref float val, float min, float max)

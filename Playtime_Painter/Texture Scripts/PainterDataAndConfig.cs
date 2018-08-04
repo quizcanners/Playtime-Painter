@@ -173,34 +173,37 @@ namespace Playtime_Painter
 
         public int selectedSize = 4;
 
-        public List<string> recordingNames;
+        public List<string> recordingNames = new List<string>();
 
         public int browsedRecord;
 
         public static Dictionary<string, string> recordings = new Dictionary<string, string>();
 
-        public string GetRecordingData(string name)
+        public List<string> StrokeRecordingsFromFile (string filename)
         {
             string data;
 
-            if (recordings.TryGetValue(name, out data)) return data;
+            if (!recordings.TryGetValue(filename, out data))
+            {
+                data = StuffLoader.LoadFromPersistantData(vectorsFolderName, filename);
+                recordings.Add(filename, data);
+            }
 
-            data = ResourceLoader.LoadStoryFromResource(texturesFolderName, vectorsFolderName, name);
+            var cody = new StdDecoder(data);
+            List<string> strokes = new List<string>();
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "strokes": d.DecodeInto(out strokes); break;
+                }
+            }
 
-            recordings.Add(name, data);
-
-            return data;
+            return strokes;
         }
 
-        public void RemoveRecord() => RemoveRecord(recordingNames[browsedRecord]);
-
-        public void RemoveRecord(string name)
-        {
-            recordingNames.Remove(name);
-            recordings.Remove(name);
-            UnityHelperFunctions.DeleteResource(texturesFolderName, vectorsFolderName + "/" + name);
-        }
-
+    
         public override StdEncoder Encode() 
         {
             for (int i = 0; i < imgDatas.Count; i++)

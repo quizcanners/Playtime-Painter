@@ -315,18 +315,8 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add(string tag, ISTD other) {
             if (other != null)
-            {
-                var rk = other as ISTD_SerializeNestedReferences;
-                if (rk != null)
-                {
-
-                    Add(tag, other.Encode());
-
-                }
-                else
                 Add(tag, other.Encode());
-            }
-            
+
             return this;
         }
 

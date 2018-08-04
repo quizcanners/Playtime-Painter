@@ -536,8 +536,8 @@ namespace SharedTools_Stuff
             
         }
         
-        public static linearColor ToLinearColor(this string data) {
-            linearColor lc = new linearColor();
+        public static LinearColor ToLinearColor(this string data) {
+            LinearColor lc = new LinearColor();
             lc.Decode(data);
             return lc;
         }
