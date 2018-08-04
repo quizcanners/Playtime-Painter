@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 using SharedTools_Stuff;
@@ -71,7 +71,7 @@ namespace STD_Animations
 
         }
 
-#if !NO_PEGI
+#if PEGI
 
         [SerializeField] bool showDependencies;
         public bool Frame_PEGI()

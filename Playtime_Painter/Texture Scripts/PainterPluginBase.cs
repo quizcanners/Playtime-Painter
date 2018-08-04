@@ -72,7 +72,7 @@ namespace Playtime_Painter
                     Debug.Log("Creating instance of " + t.ToString());
                     var np = (PainterPluginBase)ScriptableObject.CreateInstance(t);
                   
-                    pntr.plugins.Add(np);  //(PainterPluginBase)Activator.CreateInstance(t));
+                    pntr.plugins.Add(np);  
 #if UNITY_EDITOR
                     Undo.RegisterCreatedObjectUndo(np, "plgns");
 #endif
@@ -88,29 +88,14 @@ namespace Playtime_Painter
             return false;
         }
 
-        public virtual void OnUpdate(PlaytimePainter painter)
-        {
+        public virtual void OnUpdate(PlaytimePainter painter)  { }
 
-        }
-
-        public virtual bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
-        {
-            //Debug.Log("Set Texture  on " + this.GetType() + "  not implemented");
-            return false;
-        }
-
-        public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter)
-        {
-            // Debug.Log("Update Tiling on " + this.GetType() + " not implemented");
-            return false;
-        }
-
-        public virtual bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
-        {
-            //Debug.Log("Update Tiling on "+ this.GetType() +" not implemented");
-            return false;
-        }
-
+        public virtual bool setTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter) => false;
+        
+        public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter) => false;
+        
+        public virtual bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter) => false;
+        
         public virtual void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
         {
             //Debug.Log("Get Names on " + this.GetType() + "  not implemented");

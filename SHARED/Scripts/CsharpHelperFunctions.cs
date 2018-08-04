@@ -24,6 +24,14 @@ namespace SharedTools_Stuff
     {
         static Stopwatch stopWatch = new Stopwatch();
 
+        public static string F(this string format, object obj1) => string.Format(format, obj1);
+        
+        public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1, obj2);
+
+        public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1, obj2, obj3);
+
+        public static string F(this string format, params object[] objs) => string.Format(format, objs);
+        
         public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
 
         public static void Log(this string text)
@@ -48,7 +56,7 @@ namespace SharedTools_Stuff
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
-#if !NO_PEGI
+#if PEGI
             var named = el as IGotName;
             if (named == null) return;
 
@@ -197,7 +205,7 @@ namespace SharedTools_Stuff
         public static void AssignUniqueIndex<T>(this List<T> list, T el)
         {
 
-#if !NO_PEGI
+#if PEGI
             var ind = el as IGotIndex;
             if (ind != null)
             {
@@ -215,7 +223,7 @@ namespace SharedTools_Stuff
         }
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new() => list.AddWithUniqueNameAndIndex("New "
-#if !NO_PEGI
+#if PEGI
             + typeof(T).ToPEGIstring()
 #endif
             );
@@ -226,7 +234,7 @@ namespace SharedTools_Stuff
         {
             list.AssignUniqueIndex(e);
             list.Add(e);
-#if !NO_PEGI
+#if PEGI
             var named = e as IGotName;
             if (named != null)
                 named.NameForPEGI = name;
@@ -599,14 +607,6 @@ namespace SharedTools_Stuff
               return objects;
           }*/
 
-        /*  public static bool ContainsInstanceType(this IEnumerable collection, Type type) {
-
-             foreach (var t in collection)
-             {
-                 if (t == type) { return true; }//.Any(i => i.GetType() == type);
-                 Debug.Log("Comparing "+type.ToString() + " with "+t.ToString() + " Result:  not same");
-             }
-             return false;
-         }*/
+       
     }
 }

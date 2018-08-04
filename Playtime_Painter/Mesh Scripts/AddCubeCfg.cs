@@ -72,45 +72,30 @@ public class AddCubeCfg {
         int sum=0;
         for (int i=0; i<27; i++){
             if (a.p[i] == b.p[i])
-            {
                 sum += (a.p[i] == BlockSetting.Any ? 0 : 1);
-               // Debug.Log("Same at "+i+" a: "+a.p[i]);
-            }
             else
                 if ((a.p[i] != BlockSetting.Any) && (b.p[i] != BlockSetting.Any))
-                {
-                  //  Debug.Log("Failed at " + i + " a: " + a.p[i] + " b: " + b.p[i]);
                     return -1;
-                }
             }
         return sum;
     }
 
     public int CompareWithWorld(AddCubeCfg w, ref int rot) {
 
-      //  Debug.Log("Original: ");
-       // WriteCubeCfg(w);
-
         AddCubeCfg tmp = Playtime_Painter.MeshManager.Inst.tmpCubeCfg;
-       // tmp.p[13] = BlockSetting.Full;
-        //p[13] = BlockSetting.Full;
         tmp.CopyFrom(this);
-      
-
 
         int maxScore = -1;
 
         for (int i = 0; i < 4; i++) {
             int val = Compare(w, tmp);
             if (val > maxScore) {
-              //  Debug.Log("Compare was successfull rot "+i);
                 maxScore = val;
                 rot = i;
             }
             if (i < 3) tmp.Spin();
         }
-
-
+        
         return maxScore;
     }
 

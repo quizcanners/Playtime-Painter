@@ -33,7 +33,7 @@ namespace Playtime_Painter
 
 
 
-            Vertex third = td[0].NotOnLine(selectedLine);
+            Vertex third = td[0].GetNotOneIn(selectedLine);
 
 
             var alltris = third.meshPoint.Triangles();
@@ -90,7 +90,7 @@ namespace Playtime_Painter
             Vector2 backCenterUV = (third.EditedUV + fourth.EditedUV) / 2;
 
             uvChangeSpeed = (frontCenterUV - backCenterUV) / distance;
-            width = selectedLine.Vector().magnitude;
+            width = selectedLine.Vector.magnitude;
 
             Debug.Log("Path is: " + width + " wight and " + uvChangeSpeed + " uv change per square");
 
@@ -356,7 +356,7 @@ namespace Playtime_Painter
             }
 
         }
-#if !NO_PEGI
+#if PEGI
         void SomeOtherPathStuff()
         {
             var mm = MeshMGMT;

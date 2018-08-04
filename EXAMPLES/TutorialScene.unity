@@ -4193,7 +4193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: -105.28774
+  timer: 1.3333335
   style:
     m_Name: Hint Style
     m_Normal:

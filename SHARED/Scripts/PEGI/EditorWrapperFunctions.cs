@@ -1,4 +1,4 @@
-﻿#if !NO_PEGI && UNITY_EDITOR
+﻿#if PEGI && UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 using System.Linq.Expressions;
@@ -112,68 +112,11 @@ namespace PlayerAndEditorGUI {
         static bool lineOpen = false;
         static int selectedFold = -1;
         public static string searchBarInput = "";
-       // static int selectedSearchBar = 0;
         static int elementIndex;
-       // static int searchBarInd;
         public static bool searchInFocus = false;
         public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
         public static SerializedObject serObj;
-        /*
-                public static List<int> search(List<string> from)
-                {
-                    checkLine();
-                    searchInFocus = false;
-                    List<int> inds = new List<int>();
-                    string FullName = "ef_SRCH" + searchBarInd;
-                    string tmp = "";
-                    GUI.SetNextControlName(FullName);
-                    if (selectedSearchBar == searchBarInd)
-                        searchBarInput = EditorGUILayout.TextField(searchBarInput);
-                    else
-                        tmp = EditorGUILayout.TextField(tmp);
-
-                    if (GUI.GetNameOfFocusedControl() == FullName)
-                    {
-                        selectedSearchBar = searchBarInd;
-                        searchInFocus = true;
-                    }
-
-                    if (selectedSearchBar == searchBarInd)
-                    {
-                        if (tmp.Length > 0) searchBarInput = tmp;
-                        selectedSearchBar = searchBarInd;
-
-                        int lim = searchBarInput.Length < 2 ? Mathf.Min(10, from.Count) : from.Count;
-
-                        for (int i = 0; i < lim; i++)
-                            if (String.Compare(searchBarInput, from[i]) == 0)
-                                inds.Add(i);
-
-                        ef.newLine();
-                        if ((lim < from.Count) && (searchInFocus)) ef.write("showing " + lim + " out of " + from.Count);
-
-                    }
-
-                    searchBarInd++;
-                    return inds;
-                }
-
-
-                public static void NameNext(string name)
-                {
-                    GUI.SetNextControlName(name);
-                }  
-
-        public static string nameFocused
-        {
-            get
-            {
-                return GUI.GetNameOfFocusedControl();
-            }
-        }
-         */
-
-
+        
         public static bool isFoldedOut { get { return pegi.isFoldedOut; } set { pegi.isFoldedOut = value; } }
 
         public static bool foldout(string txt, ref bool state)
@@ -221,71 +164,6 @@ namespace PlayerAndEditorGUI {
             elementIndex = -1;
         }
 
-      /*  public static bool select<T>(ref T val, List<T> lst)
-        {
-            checkLine();
-
-            List<string> lnms = new List<string>();
-            List<int> inxs = new List<int>();
-            int jindx = -1;
-
-            for (int j = 0; j < lst.Count; j++)
-            {
-                T tmp = lst[j];
-                if (!tmp.isGenericNull())
-                {
-                    if ((!val.isGenericNull()) && val.Equals(tmp))
-                        jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
-                    inxs.Add(j);
-
-                }
-            }
-
-            if (jindx == -1 && val != null)
-                lnms.Add(">>"+val.ToPEGIstring()+"<<");
-
-            if (select(ref jindx, lnms.ToArray()) && (jindx< inxs.Count))
-            {
-                val = lst[inxs[jindx]];
-                return change;
-            }
-            return false;
-        }*/
-
-     /*   public static bool select<T>(ref T val, T[] lst)
-        {
-            checkLine();
-
-            List<string> lnms = new List<string>();
-            List<int> inxs = new List<int>();
-            int jindx = -1;
-
-            for (int j = 0; j < lst.Length; j++)
-            {
-                T tmp = lst[j];
-                if (!tmp.isGenericNull())
-                {
-                    if ((!val.isGenericNull()) && val.Equals(tmp))
-                        jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
-                    inxs.Add(j);
-
-                }
-            }
-
-            if (jindx == -1 && val != null)
-                lnms.Add(">>" + val.ToPEGIstring() + "<<");
-
-   
-                if (select(ref jindx, lnms.ToArray()) && (jindx < inxs.Count))
-            {
-                val = lst[inxs[jindx]];
-                return change;
-            }
-            return false;
-        }*/
-
         public static bool select<T>(ref int no, List<T> lst, int width)
         {
             checkLine();
@@ -301,7 +179,7 @@ namespace PlayerAndEditorGUI {
                 {
                     if (no == j)
                         jindx = indxs.Count;
-                    lnms.Add(j + ": " + lst[j].ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j,lst[j].ToPEGIstring()));
                     indxs.Add(j);
 
                 }
@@ -334,7 +212,7 @@ namespace PlayerAndEditorGUI {
                 {
                     if (no == j)
                         jindx = indxs.Count;
-                    lnms.Add(j + ": " + lst[j].ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, lst[j].ToPEGIstring()));
                     indxs.Add(j);
 
                 }
@@ -361,7 +239,7 @@ namespace PlayerAndEditorGUI {
             {
                 if (no == inds[i])
                     tmpindex = i;
-                filtered.Add(i + ": " + objs[i].ToPEGIstring());
+                filtered.Add("{0}: {1}".F(i, objs[i].ToPEGIstring()));
             }
 
             if (select(ref tmpindex, filtered.ToArray()))
@@ -427,7 +305,7 @@ namespace PlayerAndEditorGUI {
                 if (val.ShowInDropdown())
                 {
                     if (i == j) ind = ints.Count;
-                    lnms.Add(j + ": " + val.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, val.ToPEGIstring()));
                     ints.Add(j);
                 }
             }
@@ -532,7 +410,7 @@ namespace PlayerAndEditorGUI {
                 if (tex[i] != null)
                 {
                     tnumbers.Add(i);
-                    tnames.Add(i + ": " + tex[i].name);
+                    tnames.Add("{0}: {1}".F(i, tex[i].name));
                     if (no == i) curno = tnames.Count - 1;
                 }
 
@@ -735,15 +613,7 @@ namespace PlayerAndEditorGUI {
 
             if (editDelayed(ref key, 40))
                 return dic.TryChangeKey(before, key) ? change : false;
-            /*{
-            Debug.Log("Edited to "+key);
-            string value;
-            if (dic.TryGetValue(pre, out value)) {
-                dic.Remove(pre);
-                dic.Add(key, value);
-                return true;
-            }
-        }*/
+  
             return false;
         }
         
@@ -1372,7 +1242,7 @@ namespace PlayerAndEditorGUI {
             return EditorGUI.EndChangeCheck();
         }
         
-        static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering "+ current_Reordered_List.Count.ToString()+" "+current_Reordered_Type.ToPEGIstring()+"s");
+        static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(current_Reordered_List.Count.ToString(), current_Reordered_Type.ToPEGIstring()));
 
         static void DrawElement(Rect rect, int index, bool active, bool focused)
         {
@@ -1412,7 +1282,7 @@ namespace PlayerAndEditorGUI {
                     EditorGUI.LabelField(rect, el.ToPEGIstring());
                 }
             } else
-            EditorGUI.LabelField(rect, "Empty " + current_Reordered_Type.ToPEGIstring());
+            EditorGUI.LabelField(rect, "Empty {0}".F(current_Reordered_Type.ToPEGIstring()));
             
         }
 

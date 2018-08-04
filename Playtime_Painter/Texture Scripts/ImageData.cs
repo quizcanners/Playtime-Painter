@@ -39,36 +39,28 @@ namespace Playtime_Painter
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
 
-        
-        public override bool PEGI()
-        {
-            bool changed = false;
-
-            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
-
-            "Save Name".edit(ref SaveName).nl();
-
-            pegi.toggle(ref lockEditing, icon.Lock, icon.Unlock);
-
-            if (gotBacups)
+        public string SaveInPlayer() {
+            if (texture2D != null)
             {
-                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                pegi.writeOneTimeHint("This are not connected to Unity's " +
-                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+                if (destination == TexTarget.RenderTexture)
+                    RenderTexture_To_Texture2D();
 
-                changed |=
-                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
-                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
-                    "backup manually:".toggle(150, ref backupManually).nl();
+                var png = texture2D.EncodeToPNG();
+
+                string filename = string.Format("{0}/screenshots/{1}.png",
+                                           Application.persistentDataPath, SaveName);
+                
+                System.IO.File.WriteAllBytes(filename, png);
+
+                string msg = string.Format("Saved {0} to {1}", SaveName, filename);
+
+                msg.showNotification();
+                Debug.Log(msg);
+
+                return filename;
             }
-            else if ("Enable Undo/Redo".Click().nl())
-            {
-                numberOfTexture2Dbackups = 10;
-                numberOfRenderTextureBackups = 10;
-                changed = true;
-            }
-            return changed;
+
+            return "Save Failed";
         }
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
@@ -289,8 +281,7 @@ namespace Playtime_Painter
                                 sRGB Texture = 
             */
 
-            //  Debug.Log("We are linear: "+RenderTexturePainter.inst.isLinearColorSpace + " tex is sRGB: "+tex.isColorTexturee());
-
+      
             if (PainterCamera.Inst.isLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
@@ -509,8 +500,7 @@ namespace Playtime_Painter
 
         public ImageData Init(Texture tex)
         {
-            //  Debug.Log("Creating image data for ."+tex.name);
-
+          
             if (tex.GetType() == typeof(Texture2D))
                 UseTex2D((Texture2D)tex);
             else
@@ -575,7 +565,45 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-#if !NO_PEGI
+#if PEGI
+
+        public override bool PEGI()
+        {
+            bool changed = false;
+
+            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
+
+            "Save Name".edit(ref SaveName).nl();
+
+            if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
+                SaveInPlayer();
+
+            pegi.toggle(ref lockEditing, icon.Lock, icon.Unlock);
+
+         
+
+            if (gotBacups)
+            {
+                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
+                pegi.writeOneTimeHint("This are not connected to Unity's " +
+                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
+                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+
+                changed |=
+                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
+                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
+                    "backup manually:".toggle(150, ref backupManually).nl();
+            }
+            else if ("Enable Undo/Redo".Click().nl())
+            {
+                numberOfTexture2Dbackups = 10;
+                numberOfRenderTextureBackups = 10;
+                changed = true;
+            }
+            return changed;
+        }
+
+
         public bool Undo_redo_PEGI()
         {
             bool changed = false;

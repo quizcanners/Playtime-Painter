@@ -255,7 +255,7 @@ namespace Playtime_Painter
         
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; } }
-#if !NO_PEGI
+#if PEGI
         public bool Mode_Type_PEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;

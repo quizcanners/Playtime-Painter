@@ -204,7 +204,7 @@ namespace Playtime_Painter {
                 {
                     if (t.IsSamePoints(TrisSet))
                     {
-                        t.Change(TrisSet);
+                        t.Set(TrisSet);
                         edMesh.Dirty = true;
                         TrisVerts = 0;
                         return;
@@ -268,13 +268,9 @@ namespace Playtime_Painter {
                 if (!EditorInputManager.getControlKey())
             {
                 GridNavigator.onGridPos = SelectedUV.meshPoint.WorldPos;
-                //  Debug.Log("Moving grid pos to " + GridNavigator.onGridPos);
-               // UpdateLocalSpaceV3s();
                 Grid.UpdatePositions();
-                // Debug.Log("Result: "+GridNavigator.onGridPos);
             }
-
-            //trisVerts = 0;
+            
 
             if (UVnavigator._inst != null)
                 UVnavigator._inst.CenterOnUV(SelectedUV.EditedUV);
@@ -337,8 +333,8 @@ namespace Playtime_Painter {
             }
             if (cnt != 2) return;
 
-            Vertex nol0 = trs[0].NotOnLine(a, b);
-            Vertex nol1 = trs[1].NotOnLine(a, b);
+            Vertex nol0 = trs[0].GetNotOneOf(a, b);
+            Vertex nol1 = trs[1].GetNotOneOf(a, b);
 
             trs[0].Replace(trs[0].GetByVert(a), nol1);
             trs[1].Replace(trs[1].GetByVert(b), nol0);
@@ -863,7 +859,7 @@ namespace Playtime_Painter {
 
         public void UpdateInputPlaytime()
         {
-            #if !NO_PEGI
+            #if PEGI
             if (pegi.mouseOverUI)
                 return;
             #endif
@@ -1013,7 +1009,7 @@ namespace Playtime_Painter {
 
         int justLoaded;
 
-#if !NO_PEGI
+#if PEGI
          List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         bool inspectMesh = false;
@@ -1058,7 +1054,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (((AssetDatabase.GetAssetPath(target.GetMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.GetMesh().name)!=0))  && 
-                (icon.Save.Click("Save Mesh As "+target.GenerateMeshSavePath(),25).nl())) target.SaveMesh();
+                (icon.Save.Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()),25).nl())) target.SaveMesh();
 #endif
 
             pegi.newLine();

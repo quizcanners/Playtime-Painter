@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 
@@ -69,7 +69,7 @@ namespace SharedTools_Stuff
         public abstract void DestroyAll();
         public abstract void OnDuringDestroy(int ind);
         public abstract void Deactivate(int i);
-        #if !NO_PEGI
+        #if PEGI
         public abstract bool PEGI();
         #endif
         public abstract bool ActiveSelf(int i);
@@ -94,7 +94,7 @@ namespace SharedTools_Stuff
 
         bool locked = false;
 
-#if !NO_PEGI
+#if PEGI
 
         public override bool PEGI()
         {

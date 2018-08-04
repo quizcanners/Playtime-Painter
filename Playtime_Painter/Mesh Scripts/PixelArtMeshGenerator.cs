@@ -174,7 +174,7 @@ namespace Playtime_Painter
             AssetDatabase.Refresh();
 #endif
         }
-#if !NO_PEGI
+#if PEGI
         public bool PEGI()
         {
             bool changed = false;

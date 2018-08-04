@@ -31,8 +31,8 @@ MonoBehaviour:
   showDebug: 0
   inspectedStuff: -1
   inspectedReference: -1
-  STDdata: imgs|683|e|133|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL||e|132|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR||e|130|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
-    0||e|130|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight||e|123|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|4|Cube|||mats|192|e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|0|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
+  STDdata: imgs|686|e|132|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR||e|130|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
+    0||e|130|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight||e|126|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed||e|133|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|||mats|192|e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|0|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
   br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
   br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
@@ -572,7 +572,7 @@ MonoBehaviour:
   previewAlphaChanel: 0
   newTextureIsColor: 1
   moreOptions: 0
-  showConfig: 1
+  showConfig: 0
   ShowTeachingNotifications: 0
   DebugDisableSecondBufferUpdate: 0
   showImgDatas: 0
@@ -582,5 +582,6 @@ MonoBehaviour:
     x: 0
     y: 0
   selectedSize: 4
-  recordingNames: []
+  recordingNames:
+  - Unnamed
   browsedRecord: 0

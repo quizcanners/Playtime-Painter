@@ -104,7 +104,7 @@ namespace Playtime_Painter
          
 
         }
-#if !NO_PEGI
+#if PEGI
         public bool PEGI() {
             bool changed = false;
 

@@ -269,7 +269,7 @@ namespace Playtime_Painter {
                 return "Combined Maps";
             }
 
-            #if !NO_PEGI
+            #if PEGI
             [SerializeField]
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
@@ -324,7 +324,7 @@ namespace Playtime_Painter {
 
             public string NameForPEGI { get { return name; } set { name = value; } }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public bool PEGI()
             {
@@ -453,7 +453,7 @@ namespace Playtime_Painter {
             public static TexturePackagingProfile currentPEGI;
 
 
-            #if !NO_PEGI
+            #if PEGI
             public virtual bool PEGI() => PEGI(null);
             
             public bool PEGI(TextureSetForForCombinedMaps sets)
@@ -488,7 +488,7 @@ namespace Playtime_Painter {
 
                     if (ch.enabled)
                     {
-                        if ((ch.flip ? "inverted" : "+0").Click("Copy as is or invert (1-X)"))
+                        if ((ch.flip ? "inverted" : "+ 0").Click("Copy as is or invert (1-X)"))
                             ch.flip = !ch.flip;
 
                         changed |= ch.Nested_Inspect().nl();
@@ -680,7 +680,7 @@ namespace Playtime_Painter {
                 return cody;
             }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public virtual bool PEGI()
             {
@@ -883,7 +883,7 @@ namespace Playtime_Painter {
                 return mipLevels;
             }
 
-            #if !NO_PEGI
+            #if PEGI
 
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {

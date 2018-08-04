@@ -49,7 +49,7 @@ namespace STD_Logic
 
         public override bool IsBoolean() => _usage.UsingBool;
 
-#if !NO_PEGI
+#if PEGI
         public static void Search_PEGI() {
             pegi.write("Search", 60);
             pegi.edit(ref searchField);//, GUILayout.Width(60));
@@ -106,7 +106,7 @@ namespace STD_Logic
 
         public const string storyTag_Trg = "Trg";
 
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             bool changed = "static".toggle(50, ref isStatic);
 

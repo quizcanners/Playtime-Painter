@@ -55,12 +55,12 @@ namespace Playtime_Painter
             index = newIndex;
 
             if (allProbes[index] != null)
-                Debug.Log("More then one probe is sharing index "+index);
+                Debug.Log("More then one probe is sharing index {0}".F(index));
 
             allProbes[index] = this;
         }
 
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI()
         {
             bool changed = false;

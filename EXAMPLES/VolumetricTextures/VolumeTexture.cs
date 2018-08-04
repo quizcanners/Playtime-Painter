@@ -28,7 +28,7 @@ namespace Playtime_Painter {
             set { imgDataIndex = TexMGMTdata.imgDatas.TryGetIndex(value); }
         }
 
-        public virtual string MaterialPropertyName => "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; 
+        public virtual string MaterialPropertyName => "_DefaultVolume {0}".F(VolumePaintingPlugin.VolumeTextureTag); 
 
         public List<Material> materials;
 
@@ -204,7 +204,7 @@ namespace Playtime_Painter {
             }
         }
 
-        #if !NO_PEGI
+        #if PEGI
 
         public override bool PEGI() {
             bool changed = false;

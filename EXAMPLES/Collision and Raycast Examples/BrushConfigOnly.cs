@@ -10,7 +10,7 @@ public class BrushConfigOnly : MonoBehaviour  , IPEGI
 
 {
         public BrushConfig brush = new BrushConfig();
-#if !NO_PEGI
+#if PEGI
         public bool PEGI()
         {
             bool changed = false;

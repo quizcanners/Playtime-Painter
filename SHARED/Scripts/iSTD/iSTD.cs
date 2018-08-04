@@ -91,7 +91,7 @@ namespace SharedTools_Stuff
 
         public bool showDebug;
 
-#if !NO_PEGI
+#if PEGI
 
         [SerializeField] int inspectedStuff = -1;
         [SerializeField] int inspectedReference = -1;
@@ -176,7 +176,7 @@ namespace SharedTools_Stuff
             Clear();
         }
 
-#if !NO_PEGI
+#if PEGI
         int inspected = -1;
         bool foldout = false;
         public bool PEGI( )
@@ -260,7 +260,7 @@ namespace SharedTools_Stuff
 
         public override bool Decode(string tag, string data) => false;
         
-#if !NO_PEGI
+#if PEGI
         public bool showDebug;
 
         public virtual bool PEGI() {
@@ -315,7 +315,7 @@ namespace SharedTools_Stuff
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
         public bool showDebug;
 
-#if !NO_PEGI
+#if PEGI
         public virtual string NameForPEGI
         {
             get
@@ -443,7 +443,7 @@ namespace SharedTools_Stuff
         public static bool LoadOnDrop<T>(this T obj) where T: ISTD
         {
 
-#if !NO_PEGI
+#if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 obj.Decode(ResourceLoader.LoadStory(myType));
@@ -516,7 +516,7 @@ namespace SharedTools_Stuff
         /*
         public static bool PEGI <T>(this T mono, ref iSTD_Explorer exp) where T:MonoBehaviour, iSTD {
             bool changed = false;
-            #if !NO_PEGI
+            #if PEGI
             if (!exp) {
                 exp = mono.GetComponent<iSTD_Explorer>();
                 if (!exp && "Add iSTD Explorer".Click())

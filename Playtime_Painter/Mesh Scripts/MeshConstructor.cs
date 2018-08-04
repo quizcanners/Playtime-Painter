@@ -379,34 +379,6 @@ namespace Playtime_Painter {
             }
         }
         
-        /*
-        public Countless<vertexAnimationFrame> _anim
-        {
-            get
-            {
-                if (anims == null)
-                {
-
-                    List<int> frameInds = edMesh.hasFrame.GetItAll();
-
-                    anims = new Countless<vertexAnimationFrame>();
-
-                    foreach (int i in frameInds)
-                        anims[i] = new vertexAnimationFrame();
-
-                    foreach (var vp in edMesh.vertices)
-                    {
-                        List<Vector3> framesOfVertex = vp.anim.GetAllObjsNoOrder();
-                        for (int j = 0; j < frameInds.Count; j++)
-                            anims[frameInds[j]].verts[vp.index] = framesOfVertex[j]; // This is likely to be super wrong
-                    }
-                }
-
-                return anims;
-            }
-        }
-        */
-
         public MeshConstructor(EditableMesh edmesh, MeshPackagingProfile solution, Mesh fmesh)
         {
             profile = solution;
@@ -590,11 +562,11 @@ namespace Playtime_Painter {
                 }
 
             mesh.name = edMesh.meshName;
-            // TODO: Add a function that will return blend shapes to where they should be
+
             return mesh;
         }
 
-        public bool Valid { get { return ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); } }
+        public bool Valid => ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); 
 
         public void AssignMeshAsCollider(MeshCollider c)  {
             c.sharedMesh = null;

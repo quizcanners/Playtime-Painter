@@ -19,42 +19,42 @@ using SharedTools_Stuff;
 
 public interface IPEGI
 {
-#if !NO_PEGI
+#if PEGI
     bool PEGI();
 #endif
 }
 
 public interface INeedAttention
 {
-#if !NO_PEGI
+#if PEGI
     string NeedAttention();
 #endif
 }
 
 public interface IPEGI_ListInspect
 {
-#if !NO_PEGI
+#if PEGI
     bool PEGI_inList(IList list, int ind, ref int edited);
 #endif
 }
 
 public interface IGotName
 {
-#if !NO_PEGI
+#if PEGI
     string NameForPEGI { get; set; }
 #endif
 }
 
 public interface IGotDisplayName
 {
-#if !NO_PEGI
+#if PEGI
     string NameForPEGIdisplay();
 #endif
 }
 
 public interface IGotIndex
 {
-#if !NO_PEGI
+#if PEGI
     int IndexForPEGI { get; set; }
 #endif
 }
@@ -65,7 +65,7 @@ public interface IGotIndex
 #pragma warning disable IDE1006 // Naming Styles
 namespace PlayerAndEditorGUI
 {
-#if !NO_PEGI
+#if PEGI
     public static class pegi
     {
 
@@ -100,7 +100,7 @@ namespace PlayerAndEditorGUI
                     //GUI.color = Color.white;
 
                     if (GUI.tooltip != null && GUI.tooltip.Length > 0)
-                        ("Tip:" + GUI.tooltip).nl();
+                        "Tip:{0}".F(GUI.tooltip).nl();
                 }
                 catch (Exception ex)
                 {
@@ -194,7 +194,7 @@ namespace PlayerAndEditorGUI
                         var what = need.NeedAttention();
                         if (what != null)
                         {
-                            what = " " + what + " on " + i + ":" + need.ToPEGIstring();
+                            what = " {0} on {1}:{2}".F(what, i, need.ToPEGIstring());
                             return what;
                         }
                     }
@@ -343,22 +343,10 @@ namespace PlayerAndEditorGUI
 
         public static void write<T>(T field) where T : UnityEngine.Object
         {
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 ef.write(field);
-            }
-            else
 #endif
-                checkLine();
-
-            /* {
-                 checkLine();
-                 write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
-             }*/
-
         }
 
         public static void write<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
@@ -784,7 +772,7 @@ namespace PlayerAndEditorGUI
 
 
                 if (tmpindex == -1)
-                    filtered.Add(">>" + no.ToPEGIstring() + "<<");
+                    filtered.Add(">>{0}<<".F(no.ToPEGIstring()));
 
 
                 if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
@@ -874,9 +862,8 @@ namespace PlayerAndEditorGUI
                 {
                     for (int i = 0; i < from.Count; i++)
                     {
-                        if (i != no) //write("Selected: "+from[i]);
-                                     // else
-                            if (Click(i + ": " + from[i], 100))
+                        if (i != no) 
+                            if (Click("{0}: {1}".F(i, from[i]), 100))
                             {
                                 no = i;
                                 foldIn();
@@ -913,9 +900,8 @@ namespace PlayerAndEditorGUI
                 {
                     for (int i = 0; i < from.Length; i++)
                     {
-                        if (i != no) //write("Selected: "+from[i]);
-                                     // else
-                            if (Click(i + ": " + from[i], 100))
+                        if (i != no) 
+                            if ("{0}: {1}".F(i, from[i]).Click())
                             {
                                 no = i;
                                 foldIn();
@@ -953,7 +939,7 @@ namespace PlayerAndEditorGUI
                     for (int i = 0; i < from.Length; i++)
                     {
                         if (i != no)
-                            if (Click(i + ": " + from[i], width))
+                            if ("{0}: {1}".F(i, from[i]).Click(width))
                             {
                                 no = i;
                                 foldIn();
@@ -980,7 +966,7 @@ namespace PlayerAndEditorGUI
             {
                 if (jindx == -1)
                 {
-                    lnms.Add("[" + val.ToPEGIstring() + "]");
+                    lnms.Add("[{0}]".F(val.ToPEGIstring()));
                     jindx = lnms.Count - 1;
                 }
 
@@ -1002,7 +988,7 @@ namespace PlayerAndEditorGUI
 
             if (jindx == -1 && val != null)
             {
-                lnms.Add("[" + val.ToPEGIstring() + "]");
+                lnms.Add("[{0}]".F(val.ToPEGIstring()));
                 jindx = lnms.Count - 1;
             }
 
@@ -1033,7 +1019,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && val.Equals(tmp))
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1067,16 +1053,13 @@ namespace PlayerAndEditorGUI
                 {
                     if (val == j)
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
 
-            // if (jindx == -1 && val >= 0)
-            //  lnms.Add(">>" + val.ToPEGIstring() + "<<");
 
             if (select_Final(val, ref jindx, lnms))
-            //  if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
             {
                 val = indxs[jindx];
                 return true;
@@ -1105,7 +1088,7 @@ namespace PlayerAndEditorGUI
 
                     if (val == ind)
                         jindx = lnms.Count;
-                    lnms.Add(ind + ": " + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(ind, tmp.ToPEGIstring()));
                     indxs.Add(ind);
                 }
             }
@@ -1139,15 +1122,12 @@ namespace PlayerAndEditorGUI
                     if ((jindx == -1) && tmp.Equals(val))
                         jindx = lnms.Count;
 
-                    lnms.Add(j.ToString() + ":" + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
 
-            // if (jindx == -1 && val != null)
-            //   lnms.Add(">>" + val.ToPEGIstring() + "<<");
-
-            if (select_Final(val, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(val, ref jindx, lnms))  
             {
                 val = lst[indxs[jindx]];
                 changed = true;
@@ -1173,7 +1153,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1204,7 +1184,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add(j + ": " + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1241,15 +1221,12 @@ namespace PlayerAndEditorGUI
                 {
                     if (tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add(j.ToString() + ":" + tmp.ToPEGIstring());
+                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
-
-            // if (jindx == -1 && val != null)
-            //   lnms.Add(">>" + val.ToPEGIstring() + "<<");
-
-            if (select_Final(val, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            
+            if (select_Final(val, ref jindx, lnms))  
             {
                 val = lst[indxs[jindx]] as T;
                 changed = true;
@@ -1303,10 +1280,7 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            // if (jindx == -1)
-            //   lnms.Add(">>" + ind.ToString() + "<<");
-
-            if (select_Final(ind, ref jindx, lnms))  //if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select_Final(ind, ref jindx, lnms))  
             {
                 ind = indxs[jindx];
                 return true;
@@ -1437,14 +1411,7 @@ namespace PlayerAndEditorGUI
                 }
 
 
-
-                //  if (tmpindex == -1)
-                //    filtered.Add(">>" + no.ToPEGIstring() + "<<");
-
-
-                if (select_Final(no, ref jindx, lnms))//if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
-
-                //  if (select(ref tmpindex, filtered.ToArray()))
+                if (select_Final(no, ref jindx, lnms))
                 {
                     no = inds[jindx];
                     return true;
@@ -1526,7 +1493,7 @@ namespace PlayerAndEditorGUI
             ind = ind.ClampZeroTo(lst.Length);
 
             for (int i = 0; i < lst.Length; i++)
-                lnms.Add(i + ": " + (lst[i].ToPEGIstring()));
+                lnms.Add("{0}: {1}".F(i,lst[i].ToPEGIstring()));
 
             return select_Final(ind, ref ind, lnms);
 
@@ -1640,7 +1607,7 @@ namespace PlayerAndEditorGUI
                     if (tex[i] != null)
                     {
                         tnumbers.Add(i);
-                        tnames.Add(i + ": " + tex[i].name);
+                        tnames.Add("{0}: {1}".F(i, tex[i].name));
                         if (no == i) curno = tnames.Count - 1;
                     }
 
@@ -2062,7 +2029,8 @@ namespace PlayerAndEditorGUI
         public static int selectedTab;
         public static void ClickTab(ref bool open, string text)
         {
-            if (open) write("|" + text + "|", 60);
+            if (open)
+                "|{0}|".F(text).write(60);
             else if (Click(text, 40)) selectedTab = tabIndex;
             tabIndex++;
         }
@@ -2667,12 +2635,7 @@ namespace PlayerAndEditorGUI
             }
             else
 #endif
-                checkLine();
-            /*  {
-                checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
-                return false;
-            }*/
+               
             return false;
         }
 
@@ -2687,12 +2650,7 @@ namespace PlayerAndEditorGUI
             }
             else
 #endif
-                checkLine();
-            /* {
-                checkLine();
-                write(field == null ? "-no " + typeof(T).ToString() : field.ToPEGIstring());
-                return false;
-            }*/
+              
             return false;
         }
 
@@ -3396,10 +3354,9 @@ namespace PlayerAndEditorGUI
                 return false;
             else
             {
-                // editBig(ref label);
                 if (icon.Delete.Click())
                     label = "";
-                write("String is too long " + label.Substring(0, 10));
+                write("String is too long {0}".F(label.Substring(0, 10)));
             }
             return true;
         }
@@ -3686,7 +3643,7 @@ namespace PlayerAndEditorGUI
         static void sliderText(this string label, float val, string tip, int width)
         {
             if (paintingPlayAreaGUI)
-                write(label + " [" + val.ToString() + "]", width);
+                "{0} [{1}]".F(label,val.ToString()).write(width);
             else
                 write(label);
         }
@@ -4269,7 +4226,7 @@ namespace PlayerAndEditorGUI
                         if (el != null)
                             write(el.ToPEGIstring());
                         else
-                            ("Empty " + typeof(T).ToPEGIstring()).write();
+                            "Empty {0}".F(typeof(T).ToPEGIstring()).write();
 
                         nl();
                     }
@@ -4281,7 +4238,7 @@ namespace PlayerAndEditorGUI
                 if (listCopyBuffer != null) {
                     if (icon.Delete.Click("Clean buffer"))
                         listCopyBuffer = null;
-                    if (icon.Paste.Click("Try Paste " + listCopyBuffer.ToPEGIstring()))
+                    if (icon.Paste.Click("Try Paste {0}".F(listCopyBuffer.ToPEGIstring())))
                     foreach (var e in listCopyBuffer)
                         list.TryAdd(e);
                 }
@@ -4390,7 +4347,7 @@ namespace PlayerAndEditorGUI
             if (datas != null)
             {
                 var std = el as ISTD;
-                if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name " + (std != null ? "configuration." : "."), 25, 25))
+                if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name {0}".F((std != null ? "configuration." : ".")), 25, 25))
                     datas.SaveElementDataFrom(list, index);
 
                 var dta = ExtensionsForGenericCountless.TryGet(datas, index);
@@ -5197,7 +5154,7 @@ namespace PlayerAndEditorGUI
             }
 
             if (!isNewIndex)
-                write("Index Takken by " + dummy);
+                "Index Takken by {0}".F(dummy).write();
             else if (!isNewValue)
                 write("Value already assigned ");
 
@@ -5284,7 +5241,7 @@ namespace PlayerAndEditorGUI
             if ((uobj == null) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
                 return "NULL Object";
 
-#if !NO_PEGI
+#if PEGI
             var dn = obj as IGotDisplayName;
             if (dn != null)
                 return dn.NameForPEGIdisplay();
@@ -5309,7 +5266,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
         {
-#if !NO_PEGI
+#if PEGI
 #if UNITY_EDITOR
             return ef.Inspect(o, (SerializedObject)so);
 #else
@@ -5323,7 +5280,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
         {
-#if !NO_PEGI
+#if PEGI
 #if UNITY_EDITOR
             return ef.Inspect_so(o, (SerializedObject)so);
 #else
@@ -5336,7 +5293,7 @@ namespace PlayerAndEditorGUI
         }
 
 
-#if !NO_PEGI
+#if PEGI
         public static int focusInd;
 
         public static bool EfChanges

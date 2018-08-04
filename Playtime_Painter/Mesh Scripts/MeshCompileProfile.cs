@@ -20,7 +20,7 @@ namespace Playtime_Painter
         public string name = "";
 
         public const string folderName = "Mesh Profiles";
-        #if !NO_PEGI
+        #if PEGI
         public virtual bool PEGI()
         {
 
@@ -304,7 +304,7 @@ namespace Playtime_Painter
         public VertexDataTarget Target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
         public List<VertexDataValue> vals;
-        #if !NO_PEGI
+        #if PEGI
         public virtual bool PEGI()
         {
             bool changed = false;
@@ -588,14 +588,11 @@ namespace Playtime_Painter
             {
 
                 VertexSolution vs = GetMySolution();
-
-                // Debug.Log("got vals: " + vs.vals.Length + " name " + vs.ToString());
-
+                
                 if ((vs.SameSizeValue != null) || (vs.vals[2].VertDataType != VertexNull.inst) || (vs.vals[3].VertDataType != VertexNull.inst))
                     CurMeshDta.mesh.SetUVs(MyUVChanel(), new List<Vector4>(dta));
                 else
                 {
-                    // Debug.Log("Packing UV as Vector 2 for "+MyUVChanel());
                     Vector2[] v2s = new Vector2[dta.Length];
 
                     for (int i = 0; i < dta.Length; i++)

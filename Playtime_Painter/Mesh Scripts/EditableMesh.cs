@@ -562,8 +562,6 @@ namespace Playtime_Painter {
 
             List<Triangle> trs = ld.GetAllTriangles_USES_Tris_Listing();
 
-            //  Debug.Log("Got "+trs.Count+" triangles");
-
             if (trs.Count != 2) return;
 
             ld.pnts[0].meshPoint.SmoothNormal = true;
@@ -598,7 +596,7 @@ namespace Playtime_Painter {
 
             }
             if (change)
-                tris.Change(changed);
+                tris.Set(changed);
 
             return change;
         }
@@ -696,7 +694,7 @@ namespace Playtime_Painter {
 
                     auv = tr.GetByVert(a);
                     buv = tr.GetByVert(b);
-                    spliUV = tr.NotOnLine(a, b);
+                    spliUV = tr.GetNotOneOf(a, b);
 
 
                     if ((auv == null) || (buv == null))  {
@@ -901,7 +899,7 @@ namespace Playtime_Painter {
 
             return changed;
         }
-#if !NO_PEGI
+#if PEGI
         public static EditableMesh inspected;
 #endif
     }

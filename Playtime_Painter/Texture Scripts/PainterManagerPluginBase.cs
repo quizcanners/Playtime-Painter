@@ -14,7 +14,7 @@ namespace Playtime_Painter
     public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName
         
     {
-#if !NO_PEGI
+#if PEGI
         pegi.CallDelegate plugins_ComponentPEGI;
 
         public virtual string NameForPEGIdisplay()
@@ -56,7 +56,7 @@ namespace Playtime_Painter
             BrushConfig.brushConfigPegies += d;
         }
 
-        #if !NO_PEGI
+        #if PEGI
         pegi.CallDelegate VertexEdgePEGIdelegates;
         protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d) {
             VertexEdgePEGIdelegates += d;
@@ -72,7 +72,7 @@ namespace Playtime_Painter
 
 
         public virtual void OnDisable() {
-#if !NO_PEGI
+#if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
           
@@ -101,7 +101,7 @@ namespace Playtime_Painter
         
      
 
-#if !NO_PEGI
+#if PEGI
         public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
         
         public override bool PEGI()

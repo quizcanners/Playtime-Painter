@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using SharedTools_Stuff;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ public static class MeshAnaliser {
             if (m.subMeshCount == 1) return 0;
 
             if (m.isReadable == false) {
-                Debug.Log("Mesh "+m.name+" is not readable. Enable for submesh material editing.");
+                Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
                 return 0;
             }
 
