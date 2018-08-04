@@ -901,7 +901,7 @@ namespace Playtime_Painter {
 
             return changed;
         }
-#if PEGI
+#if !NO_PEGI
         public static EditableMesh inspected;
 #endif
     }

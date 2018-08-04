@@ -129,7 +129,7 @@ namespace STD_Logic
         
         int browsedBranch = -1;
 
-#if PEGI
+#if !NO_PEGI
         static string path;
         static bool isCalledFromAnotherBranch = false;
         public override bool PEGI() {

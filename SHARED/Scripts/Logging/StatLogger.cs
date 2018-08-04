@@ -63,7 +63,7 @@ namespace SharedTools_Stuff {
 
         public void Rename(string name) => processedStat.name = name;
 
-#if PEGI
+#if !NO_PEGI
 
         int inspectedStat = -1;
         public bool PEGI()
@@ -117,7 +117,7 @@ namespace SharedTools_Stuff {
             value = 0;
         }
 
-#if PEGI
+#if !NO_PEGI
         public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
 
         public bool PEGI_inList(IList list, int ind, ref int edited) {

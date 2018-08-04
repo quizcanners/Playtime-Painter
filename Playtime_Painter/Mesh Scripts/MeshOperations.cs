@@ -17,7 +17,7 @@ namespace Playtime_Painter
         public Vector2 uvChangeSpeed;
         public bool updated = false;
         public float width;
-        public gtoolPathConfig mode;
+        public GtoolPathConfig mode;
         public Vector3 PrevDirection;
         public float outlineWidth = 1;
 
@@ -143,7 +143,7 @@ namespace Playtime_Painter
 
             switch (mode)
             {
-                case gtoolPathConfig.ToPlanePerpendicular:
+                case GtoolPathConfig.ToPlanePerpendicular:
                     //vector = previousCenterPos.DistanceV3To(ptdPos);
 
                     a.localPos = mm.onGridLocal;
@@ -157,7 +157,7 @@ namespace Playtime_Painter
 
 
                     break;
-                case gtoolPathConfig.Rotate:
+                case GtoolPathConfig.Rotate:
                     // Vector3 ab = a.pos.DistanceV3To(b.pos).normalized * gtoolPath.width;
 
                     a.localPos = mm.onGridLocal;
@@ -173,7 +173,7 @@ namespace Playtime_Painter
 
                     break;
 
-                case gtoolPathConfig.AsPrevious:
+                case GtoolPathConfig.AsPrevious:
                     a.localPos += vector;
                     b.localPos += vector;
                     break;
@@ -193,7 +193,7 @@ namespace Playtime_Painter
             var pointedLine = MeshMGMT.PointedLine;
             var pointedUV = MeshMGMT.PointedUV;
 
-            switch (quickMeshFunctionsExtensions.current)
+            switch (QuickMeshFunctionsExtensions.current)
             {
                 case QuickMeshFunctions.DeleteTrianglesFully:
                     if ((Input.GetKey(KeyCode.G)) && (pointedTris != null))
@@ -356,14 +356,14 @@ namespace Playtime_Painter
             }
 
         }
-#if PEGI
+#if !NO_PEGI
         void SomeOtherPathStuff()
         {
             var mm = MeshMGMT;
             var selectedLine = mm.SelectedLine;
 
 
-            if (QuickMeshFunctions.Path.selected())
+            if (QuickMeshFunctions.Path.Selected())
             {
 
                 if (selectedLine == null) "Select Line".nl();
@@ -383,7 +383,7 @@ namespace Playtime_Painter
                         {
 
                             "Mode".write();
-                            mode = (gtoolPathConfig)pegi.editEnum(mode);
+                            mode = (GtoolPathConfig)pegi.editEnum(mode);
                             "G to extend".nl();
 
 
@@ -406,7 +406,7 @@ namespace Playtime_Painter
               
                 updated = false;
 
-                if (QuickMeshFunctions.Path.selected())
+                if (QuickMeshFunctions.Path.Selected())
                     SetPathStart();
 
             }
@@ -414,12 +414,12 @@ namespace Playtime_Painter
 
     }
 
-    public static class quickMeshFunctionsExtensions
+    public static class QuickMeshFunctionsExtensions
     {
         public static QuickMeshFunctions current;
 
 
-        public static bool selected(this QuickMeshFunctions funk)
+        public static bool Selected(this QuickMeshFunctions funk)
         {
             return current == funk;
         }
@@ -428,7 +428,7 @@ namespace Playtime_Painter
     public enum QuickMeshFunctions { Nothing, MakeOutline, Path, TrisColorForBorderDetection, Line_Center_Vertex_Add, DeleteTrianglesFully, RemoveBordersFromLine }
     // Ctrl + delete: merge this verticle into main verticle
     // Ctrl + move : disconnect this verticle from others
-    public enum gtoolPathConfig { ToPlanePerpendicular, AsPrevious, Rotate }
+    public enum GtoolPathConfig { ToPlanePerpendicular, AsPrevious, Rotate }
 
 
     //#endif

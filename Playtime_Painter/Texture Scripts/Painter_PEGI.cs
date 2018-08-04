@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-    #if PEGI
+    #if !NO_PEGI
 
     public static class PainterPEGI_Extensions {
 
@@ -112,12 +112,9 @@ namespace Playtime_Painter {
                 if (StrokeVector.PausePlayback) {
                     if (icon.Play.Click("Continue Playback", 20))
                         StrokeVector.PausePlayback = false;
-                } else {
-                    if (icon.Pause.Click("Pause Playback",20))
+                } else if (icon.Pause.Click("Pause Playback",20))
                         StrokeVector.PausePlayback = true;
-                }
-                    
-
+                
             } else {
 
 
@@ -129,24 +126,24 @@ namespace Playtime_Painter {
 
                 if (gotVectors) {
                     pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
-                    if (pegi.Click(icon.Play, "Play stroke vectors on current mesh", 18)) {
+                    if (icon.Play.Click("Play stroke vectors on current mesh", 18)) {
                         trg.PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
                         changed = true;
                     }
-                    if (pegi.Click(icon.Record, "Continue Recording", 18)) {
+                    if (icon.Record.Click("Continue Recording", 18)) {
                         id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
                         id.ContinueRecording();
                         "Recording resumed".showNotification();
                     }
 
-                    if (pegi.Click(icon.Delete, "Delete", 18)) {
+                    if (icon.Delete.Click("Delete", 18)) {
                         changed = true;
                         Cfg.RemoveRecord();
                     }
                 }
 
-                if ((gotVectors && (pegi.Click(icon.Add, "Start new Vector recording", 18))) || 
-                    ((!gotVectors) && ("New Vector Recording").Click("Start New recording")
+                if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) || 
+                    (!gotVectors && "New Vector Recording".Click("Start New recording")
                     )) {
                     id.SaveName = "Unnamed";
                     id.StartRecording();
@@ -162,10 +159,8 @@ namespace Playtime_Painter {
     }
 
         public static void TeachingNotification (this string text) {
-#if PEGI
             if (Cfg.ShowTeachingNotifications)
                 text.showNotification();
-#endif
         }
 
 }

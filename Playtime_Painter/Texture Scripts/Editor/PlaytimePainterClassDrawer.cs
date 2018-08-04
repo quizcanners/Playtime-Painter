@@ -115,7 +115,7 @@ namespace Playtime_Painter {
         public override void OnInspectorGUI() {
 
         
-#if PEGI
+#if !NO_PEGI
 
               bool changes = false;
 

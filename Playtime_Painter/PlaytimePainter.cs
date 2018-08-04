@@ -25,7 +25,7 @@ namespace Playtime_Painter{
 
         #region StaticGetters
 
-#if PEGI
+#if !NO_PEGI
         public static pegi.CallDelegate plugins_ComponentPEGI;
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
@@ -261,7 +261,7 @@ namespace Playtime_Painter{
 
             if (IsTerrainHeightTexture() && IsOriginalShader)
             {
-                #if PEGI
+                #if !NO_PEGI
                 if (stroke.mouseDwn)
                     "Can't edit without Preview".showNotification();
                 #endif
@@ -274,7 +274,7 @@ namespace Playtime_Painter{
 
             if (ImgData == null)
             {
-                #if PEGI
+                #if !NO_PEGI
                 if (stroke.mouseDwn)
                     "No texture to edit".showNotification();
                 #endif
@@ -567,7 +567,7 @@ namespace Playtime_Painter{
                     var extension = name.Substring(name.LastIndexOf(".") + 1);
 
                     if (extension != "png") {
-#if PEGI
+#if !NO_PEGI
                         ("Converting " + name + " to .png").showNotification();
 #endif
                         texture = t2d.CreatePngSameDirectory(texture.name);
@@ -969,7 +969,7 @@ namespace Playtime_Painter{
 
                 if ((id != null) && (GetMaterial(false) != null))
                 UpdateOrSetTexTarget(id.destination);
-                #if PEGI
+                #if !NO_PEGI
             ("Instantiating Material on " + gameObject.name).showNotification();
             #endif
             return GetMaterial(false);
@@ -1185,17 +1185,9 @@ namespace Playtime_Painter{
             playbackVectors.Add(Cfg.GetRecordingData(recordingName));
         }
 
-        public void PlaybeckVectors()
-        {
-
+        public void PlaybeckVectors() {
             if (cody.GotData)
-            {
-                // string tag = cody.getTag();
-                //string data = cody.getData();
-                //Debug.Log("TAG: "+tag + " DATA: "+data);
-
                 Decode(cody.GetTag(), cody.GetData());
-            }
             else
             {
                 if (playbackVectors.Count > 0)
@@ -1315,8 +1307,8 @@ namespace Playtime_Painter{
             var id = ImgData;
 
             if (stroke.mouseDwn) {
-                cody.Add("brush", GlobalBrush.EncodeStrokeFor(this)); // Brush is unlikely to change mid stroke
-                cody.Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
+                cody.Add("brush", GlobalBrush.EncodeStrokeFor(this)) // Brush is unlikely to change mid stroke
+                .Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
             }
 
             cody.Add("s", stroke.Encode(id.TargetIsRenderTexture() && GlobalBrush.IsA3Dbrush(this)));
@@ -1788,7 +1780,7 @@ namespace Playtime_Painter{
 	    }
         
         public static PlaytimePainter inspectedPainter;
-#if PEGI
+#if !NO_PEGI
         public bool PEGI_MAIN() {
 
             TexMGMT.focusedPainter = this;
@@ -1830,8 +1822,6 @@ namespace Playtime_Painter{
                     {
                         if (icon.Mesh.Click("Edit Mesh", 25))
                         {
-
-
                             meshEditing = true;
 
                             SetOriginalShader();
@@ -1854,9 +1844,9 @@ namespace Playtime_Painter{
 
 #if UNITY_EDITOR
                             if (i.lockEditing)
-                                PlaytimePainter.RestoreUnityTool();
+                                RestoreUnityTool();
                             else
-                                PlaytimePainter.HideUnityTool();
+                                HideUnityTool();
 #endif
 
                         }
@@ -1908,33 +1898,7 @@ namespace Playtime_Painter{
                             var obj = gameObject.GetComponent("pb_Object");
 
                             if (ent || obj)
-                            {
                                 "PRO builder detected. Strip it using Actions in the Tools->ProBuilder menu.".writeHint();
-
-                                /*
-                              if ("Strip it".Click())
-                              {
-
-#if UNITY_EDITOR
-
-
-                                      Type pb = Type.GetType("ProBuilder2.Actions.pb_StripProBuilderScripts");
-                                      if (pb != null)
-                                      {
-                                          MethodInfo method = pb.GetMethod("StripAllSelected", BindingFlags.Static | BindingFlags.Public);
-
-                                          if (method != null)
-                                              method.Invoke(null, null);
-                                          else "Strip Method not found".showNotification();
-                                      }
-                                      else "Class not found".showNotification();
-                     
-#endif
-
-
-                            }
-                              */
-                            }
                             else
                             {
 
@@ -2047,14 +2011,13 @@ namespace Playtime_Painter{
                         }
                     }
 
-                    pegi.newLine();
+                    pegi.nl();
 
                     changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
                     if ((id.backupManually) && ("Backup for UNDO".Click()))
                         id.Backup();
-
-                    //if (cfg.moreOptions || id.useTexcoord2)
+                    
                         changed |= "Use Texcoord 2".toggle(ref id.useTexcoord2).nl();
                     stroke.useTexcoord2 = id.useTexcoord2;
 

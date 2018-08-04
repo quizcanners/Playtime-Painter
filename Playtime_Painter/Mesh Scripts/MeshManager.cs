@@ -863,7 +863,7 @@ namespace Playtime_Painter {
 
         public void UpdateInputPlaytime()
         {
-            #if PEGI
+            #if !NO_PEGI
             if (pegi.mouseOverUI)
                 return;
             #endif
@@ -1013,7 +1013,7 @@ namespace Playtime_Painter {
 
         int justLoaded;
 
-#if PEGI
+#if !NO_PEGI
          List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         bool inspectMesh = false;

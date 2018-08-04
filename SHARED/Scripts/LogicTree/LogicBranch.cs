@@ -74,7 +74,7 @@ namespace STD_Logic {
         int browsedElement = -1;
         int browsedBranch = -1;
 
-        #if PEGI
+        #if !NO_PEGI
        
         static string path;
         static bool isCalledFromAnotherBranch = false;

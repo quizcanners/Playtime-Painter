@@ -39,7 +39,7 @@ namespace Playtime_Painter
                 ManualUpdate();
         }
 
-#if PEGI
+#if !NO_PEGI
         public override string NameForPEGIdisplay() => "Buffer Blitting";
 
         [SerializeField] int GUITextureSize = 128;
@@ -142,13 +142,13 @@ namespace Playtime_Painter
                 EditorApplication.update += ManualUpdate;
 #endif
 
-#if PEGI
+#if !NO_PEGI
             PlugIn_PainterComponent = Component_PEGI;
 #endif
 
         }
 
-#if PEGI
+#if !NO_PEGI
         public bool Component_PEGI()
         {
             bool changed = false;
@@ -194,7 +194,7 @@ namespace Playtime_Painter
         , typeof(Downscaler)
         )]
     public class TextureBuffer : AbstractKeepUnrecognized_STD
-#if PEGI
+#if !NO_PEGI
             , IPEGI_ListInspect, IGotDisplayName
 #endif
     {
@@ -260,7 +260,7 @@ namespace Playtime_Painter
 
         public virtual void Stop() { }
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
             bool changed = false;
@@ -325,7 +325,7 @@ namespace Playtime_Painter
 
         protected override RenderTexture RenderTexture() => Texture ? (RenderTexture)Texture : null;
 
-#if PEGI
+#if !NO_PEGI
         public override string NameForPEGIdisplay() => "Custom: " + Texture.ToPEGIstring();
 
         public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgDatas);
@@ -421,7 +421,7 @@ namespace Playtime_Painter
             return true;
         }
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
             "name".edit(50, ref name).nl();
@@ -471,7 +471,7 @@ namespace Playtime_Painter
     }
 
     public class WebCamTextureBuffer : TextureBuffer
-#if PEGI
+#if !NO_PEGI
            , IPEGI_ListInspect
 #endif
     {
@@ -510,7 +510,7 @@ namespace Playtime_Painter
         public override void Stop() => Data.webCamTexture.Stop();
         
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
 
@@ -585,7 +585,7 @@ namespace Playtime_Painter
         public override RenderTexture GetTargetTextureNext() => Target?.GetTargetTextureNext();
         
 
-#if PEGI
+#if !NO_PEGI
         public override string NameForPEGIdisplay() => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
         public override bool PEGI() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
@@ -657,7 +657,7 @@ namespace Playtime_Painter
 
         public override Texture GetTextureNext() => buffer;
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
 
@@ -785,7 +785,7 @@ namespace Playtime_Painter
             }
         }
 
-#if PEGI
+#if !NO_PEGI
 
         public string NameForPEGIdisplay() => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
 

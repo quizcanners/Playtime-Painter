@@ -132,7 +132,7 @@ namespace Playtime_Painter {
         private void OnDisable() {
             if (fromRTmanager) Restore();
         }
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool PEGI() {
 
             if ("Renderer Type:".edit(() => type, this).nl()) {

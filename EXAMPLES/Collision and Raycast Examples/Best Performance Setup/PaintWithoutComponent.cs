@@ -157,7 +157,7 @@ namespace Playtime_Painter
             }
         }
 #endif
-#if PEGI
+#if !NO_PEGI
         bool hint;
         public bool PEGI()
         {

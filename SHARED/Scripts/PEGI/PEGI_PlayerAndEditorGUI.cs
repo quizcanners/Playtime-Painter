@@ -19,42 +19,42 @@ using SharedTools_Stuff;
 
 public interface IPEGI
 {
-#if PEGI
+#if !NO_PEGI
     bool PEGI();
 #endif
 }
 
 public interface INeedAttention
 {
-#if PEGI
+#if !NO_PEGI
     string NeedAttention();
 #endif
 }
 
 public interface IPEGI_ListInspect
 {
-#if PEGI
+#if !NO_PEGI
     bool PEGI_inList(IList list, int ind, ref int edited);
 #endif
 }
 
 public interface IGotName
 {
-#if PEGI
+#if !NO_PEGI
     string NameForPEGI { get; set; }
 #endif
 }
 
 public interface IGotDisplayName
 {
-#if PEGI
+#if !NO_PEGI
     string NameForPEGIdisplay();
 #endif
 }
 
 public interface IGotIndex
 {
-#if PEGI
+#if !NO_PEGI
     int IndexForPEGI { get; set; }
 #endif
 }
@@ -65,7 +65,7 @@ public interface IGotIndex
 #pragma warning disable IDE1006 // Naming Styles
 namespace PlayerAndEditorGUI
 {
-#if PEGI
+#if !NO_PEGI
     public static class pegi
     {
 
@@ -2340,13 +2340,13 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickUnfocus(this icon icon) => ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
 
-        public static bool ClickUnfocus(this icon icon, msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
+        public static bool ClickUnfocus(this icon icon, Msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
 
         public static bool ClickUnfocus(this icon icon, string text) => ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
 
-        public static bool ClickUnfocus(this icon icon, msg text, int width) => ClickUnfocus(icon.getIcon(), text.Get(), width);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width) => ClickUnfocus(icon.getIcon(), text.Get(), width);
 
-        public static bool ClickUnfocus(this icon icon, msg text, int width, int height) => ClickUnfocus(icon.getIcon(), text.Get(), width, height);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => ClickUnfocus(icon.getIcon(), text.Get(), width, height);
 
         public static bool ClickUnfocus(this icon icon, string text, int width, int height) => ClickUnfocus(icon.getIcon(), text, width, height);
 
@@ -3282,7 +3282,7 @@ namespace PlayerAndEditorGUI
 
         public static bool editDelayed(this string label, ref string val, int width)
         {
-            write(label, msg.editDelayed_HitEnter.Get(), width);
+            write(label, Msg.editDelayed_HitEnter.Get(), width);
 
             return editDelayed(ref val);
 
@@ -3291,7 +3291,7 @@ namespace PlayerAndEditorGUI
 
         public static bool editDelayed(this string label, ref int val, int width)
         {
-            write(label, msg.editDelayed_HitEnter.Get());
+            write(label, Msg.editDelayed_HitEnter.Get());
             return editDelayed(ref val, width);
         }
 
@@ -4160,7 +4160,7 @@ namespace PlayerAndEditorGUI
         {
             bool changed = false;
 
-            if (icon.List.ClickUnfocus(msg.ReturnToListView.Get()).nl())
+            if (icon.List.ClickUnfocus(Msg.ReturnToListView.Get()).nl())
                 index = -1;
 
             else
@@ -4244,12 +4244,12 @@ namespace PlayerAndEditorGUI
                         {
                             if (el != null && typeof(T).IsUnityObject())
                             {
-                                if (icon.Delete.ClickUnfocus(msg.MakeElementNull, bttnWidth))
+                                if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
                                     list[i] = default(T);
                             }
                             else
                             {
-                                if (icon.Close.ClickUnfocus(msg.RemoveFromList, bttnWidth))
+                                if (icon.Close.ClickUnfocus(Msg.RemoveFromList, bttnWidth))
                                 {
                                     list.RemoveAt(i);
                                     changed = true;
@@ -4371,7 +4371,7 @@ namespace PlayerAndEditorGUI
 
                 if (pg != null)
                 {
-                    if ((warningText == null && icon.Enter.ClickUnfocus(msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
+                    if ((warningText == null && icon.Enter.ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
                         edited = index;
                     warningText = null;
                 }
@@ -4411,7 +4411,7 @@ namespace PlayerAndEditorGUI
         public static bool clickHighlight(this UnityEngine.Object obj, Texture tex)
         {
 #if UNITY_EDITOR
-            if (obj != null && tex.Click(msg.HighlightElement.Get()))
+            if (obj != null && tex.Click(Msg.HighlightElement.Get()))
             {
                 EditorGUIUtility.PingObject(obj);
                 return true;
@@ -4455,7 +4455,7 @@ namespace PlayerAndEditorGUI
             if (!typeof(T).IsUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
                 return false;
 
-            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
+            if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
             {
                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
                 {
@@ -4476,7 +4476,7 @@ namespace PlayerAndEditorGUI
             if (!typeof(T).IsUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
                 return false;
 
-            if (icon.Add.ClickUnfocus(msg.AddListElement.Get()))
+            if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
             {
                 list.Add(default(T));
                 return true;
@@ -5010,7 +5010,7 @@ namespace PlayerAndEditorGUI
                         else
                             write(el.ToPEGIstring(), 120);
 
-                        if ((el is IPEGI) && icon.Enter.ClickUnfocus(msg.InspectElement, 25))
+                        if ((el is IPEGI) && icon.Enter.ClickUnfocus(Msg.InspectElement, 25))
                             edited = i;
 
                     }
@@ -5284,7 +5284,7 @@ namespace PlayerAndEditorGUI
             if ((uobj == null) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
                 return "NULL Object";
 
-#if PEGI
+#if !NO_PEGI
             var dn = obj as IGotDisplayName;
             if (dn != null)
                 return dn.NameForPEGIdisplay();
@@ -5309,7 +5309,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
         {
-#if PEGI
+#if !NO_PEGI
 #if UNITY_EDITOR
             return ef.Inspect(o, (SerializedObject)so);
 #else
@@ -5323,7 +5323,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
         {
-#if PEGI
+#if !NO_PEGI
 #if UNITY_EDITOR
             return ef.Inspect_so(o, (SerializedObject)so);
 #else
@@ -5336,7 +5336,7 @@ namespace PlayerAndEditorGUI
         }
 
 
-#if PEGI
+#if !NO_PEGI
         public static int focusInd;
 
         public static bool EfChanges

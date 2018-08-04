@@ -68,7 +68,7 @@ namespace PlayerAndEditorGUI
 
         public List<GameObject> testList = new List<GameObject>();
 
-#if PEGI
+#if !NO_PEGI
 
         public bool PEGI()
         {

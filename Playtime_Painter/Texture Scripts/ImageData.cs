@@ -173,9 +173,7 @@ namespace Playtime_Painter
             recordedStrokes.Add(Cfg.GetRecordingData(SaveName));
         }
 
-        public void SaveRecording()
-        {
-
+        public void SaveRecording()  {
             Cfg.RemoveRecord(SaveName);
 
             StringBuilder bildy = new StringBuilder();
@@ -190,9 +188,7 @@ namespace Playtime_Painter
             Cfg.recordingNames.Add(SaveName);
 
             recording = false;
-
-
-
+            
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
 #endif
@@ -579,7 +575,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-#if PEGI
+#if !NO_PEGI
         public bool Undo_redo_PEGI()
         {
             bool changed = false;
@@ -590,25 +586,25 @@ namespace Playtime_Painter
 
             if (cache.undo.gotData())
             {
-                if (pegi.Click(icon.Undo.getIcon(), "Press Z to undo (Scene View)", 25))
+                if (icon.Undo.Click("Press Z to undo (Scene View)", 25))
                 {
                     cache.undo.ApplyTo(this);
                     changed = true;
                 }
             }
             else
-                pegi.Click(icon.UndoDisabled.getIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
+                icon.UndoDisabled.Click("Nothing to Undo (set number of undo frames in config)", 25);
 
             if (cache.redo.gotData())
             {
-                if (pegi.Click(icon.Redo.getIcon(), "X to Redo", 25))
+                if (icon.Redo.Click("X to Redo", 25))
                 {
                     changed = true;
                     cache.redo.ApplyTo(this);
                 }
             }
             else
-                pegi.Click(icon.RedoDisabled.getIcon(), "Nothing to Redo", 25);
+                icon.RedoDisabled.Click("Nothing to Redo", 25);
 
 
             pegi.newLine();
@@ -616,20 +612,13 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             if (recording)
             {
-                /* if (pegi.Bttn("REC")) {
-                     StartRecording();
-                     changed = true;
-                 }*/
+               
+                ("Recording... " + recordedStrokes.Count + " vectors").nl();
+                "Will Save As ".edit(70, ref SaveName);
 
-                //  } else {
-                pegi.write("Recording... " + recordedStrokes.Count + " vectors");
-                pegi.newLine();
-                pegi.write("Will Save As ", 70);
-                pegi.edit(ref SaveName);
-
-                if (pegi.Click(icon.Record.getIcon(), "Stop, don't save", 25))
+                if (icon.Record.Click("Stop, don't save", 25))
                     recording = false;
-                if (pegi.Click(icon.Done.getIcon(), "Finish ans Save", 25))
+                if (icon.Done.Click("Finish & Save", 25))
                     SaveRecording();
 
                 pegi.newLine();
@@ -651,8 +640,8 @@ namespace Playtime_Painter
 
         public string NeedAttention()
         {
-            if (numberOfTexture2Dbackups > 50) return "Too many backups";
-
+            if (numberOfTexture2Dbackups > 50)
+                return "Too many backups";
             return null;
         }
 

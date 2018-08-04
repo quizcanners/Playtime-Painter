@@ -106,7 +106,7 @@ namespace STD_Logic {
             boolTags = new UnnullableSTD<CountlessBool>();
         }
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI() {
             
             bool changed = false;

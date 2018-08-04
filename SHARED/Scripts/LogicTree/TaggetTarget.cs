@@ -39,15 +39,15 @@ namespace STD_Logic
             return targValue == 0;
         }
         
-        public string tagName { get { return Trigger.name + (IsBoolean() ?  "" : Trigger.enm[triggerIndex]);}}
+        public string TagName => Trigger.name + (IsBoolean() ?  "" : Trigger.enm[triggerIndex]);
 
-        public List<Values> getObjectsByTag() {
+        public List<Values> GetObjectsByTag() {
             if (targValue > 0)
                 return TriggerGroup.all[groupIndex].taggedInts[triggerIndex][targValue];
             else 
                 return TriggerGroup.all[groupIndex].taggedBool[triggerIndex];
         }
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI() {
             bool changed = false;
            
@@ -82,7 +82,7 @@ namespace STD_Logic
         public static Values TryGetValues(this TaggedTarget trg, Values current)
         {
             if (trg != null)  {
-                var val = trg.getObjectsByTag();
+                var val = trg.GetObjectsByTag();
 
                 if (val != null && val.Count > 0)
                     current = val[0];

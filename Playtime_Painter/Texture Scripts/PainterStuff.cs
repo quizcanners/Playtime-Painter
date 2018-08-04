@@ -15,7 +15,7 @@ namespace Playtime_Painter
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-#if PEGI
+#if !NO_PEGI
         public virtual bool PEGI() => uTags.Nested_Inspect();
 #endif
     }
@@ -77,7 +77,7 @@ namespace Playtime_Painter
         protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
 
-#if PEGI
+#if !NO_PEGI
         public virtual bool PEGI() => uTags.PEGI();  
 #endif
 

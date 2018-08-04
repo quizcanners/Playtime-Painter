@@ -28,7 +28,7 @@ namespace Playtime_Painter {
             UnityHelperFunctions.SetKeyword("MODIFY_BRIGHTNESS", modifyBrightness);
             UnityHelperFunctions.SetKeyword("COLOR_BLEED", colorBleed);
         }
-#if PEGI
+#if !NO_PEGI
         bool showHint;
         public override bool ConfigTab_PEGI() {
             bool changed = false;

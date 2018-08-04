@@ -1,11 +1,15 @@
-﻿Shader "Terrain/MergingGeometryTriplanar" {
+﻿// Note: I've commented out the Regulr BumpMap option because it was giving "Not Marked as Normal" warning on the material, which is annoying. 
+// It's safe to uncomment all comments below:
+
+Shader "Terrain/MergingGeometryTriplanar" {
 	Properties{
 	[NoScaleOffset]_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
-	[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
-	[NoScaleOffset]_BumpMapC("Geometry Combined Maps (RGB)", 2D) = "white" {}
+	//[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
+	[KeywordEnum(None, Combined)] _BUMP("Map", Float) = 0
+
+	[NoScaleOffset]_Map("Geometry Combined Maps (RGBA)", 2D) = "gray" {}
 	_Merge("_Merge", Range(0.01,2)) = 1
 	[Toggle(CLIP_ALPHA)] _ALPHA("Clip Alpha", Float) = 0
-	
 	}
     
 		Category{
@@ -29,19 +33,19 @@
 #pragma multi_compile_fog
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"
-//#include "UnityCG.cginc"
 #include "AutoLight.cginc"
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
+#pragma multi_compile_fwdbase 
 #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
 #pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ WATER_FOAM
-#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma multi_compile  ___ _BUMP_NONE  _BUMP_COMBINED 
+		/*_BUMP_REGULAR*/
 #pragma multi_compile  ___ CLIP_ALPHA
 
 	sampler2D _MainTex;
-	sampler2D _BumpMapC;
+	sampler2D _Map;
 
 	struct v2f {
 		float4 pos : POSITION;
@@ -120,27 +124,22 @@
 	float4 bumpMap = float4(0, 0, 1, 1);
 #else
 
-	float4 bumpMap = tex2D(_BumpMapC, i.texcoord.xy);
+	float4 bumpMap = tex2D(_Map, i.texcoord.xy);
 	float3 tnormal;
-#if _BUMP_REGULAR
+/*#if _BUMP_REGULAR
 	tnormal = UnpackNormal(bumpMap);
 	bumpMap = float4(0, 0, 1, 1);
-#else
+#else*/
 	bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 	tnormal = float3(bumpMap.r, bumpMap.g, 1);
-#endif
-	//applyTangent(worldNormal, tnormal, i.wTangent);
-	
+//#endif
 
-	//bumpMap.rg -= 0.5;// bumpMap.rg - 0.5;// *2 - 1;
-	//float3 tnormal = float3(bumpMap.r, bumpMap.g, 1);
 	float3 worldNormal;
 	worldNormal.x = dot(i.tspace0, tnormal);
 	worldNormal.y = dot(i.tspace1, tnormal);
 	worldNormal.z = dot(i.tspace2, tnormal);
 #endif
 
-	// Terrain Start
 	float4 terrainN = 0;
 
 	Terrain_Trilanear(i.tc_Control, i.wpos, dist, worldNormal, col, terrainN, bumpMap);
@@ -148,7 +147,6 @@
 	float shadow = SHADOW_ATTENUATION(i);
 
 	float Metalic = 0;
-
 
 	Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
 #if WATER_FOAM
@@ -158,33 +156,9 @@
 #endif
 		);
 
-
 	UNITY_APPLY_FOG(i.fogCoord, col);
 
-
-
-	//col.rgb = bump.rgb;
-	//col.rgb = worldNormal;
-	//col.rg = abs(reflected.xz);
-	//col.b = 0;
-	//terrainLrefl.rgb *= cont.rgb;
-	return
-		//ambientPower;
-		//micro;
-		//power;//
-		//terrainLrefl;//*(1 - smoothness);
-		//smoothness;
-		//cont;
-		//power;
-		//splat0N;
-		//terrainAmbient;
-		//fernel;
-		//diff;
-		//aboveTerrainBump;
-		//terrainLrefl;
-		col;
-	//dotprod;
-	//terrainAmbient;
+	return col;
 	}
 
 

@@ -7,7 +7,7 @@ namespace PlayerAndEditorGUI
 
     // Add new lines of text to enum:
 
-    public enum msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement,
+    public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement,
         //LIST
         HighlightElement, RemoveFromList, AddListElement, ReturnToListView, MakeElementNull};
 
@@ -17,32 +17,29 @@ namespace PlayerAndEditorGUI
     
     // Add their translations here:
 
-        static void init() {
+        static void Init() {
 
             texts = new List<List<string>>();
 
             WillBeTranslatingFrom(SystemLanguage.English);
-            msg.Texture2D.Add("Texture");
-            msg.RenderTexture.Add("Render Texture");
-            msg.BrushType.Add("Brush Type");
-            msg.BlitMode.Add("Blit Mode");
-            msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
-            msg.InspectElement.Add("Inspect PEGI of this element");
-            msg.HighlightElement.Add("Highlight this element in the project");
-            msg.RemoveFromList.Add("Remove this list element");
-            msg.AddListElement.Add("Add element to a list");
-            msg.ReturnToListView.Add("Return to list view");
-            msg.MakeElementNull.Add("Null this element.");
+            Msg.Texture2D.Add("Texture");
+            Msg.RenderTexture.Add("Render Texture");
+            Msg.BrushType.Add("Brush Type");
+            Msg.BlitMode.Add("Blit Mode");
+            Msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
+            Msg.InspectElement.Add("Inspect PEGI of this element");
+            Msg.HighlightElement.Add("Highlight this element in the project");
+            Msg.RemoveFromList.Add("Remove this list element");
+            Msg.AddListElement.Add("Add element to a list");
+            Msg.ReturnToListView.Add("Return to list view");
+            Msg.MakeElementNull.Add("Null this element.");
 
             WillBeTranslatingFrom(SystemLanguage.Ukrainian);
-            msg.Texture2D.Add("Текстура");
-            msg.RenderTexture.Add("Рендер Текстура");
-            msg.BrushType.Add("Тип");
-            msg.BlitMode.Add("Метод");
-
+            Msg.Texture2D.Add("Текстура");
+            Msg.RenderTexture.Add("Рендер Текстура");
+            Msg.BrushType.Add("Тип");
+            Msg.BlitMode.Add("Метод");
             
-
-
             systemLanguage = (int)Application.systemLanguage;
         }
 
@@ -51,28 +48,28 @@ namespace PlayerAndEditorGUI
 
         public static List<List<string>> texts;
 
-        #if PEGI
-        public static void nl(this msg m) { m.Get().nl(); }
-        public static void nl(this msg m, int width) { m.Get().nl(width); }
-        public static void nl(this msg m, string tip, int width) { m.Get().nl(tip, width); }
-        public static void write(this msg m) { m.Get().write(); }
-        public static void write(this msg m, int width) { m.Get().write(width); }
-        public static void write(this msg m, string tip, int width) { m.Get().write(tip, width); }
-        #endif
+#if !NO_PEGI
+        public static void Nl(this Msg m) { m.Get().nl(); }
+        public static void Nl(this Msg m, int width) { m.Get().nl(width); }
+        public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }
+        public static void Write(this Msg m) { m.Get().write(); }
+        public static void Write(this Msg m, int width) { m.Get().write(width); }
+        public static void Write(this Msg m, string tip, int width) { m.Get().write(tip, width); }
+#endif
 
-        public static string Get(this msg s) {
+        public static string Get(this Msg s) {
 
-            string tmp = s.getIn(systemLanguage);
+            string tmp = s.GetIn(systemLanguage);
 
             if (tmp != null)
                 return tmp;
 
-            return s.getIn((int)SystemLanguage.English);
+            return s.GetIn((int)SystemLanguage.English);
         }
 
-        public static string getIn (this msg s, int l) {
+        public static string GetIn (this Msg s, int l) {
             if (texts == null)
-                init();
+                Init();
 
             if (texts.Count > l) {
                 List<string> list = texts[l];
@@ -97,7 +94,7 @@ namespace PlayerAndEditorGUI
                 texts.Add(new List<string>());
         }
 
-        static void Add (this msg m, string text) {
+        static void Add (this Msg m, string text) {
             int line = (int)m;
             while (texts[currentLanguage].Count <= line)
                 texts[currentLanguage].Add(null);

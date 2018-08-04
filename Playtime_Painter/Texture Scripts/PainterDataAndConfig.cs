@@ -81,7 +81,7 @@ namespace Playtime_Painter
 
         public MaterialData GetMaterialDataFor(Material mat)
         {
-            if (mat == null)
+            if (!mat)
                 return null;
 
             MaterialData data = null;
@@ -168,8 +168,7 @@ namespace Playtime_Painter
         [SerializeField] bool showImgDatas;
         [SerializeField] int inspectedImgData = -1;
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
-
-
+        
         public MyIntVec2 samplingMaskSize;
 
         public int selectedSize = 4;
@@ -233,7 +232,9 @@ namespace Playtime_Painter
             }
             return true;
         }
-        
+
+#if !NO_PEGI
+
         public bool DatasPEGI()
         {
             bool changes = false;
@@ -263,7 +264,7 @@ namespace Playtime_Painter
         }
 
         bool inspectLists = false;
-
+        
         public override bool PEGI()
         {
             bool changed =  base.PEGI();
@@ -273,28 +274,8 @@ namespace Playtime_Painter
    
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
-                
-                rtp.browsedPlugin = Mathf.Clamp(rtp.browsedPlugin, -1, rtp.Plugins.Count - 1);
-                
-                if (rtp.browsedPlugin != -1)
-                {
-                    if (icon.Back.Click().nl())
-                        rtp.browsedPlugin = -1;
-                    else
-                    {
-                        var pl = rtp.Plugins[rtp.browsedPlugin];
-                        if (pl.ConfigTab_PEGI().nl())
-                            pl.SetToDirty();
-
-                        return changed;
-                    }
-                }
-                else
-                    for (int p = 0; p < rtp.Plugins.Count; p++)
-                    {
-                        rtp.Plugins[p].ToPEGIstring().write();
-                        if (icon.Edit.Click().nl()) rtp.browsedPlugin = p;
-                    }
+                "Plugins".write_List(rtp.Plugins, ref rtp.browsedPlugin);
+       
 
                 if ("Find New Plugins".Click())
                     rtp.RefreshPlugins();
@@ -366,6 +347,8 @@ namespace Playtime_Painter
 
             return changed;
         }
+
+#endif
 
         public void RemoteUpdate()
         {

@@ -115,7 +115,7 @@ namespace Playtime_Painter {
             }
         }
 
-#if PEGI
+#if !NO_PEGI
         public bool PEGI() {
             ("Painting on " + paintingOn.Count + " objects").nl();
 

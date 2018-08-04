@@ -37,7 +37,7 @@ namespace SharedTools_Stuff
     [ExecuteInEditMode]
     public class PlaytimeToolComponent : MonoBehaviour
     {
-        #if PEGI
+        #if !NO_PEGI
         public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
         #endif
         public virtual string PlaytimeWindowName => gameObject.name; 
@@ -46,12 +46,12 @@ namespace SharedTools_Stuff
         {
             if (selectedInPlaytime == null)
                 selectedInPlaytime = this;
-            #if PEGI
+            #if !NO_PEGI
             if (selectedInPlaytime == this)
                 windowPosition.Render(PEGI, PlaytimeWindowName);
 #endif
         }
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool PEGI()
         {
             pegi.write("Override PEGI with your functions");
@@ -113,7 +113,7 @@ namespace SharedTools_Stuff
         public virtual string ToolName() => GetType().ToString();
         
 
-        #if PEGI
+        #if !NO_PEGI
         public void ToolSelector()
         {
 

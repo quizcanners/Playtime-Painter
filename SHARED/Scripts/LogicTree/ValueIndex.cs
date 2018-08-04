@@ -49,7 +49,7 @@ namespace STD_Logic
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
         public abstract bool IsBoolean();
-#if PEGI
+#if !NO_PEGI
         public static Trigger selectedTrig;
         public static ValueIndex selected;
 
@@ -195,7 +195,7 @@ namespace STD_Logic
         public static void Set(this UnnullableSTD<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 
 
-#if PEGI
+#if !NO_PEGI
         public static bool Toogle(this UnnullableSTD<CountlessBool> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];

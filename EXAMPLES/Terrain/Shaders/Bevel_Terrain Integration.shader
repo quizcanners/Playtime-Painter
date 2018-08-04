@@ -1,19 +1,12 @@
 ﻿Shader "Painter_Experimental/Bevel/Bevel_Terrain Integration" {
 	Properties{
 		[NoScaleOffset]_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
-	[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
+		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
 		[NoScaleOffset]_BumpMapC_ATL("Combined Maps (_ATL) (RGB)", 2D) = "white" {}
-	[Toggle(UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
+		[Toggle(UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
 		_Merge("_Merge", Range(0.01,2)) = 1
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
-
-		//[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
-		//[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
-
-		//[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
-
-
 	}
 
 		SubShader{

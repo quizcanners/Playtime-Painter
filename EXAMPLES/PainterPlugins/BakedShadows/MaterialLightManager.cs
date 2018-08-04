@@ -28,7 +28,7 @@ namespace Playtime_Painter {
             }
 
         }
-#if PEGI
+#if !NO_PEGI
         public int browsedNode = -1;
 
         public virtual bool PEGI() {

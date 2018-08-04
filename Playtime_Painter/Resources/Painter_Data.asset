@@ -575,7 +575,7 @@ MonoBehaviour:
   showConfig: 1
   ShowTeachingNotifications: 0
   DebugDisableSecondBufferUpdate: 0
-  showImgDatas: 1
+  showImgDatas: 0
   inspectedImgData: -1
   myLayer: 30
   samplingMaskSize:

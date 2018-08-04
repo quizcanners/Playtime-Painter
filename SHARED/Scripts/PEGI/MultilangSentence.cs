@@ -22,7 +22,7 @@ namespace PlayerAndEditorGUI
         {
             return "[" + s.Count + "]: " + (detail ? "..." : s[0].ToString());
         }
-#if PEGI
+#if !NO_PEGI
         public static void PEGI(this List<Sentance> options)
         {
             pegi.newLine();
@@ -68,7 +68,7 @@ namespace PlayerAndEditorGUI
             SetTranslation((Languages)l, data);
             return true;
         }
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool PEGI()
         {
             string tmp = ToString();

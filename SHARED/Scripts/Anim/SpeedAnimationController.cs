@@ -140,8 +140,8 @@ namespace STD_Animations
 
             frameIndex = 0;
 
-            var ret = base.Decode(data); //.DecodeTagsFor(this); // base.Decode(data);
-            
+            base.Decode(data); 
+
             if (setFirstFrame && CurrentFrame != null)
                 Set();
 
@@ -204,7 +204,7 @@ namespace STD_Animations
         public static SpeedAnimationController inspectedAnimationController;
 
         float editor_FramePortion = 0;
-#if PEGI
+#if !NO_PEGI
         public int inspectedElement = -1;
         public bool inspectElements = false;
 
@@ -500,7 +500,7 @@ namespace STD_Animations
     {
         StdEncoder EncodeFrame();
         bool DecodeFrame(string tag, string data);
-#if PEGI
+#if !NO_PEGI
         bool Frame_PEGI();
 #endif
     }
@@ -559,7 +559,7 @@ namespace STD_Animations
             return true;
         }
 
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
 
@@ -796,7 +796,7 @@ namespace STD_Animations
 
         }
 
-#if PEGI
+#if !NO_PEGI
         [SerializeField] bool transformInLocalSpace = true;
         [SerializeField] bool showDependencies = true;
         public override bool PEGI()

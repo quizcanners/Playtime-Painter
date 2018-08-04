@@ -225,31 +225,6 @@ public static class TextureEditorExtensionFunctions  {
             return (id.destination == TexTarget.RenderTexture) && (id.renderTexture == null);
         }
 
-        public static ImageData EnsureStaticInstance(this ImageData imgDTA)
-        {
-
-            if (imgDTA == null)
-                return null;
-
-            ImageData id = null;
-            if (imgDTA.texture2D)
-                id = imgDTA.texture2D.GetImgDataIfExists();
-            else if (imgDTA.renderTexture)
-                id = imgDTA.renderTexture.GetImgDataIfExists();
-            else if (imgDTA.other != null)
-                id = imgDTA.other.GetImgDataIfExists();
-            else
-                return null;
-
-            if (id == null)
-            {
-                PainterCamera.Data.imgDatas.Add(imgDTA);
-                id = imgDTA;
-            }
-
-            return id;
-        }
-
         public static ImageData GetImgDataIfExists(this Texture texture)
         {
             if (texture == null)

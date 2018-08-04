@@ -10,7 +10,7 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class UVnavigator : PainterStuffMono {
 
-        public static UVnavigator inst()
+        public static UVnavigator Inst()
         {
             if (_inst == null)
                 _inst = FindObjectOfType<UVnavigator>();
@@ -182,7 +182,7 @@ namespace Playtime_Painter
         public VertexUVTool() {
             _inst = this;
         }
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI() {
 
             bool changed = false;

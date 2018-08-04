@@ -10,8 +10,7 @@ namespace Playtime_Painter {
 
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterStuffMono, IPEGI, IGotName
-        {
+    public class VolumeTexture : PainterStuffMono, IPEGI, IGotName {
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
         
@@ -29,29 +28,25 @@ namespace Playtime_Painter {
             set { imgDataIndex = TexMGMTdata.imgDatas.TryGetIndex(value); }
         }
 
-        public virtual string MaterialPropertyName {get {return "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; } }
+        public virtual string MaterialPropertyName => "_DefaultVolume"+ VolumePaintingPlugin.VolumeTextureTag; 
 
         public List<Material> materials;
 
         public string NameForPEGI { get { return name; } set { name = value; } }
 
-        public int Height { get { return h_slices * h_slices; } }
+        public int Height => h_slices * h_slices; 
 
-        public int Width{get { return ((ImageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): ImageData.width)) / h_slices;}}
+        public int Width => ((ImageData == null ? (TexturesPool._inst == null ? tmpWidth : TexturesPool._inst.width): ImageData.width)) / h_slices;
 
-        public Vector4 PosNsize4Shader { get  { Vector3 pos = transform.position;return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
+        public Vector4 PosNsize4Shader { get  { Vector3 pos = transform.position; return new Vector4(pos.x, pos.y, pos.z, 1f / size);} }
 
         public Vector4 Slices4Shader {get { float w = (ImageData.width - h_slices * 2) / h_slices; return new Vector4(h_slices, w * 0.5f, 1f / ((float)w), 1f / ((float)h_slices)); } }
+
+        public virtual bool NeedsToManageMaterials => true;
+
+        public virtual Color GetColorFor(Vector3 pos) =>
+             Color.white * (Width * size * 0.5f - (LastCenterPosTMP - pos).magnitude);
         
-        public virtual bool NeedsToManageMaterials { get { return true; } }
-
-        public virtual Color GetColorFor(Vector3 pos)
-        {
-            float magnitude = (LastCenterPosTMP - pos).magnitude;
-
-            return Color.white * (Width * size * 0.5f - magnitude);
-        }
-
         Vector3 LastCenterPosTMP;
         public virtual void RecalculateVolume(Vector3 center) {
             LastCenterPosTMP = center;
@@ -82,10 +77,8 @@ namespace Playtime_Painter {
 
         }
 
-        public virtual void AddIfNew(PlaytimePainter p) {
-            AddIfNew(p.Material);
-        }
-
+        public virtual void AddIfNew(PlaytimePainter p) =>  AddIfNew(p.Material);
+        
         public bool AddIfNew (Material mat) {
             if (!materials.Contains(mat))
             {
@@ -211,7 +204,7 @@ namespace Playtime_Painter {
             }
         }
 
-        #if PEGI
+        #if !NO_PEGI
 
         public override bool PEGI() {
             bool changed = false;
@@ -286,7 +279,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-#endif
+        #endif
 
         public virtual void UpdateMaterials() {
             materials.SetVolumeTexture(MaterialPropertyName, this);
@@ -303,8 +296,6 @@ namespace Playtime_Painter {
         public virtual void OnEnable() {
             if (materials == null)
                 materials = new List<Material>();
-
-            ImageData = ImageData.EnsureStaticInstance();
 
             all.Add(this);
         }

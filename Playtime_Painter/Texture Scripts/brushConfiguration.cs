@@ -255,7 +255,7 @@ namespace Playtime_Painter
         
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; } }
-#if PEGI
+#if !NO_PEGI
         public bool Mode_Type_PEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
@@ -270,7 +270,7 @@ namespace Playtime_Painter
             
             pegi.newLine();
 
-            msg.BlitMode.write("How final color will be calculated", 80);
+            Msg.BlitMode.Write("How final color will be calculated", 80);
 
             var bm = BlitMode;
 
@@ -281,7 +281,7 @@ namespace Playtime_Painter
             pegi.newLine();
 
             if (!CPU) {
-                msg.BrushType.write(80);
+                Msg.BrushType.Write(80);
                 changed |= pegi.select<BrushType>(ref inGPUtype, BrushType.AllTypes);
             }
 
