@@ -25,7 +25,9 @@ namespace SharedTools_Stuff
         public static bool DeleteFile(string path)  {
             if (File.Exists(path))
             {
+#if UNITY_EDITOR
                 "Deleting {0}".F(path).showNotification();
+#endif
 
                 File.Delete(path);
                 return true;

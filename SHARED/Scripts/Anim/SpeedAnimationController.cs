@@ -125,7 +125,7 @@ namespace STD_Animations
                             elements[v.IndexForPEGI] = v;
                         }
                         else
-                            elements[v.IndexForPEGI].Decode(v.Encode());
+                            elements[v.IndexForPEGI].Decode(v.Encode().ToString());
                     }
                     break;
 

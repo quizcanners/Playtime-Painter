@@ -24,6 +24,30 @@ namespace SharedTools_Stuff
     public static class UnityHelperFunctions {
 
 
+        static List<Vector3> randomNormalized = new List<Vector3>();
+        static int currentNormalized = 0;
+
+        public static Vector3 GetRandomPointWithin( this Vector3 v3) {
+
+            const int maxRands = 512;
+
+            if (randomNormalized.Count < maxRands)
+            {
+                var newOne = Vector3.one.OnSpherePosition();
+                randomNormalized.Add(newOne);
+                v3.Scale(newOne);
+            }
+            else
+            {
+                currentNormalized = (currentNormalized + 1) % maxRands;
+                v3.Scale(randomNormalized[currentNormalized]);
+            }
+
+            return v3;
+        } 
+
+
+
 #if PEGI
         public static string GetMeaningfulHierarchyName (this GameObject go, int maxLook, int maxLength)
         {

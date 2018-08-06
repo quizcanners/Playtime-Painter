@@ -164,8 +164,7 @@ namespace SharedTools_Stuff
 
             return ((line > pnta) && (line > pntb) && ((pnta + pntb) < line + percision));
         }
-
-
+        
         public static float HeronHforBase(float _base, float a, float b)
         {
             if (_base > a + b)
@@ -210,6 +209,13 @@ namespace SharedTools_Stuff
             Vector3 p2 = c - a;
             return Vector3.Cross(p1, p2).normalized;
         }
+
+        public static Vector4 ToVector4(this Vector3 v3, float w) => new Vector4(v3.x, v3.y, v3.z, w);
+
+        public static Vector3 ToVector3(this Vector2 v2, float z) => new Vector3(v2.x, v2.y, z);
+
+        public static Vector4 ToVector4(this Vector2 v2xy, Vector2 v2zw) => new Vector4(v2xy.x, v2xy.y, v2zw.x, v2zw.y);
+
 
     }
 

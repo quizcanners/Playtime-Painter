@@ -239,12 +239,6 @@ namespace SharedTools_Stuff
 
         public abstract StdEncoder Encode();
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
-        public virtual ISTD Decode(StdEncoder cody)
-        {
-
-            new StdDecoder(cody.ToString()).DecodeTagsFor(this);
-            return this;
-        }
         public abstract bool Decode(string tag, string data);
     }
     
