@@ -168,9 +168,18 @@ namespace Playtime_Painter
                 float size = PainterCamera.orthoSize * 2;
                 float aspectRatio = (float)tex.width / (float)tex.height;
 
-                float ar2 = onto.width / onto.height;
+                float ar2 = (float)onto.width / (float)onto.height;
 
+
+#if UNITY_2018
+                if (tex.GetType() == typeof(RenderTexture))
+                    aspectRatio = ar2 / aspectRatio;
+                else
+                    aspectRatio = 1;
+#else
                 aspectRatio = ar2 / aspectRatio;
+#endif
+
                 TexMGMT.rtcam.targetTexture = onto;
 
                 transform.localScale = new Vector3(size * aspectRatio, size, 0);

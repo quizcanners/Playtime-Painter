@@ -249,8 +249,6 @@ namespace Playtime_Painter
             if (rt == null)
                 return;
             
-            
-
             tex.CopyFrom(rt);
 
             PixelsFromTexture2D(tex);

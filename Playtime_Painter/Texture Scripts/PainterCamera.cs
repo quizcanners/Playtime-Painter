@@ -212,7 +212,7 @@ namespace Playtime_Painter
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Shader shade) => Downscale_ToBuffer(tex, width, height, null, shade);
 
-        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, Data.brushRendy_bufferCopy);
+        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height) => Downscale_ToBuffer(tex, width, height, null, Data.pixPerfectCopy);// brushRendy_bufferCopy);
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material, Shader shader) {
 
