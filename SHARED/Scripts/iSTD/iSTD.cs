@@ -443,47 +443,52 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename) {
-            StuffSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
-            return s;
-        }
-        
-        public static ISTD SaveToAssets(this ISTD s, string Path, string filename) {
-            StuffSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
-            return s;
-        }
-
-
-
         public static void UpdatePrefab (this ISTD s, GameObject go) {
             var iK = s as IKeepMySTD;
 
             if (iK != null)
-                iK.UpdateSTDdata();
+                iK.Save_STDdata();
 
             go.UpdatePrefab();
         }
 
-        public static void UpdateSTDdata(this IKeepMySTD s) {
+        public static void Save_STDdata(this IKeepMySTD s) {
             if (s != null)
                 s.Config_STD = s.Encode().ToString();
         }
 
-		public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ISTD, new() {
+        public static void Load_STDdata(this IKeepMySTD s) {
+            if (s != null)
+                s.Decode(s.Config_STD);
+        }
+
+        public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
             s.Decode(StuffLoader.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
-		public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:ISTD, new() {
+        public static ISTD SaveToAssets(this ISTD s, string Path, string filename)
+        {
+            StuffSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
+            return s;
+        }
+        
+        public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
             s.Decode(StuffLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + StuffSaver.fileType));
 			return s;
 		}
 
-		public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:ISTD, new() {
+        public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename)
+        {
+            StuffSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
+            return s;
+        }
+
+        public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();
 			s.Decode(StuffLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));

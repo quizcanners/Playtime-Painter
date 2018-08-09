@@ -555,6 +555,14 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.FloatField(val);
             return (val != before) ? change : false;
         }
+        
+        public static bool edit(ref float val, int width)
+        {
+            checkLine();
+            float before = val;
+            val = EditorGUILayout.FloatField(val, GUILayout.MaxWidth(width));
+            return (val != before) ? change : false;
+        }
 
         public static bool edit(ref double val)
         {
@@ -563,8 +571,7 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.DoubleField(val);
             return (val != before) ? change : false;
         }
-
-
+        
         public static bool edit(ref int val, int min, int max)
         {
             checkLine();

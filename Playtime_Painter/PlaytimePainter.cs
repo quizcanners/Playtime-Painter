@@ -929,6 +929,8 @@ namespace Playtime_Painter{
 
             Material mat = GetMaterial(true);
 
+            string Mname = gameObject.name;
+
             if ((mat == null) && (terrain != null))
             {
 
@@ -936,21 +938,23 @@ namespace Playtime_Painter{
 
                 terrain.materialTemplate = mat;
                 terrain.materialType = Terrain.MaterialType.Custom;
+                Mname += "_Terrain material";
             }
             else
             {
+                if (mat)
+                    Mname = mat.name;
+
                 Material = Instantiate((mat ?? TexMGMT.defaultMaterial));
                 CheckPreviewShader();
             }
 
-            Material.name = gameObject.name;
+            Material.name = Mname;
 
             if (saveIt) {
 #if UNITY_EDITOR
                 string fullPath = Path.Combine(Application.dataPath, Cfg.materialsFolderName);
                 Directory.CreateDirectory(fullPath);
-
-                string name = gameObject.name;
 
                 var material = GetMaterial(false);
                 string path = material.SetUniqueObjectName(Cfg.materialsFolderName, ".mat");

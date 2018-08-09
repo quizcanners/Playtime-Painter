@@ -342,7 +342,7 @@ namespace SharedTools_Stuff
         public static T DecodeInto<T>(this string data, Type childType) where T : ISTD, new()
         {
             T val = (T)Activator.CreateInstance(childType);
-            new StdDecoder(data).DecodeTagsFor(val);
+            val.Decode(data);
             return val;
         }
 
@@ -401,8 +401,8 @@ namespace SharedTools_Stuff
 
                 var prevKeeper = keeper;
                 keeper = referencesKeeper;
-                
-                new StdDecoder(data).DecodeTagsFor(val);
+
+                val.Decode(data); 
 
                 keeper = prevKeeper;
                 return true;

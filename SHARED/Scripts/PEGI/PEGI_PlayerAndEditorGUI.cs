@@ -2877,25 +2877,6 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool edit(ref float val, float min, float max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, min, max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                float before = val;
-
-                val = GUILayout.HorizontalSlider(before, min, max);
-                return (before != val);
-            }
-        }
-
         public static bool edit(ref int val)
         {
 
@@ -2958,8 +2939,7 @@ namespace PlayerAndEditorGUI
             label.write();
             return edit(ref val);
         }
-
-
+        
         public static bool edit(this string label, int width, ref double val)
         {
             label.write(width);
@@ -2971,8 +2951,7 @@ namespace PlayerAndEditorGUI
             label.write(tip, width);
             return edit(ref val);
         }
-
-
+        
         public static bool edit(ref int val, int width)
         {
 
@@ -3028,6 +3007,35 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
+        
+        public static bool edit(ref float val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, width);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    float newValue;
+                    bool parsed = float.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+
 
         public static bool edit(this string label, ref float val)
         {
@@ -3042,26 +3050,6 @@ namespace PlayerAndEditorGUI
             {
                 write(label);
                 return edit(ref val);
-            }
-        }
-
-        public static bool edit(ref int val, int min, int max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, (int)min, (int)max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                float before = val;
-                //if (edit(ref val))
-                //val = Mathf.Clamp(val, min, max);
-                val = (int)GUILayout.HorizontalSlider(before, min, max);
-                return (before != val);
             }
         }
 
@@ -3086,6 +3074,45 @@ namespace PlayerAndEditorGUI
                 }
                 return false;
 
+            }
+        }
+
+        public static bool edit(ref float val, float min, float max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                float before = val;
+
+                val = GUILayout.HorizontalSlider(before, min, max);
+                return (before != val);
+            }
+        }
+        
+        public static bool edit(ref int val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, (int)min, (int)max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                float before = val;
+                //if (edit(ref val))
+                //val = Mathf.Clamp(val, min, max);
+                val = (int)GUILayout.HorizontalSlider(before, min, max);
+                return (before != val);
             }
         }
 
@@ -3986,7 +4013,7 @@ namespace PlayerAndEditorGUI
 
                     bool selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;

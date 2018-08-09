@@ -411,7 +411,7 @@ namespace SharedTools_Stuff
                 if (selfSTD != null)
                 {
                     if (icon.Save.Click("Save On itself"))
-                        selfSTD.UpdateSTDdata(); //Config_STD = selfSTD.Encode().ToString();
+                        selfSTD.Save_STDdata(); //Config_STD = selfSTD.Encode().ToString();
                     var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
                         target.Decode(slfData); //.DecodeTagsFor(target);

@@ -171,7 +171,7 @@ namespace Playtime_Painter
                 float ar2 = (float)onto.width / (float)onto.height;
 
 
-#if UNITY_2018
+#if UNITY_2018_1_OR_NEWER
                 if (tex.GetType() == typeof(RenderTexture))
                     aspectRatio = ar2 / aspectRatio;
                 else
