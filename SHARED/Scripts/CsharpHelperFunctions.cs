@@ -296,6 +296,8 @@ namespace SharedTools_Stuff
         
         public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
         {
+            stopWatch.Stop();
+
             long ticks = stopWatch.ElapsedTicks;
 
             string timeText = "";
@@ -331,6 +333,7 @@ namespace SharedTools_Stuff
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
         {
+            stopWatch.Stop();
             var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
             stopWatch.Start();
             return txt;

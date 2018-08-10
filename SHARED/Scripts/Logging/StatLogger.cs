@@ -30,29 +30,53 @@ namespace SharedTools_Stuff {
 
         public StatLogger Get(int index, string name)
         {
-            processedStat = allStats[index];
+            if (safeLock.EnterLock(ref safeLock))
+            {
+                processedStat = allStats[index];
 
-            if (!processedStat.addedToList)
-                Create(index, name);
-            
+                if (!processedStat.addedToList)
+                    Create(index, name);
+
+                safeLock.Unlock(ref safeLock);
+            }
+
             return this;
         }
 
+
+        bool safeLock;
         public StatLogger StatMoveToFirst(int index, string name)
         {
-            processedStat = allStats[index];
-
-            if (!processedStat.addedToList)
-                Create(index, name);
-            else
+            if (safeLock.EnterLock(ref safeLock))
             {
-                int ind = executionOrder.IndexOf(processedStat);
-                if (ind != 0)
-                    executionOrder.Move(ind, 0);
-            }
 
-            if (processedStat.outputToLog)
-                Debug.Log(processedStat.ToPEGIstring());
+                processedStat = allStats[index];
+
+                if (!processedStat.addedToList)
+                    Create(index, name);
+                else
+                {
+                    if (executionOrder.Contains(processedStat))
+                    {
+
+                        int ind = executionOrder.IndexOf(processedStat);
+                        if (ind > 0)
+                        {
+                            if (ind >= executionOrder.Count)
+                                Debug.Log("Debug element is " + ind + " while length is " + executionOrder.Count);
+                            else
+                                executionOrder.Move(ind, 0);
+                        }
+                    }
+                    else
+                        Debug.Log("List doesn't contain elemnt "+name);
+                }
+
+                if (processedStat.outputToLog)
+                    Debug.Log(processedStat.ToPEGIstring());
+
+                safeLock.Unlock(ref safeLock);
+            }
 
             return this;
         }

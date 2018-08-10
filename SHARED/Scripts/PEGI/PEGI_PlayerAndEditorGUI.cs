@@ -4768,6 +4768,15 @@ namespace PlayerAndEditorGUI
         }
 
         // ...... of New()
+
+        public static bool edit_List<T>(this string label, object nameProvider, List<T> list, ref int edited, bool allowDelete) where T : new()
+        {
+            label = edited == -1 ? label : nameProvider.ToPEGIstring();
+
+            label.write_ListLabel(list, edited);
+            return list.edit_List(ref edited, allowDelete);
+        }
+        
         public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T :  new()
         {
             label.write_ListLabel(list, edited);
@@ -4914,7 +4923,6 @@ namespace PlayerAndEditorGUI
 
         }
   
-
         public static bool write_List<T>(this List<T> list, Func<T, bool> lambda) 
         {
             bool changed = false;
@@ -4935,8 +4943,7 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-
-
+        
         public static bool write_List<T>(this string label, List<T> list)
         {
             int edited = -1;

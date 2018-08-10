@@ -317,9 +317,14 @@ namespace SharedTools_Stuff
             val = data.DecodeInto<T>();
             return val;
         }
-        
-        public static T DecodeInto<T>(this string data) where T : ISTD, new() => new StdDecoder(data).DecodeTagsFor(new T());
-        
+
+        public static T DecodeInto<T>(this string data) where T : ISTD, new()
+        {
+            var obj = new T();
+            obj.Decode(data);
+            return obj;
+        }
+
         public static bool TryDecodeInto<T>(this string data, T val) =>  (val as ISTD).Decode_ifNotNull(data);
 
         public static bool Decode_ifNotNull(this ISTD istd, string data) {
