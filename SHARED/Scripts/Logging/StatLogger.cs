@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 
-namespace SharedTools_Stuff {
+namespace SharedTools_Stuff
+{
 
     public enum StatLogging_ExampleEnum { Started, DataUpdated, DataProcessed, Ended }
-    
-    public class StatLogger: IPEGI {
+
+    public class StatLogger : IPEGI
+    {
         readonly UnnullableSTD<LogStat> allStats = new UnnullableSTD<LogStat>();
 
         List<LogStat> executionOrder = new List<LogStat>();
 
         public LogStat processedStat = null;
 
-        void Create (int index, string name)
+        void Create(int index, string name)
         {
             if (executionOrder.Count == 0)
                 executionOrder.Add(processedStat);
@@ -30,53 +33,52 @@ namespace SharedTools_Stuff {
 
         public StatLogger Get(int index, string name)
         {
-            if (safeLock.EnterLock(ref safeLock))
-            {
-                processedStat = allStats[index];
+            if (loopLock.Unlocked)
+                using (loopLock.Lock())
+                {
+                    processedStat = allStats[index];
 
-                if (!processedStat.addedToList)
-                    Create(index, name);
+                    if (!processedStat.addedToList)
+                        Create(index, name);
 
-                safeLock.Unlock(ref safeLock);
-            }
+                }
 
             return this;
         }
-
-
-        bool safeLock;
+        
+        LoopLock loopLock = new LoopLock();
         public StatLogger StatMoveToFirst(int index, string name)
         {
-            if (safeLock.EnterLock(ref safeLock))
-            {
-
-                processedStat = allStats[index];
-
-                if (!processedStat.addedToList)
-                    Create(index, name);
-                else
+            if (loopLock.Unlocked)
+                using (loopLock.Lock())
                 {
-                    if (executionOrder.Contains(processedStat))
-                    {
 
-                        int ind = executionOrder.IndexOf(processedStat);
-                        if (ind > 0)
-                        {
-                            if (ind >= executionOrder.Count)
-                                Debug.Log("Debug element is " + ind + " while length is " + executionOrder.Count);
-                            else
-                                executionOrder.Move(ind, 0);
-                        }
-                    }
+                    processedStat = allStats[index];
+
+                    if (!processedStat.addedToList)
+                        Create(index, name);
                     else
-                        Debug.Log("List doesn't contain elemnt "+name);
+                    {
+                        if (executionOrder.Contains(processedStat))
+                        {
+
+                            int ind = executionOrder.IndexOf(processedStat);
+                            if (ind > 0)
+                            {
+                                if (ind >= executionOrder.Count)
+                                    Debug.Log("Debug element is " + ind + " while length is " + executionOrder.Count);
+                                else
+                                    executionOrder.Move(ind, 0);
+                            }
+                        }
+                        else
+                            Debug.Log("List doesn't contain elemnt " + name);
+                    }
+
+                    if (processedStat.outputToLog)
+                        Debug.Log(processedStat.ToPEGIstring());
+
                 }
-
-                if (processedStat.outputToLog)
-                    Debug.Log(processedStat.ToPEGIstring());
-
-                safeLock.Unlock(ref safeLock);
-            }
 
             return this;
         }
@@ -127,14 +129,16 @@ namespace SharedTools_Stuff {
                     return retVal;
                 else return "Not Set";
             }
-            set { events[key] = value;
+            set
+            {
+                events[key] = value;
                 if (outputToLog)
-                    Debug.Log(name + " "+key + value);
+                    Debug.Log(name + " " + key + value);
             }
         }
 
         public bool outputToLog = false;
-        
+
         void Reset()
         {
             count = 0;
@@ -144,7 +148,8 @@ namespace SharedTools_Stuff {
 #if PEGI
         public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
 
-        public bool PEGI_inList(IList list, int ind, ref int edited) {
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
             this.ToPEGIstring().write();
             if (icon.Edit.Click())
                 edited = myIndex;
@@ -162,7 +167,7 @@ namespace SharedTools_Stuff {
             changed |= "Output To Log".toggle(ref outputToLog).nl();
 
             if (count > 0 && ("Reset Count " + count).Click().nl())
-                    count = 0;
+                count = 0;
 
             if (value > 0 && ("Reset Value " + value).Click().nl())
                 value = 0;

@@ -20,6 +20,33 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
+
+    public class LoopLock
+    {
+        bool llock;
+
+        public SkipLock Lock() => new SkipLock(this);
+
+        public bool Unlocked => !llock;
+
+        public class SkipLock : IDisposable
+        {
+            public void Dispose()
+            {
+                creator.llock = false;
+            }
+
+            public LoopLock creator;
+
+            public SkipLock(LoopLock make)
+            {
+                creator = make;
+            }
+        }
+
+    }
+
+
     public static class CsharpFuncs
     {
         static Stopwatch stopWatch = new Stopwatch();
@@ -41,18 +68,6 @@ namespace SharedTools_Stuff
             UnityEngine.Debug.Log(text);
 #endif
         }
-
-        public static bool EnterLock (this bool l, ref bool loopLock)
-        {
-                if (loopLock == false)
-                {
-                    loopLock = true;
-                    return true;
-                }
-                return false;
-        }
-
-        public static void Unlock(this bool l, ref bool loopLock) { loopLock = false; }
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
