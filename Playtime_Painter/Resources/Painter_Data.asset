@@ -23,16 +23,16 @@ MonoBehaviour:
   - {fileID: 28527172590876102, guid: 3fa68bc81dc209c40abc9006e8e85222, type: 2}
   - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 2800000, guid: d0f92a4ed08135042b3f5c2a555f4076, type: 3}
-  - {fileID: 2800000, guid: 0dade6ba030a46c4e8e49f84fcf3ef40, type: 3}
-  - {fileID: 2800000, guid: 4fb98d5a8a4e19e4fb8e2372d9246ed3, type: 3}
-  - {fileID: 2800000, guid: 9571b9a5ef50cd54484c424553bb49bd, type: 3}
-  - {fileID: 2100000, guid: 827df35a2169c114cb7187909446796a, type: 2}
-  - {fileID: 2100000, guid: f6b92f845b9bb59409ee83d3a7dca75d, type: 2}
-  - {fileID: 2100000, guid: 3397e8579bcae954b9d44cc80a776f91, type: 2}
-  - {fileID: 2100000, guid: 409ed21ece4ae2946a67f98101778a75, type: 2}
-  - {fileID: 2100000, guid: f339cf3780371014a8df9491e8b74bfc, type: 2}
-  - {fileID: 2100000, guid: c1fe3c5a06408dd48a8f71f66ae0d0d4, type: 2}
-  - {fileID: 2100000, guid: 2f6d944dceb24694bad27fae40788d29, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   explorer:
     states: []
     inspectedState: -1
@@ -41,10 +41,8 @@ MonoBehaviour:
   showDebug: 0
   inspectedStuff: -1
   inspectedReference: -1
-  STDdata: imgs|1215|e|188|dst|1|0|tex2D|2|11|w|4|1824|h|4|1160|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|60|mountain-gorilla_thumb.ngsversion.1485187202412.adapt.1900.1|svs|0|||e|142|dst|1|0|tex2D|2|12|w|3|512|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|13|Fur
-    - ID - 05|svs|0|||e|143|dst|1|0|tex2D|2|13|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|13|Fur
-    - ID - 02|svs|0|||e|140|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0|||e|139|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0|||e|137|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
-    0|svs|0|||e|137|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0|||e|133|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed|svs|0||||mats|423|e|27|mat|2|14|texInd|1|0|pv|1|n||e|27|mat|2|15|texInd|1|0|pv|1|y||e|27|mat|2|16|texInd|1|0|pv|1|y||e|27|mat|2|17|texInd|1|0|pv|1|n||e|27|mat|2|18|texInd|1|0|pv|1|n||e|27|mat|2|19|texInd|1|0|pv|1|y||e|27|mat|2|20|texInd|1|0|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|0|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
+  STDdata: imgs|721|e|140|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0|||e|139|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0|||e|137|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
+    0|svs|0|||e|137|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0|||e|133|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed|svs|0||||mats|192|e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|0|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
   br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
   br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}

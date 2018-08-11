@@ -29,6 +29,22 @@ namespace SharedTools_Stuff
             return value;
         }
 
+        public static bool MouseToPlane(this Plane _plane, out Vector3 hitPos)
+        {
+            Ray ray = EditorInputManager.GetScreenRay();
+            float rayDistance;
+            if (_plane.Raycast(ray, out rayDistance))
+            {
+                hitPos = ray.GetPoint(rayDistance);
+                return true;
+            }
+
+            hitPos = Vector3.zero;
+
+            return false;
+        }
+
+
         public static Vector2 Rotate(this Vector2 v, float degrees)
         {
             float sin = Mathf.Sin(degrees);
