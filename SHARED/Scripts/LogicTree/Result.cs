@@ -86,7 +86,7 @@ namespace STD_Logic  {
                 if (icon.Delete.Click())
                     DeleteNo = i;
 
-                changed |= r.PEGI(i, "Res");
+                changed |= r.FocusedField_PEGI(i, "Res");
 
                 changed |= r.Trigger._usage.Inspect(r);
 

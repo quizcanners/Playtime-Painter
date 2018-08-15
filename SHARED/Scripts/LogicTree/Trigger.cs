@@ -29,7 +29,7 @@ namespace STD_Logic
         public static bool showTriggers;
         public static int searchMatchesFound;
 
-        public static Trigger edited;
+        public static Trigger editedTrigger;
         public string name = "";
         public bool isStatic;
 
@@ -115,7 +115,7 @@ namespace STD_Logic
             if (_usage.HasMoreTriggerOptions())
             {
                 if (icon.Close.Click(20))
-                    Trigger.edited = null;
+                    Trigger.editedTrigger = null;
             }
 
             changed |= _usage.Inspect(this).nl();
@@ -139,7 +139,7 @@ namespace STD_Logic
             name.write();
 
             if (icon.Edit.Click(20))
-                Trigger.edited = this;
+                Trigger.editedTrigger = this;
 
             return chnaged;
         }

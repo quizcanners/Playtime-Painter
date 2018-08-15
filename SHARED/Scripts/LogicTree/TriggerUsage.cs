@@ -255,7 +255,7 @@ namespace STD_Logic
 
             pegi.newLine();
 
-            if (Trigger.edited != t) return changed;
+            if (Trigger.editedTrigger != t) return changed;
 
             pegi.write("__ Enums__");
 
@@ -402,7 +402,7 @@ namespace STD_Logic
 
             pegi.newLine();
 
-            if (Trigger.edited != t) return changed;
+            if (Trigger.editedTrigger != t) return changed;
 
             pegi.write("__ Tags __");
 

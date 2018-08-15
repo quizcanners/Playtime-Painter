@@ -60,14 +60,16 @@ namespace STD_Logic
 
         public static string focusName;
 
-        public bool PEGI(int index, string prefix)
+        public static ValueIndex edited;
+
+        public bool FocusedField_PEGI(int index, string prefix)
         {
             bool changed = false;
 
-            if (Trigger.edited != Trigger)
+         /*   if (edited != this)
             {
                 if (icon.Edit.Click(20))
-                    Trigger.edited = Trigger;
+                    edited = this;*/
 
                 focusName = prefix + index;
 
@@ -80,9 +82,9 @@ namespace STD_Logic
                 else
                     changed |= pegi.edit(ref tmpname);
 
-            }
+          /*  }
             else if (icon.Close.Click(20))
-                Trigger.edited = null;
+                edited = null;*/
 
             return changed;
         }
@@ -97,14 +99,10 @@ namespace STD_Logic
 
             Trigger t = Trigger;
 
-            if (t == Trigger.edited)
-            {
+            if (this == edited)
                 t.PEGI();
-                pegi.newLine();
-                changed |= t._usage.Inspect(t);
-            }
 
-            if ((pegi.nameFocused == (focusName)) && (t != Trigger.edited))
+            if ((pegi.nameFocused == (focusName)) && (this != edited))
             {
                 selected = this;
 
@@ -127,7 +125,7 @@ namespace STD_Logic
 
             pegi.newLine();
 
-            if (selected == this)
+            if (this == selected)
                 changed |= Group.AddTrigger_PEGI(this);
 
             return changed;

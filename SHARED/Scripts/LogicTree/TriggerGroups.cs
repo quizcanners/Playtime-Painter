@@ -214,12 +214,12 @@ namespace STD_Logic
                 Trigger.Search_PEGI();
             }
             
-            if (Trigger.edited != null)
+            if (Trigger.editedTrigger != null)
             {
                 if (icon.Close.Click())
-                    Trigger.edited = null;
+                    Trigger.editedTrigger = null;
 
-                Trigger.edited.PEGI();
+                Trigger.editedTrigger.PEGI();
             }
             else
             {
@@ -267,11 +267,11 @@ namespace STD_Logic
                     t.PEGI();
 
                     if (t._usage.HasMoreTriggerOptions()) {
-                        if (Trigger.edited != t) {
+                        if (Trigger.editedTrigger != t) {
                             if (icon.Edit.Click(20))
-                                Trigger.edited = t;
+                                Trigger.editedTrigger = t;
                         } else if (icon.Close.Click(20))
-                            Trigger.edited = null;
+                            Trigger.editedTrigger = null;
                     }
 
                     changed |= t._usage.Inspect(t);
@@ -319,9 +319,14 @@ namespace STD_Logic
                         changed = true;
                     }
 
-                    int slctd = Browsed.IndexForPEGI ;
-                    if (pegi.select(ref slctd, all))
-                        Browsed = all[slctd];
+                    if (Browsed != null)
+                    {
+                        int slctd = Browsed.IndexForPEGI;
+                        if (pegi.select(ref slctd, all))
+                            Browsed = all[slctd];
+                    }
+                    else
+                        "No Trigger Groups found".nl();
 
                 }
                 pegi.newLine();

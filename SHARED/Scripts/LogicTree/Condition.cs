@@ -27,11 +27,23 @@ namespace STD_Logic
 
 #if PEGI
         
-        public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+        public virtual bool PEGI_inList(IList list, int ind, ref int inspected) {
 
-            bool changed = PEGI(ind, "Cond");
+            bool changed = false;
 
-            Trigger._usage.Inspect(this);
+
+            if (this != edited)
+            {
+                FocusedField_PEGI(ind, "Cond");
+
+                Trigger._usage.Inspect(this);
+                if (icon.Edit.Click())
+                    edited = this;
+            }
+            else
+                if (icon.FoldedOut.Click())
+                    edited = null;
+            
 
             changed |= SearchAndAdd_PEGI(ind);
 
@@ -44,7 +56,8 @@ namespace STD_Logic
 
         public ConditionLogic()
         {
-            groupIndex = TriggerGroup.Browsed.IndexForPEGI;
+            if (TriggerGroup.Browsed != null)
+                groupIndex = TriggerGroup.Browsed.IndexForPEGI;
         }
 
     }
@@ -159,7 +172,7 @@ namespace STD_Logic
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = PEGI(0, "Cond");
+            bool changed = FocusedField_PEGI(0, "Cond");
 
             Trigger._usage.Inspect(this);
 

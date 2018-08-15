@@ -38,7 +38,8 @@ namespace STD_Logic
             .Add_ifNotZero("t", (int)type)
             .Add_String("d", description)
             .Add("tag", targ)
-            .Add_ifNotNegative("insB", browsedBranch);
+            .Add_ifNotNegative("insB", browsedBranch)
+            .Add("ic", browsedCondition);
         
         public override bool Decode(string subtag, string data)
         {
@@ -50,6 +51,7 @@ namespace STD_Logic
                 case "wb": data.DecodeInto(out branches); break;
                 case "v": data.DecodeInto(out conds); break;
                 case "insB": browsedBranch = data.ToInt(); break;
+                case "ic": browsedCondition = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -128,6 +130,7 @@ namespace STD_Logic
         }
         
         int browsedBranch = -1;
+        int browsedCondition = -1;
 
 #if PEGI
         static string path;
@@ -143,7 +146,6 @@ namespace STD_Logic
 
             if (!showDebug)
             {
-     
 
                 if (!isCalledFromAnotherBranch)
                     path = "Cnds";
@@ -163,7 +165,7 @@ namespace STD_Logic
                             ))
                         type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                    conds.edit_List(true);
+                    conds.edit_List(ref browsedCondition, true);
 
                     changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
 
