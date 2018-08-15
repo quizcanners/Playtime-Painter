@@ -86,7 +86,10 @@ namespace SharedTools_Stuff
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
 
         public virtual bool Decode(string tag, string data) => false;
-        
+
+#if !UNITY_EDITOR
+        [NonSerialized]
+#endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
         public bool showDebug;
@@ -247,8 +250,12 @@ namespace SharedTools_Stuff
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
-        
+
+#if !UNITY_EDITOR
+        [NonSerialized]
+#endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
+
 
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
@@ -300,13 +307,16 @@ namespace SharedTools_Stuff
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
-        public virtual void Reboot() {
-            uTags.Clear();
-        }
+        public virtual void Reboot() => uTags.Clear();
+        
         public abstract bool Decode(string tag, string data);
         public abstract StdEncoder Encode();
 
+#if !UNITY_EDITOR
+        [NonSerialized]
+#endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
+
         public bool showDebug;
 
 #if PEGI
@@ -407,7 +417,7 @@ namespace SharedTools_Stuff
         
     }
 
-    #endregion
+#endregion
 
 
 

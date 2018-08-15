@@ -722,8 +722,7 @@ namespace STD_Animations
         public float AngleOfDeltaLocalRotation { get { if (!transform) return 0; return Quaternion.Angle(transform.localRotation, LocalRotation); } }
         public float DeltaShaderValue { get { return currentShaderValue - ShaderValue; } }
         public IAnimated_STD_PEGI AnimSTD => script as IAnimated_STD_PEGI;
-
-
+        
         public void SetCurrentShaderValue(float value)
         {
 

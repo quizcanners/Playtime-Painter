@@ -23,7 +23,7 @@ namespace SharedTools_Stuff
 
     public class LoopLock
     {
-        bool llock;
+        volatile bool llock;
 
         public SkipLock Lock() => new SkipLock(this);
 
@@ -36,7 +36,7 @@ namespace SharedTools_Stuff
                 creator.llock = false;
             }
 
-            public LoopLock creator;
+            public volatile LoopLock creator;
 
             public SkipLock(LoopLock make)
             {

@@ -4131,14 +4131,13 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        static void write_ListLabel(this string label, IList lst, int inspected)
+        static void write_ListLabel(this string label, object nameProvider, IList lst, int edited)
         {
-
-
-
-            // if (inspected == -1)
-            write(label, PEGI_Styles.ListLabel); //else write(label);
+            label = edited == -1 ? label : nameProvider.ToPEGIstring();
+            label.write_ListLabel(lst, edited);
         }
+
+        static void write_ListLabel(this string label, IList lst, int inspected) => write(label, PEGI_Styles.ListLabel);
 
         static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index)
         {
@@ -4713,6 +4712,18 @@ namespace PlayerAndEditorGUI
             return list.edit_or_select_List_Obj(null, ref edited, true, datas);
         }
 
+        public static bool edit_or_select_List_Obj<T>(this string label, object nameProvider, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        {
+            label.write_ListLabel(nameProvider, list, edited);
+            return edit_or_select_List_Obj(list, from, ref edited, allowDelete, datas);
+        }
+
+        public static bool edit_or_select_List_Obj<T>(this string label, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        {
+            label.write_ListLabel(list, edited);
+            return edit_or_select_List_Obj(list, from, ref  edited, allowDelete, datas);
+        }
+        
         public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
         {
 
@@ -4759,7 +4770,9 @@ namespace PlayerAndEditorGUI
                     }
                     list.InspectionEnd().nl();
                 }
-                else list.list_DropOption();
+                else
+                    list.list_DropOption();
+                
             }
             else changed |= list.ExitOrDrawPEGI(ref edited);
             newLine();
@@ -4771,9 +4784,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List<T>(this string label, object nameProvider, List<T> list, ref int edited, bool allowDelete) where T : new()
         {
-            label = edited == -1 ? label : nameProvider.ToPEGIstring();
-
-            label.write_ListLabel(list, edited);
+            label.write_ListLabel(nameProvider, list, edited);
             return list.edit_List(ref edited, allowDelete);
         }
         

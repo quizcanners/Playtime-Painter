@@ -11,28 +11,37 @@ namespace SharedTools_Stuff
 
     public class StatLogger : IPEGI
     {
+
+#if PEGI
         readonly UnnullableSTD<LogStat> allStats = new UnnullableSTD<LogStat>();
 
         List<LogStat> executionOrder = new List<LogStat>();
 
         public LogStat processedStat = null;
+#endif
 
         void Create(int index, string name)
         {
-            if (executionOrder.Count == 0)
-                executionOrder.Add(processedStat);
-            else
-                executionOrder.Insert(0, processedStat);
 
-            processedStat.name = name;
+#if PEGI
+            lock (executionOrder) {
+                if (executionOrder.Count == 0)
+                    executionOrder.Add(processedStat);
+                else
+                    executionOrder.Insert(0, processedStat);
 
-            processedStat.myIndex = index;
+                processedStat.name = name;
 
-            processedStat.addedToList = true;
+                processedStat.myIndex = index;
+
+                processedStat.addedToList = true;
+            }
+#endif
         }
 
         public StatLogger Get(int index, string name)
         {
+#if PEGI
             if (loopLock.Unlocked)
                 using (loopLock.Lock())
                 {
@@ -42,52 +51,73 @@ namespace SharedTools_Stuff
                         Create(index, name);
 
                 }
-
+#endif
             return this;
         }
         
-        LoopLock loopLock = new LoopLock();
+        volatile LoopLock loopLock = new LoopLock();
         public StatLogger StatMoveToFirst(int index, string name)
         {
-            if (loopLock.Unlocked)
-                using (loopLock.Lock())
-                {
+#if PEGI
 
-                    processedStat = allStats[index];
-
-                    if (!processedStat.addedToList)
-                        Create(index, name);
-                    else
+            lock (executionOrder)
+            {
+                if (loopLock.Unlocked)
+                    using (loopLock.Lock())
                     {
-                        if (executionOrder.Contains(processedStat))
-                        {
 
-                            int ind = executionOrder.IndexOf(processedStat);
-                            if (ind > 0)
-                            {
-                                if (ind >= executionOrder.Count)
-                                    Debug.Log("Debug element is " + ind + " while length is " + executionOrder.Count);
-                                else
-                                    executionOrder.Move(ind, 0);
-                            }
-                        }
+                        processedStat = allStats[index];
+
+                        if (!processedStat.addedToList)
+                            Create(index, name);
                         else
-                            Debug.Log("List doesn't contain elemnt " + name);
+                        {
+                            if (executionOrder.Contains(processedStat))
+                            {
+
+                                int ind = executionOrder.IndexOf(processedStat);
+                                if (ind > 0)
+                                {
+                                    if (ind >= executionOrder.Count)
+                                        Debug.Log("Debug element is " + ind + " while length is " + executionOrder.Count);
+                                    else
+                                        executionOrder.Move(ind, 0);
+                                }
+                            }
+                            else
+                                Debug.Log("List doesn't contain elemnt " + name);
+                        }
+
+                        if (processedStat.outputToLog)
+                            Debug.Log(processedStat.ToPEGIstring());
+
                     }
-
-                    if (processedStat.outputToLog)
-                        Debug.Log(processedStat.ToPEGIstring());
-
-                }
-
+            }
+#endif
             return this;
         }
 
-        public void AddOne() => processedStat.count += 1;
+        public void AddOne()
+#if PEGI
+            => processedStat.count += 1;
+#else
+        {}
+#endif
 
-        public void Add(float value) => processedStat.value += value;
+        public void Add(float value)
+#if PEGI
+            => processedStat.value += value;
+#else
+        {}
+#endif
 
-        public void Rename(string name) => processedStat.name = name;
+        public void Rename(string name)
+#if PEGI
+            => processedStat.name = name;
+#else
+        {}
+#endif
+
 
 #if PEGI
 

@@ -1270,18 +1270,19 @@ namespace PlayerAndEditorGUI {
                         text = el.ToPEGIstring()
                     };
 
-                    rect.width = 100;
-                    EditorGUI.LabelField(rect, cont);
-                    rect.x += 100;
+                 
 
                     var uo = el as UnityEngine.Object;
-                    if (uo) {
-                        ty.ToPEGIstring().write();
-                        uo.clickHighlight();
-                        }
-                    else 
-                    if (select_Type(ref ty, current_Reordered_ListTypes, rect))
-                        current_Reordered_List[index] = (el as ISTD).TryDecodeInto<object>(ty);
+                    if (uo)
+                        EditorGUI.ObjectField(rect, cont, uo, current_Reordered_Type, true);
+                    else
+                    {
+                        rect.width = 100;
+                        EditorGUI.LabelField(rect, cont);
+                        rect.x += 100;
+                        if (select_Type(ref ty, current_Reordered_ListTypes, rect))
+                            current_Reordered_List[index] = (el as ISTD).TryDecodeInto<object>(ty);
+                    }
                 }
                 else
                 {
