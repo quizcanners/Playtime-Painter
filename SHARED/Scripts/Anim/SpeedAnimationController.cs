@@ -12,9 +12,9 @@ namespace STD_Animations
     [ExecuteInEditMode]
     public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish, IKeepMySTD
     {
-
         // Elements
-        [SerializeField] List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
+        //[SerializeField]
+        List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
 
         [NonSerialized] public Countless<AnimatedElement> elements = new Countless<AnimatedElement>();
         [SerializeField] int keyElementIndex;
@@ -24,6 +24,7 @@ namespace STD_Animations
             get { return elements?[keyElementIndex]; }
             set { keyElementIndex = value.IndexForPEGI; }
         }
+        public bool decodeOnEnable = false;
 
         // Frames
         [SerializeField] string std_Data;
@@ -136,16 +137,18 @@ namespace STD_Animations
 
         public override ISTD Decode(string data)
         {
-            inspectedAnimationController = this;
+            processedAnimationController = this;
 
-            frameIndex = 0;
+            Reboot();
+
+            UpdateCountless();
 
             base.Decode(data); 
 
             if (setFirstFrame && CurrentFrame != null)
                 Set();
 
-            inspectedAnimationController = null;
+            processedAnimationController = null;
 
             return this;
 
@@ -153,7 +156,7 @@ namespace STD_Animations
 
         void Update()
         {
-            inspectedAnimationController = this;
+            processedAnimationController = this;
 
             if (!Application.isPlaying)
             {
@@ -201,7 +204,7 @@ namespace STD_Animations
             }
         }
 
-        public static SpeedAnimationController inspectedAnimationController;
+        public static SpeedAnimationController processedAnimationController;
 
         float editor_FramePortion = 0;
 #if PEGI
@@ -219,24 +222,23 @@ namespace STD_Animations
             if (!showDebug)
             {
 
-                if (icon.Save.Click())
-                {
-                    OnDisable();
-                    this.UpdatePrefab(gameObject);//gameObject.UpdatePrefab();
+                "Auto Load".toggle("Object will load it's own data OnEnable",50 , ref decodeOnEnable);
 
+                if (icon.Save.Click()) {
+                    this.Save_STDdata();
+                    this.UpdatePrefab(gameObject);
                 }
+
                 if (icon.Load.Click().nl())
-                    OnEnable();
+                    this.Load_STDdata(); 
 
-                inspectedAnimationController = this;
-
-
+                processedAnimationController = this;
+                
                 pegi.write("Speed From:", 70);
                 if (CurrentFrame == null || !CurrentFrame.isOverrideSpeed)
                     pegi.editEnum(ref speedSource);
                 else
-                    pegi.write(CurrentFrame.frameSpeedSource.ToString(), 50); //pegi.editEnum(ref currentFrame.frameSpeedSource);
-
+                    pegi.write(CurrentFrame.frameSpeedSource.ToString(), 50); 
 
                 if (KeyElement != null)
                     ("of " + KeyElement.NameForPEGI).nl();
@@ -246,8 +248,6 @@ namespace STD_Animations
                     "No Key element".writeWarning();
                 }
                 pegi.newLine();
-
-             //   ("Current: " + (frameIndex + 1) + " of " + frames.Count).nl();
 
                 if (frameIndex == 0)
                     "Set First Frame".toggle("Will first frame be set instead of transitioned to", 90, ref setFirstFrame).nl();
@@ -310,8 +310,7 @@ namespace STD_Animations
 
                 if (icon.Search.Click())
                 {
-
-
+                    
                     foreach (var e in elementsUnsorted)
                     {
 
@@ -383,7 +382,7 @@ namespace STD_Animations
                 AnimateToPortion(editor_FramePortion);
 
 
-            inspectedAnimationController = null;
+            processedAnimationController = null;
 
             return changed;
         }
@@ -420,35 +419,11 @@ namespace STD_Animations
 
         public void OnEnable()
         {
-
-            inspectedAnimationController = this;
-
-            Reboot();
-
-            UpdateCountless();
-
-            Decode(std_Data);
+            if (decodeOnEnable)
+                this.Load_STDdata();
             
-            inspectedAnimationController = null;
         }
-
-        void OnDisable()
-        {
-            var data = "";
-
-            try
-            {
-                data = Encode().ToString();
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("Failed to Encode animation " + ex.ToString());
-                return;
-            }
-
-            std_Data = data;
-        }
-
+        
         public override void Reboot()
         {
             base.Reboot();
@@ -460,7 +435,6 @@ namespace STD_Animations
 
             if (frames == null)
                 frames = new List<SpeedAnimationFrame>();
-
         }
 
         public void FadeAway()
@@ -508,7 +482,7 @@ namespace STD_Animations
     public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD, IPEGI
     {
 
-        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
+        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.processedAnimationController; } }
 
         public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
 
@@ -620,6 +594,7 @@ namespace STD_Animations
                 other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
                 other.localRotation.Encode().ToString().DecodeInto(out localRotation);
                 other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
+                other.emit.Encode().ToString().DecodeInto(out emit);
                 isOverrideSpeed = other.isOverrideSpeed;
                 frameSpeed = other.frameSpeed;
                 frameSpeedSource = other.frameSpeedSource;
@@ -637,8 +612,8 @@ namespace STD_Animations
 
     {
         [NonSerialized] MaterialPropertyBlock props;
-        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.inspectedAnimationController; } }
-        public SpeedAnimationFrame Frame { get { return SpeedAnimationController.inspectedAnimationController.CurrentFrame; } }
+        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.processedAnimationController; } }
+        public SpeedAnimationFrame Frame { get { return SpeedAnimationController.processedAnimationController.CurrentFrame; } }
         public static AnimatedElement inspectedAnimatedObject;
 
         [SerializeField] int index;
