@@ -346,8 +346,10 @@ namespace SharedTools_Stuff
         
         public StdEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
         
-        public StdEncoder Add(string tag, Transform  tf) => Add(tag, tf.Encode(true));
-        
+        public StdEncoder Add(string tag, Transform tf) => Add(tag, tf.Encode(true));
+
+        public StdEncoder Add(string tag, Transform tf, bool local) => Add(tag, tf.Encode(local));
+
         public StdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
 
         public StdEncoder Add(string tag, List<int> val)

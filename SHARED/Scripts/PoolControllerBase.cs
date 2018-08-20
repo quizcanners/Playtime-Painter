@@ -102,10 +102,10 @@ namespace SharedTools_Stuff
             if (browsedObject != -1)
             {
                 T tmp = scripts[browsedObject];
-                if (((!tmp.gameObject.activeSelf)) || (pegi.Click("< Objects")))
+                if (((!tmp.gameObject.activeSelf)) || ("< Objects".Click()))
                     browsedObject = -1;
                 else
-                    tmp.PEGI();
+                    tmp.Nested_Inspect();
             }
 
             pegi.newLine();
@@ -121,9 +121,8 @@ namespace SharedTools_Stuff
                         if (pegi.edit(ref name))
                             tmp.gameObject.name = name;
 
-                        if (pegi.Click(">"))
+                        if (">".Click().nl())
                             browsedObject = i;
-                        pegi.newLine();
                     }
                 }
             return false;
@@ -131,10 +130,8 @@ namespace SharedTools_Stuff
 
 #endif
 
-        public override bool ActiveSelf(int i)
-        {
-            return scripts[i].gameObject.activeSelf;
-        }
+        public override bool ActiveSelf(int i) => scripts[i].gameObject.activeSelf;
+        
 
         protected override void ExpandArrays()
         {
@@ -223,20 +220,12 @@ namespace SharedTools_Stuff
             activeMax = 0;
         }
 
-        public override Component GetScript(int i)
-        {
-            return scripts[i];
-        }
-
-        public override Component GetScript()
-        {
-            return GetOne();
-        }
-
-        public override GameObject GetFreeGO()
-        {
-            return GetOne().gameObject;
-        }
+        public override Component GetScript(int i) => scripts[i];
+        
+        public override Component GetScript() => GetOne();
+        
+        public override GameObject GetFreeGO() => GetOne().gameObject;
+        
 
         protected override void Init(int bufferSize)
         {

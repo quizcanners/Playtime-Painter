@@ -39,9 +39,6 @@ namespace SharedTools_Stuff
     public class DerrivedListAttribute : Attribute
     {
         public readonly List<Type> derrivedTypes;
-       // public List<Type> DerrivedTypes { get { return _types; } }
-        
-
         public DerrivedListAttribute(params Type[] ntypes)
         {
             derrivedTypes = new List<Type>(ntypes);

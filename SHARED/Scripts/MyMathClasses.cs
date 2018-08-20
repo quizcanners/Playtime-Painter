@@ -43,8 +43,7 @@ namespace SharedTools_Stuff
 
             return false;
         }
-
-
+        
         public static Vector2 Rotate(this Vector2 v, float degrees)
         {
             float sin = Mathf.Sin(degrees);
@@ -79,7 +78,9 @@ namespace SharedTools_Stuff
             return new Vector3((int)v3.x, (int)v3.y, (int)v3.z);
         }
 
-        static float SpeedToPortion (this float speed, float dist) => dist > 0 ? Mathf.Clamp01(speed* Time.deltaTime / dist) : 1;
+        public static float DistanceRGB (this Color col, Color other) => (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
+        
+        public static float SpeedToPortion (this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
 
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
