@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/PixArt/ForPixelArtMesh" {
+﻿Shader "PlaytimePainter/PixArt/ForPixelArtMesh" {
 	Properties {
 		_MainTex("_MainTex", 2D) = "white" {}
 	//_ExplodedTex ("_ExplodedTex", 2D) = "white" {}

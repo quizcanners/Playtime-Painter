@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "Painter_Experimental/PixArt/SmoothPixels" {
+Shader "PlaytimePainter/PixArt/SmoothPixels" {
 	Properties {
 		//_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}

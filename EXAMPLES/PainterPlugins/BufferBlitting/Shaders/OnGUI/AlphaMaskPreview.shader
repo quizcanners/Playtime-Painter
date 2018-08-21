@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/BufferBlit/GUI/AlphaMaskPreview" {
+﻿Shader "PlaytimePainter/BufferBlit/GUI/AlphaMaskPreview" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 	_Power("Power", Range (1,8)) = 1

@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/BufferBlit/ColorReplacer" {
+﻿Shader "PlaytimePainter/BufferBlit/ColorReplacer" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 		_Color("New Color", Color) = (1,1,1,1)

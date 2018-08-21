@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/Surface_Atlased" {
+﻿Shader "PlaytimePainter/Surface_Atlased" {
 	Properties {
 		_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0

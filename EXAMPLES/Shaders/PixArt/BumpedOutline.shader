@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Painter_Experimental/PixArt/BumpedOutline" {
+Shader "PlaytimePainter/PixArt/BumpedOutline" {
 	Properties {
 		[NoScaleOffset] _MainTex ("Albedo (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_Bump ("Bump (RGB)", 2D) = "white" {}

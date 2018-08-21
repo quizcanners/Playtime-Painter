@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "Painter_Experimental/EyeGloss" {
+Shader "PlaytimePainter/Basic/EyeGloss" {
 	Properties{
 
 	}

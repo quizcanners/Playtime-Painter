@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/Water" {
+﻿Shader "PlaytimePainter/Water" {
 	Properties {
 		//_Color ("Color", Color) = (1,1,1,1)
 		_BumpMapC("BumpMap (RGB)", 2D) = "white" {}

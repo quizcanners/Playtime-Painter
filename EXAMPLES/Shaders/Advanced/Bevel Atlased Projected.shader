@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/Bevel/Bevel Atlased Projected" {
+﻿Shader "PlaytimePainter/Bevel/Bevel Atlased Projected" {
 	Properties{
 	[NoScaleOffset]_MainTex_ATL("Base texture (ATL)", 2D) = "white" {}
 	[KeywordEnum(None, Regular, Combined)] _BUMP ("Bump Map", Float) = 0

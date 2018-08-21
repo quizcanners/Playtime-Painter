@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/BufferBlit/AlphaDataSmoothing" {
+﻿Shader "PlaytimePainter/BufferBlit/AlphaDataSmoothing" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 	}

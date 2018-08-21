@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/VolumeBakedShadows" {
+﻿Shader "PlaytimePainter/VolumeBakedShadows" {
 	Properties {
 		_MainTex_ATL ("Albedo (RGB) (Atlas)", 2D) = "white" {}
 		//_Glossiness("Smoothness", Range(0,1)) = 0.5

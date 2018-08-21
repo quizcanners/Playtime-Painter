@@ -1,4 +1,4 @@
-﻿Shader "Painter_Experimental/TextureBakedShadows" {
+﻿Shader "PlaytimePainter/TextureBakedShadows" {
 	Properties{
 		[NoScaleOffset] _MainTex("_MainTex  (_ATL) (RGB)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0
