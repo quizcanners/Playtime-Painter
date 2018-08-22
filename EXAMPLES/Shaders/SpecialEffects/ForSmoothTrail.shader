@@ -52,7 +52,7 @@
 
 	float4 frag(v2f i) : COLOR{
 
-		i.texcoord.x = pow(1-i.texcoord.x,32);
+		i.texcoord.x = pow(1-i.texcoord.x,16);
 
 		float2 off = i.texcoord - 0.5;
 		off *= off;
