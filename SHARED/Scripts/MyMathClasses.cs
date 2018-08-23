@@ -82,6 +82,9 @@ namespace SharedTools_Stuff
         
         public static float SpeedToPortion (this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
 
+        public static void SpeedToMinPortion (this float speed, float dist, ref float portion) =>
+              portion = Mathf.Min(4f.SpeedToPortion(dist), portion);
+
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
