@@ -77,41 +77,34 @@ namespace PlayerAndEditorGUI
             public windowFunction funk;
             public Rect windowRect;
 
-            public void drawFunction(int windowID)
-            {
+            public void drawFunction(int windowID) {
                 paintingPlayAreaGUI = true;
 
-                try
-                {
+                try  {
+                  //  var scale = new Vector3(1, Screen.width / 512f, 1);
+                   // GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 
                     elementIndex = 0;
                     lineOpen = false;
                     PEGI_Extensions.focusInd = 0;
 
-                    //GUI.backgroundColor = Color.white;
-
                     funk();
+
+                    newLine();
+                    
+                    "Tip:{0}".F(GUI.tooltip).nl();
 
                     mouseOverUI = windowRect.Contains(Input.mousePosition);
 
-                    newLine();
-                    GUI.DragWindow(new Rect(0, 0, 10000, 20));
-                    newLine();
-                    //GUI.color = Color.white;
-
-                    if (GUI.tooltip != null && GUI.tooltip.Length > 0)
-                        "Tip:{0}".F(GUI.tooltip).nl();
+                    GUI.DragWindow();
                 }
                 catch (Exception ex)
                 {
 #if UNITY_EDITOR
                     UnityEngine.Debug.LogError(ex);
 #endif
-
-
                 }
-
-
+                
                 paintingPlayAreaGUI = false;
             }
 
@@ -129,7 +122,7 @@ namespace PlayerAndEditorGUI
 
             public windowPositionData()
             {
-                windowRect = new Rect(20, 20, 250, 400);
+                windowRect = new Rect(20, 20, 350, 400);
             }
         }
 
@@ -3404,9 +3397,8 @@ namespace PlayerAndEditorGUI
                 checkLine();
                 string before = val;
                 string newval = GUILayout.TextField(before);
-                if (String.Compare(before, newval) != 0)
-                {
-                    //val = newval;
+                if (String.Compare(before, newval) != 0) {
+                    val = newval;
                     return true;
                 }
                 return false;
@@ -3431,7 +3423,7 @@ namespace PlayerAndEditorGUI
                 string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
                 if (String.Compare(before, newval) != 0)
                 {
-                    //val = newval;
+                    val = newval;
                     return true;
                 }
                 return false;
@@ -3470,11 +3462,8 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(ref int current)
-        {
-            return selectEnum(ref current, typeof(T));
-        }
-
+        public static bool edit<T>(ref int current) => selectEnum(ref current, typeof(T));
+        
         public static bool edit(this string label, ref LinearColor col)
         {
             write(label);
@@ -3670,7 +3659,7 @@ namespace PlayerAndEditorGUI
         static void sliderText(this string label, float val, string tip, int width)
         {
             if (paintingPlayAreaGUI)
-                "{0} [{1}]".F(label,val.ToString()).write(width);
+                "{0} [{1}]".F(label,val.ToString("F3")).write(width);
             else
                 write(label, tip, width);
         }
@@ -3739,18 +3728,27 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, ref Color col)
         {
+            if (paintingPlayAreaGUI)
+                return false;
+
             write(label);
             return edit(ref col);
         }
 
         public static bool edit(this string label, int width, ref Color col)
         {
+            if (paintingPlayAreaGUI)
+                return false;
+
             write(label, width);
             return edit(ref col);
         }
 
         public static bool edit(this string label, string tip, int width, ref Color col)
         {
+            if (paintingPlayAreaGUI)
+                return false;
+
             write(label, tip, width);
             return edit(ref col);
         }

@@ -175,7 +175,8 @@ namespace STD_Logic  {
         
         public Result()
         {
-            groupIndex = TriggerGroup.Browsed.IndexForPEGI;
+            if (TriggerGroup.Browsed != null)
+                groupIndex = TriggerGroup.Browsed.IndexForPEGI;
         }
         
     }

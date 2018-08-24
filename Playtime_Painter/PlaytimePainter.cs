@@ -1859,39 +1859,31 @@ namespace Playtime_Painter{
             }
             else
             {
-                if (meshEditing)
-                {
+                if (meshEditing) {
 
                     MeshManager mg = MeshMGMT;
                     mg.Undo_redo_PEGI();
 
                     pegi.newLine();
+                    
+                    if (meshFilter != null) {
 
-
-                    if (meshFilter != null)
-                    {
-
-                        if (this != mg.target)
-                        {
+                        if (this != mg.target) {
                             if (SavedEditableMesh != null)
                                 "Got saved mesh data".nl();
                             else "No saved data found".nl();
                         }
-
-                
+                        
                         pegi.writeOneTimeHint("Warning, this will change (or mess up) your model.", "MessUpMesh");
 
-                        if (mg.target != this)
-                        {
+                        if (mg.target != this)  {
 
                             var ent = gameObject.GetComponent("pb_Entity");
                             var obj = gameObject.GetComponent("pb_Object");
 
                             if (ent || obj)
                                 "PRO builder detected. Strip it using Actions in the Tools->ProBuilder menu.".writeHint();
-                            else
-                            {
-
+                            else  {
                                 if (Application.isPlaying)
                                     pegi.writeWarning("Playtime Changes will be reverted once you try to edit the mesh again.");
                                 pegi.newLine();
@@ -1943,7 +1935,6 @@ namespace Playtime_Painter{
                         }
                         else
                         {
-
                             if ((" : ".select(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) && (IsEditingThisMesh))
                                 PlaytimePainter.MeshMGMT.edMesh.Dirty = true;
                             if (icon.Add.Click(25).nl())
@@ -1987,15 +1978,12 @@ namespace Playtime_Painter{
                         "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
 
                     changed |= GlobalBrush.PEGI();
-
-
+                        
                     BlitMode mode = GlobalBrush.BlitMode;
                     Color col = GlobalBrush.colorLinear.ToGamma();
 
-                    if ((CPU || (!mode.UsingSourceTexture)) && (IsTerrainHeightTexture() == false))
-                    {
-                        if (pegi.edit(ref col))
-                        {
+                    if ((CPU || (!mode.UsingSourceTexture)) && (IsTerrainHeightTexture() == false)) {
+                        if (pegi.edit(ref col)) {
                             changed = true;
                             GlobalBrush.colorLinear.From(col);
                         }
