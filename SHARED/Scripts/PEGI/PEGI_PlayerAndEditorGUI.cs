@@ -96,7 +96,7 @@ namespace PlayerAndEditorGUI
 
                     mouseOverUI = windowRect.Contains(Input.mousePosition);
 
-                    GUI.DragWindow();
+                    GUI.DragWindow(new Rect(0,0,10000,20));
                 }
                 catch (Exception ex)
                 {
@@ -3992,12 +3992,18 @@ namespace PlayerAndEditorGUI
 
             bool changed = false;
 
+            bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+
             var types = typeof(T).TryGetDerrivedClasses();
 
-            edit(ref addingNewNameHolder);
+            if (hasName)
+                edit(ref addingNewNameHolder);
+            else
+                (types == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
 
-            if (addingNewNameHolder.Length > 1)
-            {
+            if (!hasName || addingNewNameHolder.Length > 1) {
+               
+
                 if (types == null)
                 {
                     if (icon.Create.Click("Instantiate a new object").nl())
@@ -4036,6 +4042,8 @@ namespace PlayerAndEditorGUI
                     }
                 }
             }
+            else
+                "Add".write("Input a name for a new element", 40);
             nl();
 
             return changed;

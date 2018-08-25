@@ -181,9 +181,10 @@ namespace STD_Logic
                     isCalledFromAnotherBranch = false;
                 }
             }
+
             pegi.newLine();
 
-           Values.current = tmpVals;
+            Values.current = tmpVals;
 
             return changed;
         }
