@@ -482,31 +482,29 @@ namespace SharedTools_Stuff
 			return s;
         }
 
-        public static ISTD SaveToAssets(this ISTD s, string Path, string filename)
+        public static ISTD SaveToAssets(this ISTD s, string path, string filename)
         {
-            StuffSaver.Save_ToAssets_ByRelativePath(Path, filename, s.Encode().ToString());
+            StuffSaver.Save_ToAssets_ByRelativePath(path, filename, s.Encode().ToString());
             return s;
         }
-        
-        public static T LoadSavedProgress<T>(this T s, string Folder, string fileName)where T:ISTD, new() {
-			if (s == null)
-				s = new T ();
-            s.Decode(StuffLoader.Load(Application.persistentDataPath + Folder.AddPreSlashIfNotEmpty().AddPostSlashIfNone() + fileName + StuffSaver.fileType));
-			return s;
-		}
+
+        public static ISTD SaveToPersistantPath(this ISTD s, string path, string filename)
+        {
+            StuffSaver.SaveToPersistantPath(path, filename, s.Encode().ToString());
+            return s;
+        }
+
+        public static ISTD LoadFromPersistantPath(this ISTD s, string path, string filename)
+        {
+            s.Decode(StuffLoader.LoadFromPersistantPath(path, filename));
+            return s;
+        }
 
         public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename)
         {
             StuffSaver.SaveToResources(ResFolderPath, InsideResPath, filename, s.Encode().ToString());
             return s;
         }
-
-        public static T LoadFromResources<T>(this T s, string resFolderLocation, string subFolder, string file)where T:ISTD, new() {
-			if (s == null)
-				s = new T ();
-			s.Decode(StuffLoader.LoadStoryFromResource(resFolderLocation, subFolder, file));
-			return s;
-		}
 
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)

@@ -185,7 +185,7 @@ namespace Playtime_Painter
 
             if (!recordings.TryGetValue(filename, out data))
             {
-                data = StuffLoader.LoadFromPersistantData(vectorsFolderName, filename);
+                data = StuffLoader.LoadFromPersistantPath(vectorsFolderName, filename);
                 recordings.Add(filename, data);
             }
 

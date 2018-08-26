@@ -193,7 +193,7 @@ namespace SharedTools_Stuff
             return data;
         }
 
-        public static string LoadFromPersistantData(string subPath, string filename)
+        public static string LoadFromPersistantPath(string subPath, string filename)
         {
             var filePath = Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(filename, StuffSaver.jsonFileType));
 

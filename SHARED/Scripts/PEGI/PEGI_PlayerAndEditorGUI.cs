@@ -108,8 +108,9 @@ namespace PlayerAndEditorGUI
                 paintingPlayAreaGUI = false;
             }
 
-            public void Render(windowFunction doWindow, string c_windowName)
-            {
+            public void Render(IPEGI p) => Render(p.PEGI, p.ToPEGIstring());
+
+            public void Render(windowFunction doWindow, string c_windowName) {
                 funk = doWindow;
                 windowRect = GUILayout.Window(0, windowRect, drawFunction, c_windowName);
             }
