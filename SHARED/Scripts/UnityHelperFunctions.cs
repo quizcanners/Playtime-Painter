@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.EventSystems;
-#if PEGI
+#if !NO_PEGI
 using PlayerAndEditorGUI;
 #endif
 #if UNITY_EDITOR
@@ -48,7 +48,7 @@ namespace SharedTools_Stuff
 
 
 
-#if PEGI
+#if !NO_PEGI
         public static string GetMeaningfulHierarchyName (this GameObject go, int maxLook, int maxLength)
         {
           
@@ -218,7 +218,7 @@ namespace SharedTools_Stuff
 
         public static void UpdatePrefab(this GameObject gameObject)
         {
-#if PEGI && UNITY_EDITOR
+#if !NO_PEGI && UNITY_EDITOR
             var pf = PrefabUtility.GetPrefabObject(gameObject);
             if (pf != null)
             {
@@ -639,7 +639,7 @@ namespace SharedTools_Stuff
         {
             T asset = ScriptableObject.CreateInstance<T>();
 
-            #if PEGI
+            #if !NO_PEGI
 
             var nm = asset as IGotName;
             if (nm != null)

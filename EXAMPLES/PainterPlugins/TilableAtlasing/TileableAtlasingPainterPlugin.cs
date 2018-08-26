@@ -141,7 +141,7 @@ namespace Playtime_Painter {
             }
             return false;
         }
-#if PEGI
+#if !NO_PEGI
         public override bool BrushConfigPEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
@@ -226,7 +226,7 @@ namespace Playtime_Painter {
         public bool enabled;
         public Color col;
         public AtlasTextureCreator AtlasCreator { get { return TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; } }
-#if PEGI
+#if !NO_PEGI
          
         [SerializeField]
         bool foldoutAtlas = false;
@@ -374,7 +374,7 @@ namespace Playtime_Painter {
                     if (tex == null)
                     {
                         var note = painter.name + " no " + original + " texture. Using Color.";
-#if PEGI
+#if !NO_PEGI
                         note.showNotification();
 #endif
                         Debug.Log(note);
@@ -523,7 +523,7 @@ namespace Playtime_Painter {
                     ac.atlasedField = aTextures[i];
                 }
 
-#if PEGI
+#if !NO_PEGI
                 atlasedShader = DestinationMaterial.shader;
 #endif
 
@@ -557,7 +557,7 @@ namespace Playtime_Painter {
 #endif
             }
 
-#if PEGI
+#if !NO_PEGI
         Shader atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         [SerializeField]
@@ -929,7 +929,7 @@ namespace Playtime_Painter {
         }
 #endif
 
-#if PEGI
+#if !NO_PEGI
 
         public bool PEGI()
         {

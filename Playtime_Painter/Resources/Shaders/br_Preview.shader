@@ -105,14 +105,20 @@
 		col = tex2Dlod(_PreviewTex, float4(i.texcoord.xy,0,0));
 		
 		float2 off2 = i.texcoord.zw*i.texcoord.zw;
-		float fromCenter = off2.x+off2.y;
-		float gridCircleSize = _brushForm.x*16+4;
+		float fromCenter = sqrt(off2.x+off2.y);
+		float gridCircleSize = _brushForm.x;
+
+
+
+		return float4(i.texcoord.zw*0.01,0,0);
 
 		fromCenter =(gridCircleSize - fromCenter)/(gridCircleSize);
 
-		float border = 1 - max(offset.x, offset.y)*pow(max(0,(fromCenter)),16);
 
-		col = col*border + (0.5-col*0.5)*(1-border);
+
+		float border = (1-saturate(fromCenter)) * max(offset.x, offset.y); //*pow(max(0, (fromCenter)), 16);
+
+		col = col*(1-border) + (0.5 - col * 0.5)*border;
 
 		_brushPointedUV.xy = (floor (_brushPointedUV.xy*_PreviewTex_TexelSize.z)+ 0.5) * _PreviewTex_TexelSize.x;
 

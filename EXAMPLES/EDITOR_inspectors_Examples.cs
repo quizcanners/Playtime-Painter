@@ -6,7 +6,7 @@ using PlayerAndEditorGUI;
 namespace Playtime_Painter
 {
 
-#if PEGI && UNITY_EDITOR
+#if !NO_PEGI && UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(ColorBleedControllerPlugin))]

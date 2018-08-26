@@ -91,7 +91,7 @@ namespace SharedTools_Stuff
 
         public bool showDebug;
 
-#if PEGI
+#if !NO_PEGI
 
         [SerializeField] int inspectedStuff = -1;
         [SerializeField] int inspectedReference = -1;
@@ -176,7 +176,7 @@ namespace SharedTools_Stuff
             Clear();
         }
 
-#if PEGI
+#if !NO_PEGI
         int inspected = -1;
         bool foldout = false;
         public bool PEGI( )
@@ -258,7 +258,7 @@ namespace SharedTools_Stuff
 
         public override bool Decode(string tag, string data) => false;
         
-#if PEGI
+#if !NO_PEGI
         public bool showDebug;
 
         public virtual bool PEGI() {
@@ -287,7 +287,8 @@ namespace SharedTools_Stuff
         
   
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
-        bool nestedReferencesChanged;
+
+      
 
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
@@ -295,7 +296,9 @@ namespace SharedTools_Stuff
         {
             int before = _nestedReferences.Count;
             int index = _nestedReferences.TryGetIndexOrAdd(obj);
+            #if !NO_PEGI
             if (before != _nestedReferences.Count) nestedReferencesChanged = true;
+            #endif
             return index;
         }
         public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
@@ -316,7 +319,6 @@ namespace SharedTools_Stuff
 
         public bool showDebug;
 
-#if PEGI
         public virtual string NameForPEGI
         {
             get
@@ -329,6 +331,10 @@ namespace SharedTools_Stuff
                 gameObject.name = value;
             }
         }
+
+#if !NO_PEGI
+ 
+          bool nestedReferencesChanged;
 
         public virtual string NeedAttention()
         {
@@ -437,7 +443,7 @@ namespace SharedTools_Stuff
         public static bool LoadOnDrop<T>(this T obj) where T: ISTD
         {
 
-#if PEGI
+#if !NO_PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 obj.Decode(StuffLoader.LoadTextAsset(myType));

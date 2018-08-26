@@ -20,7 +20,7 @@ namespace Playtime_Painter
         public string name = "";
 
         public const string folderName = "Mesh Profiles";
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool PEGI()
         {
 
@@ -304,7 +304,7 @@ namespace Playtime_Painter
         public VertexDataTarget Target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
         public List<VertexDataValue> vals;
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool PEGI()
         {
             bool changed = false;

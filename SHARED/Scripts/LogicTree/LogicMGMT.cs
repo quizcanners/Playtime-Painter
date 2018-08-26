@@ -71,7 +71,7 @@ namespace STD_Logic
 
         public void Awake() => RealTimeNow();
 
-#if PEGI
+#if !NO_PEGI
         [SerializeField] protected int inspectedLogicBranchStuff = -1;
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;

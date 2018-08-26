@@ -25,7 +25,7 @@ namespace STD_Logic
         
         public override bool IsBoolean() => false;
 
-#if PEGI
+#if !NO_PEGI
         
         public virtual bool PEGI_inList(IList list, int ind, ref int inspected) {
 
@@ -169,7 +169,7 @@ namespace STD_Logic
     public class TestOnceCondition : ConditionLogicBool
     {
         
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
             bool changed = FocusedField_PEGI(0, "Cond");

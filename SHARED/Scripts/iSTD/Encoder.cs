@@ -75,7 +75,7 @@ namespace SharedTools_Stuff
                             else
                             {
                                 cody.Add("e", v.Encode());
-#if PEGI
+#if !NO_PEGI
                                 Debug.Log("Type not listed: " + v.GetType() + " in " + typeof(T).ToPEGIstring());
 #endif
                             }

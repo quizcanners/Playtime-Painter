@@ -14,7 +14,7 @@ namespace SharedTools_Stuff
         public ISTD ConnectSTD;
         public ISTD_ExplorerData data = new ISTD_ExplorerData();
 
-#if PEGI
+#if !NO_PEGI
         /* public static bool PEGI_Static(iSTD target)
          {
              return iSTD_ExplorerData.PEGI_Static(target);
@@ -47,7 +47,7 @@ namespace SharedTools_Stuff
         public string std_dta;
         public string guid;
 
-#if PEGI
+#if !NO_PEGI
         public void Save<T>(T el)
         {
             name = el.ToPEGIstring();
@@ -153,7 +153,7 @@ namespace SharedTools_Stuff
             data = ndata;
         }
 
-#if PEGI
+#if !NO_PEGI
  
         public string NameForPEGI
         {
@@ -277,7 +277,7 @@ namespace SharedTools_Stuff
         public Exploring_STD dataExplorer = new Exploring_STD("", "");
 
 
-#if PEGI
+#if !NO_PEGI
         public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
 
         public bool PEGI()
@@ -356,7 +356,7 @@ namespace SharedTools_Stuff
         public static ISTD inspectedSTD;
         public bool SaveToFileOptions;
         
-#if PEGI
+#if !NO_PEGI
 
         public static bool PEGI_Static(ISTD target)
         {

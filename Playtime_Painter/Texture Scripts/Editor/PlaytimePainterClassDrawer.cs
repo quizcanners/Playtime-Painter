@@ -115,7 +115,7 @@ namespace Playtime_Painter {
         public override void OnInspectorGUI() {
 
         
-#if PEGI
+#if !NO_PEGI
 
               bool changes = false;
 
@@ -427,12 +427,6 @@ namespace Playtime_Painter {
 
 
             painter.gameObject.end();
-#else
-            if (GUILayout.Button("Enable PEGI"))
-            {
-                GodMode.EnablePegi();
-            }
-
 #endif
         }
 

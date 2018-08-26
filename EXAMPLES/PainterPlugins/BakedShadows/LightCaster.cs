@@ -60,7 +60,7 @@ namespace Playtime_Painter
             allProbes[index] = this;
         }
 
-        #if PEGI
+        #if !NO_PEGI
         public bool PEGI()
         {
             bool changed = false;

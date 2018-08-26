@@ -109,7 +109,7 @@ namespace Playtime_Painter {
             base.UpdateMaterials();
             lights.UpdateLightOnMaterials(materials);
         }
-        #if PEGI
+        #if !NO_PEGI
         public override bool PEGI() {
             
             bool changed = base.PEGI();

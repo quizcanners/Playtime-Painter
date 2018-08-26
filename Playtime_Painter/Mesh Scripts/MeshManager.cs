@@ -610,7 +610,9 @@ namespace Playtime_Painter {
 
             if (_dragging)
                 MeshTool.ManageDragging();
-            else  {
+
+            if (!_dragging)
+            {
 
                 if ((pointingUV) && (currentUV <= edMesh.meshPoints[0].uvpoints.Count))   {
 
@@ -859,7 +861,7 @@ namespace Playtime_Painter {
 
         public void UpdateInputPlaytime()
         {
-            #if PEGI
+            #if !NO_PEGI
             if (pegi.mouseOverUI)
                 return;
             #endif
@@ -1009,7 +1011,7 @@ namespace Playtime_Painter {
 
         int justLoaded;
 
-#if PEGI
+#if !NO_PEGI
          List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         bool inspectMesh = false;

@@ -33,7 +33,7 @@ namespace Playtime_Painter {
 
             if (brush == null)
                 brush = Shader.Find("Editor/br_Volume");
-#if PEGI
+#if !NO_PEGI
             PlugIn_PainterComponent = Component_PEGI;
             
             PlugIn_BrushConfigPEGI(BrushConfigPEGI);
@@ -183,7 +183,7 @@ namespace Playtime_Painter {
             return false;
         }
 
-#if PEGI
+#if !NO_PEGI
         public bool Component_PEGI() {
             bool changed = false;
 
@@ -220,7 +220,7 @@ namespace Playtime_Painter {
 
             return false;
         }
-#if PEGI
+#if !NO_PEGI
         [SerializeField]
         bool exploreVolumeData = false;
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)

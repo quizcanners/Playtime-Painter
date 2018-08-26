@@ -37,7 +37,7 @@ namespace Playtime_Painter {
 
         [SerializeField]
         protected int browsedAtlas;
-#if PEGI
+#if !NO_PEGI
         public static bool PutEdgesBetweenSubmeshes()
         {
 
@@ -78,7 +78,7 @@ namespace Playtime_Painter {
 
             if (atlasedMaterials == null)
                 atlasedMaterials = new List<MaterialAtlases>();
-            #if PEGI
+            #if !NO_PEGI
             PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
 #endif
             PlugIn_CPUblitMethod(PaintTexture2D);
@@ -86,7 +86,7 @@ namespace Playtime_Painter {
 
         }
 
-#if PEGI
+#if !NO_PEGI
         public override bool ConfigTab_PEGI()
         {
             bool changed = false;
@@ -217,7 +217,7 @@ namespace Playtime_Painter {
                 return "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
             }
         }
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
 

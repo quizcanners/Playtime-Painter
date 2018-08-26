@@ -148,7 +148,7 @@ namespace PlayerAndEditorGUI {
         {
         }
 
-        #if PEGI
+        #if !NO_PEGI
         public bool PEGI()
         {
             

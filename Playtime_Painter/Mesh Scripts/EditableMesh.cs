@@ -890,6 +890,7 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
+        #if !NO_PEGI
         public bool PEGI()
         {
             bool changed = false;
@@ -899,7 +900,6 @@ namespace Playtime_Painter {
 
             return changed;
         }
-#if PEGI
         public static EditableMesh inspected;
 #endif
     }

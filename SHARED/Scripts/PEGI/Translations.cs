@@ -52,7 +52,7 @@ namespace PlayerAndEditorGUI
 
         public static List<List<string>> texts;
 
-#if PEGI
+#if !NO_PEGI
         public static void Nl(this Msg m) { m.Get().nl(); }
         public static void Nl(this Msg m, int width) { m.Get().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }

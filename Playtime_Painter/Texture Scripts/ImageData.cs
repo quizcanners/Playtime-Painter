@@ -61,8 +61,9 @@ namespace Playtime_Painter
                 string msg = string.Format("Saved {0} to {1}", SaveName, fullPath);
 
                 playtimeSavedTextures.Add(fullPath);
-
+                #if !NO_PEGI
                 msg.showNotification();
+                #endif
                 Debug.Log(msg);
 
                 return fullPath;
@@ -81,11 +82,13 @@ namespace Playtime_Painter
 
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
+                #if !NO_PEGI
                 else "Couldn't Load Image ".showNotification();
+#endif
             }
         }
 
-        #endregion
+#endregion
         
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("dst", (int)destination)
@@ -573,7 +576,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-#if PEGI
+#if !NO_PEGI
 
         bool LoadTexturePEGI(string path)
         {

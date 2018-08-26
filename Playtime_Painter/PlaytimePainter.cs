@@ -1,17 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-
 using PlayerAndEditorGUI;
-using System.Reflection;
-//using UnityEditor.SceneManagement;
 using SharedTools_Stuff;
 
 
@@ -26,7 +21,7 @@ namespace Playtime_Painter{
 
         #region StaticGetters
 
-#if PEGI
+#if !NO_PEGI
         public static pegi.CallDelegate plugins_ComponentPEGI;
 #endif
         public static PainterBoolPlugin plugins_GizmoDraw;
@@ -262,7 +257,7 @@ namespace Playtime_Painter{
 
             if (IsTerrainHeightTexture() && IsOriginalShader)
             {
-#if PEGI
+#if !NO_PEGI
                 if (stroke.mouseDwn)
                     "Can't edit without Preview".showNotification();
 #endif
@@ -275,7 +270,7 @@ namespace Playtime_Painter{
 
             if (ImgData == null)
             {
-#if PEGI
+#if !NO_PEGI
                 if (stroke.mouseDwn)
                     "No texture to edit".showNotification();
 #endif
@@ -568,7 +563,7 @@ namespace Playtime_Painter{
                     var extension = name.Substring(name.LastIndexOf(".") + 1);
 
                     if (extension != "png") {
-#if PEGI
+#if !NO_PEGI
                         "Converting {0} to .png".F(name).showNotification();
 #endif
                         texture = t2d.CreatePngSameDirectory(texture.name);
@@ -973,7 +968,7 @@ namespace Playtime_Painter{
 
             if ((id != null) && (GetMaterial(false) != null))
                 UpdateOrSetTexTarget(id.destination);
-#if PEGI
+#if !NO_PEGI
             "Instantiating Material on {0}".F(gameObject.name).showNotification();
 #endif
             return GetMaterial(false);
@@ -1772,7 +1767,7 @@ namespace Playtime_Painter{
         public override string PlaytimeWindowName => "{0} {1}".F(gameObject.name,MaterialTexturePropertyName);
 		  
         public static PlaytimePainter inspectedPainter;
-#if PEGI
+#if !NO_PEGI
         public bool PEGI_MAIN() {
 
             TexMGMT.focusedPainter = this;

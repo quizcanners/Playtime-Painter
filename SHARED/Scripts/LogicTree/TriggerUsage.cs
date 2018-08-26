@@ -20,7 +20,7 @@ namespace STD_Logic
         }
 
         public static List<string> names = new List<string>();
-#if PEGI
+#if !NO_PEGI
         public static bool SelectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
         
         public bool Inspect(ValueIndex arg) => Inspect(arg.Trigger);
@@ -122,7 +122,7 @@ namespace STD_Logic
     public class Usage_Boolean : TriggerUsage {
 
         public override string ToString() { return string.Format("YesNo"); }
-#if PEGI
+#if !NO_PEGI
         public override void Inspect(ConditionLogic c) {
             if (!c.IsBoolean())
                 ("Wrong Type: " + c.IsBoolean()).write();
@@ -175,7 +175,7 @@ namespace STD_Logic
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
-#if PEGI
+#if !NO_PEGI
         public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
@@ -217,7 +217,7 @@ namespace STD_Logic
     {
 
         public override string ToString() { return string.Format("Enums"); }
-#if PEGI
+#if !NO_PEGI
 
         public override void Inspect(ConditionLogic c) {
 
@@ -291,7 +291,7 @@ namespace STD_Logic
             { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
 
-#if PEGI
+#if !NO_PEGI
         public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
@@ -341,7 +341,7 @@ namespace STD_Logic
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
 
-#if PEGI
+#if !NO_PEGI
 
         public override void Inspect(ConditionLogic c) {
 
@@ -384,7 +384,7 @@ namespace STD_Logic
 
         public override string ToString() { return string.Format("TagGroup"); }
 
-        #if PEGI
+        #if !NO_PEGI
 
         public override bool Inspect(Trigger t) {
             var changed = base.Inspect(t);
@@ -462,7 +462,7 @@ namespace STD_Logic
         public override string ToString() { return string.Format("Tag"); }
 
 
-        #if PEGI
+        #if !NO_PEGI
 
         public override void Inspect(ConditionLogic c) {
 

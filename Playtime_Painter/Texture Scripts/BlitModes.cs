@@ -110,7 +110,7 @@ namespace Playtime_Painter
         public virtual bool ShowColorSliders { get { return true; } }
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade; 
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit; 
-#if PEGI
+#if !NO_PEGI
         public virtual bool PEGI() {
 
             ImageData id = InspectedImageData;
@@ -253,7 +253,7 @@ namespace Playtime_Painter
             public override bool SupportedByTex2D => false; 
 
             public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
-#if PEGI
+#if !NO_PEGI
             public override bool PEGI()
             {
 
@@ -296,7 +296,7 @@ namespace Playtime_Painter
                 currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);
             }
-#if PEGI
+#if !NO_PEGI
         public override bool PEGI()
         {
             bool changed = base.PEGI();
@@ -420,7 +420,7 @@ namespace Playtime_Painter
         public BlitModeBloom(int ind) : base(ind) { }
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
-#if PEGI
+#if !NO_PEGI
             public override bool PEGI()
             {
 

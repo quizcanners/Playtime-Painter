@@ -269,7 +269,7 @@ namespace Playtime_Painter {
                 return "Combined Maps";
             }
 
-            #if PEGI
+            #if !NO_PEGI
             [SerializeField]
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
@@ -324,7 +324,7 @@ namespace Playtime_Painter {
 
             public string NameForPEGI { get { return name; } set { name = value; } }
 
-            #if PEGI
+            #if !NO_PEGI
 
             public bool PEGI()
             {
@@ -453,7 +453,7 @@ namespace Playtime_Painter {
             public static TexturePackagingProfile currentPEGI;
 
 
-            #if PEGI
+            #if !NO_PEGI
             public virtual bool PEGI() => PEGI(null);
             
             public bool PEGI(TextureSetForForCombinedMaps sets)
@@ -681,7 +681,7 @@ namespace Playtime_Painter {
                 return cody;
             }
 
-            #if PEGI
+            #if !NO_PEGI
 
             public virtual bool PEGI()
             {
@@ -884,7 +884,7 @@ namespace Playtime_Painter {
                 return mipLevels;
             }
 
-            #if PEGI
+            #if !NO_PEGI
 
             public virtual bool PEGI(ref int selectedChannel, TextureChannel tc)
             {
