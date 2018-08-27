@@ -203,6 +203,20 @@ namespace SharedTools_Stuff
             return null;
         }
 
+        public static List<String> ListFileNamesFromPersistantFolder(string subPath) {
+           var lst = new List<string> ( Directory.GetFiles(Path.Combine(Application.persistentDataPath, subPath)));
+
+            for (int i=0; i<lst.Count; i++)
+            {
+                var txt = lst[i];
+                txt = txt.Substring(txt.LastIndexOf("/")+1);
+                txt = txt.Substring(0, txt.Length - StuffSaver.jsonFileType.Length);
+                lst[i] = txt;
+            }
+
+            return lst;
+        }
+
         public static bool LoadResource<T>(string pathNdName, ref T Arrangement)
         {
 #if UNITY_EDITOR

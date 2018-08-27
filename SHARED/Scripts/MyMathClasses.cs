@@ -93,6 +93,14 @@ namespace SharedTools_Stuff
             return false;
         }
 
+        public static Color Lerp_RGB(Color from, Color to, float speed) => Color.Lerp(from, to, speed.SpeedToPortion(from.DistanceRGB(to)));
+
+        public static Color Lerp_RGB(Color from, Color to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(from.DistanceRGB(to));
+            return Color.Lerp(from, to, portion);
+        }
+
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
