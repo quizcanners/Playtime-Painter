@@ -1,4 +1,4 @@
-﻿#if !NO_PEGI && UNITY_EDITOR
+﻿#if PEGI && UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 using System.Linq.Expressions;

@@ -57,7 +57,7 @@ namespace Playtime_Painter
         public string NameForPEGIdisplay() => material == null ? "Error" : material.name;
 
 
-#if !NO_PEGI
+#if PEGI
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {

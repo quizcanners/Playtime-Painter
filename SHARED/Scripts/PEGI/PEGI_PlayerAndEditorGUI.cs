@@ -19,42 +19,42 @@ using SharedTools_Stuff;
 
 public interface IPEGI
 {
-#if !NO_PEGI
+#if PEGI
     bool PEGI();
 #endif
 }
 
 public interface INeedAttention
 {
-#if !NO_PEGI
+#if PEGI
     string NeedAttention();
 #endif
 }
 
 public interface IPEGI_ListInspect
 {
-#if !NO_PEGI
+#if PEGI
     bool PEGI_inList(IList list, int ind, ref int edited);
 #endif
 }
 
 public interface IGotName
 {
-#if !NO_PEGI
+#if PEGI
     string NameForPEGI { get; set; }
 #endif
 }
 
 public interface IGotDisplayName
 {
-#if !NO_PEGI
+#if PEGI
     string NameForPEGIdisplay();
 #endif
 }
 
 public interface IGotIndex
 {
-#if !NO_PEGI
+#if PEGI
     int IndexForPEGI { get; set; }
 #endif
 }
@@ -65,7 +65,7 @@ public interface IGotIndex
 #pragma warning disable IDE1006 // Naming Styles
 namespace PlayerAndEditorGUI
 {
-#if !NO_PEGI
+#if PEGI
     public static class pegi
     {
 
@@ -5324,7 +5324,7 @@ namespace PlayerAndEditorGUI
             if ((uobj == null) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
                 return "NULL Object";
 
-#if !NO_PEGI
+#if PEGI
             var dn = obj as IGotDisplayName;
             if (dn != null)
                 return dn.NameForPEGIdisplay();
@@ -5349,7 +5349,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
         {
-#if !NO_PEGI
+#if PEGI
 #if UNITY_EDITOR
             return ef.Inspect(o, (SerializedObject)so);
 #else
@@ -5363,7 +5363,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
         {
-#if !NO_PEGI
+#if PEGI
 #if UNITY_EDITOR
             return ef.Inspect_so(o, (SerializedObject)so);
 #else
@@ -5376,7 +5376,7 @@ namespace PlayerAndEditorGUI
         }
 
 
-#if !NO_PEGI
+#if PEGI
         public static int focusInd;
 
         public static bool EfChanges

@@ -60,7 +60,7 @@ namespace STD_Logic  {
 
         }
 
-#if !NO_PEGI
+#if PEGI
         public static bool Inspect(this string label, ref List<Result> res, Values vals)
         {
             pegi.write(label);
@@ -162,7 +162,7 @@ namespace STD_Logic  {
             return cody;
         }
         
-#if !NO_PEGI
+#if PEGI
         public override string NameForPEGIdisplay() => base.NameForPEGIdisplay() + type + " " + updateValue;
 #endif
         public static string CompileResultText(Result res) => res.Trigger.name + res.type + " " + res.updateValue;

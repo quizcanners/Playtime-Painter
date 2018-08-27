@@ -182,7 +182,7 @@ namespace Playtime_Painter
         public VertexUVTool() {
             _inst = this;
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
 
             bool changed = false;

@@ -207,7 +207,7 @@ namespace STD_Animations
         public static SpeedAnimationController processedAnimationController;
 
         float editor_FramePortion = 0;
-#if !NO_PEGI
+#if PEGI
         public int inspectedElement = -1;
         public bool inspectElements = false;
 
@@ -474,7 +474,7 @@ namespace STD_Animations
     {
         StdEncoder EncodeFrame();
         bool DecodeFrame(string tag, string data);
-#if !NO_PEGI
+#if PEGI
         bool Frame_PEGI();
 #endif
     }
@@ -533,7 +533,7 @@ namespace STD_Animations
             return true;
         }
 
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI()
         {
 
@@ -770,7 +770,7 @@ namespace STD_Animations
 
         }
 
-#if !NO_PEGI
+#if PEGI
         [SerializeField] bool transformInLocalSpace = true;
         [SerializeField] bool showDependencies = true;
         public override bool PEGI()

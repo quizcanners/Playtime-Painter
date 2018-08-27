@@ -133,7 +133,7 @@ namespace SharedTools_Stuff {
         protected VariableBranch br;
         protected int lastFreeIndex;
 
-        #if !NO_PEGI
+        #if PEGI
 
         public virtual bool PEGI()
         {
@@ -683,7 +683,7 @@ namespace SharedTools_Stuff {
         {
             get { return Get(index); }
             set {
-#if !NO_PEGI
+#if PEGI
                 var igi = value as IGotIndex;
                 if (igi != null && igi.IndexForPEGI != index)
                 {
@@ -694,7 +694,7 @@ namespace SharedTools_Stuff {
                 Set(index, value); }
         }
 
-#if !NO_PEGI
+#if PEGI
         public T this[IGotIndex i]
         {
             get { return Get(i.IndexForPEGI); }
@@ -903,7 +903,7 @@ namespace SharedTools_Stuff {
 
         public int currentEnumerationIndex;
 
-#if !NO_PEGI
+#if PEGI
 
           int edited = -1;
 
@@ -1220,7 +1220,7 @@ namespace SharedTools_Stuff {
         public int currentEnumerationIndex;
 
         int edited = -1;
-#if !NO_PEGI
+#if PEGI
         
         public override bool PEGI()
         {
@@ -1618,7 +1618,7 @@ namespace SharedTools_Stuff {
 
     public static class ExtensionsForGenericCountless
     {
-        #if !NO_PEGI
+        #if PEGI
         public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: ISTD, IPEGI
             
             , new() {

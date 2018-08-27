@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 using System;
-#if !NO_PEGI
+#if PEGI
 using PlayerAndEditorGUI;
 #endif
 using UnityEngine.EventSystems;
@@ -131,7 +131,7 @@ namespace Playtime_Painter
                     if (c == null)
                         c = (PainterManagerPluginBase)gameObject.AddComponent(t);
                     _plugins.Add(c);
-                    #if !NO_PEGI
+                    #if PEGI
                     ("Painter Plugin " + c.ToPEGIstring() + " added").showNotification();
                     #endif
                 }
@@ -810,7 +810,7 @@ namespace Playtime_Painter
             PlaytimePainter.cody = new StdDecoder(null);
         }
         
-#if !NO_PEGI
+#if PEGI
    
        
         public override bool PEGI()

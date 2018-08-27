@@ -55,7 +55,7 @@ namespace Playtime_Painter
 
         }
 
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI() {
             bool changed = base.PEGI();
             if (!showDebug)

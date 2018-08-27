@@ -170,7 +170,7 @@ namespace STD_Logic
 
         public void Load(string path) => this.LoadFromAssets(path, name);
 
-#if !NO_PEGI
+#if PEGI
 
         string lastFilteredString = "";
         List<Trigger> filteredList = new List<Trigger>();

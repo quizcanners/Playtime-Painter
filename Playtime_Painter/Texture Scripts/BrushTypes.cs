@@ -130,7 +130,7 @@ namespace Playtime_Painter
         public virtual bool StartPaintingTheMomentMouseIsDown { get { return true; } }
         public virtual bool SupportedForTerrain_RT { get { return true; } }
         public virtual bool NeedsGrid { get { return false; } }
-#if !NO_PEGI
+#if PEGI
         public virtual bool PEGI()
         {
 
@@ -505,7 +505,7 @@ namespace Playtime_Painter
                 TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
             }
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI()
         {
 
@@ -788,7 +788,7 @@ namespace Playtime_Painter
 
             Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
-#if !NO_PEGI
+#if PEGI
         public override bool PEGI()
         {
             bool changed = base.PEGI();

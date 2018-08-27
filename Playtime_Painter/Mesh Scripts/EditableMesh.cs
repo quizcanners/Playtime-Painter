@@ -890,7 +890,7 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
-        #if !NO_PEGI
+        #if PEGI
         public bool PEGI()
         {
             bool changed = false;

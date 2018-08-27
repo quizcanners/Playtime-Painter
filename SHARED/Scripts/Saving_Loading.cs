@@ -25,7 +25,7 @@ namespace SharedTools_Stuff
         public static bool DeleteFile(string path)  {
             if (File.Exists(path))
             {
-#if !NO_PEGI  && UNITY_EDITOR
+#if PEGI  && UNITY_EDITOR
                 "Deleting {0}".F(path).showNotification();
 #endif
 
@@ -382,7 +382,7 @@ namespace SharedTools_Stuff
             BinaryFormatter bf = new BinaryFormatter();
             string full = fullPath + filename + fileType;
             FileStream file = File.Create(full);
-#if !NO_PEGI
+#if PEGI
             if (Application.isPlaying == false)
                 ("Saved To " + full).showNotification();
 #endif

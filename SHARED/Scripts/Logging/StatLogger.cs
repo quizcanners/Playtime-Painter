@@ -12,7 +12,7 @@ namespace SharedTools_Stuff
     public class StatLogger : IPEGI
     {
 
-#if !NO_PEGI
+#if PEGI
         readonly UnnullableSTD<LogStat> allStats = new UnnullableSTD<LogStat>();
 
         List<LogStat> executionOrder = new List<LogStat>();
@@ -23,7 +23,7 @@ namespace SharedTools_Stuff
         void Create(int index, string name)
         {
 
-#if !NO_PEGI
+#if PEGI
             lock (executionOrder) {
                 if (executionOrder.Count == 0)
                     executionOrder.Add(processedStat);
@@ -41,7 +41,7 @@ namespace SharedTools_Stuff
 
         public StatLogger Get(int index, string name)
         {
-#if !NO_PEGI
+#if PEGI
             if (loopLock.Unlocked)
                 using (loopLock.Lock())
                 {
@@ -54,12 +54,12 @@ namespace SharedTools_Stuff
 #endif
             return this;
         }
-        #if !NO_PEGI
+        #if PEGI
         volatile LoopLock loopLock = new LoopLock();
 #endif
         public StatLogger StatMoveToFirst(int index, string name)
         {
-#if !NO_PEGI
+#if PEGI
 
             lock (executionOrder)
             {
@@ -99,28 +99,28 @@ namespace SharedTools_Stuff
         }
 
         public void AddOne()
-#if !NO_PEGI
+#if PEGI
             => processedStat.count += 1;
 #else
         {}
 #endif
 
         public void Add(float value)
-#if !NO_PEGI
+#if PEGI
             => processedStat.value += value;
 #else
         {}
 #endif
 
         public void Rename(string name)
-#if !NO_PEGI
+#if PEGI
             => processedStat.name = name;
 #else
         {}
 #endif
 
 
-#if !NO_PEGI
+#if PEGI
 
         int inspectedStat = -1;
         public bool PEGI()
@@ -176,7 +176,7 @@ namespace SharedTools_Stuff
             value = 0;
         }
 
-#if !NO_PEGI
+#if PEGI
         public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
 
         public bool PEGI_inList(IList list, int ind, ref int edited)

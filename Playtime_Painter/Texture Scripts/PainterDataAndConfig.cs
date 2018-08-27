@@ -236,7 +236,7 @@ namespace Playtime_Painter
             return true;
         }
 
-#if !NO_PEGI
+#if PEGI
 
         int inspectedImgData = -1;
 

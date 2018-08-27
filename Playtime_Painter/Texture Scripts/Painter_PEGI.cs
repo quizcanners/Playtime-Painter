@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter {
 
-    #if !NO_PEGI
+    #if PEGI
 
     public static class PainterPEGI_Extensions {
 

@@ -61,7 +61,7 @@ namespace Playtime_Painter
                 string msg = string.Format("Saved {0} to {1}", SaveName, fullPath);
 
                 playtimeSavedTextures.Add(fullPath);
-                #if !NO_PEGI
+                #if PEGI
                 msg.showNotification();
                 #endif
                 Debug.Log(msg);
@@ -82,7 +82,7 @@ namespace Playtime_Painter
 
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
-                #if !NO_PEGI
+                #if PEGI
                 else "Couldn't Load Image ".showNotification();
 #endif
             }
@@ -576,7 +576,7 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
-#if !NO_PEGI
+#if PEGI
 
         bool LoadTexturePEGI(string path)
         {
