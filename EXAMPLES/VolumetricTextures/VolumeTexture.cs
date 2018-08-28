@@ -19,12 +19,15 @@ namespace Playtime_Painter {
         public int h_slices = 1;
         public float size = 1;
         [NonSerialized] protected Color[] volume;
-        [SerializeField] int imgDataIndex = -1;
+        [SerializeField] Texture2D image;
 
         public ImageData ImageData
         {
-            get { return TexMGMTdata?.imgDatas.TryGet(imgDataIndex); }
-            set { imgDataIndex = TexMGMTdata.imgDatas.TryGetIndex(value); }
+            get { return image.GetImgData(); }
+            set { if (value != null)
+                    image = value.texture2D;
+                else image = null;
+            }
         }
 
         public virtual string MaterialPropertyName => "_DefaultVolume {0}".F(VolumePaintingPlugin.VolumeTextureTag); 
@@ -123,6 +126,7 @@ namespace Playtime_Painter {
                         for (int x = 0; x < w; x++) {
                             int texIndex = yTex_index + x;
                             int volIndex = yVolIndex + x;
+
                             pixels[texIndex] = volume[volIndex];
                         }
                     }

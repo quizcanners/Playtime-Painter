@@ -128,7 +128,7 @@ MonoBehaviour:
   preAtlasingMaterials: []
   preAtlasingMesh: {fileID: 0}
   preAtlasingSavedMesh: 
-  inAtlasIndex: 3
+  inAtlasIndex: 0
   atlasRows: 4
 --- !u!1 &136433662
 GameObject:
@@ -1637,7 +1637,7 @@ MonoBehaviour:
   useGrid: 0
   preview: {fileID: 4800000, guid: 583dec83a6fda764e8af1686690537c6, type: 3}
   brush: {fileID: 4800000, guid: e8a7a8508f1b3174e9400c39ccecc257, type: 3}
-  exploreVolumeData: 0
+  exploreVolumeData: 1
   exploredVolume: 0
 --- !u!114 &753615960
 MonoBehaviour:
@@ -1780,7 +1780,7 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     GizmoLines: 1
-  focusedPainter: {fileID: 1815085832}
+  focusedPainter: {fileID: 1728036928}
   isLinearColorSpace: 1
   _plugins:
   - {fileID: 753615959}
@@ -3743,10 +3743,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 10
       objectReference: {fileID: 0}
-    - target: {fileID: 1429012288521692, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 2}
-      propertyPath: m_Name
-      value: Volume Shadow Temple
-      objectReference: {fileID: 0}
     - target: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 2}
       propertyPath: plugins.Array.data[0]
@@ -3772,9 +3768,24 @@ Prefab:
       propertyPath: plugins.Array.data[4]
       value: 
       objectReference: {fileID: 1191810319}
+    - target: {fileID: 1429012288521692, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 2}
+      propertyPath: m_Name
+      value: Volume Shadow Temple
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 2}
+      propertyPath: image
+      value: 
+      objectReference: {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 2}
   m_IsPrefabAsset: 0
+--- !u!114 &1728036928 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114022655640905380, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+    type: 2}
+  m_PrefabInternal: {fileID: 1728036927}
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
 --- !u!114 &1769724883
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4333,7 +4344,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: -1.8107946
+  timer: -0.29359034
   style:
     m_Name: Hint Style
     m_Normal:
