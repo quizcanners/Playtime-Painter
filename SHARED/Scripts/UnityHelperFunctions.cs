@@ -272,9 +272,12 @@ namespace SharedTools_Stuff
 
             if (magnitude < 0) return false;
 
-            return Physics.Raycast(new Ray(from
+            return Physics.Raycast(new Ray(from, ray), magnitude);
+        }
 
-                , ray), magnitude);
+        public static bool RaycastHit(this Vector3 from, Vector3 to, out RaycastHit hit)  {
+            Vector3 ray = to - from;
+            return Physics.Raycast(new Ray(from, ray), out hit);
         }
 
         public static string GetUniqueName<T>(this string s, List<T> list)

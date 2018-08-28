@@ -18,9 +18,8 @@ namespace Playtime_Painter {
 
         public int h_slices = 1;
         public float size = 1;
-        [NonSerialized]
-        Color[] volume;
-        [SerializeField]int imgDataIndex = -1;
+        [NonSerialized] protected Color[] volume;
+        [SerializeField] int imgDataIndex = -1;
 
         public ImageData ImageData
         {
@@ -44,11 +43,11 @@ namespace Playtime_Painter {
 
         public virtual bool NeedsToManageMaterials => true;
 
-        public virtual Color GetColorFor(Vector3 pos) =>
-             Color.white * (Width * size * 0.5f - (LastCenterPosTMP - pos).magnitude);
+        public virtual Color GetColorFor(Vector3 pos) =>  Color.white * (Width * size * 0.5f - (LastCenterPosTMP - pos).magnitude);
         
         Vector3 LastCenterPosTMP;
-        public virtual void RecalculateVolume(Vector3 center) {
+        public virtual void RecalculateVolume() {
+            Vector3 center = transform.position;
             LastCenterPosTMP = center;
             int w = Width;
             int volumeLength = w * w * Height;
@@ -72,9 +71,6 @@ namespace Playtime_Painter {
                     }
                 }
             }
-
-
-
         }
 
         public virtual void AddIfNew(PlaytimePainter p) =>  AddIfNew(p.Material);
@@ -91,10 +87,9 @@ namespace Playtime_Painter {
             return false;
         }
 
-        public virtual void VolumeToTexture()
-        {
-            if (ImageData == null)
-            {
+        public virtual void VolumeToTexture() {
+            if (ImageData == null) {
+
                 if (TexturesPool._inst != null)
                     ImageData = TexturesPool._inst.GetTexture2D().GetImgData();
                 else
@@ -105,7 +100,7 @@ namespace Playtime_Painter {
                 UpdateTextureName();
             }
 
-            Color[] pixels = ImageData.Pixels;//new Color32[tex.width * tex.width];
+            Color[] pixels = ImageData.Pixels;
 
             int texSectorW = ImageData.width / h_slices;
             int w = Width;
@@ -125,8 +120,7 @@ namespace Playtime_Painter {
 
                         int yVolIndex = h * w * w + y * w;
 
-                        for (int x = 0; x < w; x++)
-                        {
+                        for (int x = 0; x < w; x++) {
                             int texIndex = yTex_index + x;
                             int volIndex = yVolIndex + x;
                             pixels[texIndex] = volume[volIndex];
@@ -137,8 +131,6 @@ namespace Playtime_Painter {
 
             ImageData.SetAndApply(false);
             UpdateTextureName();
-
-
         }
 
         public int PositionToVolumeIndex(Vector3 pos)

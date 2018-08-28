@@ -27,11 +27,6 @@ namespace Playtime_Painter {
   
         }
 
-        public override void OnDisable() {
-            base.OnDisable();
-
-        }
-
         public override bool DrawGizmosOnPainter(PlaytimePainter pntr)
         {
 
@@ -48,6 +43,100 @@ namespace Playtime_Painter {
             return true;  
         }
 
+
+
+        public void RecalculateVolumeFast()
+        {
+            int w = Width;
+            int h = Height;
+            Vector3 center = transform.position;
+
+            float hw = Width * 0.5f;
+
+            var col = new Color(1,1,1,1);
+            for (int i = 0; i < volume.Length; i++)
+                volume[i] = col; 
+
+
+                Vector3 pos = Vector3.zero;
+
+            for (int l = 0; l < 3; l++)
+            {
+                var light = lights.GetLight(l);
+
+                if (light != null)
+                    for (int side = 0; side < 3; side++) {
+
+                        int addY = side == 0 ? h - 1 : 1;
+                        int addX = side == 1 ? w - 1 : 1;
+                        int addZ = side == 2 ? w - 1 : 1;
+
+                        for (int y = 0; y < h; y += addY) {
+
+                            pos.y = center.y + y * size;
+
+                            for (int x = 0; x < w; x += addX) {
+
+                                pos.x = center.x + ((float)(x - hw)) * size;
+                                
+                                for (int z = 0; z < w; z += addZ) {
+
+                                    pos.z = center.z + ((float)(z - hw)) * size;
+
+                                    RaycastHit hit;
+
+                                    bool isHit = light.transform.position.RaycastHit(pos, out hit);
+
+                                    if (isHit) {
+
+                                        var vector = pos - light.transform.position; 
+
+                                        var hitDist = hit.distance;
+                                        
+                                        float steps = Mathf.FloorToInt(vector.magnitude);
+
+                                        vector /= steps;
+
+                                        float step = vector.magnitude;
+
+                                        float dist = 0;
+
+                                        Vector3 tracePos = pos;
+
+                                        for (int i = 0; i < steps; i++)
+                                        {
+                                            tracePos += vector;
+
+                                            int HH = Mathf.FloorToInt((tracePos.y - center.y) / size);
+
+                                            if (HH >= 0 && HH < h)
+                                            {
+                                                int YY = Mathf.FloorToInt((tracePos.z - center.z) / size + hw);
+
+                                                if (YY >= 0 && YY < w)
+                                                {
+                                                    int XX = Mathf.FloorToInt((tracePos.x - center.x) / size + hw);
+
+                                                    if (XX >= 0 && XX < w) {
+
+                                                        int index = (HH * Width + YY) * Width + XX;
+                                                        volume[index][l] = dist < hitDist ? 1 : 0;
+
+                                                    }
+                                                }
+                                            }
+                                            
+                                            dist += step;
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+
         public override Color GetColorFor(Vector3 pos) {
 
             Color col = Color.black;
@@ -60,9 +149,7 @@ namespace Playtime_Painter {
                     var l = lights.GetLight(i);
                     if (l != null)
                         col[i] = l.transform.position.RaycastGotHit(pos, size*2) ? defaultAmbient : 0;
-                }
-            else
-            {
+                } else {
                 float portion = defaultAmbient / 8f;
                 for (int i = 0; i < 3; i++) {
                     var l = lights.GetLight(i);
@@ -79,29 +166,18 @@ namespace Playtime_Painter {
             col.a = 0.5f;
 
             return col;
-            //return base.GetColorFor(pos);
         }
 
         Vector3[] rayOffsets;
 
-        public override void RecalculateVolume(Vector3 center)
-        {
-            if (recalculatePrecise) {
-                rayOffsets = new Vector3[8];
-                float off = size * 0.45f;
+        public override void RecalculateVolume() {
+            
+            int volumeLength = Width * Width * Height;
 
-                int ind = 0;
-
-                for (int y = -1; y < 2; y += 2)
-                    for (int x = -1; x < 2; x += 2)
-                        for (int z = -1; z < 2; z += 2)
-                        {
-                            rayOffsets[ind] = (new Vector3(x, z, y)) * off;
-                            ind++;
-                        }
-            }
-
-            base.RecalculateVolume(center);
+            if (volume == null || volume.Length != volumeLength)
+                volume = new Color[volumeLength];
+            
+            RecalculateVolumeFast();
         }
 
         public override void UpdateMaterials()
@@ -131,19 +207,15 @@ namespace Playtime_Painter {
                     recalculatePrecise = true;
                 }
 
-                if (recalc)
-                {
+                if (recalc) {
                     changed = true;
-                    RecalculateVolume(transform.position);
+                    RecalculateVolume();
                     VolumeToTexture();
                 }
-                
             }
 
             if (changed)
                 UpdateMaterials();
-
-
 
             return changed;
         }
