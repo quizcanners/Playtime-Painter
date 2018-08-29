@@ -139,7 +139,7 @@ namespace Playtime_Painter {
                                                 float diff = marchDist - hitDist;
                                                 int index = (HH * w + YY) * w + XX;
                                                 var col = volume[index];
-                                                col[channelIndex] = Mathf.Clamp01(diff * deSize);
+                                                col[channelIndex] = Mathf.Clamp01(diff * deSize - 1);
                                                 volume[index] = col;
                                             }
                                         }
