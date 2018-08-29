@@ -6,6 +6,9 @@ using SharedTools_Stuff;
 using Unity.Jobs;
 using Unity.Collections;
 using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Playtime_Painter {
 
@@ -36,7 +39,22 @@ namespace Playtime_Painter {
 
             if (lights == null) 
                 lights = new MaterialLightManager();
-  
+
+#if UNITY_EDITOR
+            EditorApplication.update -= UpdateRaycasts;
+            if (!this.ApplicationIsAboutToEnterPlayMode())
+                EditorApplication.update += UpdateRaycasts;
+#endif
+
+        }
+
+        public override void OnDisable()
+        {
+#if UNITY_EDITOR
+            EditorApplication.update -= UpdateRaycasts;
+#endif
+
+            base.OnDisable();
         }
 
         public override bool DrawGizmosOnPainter(PlaytimePainter pntr)
@@ -59,7 +77,7 @@ namespace Playtime_Painter {
 
             public NativeArray<Color> volume;
              [ReadOnly]  public NativeArray<RaycastHit> hitJobResults;
-             [ReadOnly] public NativeArray<Vector3> hitJobDirection;
+             [ReadOnly]  public NativeArray<Vector3> hitJobDirection;
              [ReadOnly]  public NativeArray<byte> gotHit;
              [ReadOnly]  public int channelIndex;
              [ReadOnly]  public float size;
@@ -121,7 +139,7 @@ namespace Playtime_Painter {
                                                 float diff = marchDist - hitDist;
                                                 int index = (HH * w + YY) * w + XX;
                                                 var col = volume[index];
-                                                col[channelIndex] = Mathf.Min(diff * size, 1);
+                                                col[channelIndex] = Mathf.Clamp01(diff * deSize);
                                                 volume[index] = col;
                                             }
                                         }
@@ -159,7 +177,8 @@ namespace Playtime_Painter {
                 
                 if ( lights == null || lights.GetLight(rayJobChannel) == null)  {
                     rayStep = RaycastsStep.Nothing;
-                    Debug.Log("No light {0}".F(rayJobChannel));
+                    lightSourceDirty[rayJobChannel] = false;
+                    // Debug.Log("No light {0}".F(rayJobChannel));
                     return;
                 }
 
@@ -171,9 +190,9 @@ namespace Playtime_Painter {
 
                 List<RaycastCommand> futureHits = RecalculateVolumePrepareJobs(rayJobChannel, out dirs); 
 
-                hitJobResults = new NativeArray<RaycastHit>(futureHits.Count, Allocator.TempJob);
-                hitJobCommands = new NativeArray<RaycastCommand>(futureHits.ToArray(), Allocator.TempJob);
-                hitJobDirections = new NativeArray<Vector3>(dirs.ToArray(), Allocator.TempJob);
+                hitJobResults = new NativeArray<RaycastHit>(futureHits.Count, Allocator.Persistent);
+                hitJobCommands = new NativeArray<RaycastCommand>(futureHits.ToArray(), Allocator.Persistent);
+                hitJobDirections = new NativeArray<Vector3>(dirs.ToArray(), Allocator.Persistent);
                 jobHandle = RaycastCommand.ScheduleBatch(hitJobCommands, hitJobResults, 250);
 
                 JobHandle.ScheduleBatchedJobs();
@@ -186,7 +205,7 @@ namespace Playtime_Painter {
 
                 jobHandle.Complete();
                 
-                gotHit = new NativeArray<byte>(new byte[hitJobCommands.Length], Allocator.TempJob);
+                gotHit = new NativeArray<byte>(new byte[hitJobCommands.Length], Allocator.Persistent);
 
                 hitJobCommands.Dispose();
 
@@ -204,7 +223,7 @@ namespace Playtime_Painter {
                       height  = Height ,
                       center =  transform.position ,
                       gotHit = gotHit,
-                      lpos = lights.GetLight(rayJobChannel).transform.position ,
+                      lpos = lights.GetLight(rayJobChannel).transform.position 
                   };
 
                 jobHandle = fillArray.Schedule();
@@ -293,12 +312,20 @@ namespace Playtime_Painter {
         }
 
 #if PEGI
+
+
+
         public override bool PEGI()  {
 
             bool changed = base.PEGI();
 
             changed |= lights.Nested_Inspect();
             
+            if (changed && MaterialLightManager.probeChanged != -1)
+            {
+                lightSourceDirty[MaterialLightManager.probeChanged] = true;
+            }
+
             if (ImageData != null && ImageData.texture2D != null) {
                 
                 if (!volumeJobIsRunning) {

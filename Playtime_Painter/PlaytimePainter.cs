@@ -143,7 +143,7 @@ namespace Playtime_Painter{
 
         #endregion
 
-        #region painting
+        #region Painting
 
         public StrokeVector stroke = new StrokeVector();
 
@@ -201,7 +201,6 @@ namespace Playtime_Painter{
 #endif
 
 #if UNITY_EDITOR
-
         public void OnMouseOver_SceneView(RaycastHit hit, Event e) {
 
             if (!CanPaint())
@@ -242,7 +241,6 @@ namespace Playtime_Painter{
             stroke.mouseDwn = false;
 
         }
-
 #endif
 
         bool CanPaint()

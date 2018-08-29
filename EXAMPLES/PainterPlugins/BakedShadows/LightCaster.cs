@@ -10,20 +10,17 @@ namespace Playtime_Painter
 
 
     [ExecuteInEditMode]
-    public class LightCaster : MonoBehaviour, IPEGI
-
-    {
+    public class LightCaster : MonoBehaviour, IPEGI , IGotIndex{
 
         public static Countless<LightCaster> allProbes = new Countless<LightCaster>();
         public static int FreeIndex = 0;
-
-    
-
-
+        
         public Color ecol = Color.yellow;
         public float brightness = 1;
 
         public int index;
+
+        public int IndexForPEGI { get => index; set => index = value; }
 
         public override string ToString() {
             return gameObject.name;

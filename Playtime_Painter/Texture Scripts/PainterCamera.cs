@@ -617,7 +617,7 @@ namespace Playtime_Painter
 
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;
             EditorSceneManager.sceneSaving += BeforeSceneSaved;
-            // Debug.Log("Adding scene saving delegate");
+
             EditorSceneManager.sceneOpening -= OnSceneOpening;
             EditorSceneManager.sceneOpening += OnSceneOpening;
             

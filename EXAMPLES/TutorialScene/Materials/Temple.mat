@@ -10,7 +10,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: e43fdff7d0252b347a071b009c6c8770, type: 3}
   m_ShaderKeywords: UV_ATLASED VERT_SHADOW _BUMP_COMBINED _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -109,7 +109,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - l0col: {r: 1.8396235, g: 30, b: 2.2689474, a: 0.1}
     - l0pos: {r: 112.439995, g: 4.021, b: 140.78, a: 0}
-    - l1col: {r: 27.622189, g: 28.676472, b: 27.80396, a: 0.1}
-    - l1pos: {r: 101.46695, g: 3.38, b: 130.69414, a: 0}
-    - l2col: {r: 108.05, g: 7.538371, b: 0, a: 0.3}
-    - l2pos: {r: 94.45, g: 11.72, b: 155.9, a: 0}
+    - l1col: {r: 167.5, g: 11.686045, b: 0, a: 0.1}
+    - l1pos: {r: 94.45, g: 11.72, b: 155.9, a: 0}
+    - l2col: {r: 27.622189, g: 28.676472, b: 27.80396, a: 0.3}
+    - l2pos: {r: 101.46695, g: 3.38, b: 130.69414, a: 0}
