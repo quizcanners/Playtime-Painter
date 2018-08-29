@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using static Playtime_Painter.BlitJobs;
 
 namespace Playtime_Painter
 {
@@ -102,6 +103,7 @@ namespace Playtime_Painter
         }
 
         public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AlphaBlit; } }
+        public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
         public virtual bool SupportedByTex2D { get { return true; } }
         public virtual bool SupportedByRenderTexturePair { get { return true; } }
@@ -208,7 +210,7 @@ namespace Playtime_Painter
         public override bool SupportedBySingleBuffer { get { return false; } }
 
         public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
-
+        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
         public BlitModeSubtract(int ind) : base(ind){}
 
     }
@@ -232,6 +234,7 @@ namespace Playtime_Painter
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
             public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MinBlit; } }
+        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
     }
 
@@ -241,6 +244,7 @@ namespace Playtime_Painter
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
             public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MaxBlit; } }
+        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }
 

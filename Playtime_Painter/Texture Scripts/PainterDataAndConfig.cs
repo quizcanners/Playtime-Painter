@@ -407,7 +407,7 @@ namespace Playtime_Painter
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
                 };
             
-            if (samplingMaskSize == null) samplingMaskSize = new MyIntVec2(4);
+            if (samplingMaskSize.x == 0) samplingMaskSize = new MyIntVec2(4);
 
             if (atlasFolderName == null || atlasFolderName.Length == 0)
             {

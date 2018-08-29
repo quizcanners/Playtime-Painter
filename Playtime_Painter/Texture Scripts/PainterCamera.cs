@@ -81,7 +81,9 @@ namespace Playtime_Painter
         public MeshManager meshManager = new MeshManager();
 
         public PlaytimePainter focusedPainter;
-        
+
+        public List<ImageData> blitJobsActive = new List<ImageData>();
+
         public bool isLinearColorSpace;
 
         public const int renderTextureSize = 2048;
@@ -750,12 +752,19 @@ namespace Playtime_Painter
             if (Data)
                 meshManager.Update();
         }
-
-
+        
         public void CombinedUpdate()
         {
             if (!Data)
                 return;
+
+            for (int i = 0; i<blitJobsActive.Count; i++) {
+
+                var j = blitJobsActive[i];
+
+                if (j.jobHandle.IsCompleted)
+                    j.CompleteJob();
+            }
 
                 Data.RemoteUpdate();
 
@@ -813,8 +822,9 @@ namespace Playtime_Painter
 #if PEGI
    
        
-        public override bool PEGI()
-        {
+        public override bool PEGI() {
+
+            "Active Jobs: {0}".F(blitJobsActive.Count).nl();
 
 #if UNITY_EDITOR
             if (Data == null)

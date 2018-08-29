@@ -33,6 +33,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
   explorer:
     states: []
     inspectedState: -1
@@ -41,8 +42,8 @@ MonoBehaviour:
   showDebug: 0
   inspectedStuff: -1
   inspectedReference: -1
-  STDdata: imgs|859|e|131|dst|1|1|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|16|BackPaintTexture|svs|0|||e|140|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0|||e|139|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0|||e|137|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
-    0|svs|0|||e|137|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0|||e|133|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed|svs|0||||mats|192|e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|0|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
+  STDdata: imgs|861|e|140|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0|||e|133|dst|1|0|tex2D|2|21|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|6|Volume|svs|0|||e|137|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|y|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0|||e|133|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|2dUndo|2|10|rtBackups|2|10|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed|svs|0|||e|139|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0|||e|137|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|2dUndo|1|0|rtBackups|1|0|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha
+    0|svs|0||||mats|192|e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|0|pv|1|n||e|26|mat|1|2|texInd|1|2|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
   br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
   br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
@@ -552,7 +553,7 @@ MonoBehaviour:
     mask: 15
     _bliTMode: 0
     inGPUtype: 0
-    inCPUtype: 4
+    inCPUtype: 0
     repaintDelay: 0.016
     selectedSourceTexture: 0
     selectedSourceMask: 0
@@ -560,7 +561,7 @@ MonoBehaviour:
     randomMaskOffset: 0
     selectedDecal: 0
     maskTiling: 1
-    Hardness: 55
+    Hardness: 157
     blurAmount: 1
     decalAngle: 0
     decalRotationMethod: 0
@@ -568,16 +569,16 @@ MonoBehaviour:
     decalAngleModifier: 0
     flipMaskAlpha: 0
     TargetIsTex2D: 0
-    Brush3D_Radius: 16
-    Brush2D_Radius: 32
+    Brush3D_Radius: 9.6
+    Brush2D_Radius: 12
     speed: 20
     MB1ToLinkPositions: 0
     DontRedoMipmaps: 0
     colorLinear:
-      r: 0
-      g: 0
-      b: 1
-      a: 0.9611156
+      r: 0.157
+      g: 0.252
+      b: 0.295
+      a: 0.857
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
   newTextureIsColor: 1
@@ -586,11 +587,10 @@ MonoBehaviour:
   ShowTeachingNotifications: 0
   DebugDisableSecondBufferUpdate: 0
   showImgDatas: 1
-  inspectedImgData: -1
   myLayer: 30
   samplingMaskSize:
-    x: 0
-    y: 0
+    x: 4
+    y: 4
   selectedSize: 4
   recordingNames:
   - Unnamed

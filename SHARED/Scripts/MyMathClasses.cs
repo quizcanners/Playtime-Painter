@@ -256,7 +256,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class MyIntVec2
+    public struct MyIntVec2
     {
         public int x;
         public int y;
@@ -329,10 +329,6 @@ namespace SharedTools_Stuff
             x = y = val;
         }
 
-        public MyIntVec2()
-        {
-
-        }
     }
 
 }

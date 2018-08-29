@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using Unity.Collections;
 
 namespace Playtime_Painter {
 
@@ -13,12 +14,16 @@ namespace Playtime_Painter {
     public class VolumeTexture : PainterStuffMono, IPEGI, IGotName {
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
-        
+
+        public virtual bool volumeJobIsRunning => volumeIsProcessed;
+
+        public bool volumeIsProcessed = false;
+
         public static int tmpWidth = 1024;
 
         public int h_slices = 1;
         public float size = 1;
-        [NonSerialized] protected Color[] volume;
+        [NonSerialized] protected NativeArray<Color> unsortedVolume;
         [SerializeField] Texture2D image;
 
         public ImageData ImageData
@@ -55,9 +60,8 @@ namespace Playtime_Painter {
             int w = Width;
             int volumeLength = w * w * Height;
 
-            if (volume == null || volume.Length != volumeLength)
-                volume = new Color[volumeLength];
-
+            CheckVolume();
+            
             int hw = Width / 2;
 
             Vector3 pos = Vector3.zero;
@@ -70,7 +74,7 @@ namespace Playtime_Painter {
 
                     for (int x = 0; x < w; x++) {
                         pos.x = center.x + ((float)(x - hw)) * size;
-                        volume[index + x] = GetColorFor(pos);
+                        unsortedVolume[index + x] = GetColorFor(pos);
                     }
                 }
             }
@@ -90,7 +94,74 @@ namespace Playtime_Painter {
             return false;
         }
 
+        protected void CheckVolume() {
+            if (CheckSizeChange())
+                VolumeFromTexture();
+        }
+        
+        bool CheckSizeChange()
+        {
+            int volumeLength = Width * Width * Height;
+
+            if (!unsortedVolume.IsCreated || unsortedVolume.Length != volumeLength)
+            {
+                if (unsortedVolume.IsCreated)
+                    unsortedVolume.Dispose();
+
+                unsortedVolume = new NativeArray<Color>(volumeLength, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                return true;
+            }
+            return false;
+        }
+
+        public virtual void VolumeFromTexture() {
+            
+            if (ImageData == null) {
+
+                if (TexturesPool._inst != null)
+                    ImageData = TexturesPool._inst.GetTexture2D().GetImgData();
+                else
+                {
+                    Debug.Log("No Texture for Volume");
+                    return;
+                }
+                UpdateTextureName();
+            }
+
+            CheckSizeChange();
+
+            Color[] pixels = ImageData.Pixels;
+
+            int texSectorW = ImageData.width / h_slices;
+            int w = Width;
+
+            for (int hy = 0; hy < h_slices; hy++) {
+                for (int hx = 0; hx < h_slices; hx++) {
+
+                    int hTex_index = (hy * ImageData.width + hx) * texSectorW;
+
+                    int h = hy * h_slices + hx;
+
+                    for (int y = 0; y < w; y++)  {
+                        int yTex_index = hTex_index + y * ImageData.width;
+
+                        int yVolIndex = h * w * w + y * w;
+
+                        for (int x = 0; x < w; x++)
+                        {
+                            int texIndex = yTex_index + x;
+                            int volIndex = yVolIndex + x;
+
+                            unsortedVolume[volIndex] = pixels[texIndex];
+                        }
+                    }
+                }
+            }
+
+        }
+
         public virtual void VolumeToTexture() {
+
             if (ImageData == null) {
 
                 if (TexturesPool._inst != null)
@@ -108,17 +179,14 @@ namespace Playtime_Painter {
             int texSectorW = ImageData.width / h_slices;
             int w = Width;
 
-            for (int hy = 0; hy < h_slices; hy++)
-            {
-                for (int hx = 0; hx < h_slices; hx++)
-                {
+            for (int hy = 0; hy < h_slices; hy++) {
+                for (int hx = 0; hx < h_slices; hx++) {
 
                     int hTex_index = (hy * ImageData.width + hx) * texSectorW;
 
                     int h = hy * h_slices + hx;
 
-                    for (int y = 0; y < w; y++)
-                    {
+                    for (int y = 0; y < w; y++) {
                         int yTex_index = hTex_index + y * ImageData.width;
 
                         int yVolIndex = h * w * w + y * w;
@@ -127,7 +195,7 @@ namespace Playtime_Painter {
                             int texIndex = yTex_index + x;
                             int volIndex = yVolIndex + x;
 
-                            pixels[texIndex] = volume[volIndex];
+                            pixels[texIndex] = unsortedVolume[volIndex];
                         }
                     }
                 }
@@ -210,12 +278,7 @@ namespace Playtime_Painter {
                 name = n;
                 changed = true;
             }
-            
-            if (volume != null && volume.Length != Width * Width * Height)  {
-                volume = null;
-                Debug.Log("Clearing volume");
-            }
-
+   
             var texture = ImageData.CurrentTexture();
 
             if (texture == null)
@@ -299,6 +362,8 @@ namespace Playtime_Painter {
         public virtual void OnDisable() {
             if (all.Contains(this))
             all.Remove(this);
+            if (unsortedVolume.IsCreated)
+                unsortedVolume.Dispose();
         }
 
         public virtual void OnDrawGizmosSelected()

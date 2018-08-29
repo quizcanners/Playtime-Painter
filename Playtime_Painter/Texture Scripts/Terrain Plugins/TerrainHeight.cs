@@ -7,7 +7,7 @@ namespace Playtime_Painter
     [System.Serializable]
     public class TerrainHeight : PainterPluginBase
     {
-
+        
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainHeight)))

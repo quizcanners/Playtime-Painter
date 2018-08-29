@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using System;
 using SharedTools_Stuff;
+using Unity.Jobs;
+using Unity.Collections;
+using System;
 
 namespace Playtime_Painter {
 
@@ -43,8 +45,7 @@ namespace Playtime_Painter {
             PlugIn_NeedsGrid(NeedsGrid);
 
             PlugIn_CPUblitMethod(PaintTexture2D);
-
-
+            
         }
 
         public override string ToString() {
@@ -75,16 +76,34 @@ namespace Playtime_Painter {
             return false;
         }
 
+        public bool PaintTexture2D_NEW(StrokeVector stroke, float brushAlpha, ImageData image, 
+            BrushConfig bc, PlaytimePainter pntr) {
+
+            var volume = image.texture2D.GetVolumeTextureData();
+
+            if (image.CanUsePixelsForJob()) {
+
+                var blitJob = new BlitJobs();
+
+                blitJob.PrepareVolumeBlit(bc, image, brushAlpha, stroke, volume);
+
+                image.jobHandle = blitJob.Schedule();
+
+                JobHandle.ScheduleBatchedJobs();
+
+                return true;
+            }
+            
+            return false;
+        }
+
         public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
 
-            int slices;
+            var volume = image.texture2D.GetVolumeTextureData();
 
-            slices = image.texture2D.VolumeSlices();
+            if (volume != null) {
 
-            if (slices > 1) {
-                var volume = image.texture2D.GetVolumeTextureData();
-
-                if (volume == null)
+                if (volume.volumeJobIsRunning)
                     return false;
 
                 float volumeScale = volume.size;
@@ -106,15 +125,14 @@ namespace Playtime_Painter {
 
                 Blit_Functions._alphaMode = Blit_Functions.SphereAlpha;
 
-                int sliceWidth = texWidth / slices;
+                int sliceWidth = texWidth / volume.h_slices;
 
                 int hw = sliceWidth / 2;
 
-                int y = (int)pos.y; // (int)Mathf.Clamp(pos.y, 0, height - 1);
-                int z = (int)(pos.z + hw); // (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
-                int x = (int)(pos.x + hw); // (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
+                int y = (int)pos.y; 
+                int z = (int)(pos.z + hw); 
+                int x = (int)(pos.x + hw);
                 
-
                 for (Blit_Functions.y = -ihalf; Blit_Functions.y < ihalf + 1; Blit_Functions.y++) {
 
                     int h = y + Blit_Functions.y;
@@ -123,8 +141,8 @@ namespace Playtime_Painter {
 
                     if (h >= 0) {
 
-                        int hy = h / slices;
-                        int hx = h % slices;
+                        int hy = h / volume.h_slices;
+                        int hx = h % volume.h_slices;
                         int hTex_index = (hy * texWidth + hx) * sliceWidth;
 
                         for (Blit_Functions.z = -ihalf; Blit_Functions.z < ihalf + 1; Blit_Functions.z++) {
@@ -137,13 +155,15 @@ namespace Playtime_Painter {
 
                                 for (Blit_Functions.x = -ihalf; Blit_Functions.x < ihalf + 1; Blit_Functions.x++)
                                 {
-                                    int trueX = x + Blit_Functions.x;
+                                    if (Blit_Functions._alphaMode()) {
+                                        int trueX = x + Blit_Functions.x;
 
-                                    if (trueX >= 0 && trueX < sliceWidth) {
-                                        int texIndex = yTex_index + trueX;
+                                        if (trueX >= 0 && trueX < sliceWidth) {
 
-                                        if (Blit_Functions._alphaMode())
+                                            int texIndex = yTex_index + trueX;
                                             Blit_Functions._blitMode(ref pixels[texIndex]);
+
+                                        }
                                     }
                                 }
                             }
@@ -155,7 +175,7 @@ namespace Playtime_Painter {
             }
             return false;
         }
-
+        
         public override bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
             var vt = pntr.GetVolumeTexture();
             if (vt != null) {
@@ -180,6 +200,16 @@ namespace Playtime_Painter {
 
                 return true;
             }
+            return false;
+        }
+
+        public bool DrawGizmosOnPainter(PlaytimePainter pntr)
+        {
+            var volume = pntr.ImgData.GetVolumeTextureData();
+
+            if (volume != null && !pntr.LockTextureEditing)
+                return volume.DrawGizmosOnPainter(pntr);
+
             return false;
         }
 
@@ -209,18 +239,7 @@ namespace Playtime_Painter {
             }
             return changed;
         }
-#endif
 
-
-        public bool DrawGizmosOnPainter(PlaytimePainter pntr) {
-            var volume = pntr.ImgData.GetVolumeTextureData();
-
-            if (volume!= null && !pntr.LockTextureEditing) 
-                 return volume.DrawGizmosOnPainter(pntr);
-
-            return false;
-        }
-#if PEGI
         [SerializeField]
         bool exploreVolumeData = false;
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
@@ -304,7 +323,7 @@ namespace Playtime_Painter {
             if (p == null)
                 return null;
             var id = p.ImgData;
-            if (id != null && id.texture2D!=null && id.texture2D.VolumeSlices() > 1)
+            if (id != null && id.texture2D!=null)
                 return id.GetVolumeTextureData();
             return null;
         }
@@ -312,25 +331,6 @@ namespace Playtime_Painter {
         public static Vector3 VolumeSize (this Texture2D tex, int slices) {      
             int w= tex.width/slices;
             return new Vector3(w, slices * slices, w);
-        }
-
-        public static int VolumeSlices (this Texture2D tex) {
-            if (tex == null) return 1;
-
-            string n = tex.name;
-            int tag = n.IndexOf(VolumePaintingPlugin.VolumeTextureTag);
-
-            if (tag != -1){
-                int countLen = n.IndexOf(VolumePaintingPlugin.VolumeSlicesCountTag);
-                if (countLen > tag) {
-                    tag += VolumePaintingPlugin.VolumeTextureTag.Length;
-                    string slices = tex.name.Substring(tag, countLen-tag);
-                    int cnt = slices.ToIntFromTextSafe(1);
-                    return cnt;
-                }
-            }
-
-            return 1;
         }
 
         public static void SetVolumeTexture(this Material material, string name, VolumeTexture vt) {
@@ -366,8 +366,7 @@ namespace Playtime_Painter {
 
             return null;*/
         }
-
-
+        
         static VolumeTexture lastFetchedVT;
         public static VolumeTexture GetVolumeTextureData(this ImageData id)
         {
@@ -377,10 +376,10 @@ namespace Playtime_Painter {
             if (lastFetchedVT != null && lastFetchedVT.ImageData != null && lastFetchedVT.ImageData == id)
                 return lastFetchedVT;
 
-            for (int i = 0; i < VolumeTexture.all.Count; i++)
-            {
+            for (int i = 0; i < VolumeTexture.all.Count; i++) {
                 var vt = VolumeTexture.all[i];
                 if (vt == null) { VolumeTexture.all.RemoveAt(i); i--; }
+
                 else if (vt.ImageData != null && id == vt.ImageData) {
                     lastFetchedVT = vt;
                     return vt;

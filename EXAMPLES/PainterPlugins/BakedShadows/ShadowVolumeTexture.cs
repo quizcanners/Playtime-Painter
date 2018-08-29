@@ -18,9 +18,12 @@ namespace Playtime_Painter {
         public MaterialLightManager lights;
         public override string MaterialPropertyName{ get{  return "_BakedShadow" + VolumePaintingPlugin.VolumeTextureTag;  } }
 
+        public override bool volumeJobIsRunning => rayStep!= RaycastsStep.Nothing || base.volumeJobIsRunning;
+
         [NonSerialized] RaycastsStep rayStep = RaycastsStep.Nothing;
         int rayJobChannel = 0;
 
+        public bool[] lightSourceDirty = new bool[3];
 
         public override void Update() {
             base.Update();
@@ -52,111 +55,106 @@ namespace Playtime_Painter {
             return true;  
         }
 
-        public NativeArray<Color> colorJob;
-
-        public struct JobToFillTheArray : IJob
-        {
+        public struct JobToFillTheArray : IJob {
 
             public NativeArray<Color> volume;
-            [ReadOnly]  public NativeArray<RaycastHit> hitJobResults;
-            [ReadOnly]  public NativeArray<RaycastCommand> hitJobCommands;
-            [DeallocateOnJobCompletion]  [ReadOnly]  public NativeArray<byte> gotHit;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<int> channelIndex;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<float> Size;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<int> WidthNA;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<int> Height;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<Vector3> Center;
-            [DeallocateOnJobCompletion] [ReadOnly]  public NativeArray<Vector3> LightPosition;
+             [ReadOnly]  public NativeArray<RaycastHit> hitJobResults;
+             [ReadOnly] public NativeArray<Vector3> hitJobDirection;
+             [ReadOnly]  public NativeArray<byte> gotHit;
+             [ReadOnly]  public int channelIndex;
+             [ReadOnly]  public float size;
+             [ReadOnly]  public int w;
+             [ReadOnly]  public int height;
+             [ReadOnly]  public Vector3 center;
+             [ReadOnly]  public Vector3 lpos;
 
             public void Execute() {
 
-                for (int ind = 0; ind < hitJobResults.Length; ind++)
-                {
+                for (int i=0; i< volume.Length; i++) {
+                    var col = volume[i];
+                    col[channelIndex] = 0;
+                    volume[channelIndex] = col;
+                }
 
-                    var vector = hitJobCommands[ind].direction;
+                float deSize = 1f/size;
+                int hw = (int)(w * 0.5f);
 
-                    var hit = hitJobResults[ind];
+                Vector3 lightLocalPos = lpos - center;
 
-                    if (gotHit[ind] > 0 && vector.magnitude > 0)
-                    {
+                for (int ind = 0; ind < hitJobResults.Length; ind++) {
 
-                        float size = Size[0];
-                        int w = WidthNA[0];
-                        int hw = (int)(w * 0.5f);
-                        int h = Height[0];
-                        int l = channelIndex[0];
-                        Vector3 center = Center[0];
+                    if (gotHit[ind] > 0) {
 
-                        var hitDist = hit.distance;
+                        var vector = hitJobDirection[ind];
 
-                        float steps = Mathf.FloorToInt(vector.magnitude * 4);
+                        float magnitude = vector.magnitude;
 
-                        int start = (int)(steps * (hitDist / vector.magnitude));
+                        var hitDist = (hitJobResults[ind].point - lpos).magnitude;
 
-                        vector /= steps;
+                        if (magnitude > hitDist) {
+                            
+                            float steps = Mathf.FloorToInt(magnitude * 4);
 
-                        float step = vector.magnitude;
+                            int skipSteps = (int)(steps * (hitDist / magnitude));
 
-                        float dist = 0;
+                            var marchVector = vector / steps;
 
-                        Vector3 tracePos = LightPosition[0];
+                            float marchStep = marchVector.magnitude;
 
-                        for (int i = start; i < steps; i++)
-                        {
+                            float marchDist = skipSteps * marchStep;
 
-                            int HH = Mathf.FloorToInt((tracePos.y - center.y) / size);
+                            Vector3 marchPos = lightLocalPos + skipSteps * marchVector;
 
-                            if (HH >= 0 && HH < h)
-                            {
+                            for (int i = skipSteps; i < steps; i++) {
 
-                                int YY = Mathf.FloorToInt((tracePos.z - center.z) / size + hw);
+                                if (marchDist > hitDist)  {
 
-                                if (YY >= 0 && YY < w)
-                                {
-                                    int XX = Mathf.FloorToInt((tracePos.x - center.x) / size + hw);
+                                    int HH = Mathf.FloorToInt((marchPos.y) * deSize);
+                                    if (HH >= 0 && HH < height) {
 
-                                    if (XX >= 0 && XX < w)
-                                    {
-                                        int index = (HH * w + YY) * w + XX;
-                                        float diff = dist - hitDist;
-                                        var col = volume[index];
-                                        col[l] = diff < 0 ? 0 : Mathf.Min(1, diff * size);
-                                        volume[index] = col;
+                                        int YY = Mathf.FloorToInt((marchPos.z) * deSize + hw);
+                                        if (YY >= 0 && YY < w) {
+
+                                            int XX = Mathf.FloorToInt((marchPos.x) * deSize + hw);
+                                            if (XX >= 0 && XX < w) {
+
+                                                float diff = marchDist - hitDist;
+                                                int index = (HH * w + YY) * w + XX;
+                                                var col = volume[index];
+                                                col[channelIndex] = Mathf.Min(diff * size, 1);
+                                                volume[index] = col;
+                                            }
+                                        }
                                     }
                                 }
+
+                                marchDist += marchStep;
+                                marchPos += marchVector;
                             }
-
-                            dist += step;
-
-                            tracePos += vector;
                         }
                     }
                 }
-
-
-        
-           /*     gotHit.Dispose();
-                channelIndex.Dispose();
-                Size.Dispose();
-                WidthNA.Dispose();
-                Height.Dispose();
-                Center.Dispose();
-                LightPosition.Dispose();*/
-
-
+            }
         }
-    }
-
 
         NativeArray<RaycastHit> hitJobResults;
         NativeArray<RaycastCommand> hitJobCommands;
-        NativeArray<Color> result;
+        NativeArray<Vector3> hitJobDirections;
         NativeArray<byte> gotHit;
         JobHandle jobHandle;
 
-        public void UpdateRaycasts()
-        {
-          
+        public void UpdateRaycasts() {
+
+            if (!volumeJobIsRunning) {
+                for (int i = 0; i < 3; i++) {
+                    if (lightSourceDirty[i]) {
+                        rayJobChannel = i;
+                        rayStep = RaycastsStep.Requested;
+                        break;
+                    }
+                }
+            }
+
             if (rayStep == RaycastsStep.Requested)  {
                 
                 if ( lights == null || lights.GetLight(rayJobChannel) == null)  {
@@ -167,16 +165,15 @@ namespace Playtime_Painter {
 
                 rayStep = RaycastsStep.Raycasting;
 
-                int volumeLength = Width * Width * Height;
+                CheckVolume();
 
-                if (volume == null || volume.Length != volumeLength)
-                    volume = new Color[volumeLength];
+                List<Vector3> dirs; //= new List<Vector3>();
 
-                List<RaycastCommand> futureHits = RecalculateVolumePrepareJobs(rayJobChannel); // new List<RaycastCommand>();
-                
+                List<RaycastCommand> futureHits = RecalculateVolumePrepareJobs(rayJobChannel, out dirs); 
+
                 hitJobResults = new NativeArray<RaycastHit>(futureHits.Count, Allocator.TempJob);
                 hitJobCommands = new NativeArray<RaycastCommand>(futureHits.ToArray(), Allocator.TempJob);
-            
+                hitJobDirections = new NativeArray<Vector3>(dirs.ToArray(), Allocator.TempJob);
                 jobHandle = RaycastCommand.ScheduleBatch(hitJobCommands, hitJobResults, 250);
 
                 JobHandle.ScheduleBatchedJobs();
@@ -189,9 +186,9 @@ namespace Playtime_Painter {
 
                 jobHandle.Complete();
                 
-                result = new NativeArray<Color>(volume, Allocator.Persistent);
-
                 gotHit = new NativeArray<byte>(new byte[hitJobCommands.Length], Allocator.TempJob);
+
+                hitJobCommands.Dispose();
 
                 for (int i = 0; i < hitJobResults.Length; i++)
                     gotHit[i] = (byte)((hitJobResults[i].collider != null) ? 1 : 0);
@@ -199,48 +196,41 @@ namespace Playtime_Painter {
                   var fillArray = new JobToFillTheArray() {
 
                       hitJobResults = hitJobResults,
-                      hitJobCommands = hitJobCommands,
-                      channelIndex = new NativeArray<int>(new int[] { rayJobChannel }, Allocator.TempJob),
-                      volume = result,
-                      Size = new NativeArray<float>(new float[] { size }, Allocator.TempJob),
-                      WidthNA = new NativeArray<int>(new int[] { Width }, Allocator.TempJob),
-                      Height = new NativeArray<int>(new int[] { Height }, Allocator.TempJob),
-                      Center = new NativeArray<Vector3>(new Vector3[] { transform.position }, Allocator.TempJob),
+                      hitJobDirection = hitJobDirections, 
+                      channelIndex =  rayJobChannel,
+                      volume = unsortedVolume,
+                      size =  size,
+                      w =  Width,
+                      height  = Height ,
+                      center =  transform.position ,
                       gotHit = gotHit,
-                      LightPosition = new NativeArray<Vector3>(new Vector3[] { lights.GetLight(rayJobChannel).transform.position }, Allocator.TempJob),
+                      lpos = lights.GetLight(rayJobChannel).transform.position ,
                   };
 
                 jobHandle = fillArray.Schedule();
 
                 JobHandle.ScheduleBatchedJobs();
-
             }
 
             if (rayStep == RaycastsStep.FillingTheColor && jobHandle.IsCompleted) {
                 
-                try
-                {
-                    jobHandle.Complete();
-                    volume = result.ToArray();
-                }
-                catch (Exception ex)  {
-                    Debug.LogError(ex);
-
-                  
-                }
+                jobHandle.Complete();
+                
+                lightSourceDirty[rayJobChannel] = false;
+                
+                gotHit.Dispose();
+                hitJobResults.Dispose();
+                hitJobDirections.Dispose();
+                VolumeToTexture();
 
                 rayStep = RaycastsStep.Nothing;
-
-                result.Dispose();
-                hitJobResults.Dispose();
-                hitJobCommands.Dispose();
-                VolumeToTexture();
             }
 
         }
+        
+        public List<RaycastCommand> RecalculateVolumePrepareJobs(int channel, out List<Vector3> directions)  {
 
-
-        public List<RaycastCommand> RecalculateVolumePrepareJobs(int channel)  {
+            directions = new List<Vector3>();
 
             List<RaycastCommand> futureHits = new List<RaycastCommand>();
 
@@ -249,10 +239,6 @@ namespace Playtime_Painter {
             Vector3 center = transform.position;
 
             float hw = Width * 0.5f;
-
-            var col = new Color(0, 0, 0, 1);
-            for (int i = 0; i < volume.Length; i++)
-                volume[i] = col;
 
             Vector3 pos = Vector3.zero;
             
@@ -284,8 +270,8 @@ namespace Playtime_Painter {
                                     pos.z = center.z + ((float)(z - hw)) * size;
 
                                     var vector = pos - lpos;
-
-                                    futureHits.Add(new RaycastCommand(lpos, vector));
+                                    directions.Add(vector);
+                                    futureHits.Add(new RaycastCommand(lpos, vector, vector.magnitude*1.5f));
                                 }
                             }
                         }
@@ -294,101 +280,7 @@ namespace Playtime_Painter {
 
             return futureHits;
         }
-
-
-        /*
-        public void RecalculateVolumeFast()
-        {
-            int w = Width;
-            int h = Height;
-            Vector3 center = transform.position;
-
-            float hw = Width * 0.5f;
-
-            var col = new Color(0,0,0,1);
-            for (int i = 0; i < volume.Length; i++)
-                volume[i] = col;
-            
-            Vector3 pos = Vector3.zero;
-
-            for (int l = 0; l < 3; l++)
-            {
-                var light = lights.GetLight(l);
-
-                if (light != null)
-                    for (int side = 0; side < 3; side++) {
-
-                        int addY = side == 0 ? h - 1 : 1;
-                        int addX = side == 1 ? w - 1 : 1;
-                        int addZ = side == 2 ? w - 1 : 1;
-
-                        for (int y = 0; y < h; y += addY) {
-
-                            pos.y = center.y + y * size;
-
-                            for (int x = 0; x < w; x += addX) {
-
-                                pos.x = center.x + ((float)(x - hw)) * size;
-                                
-                                for (int z = 0; z < w; z += addZ) {
-
-                                    pos.z = center.z + ((float)(z - hw)) * size;
-
-                                    RaycastHit hit;
-
-                                    var vector = pos - light.transform.position;
-
-                                    if (vector.magnitude > 0 && light.transform.position.RaycastHit(pos, out hit)) {
-
-                                        var hitDist = hit.distance;
-                                        
-                                        float steps = Mathf.FloorToInt(vector.magnitude * 4);
-
-                                        int start = (int)(steps * (hitDist / vector.magnitude));
-
-                                        vector /= steps;
-
-                                        float step = vector.magnitude;
-
-                                        float dist = 0;
-
-                                        Vector3 tracePos = light.transform.position;
-
-                                        for (int i = start; i < steps; i++) {
-                                          
-                                            int HH = Mathf.FloorToInt((tracePos.y - center.y) / size);
-
-                                            if (HH >= 0 && HH < h)
-                                            {
-                                                int YY = Mathf.FloorToInt((tracePos.z - center.z) / size + hw);
-
-                                                if (YY >= 0 && YY < w)
-                                                {
-                                                    int XX = Mathf.FloorToInt((tracePos.x - center.x) / size + hw);
-
-                                                    if (XX >= 0 && XX < w) {
-
-                                                        int index = (HH * Width + YY) * Width + XX;
-                                                        float diff = dist - hitDist;
-                                                        volume[index][l] = diff < 0 ? 0 : Mathf.Min(1, diff*size);
-
-                                                    }
-                                                }
-                                            }
-                                            
-                                            dist += step;
-
-                                            tracePos += vector;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-            }
-        }
-        */
-
+        
         public override void RecalculateVolume() {
             if (rayStep == RaycastsStep.Nothing)
                 rayStep = RaycastsStep.Requested;
@@ -401,47 +293,46 @@ namespace Playtime_Painter {
         }
 
 #if PEGI
-        public override bool PEGI()
-        {
+        public override bool PEGI()  {
 
             bool changed = base.PEGI();
 
             changed |= lights.Nested_Inspect();
-
-           
-
+            
             if (ImageData != null && ImageData.texture2D != null) {
+                
+                if (!volumeJobIsRunning) {
 
+                    "Channel: ".edit(ref rayJobChannel, 0, 2).nl();
 
-                if (rayStep == RaycastsStep.Nothing)
-                {
-
-                    "Channel: ".edit(ref rayJobChannel, 0, 3).nl();
-
-                    if ("Recalculate ".Click().nl())
-                    {
+                    if ("Recalculate ".Click()) {
                         changed = true;
+                        VolumeFromTexture();
+                        lightSourceDirty[rayJobChannel] = true;
                         rayStep = RaycastsStep.Requested;
+                    }
+
+                    if ("All".Click().nl()) {
+                        changed = true;
+                        VolumeFromTexture();
+                        for (int i = 0; i < 3; i++)
+                            lightSourceDirty[i] = true;
                     }
                 }
                 else
-                {
-
                     "Recalculating channel {0} : {1}".F(rayJobChannel, rayStep.ToString()).nl();
-                }
-
-            } else
-            {
+                
+            } else  {
                 if (ImageData == null)
                     "Image Data is Null".nl();
                 else
                     "Texture 2D is null".nl();
             }
 
-                if (changed)
-                    UpdateMaterials();
+            if (changed)
+                UpdateMaterials();
 
-                return changed;
+            return changed;
             
         }
 #endif

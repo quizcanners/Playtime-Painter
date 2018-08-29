@@ -246,7 +246,6 @@ GameObject:
   - component: {fileID: 33193578281141680}
   - component: {fileID: 23256762826162058}
   - component: {fileID: 114608961586632692}
-  - component: {fileID: 64617103266192152}
   m_Layer: 0
   m_Name: White
   m_TagString: Untagged
@@ -264,7 +263,6 @@ GameObject:
   - component: {fileID: 4048008407403730}
   - component: {fileID: 33977805324635172}
   - component: {fileID: 23638457553327218}
-  - component: {fileID: 135068427723228570}
   - component: {fileID: 114712500847804548}
   m_Layer: 0
   m_Name: Volume Core
@@ -1639,20 +1637,6 @@ MeshCollider:
   m_CookingOptions: 14
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: 013bfb86357164f4c90b49cfc4a75ccc, type: 2}
---- !u!64 &64617103266192152
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1573499391500076}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &114022655640905380
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1690,9 +1674,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.12036085, y: 0.94571877}
     posFrom: {x: 99.36036, y: 2.7600002, z: 160.79572}
-    uvTo: {x: 0.1856327, y: 0.086015195}
-    posTo: {x: 105.43041, y: 3.104061, z: 111.97804}
-    unRepeatedUV: {x: 0.1856327, y: 0.086015195}
+    uvTo: {x: 0.6643617, y: 0.3881337}
+    posTo: {x: 93.95995, y: 5.6413393, z: 142.49362}
+    unRepeatedUV: {x: -3.3356383, y: 0.3881337}
     useTexcoord2: 0
     previousDelta: {x: -0.47878695, y: 0.699728}
     avgBrushSpeed: 0.070210144
@@ -1744,7 +1728,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   h_slices: 8
   size: 0.3
-  imgDataIndex: 0
+  image: {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
   materials:
   - {fileID: 2100000, guid: c3f44a42a8321804fa7b29439994b177, type: 2}
   - {fileID: 2100000, guid: e727ebe55467a3f41bae778220ab6351, type: 2}
@@ -1755,6 +1739,7 @@ MonoBehaviour:
     - 0.1
     - 0.3
     browsedNode: -1
+  lightSourceDirty: 000000
 --- !u!114 &114811405726825066
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1769,18 +1754,6 @@ MonoBehaviour:
   ecol: {r: 1, g: 0.06976743, b: 0, a: 1}
   brightness: 108.05
   index: 2
---- !u!135 &135068427723228570
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1582996838084086}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!136 &136534601871651838
 CapsuleCollider:
   m_ObjectHideFlags: 1

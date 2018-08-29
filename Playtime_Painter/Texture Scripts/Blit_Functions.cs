@@ -41,10 +41,10 @@ public static class Blit_Functions {
         }
 
         public static bool circleAlpha() {
-        float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
-        alpha = Mathf.Clamp01((dist) / half) * brAlpha;
-        return alpha > 0;
-    }
+            float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
+            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
+            return alpha > 0;
+        }
 
     /*public static blitModeFunction blitFunction(this blitMode mode) {
         switch (mode) {
@@ -64,11 +64,11 @@ public static class Blit_Functions {
 		}
 
 		public static void AddBlit(ref Color cdst) {
-        if (r) cdst.r = alpha * csrc.r + cdst.r;
-        if (g) cdst.g = alpha * csrc.g + cdst.g;
-        if (b) cdst.b = alpha * csrc.b + cdst.b;
-        if (a) cdst.a = alpha * csrc.a + cdst.a;
-    }
+            if (r) cdst.r = alpha * csrc.r + cdst.r;
+            if (g) cdst.g = alpha * csrc.g + cdst.g;
+            if (b) cdst.b = alpha * csrc.b + cdst.b;
+            if (a) cdst.a = alpha * csrc.a + cdst.a;
+        }
 
         public static void SubtractBlit(ref Color cdst) {
             if (r) cdst.r = Mathf.Max(0, -alpha * csrc.r + cdst.r);
@@ -93,21 +93,7 @@ public static class Blit_Functions {
         if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
     }
         
-        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr) {
-            ImageData id = texture.GetImgData();
-
-            id.offset = offset;
-            id.tiling = tiling;
-
-            if (id == null) {
-#if UNITY_EDITOR
-                Debug.Log("No texture data");
-#endif
-                return;
-            }
-
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
-        }
+   
 
         public static void PrepareCPUBlit (this BrushConfig bc) {
             half = (bc.Size(false)) / 2;
@@ -128,6 +114,23 @@ public static class Blit_Functions {
 
             csrc = bc.colorLinear.ToGamma();
 
+        }
+
+        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr) {
+            ImageData id = texture.GetImgData();
+
+            id.offset = offset;
+            id.tiling = tiling;
+
+            if (id == null)
+            {
+#if UNITY_EDITOR
+                Debug.Log("No texture data");
+#endif
+                return;
+            }
+
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
         }
 
         public static bool Paint(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {

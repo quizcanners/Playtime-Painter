@@ -9,6 +9,8 @@ using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 using System.IO;
+using Unity.Collections;
+using Unity.Jobs;
 
 namespace Playtime_Painter
 {
@@ -37,6 +39,9 @@ namespace Playtime_Painter
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
+        public Color[] _pixels;
+        public NativeArray<Color> pixelsForJob;
+        public JobHandle jobHandle;
 
         #region SAVE IN PLAYER
 
@@ -128,8 +133,6 @@ namespace Playtime_Painter
         return true;
         }
         
-        public Color[] _pixels;
-
         public Color[] Pixels
         {
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
@@ -501,12 +504,40 @@ namespace Playtime_Painter
             return new MyIntVec2(uv.x * width, uv.y * height);
         }
 
-        public void SetAndApply(bool mipmaps)
-        {
-            if (_pixels == null) return;
+        #region BlitJobs
+
+        public bool CanUsePixelsForJob() {
+            if (!pixelsForJob.IsCreated && _pixels != null) {
+
+                pixelsForJob = new NativeArray<Color>(_pixels, Allocator.TempJob);
+
+                TexMGMT.blitJobsActive.Add(this);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public void CompleteJob() {
+            if (pixelsForJob.IsCreated) {
+
+                jobHandle.Complete();
+                _pixels = pixelsForJob.ToArray();
+                pixelsForJob.Dispose();
+                TexMGMT.blitJobsActive.Remove(this);
+                SetAndApply(true);
+            }
+        }
+
+        public void SetAndApply(bool mipmaps) {
+            if (_pixels == null)
+                return;
             texture2D.SetPixels(_pixels);
             texture2D.Apply(mipmaps);
         }
+
+        #endregion
 
         public ImageData Init(Texture tex)
         {
