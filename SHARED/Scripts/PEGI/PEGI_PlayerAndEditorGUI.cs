@@ -174,8 +174,7 @@ namespace PlayerAndEditorGUI
 
         public static string needsAttention(this IList list)
         {
-
-
+            
             for (int i = 0; i < list.Count; i++)
             {
 
@@ -5547,6 +5546,16 @@ namespace PlayerAndEditorGUI
             if (lst != null)
                 foreach (var el in lst)
                     if (el != null && el.IndexForPEGI == index && el.GetType() == typeof(G))
+                        return el;
+
+            return default(T);
+        }
+
+        public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName 
+        {
+            if (lst != null)
+                foreach (var el in lst)
+                    if (el != null && el.NameForPEGI.SameAs(name))
                         return el;
 
             return default(T);
