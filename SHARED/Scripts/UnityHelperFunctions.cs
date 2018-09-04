@@ -45,9 +45,7 @@ namespace SharedTools_Stuff
 
             return v3;
         } 
-
-
-
+        
 #if PEGI
         public static string GetMeaningfulHierarchyName (this GameObject go, int maxLook, int maxLength)
         {
@@ -675,13 +673,27 @@ namespace SharedTools_Stuff
                 path = "Assets" + path.AddPreSlashIfNotEmpty();
 
             string fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
-            Directory.CreateDirectory(fullPath);
+            try
+            {
+                Directory.CreateDirectory(fullPath);
+            } catch (Exception ex)
+            {
+                Debug.LogError("Couldn't create Directory {0} : {1}".F(fullPath, ex.ToString()));
+                return null;
+            }
 
             string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("{0}{1}.asset".F(path.AddPostSlashIfNone(), name));
-            
-            AssetDatabase.CreateAsset(asset, assetPathAndName);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+
+            try
+            {
+
+                AssetDatabase.CreateAsset(asset, assetPathAndName);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            } catch (Exception ex)
+            {
+                Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
+            }
 #endif
 
 

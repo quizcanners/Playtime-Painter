@@ -41,6 +41,7 @@ namespace SharedTools_Stuff
             public SkipLock(LoopLock make)
             {
                 creator = make;
+                make.llock = true;
             }
         }
 

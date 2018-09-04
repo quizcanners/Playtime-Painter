@@ -1623,7 +1623,12 @@ namespace PlayerAndEditorGUI
         public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list) where T : UnityEngine.Object
         {
             if (list == null || list.Count == 0)
+            {
+                if (text != null)
+                    write(text, hint, width);
+
                 return edit(ref obj);
+            }
             else
             {
                 bool changed = false;
@@ -1636,9 +1641,10 @@ namespace PlayerAndEditorGUI
                 if (text != null)
                     write(text, hint, width);
 
-
-
                 changed |= select(ref obj, list);
+
+                obj.clickHighlight();
+
                 return changed;
             }
         }
@@ -1747,6 +1753,58 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        public static bool select_iGotName<T>(this string label, string tip, ref string ind, List<T> lst) where T : IGotName
+        {
+            write(label, tip);
+            return select_iGotName(ref ind, lst);
+        }
+
+        public static bool select_iGotName<T>(this string label, string tip, int width, ref string ind, List<T> lst) where T : IGotName
+        {
+            write(label, tip, width);
+            return select_iGotName(ref ind, lst);
+        }
+
+        public static bool select_iGotName<T>(this string label, int width, ref string ind, List<T> lst) where T : IGotName
+        {
+            write(label, width);
+            return select_iGotName(ref ind, lst);
+        }
+
+        public static bool select_iGotName<T>(this string label, ref string ind, List<T> lst) where T : IGotName
+        {
+            write(label);
+            return select_iGotName(ref ind, lst);
+        }
+        
+        public static bool select_iGotName<T>(ref string val, List<T> lst) where T : IGotName
+        {
+            List<string> lnms = new List<string>();
+
+            int jindx = -1;
+
+            for (int i=0; i<lst.Count; i++) {
+                var el = lst[i];
+                if (el != null) {
+                    var name = el.NameForPEGI;
+
+
+                    if (name != null) {
+                        if (val == null || val.SameAs(name))
+                            jindx = lnms.Count;
+                        lnms.Add(name);
+                    }
+                }
+            }
+
+            if (select_Final(val, ref jindx, lnms)) {
+                val = lnms[jindx];
+                return true;
+            }
+
+            return false;
+        }
+        
         public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
         {
             write(label);
@@ -3754,12 +3812,6 @@ namespace PlayerAndEditorGUI
             return edit(ref col);
         }
 
-        public static bool edit(this string label, int width, ref Vector2 v2)
-        {
-            write(label, width);
-            return edit(ref v2);
-        }
-
         public static bool edit(this string label, string tip, int width, ref Vector2 v2)
         {
             write(label, tip, width);
@@ -4733,7 +4785,6 @@ namespace PlayerAndEditorGUI
         
         public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
         {
-
             if (list == null)
             {
                 "NULL list".nl();
@@ -5499,6 +5550,15 @@ namespace PlayerAndEditorGUI
                         return el;
 
             return default(T);
+        }
+
+        public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T {
+            if (lst != null)
+                foreach (var el in lst)
+                    if (el != null && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))
+                        return el as G;
+
+            return default(G);
         }
 #endif
     }

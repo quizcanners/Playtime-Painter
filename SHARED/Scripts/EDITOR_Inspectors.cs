@@ -37,6 +37,13 @@ namespace SharedTools_Stuff
         public override void OnInspectorGUI() => ((SpeedAnimationController)target).Inspect(serializedObject);
     }
 
+    [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
+    public class PEGI_SimpleInspectorsBrowserDrawer : Editor
+    {
+        public override void OnInspectorGUI() => ((PEGI_SimpleInspectorsBrowser)target).Inspect(serializedObject);
+    }
+
+
     [CustomEditor(typeof(ISTD_Explorer))]
     public class ISTD_ExplorerDrawer : Editor
     {

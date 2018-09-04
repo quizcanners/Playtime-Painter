@@ -106,16 +106,23 @@ namespace Playtime_Painter {
 
         }
 
-        static string[] texSizes;
+     
         const int range = 9;
         const int minPow = 2;
         
         public static Tool previousTool;
 
+#if PEGI
+        static string[] texSizes;
+
+#endif
+
         public override void OnInspectorGUI() {
 
-        
+
 #if PEGI
+
+            
 
               bool changes = false;
 

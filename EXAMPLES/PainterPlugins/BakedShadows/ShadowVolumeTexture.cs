@@ -53,6 +53,7 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
             EditorApplication.update -= UpdateRaycasts;
 #endif
+            CompleteAndDisposeAll();
 
             base.OnDisable();
         }
@@ -161,6 +162,22 @@ namespace Playtime_Painter {
         NativeArray<byte> gotHit;
         JobHandle jobHandle;
 
+        void CompleteAndDisposeAll() {
+
+     
+            jobHandle.Complete();
+            if (gotHit.IsCreated)
+            gotHit.Dispose();
+            if (hitJobResults.IsCreated)
+            hitJobResults.Dispose();
+            if (hitJobDirections.IsCreated)
+            hitJobDirections.Dispose();
+            rayStep = RaycastsStep.Nothing;
+
+            for (int i = 0; i < 3; i++)
+                lightSourceDirty[i] = false;
+        }
+
         public void UpdateRaycasts() {
 
             if (!volumeJobIsRunning) {
@@ -178,7 +195,6 @@ namespace Playtime_Painter {
                 if ( lights == null || lights.GetLight(rayJobChannel) == null)  {
                     rayStep = RaycastsStep.Nothing;
                     lightSourceDirty[rayJobChannel] = false;
-                    // Debug.Log("No light {0}".F(rayJobChannel));
                     return;
                 }
 
@@ -186,7 +202,7 @@ namespace Playtime_Painter {
 
                 CheckVolume();
 
-                List<Vector3> dirs; //= new List<Vector3>();
+                List<Vector3> dirs; 
 
                 List<RaycastCommand> futureHits = RecalculateVolumePrepareJobs(rayJobChannel, out dirs); 
 
@@ -196,7 +212,6 @@ namespace Playtime_Painter {
                 jobHandle = RaycastCommand.ScheduleBatch(hitJobCommands, hitJobResults, 250);
 
                 JobHandle.ScheduleBatchedJobs();
-
             }
 
             if (rayStep == RaycastsStep.Raycasting && jobHandle.IsCompleted) {
@@ -238,15 +253,17 @@ namespace Playtime_Painter {
                 lightSourceDirty[rayJobChannel] = false;
                 
                 gotHit.Dispose();
+      
                 hitJobResults.Dispose();
                 hitJobDirections.Dispose();
                 VolumeToTexture();
 
                 rayStep = RaycastsStep.Nothing;
             }
-
         }
         
+     
+
         public List<RaycastCommand> RecalculateVolumePrepareJobs(int channel, out List<Vector3> directions)  {
 
             directions = new List<Vector3>();
@@ -327,19 +344,22 @@ namespace Playtime_Painter {
             }
 
             if (ImageData != null && ImageData.texture2D != null) {
-                
-                if (!volumeJobIsRunning) {
+
+                if (!volumeJobIsRunning)
+                {
 
                     "Channel: ".edit(ref rayJobChannel, 0, 2).nl();
 
-                    if ("Recalculate ".Click()) {
+                    if ("Recalculate ".Click())
+                    {
                         changed = true;
                         VolumeFromTexture();
                         lightSourceDirty[rayJobChannel] = true;
                         rayStep = RaycastsStep.Requested;
                     }
 
-                    if ("All".Click().nl()) {
+                    if ("All".Click().nl())
+                    {
                         changed = true;
                         VolumeFromTexture();
                         for (int i = 0; i < 3; i++)
@@ -347,8 +367,13 @@ namespace Playtime_Painter {
                     }
                 }
                 else
-                    "Recalculating channel {0} : {1}".F(rayJobChannel, rayStep.ToString()).nl();
-                
+                {
+                    "Recalculating channel {0} : {1}".F(rayJobChannel, rayStep.ToString()).write();
+
+                    if (icon.Close.Click("Stop Recalculations").nl())
+                        CompleteAndDisposeAll();
+                }
+
             } else  {
                 if (ImageData == null)
                     "Image Data is Null".nl();

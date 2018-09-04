@@ -165,7 +165,7 @@ namespace Playtime_Painter
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
         public bool DebugDisableSecondBufferUpdate;
-        [SerializeField] bool showImgDatas;
+      
       
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
         
@@ -239,6 +239,8 @@ namespace Playtime_Painter
 #if PEGI
 
         int inspectedImgData = -1;
+
+          [SerializeField] bool showImgDatas;
 
         public bool DatasPEGI()
         {

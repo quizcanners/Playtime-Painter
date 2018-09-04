@@ -260,6 +260,18 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder TryAdd<T>(string tag, T obj, ISTD_SerializeNestedReferences referencesKeeper)
+        {
+            var prevKeeper = keeper;
+            keeper = referencesKeeper;
+
+            TryAdd(tag, obj);
+
+            keeper = prevKeeper;
+            return this;
+        }
+
+
         public StdEncoder Add<T>(string tag, List<T> other, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
             var prevKeeper = keeper;

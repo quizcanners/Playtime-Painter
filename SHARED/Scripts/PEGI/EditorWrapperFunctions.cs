@@ -668,8 +668,7 @@ namespace PlayerAndEditorGUI {
             return oldVal != val;
         }
 
-        public static bool edit(string label, ref Vector2 val)
-        {
+        public static bool edit(string label, ref Vector2 val) {
             checkLine();
 
             var oldVal = val;
@@ -682,7 +681,7 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
             bool modified = false;
-
+            
             modified |= edit(ref val.x);
             modified |= edit(ref val.y);
             return modified ? change : false;

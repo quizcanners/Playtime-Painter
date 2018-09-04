@@ -14,14 +14,12 @@ namespace Playtime_Painter
     public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName
         
     {
+        public virtual string NameForPEGIdisplay() => ToString();
+        
 #if PEGI
         pegi.CallDelegate plugins_ComponentPEGI;
 
-        public virtual string NameForPEGIdisplay()
-        {
-            return ToString();
-        }
-
+      
         protected pegi.CallDelegate PlugIn_PainterComponent { set
             {
                 plugins_ComponentPEGI += value;

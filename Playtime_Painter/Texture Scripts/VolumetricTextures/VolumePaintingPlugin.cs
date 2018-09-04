@@ -11,7 +11,7 @@ namespace Playtime_Painter {
 
     [Serializable]
     [ExecuteInEditMode]
-    public class VolumePaintingPlugin : PainterManagerPluginBase , IPEGI
+    public class VolumePaintingPlugin : PainterManagerPluginBase , IPEGI, IGotDisplayName
 
     {
         public const string VOLUME_H_SLICES = "VOLUME_H_SLICES";
@@ -48,10 +48,8 @@ namespace Playtime_Painter {
             
         }
 
-        public override string ToString() {
-            return "Volume Painting";
-        }
-
+        public override string NameForPEGIdisplay() => "Volume Painting";
+        
         public override Shader GetPreviewShader(PlaytimePainter p) {
             if (p.GetVolumeTexture() != null)
                 return preview;

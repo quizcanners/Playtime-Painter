@@ -380,9 +380,17 @@ namespace SharedTools_Stuff
         // STD with references
         static ISTD_SerializeNestedReferences keeper;
 
+        public static bool TryDecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) {
+            var std = val as ISTD;
+            if (std != null) {
+                data.DecodeInto(std, referencesKeeper);
+                return true;
+            }
+            return false;
+        }
+
         public static T DecodeInto<T>(this string data, out T val, ISTD_SerializeNestedReferences referencesKeeper)
-            where T : ISTD, new()
-        {
+            where T : ISTD, new() {
             val = data.DecodeInto<T>(referencesKeeper);
             return val;
         }

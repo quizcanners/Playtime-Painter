@@ -509,7 +509,7 @@ namespace Playtime_Painter
         public bool CanUsePixelsForJob() {
             if (!pixelsForJob.IsCreated && _pixels != null) {
 
-                pixelsForJob = new NativeArray<Color>(_pixels, Allocator.TempJob);
+                pixelsForJob = new NativeArray<Color>(_pixels, Allocator.Persistent);
 
                 TexMGMT.blitJobsActive.Add(this);
 

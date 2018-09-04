@@ -7,10 +7,8 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-
-
     [ExecuteInEditMode]
-    public class LightCaster : MonoBehaviour, IPEGI , IGotIndex{
+    public class LightCaster : MonoBehaviour, IPEGI , IGotIndex, IGotName {
 
         public static Countless<LightCaster> allProbes = new Countless<LightCaster>();
         public static int FreeIndex = 0;
@@ -21,10 +19,7 @@ namespace Playtime_Painter
         public int index;
 
         public int IndexForPEGI { get => index; set => index = value; }
-
-        public override string ToString() {
-            return gameObject.name;
-        }
+        public string NameForPEGI { get => gameObject.name; set => gameObject.name = value; }
 
         private void OnEnable() {
             if (allProbes[index] != null) {
@@ -75,11 +70,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
+    #endif
+       
     }
 }

@@ -284,12 +284,9 @@ namespace SharedTools_Stuff
 
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention 
     {
-        
-  
+
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
-
-      
-
+        
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public int GetISTDreferenceIndex(UnityEngine.Object obj)

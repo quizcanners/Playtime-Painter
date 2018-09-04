@@ -138,7 +138,7 @@ namespace Playtime_Painter
         List<MeshPoint> draggedVertices = new List<MeshPoint>();
         Vector3 originalPosition;
 
-        Vector3 offset;
+      
         
         public override bool ShowGrid { get { return true; } }
   
@@ -187,7 +187,9 @@ namespace Playtime_Painter
                     "M - merge with nearest while dragging ";
             }
         }
-        #if PEGI
+#if PEGI
+
+          Vector3 offset;
         public override bool PEGI() {
 
             bool changed = false;
