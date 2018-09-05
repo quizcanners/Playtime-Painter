@@ -425,7 +425,7 @@ namespace PlayerAndEditorGUI {
         public static bool select(ref int current, Type type)
         {
             checkLine();
-            int tmpVal = current;
+            int tmpVal = -1;
 
             string[] name = Enum.GetNames(type);
             int[] val = (int[])Enum.GetValues(type);
@@ -434,7 +434,7 @@ namespace PlayerAndEditorGUI {
                 if (val[i] == current)
                     tmpVal = i;
 
-            if (ef.select(ref tmpVal, name))
+            if (select(ref tmpVal, name))
             {
 
                 current = val[tmpVal];

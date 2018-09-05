@@ -4320,12 +4320,21 @@ namespace PlayerAndEditorGUI
                 if (list.Count>0 && icon.Copy.Click("Copy List Elements"))
                     listCopyBuffer = list;
                 if (listCopyBuffer != null) {
-                    if (icon.Delete.Click("Clean buffer"))
+                    if (icon.Close.Click("Clean buffer"))
                         listCopyBuffer = null;
                     if (icon.Paste.Click("Try Paste {0}".F(listCopyBuffer.ToPEGIstring())))
                     foreach (var e in listCopyBuffer)
                         list.TryAdd(e);
                 }
+                if (list.Count > 0 && icon.Delete.Click("Clean null elements")) {
+                    for (int i=0; i<list.Count; i++) {
+                        if (list[i] == null) {
+                            list.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+
 
             }
 
