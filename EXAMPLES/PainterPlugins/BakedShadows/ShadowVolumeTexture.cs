@@ -21,7 +21,7 @@ namespace Playtime_Painter {
         public MaterialLightManager lights;
         public override string MaterialPropertyName{ get{  return "_BakedShadow" + VolumePaintingPlugin.VolumeTextureTag;  } }
 
-        public override bool volumeJobIsRunning => rayStep!= RaycastsStep.Nothing || base.volumeJobIsRunning;
+        public override bool VolumeJobIsRunning => rayStep!= RaycastsStep.Nothing || base.VolumeJobIsRunning;
 
         [NonSerialized] RaycastsStep rayStep = RaycastsStep.Nothing;
         int rayJobChannel = 0;
@@ -180,7 +180,7 @@ namespace Playtime_Painter {
 
         public void UpdateRaycasts() {
 
-            if (!volumeJobIsRunning) {
+            if (!VolumeJobIsRunning) {
                 for (int i = 0; i < 3; i++) {
                     if (lightSourceDirty[i]) {
                         rayJobChannel = i;
@@ -345,7 +345,7 @@ namespace Playtime_Painter {
 
             if (ImageData != null && ImageData.texture2D != null) {
 
-                if (!volumeJobIsRunning)
+                if (!VolumeJobIsRunning)
                 {
 
                     "Channel: ".edit(ref rayJobChannel, 0, 2).nl();

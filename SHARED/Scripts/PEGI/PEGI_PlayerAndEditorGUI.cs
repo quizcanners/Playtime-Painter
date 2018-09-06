@@ -752,8 +752,7 @@ namespace PlayerAndEditorGUI
             else
 #endif
             {
-                List<int> inds;
-                List<T> objs = tree.GetAllObjs(out inds);
+                List<T> objs = tree.GetAllObjs(out List<int> inds);
                 List<string> filtered = new List<string>();
                 int tmpindex = -1;
                 for (int i = 0; i < objs.Count; i++)
@@ -4322,9 +4321,25 @@ namespace PlayerAndEditorGUI
                 if (listCopyBuffer != null) {
                     if (icon.Close.Click("Clean buffer"))
                         listCopyBuffer = null;
-                    if (icon.Paste.Click("Try Paste {0}".F(listCopyBuffer.ToPEGIstring())))
-                    foreach (var e in listCopyBuffer)
-                        list.TryAdd(e);
+
+                    if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T))) {
+                        if (icon.Link.Click("Try Past Referances Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
+                            UnityEngine.Debug.Log("Copying Referances");
+                            foreach (var e in listCopyBuffer)
+                                list.TryAdd(e);
+                        }
+                    } else {
+                        if (icon.Paste.Click("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring()))) {
+                            UnityEngine.Debug.Log("Trying to copy ISTD");
+                            foreach (var e in listCopyBuffer) {
+                               
+                                var istd = e as ISTD;
+
+                                if (istd != null) 
+                                    list.TryAdd(istd.Clone_ISTD());
+                            }
+                        }
+                    }
                 }
                 if (list.Count > 0 && icon.Delete.Click("Clean null elements")) {
                     for (int i=0; i<list.Count; i++) {
@@ -4343,7 +4358,7 @@ namespace PlayerAndEditorGUI
 
         static IList listCopyBuffer = null;
 
-        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, UnnullableSTD<ElementData> datas)
+        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, UnnullableSTD<ElementData> datas = null)
         {
             bool changed = false;
 
@@ -4379,14 +4394,14 @@ namespace PlayerAndEditorGUI
                     var n = named.NameForPEGI;
                     if (so)
                     {
-                        if (editDelayed(ref n, 120))
+                        if (editDelayed(ref n))
                         {
                             so.RenameAsset(n);
                             named.NameForPEGI = n;
                         }
                     }
                     else
-                        if (edit(ref n, 120))
+                        if (edit(ref n))
                         named.NameForPEGI = n;
 
 
@@ -4539,13 +4554,13 @@ namespace PlayerAndEditorGUI
 
 
         //Lists ...... of Monobehaviour
-        public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
         {
             label.write_ListLabel(list, edited);
             return list.edit_List_MB(ref edited, allowDelete, ref added, datas);
         }
 
-        public static bool edit_List_MB<T>(this List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
         {
             bool changed = false;
 
@@ -4610,14 +4625,14 @@ namespace PlayerAndEditorGUI
         {
             label.write_ListLabel(list, edited);
 
-            return list.edit_List_SO(ref edited, ref changed, null);
+            return list.edit_List_SO(ref edited, ref changed);
         }
 
         public static bool edit_List_SO<T>(this List<T> list, ref int edited) where T : ScriptableObject
         {
             bool changed = false;
 
-            list.edit_List_SO<T>(ref edited, ref changed, null);
+            list.edit_List_SO<T>(ref edited, ref changed);
 
             return changed;
         }
@@ -4628,7 +4643,7 @@ namespace PlayerAndEditorGUI
 
             bool changed = false;
 
-            list.edit_List_SO<T>(ref edited, ref changed, null);
+            list.edit_List_SO<T>(ref edited, ref changed);
 
             return changed;
         }
@@ -4641,12 +4656,12 @@ namespace PlayerAndEditorGUI
 
             int edited = -1;
 
-            list.edit_List_SO<T>(ref edited, ref changed, null);
+            list.edit_List_SO<T>(ref edited, ref changed);
 
             return changed;
         }
 
-        public static bool edit_List_SO<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas = null) where T : ScriptableObject
         {
             label.write_ListLabel(list, edited);
 
@@ -4657,7 +4672,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static T edit_List_SO<T>(this List<T> list, ref int edited, ref bool changed, UnnullableSTD<ElementData> datas) where T : ScriptableObject
+        public static T edit_List_SO<T>(this List<T> list, ref int edited, ref bool changed, UnnullableSTD<ElementData> datas = null) where T : ScriptableObject
         {
             if (list == null)
             {
@@ -4753,12 +4768,12 @@ namespace PlayerAndEditorGUI
 
         // ...... of Object
         public static bool edit_List_Obj<T>(this List<T> list, ref int edited) where T : UnityEngine.Object
-            => list.edit_or_select_List_Obj(null, ref edited, true, null);
+            => list.edit_or_select_List_Obj(null, ref edited, true);
 
         public static bool edit_List_Obj<T>(this List<T> list, bool allowDelete) where T : UnityEngine.Object
         {
             int edited = -1;
-            return list.edit_or_select_List_Obj(null, ref edited, allowDelete, null);
+            return list.edit_or_select_List_Obj(null, ref edited, allowDelete);
         }
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, bool allowDelete) where T : UnityEngine.Object
@@ -4773,25 +4788,25 @@ namespace PlayerAndEditorGUI
             return list.edit_List_Obj(ref edited);
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, edited);
             return list.edit_or_select_List_Obj(null, ref edited, true, datas);
         }
 
-        public static bool edit_or_select_List_Obj<T>(this string label, object nameProvider, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this string label, object nameProvider, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(nameProvider, list, edited);
             return edit_or_select_List_Obj(list, from, ref edited, allowDelete, datas);
         }
 
-        public static bool edit_or_select_List_Obj<T>(this string label, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this string label, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, edited);
             return edit_or_select_List_Obj(list, from, ref  edited, allowDelete, datas);
         }
         
-        public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             if (list == null)
             {
@@ -4928,7 +4943,7 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
 
                         newLine();
                     }
@@ -5058,7 +5073,7 @@ namespace PlayerAndEditorGUI
                     if (el == null)
                         write("NULL");
                     else
-                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, null);
+                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
 
 
                     newLine();
@@ -5201,22 +5216,23 @@ namespace PlayerAndEditorGUI
             return changed;
         }
         public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
-
-
-        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("Name:", 40);
+        
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", 40);
 
         public static bool inspect_Name(this IGotName obj, string label, int width)
         {
             var n = obj.NameForPEGI;
-            if (label.edit(width, ref n))
+
+            bool gotLabel = label != null && label.Length > 0;
+
+            if ((gotLabel && label.edit(width, ref n) || (!gotLabel && pegi.edit(ref n))))
             {
                 obj.NameForPEGI = n;
                 return true;
             }
             return false;
         }
-
-
+        
         public static bool select_or_Edit_PEGI(this Dictionary<int, string> dic, ref int selected)
         {
             bool changed = false;
@@ -5273,9 +5289,7 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-
-
-
+        
         public static bool newElement_PEGI(this Dictionary<int, string> dic)
         {
             bool changed = false;
@@ -5581,12 +5595,6 @@ namespace PlayerAndEditorGUI
 #endif
     }
     #endregion
-
-
-
-
+    
 }
 #pragma warning restore IDE1006 // Naming Styles
-
-
-

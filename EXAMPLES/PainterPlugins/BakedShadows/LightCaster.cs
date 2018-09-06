@@ -18,8 +18,8 @@ namespace Playtime_Painter
 
         public int index;
 
-        public int IndexForPEGI { get => index; set => index = value; }
-        public string NameForPEGI { get => gameObject.name; set => gameObject.name = value; }
+        public int IndexForPEGI { get { return index;  } set { index = value; } }
+        public string NameForPEGI { get { return gameObject.name; } set { gameObject.name = value; } }
 
         private void OnEnable() {
             if (allProbes[index] != null) {

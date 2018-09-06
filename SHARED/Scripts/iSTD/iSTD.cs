@@ -503,6 +503,22 @@ namespace SharedTools_Stuff
             return s;
         }
 
+        public static T Clone_ISTD<T>(this T obj, ISTD_SerializeNestedReferences nested = null) where T : ISTD {
+
+            if (obj != null) {
+                var ret = Activator.CreateInstance<T>();
+
+                if (nested != null)
+                    obj.Encode(nested).ToString().DecodeInto(ret, nested);
+                else
+                    ret.Decode(obj.Encode().ToString());
+
+                return ret;
+            }
+
+            return default(T);
+        }
+        
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ISTD, new() {
 			if (s == null)
 				s = new T ();

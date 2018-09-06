@@ -218,8 +218,7 @@ namespace SharedTools_Stuff
             }
             return rect;
         }
-
-
+        
         // Integer
         public static bool ToBool(this string data) {
             return data == "y";
@@ -344,14 +343,14 @@ namespace SharedTools_Stuff
             return obj;
         }
         
-        public static T DecodeInto<T>(this string data, Type childType) where T : ISTD, new()
+        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD, new()
         {
             T val = (T)Activator.CreateInstance(childType);
             val.Decode(data);
             return val;
         }
 
-        public static T TryDecodeInto<T>(this string data, Type childType) where T : new()
+        public static T TryDecodeInto_Type<T>(this string data, Type childType) 
         {
             T val = (T)Activator.CreateInstance(childType);
             var std = val as ISTD;
@@ -375,8 +374,7 @@ namespace SharedTools_Stuff
 
             return val;
         }
-
-
+        
         // STD with references
         static ISTD_SerializeNestedReferences keeper;
 
@@ -399,7 +397,6 @@ namespace SharedTools_Stuff
         {
             var obj = new T();
             data.DecodeInto(obj, referencesKeeper);
-
             return obj;
         }
         
@@ -409,8 +406,7 @@ namespace SharedTools_Stuff
 
         public static bool DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
-            if (val != null)
-            {
+            if (val != null)  {
 
                 var prevKeeper = keeper;
                 keeper = referencesKeeper;
@@ -526,7 +522,7 @@ namespace SharedTools_Stuff
                         }
 
                         if (type != null)
-                            l.Add(d.DecodeInto<T>(type));
+                            l.Add(d.DecodeInto_Type<T>(type));
                     }
                     else {
                         l.Add(d.DecodeInto<T>()); 
@@ -578,8 +574,7 @@ namespace SharedTools_Stuff
     }
 
 
-    public class StdDecoder //: IEnumerable<string>
-    {
+    public class StdDecoder   {
 
         public delegate bool DecodeDelegate(string tag, string data);
 

@@ -51,6 +51,18 @@ namespace SharedTools_Stuff
             .Add("deSize", tf.sizeDelta);
         }
         
+        public static StdEncoder Encode(this ISTD std, ISTD_SerializeNestedReferences keeper) {
+
+            var prevKeeper = StdEncoder.keeper;
+            StdEncoder.keeper = keeper;
+
+            var ret = std.Encode();
+
+            StdEncoder.keeper = prevKeeper;
+            return ret;
+
+        }
+
         public static StdEncoder Encode<T>(this List<T> val) where T : ISTD
         {
             StdEncoder cody = new StdEncoder();
@@ -209,7 +221,7 @@ namespace SharedTools_Stuff
 
         #region Unity_Objects
 
-        static ISTD_SerializeNestedReferences keeper;
+        public static ISTD_SerializeNestedReferences keeper;
 
         public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
         {
@@ -270,8 +282,7 @@ namespace SharedTools_Stuff
             keeper = prevKeeper;
             return this;
         }
-
-
+        
         public StdEncoder Add<T>(string tag, List<T> other, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
             var prevKeeper = keeper;
@@ -283,6 +294,8 @@ namespace SharedTools_Stuff
             return this;
         }
         
+
+
         #endregion
 
         public StdEncoder Add_String(string tag, String data) {

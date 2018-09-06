@@ -291,8 +291,7 @@ namespace Playtime_Painter{
             else
             {
 
-                RaycastHit hit;
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out hit, float.MaxValue))
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out RaycastHit hit, float.MaxValue))
                     return ProcessHit(hit, st);
 
                 return false;

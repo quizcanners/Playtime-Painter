@@ -15,7 +15,7 @@ namespace Playtime_Painter {
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
-        public virtual bool volumeJobIsRunning => volumeIsProcessed;
+        public virtual bool VolumeJobIsRunning => volumeIsProcessed;
 
         public bool volumeIsProcessed = false;
 
@@ -58,7 +58,7 @@ namespace Playtime_Painter {
             Vector3 center = transform.position;
             LastCenterPosTMP = center;
             int w = Width;
-            int volumeLength = w * w * Height;
+           // int volumeLength = w * w * Height;
 
             CheckVolume();
             

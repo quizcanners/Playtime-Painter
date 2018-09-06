@@ -101,7 +101,7 @@ namespace Playtime_Painter {
 
             if (volume != null) {
 
-                if (volume.volumeJobIsRunning)
+                if (volume.VolumeJobIsRunning)
                     return false;
 
                 float volumeScale = volume.size;

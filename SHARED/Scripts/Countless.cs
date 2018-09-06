@@ -925,7 +925,7 @@ namespace SharedTools_Stuff {
                     if (icon.Delete.Click())
                         this[ind] = default(T);
                     else
-                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited, null);
+                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited);
                 }
 
             }
@@ -1245,7 +1245,7 @@ namespace SharedTools_Stuff {
                     if (icon.Delete.Click())
                         this[ind] = default(T);
                     else
-                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited, null);
+                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited);
 
                     pegi.nl();
 
@@ -1640,7 +1640,7 @@ namespace SharedTools_Stuff {
 
             if (edited == -1)
                 foreach (var e in Cstd)
-                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited, null).nl();
+                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited).nl();
             
             
             pegi.newLine();

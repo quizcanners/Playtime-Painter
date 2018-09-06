@@ -9,9 +9,7 @@ namespace Playtime_Painter
 {
 
       public struct BlitJobs : IJob {
-
-    
-
+        
             public NativeArray<Color> values;
             bool r;
             bool g;
@@ -90,9 +88,9 @@ namespace Playtime_Painter
             Blit_Functions.blitModeFunction _blitMode = GetBlitMode();
 
             if (smooth)
-                _alphaMode = circleAlpha;
+                _alphaMode = CircleAlpha;
             else
-                _alphaMode = noAlpha;
+                _alphaMode = NoAlpha;
 
             if (!isVolumeBlit)
             {
@@ -139,12 +137,10 @@ namespace Playtime_Painter
 
                     int hw = sliceWidth / 2;
 
-                    int y = (int)pos.y;
-                    int z = (int)(pos.z + hw);
-                    int x = (int)(pos.x + hw);
-
-                 
-
+                    y = (int)pos.y;
+                    z = (int)(pos.z + hw);
+                    x = (int)(pos.x + hw);
+                    
                     for (y = -ihalf; y < ihalf + 1; y++)
                     {
 
@@ -159,22 +155,19 @@ namespace Playtime_Painter
                             int hx = h % slices;
                             int hTex_index = (hy * texWidth + hx) * sliceWidth;
 
-                            for (z = -ihalf; z < ihalf + 1; z++)
-                            {
+                            for (z = -ihalf; z < ihalf + 1; z++) {
 
                                 int trueZ = z + z;
 
-                                if (trueZ >= 0 && trueZ < sliceWidth)
-                                {
+                                if (trueZ >= 0 && trueZ < sliceWidth) {
 
                                     int yTex_index = hTex_index + trueZ * texWidth;
 
-                                    for (x = -ihalf; x < ihalf + 1; x++)
-                                    {
+                                    for (x = -ihalf; x < ihalf + 1; x++) {
                                         int trueX = x + x;
 
-                                        if (trueX >= 0 && trueX < sliceWidth)
-                                        {
+                                        if (trueX >= 0 && trueX < sliceWidth) {
+
                                             int texIndex = yTex_index + trueX;
 
                                             if (_alphaMode())  {
@@ -202,15 +195,15 @@ namespace Playtime_Painter
 
         #region AlphaModes
 
-         bool noAlpha() => true;
+         bool NoAlpha() => true;
 
-         bool SphereAlpha() {
+        bool SphereAlpha() {
                 float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
                 alpha = Mathf.Clamp01((dist) / half) * brAlpha;
                 return alpha > 0;
             }
 
-         bool circleAlpha() {
+         bool CircleAlpha() {
                 float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
                 alpha = Mathf.Clamp01((dist) / half) * brAlpha;
                 return alpha > 0;

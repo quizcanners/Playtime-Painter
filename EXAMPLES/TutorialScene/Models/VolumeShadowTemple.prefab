@@ -1776,9 +1776,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.79007816, y: 0.31271362}
     posFrom: {x: 114.030075, y: 3.0134087, z: 148.16272}
-    uvTo: {x: 0.1242218, y: 0.242208}
-    posTo: {x: 85.72793, y: 6.0022087, z: 124.949104}
-    unRepeatedUV: {x: -26.875778, y: 4.242208}
+    uvTo: {x: 0.40554428, y: 0.16281319}
+    posTo: {x: 113.64554, y: 3.0215604, z: 149.01282}
+    unRepeatedUV: {x: 8.405544, y: -26.837187}
     useTexcoord2: 0
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.0032926193
@@ -1826,9 +1826,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.6351164, y: 0.89297867}
     posFrom: {x: 121.67836, y: 4.3200006, z: 136.935}
-    uvTo: {x: 0.9213296, y: 0.7619641}
-    posTo: {x: 117.606445, y: 3.3869927, z: 143.1526}
-    unRepeatedUV: {x: 0.9213296, y: 0.7619641}
+    uvTo: {x: 0.90803415, y: 0.97677124}
+    posTo: {x: 116.03563, y: 6.7218733, z: 145.38335}
+    unRepeatedUV: {x: 0.90803415, y: 0.97677124}
     useTexcoord2: 0
     previousDelta: {x: -0.008748114, y: 0.0011164546}
     avgBrushSpeed: 0
