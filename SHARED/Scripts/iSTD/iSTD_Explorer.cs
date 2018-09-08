@@ -15,10 +15,6 @@ namespace SharedTools_Stuff
         public ISTD_ExplorerData data = new ISTD_ExplorerData();
 
 #if PEGI
-        /* public static bool PEGI_Static(iSTD target)
-         {
-             return iSTD_ExplorerData.PEGI_Static(target);
-         }*/
 
         public bool PEGI()
         {
@@ -27,16 +23,32 @@ namespace SharedTools_Stuff
             if ("Target Obj: ".edit(60, ref obj) && obj != null)
                     ConnectSTD = obj as ISTD;
             
-
             MonoBehaviour mono = ConnectSTD == null ? null : ConnectSTD as MonoBehaviour;
             if ("Target Obj: ".edit(60, ref mono).nl() && mono != null)
                     ConnectSTD = mono as ISTD;
             
-
             return data.PEGI(ConnectSTD);
 
         }
 #endif
+
+    }
+
+    public class ListPEGI_Data : Abstract_STD {
+
+        public int inspectedElement = -1;
+        public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
+
+        public override bool Decode(string tag, string data)  {
+            switch (tag)  {
+                case "ed": data.DecodeInto(out elementDatas); break;
+                case "insp":  inspectedElement = data.ToInt(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        public override StdEncoder Encode() => new StdEncoder().Add("ed", elementDatas).Add("insp", inspectedElement);
 
     }
 
@@ -250,7 +262,6 @@ namespace SharedTools_Stuff
                 foreach (var t in tags)
                     cody.Add_String(t.tag, t.data);
             
-
             return cody;
 
         }
@@ -315,9 +326,6 @@ namespace SharedTools_Stuff
 
                 "Comment:".editBig(ref comment).nl();
             }
-
-
-          
             
             dataExplorer.Nested_Inspect();
             
@@ -411,10 +419,10 @@ namespace SharedTools_Stuff
                 if (selfSTD != null)
                 {
                     if (icon.Save.Click("Save On itself"))
-                        selfSTD.Save_STDdata(); //Config_STD = selfSTD.Encode().ToString();
+                        selfSTD.Save_STDdata(); 
                     var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
-                        target.Decode(slfData); //.DecodeTagsFor(target);
+                        target.Decode(slfData); 
                  }
                 pegi.nl();
             }

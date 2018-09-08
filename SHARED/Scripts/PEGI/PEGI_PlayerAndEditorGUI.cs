@@ -4782,14 +4782,17 @@ namespace PlayerAndEditorGUI
             return (list.edit_List_Obj(allowDelete));
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object
-        {
+        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object {
             label.write_ListLabel(list, edited);
             return list.edit_List_Obj(ref edited);
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
-        {
+        public static bool edit_List_Obj<T>(this string label, List<T> list, ListPEGI_Data ld) where T : UnityEngine.Object {
+            label.write_ListLabel(list, ld.inspectedElement);
+            return list.edit_or_select_List_Obj(null,  ref ld.inspectedElement, true, ld.elementDatas);
+        }
+
+        public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object {
             label.write_ListLabel(list, edited);
             return list.edit_or_select_List_Obj(null, ref edited, true, datas);
         }
