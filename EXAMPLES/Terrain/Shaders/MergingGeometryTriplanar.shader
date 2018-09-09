@@ -37,11 +37,8 @@ Shader "Terrain/MergingGeometryTriplanar" {
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 #pragma multi_compile_fwdbase 
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ WATER_FOAM
 #pragma multi_compile  ___ _BUMP_NONE  _BUMP_COMBINED 
-		/*_BUMP_REGULAR*/
 #pragma multi_compile  ___ CLIP_ALPHA
 
 	sampler2D _MainTex;

@@ -36,8 +36,6 @@
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 #pragma multi_compile  ___ UV_ATLASED
 
@@ -249,16 +247,7 @@
 
 	col.rgb += (normTerm *_LightColor0.rgb * direct + glossLight + ShadeSH9(float4(-reflected, 1))*bake.a)*col.a;
 
-
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-	float3 mix = col.gbr + col.brg;
-	col.rgb += mix * mix*_lightControl.r;
-#endif
-
+	BleedAndBrightness(col, 1);
 
 	return col;
 

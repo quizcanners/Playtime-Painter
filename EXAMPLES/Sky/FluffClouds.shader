@@ -25,18 +25,12 @@ Category {
 		
 			CGPROGRAM
 
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
-			float4 _lightControl;
-
-
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fog
-			#include "UnityCG.cginc"
-			#include "UnityLightingCommon.cginc"
-			//#pragma target 3.0
-			
+
+#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+
 			sampler2D _MainTex;
 			sampler2D _FluffMask;
 			float4 _Off;
@@ -112,15 +106,8 @@ Category {
 
 			col.rgb*=(_LightColor0.rgb*thickness + unity_AmbientSky.rgb*(1 - thickness));    // Make thin clouds brighter
 
-			col.a-=(
-				
-				tex2D(_FluffMask, v / (2 )).a
-				*
-				(
-					tex2D(_FluffMask, v2 + col.a / 16).a
-				+ 
-				tex2D(_MainTex, (v2 )*(5)).a/4
-					));
+			col.a-=(	tex2D(_FluffMask, v / (2 )).a*(tex2D(_FluffMask, v2 + col.a / 16).a
+				+ tex2D(_MainTex, (v2 )*(5)).a/4));
 
 
 			i.viewDir.xyz = normalize(i.viewDir.xyz);
@@ -130,21 +117,14 @@ col.a=max(0,(col.a / 12 - distortion)); // IMPORTANT
 
 float ecvator = i.h * 16 + vda / 512;
 
-float alpha = saturate(ecvator); //-i.viewDir.y*4);
-
-//float UnderEcvator = saturate(-(ecvator + 0.2));
-
-float ca = col.a;//min(1, col.a);
+float alpha = saturate(ecvator); 
+float ca = col.a;
 float dca = 1 - ca;
-
 
 col.rgb = (unity_AmbientSky.rgb*
 (dca) + col.rgb*ca).rgb;
 
-
-float3 dist = 
-_SunDirection.xyz
-- i.wpos; 
+float3 dist = _SunDirection.xyz - i.wpos; 
 float fdist = 1 - (dist.x*dist.x + dist.y*dist.y + dist.z*dist.z);
 float radial = fdist;
 
@@ -157,30 +137,14 @@ fdist = max(0, fdist*(1.5+col.a*3) - 1)*max(0,(0.5-ca));
 fdist *= fdist*80;
 
 
-col.rgb += ((colDet.rgb*col.a)*fdist*alpha + radial*max(0, -i.viewDir.y-0.25)//*alpha//*0.1
-	)*_Directional.rgb ;
+col.rgb += ((colDet.rgb*col.a)*fdist*alpha + radial*max(0, -i.viewDir.y-0.25))*_Directional.rgb ;
 
 col.rgb+=sun;
 
-
-
-
-
-
-//col.rgb -= max(0, i.viewDir.y-0.1)*128;
-
-
-#if	MODIFY_BRIGHTNESS
-col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-float3 mix = col.gbr + col.brg;
-col.rgb += mix*mix*_lightControl.r;
-#endif
+BleedAndBrightness(col, 1);
 
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
-col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);//*(1 - UnderEcvator);
+col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);
 #else
 col.rgb = col.rgb*(alpha)+unity_AmbientEquator.rgb*(1 - alpha);
 #endif

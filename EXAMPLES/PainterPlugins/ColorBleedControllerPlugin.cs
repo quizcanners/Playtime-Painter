@@ -25,8 +25,6 @@ namespace Playtime_Painter {
 
         public void SetStuff() {
             Shader.SetGlobalVector("_lightControl", new Vector4(colorBleeding, 0, 0, eyeBrightness));
-            UnityHelperFunctions.SetKeyword("MODIFY_BRIGHTNESS", modifyBrightness);
-            UnityHelperFunctions.SetKeyword("COLOR_BLEED", colorBleed);
         }
 #if PEGI
         bool showHint;
@@ -37,11 +35,15 @@ namespace Playtime_Painter {
 
             if (colorBleed)
                 changed |= pegi.edit(ref colorBleeding, 0.0001f, 0.3f).nl();
+            else
+                colorBleeding = 0;
 
             changed |= "Brightness".toggle(80,ref modifyBrightness).nl();
-           
+
             if (modifyBrightness)
                 changed |= pegi.edit(ref eyeBrightness, 0.0001f, 8f).nl();
+            else
+                eyeBrightness = 1;
             
              pegi.toggle(ref showHint, icon.Close, icon.Hint, "Show hint", 35).nl();
 

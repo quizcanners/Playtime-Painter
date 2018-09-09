@@ -36,15 +36,8 @@ SubShader {
 
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-//#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ UV_ATLASED
 #pragma multi_compile  ___ UV_PROJECTED
-//#pragma multi_compile  ___ UV_PIXELATED
-//#pragma multi_compile  ___ EDGE_WIDTH_FROM_COL_A
-//#pragma multi_compile  ___ CLIP_EDGES
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 
 	sampler2D _MainTex_ATL;
@@ -226,19 +219,9 @@ SubShader {
 	float power = pow(col.a,8);
 
 	col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb )* power
-		 * 8 * direct  +ShadeSH9(float4(-reflected, 1))
-		
-		)*col.a;
+		 * 8 * direct  +ShadeSH9(float4(-reflected, 1)))*col.a;
 
-
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-	float3 mix = col.gbr + col.brg;
-	col.rgb += mix * mix*_lightControl.r;
-#endif
+	BleedAndBrightness(col, fernel);
 
 
 	return col;

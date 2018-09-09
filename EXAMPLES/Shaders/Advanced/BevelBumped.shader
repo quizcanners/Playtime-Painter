@@ -35,10 +35,8 @@
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 #pragma multi_compile  ___ CLIP_EDGES
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
 
-		sampler2D _MainTex;
+	sampler2D _MainTex;
 	float4 _MainTex_TexelSize;
 	float4 _MainTex_ST;
 	sampler2D _BumpMap;

@@ -38,10 +38,7 @@ Shader "PlaytimePainter/DestructibleCharacters" {
 #include "AutoLight.cginc"
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
-
+#pragma multi_compile_fwdbase 
 
 	sampler2D _MainTex;
 	float4 _MainTex_TexelSize;

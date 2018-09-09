@@ -50,9 +50,6 @@
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
-
 	uniform sampler2D _MainTex;
 	uniform sampler2D _BakedShadow_VOL;
 
@@ -117,26 +114,19 @@
 
 		col.a *= alpha;
 
-		
-
 		float ambientBlock =col.a;
 
 		float3 normal = -i.viewDir.xyz;
 
 		float3 thickness = normal * _Thickness * ambientBlock;
 
-	
-
 		float4 bake = 1- SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, thickness);
 
 		float4 bake2 = 1-  SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
 
-
 		float4 directBake = (saturate((bake - 0.5) * 2) + saturate((bake2 - 0.5) * 2))*(ambientBlock);
 
 		bake =(bake + bake2) * 0.5;
-
-		
 
 		float3 scatter = 0;
 		float3 directLight = 0;
@@ -154,27 +144,14 @@
 
 		scatter *= (1 - bake.a);
 
-		DirectionalLightTransparent(scatter, directLight,
-			//SHADOW_ATTENUATION(i)
-			directBake.a
-			,
-			
-			normal, i.viewDir, ambientBlock, bake.a);
-
+		DirectionalLightTransparent(scatter, directLight, directBake.a,	normal, i.viewDir, ambientBlock, bake.a);
 
 		col.rgb *= (directLight + scatter);
 
-		//col.rgb += (glossLight)*directBake.a;
 
 
-#if	MODIFY_BRIGHTNESS
-		col.rgb *= _lightControl.a;
-#endif
 
-#if COLOR_BLEED
-		float3 mix = col.gbr + col.brg;
-		col.rgb += mix * mix*_lightControl.r;
-#endif
+		BleedAndBrightness(col, 1);
 
 		UNITY_APPLY_FOG(i.fogCoord, col);
 

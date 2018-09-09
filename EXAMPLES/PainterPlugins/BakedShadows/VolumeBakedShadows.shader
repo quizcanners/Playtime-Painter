@@ -46,8 +46,6 @@
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
 #pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 #pragma multi_compile  ___ UV_ATLASED
 #pragma multi_compile  ___ VERT_SHADOW
@@ -309,31 +307,13 @@
 			float smoothness = saturate(pow(col.a, 5 - fernel));
 			float deDmoothness = 1 - smoothness;
 
-		
-			//return col;
-
-			col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a
-				);
+			col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a	);
 
 			col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1))*directBake.a)* smoothness;
 
-
-			//col.rgb = (scatter);//*bumpMap.a;
-
-
-#if	MODIFY_BRIGHTNESS
-			col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-			float3 mix = col.gbr + col.brg;
-			col.rgb += mix * mix*_lightControl.r;
-#endif
-
-			//col = 0;
+			BleedAndBrightness(col, 1+shadow*8);
 
 			UNITY_APPLY_FOG(i.fogCoord, col);
-
 
 			return col;
 

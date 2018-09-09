@@ -351,6 +351,14 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 
 
 
+inline void BleedAndBrightness(inout float4 col, float mod) {
+
+	col.rgb *= _lightControl.a;
+
+	float3 mix = (col.gbr + col.brg)*mod;
+	col.rgb += mix * mix*_lightControl.r;
+
+}
 
 inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float reflectivness) {
 
@@ -398,14 +406,7 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 	col.rgb += reflResult;
 
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-	float3 mix = (col.gbr + col.brg)*fernel;
-	col.rgb += mix * mix*_lightControl.r;
-#endif
+	BleedAndBrightness(col, fernel);
 
 }
 
@@ -509,21 +510,8 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	col.rgb *= 1 - saturate((_foamParams.z - fwpos.w)*0.1);  // NEW
 #endif
 
-#if	MODIFY_BRIGHTNESS
-	col.rgb *= _lightControl.a;
-#endif
+	BleedAndBrightness(col, fernel);
 
-#if COLOR_BLEED
-	float3 mix = (col.gbr + col.brg)*fernel;
-	col.rgb += mix * mix*_lightControl.r;
-#endif
-
-	//float4 fogged = col;
-
-//	float fogging = (32 - max(0, wposy - _foamParams.z)) / 32;
-
-	//fogging = min(1, pow(max(0, fogging), 2));
-	//col.rgb = fogged.rgb;// *fogging + col.rgb *(1 - fogging);
 
 }
 

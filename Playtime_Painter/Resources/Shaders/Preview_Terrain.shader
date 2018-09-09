@@ -22,12 +22,7 @@
         #include "AutoLight.cginc"
         #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-        #pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
-      //  #pragma addshadow
-        #pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-        #pragma multi_compile  ___ COLOR_BLEED
-    
-   
+        #pragma multi_compile_fwdbase 
 
             struct v2f {
                 float4 pos : POSITION;
@@ -197,25 +192,13 @@
 
             col.rgb = cont.rgb*_LightColor0*direct;
 
-            #if MODIFY_BRIGHTNESS
-            col.rgb *= _lightControl.a;
-#endif
-
-            #if COLOR_BLEED
-            float3 mix = col.gbr + col.brg;
-            col.rgb += mix*mix*_lightControl.r;
-#endif
-
-
-
-          //  col = height.a;
+			BleedAndBrightness(col, 1);
 
             return col;
             }
 
         ENDCG
     }
-      //UsePass "Editor/br_TerrainPreview_Shadow"
 }
 }
 }

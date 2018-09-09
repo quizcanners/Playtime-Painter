@@ -24,10 +24,8 @@ Shader "Terrain/MergingTerrain" {
 
 		#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-		#pragma multi_compile_fwdbase //nolightmap nodirlightmap nodynlightmap novertexlight
+		#pragma multi_compile_fwdbase
 
-		#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-		#pragma multi_compile  ___ COLOR_BLEED
 		#pragma multi_compile  ___ WATER_FOAM
 
 			struct v2f {
@@ -50,15 +48,6 @@ Shader "Terrain/MergingTerrain" {
 
 				float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
 				o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
-			//	o.tc_Control.y = (worldPos.y - _mergeTeraPosition.y) / _mergeTerrainScale.xz;
-
-
-				// The portion below is to preview editing.
-			/*	float4 height = tex2Dlod(_mergeTerrainHeight, float4(o.tc_Control.xy, 0, 0));
-				worldPos.y = _mergeTeraPosition.y + height.a*_mergeTerrainScale.y;
-				v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));*/
-				// end of preview, can be commented out for build
-
 
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.wpos = worldPos;

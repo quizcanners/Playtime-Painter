@@ -88,11 +88,11 @@ namespace Playtime_Painter {
              [ReadOnly]  public Vector3 lpos;
 
             public void Execute() {
-
+                
                 for (int i=0; i< volume.Length; i++) {
                     var col = volume[i];
                     col[channelIndex] = 0;
-                    volume[channelIndex] = col;
+                    volume[i] = col;
                 }
 
                 float deSize = 1f/size;
@@ -125,7 +125,6 @@ namespace Playtime_Painter {
                             Vector3 marchPos = lightLocalPos + skipSteps * marchVector;
 
                             for (int i = skipSteps; i < steps; i++) {
-
                                 if (marchDist > hitDist)  {
 
                                     int HH = Mathf.FloorToInt((marchPos.y) * deSize);
@@ -163,19 +162,21 @@ namespace Playtime_Painter {
         JobHandle jobHandle;
 
         void CompleteAndDisposeAll() {
-
-     
+            
             jobHandle.Complete();
+
             if (gotHit.IsCreated)
-            gotHit.Dispose();
+                gotHit.Dispose();
             if (hitJobResults.IsCreated)
-            hitJobResults.Dispose();
+                hitJobResults.Dispose();
             if (hitJobDirections.IsCreated)
-            hitJobDirections.Dispose();
+                hitJobDirections.Dispose();
+
             rayStep = RaycastsStep.Nothing;
 
             for (int i = 0; i < 3; i++)
                 lightSourceDirty[i] = false;
+
         }
 
         public void UpdateRaycasts() {
@@ -262,8 +263,6 @@ namespace Playtime_Painter {
             }
         }
         
-     
-
         public List<RaycastCommand> RecalculateVolumePrepareJobs(int channel, out List<Vector3> directions)  {
 
             directions = new List<Vector3>();
@@ -300,14 +299,14 @@ namespace Playtime_Painter {
 
                                 pos.x = center.x + ((float)(x - hw)) * size;
 
-                                for (int z = 0; z < w; z += addZ)
-                                {
+                                for (int z = 0; z < w; z += addZ) {
 
                                     pos.z = center.z + ((float)(z - hw)) * size;
 
                                     var vector = pos - lpos;
                                     directions.Add(vector);
                                     futureHits.Add(new RaycastCommand(lpos, vector, vector.magnitude*1.5f));
+
                                 }
                             }
                         }

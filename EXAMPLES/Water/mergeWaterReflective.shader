@@ -32,14 +32,9 @@
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 
-		#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
+#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-
-		//sampler2D _mergeControl;
 		sampler2D _BumpMapC;
-
 
 			struct v2f {
 				float4 pos : POSITION;
@@ -150,33 +145,13 @@
 			float NdotH = saturate((dot(normal, halfDirection)-1+smoothness*0.005)*100);
 
 
-			//return NdotH;
-
-			//float 	normTerm = GGXTerm(NdotH, smoothness*0.1);//*(pow(terrainN.b + 0.05, 4) * 8);
-			//return normTerm;
-
 			cont.rgb = ( unity_AmbientSky.rgb*max(0,terrainLight.a*terrainLight.a- height* height*2) + (dott*0.1
-				+ 
-				NdotH*4)*shadow*_LightColor0.rgb
-				
-				+
-				terrainLight.rgb *bump.b*0.5) *(0.25+ dotprod);
+				+ NdotH*4)*shadow*_LightColor0.rgb
+				+terrainLight.rgb *bump.b*0.5) *(0.25+ dotprod);
 
-			//cont.rgb += pow(bump.b,4)*1024;
-
-			
-			
-#if	MODIFY_BRIGHTNESS
-			cont.rgb *= _lightControl.a;
-#endif
-
-#if COLOR_BLEED
-			float3 mix = cont.gbr + cont.brg;
-			cont.rgb += mix*mix*_lightControl.r;
-#endif
+			BleedAndBrightness(cont, 1);
 
 			UNITY_APPLY_FOG(i.fogCoord, cont);
-			//cont.rgb *= dotprod;
 
 			return cont;
 

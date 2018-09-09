@@ -1,7 +1,6 @@
 ﻿Shader "PlaytimePainter/Bevel/Pixelated" {
 	Properties{
 		_MainTex("Base texture", 2D) = "white" {}
-	//_Noise("Noise", 2D) = "white" {}
 	}
 
 		Category{
@@ -29,13 +28,7 @@
 
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-//#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
-
-
-#pragma multi_compile  ___ MODIFY_BRIGHTNESS 
-#pragma multi_compile  ___ COLOR_BLEED
-
-		sampler2D _MainTex;
+	sampler2D _MainTex;
 	float4 _MainTex_TexelSize;
 	//sampler2D _Noise;
 
