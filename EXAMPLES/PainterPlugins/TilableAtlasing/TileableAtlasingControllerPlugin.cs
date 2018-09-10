@@ -138,7 +138,7 @@ namespace Playtime_Painter {
             else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
             {
                 showAtlases = false;
-                changed |= atlasedMaterials.edit_List(ref InspectedPainter.selectedAtlasedMaterial, true).nl();
+                changed |= atlasedMaterials.edit_List(ref InspectedPainter.selectedAtlasedMaterial).nl();
             }
 
             if ("Atlases".foldout(ref showAtlases))
@@ -149,7 +149,7 @@ namespace Playtime_Painter {
 
                 pegi.newLine();
 
-                atlases.edit_List(ref browsedAtlas, true);
+                atlases.edit_List(ref browsedAtlas);
 
              
 

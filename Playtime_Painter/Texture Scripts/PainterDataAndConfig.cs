@@ -247,12 +247,12 @@ namespace Playtime_Painter
             bool changes = false;
 
             if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
-                "Image Datas".edit_List(imgDatas, ref inspectedImgData, true);
+                "Image Datas".edit_List(imgDatas, ref inspectedImgData);
 
             if (inspectedImgData == -1)
             {
                 if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                    matDatas.edit_List(ref MaterialData.inspectedMaterial, true);
+                    matDatas.edit_List(ref MaterialData.inspectedMaterial);
 
 #if UNITY_EDITOR
                 "Using layer:".nl();
@@ -261,8 +261,8 @@ namespace Playtime_Painter
                 pegi.newLine();
                 "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
 
-                "Source Textures".edit_List_Obj(sourceTextures, true).nl();
-                "Masks".edit_List_Obj(masks, true).nl();
+                "Source Textures".edit_List_Obj(sourceTextures).nl();
+                "Masks".edit_List_Obj(masks).nl();
                 "Decals".edit(() => decals, this).nl();
                
             }

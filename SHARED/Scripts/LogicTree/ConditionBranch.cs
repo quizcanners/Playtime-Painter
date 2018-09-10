@@ -165,9 +165,9 @@ namespace STD_Logic
                             ))
                         type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                    conds.edit_List(ref browsedCondition, true);
+                    conds.edit_List(ref browsedCondition);
 
-                    changed |= "Sub Conditions".edit_List(branches, ref browsedBranch, true);
+                    changed |= "Sub Conditions".edit_List(branches, ref browsedBranch);
 
                 }
                 else

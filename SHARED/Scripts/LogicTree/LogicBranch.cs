@@ -108,9 +108,9 @@ namespace STD_Logic {
                     
                     else
                     {
-                        changed |= "Elements:".edit_List(elements, ref browsedElement, true);
+                        changed |= "Elements:".edit_List(elements, ref browsedElement);
 
-                        changed |= "Sub Branches:".edit_List(subBranches, ref browsedBranch, true);
+                        changed |= "Sub Branches:".edit_List(subBranches, ref browsedBranch);
                     }
 
                 } else  {

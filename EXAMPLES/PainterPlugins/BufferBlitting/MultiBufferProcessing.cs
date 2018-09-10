@@ -107,12 +107,12 @@ namespace Playtime_Painter
                 "Size: ".edit(40, ref GUITextureSize, 128, 512).nl();
 
             if (editedBuffer == -1)
-                "Sections".edit_List(sections, ref editedSection, true);
+                "Sections".edit_List(sections, ref editedSection);
             else
                 editedSection = -1;
 
             if (editedSection == -1)
-                "Buffers".edit_List(buffers, ref editedBuffer, true);
+                "Buffers".edit_List(buffers, ref editedBuffer);
 
             return changed;
         }

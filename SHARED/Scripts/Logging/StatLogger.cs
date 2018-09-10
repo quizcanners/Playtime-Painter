@@ -128,7 +128,7 @@ namespace SharedTools_Stuff
             bool changed = false;
 
             if (inspectedStat == -1)
-                "Logs".edit_List(executionOrder, ref inspectedStat, true);
+                "Logs".edit_List(executionOrder, ref inspectedStat);
             else
             {
                 if (icon.Back.Click())
@@ -203,7 +203,7 @@ namespace SharedTools_Stuff
             if (value > 0 && ("Reset Value " + value).Click().nl())
                 value = 0;
 
-            changed |= events.edit(ref editedEvent, true).nl();
+            changed |= events.edit(ref editedEvent).nl();
 
             return changed;
         }

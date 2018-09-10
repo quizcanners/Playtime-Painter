@@ -92,7 +92,7 @@ namespace STD_Animations
                     source.volume = vol;
             }
 
-            changed |= "Audio Clips".edit_List_Obj(audioClips, true).nl();
+            changed |= "Audio Clips".edit_List_Obj(audioClips).nl();
 
             "Dependencies".foldout(ref showDependencies).nl();
 

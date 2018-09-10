@@ -355,7 +355,7 @@ namespace STD_Animations
 
                     if (Application.isPlaying || !playInEditor)
                     {
-                        var added = elementsUnsorted.edit_List(ref inspectedElement, true, ref changed);
+                        var added = elementsUnsorted.edit_List(ref inspectedElement,  ref changed);
                         if (added != null)
                         {
                             added.NameForPEGI = "New Element";

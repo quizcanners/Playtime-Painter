@@ -186,7 +186,7 @@ namespace SharedTools_Stuff
                 Decode(data);//.DecodeTagsFor(this);
 
             if (tags != null)
-                dirty |= tag.edit_List(tags, ref inspectedTag, true);
+                dirty |= tag.edit_List(tags, ref inspectedTag);
 
             if (inspectedTag == -1)
             {
@@ -394,7 +394,7 @@ namespace SharedTools_Stuff
             inspectedSTD = target;
             inspected = this;
 
-            var aded = "Saved CFGs:".edit_List(states, ref inspectedState, true, ref changed);
+            var aded = "Saved CFGs:".edit_List(states, ref inspectedState, ref changed);
 
             if (aded != null && target != null)
             {

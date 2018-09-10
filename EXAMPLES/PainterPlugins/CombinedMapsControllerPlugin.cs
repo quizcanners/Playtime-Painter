@@ -274,7 +274,7 @@ namespace Playtime_Painter {
             int browsedTextureSet = -1;
             public override bool ConfigTab_PEGI()
             {
-                return forCombinedMaps.edit_List(ref browsedTextureSet, true);
+                return forCombinedMaps.edit_List(ref browsedTextureSet);
             }
 #endif
         }

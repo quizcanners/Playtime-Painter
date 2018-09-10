@@ -4225,7 +4225,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        static bool edit_List_Order<T>(this List<T> list, bool allowDelete)
+        static bool edit_List_Order<T>(this List<T> list)
         { 
             bool changed = false;
 
@@ -4280,8 +4280,7 @@ namespace PlayerAndEditorGUI
 
                         var el = list[i];
 
-                        if (allowDelete)
-                        {
+                       
                             if (el != null && typeof(T).IsUnityObject())
                             {
                                 if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
@@ -4297,7 +4296,7 @@ namespace PlayerAndEditorGUI
                                     ListSectionMax--;
                                 }
                             }
-                        }
+                        
 
                         if (el != null && derr != null)
                         {
@@ -4554,13 +4553,13 @@ namespace PlayerAndEditorGUI
 
 
         //Lists ...... of Monobehaviour
-        public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this string label, List<T> list, ref int edited, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
         {
             label.write_ListLabel(list, edited);
-            return list.edit_List_MB(ref edited, allowDelete, ref added, datas);
+            return list.edit_List_MB(ref edited, ref added, datas);
         }
 
-        public static bool edit_List_MB<T>(this List<T> list, ref int edited, bool allowDelete, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this List<T> list, ref int edited, ref T added, UnnullableSTD<ElementData> datas = null) where T : MonoBehaviour
         {
             bool changed = false;
 
@@ -4577,7 +4576,7 @@ namespace PlayerAndEditorGUI
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(allowDelete);
+                changed |= list.edit_List_Order();
 
                 if (list != editingOrder)
                 {
@@ -4694,7 +4693,7 @@ namespace PlayerAndEditorGUI
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(true);
+                changed |= list.edit_List_Order();
 
                 if (list != editingOrder)
                 {
@@ -4768,18 +4767,18 @@ namespace PlayerAndEditorGUI
 
         // ...... of Object
         public static bool edit_List_Obj<T>(this List<T> list, ref int edited) where T : UnityEngine.Object
-            => list.edit_or_select_List_Obj(null, ref edited, true);
+            => list.edit_or_select_List_Obj(null, ref edited);
 
-        public static bool edit_List_Obj<T>(this List<T> list, bool allowDelete) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this List<T> list) where T : UnityEngine.Object
         {
             int edited = -1;
-            return list.edit_or_select_List_Obj(null, ref edited, allowDelete);
+            return list.edit_or_select_List_Obj(null, ref edited);
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list, bool allowDelete) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this string label, List<T> list) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, -1);
-            return (list.edit_List_Obj(allowDelete));
+            return (list.edit_List_Obj());
         }
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object {
@@ -4789,27 +4788,27 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, ListPEGI_Data ld) where T : UnityEngine.Object {
             label.write_ListLabel(list, ld.inspectedElement);
-            return list.edit_or_select_List_Obj(null,  ref ld.inspectedElement, true, ld.elementDatas);
+            return list.edit_or_select_List_Obj(null,  ref ld.inspectedElement,  ld.elementDatas);
         }
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object {
             label.write_ListLabel(list, edited);
-            return list.edit_or_select_List_Obj(null, ref edited, true, datas);
+            return list.edit_or_select_List_Obj(null, ref edited,  datas);
         }
 
-        public static bool edit_or_select_List_Obj<T>(this string label, object nameProvider, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this string label, object nameProvider, List<T> list, List<T> from, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(nameProvider, list, edited);
-            return edit_or_select_List_Obj(list, from, ref edited, allowDelete, datas);
+            return edit_or_select_List_Obj(list, from, ref edited,  datas);
         }
 
-        public static bool edit_or_select_List_Obj<T>(this string label, List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this string label, List<T> list, List<T> from, ref int edited, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, edited);
-            return edit_or_select_List_Obj(list, from, ref  edited, allowDelete, datas);
+            return edit_or_select_List_Obj(list, from, ref  edited,  datas);
         }
         
-        public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited, bool allowDelete, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this List<T> list, List<T> from, ref int edited,  UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             if (list == null)
             {
@@ -4830,7 +4829,7 @@ namespace PlayerAndEditorGUI
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(allowDelete);
+                changed |= list.edit_List_Order();
 
                 if (list != editingOrder)
                 {
@@ -4866,46 +4865,46 @@ namespace PlayerAndEditorGUI
 
         // ...... of New()
 
-        public static bool edit_List<T>(this string label, object nameProvider, List<T> list, ref int edited, bool allowDelete) where T : new()
+        public static bool edit_List<T>(this string label, object nameProvider, List<T> list, ref int edited) where T : new()
         {
             label.write_ListLabel(nameProvider, list, edited);
-            return list.edit_List(ref edited, allowDelete);
+            return list.edit_List(ref edited);
         }
         
-        public static bool edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete) where T :  new()
+        public static bool edit_List<T>(this string label, List<T> list, ref int edited) where T :  new()
         {
             label.write_ListLabel(list, edited);
-            return list.edit_List(ref edited, allowDelete);
+            return list.edit_List(ref edited);
         }
 
-        public static bool edit_List<T>(this List<T> list, ref int edited, bool allowDelete) where T :  new()
+        public static bool edit_List<T>(this List<T> list, ref int edited) where T :  new()
         {
             bool changes = false;
-            list.edit_List(ref edited, allowDelete, ref changes);
+            list.edit_List(ref edited,  ref changes);
             return changes;
         }
 
-        public static bool edit_List<T>(this string label, List<T> list, bool allowDelete) where T :  new()
+        public static bool edit_List<T>(this string label, List<T> list) where T :  new()
         {
             label.write_ListLabel(list, -1);
-            return list.edit_List(allowDelete);
+            return list.edit_List();
         }
 
-        public static bool edit_List<T>(this List<T> list, bool allowDelete) where T :  new()
+        public static bool edit_List<T>(this List<T> list) where T :  new()
         {
             int edited = -1;
             bool changes = false;
-            list.edit_List(ref edited, allowDelete, ref changes);
+            list.edit_List(ref edited,  ref changes);
             return changes;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, bool allowDelete, ref bool changed) where T :  new()
+        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed) where T :  new()
         {
             label.write_ListLabel(list, edited);
-            return list.edit_List(ref edited, allowDelete, ref changed);
+            return list.edit_List(ref edited,  ref changed);
         }
 
-        public static T edit_List<T>(this List<T> list, ref int edited, bool allowDelete, ref bool changed) where T :  new()
+        public static T edit_List<T>(this List<T> list, ref int edited,  ref bool changed) where T :  new()
         {
 
             T added = default(T);
@@ -4925,7 +4924,7 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
 
-                changed |= list.edit_List_Order(allowDelete);
+                changed |= list.edit_List_Order();
 
                 if (list != editingOrder)
                 {
@@ -4964,13 +4963,13 @@ namespace PlayerAndEditorGUI
             return added;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T :  new()
+        public static T edit_List<T>(this string label, List<T> list,  ref bool changed, Func<T, T> lambda) where T :  new()
         {
             label.write_ListLabel(list, -1);
-            return edit_List<T>(list, allowDelete, ref changed, lambda);
+            return edit_List<T>(list,  ref changed, lambda);
         }
 
-        public static T edit_List<T>(this List<T> list, bool allowDelete, ref bool changed, Func<T, T> lambda) where T :  new()
+        public static T edit_List<T>(this List<T> list,  ref bool changed, Func<T, T> lambda) where T :  new()
         {
 
             T added = default(T);
@@ -4981,7 +4980,7 @@ namespace PlayerAndEditorGUI
                 return added;
             }
 
-            changed |= list.edit_List_Order(allowDelete);
+            changed |= list.edit_List_Order();
 
             if (list != editingOrder)
             {
@@ -5091,7 +5090,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool edit<G, T>(this Dictionary<G, T> dic, ref int edited, bool allowDelete)
+        public static bool edit<G, T>(this Dictionary<G, T> dic, ref int edited)
         {
             bool changed = false;
 
@@ -5105,7 +5104,7 @@ namespace PlayerAndEditorGUI
                 {
                     var item = dic.ElementAt(i);
                     var itemKey = item.Key;
-                    if (allowDelete && icon.Delete.Click(25))
+                    if (icon.Delete.Click(25))
                     {
                         dic.Remove(itemKey);
                         changed = true;

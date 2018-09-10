@@ -322,7 +322,7 @@ namespace Playtime_Painter {
             int w = Width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
 
-            "Matserials".edit_List_Obj(materials, true);
+            "Matserials".edit_List_Obj(materials);
 
             if (InspectedPainter != null) {
                 var pmat = InspectedPainter.Material;
