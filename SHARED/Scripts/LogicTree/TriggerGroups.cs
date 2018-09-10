@@ -15,9 +15,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-    public class TriggerGroup : AbstractKeepUnrecognized_STD  , IGotName, IGotIndex, IPEGI
-
-    {
+    public class TriggerGroup : AbstractKeepUnrecognized_STD  , IGotName, IGotIndex, IPEGI {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
 
@@ -61,8 +59,6 @@ namespace STD_Logic
         }
 
         public bool showInInspectorBrowser = true;
-
-    //    int inspectedTrigger = -1;
 
         string name = "Unnamed_Triggers";
         int index;
@@ -136,6 +132,7 @@ namespace STD_Logic
             .Add_String("n", name)
             .Add("ind", index)
             .Add("t", triggers)
+            .Add("br", browsedGroup)
             .Add_ifTrue("show", showInInspectorBrowser);
 
         public override bool Decode(string tag, string data) {
@@ -146,30 +143,14 @@ namespace STD_Logic
                     foreach (var t in triggers) {
                         t.groupIndex = index;
                         t.triggerIndex = triggers.currentEnumerationIndex;
-                    }
-
-                    break; 
+                    }  break;
+                case "br": browsedGroup = data.ToInt(); break;
                 case "show": showInInspectorBrowser = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
-        
-        public static void SaveAll(string path)  {
-            foreach (TriggerGroup s in all)
-                s.Save(path);
-        }
-
-        public void Save(string path) => this.SaveToAssets(path, name);
-        
-
-        public static void LoadAll(string path) {
-            foreach (TriggerGroup s in all)
-                s.Load(path);
-        }
-
-        public void Load(string path) => this.LoadFromAssets(path, name);
-
+           
 #if PEGI
 
         string lastFilteredString = "";
@@ -313,6 +294,10 @@ namespace STD_Logic
                         t.name = Trigger.searchField;
                         t.groupIndex = IndexForPEGI;
                         t.triggerIndex = ind;
+                        if (arg.IsBoolean())
+                            t._usage = TriggerUsage.boolean;
+                        else
+                            t._usage = TriggerUsage.number;
 
                         if (arg != null) arg.Trigger = t;
                         
