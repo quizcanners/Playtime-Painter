@@ -942,11 +942,8 @@ namespace SharedTools_Stuff {
 
     }
 
-    public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new()
-
-
-    {
-
+    public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new() {
+        
         protected T[] objs = new T[0];
         int firstFreeObj = 0;
 
@@ -957,8 +954,12 @@ namespace SharedTools_Stuff {
 
                 case "inds": data.DecodeInto(out tmpDecodeInds); break;
                 case "vals": List<T> tmps; data.DecodeInto(out tmps);
-                    for (int i = 0; i < tmps.Count; i++)
-                        this[tmpDecodeInds[i]] = tmps[i];
+                    for (int i = 0; i < tmps.Count; i++) {
+                        var tmp = tmps[i];
+                        if (!tmp.Equals(default(T))) 
+                            this[tmpDecodeInds[i]] = tmp;
+                    }
+
                     tmpDecodeInds = null;
                     break;
                 case "brws": edited = data.ToInt(); break;
@@ -1021,7 +1022,6 @@ namespace SharedTools_Stuff {
                     depth++;
                     Max *= branchSize;
                     VariableBranch newbr = GetNewBranch();
-                    //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -1046,8 +1046,7 @@ namespace SharedTools_Stuff {
                     vb = vb.br[no];
                 }
 
-                if (vb.br[ind] == null)
-                {
+                if (vb.br[ind] == null) {
                     vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 

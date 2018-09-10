@@ -318,17 +318,19 @@ namespace STD_Logic
                         
                         changed = true;
                     }
-
-                    if (Browsed != null)
-                    {
-                        int slctd = Browsed.IndexForPEGI;
-                        if (pegi.select(ref slctd, all))
-                            Browsed = all[slctd];
-                    }
-                    else
-                        "No Trigger Groups found".nl();
-
                 }
+
+                var trigList = all.GetAllObjsNoOrder();
+
+                if (trigList.Count > 0)
+                {
+                    int slctd = Browsed == null ? -1 : Browsed.IndexForPEGI;
+                    if (pegi.select(ref slctd, all))
+                        Browsed = all[slctd];
+                }
+                else
+                    "No Trigger Groups found".nl();
+
                 pegi.newLine();
             }
 

@@ -50,12 +50,9 @@ namespace STD_Logic
         public override bool IsBoolean() => _usage.UsingBool;
 
 #if PEGI
-        public static void Search_PEGI() {
-            pegi.write("Search", 60);
-            pegi.edit(ref searchField);//, GUILayout.Width(60));
-            pegi.newLine();
-        }
+        public static void Search_PEGI() => "Search".edit(60, ref searchField).nl();
 #endif
+
         public bool SearchWithGroupName(string groupName) {
             
             if ((searchField.Length == 0) || Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
@@ -75,7 +72,7 @@ namespace STD_Logic
         }
 
         public override StdEncoder Encode() {
-            StdEncoder cody = new StdEncoder()
+            var cody = new StdEncoder()
             .Add_String("n", name)
             .Add("u", usage)
             .Add_IfNotEmpty("e", enm)
@@ -93,10 +90,7 @@ namespace STD_Logic
                 default: return false;
             }
             return true;
-
         }
-
-        
 
         public Trigger() {
             if (enm == null)

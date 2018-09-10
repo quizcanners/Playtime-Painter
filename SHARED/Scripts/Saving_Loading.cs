@@ -16,7 +16,7 @@ using UnityEditor;
 
 namespace SharedTools_Stuff
 {
-    public static class StuffDeleted
+    public static class StuffDeleter
     {
 
         public static bool DeleteFile_PersistantFolder(string subPath, string fileName)
