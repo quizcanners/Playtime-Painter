@@ -130,8 +130,7 @@ namespace PlayerAndEditorGUI
         public delegate bool windowFunction();
 
         static int elementIndex;
-
-
+        
         public static bool isFoldedOut = false;
         public static bool mouseOverUI = false;
 

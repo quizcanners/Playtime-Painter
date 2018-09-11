@@ -16,6 +16,16 @@ using UnityEditor;
 
 namespace SharedTools_Stuff
 {
+
+    public static class StuffExplorer
+    {
+
+        public static void OpenPersistantFolder() =>  EditorUtility.RevealInFinder(Application.persistentDataPath);
+
+        public static void OpenPersistantFolder(string folder) => EditorUtility.RevealInFinder(Path.Combine(Application.persistentDataPath, folder));
+
+    }
+
     public static class StuffDeleter
     {
 
@@ -208,7 +218,7 @@ namespace SharedTools_Stuff
 
             for (int i=0; i<lst.Count; i++)
             {
-                var txt = lst[i];
+                var txt = lst[i].Replace(@"\", @"/");
                 txt = txt.Substring(txt.LastIndexOf("/")+1);
                 txt = txt.Substring(0, txt.Length - StuffSaver.jsonFileType.Length);
                 lst[i] = txt;
