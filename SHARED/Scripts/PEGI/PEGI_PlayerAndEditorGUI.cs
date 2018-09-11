@@ -1801,6 +1801,18 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
+
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, string tip, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label, tip, width);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label, width);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
         
         public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
         {
