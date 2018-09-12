@@ -1784,10 +1784,9 @@ namespace PlayerAndEditorGUI
                 var el = lst[i];
                 if (el != null) {
                     var name = el.NameForPEGI;
-
-
+                    
                     if (name != null) {
-                        if (val == null || val.SameAs(name))
+                        if (val != null && val.SameAs(name))
                             jindx = lnms.Count;
                         lnms.Add(name);
                     }
@@ -2015,8 +2014,7 @@ namespace PlayerAndEditorGUI
 
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.getIcon().foldout(text, ref selected, current);
 
-        public static bool fold_enter_exit(ref int selected, int current)
-        {
+        public static bool fold_enter_exit(ref int selected, int current) {
 
             if (selected == current)
             {
@@ -2026,16 +2024,35 @@ namespace PlayerAndEditorGUI
             else if (selected == -1 && icon.Enter.Click())
                 selected = current;
 
-            pegi.isFoldedOut = (selected == current);
+            isFoldedOut = (selected == current);
 
-            return pegi.isFoldedOut;
+            return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, ref int selected, int current)
+        public static bool fold_enter_exit(this icon ico, string txt, ref bool state)
         {
 
+            if (state)
+            {
+                if (icon.Exit.Click())
+                    state = false;
+            }
+            else if (!state)
+            {
+                write(txt);
 
+                if (ico.Click())
+                    state = true;
+            }
 
+            isFoldedOut = state;
+
+            return isFoldedOut;
+        }
+
+        public static bool fold_enter_exit(this string txt, ref bool state) => icon.Enter.fold_enter_exit(txt, ref state);
+        
+        public static bool fold_enter_exit(this icon ico, string txt, ref int selected, int current) {
             if (selected == current)
             {
                 if (icon.Exit.ClickUnfocus(txt))
