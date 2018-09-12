@@ -20,10 +20,19 @@ namespace SharedTools_Stuff
     public static class StuffExplorer
     {
 
-        public static void OpenPersistantFolder() =>  EditorUtility.RevealInFinder(Application.persistentDataPath);
+        public static void OpenPersistantFolder()
+        {
+#if UNITY_EDITOR
+            EditorUtility.RevealInFinder(Application.persistentDataPath);
+#endif
+        }
 
-        public static void OpenPersistantFolder(string folder) => EditorUtility.RevealInFinder(Path.Combine(Application.persistentDataPath, folder));
-
+        public static void OpenPersistantFolder(string folder)
+        {
+#if UNITY_EDITOR
+            EditorUtility.RevealInFinder(Path.Combine(Application.persistentDataPath, folder));
+#endif
+        }
     }
 
     public static class StuffDeleter

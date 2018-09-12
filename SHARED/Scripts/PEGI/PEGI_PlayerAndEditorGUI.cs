@@ -1662,6 +1662,7 @@ namespace PlayerAndEditorGUI
             return select_or_edit(null, null, 0, ref obj, list);
         }
 
+
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
             if (list == null || list.Count == 0)
@@ -1687,14 +1688,12 @@ namespace PlayerAndEditorGUI
         public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
              select_SameClass_or_edit(null, null, 0, ref obj, list);
         
-
         public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
              select_SameClass_or_edit(name, null, 0, ref obj, list);
         
-
         public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
              select_SameClass_or_edit(name, null, width, ref obj, list);
-        
+
 
         public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst) where T : IGotIndex
         {
@@ -1750,28 +1749,29 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select_iGotName<T>(this string label, string tip, ref string ind, List<T> lst) where T : IGotName
+
+        public static bool select_iGotName<T>(this string label, string tip, ref string name, List<T> lst) where T : IGotName
         {
             write(label, tip);
-            return select_iGotName(ref ind, lst);
+            return select_iGotName(ref name, lst);
         }
 
-        public static bool select_iGotName<T>(this string label, string tip, int width, ref string ind, List<T> lst) where T : IGotName
+        public static bool select_iGotName<T>(this string label, string tip, int width, ref string name, List<T> lst) where T : IGotName
         {
             write(label, tip, width);
-            return select_iGotName(ref ind, lst);
+            return select_iGotName(ref name, lst);
         }
 
-        public static bool select_iGotName<T>(this string label, int width, ref string ind, List<T> lst) where T : IGotName
+        public static bool select_iGotName<T>(this string label, int width, ref string name, List<T> lst) where T : IGotName
         {
             write(label, width);
-            return select_iGotName(ref ind, lst);
+            return select_iGotName(ref name, lst);
         }
 
-        public static bool select_iGotName<T>(this string label, ref string ind, List<T> lst) where T : IGotName
+        public static bool select_iGotName<T>(this string label, ref string name, List<T> lst) where T : IGotName
         {
             write(label);
-            return select_iGotName(ref ind, lst);
+            return select_iGotName(ref name, lst);
         }
         
         public static bool select_iGotName<T>(ref string val, List<T> lst) where T : IGotName
@@ -4001,11 +4001,14 @@ namespace PlayerAndEditorGUI
             if (editingOrder != null && editingOrder == lst)
                 return false;
 
-            bool changed = false;
-
             var types = typeof(T).TryGetDerrivedClasses();
+            
+            if (types == null && typeof(T).IsAbstract)
+                return false;
 
-            pegi.edit(ref addingNewNameHolder);
+            bool changed = false;
+            
+            edit(ref addingNewNameHolder);
 
             if (addingNewNameHolder.Length > 1)
             {
@@ -4013,7 +4016,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (icon.Create.Click("Create new object").nl())
                     {
-                        added = lst.CreateAsset_SO<T>("Assets/ScriptableObjects/", addingNewNameHolder);
+                        added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder);
                         changed = true;
                     }
                 }
@@ -4032,7 +4035,7 @@ namespace PlayerAndEditorGUI
                         foreach (var t in types)
                         {
                             var n = t.ToString();
-                            pegi.write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
+                            write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
                             if (icon.Create.Click().nl())
                             {
                                 added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
@@ -4041,7 +4044,7 @@ namespace PlayerAndEditorGUI
                         }
                 }
             }
-            pegi.nl();
+            nl();
 
             return changed;
 
@@ -4052,12 +4055,15 @@ namespace PlayerAndEditorGUI
             if (editingOrder != null && editingOrder == lst)
                 return false;
 
+            var types = typeof(T).TryGetDerrivedClasses();
+
+            if (types == null && typeof(T).IsAbstract)
+                return false;
+
             bool changed = false;
 
             bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
-
-            var types = typeof(T).TryGetDerrivedClasses();
-
+            
             if (hasName)
                 edit(ref addingNewNameHolder);
             else
@@ -4558,8 +4564,7 @@ namespace PlayerAndEditorGUI
             }
             return false;
         }
-
-
+        
         #endregion
 
 
