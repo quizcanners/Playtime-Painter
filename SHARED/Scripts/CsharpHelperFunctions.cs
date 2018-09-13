@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 
 
 using PlayerAndEditorGUI;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -25,8 +26,13 @@ namespace SharedTools_Stuff
     {
         volatile bool llock;
 
-        public SkipLock Lock() => new SkipLock(this);
+        public SkipLock Lock()
+        {
+            if (llock)
+                UnityEngine.Debug.LogError("Should check it is Unlocked before calling a Lock");
 
+         return new SkipLock(this);
+        }
         public bool Unlocked => !llock;
 
         public class SkipLock : IDisposable
@@ -204,8 +210,7 @@ namespace SharedTools_Stuff
             return ind;
         }
 
-        public static int TryGetIndexOrAdd<T>(this List<T> list, T obj)
-        {
+        public static int TryGetIndexOrAdd<T>(this List<T> list, T obj) {
             int ind = -1;
             if (list != null && obj != null){
                 ind = list.IndexOf(obj);
@@ -213,7 +218,6 @@ namespace SharedTools_Stuff
                     list.Add(obj);
                     ind = list.Count - 1;
                 }
-                
             }
             return ind;
         }

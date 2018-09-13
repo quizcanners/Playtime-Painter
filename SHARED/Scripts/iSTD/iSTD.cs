@@ -64,8 +64,7 @@ namespace SharedTools_Stuff
     }
 
 
-    public class STD_ReferancesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD
-    {
+    public class STD_ReferancesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -78,11 +77,20 @@ namespace SharedTools_Stuff
         
         public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
-        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
+        public virtual StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("refDta", nestedReferenceDatas);
 
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
 
-        public virtual bool Decode(string tag, string data) => false;
+        public virtual bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "refDta": data.DecodeInto(out nestedReferenceDatas); break;
+                default: return false;
+            }
+            return true;
+        }
 
 #if !UNITY_EDITOR
         [NonSerialized]
@@ -120,7 +128,14 @@ namespace SharedTools_Stuff
                     pegi.nl();
 
                 if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
+                {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
+
+                    if (inspectedReference == -1 && "Clear All Referances".Click("Will clear the list. Make sure everything" +
+                        ", that usu this object to hold referances is currently decoded to avoid mixups"))
+                        _nestedReferences.Clear();
+
+                }
 
                 if (inspectedStuff == -1)
                     pegi.nl();
@@ -242,8 +257,7 @@ namespace SharedTools_Stuff
         public abstract bool Decode(string tag, string data);
     }
     
-    public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD
-    {
+    public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -252,8 +266,7 @@ namespace SharedTools_Stuff
         [NonSerialized]
 #endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
-
-
+        
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tag, string data) => false;
@@ -282,8 +295,7 @@ namespace SharedTools_Stuff
 #endif
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention 
-    {
+    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         
@@ -299,8 +311,7 @@ namespace SharedTools_Stuff
             return index;
         }
         public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
-
-
+        
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
@@ -392,7 +403,13 @@ namespace SharedTools_Stuff
                     pegi.nl();
 
                 if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
+                {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
+                    if (inspectedReference == -1 && "Clear All Referances".Click("Will clear the list. Make sure everything" +
+                    ", that usu this object to hold referances is currently decoded to avoid mixups"))
+                        _nestedReferences.Clear();
+
+                }
 
                 if (inspectedStuff == -1)
                     pegi.nl();
@@ -418,9 +435,6 @@ namespace SharedTools_Stuff
     }
 
 #endregion
-
-
-
 
     public static class STDExtensions {
 

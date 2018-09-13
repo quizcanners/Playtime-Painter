@@ -416,12 +416,11 @@ namespace SharedTools_Stuff
 
                 var selfSTD = target as IKeepMySTD;
 
-                if (selfSTD != null)
-                {
-                    if (icon.Save.Click("Save On itself"))
+                if (selfSTD != null) {
+                    if (icon.Save.Click("Save On itself (IKeepMySTD)"))
                         selfSTD.Save_STDdata(); 
                     var slfData = selfSTD.Config_STD;
-                    if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself"))
+                    if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself (IKeepMySTD)"))
                         target.Decode(slfData); 
                  }
                 pegi.nl();
