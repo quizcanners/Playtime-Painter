@@ -373,10 +373,9 @@ namespace SharedTools_Stuff
             Gizmos.DrawLine(v3a, v3b);
         }
 
-        public static bool SameAs(this string s, string other)
-        {
-            return (String.Compare(s, other) == 0);
-        }
+        public static bool SameAs(this string s, string other) =>
+            (((s==null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
+        
 
         public static bool SearchCompare(this string search, string name)
         {

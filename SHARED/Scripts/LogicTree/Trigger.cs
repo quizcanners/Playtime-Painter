@@ -109,7 +109,7 @@ namespace STD_Logic
             if (_usage.HasMoreTriggerOptions())
             {
                 if (icon.Close.Click(20))
-                    Trigger.editedTrigger = null;
+                    editedTrigger = null;
             }
 
             changed |= _usage.Inspect(this).nl();

@@ -125,7 +125,7 @@ namespace STD_Logic {
                 Trigger.searchMatchesFound = 0;
 
                 foreach (TriggerGroup td in TriggerGroup.all) 
-                    td.PEGI();
+                    td.Nested_Inspect();
 
             if (TriggerGroup.Browsed != null)
             {

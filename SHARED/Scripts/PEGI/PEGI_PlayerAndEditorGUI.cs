@@ -66,8 +66,7 @@ public interface IGotIndex
 namespace PlayerAndEditorGUI
 {
 #if PEGI
-    public static class pegi
-    {
+    public static class pegi {
 
         #region Other Stuff
         public delegate bool CallDelegate();
@@ -729,6 +728,7 @@ namespace PlayerAndEditorGUI
             write(text, hint, width);
             return select(ref val, list, lambda);
         }
+
         public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
         {
             label.write(width);
@@ -751,24 +751,21 @@ namespace PlayerAndEditorGUI
             else
 #endif
             {
+
                 List<int> inds;
                 List<T> objs = tree.GetAllObjs(out inds);
                 List<string> filtered = new List<string>();
                 int tmpindex = -1;
-                for (int i = 0; i < objs.Count; i++)
-                {
+                for (int i = 0; i < objs.Count; i++) {
                     if (no == inds[i])
                         tmpindex = i;
                     filtered.Add(objs[i].ToPEGIstring());
                 }
-
-
+                
                 if (tmpindex == -1)
                     filtered.Add(">>{0}<<".F(no.ToPEGIstring()));
-
-
-                if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
-                {
+                
+                if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count) {
                     no = inds[tmpindex];
                     return true;
                 }
@@ -1025,8 +1022,7 @@ namespace PlayerAndEditorGUI
             return false;
 
         }
-
-
+        
         public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda)
         {
 
@@ -1129,7 +1125,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select<T>(ref T val, List<T> lst)// => select<T>(ref val, lst, (x) => x.Equals(selecLambdaCurrentValue));
+        public static bool select<T>(ref T val, List<T> lst)
         {
             checkLine();
 
@@ -1443,38 +1439,6 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        /*
-        public static bool select<T>(ref int current)
-        {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.select(ref current, typeof(T));
-            }
-            else
-#endif
-
-            {
-                checkLine();
-                int tmpVal = current;
-                Type t = typeof(T);
-                string[] names = Enum.GetNames(t);
-                int[] val = (int[])Enum.GetValues(t);
-
-                for (int i = 0; i < val.Length; i++)
-                    if (val[i] == current)
-                        tmpVal = i;
-
-                if (select(ref tmpVal, names))
-                {
-                    current = val[tmpVal];
-                    return true;
-                }
-
-                return false;
-            }
-        }
-        */
         public static bool select<T>(ref int ind, T[] lst)
         {
 
@@ -1614,8 +1578,7 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
         }
-
-
+        
         // ***************************** Select or edit
 
         public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list) where T : UnityEngine.Object
@@ -1662,7 +1625,7 @@ namespace PlayerAndEditorGUI
         {
             return select_or_edit(null, null, 0, ref obj, list);
         }
-
+        
 
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
@@ -5111,10 +5074,7 @@ namespace PlayerAndEditorGUI
         public static bool write_List<T>(this string label, List<T> list)
         {
             int edited = -1;
-
-            nl();
             label.write_ListLabel(list, edited);
-
             return list.write_List<T>(ref edited);
         }
 
@@ -5669,4 +5629,4 @@ namespace PlayerAndEditorGUI
     #endregion
     
 }
-#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE1006 
