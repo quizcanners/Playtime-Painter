@@ -231,7 +231,8 @@ namespace PlayerAndEditorGUI {
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD
             , new()
         {
-            List<T> objs = tree.GetAllObjs(out List<int> inds);
+            List<int> inds;
+            List<T> objs = tree.GetAllObjs(out inds);
             List<string> filtered = new List<string>();
             int tmpindex = -1;
             for (int i = 0; i < objs.Count; i++)
@@ -251,7 +252,8 @@ namespace PlayerAndEditorGUI {
 
         public static bool select<T>(ref int no, Countless<T> tree)
         {
-            List<T> objs = tree.GetAllObjs(out List<int> inds);
+            List<int> inds;
+            List<T> objs = tree.GetAllObjs(out inds);
             List<string> filtered = new List<string>();
             int tmpindex = -1;
             for (int i = 0; i < objs.Count; i++)
@@ -1216,7 +1218,8 @@ namespace PlayerAndEditorGUI {
 
         static ReorderableList GetReordable<T>(this List<T> list)
         {
-            reorderableList.TryGetValue(list, out ReorderableList rl);
+            ReorderableList rl;
+            reorderableList.TryGetValue(list, out rl);
 
             if (rl == null)  {
                 rl = new ReorderableList(list, typeof(T), true, true, false, true);

@@ -751,7 +751,8 @@ namespace PlayerAndEditorGUI
             else
 #endif
             {
-                List<T> objs = tree.GetAllObjs(out List<int> inds);
+                List<int> inds;
+                List<T> objs = tree.GetAllObjs(out inds);
                 List<string> filtered = new List<string>();
                 int tmpindex = -1;
                 for (int i = 0; i < objs.Count; i++)
@@ -2843,6 +2844,22 @@ namespace PlayerAndEditorGUI
 
         }
 
+        public static bool edit(this string label, ref Vector2 val, float min, float max)
+        {
+            "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(ref Vector2 val, float min, float max)
+        {
+            bool modified = false;
+
+            modified |= "X".edit(10, ref val.x, min, max);
+            modified |= "Y".edit(10, ref val.y, min, max);
+
+            return modified;
+        }
+
         public static bool edit(this string label, ref Vector2 val)
         {
 
@@ -3113,8 +3130,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-
-
+        
         public static bool edit(this string label, ref float val)
         {
 
@@ -4265,11 +4281,11 @@ namespace PlayerAndEditorGUI
 
             const int bttnWidth = 25;
 
-            if (list != editingOrder)
-            {
+            if (list != editingOrder) {
                 if (icon.Edit.Click("Change Order", 28))
                     editingOrder = list;
             }
+
             else if (icon.Done.Click("Finish moving", 28))
             {
                 changed = true;
@@ -4382,8 +4398,30 @@ namespace PlayerAndEditorGUI
                         }
                     }
                 }
+            }
 
+            return changed;
+        }
 
+        static bool edit_List_Order<T>(this List<T> list, UnnullableSTD<ElementData> datas) where T: UnityEngine.Object
+        {
+            var changed = list.edit_List_Order();
+
+            if (list == editingOrder && datas != null) {
+
+                if (icon.Search.Click("Find objects by GUID"))
+                    for (int i = 0; i < list.Count; i++)
+
+                        if (list[i] == null)
+                        {
+                            var dta = datas.TryGet(i);
+                            if (dta != null)
+                            {
+                                T tmp = null;
+                                if (dta.TryGetByGUID(ref tmp))
+                                    list[i] = tmp;
+                            }
+                        }
             }
 
             return changed;
@@ -4609,7 +4647,7 @@ namespace PlayerAndEditorGUI
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order();
+                changed |= list.edit_List_Order(datas);
 
                 if (list != editingOrder)
                 {
@@ -4718,15 +4756,14 @@ namespace PlayerAndEditorGUI
             edited = Mathf.Clamp(edited, -1, list.Count - 1);
             changed |= (edited != before);
 
-            if (edited == -1)
-            {
+            if (edited == -1) {
 
                 changed |= list.ListAddClick<T>();
 
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order();
+                changed |= list.edit_List_Order(datas);
 
                 if (list != editingOrder)
                 {
@@ -4862,7 +4899,7 @@ namespace PlayerAndEditorGUI
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order();
+                changed |= list.edit_List_Order(datas);
 
                 if (list != editingOrder)
                 {

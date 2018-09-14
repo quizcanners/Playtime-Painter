@@ -21,12 +21,12 @@ namespace SharedTools_Stuff
 
             UnityEngine.Object obj = ConnectSTD == null ? null : ConnectSTD as UnityEngine.Object;
             if ("Target Obj: ".edit(60, ref obj) && obj != null)
-                    ConnectSTD = obj as ISTD;
-            
+                ConnectSTD = obj as ISTD;
+
             MonoBehaviour mono = ConnectSTD == null ? null : ConnectSTD as MonoBehaviour;
             if ("Target Obj: ".edit(60, ref mono).nl() && mono != null)
-                    ConnectSTD = mono as ISTD;
-            
+                ConnectSTD = mono as ISTD;
+
             return data.PEGI(ConnectSTD);
 
         }
@@ -34,15 +34,18 @@ namespace SharedTools_Stuff
 
     }
 
-    public class ListPEGI_Data : Abstract_STD {
+    public class ListPEGI_Data : Abstract_STD
+    {
 
         public int inspectedElement = -1;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
 
-        public override bool Decode(string tag, string data)  {
-            switch (tag)  {
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
                 case "ed": data.DecodeInto(out elementDatas); break;
-                case "insp":  inspectedElement = data.ToInt(); break;
+                case "insp": inspectedElement = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -65,9 +68,9 @@ namespace SharedTools_Stuff
             name = el.ToPEGIstring();
 
             var cmp = el as Component;
-            if ( cmp != null)
+            if (cmp != null)
                 componentType = cmp.GetType().ToPEGIstring();
-            
+
             var std = el as ISTD;
             if (std != null)
                 std_dta = std.Encode().ToString();
@@ -75,38 +78,49 @@ namespace SharedTools_Stuff
             guid = (el as UnityEngine.Object).GetGUID(guid);
         }
 
+        public bool TryGetByGUID<T>(ref T field) where T : UnityEngine.Object
+        {
+
+            var obj = UnityHelperFunctions.GUIDtoAsset<T>(guid);
+
+            field = null;
+
+            if (obj)
+            {
+                field = obj;
+
+                if (componentType != null && componentType.Length > 0)
+                {
+                    var go = obj as GameObject;
+                    if (go)
+                    {
+                        var getScripts = go.GetComponent(componentType) as T;
+                        if (getScripts)
+                            field = getScripts;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         public bool Inspect<T>(ref T field) where T : UnityEngine.Object
         {
-            
+
             bool changed = name.edit(100, ref field);
 
 #if UNITY_EDITOR
-            if (guid != null && icon.Search.Click("Find Object " +componentType +" by guid").nl())
-                {
-                    var obj = UnityHelperFunctions.GUIDtoAsset<T>(guid);
+            if (guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl())
+            {
 
-                    if (obj)
-                    {
-                        field = obj;
-
-                        if (componentType != null && componentType.Length > 0)
-                        {
-                            var go = obj as GameObject;
-                            if (go)
-                            {
-                                var getScripts = go.GetComponent(componentType) as T;
-                                if (getScripts)
-                                    field = getScripts;
-                            }
-                        }
-
-                        changed = true;
-                    }
-                    else
-                        (typeof(T).ToString() + " Not found ").showNotification();
-                }
+                if (!TryGetByGUID(ref field))
+                    (typeof(T).ToString() + " Not found ").showNotification();
+                else changed = true;
+            }
 #endif
- 
+
 
             return changed;
         }
@@ -129,12 +143,12 @@ namespace SharedTools_Stuff
             .Add_String("n", name)
             .Add_String("std", std_dta)
             .Add_String("guid", guid)
-            .Add_String ("t", componentType);
+            .Add_String("t", componentType);
 
     }
 
     [Serializable]
-    public class Exploring_STD : Abstract_STD , IPEGI, IGotName, IPEGI_ListInspect
+    public class Exploring_STD : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect
     {
         ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
@@ -145,19 +159,19 @@ namespace SharedTools_Stuff
         public void UpdateData()
         {
             if (tags != null)
-            foreach (var t in tags)
-                t.UpdateData();
+                foreach (var t in tags)
+                    t.UpdateData();
 
             dirty = false;
-            if (tags!= null)
-            data = this.Encode().ToString();
+            if (tags != null)
+                data = this.Encode().ToString();
         }
 
         public int inspectedTag = -1;
         [NonSerialized]
         public List<Exploring_STD> tags;
 
-        public Exploring_STD() { tag = ""; data = "";  }
+        public Exploring_STD() { tag = ""; data = ""; }
 
         public Exploring_STD(string ntag, string ndata)
         {
@@ -166,7 +180,7 @@ namespace SharedTools_Stuff
         }
 
 #if PEGI
- 
+
         public string NameForPEGI
         {
             get
@@ -219,7 +233,7 @@ namespace SharedTools_Stuff
 
             return dirty;
         }
-        
+
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
 
@@ -244,11 +258,12 @@ namespace SharedTools_Stuff
                 STDExtensions.copyBufferTag = tag;
             }
 
-            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste "+ STDExtensions.copyBufferTag + " Data").nl()) {
+            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + STDExtensions.copyBufferTag + " Data").nl())
+            {
                 dirty = true;
                 data = STDExtensions.copyBufferValue;
             }
-            
+
             return dirty | changed;
         }
 
@@ -261,7 +276,7 @@ namespace SharedTools_Stuff
             if (tags != null)
                 foreach (var t in tags)
                     cody.Add_String(t.tag, t.data);
-            
+
             return cody;
 
         }
@@ -274,13 +289,13 @@ namespace SharedTools_Stuff
             return true;
         }
 
-     
+
     }
 
     [Serializable]
     public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect
     {
-        
+
         ISTD Std => ISTD_ExplorerData.inspectedSTD;
 
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
@@ -296,16 +311,17 @@ namespace SharedTools_Stuff
             bool changed = false;
 
 
-            if (dataExplorer.inspectedTag == -1)  {
+            if (dataExplorer.inspectedTag == -1)
+            {
                 this.inspect_Name();
                 if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets"))
                 {
                     StuffSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                     UnityHelperFunctions.RefreshAssetDatabase();
                 }
-   
+
                 pegi.nl();
-                
+
                 if (Std != null)
                 {
                     if (dataExplorer.tag.Length == 0)
@@ -326,9 +342,9 @@ namespace SharedTools_Stuff
 
                 "Comment:".editBig(ref comment).nl();
             }
-            
+
             dataExplorer.Nested_Inspect();
-            
+
             return changed;
         }
 
@@ -363,7 +379,7 @@ namespace SharedTools_Stuff
         public string fileFolderHolder = "STDEncodes";
         public static ISTD inspectedSTD;
         public bool SaveToFileOptions;
-        
+
 #if PEGI
 
         public static bool PEGI_Static(ISTD target)
@@ -376,17 +392,17 @@ namespace SharedTools_Stuff
 
             if (icon.Copy.Click("Copy Component Data"))
                 STDExtensions.copyBufferValue = target.Encode().ToString();
-            
+
             var comp = target as ComponentSTD;
             if (comp != null && "Clear Component".Click())
-                    comp.Reboot();
-            
+                comp.Reboot();
+
 
             pegi.nl();
 
             return changed;
         }
-        
+
         public static ISTD_ExplorerData inspected;
         public bool PEGI(ISTD target)
         {
@@ -406,7 +422,8 @@ namespace SharedTools_Stuff
             if (inspectedState == -1)
             {
                 UnityEngine.Object myType = null;
-                if ("From File:".edit(65, ref myType)) {
+                if ("From File:".edit(65, ref myType))
+                {
                     aded = new SavedISTD();
                     aded.dataExplorer.data = StuffLoader.LoadTextAsset(myType);
                     aded.NameForPEGI = myType.name;
@@ -416,13 +433,14 @@ namespace SharedTools_Stuff
 
                 var selfSTD = target as IKeepMySTD;
 
-                if (selfSTD != null) {
+                if (selfSTD != null)
+                {
                     if (icon.Save.Click("Save On itself (IKeepMySTD)"))
-                        selfSTD.Save_STDdata(); 
+                        selfSTD.Save_STDdata();
                     var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself (IKeepMySTD)"))
-                        target.Decode(slfData); 
-                 }
+                        target.Decode(slfData);
+                }
                 pegi.nl();
             }
 
