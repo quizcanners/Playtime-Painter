@@ -15,23 +15,47 @@ namespace Playtime_Painter
             if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainTexture)))
             {
                 int no = fieldName[0].CharToInt();
+
+
+
+#if UNITY_2018_3_OR_NEWER
+                var l = painter.terrain.terrainData.terrainLayers;
+
+                if (l.Length > no)
+                    tex = l[no].diffuseTexture;
+#else
+
                 tex = painter.terrain.terrainData.splatPrototypes[no].texture;
+#endif
                 return true;
             }
             return false;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
-        {
-            if (painter.terrain != null)
-            {
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest) {
+
+            if (painter.terrain != null)  {
+
+#if UNITY_2018_3_OR_NEWER
+                var sp = painter.terrain.terrainData.terrainLayers;
+
+                for (int i = 0; i < sp.Length; i++) {
+                    var l = sp.TryGet(i);
+                    if (l != null)
+                        dest.Add(i + PainterDataAndConfig.terrainTexture + l.diffuseTexture.name);
+                }
+
+#else
+                
                 SplatPrototype[] sp = painter.terrain.terrainData.splatPrototypes;
                 for (int i = 0; i < sp.Length; i++)
                 {
                     if (sp[i].texture != null)
                         dest.Add(i + PainterDataAndConfig.terrainTexture + sp[i].texture.name);
                 }
+#endif
             }
+
         }
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
@@ -43,17 +67,40 @@ namespace Playtime_Painter
                 {
                     int no = fieldName[0].CharToInt();
 
+
+
+#if UNITY_2018_3_OR_NEWER
+                    var ls = painter.terrain.terrainData.terrainLayers;
+
+        
+                    if (ls.Length <= no) return true;
+
+                    var l = ls.TryGet(no);
+
+                    float width = painter.terrain.terrainData.size.x / l.tileSize.x;
+                    float length = painter.terrain.terrainData.size.z / l.tileSize.y;
+
+                    var id = painter.ImgData;
+                    id.tiling = new Vector2(width, length);
+                    id.offset = l.tileOffset;
+
+#else
                     SplatPrototype[] splats = painter.terrain.terrainData.splatPrototypes;
-                    if (splats.Length <= no) return true; ;
+
+                    if (splats.Length <= no) return true; 
 
                     SplatPrototype sp = painter.terrain.terrainData.splatPrototypes[no];
 
-                    float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
+                        float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
                     float length = painter.terrain.terrainData.size.z / sp.tileSize.y;
 
                     var id = painter.ImgData;
                     id.tiling = new Vector2(width, length);
                     id.offset = sp.tileOffset;
+
+#endif
+
+
                     return true;
                 }
             }

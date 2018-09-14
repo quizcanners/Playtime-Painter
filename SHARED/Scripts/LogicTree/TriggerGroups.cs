@@ -164,8 +164,10 @@ namespace STD_Logic
 
         #region Inspector
 
-#if PEGI
         bool listDirty;
+
+#if PEGI
+
         string lastFilteredString = "";
 
         List<Trigger> filteredList = new List<Trigger>();

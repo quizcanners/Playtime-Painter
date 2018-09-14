@@ -57,15 +57,46 @@ namespace Playtime_Painter
 
             if (terrain == null) terrain = GetComponent<Terrain>();
 
-            SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
+#if UNITY_2018_3_OR_NEWER
+            var ls = (terrain) ? null : terrain.terrainData.terrainLayers;
 
-            int copyProtsCount = copyProts == null ? 0 : copyProts.Length;
+            int copyProtsCount = ls.Length;
 
-           
             if (mergeSubmasks != null)
             {
 
-             
+                int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
+
+                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
+                    max++;
+
+                for (int i = 0; i < Mathf.Min(mergeSubmasks.Count, ls.Length); i++)
+                {
+                    ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
+                    if (tmp.Product_combinedBump != null)
+                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
+
+                    if (tmp.Product_colorWithAlpha != null)
+                    {
+                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
+                        ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
+
+                        //if ((copyProts != null) && (copyProts.Length > i))
+                        //     copyProts[i].texture = tmp.Product_colorWithAlpha;
+                    }
+                }
+
+                if (terrain)
+                    terrain.terrainData.terrainLayers = ls;
+            }
+
+#else
+            SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
+
+            int copyProtsCount = copyProts == null ? 0 : copyProts.Length;
+            
+            if (mergeSubmasks != null)
+            {
 
                 int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
 
@@ -100,8 +131,8 @@ namespace Playtime_Painter
                 if (terrain)
                     terrain.terrainData.splatPrototypes = copyProts;
             }
+#endif
 
-         
 
         }
 #if PEGI

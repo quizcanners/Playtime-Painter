@@ -2478,7 +2478,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), "", defaultButtonSize);
 
@@ -2555,8 +2555,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool toggle(this icon img, ref bool val)
-        {
+        public static bool toggle(this icon img, ref bool val) {
             write(img.getIcon(), 25);
             return toggle(ref val);
         }
@@ -4460,7 +4459,7 @@ namespace PlayerAndEditorGUI
                             }
                         }
 
-                        write(el.ToPEGIstring(), 120 + defaultButtonSize * ((uo == null ? 1 : 0) + (pg == null ? 1 : 0) + (datas == null ? 1 : 0)));
+                        write(el.ToPEGIstring());//, 120 + defaultButtonSize * ((uo == null ? 1 : 0) + (pg == null ? 1 : 0) + (datas == null ? 1 : 0)));
 
                     }
                 }

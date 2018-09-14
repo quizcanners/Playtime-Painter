@@ -72,6 +72,13 @@ namespace SharedTools_Stuff
         }
 #endif
 
+     /*   public static T TryGet<T>(this T[] ar, int ind)  {
+            if (ar.Length > ind)
+                return ar[ind];
+
+            return default;
+        }*/
+
         public static void RefreshAssetDatabase()
         {
 #if UNITY_EDITOR
@@ -217,10 +224,20 @@ namespace SharedTools_Stuff
         public static void UpdatePrefab(this GameObject gameObject)
         {
 #if PEGI && UNITY_EDITOR
+
+#if UNITY_2018_3_OR_NEWER
+            var pf = PrefabUtility.GetPrefabInstanceHandle(gameObject);
+#else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
+#endif
             if (pf != null)
             {
+                // SavePrefabAsset, SaveAsPrefabAsset, SaveAsPrefabAssetAndConnect'
+#if UNITY_2018_3_OR_NEWER
+                PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pf), InteractionMode.AutomatedAction);
+#else
                 PrefabUtility.ReplacePrefab(gameObject, gameObject.GetPrefab(), ReplacePrefabOptions.ConnectToPrefab);
+#endif
                 (gameObject.name + " prefab Updated").showNotification();
             } else {
                 (gameObject.name + " Not a prefab").showNotification();
@@ -229,7 +246,7 @@ namespace SharedTools_Stuff
 #endif
             }
 
-        public static float Angle(this Vector2 vec)
+            public static float Angle(this Vector2 vec)
         {
             if (vec.x < 0)
             {
@@ -1201,6 +1218,15 @@ namespace SharedTools_Stuff
 
             if (terrain == null) return;
 
+
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > index)
+                l[index].diffuseTexture = tex;
+#else
+
             SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
 
             if (newProtos.Length <= index)
@@ -1211,12 +1237,25 @@ namespace SharedTools_Stuff
 
             newProtos[index].texture = tex;
 
+       
             terrain.terrainData.splatPrototypes = newProtos;
+#endif
+
+
 
         }
 
         public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
         {
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > ind)
+                return l[ind].diffuseTexture;
+            else
+                return null;
+#else
 
             SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
 
@@ -1224,7 +1263,7 @@ namespace SharedTools_Stuff
 
 
             return prots[ind].texture;
-
+#endif
         }
 
         public static Color[] GetPixels(this Texture2D tex, int width, int height)
@@ -1253,6 +1292,7 @@ namespace SharedTools_Stuff
             return dst;
         }
 
+#if !UNITY_2018_3_OR_NEWER
         public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
         {
 
@@ -1274,6 +1314,8 @@ namespace SharedTools_Stuff
 
             return newProtos;
         }
+#endif
+
 
         public static void SetKeyword(string name, bool value)
         {

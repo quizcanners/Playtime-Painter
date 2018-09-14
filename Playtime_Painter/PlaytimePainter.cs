@@ -986,7 +986,11 @@ namespace Playtime_Painter{
 
             if (terrain == null) return;
 
+#if UNITY_2018_3_OR_NEWER
+            var sp = terrain.terrainData.terrainLayers;
+#else
             SplatPrototype[] sp = terrain.terrainData.splatPrototypes;
+#endif
 
             if (sp.Length != 0) {
                 float tilingX = terrain.terrainData.size.x / sp[0].tileSize.x;
@@ -1155,9 +1159,9 @@ namespace Playtime_Painter{
             return ((ImgData != null) && (terrain != null) && (MaterialTexturePropertyName.Contains(PainterDataAndConfig.terrainControl)));
         }
 
-        #endregion
+#endregion
 
-        #region Playback & Recoding
+#region Playback & Recoding
 
         public static List<PlaytimePainter> playbackPainters = new List<PlaytimePainter>();
 
@@ -1326,9 +1330,9 @@ namespace Playtime_Painter{
 
         public ISTD Decode(string data) => data.DecodeTagsFor(this);
 
-        #endregion
+#endregion
 
-        #region Saving
+#region Saving
 
 #if UNITY_EDITOR
 
@@ -1452,9 +1456,9 @@ namespace Playtime_Painter{
 
 #endif
 
-        #endregion
+#endregion
 
-        #region COMPONENT MGMT 
+#region COMPONENT MGMT 
 
         public bool LockTextureEditing { get { if (meshEditing) return true;
                 var i = ImgData; return i == null ? true :
@@ -1674,9 +1678,9 @@ namespace Playtime_Painter{
             InitIfNotInited();
         }
 
-        #endregion
+#endregion
 
-        #region UPDATES  
+#region UPDATES  
 
         public bool textureWasChanged = false;
 
@@ -1745,9 +1749,9 @@ namespace Playtime_Painter{
             }
         }
 
-        #endregion
+#endregion
 
-        #region PEGI 
+#region PEGI 
 
         public override void OnGUI() {
 #if !BUILD_WITH_PAINTER
@@ -2062,9 +2066,9 @@ namespace Playtime_Painter{
         }
 #endif
 
-        #endregion
+#endregion
 
-        #region Mesh Editing 
+#region Mesh Editing 
 
         public bool IsEditingThisMesh { get { return IsCurrentTool() && meshEditing && (MeshManager.Inst.target == this); } }
 
@@ -2098,6 +2102,6 @@ namespace Playtime_Painter{
             return false;
         }
 
-        #endregion
+#endregion
     }
 }

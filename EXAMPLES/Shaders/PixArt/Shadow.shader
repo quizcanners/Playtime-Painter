@@ -34,8 +34,6 @@
 
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
-		
-	
 
 			float2 perfTex = (floor(IN.uv_MainTex.xy*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
 			float2 off = (IN.uv_MainTex.xy - perfTex);
@@ -57,8 +55,6 @@
 			 
 			o.Alpha = min(1,col.a+diff*4);
 
-			
-	
 		}
 		ENDCG
 	} 
