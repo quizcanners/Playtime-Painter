@@ -177,7 +177,7 @@ namespace STD_Logic
                 return filteredList;
             else
             {
-                Debug.Log("Refiltering from {0} to {1}, because {2}".F(lastFilteredString, Trigger.searchField, lastFilteredString.SameAs(Trigger.searchField)));
+               //Debug.Log("Refiltering from {0} to {1}, because {2}".F(lastFilteredString, Trigger.searchField, lastFilteredString.SameAs(Trigger.searchField)));
 
                 filteredList.Clear();
                 foreach (Trigger t in triggers)
