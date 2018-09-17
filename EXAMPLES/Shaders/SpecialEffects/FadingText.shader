@@ -61,7 +61,8 @@
 
 
 		o.vertex = UnityObjectToClipPos(v.vertex);
-		o.wpos = mul(unity_ObjectToWorld, v.vertex).xyz;
+		float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+		o.wpos = worldPos;
 		o.screenPos = ComputeScreenPos(o.vertex);
 
 		o.wpos.z += 5;
@@ -81,8 +82,7 @@
 
 		o.fadeMask = saturate(o.fadeMask + saturate(1 - abs(_FadeIn - 1) * 4));
 
-		float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-
+	
 		float2 offCenter = sp - 0.5;
 
 		v.vertex += mul(unity_WorldToObject, pow((1 - o.fadeMask.x),4)*float3(offCenter.x * _offset, offCenter.y*_offset, 0) -

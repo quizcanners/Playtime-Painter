@@ -10,20 +10,18 @@ namespace STD_Animations
 {
 
     [ExecuteInEditMode]
-    public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish, IKeepMySTD
-    {
-        // Elements
-        //[SerializeField]
+    public class SpeedAnimationController : ComponentSTD, IManageFading, ICallAfterIFinish, IKeepMySTD {
+
         List<AnimatedElement> elementsUnsorted = new List<AnimatedElement>();
 
         [NonSerialized] public Countless<AnimatedElement> elements = new Countless<AnimatedElement>();
         [SerializeField] int keyElementIndex;
         public int indexForNewObject;
-        public AnimatedElement KeyElement
-        {
+        public AnimatedElement KeyElement {
             get { return elements?[keyElementIndex]; }
             set { keyElementIndex = value.IndexForPEGI; }
         }
+
         public bool decodeOnEnable = false;
 
         // Frames
@@ -32,12 +30,14 @@ namespace STD_Animations
         [SerializeField] int frameIndex;
         public bool SetFrameIndex(int newIndex)
         {
-            if (frameIndex != newIndex && newIndex < frames.Count && newIndex >= 0)
-            {
+            if (frameIndex != newIndex && newIndex < frames.Count && newIndex >= 0) {
+
                 if (Application.isPlaying)
                     Set();
 
                 frameIndex = newIndex;
+
+                OnFrameChange();
 
                 if (!Application.isPlaying)
                     Set();
@@ -63,6 +63,24 @@ namespace STD_Animations
 
         // Speed
         public SpeedSource speedSource;
+        public float _timer = 0;
+        public float TimerToPortion() {
+            float portion = 1;
+
+            var f = CurrentFrame;
+            if (f == null)
+                return portion;
+
+            float currentTime = _timer + Time.deltaTime;
+
+            if (currentTime < f.frameDuration)
+                portion = Time.deltaTime / (f.frameDuration - _timer);
+
+            _timer = currentTime;
+
+            return portion;
+        }
+
         [SerializeField] float maxSpeed = 1;
         [SerializeField] AnimationCurve speedCurve = new AnimationCurve();
         [SerializeField] bool curveSpeed = false;
@@ -94,6 +112,8 @@ namespace STD_Animations
             onFinish += OnFinish;
         }
 
+        #region Encode/Decode
+
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("frames", frames.Encode())
             .Add("elm", elementsUnsorted, this)
@@ -115,6 +135,7 @@ namespace STD_Animations
                 case "frames": data.DecodeInto(out frames); break;
                 case "Nextind": indexForNewObject = data.ToInt(); break;
                 case "first": setFirstFrame = data.ToBool(); break;
+
                 case "elm":
                     List<AnimatedElement> tmp;
                     data.DecodeInto(out tmp, this);
@@ -135,8 +156,8 @@ namespace STD_Animations
             return true;
         }
 
-        public override ISTD Decode(string data)
-        {
+        public override ISTD Decode(string data) {
+
             processedAnimationController = this;
 
             Reboot();
@@ -150,59 +171,15 @@ namespace STD_Animations
 
             processedAnimationController = null;
 
+            _timer = 0;
+
             return this;
 
         }
 
-        void Update()
-        {
-            processedAnimationController = this;
-
-            if (!Application.isPlaying)
-            {
-                if (!playInEditor)
-                {
-                    if (CurrentFrame != null)
-                        foreach (var el in elementsUnsorted)
-                            el.Record();
-                }
-                else
-                    AnimateToPortion(editor_FramePortion);
-
-            }
-            else
-                if (!isPaused)
-            {
-
-                bool isLastFrame = NextFrame == null;
-
-                if (CurrentFrame != null)
-                {
-
-                    float delta;
-
-                    //if (frameIndex == 0 && setFirstFrame)
-                      //  delta = 1;
-                    //else
-                        delta = CurrentFrame.GetDelta();
-
-                    foreach (var el in elementsUnsorted)
-                        el.Animate(delta);
-
-                    if (delta == 1)
-                    {
-                        SetFrameIndex(frameIndex + 1);
-
-                        if (isLastFrame)
-                        {
-                            onFinish?.Invoke();
-                            Destroy(gameObject);
-                        }
-
-                    }
-                }
-            }
-        }
+        #endregion
+        
+        #region Inspector
 
         public static SpeedAnimationController processedAnimationController;
 
@@ -211,26 +188,24 @@ namespace STD_Animations
         public int inspectedElement = -1;
         public bool inspectElements = false;
 
-        public override bool PEGI()
-        {
+        public override bool PEGI()  {
 
             if (gameObject.IsPrefab())
                 return false;
 
             bool changed = base.PEGI();
 
-            if (!showDebug)
-            {
-
-                "Auto Load".toggle("Object will load it's own data OnEnable",50 , ref decodeOnEnable);
-
+            if (!showDebug) {
+                
                 if (icon.Save.Click()) {
                     this.Save_STDdata();
                     this.UpdatePrefab(gameObject);
                 }
 
                 if (icon.Load.Click().nl())
-                    this.Load_STDdata(); 
+                    this.Load_STDdata();
+
+                "Auto Load".toggle("Object will load it's own data OnEnable", 70, ref decodeOnEnable).nl();
 
                 processedAnimationController = this;
                 
@@ -238,15 +213,18 @@ namespace STD_Animations
                 if (CurrentFrame == null || !CurrentFrame.isOverrideSpeed)
                     pegi.editEnum(ref speedSource);
                 else
-                    pegi.write(CurrentFrame.frameSpeedSource.ToString(), 50); 
+                    pegi.write(CurrentFrame.frameSpeedSource.ToString(), 50);
 
-                if (KeyElement != null)
-                    ("of " + KeyElement.NameForPEGI).nl();
-                else
-                {
-                    pegi.nl();
-                    "No Key element".writeWarning();
+                if (speedSource != SpeedSource.time)  {
+
+                    if (KeyElement != null)
+                        ("of " + KeyElement.NameForPEGI).nl();
+                    else {
+                        pegi.nl();
+                        "No Key element".writeWarning();
+                    }
                 }
+
                 pegi.newLine();
 
                 if (frameIndex == 0)
@@ -342,16 +320,18 @@ namespace STD_Animations
                         frames.RemoveAt(frameIndex);
                         SetFrameIndex(frameIndex - 1);
                     }
-
-                    pegi.newLine();
-
-                    if (inspectedElement == -1 && (CurrentFrame == null || CurrentFrame.isOverrideSpeed == false))
-                    {
-                        "Speed".foldout(ref curveSpeed);
-                        changed |= pegi.edit(ref maxSpeed).nl();
-                        if (curveSpeed)
-                            changed |= "Curve:".edit(ref speedCurve).nl();
+                    
+                    if (speedSource != SpeedSource.time) {
+                        if (inspectedElement == -1 && (CurrentFrame == null || CurrentFrame.isOverrideSpeed == false)) {
+                            "Speed".foldout(ref curveSpeed);
+                            changed |= pegi.edit(ref maxSpeed).nl();
+                            if (curveSpeed)
+                                changed |= "Curve:".edit(ref speedCurve).nl();
+                        }
                     }
+                    else
+                        if (CurrentFrame != null)
+                        "Time (sec) ".edit(60, ref CurrentFrame.frameDuration).nl();
 
                     if (Application.isPlaying || !playInEditor)
                     {
@@ -359,7 +339,7 @@ namespace STD_Animations
                         if (added != null)
                         {
                             added.NameForPEGI = "New Element";
-                            added.propertyName = "_Portion";
+                            added.propertyName = "";
                             added.IndexForPEGI = indexForNewObject;
                             indexForNewObject += 1;
                             elements[added.IndexForPEGI] = added;
@@ -388,14 +368,66 @@ namespace STD_Animations
         }
 #endif
 
-        void AnimateToPortion(float portion)
-        {
+        #endregion
 
-            if (PreviousFrame != null)
+        void Update()
+        {
+            processedAnimationController = this;
+
+            if (!Application.isPlaying)
             {
+                if (!playInEditor)
+                {
+                    if (CurrentFrame != null)
+                        foreach (var el in elementsUnsorted)
+                            el.Record();
+                }
+                else
+                    AnimateToPortion(editor_FramePortion);
+
+            }
+            else
+                if (!isPaused)
+            {
+
+                bool isLastFrame = NextFrame == null;
+
+                if (CurrentFrame != null)
+                {
+
+                    float delta;
+
+                    //if (frameIndex == 0 && setFirstFrame)
+                    //  delta = 1;
+                    //else
+                    delta = CurrentFrame.GetDelta();
+
+                    foreach (var el in elementsUnsorted)
+                        el.Animate(delta);
+
+                    if (delta == 1)
+                    {
+                        SetFrameIndex(frameIndex + 1);
+
+                        if (isLastFrame)
+                        {
+                            onFinish?.Invoke();
+                            Destroy(gameObject);
+                        }
+
+                    }
+                }
+            }
+        }
+        
+        void AnimateToPortion(float portion) {
+
+            if (PreviousFrame != null) {
                 frameIndex -= 1;
+                OnFrameChange();
                 Set();
                 frameIndex += 1;
+                OnFrameChange();
             }
 
             foreach (var el in elementsUnsorted)
@@ -403,10 +435,19 @@ namespace STD_Animations
 
         }
 
-        void Set()
+        void OnFrameChange()
         {
             foreach (var el in elementsUnsorted)
+                el.OnFrameChanged();
+
+            _timer = 0;
+        }
+
+        void Set() {
+            foreach (var el in elementsUnsorted)
                 el.Set();
+
+            _timer = 0;
         }
 
         void UpdateCountless()
@@ -447,15 +488,13 @@ namespace STD_Animations
             return false;
         }
 
-
     }
 
-    public interface ICallAfterIFinish
-    {
+    public interface ICallAfterIFinish {
         void SetCallback(Action OnFinish);
     }
 
-    public enum SpeedSource { position, scale, shaderVal, rotation }
+    public enum SpeedSource { position, scale, shaderVal, rotation, time }
 
     public static class STD_AnimationExtensions
     {
@@ -474,143 +513,17 @@ namespace STD_Animations
     {
         StdEncoder EncodeFrame();
         bool DecodeFrame(string tag, string data);
+        void AnimatePortion(float portion);
+        void SetFrame();
 #if PEGI
         bool Frame_PEGI();
 #endif
     }
 
-    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD, IPEGI
-    {
-
-        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.processedAnimationController; } }
-
-        public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
-
-        public override StdEncoder Encode()
-        {
-            var cody = this.EncodeUnrecognized()
-            .Add("lpos", localPos.Encode())
-            .Add("lsize", LocalScale.Encode())
-            .Add("lrot", localRotation.Encode())
-            .Add("encData", customData.Encode())
-            .Add("shadeVal", shaderValue.Encode())
-            .Add("emt", emit);
-            if (isOverrideSpeed)
-            {
-                cody.Add("src", (int)frameSpeedSource);
-                cody.Add("speed", frameSpeed);
-            }
-
-            return cody;
-        }
-
-        public Countless<Vector3> localPos = new Countless<Vector3>();
-        public Countless<Vector3> LocalScale = new Countless<Vector3>();
-        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
-        public Countless<float> shaderValue = new Countless<float>();
-        public Countless<string> customData = new Countless<string>();
-        public CountlessBool emit = new CountlessBool();
-
-        public float frameSpeed = 0.1f;
-        public SpeedSource frameSpeedSource = SpeedSource.position;
-        public bool isOverrideSpeed;
-
-        public override bool Decode(string tag, string data)
-        {
-            switch (tag)
-            {
-                case "lpos": data.DecodeInto(out localPos); break;
-                case "lsize": data.DecodeInto(out LocalScale); break;
-                case "lrot": data.DecodeInto(out localRotation); break;
-                case "encData": data.DecodeInto(out customData); break;
-                case "shadeVal": data.DecodeInto(out shaderValue); break;
-                case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
-                case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
-                case "emt": data.DecodeInto(out emit); break;
-                default: return false;
-            }
-
-            return true;
-        }
-
-#if PEGI
-        public override bool PEGI()
-        {
-
-            pegi.nl();
-
-
-            if (Mgmt.KeyElement == El)
-            {
-                "Override Speed".toggle(90, ref isOverrideSpeed).nl();
-
-                if (isOverrideSpeed)
-                {
-
-                    "Frame Speed".edit(ref frameSpeed).nl();
-
-                    if (frameSpeed == 0)
-                        "Frame speed is 0, next frame is unreachable ".writeWarning();
-
-                    "Frame Speed Source".editEnum(ref frameSpeedSource).nl();
-
-                }
-            }
-            return false;
-        }
-#endif
-        public float GetDelta()
-        {
-
-            float speed = isOverrideSpeed ? frameSpeed : Mgmt.FrameSpeed;
-
-            var speedSource = isOverrideSpeed ? frameSpeedSource : Mgmt.speedSource;
-
-            if (speed == 0)
-                return 0;
-
-            var key = Mgmt.KeyElement;
-
-            if (key == null)
-                return 0;
-
-            float distance = 0;
-            switch (speedSource)
-            {
-                case SpeedSource.scale: distance = key.DeltaLocalScale.magnitude; break;
-                case SpeedSource.shaderVal: distance = Mathf.Abs(key.DeltaShaderValue); break;
-                case SpeedSource.rotation: distance = Mathf.Abs(key.AngleOfDeltaLocalRotation); break;
-                default: distance = key.DeltaLocalPos.magnitude; break;
-            }
-
-            return distance > 0 ? Mathf.Clamp01(speed * Time.deltaTime / distance) : 1;
-        }
-
-        public SpeedAnimationFrame(SpeedAnimationFrame other)
-        {
-            if (other != null)
-            {
-                other.localPos.Encode().ToString().DecodeInto(out localPos);
-                other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
-                other.localRotation.Encode().ToString().DecodeInto(out localRotation);
-                other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
-                other.emit.Encode().ToString().DecodeInto(out emit);
-                isOverrideSpeed = other.isOverrideSpeed;
-                frameSpeed = other.frameSpeed;
-                frameSpeedSource = other.frameSpeedSource;
-            }
-        }
-
-        public SpeedAnimationFrame()
-        {
-
-        }
-    }
 
     //[Serializable]
-    public class AnimatedElement : AbstractKeepUnrecognized_STD, IPEGI, IGotName, IGotIndex
+    public class AnimatedElement : AbstractKeepUnrecognized_STD, IPEGI, IGotName, IGotIndex, IPEGI_ListInspect {
 
-    {
         [NonSerialized] MaterialPropertyBlock props;
         public SpeedAnimationController Mgmt { get { return SpeedAnimationController.processedAnimationController; } }
         public SpeedAnimationFrame Frame { get { return SpeedAnimationController.processedAnimationController.CurrentFrame; } }
@@ -640,8 +553,7 @@ namespace STD_Animations
             .Add_Referance("ren", rendy)
             .Add_Referance("scrpt", script)
             .Add_Referance("ps", particles);
-            if (script)
-            {
+            if (script)  {
                 var asp = script as ISTD;
                 if (asp != null)
                     cody.Add("stdDTA", asp.Encode());
@@ -702,9 +614,12 @@ namespace STD_Animations
         {
 
             currentShaderValue = value;
-            if (rendy)
-            {
-                if (props == null) props = new MaterialPropertyBlock();
+            if (rendy) {
+                if (props == null)
+                    props = new MaterialPropertyBlock();
+
+                    rendy.GetPropertyBlock(props);
+                  
                 props.SetFloat(propertyName, value);
                 rendy.SetPropertyBlock(props);
             }
@@ -732,21 +647,34 @@ namespace STD_Animations
 
                 if (rendy)
                     SetCurrentShaderValue(currentShaderValue - DeltaShaderValue * portion);
+
+                var astd = AnimSTD;
+                if (astd != null)
+                    astd.AnimatePortion(portion);
             }
+
+        
         }
 
-        public void Set()
-        {
-            if (transform)
-            {
+        public void OnFrameChanged() {
+            var astd = AnimSTD;
+            if (astd != null)
+                astd.DecodeFrame(CustomData);
+        }
+
+        public void Set() {
+            if (transform) {
                 transform.localPosition = LocalPos;
                 transform.localScale = LocalScale;
                 transform.localRotation = LocalRotation;
             }
+
             if (rendy)
                 SetCurrentShaderValue(ShaderValue);
 
-            AnimSTD.DecodeFrame(CustomData);
+            var astd = AnimSTD;
+            if (astd != null)
+                astd.SetFrame();
         }
 
         public void Record()
@@ -773,6 +701,7 @@ namespace STD_Animations
 #if PEGI
         [SerializeField] bool transformInLocalSpace = true;
         [SerializeField] bool showDependencies = true;
+        List<string> materialProperties = new List<string>();
         public override bool PEGI()
         {
             inspectedAnimatedObject = this;
@@ -794,34 +723,47 @@ namespace STD_Animations
                 if ("Transform".edit(80, ref transform).nl() && transform)
                     NameForPEGI = transform.name;
 
-                "STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl();
+                if ("Renderer".edit(80, ref rendy).nl() && rendy)
+                    materialProperties = rendy.sharedMaterial.GetFloatFields();
 
-                "Renderer".edit(80, ref rendy).nl();
                 "Particles".edit(80, ref particles);
                 if (particles) {
                     bool emit = Emit;
                     if (pegi.toggle(ref emit))
                         Emit = emit;
                 }
-                
 
                 pegi.nl();
+                if ("STD Script".edit("Use Anumated PEGI interface to add custom data.", 80, ref script).nl()) {
+                    if (script != null) {
+
+                        if (script as IAnimated_STD_PEGI == null) {
+                            var cmpnts = script.gameObject.GetComponent<IAnimated_STD_PEGI>();
+                            if (cmpnts != null)
+                                script = cmpnts as MonoBehaviour;
+                        }
+
+                    }
+                }
+
             }
 
             Mgmt.CurrentFrame.PEGI();
 
             if (rendy)
             {
-                "On Material".edit(90, ref propertyName).nl();
+                "Mat Property".select(90, ref propertyName, materialProperties);
 
+                if (icon.Refresh.Click().nl()) 
+                    materialProperties = rendy.sharedMaterial.GetFloatFields();
+                
                 if (pegi.edit(ref currentShaderValue, 0, 1).nl())
                     SetCurrentShaderValue(currentShaderValue);
             }
 
             (script as IAnimated_STD_PEGI)?.Frame_PEGI().nl();
 
-            if (transform)
-            {
+            if (transform) {
                 transform.PEGI_CopyPaste(ref transformInLocalSpace);
                 transform.inspect(transformInLocalSpace); //"TF:".edit(() => transform).nl();
             }
@@ -830,8 +772,183 @@ namespace STD_Animations
 
             return false;
         }
+
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
+            var astd = AnimSTD;
+            if (astd!= null) {
+                var ilp = astd as IPEGI_ListInspect;
+                if (ilp != null)
+                    return (ilp.PEGI_inList(list, ind, ref edited));
+            }
+
+            if (rendy)
+            {
+                if (propertyName.Length == 0)
+                {
+
+                    if (materialProperties.Count == 0)
+                        materialProperties = rendy.sharedMaterial.GetFloatFields();
+
+                    "Mat Property".select(90, ref propertyName, materialProperties);
+
+                 
+                }
+                else
+                if (propertyName.edit(ref currentShaderValue, 0, 1))
+                    SetCurrentShaderValue(currentShaderValue);
+            }
+            else
+                NameForPEGI.edit(ref rendy);
+
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            return false;
+        }
 #endif
 
     }
 
+    public class SpeedAnimationFrame : AbstractKeepUnrecognized_STD, IPEGI  {
+
+        public SpeedAnimationController Mgmt { get { return SpeedAnimationController.processedAnimationController; } }
+
+        public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
+
+        public override StdEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized()
+            .Add("lpos", localPos.Encode())
+            .Add("lsize", LocalScale.Encode())
+            .Add("lrot", localRotation.Encode())
+            .Add("encData", customData.Encode())
+            .Add("shadeVal", shaderValue.Encode())
+            .Add("emt", emit)
+            .Add("time", frameDuration);
+
+            if (isOverrideSpeed)
+            {
+                cody.Add("src", (int)frameSpeedSource)
+                .Add("speed", frameSpeed);
+            }
+
+            return cody;
+        }
+
+        public Countless<Vector3> localPos = new Countless<Vector3>();
+        public Countless<Vector3> LocalScale = new Countless<Vector3>();
+        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
+        public Countless<float> shaderValue = new Countless<float>();
+        public Countless<string> customData = new Countless<string>();
+        public CountlessBool emit = new CountlessBool();
+
+        public float frameSpeed = 0.1f;
+        public float frameDuration = 0.1f;
+
+        public SpeedSource frameSpeedSource = SpeedSource.position;
+        public bool isOverrideSpeed;
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "lpos": data.DecodeInto(out localPos); break;
+                case "lsize": data.DecodeInto(out LocalScale); break;
+                case "lrot": data.DecodeInto(out localRotation); break;
+                case "encData": data.DecodeInto(out customData); break;
+                case "shadeVal": data.DecodeInto(out shaderValue); break;
+                case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
+                case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
+                case "emt": data.DecodeInto(out emit); break;
+                case "time": frameDuration = data.ToFloat(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+#if PEGI
+        public override bool PEGI()
+        {
+
+            pegi.nl();
+
+            if (Mgmt.KeyElement == El && Mgmt.speedSource != SpeedSource.time)
+            {
+
+                "Override Speed".toggle(90, ref isOverrideSpeed).nl();
+
+                if (isOverrideSpeed)
+                {
+
+                    "Frame Speed".edit(ref frameSpeed).nl();
+
+                    if (frameSpeed == 0)
+                        "Frame speed is 0, next frame is unreachable ".writeWarning();
+
+                    var before = frameSpeedSource;
+
+                    if ("Frame Speed Source".editEnum(ref frameSpeedSource).nl() && frameSpeedSource == SpeedSource.time)
+                    {
+                        frameSpeedSource = before;
+                        Mgmt.speedSource = SpeedSource.time;
+                    }
+                }
+            }
+            return false;
+        }
+#endif
+
+        public float GetDelta()
+        {
+
+            if (Mgmt.speedSource == SpeedSource.time)
+                return Mgmt.TimerToPortion();
+
+            float speed = isOverrideSpeed ? frameSpeed : Mgmt.FrameSpeed;
+
+            var speedSource = isOverrideSpeed ? frameSpeedSource : Mgmt.speedSource;
+
+            if (speed == 0)
+                return 0;
+
+            var key = Mgmt.KeyElement;
+
+            if (key == null)
+                return 0;
+
+            float distance = 0;
+            switch (speedSource)
+            {
+                case SpeedSource.scale: distance = key.DeltaLocalScale.magnitude; break;
+                case SpeedSource.shaderVal: distance = Mathf.Abs(key.DeltaShaderValue); break;
+                case SpeedSource.rotation: distance = Mathf.Abs(key.AngleOfDeltaLocalRotation); break;
+                default: distance = key.DeltaLocalPos.magnitude; break;
+            }
+
+            return distance > 0 ? Mathf.Clamp01(speed * Time.deltaTime / distance) : 1;
+        }
+
+        public SpeedAnimationFrame(SpeedAnimationFrame other)
+        {
+            if (other != null)
+            {
+                other.localPos.Encode().ToString().DecodeInto(out localPos);
+                other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
+                other.localRotation.Encode().ToString().DecodeInto(out localRotation);
+                other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
+                other.emit.Encode().ToString().DecodeInto(out emit);
+                isOverrideSpeed = other.isOverrideSpeed;
+                frameSpeed = other.frameSpeed;
+                frameSpeedSource = other.frameSpeedSource;
+            }
+        }
+
+        public SpeedAnimationFrame()
+        {
+
+        }
+
+    }
 }

@@ -19,6 +19,7 @@ namespace STD_Animations
         public bool playRandom;
         public int playIndex;
         public int delay;
+        float volume = 1;
         public State state;
 
         AudioClip GetClip() {
@@ -36,7 +37,7 @@ namespace STD_Animations
                 case "rand": playRandom = data.ToBool(); break;
                 case "ind": playIndex = data.ToInt(); break;
                 case "delay": delay = data.ToInt(); break;
-                case "vol": if (source) source.volume = data.ToFloat(); break;
+                case "vol": if (source) volume = data.ToFloat(); break;
                 case "st": state = (State)data.ToInt(); ProcessStateUpdate(); break;
                 default: return false;
             }
@@ -53,11 +54,22 @@ namespace STD_Animations
                 cody.Add("ind", playIndex);
             cody.Add("delay", delay);
             if (source)
-                cody.Add("vol", source.volume);
+                cody.Add("vol", volume);
 
             // Should be last: it's decoding triggers state update
             cody.Add("st", (int)state);
             return cody;
+        }
+
+        public void AnimatePortion(float portion) {
+            if (source)
+                source.volume = Mathf.Lerp(source.volume, volume, portion);
+        }
+
+        public void SetFrame()
+        {
+            if (source)
+                source.volume = volume;
         }
 
         void ProcessStateUpdate()
@@ -84,13 +96,8 @@ namespace STD_Animations
 
             "Action".editEnum(ref state).nl();
 
-            if (source)
-            {
-                float vol = source.volume;
-
-                if ("Valume".edit(ref vol).nl())
-                    source.volume = vol;
-            }
+            if ("Valume".edit(ref volume).nl() && source)
+                    source.volume = volume;
 
             changed |= "Audio Clips".edit_List_Obj(audioClips).nl();
 
@@ -112,14 +119,7 @@ namespace STD_Animations
 
 #endif
 
-        void Start()
-        {
-            ProcessStateUpdate();
-        }
+        void Start()  =>   ProcessStateUpdate();
 
-        // Update is called once per frame
-        void Update() {
-
-        }
     }
 }

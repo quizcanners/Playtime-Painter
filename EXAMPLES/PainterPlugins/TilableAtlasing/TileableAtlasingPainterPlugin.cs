@@ -354,7 +354,7 @@ namespace Playtime_Painter {
             painter.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
             Material mat = painter.GetMaterial(false);
-            List<string> tfields = mat.GetTextures();
+            List<string> tfields = mat.GetTextureFiledNames();
 
             int index = 0;
             List<FieldAtlas> passedFields = new List<FieldAtlas>();
@@ -510,11 +510,11 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
 
             if (originalMaterial != null)
-                originalTextures = originalMaterial.GetTextures();
+                originalTextures = originalMaterial.GetTextureFiledNames();
 
             if ((DestinationMaterial != null) && (DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
             {
-                List<string> aTextures = DestinationMaterial.GetTextures();
+                List<string> aTextures = DestinationMaterial.GetTextureFiledNames();
                 fields.Clear();
                 for (int i = 0; i < aTextures.Count; i++)
                 {
@@ -541,7 +541,7 @@ namespace Playtime_Painter {
                         fields[i].originField = i;
                 else if (originalMaterial != null)
                 {
-                    var orTexs = originalMaterial.GetTextures();
+                    var orTexs = originalMaterial.GetTextureFiledNames();
                     foreach (var f in fields)
                         for (int i = 0; i < orTexs.Count; i++)
                             if (orTexs[i].SameAs(f.atlasedField))

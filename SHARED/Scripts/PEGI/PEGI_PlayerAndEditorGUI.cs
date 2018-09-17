@@ -1224,9 +1224,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select(ref string val, List<string> lst)
-        {
-
+        public static bool select(ref string val, List<string> lst) {
             var ind = -1;
 
             for (int i = 0; i < lst.Count; i++)
@@ -1236,8 +1234,7 @@ namespace PlayerAndEditorGUI
                     break;
                 }
 
-            if (select(ref ind, lst))
-            {
+            if (select(ref ind, lst))  {
                 val = lst[ind];
                 return true;
             }
@@ -1578,7 +1575,7 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
         }
-        
+
         // ***************************** Select or edit
 
         public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list) where T : UnityEngine.Object
@@ -1625,7 +1622,9 @@ namespace PlayerAndEditorGUI
         {
             return select_or_edit(null, null, 0, ref obj, list);
         }
-        
+
+   
+
 
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {

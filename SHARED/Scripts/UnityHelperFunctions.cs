@@ -226,7 +226,8 @@ namespace SharedTools_Stuff
 #if PEGI && UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
-            var pf = PrefabUtility.GetPrefabInstanceHandle(gameObject);
+            var pf = gameObject.IsPrefab() ? gameObject :   
+                 PrefabUtility.GetPrefabInstanceHandle(gameObject);
 #else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
 #endif
@@ -234,19 +235,31 @@ namespace SharedTools_Stuff
             {
                 // SavePrefabAsset, SaveAsPrefabAsset, SaveAsPrefabAssetAndConnect'
 #if UNITY_2018_3_OR_NEWER
-                PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pf), InteractionMode.AutomatedAction);
+                if (pf == null)
+                    Debug.LogError("Handle is null");
+                else
+                {
+                    var path = AssetDatabase.GetAssetPath(pf);//PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pf);
+
+                    if (path == null || path.Length == 0)
+                        "Path is null, Update prefab manually".showNotification();
+                    else
+                        PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.AutomatedAction);
+                }
 #else
                 PrefabUtility.ReplacePrefab(gameObject, gameObject.GetPrefab(), ReplacePrefabOptions.ConnectToPrefab);
+                   (gameObject.name + " prefab Updated").showNotification();
 #endif
-                (gameObject.name + " prefab Updated").showNotification();
-            } else {
+
+            }
+            else {
                 (gameObject.name + " Not a prefab").showNotification();
             }
             gameObject.SetToDirty();
 #endif
             }
 
-            public static float Angle(this Vector2 vec)
+        public static float Angle(this Vector2 vec)
         {
             if (vec.x < 0)
             {
@@ -785,11 +798,12 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static List<string> GetTextures(this Material m)
-        {
-            List<string> tnames = new List<string>();
+
 #if UNITY_EDITOR
-            if (m == null) return tnames;
+        public static List<string> GetFields(this Material m, MaterialProperty.PropType type) {
+            List<string> fNames = new List<string>();
+
+            if (m == null) return fNames;
 
             Material[] mat = new Material[1];
             mat[0] = m;
@@ -801,16 +815,36 @@ namespace SharedTools_Stuff
             }
             catch
             {
-                return tnames = new List<string>();
+                return fNames = new List<string>();
             }
-
-
+            
             if (props != null)
                 foreach (MaterialProperty p in props)
-                    if (p.type == MaterialProperty.PropType.Texture)
-                        tnames.Add(p.name);
+                    if (p.type == type)
+                        fNames.Add(p.name);
+
+            return fNames;
+        }
 #endif
-            return tnames;
+
+        public static List<string> GetFloatFields(this Material m)
+        {
+#if UNITY_EDITOR
+            var l = m.GetFields(MaterialProperty.PropType.Float);
+            l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
+            return l;
+#else
+            return new List<string>();
+#endif
+        }
+
+        public static List<string> GetTextureFiledNames(this Material m)
+        {
+#if UNITY_EDITOR
+            return m.GetFields(MaterialProperty.PropType.Texture);
+#else
+            return new List<string>();
+#endif
         }
 
         public static bool DisplayNameContains(this Material m, string propertyName, string tag)

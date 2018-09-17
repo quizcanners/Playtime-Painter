@@ -788,10 +788,10 @@ namespace Playtime_Painter{
 
 
             if (terrain == null) {
-                MatDta.materials_TextureFields = GetMaterial(false).GetTextures();
+                MatDta.materials_TextureFields = GetMaterial(false).GetTextureFiledNames();
 
             } else {
-                List<string> tmp = GetMaterial(false).GetTextures();
+                List<string> tmp = GetMaterial(false).GetTextureFiledNames();
 
                 foreach (string t in tmp) {
                     if ((!t.Contains("_Splat")) && (!t.Contains("_Normal")))

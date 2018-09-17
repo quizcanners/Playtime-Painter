@@ -44,11 +44,9 @@
 
 			float4 trans = tex2Dlod (_MainTex, float4(IN.uv_MainTex,0,0));
 			
-	
 			float diff=saturate(trans.a-col.a);
 			col.a =saturate((col.a - 0.1)*512);
-			o.Albedo = (col.rgb*max(0,(1-diff*2))+ col.rgb*trans.rgb*diff
-				)*col.a;
+			o.Albedo = (col.rgb*max(0,(1-diff*2))+ col.rgb*trans.rgb*diff)*col.a;
 			
 			o.Metallic = _Metallic;
 			o.Smoothness = _Glossiness;
