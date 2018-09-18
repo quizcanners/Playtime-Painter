@@ -164,10 +164,12 @@ namespace STD_Animations
 
             UpdateCountless();
 
-            base.Decode(data); 
+            base.Decode(data);
 
-            if (setFirstFrame && CurrentFrame != null)
+            if (setFirstFrame && CurrentFrame != null) {
+                OnFrameChange();
                 Set();
+            }
 
             processedAnimationController = null;
 
@@ -338,7 +340,7 @@ namespace STD_Animations
                         var added = elementsUnsorted.edit_List(ref inspectedElement,  ref changed);
                         if (added != null)
                         {
-                            added.NameForPEGI = "New Element";
+                            added.NameForPEGI = "";
                             added.propertyName = "";
                             added.IndexForPEGI = indexForNewObject;
                             indexForNewObject += 1;
@@ -750,8 +752,10 @@ namespace STD_Animations
 
             Mgmt.CurrentFrame.PEGI();
 
-            if (rendy)
-            {
+            if (rendy)  {
+                if (propertyName.Length > 0 && icon.Delete.Click())
+                    propertyName = "";
+
                 "Mat Property".select(90, ref propertyName, materialProperties);
 
                 if (icon.Refresh.Click().nl()) 
@@ -781,27 +785,41 @@ namespace STD_Animations
                     return (ilp.PEGI_inList(list, ind, ref edited));
             }
 
-            if (rendy)
-            {
-                if (propertyName.Length == 0)
+            if (particles != null) {
+                bool emit = Emit;
+                if (particles.name.toggle(ref emit))
+                    Emit = emit;
+            }
+            else {
+                if (rendy)
                 {
+                    if (propertyName.Length == 0) {
 
-                    if (materialProperties.Count == 0)
-                        materialProperties = rendy.sharedMaterial.GetFloatFields();
+                        if (materialProperties.Count == 0)
+                            materialProperties = rendy.sharedMaterial.GetFloatFields();
 
-                    "Mat Property".select(90, ref propertyName, materialProperties);
-
-                 
+                        "Mat Property".select(90, ref propertyName, materialProperties);
+                    }
+                    else
+                    if (propertyName.edit(ref currentShaderValue, 0, 1))
+                        SetCurrentShaderValue(currentShaderValue);
+                }
+                else if (transform != null)
+                {
+                    transform.name.write();
+                    transform.clickHighlight();
                 }
                 else
-                if (propertyName.edit(ref currentShaderValue, 0, 1))
-                    SetCurrentShaderValue(currentShaderValue);
+                {
+                    if (pegi.edit(ref transform) && transform)
+                        NameForPEGI = transform.name;
+                    if (pegi.edit(ref rendy) && rendy && rendy.sharedMaterial)
+                        NameForPEGI = rendy.sharedMaterial.name;
+                }
+
             }
-            else
-                NameForPEGI.edit(ref rendy);
 
-
-            if (icon.Enter.Click())
+            if (icon.Enter.Click(NameForPEGI))
                 edited = ind;
 
             return false;
@@ -816,6 +834,25 @@ namespace STD_Animations
 
         public AnimatedElement El { get { return AnimatedElement.inspectedAnimatedObject; } }
 
+
+        public Countless<Vector3> localPos = new Countless<Vector3>();
+        public Countless<Vector3> LocalScale = new Countless<Vector3>();
+        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
+        public Countless<float> shaderValue = new Countless<float>();
+        public Countless<string> customData = new Countless<string>();
+        public CountlessBool emit = new CountlessBool();
+
+
+        public float frameSpeed = 0.1f;
+        public float frameDuration = 0.1f;
+
+        public SpeedSource frameSpeedSource = SpeedSource.position;
+        public bool isOverrideSpeed;
+        public bool allowGapToEndFrame; // Means a frame can be ended before elements reach it's destination state
+        public float gap;
+
+        #region Ecoding_Decoding
+
         public override StdEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
@@ -825,10 +862,13 @@ namespace STD_Animations
             .Add("encData", customData.Encode())
             .Add("shadeVal", shaderValue.Encode())
             .Add("emt", emit)
-            .Add("time", frameDuration);
+            .Add("time", frameDuration)
+            .Add_Bool("isGap", allowGapToEndFrame);
 
-            if (isOverrideSpeed)
-            {
+            if (allowGapToEndFrame)
+                cody.Add("gap", gap);
+
+            if (isOverrideSpeed) {
                 cody.Add("src", (int)frameSpeedSource)
                 .Add("speed", frameSpeed);
             }
@@ -836,18 +876,6 @@ namespace STD_Animations
             return cody;
         }
 
-        public Countless<Vector3> localPos = new Countless<Vector3>();
-        public Countless<Vector3> LocalScale = new Countless<Vector3>();
-        public Countless<Quaternion> localRotation = new Countless<Quaternion>();
-        public Countless<float> shaderValue = new Countless<float>();
-        public Countless<string> customData = new Countless<string>();
-        public CountlessBool emit = new CountlessBool();
-
-        public float frameSpeed = 0.1f;
-        public float frameDuration = 0.1f;
-
-        public SpeedSource frameSpeedSource = SpeedSource.position;
-        public bool isOverrideSpeed;
 
         public override bool Decode(string tag, string data)
         {
@@ -862,11 +890,16 @@ namespace STD_Animations
                 case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
                 case "emt": data.DecodeInto(out emit); break;
                 case "time": frameDuration = data.ToFloat(); break;
+                case "isGap": allowGapToEndFrame = data.ToBool();
+                    if (!allowGapToEndFrame) gap = 1; break;
+                case "gap": gap = data.ToFloat(); break; 
                 default: return false;
             }
 
             return true;
         }
+
+        #endregion
 
 #if PEGI
         public override bool PEGI()

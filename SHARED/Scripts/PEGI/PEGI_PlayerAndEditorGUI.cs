@@ -621,10 +621,10 @@ namespace PlayerAndEditorGUI
             return select(ref value, array);
         }
 
-        public static bool select<T>(this string text, int width, ref T value, List<T> array)
+        public static bool select<T>(this string text, int width, ref T value, List<T> array, bool showIndex = false)
         {
             write(text, width);
-            return select(ref value, array);
+            return select(ref value, array, showIndex);
         }
 
         public static bool select(this string text, ref string val, List<string> lst)
@@ -633,10 +633,10 @@ namespace PlayerAndEditorGUI
             return select(ref val, lst);
         }
 
-        public static bool select<T>(this string text, ref T value, List<T> list)
+        public static bool select<T>(this string text, ref T value, List<T> list, bool showIndex = false)
         {
             write(text);
-            return select(ref value, list);
+            return select(ref value, list, showIndex);
         }
 
         public static bool select(this string text, int width, ref string val, List<string> lst)
@@ -669,10 +669,10 @@ namespace PlayerAndEditorGUI
             return select(ref ind, lst);
         }
 
-        public static bool select<T>(this string text, ref T value, T[] lst)
+        public static bool select<T>(this string text, ref T value, T[] lst, bool showIndex = false)
         {
             write(text);
-            return select(ref value, lst);
+            return select(ref value, lst, showIndex);
         }
 
         public static bool select<T>(this string text, string tip, ref int ind, List<T> lst)
@@ -693,40 +693,40 @@ namespace PlayerAndEditorGUI
             return select(ref ind, lst);
         }
 
-        public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(label);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
-        public static bool select<T>(this string label, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string label, int width, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(label, width);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
-        public static bool select<T>(this string label, string tip, int width, ref int val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string label, string tip, int width, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(label, tip, width);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
-        public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string text, ref T val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(text);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
-        public static bool select<T>(this string text, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string text, int width, ref T val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(text, width);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
-        public static bool select<T>(this string text, string hint, int width, ref T val, List<T> list, Func<T, bool> lambda)
+        public static bool select<T>(this string text, string hint, int width, ref T val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(text, hint, width);
-            return select(ref val, list, lambda);
+            return select(ref val, list, lambda, showIndex);
         }
 
         public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
@@ -907,7 +907,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool select(ref int no, string[] from, int width)
+        public static bool select(ref int no, string[] from, int width, bool showIndex = false)
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -928,7 +928,7 @@ namespace PlayerAndEditorGUI
                     for (int i = 0; i < from.Length; i++)
                     {
                         if (i != no)
-                            if ("{0}: {1}".F(i, from[i]).Click(width))
+                            if ((showIndex ? "{0}: {1}".F(i, from[i]) : from[i]).Click(width))
                             {
                                 no = i;
                                 foldIn();
@@ -992,7 +992,13 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select<T>(ref T val, T[] lst)
+        static string _compileName<T>(bool showIndex, int index, T obj)
+        {
+            var st = obj.ToPEGIstring();
+            return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
+        }
+
+        public static bool select<T>(ref T val, T[] lst, bool showIndex = false)
         {
             checkLine();
 
@@ -1008,7 +1014,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && val.Equals(tmp))
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPEGIstring()) : tmp.ToPEGIstring());
                     indxs.Add(j);
                 }
             }
@@ -1023,7 +1029,7 @@ namespace PlayerAndEditorGUI
 
         }
         
-        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda)
+        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex= false)
         {
 
             checkLine();
@@ -1041,7 +1047,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (val == j)
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPEGIstring()) : tmp.ToPEGIstring());
                     indxs.Add(j);
                 }
             }
@@ -1056,7 +1062,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda) where T : IGotIndex
+        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false) where T : IGotIndex
         {
 
             checkLine();
@@ -1076,7 +1082,7 @@ namespace PlayerAndEditorGUI
 
                     if (val == ind)
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(ind, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPEGIstring()) : tmp.ToPEGIstring());
                     indxs.Add(ind);
                 }
             }
@@ -1090,7 +1096,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda)
+        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
         {
             bool changed = false;
 
@@ -1110,7 +1116,7 @@ namespace PlayerAndEditorGUI
                     if ((jindx == -1) && tmp.Equals(val))
                         jindx = lnms.Count;
 
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1125,7 +1131,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select<T>(ref T val, List<T> lst)
+        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false)
         {
             checkLine();
 
@@ -1141,7 +1147,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1156,7 +1162,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select(ref Type val, List<Type> lst, string textForCurrent)
+        public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false)
         {
             checkLine();
 
@@ -1172,7 +1178,7 @@ namespace PlayerAndEditorGUI
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1190,7 +1196,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select_SameClass<T, G>(ref T val, List<G> lst) where T : class where G : class
+        public static bool select_SameClass<T, G>(ref T val, List<G> lst, bool showIndex = false) where T : class where G : class
         {
             bool changed = false;
             bool same = typeof(T) == typeof(G);
@@ -1209,7 +1215,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add("{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
                     indxs.Add(j);
                 }
             }
@@ -1242,9 +1248,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select<T>(ref int ind, List<T> lst)
-        {
-
+        public static bool select<T>(ref int ind, List<T> lst) {
 
             checkLine();
 
@@ -2014,7 +2018,27 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool fold_enter_exit(this string txt, ref bool state) => icon.Enter.fold_enter_exit(txt, ref state);
-        
+
+        public static bool fold_enter_exit(this icon ico, string txt, int width, ref int selected, int current)
+        {
+            if (selected == current)
+            {
+                if (icon.Exit.ClickUnfocus(txt))
+                    selected = -1;
+
+            }
+            else if (selected == -1)
+            {
+                if (ico.ClickUnfocus(txt))
+                    selected = current;
+                write(txt, width);
+            }
+
+            isFoldedOut = (selected == current);
+
+            return isFoldedOut;
+        }
+
         public static bool fold_enter_exit(this icon ico, string txt, ref int selected, int current) {
             if (selected == current)
             {
@@ -2029,12 +2053,14 @@ namespace PlayerAndEditorGUI
                 write(txt);
             }
 
-            pegi.isFoldedOut = (selected == current);
+            isFoldedOut = (selected == current);
 
-            return pegi.isFoldedOut;
+            return isFoldedOut;
         }
 
         public static bool fold_enter_exit(this string txt, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, ref selected, current);
+
+        public static bool fold_enter_exit(this string txt, int width, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, width, ref selected, current);
 
         public static bool foldout(this string txt)
         {
@@ -4334,13 +4360,13 @@ namespace PlayerAndEditorGUI
 
                     if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T))) {
                         if (icon.Link.Click("Try Past Referances Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
-                            UnityEngine.Debug.Log("Copying Referances");
+                           // UnityEngine.Debug.Log("Copying Referances");
                             foreach (var e in listCopyBuffer)
                                 list.TryAdd(e);
                         }
                     } else {
                         if (icon.Paste.Click("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring()))) {
-                            UnityEngine.Debug.Log("Trying to copy ISTD");
+                           // UnityEngine.Debug.Log("Trying to copy ISTD");
                             foreach (var e in listCopyBuffer) {
                                
                                 var istd = e as ISTD;
@@ -4353,7 +4379,7 @@ namespace PlayerAndEditorGUI
                 }
                 if (list.Count > 0 && icon.Delete.Click("Clean null elements")) {
                     for (int i=0; i<list.Count; i++) {
-                        if (list[i] == null) {
+                        if (list[i].isNullOrDestroyedUnityObject()) {
                             list.RemoveAt(i);
                             i--;
                         }
@@ -5417,6 +5443,18 @@ namespace PlayerAndEditorGUI
     #region Extensions
     public static class PEGI_Extensions
     {
+
+        public static bool isNullOrDestroyedUnityObject(this object obj) {
+
+            if (obj == null) return true;
+
+            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) && ((obj as UnityEngine.Object) == null))
+                return true;
+
+            return false;
+
+        }
+
         public static string ToPEGIstring(this object obj)
         {
 
@@ -5448,6 +5486,7 @@ namespace PlayerAndEditorGUI
             var name = type.ToString();
             int ind = name.LastIndexOf(".");
             return ind == -1 ? name : name.Substring(ind + 1);
+
         }
 
         public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
