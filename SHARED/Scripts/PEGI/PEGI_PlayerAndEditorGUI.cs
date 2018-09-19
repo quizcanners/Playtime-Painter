@@ -2507,6 +2507,17 @@ namespace PlayerAndEditorGUI
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), "", defaultButtonSize);
 
+        public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True, icon.False);
+
+        public static bool toggleIcon(this string label, ref bool val)
+        {
+           var ret = toggleIcon(ref val);
+
+            if (!val) label.write();
+
+            return ret;
+        }
+
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width)
         {
 

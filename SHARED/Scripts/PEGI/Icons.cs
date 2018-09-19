@@ -15,7 +15,7 @@ namespace PlayerAndEditorGUI
         Edit, Enter, Exit, Email, FoldedOut, Folder,
         NewMaterial, NewTexture, Next, On, Off, Lock, Unlock, GPU, CPU, Round,
         Square, PreviewShader, OriginalShader, SaveAsNew, StateMachine, Undo, Redo, Painter,
-        UndoDisabled, RedoDisabled, Play, Record, Replace,  
+        UndoDisabled, RedoDisabled, Play, Record, Replace,  True, False,
         Script, Load, Pause, Mesh, Red, Green, Blue, Alpha,
         Hint, Home,  Paste, Search, Refresh, Up, UpLast, Down, DownLast, Warning, List, Link
 
