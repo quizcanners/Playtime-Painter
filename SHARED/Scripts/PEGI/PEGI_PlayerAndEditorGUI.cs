@@ -1616,6 +1616,29 @@ namespace PlayerAndEditorGUI
             return select_or_edit(name, null, 0, ref obj, list);
         }
 
+        public static bool select_or_edit<T>(this string name, ref int val, List<T> list) {
+            if (list == null || list.Count == 0)
+                return name.edit(ref val);
+            else
+                return name.select(ref val, list); 
+        }
+
+        public static bool select_or_edit<T>(this string name, int width, ref int val, List<T> list)
+        {
+            if (list == null || list.Count == 0)
+                return name.edit(width, ref val);
+            else
+                return name.select(width, ref val, list);
+        }
+
+        public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list)
+        {
+            if (list == null || list.Count == 0)
+                return name.edit(hint, width, ref val);
+            else
+                return name.select(hint, width, ref val, list);
+        }
+
         public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list) where T : UnityEngine.Object
         {
             // write(name, width);
@@ -1626,10 +1649,7 @@ namespace PlayerAndEditorGUI
         {
             return select_or_edit(null, null, 0, ref obj, list);
         }
-
-   
-
-
+        
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
             if (list == null || list.Count == 0)
@@ -2508,12 +2528,20 @@ namespace PlayerAndEditorGUI
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), "", defaultButtonSize);
 
         public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True, icon.False);
+        
+        public static bool toggleIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false) {
+            var ret = toggle(ref val, icon.True, icon.False, hint);
 
-        public static bool toggleIcon(this string label, ref bool val)
+            if (!val || dontHideTextWhenOn) label.write();
+
+            return ret;
+        }
+
+        public static bool toggleIcon(this string label, ref bool val, bool dontHideTextWhenOn = false)
         {
-           var ret = toggleIcon(ref val);
+            var ret = toggle(ref val, icon.True, icon.False, label);
 
-            if (!val) label.write();
+            if (!val || dontHideTextWhenOn) label.write();
 
             return ret;
         }
@@ -4370,14 +4398,14 @@ namespace PlayerAndEditorGUI
                         listCopyBuffer = null;
 
                     if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T))) {
-                        if (icon.Link.Click("Try Past Referances Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
-                           // UnityEngine.Debug.Log("Copying Referances");
+                        if (icon.Link.Click("Try Past References Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
+                          
                             foreach (var e in listCopyBuffer)
                                 list.TryAdd(e);
                         }
                     } else {
                         if (icon.Paste.Click("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring()))) {
-                           // UnityEngine.Debug.Log("Trying to copy ISTD");
+                     
                             foreach (var e in listCopyBuffer) {
                                
                                 var istd = e as ISTD;

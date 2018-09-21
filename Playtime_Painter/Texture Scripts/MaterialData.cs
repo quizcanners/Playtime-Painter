@@ -19,7 +19,7 @@ namespace Playtime_Painter
         public bool usePreviewShader = false;
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add_Referance("mat", material)
+            .Add_Reference("mat", material)
             .Add("texInd", _selectedTexture)
             .Add_Bool("pv", usePreviewShader);
 
@@ -27,7 +27,7 @@ namespace Playtime_Painter
         {
            switch (tag)
             {
-                case "mat": data.Decode_Referance(ref material); break;
+                case "mat": data.Decode_Reference(ref material); break;
                 case "texInd":  _selectedTexture = data.ToInt(); break;
                 case "pv": usePreviewShader = data.ToBool(); break;
                 default: return false;

@@ -551,10 +551,10 @@ namespace STD_Animations
             .Add("i", index)
             .Add_String("n", _name)
             .Add_String("prop", propertyName)
-            .Add_Referance("tf", transform)
-            .Add_Referance("ren", rendy)
-            .Add_Referance("scrpt", script)
-            .Add_Referance("ps", particles);
+            .Add_Reference("tf", transform)
+            .Add_Reference("ren", rendy)
+            .Add_Reference("scrpt", script)
+            .Add_Reference("ps", particles);
             if (script)  {
                 var asp = script as ISTD;
                 if (asp != null)
@@ -572,10 +572,10 @@ namespace STD_Animations
                 case "n": _name = data; break;
                 case "prop": propertyName = data; break;
                 case "stdDTA": data.TryDecodeInto(script); break;
-                case "tf": data.Decode_Referance(ref transform); break;
-                case "ren": data.Decode_Referance(ref rendy); break;
-                case "scrpt": data.Decode_Referance(ref script); break;
-                case "ps": data.Decode_Referance(ref particles); break;
+                case "tf": data.Decode_Reference(ref transform); break;
+                case "ren": data.Decode_Reference(ref rendy); break;
+                case "scrpt": data.Decode_Reference(ref script); break;
+                case "ps": data.Decode_Reference(ref particles); break;
                 default: return false;
             }
 

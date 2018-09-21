@@ -97,8 +97,8 @@ namespace Playtime_Painter
         
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("dst", (int)destination)
-            .Add_Referance("tex2D", texture2D)
-            .Add_Referance("other", other)
+            .Add_Reference("tex2D", texture2D)
+            .Add_Reference("other", other)
             .Add("w", width)
             .Add("h", height)
             .Add_Bool("useUV2", useTexcoord2)
@@ -115,8 +115,8 @@ namespace Playtime_Painter
         {
             switch (tag) {
                 case "dst": destination = (TexTarget)data.ToInt(); break;
-                case "tex2D": data.Decode_Referance(ref texture2D); break; 
-                case "other": data.Decode_Referance(ref other); break;
+                case "tex2D": data.Decode_Reference(ref texture2D); break; 
+                case "other": data.Decode_Reference(ref other); break;
                 case "w": width = data.ToInt(); break;
                 case "h": height = data.ToInt(); break;
                 case "useUV2": useTexcoord2 = data.ToBool(); break;

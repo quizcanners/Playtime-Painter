@@ -22,7 +22,7 @@ namespace SharedTools_Stuff
     #region Nested
     
     ///<summary>For runtime initialization.
-    ///<para> Best used on Scriptable Objects. They don't loose referances. Prefabs needs to be updated and scenes saved to keep any referances</para>
+    ///<para> Best used on Scriptable Objects. They don't loose references. Prefabs needs to be updated and scenes saved to keep any references</para>
     ///<seealso cref="StdEncoder"/>
     ///</summary>
     public interface ISTD_SerializeNestedReferences
@@ -64,7 +64,7 @@ namespace SharedTools_Stuff
     }
 
 
-    public class STD_ReferancesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD {
+    public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -131,8 +131,8 @@ namespace SharedTools_Stuff
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
 
-                    if (inspectedReference == -1 && "Clear All Referances".Click("Will clear the list. Make sure everything" +
-                        ", that usu this object to hold referances is currently decoded to avoid mixups"))
+                    if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
+                        ", that usu this object to hold references is currently decoded to avoid mixups"))
                         _nestedReferences.Clear();
 
                 }
@@ -405,8 +405,8 @@ namespace SharedTools_Stuff
                 if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
-                    if (inspectedReference == -1 && "Clear All Referances".Click("Will clear the list. Make sure everything" +
-                    ", that usu this object to hold referances is currently decoded to avoid mixups"))
+                    if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
+                    ", that usu this object to hold references is currently decoded to avoid mixups"))
                         _nestedReferences.Clear();
 
                 }

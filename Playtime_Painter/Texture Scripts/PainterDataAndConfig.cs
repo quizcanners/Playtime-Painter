@@ -12,7 +12,7 @@ namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class PainterDataAndConfig : STD_ReferancesHolder, IKeepMySTD
+    public class PainterDataAndConfig : STD_ReferencesHolder, IKeepMySTD
     {
         public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
 

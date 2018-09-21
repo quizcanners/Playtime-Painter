@@ -232,7 +232,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_Referance(string tag, UnityEngine.Object obj) => Add(tag, obj, keeper);
+        public StdEncoder Add_Reference(string tag, UnityEngine.Object obj) => Add(tag, obj, keeper);
 
         public StdEncoder Add(string tag, UnityEngine.Object obj, ISTD_SerializeNestedReferences referencesKeeper)
         {
@@ -245,7 +245,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_Referances<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References<T>(tag, objs,keeper);
+        public StdEncoder Add_References<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References<T>(tag, objs,keeper);
 
         public StdEncoder Add_References<T>(string tag, List<T> objs, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {

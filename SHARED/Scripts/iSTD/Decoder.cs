@@ -400,9 +400,9 @@ namespace SharedTools_Stuff
             return obj;
         }
         
-        public static T Decode_Referance<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
+        public static T Decode_Reference<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
 
-        public static List<T> Decode_Referance<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, keeper);
+        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, keeper);
 
         public static bool DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
