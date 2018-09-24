@@ -24,22 +24,19 @@ public interface IPEGI
 #endif
 }
 
-public interface INeedAttention
-{
+public interface INeedAttention {
 #if PEGI
     string NeedAttention();
 #endif
 }
 
-public interface IPEGI_ListInspect
-{
+public interface IPEGI_ListInspect {
 #if PEGI
     bool PEGI_inList(IList list, int ind, ref int edited);
 #endif
 }
 
-public interface IGotName
-{
+public interface IGotName {
 #if PEGI
     string NameForPEGI { get; set; }
 #endif
@@ -645,10 +642,10 @@ namespace PlayerAndEditorGUI
             return select(ref val, lst);
         }
 
-        public static bool select<T>(this string text, ref int ind, List<T> lst)
+        public static bool select<T>(this string text, ref int ind, List<T> lst, bool showIndex = false)
         {
             write(text);
-            return select(ref ind, lst);
+            return select(ref ind, lst, showIndex);
         }
 
         public static bool select<T>(this string text, ref int ind, T[] lst)
@@ -681,16 +678,16 @@ namespace PlayerAndEditorGUI
             return select(ref ind, lst);
         }
 
-        public static bool select<T>(this string text, int width, ref int ind, List<T> lst)
+        public static bool select<T>(this string text, int width, ref int ind, List<T> lst, bool showIndex = false)
         {
             write(text, width);
-            return select(ref ind, lst);
+            return select(ref ind, lst, showIndex);
         }
 
-        public static bool select<T>(this string text, string tip, int width, ref int ind, List<T> lst)
+        public static bool select<T>(this string text, string tip, int width, ref int ind, List<T> lst, bool showIndex = false)
         {
             write(text, tip, width);
-            return select(ref ind, lst);
+            return select(ref ind, lst, showIndex);
         }
 
         public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
@@ -1248,7 +1245,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select<T>(ref int ind, List<T> lst) {
+        public static bool select<T>(ref int ind, List<T> lst, bool showIndex = false) {
 
             checkLine();
 
@@ -1263,7 +1260,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (ind == j)
                         jindx = indxs.Count;
-                    lnms.Add(lst[j].ToPEGIstring());
+                    lnms.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPEGIstring());
                     indxs.Add(j);
 
                 }
@@ -1582,7 +1579,7 @@ namespace PlayerAndEditorGUI
 
         // ***************************** Select or edit
 
-        public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
             if (list == null || list.Count == 0)
             {
@@ -1603,7 +1600,7 @@ namespace PlayerAndEditorGUI
                 if (text != null)
                     write(text, hint, width);
 
-                changed |= select(ref obj, list);
+                changed |= select(ref obj, list, showIndex);
 
                 obj.clickHighlight();
 
@@ -1611,43 +1608,43 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
-            return select_or_edit(name, null, 0, ref obj, list);
+            return select_or_edit(name, null, 0, ref obj, list, showIndex);
         }
 
-        public static bool select_or_edit<T>(this string name, ref int val, List<T> list) {
+        public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) {
             if (list == null || list.Count == 0)
                 return name.edit(ref val);
             else
-                return name.select(ref val, list); 
+                return name.select(ref val, list, showIndex); 
         }
 
-        public static bool select_or_edit<T>(this string name, int width, ref int val, List<T> list)
+        public static bool select_or_edit<T>(this string name, int width, ref int val, List<T> list,  bool showIndex = false)
         {
             if (list == null || list.Count == 0)
                 return name.edit(width, ref val);
             else
-                return name.select(width, ref val, list);
+                return name.select(width, ref val, list, showIndex);
         }
 
-        public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list)
+        public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list, bool showIndex = false)
         {
             if (list == null || list.Count == 0)
                 return name.edit(hint, width, ref val);
             else
-                return name.select(hint, width, ref val, list);
+                return name.select(hint, width, ref val, list, showIndex);
         }
 
-        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
             // write(name, width);
-            return select_or_edit(name, null, width, ref obj, list);
+            return select_or_edit(name, null, width, ref obj, list, showIndex);
         }
 
-        public static bool select_or_edit<T>(ref T obj, List<T> list) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
-            return select_or_edit(null, null, 0, ref obj, list);
+            return select_or_edit(null, null, 0, ref obj, list, showIndex);
         }
         
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
@@ -1682,31 +1679,31 @@ namespace PlayerAndEditorGUI
              select_SameClass_or_edit(name, null, width, ref obj, list);
 
 
-        public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst) where T : IGotIndex
+        public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label, tip);
-            return select_iGotIndex(ref ind, lst);
+            return select_iGotIndex(ref ind, lst, showIndex);
         }
 
-        public static bool select_iGotIndex<T>(this string label, string tip, int width, ref int ind, List<T> lst) where T : IGotIndex
+        public static bool select_iGotIndex<T>(this string label, string tip, int width, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label, tip, width);
-            return select_iGotIndex(ref ind, lst);
+            return select_iGotIndex(ref ind, lst, showIndex);
         }
 
-        public static bool select_iGotIndex<T>(this string label, int width, ref int ind, List<T> lst) where T : IGotIndex
+        public static bool select_iGotIndex<T>(this string label, int width, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label, width);
-            return select_iGotIndex(ref ind, lst);
+            return select_iGotIndex(ref ind, lst, showIndex);
         }
 
-        public static bool select_iGotIndex<T>(this string label, ref int ind, List<T> lst) where T : IGotIndex
+        public static bool select_iGotIndex<T>(this string label, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label);
-            return select_iGotIndex(ref ind, lst);
+            return select_iGotIndex(ref ind, lst, showIndex );
         }
 
-        public static bool select_iGotIndex<T>(ref int ind, List<T> lst) where T : IGotIndex
+        public static bool select_iGotIndex<T>(ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             List<string> lnms = new List<string>();
             List<int> indxs = new List<int>();
@@ -1721,7 +1718,7 @@ namespace PlayerAndEditorGUI
 
                     if (ind == index)
                         jindx = indxs.Count;
-                    lnms.Add(el.ToPEGIstring());
+                    lnms.Add((showIndex ? index + ": " : "") + el.ToPEGIstring());
                     indxs.Add(index);
 
                 }
@@ -3128,7 +3125,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-        
+
         public static bool edit(ref float val, int width)
         {
 
@@ -3156,7 +3153,36 @@ namespace PlayerAndEditorGUI
                 return false;
             }
         }
-        
+
+        public static bool edit(ref double val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, width);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    double newValue;
+                    bool parsed = double.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+
+
         public static bool edit(this string label, ref float val)
         {
 

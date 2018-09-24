@@ -85,9 +85,11 @@ namespace PlayerAndEditorGUI {
         
         static bool change { get { changes = true; return true; } }
 
+        static bool Set(this bool val) { changes |= val; return val; }
+
         static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
-        static bool EndCheckLine() { return EditorGUI.EndChangeCheck() ? change : false; }
+        static bool EndCheckLine() { return EditorGUI.EndChangeCheck().Set(); }
 
         public static void checkLine()
         {
@@ -190,7 +192,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref jindx, lnms.ToArray(), width))
             {
                 no = indxs[jindx];
-                return true;
+                return change;
             }
 
             return false;
@@ -553,7 +555,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             float before = val;
             val = EditorGUILayout.FloatField(val);
-            return (val != before) ? change : false;
+            return (val != before).Set(); 
         }
         
         public static bool edit(ref float val, int width)
@@ -561,7 +563,15 @@ namespace PlayerAndEditorGUI {
             checkLine();
             float before = val;
             val = EditorGUILayout.FloatField(val, GUILayout.MaxWidth(width));
-            return (val != before) ? change : false;
+            return (val != before).Set();
+        }
+
+        public static bool edit(ref double val, int width)
+        {
+            checkLine();
+            double before = val;
+            val = EditorGUILayout.DoubleField(val, GUILayout.MaxWidth(width));
+            return (val != before).Set();
         }
 
         public static bool edit(ref double val)
@@ -569,7 +579,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             double before = val;
             val = EditorGUILayout.DoubleField(val);
-            return (val != before) ? change : false;
+            return (val != before).Set();
         }
         
         public static bool edit(ref int val, int min, int max)
@@ -577,7 +587,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             float before = val;
             val = EditorGUILayout.IntSlider(val, min, max); //Slider(val, min, max);
-            return (val != before) ? change : false;
+            return (val != before).Set();
         }
 
         public static bool editPOW(ref float val, float min, float max)
@@ -599,7 +609,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             float before = val;
             val = EditorGUILayout.Slider(val, min, max);
-            return (val != before) ? change : false;
+            return (val != before).Set();
         }
 
         public static bool edit(ref Color col)
@@ -609,7 +619,7 @@ namespace PlayerAndEditorGUI {
             Color before = col;
             col = EditorGUILayout.ColorField(col);
 
-            return (before != col) ? change : false;
+            return (before != col).Set();
 
         }
 
@@ -640,7 +650,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             int pre = val;
             val = EditorGUILayout.IntField(val);
-            return (val != pre) ? change : false;
+            return (val != pre).Set();
         }
 
         public static bool edit(ref int val, int width)
@@ -648,7 +658,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             int pre = val;
             val = EditorGUILayout.IntField(val, GUILayout.MaxWidth(width));
-            return (val != pre) ? change : false;
+            return (val != pre).Set();
         }
 
         public static bool edit(string name, ref AnimationCurve val) {
@@ -665,7 +675,7 @@ namespace PlayerAndEditorGUI {
             var oldVal = val;
             val = EditorGUILayout.Vector2Field(label, val);
 
-            return oldVal != val;
+            return (oldVal != val).Set(); ;
         }
 
         public static bool edit(string label, ref Vector2 val) {
@@ -674,7 +684,7 @@ namespace PlayerAndEditorGUI {
             var oldVal = val;
             val = EditorGUILayout.Vector2Field(label, val);
 
-            return oldVal != val;
+            return (oldVal != val).Set(); ;
         }
 
         public static bool edit(ref Vector2 val)
@@ -684,7 +694,7 @@ namespace PlayerAndEditorGUI {
             
             modified |= edit(ref val.x);
             modified |= edit(ref val.y);
-            return modified ? change : false;
+            return modified.Set();
         }
 
         public static bool edit(ref MyIntVec2 val)
@@ -693,7 +703,7 @@ namespace PlayerAndEditorGUI {
             bool modified = false;
             modified |= edit(ref val.x);
             modified |= edit(ref val.y);
-            return modified ? change : false;
+            return modified.Set();
         }
 
         public static bool edit(ref MyIntVec2 val, int min, int max)
@@ -702,7 +712,7 @@ namespace PlayerAndEditorGUI {
             bool modified = false;
             modified |= edit(ref val.x, min, max);
             modified |= edit(ref val.y, min, max);
-            return modified ? change : false;
+            return modified.Set();
         }
 
         public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
@@ -711,7 +721,7 @@ namespace PlayerAndEditorGUI {
             bool modified = false;
             modified |= edit(ref val.x, min, max.x);
             modified |= edit(ref val.y, min, max.y);
-            return modified ? change : false;
+            return modified.Set();
         }
 
         public static bool edit(ref Vector3 val)
@@ -719,7 +729,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             bool modified = false;
             modified |= "X".edit(ref val.x).nl() | "Y".edit(ref val.y).nl() | "Z".edit(ref val.z).nl();
-            return modified ? change : false;
+            return modified.Set();
         }
 
         public static bool edit(ref Vector4 val)
@@ -727,7 +737,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             bool modified = false;
             modified |= "X".edit(ref val.x).nl() | "Y".edit(ref val.y).nl() | "Z".edit(ref val.z).nl() | "W".edit(ref val.w).nl();
-            return modified ? change : false;
+            return modified.Set();
         }
 
         static string editedText;
@@ -911,7 +921,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             int before = i;
             i = Mathf.ClosestPowerOfTwo((int)Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
-            return (i != before) ? change : false;
+            return (i != before).Set();
         }
 
         public static bool toggleInt(ref int val)
@@ -931,7 +941,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             bool before = val;
             val = EditorGUILayout.Toggle(val, GUILayout.MaxWidth(40));
-            return (before != val) ? change : false;
+            return (before != val).Set();
         }
 
         public static bool toggle(int ind, CountlessBool tb)
@@ -983,9 +993,7 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.Toggle(cont, val);
             return (before != val) ? change : false;
         }
-
-     
-
+        
         public static bool Click(string txt, int width)
         {
             checkLine();
@@ -1045,7 +1053,7 @@ namespace PlayerAndEditorGUI {
                 tooltip = tip,
                 image = img
             };
-            return GUILayout.Button(cont,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)) ? change : false;
+            return GUILayout.Button(cont,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Set(); 
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object
