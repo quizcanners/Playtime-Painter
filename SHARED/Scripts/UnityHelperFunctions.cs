@@ -23,6 +23,13 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+        public static Material MaterialWhaever (this Renderer rendy) {
+
+            if (rendy == null) return null;
+
+            return Application.isPlaying ? rendy.material : rendy.sharedMaterial;
+
+        }
 
         static List<Vector3> randomNormalized = new List<Vector3>();
         static int currentNormalized = 0;
