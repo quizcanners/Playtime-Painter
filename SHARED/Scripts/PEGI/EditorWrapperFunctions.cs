@@ -121,10 +121,29 @@ namespace PlayerAndEditorGUI {
         
         public static bool isFoldedOut { get { return pegi.isFoldedOut; } set { pegi.isFoldedOut = value; } }
 
+        static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut") {
+
+            var cnt = new GUIContent();
+            cnt.text = txt;
+            cnt.tooltip = hint;
+
+          //  if (foldedOut)
+            //    cnt.image = icon.FoldedOut.getIcon();
+
+            if (foldedOut)
+                return EditorGUILayout.Foldout(foldedOut, cnt, true);//, PEGI_Styles.FoldedOutLabel);
+
+            else
+                return EditorGUILayout.Foldout(foldedOut, cnt, true);
+
+
+
+        }
+
         public static bool foldout(string txt, ref bool state)
         {
             checkLine();
-            state = EditorGUILayout.Foldout(state, txt);
+            state = StylizedFoldOut(state, txt);
             if (isFoldedOut != state)
                 changes = true;
             isFoldedOut = state;
@@ -137,10 +156,11 @@ namespace PlayerAndEditorGUI {
 
             isFoldedOut = (selected == current);
 
-            if (EditorGUILayout.Foldout(isFoldedOut, txt))
+            if (StylizedFoldOut(isFoldedOut, txt))
                 selected = current;
             else
                 if (isFoldedOut) selected = -1;
+
 
             if (isFoldedOut != (selected == current))
                 changes = true;
@@ -1156,6 +1176,12 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
             EditorGUILayout.LabelField("", style);
+        }
+
+        public static void write(string text, int width, GUIStyle style)
+        {
+            checkLine();
+            EditorGUILayout.LabelField("", style, GUILayout.MaxWidth(width));
         }
 
         public static void write(string text, string hint, GUIStyle style)

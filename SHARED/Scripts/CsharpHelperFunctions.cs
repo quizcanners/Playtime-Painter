@@ -56,8 +56,83 @@ namespace SharedTools_Stuff
 
     public static class CsharpFuncs
     {
+
+        #region Timer
         static Stopwatch stopWatch = new Stopwatch();
 
+
+        public static int timerLastSection = 0;
+
+        static string timerStartLabel = null;
+
+        public static void TimerStart()
+        {
+            timerStartLabel = null;
+            stopWatch.Start();
+        }
+
+        public static void TimerStart(this string Label)
+        {
+            timerStartLabel = Label;
+            stopWatch.Start();
+        }
+
+        public static string TimerEnd(this string Label) => Label.TimerEnd(true);
+
+        public static string TimerEnd(this string Label, bool logIt) => TimerEnd(Label, logIt, logIt);
+
+        public static string TimerEnd(this string Label, bool logIt, int treshold) => TimerEnd(Label, logIt, logIt, treshold);
+
+        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer) => TimerEnd(Label, logInEditor, logInPlayer, 0);
+
+        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
+        {
+            stopWatch.Stop();
+
+            long ticks = stopWatch.ElapsedTicks;
+
+            string timeText = "";
+
+            timerLastSection = (int)ticks;
+
+            if (ticks < 10000)
+                timeText = ticks.ToString() + " ticks";
+            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + " ticks";
+
+            string text = "";
+            if (timerStartLabel != null)
+                text += timerStartLabel + "->";
+            text += Label + ": " + timeText;
+
+            timerStartLabel = null;
+
+            if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
+                UnityEngine.Debug.Log(text);
+
+            stopWatch.Reset();
+
+            return text;
+        }
+
+        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logTreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logTreshold);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer) => labelForEndedSection.TimerEnd_Restart(logInEditor, logInPlayer, 0);
+
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
+        {
+            stopWatch.Stop();
+            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
+            stopWatch.Start();
+            return txt;
+        }
+
+        #endregion
+
+        #region TextOperations
         public static string F(this string format, object obj1) => string.Format(format, obj1);
         
         public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1, obj2);
@@ -68,13 +143,22 @@ namespace SharedTools_Stuff
         
         public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
 
-        public static void Log(this string text)
-        {
+        #endregion
 
-#if UNITY_EDITOR
-            UnityEngine.Debug.Log(text);
-#endif
+        public static T ClassAttribute<T>(this Type type) where T : Attribute
+        {
+            T attr = null;
+
+            if (type.IsClass)
+            {
+                var attrs = type.GetCustomAttributes(typeof(T), true);
+                if (attrs.Length > 0)
+                    attr = (T)attrs[0];
+            }
+
+            return attr;
         }
+
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {
@@ -107,6 +191,7 @@ namespace SharedTools_Stuff
 #endif
         }
 
+        #region Casts
         public static bool TryCast<T>(this object obj, out T result)
         {
             if (obj != null)
@@ -128,6 +213,16 @@ namespace SharedTools_Stuff
                 return (T)obj;
                 
             return default(T);
+        }
+        #endregion
+
+        #region ListManagement
+
+        public static T GetRandom<T>(this List<T>list) {
+            if (list.Count == 0)
+                return default(T);
+
+            return list[UnityEngine.Random.Range(0, list.Count)];
         }
 
         public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
@@ -262,102 +357,7 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-        
-        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
-        {
-            string value;
-            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
-            {
-                dic.Remove(before);
-                dic.Add(now, value);
-                return true;
-            }
-            return false;
-        }
 
-        public static bool IsDefaultOrNull<T>(this T obj)
-        {
-            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
-        }
-
-        public static float RoundTo(this float val, int percision)
-        {
-            return (float)Math.Round(val, percision);
-        }
-
-        public static float RoundTo6Dec(this float val)
-        {
-            return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
-        }
-
-        public static int timerLastSection = 0;
-
-        static string timerStartLabel = null;
-
-        public static void TimerStart()
-        {
-            timerStartLabel = null;
-            stopWatch.Start();
-        }
-
-        public static void  TimerStart(this string Label)
-        {
-            timerStartLabel = Label;
-            stopWatch.Start();
-        }
-
-        public static string TimerEnd(this string Label) => Label.TimerEnd(true);
-        
-        public static string TimerEnd(this string Label, bool logIt) => TimerEnd( Label,  logIt, logIt);
-
-        public static string TimerEnd(this string Label, bool logIt, int treshold ) => TimerEnd(Label, logIt, logIt, treshold);
-
-        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer) => TimerEnd(Label, logInEditor, logInPlayer, 0);
-        
-        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
-        {
-            stopWatch.Stop();
-
-            long ticks = stopWatch.ElapsedTicks;
-
-            string timeText = "";
-
-            timerLastSection = (int)ticks;
-
-            if (ticks < 10000)
-                timeText = ticks.ToString()+" ticks";
-            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + " ticks";
-
-            string text = "";
-            if (timerStartLabel != null)
-                text += timerStartLabel + "->";
-            text += Label + ": " + timeText;
-
-            timerStartLabel = null;
-
-            if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
-                UnityEngine.Debug.Log(text);
-
-            stopWatch.Reset();
-
-            return text;
-        }
-
-        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
-
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
-
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logTreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logTreshold);
-
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer) => labelForEndedSection.TimerEnd_Restart(logInEditor, logInPlayer, 0);
-
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
-        {
-            stopWatch.Stop();
-            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
-            stopWatch.Start();
-            return txt;
-        }
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
         {
@@ -395,8 +395,8 @@ namespace SharedTools_Stuff
             return last;
         }
 
-        public static T Last<T>(this List<T> list) => list.Count>0 ? list[list.Count - 1] : default(T);
-        
+        public static T Last<T>(this List<T> list) => list.Count > 0 ? list[list.Count - 1] : default(T);
+
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
             T tmp = list[indexOfFirst];
@@ -410,6 +410,37 @@ namespace SharedTools_Stuff
             list[indexA] = list[indexB];
             list[indexB] = tmp;
         }
+
+        #endregion
+
+        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
+        {
+            string value;
+            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
+            {
+                dic.Remove(before);
+                dic.Add(now, value);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsDefaultOrNull<T>(this T obj)
+        {
+            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        }
+
+        public static float RoundTo(this float val, int percision)
+        {
+            return (float)Math.Round(val, percision);
+        }
+
+        public static float RoundTo6Dec(this float val)
+        {
+            return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
+        }
+
+  
 
         public static string RemoveFirst(this string name, int index)
         {
@@ -548,8 +579,8 @@ namespace SharedTools_Stuff
             MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
             return expressionBody.Member.Name;
         }
-
-
+        
+        /*
         public static TValue GetAttributeValue<TAttribute, TValue>(
             this Type type,
             Func<TAttribute, TValue> valueSelector)
@@ -564,7 +595,7 @@ namespace SharedTools_Stuff
             }
             return default(TValue);
         }
-
+        */
 
         /*
         public static List<Type> GetTypesWithAttribute<TAttribute> (bool inherit) where TAttribute: System.Attribute{

@@ -11,9 +11,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.EventSystems;
-#if PEGI
 using PlayerAndEditorGUI;
-#endif
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -53,12 +51,12 @@ namespace SharedTools_Stuff
             return v3;
         } 
         
-#if PEGI
         public static string GetMeaningfulHierarchyName (this GameObject go, int maxLook, int maxLength)
         {
           
             string name = go.name;
 
+#if PEGI
             Transform parent = go.transform.parent;
 
             while (parent != null && maxLook > 0 && maxLength > 0)
@@ -74,18 +72,10 @@ namespace SharedTools_Stuff
                 parent = parent.parent;
                 maxLook--;
             }
-
+#endif
             return name;
         }
-#endif
-
-     /*   public static T TryGet<T>(this T[] ar, int ind)  {
-            if (ar.Length > ind)
-                return ar[ind];
-
-            return default;
-        }*/
-
+        
         public static void RefreshAssetDatabase()
         {
 #if UNITY_EDITOR
@@ -102,52 +92,54 @@ namespace SharedTools_Stuff
 
         public static bool IsUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
         
-        public static void SetToDirty(this object obj)
+        #region Timing
+
+
+
+        public static double TimeSinceStartup()
         {
 #if UNITY_EDITOR
-            var uobj = obj as UnityEngine.Object;
-            if (uobj)
-                UnityHelperFunctions.SetToDirty(uobj);
+            if (!Application.isPlaying)
+                return EditorApplication.timeSinceStartup;
+            else
 #endif
+                return Time.realtimeSinceStartup;
         }
 
-        public static string GetGUID(this UnityEngine.Object obj, string current)
+        public static bool TimePassedAbove(this double value, float interval)
         {
-            if (obj == null)
-                return current;
-
-#if UNITY_EDITOR
-            string path = AssetDatabase.GetAssetPath(obj);
-            if (path != null && path.Length > 0)
-                current = AssetDatabase.AssetPathToGUID(path);
-#endif
-            return current;
+            return (TimeSinceStartup() - value) > interval;
         }
 
-        public static T GUIDtoAsset<T>(string guid) where T : UnityEngine.Object
+        #endregion
+
+        #region Editor Updates
+
+
+        public static bool MouseToPlane(this Plane _plane, out Vector3 hitPos)
         {
-#if UNITY_EDITOR
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (path != null && path.Length > 0)
-               return AssetDatabase.LoadAssetAtPath<T>(path);
-#endif
-
-            return null;
-        }
-
-        public static string GetGUID (this UnityEngine.Object obj) => obj.GetGUID(null);
-        
-        public static T ClassAttribute<T>(this Type type) where T : Attribute  {
-            T attr = null;
-
-            if (type.IsClass) {
-                var attrs = type.GetCustomAttributes(typeof(T), true);
-                if (attrs.Length > 0)
-                    attr = (T)attrs[0];
+            Ray ray = EditorInputManager.GetScreenRay();
+            float rayDistance;
+            if (_plane.Raycast(ray, out rayDistance))
+            {
+                hitPos = ray.GetPoint(rayDistance);
+                return true;
             }
 
-            return attr;
+            hitPos = Vector3.zero;
+
+            return false;
         }
+
+
+        public static void Log(this string text)
+        {
+
+#if UNITY_EDITOR
+            UnityEngine.Debug.Log(text);
+#endif
+        }
+
 
         public static bool GetDefine(this string define)
         {
@@ -175,26 +167,22 @@ namespace SharedTools_Stuff
                 defines += " ; " + val;
             else
                 defines = defines.Replace(val, "");
-            
+
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
 #endif
         }
 
-        public static double TimeSinceStartup()
+
+        public static bool ApplicationIsAboutToEnterPlayMode(this MonoBehaviour mb)
         {
-            #if UNITY_EDITOR
-            if (!Application.isPlaying)
-                return EditorApplication.timeSinceStartup;
-            else
-            #endif
-                return Time.realtimeSinceStartup;
+#if UNITY_EDITOR
+            return (((EditorApplication.isPlayingOrWillChangePlaymode) && (Application.isPlaying == false)));
+#else
+        return false;
+#endif
         }
 
-        public static bool TimePassedAbove(this double value, float interval)
-        {
-            return (TimeSinceStartup() - value) > interval;
-        }
-        
+
         public static void RepaintViews()
         {
 #if UNITY_EDITOR
@@ -211,6 +199,18 @@ namespace SharedTools_Stuff
             EditorUtility.SetDirty(obj);
 #endif
         }
+
+        public static void SetToDirty(this object obj)
+        {
+#if UNITY_EDITOR
+            var uobj = obj as UnityEngine.Object;
+            if (uobj)
+                UnityHelperFunctions.SetToDirty(uobj);
+#endif
+        }
+        #endregion
+
+        #region Prefabs
 
         public static UnityEngine.Object GetPrefab(this UnityEngine.Object obj)
         {
@@ -266,32 +266,13 @@ namespace SharedTools_Stuff
 #endif
             }
 
-        public static float Angle(this Vector2 vec)
-        {
-            if (vec.x < 0)
-            {
-                return 360 - (Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg * -1);
-            }
-            else
-            {
-                return Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg;
-            }
-        }
 
-        public static Vector3 OnSpherePosition(this Vector3 vec)
-        {
+        public static bool IsPrefab(this GameObject go) => go.scene.name == null;
 
-            var v3 = new Vector3(
-                UnityEngine.Random.Range(-10f, 10f),
-                  UnityEngine.Random.Range(-10f, 10f),
-                  UnityEngine.Random.Range(-10f, 10f)
-                );
 
-            v3.Normalize();
-            v3.Scale(vec);
+        #endregion
 
-            return v3;
-        }
+        #region Raycasts
 
         public static bool RaycastGotHit(this Vector3 from, Vector3 vpos)
         {
@@ -314,6 +295,8 @@ namespace SharedTools_Stuff
             Vector3 ray = to - from;
             return Physics.Raycast(new Ray(from, ray), out hit);
         }
+
+        #endregion
 
         public static string GetUniqueName<T>(this string s, List<T> list)
         {
@@ -342,16 +325,6 @@ namespace SharedTools_Stuff
             }
 
             return mod;
-        }
-
-        public static bool IsNaN(this Vector3 q)
-        {
-            return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
-        }
-
-        public static bool IsNaN(this float f)
-        {
-            return float.IsNaN(f);
         }
 
         public static GameObject SetFlagsOnItAndChildren(this GameObject go, HideFlags flags)
@@ -393,6 +366,78 @@ namespace SharedTools_Stuff
             return transform;
         }
 
+        #region Gizmos
+
+        public static void LineTo(this Vector3 v3a, Vector3 v3b, Color col)
+        {
+            Gizmos.color = col;
+            Gizmos.DrawLine(v3a, v3b);
+        }
+
+        #endregion
+
+        #region Components & GameObjects
+
+        public static GameObject GetFocused()
+        {
+#if UNITY_EDITOR
+            UnityEngine.Object[] tmp = Selection.objects;
+            return (((tmp != null) && (tmp.Length > 0)) ? (GameObject)tmp[0] : null);
+#else 
+            return null;
+#endif
+
+        }
+
+
+        public static bool IsFocused(this GameObject go)
+        {
+
+#if UNITY_EDITOR
+            UnityEngine.Object[] tmp = Selection.objects;
+            if ((tmp == null) || (tmp.Length == 0) || tmp[0] == null)
+                return false;
+
+            return (tmp[0].GetType() == typeof(GameObject)) && ((GameObject)tmp[0] == go);
+#else
+        return false;
+#endif
+        }
+
+
+        public static T ForceComponent<T>(this GameObject go, ref T co) where T : Component
+        {
+            if (co == null)
+            {
+                co = go.GetComponent<T>();
+                if (co == null)
+                    co = go.AddComponent<T>();
+            }
+
+            return co;
+        }
+
+        public static void DestroyWhatever(this UnityEngine.Object go)
+        {
+            if (go != null)
+            {
+                if (Application.isPlaying)
+                {
+                    var clean = go as IManageDestroyOnPlay;
+                    if (clean != null)
+                        clean.DestroyYourself();
+                    else
+                        UnityEngine.Object.Destroy(go);
+                }
+                else
+                    UnityEngine.Object.DestroyImmediate(go);
+            }
+        }
+
+
+#endregion
+
+#region Text Editing
         public static string ToStringShort(this Vector3 v)
         {
             StringBuilder sb = new StringBuilder();
@@ -404,15 +449,9 @@ namespace SharedTools_Stuff
             return sb.ToString();
         }
 
-        public static void LineTo(this Vector3 v3a, Vector3 v3b, Color col)
-        {
-            Gizmos.color = col;
-            Gizmos.DrawLine(v3a, v3b);
-        }
 
         public static bool SameAs(this string s, string other) =>
-            (((s==null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
-        
+            (((s == null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
 
         public static bool SearchCompare(this string search, string name)
         {
@@ -428,19 +467,7 @@ namespace SharedTools_Stuff
             }
             return false;
         }
-
-        public static T ForceComponent<T>(this GameObject go, ref T co) where T : Component
-        {
-            if (co == null)
-            {
-                co = go.GetComponent<T>();
-                if (co == null)
-                    co = go.AddComponent<T>();
-            }
-
-            return co;
-        }
-
+        
         public static string RemoveAssetsPart(this string s)
         {
             var ind = s.IndexOf("Assets");
@@ -469,22 +496,8 @@ namespace SharedTools_Stuff
             return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s+ "/" : s;
         }
 
-        public static void DestroyWhatever(this UnityEngine.Object go)
-        {
-            if (go != null)
-            {
-                if (Application.isPlaying)
-                {
-                    var clean = go as IManageDestroyOnPlay;
-                    if (clean != null)
-                        clean.DestroyYourself();
-                    else
-                        UnityEngine.Object.Destroy(go);
-                }
-                else
-                    UnityEngine.Object.DestroyImmediate(go);
-            }
-        }
+#endregion
+
 
         public static void ToLinear (this Color[] list)
         {
@@ -499,28 +512,127 @@ namespace SharedTools_Stuff
         }
 
 
-        public static Vector2 To01Space(this Vector2 v2)
-        {
-            return (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
-        }
+#region Assets Management
 
-        public static Vector2 Floor(this Vector2 v2)
+        public static string SetUniqueObjectName(this UnityEngine.Object obj, string folderName, string extension)
         {
-            return new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
-        }
 
-        public static Vector4 ToVector4(this Color col)
-        {
-            return new Vector4(col.r, col.g, col.b, col.a);
-        }
+            folderName = "Assets" + folderName.AddPreSlashIfNotEmpty();
+            string name = obj.name;
+            string fullpath =
 #if UNITY_EDITOR
-        public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
-        {
-            string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
-            AssetDatabase.CopyAsset(path + oldName + StuffSaver.fileType, path + newName + StuffSaver.fileType);
+
+                AssetDatabase.GenerateUniqueAssetPath(folderName + "/" + name + extension);
+#else
+            folderName + "/" + name + extension;
+#endif
+            name = fullpath.Substring(folderName.Length);
+            name = name.Substring(0, name.Length - extension.Length);
+            obj.name = name;
+
+            return fullpath;
         }
+
+        public static string GetAssetFolder(this UnityEngine.Object obj)
+        {
+#if UNITY_EDITOR
+
+            UnityEngine.Object parentObject = obj.GetPrefab();
+            if (parentObject != null)
+                obj = parentObject;
+
+            string path = AssetDatabase.GetAssetPath(obj);
+
+            if (path != null && path.Length > 0)
+            {
+
+                int ind = path.LastIndexOf("/");
+
+                if (ind > 0)
+                    path = path.Substring(0, ind);
+
+                return path;
+            }
+            return "";
+#else
+            return "";
+#endif
+        }
+
+        public static bool SavedAsAsset(this UnityEngine.Object go)
+        {
+#if UNITY_EDITOR
+            return (!String.IsNullOrEmpty(AssetDatabase.GetAssetPath(go)));
+#else
+        return true;
+#endif
+
+        }
+
+        public static string GetGUID(this UnityEngine.Object obj, string current)
+        {
+            if (obj == null)
+                return current;
+
+#if UNITY_EDITOR
+            string path = AssetDatabase.GetAssetPath(obj);
+            if (path != null && path.Length > 0)
+                current = AssetDatabase.AssetPathToGUID(path);
+#endif
+            return current;
+        }
+
+        public static T GUIDtoAsset<T>(string guid) where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (path != null && path.Length > 0)
+                return AssetDatabase.LoadAssetAtPath<T>(path);
+#endif
+
+            return null;
+        }
+
+        public static string GetGUID(this UnityEngine.Object obj) => obj.GetGUID(null);
+
+        public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder)
+        {
+
+#if UNITY_EDITOR
+
+            try
+            {
+                string path = Application.dataPath + "/" + assetFolder
+                                                                     + "/Resources" + insideAssetsFolder.AddPreSlashIfNotEmpty();
+
+                if (!Directory.Exists(path)) return;
+
+                DirectoryInfo dirInfo = new DirectoryInfo(path);
+
+                if (dirInfo == null) return;
+
+                FileInfo[] fileInfo = dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+
+                l = new List<string>();
+
+                foreach (FileInfo file in fileInfo)
+                {
+                    string name = file.Name.Substring(0, file.Name.Length - StuffSaver.fileType.Length);
+                    if ((file.Extension == StuffSaver.fileType) && (!l.Contains(name)))
+                    {
+                        l.Add(name);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log(ex.ToString());
+            }
 
 #endif
+        }
+
 
         public static void RenameAsset<T>(this T obj, string newName) where T: UnityEngine.Object
         {
@@ -653,7 +765,14 @@ namespace SharedTools_Stuff
 
         }
 
+#if UNITY_EDITOR
+        public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
+        {
+            string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
+            AssetDatabase.CopyAsset(path + oldName + StuffSaver.fileType, path + newName + StuffSaver.fileType);
+        }
 
+#endif
         // The function below uses this function's name
         public static T CreateAsset_SO_DONT_RENAME<T>(string path, string name) where T : ScriptableObject
         {
@@ -676,7 +795,7 @@ namespace SharedTools_Stuff
         {
             T asset = ScriptableObject.CreateInstance<T>();
 
-            #if PEGI
+#if PEGI
 
             var nm = asset as IGotName;
             if (nm != null)
@@ -736,7 +855,8 @@ namespace SharedTools_Stuff
 
             return asset;
         }
-        
+
+
         public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
         {
 
@@ -757,6 +877,9 @@ namespace SharedTools_Stuff
 #endif
         }
 
+
+#endregion
+
         public static int TotalCount(this List<int>[] lists)
         {
             int total = 0;
@@ -767,44 +890,9 @@ namespace SharedTools_Stuff
             return total;
         }
 
-        public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder)
-        {
 
-#if UNITY_EDITOR
 
-            try
-            {
-                string path = Application.dataPath + "/" + assetFolder
-                                                                     + "/Resources" + insideAssetsFolder.AddPreSlashIfNotEmpty();
-
-                if (!Directory.Exists(path)) return;
-
-                DirectoryInfo dirInfo = new DirectoryInfo(path);
-
-                if (dirInfo == null) return;
-
-                FileInfo[] fileInfo = dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-
-                l = new List<string>();
-
-                foreach (FileInfo file in fileInfo)
-                {
-                    string name = file.Name.Substring(0, file.Name.Length - StuffSaver.fileType.Length);
-                    if ((file.Extension == StuffSaver.fileType) && (!l.Contains(name)))
-                    {
-                        l.Add(name);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.Log(ex.ToString());
-            }
-
-#endif
-        }
-
+#region Texture Properties
 
 #if UNITY_EDITOR
         public static List<string> GetFields(this Material m, MaterialProperty.PropType type) {
@@ -845,14 +933,33 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static List<string> GetTextureFiledNames(this Material m)
+        public static List<string> MyGetTextureProperties(this Material m)
         {
+#if UNITY_2018_2_OR_NEWER
+            if (!m) return new List<string>();
+            else
+            return new List<string>(m.GetTexturePropertyNames());
+#else
+
 #if UNITY_EDITOR
             return m.GetFields(MaterialProperty.PropType.Texture);
 #else
             return new List<string>();
 #endif
+#endif
         }
+
+        public static List<string> GetColorProperties(this Material m) {
+
+#if UNITY_EDITOR
+            return m.GetFields(MaterialProperty.PropType.Color);
+#else
+            return new List<string>();
+#endif
+
+        }
+
+#endregion
 
         public static bool DisplayNameContains(this Material m, string propertyName, string tag)
         {
@@ -872,8 +979,6 @@ namespace SharedTools_Stuff
             return propertyName.Contains(tag);
         }
 
-        public static bool IsPrefab(this GameObject go) => go.scene.name == null;
-
         public static void SetActiveTo(this GameObject go, bool setTo)
         {
             if (go.activeSelf != setTo)
@@ -885,28 +990,6 @@ namespace SharedTools_Stuff
             //There were some update when enabled state is changed
             if (c != null && c.enabled != setTo)
                 c.enabled = setTo;
-        }
-
-        public static bool ApplicationIsAboutToEnterPlayMode(this MonoBehaviour mb)
-        {
-#if UNITY_EDITOR
-            return (((EditorApplication.isPlayingOrWillChangePlaymode) && (Application.isPlaying == false)));
-#else
-        return false;
-#endif
-        }
-
-        public static bool IsFocused(this GameObject go) {
-
-#if UNITY_EDITOR
-            UnityEngine.Object[] tmp = Selection.objects;
-            if ((tmp == null) || (tmp.Length == 0) || tmp[0] == null)
-                return false;
-
-            return (tmp[0].GetType() == typeof(GameObject)) && ((GameObject)tmp[0] == go);
-#else
-        return false;
-#endif
         }
 
         /// <summary>
@@ -1000,105 +1083,12 @@ namespace SharedTools_Stuff
             RenderTexture.active = curRT;
 
         }
-        
-        public static string SetUniqueObjectName(this UnityEngine.Object obj, string folderName, string extension)
-        {
 
-            folderName = "Assets" + folderName.AddPreSlashIfNotEmpty();
-            string name = obj.name;
-            string fullpath =
-#if UNITY_EDITOR
 
-                AssetDatabase.GenerateUniqueAssetPath(folderName + "/" + name + extension);
-#else
-            folderName + "/" + name + extension;
-#endif
-            name = fullpath.Substring(folderName.Length);
-            name = name.Substring(0, name.Length - extension.Length);
-            obj.name = name;
-
-            return fullpath;
-        }
-        
-        public static string GetAssetFolder (this UnityEngine.Object obj)
-        {
-#if UNITY_EDITOR
-
-            UnityEngine.Object parentObject = obj.GetPrefab();
-            if (parentObject != null)
-                obj = parentObject;
-               
-            string path = AssetDatabase.GetAssetPath(obj);
-
-            if (path != null && path.Length > 0) {
-
-                int ind = path.LastIndexOf("/");
-
-                if (ind > 0)
-                    path = path.Substring(0, ind);
-
-                return path;
-            }
-            return "";
-#else
-            return "";
-#endif
-        }
-
-        public static bool SavedAsAsset(this UnityEngine.Object go)
-        {
-#if UNITY_EDITOR
-            return (!String.IsNullOrEmpty(AssetDatabase.GetAssetPath(go)));
-#else
-        return true;
-#endif
-
-        }
 
 #if UNITY_EDITOR
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName)
-        {
-            return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
-        }
 
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height)
-        {
-
-            Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
-
-            diffuse.Reimport_IfNotReadale();
-
-            var pxls = diffuse.GetPixels(width, height);
-            pxls[0].a = 0.5f;
-
-            Result.SetPixels(pxls);
-
-            byte[] bytes = Result.EncodeToPNG();
-
-            string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
-
-            var extension = dest.Substring(dest.LastIndexOf(".") + 1);
-
-            dest = dest.Substring(0, dest.Length - extension.Length) + "png";
-
-            dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
-
-            File.WriteAllBytes(Application.dataPath + dest, bytes);
-
-            AssetDatabase.Refresh();
-
-            var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
-
-            var imp = tex.GetTextureImporter();
-            bool needReimport = imp.WasNotReadable();
-            needReimport |= imp.WasClamped();
-            needReimport |= imp.WasWrongIsColor(diffuse.IsColorTexture());
-            if (needReimport)
-                imp.SaveAndReimport();
-
-            return tex;
-
-        }
+#region Texture Saving
 
         public static void SaveTexture(this Texture2D tex)
         {
@@ -1124,6 +1114,7 @@ namespace SharedTools_Stuff
             if (String.IsNullOrEmpty(path)) return null;
             return path.Replace("Assets", "");
         }
+
 
         public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
         {
@@ -1207,14 +1198,52 @@ namespace SharedTools_Stuff
             return result;
         }
 
-        public static GameObject GetFocused()
+        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName)
         {
-
-            UnityEngine.Object[] tmp = Selection.objects;
-            return (((tmp != null) && (tmp.Length > 0)) ? (GameObject)tmp[0] : null);
-
+            return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
         }
 
+        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height)
+        {
+
+            Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
+
+            diffuse.Reimport_IfNotReadale();
+
+            var pxls = diffuse.GetPixels(width, height);
+            pxls[0].a = 0.5f;
+
+            Result.SetPixels(pxls);
+
+            byte[] bytes = Result.EncodeToPNG();
+
+            string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
+
+            var extension = dest.Substring(dest.LastIndexOf(".") + 1);
+
+            dest = dest.Substring(0, dest.Length - extension.Length) + "png";
+
+            dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
+
+            File.WriteAllBytes(Application.dataPath + dest, bytes);
+
+            AssetDatabase.Refresh();
+
+            var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+
+            var imp = tex.GetTextureImporter();
+            bool needReimport = imp.WasNotReadable();
+            needReimport |= imp.WasClamped();
+            needReimport |= imp.WasWrongIsColor(diffuse.IsColorTexture());
+            if (needReimport)
+                imp.SaveAndReimport();
+
+            return tex;
+
+        }
+#endregion
+
+      
         public static void FocusOnGame()
         {
 
@@ -1254,58 +1283,6 @@ namespace SharedTools_Stuff
 
 #endif
 
-        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
-        {
-
-            if (terrain == null) return;
-
-
-
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
-
-            if (l.Length > index)
-                l[index].diffuseTexture = tex;
-#else
-
-            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
-
-            if (newProtos.Length <= index)
-            {
-                ArrayManager<SplatPrototype> arrman = new ArrayManager<SplatPrototype>();
-                arrman.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
-            }
-
-            newProtos[index].texture = tex;
-
-       
-            terrain.terrainData.splatPrototypes = newProtos;
-#endif
-
-
-
-        }
-
-        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
-        {
-
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
-
-            if (l.Length > ind)
-                return l[ind].diffuseTexture;
-            else
-                return null;
-#else
-
-            SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
-
-            if (prots.Length <= ind) return null;
-
-
-            return prots[ind].texture;
-#endif
-        }
 
         public static Color[] GetPixels(this Texture2D tex, int width, int height)
         {
@@ -1333,29 +1310,7 @@ namespace SharedTools_Stuff
             return dst;
         }
 
-#if !UNITY_2018_3_OR_NEWER
-        public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
-        {
 
-            if (terrain == null) return null;
-
-            SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
-            SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
-            for (int i = 0; i < oldProtos.Length; i++)
-            {
-                SplatPrototype oldProto = oldProtos[i];
-                SplatPrototype newProto = new SplatPrototype();
-                newProtos[i] = newProto;
-
-                newProto.texture = oldProto.texture;
-                newProto.tileSize = oldProto.tileSize;
-                newProto.tileOffset = oldProto.tileOffset;
-                newProto.normalMap = oldProto.normalMap;
-            }
-
-            return newProtos;
-        }
-#endif
 
 
         public static void SetKeyword(string name, bool value)
@@ -1419,9 +1374,86 @@ namespace SharedTools_Stuff
             return go.transform;
         }
 
+#region Terrain Layers
+        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
+        {
+
+            if (terrain == null) return;
 
 
-        // Spin Around object:
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > index)
+                l[index].diffuseTexture = tex;
+#else
+
+            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
+
+            if (newProtos.Length <= index)
+            {
+                ArrayManager<SplatPrototype> arrman = new ArrayManager<SplatPrototype>();
+                arrman.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+            }
+
+            newProtos[index].texture = tex;
+
+       
+            terrain.terrainData.splatPrototypes = newProtos;
+#endif
+
+
+
+        }
+
+        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
+        {
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > ind)
+                return l[ind].diffuseTexture;
+            else
+                return null;
+#else
+
+            SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
+
+            if (prots.Length <= ind) return null;
+
+
+            return prots[ind].texture;
+#endif
+        }
+
+#if !UNITY_2018_3_OR_NEWER
+        public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
+        {
+
+            if (terrain == null) return null;
+
+            SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
+            SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
+            for (int i = 0; i < oldProtos.Length; i++)
+            {
+                SplatPrototype oldProto = oldProtos[i];
+                SplatPrototype newProto = new SplatPrototype();
+                newProtos[i] = newProto;
+
+                newProto.texture = oldProto.texture;
+                newProto.tileSize = oldProto.tileSize;
+                newProto.tileOffset = oldProto.tileOffset;
+                newProto.normalMap = oldProto.normalMap;
+            }
+
+            return newProtos;
+        }
+#endif
+#endregion
+
+#region Spin Around
 
         public static Vector2 camOrbit = new Vector2();
         public static Vector3 SpinningAround;
@@ -1482,6 +1514,10 @@ namespace SharedTools_Stuff
 
             }
         }
+
+#endregion
+
+#region Texture Import Settings
 
         public static bool IsColorTexture(this Texture2D tex)
         {
@@ -1779,7 +1815,7 @@ namespace SharedTools_Stuff
 
 
 #endif
-
+#endregion
     }
 
 }

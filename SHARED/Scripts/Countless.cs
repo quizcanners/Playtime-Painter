@@ -213,9 +213,6 @@ namespace SharedTools_Stuff {
             return cody;
         }
 
-     //   public const string storyTag = "TreeInt";
-       // public override string getDefaultTagName() { return storyTag; }
-
         public void GetItAll(out List<int> inds, out List<int> vals)
         {
             inds = new List<int>();

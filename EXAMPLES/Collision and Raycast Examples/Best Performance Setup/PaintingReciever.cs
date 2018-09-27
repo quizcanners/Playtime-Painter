@@ -171,7 +171,7 @@ namespace Playtime_Painter {
            // pegi.nl();
 
             if (Material) {
-                var lst = Material.GetTextureFiledNames();
+                var lst = Material.MyGetTextureProperties();
                 if (lst.Count > 0) {
                     "   Property".select(ref textureField, lst).nl();
                 }

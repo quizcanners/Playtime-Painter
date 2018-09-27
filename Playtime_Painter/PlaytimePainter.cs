@@ -781,17 +781,15 @@ namespace Playtime_Painter{
                 return MatDta.materials_TextureFields;
 
             MatDta.materials_TextureFields.Clear();
-
-
+            
             foreach (PainterPluginBase nt in plugins)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materials_TextureFields);
-
-
+            
             if (terrain == null) {
-                MatDta.materials_TextureFields = GetMaterial(false).GetTextureFiledNames();
+                MatDta.materials_TextureFields = GetMaterial(false).MyGetTextureProperties();
 
             } else {
-                List<string> tmp = GetMaterial(false).GetTextureFiledNames();
+                List<string> tmp = GetMaterial(false).MyGetTextureProperties();
 
                 foreach (string t in tmp) {
                     if ((!t.Contains("_Splat")) && (!t.Contains("_Normal")))
@@ -1751,7 +1749,7 @@ namespace Playtime_Painter{
 
 #endregion
 
-#region PEGI 
+#region Inspector 
 
         public override void OnGUI() {
 #if !BUILD_WITH_PAINTER
@@ -1784,6 +1782,7 @@ namespace Playtime_Painter{
             
             bool changed = false;
 
+            #region Top Buttons
 
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
@@ -1845,6 +1844,10 @@ namespace Playtime_Painter{
                 pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings", 25);
             }
 
+            #endregion
+
+            #region Config 
+
             if ((Cfg.showConfig) || (PainterStuff.IsNowPlaytimeAndDisabled))
             {
 
@@ -1855,6 +1858,11 @@ namespace Playtime_Painter{
             }
             else
             {
+
+                #endregion
+
+                #region Mesh Editing
+
                 if (meshEditing) {
 
                     MeshManager mg = MeshMGMT;
@@ -1947,6 +1955,11 @@ namespace Playtime_Painter{
                     pegi.newLine();
 
                 }
+
+                #endregion
+
+                #region Texture Editing
+
                 else {
 
                     var id = ImgData; 
@@ -1992,18 +2005,25 @@ namespace Playtime_Painter{
                     if ((id.backupManually) && ("Backup for UNDO".Click()))
                         id.Backup();
                     
-                        changed |= "Use Texcoord 2".toggle(ref id.useTexcoord2).nl();
-                    stroke.useTexcoord2 = id.useTexcoord2;
+                        changed |= "Use Texcoord 2".toggleIcon(ref id.useTexcoord2).nl();
+                        stroke.useTexcoord2 = id.useTexcoord2;
+
+                        changed |= "Transparent Layer".toggleIcon(ref id.isATransparentLayer).nl();
 
                     if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                         id.SetAndApply(true);
+
                     }
                 }
                 pegi.nl();
 
+                #endregion
+
+                #region Plugins
                 if (plugins_ComponentPEGI != null)
                 foreach (pegi.CallDelegate p in plugins_ComponentPEGI.GetInvocationList())
                     changed |= p().nl();
+                #endregion
             }
             pegi.newLine();
             inspectedPainter = null;

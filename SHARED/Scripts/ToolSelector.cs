@@ -54,7 +54,7 @@ namespace SharedTools_Stuff
         #if PEGI
         public virtual bool PEGI()
         {
-            pegi.write("Override PEGI with your functions");
+            "Override PEGI with your functions".writeHint();
             return false;
         }
 #endif

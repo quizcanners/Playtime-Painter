@@ -31,6 +31,7 @@ namespace Playtime_Painter
         public int height = 128;
         public bool useTexcoord2;
         public bool lockEditing;
+        public bool isATransparentLayer;
         public bool NeedsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
 
         public int numberOfTexture2Dbackups = 0;
@@ -109,7 +110,8 @@ namespace Playtime_Painter
             .Add("tl", tiling)
             .Add("off", offset)
             .Add_String("sn", SaveName)
-            .Add("svs", playtimeSavedTextures);
+            .Add("svs", playtimeSavedTextures)
+            .Add_ifTrue("trnsp", isATransparentLayer);
         
         public override bool Decode(string tag, string data)
         {
@@ -128,7 +130,8 @@ namespace Playtime_Painter
                 case "off": offset = data.ToVector2(); break;
                 case "sn": SaveName = data; break;
                 case "svs": data.DecodeInto(out playtimeSavedTextures); break;
-            default: return false;
+                case "trnsp": isATransparentLayer = data.ToBool(); break;
+                default: return false;
         }
         return true;
         }
@@ -625,7 +628,7 @@ namespace Playtime_Painter
 
             bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
 
-            "Save Name".edit(ref SaveName).nl();
+            "Save Name".edit(60, ref SaveName).nl();
 
             if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
                 SaveInPlayer();
