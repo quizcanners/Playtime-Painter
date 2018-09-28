@@ -115,7 +115,7 @@ namespace PlayerAndEditorGUI
                 _foldedOutLabel = value;
             }
         }
-
+        
         public static Color listReadabilityRed = new Color(1, 0.9f,0.9f,1);
         public static Color listReadabilityBlue = new Color(0.95f, 0.95f, 1f, 1);
 

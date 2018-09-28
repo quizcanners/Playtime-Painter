@@ -1051,7 +1051,7 @@ namespace PlayerAndEditorGUI {
         public static bool Click(Texture img, int width)
         {
             checkLine();
-            return GUILayout.Button(img, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            return GUILayout.Button(img,  GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
         public static bool Click(Texture img, string tip, int width)
@@ -1062,7 +1062,7 @@ namespace PlayerAndEditorGUI {
                 tooltip = tip,
                 image = img
             };
-            return GUILayout.Button(cont,  GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
         public static bool Click(Texture img, string tip, int width, int height)

@@ -138,25 +138,67 @@ namespace PlayerAndEditorGUI
 
         static Color attentionColor = new Color(1f, 0.7f, 0.7f, 1);
 
+        #region BG Color
+
         static Color previousColor;
 
-        public static void SetBgColor(this Color col) {
+        static List<Color> previousBGcolors = new List<Color>();
 
-            if (!colorReplaced)
-                previousColor = GUI.backgroundColor;
-
-            GUI.backgroundColor = col;
-
-            colorReplaced = true;
+        public static icon BGColor(this icon icn, Color col) {
+            SetBgColor(col);
+            return icn;
         }
 
+        public static string BGColor(this string txt, Color col) {
+            SetBgColor(col);
+            return txt;
+        }
+        
+        public static bool PreviousBGcolor(this bool val) {
+            PreviousBGcolor();
+            return val;
+        }
+
+        public static bool RestoreBGColor(this bool val) {
+            RestoreBGcolor();
+            return val;
+        }
+
+        public static void PreviousBGcolor() {
+            if (colorReplaced) {
+                if (previousBGcolors.Count > 0)
+                    SetBgColor(previousBGcolors.RemoveLast());
+                else
+                    RestoreBGcolor();
+            }
+        }
+
+        public static void SetBgColor(this Color col)
+        {
+            if (col != null)
+            {
+                if (!colorReplaced)
+                    previousColor = GUI.backgroundColor;
+                else 
+                    previousBGcolors.Add(GUI.backgroundColor);
+
+                GUI.backgroundColor = col;
+
+                colorReplaced = true;
+            }
+        }
+        
         public static void RestoreBGcolor()
         {
             if (colorReplaced)
                 GUI.backgroundColor = previousColor;
 
+            previousBGcolors.Clear();
+
             colorReplaced = false;
         }
+
+        #endregion
 
         public static void checkLine()
         {
@@ -506,8 +548,7 @@ namespace PlayerAndEditorGUI
                 GUILayout.Label(cont, style, GUILayout.MaxWidth(width));
             }
         }
-
-
+        
         public static void write(this string text, string hint, int width, GUIStyle style)
         {
 #if UNITY_EDITOR
@@ -2659,10 +2700,12 @@ namespace PlayerAndEditorGUI
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), "", defaultButtonSize);
 
-        public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True, icon.False);
+        public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True.BGColor(Color.clear), icon.False).PreviousBGcolor();
 
         public static bool toggleIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false) {
-            var ret = toggle(ref val, icon.True, icon.False, hint);
+            SetBgColor(Color.clear);
+
+            var ret = toggle(ref val, icon.True, icon.False, hint).PreviousBGcolor();
 
             if (!val || dontHideTextWhenOn) label.write();
 
@@ -2671,7 +2714,7 @@ namespace PlayerAndEditorGUI
 
         public static bool toggleIcon(this string label, ref bool val, bool dontHideTextWhenOn = false)
         {
-            var ret = toggle(ref val, icon.True, icon.False, label);
+            var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label).PreviousBGcolor();
 
             if (!val || dontHideTextWhenOn) label.write();
 
@@ -5711,7 +5754,7 @@ namespace PlayerAndEditorGUI
         {
 #if PEGI
 #if UNITY_EDITOR
-            return ef.Inspect(o, (SerializedObject)so);
+            return ef.Inspect(o, (SerializedObject)so).RestoreBGColor();
 #else
              "PEGI is compiled without UNITY_EDITOR directive".nl();
                 return false;
@@ -5725,7 +5768,7 @@ namespace PlayerAndEditorGUI
         {
 #if PEGI
 #if UNITY_EDITOR
-            return ef.Inspect_so(o, (SerializedObject)so);
+            return ef.Inspect_so(o, (SerializedObject)so).RestoreBGColor();
 #else
              "PEGI is compiled without UNITY_EDITOR directive".nl();
                 return false;
@@ -5764,7 +5807,7 @@ namespace PlayerAndEditorGUI
 
             if (pgi != null)
             {
-                var changes = pgi.PEGI();
+                var changes = pgi.PEGI().RestoreBGColor();
 
                 if (changes || EfChanges)
                     pgi.SetToDirty();
@@ -5797,7 +5840,7 @@ namespace PlayerAndEditorGUI
             var pgi = other.TryGetPEGI();
 
             if (pgi != null)
-                changed |= pgi.Nested_Inspect();
+                changed |= pgi.Nested_Inspect().RestoreBGColor();
 
             return changed;
         }

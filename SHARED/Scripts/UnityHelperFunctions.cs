@@ -91,7 +91,17 @@ namespace SharedTools_Stuff
         }
 
         public static bool IsUnityObject (this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
-        
+
+        #region Transformation
+
+        public static Color ToOpaque (this Color col) {
+            if (col!= null)
+                col.a = 1;
+            return col;
+        }
+
+        #endregion
+
         #region Timing
 
 
@@ -390,6 +400,60 @@ namespace SharedTools_Stuff
         }
 
 
+        public static MeshCollider ForceMeshCollider(GameObject go)
+        {
+
+            Collider[] collis = go.GetComponents<Collider>();
+
+            foreach (Collider c in collis)
+                if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
+
+            MeshCollider mc = go.GetComponent<MeshCollider>();
+
+            if (mc == null)
+                mc = go.AddComponent<MeshCollider>();
+
+            return mc;
+
+        }
+
+
+        public static Transform TryGetCameraTransform(this GameObject go)
+        {
+            Camera c = null;
+            if (Application.isPlaying)
+            {
+
+                c = Camera.main;
+            }
+#if UNITY_EDITOR
+            else
+            {
+                if (SceneView.lastActiveSceneView != null)
+                    c = SceneView.lastActiveSceneView.camera;
+
+            }
+#endif
+
+            if (c != null)
+                return c.transform;
+
+            c = GameObject.FindObjectOfType<Camera>();
+            if (c != null) return c.transform;
+
+
+            return go.transform;
+        }
+
+
+        public static void SetLayerRecursively(GameObject go, int layerNumber)
+        {
+            foreach (Transform trans in go.GetComponentsInChildren<Transform>(true))
+            {
+                trans.gameObject.layer = layerNumber;
+            }
+        }
+
         public static bool IsFocused(this GameObject go)
         {
 
@@ -449,6 +513,31 @@ namespace SharedTools_Stuff
             return sb.ToString();
         }
 
+        public static Color[] GetPixels(this Texture2D tex, int width, int height)
+        {
+
+            if ((tex.width == width) && (tex.height == height))
+                return tex.GetPixels();
+
+            Color[] dst = new Color[width * height];
+
+            Color[] src = tex.GetPixels();
+
+            float dX = (float)tex.width / (float)width;
+            float dY = (float)tex.height / (float)height;
+
+            for (int y = 0; y < height; y++)
+            {
+                int dstIndex = y * width;
+                int srcIndex = ((int)(y * dY)) * tex.width;
+                for (int x = 0; x < width; x++)
+                    dst[dstIndex + x] = src[srcIndex + (int)(x * dX)];
+
+            }
+
+
+            return dst;
+        }
 
         public static bool SameAs(this string s, string other) =>
             (((s == null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
@@ -1282,37 +1371,9 @@ namespace SharedTools_Stuff
         }
 
 #endif
-
-
-        public static Color[] GetPixels(this Texture2D tex, int width, int height)
-        {
-
-            if ((tex.width == width) && (tex.height == height))
-                return tex.GetPixels();
-
-            Color[] dst = new Color[width * height];
-
-            Color[] src = tex.GetPixels();
-
-            float dX = (float)tex.width / (float)width;
-            float dY = (float)tex.height / (float)height;
-
-            for (int y = 0; y < height; y++)
-            {
-                int dstIndex = y * width;
-                int srcIndex = ((int)(y * dY)) * tex.width;
-                for (int x = 0; x < width; x++)
-                    dst[dstIndex + x] = src[srcIndex + (int)(x * dX)];
-
-            }
-
-
-            return dst;
-        }
-
-
-
-
+        
+    
+        
         public static void SetKeyword(string name, bool value)
         {
 
@@ -1320,58 +1381,6 @@ namespace SharedTools_Stuff
             else
                 Shader.DisableKeyword(name);
 
-        }
-
-        public static MeshCollider ForceMeshCollider(GameObject go)
-        {
-
-            Collider[] collis = go.GetComponents<Collider>();
-
-            foreach (Collider c in collis)
-                if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
-
-            MeshCollider mc = go.GetComponent<MeshCollider>();
-
-            if (mc == null)
-                mc = go.AddComponent<MeshCollider>();
-
-            return mc;
-
-        }
-
-        public static void SetLayerRecursively(GameObject go, int layerNumber)
-        {
-            foreach (Transform trans in go.GetComponentsInChildren<Transform>(true))
-            {
-                trans.gameObject.layer = layerNumber;
-            }
-        }
-
-        public static Transform TryGetCameraTransform(this GameObject go)
-        {
-            Camera c = null;
-            if (Application.isPlaying)
-            {
-
-                c = Camera.main;
-            }
-#if UNITY_EDITOR
-            else
-            {
-                if (SceneView.lastActiveSceneView != null)
-                    c = SceneView.lastActiveSceneView.camera;
-
-            }
-#endif
-
-            if (c != null)
-                return c.transform;
-
-            c = GameObject.FindObjectOfType<Camera>();
-            if (c != null) return c.transform;
-
-
-            return go.transform;
         }
 
 #region Terrain Layers

@@ -16,11 +16,11 @@ namespace Playtime_Painter
             bool b;
             bool a;
 
-        int x;
-        int y;
-        int z;
+            int x;
+            int y;
+            int z;
 
-        float alpha;
+            float alpha;
 
             float brAlpha;
             float half;
@@ -28,15 +28,37 @@ namespace Playtime_Painter
             int width;
             int height;
             MyIntVec2 pixelNumber;
-        Color csrc;
+            Color csrc;
 
         bool isVolumeBlit;
         int slices;
         int volHeight;
         int texWidth;
         Vector3 pos;
+
+        Blit_Functions.alphaMode_dlg _alphaMode;
+        Blit_Functions.blitModeFunction _blitMode;
         
         public void PrepareBlit(BrushConfig bc, ImageData id, float brushAlpha, StrokeVector stroke) {
+
+            switch (blitJobBlitMode) {
+                case BlitJobBlitMode.Add: _blitMode = AddBlit; break;
+                case BlitJobBlitMode.Alpha:
+                    if (bc.BlitMode.supportsTransparentLayer && id.isATransparentLayer)
+                        _blitMode = AlphaBlitTransparent;
+                    else
+                        _blitMode = AlphaBlitOpaque; break;
+
+                case BlitJobBlitMode.Max: _blitMode = MaxBlit; break;
+                case BlitJobBlitMode.Min: _blitMode = MinBlit; break;
+                case BlitJobBlitMode.Subtract: _blitMode = SubtractBlit; break;
+                default: _blitMode = AlphaBlitOpaque; break;
+            }
+            
+            if (smooth)
+                _alphaMode = CircleAlpha;
+            else
+                _alphaMode = NoAlpha;
 
             values = id.pixelsForJob;
             pixelNumber = id.UvToPixelNumber(stroke.uvFrom);
@@ -84,13 +106,7 @@ namespace Playtime_Painter
         
         public void Execute() {
 
-            Blit_Functions.alphaMode_dlg _alphaMode;
-            Blit_Functions.blitModeFunction _blitMode = GetBlitMode();
-
-            if (smooth)
-                _alphaMode = CircleAlpha;
-            else
-                _alphaMode = NoAlpha;
+        
 
             if (!isVolumeBlit)
             {
@@ -217,20 +233,9 @@ namespace Playtime_Painter
 
         BlitJobBlitMode blitJobBlitMode;
 
-        Blit_Functions.blitModeFunction GetBlitMode()
-        {
-            switch (blitJobBlitMode)
-            {
-                case BlitJobBlitMode.Add: return AddBlit;
-                case BlitJobBlitMode.Alpha: return AlphaBlit;
-                case BlitJobBlitMode.Max: return MaxBlit;
-                case BlitJobBlitMode.Min: return MinBlit;
-                case BlitJobBlitMode.Subtract: return SubtractBlit;
-                default: return AlphaBlit;
-            }
-        }
+      
 
-         void AlphaBlit(ref Color cdst)
+         void AlphaBlitOpaque (ref Color cdst)
             {
                 if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * (1.0f - alpha));
                 if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * (1.0f - alpha));
@@ -238,7 +243,15 @@ namespace Playtime_Painter
                 if (a) cdst.a = alpha * csrc.a + cdst.a * (1.0f - alpha);
             }
 
-         void AddBlit(ref Color cdst)
+        void AlphaBlitTransparent (ref Color cdst) {
+
+            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * (1.0f - alpha));
+            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * (1.0f - alpha));
+            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * (1.0f - alpha));
+            if (a) cdst.a = alpha * csrc.a + cdst.a * (1.0f - alpha);
+        }
+
+        void AddBlit(ref Color cdst)
             {
                 if (r) cdst.r = alpha * csrc.r + cdst.r;
                 if (g) cdst.g = alpha * csrc.g + cdst.g;

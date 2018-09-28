@@ -187,7 +187,7 @@ namespace Playtime_Painter {
 
                 stroke.useTexcoord2 = false;
 
-                TexMGMT.ShaderPrepareStroke(bc, bc.speed * 0.05f, image, stroke, pntr);
+                TexMGMT.Shader_UpdateStrokeSegment(bc, bc.speed * 0.05f, image, stroke, pntr);
                 stroke.SetWorldPosInShader();
 
                 TexMGMT.brushRendy.FullScreenQuad();

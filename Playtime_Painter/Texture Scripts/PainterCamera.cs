@@ -368,8 +368,10 @@ namespace Playtime_Painter
 
         }
 
-        public void Shader_BrushCFG_Update(BrushConfig brush, float brushAlpha, float textureWidth, bool RendTex, bool texcoord2, PlaytimePainter pntr)
+        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageData id, bool texcoord2, PlaytimePainter pntr)
         {
+            float textureWidth = id.width;
+            bool RendTex = id.TargetIsRenderTexture();
 
             var brushType = brush.Type(!RendTex);
 
@@ -377,11 +379,7 @@ namespace Playtime_Painter
             bool isDecal = (RendTex) && (brushType.IsUsingDecals);
 
             Color c = brush.colorLinear.ToGamma();
-
-#if UNITY_EDITOR
-            //      if (isLinearColorSpace) c = c.linear;
-#endif
-
+            
             Shader.SetGlobalVector("_brushColor", c);
 
             Shader.SetGlobalVector("_brushMask", new Vector4(
@@ -418,27 +416,19 @@ namespace Playtime_Painter
             if (texcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
             else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
 
+            if (brush.BlitMode.supportsTransparentLayer) {
+                if (id.isATransparentLayer) Shader.EnableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
+                else Shader.DisableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
+            }
+
             brush.BlitMode.SetKeyword().SetGlobalShaderParameters();
-
-            if (brush.BlitMode.GetType() == typeof(BlitModeSamplingOffset))
-            {
-                Shader.EnableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-
-                Shader.DisableKeyword("PREVIEW_ALPHA");
-                Shader.DisableKeyword("PREVIEW_RGB");
-            }
-            else
-            {
-                Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-                BlitModeExtensions.SetShaderToggle(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
-            }
 
             if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
                 Shader.SetGlobalTexture("_SourceTexture", Data.sourceTextures.TryGet(brush.selectedSourceTexture));
 
         }
 
-        public void ShaderPrepareStroke(BrushConfig bc, float brushAlpha, ImageData id, StrokeVector stroke, PlaytimePainter pntr)
+        public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageData id, StrokeVector stroke, PlaytimePainter pntr)
         {
             if (BigRT_pair == null) UpdateBuffersState();
 
@@ -450,7 +440,7 @@ namespace Playtime_Painter
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
-                Shader_BrushCFG_Update(bc, brushAlpha, id.width, id.TargetIsRenderTexture(), stroke.useTexcoord2, pntr);
+                Shader_UpdateBrush(bc, brushAlpha, id, stroke.useTexcoord2, pntr);
 
             rtcam.targetTexture = id.CurrentRenderTexture();
 

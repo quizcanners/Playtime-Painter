@@ -263,7 +263,7 @@ namespace Playtime_Painter
 
             ImageData id = pntr.ImgData;
 
-            TexMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
 
             var rb = Rtbrush;
 
@@ -340,7 +340,7 @@ namespace Playtime_Painter
 
              ImageData id = pntr.ImgData;
 
-             TexMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
+             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
 
              Rtbrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -383,7 +383,7 @@ namespace Playtime_Painter
                 useTexcoord2 = false,
                 firstStroke = false
             };
-            TexMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, stroke, null);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);
 
             float width = br.StrokeWidth(id.width, false);
 
@@ -449,7 +449,7 @@ namespace Playtime_Painter
 
                 if (TexMGMT.BigRT_pair == null) TexMGMT.UpdateBuffersState();
 
-                TexMGMT.ShaderPrepareStroke(br, 1, id, st, pntr);
+                TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, pntr);
                 Transform tf = Rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -669,7 +669,7 @@ namespace Playtime_Painter
                     {
                         firstStroke = false
                     };
-                    r.ShaderPrepareStroke(br, br.speed * 0.05f, id, st2, pntr);
+                    r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st2, pntr);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
                     BrushMesh = brushMeshGenerator.inst().GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
@@ -683,7 +683,7 @@ namespace Playtime_Painter
                     isTail = true;
                 }
 
-                r.ShaderPrepareStroke(br, br.speed * 0.05f, id, st, pntr);
+                r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
 
                 BrushMesh = brushMeshGenerator.inst().GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
                 tf.localScale = Vector3.one;
@@ -725,7 +725,7 @@ namespace Playtime_Painter
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
 
-            TexMGMT.ShaderPrepareStroke(br, br.speed * 0.05f, id, stroke, null);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);
 
             Vector2 offset = id.offset - stroke.unRepeatedUV.Floor();
 

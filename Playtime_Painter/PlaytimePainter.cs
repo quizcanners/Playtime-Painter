@@ -1739,7 +1739,7 @@ namespace Playtime_Painter{
 
             if ((id != null) && (!IsOriginalShader))
             {
-                TexMGMT.Shader_BrushCFG_Update(GlobalBrush, 1, id.width, id.TargetIsRenderTexture(), id.useTexcoord2, this);
+                TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, id.useTexcoord2, this);
 
                 foreach (var p in plugins)
                     p.Update_Brush_Parameters_For_Preview_Shader(this);
@@ -2008,6 +2008,7 @@ namespace Playtime_Painter{
                         changed |= "Use Texcoord 2".toggleIcon(ref id.useTexcoord2).nl();
                         stroke.useTexcoord2 = id.useTexcoord2;
 
+                       
                         changed |= "Transparent Layer".toggleIcon(ref id.isATransparentLayer).nl();
 
                     if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))

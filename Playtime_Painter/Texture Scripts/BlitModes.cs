@@ -15,7 +15,9 @@ namespace Playtime_Painter
         private static List<BlitMode> _allModes;
         
         public int index;
-        
+
+        public virtual bool supportsTransparentLayer => false;
+
         public static List<BlitMode> AllModes
         {
             get
@@ -50,8 +52,7 @@ namespace Playtime_Painter
         {
 
             foreach (BlitMode bs in AllModes)
-                if (bs != this)
-                {
+                if (bs != this) {
                     string name = bs.ShaderKeyword;
                     if (name != null)
                         BlitModeExtensions.KeywordSet(name, false);
@@ -66,7 +67,10 @@ namespace Playtime_Painter
 
         protected virtual string ShaderKeyword { get { return null; } }
 
-        public virtual void SetGlobalShaderParameters() {}
+        public virtual void SetGlobalShaderParameters() {
+            Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
+            BlitModeExtensions.SetShaderToggle(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+        }
 
         public BlitMode(int ind)
         {
@@ -178,11 +182,9 @@ namespace Playtime_Painter
         {
             public override string ToString() { return "Alpha Blit"; }
             protected override string ShaderKeyword { get { return "BRUSH_NORMAL"; } }
-        public BlitModeAlphaBlit(int ind) : base(ind)
-        {
-            
+            public BlitModeAlphaBlit(int ind) : base(ind) { }
+            public override bool supportsTransparentLayer => true;
         }
-    }
 
         public class BlitModeAdd : BlitMode
         {
@@ -285,7 +287,15 @@ namespace Playtime_Painter
 
             public ColorSetMethod method;
 
-            public override bool SupportedByTex2D { get { return true; } }
+        public override void SetGlobalShaderParameters()
+        {
+            Shader.EnableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
+
+            Shader.DisableKeyword("PREVIEW_ALPHA");
+            Shader.DisableKeyword("PREVIEW_RGB");
+        }
+
+        public override bool SupportedByTex2D { get { return true; } }
 
             public override string ToString() { return "Pixel Reshape"; }
 
@@ -300,6 +310,8 @@ namespace Playtime_Painter
                 currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
                 currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);
             }
+
+        #region Inspector
 #if PEGI
         public override bool PEGI()
         {
@@ -382,6 +394,8 @@ namespace Playtime_Painter
                 return changed;
             }
 #endif
+        #endregion
+
         public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             var v4 = new Vector4(st.unRepeatedUV.x, st.unRepeatedUV.y, Mathf.Floor(st.unRepeatedUV.x), Mathf.Floor(st.unRepeatedUV.y));

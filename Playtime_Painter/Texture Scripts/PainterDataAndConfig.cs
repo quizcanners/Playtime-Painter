@@ -64,6 +64,7 @@ namespace Playtime_Painter
         public const string EDGE_WIDTH_FROM_COL_A = "EDGE_WIDTH_FROM_COL_A";
         public const string WATER_FOAM = "WATER_FOAM";
         public const string BRUSH_TEXCOORD_2 = "BRUSH_TEXCOORD_2";
+        public const string TARGET_TRANSPARENT_LAYER = "TARGET_TRANSPARENT_LAYER";
 
         public const string isAtlasedProperty = "_ATLASED";
         public const string isAtlasableDisaplyNameTag = "_ATL";
