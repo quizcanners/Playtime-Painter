@@ -450,8 +450,7 @@ namespace Playtime_Painter
             }
 #endif
 
-            if //(
-                (!p.IsOriginalShader)// && (cfg.moreOptions))
+            if  (!p.IsOriginalShader)
                 changed |= pegi.toggle(ref Cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
 
 

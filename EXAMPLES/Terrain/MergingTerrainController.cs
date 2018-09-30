@@ -58,7 +58,13 @@ namespace Playtime_Painter
             if (terrain == null) terrain = GetComponent<Terrain>();
 
 #if UNITY_2018_3_OR_NEWER
-            var ls = (terrain) ? null : terrain.terrainData.terrainLayers;
+            var ls = (terrain) ? terrain.terrainData.terrainLayers : null ;
+
+            if (ls == null)
+            {
+                Debug.Log("Terrain layers are null");
+                return;
+            }
 
             int copyProtsCount = ls.Length;
 
@@ -70,16 +76,21 @@ namespace Playtime_Painter
                 while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
                     max++;
 
-                for (int i = 0; i < Mathf.Min(mergeSubmasks.Count, ls.Length); i++)
+                for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++)
                 {
-                    ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
-                    if (tmp.Product_combinedBump != null)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
+
+                    //if (i < mergeSubmasks.Count)
+                    
+                        ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
+                        if (tmp.Product_combinedBump != null)
+                            Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
+                    
 
                     if (tmp.Product_colorWithAlpha != null)
                     {
                         Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
-                        ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
+                        if (i<ls.Length)
+                            ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
 
                         //if ((copyProts != null) && (copyProts.Length > i))
                         //     copyProts[i].texture = tmp.Product_colorWithAlpha;

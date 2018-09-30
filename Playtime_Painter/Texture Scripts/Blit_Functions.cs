@@ -46,24 +46,33 @@ public static class Blit_Functions {
             return alpha > 0;
         }
 
-    /*public static blitModeFunction blitFunction(this blitMode mode) {
-        switch (mode) {
-            case blitMode.AlphaBlit: return AlphaBlit;
-            case blitMode.Add: return AddBlit;
-            case blitMode.Max: return MaxBlit;
-            case blitMode.Min: return MinBlit;
-            default: return AlphaBlit;
+		public static void AlphaBlitOpaque(ref Color cdst) {
+            float deAlpha = 1 - alpha;
+
+            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
+            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
+            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
+            if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
         }
-    }*/
 
-		public static void AlphaBlit(ref Color cdst) {
-			if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * (1.0f - alpha));
-			if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * (1.0f - alpha));
-			if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * (1.0f - alpha));
-			if (a) cdst.a = alpha * csrc.a + cdst.a * (1.0f - alpha);
-		}
+        public static void AlphaBlitTransparent(ref Color cdst)
+        {
+            float rgbAlpha = csrc.a * alpha;
 
-		public static void AddBlit(ref Color cdst) {
+            float divs = (cdst.a + rgbAlpha);
+
+
+            rgbAlpha = divs > 0 ? Mathf.Clamp01(rgbAlpha / divs) : 0; 
+            float deAlpha = 1 - rgbAlpha;
+
+            if (r) cdst.r = Mathf.Sqrt(rgbAlpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
+            if (g) cdst.g = Mathf.Sqrt(rgbAlpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
+            if (b) cdst.b = Mathf.Sqrt(rgbAlpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
+            if (a) cdst.a = alpha * csrc.a + cdst.a * (1- alpha);
+        }
+
+
+        public static void AddBlit(ref Color cdst) {
             if (r) cdst.r = alpha * csrc.r + cdst.r;
             if (g) cdst.g = alpha * csrc.g + cdst.g;
             if (b) cdst.b = alpha * csrc.b + cdst.b;
@@ -93,9 +102,7 @@ public static class Blit_Functions {
         if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
     }
         
-   
-
-        public static void PrepareCPUBlit (this BrushConfig bc) {
+        public static void PrepareCPUBlit (this BrushConfig bc, ImageData id) {
             half = (bc.Size(false)) / 2;
             bool smooth = bc.Type(true) != BrushTypePixel.Inst;
             if (smooth)
@@ -103,7 +110,7 @@ public static class Blit_Functions {
             else
                 _alphaMode = noAlpha;
 
-            _blitMode = bc.BlitMode.BlitFunctionTex2D;//bliTMode_Texture2D.blitFunction();
+            _blitMode = bc.BlitMode.BlitFunctionTex2D(id);
 
             alpha = 1;
 
@@ -139,7 +146,7 @@ public static class Blit_Functions {
 
         brAlpha = brushAlpha;
 
-        bc.PrepareCPUBlit();
+        bc.PrepareCPUBlit(image);
 
             if (image == null || image.Pixels == null)
                 return false;

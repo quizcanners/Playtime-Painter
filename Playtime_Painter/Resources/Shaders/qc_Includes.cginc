@@ -197,23 +197,62 @@ inline float prepareAlphaSquarePreview (float4 texcoord){
 }
 
 
+inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
+	
+	
+	float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
-inline float4 blitWithDestBuffer (float alpha,float4 src, float2 texcoord){
+	float rgbAlpha = src.a*alpha;
+	
+	rgbAlpha = saturate(rgbAlpha / (col.a + rgbAlpha));
+
+	_brushMask.a *= alpha;
+
+	_brushMask.rgb *= rgbAlpha;
+
+
+
+#ifdef UNITY_COLORSPACE_GAMMA
+	col.rgb  = sqrt(src.rgb * src.rgb*_brushMask.rgb + col.rgb * col.rgb *(1 - _brushMask.rgb));
+	col.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
+	return  max(0,col);
+#else 
+	col = src * _brushMask + col * (1 - _brushMask);
+	return  max(0, col);
+#endif
+}
+
+inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col) {
+	
+	alpha = alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w;
+
+	_brushMask *= alpha;
+
+#ifdef UNITY_COLORSPACE_GAMMA
+	col = src * src*_brushMask + col * col*(1 - _brushMask);
+	return  sqrt(col);
+#else 
+	col = src * _brushMask + col * (1 - _brushMask);
+	return  col;
+#endif
+}
+
+inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 		_brushMask*=alpha;
 
 		float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
-
 		#ifdef UNITY_COLORSPACE_GAMMA
-		col = src*src*_brushMask+col*col*(1-_brushMask);
-		return  sqrt(col);
+		col.rgb = sqrt(src.rgb * src.rgb*_brushMask.rgb + col.rgb * col.rgb *(1 - _brushMask.rgb));
+		col.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
+		return  max(0, col);
 		#else 
 		col = src*_brushMask+col*(1-_brushMask);
-		return  max(0,col);
+		return  max(0, col);
 		#endif
 }
 
-inline float4 blitWithDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col){
+inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col){
 		_brushMask*=alpha*_brushPointedUV.w;
 
 		#ifdef UNITY_COLORSPACE_GAMMA

@@ -120,6 +120,7 @@ namespace Playtime_Painter
             return data;
         }
 
+        public bool showRecentTextures = false;
         [NonSerialized]
         public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
 
@@ -163,6 +164,7 @@ namespace Playtime_Painter
         public bool newTextureIsColor = true;
 
         public bool moreOptions = false;
+        public bool allowExclusiveRenderTextures = false;
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
         public bool DebugDisableSecondBufferUpdate;
@@ -299,35 +301,16 @@ namespace Playtime_Painter
 
             bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
-            if ("Enable Painter for Playtime & Build".toggle(ref gotDefine).nl())
+            if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
                 UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
             
-            if (gotDefine && "Enable PlayTime UI".toggle(ref enablePainterUIonPlay).nl())
+            if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
                 MeshManager.Inst.DisconnectMesh();
             
-            if (!PainterStuff.IsNowPlaytimeAndDisabled)
-            {
+            if (!PainterStuff.IsNowPlaytimeAndDisabled)  {
 
                 if (Painter && Painter.meshEditing == false)
-                {
-                    if ("More options".toggle(80, ref moreOptions).nl())
-                        showConfig = false;
-
-                    "CPU blit repaint delay".nl("Delay for video memory update when painting to Texture2D", 140);
-
-                    changed |= pegi.edit(ref brush.repaintDelay, 0.01f, 0.5f).nl();
-
-                    changed |= "Don't update mipmaps:".toggle("May increase performance, but your changes may not disaplay if you are far from texture.", 150,
-                        ref brush.DontRedoMipmaps).nl();
-
-                    var id = Painter.ImgData;
-
-                    if (id != null)
-                        changed |= id.PEGI();
-                    
-                    "Disable Non-Mesh Colliders in Play Mode:".toggle(ref disableNonMeshColliderInPlayMode).nl();
-
-                }
+                    "Disable Non-Mesh Colliders in Play Mode:".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
                 if ("Lists".foldout(ref inspectLists).nl())
                     changed |= DatasPEGI();

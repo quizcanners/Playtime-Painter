@@ -48,24 +48,27 @@ namespace Playtime_Painter
                 );
         }
 
-        public BlitMode SetKeyword()
-        {
+    
+        public BlitMode SetKeyword(ImageData id) {
 
-            foreach (BlitMode bs in AllModes)
-                if (bs != this) {
-                    string name = bs.ShaderKeyword;
-                    if (name != null)
-                        BlitModeExtensions.KeywordSet(name, false);
-                }
+            foreach (BlitMode bs in AllModes) {
+                var name = ShaderKeyword(id);
+                if (name != null)
+                     BlitModeExtensions.KeywordSet(name, false);
+            }
 
-            if (ShaderKeyword != null)
-                BlitModeExtensions.KeywordSet(ShaderKeyword, true);
+            var sw = ShaderKeyword(id);
+
+            if (sw != null)
+                BlitModeExtensions.KeywordSet(sw, true);
 
             return this;
 
         }
 
-        protected virtual string ShaderKeyword { get { return null; } }
+        protected virtual string ShaderKeyword(ImageData id) => null;
+
+        public virtual List<string> ShaderKeywords => null;
 
         public virtual void SetGlobalShaderParameters() {
             Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
@@ -106,7 +109,13 @@ namespace Playtime_Painter
             */
         }
 
-        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.AlphaBlit; } }
+        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id)
+        {
+            if (id.isATransparentLayer)
+                return Blit_Functions.AlphaBlitTransparent;
+            return Blit_Functions.AlphaBlitOpaque;
+        }
+        
         public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
         public virtual bool SupportedByTex2D { get { return true; } }
@@ -181,8 +190,10 @@ namespace Playtime_Painter
         public class BlitModeAlphaBlit : BlitMode
         {
             public override string ToString() { return "Alpha Blit"; }
-            protected override string ShaderKeyword { get { return "BRUSH_NORMAL"; } }
-            public BlitModeAlphaBlit(int ind) : base(ind) { }
+
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_NORMAL";
+     
+        public BlitModeAlphaBlit(int ind) : base(ind) { }
             public override bool supportsTransparentLayer => true;
         }
 
@@ -192,10 +203,10 @@ namespace Playtime_Painter
             public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
 
             public override string ToString() => "Add"; 
-            protected override string ShaderKeyword => "BRUSH_ADD"; 
+            protected override string ShaderKeyword(ImageData id) => "BRUSH_ADD"; 
 
             public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Add; 
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D => Blit_Functions.AddBlit; 
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.AddBlit; 
 
             public BlitModeAdd(int ind) : base(ind)
             {
@@ -206,12 +217,12 @@ namespace Playtime_Painter
     public class BlitModeSubtract : BlitMode
     {
         public override string ToString() { return "Subtract"; }
-        protected override string ShaderKeyword { get { return "BRUSH_SUBTRACT"; } }
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_SUBTRACT"; 
 
         //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
 
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.SubtractBlit; } }
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.SubtractBlit; 
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
         public BlitModeSubtract(int ind) : base(ind){}
 
@@ -220,7 +231,7 @@ namespace Playtime_Painter
         public class BlitModeCopy : BlitMode
         {
             public override string ToString() => "Copy"; 
-            protected override string ShaderKeyword => "BRUSH_COPY"; 
+            protected override string ShaderKeyword(ImageData id) => "BRUSH_COPY"; 
             public override bool ShowColorSliders => false; 
 
             public override bool SupportedByTex2D => false; 
@@ -235,7 +246,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Min"; }
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MinBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MinBlit; 
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
     }
@@ -245,7 +256,7 @@ namespace Playtime_Painter
             public override string ToString() { return "Max"; }
             public override bool SupportedByRenderTexturePair { get { return false; } }
             public override bool SupportedBySingleBuffer { get { return false; } }
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D { get { return Blit_Functions.MaxBlit; } }
+            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MaxBlit; 
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }
@@ -253,7 +264,7 @@ namespace Playtime_Painter
         public class BlitModeBlur : BlitMode
         {
             public override string ToString() => "Blur"; 
-            protected override string ShaderKeyword => "BRUSH_BLUR"; 
+            protected override string ShaderKeyword(ImageData id) => "BRUSH_BLUR"; 
             public override bool ShowColorSliders => false; 
             public override bool SupportedBySingleBuffer => false; 
             public override bool SupportedByTex2D => false; 
@@ -279,7 +290,7 @@ namespace Playtime_Painter
         {
         public BlitModeSamplingOffset(int ind) : base(ind) { }
 
-        protected override string ShaderKeyword { get { return "BRUSH_SAMPLE_DISPLACE"; } }
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_SAMPLE_DISPLACE"; 
 
             public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
@@ -429,7 +440,7 @@ namespace Playtime_Painter
         public class BlitModeBloom : BlitMode
         {
             public override string ToString() => "Bloom"; 
-            protected override string ShaderKeyword => "BRUSH_BLOOM"; 
+            protected override string ShaderKeyword(ImageData id) => "BRUSH_BLOOM"; 
 
             public override bool ShowColorSliders => false; 
             public override bool SupportedBySingleBuffer => false; 

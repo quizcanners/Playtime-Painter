@@ -118,11 +118,9 @@ namespace SharedTools_Stuff
         {
 
             foreach (PlaytimeToolComponent tc in attachedTools)
-                if ((tc != null) && (enabledTool != this.GetType()))
-                {
-                    // Debug.Log("Tool type " + enabledTool.ToString());
+                if (tc && (enabledTool != this.GetType()))  {
                     Texture icon = tc.ToolIcon();
-                    if ((icon != null) ? pegi.Click(icon, 25) : pegi.Click(tc.ToolName()))
+                    if ((icon) ? icon.Click(25) : tc.ToolName().Click())
                         enabledTool = this.GetType();
                 }
         }
@@ -132,17 +130,16 @@ namespace SharedTools_Stuff
             bool changed = false;
             if (!IsCurrentTool())
             {
-                if (pegi.Click(icon.Off.getIcon(), "Click to Enable Tool", 35))
+                if (icon.Off.Click("Click to Enable Tool", 35))
                 {
                     enabledTool = this.GetType();
                     changed = true;
                 }
-                pegi.newLine();
+                pegi.nl();
             }
-            else
-            {
+            else {
                 selectedInPlaytime = this;
-                if (pegi.Click(icon.On.getIcon(), "Click to Disable Tool", 35))
+                if (icon.On.Click("Click to Disable Tool", 35))
                     enabledTool = null;
                 changed = true;
             }
@@ -150,8 +147,7 @@ namespace SharedTools_Stuff
 
             if ((changed) && (!IsCurrentTool()))
                 windowPosition.collapse();
-
-
+            
             return changed;
         }
 

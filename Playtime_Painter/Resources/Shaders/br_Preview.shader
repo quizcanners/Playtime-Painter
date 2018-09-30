@@ -23,6 +23,7 @@
 		#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
 		#pragma multi_compile  ___ UV_ATLASED
 		#pragma multi_compile  ___ BRUSH_TEXCOORD_2
+		#pragma multi_compile ____ TARGET_TRANSPARENT_LAYER
 
 		#pragma vertex vert
 		#pragma fragment frag
@@ -203,9 +204,15 @@
 	
 	
 
-	 #if BRUSH_NORMAL || BRUSH_COPY
-		col = blitWithDestBufferPreview (alpha, _brushColor,  i.texcoord.xy , col);
-	#endif
+#if BRUSH_NORMAL || BRUSH_COPY 
+
+#if TARGET_TRANSPARENT_LAYER
+		col = AlphaBlitTransparentPreview(alpha, _brushColor, i.texcoord.xy, col);
+#else
+		col = AlphaBlitOpaquePreview(alpha, _brushColor, i.texcoord.xy, col);
+#endif
+
+#endif
 
 	 #if BRUSH_ADD
 		col =  addWithDestBufferPreview (alpha*0.4, _brushColor,  i.texcoord.xy, col);

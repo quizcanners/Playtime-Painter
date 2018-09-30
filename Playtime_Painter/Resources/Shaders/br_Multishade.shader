@@ -18,7 +18,9 @@
 		//#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 		#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
-		#pragma multi_compile  BRUSH_NORMAL  BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE
+		#pragma multi_compile  BRUSH_NORMAL    BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE
+		#pragma multi_compile  ____ TARGET_TRANSPARENT_LAYER
+		
 		//#pragma multi_compile  ____   BRUSH_IS_ATLASED
 
 		#pragma vertex vert
@@ -130,7 +132,13 @@
 		//return 1;
 
 	#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
-		return blitWithDestBuffer (alpha, _brushColor,  i.texcoord.xy);
+
+		#if (BRUSH_NORMAL || BRUSH_COPY) && TARGET_TRANSPARENT_LAYER
+			return AlphaBlitTransparent(alpha, _brushColor,  i.texcoord.xy);
+		#else
+			return AlphaBlitOpaque (alpha, _brushColor,  i.texcoord.xy);
+		#endif
+
 	#endif
 
 	#if BRUSH_ADD

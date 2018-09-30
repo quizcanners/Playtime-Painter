@@ -59,7 +59,7 @@ namespace Playtime_Painter {
                 else
                     Blit_Functions._alphaMode = Blit_Functions.noAlpha;
 
-                Blit_Functions._blitMode = bc.BlitMode.BlitFunctionTex2D;
+                Blit_Functions._blitMode = bc.BlitMode.BlitFunctionTex2D(image);
 
                 if (smooth) ihalf += 1;
 

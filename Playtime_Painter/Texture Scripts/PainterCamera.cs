@@ -421,7 +421,7 @@ namespace Playtime_Painter
                 else Shader.DisableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
             }
 
-            brush.BlitMode.SetKeyword().SetGlobalShaderParameters();
+            brush.BlitMode.SetKeyword(id).SetGlobalShaderParameters();
 
             if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
                 Shader.SetGlobalTexture("_SourceTexture", Data.sourceTextures.TryGet(brush.selectedSourceTexture));

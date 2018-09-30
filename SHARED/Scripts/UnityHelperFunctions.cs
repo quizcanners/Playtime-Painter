@@ -1210,8 +1210,6 @@ namespace SharedTools_Stuff
             if (name == tex.name)
                 return tex.RewriteOriginalTexture();
 
-            //Debug.Log("Rewriting original texture");
-
             byte[] bytes = tex.EncodeToPNG();
 
             string dest = tex.GetPathWithout_Assets_Word();
@@ -1220,8 +1218,6 @@ namespace SharedTools_Stuff
 
             File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-            //Debug.Log ("Writing to "+dest);
-            //AssetDatabase.Refresh();
             AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
             Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));

@@ -94,7 +94,7 @@
 
 
 #if BRUSH_NORMAL || BRUSH_COPY
-	col = blitWithDestBufferPreview(alpha, _brushColor,  i.texcoord.xy , col);
+	col = AlphaBlitOpaquePreview(alpha, _brushColor,  i.texcoord.xy , col);
 #endif
 
 #if BRUSH_ADD

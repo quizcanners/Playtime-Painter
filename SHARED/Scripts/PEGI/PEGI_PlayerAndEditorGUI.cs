@@ -220,9 +220,7 @@ namespace PlayerAndEditorGUI
         public static void end(this GameObject go)
         {
 #if UNITY_EDITOR
-
-
-            //if (paintingPlayAreaGUI == false)
+            
             ef.end(go);
 
 #endif
@@ -756,10 +754,10 @@ namespace PlayerAndEditorGUI
             return select(ref ind, lst);
         }
 
-        public static bool select<T>(this string text, string tip, int width, ref int ind, T[] lst)
+        public static bool select<T>(this string text, string tip, int width, ref int ind, T[] lst, bool showIndex = false)
         {
             write(text, tip, width);
-            return select(ref ind, lst);
+            return select(ref ind, lst, showIndex);
         }
 
         public static bool select<T>(this string text, ref T value, T[] lst, bool showIndex = false)
@@ -1371,7 +1369,7 @@ namespace PlayerAndEditorGUI
             return false;
 
         }
-
+/*
         public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
         {
 
@@ -1430,7 +1428,7 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
         }
-
+        */
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
 #if UNITY_EDITOR
@@ -1533,7 +1531,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool select<T>(ref int ind, T[] lst)
+        public static bool select<T>(ref int ind, T[] lst, bool showIndex = false)
         {
 
             checkLine();
@@ -1543,7 +1541,7 @@ namespace PlayerAndEditorGUI
             ind = ind.ClampZeroTo(lst.Length);
 
             for (int i = 0; i < lst.Length; i++)
-                lnms.Add("{0}: {1}".F(i, lst[i].ToPEGIstring()));
+                lnms.Add(_compileName(showIndex , i, lst[i])); //"{0}: {1}".F(i, lst[i].ToPEGIstring()));
 
             return select_Final(ind, ref ind, lnms);
 
@@ -2157,17 +2155,17 @@ namespace PlayerAndEditorGUI
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.getIcon().foldout(text, ref selected, current);
 
 
-        public static bool fold_enter_exit(ref int selected, int current) {
+        public static bool fold_enter_exit(ref int enteredOne, int current) {
 
-            if (selected == current)
+            if (enteredOne == current)
             {
                 if (icon.Exit.Click())
-                    selected = -1;
+                    enteredOne = -1;
             }
-            else if (selected == -1 && icon.Enter.Click())
-                selected = current;
+            else if (enteredOne == -1 && icon.Enter.Click())
+                enteredOne = current;
 
-            isFoldedOut = (selected == current);
+            isFoldedOut = (enteredOne == current);
 
             return isFoldedOut;
         }
@@ -2210,50 +2208,50 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, int width, ref int selected, int current)
+        public static bool fold_enter_exit(this icon ico, string txt, int width, ref int enteredOne, int thisOne)
         {
-            if (selected == current)
+            if (enteredOne == thisOne)
             {
                 if (icon.Exit.ClickUnfocus(txt))
-                    selected = -1;
+                    enteredOne = -1;
 
             }
-            else if (selected == -1)
+            else if (enteredOne == -1)
             {
                 if (ico.ClickUnfocus(txt))
-                    selected = current;
+                    enteredOne = thisOne;
                 write(txt, width);
             }
 
-            isFoldedOut = (selected == current);
+            isFoldedOut = (enteredOne == thisOne);
 
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, ref int selected, int current) {
-            if (selected == current)
+        public static bool fold_enter_exit(this icon ico, string txt, ref int enteredOne, int thisOne) {
+            if (enteredOne == thisOne)
             {
                 if (icon.Exit.ClickUnfocus(txt))
-                    selected = -1;
+                    enteredOne = -1;
 
             }
-            else if (selected == -1)
+            else if (enteredOne == -1)
             {
                 if (ico.ClickUnfocus(txt))
-                    selected = current;
+                    enteredOne = thisOne;
                 write(txt, PEGI_Styles.EnterExitLabel);
             }
 
-            isFoldedOut = (selected == current);
+            isFoldedOut = (enteredOne == thisOne);
 
             return isFoldedOut;
         }
 
         public static bool fold_enter_exit(this string txt, ref bool state) => icon.Enter.fold_enter_exit(txt, ref state);
 
-        public static bool fold_enter_exit(this string txt, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, ref selected, current);
+        public static bool fold_enter_exit(this string txt, ref int enteredOne, int thisOne) => icon.Enter.fold_enter_exit(txt, ref enteredOne, thisOne);
 
-        public static bool fold_enter_exit(this string txt, int width, ref int selected, int current) => icon.Enter.fold_enter_exit(txt, width, ref selected, current);
+        public static bool fold_enter_exit(this string txt, int width, ref int enteredOne, int thisOne) => icon.Enter.fold_enter_exit(txt, width, ref enteredOne, thisOne);
 
         public static bool foldout(this string txt)
         {
@@ -2280,6 +2278,45 @@ namespace PlayerAndEditorGUI
 
         public static void foldIn() => selectedFold = -1;
 
+        public static bool conditional_enter_exit(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne)
+        {
+
+            if (!canEnter && enteredOne == thisOne)
+                enteredOne = -1;
+
+            if (canEnter)
+                ico.fold_enter_exit(label, ref enteredOne, thisOne);
+
+            return isFoldedOut;
+        }
+
+        public static bool conditional_enter_exit(this string label, bool canEnter, ref int enteredOne, int thisOne) {
+
+            if (!canEnter && enteredOne == thisOne)
+                enteredOne = -1;
+
+            if (canEnter)
+                label.fold_enter_exit(ref enteredOne, thisOne);
+
+            return isFoldedOut;
+        }
+
+        public static bool toggle_enter_exit(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed) {
+            
+            if (enteredOne == -1)
+                changed |= label.toggleIcon(ref val, true);
+
+            if (val)
+                fold_enter_exit(ref enteredOne, thisOne);
+
+            if (enteredOne == thisOne)
+                changed |= label.toggleIcon(ref val, true);
+
+            if (!val && enteredOne == thisOne)
+                enteredOne = -1;
+
+            return isFoldedOut;
+        }
 
         #endregion
 
@@ -2707,16 +2744,16 @@ namespace PlayerAndEditorGUI
 
             var ret = toggle(ref val, icon.True, icon.False, hint).PreviousBGcolor();
 
-            if (!val || dontHideTextWhenOn) label.write();
+            if (!val || dontHideTextWhenOn) label.write(hint);
 
             return ret;
         }
 
-        public static bool toggleIcon(this string label, ref bool val, bool dontHideTextWhenOn = false)
+        public static bool toggleIcon(this string label, ref bool val, bool showTextWhenTrue = false)
         {
             var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label).PreviousBGcolor();
 
-            if (!val || dontHideTextWhenOn) label.write();
+            if (!val || showTextWhenTrue) label.write();
 
             return ret;
         }

@@ -125,7 +125,7 @@
 
 	//#if BRUSH_NORMAL || BRUSH_COPY
 	#if BRUSH_BLUR
-		return blitWithDestBuffer (alpha, _brushColor,  i.texcoord.xy);
+		return AlphaBlitOpaque (alpha, _brushColor,  i.texcoord.xy);
 	#endif
 
 	#if BRUSH_BLOOM

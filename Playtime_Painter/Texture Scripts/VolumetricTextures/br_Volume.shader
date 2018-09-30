@@ -58,7 +58,7 @@ float4 frag(v2f i) : COLOR{
 	clip(alpha);
 
 #if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
-	return blitWithDestBuffer(alpha, _brushColor,  i.texcoord.xy);
+	return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);
 #endif
 
 #if BRUSH_ADD

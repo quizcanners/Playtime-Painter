@@ -112,7 +112,7 @@ namespace Playtime_Painter {
                 int texWidth = image.width;
 
                 Blit_Functions.brAlpha = brushAlpha;
-                bc.PrepareCPUBlit();
+                bc.PrepareCPUBlit(image);
                 Blit_Functions.half = bc.Size(true)/volumeScale;
 
                 var pixels = image.Pixels;

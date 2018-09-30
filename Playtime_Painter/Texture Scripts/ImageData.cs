@@ -33,9 +33,11 @@ namespace Playtime_Painter
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
+        public bool showRecording = false;
+        bool gotBacups;
 
-        public int numberOfTexture2Dbackups = 0;
-        public int numberOfRenderTextureBackups = 0;
+        public int numberOfTexture2Dbackups = 10;
+        public int numberOfRenderTextureBackups = 10;
         public bool backupManually;
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
@@ -45,6 +47,8 @@ namespace Playtime_Painter
         public JobHandle jobHandle;
 
         #region SAVE IN PLAYER
+
+        const string savedImagesFolder = "Saved Images";
 
         List<string> playtimeSavedTextures = new List<string>();
 
@@ -56,7 +60,7 @@ namespace Playtime_Painter
 
                 var png = texture2D.EncodeToPNG();
 
-                string path = Path.Combine(Application.persistentDataPath, "Saved Images");
+                string path = Path.Combine(Application.persistentDataPath, savedImagesFolder);
 
                 Directory.CreateDirectory(path);
 
@@ -90,29 +94,38 @@ namespace Playtime_Painter
                     Init(texture2D);
                 #if PEGI
                 else "Couldn't Load Image ".showNotification();
-#endif
+                #endif
             }
         }
 
-#endregion
-        
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        #endregion
+
+        public override StdEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized()
             .Add("dst", (int)destination)
-            .Add_Reference("tex2D", texture2D)
-            .Add_Reference("other", other)
-            .Add("w", width)
-            .Add("h", height)
-            .Add_Bool("useUV2", useTexcoord2)
-            .Add_Bool("Lock", lockEditing)
-            .Add("2dUndo", numberOfTexture2Dbackups)
-            .Add("rtBackups", numberOfRenderTextureBackups)
-            .Add_Bool("b", backupManually)
-            .Add("tl", tiling)
-            .Add("off", offset)
-            .Add_String("sn", SaveName)
-            .Add("svs", playtimeSavedTextures)
-            .Add_ifTrue("trnsp", isATransparentLayer);
-        
+.Add_Reference("tex2D", texture2D)
+.Add_Reference("other", other)
+.Add("w", width)
+.Add("h", height)
+.Add_Bool("useUV2", useTexcoord2)
+.Add_Bool("Lock", lockEditing)
+.Add_Bool("b", backupManually)
+.Add("tl", tiling)
+.Add("off", offset)
+.Add_String("sn", SaveName)
+.Add("svs", playtimeSavedTextures)
+.Add_Bool("rec", showRecording)
+.Add_ifTrue("trnsp", isATransparentLayer)
+.Add_Bool("bu", gotBacups);
+
+            if (gotBacups)
+                cody.Add("2dUndo", numberOfTexture2Dbackups)
+.Add("rtBackups", numberOfRenderTextureBackups);
+
+            return cody;
+        }
+
         public override bool Decode(string tag, string data)
         {
             switch (tag) {
@@ -131,6 +144,8 @@ namespace Playtime_Painter
                 case "sn": SaveName = data; break;
                 case "svs": data.DecodeInto(out playtimeSavedTextures); break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
+                case "rec": showRecording = data.ToBool(); break;
+                case "bu": gotBacups = data.ToBool(); break;
                 default: return false;
         }
         return true;
@@ -621,42 +636,70 @@ namespace Playtime_Painter
                 
             return changed;
         }
-        
+
+        public int inspectedStuff = -1; 
         public override bool PEGI()
         {
+
             bool changed = false;
+            
+            if ("CPU blit options".conditional_enter_exit(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl()) {
 
-            bool gotBacups = (numberOfTexture2Dbackups + numberOfRenderTextureBackups) > 0;
+                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref GlobalBrush.repaintDelay, 0.01f, 0.5f).nl();
 
-            "Save Name".edit(60, ref SaveName).nl();
-
-            if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
-                SaveInPlayer();
-
-            pegi.toggle(ref lockEditing, icon.Lock, icon.Unlock);
-
-
-            "Playtime Saved Textures".write_List(playtimeSavedTextures, LoadTexturePEGI);
-
-
-            if (gotBacups)
-            {
-                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                pegi.writeOneTimeHint("This are not connected to Unity's " +
-                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
-
-                changed |=
-                    "texture2D UNDOs:".edit(150, ref numberOfTexture2Dbackups).nl() ||
-                    "renderTex UNDOs:".edit(150, ref numberOfRenderTextureBackups).nl() ||
-                    "backup manually:".toggle(150, ref backupManually).nl();
+                changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
+                    ref GlobalBrush.DontRedoMipmaps, true).nl();
             }
-            else if ("Enable Undo/Redo".Click().nl())
-            {
-                numberOfTexture2Dbackups = 10;
-                numberOfRenderTextureBackups = 10;
-                changed = true;
+
+            if ("Save Textures In Game".fold_enter_exit(ref inspectedStuff, 1).nl()) {
+
+                "Save Name".edit(70, ref SaveName);
+
+                if (icon.Folder.Click("Open Folder with textures").nl())
+                    StuffExplorer.OpenPersistantFolder(savedImagesFolder);
+                
+                if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
+                    SaveInPlayer();
+
+                if (playtimeSavedTextures.Count > 0)
+                    "Playtime Saved Textures".write_List(playtimeSavedTextures, LoadTexturePEGI);
             }
+
+
+
+     
+            if ("Undo Redo".toggle_enter_exit(ref gotBacups,ref inspectedStuff, 2, ref changed).nl())  {
+
+                    changed |=
+                  "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups) ||
+                  "RendTex".edit(60, ref numberOfRenderTextureBackups).nl();
+
+                    "Backup manually".toggleIcon(ref backupManually, true).nl();
+
+                    if (numberOfTexture2Dbackups > 50 || numberOfRenderTextureBackups > 50)
+                        "Too big of a number will eat up lot of memory".writeWarning();
+
+                    pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
+                    pegi.writeOneTimeHint("This are not connected to Unity's " +
+                    "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
+                    pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+                
+            }
+
+
+            pegi.nl();
+
+            if (inspectedStuff == -1)
+            {
+
+                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer, true).nl();
+
+                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2, true).nl();
+
+                changed |= "Show Recording/Playback".toggleIcon(ref showRecording, true).nl();
+            }
+
+
             return changed;
         }
         
@@ -721,6 +764,8 @@ namespace Playtime_Painter
 
             return false;
         }
+
+ 
 
         public string NeedAttention()
         {

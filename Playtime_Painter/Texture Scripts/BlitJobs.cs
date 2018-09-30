@@ -206,9 +206,7 @@ namespace Playtime_Painter
 
             }
         }
-
-
-
+        
         #region AlphaModes
 
          bool NoAlpha() => true;
@@ -235,59 +233,70 @@ namespace Playtime_Painter
 
       
 
-         void AlphaBlitOpaque (ref Color cdst)
+        void AlphaBlitOpaque (ref Color cdst)
             {
-                if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * (1.0f - alpha));
-                if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * (1.0f - alpha));
-                if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * (1.0f - alpha));
-                if (a) cdst.a = alpha * csrc.a + cdst.a * (1.0f - alpha);
+            float deAlpha = 1 - alpha;
+
+                if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
+                if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
+                if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
+                if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
             }
 
-        void AlphaBlitTransparent (ref Color cdst) {
+        void AlphaBlitTransparent(ref Color cdst)
+        {
 
-            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * (1.0f - alpha));
-            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * (1.0f - alpha));
-            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * (1.0f - alpha));
-            if (a) cdst.a = alpha * csrc.a + cdst.a * (1.0f - alpha);
+            float rgbAlpha = csrc.a * alpha;
+
+            float divs = (cdst.a + rgbAlpha);
+
+
+            rgbAlpha = divs > 0 ? Mathf.Clamp01(rgbAlpha / divs) : 0;
+            float deRGBAlpha = 1 - rgbAlpha;
+
+          //  float rgbAlpha = alpha / Mathf.Min(1, cdst.a + alpha);
+          //  float deAlpha = 1 - rgbAlpha;
+
+            if (r) cdst.r = Mathf.Sqrt(rgbAlpha * csrc.r * csrc.r + cdst.r * cdst.r * deRGBAlpha);
+            if (g) cdst.g = Mathf.Sqrt(rgbAlpha * csrc.g * csrc.g + cdst.g * cdst.g * deRGBAlpha);
+            if (b) cdst.b = Mathf.Sqrt(rgbAlpha * csrc.b * csrc.b + cdst.b * cdst.b * deRGBAlpha);
+            if (a) cdst.a = alpha * csrc.a + cdst.a * (1- alpha);
         }
 
         void AddBlit(ref Color cdst)
-            {
-                if (r) cdst.r = alpha * csrc.r + cdst.r;
-                if (g) cdst.g = alpha * csrc.g + cdst.g;
-                if (b) cdst.b = alpha * csrc.b + cdst.b;
-                if (a) cdst.a = alpha * csrc.a + cdst.a;
-            }
+        {
+            if (r) cdst.r = alpha * csrc.r + cdst.r;
+            if (g) cdst.g = alpha * csrc.g + cdst.g;
+            if (b) cdst.b = alpha * csrc.b + cdst.b;
+            if (a) cdst.a = alpha * csrc.a + cdst.a;
+        }
 
-             void SubtractBlit(ref Color cdst)
-            {
-                if (r) cdst.r = Mathf.Max(0, -alpha * csrc.r + cdst.r);
-                if (g) cdst.g = Mathf.Max(0, -alpha * csrc.g + cdst.g);
-                if (b) cdst.b = Mathf.Max(0, -alpha * csrc.b + cdst.b);
-                if (a) cdst.a = Mathf.Max(0, -alpha * csrc.a + cdst.a);
-            }
+        void SubtractBlit(ref Color cdst)
+        {
+            if (r) cdst.r = Mathf.Max(0, -alpha * csrc.r + cdst.r);
+            if (g) cdst.g = Mathf.Max(0, -alpha * csrc.g + cdst.g);
+            if (b) cdst.b = Mathf.Max(0, -alpha * csrc.b + cdst.b);
+            if (a) cdst.a = Mathf.Max(0, -alpha * csrc.a + cdst.a);
+        }
 
-             void MaxBlit(ref Color cdst)
-            {
-                if (r) cdst.r += alpha * Mathf.Max(0, csrc.r - cdst.r);
-                if (g) cdst.g += alpha * Mathf.Max(0, csrc.g - cdst.g);
-                if (b) cdst.b += alpha * Mathf.Max(0, csrc.b - cdst.b);
-                if (a) cdst.a += alpha * Mathf.Max(0, csrc.a - cdst.a);
-            }
+        void MaxBlit(ref Color cdst)
+        {
+            if (r) cdst.r += alpha * Mathf.Max(0, csrc.r - cdst.r);
+            if (g) cdst.g += alpha * Mathf.Max(0, csrc.g - cdst.g);
+            if (b) cdst.b += alpha * Mathf.Max(0, csrc.b - cdst.b);
+            if (a) cdst.a += alpha * Mathf.Max(0, csrc.a - cdst.a);
+        }
 
-             void MinBlit(ref Color cdst)
-            {
-                if (r) cdst.r -= alpha * Mathf.Max(0, cdst.r - csrc.r);
-                if (g) cdst.g -= alpha * Mathf.Max(0, cdst.g - csrc.g);
-                if (b) cdst.b -= alpha * Mathf.Max(0, cdst.b - csrc.b);
-                if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
-            }
-
-
-            #endregion
+        void MinBlit(ref Color cdst)
+        {
+            if (r) cdst.r -= alpha * Mathf.Max(0, cdst.r - csrc.r);
+            if (g) cdst.g -= alpha * Mathf.Max(0, cdst.g - csrc.g);
+            if (b) cdst.b -= alpha * Mathf.Max(0, cdst.b - csrc.b);
+            if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
+        }
 
 
-
+        #endregion
 
     }
 
