@@ -48,8 +48,7 @@ namespace Playtime_Painter {
             
         }
 
-        public override string NameForPEGIdisplay() => "Volume Painting";
-        
+
         public override Shader GetPreviewShader(PlaytimePainter p) {
             if (p.GetVolumeTexture() != null)
                 return preview;
@@ -212,12 +211,16 @@ namespace Playtime_Painter {
             return false;
         }
 
+        #region Inspector
 #if PEGI
+        public override string NameForPEGIdisplay() => "Volume Painting";
+
+
         public bool Component_PEGI() {
             bool changed = false;
 
             if (InspectedPainter && InspectedPainter.ImgData == null)  {
-                var matProp = InspectedPainter.MaterialTexturePropertyName;
+                var matProp = InspectedPainter.GetMaterialTexturePropertyName;
                 if (matProp != null && matProp.Contains(VolumeTextureTag))  {
 
                     "Volume Texture Expected".nl();
@@ -305,15 +308,12 @@ namespace Playtime_Painter {
         {
             bool changes = false;
 
-            if (VolumeTexture.all.Count == 0)
-                "No volumes found".nl();
-
-            for (int i=0; i<VolumeTexture.all.Count; i++) 
-               changes |= VolumeTexture.all.edit_List(ref exploredVolume);
+               changes |= "Volumes".edit_List(VolumeTexture.all, ref exploredVolume);
                 
             return changes;
         }
 #endif
+        #endregion
     }
 
     public static class VolumeEditingExtensions {

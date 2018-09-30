@@ -12,24 +12,31 @@ public enum VolumetricDecalType {Add, Dent}
 
 
 [Serializable]
-public class VolumetricDecal : IEditorDropdown {
+public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName  {
     public String decalName;
     public VolumetricDecalType type;
     public Texture2D heightMap;
     public Texture2D overlay;
 
-	public override string ToString ()
-	{
-		return decalName+" ("+type+")";
-	}
+	public bool ShowInDropdown() => heightMap && overlay;
+    
+#if PEGI
+        public string NameForPEGI { get { return decalName; } set { decalName = value; } }
 
+        public bool PEGI() {
+            var changed = this.inspect_Name().nl();
 
+            "Type".editEnum(40, ref type).nl();
+            "Height Map".edit(ref heightMap).nl();
+            "Overlay".edit(ref overlay).nl();
 
+                return changed;
+        }
 
-	public bool ShowInDropdown() {
-        return ((heightMap != null) && (overlay != null));
+        public string NameForPEGIdisplay() => "{0} ({1})".F(decalName, type);
+        
+#endif
     }
-}
 
 
 }

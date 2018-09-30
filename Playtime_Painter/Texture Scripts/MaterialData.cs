@@ -11,8 +11,7 @@ namespace Playtime_Painter
     public class MaterialData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName
     {
 
-        public static int inspectedMaterial = -1;
-        public static bool showMatDatas;
+     
 
         public Material material;
         public int _selectedTexture;

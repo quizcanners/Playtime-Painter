@@ -15,11 +15,9 @@ namespace Playtime_Painter
     public class PainterDataAndConfig : STD_ReferencesHolder, IKeepMySTD
     {
         public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
-
-        public string STDdata = "";
-        public string Config_STD { get { return STDdata; }
-            set { STDdata = value; } }
-
+        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+        
+        #region Shaders
         public Shader br_Blit = null;
         public Shader br_Add = null;
         public Shader br_Copy = null;
@@ -33,7 +31,9 @@ namespace Playtime_Painter
         public Shader mesh_Preview = null;
         public Shader br_Preview = null;
         public Shader TerrainPreview = null;
+        #endregion
 
+        #region Constants
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
         public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
@@ -71,11 +71,53 @@ namespace Playtime_Painter
         public const string isUV2DisaplyNameTag = "_UV2";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
+        public const string TextureSampledWithUV2 = "TextureSampledWithUV2";
         public const string vertexColorRole = "VertexColorRole_";
         public const string bufferCopyAspectRatio = "_BufferCopyAspectRatio";
+        #endregion
 
+        #region WebCamStuff
         [NonSerialized] public WebCamTexture webCamTexture;
 
+        public void RemoteUpdate()
+        {
+            if (webCamTexture && webCamTexture.isPlaying)
+            {
+                cameraUnusedTime += Time.deltaTime;
+
+                if (cameraUnusedTime > 10f)
+                    webCamTexture.Stop();
+            }
+
+        }
+
+        public void StopCamera()
+        {
+            if (webCamTexture != null)
+            {
+                webCamTexture.Stop();
+                webCamTexture.DestroyWhatever();
+                webCamTexture = null;
+            }
+        }
+
+        float cameraUnusedTime = 0f;
+        public Texture GetWebCamTexture()
+        {
+            cameraUnusedTime = 0;
+
+
+            if (webCamTexture == null && WebCamTexture.devices.Length > 0)
+                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
+
+            if (webCamTexture && !webCamTexture.isPlaying)
+                webCamTexture.Play();
+
+            return webCamTexture;
+        }
+        #endregion
+
+        #region DataLists
         public List<ImageData> imgDatas = new List<ImageData>();
 
         public List<MaterialData> matDatas = new List<MaterialData>();
@@ -131,15 +173,17 @@ namespace Playtime_Painter
         public List<VolumetricDecal> decals = new List<VolumetricDecal>();
 
         public List<MeshPackagingProfile> meshPackagingSolutions;
+        #endregion
 
         public int _meshTool;
         public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
         public float bevelDetectionSensetivity = 6;
 
-        public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
+      //  public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
 
         public string meshToolsSTD = null;
 
+        #region User Settings
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
         public bool MakeVericesUniqueOnEdgeColoring;
@@ -168,14 +212,13 @@ namespace Playtime_Painter
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
         public bool DebugDisableSecondBufferUpdate;
-      
-      
-        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+        #endregion
         
         public MyIntVec2 samplingMaskSize;
 
         public int selectedSize = 4;
 
+        #region BrushStrokeRecordings
         public List<string> recordingNames = new List<string>();
 
         public int browsedRecord;
@@ -206,7 +249,17 @@ namespace Playtime_Painter
             return strokes;
         }
 
-    
+        #endregion
+
+        #region Encode/Decode
+
+        public string STDdata = "";
+        public string Config_STD
+        {
+            get { return STDdata; }
+            set { STDdata = value; }
+        }
+
         public override StdEncoder Encode() 
         {
             for (int i = 0; i < imgDatas.Count; i++)
@@ -238,37 +291,40 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
+        #region Inspector
 #if PEGI
 
         int inspectedImgData = -1;
-
-          [SerializeField] bool showImgDatas;
+        int inspectedStuffs = -1;
+        int inspectedMaterial = -1;
+        int inspectedDecal = -1;
 
         public bool DatasPEGI()
         {
             bool changes = false;
 
-            if (("Img datas: " + imgDatas.Count + "").foldout(ref showImgDatas).nl())
-                "Image Datas".edit_List(imgDatas, ref inspectedImgData);
+            changes |= "Img datas".fold_enter_exit_List(imgDatas, ref inspectedImgData, ref inspectedStuffs, 0).nl();
+            
+            changes |= "Mat datas".fold_enter_exit_List(matDatas, ref inspectedMaterial, ref inspectedStuffs, 1).nl();
 
-            if (inspectedImgData == -1)
+            changes |= "Source Textures".fold_enter_exit_List_Obj(sourceTextures, ref inspectedStuffs, 2).nl();
+
+            changes |= "Masks".fold_enter_exit_List_Obj(masks, ref inspectedStuffs, 3).nl();
+
+            changes |= "Decals".fold_enter_exit_List(decals, ref inspectedDecal, ref inspectedStuffs, 4).nl();
+
+            if (inspectedStuffs == -1)
             {
-                if (("Mat datas: " + matDatas.Count + "").foldout(ref MaterialData.showMatDatas).nl())
-                    matDatas.edit_List(ref MaterialData.inspectedMaterial);
-
 #if UNITY_EDITOR
                 "Using layer:".nl();
                 myLayer = EditorGUILayout.LayerField(myLayer);
 #endif
                 pegi.newLine();
-                "Disable Second Buffer Update (Debug Mode)".toggle(ref DebugDisableSecondBufferUpdate).nl();
-
-                "Source Textures".edit_List_Obj(sourceTextures).nl();
-                "Masks".edit_List_Obj(masks).nl();
-                "Decals".edit(() => decals, this).nl();
-               
+                "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate, true).nl();
             }
+
 
             return changes;
         }
@@ -277,7 +333,7 @@ namespace Playtime_Painter
         
         public override bool PEGI()
         {
-            bool changed =  base.PEGI();
+            bool changed = false; //  base.PEGI();
 
             PainterCamera rtp = PainterCamera.Inst;
             BrushConfig brush = brushConfig;
@@ -310,20 +366,20 @@ namespace Playtime_Painter
             if (!PainterStuff.IsNowPlaytimeAndDisabled)  {
 
                 if (Painter && Painter.meshEditing == false)
-                    "Disable Non-Mesh Colliders in Play Mode:".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
+                    "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
                 if ("Lists".foldout(ref inspectLists).nl())
                     changed |= DatasPEGI();
                 
-                "Teaching Notifications".toggle("will show whatever you ae pressing on the screen.", 140, ref ShowTeachingNotifications).nl();
+                "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
 
-                "Save Textures To:".edit(110, ref texturesFolderName).nl();
+                "Save Textures To".edit(110, ref texturesFolderName).nl();
 
                 "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
 
-                "Save Materials To:".edit(110, ref materialsFolderName).nl();
+                "Save Materials To".edit(110, ref materialsFolderName).nl();
 
-                "Save Meshes To:".edit(110, ref meshesFolderName).nl();
+                "Save Meshes To".edit(110, ref meshesFolderName).nl();
             }
 #if UNITY_EDITOR
             if (icon.Discord.Click("Join Discord", 64))
@@ -340,44 +396,8 @@ namespace Playtime_Painter
         }
 
 #endif
-
-        public void RemoteUpdate()
-        {
-            if (webCamTexture && webCamTexture.isPlaying)
-            {
-                cameraUnusedTime += Time.deltaTime;
-
-                if (cameraUnusedTime > 10f)
-                    webCamTexture.Stop();
-            }
-
-        }
-
-        public void StopCamera()
-        {
-            if (webCamTexture != null)
-            {
-                webCamTexture.Stop();
-                webCamTexture.DestroyWhatever();
-                webCamTexture = null;
-            }
-        }
-
-        float cameraUnusedTime = 0f;
-        public Texture GetWebCamTexture()
-        {
-            cameraUnusedTime = 0;
-
-
-            if (webCamTexture == null && WebCamTexture.devices.Length>0)
-                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
-
-            if (webCamTexture && !webCamTexture.isPlaying)
-                webCamTexture.Play();
-
-            return webCamTexture;
-        }
-
+        #endregion
+        
         public void Init()
         {
 

@@ -39,6 +39,7 @@ namespace Playtime_Painter
         public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
         public static BrushConfigPEGIplugin brushConfigPegies;
 
+        #region Encode Decode
         public override StdEncoder Encode()
         {
             StdEncoder cody = new StdEncoder();
@@ -49,7 +50,6 @@ namespace Playtime_Painter
 
             return cody;
         }
-
 
         public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
         {
@@ -111,7 +111,6 @@ namespace Playtime_Painter
             return cody;
         }
 
-
         public override bool Decode(string tag, string data)
         {
 
@@ -151,9 +150,7 @@ namespace Playtime_Painter
 
 
         }
-
-      //  public const string storyTag = "brush";
-      //  public override string GetDefaultTagName() { return storyTag; }
+        #endregion
 
         public void MaskToggle(BrushMask flag)
         {
@@ -288,7 +285,7 @@ namespace Playtime_Painter
                 var md = pntr.MatDta;
 
                 if (id.renderTexture == null && !TexMGMT.materialsUsingTendTex.Contains(md)) {
-                    TexMGMT.ChangeBufferTarget(id, md, pntr.MaterialTexturePropertyName, pntr);
+                    TexMGMT.ChangeBufferTarget(id, md, pntr.GetMaterialTexturePropertyName, pntr);
                     //materialsUsingTendTex.Add(md);
                     pntr.SetTextureOnMaterial(id);
                     //Debug.Log("Adding RT target");
@@ -314,7 +311,8 @@ namespace Playtime_Painter
             
             return pntr;
         }
-        
+
+        #region Inspector
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; } }
 #if PEGI
@@ -400,9 +398,7 @@ namespace Playtime_Painter
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
             if (p == null) { "No Painter Detected".nl(); return false; }
-
-          
-
+            
             if ((p.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
                 p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
@@ -450,11 +446,6 @@ namespace Playtime_Painter
             }
 #endif
 
-            if  (!p.IsOriginalShader)
-                changed |= pegi.toggle(ref Cfg.previewAlphaChanel, "Preview Enabled Chanels", 130);
-
-
-
 
             if (Mode_Type_PEGI())
             {
@@ -487,19 +478,21 @@ namespace Playtime_Painter
         }
 
         public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider) {
+
+            bool changed = false;
+
             if (icon == null)
                 icon = m.getIcon();
 
-            string letter = m.ToString();
+            string letter = m.ToText();
             bool maskVal = mask.GetFlag(m);
 
             if (InspectedPainter != null && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
                 if (mat != null) {
-                    var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + letter, false, null);
-                    if (tag != null && tag.Length > 0)
-                    {
+                    var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + m.ToString(), false, null);
+                    if (tag != null && tag.Length > 0) {
                        
                         if (maskVal)
                             (tag+":").nl();
@@ -511,10 +504,8 @@ namespace Playtime_Painter
                 }
 
             }
-
-            bool changed = false;
             
-            if (maskVal ? pegi.Click(icon, 25) : pegi.Click(letter + " disabled")) {
+            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal)) {
                 MaskToggle(m);
                 changed = true;
             }
@@ -588,7 +579,7 @@ namespace Playtime_Painter
             return changed;
         }
 #endif
-
+        #endregion
     }
 
 }

@@ -11,30 +11,33 @@ namespace PlayerAndEditorGUI
     {
 
         static GUIStyle _imageButton;
-        public static GUIStyle ImageButton
+        public static GUIStyle ImageButton    {
+            get {
+                if (_imageButton == null)
+                    _imageButton = new GUIStyle(GUI.skin.button) {
+
+                        overflow = new RectOffset(-3,-3,0, 0),
+                        margin = new RectOffset(-3,-3,1,1),
+                    };
+                
+                return _imageButton;
+            }
+    
+        }
+
+        static GUIStyle _toggleText;
+        public static GUIStyle ToggleLabel
         {
             get
             {
-                if (_imageButton == null)
-                {
-                    _imageButton = new GUIStyle()
-                    {
-                        margin = new RectOffset(0, 0, 0, 0),
-                        fontSize = 15,
-                        richText = true,
-                        wordWrap = true,
-                        alignment = TextAnchor.MiddleCenter,
-                        fontStyle = FontStyle.Bold,
-                        imagePosition = ImagePosition.ImageOnly,
-
+                if (_toggleText == null)
+                    _toggleText = new GUIStyle(GUI.skin.label)  {
+                        contentOffset = new Vector2(0, 4)
+                       // fontStyle = FontStyle.Bold
                     };
-                   // _listLabel.normal.textColor = new Color32(43, 30, 11, 255); //2C1F0B);
-                }
-                return _imageButton;
-            }
-            set
-            {
-                _imageButton = value;
+
+                
+                return _toggleText;
             }
         }
 
@@ -55,9 +58,7 @@ namespace PlayerAndEditorGUI
                     _listLabel.normal.textColor = new Color32(43, 30, 11,255); //2C1F0B);
                 }
                 return _listLabel; }
-            set {
-                _listLabel = value;
-            }
+        
         }
 
         static GUIStyle _enterExitLabel;
@@ -75,16 +76,14 @@ namespace PlayerAndEditorGUI
                         wordWrap = false,
                         alignment = TextAnchor.MiddleLeft,
                         fontStyle = FontStyle.Bold,
-                        
+                        contentOffset = new Vector2(0, 4),
+
                     };
                     _enterExitLabel.normal.textColor = new Color32(43, 30, 77, 255); //2C1F0B);
                 }
                 return _enterExitLabel;
             }
-            set
-            {
-                _enterExitLabel = value;
-            }
+         
         }
 
         static GUIStyle _foldedOutLabel;
@@ -110,10 +109,7 @@ namespace PlayerAndEditorGUI
                 }
                 return _foldedOutLabel;
             }
-            set
-            {
-                _foldedOutLabel = value;
-            }
+         
         }
         
         public static Color listReadabilityRed = new Color(1, 0.9f,0.9f,1);

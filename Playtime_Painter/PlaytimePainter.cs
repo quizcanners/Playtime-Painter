@@ -540,7 +540,7 @@ namespace Playtime_Painter
 
             var id = ImgData;
 
-            string fieldName = MaterialTexturePropertyName;
+            string fieldName = GetMaterialTexturePropertyName;
             Material mat = GetMaterial(false);
             if (!IsOriginalShader && (terrain == null))
             {
@@ -561,7 +561,7 @@ namespace Playtime_Painter
         public void UpdateTylingToMaterial()
         {
             var id = ImgData;
-            string fieldName = MaterialTexturePropertyName;
+            string fieldName = GetMaterialTexturePropertyName;
             Material mat = GetMaterial(false);
             if (!IsOriginalShader && (terrain == null))
             {
@@ -618,7 +618,7 @@ namespace Playtime_Painter
             }
 #endif
 
-            string field = MaterialTexturePropertyName;
+            string field = GetMaterialTexturePropertyName;
 
             if (texture == null)
             {
@@ -663,7 +663,7 @@ namespace Playtime_Painter
             if (id.destination == dst)
                 return;
 
-            id.ChangeDestination(dst, GetMaterial(true).GetMaterialData(), MaterialTexturePropertyName, this);
+            id.ChangeDestination(dst, GetMaterial(true).GetMaterialData(), GetMaterialTexturePropertyName, this);
             CheckPreviewShader();
 
         }
@@ -685,7 +685,7 @@ namespace Playtime_Painter
         public void CreateTerrainHeightTexture(string NewName)
         {
 
-            string field = MaterialTexturePropertyName;
+            string field = GetMaterialTexturePropertyName;
 
             if (field != PainterDataAndConfig.terrainHeight)
             {
@@ -865,7 +865,7 @@ namespace Playtime_Painter
             return MatDta.materials_TextureFields;
         }
 
-        public string MaterialTexturePropertyName
+        public string GetMaterialTexturePropertyName
         {
             get
             {
@@ -884,7 +884,7 @@ namespace Playtime_Painter
                 return mat?.GetTexture(PainterDataAndConfig.previewTexture);
             }
 
-            string fieldName = MaterialTexturePropertyName;
+            string fieldName = GetMaterialTexturePropertyName;
 
             if (fieldName == null)
                 return null;
@@ -929,17 +929,17 @@ namespace Playtime_Painter
 
         public void RemoveTextureFromMaterial()
         {
-            SetTextureOnMaterial(MaterialTexturePropertyName, null);
+            SetTextureOnMaterial(GetMaterialTexturePropertyName, null);
         }
 
         public void SetTextureOnMaterial(ImageData id)
         {
-            SetTextureOnMaterial(MaterialTexturePropertyName, id.CurrentTexture());
+            SetTextureOnMaterial(GetMaterialTexturePropertyName, id.CurrentTexture());
         }
 
         public void SetTextureOnMaterial(Texture tex)
         {
-            SetTextureOnMaterial(MaterialTexturePropertyName, tex);
+            SetTextureOnMaterial(GetMaterialTexturePropertyName, tex);
         }
 
         public void SetTextureOnMaterial(string fieldName, Texture tex)
@@ -1231,7 +1231,7 @@ namespace Playtime_Painter
 
             if (terrain == null)
                 return false;
-            string name = MaterialTexturePropertyName;
+            string name = GetMaterialTexturePropertyName;
             if (name == null)
                 return false;
             return name.Contains(PainterDataAndConfig.terrainHeight);
@@ -1252,7 +1252,7 @@ namespace Playtime_Painter
 
         public bool IsTerrainControlTexture()
         {
-            return ((ImgData != null) && (terrain != null) && (MaterialTexturePropertyName.Contains(PainterDataAndConfig.terrainControl)));
+            return ((ImgData != null) && (terrain != null) && (GetMaterialTexturePropertyName.Contains(PainterDataAndConfig.terrainControl)));
         }
 
         #endregion
@@ -1903,7 +1903,7 @@ namespace Playtime_Painter
 
         }
 
-        public override string PlaytimeWindowName => "{0} {1}".F(gameObject.name, MaterialTexturePropertyName);
+        public override string PlaytimeWindowName => "{0} {1}".F(gameObject.name, GetMaterialTexturePropertyName);
 
         public static PlaytimePainter inspectedPainter;
 #if PEGI
@@ -2172,7 +2172,7 @@ namespace Playtime_Painter
 
                         #endregion
 
-
+                        #region Fancy Options
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
                         if (Cfg.moreOptions)
@@ -2197,18 +2197,12 @@ namespace Playtime_Painter
                             changed |= id.PEGI();
                         }
 
-                        bool notInspecting = (id.inspectedStuff == -1 && Cfg.moreOptions);
-                        
-                        if (notInspecting || id.isATransparentLayer)
-                            changed |= "Transparent Layer".toggleIcon(ref id.isATransparentLayer, true).nl();
+                        bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
 
-                        if (notInspecting || id.useTexcoord2)
-                            changed |= "Use Texcoord 2".toggleIcon(ref id.useTexcoord2, true).nl();
+                        changed |= id.ComponentDependent_PEGI(showToggles, this);
 
-                        if (Cfg.moreOptions)
-                        {
-                            if (notInspecting)
-                            {
+           
+                            if (showToggles)  {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
@@ -2217,19 +2211,20 @@ namespace Playtime_Painter
                                     "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
                                                                    ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
 
-                                "Single Buffer Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures).nl();
+                                "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
                             }
 
-                            pegi.Line(Color.red);
-                        }
+                            if (Cfg.moreOptions)
+                                pegi.Line(Color.red);
+                        
 
 
-                        if ((id.backupManually) && ("Backup for UNDO".Click()))
+                        if ((id.enableUndoRedo) && (id.backupManually) && ("Backup for UNDO".Click()))
                             id.Backup();
 
                         if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                             id.SetAndApply(true);
-
+                        #endregion
                     }
 
                     id = ImgData;
@@ -2284,7 +2279,7 @@ namespace Playtime_Painter
                             if (this.SelectTexture_PEGI())
                             {
                                 id = ImgData;
-                                if (id == null) nameHolder = gameObject.name + "_" + MaterialTexturePropertyName;
+                                if (id == null) nameHolder = gameObject.name + "_" + GetMaterialTexturePropertyName;
                             }
 
                             if (id != null)
@@ -2312,7 +2307,7 @@ namespace Playtime_Painter
 
                                 if (texNames.Count > SelectedTexture)
                                 {
-                                    string param = MaterialTexturePropertyName;
+                                    string param = GetMaterialTexturePropertyName;
 
                                     if (icon.NewTexture.Click((id == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
                                     {
@@ -2327,7 +2322,7 @@ namespace Playtime_Painter
                                     {
                                         List<ImageData> recentTexs;
 
-                                        string texName = MaterialTexturePropertyName;
+                                        string texName = GetMaterialTexturePropertyName;
 
                                         if ((texName != null) && (PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs))
                                             && ((recentTexs.Count > 1) || (id == null)))
@@ -2405,14 +2400,14 @@ namespace Playtime_Painter
                                 if (!IsTerrainControlTexture())
                                 {
 
-                                    string Orig = "";
+                                    string Orig = null;
 
                                     id = ImgData;
 
                                     if (id.texture2D != null)
                                     {
                                         Orig = id.texture2D.GetPathWithout_Assets_Word();
-                                        if (icon.Load.Click("Will reload " + Orig, 25))
+                                        if (Orig!= null && icon.Load.Click("Will reload " + Orig, 25))
                                         {
                                             ForceReimportMyTexture(Orig);
                                             id.SaveName = id.texture2D.name;
@@ -2430,16 +2425,16 @@ namespace Playtime_Painter
                                         if (!id.SaveName.SameAs(id.texture2D.name) && icon.Refresh.Click("Use current texture name ({0})".F(id.texture2D.name)))
                                             id.SaveName = id.texture2D.name;
 
-                                        string Dest = GenerateTextureSavePath();
+                                        string DestPath = GenerateTextureSavePath();
                                         bool existsAtDestination = TextureExistsAtDestinationPath();
                                         bool originalExists = (Orig != null);
-                                        bool sameTarget = originalExists && (Orig.Equals(Dest));
+                                        bool sameTarget = originalExists && (Orig.Equals(DestPath));
                                         bool sameTextureName = originalExists && id.texture2D.name.Equals(id.SaveName);
 
 
                                         if ((existsAtDestination == false) || sameTextureName)
                                         {
-                                            if ((sameTextureName ? icon.Save : icon.SaveAsNew).Click(sameTextureName ? "Will Update " + Orig : "Will save as " + Dest, 25))
+                                            if ((sameTextureName ? icon.Save : icon.SaveAsNew).Click(sameTextureName ? "Will Update " + Orig : "Will save as " + DestPath, 25))
                                             {
                                                 if (sameTextureName)
                                                     RewriteOriginalTexture();
@@ -2449,11 +2444,13 @@ namespace Playtime_Painter
                                                 OnChangedTexture_OnMaterial();
                                             }
                                         }
-                                        else if (existsAtDestination && (icon.Save.Click("Will replace " + Dest, 25)))
+                                        else if (existsAtDestination && (icon.Save.Click("Will replace " + DestPath, 25)))
                                             SaveTextureAsAsset(false);
 
-                                        if ((!sameTarget) && (!sameTextureName) && (string.IsNullOrEmpty(Orig) == false) && (!existsAtDestination) && (icon.Replace.Click("Will replace {0} with {1} ".F(Orig, Dest))))
+                                        if (!sameTarget && !sameTextureName && !string.IsNullOrEmpty(Orig) && !existsAtDestination && (icon.Replace.Click("Will replace {0} with {1} ".F(Orig, DestPath))))
                                             RewriteOriginalTexture_Rename(id.SaveName);
+
+                                        //if (sameTarget )
 
                                         pegi.nl();
 

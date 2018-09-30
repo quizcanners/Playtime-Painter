@@ -6,7 +6,10 @@
 		_Bump("Bump", 2D) = "gray" {}
 	}
 		SubShader{
-		Tags{ "RenderType" = "Opaque" }
+		Tags{ "RenderType" = "Opaque"
+	
+		"TextureSampledWithUV2_Overlay" = "true"
+	}
 		LOD 200
 
 		CGPROGRAM

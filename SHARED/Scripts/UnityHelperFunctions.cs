@@ -21,6 +21,23 @@ namespace SharedTools_Stuff
 
     public static class UnityHelperFunctions {
 
+        public static bool HasTag( this Material mat, string tag) {
+            if (mat != null) {
+                var got = mat.GetTag(tag, false, null);
+                return (got != null && got.Length > 0);
+            }
+            return false;
+        }
+
+        public static string TagValue(this Material mat, string tag) {
+
+            if (mat != null)
+                return mat.GetTag(tag, false, null);
+            
+            return null;
+
+        }
+
         public static Material MaterialWhaever (this Renderer rendy) {
 
             if (rendy == null) return null;

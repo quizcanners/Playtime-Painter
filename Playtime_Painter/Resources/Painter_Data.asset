@@ -41,6 +41,15 @@ MonoBehaviour:
   - {fileID: 2100000, guid: ce873357745c87745bb02a2a9925358b, type: 2}
   - {fileID: 2800000, guid: 5929756727b55c54385b033c7bdc4e7e, type: 3}
   - {fileID: 2800000, guid: a440a2c3468facb49b9a111925f8d020, type: 3}
+  - {fileID: 2800000, guid: 43054f7789aaf5747a375c744ac5a744, type: 3}
+  - {fileID: 2800000, guid: 333ed2306f36c9d4eabff4070d4d15e0, type: 3}
+  - {fileID: 2800000, guid: 528f3ebab7f594f47879e4013deece5b, type: 3}
+  - {fileID: 2800000, guid: b3c0000cd6ab2854a8bad20b5b769c69, type: 3}
+  - {fileID: 2800000, guid: cf36bee4b189075448ad8af14e8f8921, type: 3}
+  - {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
+  - {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
+  - {fileID: 2800000, guid: 5402065cf5c67524bb3a8a59de2a1ff7, type: 3}
+  - {fileID: 2800000, guid: 98c6ab5f593d21a43a470d7b5594d882, type: 3}
   explorer:
     states: []
     inspectedState: -1
@@ -49,7 +58,7 @@ MonoBehaviour:
   showDebug: 0
   inspectedStuff: -1
   inspectedReference: -1
-  STDdata: imgs|1427|e|141|dst|1|0|tex2D|2|21|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|y|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|23|Volume Core_VOL8_slices|svs|0||rec|1|n|bu|1|n||e|117|dst|1|0|tex2D|2|27|w|2|64|h|2|64|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|4|Cube|svs|0||rec|1|n|bu|1|n||e|127|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha 0|svs|0||rec|1|n|bu|1|n||e|129|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0||rec|1|n|bu|1|n||e|129|dst|1|0|tex2D|2|22|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Grass_COLOR|svs|0||rec|1|n|bu|1|n||e|127|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0||rec|1|n|bu|1|n||e|345|dst|1|0|tex2D|2|26|w|2|64|h|2|64|useUV2|1|n|Lock|1|n|b|1|y|tl|12|x|1|1|y|1|1||off|0||sn|14|Cube BlaBlaBla|svs|180|e|84|C:/Users/quizc/AppData/LocalLow/DefaultCompany/Tools\Saved Images\Cube BlaBlaBla.png|e|84|C:/Users/quizc/AppData/LocalLow/DefaultCompany/Tools\Saved Images\Cube BlaBlaBla.png||rec|1|n|trnsp|1|y|bu|1|y|2dUndo|1|0|rtBackups|1|0||e|121|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|7|Unnamed|svs|0||rec|1|n|bu|1|n||e|128|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0||rec|1|n|bu|1|n|||mats|225|e|26|mat|1|3|texInd|1|1|pv|1|n||e|26|mat|1|2|texInd|1|2|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|27|mat|2|25|texInd|1|0|pv|1|n||e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||
+  myLayer: 30
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
   br_Add: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
   br_Copy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
@@ -62,10 +71,18 @@ MonoBehaviour:
   mesh_Preview: {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
   br_Preview: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
   TerrainPreview: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
-  showRecentTextures: 1
+  showRecentTextures: 0
   sourceTextures: []
   masks: []
-  decals: []
+  decals:
+  - decalName: Ball
+    type: 0
+    heightMap: {fileID: 2800000, guid: 2545000fc9616a345af5d536bc52515a, type: 3}
+    overlay: {fileID: 2800000, guid: 740fe187dd334be4b9699871910b9ae5, type: 3}
+  - decalName: Bullet Hole
+    type: 1
+    heightMap: {fileID: 2800000, guid: 2656c92f14669ff49bcf3065c9fdf450, type: 3}
+    overlay: {fileID: 2800000, guid: 76136d73e52d979449e6ae5df36b3e30, type: 3}
   meshPackagingSolutions:
   - sln:
     - sameSizeDataIndex: 0
@@ -564,19 +581,19 @@ MonoBehaviour:
     selectedSourceMask: 0
     useMask: 0
     randomMaskOffset: 0
-    selectedDecal: 0
+    selectedDecal: 1
     maskTiling: 1
-    Hardness: 62
+    Hardness: 292
     blurAmount: 1
-    decalAngle: 0
+    decalAngle: 327.78564
     decalRotationMethod: 0
-    decalContinious: 0
+    decalContinious: 1
     decalAngleModifier: 0
     flipMaskAlpha: 0
     TargetIsTex2D: 0
-    Brush3D_Radius: 2.28
-    Brush2D_Radius: 14.4
-    speed: 15.56
+    Brush3D_Radius: 0.4
+    Brush2D_Radius: 1.6
+    speed: 8.1
     MB1ToLinkPositions: 0
     DontRedoMipmaps: 0
     colorLinear:
@@ -588,10 +605,10 @@ MonoBehaviour:
   previewAlphaChanel: 0
   newTextureIsColor: 1
   moreOptions: 0
+  allowExclusiveRenderTextures: 0
   showConfig: 0
   ShowTeachingNotifications: 0
   DebugDisableSecondBufferUpdate: 0
-  myLayer: 30
   samplingMaskSize:
     x: 4
     y: 4
@@ -599,4 +616,4 @@ MonoBehaviour:
   recordingNames:
   - Unnamed
   browsedRecord: 0
-  showImgDatas: 1
+  STDdata: imgs|2432|e|130|dst|1|0|tex2D|1|7|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|4|Cube|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|153|dst|1|0|tex2D|2|21|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|y|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|23|Volume Core_VOL8_slices|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|352|dst|1|0|tex2D|2|36|w|2|64|h|2|64|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|8|Painting|svs|180|e|84|C:/Users/quizc/AppData/LocalLow/DefaultCompany/Tools\Saved Images\Cube BlaBlaBla.png|e|84|C:/Users/quizc/AppData/LocalLow/DefaultCompany/Tools\Saved Images\Cube BlaBlaBla.png||rec|1|n|trnsp|1|y|bu|1|y|tc2Auto|1|y|2dUndo|2|10|rtBackups|2|10||e|139|dst|1|0|tex2D|1|8|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|SplatAlpha 0|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|141|dst|1|0|tex2D|2|33|w|4|2048|h|4|1024|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|5|y|1|5||off|0||sn|11|Cliff_COLOR|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|141|dst|1|0|tex2D|2|10|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Tiles_COLOR|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|141|dst|1|0|tex2D|2|22|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Grass_COLOR|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|145|dst|1|0|tex2D|2|31|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|15|Grass_MASKnMAPS|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|139|dst|1|0|tex2D|1|6|w|3|512|h|3|512|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|12|TerrainLight|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|159|dst|1|0|tex2D|2|32|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|5|y|1|5||off|0||sn|29|GroundAsphaltBroken001_COL_1K|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|132|dst|1|0|tex2D|2|34|w|3|128|h|3|128|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|5|y|1|5||off|0||sn|5|noise|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|141|dst|1|0|tex2D|2|29|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|5|y|1|5||off|0||sn|11|RegularSoil|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|141|dst|1|0|tex2D|2|30|w|4|1024|h|4|1024|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Microdetail|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|133|dst|1|0|tex2D|2|28|w|3|256|h|3|256|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|6|Cube 3|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n||e|140|dst|1|0|tex2D|1|0|w|4|2048|h|4|2048|useUV2|1|n|Lock|1|n|b|1|n|tl|12|x|1|1|y|1|1||off|0||sn|11|Diffuse_ATL|svs|0||rec|1|n|bu|1|n|tc2Auto|1|n|||mats|225|e|26|mat|1|2|texInd|1|2|pv|1|n||e|26|mat|1|1|texInd|1|0|pv|1|n||e|27|mat|2|25|texInd|1|1|pv|1|n||e|26|mat|1|4|texInd|1|0|pv|1|n||e|26|mat|1|3|texInd|1|1|pv|1|n||e|26|mat|1|9|texInd|1|0|pv|1|n||e|26|mat|1|5|texInd|1|0|pv|1|n|||

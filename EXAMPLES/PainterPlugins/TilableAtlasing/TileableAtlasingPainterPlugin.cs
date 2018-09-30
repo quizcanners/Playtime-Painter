@@ -195,7 +195,7 @@ namespace Playtime_Painter {
             if (p == null) return false;
             var mat = p.GetMaterial(false);
             if (mat == null) return false;
-            return p.GetMaterial(false).IsAtlased(p.MaterialTexturePropertyName); }
+            return p.GetMaterial(false).IsAtlased(p.GetMaterialTexturePropertyName); }
         public static bool IsProjected(this PlaytimePainter p) { return p.GetMaterial(false).IsProjected(); }
 
         public static bool IsAtlased(this Material mat, string property) {

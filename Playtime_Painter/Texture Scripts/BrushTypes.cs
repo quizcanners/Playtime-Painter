@@ -135,62 +135,44 @@ namespace Playtime_Painter
         {
 
             bool change = false;
-            pegi.newLine();
-
+  
             if (BrushConfig.InspectedIsCPUbrush)
                 return change;
 
             if (TexMGMTdata.masks.Count > 0)
             {
-
+                pegi.nl();
                 pegi.Space();
                 pegi.newLine();
 
-                change |= pegi.toggle(ref InspectedBrush.useMask, "Mask", "Multiply Brush Speed By Mask Texture's alpha", 40);
+                change |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask);
 
-                if (InspectedBrush.useMask)
-                {
+                if (InspectedBrush.useMask) {
 
-                    pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks);
+                    change |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl();
 
-                    pegi.newLine();
+                  
 
                     if (!InspectedBrush.randomMaskOffset)
-                    {
+                        change |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
 
-                        pegi.write("Mask Offset: ", 70);
+                    change |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset).nl();
 
-                        change |= pegi.edit(ref InspectedBrush.maskOffset);
-
-                        pegi.newLine();
-                    }
-
-                    pegi.write("Random Mask Offset");
-
-                    change |= pegi.toggle(ref InspectedBrush.randomMaskOffset);
-
-                    pegi.newLine();
-
-                    pegi.write("Mask Tiling: ", 70);
-
-                    if (pegi.edit(ref InspectedBrush.maskTiling, 1, 8))
+          
+                    if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl())
                     {
                         InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
                         change = true;
                     }
 
-                    pegi.newLine();
+                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
                     
-                    change |= pegi.toggle(ref InspectedBrush.flipMaskAlpha, "Flip Mask Alpha", "Alpha = 1-Alpha");
-
-                    pegi.newLine();
                 }
 
 
             }
-         //   else { pegi.writeHint("Assign some Masks to Painter Camera"); pegi.newLine(); }
-
-            if (InspectedPainter.NeedsGrid() && "Center Grid".Click().nl())
+    
+            if (InspectedPainter.NeedsGrid() && "Center Grid On Object".Click().nl())
                 GridNavigator.onGridPos = InspectedPainter.transform.position;
 
             return change;
@@ -789,9 +771,9 @@ namespace Playtime_Painter
 #if PEGI
         public override bool PEGI()
         {
-            bool changed = base.PEGI();
+            bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush); 
 
-            changed |= "Use Grid".toggle(60, ref Cfg.useGridForBrush);
+            changed |= base.PEGI();
 
             return changed;
         }

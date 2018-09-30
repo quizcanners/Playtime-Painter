@@ -30,7 +30,7 @@ namespace Playtime_Painter {
 
             if (p.ImgData != null) return changes;
 
-        if (p.MaterialTexturePropertyName == null) {
+        if (p.GetMaterialTexturePropertyName == null) {
             pegi.write("This material has no textures");
             pegi.newLine();
                 return changes;
@@ -40,7 +40,7 @@ namespace Playtime_Painter {
         if (pegi.Click("Create Mask") || color) {
             List<string> texes = p.GetMaterialTextureNames();
                 if (texes.Count > 0) {
-                    p.CreateTexture2D(256, "New " + p.MaterialTexturePropertyName, color);
+                    p.CreateTexture2D(256, "New " + p.GetMaterialTexturePropertyName, color);
                     changes = true;
                 }
             

@@ -30,11 +30,12 @@ namespace Playtime_Painter
         public int width = 128;
         public int height = 128;
         public bool useTexcoord2;
+        public bool useTexcoord2_AutoAssigned = false;
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
         public bool showRecording = false;
-        bool gotBacups;
+        public bool enableUndoRedo;
 
         public int numberOfTexture2Dbackups = 10;
         public int numberOfRenderTextureBackups = 10;
@@ -117,9 +118,10 @@ namespace Playtime_Painter
 .Add("svs", playtimeSavedTextures)
 .Add_Bool("rec", showRecording)
 .Add_ifTrue("trnsp", isATransparentLayer)
-.Add_Bool("bu", gotBacups);
+.Add_Bool("bu", enableUndoRedo)
+.Add_Bool("tc2Auto", useTexcoord2_AutoAssigned);
 
-            if (gotBacups)
+            if (enableUndoRedo)
                 cody.Add("2dUndo", numberOfTexture2Dbackups)
 .Add("rtBackups", numberOfRenderTextureBackups);
 
@@ -145,7 +147,8 @@ namespace Playtime_Painter
                 case "svs": data.DecodeInto(out playtimeSavedTextures); break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
-                case "bu": gotBacups = data.ToBool(); break;
+                case "bu": enableUndoRedo = data.ToBool(); break;
+                case "tc2Auto": useTexcoord2_AutoAssigned = data.ToBool(); break;
                 default: return false;
         }
         return true;
@@ -176,14 +179,15 @@ namespace Playtime_Painter
         {
             if (backupManually) return;
 
-
-            if (destination == TexTarget.RenderTexture)
-            {
-                if (numberOfRenderTextureBackups > 0)
-                    cache.undo.backupRenderTexture(numberOfRenderTextureBackups, this);
+            if (enableUndoRedo) {
+                if (destination == TexTarget.RenderTexture)
+                {
+                    if (numberOfRenderTextureBackups > 0)
+                        cache.undo.backupRenderTexture(numberOfRenderTextureBackups, this);
+                }
+                else if (numberOfTexture2Dbackups > 0)
+                    cache.undo.backupTexture2D(numberOfRenderTextureBackups, this);
             }
-            else if (numberOfTexture2Dbackups > 0)
-                cache.undo.backupTexture2D(numberOfRenderTextureBackups, this);
 
             cache.redo.Clear();
 
@@ -471,8 +475,9 @@ namespace Playtime_Painter
             if (texture != null)
             {
                 var imp = texture.GetTextureImporter();
-                if (imp != null)
-                {
+                if (imp != null) {
+
+                    isATransparentLayer = imp.alphaIsTransparency;
 
                     /*  var name =  AssetDatabase.GetAssetPath(texture);
                       var extension = name.Substring(name.LastIndexOf(".") + 1);
@@ -548,15 +553,16 @@ namespace Playtime_Painter
             }
         }
 
-        public void SetAndApply(bool mipmaps) {
+        #endregion
+
+        public void SetAndApply(bool mipmaps)
+        {
             if (_pixels == null)
                 return;
             texture2D.SetPixels(_pixels);
             texture2D.Apply(mipmaps);
         }
-
-        #endregion
-
+        
         public ImageData Init(Texture tex)
         {
           
@@ -625,6 +631,8 @@ namespace Playtime_Painter
         {
             return cache.undo.gotData();
         }
+
+        #region Inspector
 #if PEGI
 
         bool LoadTexturePEGI(string path)
@@ -668,7 +676,7 @@ namespace Playtime_Painter
 
 
      
-            if ("Undo Redo".toggle_enter_exit(ref gotBacups,ref inspectedStuff, 2, ref changed).nl())  {
+            if ("Undo Redo".toggle_enter_exit(ref enableUndoRedo,ref inspectedStuff, 2, ref changed).nl())  {
 
                     changed |=
                   "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups) ||
@@ -697,6 +705,37 @@ namespace Playtime_Painter
             return changed;
         }
         
+        public bool ComponentDependent_PEGI(bool showToggles, PlaytimePainter painter) {
+            bool changed = false;
+
+            if (showToggles || isATransparentLayer)
+                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer, true).nl();
+
+            bool forceOpen = false;
+            if (!useTexcoord2)
+            {
+                var property = painter.GetMaterialTexturePropertyName;
+                var prop = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + painter.GetMaterialTexturePropertyName);
+                if (prop) {
+                    if (!useTexcoord2_AutoAssigned)
+                    {
+                        useTexcoord2 = true;
+                        useTexcoord2_AutoAssigned = true;
+                    } else 
+                        "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).writeHint();
+                    forceOpen = true;
+                }
+            }
+
+            if (showToggles || useTexcoord2 || forceOpen)
+                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2, true).nl();
+
+            if (showToggles || (!painter.IsOriginalShader && Cfg.previewAlphaChanel))
+                changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel, true).nl();
+
+            return changed;
+        }
+
         public bool Undo_redo_PEGI()
         {
             bool changed = false;
@@ -714,7 +753,7 @@ namespace Playtime_Painter
                 }
             }
             else
-                icon.UndoDisabled.Click("Nothing to Undo (set number of undo frames in config)", 25);
+                icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)", 25);
 
             if (cache.redo.gotData())
             {
@@ -725,7 +764,7 @@ namespace Playtime_Painter
                 }
             }
             else
-                icon.RedoDisabled.Click("Nothing to Redo", 25);
+                icon.RedoDisabled.write("Nothing to Redo", 25);
 
 
             pegi.newLine();
@@ -758,9 +797,7 @@ namespace Playtime_Painter
 
             return false;
         }
-
- 
-
+        
         public string NeedAttention()
         {
             if (numberOfTexture2Dbackups > 50)
@@ -769,6 +806,7 @@ namespace Playtime_Painter
         }
 
 #endif
+        #endregion
     }
 
 }

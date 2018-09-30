@@ -10,8 +10,7 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public interface IEditorDropdown
-    {
+    public interface IEditorDropdown {
         bool ShowInDropdown();
     }
 

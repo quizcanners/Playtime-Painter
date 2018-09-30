@@ -2317,6 +2317,57 @@ namespace PlayerAndEditorGUI
 
             return isFoldedOut;
         }
+        public static bool fold_enter_exit_List_Obj<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object {
+
+            bool changed = false;
+
+            if (list == null) {
+                "{0} list is null".F(label).nl();
+                return changed;
+            }
+
+            var lbl = "{0} [{1}]".F(label, list.Count);
+            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+                lbl.edit_List_Obj(list, ref inspectedElement, datas).nl();
+
+            return changed;
+        }
+
+        public static bool fold_enter_exit_List_Obj<T>(this string label, List<T> list, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        {
+
+            bool changed = false;
+
+            if (list == null)
+            {
+                "{0} list is null".F(label).nl();
+                return changed;
+            }
+
+            var lbl = "{0} [{1}]".F(label, list.Count);
+            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+                lbl.edit_List_Obj(list, datas).nl();
+
+            return changed;
+        }
+
+        public static bool fold_enter_exit_List<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        {
+
+            bool changed = false;
+
+            if (list == null)
+            {
+                "{0} list is null".F(label).nl();
+                return changed;
+            }
+
+            var lbl = "{0} [{1}]".F(label, list.Count);
+            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+                lbl.edit_List(list, ref inspectedElement).nl();
+
+            return changed;
+        }
 
         #endregion
 
@@ -2744,7 +2795,7 @@ namespace PlayerAndEditorGUI
 
             var ret = toggle(ref val, icon.True, icon.False, hint).PreviousBGcolor();
 
-            if (!val || dontHideTextWhenOn) label.write(hint);
+            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel);
 
             return ret;
         }
@@ -2753,7 +2804,7 @@ namespace PlayerAndEditorGUI
         {
             var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label).PreviousBGcolor();
 
-            if (!val || showTextWhenTrue) label.write();
+            if (!val || showTextWhenTrue) label.write(PEGI_Styles.ToggleLabel);
 
             return ret;
         }
@@ -5137,16 +5188,16 @@ namespace PlayerAndEditorGUI
         public static bool edit_List_Obj<T>(this List<T> list, ref int edited) where T : UnityEngine.Object
             => list.edit_or_select_List_Obj(null, ref edited);
 
-        public static bool edit_List_Obj<T>(this List<T> list) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this List<T> list, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             int edited = -1;
-            return list.edit_or_select_List_Obj(null, ref edited);
+            return list.edit_or_select_List_Obj(null, ref edited, datas);
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this string label, List<T> list, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, -1);
-            return (list.edit_List_Obj());
+            return (list.edit_List_Obj(datas));
         }
 
         public static bool edit_List_Obj<T>(this string label, List<T> list, ref int edited) where T : UnityEngine.Object {

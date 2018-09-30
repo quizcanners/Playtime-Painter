@@ -52,7 +52,20 @@ namespace PlayerAndEditorGUI
             return colorIcon((int)icon);
         }
 
+        public static string ToText(this BrushMask icon)
+        {
+          
+            switch (icon)
+            {
+                case BrushMask.R: return "Red";
+                case BrushMask.G: return "Green";
+                case BrushMask.B: return "Blue";
+                case BrushMask.A: return "Alpha";
+                default: return "Unknown channel";
+            }
 
+
+        }
 
         public static Texture getIcon(this BrushMask icon)
         {

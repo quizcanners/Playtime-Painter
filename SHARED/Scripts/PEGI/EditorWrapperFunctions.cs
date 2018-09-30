@@ -293,6 +293,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
+        /*
         public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
         {
             checkLine();
@@ -341,7 +342,7 @@ namespace PlayerAndEditorGUI {
             return changed;
 
         }
-        
+        */
         public static bool select(ref int no, string[] from, int width)
         {
             checkLine();
@@ -360,7 +361,7 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
 
-            int newNo = EditorGUILayout.Popup(no, from, EditorStyles.toolbarDropDown);
+            int newNo = EditorGUILayout.Popup(no, from);
             if (newNo != no)
             {
                 no = newNo;
@@ -1048,22 +1049,12 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
         }
 
-        public static bool Click(Texture img, int width)
-        {
+        public static bool Click(Texture img, int width)   {
             checkLine();
-            return GUILayout.Button(img,  GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            return GUILayout.Button(img, PEGI_Styles.ImageButton, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
-        public static bool Click(Texture img, string tip, int width)
-        {
-            checkLine();
-            GUIContent cont = new GUIContent
-            {
-                tooltip = tip,
-                image = img
-            };
-            return GUILayout.Button(cont, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
-        }
+        public static bool Click(Texture img, string tip, int width) => Click(img, tip, width, width);
 
         public static bool Click(Texture img, string tip, int width, int height)
         {
@@ -1073,7 +1064,7 @@ namespace PlayerAndEditorGUI {
                 tooltip = tip,
                 image = img
             };
-            return GUILayout.Button(cont,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Set(); 
+            return GUILayout.Button(cont, PEGI_Styles.ImageButton, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Set(); 
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object
@@ -1082,38 +1073,25 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.ObjectField(field, typeof(T), false);
         }
 
-        public static void write(Texture icon, int width)
-        {
+        public static void write(Texture icon, int width) => write(icon, icon ? icon.name : "Null Icon", width, width);
+        /* {
 
-            checkLine();
+             checkLine();
 
-            GUIContent c = new GUIContent
-            {
-                image = icon
-            };
+             GUIContent c = new GUIContent
+             {
+                 image = icon
+             };
 
-            GUI.enabled = false;
-            GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
-            GUI.enabled = true;
-        }
+             GUI.enabled = false;
+             pegi.SetBgColor(Color.clear);
+             GUILayout.Button(c, PEGI_Styles.ImageButton, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
+             pegi.PreviousBGcolor();
+             GUI.enabled = true;
+         }*/
 
-        public static void write(Texture icon, string tip, int width)
-        {
-
-            checkLine();
-
-            GUIContent c = new GUIContent
-            {
-                image = icon,
-                tooltip = tip
-            };
-
-            GUI.enabled = false;
-            GUILayout.Button(c, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
-            GUI.enabled = true;
-
-            //EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
-        }
+        public static void write(Texture icon, string tip, int width) => write(icon, tip, width, width);
+      
 
         public static void write(Texture icon, string tip, int width, int height)
         {
@@ -1127,10 +1105,11 @@ namespace PlayerAndEditorGUI {
             };
 
             GUI.enabled = false;
-            GUILayout.Button(c,  GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
+            pegi.SetBgColor(Color.clear);
+            GUILayout.Button(c, PEGI_Styles.ImageButton ,GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height));
+            pegi.PreviousBGcolor();
             GUI.enabled = true;
-
-            //EditorGUILayout.LabelField(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxWidth(width));
+            
         }
         
         public static void write(string text, int width)
