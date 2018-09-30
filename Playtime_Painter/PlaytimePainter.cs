@@ -356,12 +356,12 @@ namespace Playtime_Painter
 
         public Vector2 OffsetAndTileUV(RaycastHit hit)
         {
-            var uv = stroke.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
-
             var id = ImgData;
 
-            if (id == null) return uv;
+            if (id == null) return hit.textureCoord;
 
+            var uv = id.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
+            
             foreach (var p in plugins)
                 if (p.OffsetAndTileUV(hit, this, ref uv))
                     return uv;
@@ -1878,7 +1878,7 @@ namespace Playtime_Painter
 
             if ((id != null) && (!IsOriginalShader))
             {
-                TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, id.useTexcoord2, this);
+                TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, this);
 
                 foreach (var p in plugins)
                     p.Update_Brush_Parameters_For_Preview_Shader(this);
@@ -2124,6 +2124,7 @@ namespace Playtime_Painter
                     if (!LockTextureEditing)
                     {
 
+                        #region Undo/Redo & Recording
                         id.Undo_redo_PEGI();
 
                         if (id.showRecording)
@@ -2147,6 +2148,10 @@ namespace Playtime_Painter
                         if (!CPU && id.texture2D != null && id.width != id.height)
                             "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
 
+                        #endregion
+
+                        #region Brush
+
                         changed |= GlobalBrush.PEGI();
 
                         BlitMode mode = GlobalBrush.BlitMode;
@@ -2165,7 +2170,12 @@ namespace Playtime_Painter
 
                         changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
-                        if ("Fancy options".foldout(ref Cfg.moreOptions).nl())
+                        #endregion
+
+
+                        "Fancy options".foldout(ref Cfg.moreOptions).nl();
+
+                        if (Cfg.moreOptions)
                         {
 
                             if (icon.NewTexture.conditional_enter_exit("New Texture Config ", !IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl())
@@ -2184,14 +2194,20 @@ namespace Playtime_Painter
                             }
                             pegi.nl();
 
-                            if (id.PEGI())
-                            {
-                                stroke.useTexcoord2 = id.useTexcoord2;
-                                changed = true;
-                            }
+                            changed |= id.PEGI();
+                        }
 
+                        bool notInspecting = (id.inspectedStuff == -1 && Cfg.moreOptions);
+                        
+                        if (notInspecting || id.isATransparentLayer)
+                            changed |= "Transparent Layer".toggleIcon(ref id.isATransparentLayer, true).nl();
 
-                            if (id.inspectedStuff == -1)
+                        if (notInspecting || id.useTexcoord2)
+                            changed |= "Use Texcoord 2".toggleIcon(ref id.useTexcoord2, true).nl();
+
+                        if (Cfg.moreOptions)
+                        {
+                            if (notInspecting)
                             {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();

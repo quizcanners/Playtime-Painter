@@ -93,6 +93,9 @@ namespace Playtime_Painter {
                     PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
 
                 MatTex = texture;
+
+                texture.GetImgData().useTexcoord2 = useTexcoord2;
+
             }
 
             return texture;
@@ -158,17 +161,10 @@ namespace Playtime_Painter {
                 "   Renderer".edit(() => meshRenderer, this).nl();
             }
 
-
-
             if ((Rendy != null && (Rendy.sharedMaterials.Length > 1)) || materialIndex != 0) {
                 "If more then one material:".nl();
                 "   Material".select(ref materialIndex, Rendy.sharedMaterials).nl();
             }
-
-           // "Material: ".write(material);
-           // pegi.nl();
-         //   "Texture: ".write(texture);
-           // pegi.nl();
 
             if (Material) {
                 var lst = Material.MyGetTextureProperties();
@@ -177,8 +173,7 @@ namespace Playtime_Painter {
                 }
                 else textureField = "";
             }
-
-
+            
             if (this.gameObject.isStatic && originalMesh == null) {
                 pegi.writeWarning("Original mesh is not set.");
                 pegi.newLine();
@@ -192,7 +187,8 @@ namespace Playtime_Painter {
             }
 
             "For shaders which use Texcoord 2:".nl();
-            "    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl();
+            if ("    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl() && texture)
+                texture.GetImgData().useTexcoord2 = useTexcoord2;
 
 
             if ((texture != null) || (MatTex == null))
@@ -243,13 +239,11 @@ namespace Playtime_Painter {
                                     var ot = (Texture2D)originalTexture;
                                     var t = (Texture2D)texture;
 
-                                    if ((ot.width == t.width) && (ot.height == ot.height))
-                                    {
+                                    if ((ot.width == t.width) && (ot.height == ot.height)) {
 
                                         if (("Undo Changes".Click()).nl())
-                                        {
                                             Restore();
-                                        }
+                                        
                                     }
                                     else "Original and edited texture are not of the same size".nl();
 
@@ -257,8 +251,7 @@ namespace Playtime_Painter {
                                 }
                                 else "Original Texture is not a Texture 2D".nl();
                             }
-                            //PainterManager.inst.Render(originalTexture, (RenderTexture)texture);
-
+                   
                         }
                         else
                         {

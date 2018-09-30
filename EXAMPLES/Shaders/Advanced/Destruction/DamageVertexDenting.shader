@@ -1,5 +1,5 @@
 ﻿
-Shader "PlaytimePainter/DestructibleCharacters" {
+Shader "PlaytimePainter/Destructible/Character" {
 	Properties{
 	[NoScaleOffset]_MainTex("Damage Mask", 2D) = "black" {}
 	[NoScaleOffset]_Diffuse("Main", 2D) = "white" {}

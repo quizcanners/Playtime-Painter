@@ -378,9 +378,7 @@ namespace Playtime_Painter
             if (TexMGMT.BigRT_pair == null) TexMGMT.UpdateBuffersState();
 
             var id = rt.GetImgData();
-            var stroke = new StrokeVector(uv)
-            {
-                useTexcoord2 = false,
+            var stroke = new StrokeVector(uv) {
                 firstStroke = false
             };
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);

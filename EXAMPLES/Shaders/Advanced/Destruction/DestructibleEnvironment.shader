@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "PlaytimePainter/DestructibleEnvironment" {
+Shader "PlaytimePainter/Destructible/Walls" {
 	Properties {
 		[NoScaleOffset] _MainTex_ATL_UV2("_Main DAMAGE (_UV2) (_ATL) (RGB)", 2D) = "black" {}
 		_WetColor("Wetness Color", Color) = (0.26,0.16,0.16,0.0)

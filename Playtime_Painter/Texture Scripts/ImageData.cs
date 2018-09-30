@@ -689,15 +689,9 @@ namespace Playtime_Painter
 
             pegi.nl();
 
-            if (inspectedStuff == -1)
-            {
-
-                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer, true).nl();
-
-                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2, true).nl();
-
+            if (inspectedStuff == -1) 
                 changed |= "Show Recording/Playback".toggleIcon(ref showRecording, true).nl();
-            }
+            
 
 
             return changed;

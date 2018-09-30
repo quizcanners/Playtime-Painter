@@ -185,7 +185,8 @@ namespace Playtime_Painter {
                 if (stroke.mouseDwn)
                     stroke.posFrom = stroke.posTo;
 
-                stroke.useTexcoord2 = false;
+                image.useTexcoord2 = false;
+              //  stroke.useTexcoord2 = false;
 
                 TexMGMT.Shader_UpdateStrokeSegment(bc, bc.speed * 0.05f, image, stroke, pntr);
                 stroke.SetWorldPosInShader();

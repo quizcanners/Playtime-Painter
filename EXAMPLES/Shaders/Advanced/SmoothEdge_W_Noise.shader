@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Smooth_and_Easy" {
+﻿Shader "PlaytimePainter/Walls/NoiseExperiment" {
 	Properties{
 		_MainTex("Base texture", 2D) = "white" {}
 		_Noise("Noise", 2D) = "white" {}

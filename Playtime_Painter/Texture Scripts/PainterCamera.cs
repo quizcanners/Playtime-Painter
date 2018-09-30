@@ -368,7 +368,7 @@ namespace Playtime_Painter
 
         }
 
-        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageData id, bool texcoord2, PlaytimePainter pntr)
+        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageData id, PlaytimePainter pntr)
         {
             float textureWidth = id.width;
             bool RendTex = id.TargetIsRenderTexture();
@@ -411,9 +411,9 @@ namespace Playtime_Painter
                 , brush.Size(is3Dbrush) / textureWidth // z - scale for uv space
                 , brush.blurAmount)); // w - blur amount
 
-            brushType.SetKeyword(texcoord2);
+            brushType.SetKeyword(id.useTexcoord2);
 
-            if (texcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
+            if (id.useTexcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
             else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
 
             if (brush.BlitMode.supportsTransparentLayer) {
@@ -440,7 +440,7 @@ namespace Playtime_Painter
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
-                Shader_UpdateBrush(bc, brushAlpha, id, stroke.useTexcoord2, pntr);
+                Shader_UpdateBrush(bc, brushAlpha, id, pntr);
 
             rtcam.targetTexture = id.CurrentRenderTexture();
 

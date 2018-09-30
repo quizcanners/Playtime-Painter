@@ -129,9 +129,9 @@
 		_brushColor.a = Height;
 	#endif
 
-		//return 1;
 
 	#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
+
 
 		#if (BRUSH_NORMAL || BRUSH_COPY) && TARGET_TRANSPARENT_LAYER
 			return AlphaBlitTransparent(alpha, _brushColor,  i.texcoord.xy);

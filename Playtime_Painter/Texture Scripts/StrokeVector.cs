@@ -17,7 +17,7 @@ namespace Playtime_Painter {
        // public Vector2 inMeshUV;
         public Vector2 unRepeatedUV;
 
-        public bool useTexcoord2; // For Sphere Brush
+     //public bool useTexcoord2; // For Sphere Brush
     public Vector2 previousDelta;
 	public float avgBrushSpeed;
      
@@ -172,9 +172,8 @@ namespace Playtime_Painter {
         }
 
         public StrokeVector (RaycastHit hit, bool texcoord2) {
-            useTexcoord2 = texcoord2;
             //inMeshUV = hit.textureCoord;
-            uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
+            uvFrom = uvTo = (texcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
             posFrom = posTo = hit.point;
             Dwn();
         }
@@ -201,8 +200,7 @@ namespace Playtime_Painter {
 
             posTo = other.posTo;
             unRepeatedUV = other.unRepeatedUV;
-
-            useTexcoord2 = other.useTexcoord2;
+            
             previousDelta = other.previousDelta;
             avgBrushSpeed = other.avgBrushSpeed;
             

@@ -1024,18 +1024,18 @@ namespace SharedTools_Stuff
 
         public static List<string> MyGetTextureProperties(this Material m)
         {
-#if UNITY_2018_2_OR_NEWER
+/*#if UNITY_2018_2_OR_NEWER
             if (!m) return new List<string>();
             else
             return new List<string>(m.GetTexturePropertyNames());
 #else
-
+            */
 #if UNITY_EDITOR
             return m.GetFields(MaterialProperty.PropType.Texture);
 #else
             return new List<string>();
 #endif
-#endif
+//#endif
         }
 
         public static List<string> GetColorProperties(this Material m) {

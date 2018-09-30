@@ -86,8 +86,8 @@ namespace Playtime_Painter
                                     {
                                         unRepeatedUV = hit.collider.GetType() == typeof(MeshCollider) ?
                                         (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor() : reciver.meshUVoffset,
+                                        
 
-                                        useTexcoord2 = reciver.useTexcoord2
                                     };
 
                                     if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer != null)
