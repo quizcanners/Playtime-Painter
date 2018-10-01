@@ -32,7 +32,7 @@ namespace PlayerAndEditorGUI
             {
                 if (_toggleText == null)
                     _toggleText = new GUIStyle(GUI.skin.label)  {
-                        contentOffset = new Vector2(0, 4)
+                        contentOffset = new Vector2(0, 2)
                        // fontStyle = FontStyle.Bold
                     };
 
@@ -45,15 +45,15 @@ namespace PlayerAndEditorGUI
         public static GUIStyle ListLabel { get {
                 if (_listLabel == null)
                 {
-                    _listLabel = new GUIStyle()
+                    _listLabel = new GUIStyle(GUI.skin.label)
                     {
-                        margin = new RectOffset(1, 1, 1, 1),
-                        fontSize = 13,
+                        margin = new RectOffset(1, 1, 2, 1),
+                        fontSize = 12,
+                        clipping = TextClipping.Clip,
                         richText = true,
-                        wordWrap = false,
+                        wordWrap = true,
                         alignment = TextAnchor.MiddleLeft,
                         fontStyle = FontStyle.Bold,
-                        
                     };
                     _listLabel.normal.textColor = new Color32(43, 30, 11,255); //2C1F0B);
                 }
@@ -61,14 +61,14 @@ namespace PlayerAndEditorGUI
         
         }
 
-        static GUIStyle _enterExitLabel;
-        public static GUIStyle EnterExitLabel
+        static GUIStyle _enterLabel;
+        public static GUIStyle EnterLabel
         {
             get
             {
-                if (_enterExitLabel == null)
+                if (_enterLabel == null)
                 {
-                    _enterExitLabel = new GUIStyle()
+                    _enterLabel = new GUIStyle()
                     {
                         margin = new RectOffset(10, 10, 10, 10),
                         fontSize = 12,
@@ -76,14 +76,39 @@ namespace PlayerAndEditorGUI
                         wordWrap = false,
                         alignment = TextAnchor.MiddleLeft,
                         fontStyle = FontStyle.Bold,
-                        contentOffset = new Vector2(0, 4),
+                        contentOffset = new Vector2(0, 2),
 
                     };
-                    _enterExitLabel.normal.textColor = new Color32(43, 30, 77, 255); //2C1F0B);
+                    _enterLabel.normal.textColor = new Color32(43, 30, 77, 255); //2C1F0B);
                 }
-                return _enterExitLabel;
+                return _enterLabel;
             }
          
+        }
+
+        static GUIStyle _exitLabel;
+        public static GUIStyle ExitLabel
+        {
+            get
+            {
+                if (_exitLabel == null)
+                {
+                    _exitLabel = new GUIStyle()
+                    {
+                        margin = new RectOffset(10, 10, 10, 10),
+                        fontSize = 13,
+                        richText = true,
+                        wordWrap = false,
+                        alignment = TextAnchor.MiddleLeft,
+                        fontStyle = FontStyle.Italic,
+                        contentOffset = new Vector2(0, 2),
+
+                    };
+                    _exitLabel.normal.textColor = new Color32(77, 77, 77, 255); //2C1F0B);
+                }
+                return _exitLabel;
+            }
+
         }
 
         static GUIStyle _foldedOutLabel;

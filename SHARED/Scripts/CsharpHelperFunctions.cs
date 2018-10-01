@@ -279,7 +279,7 @@ namespace SharedTools_Stuff
 
         }
 
-        public static T TryGetLast<T>(this List<T> list)
+        public static T TryGetLast<T>(this IList<T> list)
         {
 
             if (list == null || list.Count == 0)

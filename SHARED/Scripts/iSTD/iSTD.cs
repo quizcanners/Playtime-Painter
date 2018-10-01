@@ -107,14 +107,18 @@ namespace SharedTools_Stuff
         {
 
             bool changed = false;
-            
-            if (!showDebug && icon.Config.Click())
-                showDebug = true;
 
-            if (showDebug)
+            if (!showDebug)
+            {
+                if (icon.Config.Click())
+                    showDebug = true;
+            }
+            else
             {
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
+
+                this.Try_Nested_Inspect();
 
                 this.clickHighlight();
 
@@ -270,7 +274,7 @@ namespace SharedTools_Stuff
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tag, string data) => false;
-        
+        #region Inspector
 #if PEGI
         public bool showDebug;
 
@@ -293,6 +297,7 @@ namespace SharedTools_Stuff
             return changed;
         }
 #endif
+        #endregion
     }
 
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
@@ -385,13 +390,12 @@ namespace SharedTools_Stuff
             if (showDebug)
             {
 
-                if (nestedReferencesChanged && gameObject.IsPrefab() && icon.Save.Click())
-                    this.UpdatePrefab(gameObject);
-
                 if (icon.Edit.Click("Back to element inspection"))
                     showDebug = false;
 
-                (this.ToPEGIstring() + " Debug").write();
+                //(this.ToPEGIstring() + " Debug").write();
+
+
 
                 if (inspectedStuff == -1)
                     pegi.nl();
