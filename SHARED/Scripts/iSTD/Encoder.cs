@@ -414,6 +414,16 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add(string tag, List<Color> val)  {
+
+            StdEncoder cody = new StdEncoder();
+            foreach (Color i in val)
+                cody.Add("e", i);
+            Add(tag, cody);
+
+            return this;
+        }
+
         public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD => Add(tag, val.Encode());
         
         public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());

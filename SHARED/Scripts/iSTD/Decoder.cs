@@ -300,7 +300,21 @@ namespace SharedTools_Stuff
 
             return l;
         }
-        
+
+        public static List<Color> DecodeInto(this string data, out List<Color> l)
+        {
+
+            l = new List<Color>();
+
+            StdDecoder cody = new StdDecoder(data);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData().ToColor());
+
+
+            return l;
+        }
+
         // STD
         public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
         {

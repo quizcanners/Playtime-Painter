@@ -42,7 +42,7 @@ namespace Playtime_Painter
                 if (!Input.GetMouseButton(2)) MMouseDwn = false;
                 Zoom = Mathf.Max(0.1f, MouseDwnZoom + (Input.mousePosition.x - MouseDwnScreenPos.x) * 8 / Screen.width);
 
-                MouseDwnOffset = MyMath.Lerp(MouseDwnOffset, draggedOffset, 2 * Zoom);
+                MouseDwnOffset = MyMath.Lerp_bySpeed(MouseDwnOffset, draggedOffset, 2 * Zoom);
             }
 
             float Off = -Zoom / 2;

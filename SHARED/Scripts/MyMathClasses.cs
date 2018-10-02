@@ -10,7 +10,7 @@ namespace SharedTools_Stuff
     public static class MyMath
     {
 
-
+        #region Checks
         public static bool IsNaN(this Vector3 q)
         {
             return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
@@ -20,8 +20,7 @@ namespace SharedTools_Stuff
         {
             return float.IsNaN(f);
         }
-
-
+        #endregion
 
         #region Time
 
@@ -34,7 +33,8 @@ namespace SharedTools_Stuff
         public static float Seconds_To_Miliseconds(this float interval) => (interval * 1000);
 
         #endregion
-
+        
+        #region Adjust
 
         public static Vector2 To01Space(this Vector2 v2)
         {
@@ -45,10 +45,10 @@ namespace SharedTools_Stuff
         {
             return new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
         }
-
-
-        public static float ClampZeroTo (this float value, float Max) {
-            value = Mathf.Max(0, Mathf.Min(value, Max-1));
+        
+        public static float ClampZeroTo(this float value, float Max)
+        {
+            value = Mathf.Max(0, Mathf.Min(value, Max - 1));
             return value;
         }
 
@@ -56,18 +56,6 @@ namespace SharedTools_Stuff
         {
             value = Mathf.Max(0, Mathf.Min(value, Max - 1));
             return value;
-        }
-
-        public static Vector2 Rotate(this Vector2 v, float degrees)
-        {
-            float sin = Mathf.Sin(degrees);
-            float cos = Mathf.Cos(degrees);
-
-            float tx = v.x;
-            float ty = v.y;
-            v.x = (cos * tx) - (sin * ty);
-            v.y = (sin * tx) + (cos * ty);
-            return v;
         }
 
         public static Vector3 RoundDiv(Vector3 v3, int by)
@@ -92,10 +80,21 @@ namespace SharedTools_Stuff
             return new Vector3((int)v3.x, (int)v3.y, (int)v3.z);
         }
 
+        #endregion
+
         #region Lerps
 
-        public static float DistanceRGB (this Color col, Color other) => (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
-        
+        public static float DistanceRGB (this Color col, Color other)
+            =>
+            (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
+
+        public static float DistanceRGBA(this Color col, Color other) {
+
+            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b))*0.33f + Mathf.Abs(col.a - other.a)*3);
+
+            return dist;
+        }
+
         public static float SpeedToPortion (this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
 
         public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
@@ -109,15 +108,26 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public static Color Lerp_RGB(Color from, Color to, float speed) => Color.Lerp(from, to, speed.SpeedToPortion(from.DistanceRGB(to)));
+        public static Color Lerp_bySpeed(this Color from, Color to, float speed) => Color.Lerp(from, to, speed.SpeedToPortion(from.DistanceRGB(to)));
 
-        public static Color Lerp_RGB(Color from, Color to, float speed, out float portion)
-        {
+        public static Color Lerp_RGB(this Color from, Color to, float speed, out float portion) {
             portion = speed.SpeedToPortion(from.DistanceRGB(to));
             return Color.Lerp(from, to, portion);
         }
 
-        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
+        public static Color Lerp_RGBA(this Color from, Color to, float portion) {
+
+            if ( to.a < from.a) {
+                var prt =  to.a / from.a;
+                to.r *= prt;
+                to.g *= prt;
+                to.b *= prt;
+            }
+            
+            return Color.Lerp(from, to, portion);
+        }
+
+        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
         {
@@ -125,22 +135,22 @@ namespace SharedTools_Stuff
             return Quaternion.Lerp(from, to, portion);
         }
 
-        public static Vector4 Lerp(Vector4 from, Vector4 to, float speed) => Vector4.Lerp(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
+        public static Vector4 Lerp_bySpeed(this Vector4 from, Vector4 to, float speed) => Vector4.Lerp(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
 
-        public static Vector4 Lerp(Vector4 from, Vector4 to, float speed, out float portion)
+        public static Vector4 Lerp(this Vector4 from, Vector4 to, float speed, out float portion)
         {
             portion = speed.SpeedToPortion(Vector4.Distance(from, to));
             return Vector4.Lerp(from, to, portion);
         }
 
-        public static Vector3 Lerp(Vector3 from, Vector3 to, float speed) => Vector3.Lerp(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
+        public static Vector3 Lerp_bySpeed(this Vector3 from, Vector3 to, float speed) => Vector3.Lerp(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
         
-        public static Vector3 Lerp(Vector3 from, Vector3 to, float speed, out float portion) {
+        public static Vector3 Lerp(this Vector3 from, Vector3 to, float speed, out float portion) {
             portion = speed.SpeedToPortion(Vector3.Distance(from, to)); 
             return Vector3.Lerp(from, to, portion);
         }
 
-        public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed) => Vector2.Lerp(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
+        public static Vector2 Lerp_bySpeed(this Vector2 from, Vector2 to, float speed) => Vector2.Lerp(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
 
         public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed, out float portion) {
             portion = speed.SpeedToPortion(Vector3.Distance(from, to));
@@ -169,7 +179,7 @@ namespace SharedTools_Stuff
             return true;
         }
 
-        public static float Lerp(float from, float to, float speed) => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+        public static float Lerp_bySpeed(float from, float to, float speed) => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
 
         public static float Lerp(float from, float to, float speed, out float portion)
         {
@@ -297,12 +307,23 @@ namespace SharedTools_Stuff
         #endregion
 
         #region Transformations
+        public static Vector2 Rotate(this Vector2 v, float degrees)
+        {
+            float sin = Mathf.Sin(degrees);
+            float cos = Mathf.Cos(degrees);
+
+            float tx = v.x;
+            float ty = v.y;
+            v.x = (cos * tx) - (sin * ty);
+            v.y = (sin * tx) + (cos * ty);
+            return v;
+        }
+        
         public static Vector4 ToVector4(this Color col)
         {
             return new Vector4(col.r, col.g, col.b, col.a);
         }
-
-
+        
         public static Vector2 XY(this Vector3 vec) => new Vector2(vec.x, vec.y);
 
         public static Vector4 ToVector4(this Vector3 v3, float w) => new Vector4(v3.x, v3.y, v3.z, w);

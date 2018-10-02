@@ -153,7 +153,7 @@ namespace PlayerAndEditorGUI
             SetBgColor(col);
             return txt;
         }
-        
+
         public static bool PreviousBGcolor(this bool val) {
             PreviousBGcolor();
             return val;
@@ -179,7 +179,7 @@ namespace PlayerAndEditorGUI
             {
                 if (!colorReplaced)
                     previousColor = GUI.backgroundColor;
-                else 
+                else
                     previousBGcolors.Add(GUI.backgroundColor);
 
                 GUI.backgroundColor = col;
@@ -187,7 +187,7 @@ namespace PlayerAndEditorGUI
                 colorReplaced = true;
             }
         }
-        
+
         public static void RestoreBGcolor()
         {
             if (colorReplaced)
@@ -220,7 +220,7 @@ namespace PlayerAndEditorGUI
         public static void end(this GameObject go)
         {
 #if UNITY_EDITOR
-            
+
             ef.end(go);
 
 #endif
@@ -546,7 +546,7 @@ namespace PlayerAndEditorGUI
                 GUILayout.Label(cont, style, GUILayout.MaxWidth(width));
             }
         }
-        
+
         public static void write(this string text, string hint, int width, GUIStyle style)
         {
 #if UNITY_EDITOR
@@ -1369,66 +1369,66 @@ namespace PlayerAndEditorGUI
             return false;
 
         }
-/*
-        public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.select<T>(ref i, ar, clampValue);
-            }
-            else
-#endif
-
-            {
-                checkLine();
-
-                bool changed = false;
-
-                List<string> lnms = new List<string>();
-                List<int> ints = new List<int>();
-
-                int ind = -1;
-
-                if (clampValue)
+        /*
+                public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
                 {
-                    i = i.ClampZeroTo(ar.Length);
-                    if (ar[i].ShowInDropdown() == false)
-                        for (int v = 0; v < ar.Length; v++)
+
+        #if UNITY_EDITOR
+                    if (!paintingPlayAreaGUI)
+                    {
+                        return ef.select<T>(ref i, ar, clampValue);
+                    }
+                    else
+        #endif
+
+                    {
+                        checkLine();
+
+                        bool changed = false;
+
+                        List<string> lnms = new List<string>();
+                        List<int> ints = new List<int>();
+
+                        int ind = -1;
+
+                        if (clampValue)
                         {
-                            T val = ar[v];
+                            i = i.ClampZeroTo(ar.Length);
+                            if (ar[i].ShowInDropdown() == false)
+                                for (int v = 0; v < ar.Length; v++)
+                                {
+                                    T val = ar[v];
+                                    if (val.ShowInDropdown())
+                                    {
+                                        i = v;
+                                        changed = true;
+                                        break;
+                                    }
+                                }
+                        }
+
+                        for (int j = 0; j < ar.Length; j++)
+                        {
+                            T val = ar[j];
                             if (val.ShowInDropdown())
                             {
-                                i = v;
-                                changed = true;
-                                break;
+                                if (i == j) ind = ints.Count;
+                                lnms.Add(val.ToPEGIstring());
+                                ints.Add(j);
                             }
                         }
-                }
 
-                for (int j = 0; j < ar.Length; j++)
-                {
-                    T val = ar[j];
-                    if (val.ShowInDropdown())
-                    {
-                        if (i == j) ind = ints.Count;
-                        lnms.Add(val.ToPEGIstring());
-                        ints.Add(j);
+                        //int newNo = ind; EditorGUILayout.Popup(ind, lnms.ToArray());
+
+                        if (select(ref ind, lnms.ToArray())) // (newNo != ind)
+                        {
+                            i = ints[ind];
+                            changed = true;
+                        }
+                        return changed;
                     }
                 }
-
-                //int newNo = ind; EditorGUILayout.Popup(ind, lnms.ToArray());
-
-                if (select(ref ind, lnms.ToArray())) // (newNo != ind)
-                {
-                    i = ints[ind];
-                    changed = true;
-                }
-                return changed;
-            }
-        }
-        */
+                */
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
 #if UNITY_EDITOR
@@ -1541,7 +1541,7 @@ namespace PlayerAndEditorGUI
             ind = ind.ClampZeroTo(lst.Length);
 
             for (int i = 0; i < lst.Length; i++)
-                lnms.Add(_compileName(showIndex , i, lst[i])); //"{0}: {1}".F(i, lst[i].ToPEGIstring()));
+                lnms.Add(_compileName(showIndex, i, lst[i])); //"{0}: {1}".F(i, lst[i].ToPEGIstring()));
 
             return select_Final(ind, ref ind, lnms);
 
@@ -1733,7 +1733,7 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
         }
-        
+
         public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
             return select_or_edit(name, null, 0, ref obj, list, showIndex);
@@ -1741,31 +1741,54 @@ namespace PlayerAndEditorGUI
 
         public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         => select_or_edit(name, null, width, ref obj, list, showIndex);
-        
+
         public static bool select_or_edit<T>(ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
             => select_or_edit(null, null, 0, ref obj, list, showIndex);
-        
+
         public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) {
             if (list == null || list.Count == 0)
                 return name.edit(ref val);
             else
                 return name.select(ref val, list, showIndex);
         }
-        
+
         public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false)
         {
-            if (list == null || list.Count == 0)
-                return edit(ref val);
-            else
-                return select(ref val, list, showIndex);
+            bool changed = false;
+
+            bool gotList = list != null && list.Count > 0;
+
+            bool gotValue = val != null && val.Length > 0;
+
+            if (gotList && gotValue && icon.Delete.Click())
+                val = "";
+
+            if (!gotValue || !gotList)
+                changed |= edit(ref val);
+
+            if (gotList)
+                changed |= select(ref val, list, showIndex);
+
+            return changed;
         }
-        
-        public static bool select_or_edit(this string name, ref string val, List<string> list, bool showIndex = false)
-        {
-            if (list == null || list.Count == 0)
-                return name.edit(ref val);
-            else
-                return name.select(ref val, list, showIndex);
+
+        public static bool select_or_edit(this string name, ref string val, List<string> list, bool showIndex = false) {
+            bool changed = false;
+
+            bool gotList = list != null && list.Count > 0;
+
+            bool gotValue = val != null && val.Length > 0;
+
+            if (gotList && gotValue && icon.Delete.Click())
+                val = "";
+
+            if (!gotValue || !gotList)
+                 changed |= name.edit(ref val);
+            
+            if (gotList)
+                changed |= name.select(ref val, list, showIndex);
+
+            return changed;
         }
         
         public static bool select_or_edit<T>(this string name, int width, ref int val, List<T> list, bool showIndex = false)
@@ -5446,6 +5469,48 @@ namespace PlayerAndEditorGUI
             newLine();
             return added;
         }
+
+        public static bool edit_List<T>(this string label, List<T> list, Func<T, T> lambda) where T : new()
+        {
+            label.write_ListLabel(list, -1);
+            return edit_List<T>(list, lambda);
+        }
+
+        public static bool edit_List<T>(this List<T> list, Func<T, T> lambda) where T : new()
+        {
+
+            bool changed = false;
+
+            if (list == null)
+            {
+                "Empty List".nl();
+                return false;
+            }
+
+            changed |= list.edit_List_Order();
+
+            if (list != editingOrder) {
+
+                changed |= list.ListAddClick();
+
+                foreach (var i in list.InspectionIndexes()) {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+                    if ((el != null && !el.Equals(before)) || (el == null && before != null))  {
+                        list[i] = el;
+                        changed = true;
+                    }
+                    nl();
+                }
+                
+                nl();
+            }
+
+            newLine();
+            return changed;
+        }
+
 
         public static bool edit_List(this string name, List<string> list, Func<string, string> lambda)
         {
