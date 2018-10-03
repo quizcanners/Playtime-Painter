@@ -18,6 +18,7 @@ namespace Playtime_Painter {
     
     public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
+        #region Values
         const float bytetocol = 1f / 255f;
         public static Texture2D sampler;
 
@@ -50,7 +51,8 @@ namespace Playtime_Painter {
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
-        
+        #endregion
+
         #region SAVE IN PLAYER
 
         const string savedImagesFolder = "Saved Images";
@@ -183,7 +185,7 @@ namespace Playtime_Painter {
 
         }
         #endregion
-        
+
         #region Recordings
         public List<string> recordedStrokes = new List<string>();
         public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
@@ -581,7 +583,8 @@ namespace Playtime_Painter {
         }
 
         #endregion
-        
+
+        #region Init
         public ImageData Init(Texture tex)
         {
           
@@ -645,12 +648,8 @@ namespace Playtime_Painter {
             destination = TexTarget.RenderTexture;
             return this;
         }
-
-        public bool GotUNDO()
-        {
-            return cache.undo.gotData();
-        }
-
+        #endregion
+        
         #region Inspector
         public string NameForPEGI
         {

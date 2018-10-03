@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 
 using PlayerAndEditorGUI;
 using System.Linq;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -218,6 +219,44 @@ namespace SharedTools_Stuff
 
         #region ListManagement
 
+        public static string GetUniqueName<T>(this string s, List<T> list)
+        {
+
+            bool match = true;
+            int index = 1;
+            string mod = s;
+
+
+            while (match)
+            {
+                match = false;
+
+                foreach (var l in list)
+                    if (l.ToString().SameAs(mod))
+                    {
+                        match = true;
+                        break;
+                    }
+
+                if (match)
+                {
+                    mod = s + index.ToString();
+                    index++;
+                }
+            }
+
+            return mod;
+        }
+
+        public static int TotalCount(this List<int>[] lists) {
+            int total = 0;
+
+            foreach (var e in lists)
+                total += e.Count;
+
+            return total;
+        }
+        
         public static T GetRandom<T>(this List<T>list) {
             if (list.Count == 0)
                 return default(T);
@@ -411,6 +450,65 @@ namespace SharedTools_Stuff
             list[indexB] = tmp;
         }
 
+        #endregion
+
+        #region String Editing
+        public static string ToStringShort(this Vector3 v)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (v.x != 0) sb.Append("x:" + ((int)v.x));
+            if (v.y != 0) sb.Append(" y:" + ((int)v.y));
+            if (v.z != 0) sb.Append(" z:" + ((int)v.z));
+
+            return sb.ToString();
+        }
+
+        public static bool SameAs(this string s, string other) =>
+            (((s == null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
+
+        public static bool SearchCompare(this string search, string name)
+        {
+            if ((search.Length == 0) || Regex.IsMatch(name, search, RegexOptions.IgnoreCase)) return true;
+
+            if (search.Contains(" "))
+            {
+                string[] sgmnts = search.Split(' ');
+                for (int i = 0; i < sgmnts.Length; i++)
+                    if (!Regex.IsMatch(name, sgmnts[i], RegexOptions.IgnoreCase)) return false;
+
+                return true;
+            }
+            return false;
+        }
+
+        public static string RemoveAssetsPart(this string s)
+        {
+            var ind = s.IndexOf("Assets");
+            if (ind == 0 || ind == 1) return s.Substring(6 + ind);
+            if (ind > 1) return s.Substring(0, ind);
+            return s;
+        }
+
+        public static string AddPreSlashIfNotEmpty(this string s)
+        {
+            return (s.Length == 0 || (s[0] == '/')) ? s : "/" + s;
+        }
+
+        public static string AddPostSlashIfNotEmpty(this string s)
+        {
+            return (s.Length == 0 || (s[s.Length - 1] == '/')) ? s : s + "/";
+        }
+
+        public static string AddPreSlashIfNone(this string s)
+        {
+            return (s.Length == 0 || (s[0] != '/')) ? "/" + s : s;
+        }
+
+        public static string AddPostSlashIfNone(this string s)
+        {
+            return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s + "/" : s;
+        }
         #endregion
 
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
