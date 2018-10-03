@@ -226,6 +226,29 @@ namespace Playtime_Painter
 
         public int selectedSize = 4;
 
+        static string[] texSizes;
+
+        const int texSizesRange = 9;
+        const int minPowerOfSize = 2;
+
+        public static string[] NewTextureSizeOptions
+        {
+            get
+            {
+                if ((texSizes == null) || (texSizes.Length != texSizesRange))
+                {
+                    texSizes = new string[texSizesRange];
+                    for (int i = 0; i < texSizesRange; i++)
+                        texSizes[i] = Mathf.Pow(2, i + minPowerOfSize).ToString();
+                }
+                return texSizes;
+            }
+
+        }
+
+        public static int SelectedSizeForNewTexture(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
+
+
         #region BrushStrokeRecordings
         public List<string> recordingNames = new List<string>();
 

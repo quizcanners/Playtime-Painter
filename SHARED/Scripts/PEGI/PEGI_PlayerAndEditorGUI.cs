@@ -398,6 +398,14 @@ namespace PlayerAndEditorGUI
             return value;
         }
 
+        public static bool nl_ifFalse(this bool value)
+        {
+            if (!value)
+                newLine();
+            return value;
+        }
+
+
         public static void nl() => newLine();
 
         public static bool nl(this bool value)
@@ -2229,8 +2237,7 @@ namespace PlayerAndEditorGUI
         public static bool foldout(this icon ico, string text, ref bool state) => ico.getIcon().foldout(text, ref state);
 
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.getIcon().foldout(text, ref selected, current);
-
-
+        
         public static bool fold_enter_exit(ref int enteredOne, int current) {
 
             if (enteredOne == current)
@@ -2262,21 +2269,13 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false)
-        {
+        public static bool fold_enter_exit(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false) {
 
-         
-
-            if (state)
-            {
+            if (state) {
                 if (icon.Exit.Click())
                     state = false;
             }
-            else if (!state)
-            {
-
-              
-
+            else if (!state) {
                 if (ico.Click())
                     state = true;
             }
@@ -2288,31 +2287,6 @@ namespace PlayerAndEditorGUI
 
             return isFoldedOut;
         }
-
-     /*   public static bool fold_enter_exit(this icon ico, string txt, int width, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
-        {
-            bool outside = enteredOne == -1;
-
-            if (enteredOne == thisOne)
-            {
-                if (icon.Exit.ClickUnfocus(txt))
-                    enteredOne = -1;
-
-            }
-            else if (outside)
-            {
-                if (ico.ClickUnfocus(txt))
-                    enteredOne = thisOne;
-                //write(txt, width);
-            }
-
-            if (showLabelIfTrue || outside)
-                write(txt, width,outside ? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel);
-
-            isFoldedOut = (enteredOne == thisOne);
-
-            return isFoldedOut;
-        }*/
 
         public static bool fold_enter_exit(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false) {
             bool outside = enteredOne == -1;
@@ -2341,8 +2315,6 @@ namespace PlayerAndEditorGUI
         public static bool fold_enter_exit(this string txt, ref bool state) => icon.Enter.fold_enter_exit(txt, ref state);
 
         public static bool fold_enter_exit(this string txt, ref int enteredOne, int thisOne) => icon.Enter.fold_enter_exit(txt, ref enteredOne, thisOne);
-
-     //   public static bool fold_enter_exit(this string txt, int width, ref int enteredOne, int thisOne) => icon.Enter.fold_enter_exit(txt, width, ref enteredOne, thisOne);
 
         public static bool foldout(this string txt)
         {
@@ -2377,6 +2349,8 @@ namespace PlayerAndEditorGUI
 
             if (canEnter)
                 ico.fold_enter_exit(label, ref enteredOne, thisOne);
+            else
+                isFoldedOut = false;
 
             return isFoldedOut;
         }
@@ -2388,6 +2362,8 @@ namespace PlayerAndEditorGUI
 
             if (canEnter)
                 label.fold_enter_exit(ref enteredOne, thisOne);
+            else
+                isFoldedOut = false;
 
             return isFoldedOut;
         }
@@ -2396,10 +2372,12 @@ namespace PlayerAndEditorGUI
 
             if (enteredOne == -1) 
                 changed |= label.toggleIcon(ref val, true);
-            
+
 
             if (val)
                 fold_enter_exit(ref enteredOne, thisOne);
+            else
+                isFoldedOut = false;
 
             if (enteredOne == thisOne)
                 changed |= label.toggleIcon(ref val, true);

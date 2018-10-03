@@ -12,13 +12,11 @@ using System.IO;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
     public enum TexTarget { Texture2D, RenderTexture }
     
-    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention
-    {
+    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         const float bytetocol = 1f / 255f;
         public static Texture2D sampler;
@@ -47,6 +45,12 @@ namespace Playtime_Painter
         public NativeArray<Color> pixelsForJob;
         public JobHandle jobHandle;
 
+        public Color[] Pixels
+        {
+            get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
+            set { _pixels = value; }
+        }
+        
         #region SAVE IN PLAYER
 
         const string savedImagesFolder = "Saved Images";
@@ -101,6 +105,8 @@ namespace Playtime_Painter
 
         #endregion
 
+        #region Encode Decode
+
         public override StdEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
@@ -153,26 +159,10 @@ namespace Playtime_Painter
         }
         return true;
         }
-        
-        public Color[] Pixels
-        {
-            get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
-            set { _pixels = value; }
-        }
 
-        public string NameForPEGI
-        {
-            get
-            {
-                return SaveName;
-            }
+        #endregion
 
-            set
-            {
-                SaveName = value;
-            }
-        }
-
+        #region Undo & Redo
         public UndoCache cache = new UndoCache();
         
         public void Backup()
@@ -192,8 +182,9 @@ namespace Playtime_Painter
             cache.redo.Clear();
 
         }
-
-        // ##################### For Stroke Vector Recording
+        #endregion
+        
+        #region Recordings
         public List<string> recordedStrokes = new List<string>();
         public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
         public bool recording;
@@ -222,9 +213,36 @@ namespace Playtime_Painter
             recording = false;
             
         }
+        #endregion
 
-        // ####################### Textures MGMT
-        
+        #region Texture MGMT
+        public void Resize (int size) {
+            
+            if (size >= 8 && size <= 4096 && (size != width || size != height) && texture2D) {
+
+                var tmp = renderTexture;
+                renderTexture = null;
+
+                Texture2D_To_RenderTexture();
+
+                texture2D.Resize(size, size);
+
+                width = height = size;
+                
+                texture2D.CopyFrom(PainterCamera.Inst.GetDownscaledBigRT(width, height));
+
+                PixelsFromTexture2D(texture2D);
+
+                SetAndApply(true);
+
+
+                renderTexture = tmp;
+
+                Debug.Log("Resize Complete");
+            }
+
+        }
+
         public bool Contains(Texture tex)
         {
             return  tex != null && ((texture2D && tex == texture2D) || (renderTexture && renderTexture == tex) || (other && tex == other));
@@ -527,6 +545,15 @@ namespace Playtime_Painter
             return new MyIntVec2(uv.x * width, uv.y * height);
         }
 
+        public void SetAndApply(bool mipmaps)
+        {
+            if (_pixels == null)
+                return;
+            texture2D.SetPixels(_pixels);
+            texture2D.Apply(mipmaps);
+        }
+        #endregion
+
         #region BlitJobs
 
         public bool CanUsePixelsForJob() {
@@ -554,14 +581,6 @@ namespace Playtime_Painter
         }
 
         #endregion
-
-        public void SetAndApply(bool mipmaps)
-        {
-            if (_pixels == null)
-                return;
-            texture2D.SetPixels(_pixels);
-            texture2D.Apply(mipmaps);
-        }
         
         public ImageData Init(Texture tex)
         {
@@ -633,6 +652,20 @@ namespace Playtime_Painter
         }
 
         #region Inspector
+        public string NameForPEGI
+        {
+            get
+            {
+                return SaveName;
+            }
+
+            set
+            {
+                SaveName = value;
+            }
+        }
+
+
 #if PEGI
 
         bool LoadTexturePEGI(string path)
@@ -646,8 +679,7 @@ namespace Playtime_Painter
         }
 
         public int inspectedStuff = -1; 
-        public override bool PEGI()
-        {
+        public override bool PEGI() {
 
             bool changed = false;
             
@@ -673,9 +705,34 @@ namespace Playtime_Painter
                     "Playtime Saved Textures".write_List(playtimeSavedTextures, LoadTexturePEGI);
             }
 
+            if ("Resize Texture ({0} * {1})".F(width, height).fold_enter_exit(ref inspectedStuff, 6).nl_ifFalse())
+            {
+                "New size ".select(60, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
+                int size = PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize);
+
+                if (size != width || size != height)
+                {
+                    bool rescale = false;
+
+                    if (size <= width && size <= height)
+                        rescale = "Downscale".Click();
+                    else if (size >= width && size >= height)
+                        rescale = "Upscale".Click();
+                    else
+                        rescale = "Rescale".Click();
+
+                    if (rescale)
+                        Resize(size);
+                }
+
+                pegi.nl();
+                pegi.write(TexMGMT.BigRT_pair[0], 128);
+                pegi.write(TexMGMT.BigRT_pair[1], 128);
+
+                pegi.nl();
+            }
 
 
-     
             if ("Undo Redo".toggle_enter_exit(ref enableUndoRedo,ref inspectedStuff, 2, ref changed).nl())  {
 
                     changed |=
@@ -695,23 +752,19 @@ namespace Playtime_Painter
             }
 
 
-            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed))
+            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl_ifFalse())
             {
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { PaletteName="New Color Scheme"});
 
                 changed |= pegi.edit_List(Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
             }
-
-         
             
-            pegi.nl();
+                pegi.nl();
 
             if (inspectedStuff == -1) 
                 changed |= "Show Recording/Playback".toggleIcon(ref showRecording, true).nl();
             
-
-
             return changed;
         }
         

@@ -518,7 +518,7 @@ namespace SharedTools_Stuff
 
 #endregion
 
-#region Text Editing
+        #region Text Editing
         public static string ToStringShort(this Vector3 v)
         {
             StringBuilder sb = new StringBuilder();
@@ -601,8 +601,7 @@ namespace SharedTools_Stuff
         {
             return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s+ "/" : s;
         }
-
-#endregion
+        #endregion
 
 
         public static void ToLinear (this Color[] list)
@@ -618,8 +617,7 @@ namespace SharedTools_Stuff
         }
 
 
-#region Assets Management
-
+        #region Assets Management
         public static string SetUniqueObjectName(this UnityEngine.Object obj, string folderName, string extension)
         {
 
@@ -738,8 +736,7 @@ namespace SharedTools_Stuff
 
 #endif
         }
-
-
+        
         public static void RenameAsset<T>(this T obj, string newName) where T: UnityEngine.Object
         {
 
@@ -877,7 +874,6 @@ namespace SharedTools_Stuff
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
             AssetDatabase.CopyAsset(path + oldName + StuffSaver.fileType, path + newName + StuffSaver.fileType);
         }
-
 #endif
         // The function below uses this function's name
         public static T CreateAsset_SO_DONT_RENAME<T>(string path, string name) where T : ScriptableObject
@@ -961,8 +957,7 @@ namespace SharedTools_Stuff
 
             return asset;
         }
-
-
+        
         public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
         {
 
@@ -982,9 +977,7 @@ namespace SharedTools_Stuff
             }
 #endif
         }
-
-
-#endregion
+        #endregion
 
         public static int TotalCount(this List<int>[] lists)
         {
@@ -996,10 +989,7 @@ namespace SharedTools_Stuff
             return total;
         }
 
-
-
-#region Texture Properties
-
+        #region Texture Properties
 #if UNITY_EDITOR
         public static List<string> GetFields(this Material m, MaterialProperty.PropType type) {
             List<string> fNames = new List<string>();
@@ -1027,7 +1017,6 @@ namespace SharedTools_Stuff
             return fNames;
         }
 #endif
-
         public static List<string> GetFloatFields(this Material m)
         {
 #if UNITY_EDITOR
@@ -1064,8 +1053,7 @@ namespace SharedTools_Stuff
 #endif
 
         }
-
-#endregion
+        #endregion
 
         public static bool DisplayNameContains(this Material m, string propertyName, string tag)
         {
@@ -1194,8 +1182,7 @@ namespace SharedTools_Stuff
 
 #if UNITY_EDITOR
 
-#region Texture Saving
-
+        #region Texture Saving
         public static void SaveTexture(this Texture2D tex)
         {
 
@@ -1220,8 +1207,7 @@ namespace SharedTools_Stuff
             if (String.IsNullOrEmpty(path)) return null;
             return path.Replace("Assets", "");
         }
-
-
+        
         public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
         {
             if (name == tex.name)
@@ -1343,7 +1329,7 @@ namespace SharedTools_Stuff
             return tex;
 
         }
-#endregion
+        #endregion
 
       
         public static void FocusOnGame()

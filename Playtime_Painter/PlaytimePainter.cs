@@ -361,7 +361,7 @@ namespace Playtime_Painter
             if (id == null) return hit.textureCoord;
 
             var uv = id.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
-            
+
             foreach (var p in plugins)
                 if (p.OffsetAndTileUV(hit, this, ref uv))
                     return uv;
@@ -1908,15 +1908,9 @@ namespace Playtime_Painter
         public static PlaytimePainter inspectedPainter;
 #if PEGI
 
-        static string[] texSizes;
-
 
         public bool PEGI_MAIN()
         {
-
-            const int texSizesRange = 9;
-            const int minPowerOfSize = 2;
-
 
             TexMGMT.focusedPainter = this;
 
@@ -2192,17 +2186,9 @@ namespace Playtime_Painter
 
                             if (icon.NewTexture.conditional_enter_exit("New Texture Config ", !IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl())
                             {
-
                                 "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor, true).nl();
-
-                                if ((texSizes == null) || (texSizes.Length != texSizesRange))
-                                {
-                                    texSizes = new string[texSizesRange];
-                                    for (int i = 0; i < texSizesRange; i++)
-                                        texSizes[i] = Mathf.Pow(2, i + minPowerOfSize).ToString();
-                                }
-
-                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, texSizes);
+                                
+                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
                             }
                             pegi.nl();
 
@@ -2213,22 +2199,23 @@ namespace Playtime_Painter
 
                         changed |= id.ComponentDependent_PEGI(showToggles, this);
 
-           
-                            if (showToggles)  {
 
-                                "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
+                        if (showToggles)
+                        {
 
-                                var mats = GetMaterials();
-                                if ((mats != null) && (mats.Length > 1))
-                                    "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
-                                                                   ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
+                            "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
-                                "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
-                            }
+                            var mats = GetMaterials();
+                            if ((mats != null) && (mats.Length > 1))
+                                "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
+                                                               ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
 
-                            if (Cfg.moreOptions)
-                                pegi.Line(Color.red);
-                        
+                            "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
+                        }
+
+                        if (Cfg.moreOptions)
+                            pegi.Line(Color.red);
+
 
 
                         if ((id.enableUndoRedo) && (id.backupManually) && ("Backup for UNDO".Click()))
@@ -2310,8 +2297,7 @@ namespace Playtime_Painter
 
                                 bool isTerrainHeight = IsTerrainHeightTexture();
 
-                                int texScale = (!isTerrainHeight) ?
-                                     ((int)Mathf.Pow(2, PainterCamera.Data.selectedSize + minPowerOfSize))
+                                int texScale = (!isTerrainHeight) ? (PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize))
 
                                     : (terrain.terrainData.heightmapResolution - 1);
 
@@ -2337,8 +2323,7 @@ namespace Playtime_Painter
                                         string texName = GetMaterialTexturePropertyName;
 
                                         if ((texName != null) && (PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs))
-                                            && ((recentTexs.Count > 1) || (id == null)))
-                                        {
+                                            && ((recentTexs.Count > 0) || (id == null))) {
 
                                             if ("Recent Textures:".select(100, ref id, recentTexs).nl())
                                             {
