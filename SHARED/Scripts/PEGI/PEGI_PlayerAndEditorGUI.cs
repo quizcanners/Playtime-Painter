@@ -134,16 +134,63 @@ namespace PlayerAndEditorGUI
 
         static bool lineOpen;
 
-        static bool colorReplaced = false;
-
+   
         static Color attentionColor = new Color(1f, 0.7f, 0.7f, 1);
+
+        #region GUI Colors
+
+        static bool GUIcolorReplaced = false;
+        
+        static Color originalGUIcolor;
+        
+        static List<Color> previousGUIcolors = new List<Color>();
+
+        public static icon GUIColor(this icon icn, Color col)
+        {
+            SetGUIColor(col);
+            return icn;
+        }
+
+        public static void SetGUIColor(this Color col)
+        {
+            if (col != null)  {
+                if (!GUIcolorReplaced)
+                    originalGUIcolor = GUI.color;
+                else
+                    previousGUIcolors.Add(GUI.color);
+
+                    GUI.color = col;
+
+                GUIcolorReplaced = true;
+            }
+        }
+
+        public static void RestoreGUIcolor()
+        {
+            if (GUIcolorReplaced)
+                GUI.color = originalGUIcolor;
+
+            previousGUIcolors.Clear();
+
+            GUIcolorReplaced = false;
+        }
+
+        public static bool RestoreGUIColor(this bool val)
+        {
+            RestoreGUIcolor();
+            return val;
+        }
+
+        #endregion
 
         #region BG Color
 
-        static Color previousColor;
+        static bool BGcolorReplaced = false;
+        
+        static Color originalBGcolor;
 
         static List<Color> previousBGcolors = new List<Color>();
-
+        
         public static icon BGColor(this icon icn, Color col) {
             SetBgColor(col);
             return icn;
@@ -165,7 +212,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static void PreviousBGcolor() {
-            if (colorReplaced) {
+            if (BGcolorReplaced) {
                 if (previousBGcolors.Count > 0)
                     SetBgColor(previousBGcolors.RemoveLast());
                 else
@@ -177,25 +224,31 @@ namespace PlayerAndEditorGUI
         {
             if (col != null)
             {
-                if (!colorReplaced)
-                    previousColor = GUI.backgroundColor;
+                if (!BGcolorReplaced)
+                    originalBGcolor = GUI.backgroundColor;
                 else
                     previousBGcolors.Add(GUI.backgroundColor);
 
                 GUI.backgroundColor = col;
 
-                colorReplaced = true;
+                BGcolorReplaced = true;
             }
         }
 
+        static void iconColor (this Color col) {
+
+          //  GUI.color
+
+        } 
+
         public static void RestoreBGcolor()
         {
-            if (colorReplaced)
-                GUI.backgroundColor = previousColor;
+            if (BGcolorReplaced)
+                GUI.backgroundColor = originalBGcolor;
 
             previousBGcolors.Clear();
 
-            colorReplaced = false;
+            BGcolorReplaced = false;
         }
 
         #endregion
@@ -2339,10 +2392,11 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool toggle_enter_exit(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed) {
-            
-            if (enteredOne == -1)
+        public static bool toggle_enter_exit(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed, bool showLabelWhenEntered = false) {
+
+            if (enteredOne == -1) 
                 changed |= label.toggleIcon(ref val, true);
+            
 
             if (val)
                 fold_enter_exit(ref enteredOne, thisOne);
@@ -2355,11 +2409,14 @@ namespace PlayerAndEditorGUI
 
             return isFoldedOut;
         }
+
         public static bool fold_enter_exit_List_Obj<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object {
 
             bool changed = false;
 
             if (list == null) {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
                 "{0} list is null".F(label).nl();
                 return changed;
             }
@@ -2378,6 +2435,8 @@ namespace PlayerAndEditorGUI
 
             if (list == null)
             {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
                 "{0} list is null".F(label).nl();
                 return changed;
             }
@@ -2396,6 +2455,8 @@ namespace PlayerAndEditorGUI
 
             if (list == null)
             {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
                 "{0} list is null".F(label).nl();
                 return changed;
             }
@@ -2715,6 +2776,12 @@ namespace PlayerAndEditorGUI
         public static bool Click(this icon icon, string tip, int size) => Click(icon.getIcon(), tip, size);
 
         public static bool Click(this icon icon, string tip) => Click(icon.getIcon(), tip, defaultButtonSize);
+
+        public static bool Click(this Color col) => icon.Empty.GUIColor(col).BGColor(Color.clear).Click().RestoreGUIColor().RestoreBGColor();
+
+        public static bool Click(this Color col, string tip) => icon.Empty.GUIColor(col).BGColor(Color.clear).Click(tip).RestoreGUIColor().RestoreBGColor();
+
+        public static bool Click(this Color col, string tip, int size) => icon.Empty.GUIColor(col).BGColor(Color.clear).Click(tip, size).RestoreGUIColor().RestoreBGColor();
 
         public static bool ClickToEditScript()
         {

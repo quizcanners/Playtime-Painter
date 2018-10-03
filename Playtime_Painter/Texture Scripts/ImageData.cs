@@ -695,6 +695,16 @@ namespace Playtime_Painter
             }
 
 
+            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed))
+            {
+                if (Cfg.colorSchemes.Count == 0)
+                    Cfg.colorSchemes.Add(new ColorScheme() { PaletteName="New Color Scheme"});
+
+                changed |= pegi.edit_List(Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
+            }
+
+         
+            
             pegi.nl();
 
             if (inspectedStuff == -1) 

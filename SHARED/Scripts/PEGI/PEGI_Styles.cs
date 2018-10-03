@@ -32,7 +32,8 @@ namespace PlayerAndEditorGUI
             {
                 if (_toggleText == null)
                     _toggleText = new GUIStyle(GUI.skin.label)  {
-                        contentOffset = new Vector2(0, 2)
+                        contentOffset = new Vector2(0, 2),
+                        wordWrap = true
                        // fontStyle = FontStyle.Bold
                     };
 
@@ -73,10 +74,10 @@ namespace PlayerAndEditorGUI
                         margin = new RectOffset(10, 10, 10, 10),
                         fontSize = 12,
                         richText = true,
-                        wordWrap = false,
+                        wordWrap = true,
                         alignment = TextAnchor.MiddleLeft,
                         fontStyle = FontStyle.Bold,
-                        contentOffset = new Vector2(0, 2),
+                        contentOffset = new Vector2(0, -6),
 
                     };
                     _enterLabel.normal.textColor = new Color32(43, 30, 77, 255); //2C1F0B);

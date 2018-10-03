@@ -163,6 +163,8 @@ namespace Playtime_Painter
         }
 
         public bool showRecentTextures = false;
+
+        public bool showColorSchemes = false;
         [NonSerialized]
         public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
 
@@ -173,6 +175,12 @@ namespace Playtime_Painter
         public List<VolumetricDecal> decals = new List<VolumetricDecal>();
 
         public List<MeshPackagingProfile> meshPackagingSolutions;
+
+        public List<ColorScheme> colorSchemes = new List<ColorScheme>();
+
+        public int selectedColorScheme = 0;
+
+        public int inspectedColorScheme = -1;
         #endregion
 
         public int _meshTool;
@@ -276,7 +284,9 @@ namespace Playtime_Painter
 
             var cody = this.EncodeUnrecognized()
                 .Add("imgs", imgDatas, this)
-                .Add("mats", matDatas, this);
+                .Add("sch", selectedColorScheme)
+                .Add("mats", matDatas, this)
+                .Add("pals", colorSchemes);
 
             return cody;
         }
@@ -286,7 +296,9 @@ namespace Playtime_Painter
             switch (tag)
             {
                 case "imgs": data.DecodeInto(out imgDatas, this); break;
+                case "sch": selectedColorScheme = data.ToInt(); break;
                 case "mats": data.DecodeInto(out matDatas, this); break;
+                case "pals": data.DecodeInto(out colorSchemes); break;
                 default: return false;
             }
             return true;

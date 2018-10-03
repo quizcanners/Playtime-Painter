@@ -2170,6 +2170,18 @@ namespace Playtime_Painter
 
                         changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
+                        if (!Cfg.moreOptions && Cfg.showColorSchemes) {
+
+                            var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
+
+                            if (scheme != null)
+                                scheme.PickerPEGI();
+
+                            if (Cfg.showColorSchemes)
+                                changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+
+                        }
+
                         #endregion
 
                         #region Fancy Options

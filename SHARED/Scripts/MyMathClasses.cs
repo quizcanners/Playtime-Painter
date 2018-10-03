@@ -90,7 +90,7 @@ namespace SharedTools_Stuff
 
         public static float DistanceRGBA(this Color col, Color other) {
 
-            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b))*0.33f + Mathf.Abs(col.a - other.a)*3);
+            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b))*0.33f + Mathf.Abs(col.a - other.a));
 
             return dist;
         }
@@ -117,12 +117,22 @@ namespace SharedTools_Stuff
 
         public static Color Lerp_RGBA(this Color from, Color to, float portion) {
 
-            if ( to.a < from.a) {
+            //var hsv = from.to
+
+          /*  if ( to.a < from.a) {
+               
                 var prt =  to.a / from.a;
                 to.r *= prt;
                 to.g *= prt;
                 to.b *= prt;
-            }
+            } else {
+              
+                var prt = from.a / to.a;
+                to.r *= prt;
+                to.g *= prt;
+                to.b *= prt;
+
+            }*/
             
             return Color.Lerp(from, to, portion);
         }
@@ -342,7 +352,7 @@ namespace SharedTools_Stuff
         public int x;
         public int y;
 
-        public int Max { get { return x > y ? x : y; } }
+        public int Max => x > y ? x : y; 
 
         public override string ToString()
         {
