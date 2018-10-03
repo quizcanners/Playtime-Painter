@@ -115,28 +115,8 @@ namespace SharedTools_Stuff
             return Color.Lerp(from, to, portion);
         }
 
-        public static Color Lerp_RGBA(this Color from, Color to, float portion) {
-
-            //var hsv = from.to
-
-          /*  if ( to.a < from.a) {
-               
-                var prt =  to.a / from.a;
-                to.r *= prt;
-                to.g *= prt;
-                to.b *= prt;
-            } else {
-              
-                var prt = from.a / to.a;
-                to.r *= prt;
-                to.g *= prt;
-                to.b *= prt;
-
-            }*/
-            
-            return Color.Lerp(from, to, portion);
-        }
-
+        public static Color Lerp_RGBA(this Color from, Color to, float portion) => Color.Lerp(from, to, portion);
+        
         public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
         public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)

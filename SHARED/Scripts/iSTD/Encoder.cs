@@ -112,6 +112,25 @@ namespace SharedTools_Stuff
             return cody;
         }
 
+        public static StdEncoder Encode<T>(this T[] val) where T : ISTD {
+            StdEncoder cody = new StdEncoder();
+
+            if (val != null)  {
+
+                cody.Add("len", val.Length);
+
+                foreach (var v in val) {
+                    if (v != null)
+                        cody.Add("e", v.Encode());
+                    else
+                        cody.Add_String(StdEncoder.nullTag, "");
+                }
+            }
+
+            return cody;
+        }
+
+
         public static StdEncoder TryEncode<T>(this List<T> val)
         {
             StdEncoder cody = new StdEncoder();
@@ -425,7 +444,9 @@ namespace SharedTools_Stuff
         }
 
         public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD => Add(tag, val.Encode());
-        
+
+        public StdEncoder Add<T>(string tag, T[] val) where T : ISTD => Add(tag, val.Encode());
+
         public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
         public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
         public StdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());

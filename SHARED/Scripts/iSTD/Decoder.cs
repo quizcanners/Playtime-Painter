@@ -315,6 +315,43 @@ namespace SharedTools_Stuff
             return l;
         }
 
+        // Arrays
+
+        public static T[] DecodeInto<T>(this string data, out T[] l) where T : ISTD, new() {
+
+            StdDecoder cody = new StdDecoder(data);
+
+            l = null;
+
+            List<T> tmpList = new List<T>();
+
+            int ind = 0;
+
+            foreach (var tag in cody) {
+                var d = cody.GetData();
+
+                if (tag == "len")
+                    l = new T[d.ToInt()];
+                else {
+                    bool isNull = tag == StdEncoder.nullTag;
+
+                    var obj = isNull ? default(T) : d.DecodeInto<T>();
+
+                    if (l != null) 
+                         l[ind] = obj;
+                     else 
+                         tmpList.Add(obj);
+                       
+                    ind++;
+                }
+            }
+
+            if (l == null)
+                l = tmpList.ToArray();
+
+            return l;
+        }
+
         // STD
         public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
         {
