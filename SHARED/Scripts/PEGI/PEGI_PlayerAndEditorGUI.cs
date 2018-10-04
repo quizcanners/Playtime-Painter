@@ -2041,6 +2041,13 @@ namespace PlayerAndEditorGUI
         {
             val = default(G);
 
+            if (lst == null) {
+                "null list".write();
+                return false;
+            }
+
+          
+
             List<string> lnms = new List<string>();
             List<int> indxs = new List<int>();
             List<G> els = new List<G>();
