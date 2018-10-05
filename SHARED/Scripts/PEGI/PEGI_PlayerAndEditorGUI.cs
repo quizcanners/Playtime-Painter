@@ -1927,6 +1927,11 @@ namespace PlayerAndEditorGUI
 
         public static bool select_iGotIndex<T>(ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
+
+            if (lst == null) {
+                return edit(ref ind);
+            }
+
             List<string> lnms = new List<string>();
             List<int> indxs = new List<int>();
 
@@ -3728,6 +3733,11 @@ namespace PlayerAndEditorGUI
 
                 return false;
             }
+        }
+
+        public static bool editDelayed(this string label, ref string val)  {
+            write(label, Msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val);
         }
 
         public static bool editDelayed(ref string val, int width)

@@ -111,7 +111,7 @@ namespace Playtime_Painter
             StdEncoder cody = new StdEncoder();
 
             cody.Add_String("n", name);
-            cody.Add_ifNotEmpty("sln", sln);
+            cody.Add_IfNotEmpty("sln", sln);
 
 
             return cody;
@@ -480,7 +480,7 @@ namespace Playtime_Painter
 
             if (enabled) {
                 if (sameSizeDataIndex == -1)
-                    cody.Add_ifNotEmpty("vals", vals);
+                    cody.Add_IfNotEmpty("vals", vals);
                 else
                     cody.Add("sameSize", sameSizeDataIndex);
 

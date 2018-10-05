@@ -52,8 +52,6 @@ namespace STD_Logic
 
 #endif
 
-        public static bool unfoldPegi;
-
         public ConditionLogic()
         {
             if (TriggerGroup.Browsed != null)
@@ -67,7 +65,7 @@ namespace STD_Logic
         public bool compareValue;
 
         public override StdEncoder Encode() => new StdEncoder()
-            .Add_ifTrue("b", compareValue)
+            .Add_IfTrue("b", compareValue)
             .Add("ind", EncodeIndex());
 
         public override bool Decode(string subtag, string data)
@@ -164,8 +162,7 @@ namespace STD_Logic
             return -2;
         }
     }
-
-
+    
     public class TestOnceCondition : ConditionLogicBool
     {
         

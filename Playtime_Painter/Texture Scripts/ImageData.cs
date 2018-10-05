@@ -125,7 +125,7 @@ namespace Playtime_Painter {
 .Add_String("sn", SaveName)
 .Add("svs", playtimeSavedTextures)
 .Add_Bool("rec", showRecording)
-.Add_ifTrue("trnsp", isATransparentLayer)
+.Add_IfTrue("trnsp", isATransparentLayer)
 .Add_Bool("bu", enableUndoRedo)
 .Add_Bool("tc2Auto", useTexcoord2_AutoAssigned);
 
@@ -761,8 +761,7 @@ namespace Playtime_Painter {
             
                 pegi.nl();
 
-            if (inspectedStuff == -1) 
-                changed |= "Show Recording/Playback".toggleIcon(ref showRecording, true).nl();
+             
             
             return changed;
         }

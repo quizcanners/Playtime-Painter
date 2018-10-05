@@ -1,149 +1,89 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using PlayerAndEditorGUI;
-using System;
+using System.Collections.Generic;
 
-namespace STD_Logic {
+namespace STD_Logic
+{
 
-    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI  where T: class, ISTD, new()
-    {
+    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI  where T: ISTD, new() {
+
+        public string name = "no name";
 
         public List<LogicBranch<T>> subBranches = new List<LogicBranch<T>>();
 
         public ConditionBranch conds = new ConditionBranch();
 
         public List<T> elements = new List<T>();
-        
-        public string name = "no name";
 
-        public string NameForPEGI { get{ return name;  }
-            set { name = value; }
+        public List<T> CollectAll(ref List<T> lst) {
+
+            lst.AddRange(elements);
+
+            foreach (var b in subBranches)
+                b.CollectAll(ref lst);
+
+            return lst;
         }
 
-        public virtual List<T> CollectPassedFor (Values val) {
-            var collected = new List<T>();
-
-            Collect(val, ref collected);
-        
-            return collected;
-        }
-
-        public virtual void Collect (Values val, ref List<T> collected) {
-            if (conds.TestFor(val)) {
-                collected.AddRange(elements);
-
-                foreach (var b in subBranches)
-                    Collect(val, ref collected);
-            }
-        }
-
-        public override StdEncoder Encode() =>this.EncodeUnrecognized()
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("name", name)
             .Add("cond", conds)
-            .Add_ifNotEmpty("sub", subBranches)
-            .Add("el", elements)
-            .Add_ifNotNegative("brE", browsedElement)
-            .Add_ifNotNegative("brB", browsedBranch)
-            .Add_ifTrue("conds", showConditions);
-
-        public override bool Decode(string subtag, string data) {
+            .Add_IfNotEmpty("sub", subBranches)
+            .Add_IfNotEmpty("el", elements)
+            .Add_IfNotNegative("ie", inspectedElement)
+            .Add_IfNotNegative("is", inspectedStuff)
+            .Add_IfNotNegative("br", inspectedBranch);
+        
+        public override bool Decode(string subtag, string data)
+        {
             switch (subtag)
             {
                 case "name": name = data; break;
                 case "cond": conds.Decode(data); break;
-                case "sub": data.DecodeInto(out subBranches); break; //new List<InteractionGroup>(data); break;
+                case "sub": data.DecodeInto(out subBranches); break;
                 case "el": data.DecodeInto(out elements); break;
-                case "brE": browsedElement = data.ToInt(); break;
-                case "brB": browsedBranch = data.ToInt(); break;
-                case "conds": showConditions = data.ToBool(); break;
-                default:  return false;
+                case "ie": inspectedElement = data.ToInt(); break;
+                case "is": inspectedStuff = data.ToInt(); break;
+                case "br": inspectedBranch = data.ToInt(); break;
+                default: return false;
             }
             return true;
         }
+        #endregion
 
-        public void GetAllInteractions(ref List<T> lst)
+        #region Inspector
+
+        public virtual string NameForElements => "Unnamed";
+
+        public string NameForPEGI
         {
-            lst.AddRange(elements);
-            foreach (LogicBranch<T> ig in subBranches)
-                ig.GetAllInteractions(ref lst);
+            get { return name; }
+            set { name = value; }
         }
 
-        bool showConditions = false;
-        int browsedElement = -1;
-        int browsedBranch = -1;
+        int inspectedStuff = -1;
+        int inspectedElement = -1;
+        int inspectedBranch = -1;
 
         #if PEGI
-       
-        static string path;
-        static bool isCalledFromAnotherBranch = false;
         public override bool PEGI() {
             bool changed = false;
-            
-            browsedBranch = Mathf.Min(browsedBranch, subBranches.Count-1);
 
-            if (!isCalledFromAnotherBranch)
-                path = "Brances:";
-           else
-                path += "->" + name;
+            changed |= NameForElements.fold_enter_exit_List(elements, ref inspectedElement, ref inspectedStuff, 0).nl();
 
-            if (browsedBranch == -1)
-            {
-                browsedElement = Mathf.Min(browsedElement, elements.Count - 1);
-             
+            "Conditions".fold_enter_exit(ref inspectedStuff, 1).nl();
+            changed |= conds.PEGI();
 
-                if (browsedElement == -1)  {
-       
-                    Values vals = Values.global;
-                    
-                    bool isTrue = conds.TestFor(vals);
-
-                    if ( icon.Condition.foldout(
-                        ("Conditions" +( vals!= null ? "["+ (isTrue ? "True" : "False") +"]"  : " "))
-                        //"text"
-                        , ref showConditions).nl())
-                    
-                        changed |= conds.PEGI(); 
-                    
-                    else
-                    {
-                        changed |= "Elements:".edit_List(elements, ref browsedElement);
-
-                        changed |= "Sub Branches:".edit_List(subBranches, ref browsedBranch);
-                    }
-
-                } else  {
-                    if (icon.Exit.Click())
-                        browsedElement = -1;
-                    else {
-                        
-                        changed |= elements[browsedElement].Try_Nested_Inspect();
-                    }
-                }
-
-            }
-            else
-            {
-                isCalledFromAnotherBranch = true;
-                var sub = subBranches[browsedBranch];
-                if (sub.browsedBranch == -1 && icon.Exit.ClickUnfocus())
-                    browsedBranch = -1;
-                else
-                    changed |= sub.PEGI();
-                isCalledFromAnotherBranch = false;
-            }
-            
+            changed |= "Sub Branches".fold_enter_exit_List(subBranches, ref inspectedBranch, ref inspectedStuff, 2).nl();
 
             return changed;
         }
+        #endif
+        #endregion
 
-#endif
     }
 
-    /*public interface iCleanMyself {
-        void StartFadeAway();
-        bool CancelFade(); // Returns true if it was possible to revert fading
-    }*/
+
 
 }

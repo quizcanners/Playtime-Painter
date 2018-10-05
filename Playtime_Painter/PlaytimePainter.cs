@@ -1906,9 +1906,8 @@ namespace Playtime_Painter
         public override string PlaytimeWindowName => "{0} {1}".F(gameObject.name, GetMaterialTexturePropertyName);
 
         public static PlaytimePainter inspectedPainter;
-#if PEGI
 
-
+        #if PEGI
         public bool PEGI_MAIN()
         {
 
@@ -2200,17 +2199,23 @@ namespace Playtime_Painter
                         changed |= id.ComponentDependent_PEGI(showToggles, this);
 
 
-                        if (showToggles)
+                        if (Cfg.moreOptions)
                         {
+                            if ("View".fold_enter_exit(ref id.inspectedStuff, 7).nl()) {
 
-                            "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
+                                "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
-                            var mats = GetMaterials();
-                            if ((mats != null) && (mats.Length > 1))
-                                "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
-                                                               ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
+                                var mats = GetMaterials();
+                                if ((mats != null) && (mats.Length > 1))
+                                    "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
+                                                                   ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
 
-                            "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
+                                "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
+
+                                "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders).nl();
+
+                                changed |= "Show Recording/Playback".toggleIcon(ref id.showRecording, true).nl();
+                            }
                         }
 
                         if (Cfg.moreOptions)

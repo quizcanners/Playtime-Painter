@@ -66,11 +66,6 @@ namespace STD_Logic
         {
             bool changed = false;
 
-         /*   if (edited != this)
-            {
-                if (icon.Edit.Click(20))
-                    edited = this;*/
-
                 focusName = prefix + index;
 
                 pegi.NameNext(focusName);
@@ -81,10 +76,6 @@ namespace STD_Logic
                     changed |= pegi.edit(ref Trigger.searchField);
                 else
                     changed |= pegi.edit(ref tmpname);
-
-          /*  }
-            else if (icon.Close.Click(20))
-                edited = null;*/
 
             return changed;
         }
@@ -114,7 +105,7 @@ namespace STD_Logic
 
                 pegi.newLine();
 
-                if (Search_PEGI(Trigger.searchField, Values.current))
+                if (Search_PEGI(Trigger.searchField, Values.global))
                     Trigger.searchField = Trigger.name;
 
                 selectedTrig = Trigger;

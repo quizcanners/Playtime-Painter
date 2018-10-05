@@ -402,7 +402,7 @@ namespace Playtime_Painter
                 cody.Add("u1", lst[1]);
             }
             
-            cody.Add_ifNotEmpty("uvs", uvpoints)
+            cody.Add_IfNotEmpty("uvs", uvpoints)
 
             .Add("pos", localPos)
 
@@ -791,9 +791,9 @@ namespace Playtime_Painter
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
 
-            .Add_ifTrue("f0", DominantCourner[0])
-            .Add_ifTrue("f1", DominantCourner[1])
-            .Add_ifTrue("f2", DominantCourner[2])
+            .Add_IfTrue("f0", DominantCourner[0])
+            .Add_IfTrue("f1", DominantCourner[1])
+            .Add_IfTrue("f2", DominantCourner[2])
 
             .Add("ew0", edgeWeight[0])
             .Add("ew1", edgeWeight[1])

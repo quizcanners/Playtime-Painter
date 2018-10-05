@@ -136,7 +136,7 @@ namespace STD_Logic
             .Add("ind", index)
             .Add("t", triggers)
             .Add("br", browsedGroup)
-            .Add_ifTrue("show", showInInspectorBrowser);
+            .Add_IfTrue("show", showInInspectorBrowser);
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
@@ -226,20 +226,16 @@ namespace STD_Logic
             inspected = this;
 
             bool changed = false;
+            
+            changed |= base.PEGI();
 
-            if (Values.current == null) {
-                changed |= base.PEGI();
-                if (showDebug)
+            if (showDebug)
                     return changed;
 
                 changed |= "{0} Name".F(index).edit(60, ref name).nl();
                 Trigger.Search_PEGI();
-            }
- 
 
-            ListInspecting();
-            
-            pegi.nl();
+            changed |= ListInspecting().nl();
 
             inspected = null;
 

@@ -210,6 +210,7 @@ namespace Playtime_Painter
 
         public bool enablePainterUIonPlay = false;
         public BrushConfig brushConfig;
+        public bool showColorSliders;
         public bool disableNonMeshColliderInPlayMode;
 
         public bool previewAlphaChanel;

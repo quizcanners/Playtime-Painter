@@ -350,12 +350,6 @@ namespace SharedTools_Stuff
         
         public StdEncoder Add_Bool(string tag, bool val) =>
             Add_String(tag, val ? "y" : "n");
-        
-        public StdEncoder Add_ifTrue(string tag, bool val) {
-            if (val)
-                Add_Bool(tag, val);
-            return this;
-        }
 
         public StdEncoder Add(string tag, ISTD other) {
             if (other != null)
@@ -380,7 +374,7 @@ namespace SharedTools_Stuff
             return builder.ToString();
         }
 
-        public StdEncoder Add_ifNotNegative(string tag, int val) {
+        public StdEncoder Add_IfNotNegative(string tag, int val) {
             if (val >= 0)
                 Add_String(tag, val.ToString());
             return this;
@@ -460,13 +454,20 @@ namespace SharedTools_Stuff
 
         // Optional encoding:
 
+        public StdEncoder Add_IfTrue(string tag, bool val)
+        {
+            if (val)
+                Add_Bool(tag, val);
+            return this;
+        }
+
         public StdEncoder Add_IfNotEmpty(string tag, string val) {
             if ((val != null) && (val.Length > 0)) 
                 Add_String(tag, val);
             return this;
         }
         
-        public StdEncoder Add_ifNotEmpty<T>(string tag, List<T> val) where T : ISTD {
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD {
 
             if (val.Count > 0) 
                 Add(tag, val);
@@ -482,7 +483,7 @@ namespace SharedTools_Stuff
                 StdEncoder sub = new StdEncoder();
 
                 foreach (var l in val)
-                    sub.Add_ifNotEmpty("e",l);
+                    sub.Add_IfNotEmpty("e",l);
 
                 Add_String(tag, sub.ToString());
             }

@@ -147,11 +147,10 @@ namespace STD_Logic
 
         public override bool Inspect(Trigger t)
         {
-            Values so = Values.current;
-
+            var vals = Values.global;
+            
             bool changed = base.Inspect(t);
-            if (so != null)
-                changed |= so.bools.Toogle(t); 
+            changed |= vals.bools.Toogle(t); 
 
             return changed;
         }
@@ -201,9 +200,7 @@ namespace STD_Logic
 
         public override bool Inspect(Trigger t) {
             bool changed = base.Inspect(t);
-            Values so = Values.current;
-            if (so != null)
-                changed |= so.ints.Edit(t);
+            changed |= Values.global.ints.Edit(t);
 
             return changed;
         }
@@ -234,8 +231,7 @@ namespace STD_Logic
                 "Incorrect type".write();
         }
 
-        public override bool Inspect(Result r)
-        {
+        public override bool Inspect(Result r) {
             bool changed = false;
 
             changed |= Select(ref r.type, Usage_Number.resultUsages);
@@ -244,21 +240,15 @@ namespace STD_Logic
             return changed;
         }
 
-        public override bool Inspect(Trigger t)
-        {
-            Values so = Values.current;
-
+        public override bool Inspect(Trigger t) {
+            
             bool changed = base.Inspect(t);
-
-            if (so != null)
-                changed |= so.ints.Select(t); 
-
-            pegi.newLine();
+            
+           changed |= Values.global.ints.Select(t).nl(); 
 
             if (Trigger.editedTrigger != t) return changed;
 
-            pegi.write("__ Enums__");
-
+            "__ Enums__".write(60);
             changed |= t.enm.edit_PEGI();
 
             return changed;
@@ -389,9 +379,7 @@ namespace STD_Logic
         public override bool Inspect(Trigger t) {
             var changed = base.Inspect(t);
 
-            Values vals = Values.current;
-
-            //so.enumTags.Select(t);
+            var vals = Values.global;
 
             int value = vals.GetTagEnum(t);//[group.GetIndex()][ind];
             if (pegi.select(ref value, t.enm)) {
@@ -478,16 +466,13 @@ namespace STD_Logic
         
         public override bool Inspect(Trigger t) {
             bool changed = base.Inspect(t);
-
-            Values so = Values.current;
-
-            if (so != null) {
-                bool val = so.GetTagBool(t);
+            
+                bool val = Values.global.GetTagBool(t);
                 if (pegi.toggle(ref val)) {
                     changed = true; 
-                    so.SetTagBool(t, val);
+                    Values.global.SetTagBool(t, val);
                 }
-            }
+            
 
             return changed;
         }

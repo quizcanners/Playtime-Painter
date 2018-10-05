@@ -283,7 +283,7 @@ namespace Playtime_Painter
 
 #endif
 
-        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_ifTrue("show", showOnGUI);
+        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -306,7 +306,7 @@ namespace Playtime_Painter
 
         public override StdEncoder Encode() => new StdEncoder()
             .Add_GUID("t", Texture)
-            .Add_ifTrue("show", showOnGUI);
+            .Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -407,7 +407,7 @@ namespace Playtime_Painter
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add("w", width)
             .Add("c", (int)colorMode)
-            .Add_ifTrue("show", showOnGUI);
+            .Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -476,7 +476,7 @@ namespace Playtime_Painter
 #endif
     {
 
-        public override StdEncoder Encode() => new StdEncoder().Add_ifTrue("show", showOnGUI);
+        public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -537,7 +537,7 @@ namespace Playtime_Painter
 
 
 
-        public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_ifTrue("show", showOnGUI);
+        public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
         {
@@ -683,8 +683,8 @@ namespace Playtime_Painter
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("n", name)
             .Add_IfNotZero("w", width)
-            .Add_ifTrue("l", linear)
-            .Add_ifTrue("show", showOnGUI)
+            .Add_IfTrue("l", linear)
+            .Add_IfTrue("show", showOnGUI)
             .Add_GUID("s", shader);
 
         public override bool Decode(string tag, string data)

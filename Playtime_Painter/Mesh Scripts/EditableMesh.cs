@@ -63,8 +63,8 @@ namespace Playtime_Painter {
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
             cody.Add_String("n", meshName);
-            cody.Add_ifNotEmpty("vrt",meshPoints);
-            cody.Add_ifNotEmpty("tri",triangles);
+            cody.Add_IfNotEmpty("vrt",meshPoints);
+            cody.Add_IfNotEmpty("tri",triangles);
             cody.Add("sub", submeshCount);
             cody.Add_Bool("wei", gotBoneWeights);
             cody.Add_Bool("bp", gotBindPos);

@@ -977,7 +977,7 @@ namespace SharedTools_Stuff {
             var cody = new StdEncoder()
                 .Add("inds", inds)
                 .Add("vals", vals)
-                .Add_ifNotNegative("brws", edited)
+                .Add_IfNotNegative("brws", edited)
                 .Add("last", lastFreeIndex);
 
             /*  for (int i = 0; i < inds.Count; i++) {
@@ -1597,7 +1597,7 @@ namespace SharedTools_Stuff {
             List<List<T>> vals = GetAllObjs(out inds);
 
             for (int i = 0; i < inds.Count; i++)
-                cody.Add_ifNotEmpty(inds[i].ToString(), vals[i]);
+                cody.Add_IfNotEmpty(inds[i].ToString(), vals[i]);
 
             return cody;
         }

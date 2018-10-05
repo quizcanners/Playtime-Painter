@@ -434,7 +434,7 @@ namespace Playtime_Painter {
             {
                 var cody = new StdEncoder()
 
-                .Add_ifNotEmpty("ch", channel)
+                .Add_IfNotEmpty("ch", channel)
                 .Add_Bool("c", isColor)
                 .Add_String("n", name)
                 .Add("b", bumpStrength)

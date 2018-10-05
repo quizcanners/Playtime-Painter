@@ -13,8 +13,6 @@ namespace STD_Logic {
 
         public static Values global = new Values();
 
-        public static Values current; // => global;
-
         public UnnullableSTD<CountlessBool> bools = new UnnullableSTD<CountlessBool>();
         public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
         UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
@@ -111,14 +109,8 @@ namespace STD_Logic {
             
             bool changed = false;
 
-            current = this;
-
                 if ("quest++".Click().nl())
                     LogicMGMT.AddLogicVersion();
-                
-                pegi.newLine();
-
-                "Click Enter to apply renaming.".writeOneTimeHint("EntApplyTrig");
 
                 Trigger.Search_PEGI();
 

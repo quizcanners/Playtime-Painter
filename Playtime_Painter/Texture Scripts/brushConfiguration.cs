@@ -152,6 +152,7 @@ namespace Playtime_Painter
         }
         #endregion
 
+        #region Brush Mask
         public void MaskToggle(BrushMask flag)
         {
             mask ^= flag;
@@ -166,12 +167,22 @@ namespace Playtime_Painter
         }
 
         public BrushMask mask;
+        #endregion
 
+        #region Modes & Types
         public int _bliTMode;
         public int _type (bool CPU) { return CPU ? inCPUtype : inGPUtype;}
         public void TypeSet (bool CPU, BrushType t ) { if (CPU) inCPUtype = t.index; else  inGPUtype = t.index; }
         public int inGPUtype;
         public int inCPUtype;
+
+        public BrushType Type(PlaytimePainter pntr) => pntr == null ? Type(TargetIsTex2D) : Type(pntr.ImgData.TargetIsTexture2D());
+        
+        public BrushType Type(bool CPU) => BrushType.AllTypes[_type(CPU)];
+        
+        public BlitMode BlitMode { get { return BlitMode.AllModes[_bliTMode]; } set { _bliTMode = value.index; } }
+
+        #endregion
 
         public void SetSupportedFor (bool CPU, bool RTpair) {
             if (!CPU) {
@@ -212,17 +223,8 @@ namespace Playtime_Painter
         public float Brush3D_Radius = 16;
         public float Brush2D_Radius = 16;
 
-        public float Size(bool worldSpace) { return (worldSpace ? Brush3D_Radius : Brush2D_Radius); }
-
-        public BrushType Type(PlaytimePainter pntr) {
-            return pntr == null ? Type(TargetIsTex2D) : Type(pntr.ImgData.TargetIsTexture2D());
-        }
-
-        public BrushType Type(bool CPU) { 
-            return BrushType.AllTypes[_type(CPU)]; }
-
-        public BlitMode BlitMode { get { return BlitMode.AllModes[_bliTMode]; } set { _bliTMode = value.index; } }
-
+        public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius); 
+        
         public virtual bool IsA3Dbrush(PlaytimePainter pntr)
         {
             bool overrideOther = false;
@@ -257,9 +259,9 @@ namespace Playtime_Painter
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
 
-        public bool PaintingAllChannels { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A); } }
+        public bool PaintingAllChannels => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A); 
 
-        public bool PaintingRGB { get { return mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); } }
+        public bool PaintingRGB => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); 
         
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr)  {
 
@@ -314,7 +316,7 @@ namespace Playtime_Painter
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush { get{ return PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; } }
+        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; 
 #if PEGI
         public bool Mode_Type_PEGI()
         {
@@ -527,21 +529,27 @@ namespace Playtime_Painter
             bool changed = false;
 
             Color col = colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())
-            {
+            if (pegi.edit(ref col).nl())  {
                 colorLinear.From(col);
                 changed = true;
             }
-            
-            changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);
-            changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, true);
-            changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, true);
-            changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
+
+            if (Cfg.showColorSliders) {
+                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);
+                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, true);
+                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, true);
+                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
+            }
 
             return changed;
         }
 
         bool ColorSliders( ) {
+
+            if (!Cfg.showColorSliders)
+                return false;
+                
+
             bool changed = false;
             PlaytimePainter painter = PlaytimePainter.inspectedPainter;
             bool slider = BlitMode.ShowColorSliders;
