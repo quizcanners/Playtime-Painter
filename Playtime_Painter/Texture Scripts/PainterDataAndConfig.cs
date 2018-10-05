@@ -71,6 +71,7 @@ namespace Playtime_Painter
         public const string isUV2DisaplyNameTag = "_UV2";
         public const string atlasedTexturesInARow = "_AtlasTextures";
 
+        public const string TransparentLayerExpected = "TransparentLayerExpected";
         public const string TextureSampledWithUV2 = "TextureSampledWithUV2";
         public const string vertexColorRole = "VertexColorRole_";
         public const string bufferCopyAspectRatio = "_BufferCopyAspectRatio";
@@ -210,7 +211,7 @@ namespace Playtime_Painter
 
         public bool enablePainterUIonPlay = false;
         public BrushConfig brushConfig;
-        public bool showColorSliders;
+        public bool showColorSliders = true;
         public bool disableNonMeshColliderInPlayMode;
 
         public bool previewAlphaChanel;

@@ -394,7 +394,7 @@ namespace SharedTools_Stuff
             return obj;
         }
         
-        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD, new()
+        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD
         {
             T val = (T)Activator.CreateInstance(childType);
             val.Decode(data);

@@ -651,17 +651,10 @@ namespace Playtime_Painter {
         #endregion
         
         #region Inspector
-        public string NameForPEGI
-        {
-            get
-            {
-                return SaveName;
-            }
+        public string NameForPEGI  {
+            get { return SaveName;  }
 
-            set
-            {
-                SaveName = value;
-            }
+            set  { SaveName = value;}
         }
 
 
@@ -681,9 +674,8 @@ namespace Playtime_Painter {
         public override bool PEGI() {
 
             bool changed = false;
-            
-            if ("CPU blit options".conditional_enter_exit(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl()) {
 
+            if ("CPU blit options".conditional_enter_exit(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl()) {
                 changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref GlobalBrush.repaintDelay, 0.01f, 0.5f).nl();
 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
@@ -696,7 +688,7 @@ namespace Playtime_Painter {
 
                 if (icon.Folder.Click("Open Folder with textures").nl())
                     StuffExplorer.OpenPersistantFolder(savedImagesFolder);
-                
+
                 if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
                     SaveInPlayer();
 
@@ -731,7 +723,6 @@ namespace Playtime_Painter {
                 pegi.nl();
             }
 
-
             if ("Undo Redo".toggle_enter_exit(ref enableUndoRedo,ref inspectedStuff, 2, ref changed).nl())  {
 
                     changed |=
@@ -749,46 +740,44 @@ namespace Playtime_Painter {
                     pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
                 
             }
-
-
-            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl_ifFalse())
-            {
+            
+            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl()) {
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { PaletteName="New Color Scheme"});
 
                 changed |= pegi.edit_List(Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
             }
-            
-                pegi.nl();
 
-             
-            
             return changed;
         }
         
         public bool ComponentDependent_PEGI(bool showToggles, PlaytimePainter painter) {
             bool changed = false;
 
-            if (showToggles || isATransparentLayer)
+            var property = painter.GetMaterialTexturePropertyName;
+
+            bool forceOpenUTransparentLayer = false;
+
+            if (!isATransparentLayer && painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property)) {
+                "Material Field {0} is a Transparent Layer ".F(property).writeHint();
+                forceOpenUTransparentLayer = true;
+            }
+
+            if (showToggles || isATransparentLayer || forceOpenUTransparentLayer)
                 changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer, true).nl();
 
-            bool forceOpen = false;
-            if (!useTexcoord2)
-            {
-                var property = painter.GetMaterialTexturePropertyName;
-                var prop = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + painter.GetMaterialTexturePropertyName);
-                if (prop) {
-                    if (!useTexcoord2_AutoAssigned)
-                    {
+            bool forceOpenUV2 = false;
+
+                if (!useTexcoord2 && painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property)) {
+                    if (!useTexcoord2_AutoAssigned) {
                         useTexcoord2 = true;
                         useTexcoord2_AutoAssigned = true;
                     } else 
                         "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).writeHint();
-                    forceOpen = true;
+                    forceOpenUV2 = true;
                 }
-            }
-
-            if (showToggles || useTexcoord2 || forceOpen)
+  
+            if (showToggles || useTexcoord2 || forceOpenUV2)
                 changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2, true).nl();
 
             if (showToggles || (!painter.IsOriginalShader && Cfg.previewAlphaChanel))

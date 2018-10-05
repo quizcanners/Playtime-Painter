@@ -2161,18 +2161,21 @@ namespace Playtime_Painter
 
                         pegi.nl();
 
-                        changed |= GlobalBrush.ColorSliders_PEGI().nl();
+                        if (!Cfg.moreOptions) {
 
-                        if (!Cfg.moreOptions && Cfg.showColorSchemes) {
+                            changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
-                            var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
+                            if (Cfg.showColorSchemes) {
 
-                            if (scheme != null)
-                                scheme.PickerPEGI();
+                                var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
 
-                            if (Cfg.showColorSchemes)
-                                changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+                                if (scheme != null)
+                                    scheme.PickerPEGI();
 
+                                if (Cfg.showColorSchemes)
+                                    changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+
+                            }
                         }
 
                         #endregion
@@ -2180,27 +2183,8 @@ namespace Playtime_Painter
                         #region Fancy Options
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
-                        if (Cfg.moreOptions)
-                        {
+                        if (Cfg.moreOptions)  {
 
-                            if (icon.NewTexture.conditional_enter_exit("New Texture Config ", !IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl())
-                            {
-                                "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor, true).nl();
-                                
-                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
-                            }
-                            pegi.nl();
-
-                            changed |= id.PEGI();
-                        }
-
-                        bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
-
-                        changed |= id.ComponentDependent_PEGI(showToggles, this);
-
-
-                        if (Cfg.moreOptions)
-                        {
                             if ("View".fold_enter_exit(ref id.inspectedStuff, 7).nl()) {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
@@ -2212,12 +2196,26 @@ namespace Playtime_Painter
 
                                 "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
 
-                                "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders).nl();
+                                "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl();
 
                                 changed |= "Show Recording/Playback".toggleIcon(ref id.showRecording, true).nl();
                             }
+
+                            if ("New Texture Config ".conditional_enter_exit(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl()) {
+
+                                "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor, true).nl();
+
+                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions).nl();
+                            }
+
+
+                            changed |= id.PEGI();
                         }
 
+                        bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
+
+                        changed |= id.ComponentDependent_PEGI(showToggles, this);
+                        
                         if (Cfg.moreOptions)
                             pegi.Line(Color.red);
 

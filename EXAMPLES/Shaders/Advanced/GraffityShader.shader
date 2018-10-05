@@ -9,6 +9,7 @@
 		Tags{ "RenderType" = "Opaque"
 	
 		"TextureSampledWithUV2_Overlay" = "true"
+		"TransparentLayerExpected_Overlay" = "true"
 	}
 		LOD 200
 
