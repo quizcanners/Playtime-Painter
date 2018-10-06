@@ -14,7 +14,7 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
 
     [SerializeField] string stdData = "";
 
-    public string Config_STD { get => stdData; set => stdData = value; }
+    public string Config_STD { get { return stdData; } set { stdData = value; } }
 
     void OnEnable() => this.Load_STDdata();
 

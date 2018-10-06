@@ -2,33 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SharedTools_Stuff;
+#if UNITY_2018_1_OR_NEWER
 using Unity.Jobs;
 using Unity.Collections;
+#endif
 
 namespace Playtime_Painter
 {
 
-      public struct BlitJobs : IJob {
-        
-            public NativeArray<Color> values;
-            bool r;
-            bool g;
-            bool b;
-            bool a;
 
-            int x;
-            int y;
-            int z;
+    public enum BlitJobBlitMode { Alpha, Add, Subtract, Max, Min }
 
-            float alpha;
+#if UNITY_2018_1_OR_NEWER
+    public struct BlitJobs : IJob
+    {
 
-            float brAlpha;
-            float half;
-            bool smooth;
-            int width;
-            int height;
-            MyIntVec2 pixelNumber;
-            Color csrc;
+        public NativeArray<Color> values;
+        bool r;
+        bool g;
+        bool b;
+        bool a;
+
+        int x;
+        int y;
+        int z;
+
+        float alpha;
+
+        float brAlpha;
+        float half;
+        bool smooth;
+        int width;
+        int height;
+        MyIntVec2 pixelNumber;
+        Color csrc;
 
         bool isVolumeBlit;
         int slices;
@@ -38,10 +45,12 @@ namespace Playtime_Painter
 
         Blit_Functions.alphaMode_dlg _alphaMode;
         Blit_Functions.blitModeFunction _blitMode;
-        
-        public void PrepareBlit(BrushConfig bc, ImageData id, float brushAlpha, StrokeVector stroke) {
 
-            switch (blitJobBlitMode) {
+        public void PrepareBlit(BrushConfig bc, ImageData id, float brushAlpha, StrokeVector stroke)
+        {
+
+            switch (blitJobBlitMode)
+            {
                 case BlitJobBlitMode.Add: _blitMode = AddBlit; break;
                 case BlitJobBlitMode.Alpha:
                     if (bc.BlitMode.supportsTransparentLayer && id.isATransparentLayer)
@@ -54,7 +63,7 @@ namespace Playtime_Painter
                 case BlitJobBlitMode.Subtract: _blitMode = SubtractBlit; break;
                 default: _blitMode = AlphaBlitOpaque; break;
             }
-            
+
             if (smooth)
                 _alphaMode = CircleAlpha;
             else
@@ -81,8 +90,9 @@ namespace Playtime_Painter
 
             csrc = bc.colorLinear.ToGamma();
         }
-        
-        public void PrepareVolumeBlit(BrushConfig bc, ImageData id, float alpha, StrokeVector stroke, VolumeTexture volume) {
+
+        public void PrepareVolumeBlit(BrushConfig bc, ImageData id, float alpha, StrokeVector stroke, VolumeTexture volume)
+        {
             PrepareBlit(bc, id, alpha, stroke);
             pos = (stroke.posFrom - volume.transform.position) / volume.size + 0.5f * Vector3.one;
             isVolumeBlit = true;
@@ -91,7 +101,8 @@ namespace Playtime_Painter
             texWidth = id.width;
         }
 
-        int PixelNo(MyIntVec2 v)  {
+        int PixelNo(MyIntVec2 v)
+        {
             int x = v.x;
             int y = v.y;
 
@@ -103,10 +114,11 @@ namespace Playtime_Painter
                 y += height;
             return y * width + x;
         }
-        
-        public void Execute() {
 
-        
+        public void Execute()
+        {
+
+
 
             if (!isVolumeBlit)
             {
@@ -119,13 +131,16 @@ namespace Playtime_Painter
 
                 tmp.y -= ihalf;
 
-                for (y = -ihalf; y < ihalf + 1; y++)  {
+                for (y = -ihalf; y < ihalf + 1; y++)
+                {
 
                     tmp.x = fromx;
 
-                    for (x = -ihalf; x < ihalf + 1; x++) {
+                    for (x = -ihalf; x < ihalf + 1; x++)
+                    {
 
-                        if (_alphaMode()) {
+                        if (_alphaMode())
+                        {
 
                             var ind = PixelNo(tmp);
                             var col = values[ind];
@@ -139,12 +154,14 @@ namespace Playtime_Painter
                     tmp.y += 1;
                 }
 
-            } else {
+            }
+            else
+            {
 
                 if (slices > 1)
                 {
                     int ihalf = (int)(half - 0.5f);
-                  
+
                     if (smooth) ihalf += 1;
 
                     _alphaMode = SphereAlpha;
@@ -156,7 +173,7 @@ namespace Playtime_Painter
                     y = (int)pos.y;
                     z = (int)(pos.z + hw);
                     x = (int)(pos.x + hw);
-                    
+
                     for (y = -ihalf; y < ihalf + 1; y++)
                     {
 
@@ -171,26 +188,31 @@ namespace Playtime_Painter
                             int hx = h % slices;
                             int hTex_index = (hy * texWidth + hx) * sliceWidth;
 
-                            for (z = -ihalf; z < ihalf + 1; z++) {
+                            for (z = -ihalf; z < ihalf + 1; z++)
+                            {
 
                                 int trueZ = z + z;
 
-                                if (trueZ >= 0 && trueZ < sliceWidth) {
+                                if (trueZ >= 0 && trueZ < sliceWidth)
+                                {
 
                                     int yTex_index = hTex_index + trueZ * texWidth;
 
-                                    for (x = -ihalf; x < ihalf + 1; x++) {
+                                    for (x = -ihalf; x < ihalf + 1; x++)
+                                    {
                                         int trueX = x + x;
 
-                                        if (trueX >= 0 && trueX < sliceWidth) {
+                                        if (trueX >= 0 && trueX < sliceWidth)
+                                        {
 
                                             int texIndex = yTex_index + trueX;
 
-                                            if (_alphaMode())  {
+                                            if (_alphaMode())
+                                            {
 
                                                 var col = values[texIndex];
                                                 _blitMode(ref col);
-                                                values[texIndex] =  col;
+                                                values[texIndex] = col;
                                             }
 
                                         }
@@ -206,42 +228,42 @@ namespace Playtime_Painter
 
             }
         }
-        
+
         #region AlphaModes
 
-         bool NoAlpha() => true;
+        bool NoAlpha() => true;
 
-        bool SphereAlpha() {
-                float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
-                alpha = Mathf.Clamp01((dist) / half) * brAlpha;
-                return alpha > 0;
-            }
+        bool SphereAlpha()
+        {
+            float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
+            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
+            return alpha > 0;
+        }
 
-         bool CircleAlpha() {
-                float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
-                alpha = Mathf.Clamp01((dist) / half) * brAlpha;
-                return alpha > 0;
-            }
+        bool CircleAlpha()
+        {
+            float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
+            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
+            return alpha > 0;
+        }
 
         #endregion
 
         #region BlitModes
 
-        public enum BlitJobBlitMode { Alpha, Add, Subtract, Max, Min }
-
         BlitJobBlitMode blitJobBlitMode;
 
-      
 
-        void AlphaBlitOpaque (ref Color cdst)
-            {
+
+        void AlphaBlitOpaque(ref Color cdst)
+        {
             float deAlpha = 1 - alpha;
 
-                if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
-                if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
-                if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
-                if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
-            }
+            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
+            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
+            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
+            if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
+        }
 
         void AlphaBlitTransparent(ref Color cdst)
         {
@@ -254,13 +276,13 @@ namespace Playtime_Painter
             rgbAlpha = divs > 0 ? Mathf.Clamp01(rgbAlpha / divs) : 0;
             float deRGBAlpha = 1 - rgbAlpha;
 
-          //  float rgbAlpha = alpha / Mathf.Min(1, cdst.a + alpha);
-          //  float deAlpha = 1 - rgbAlpha;
+            //  float rgbAlpha = alpha / Mathf.Min(1, cdst.a + alpha);
+            //  float deAlpha = 1 - rgbAlpha;
 
             if (r) cdst.r = Mathf.Sqrt(rgbAlpha * csrc.r * csrc.r + cdst.r * cdst.r * deRGBAlpha);
             if (g) cdst.g = Mathf.Sqrt(rgbAlpha * csrc.g * csrc.g + cdst.g * cdst.g * deRGBAlpha);
             if (b) cdst.b = Mathf.Sqrt(rgbAlpha * csrc.b * csrc.b + cdst.b * cdst.b * deRGBAlpha);
-            if (a) cdst.a = alpha * csrc.a + cdst.a * (1- alpha);
+            if (a) cdst.a = alpha * csrc.a + cdst.a * (1 - alpha);
         }
 
         void AddBlit(ref Color cdst)
@@ -299,7 +321,6 @@ namespace Playtime_Painter
         #endregion
 
     }
-
-
+#endif
 
 }

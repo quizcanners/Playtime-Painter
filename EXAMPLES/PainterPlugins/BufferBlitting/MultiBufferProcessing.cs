@@ -713,22 +713,22 @@ namespace Playtime_Painter
     {
         enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 
-        [SerializeField] Material material;
-        [SerializeField] Shader shader;
+        [SerializeField] Material material = null;
+        [SerializeField] Shader shader = null;
         [SerializeField] public Material previewMaterial;
 
         [SerializeField] int targetBufferIndex = -1;
         [SerializeField] int sourceBufferIndex = -1;
-        [SerializeField] float delayTime;
+        [SerializeField] float delayTime = 0.01f;
         public TextureBuffer TargetRenderTexture => Mgmt.buffers.TryGet(targetBufferIndex);
         public TextureBuffer SourceBuffer => Mgmt.buffers.TryGet(sourceBufferIndex);
         MultiBufferProcessing Mgmt { get { return MultiBufferProcessing.inst; } }
 
         int Version { get { return TargetRenderTexture != null ? TargetRenderTexture.Version : 0; } }
 
-        [SerializeField] BlitTrigger trigger;
+        [SerializeField] BlitTrigger trigger = BlitTrigger.Manual;
         [SerializeField] bool enabled = true;
-        [SerializeField] RenderSection triggerSection;
+        [SerializeField] RenderSection triggerSection = null;
 
         int dependentVersion = 0;
         float timer = 0;

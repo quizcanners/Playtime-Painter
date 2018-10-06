@@ -104,20 +104,14 @@
 		i.texcoord.xy = perfTex  + off;
 
 		col = tex2Dlod(_PreviewTex, float4(i.texcoord.xy,0,0));
-		
+
 		float2 off2 = i.texcoord.zw*i.texcoord.zw;
 		float fromCenter = sqrt(off2.x+off2.y);
 		float gridCircleSize = _brushForm.x;
 
-
-
-		return float4(i.texcoord.zw*0.01,0,0);
-
 		fromCenter =(gridCircleSize - fromCenter)/(gridCircleSize);
 
-
-
-		float border = (1-saturate(fromCenter)) * max(offset.x, offset.y); //*pow(max(0, (fromCenter)), 16);
+		float border = (1-saturate(fromCenter)) * max(offset.x, offset.y); 
 
 		col = col*(1-border) + (0.5 - col * 0.5)*border;
 
@@ -127,36 +121,27 @@
 
 	i.texcoord = previewTexcoord (i.texcoord.xy);
 
+	#if  !BRUSH_SQUARE 	
+		alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist); 
 
-
-#if  !BRUSH_SQUARE //PREVIEW_FILTER_SMOOTH
-		
-	alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist); 
-
-	col =  tex2Dlod(_PreviewTex, float4(i.texcoord.xy, 0, 0));
-
-#endif
+		col =  tex2Dlod(_PreviewTex, float4(i.texcoord.xy, 0, 0));
+	#endif
 
 	#if BRUSH_3D  || BRUSH_3D_TEXCOORD2
           alpha *= prepareAlphaSpherePreview (i.texcoord.xy, i.worldPos);
-     #endif
+    #endif
 
-	  #if BRUSH_2D || BRUSH_SQUARE
-
+	#if BRUSH_2D || BRUSH_SQUARE
 		#if (!BRUSH_SQUARE)
-          alpha *= prepareAlphaSmoothPreview (i.texcoord);
-
-		  float differentColor = min(0.5, (abs(col.g-_brushColor.g)+abs(col.r-_brushColor.r)+abs(col.b-_brushColor.b))*8);
-
-		 _brushColor = _brushColor*(differentColor+0.5);
-
+			alpha *= prepareAlphaSmoothPreview (i.texcoord);
+			float differentColor = min(0.5, (abs(col.g-_brushColor.g)+abs(col.r-_brushColor.r)+abs(col.b-_brushColor.b))*8);
+			_brushColor = _brushColor*(differentColor+0.5);
 		#else
 		   alpha *= prepareAlphaSquarePreview (i.texcoord);
 		#endif
+    #endif
 
-     #endif
-
-	 #if BRUSH_DECAL
+	#if BRUSH_DECAL
 	   float2 decalUV = (i.texcoord.xy - _brushPointedUV.xy)*256/_brushForm.y;
 
 	 	float sinX = sin ( _DecalParameters.x );
@@ -166,8 +151,8 @@
 
 	    decalUV =  mul ( decalUV, rotationMatrix );
       	
-	  float Height = tex2D(_VolDecalHeight, decalUV +0.5).a;
-	  float4 overlay = tex2D(_VolDecalOverlay, decalUV +0.5);
+		float Height = tex2D(_VolDecalHeight, decalUV +0.5).a;
+		float4 overlay = tex2D(_VolDecalOverlay, decalUV +0.5);
 		float difference = saturate((Height-col.a) * 8*_DecalParameters.y-0.01);
 
 		float changeColor = _DecalParameters.z;
@@ -181,7 +166,6 @@
 
 
 	#if PREVIEW_SAMPLING_DISPLACEMENT
-
 		float resX = (i.texcoord.x + (col.r - 0.5) * 2);
 		float resY = (i.texcoord.y + (col.g - 0.5) * 2);
 
@@ -190,16 +174,10 @@
 		float distX = (resX - _brushSamplingDisplacement.x);
 		float distY = (resY - _brushSamplingDisplacement.y);
 		col.rgb = saturate(1 - sqrt(distX*distX + distY * distY)*8) + saturate(edge);
-
-	
-
-		//_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x) / 2 + 0.5;
-		//_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y) / 2 + 0.5;
 	#endif
 
 	#if PREVIEW_ALPHA
-		//col = src*src*_brushMask+col*col*(1-_brushMask);
-		col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a; //  col.a;
+		col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 	#endif
 	
 	

@@ -153,10 +153,9 @@ namespace Playtime_Painter
         #endregion
 
         #region Brush Mask
-        public void MaskToggle(BrushMask flag)
-        {
+        public void MaskToggle(BrushMask flag) =>
             mask ^= flag;
-        }
+        
 
         public void MaskSet(BrushMask flag, bool to)
         {
@@ -171,7 +170,7 @@ namespace Playtime_Painter
 
         #region Modes & Types
         public int _bliTMode;
-        public int _type (bool CPU) { return CPU ? inCPUtype : inGPUtype;}
+        public int _type (bool CPU) => CPU ? inCPUtype : inGPUtype;
         public void TypeSet (bool CPU, BrushType t ) { if (CPU) inCPUtype = t.index; else  inGPUtype = t.index; }
         public int inGPUtype;
         public int inCPUtype;
@@ -401,7 +400,7 @@ namespace Playtime_Painter
 
             if (p == null) { "No Painter Detected".nl(); return false; }
             
-            if ((p.skinnedMeshRendy != null) && (pegi.Click("Update Collider from Skinned Mesh")))
+            if ((p.skinnedMeshRendy != null) && ("Update Collider from Skinned Mesh".Click()))
                 p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
 

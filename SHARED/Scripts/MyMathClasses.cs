@@ -341,6 +341,8 @@ namespace SharedTools_Stuff
         
         public static Vector2 XY(this Vector3 vec) => new Vector2(vec.x, vec.y);
 
+        public static Vector4 ToVector4(this Vector2 v2) => new Vector4(v2.x, v2.y, 0, 0);
+        
         public static Vector4 ToVector4(this Vector3 v3, float w) => new Vector4(v3.x, v3.y, v3.z, w);
 
         public static Vector3 ToVector3(this Vector2 v2, float z) => new Vector3(v2.x, v2.y, z);

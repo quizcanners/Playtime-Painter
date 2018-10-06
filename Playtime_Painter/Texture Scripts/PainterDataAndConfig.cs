@@ -16,7 +16,7 @@ namespace Playtime_Painter
     {
         public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
-        
+
         #region Shaders
         public Shader br_Blit = null;
         public Shader br_Add = null;
@@ -188,7 +188,7 @@ namespace Playtime_Painter
         public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
         public float bevelDetectionSensetivity = 6;
 
-      //  public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
+        //  public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
 
         public string meshToolsSTD = null;
 
@@ -215,16 +215,22 @@ namespace Playtime_Painter
         public bool disableNonMeshColliderInPlayMode;
 
         public bool previewAlphaChanel;
-        public bool newTextureIsColor = true;
 
         public bool moreOptions = false;
         public bool allowExclusiveRenderTextures = false;
         public bool showConfig = false;
         public bool ShowTeachingNotifications = false;
         public bool DebugDisableSecondBufferUpdate;
-        #endregion
-        
         public MyIntVec2 samplingMaskSize;
+        #endregion
+
+        #region New Texture Config
+
+        public bool newTextureIsColor = true;
+
+        public Color newTextureClearColor = Color.black;
+
+        public Color newTextureClearNonColorValue = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
         public int selectedSize = 4;
 
@@ -249,7 +255,7 @@ namespace Playtime_Painter
         }
 
         public static int SelectedSizeForNewTexture(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
-
+        #endregion
 
         #region BrushStrokeRecordings
         public List<string> recordingNames = new List<string>();
@@ -258,7 +264,7 @@ namespace Playtime_Painter
 
         public static Dictionary<string, string> recordings = new Dictionary<string, string>();
 
-        public List<string> StrokeRecordingsFromFile (string filename)
+        public List<string> StrokeRecordingsFromFile(string filename)
         {
             string data;
 
@@ -293,7 +299,7 @@ namespace Playtime_Painter
             set { STDdata = value; }
         }
 
-        public override StdEncoder Encode() 
+        public override StdEncoder Encode()
         {
             for (int i = 0; i < imgDatas.Count; i++)
             {
@@ -343,7 +349,7 @@ namespace Playtime_Painter
             bool changes = false;
 
             changes |= "Img datas".fold_enter_exit_List(imgDatas, ref inspectedImgData, ref inspectedStuffs, 0).nl();
-            
+
             changes |= "Mat datas".fold_enter_exit_List(matDatas, ref inspectedMaterial, ref inspectedStuffs, 1).nl();
 
             changes |= "Source Textures".fold_enter_exit_List_Obj(sourceTextures, ref inspectedStuffs, 2).nl();
@@ -367,18 +373,17 @@ namespace Playtime_Painter
         }
 
         bool inspectLists = false;
-        
+
         public override bool PEGI()
         {
             bool changed = false; //  base.PEGI();
 
             PainterCamera rtp = PainterCamera.Inst;
-            BrushConfig brush = brushConfig;
-   
+
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
                 "Plugins".write_List(rtp.Plugins, ref rtp.browsedPlugin);
-       
+
 
                 if ("Find New Plugins".Click())
                     rtp.RefreshPlugins();
@@ -396,18 +401,19 @@ namespace Playtime_Painter
 
             if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
                 UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
-            
+
             if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
                 MeshManager.Inst.DisconnectMesh();
-            
-            if (!PainterStuff.IsNowPlaytimeAndDisabled)  {
+
+            if (!PainterStuff.IsNowPlaytimeAndDisabled)
+            {
 
                 if (Painter && Painter.meshEditing == false)
                     "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
                 if ("Lists".foldout(ref inspectLists).nl())
                     changed |= DatasPEGI();
-                
+
                 "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
 
                 "Save Textures To".edit(110, ref texturesFolderName).nl();
@@ -434,7 +440,7 @@ namespace Playtime_Painter
 
 #endif
         #endregion
-        
+
         public void Init()
         {
 
@@ -449,7 +455,7 @@ namespace Playtime_Painter
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"),
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
                 };
-            
+
             if (samplingMaskSize.x == 0) samplingMaskSize = new MyIntVec2(4);
 
             if (atlasFolderName == null || atlasFolderName.Length == 0)
@@ -461,7 +467,7 @@ namespace Playtime_Painter
                 atlasFolderName = "ATLASES";
                 recordingNames = new List<string>();
             }
-            
+
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
             if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
 
@@ -501,7 +507,7 @@ namespace Playtime_Painter
             }
 
         }
-        
+
         public void OnEnable()
         {
             Init();
@@ -521,6 +527,6 @@ namespace Playtime_Painter
 
             STDdata = Encode().ToString();
         }
-        
+
     }
 }

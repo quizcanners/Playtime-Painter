@@ -113,11 +113,18 @@ namespace Playtime_Painter {
 
         public override void OnInspectorGUI() {
 
+#if !PEGI
+             if (GUILayout.Button("Enable PEGI inspector")){
+             "Recompilation in progress ".showNotification();
+                PEGI_StylesDrawer.EnablePegi();
+ 
+}
+#endif
+
+
+
 
 #if PEGI
-
-
-            bool changes = false;
 
             painter = (PlaytimePainter)target;
 
@@ -165,7 +172,7 @@ namespace Playtime_Painter {
             if ((!painter.meshEditing) && ((tex != null) && (image == null)) || ((image != null) && (tex == null)) || ((image != null) && (tex != image.texture2D) && (tex != image.CurrentTexture())))
                 painter.textureWasChanged = true;
 
-            changes = painter.PEGI_MAIN();
+            painter.PEGI_MAIN();
           
 
             painter.gameObject.end();
@@ -174,5 +181,5 @@ namespace Playtime_Painter {
 
     }
 #endif
-}
+        }
 

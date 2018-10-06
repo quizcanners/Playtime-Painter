@@ -31,8 +31,10 @@ namespace Playtime_Painter
                 if (fieldName.Contains(PainterDataAndConfig.terrainHeight))
                 {
                     var id = painter.ImgData;
-                    id.tiling = Vector2.one;
-                    id.offset = Vector2.zero;
+                    if (id != null) {
+                        id.tiling = Vector2.one;
+                        id.offset = Vector2.zero;
+                    }
                     return true;
                 }
             }

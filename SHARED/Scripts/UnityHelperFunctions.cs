@@ -19,13 +19,8 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public static class UnityHelperFunctions {
-
-      
-
-     
-
-    
+    public static class UnityHelperFunctions
+    {
         #region Timing
 
 
@@ -66,13 +61,14 @@ namespace SharedTools_Stuff
             return Physics.Raycast(new Ray(from, ray), magnitude);
         }
 
-        public static bool RaycastHit(this Vector3 from, Vector3 to, out RaycastHit hit)  {
+        public static bool RaycastHit(this Vector3 from, Vector3 to, out RaycastHit hit)
+        {
             Vector3 ray = to - from;
             return Physics.Raycast(new Ray(from, ray), out hit);
         }
 
         #endregion
-        
+
         #region Gizmos
 
         public static void LineTo(this Vector3 v3a, Vector3 v3b, Color col)
@@ -115,8 +111,8 @@ namespace SharedTools_Stuff
 
         public static Color ToOpaque(this Color col)
         {
-            if (col != null)
-                col.a = 1;
+            // if (col != null)
+            col.a = 1;
             return col;
         }
 
@@ -127,7 +123,7 @@ namespace SharedTools_Stuff
                 foreach (var go in goList)
                     if (go) go.SetActive(to);
         }
-        
+
         public static GameObject GetFocused()
         {
 #if UNITY_EDITOR
@@ -179,7 +175,7 @@ namespace SharedTools_Stuff
             return mc;
 
         }
-        
+
         public static Transform TryGetCameraTransform(this GameObject go)
         {
             Camera c = null;
@@ -206,7 +202,7 @@ namespace SharedTools_Stuff
 
             return go.transform;
         }
-        
+
         public static void SetLayerRecursively(GameObject go, int layerNumber)
         {
             foreach (Transform trans in go.GetComponentsInChildren<Transform>(true))
@@ -228,7 +224,7 @@ namespace SharedTools_Stuff
         return false;
 #endif
         }
-        
+
         public static T ForceComponent<T>(this GameObject go, ref T co) where T : Component
         {
             if (co == null)
@@ -272,7 +268,7 @@ namespace SharedTools_Stuff
         }
 
         #endregion
-        
+
         #region Unity Editor MGMT
 
         public static bool MouseToPlane(this Plane _plane, out Vector3 hitPos)
@@ -289,8 +285,7 @@ namespace SharedTools_Stuff
 
             return false;
         }
-
-
+        
         public static void Log(this string text)
         {
 
@@ -298,8 +293,7 @@ namespace SharedTools_Stuff
             UnityEngine.Debug.Log(text);
 #endif
         }
-
-
+        
         public static bool GetDefine(this string define)
         {
 
@@ -330,8 +324,7 @@ namespace SharedTools_Stuff
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
 #endif
         }
-
-
+        
         public static bool ApplicationIsAboutToEnterPlayMode(this MonoBehaviour mb)
         {
 #if UNITY_EDITOR
@@ -601,8 +594,8 @@ namespace SharedTools_Stuff
 
 #endif
         }
-        
-        public static void RenameAsset<T>(this T obj, string newName) where T: UnityEngine.Object
+
+        public static void RenameAsset<T>(this T obj, string newName) where T : UnityEngine.Object
         {
 
             if (newName.Length > 0)
@@ -651,7 +644,7 @@ namespace SharedTools_Stuff
 
             return added;
         }
-        
+
         public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
         {
             T added = null;
@@ -659,7 +652,8 @@ namespace SharedTools_Stuff
 
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(el);
-            if (path != null && path.Length>0) {
+            if (path != null && path.Length > 0)
+            {
 
                 added = ScriptableObject.CreateInstance(el.GetType()) as T;
 
@@ -667,7 +661,7 @@ namespace SharedTools_Stuff
 
                 path = path.Replace(oldName, "");
 
-        
+
 
                 string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
 
@@ -686,7 +680,7 @@ namespace SharedTools_Stuff
 
             return added;
         }
-        
+
         public static bool TryAdd_UObj_ifNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
         {
             if (ass == null)
@@ -712,12 +706,12 @@ namespace SharedTools_Stuff
 
             if (ass.GetType() == typeof(T) || ass.GetType().IsSubclassOf(typeof(T)))
             {
-               // Debug.Log("is other " + ass.ToString());
+                // Debug.Log("is other " + ass.ToString());
                 T cst = ass as T;
                 if (!list.Contains(cst))
                 {
                     list.Add(cst);
-                   // Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
+                    // Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
                 }
                 return true;
             }
@@ -767,7 +761,7 @@ namespace SharedTools_Stuff
             var nm = asset as IGotName;
             if (nm != null)
                 nm.NameForPEGI = name;
-            
+
             if (optionalList != null)
             {
 
@@ -784,9 +778,9 @@ namespace SharedTools_Stuff
                     }
                     ind.IndexForPEGI = maxInd;
                 }
-                
+
                 optionalList.Add(asset);
-                
+
             }
 #endif
 #if UNITY_EDITOR
@@ -798,7 +792,8 @@ namespace SharedTools_Stuff
             try
             {
                 Directory.CreateDirectory(fullPath);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.LogError("Couldn't create Directory {0} : {1}".F(fullPath, ex.ToString()));
                 return null;
@@ -812,7 +807,8 @@ namespace SharedTools_Stuff
                 AssetDatabase.CreateAsset(asset, assetPathAndName);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
             }
@@ -822,7 +818,7 @@ namespace SharedTools_Stuff
 
             return asset;
         }
-        
+
         public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
         {
 
@@ -1136,7 +1132,7 @@ namespace SharedTools_Stuff
         }
 
         #endregion
-        
+
         #region Texture Import Settings
 
         public static bool IsColorTexture(this Texture2D tex)

@@ -355,7 +355,7 @@ inline void BleedAndBrightness(inout float4 col, float mod) {
 
 	col.rgb *= _lightControl.a;
 
-	float3 mix = (col.gbr + col.brg)*mod;
+	float3 mix = min(col.gbr + col.brg, 128)*mod;
 	col.rgb += mix * mix*_lightControl.r;
 
 }

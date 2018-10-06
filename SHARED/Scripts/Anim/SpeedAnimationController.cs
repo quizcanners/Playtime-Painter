@@ -103,8 +103,8 @@ namespace STD_Animations
 
         // Management
         bool setFirstFrame;
-        [NonSerialized] bool isPaused;
-        [NonSerialized] bool playInEditor;
+        [NonSerialized] bool isPaused = false;
+        [NonSerialized] bool playInEditor = true;
 
         public Action onFinish;
         public void SetCallback(Action OnFinish)

@@ -2,7 +2,7 @@
 	Properties{
 		_Diffuse("Diffuse", 2D) = "white" {}
 		[NoScaleOffset] _Overlay("Graffity (Texcoord 2, Transparent Layer)", 2D) = "black" {}
-
+		[Toggle(_Metal)] metal("Metal", Float) = 0
 		_Bump("Bump", 2D) = "gray" {}
 	}
 		SubShader{
@@ -16,6 +16,7 @@
 		CGPROGRAM
 #pragma vertex vert
 #pragma surface surf Standard fullforwardshadows
+#pragma multi_compile _____ _Metal
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 #pragma target 3.0
 
@@ -49,6 +50,10 @@
 		float deOverlay = 1 - overlay.a;
 
 		o.Smoothness = overlay.a * 0.5 + col.a*deOverlay;
+
+#if _Metal
+		o.Metallic = deOverlay;
+#endif
 
 		float4 bump = tex2D(_Bump, i.uv_Bump);
 		bump.rg -= 0.5;

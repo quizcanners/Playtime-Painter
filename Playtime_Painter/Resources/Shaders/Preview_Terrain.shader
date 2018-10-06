@@ -186,7 +186,7 @@
             float diff = dot(worldNormal, _WorldSpaceLightPos0.xyz);
           //  diff = saturate(diff - ambientBlock*4*(1- diff));
 
-            float direct = diff*shadow;
+			float direct = (1 + diff) * 0.5; //*shadow;
 
             float4 col = 0;
 

@@ -26,7 +26,7 @@ namespace Playtime_Painter {
         [SerializeField]
         public int materialIndex;
         [SerializeField]
-        string textureField;
+        string textureField = "";
 
         public Mesh Mesh { get { return skinnedMeshRenderer != null ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
         public Renderer Rendy { get { return meshRenderer ?? skinnedMeshRenderer; } }

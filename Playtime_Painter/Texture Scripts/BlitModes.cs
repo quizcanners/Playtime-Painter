@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using static Playtime_Painter.BlitJobs;
 
 namespace Playtime_Painter
 {
@@ -13,7 +12,7 @@ namespace Playtime_Painter
     {
 
         private static List<BlitMode> _allModes;
-        
+
         public int index;
 
         public virtual bool supportsTransparentLayer => false;
@@ -28,7 +27,8 @@ namespace Playtime_Painter
             }
         }
 
-        public virtual bool ShowInDropdown() {
+        public virtual bool ShowInDropdown()
+        {
 
             bool CPU = BrushConfig.InspectedIsCPUbrush;
 
@@ -48,13 +48,15 @@ namespace Playtime_Painter
                 );
         }
 
-    
-        public BlitMode SetKeyword(ImageData id) {
 
-            foreach (BlitMode bs in AllModes) {
+        public BlitMode SetKeyword(ImageData id)
+        {
+
+            foreach (BlitMode bs in AllModes)
+            {
                 var name = ShaderKeyword(id);
                 if (name != null)
-                     BlitModeExtensions.KeywordSet(name, false);
+                    BlitModeExtensions.KeywordSet(name, false);
             }
 
             var sw = ShaderKeyword(id);
@@ -70,7 +72,8 @@ namespace Playtime_Painter
 
         public virtual List<string> ShaderKeywords => null;
 
-        public virtual void SetGlobalShaderParameters() {
+        public virtual void SetGlobalShaderParameters()
+        {
             Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
             BlitModeExtensions.SetShaderToggle(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
@@ -115,7 +118,7 @@ namespace Playtime_Painter
                 return Blit_Functions.AlphaBlitTransparent;
             return Blit_Functions.AlphaBlitOpaque;
         }
-        
+
         public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
         public virtual bool SupportedByTex2D { get { return true; } }
@@ -123,31 +126,33 @@ namespace Playtime_Painter
         public virtual bool SupportedBySingleBuffer { get { return true; } }
         public virtual bool UsingSourceTexture { get { return false; } }
         public virtual bool ShowColorSliders { get { return true; } }
-        public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade; 
-        public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit; 
+        public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade;
+        public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit;
 #if PEGI
-        public virtual bool PEGI() {
+        public virtual bool PEGI()
+        {
 
             ImageData id = InspectedImageData;
 
             bool cpuBlit = id == null ? InspectedBrush.TargetIsTex2D : id.destination == TexTarget.Texture2D;
             BrushType brushType = InspectedBrush.Type(cpuBlit);
             bool usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
-            
+
             bool changed = false;
 
             pegi.newLine();
 
-            if ((!cpuBlit) && (!usingDecals)) 
+            if (!cpuBlit)
                 changed |= "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.Hardness, 1f, 512f).nl();
 
-            changed |=  (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20).nl();
-       
+            changed |= (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20).nl();
+
             pegi.write("Scale:", 40);
 
-            if (InspectedBrush.IsA3Dbrush(InspectedPainter))  {
+            if (InspectedBrush.IsA3Dbrush(InspectedPainter))
+            {
                 Mesh m = PlaytimePainter.inspectedPainter.GetMesh();
-           
+
                 float maxScale = (m != null ? m.bounds.max.magnitude : 1) * (PlaytimePainter.inspectedPainter == null ? 1 : PlaytimePainter.inspectedPainter.transform.lossyScale.magnitude);
 
                 changed |= pegi.edit(ref InspectedBrush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
@@ -166,7 +171,8 @@ namespace Playtime_Painter
 
             pegi.newLine();
 
-            if ((InspectedBrush.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture())) {
+            if ((InspectedBrush.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
+            {
                 if (TexMGMTdata.sourceTextures.Count > 0)
                 {
                     pegi.write("Copy From:", 70);
@@ -177,7 +183,7 @@ namespace Playtime_Painter
             }
 
             pegi.newLine();
-            
+
             return changed;
         }
 #endif
@@ -187,99 +193,99 @@ namespace Playtime_Painter
             return;
         }
     }
-        public class BlitModeAlphaBlit : BlitMode
-        {
-            public override string ToString() { return "Alpha Blit"; }
+    public class BlitModeAlphaBlit : BlitMode
+    {
+        public override string ToString() { return "Alpha Blit"; }
 
         protected override string ShaderKeyword(ImageData id) => "BRUSH_NORMAL";
-     
+
         public BlitModeAlphaBlit(int ind) : base(ind) { }
-            public override bool supportsTransparentLayer => true;
-        }
+        public override bool supportsTransparentLayer => true;
+    }
 
-        public class BlitModeAdd : BlitMode
+    public class BlitModeAdd : BlitMode
+    {
+        static BlitModeAdd _inst;
+        public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
+
+        public override string ToString() => "Add";
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_ADD";
+
+        public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Add;
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.AddBlit;
+
+        public BlitModeAdd(int ind) : base(ind)
         {
-            static BlitModeAdd _inst;
-            public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
-
-            public override string ToString() => "Add"; 
-            protected override string ShaderKeyword(ImageData id) => "BRUSH_ADD"; 
-
-            public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Add; 
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.AddBlit; 
-
-            public BlitModeAdd(int ind) : base(ind)
-            {
-                _inst = this;
-            }
+            _inst = this;
         }
+    }
 
     public class BlitModeSubtract : BlitMode
     {
         public override string ToString() { return "Subtract"; }
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_SUBTRACT"; 
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_SUBTRACT";
 
         //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
 
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.SubtractBlit; 
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
-        public BlitModeSubtract(int ind) : base(ind){}
+        public BlitModeSubtract(int ind) : base(ind) { }
 
     }
 
-        public class BlitModeCopy : BlitMode
-        {
-            public override string ToString() => "Copy"; 
-            protected override string ShaderKeyword(ImageData id) => "BRUSH_COPY"; 
-            public override bool ShowColorSliders => false; 
+    public class BlitModeCopy : BlitMode
+    {
+        public override string ToString() => "Copy";
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_COPY";
+        public override bool ShowColorSliders => false;
 
-            public override bool SupportedByTex2D => false; 
-            public override bool UsingSourceTexture => true; 
-            public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Copy; 
+        public override bool SupportedByTex2D => false;
+        public override bool UsingSourceTexture => true;
+        public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Copy;
 
         public BlitModeCopy(int ind) : base(ind) { }
     }
 
-        public class BlitModeMin : BlitMode
-        {
-            public override string ToString() { return "Min"; }
-            public override bool SupportedByRenderTexturePair { get { return false; } }
-            public override bool SupportedBySingleBuffer { get { return false; } }
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MinBlit; 
+    public class BlitModeMin : BlitMode
+    {
+        public override string ToString() { return "Min"; }
+        public override bool SupportedByRenderTexturePair { get { return false; } }
+        public override bool SupportedBySingleBuffer { get { return false; } }
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
     }
 
-        public class BlitModeMax : BlitMode
-        {
-            public override string ToString() { return "Max"; }
-            public override bool SupportedByRenderTexturePair { get { return false; } }
-            public override bool SupportedBySingleBuffer { get { return false; } }
-            public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MaxBlit; 
+    public class BlitModeMax : BlitMode
+    {
+        public override string ToString() { return "Max"; }
+        public override bool SupportedByRenderTexturePair { get { return false; } }
+        public override bool SupportedBySingleBuffer { get { return false; } }
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }
 
-        public class BlitModeBlur : BlitMode
-        {
-            public override string ToString() => "Blur"; 
-            protected override string ShaderKeyword(ImageData id) => "BRUSH_BLUR"; 
-            public override bool ShowColorSliders => false; 
-            public override bool SupportedBySingleBuffer => false; 
-            public override bool SupportedByTex2D => false; 
+    public class BlitModeBlur : BlitMode
+    {
+        public override string ToString() => "Blur";
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_BLUR";
+        public override bool ShowColorSliders => false;
+        public override bool SupportedBySingleBuffer => false;
+        public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush;
 #if PEGI
-            public override bool PEGI()
-            {
+        public override bool PEGI()
+        {
 
-                bool brushChanged_RT = base.PEGI();
-                pegi.newLine();
-                brushChanged_RT |= "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f);
-                pegi.newLine();
-                return brushChanged_RT;
-            }
+            bool brushChanged_RT = base.PEGI();
+            pegi.newLine();
+            brushChanged_RT |= "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f);
+            pegi.newLine();
+            return brushChanged_RT;
+        }
 #endif
 
         public BlitModeBlur(int ind) : base(ind) { }
@@ -287,16 +293,16 @@ namespace Playtime_Painter
     }
 
     public class BlitModeSamplingOffset : BlitMode
-        {
+    {
         public BlitModeSamplingOffset(int ind) : base(ind) { }
 
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_SAMPLE_DISPLACE"; 
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_SAMPLE_DISPLACE";
 
-            public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
+        public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
-            public MyIntVec2 currentPixel = new MyIntVec2();
+        public MyIntVec2 currentPixel = new MyIntVec2();
 
-            public ColorSetMethod method;
+        public ColorSetMethod method;
 
         public override void SetGlobalShaderParameters()
         {
@@ -308,19 +314,21 @@ namespace Playtime_Painter
 
         public override bool SupportedByTex2D { get { return true; } }
 
-            public override string ToString() { return "Pixel Reshape"; }
+        public override string ToString() { return "Pixel Reshape"; }
 
-            public void FromUV(Vector2 uv)  {
-                currentPixel.x = (int)Mathf.Floor(uv.x * Cfg.samplingMaskSize.x);
-                currentPixel.y = (int)Mathf.Floor(uv.y * Cfg.samplingMaskSize.y);
-            }
-        
-            public void FromColor(BrushConfig brush, Vector2 uv) {
-                var c = brush.colorLinear.ToGamma();
+        public void FromUV(Vector2 uv)
+        {
+            currentPixel.x = (int)Mathf.Floor(uv.x * Cfg.samplingMaskSize.x);
+            currentPixel.y = (int)Mathf.Floor(uv.y * Cfg.samplingMaskSize.y);
+        }
 
-                currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
-                currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);
-            }
+        public void FromColor(BrushConfig brush, Vector2 uv)
+        {
+            var c = brush.colorLinear.ToGamma();
+
+            currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
+            currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);
+        }
 
         #region Inspector
 #if PEGI
@@ -339,7 +347,8 @@ namespace Playtime_Painter
 
             changed |= "Color Set On".editEnum(ref method).nl();
 
-            if (method == ColorSetMethod.Manual) {
+            if (method == ColorSetMethod.Manual)
+            {
                 changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
 
                 currentPixel.Clamp(-Cfg.samplingMaskSize.Max, Cfg.samplingMaskSize.Max * 2);
@@ -348,66 +357,69 @@ namespace Playtime_Painter
             var id = InspectedImageData;
 
             if (id != null)
-            { 
-
-            if ("Set Tiling Offset".Click()) {
-
-                id.tiling = Vector2.one * 1.5f;
-                id.offset = -Vector2.one * 0.25f;
-                InspectedPainter.UpdateTylingToMaterial();
-                changed = true;
-            }
-
-            if (InspectedPainter != null && "Generate Default".Click().nl())
             {
-                var pix = id.Pixels;
 
-                int dx = id.width / Cfg.samplingMaskSize.x;
-                int dy = id.height / Cfg.samplingMaskSize.y;
+                if ("Set Tiling Offset".Click())
+                {
 
-                for (currentPixel.x = 0; currentPixel.x < Cfg.samplingMaskSize.x; currentPixel.x++)
-                    for (currentPixel.y = 0; currentPixel.y < Cfg.samplingMaskSize.y; currentPixel.y++)
-                    {
+                    id.tiling = Vector2.one * 1.5f;
+                    id.offset = -Vector2.one * 0.25f;
+                    InspectedPainter.UpdateTylingToMaterial();
+                    changed = true;
+                }
 
-                        float center_uv_x = ((float)currentPixel.x + 0.5f) / (float)Cfg.samplingMaskSize.x;
-                        float center_uv_y = ((float)currentPixel.y + 0.5f) / (float)Cfg.samplingMaskSize.y;
+                if (InspectedPainter != null && "Generate Default".Click().nl())
+                {
+                    var pix = id.Pixels;
 
-                        int startX = currentPixel.x * dx;
+                    int dx = id.width / Cfg.samplingMaskSize.x;
+                    int dy = id.height / Cfg.samplingMaskSize.y;
 
-                        for (int suby = 0; suby < dy; suby++)
+                    for (currentPixel.x = 0; currentPixel.x < Cfg.samplingMaskSize.x; currentPixel.x++)
+                        for (currentPixel.y = 0; currentPixel.y < Cfg.samplingMaskSize.y; currentPixel.y++)
                         {
 
-                            int y = (currentPixel.y * dy + suby);
-                            int start = y * id.width + startX;
+                            float center_uv_x = ((float)currentPixel.x + 0.5f) / (float)Cfg.samplingMaskSize.x;
+                            float center_uv_y = ((float)currentPixel.y + 0.5f) / (float)Cfg.samplingMaskSize.y;
 
-                            float offy = (center_uv_y - ((float)y / (float)id.height)) / 2f + 0.5f;
+                            int startX = currentPixel.x * dx;
 
-                            for (int subx = 0; subx < dx; subx++) {
-                                int ind = start + subx;
+                            for (int suby = 0; suby < dy; suby++)
+                            {
 
-                                float offx = (center_uv_x - ((float)(startX + subx) / (float)id.width)) / 2f + 0.5f;
+                                int y = (currentPixel.y * dy + suby);
+                                int start = y * id.width + startX;
 
-                                pix[ind].r = offx;
-                                pix[ind].g = offy;
+                                float offy = (center_uv_y - ((float)y / (float)id.height)) / 2f + 0.5f;
+
+                                for (int subx = 0; subx < dx; subx++)
+                                {
+                                    int ind = start + subx;
+
+                                    float offx = (center_uv_x - ((float)(startX + subx) / (float)id.width)) / 2f + 0.5f;
+
+                                    pix[ind].r = offx;
+                                    pix[ind].g = offy;
+                                }
                             }
+
                         }
 
-                    }
+                    id.SetAndApply(true);
+                    if (!id.TargetIsTexture2D())
+                        id.Texture2D_To_RenderTexture();
 
-                id.SetAndApply(true);
-                if (!id.TargetIsTexture2D())
-                    id.Texture2D_To_RenderTexture();
-
+                }
             }
-        }
             pegi.newLine();
 
-                return changed;
-            }
+            return changed;
+        }
 #endif
         #endregion
 
-        public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
+        public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        {
 
             var v4 = new Vector4(st.unRepeatedUV.x, st.unRepeatedUV.y, Mathf.Floor(st.unRepeatedUV.x), Mathf.Floor(st.unRepeatedUV.y));
 
@@ -415,48 +427,50 @@ namespace Playtime_Painter
 
             if (st.firstStroke)
             {
-                
-                    if (method == (ColorSetMethod.MDownColor)) {
-                    if (pntr) {
+
+                if (method == (ColorSetMethod.MDownColor))
+                {
+                    if (pntr)
+                    {
                         pntr.SampleTexture(st.uvTo);
                         FromColor(br, st.unRepeatedUV);
                     }
-                    }
-                    else
-                    if (method == (ColorSetMethod.MDownPosition))
-                        FromUV(st.uvTo);
-              
+                }
+                else
+                if (method == (ColorSetMethod.MDownPosition))
+                    FromUV(st.uvTo);
+
                 Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT, new Vector4(
                     ((float)currentPixel.x + 0.5f) / ((float)Cfg.samplingMaskSize.x),
 
                     ((float)currentPixel.y + 0.5f) / ((float)Cfg.samplingMaskSize.y),
-                    
+
                     Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y));
 
             }
         }
-        }
+    }
 
-        public class BlitModeBloom : BlitMode
-        {
-            public override string ToString() => "Bloom"; 
-            protected override string ShaderKeyword(ImageData id) => "BRUSH_BLOOM"; 
+    public class BlitModeBloom : BlitMode
+    {
+        public override string ToString() => "Bloom";
+        protected override string ShaderKeyword(ImageData id) => "BRUSH_BLOOM";
 
-            public override bool ShowColorSliders => false; 
-            public override bool SupportedBySingleBuffer => false; 
-            public override bool SupportedByTex2D => false; 
+        public override bool ShowColorSliders => false;
+        public override bool SupportedBySingleBuffer => false;
+        public override bool SupportedByTex2D => false;
 
         public BlitModeBloom(int ind) : base(ind) { }
 
-        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush; 
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush;
 #if PEGI
-            public override bool PEGI()
-            {
+        public override bool PEGI()
+        {
 
-                bool changed = base.PEGI().nl();
-                changed |= "Bloom Radius".edit(70,ref InspectedBrush.blurAmount, 1f, 8f).nl();
-                return changed;
-            }
+            bool changed = base.PEGI().nl();
+            changed |= "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl();
+            return changed;
+        }
 #endif
     }
 

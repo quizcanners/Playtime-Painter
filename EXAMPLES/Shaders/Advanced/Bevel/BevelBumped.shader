@@ -117,6 +117,8 @@
 	
 	float shadow = SHADOW_ATTENUATION(i);
 
+	
+
 	Simple_Light(float4(1, 1, 1, 1), normal, i.viewDir.xyz, col, shadow, tex2D(_Refl, TRANSFORM_TEX(i.texcoord, _Refl)).r);
 
 	//TRANSFORM_TEX(i.texcoord, _Refl)
@@ -125,8 +127,7 @@
 
 
 
-	return 
-	col;
+	return saturate(col);
 
 	}
 		ENDCG

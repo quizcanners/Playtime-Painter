@@ -8,27 +8,29 @@ using STD_Animations;
 #if UNITY_EDITOR
 using UnityEditor;
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
 
     [CustomEditor(typeof(PEGI_Styles))]
     public class PEGI_StylesDrawer : Editor
     {
         public override void OnInspectorGUI() => ((PEGI_Styles)target).Inspect(serializedObject);
 
-        [MenuItem("Tools/" + "PEGI" + "/Enable")]
-        public static void EnablePegi()
-        {
-            UnityHelperFunctions.SetDefine("PEGI", true);
-            UnityHelperFunctions.SetDefine("NO_PEGI", false);
-        }
-
+#if PEGI
         [MenuItem("Tools/" + "PEGI" + "/Disable")]
         public static void DisablePegi()
         {
             UnityHelperFunctions.SetDefine("PEGI", false);
             UnityHelperFunctions.SetDefine("NO_PEGI", true);
         }
+#else
+        [MenuItem("Tools/" + "PEGI" + "/Enable")]
+        public static void EnablePegi()
+        {
+            UnityHelperFunctions.SetDefine("PEGI", true);
+            UnityHelperFunctions.SetDefine("NO_PEGI", false);
+        }
+#endif
+
     }
 
     [CustomEditor(typeof(SpeedAnimationController))]

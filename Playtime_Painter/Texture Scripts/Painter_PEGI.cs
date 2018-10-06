@@ -56,7 +56,7 @@ namespace Playtime_Painter {
             {
                 Texture tht = painter.terrainHeightTexture;
 
-                if (tht != null) {
+              //  if (tht != null) {
                   
                         if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
                         {
@@ -78,7 +78,7 @@ namespace Playtime_Painter {
 
                             changed = true;
                         }
-                }  
+             //   }  
             } else {
                 
                 if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))

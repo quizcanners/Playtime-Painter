@@ -533,7 +533,7 @@ namespace Playtime_Painter
 
         #endregion
 
-        #region  TEXTURE MGMT 
+        #region  Texture MGMT 
 
         public void UpdateTylingFromMaterial()
         {
@@ -704,6 +704,8 @@ namespace Playtime_Painter
             else
                 ChangeTexture(texture);
 
+            id = ImgData;
+
             id.SaveName = NewName;
             texture.name = id.SaveName;
             texture.Apply(true, false);
@@ -749,13 +751,30 @@ namespace Playtime_Painter
             id.SaveName = TextureName;
             texture.name = TextureName;
 
+            bool needFullUpdate = false;
+
             if (gotRenderTextureData)
                 id.RenderTexture_To_Texture2D();
             else
+            {
                 if (!isColor)
-                id.Colorize(new Color(0.5f, 0.5f, 0.5f, 0.99f));
+                {
+                    if (Cfg.newTextureClearNonColorValue != Color.white)
+                        id.Colorize(Cfg.newTextureClearNonColorValue);
+                    needFullUpdate = true;
+                }
+                else
+                {
+                    if (Cfg.newTextureClearColor != Color.white)
+                        id.Colorize(Cfg.newTextureClearColor);
+                    needFullUpdate = true;
+                }
+            }
 
-            texture.Apply(true, false);
+            if (needFullUpdate)
+                id.SetAndApply(true);
+            else
+                texture.Apply(true, false);
 
 #if UNITY_EDITOR
             SaveTextureAsAsset(true);
@@ -879,9 +898,11 @@ namespace Playtime_Painter
 
             if (!IsOriginalShader)
             {
-                if ((meshEditing) || (terrain != null)) return null;
-                Material mat = GetMaterial(false);
-                return mat?.GetTexture(PainterDataAndConfig.previewTexture);
+                if (meshEditing) return null;
+                if (terrain == null) {
+                    Material mat = GetMaterial(false);
+                    return mat?.GetTexture(PainterDataAndConfig.previewTexture);
+                }
             }
 
             string fieldName = GetMaterialTexturePropertyName;
@@ -1104,6 +1125,9 @@ namespace Playtime_Painter
         {
 
             var id = ImgData;
+
+            if (id == null)
+                return;
 
             bool rendTex = (id.TargetIsRenderTexture());
             if (rendTex) UpdateOrSetTexTarget(TexTarget.Texture2D);
@@ -1964,22 +1988,7 @@ namespace Playtime_Painter
                             changed = true;
                         }
 
-                        var i = ImgData;
-
-                        if (i != null && pegi.toggle(ref i.lockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of selected Texture.", 25))
-                        {
-                            CheckPreviewShader();
-                            if (LockTextureEditing)
-                                UpdateOrSetTexTarget(TexTarget.Texture2D);
-
-#if UNITY_EDITOR
-                            if (i.lockEditing)
-                                RestoreUnityTool();
-                            else
-                                HideUnityTool();
-#endif
-
-                        }
+        
 
                     }
                 }
@@ -2185,7 +2194,7 @@ namespace Playtime_Painter
 
                         if (Cfg.moreOptions)  {
 
-                            if ("View".fold_enter_exit(ref id.inspectedStuff, 7).nl()) {
+                            if ("Show/Hide stuff".fold_enter_exit(ref id.inspectedStuff, 7).nl()) {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
@@ -2202,6 +2211,11 @@ namespace Playtime_Painter
                             }
 
                             if ("New Texture Config ".conditional_enter_exit(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl()) {
+
+                                if (Cfg.newTextureIsColor)
+                                    "Clear Color".edit(ref Cfg.newTextureClearColor).nl();
+                                else
+                                    "Clear Value".edit(ref Cfg.newTextureClearNonColorValue).nl();
 
                                 "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor, true).nl();
 
@@ -2227,7 +2241,9 @@ namespace Playtime_Painter
                         if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                             id.SetAndApply(true);
                         #endregion
-                    }
+                    } else 
+                        if (!IsOriginalShader)
+                        this.PreviewShaderToggle_PEGI();
 
                     id = ImgData;
 
@@ -2237,9 +2253,6 @@ namespace Playtime_Painter
 
                         if ((meshRenderer != null || terrain != null) && !Cfg.showConfig)
                         {
-
-
-
                             #region Material Clonning Options
 
                             pegi.nl();
@@ -2286,6 +2299,24 @@ namespace Playtime_Painter
 
                             if (id != null)
                                 UpdateTylingFromMaterial();
+
+
+
+                            if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of selected Texture.", 25))
+                            {
+                                CheckPreviewShader();
+                                if (LockTextureEditing)
+                                    UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+#if UNITY_EDITOR
+                                if (id.lockEditing)
+                                    RestoreUnityTool();
+                                else
+                                    HideUnityTool();
+#endif
+
+                            }
+
 
                             var tex = GetTextureOnMaterial();
 
@@ -2392,6 +2423,9 @@ namespace Playtime_Painter
                             #endregion
 
                             #region Texture Saving/Loading
+
+                       
+
 
                             if (!LockTextureEditing)
                             {
