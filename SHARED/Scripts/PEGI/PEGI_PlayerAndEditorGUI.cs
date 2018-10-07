@@ -288,7 +288,6 @@ namespace PlayerAndEditorGUI
             ef.end(go);
 
 #endif
-
         }
 
         public static void DropFocus() => FocusControl("_");
@@ -380,6 +379,22 @@ namespace PlayerAndEditorGUI
             GUI.color = col;
             GUILayout.Box(GUIContent.none, horizontalLine);
             GUI.color = c;
+        }
+
+        public static void Lock_UnlockWindow (GameObject go)
+        {
+            if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.Click("Lock Inspector Window"))
+            {
+                UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
+                ActiveEditorTracker.sharedTracker.isLocked = true;
+               
+            }
+
+            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.Click("Unlock Inspector Window"))
+            {
+                ActiveEditorTracker.sharedTracker.isLocked = false;
+                UnityHelperFunctions.FocusOn(go);
+            }
         }
 
         #endregion
@@ -4728,9 +4743,18 @@ namespace PlayerAndEditorGUI
             bool changed = false;
 #if UNITY_EDITOR
 
-            if (ActiveEditorTracker.sharedTracker.isLocked == false && "Lock to Drag & Drop".Click())
+            if (ActiveEditorTracker.sharedTracker.isLocked == false && "Lock Inspector Window".Click())
                 ActiveEditorTracker.sharedTracker.isLocked = true;
 
+            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.Click("Unlock Inspector Window")) {
+                ActiveEditorTracker.sharedTracker.isLocked = false;
+
+                var mb = ef.serObj.targetObject as MonoBehaviour;
+                if (mb)
+                    UnityHelperFunctions.FocusOn(mb.gameObject);
+                else
+                    UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
+            }
 
             foreach (var ret in ef.DropAreaGUI<T>())  {
                 list.Add(ret);

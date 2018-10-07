@@ -1816,8 +1816,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 4.0686245, y: 1, z: 1}
-  m_Children:
-  - {fileID: 871878969}
+  m_Children: []
   m_Father: {fileID: 1406347552}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2422,166 +2421,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 846876433}
   m_Mesh: {fileID: 4300000, guid: 395cce1cea808a54c8df538cf4ff0a21, type: 3}
---- !u!1 &871878968
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 871878969}
-  - component: {fileID: 871878971}
-  - component: {fileID: 871878970}
-  m_Layer: 5
-  m_Name: TextMeshPro Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &871878969
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 871878968}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.24578331, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 720640535}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000015258789, y: 0}
-  m_SizeDelta: {x: 0.000030501758, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &871878970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 871878968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: 'Pixel perfect '
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_outlineColor:
-    serializedVersion: 2
-    rgba: 4278190080
-  m_fontSize: 34.35
-  m_fontSizeBase: 14.11
-  m_fontWeight: 400
-  m_enableAutoSizing: 1
-  m_fontSizeMin: 10.3
-  m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_textAlignment: 514
-  m_isAlignmentEnumConverted: 1
-  m_characterSpacing: 0
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_firstOverflowCharacterIndex: -1
-  m_linkedTextComponent: {fileID: 0}
-  m_isLinkedTextComponent: 0
-  m_isTextTruncated: 0
-  m_enableKerning: 1
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_ignoreRectMaskCulling: 0
-  m_ignoreCulling: 1
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_firstVisibleCharacter: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: -56.19216, y: 9.448547, z: -53.88514, w: 8.146973}
-  m_textInfo:
-    textComponent: {fileID: 871878970}
-    characterCount: 14
-    spriteCount: 0
-    spaceCount: 2
-    wordCount: 2
-    linkCount: 0
-    lineCount: 2
-    pageCount: 1
-    materialCount: 1
-  m_havePropertiesChanged: 0
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
-  m_hasFontAssetChanged: 0
-  m_subTextObjects:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &871878971
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 871878968}
-  m_CullTransparentMesh: 0
 --- !u!1 &906500836
 GameObject:
   m_ObjectHideFlags: 0
@@ -4161,9 +4000,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.82192826, y: 0.15964386}
     posFrom: {x: 0.11558828, y: 37.957127, z: -2.0162666}
-    uvTo: {x: 0.3864472, y: 0.9389071}
-    posTo: {x: 0.5510694, y: 37.957127, z: -2.7955298}
-    unRepeatedUV: {x: 0.3864472, y: 0.9389071}
+    uvTo: {x: 0.98103094, y: 0.034656223}
+    posTo: {x: -13.472062, y: 35.019314, z: 12.32}
+    unRepeatedUV: {x: 0.98103094, y: 0.034656223}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 1.2222767e-15
     mouseDwn: 0
@@ -4659,13 +4498,13 @@ MonoBehaviour:
   - {fileID: 328439881}
   - {fileID: 1934539792}
   stroke:
-    uvFrom: {x: 0.6340925, y: 0.68786234}
-    posFrom: {x: 10.3246975, y: 37.83665, z: 10.321015}
-    uvTo: {x: 0.7994928, y: 0.9788824}
-    posTo: {x: 10.916427, y: 37.88416, z: 10.630528}
-    unRepeatedUV: {x: 0.7994928, y: 0.9788824}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0.004663443
+    uvFrom: {x: 0.42944387, y: 0.5638737}
+    posFrom: {x: 9.846269, y: 37.835636, z: 10.332065}
+    uvTo: {x: 0.009269508, y: 0.61542654}
+    posTo: {x: 9.192958, y: 37.908466, z: 10.865635}
+    unRepeatedUV: {x: 0.009269508, y: 0.61542654}
+    previousDelta: {x: 0.000000029802322, y: -0.000000059604645}
+    avgBrushSpeed: 0.012420068
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
@@ -5079,7 +4918,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: -1049.8286
+  timer: -71.894516
   style:
     m_Name: Hint Style
     m_Normal:

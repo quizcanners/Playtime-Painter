@@ -23,7 +23,16 @@ namespace PlayerAndEditorGUI {
 
     public static class ef {
 
-       public static bool Inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, IPEGI {
+        public static bool changes;
+        static bool lineOpen = false;
+        static int selectedFold = -1;
+        public static string searchBarInput = "";
+        static int elementIndex;
+        public static bool searchInFocus = false;
+        public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
+        public static SerializedObject serObj;
+
+        public static bool Inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, IPEGI {
             if (o.gameObject.IsPrefab())
                 return false;
 
@@ -89,7 +98,7 @@ namespace PlayerAndEditorGUI {
 
         static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
-        static bool EndCheckLine() { return EditorGUI.EndChangeCheck().Set(); }
+        static bool EndCheckLine() => EditorGUI.EndChangeCheck().Set(); 
 
         public static void checkLine()
         {
@@ -109,15 +118,6 @@ namespace PlayerAndEditorGUI {
                 EditorGUILayout.EndHorizontal();
             }
         }
-
-        public static bool changes;
-        static bool lineOpen = false;
-        static int selectedFold = -1;
-        public static string searchBarInput = "";
-        static int elementIndex;
-        public static bool searchInFocus = false;
-        public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
-        public static SerializedObject serObj;
         
         public static bool isFoldedOut { get { return pegi.isFoldedOut; } set { pegi.isFoldedOut = value; } }
 

@@ -162,6 +162,9 @@ namespace Playtime_Painter {
                     painter.UpdateOrSetTexTarget(TexTarget.Texture2D);
                     PlaytimePainter.RestoreUnityTool();
                 }
+
+                pegi.Lock_UnlockWindow(painter.gameObject);
+
             }
 
             painter.InitIfNotInited();
