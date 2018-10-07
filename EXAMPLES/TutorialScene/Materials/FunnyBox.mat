@@ -52,7 +52,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: ca6826dab4ca4194199ab5544a00d1c8, type: 3}
+        m_Texture: {fileID: 2800000, guid: d2d73b76c77e44948aa22251d6b1a625, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -72,7 +72,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PreviewTex:
-        m_Texture: {fileID: 2800000, guid: ca6826dab4ca4194199ab5544a00d1c8, type: 3}
+        m_Texture: {fileID: 2800000, guid: d2d73b76c77e44948aa22251d6b1a625, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Smudge:
@@ -88,7 +88,7 @@ Material:
     - _DstBlend: 0
     - _EmissionScaleUI: 1
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.39
     - _GlossyReflections: 1
     - _Lightmapping: 1
     - _Metallic: 0

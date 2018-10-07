@@ -99,9 +99,7 @@ namespace PlayerAndEditorGUI
                 }
                 catch (Exception ex)
                 {
-#if UNITY_EDITOR
                     UnityEngine.Debug.LogError(ex);
-#endif
                 }
 
                 paintingPlayAreaGUI = false;
@@ -383,6 +381,7 @@ namespace PlayerAndEditorGUI
 
         public static void Lock_UnlockWindow (GameObject go)
         {
+#if UNITY_EDITOR
             if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.Click("Lock Inspector Window"))
             {
                 UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
@@ -395,6 +394,7 @@ namespace PlayerAndEditorGUI
                 ActiveEditorTracker.sharedTracker.isLocked = false;
                 UnityHelperFunctions.FocusOn(go);
             }
+#endif
         }
 
         #endregion

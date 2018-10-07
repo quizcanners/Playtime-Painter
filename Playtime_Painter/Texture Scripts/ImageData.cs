@@ -94,6 +94,8 @@ namespace Playtime_Painter
             return "Save Failed";
         }
 
+        public void LoadInPlayer() => LoadInPlayer(SaveName);
+
         public void LoadInPlayer(string path)
         {
             if (File.Exists(path))
@@ -712,7 +714,7 @@ namespace Playtime_Painter
             {
 
                 "Save Name".edit(70, ref SaveName);
-
+                
                 if (icon.Folder.Click("Open Folder with textures").nl())
                     StuffExplorer.OpenPersistantFolder(savedImagesFolder);
 

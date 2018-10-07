@@ -7,6 +7,7 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 
@@ -20,19 +21,19 @@ namespace SharedTools_Stuff
     public static class StuffExplorer
     {
 
-        public static void OpenPersistantFolder()
+        public static void OpenPersistantFolder() => OpenPath(Application.persistentDataPath);
+
+        public static void OpenPersistantFolder(string folder) => OpenPath(Path.Combine(Application.persistentDataPath, folder));
+
+        public static void OpenPath (string path)
         {
 #if UNITY_EDITOR
-            EditorUtility.RevealInFinder(Application.persistentDataPath);
+            EditorUtility.RevealInFinder(path);
+#else
+            Process.Start(path.TrimEnd(new[]{'\\', '/'}));
 #endif
         }
 
-        public static void OpenPersistantFolder(string folder)
-        {
-#if UNITY_EDITOR
-            EditorUtility.RevealInFinder(Path.Combine(Application.persistentDataPath, folder));
-#endif
-        }
     }
 
     public static class StuffDeleter
@@ -73,9 +74,9 @@ namespace SharedTools_Stuff
                 }
                 catch (Exception ex)
                 {
-                    //#if UNITY_EDITOR
-                    Debug.Log(fullPath + " not loaded " + ex.ToString());
-                    //#endif
+                    
+                    UnityEngine.Debug.Log(fullPath + " not loaded " + ex.ToString());
+                  
                 }
             }
             return data;
@@ -104,7 +105,7 @@ namespace SharedTools_Stuff
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(path + "is Busted !" + ex.ToString());
+                    UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
 
                 }
 
@@ -151,12 +152,11 @@ namespace SharedTools_Stuff
                 MemoryStream ms = new MemoryStream(asset.bytes);
                 data = (string)bf.Deserialize(ms);
                 Resources.UnloadAsset(asset);
-                //Debug.Log("Loaded " + pathNdName);
 
             }
             else
             {
-                //   Debug.Log("Failed liading "+pathNdName);
+               
 
             }
 
@@ -202,7 +202,7 @@ namespace SharedTools_Stuff
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(path + "is Busted !" + ex.ToString());
+                    UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
 
                 }
 
@@ -252,12 +252,12 @@ namespace SharedTools_Stuff
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(path + "is Busted !" + ex.ToString());
+                    UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
                     return false;
                 }
                 return true;
             }
-            Debug.Log(path + " not found");
+            UnityEngine.Debug.Log(path + " not found");
             return false;
 #endif
 #if !UNITY_EDITOR
@@ -296,9 +296,8 @@ namespace SharedTools_Stuff
                 }
                 catch (Exception ex)
                 {
-                    //#if UNITY_EDITOR
-                    Debug.Log(path + " not loaded " + ex.ToString());
-                    //#endif
+                    UnityEngine.Debug.Log(path + " not loaded " + ex.ToString());
+
                     return false;
                 }
                 return true;

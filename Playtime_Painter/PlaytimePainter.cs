@@ -2438,8 +2438,8 @@ namespace Playtime_Painter
 
                                     id = ImgData;
 
-                                    if (id.texture2D != null)
-                                    {
+#if UNITY_EDITOR
+                                    if (id.texture2D != null) {
                                         Orig = id.texture2D.GetPathWithout_Assets_Word();
                                         if (Orig!= null && icon.Load.Click("Will reload " + Orig, 25))
                                         {
@@ -2484,12 +2484,10 @@ namespace Playtime_Painter
                                         if (!sameTarget && !sameTextureName && !string.IsNullOrEmpty(Orig) && !existsAtDestination && (icon.Replace.Click("Will replace {0} with {1} ".F(Orig, DestPath))))
                                             RewriteOriginalTexture_Rename(id.SaveName);
 
-                                        //if (sameTarget )
-
                                         pegi.nl();
 
                                     }
-
+#endif
 
                                 }
                                 pegi.nl();

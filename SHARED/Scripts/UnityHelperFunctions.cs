@@ -1434,6 +1434,19 @@ namespace SharedTools_Stuff
         #endregion
 
         #region Texture Saving
+
+        public static string GetPathWithout_Assets_Word(this Texture2D tex)
+        {
+#if UNITY_EDITOR
+            string path = AssetDatabase.GetAssetPath(tex);
+            if (String.IsNullOrEmpty(path)) return null;
+            return path.Replace("Assets", "");
+#else
+            return null;
+#endif
+        }
+
+
 #if UNITY_EDITOR
         public static void SaveTexture(this Texture2D tex)
         {
@@ -1451,13 +1464,6 @@ namespace SharedTools_Stuff
         public static string GetAssetPath(this Texture2D tex)
         {
             return AssetDatabase.GetAssetPath(tex);
-        }
-
-        public static string GetPathWithout_Assets_Word(this Texture2D tex)
-        {
-            string path = AssetDatabase.GetAssetPath(tex);
-            if (String.IsNullOrEmpty(path)) return null;
-            return path.Replace("Assets", "");
         }
 
         public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
@@ -1582,10 +1588,10 @@ namespace SharedTools_Stuff
 
         }
 #endif
-        #endregion
+#endregion
 
 
-        #region Terrain Layers
+#region Terrain Layers
         public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
 
@@ -1662,9 +1668,9 @@ namespace SharedTools_Stuff
             return newProtos;
         }
 #endif
-        #endregion
+#endregion
 
-        #endregion
+#endregion
     }
 }
 
