@@ -69,7 +69,7 @@ namespace Playtime_Painter
         }
 
 
-        public override bool PEGI() {
+        public override bool Inspect() {
             bool changed = false;
             "Material:".write(60, material);
             pegi.nl();

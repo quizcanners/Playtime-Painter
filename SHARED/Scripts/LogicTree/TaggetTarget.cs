@@ -48,7 +48,7 @@ namespace STD_Logic
                 return TriggerGroup.all[groupIndex].taggedBool[triggerIndex];
         }
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             bool changed = false;
            
             if (Trigger.editedTrigger != Trigger) {

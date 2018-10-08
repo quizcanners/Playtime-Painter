@@ -67,13 +67,13 @@ namespace STD_Logic
         int inspectedBranch = -1;
 
         #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             bool changed = false;
 
             changed |= NameForElements.fold_enter_exit_List(elements, ref inspectedElement, ref inspectedStuff, 0).nl();
 
             "Conditions".fold_enter_exit(ref inspectedStuff, 1).nl();
-            changed |= conds.PEGI();
+            changed |= conds.Inspect();
 
             changed |= "Sub Branches".fold_enter_exit_List(subBranches, ref inspectedBranch, ref inspectedStuff, 2).nl();
 

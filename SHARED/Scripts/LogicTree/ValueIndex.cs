@@ -53,7 +53,7 @@ namespace STD_Logic
         public static Trigger selectedTrig;
         public static ValueIndex selected;
 
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             return false;
         }
@@ -91,7 +91,7 @@ namespace STD_Logic
             Trigger t = Trigger;
 
             if (this == edited)
-                t.PEGI();
+                t.Inspect();
 
             if ((pegi.nameFocused == (focusName)) && (this != edited))
             {

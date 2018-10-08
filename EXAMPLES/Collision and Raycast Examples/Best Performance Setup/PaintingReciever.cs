@@ -136,7 +136,7 @@ namespace Playtime_Painter {
             if (fromRTmanager) Restore();
         }
         #if PEGI
-        public virtual bool PEGI() {
+        public virtual bool Inspect() {
 
             if ("Renderer Type:".edit(() => type, this).nl()) {
                 if ((type == RendererType.Skinned) && (skinnedMeshRenderer == null))

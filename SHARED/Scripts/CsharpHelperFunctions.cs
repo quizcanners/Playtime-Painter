@@ -146,6 +146,31 @@ namespace SharedTools_Stuff
 
         #endregion
 
+
+/*
+        public static IAttributeWithTaggetTypes_STD TryGetAttributeInterface(this Type type)
+        {
+
+            if (type.IsClass)
+            {
+                var attrs = type.GetCustomAttributes(, true);
+                if (attrs.Length > 0)
+                {
+                    foreach (var a in attrs)
+                    {
+                        var att = a as IAttributeWithTaggetTypes_STD;
+                        if (att != null)
+                        {
+                            if (att.AllTags() != null && att.AllTags().Count > 0)
+                                return att;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }*/
+
         public static T ClassAttribute<T>(this Type type) where T : Attribute
         {
             T attr = null;
@@ -159,7 +184,6 @@ namespace SharedTools_Stuff
 
             return attr;
         }
-
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
         {

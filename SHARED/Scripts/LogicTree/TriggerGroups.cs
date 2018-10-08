@@ -238,14 +238,14 @@ namespace STD_Logic
             return changed;
         }
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             inspected = this;
 
             bool changed = false;
 
-            changed |= base.PEGI();
+            changed |= base.Inspect();
 
             if (showDebug)
                 return changed;
@@ -281,7 +281,7 @@ namespace STD_Logic
 
                     Trigger.searchMatchesFound++;
 
-                    t.PEGI();
+                    t.Inspect();
 
                     if (t._usage.HasMoreTriggerOptions())
                     {

@@ -36,9 +36,9 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
 #if PEGI
        [SerializeField] int inspectedObject = -1;
 
-    public override bool PEGI() {
+    public override bool Inspect() {
 
-        bool changed = base.PEGI();
+        bool changed = base.Inspect();
 
         if (!showDebug) {
             "inspect Objects:".edit_List_Obj(objects, ref inspectedObject, nestedReferenceDatas);

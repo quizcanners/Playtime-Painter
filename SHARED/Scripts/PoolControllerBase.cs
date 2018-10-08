@@ -30,7 +30,7 @@ namespace SharedTools_Stuff
             poolIndex = my_ind;
         }
 
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             return false;
         }
@@ -70,7 +70,7 @@ namespace SharedTools_Stuff
         public abstract void OnDuringDestroy(int ind);
         public abstract void Deactivate(int i);
         #if PEGI
-        public abstract bool PEGI();
+        public abstract bool Inspect();
         #endif
         public abstract bool ActiveSelf(int i);
         public abstract GameObject GetFreeGO();
@@ -96,7 +96,7 @@ namespace SharedTools_Stuff
 
 #if PEGI
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             if (browsedObject != -1)

@@ -56,8 +56,8 @@ namespace Playtime_Painter
         }
 
 #if PEGI
-        public override bool PEGI() {
-            bool changed = base.PEGI();
+        public override bool Inspect() {
+            bool changed = base.Inspect();
             if (!showDebug)
             {
                 changed |= "Foam".edit(70, ref foamMask).nl();

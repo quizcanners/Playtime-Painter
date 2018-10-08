@@ -135,7 +135,7 @@ namespace SharedTools_Stuff {
 
         #if PEGI
 
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             ("Depth: " + depth).nl();
             ("First free: " + firstFree).nl();
@@ -904,7 +904,7 @@ namespace SharedTools_Stuff {
 
           int edited = -1;
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -1218,7 +1218,7 @@ namespace SharedTools_Stuff {
         int edited = -1;
 #if PEGI
         
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 

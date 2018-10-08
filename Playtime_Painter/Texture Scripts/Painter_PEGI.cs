@@ -36,7 +36,7 @@ namespace Playtime_Painter {
                 return changes;
         }
 
-        bool color = pegi.Click(icon.NewTexture.getIcon(), "New Texture" ,25);
+        bool color = pegi.Click(icon.NewTexture.GetIcon(), "New Texture" ,25);
         if (pegi.Click("Create Mask") || color) {
             List<string> texes = p.GetMaterialTextureNames();
                 if (texes.Count > 0) {
@@ -58,7 +58,7 @@ namespace Playtime_Painter {
 
               //  if (tht != null) {
                   
-                        if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
+                        if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.GetIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
                         {
                             painter.Preview_To_UnityTerrain();
                             painter.Unity_To_Preview(); 
@@ -71,7 +71,7 @@ namespace Playtime_Painter {
                     PainterCamera.Data.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.GetImgData() != null)
-                        if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.getIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
+                        if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.GetIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
                             painter.Unity_To_Preview();
                             
                             painter.SetPreviewShader();
@@ -81,14 +81,14 @@ namespace Playtime_Painter {
              //   }  
             } else {
                 
-                if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.getIcon(), "Switch To Preview Shader", 45)))
+                if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.GetIcon(), "Switch To Preview Shader", 45)))
                 {
                     
                     painter.SetPreviewShader();
                     changed = true;
                 }
 
-                if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.getIcon(), "Return to Original Shader", 45)))
+                if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.GetIcon(), "Return to Original Shader", 45)))
                 {
                     painter.MatDta.usePreviewShader = false;
                     painter.SetOriginalShaderOnThis();

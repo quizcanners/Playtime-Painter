@@ -230,7 +230,7 @@ namespace Playtime_Painter {
          
         [SerializeField]
         bool foldoutAtlas = false;
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 
@@ -562,7 +562,7 @@ namespace Playtime_Painter {
         public static MaterialAtlases inspectedAtlas;
         [SerializeField]
         private bool showHint;
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 
@@ -931,7 +931,7 @@ namespace Playtime_Painter {
 
 #if PEGI
 
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 #if UNITY_EDITOR

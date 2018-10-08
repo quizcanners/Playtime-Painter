@@ -310,7 +310,7 @@ namespace Playtime_Painter
 
 #if PEGI
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 

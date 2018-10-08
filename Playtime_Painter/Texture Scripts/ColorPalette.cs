@@ -53,7 +53,7 @@ namespace Playtime_Painter
             return col;
         }
 
-        public bool PEGI() {
+        public bool Inspect() {
             bool changed = false;
 
             changed |= PaletteName.edit_List(colors, EditColor);

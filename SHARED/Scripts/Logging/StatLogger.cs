@@ -123,7 +123,7 @@ namespace SharedTools_Stuff
 #if PEGI
 
         int inspectedStat = -1;
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 
@@ -134,7 +134,7 @@ namespace SharedTools_Stuff
                 if (icon.Back.Click())
                     inspectedStat = -1;
                 else
-                    allStats[inspectedStat].PEGI();
+                    allStats[inspectedStat].Inspect();
             }
             return changed;
         }
@@ -189,7 +189,7 @@ namespace SharedTools_Stuff
 
         int editedEvent = -1;
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 

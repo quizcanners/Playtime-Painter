@@ -815,10 +815,11 @@ namespace Playtime_Painter
             PlaytimePainter.cody = new StdDecoder(null);
         }
 
+#region Inspector
+
 #if PEGI
 
-
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             "Active Jobs: {0}".F(blitJobsActive.Count).nl();
@@ -853,6 +854,31 @@ namespace Playtime_Painter
             return false;
         }
 
+        public bool PluginsInspect() {
+
+            bool changed = false;
+
+            if (!PainterStuff.IsNowPlaytimeAndDisabled) {
+
+                "Plugins".write_List(Plugins, ref browsedPlugin);
+
+                if ("Find New Plugins".Click())
+                    RefreshPlugins();
+
+                if ("Clear Data".Click().nl())
+                {
+                    DeletePlugins();
+                    RefreshPlugins();
+                }
+
+            }
+            else browsedPlugin = -1;
+
+            return changed;
+        }
+
 #endif
+#endregion
+
     }
 }

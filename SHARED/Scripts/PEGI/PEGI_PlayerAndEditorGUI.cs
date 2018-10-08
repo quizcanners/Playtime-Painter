@@ -20,7 +20,7 @@ using SharedTools_Stuff;
 public interface IPEGI
 {
 #if PEGI
-    bool PEGI();
+    bool Inspect();
 #endif
 }
 
@@ -105,7 +105,7 @@ namespace PlayerAndEditorGUI
                 paintingPlayAreaGUI = false;
             }
 
-            public void Render(IPEGI p) => Render(p.PEGI, p.ToPEGIstring());
+            public void Render(IPEGI p) => Render(p.Inspect, p.ToPEGIstring());
 
             public void Render(windowFunction doWindow, string c_windowName)
             {
@@ -137,8 +137,7 @@ namespace PlayerAndEditorGUI
         public static bool paintingPlayAreaGUI { get; private set; }
 
         static bool lineOpen;
-
-
+        
         static Color attentionColor = new Color(1f, 0.7f, 0.7f, 1);
 
         #region GUI Colors
@@ -290,7 +289,7 @@ namespace PlayerAndEditorGUI
 
         public static void DropFocus() => FocusControl("_");
 
-        public static string needsAttention(this IList list)
+        public static string needsAttention(this IList list, bool canBeNull = true, string listName = "list")
         {
 
             for (int i = 0; i < list.Count; i++)
@@ -309,8 +308,9 @@ namespace PlayerAndEditorGUI
                             return what;
                         }
                     }
-
                 }
+                else if (!canBeNull)
+                    return "{0} element in {1} is NULL".F(i, listName);
             }
             return null;
         }
@@ -401,6 +401,8 @@ namespace PlayerAndEditorGUI
 
         #region New Line
 
+        public static string EnvironmentNL => Environment.NewLine;
+
         public static void newLine()
         {
 #if UNITY_EDITOR
@@ -430,8 +432,7 @@ namespace PlayerAndEditorGUI
                 newLine();
             return value;
         }
-
-
+        
         public static void nl() => newLine();
 
         public static bool nl(this bool value)
@@ -471,8 +472,7 @@ namespace PlayerAndEditorGUI
             newLine();
         }
 
-        public static void nl(this icon icon, int size) => write(icon.getIcon(), size);
-
+        public static void nl(this icon icon, int size) => write(icon.GetIcon(), size);
 
         #endregion
 
@@ -562,13 +562,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this icon icon) => write(icon.getIcon(), defaultButtonSize);
+        public static void write(this icon icon) => write(icon.GetIcon(), defaultButtonSize);
 
-        public static void write(this icon icon, int size) => write(icon.getIcon(), size);
+        public static void write(this icon icon, int size) => write(icon.GetIcon(), size);
 
-        public static void write(this icon icon, string tip, int size) => write(icon.getIcon(), tip, size);
+        public static void write(this icon icon, string tip, int size) => write(icon.GetIcon(), tip, size);
 
-        public static void write(this icon icon, string tip, int width, int height) => write(icon.getIcon(), tip, width, height);
+        public static void write(this icon icon, string tip, int width, int height) => write(icon.GetIcon(), tip, width, height);
 
         public static void write(this string text)
         {
@@ -2260,11 +2260,11 @@ namespace PlayerAndEditorGUI
             return state;
         }
 
-        public static bool foldout(this icon ico, ref bool state) => ico.getIcon().foldout(ref state);
+        public static bool foldout(this icon ico, ref bool state) => ico.GetIcon().foldout(ref state);
 
-        public static bool foldout(this icon ico, string text, ref bool state) => ico.getIcon().foldout(text, ref state);
+        public static bool foldout(this icon ico, string text, ref bool state) => ico.GetIcon().foldout(text, ref state);
 
-        public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.getIcon().foldout(text, ref selected, current);
+        public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.GetIcon().foldout(text, ref selected, current);
 
         public static bool fold_enter_exit(ref int enteredOne, int current)
         {
@@ -2763,37 +2763,37 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool Click(this icon icon) => Click(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
+        public static bool Click(this icon icon) => Click(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize);
 
         public static bool ClickUnfocus(this icon icon, ref bool changed)
         {
-            changed |= ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
+            changed |= ClickUnfocus(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize);
             return changed;
         }
 
-        public static bool ClickUnfocus(this icon icon) => ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), defaultButtonSize);
+        public static bool ClickUnfocus(this icon icon) => ClickUnfocus(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize);
 
-        public static bool ClickUnfocus(this icon icon, Msg text) => ClickUnfocus(icon.getIcon(), text.Get(), defaultButtonSize);
+        public static bool ClickUnfocus(this icon icon, Msg text) => ClickUnfocus(icon.GetIcon(), text.Get(), defaultButtonSize);
 
-        public static bool ClickUnfocus(this icon icon, string text) => ClickUnfocus(icon.getIcon(), text, defaultButtonSize);
+        public static bool ClickUnfocus(this icon icon, string text) => ClickUnfocus(icon.GetIcon(), text, defaultButtonSize);
 
-        public static bool ClickUnfocus(this icon icon, Msg text, int width) => ClickUnfocus(icon.getIcon(), text.Get(), width);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width) => ClickUnfocus(icon.GetIcon(), text.Get(), width);
 
-        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => ClickUnfocus(icon.getIcon(), text.Get(), width, height);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => ClickUnfocus(icon.GetIcon(), text.Get(), width, height);
 
-        public static bool ClickUnfocus(this icon icon, string text, int width, int height) => ClickUnfocus(icon.getIcon(), text, width, height);
+        public static bool ClickUnfocus(this icon icon, string text, int width, int height) => ClickUnfocus(icon.GetIcon(), text, width, height);
 
-        public static bool ClickUnfocus(this icon icon, string text, int width) => ClickUnfocus(icon.getIcon(), text, width);
+        public static bool ClickUnfocus(this icon icon, string text, int width) => ClickUnfocus(icon.GetIcon(), text, width);
 
-        public static bool ClickUnfocus(this icon icon, int width) => ClickUnfocus(icon.getIcon(), icon.ToPEGIstring(), width);
+        public static bool ClickUnfocus(this icon icon, int width) => ClickUnfocus(icon.GetIcon(), icon.ToPEGIstring(), width);
 
-        public static bool Click(this icon icon, int size) => Click(icon.getIcon(), size);
+        public static bool Click(this icon icon, int size) => Click(icon.GetIcon(), size);
 
-        public static bool Click(this icon icon, string tip, int width, int height) => Click(icon.getIcon(), tip, width, height);
+        public static bool Click(this icon icon, string tip, int width, int height) => Click(icon.GetIcon(), tip, width, height);
 
-        public static bool Click(this icon icon, string tip, int size) => Click(icon.getIcon(), tip, size);
+        public static bool Click(this icon icon, string tip, int size) => Click(icon.GetIcon(), tip, size);
 
-        public static bool Click(this icon icon, string tip) => Click(icon.getIcon(), tip, defaultButtonSize);
+        public static bool Click(this icon icon, string tip) => Click(icon.GetIcon(), tip, defaultButtonSize);
 
         public static bool Click(this Color col) => icon.Empty.GUIColor(col).BGColor(Color.clear).Click().RestoreGUIColor().RestoreBGColor();
 
@@ -2907,9 +2907,9 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), tip, width);
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width);
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.getIcon(), FalseIcon.getIcon(), "", defaultButtonSize);
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize);
 
         public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True.BGColor(Color.clear), icon.False).PreviousBGcolor();
 
@@ -3008,7 +3008,7 @@ namespace PlayerAndEditorGUI
 
         public static bool toggle(this icon img, ref bool val)
         {
-            write(img.getIcon(), 25);
+            write(img.GetIcon(), 25);
             return toggle(ref val);
         }
 
@@ -4484,9 +4484,11 @@ namespace PlayerAndEditorGUI
             if (editingOrder != null && editingOrder == lst)
                 return false;
 
-            var types = typeof(T).TryGetDerrivedClasses();
+            var indTypes = typeof(T).TryGetDerrivedClasses();
 
-            if (types == null && typeof(T).IsAbstract)
+            var tagTypes = typeof(T).TryGetTaggetClasses();
+
+            if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
                 return false;
 
             bool changed = false;
@@ -4495,7 +4497,7 @@ namespace PlayerAndEditorGUI
 
             if (addingNewNameHolder.Length > 1)
             {
-                if (types == null)
+                if (indTypes == null  && tagTypes == null)
                 {
                     if (icon.Create.Click("Create new object").nl())
                     {
@@ -4515,8 +4517,9 @@ namespace PlayerAndEditorGUI
                         addingNewOptionsInspected = null;
 
                     if (selectingDerrived)
-                        foreach (var t in types)
-                        {
+                    {
+                        if (indTypes != null)
+                        foreach (var t in indTypes) {
                             var n = t.ToString();
                             write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
                             if (icon.Create.Click().nl())
@@ -4525,6 +4528,22 @@ namespace PlayerAndEditorGUI
                                 changed = true;
                             }
                         }
+
+                        if (tagTypes != null)
+                        {
+                            var tags = tagTypes.AllTags();
+
+                            foreach (var t in tags) {
+                              
+                                write(t);
+                                if (icon.Create.Click().nl()) {
+
+                                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.GetType(t));
+                                    changed = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             nl();
@@ -4533,16 +4552,19 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static int listInspectionIndex = -1;
 
         public static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
         {
             if (editingOrder != null && editingOrder == lst)
                 return false;
 
-            var types = typeof(T).TryGetDerrivedClasses();
+            var intTypes = typeof(T).TryGetDerrivedClasses();
 
-            if (types == null && typeof(T).IsAbstract)
+
+            var tagTypes = typeof(T).TryGetTaggetClasses();
+
+
+            if (intTypes == null && tagTypes == null && typeof(T).IsAbstract)
                 return false;
 
             bool changed = false;
@@ -4552,13 +4574,13 @@ namespace PlayerAndEditorGUI
             if (hasName)
                 edit(ref addingNewNameHolder);
             else
-                (types == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
+                (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
 
             if (!hasName || addingNewNameHolder.Length > 1)
             {
 
 
-                if (types == null)
+                if (intTypes == null && tagTypes == null)
                 {
                     if (icon.Create.Click("Instantiate a new object").nl())
                     {
@@ -4580,7 +4602,8 @@ namespace PlayerAndEditorGUI
 
                     if (selectingDerrived)
                     {
-                        foreach (var t in types)
+                        if (intTypes != null)
+                        foreach (var t in intTypes)
                         {
                             var n = t.ToString();
                             write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
@@ -4593,6 +4616,20 @@ namespace PlayerAndEditorGUI
                                 changed = true;
                             }
                         }
+
+                        if (tagTypes != null)
+                            foreach (var t in tagTypes.AllTags())  {
+                             
+                                write(t);
+                                if (icon.Create.Click().nl())
+                                {
+                                    added = (T)Activator.CreateInstance(tagTypes.GetType(t));
+
+                                    lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+
+                                    changed = true;
+                                }
+                            }
                     }
                 }
             }
@@ -4603,12 +4640,14 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool PEGI_InstantiateOptions<T>(this List<T> lst) where T : new()
+      /*  public static bool PEGI_InstantiateOptions<T>(this List<T> lst) where T : new()
         {
             T tmp = default(T);
             return lst.PEGI_InstantiateOptions(ref tmp);
 
-        }
+        }*/
+
+        public static int listInspectionIndex = -1;
 
         static IEnumerable<int> InspectionIndexes<T>(this List<T> list)
         {
@@ -4727,7 +4766,7 @@ namespace PlayerAndEditorGUI
         {
             bool changed = false;
 
-            if (icon.List.ClickUnfocus("{0} of {1}".F(Msg.ReturnToListView.Get(), list.ToPEGIstring())).nl())
+            if (icon.List.ClickUnfocus("{0} of {1}".F(Msg.ReturnToListView.Get(), typeof(T).ToPEGIstring())).nl())
                 index = -1;
 
             else
@@ -5052,7 +5091,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool clickHighlight(this UnityEngine.Object obj) =>
-           obj.clickHighlight(icon.Search.getIcon());
+           obj.clickHighlight(icon.Search.GetIcon());
 
         public static bool clickHighlight(this UnityEngine.Object obj, Texture tex)
         {
@@ -5269,18 +5308,15 @@ namespace PlayerAndEditorGUI
             if (edited == -1)
             {
 
+                changed |= list.edit_List_Order(datas);
+
                 changed |= list.ListAddClick<T>();
 
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(datas);
-
-                if (list != editingOrder)
-                {
-                    //list.InspectionStart();
-                    foreach (var i in list.InspectionIndexes()) // (int i = ListSectionStartIndex; i < ListSectionMax; i++)
-                    {
+                if (list != editingOrder) {
+                    foreach (var i in list.InspectionIndexes()) {
                         var el = list[i];
                         if (el == null)
                         {
@@ -5408,7 +5444,7 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
-                changed |= list.ListAddClick<T>();
+            
 
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
@@ -5417,6 +5453,7 @@ namespace PlayerAndEditorGUI
 
                 if (list != editingOrder)
                 {
+                    changed |= list.ListAddClick<T>();
                     // list.InspectionStart();
                     foreach (var i in list.InspectionIndexes()) // (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
@@ -5533,9 +5570,7 @@ namespace PlayerAndEditorGUI
 
                         newLine();
                     }
-                    // list.InspectionEnd();
 
-                    if (typeof(T).TryGetDerrivedClasses() != null)
                         list.PEGI_InstantiateOptions(ref added);
 
                     nl();
@@ -5738,18 +5773,16 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1)
             {
-                pegi.nl();
+                nl();
 
-                for (int i = 0; i < list.Count; i++)
-                {
+                for (int i = 0; i < list.Count; i++) {
 
                     var el = list[i];
                     if (el == null)
                         write("NULL");
                     else
                         changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
-
-
+                    
                     newLine();
                 }
 
@@ -5897,6 +5930,11 @@ namespace PlayerAndEditorGUI
             var iname = obj as IGotName;
             if (iname != null)
                 return iname.inspect_Name();
+
+            if (obj as MonoBehaviour != null) {
+                coulInspect = false;
+                return false;
+            }
 
             var uobj = obj as UnityEngine.Object;
 
@@ -6152,7 +6190,7 @@ namespace PlayerAndEditorGUI
 
             if (pgi != null)
             {
-                var changes = pgi.PEGI().RestoreBGColor();
+                var changes = pgi.Inspect().RestoreBGColor();
 
                 if (changes || EfChanges)
                     pgi.SetToDirty();

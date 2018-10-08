@@ -29,7 +29,7 @@ namespace PlayerAndEditorGUI
             for (int i = 0; i < options.Count; i++)
             {// Sentance s in options) {
                 Sentance s = options[i];
-                s.PEGI();
+                s.Inspect();
                 if (pegi.Click("X", 35))
                     options.RemoveAt(i);
                 pegi.newLine();
@@ -69,7 +69,7 @@ namespace PlayerAndEditorGUI
             return true;
         }
         #if PEGI
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             string tmp = ToString();
             if (pegi.editBig(ref tmp))

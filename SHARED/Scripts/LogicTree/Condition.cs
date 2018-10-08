@@ -175,7 +175,7 @@ namespace STD_Logic
 
             changed |= SearchAndAdd_PEGI(0);
 
-            return base.PEGI() || changed;
+            return base.Inspect() || changed;
         }
 #endif
 

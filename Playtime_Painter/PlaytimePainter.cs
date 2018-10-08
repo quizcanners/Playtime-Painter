@@ -47,7 +47,7 @@ namespace Playtime_Painter
 
         public override Texture ToolIcon()
         {
-            return icon.Painter.getIcon();
+            return icon.Painter.GetIcon();
         }
 
         #endregion
@@ -2080,7 +2080,7 @@ namespace Playtime_Painter
                             else
                             {
                                 pegi.newLine();
-                                if (MeshProfile.PEGI().nl())
+                                if (MeshProfile.Inspect().nl())
                                     MeshMGMT.edMesh.Dirty = true;
 
                                 if ("Hint".foldout(ref VertexSolution.showHint).nl())
@@ -2154,7 +2154,7 @@ namespace Playtime_Painter
 
                         #region Brush
 
-                        changed |= GlobalBrush.PEGI();
+                        changed |= GlobalBrush.Inspect();
 
                         BlitMode mode = GlobalBrush.BlitMode;
                         Color col = GlobalBrush.colorLinear.ToGamma();
@@ -2223,7 +2223,7 @@ namespace Playtime_Painter
                             }
 
 
-                            changed |= id.PEGI();
+                            changed |= id.Inspect();
                         }
 
                         bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
@@ -2302,7 +2302,7 @@ namespace Playtime_Painter
 
 
 
-                            if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.getIcon(), icon.Unlock.getIcon(), "Lock/Unlock editing of selected Texture.", 25))
+                            if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(), "Lock/Unlock editing of selected Texture.", 25))
                             {
                                 CheckPreviewShader();
                                 if (LockTextureEditing)
@@ -2528,7 +2528,7 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 

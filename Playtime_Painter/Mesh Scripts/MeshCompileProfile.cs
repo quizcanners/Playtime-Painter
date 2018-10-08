@@ -21,7 +21,7 @@ namespace Playtime_Painter
 
         public const string folderName = "Mesh Profiles";
         #if PEGI
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
 
             "Profile Name: ".edit(80, ref name);
@@ -50,7 +50,7 @@ namespace Playtime_Painter
 
             bool changed = false;
             for (int i = 0; i < sln.Count; i++)
-                changed |= sln[i].PEGI().nl();
+                changed |= sln[i].Inspect().nl();
 
             return changed;
         }
@@ -305,7 +305,7 @@ namespace Playtime_Painter
 
         public List<VertexDataValue> vals;
         #if PEGI
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             bool changed = false;
 

@@ -30,7 +30,7 @@ namespace Playtime_Painter {
 
         public static int probeChanged = -1;
 
-        public virtual bool PEGI() {
+        public virtual bool Inspect() {
 
             bool changed = false;
 

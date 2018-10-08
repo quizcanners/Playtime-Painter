@@ -183,7 +183,7 @@ namespace Playtime_Painter
             _inst = this;
         }
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
 
             bool changed = false;
             

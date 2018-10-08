@@ -23,7 +23,7 @@ public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
 #if PEGI
         public string NameForPEGI { get { return decalName; } set { decalName = value; } }
 
-        public bool PEGI() {
+        public bool Inspect() {
             var changed = this.inspect_Name().nl();
 
             "Type".editEnum(40, ref type).nl();

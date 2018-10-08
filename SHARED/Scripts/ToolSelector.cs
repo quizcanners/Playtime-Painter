@@ -47,11 +47,11 @@ namespace SharedTools_Stuff
                 selectedInPlaytime = this;
             #if PEGI
             if (selectedInPlaytime == this)
-                windowPosition.Render(PEGI, PlaytimeWindowName);
+                windowPosition.Render(Inspect, PlaytimeWindowName);
 #endif
         }
         #if PEGI
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
             "Override PEGI with your functions".writeHint();
             return false;

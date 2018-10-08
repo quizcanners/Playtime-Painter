@@ -131,7 +131,7 @@ namespace Playtime_Painter
         public virtual bool SupportedForTerrain_RT { get { return true; } }
         public virtual bool NeedsGrid { get { return false; } }
 #if PEGI
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
 
             bool change = false;
@@ -486,7 +486,7 @@ namespace Playtime_Painter
             }
         }
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             bool changes = false;
@@ -769,11 +769,11 @@ namespace Playtime_Painter
             Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush); 
 
-            changed |= base.PEGI();
+            changed |= base.Inspect();
 
             return changed;
         }

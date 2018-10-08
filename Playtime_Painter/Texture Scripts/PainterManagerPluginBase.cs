@@ -102,10 +102,10 @@ namespace Playtime_Painter
 #if PEGI
         public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
         
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed =  ConfigTab_PEGI();
-            changed |= base.PEGI();
+            changed |= base.Inspect();
             return changed;
         }
 #endif

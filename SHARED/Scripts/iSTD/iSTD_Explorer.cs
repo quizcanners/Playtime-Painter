@@ -16,7 +16,7 @@ namespace SharedTools_Stuff
 
 #if PEGI
 
-        public bool PEGI()
+        public bool Inspect()
         {
 
             UnityEngine.Object obj = ConnectSTD == null ? null : ConnectSTD as UnityEngine.Object;
@@ -194,7 +194,7 @@ namespace SharedTools_Stuff
             }
         }
 
-        public bool PEGI()
+        public bool Inspect()
         {
             if (tags == null && data.Contains("|"))
                 Decode(data);//.DecodeTagsFor(this);
@@ -306,7 +306,7 @@ namespace SharedTools_Stuff
 #if PEGI
         public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
 
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 

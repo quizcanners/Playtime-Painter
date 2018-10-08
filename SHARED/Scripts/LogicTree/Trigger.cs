@@ -101,7 +101,7 @@ namespace STD_Logic
         public const string storyTag_Trg = "Trg";
 
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             bool changed = "static".toggle(50, ref isStatic);
 
             changed |= TriggerUsage.SelectUsage(ref usage);

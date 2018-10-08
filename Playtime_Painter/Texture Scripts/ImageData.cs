@@ -697,7 +697,7 @@ namespace Playtime_Painter
 
         int inspectedProcess = -1;
         public int inspectedStuff = -1;
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             bool changed = false;

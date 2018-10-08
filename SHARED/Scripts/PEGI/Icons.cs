@@ -21,13 +21,21 @@ namespace PlayerAndEditorGUI
 
     }
 
+    public enum iconGackground
+    {
+        Frame
+
+    }
+
     public static class Icons_MGMT
     {
+
+        static List<Texture2D> backgrounds = new List<Texture2D>();
 
         static List<Texture2D> managementIcons;
         static List<Texture2D> painterIcons;
 
-        static Texture colorIcon(int ind)
+        static Texture ColorIcon(int ind)
         {
             if (painterIcons == null) painterIcons = new List<Texture2D>();
 
@@ -49,7 +57,7 @@ namespace PlayerAndEditorGUI
 
         public static Texture getIcon(this ColorChanel icon)
         {
-            return colorIcon((int)icon);
+            return ColorIcon((int)icon);
         }
 
         public static string ToText(this BrushMask icon)
@@ -67,7 +75,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static Texture getIcon(this BrushMask icon)
+        public static Texture GetIcon(this BrushMask icon)
         {
             int ind = 0;
             switch (icon)
@@ -77,11 +85,11 @@ namespace PlayerAndEditorGUI
                 case BrushMask.A: ind = 3; break;
             }
 
-            return colorIcon(ind);
+            return ColorIcon(ind);
 
         }
 
-        public static Texture2D getIcon(this icon icon)
+        public static Texture2D GetIcon(this icon icon)
         {
 
             if (managementIcons == null) managementIcons = new List<Texture2D>();
@@ -93,18 +101,37 @@ namespace PlayerAndEditorGUI
             {
                 switch (icon)
                 {
-                    case icon.Red: return colorIcon(0) as Texture2D;
-                    case icon.Green: return colorIcon(1) as Texture2D;
-                    case icon.Blue: return colorIcon(2) as Texture2D;
-                    case icon.Alpha: return colorIcon(3) as Texture2D;
-                    default: return icon.load();
+                    case icon.Red: return ColorIcon(0) as Texture2D;
+                    case icon.Green: return ColorIcon(1) as Texture2D;
+                    case icon.Blue: return ColorIcon(2) as Texture2D;
+                    case icon.Alpha: return ColorIcon(3) as Texture2D;
+                    default: return icon.Load();
                 }
             }
 
             return (managementIcons[ind]);
         }
 
-        static Texture2D loadIcoRes(int ind, string name)
+        public static Texture2D GetSprite(this iconGackground bg)
+        {
+            int ind = (int)bg;
+
+            while (backgrounds.Count <= ind) backgrounds.Add(null);
+
+            if (backgrounds[ind] == null) {
+                string name = Enum.GetName(typeof(iconGackground), ind);
+
+                if (bgloads > backgrounds.Count)
+                    Debug.Log("Loading " + name);
+
+                bgloads++;
+                backgrounds[ind] = Resources.Load("bg/" + name) as Texture2D;
+            }
+
+            return backgrounds[ind];
+        }
+
+        static Texture2D LoadIcoRes(int ind, string name)
         {
             if (loads > managementIcons.Count)
                 Debug.Log("Loading " + name);
@@ -114,13 +141,14 @@ namespace PlayerAndEditorGUI
             return managementIcons[ind];
         }
 
-        static Texture2D load(this icon ico)
+        static Texture2D Load(this icon ico)
         {
             int ind = (int)ico;
-            return loadIcoRes(ind, Enum.GetName(typeof(icon), ind));
+            return LoadIcoRes(ind, Enum.GetName(typeof(icon), ind));
         }
 
         static int loads = 0;
+        static int bgloads = 0;
 
     }
 }

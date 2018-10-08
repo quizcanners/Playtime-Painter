@@ -67,47 +67,20 @@ namespace SharedTools_Stuff
         {
             StdEncoder cody = new StdEncoder();
 
-           // int debugCount = 0;
+            if (val != null) {
+                var indTypes = typeof(T).TryGetDerrivedClasses();
 
-            if (val != null)
-            {
-
-                var types = typeof(T).TryGetDerrivedClasses();
-
-                if (types != null && types.Count > 0)
-                {
+                if (indTypes != null && indTypes.Count > 0) {
                     foreach (var v in val)
-                    {
-                        if (v != null)
-                        {
-                            int typeIndex = types.IndexOf(v.GetType());
-                            if (typeIndex != -1)
-                                cody.Add(typeIndex.ToString(), v.Encode());
-#if UNITY_EDITOR
-                            else
-                            {
-                                cody.Add("e", v.Encode());
-#if PEGI
-                                Debug.Log("Type not listed: " + v.GetType() + " in " + typeof(T).ToPEGIstring());
-#endif
-                            }
-#endif
-                        }
-                        else
-                            cody.Add_String(StdEncoder.nullTag, "");
-                    }
+                        cody.Add(v, indTypes);
                 }
                 else 
                 foreach (var v in val) {
-                        //debugCount++;
                     if (v != null)
                         cody.Add("e", v.Encode());
                     else
                         cody.Add_String(StdEncoder.nullTag, "");
                 }
-
-              //  Debug.Log("Encoded "+ debugCount + " points");
-
             }
             return cody;
         }
@@ -119,7 +92,14 @@ namespace SharedTools_Stuff
 
                 cody.Add("len", val.Length);
 
-                foreach (var v in val) {
+                var types = typeof(T).TryGetDerrivedClasses();
+
+                if (types != null && types.Count > 0) {
+                    foreach (var v in val)
+                        cody.Add(v, types);
+                }
+                else
+                    foreach (var v in val) {
                     if (v != null)
                         cody.Add("e", v.Encode());
                     else
@@ -129,8 +109,7 @@ namespace SharedTools_Stuff
 
             return cody;
         }
-
-
+        
         public static StdEncoder TryEncode<T>(this List<T> val)
         {
             StdEncoder cody = new StdEncoder();
@@ -366,6 +345,27 @@ namespace SharedTools_Stuff
                 if (objstd != null)
                     Add(tag, objstd);
             }
+            return this;
+        }
+
+        public StdEncoder Add<T>(T v, List<Type> types) where T : ISTD {
+            if (v != null) {
+                int typeIndex = types.IndexOf(v.GetType());
+                if (typeIndex != -1)
+                    Add(typeIndex.ToString(), v.Encode());
+#if UNITY_EDITOR
+                else
+                {
+                    Add("e", v.Encode());
+#if PEGI
+                    Debug.Log("Type not listed: " + v.GetType() + " in " + typeof(T).ToPEGIstring());
+#endif
+                }
+#endif
+            }
+            else
+                Add_String(nullTag, "");
+
             return this;
         }
 

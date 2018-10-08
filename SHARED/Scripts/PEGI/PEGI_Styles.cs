@@ -14,11 +14,17 @@ namespace PlayerAndEditorGUI
         public static GUIStyle ImageButton    {
             get {
                 if (_imageButton == null)
-                    _imageButton = new GUIStyle(GUI.skin.button) {
+                {
+                    _imageButton = new GUIStyle(GUI.skin.button)
+                    {
 
-                        overflow = new RectOffset(-3,-3,0, 0),
-                        margin = new RectOffset(-3,-3,1,1),
+                        overflow = new RectOffset(-3, -3, 0, 0),
+                        margin = new RectOffset(-3, -3, 1, 1),
+
                     };
+
+                  //  _imageButton.normal.background = iconGackground.Frame.GetSprite();
+                }
                 
                 return _imageButton;
             }
@@ -48,12 +54,12 @@ namespace PlayerAndEditorGUI
                 {
                     _listLabel = new GUIStyle(GUI.skin.label)
                     {
-                        margin = new RectOffset(1, 1, 2, 1),
+                        margin = new RectOffset(1, 1, 6, 1),
                         fontSize = 12,
                         clipping = TextClipping.Clip,
                         richText = true,
                         wordWrap = true,
-                        alignment = TextAnchor.MiddleLeft,
+                        alignment = TextAnchor.MiddleCenter,
                         fontStyle = FontStyle.Bold,
                     };
                     _listLabel.normal.textColor = new Color32(43, 30, 11,255); //2C1F0B);
@@ -151,7 +157,7 @@ namespace PlayerAndEditorGUI
 
 #if PEGI
 
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 
@@ -160,7 +166,7 @@ namespace PlayerAndEditorGUI
 
             "Some more text".nl();
 
-            icon.Docs.getIcon().edit("Button icon" , () => TestImageButton, this).nl();
+            icon.Docs.GetIcon().edit("Button icon" , () => TestImageButton, this).nl();
 
            
 

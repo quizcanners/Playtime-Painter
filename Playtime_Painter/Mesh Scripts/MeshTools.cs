@@ -119,7 +119,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public virtual bool PEGI() => false;
+        public virtual bool Inspect() => false;
         
     }
 
@@ -190,7 +190,7 @@ namespace Playtime_Painter
 #if PEGI
 
           Vector3 offset;
-        public override bool PEGI() {
+        public override bool Inspect() {
 
             bool changed = false;
 
@@ -546,7 +546,7 @@ namespace Playtime_Painter
             }
         }
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             MeshManager m = MeshMGMT;
@@ -714,7 +714,7 @@ namespace Playtime_Painter
                 }
             }
 #if PEGI
-            public override bool PEGI()
+            public override bool Inspect()
             {
 
                 MeshManager m = MeshMGMT;
@@ -909,7 +909,7 @@ namespace Playtime_Painter
             }
         }
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             if (("Paint All with Brush Color").Click())
                 MeshMGMT.edMesh.PaintAll(Cfg.brushConfig.colorLinear);
 
@@ -1035,7 +1035,7 @@ namespace Playtime_Painter
 
         public override bool ShowVerticesDefault { get { return !editingFlexibleEdge; } }
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             bool changed = false;
             changed |= "Edge Strength: ".edit(ref edgeValue).nl();
             changed |= "Also do color".toggle(ref AlsoDoColor).nl();
@@ -1258,7 +1258,7 @@ namespace Playtime_Painter
             return false;
         }
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
             ("Total Submeshes: " + EditedMesh.submeshCount).nl();
 

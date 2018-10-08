@@ -116,7 +116,7 @@ namespace Playtime_Painter {
         }
 
 #if PEGI
-        public bool PEGI() {
+        public bool Inspect() {
             ("Painting on " + paintingOn.Count + " objects").nl();
 
             if ((_collider.isTrigger) && ("Make phisical".Click().nl()))

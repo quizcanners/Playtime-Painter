@@ -374,67 +374,56 @@ namespace Playtime_Painter
 
         bool inspectLists = false;
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
-            bool changed = false; //  base.PEGI();
+            bool changed = false; 
 
             PainterCamera rtp = PainterCamera.Inst;
 
-            if (!PainterStuff.IsNowPlaytimeAndDisabled)
+            if (rtp.PluginsInspect().nl())
+                rtp.SetToDirty();
+
+            if (rtp.browsedPlugin == -1)
             {
-                "Plugins".write_List(rtp.Plugins, ref rtp.browsedPlugin);
 
+                bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
-                if ("Find New Plugins".Click())
-                    rtp.RefreshPlugins();
+                if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
+                    UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
 
-                if ("Clear Data".Click().nl())
+                if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
+                    MeshManager.Inst.DisconnectMesh();
+
+                if (!PainterStuff.IsNowPlaytimeAndDisabled)
                 {
-                    rtp.DeletePlugins();
-                    rtp.RefreshPlugins();
+
+                    if (Painter && Painter.meshEditing == false)
+                        "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
+
+                    if ("Lists".foldout(ref inspectLists).nl())
+                        changed |= DatasPEGI();
+
+                    "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
+
+                    "Save Textures To".edit(110, ref texturesFolderName).nl();
+
+                    "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
+
+                    "Save Materials To".edit(110, ref materialsFolderName).nl();
+
+                    "Save Meshes To".edit(110, ref meshesFolderName).nl();
                 }
-
-            }
-            pegi.newLine();
-
-            bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
-
-            if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
-                UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
-
-            if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
-                MeshManager.Inst.DisconnectMesh();
-
-            if (!PainterStuff.IsNowPlaytimeAndDisabled)
-            {
-
-                if (Painter && Painter.meshEditing == false)
-                    "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
-
-                if ("Lists".foldout(ref inspectLists).nl())
-                    changed |= DatasPEGI();
-
-                "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
-
-                "Save Textures To".edit(110, ref texturesFolderName).nl();
-
-                "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
-
-                "Save Materials To".edit(110, ref materialsFolderName).nl();
-
-                "Save Meshes To".edit(110, ref meshesFolderName).nl();
-            }
 #if UNITY_EDITOR
-            if (icon.Discord.Click("Join Discord", 64))
-                PlaytimePainter.Open_Discord();
+                if (icon.Discord.Click("Join Discord", 64))
+                    PlaytimePainter.Open_Discord();
 
-            if (icon.Docs.Click("Open Asset Documentation", 64))
-                PlaytimePainter.OpenWWW_Documentation();
+                if (icon.Docs.Click("Open Asset Documentation", 64))
+                    PlaytimePainter.OpenWWW_Documentation();
 
-            if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
-                PlaytimePainter.Open_Email();
+                if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
+                    PlaytimePainter.Open_Email();
 #endif
-
+            }
             return changed;
         }
 

@@ -84,7 +84,7 @@ namespace Playtime_Painter
                     pos.width = 25;
                     pos.height = 25;
 
-                    if (section != null && GUI.Button(pos, icon.Refresh.getIcon()))
+                    if (section != null && GUI.Button(pos, icon.Refresh.GetIcon()))
                         section.Blit();
                 }
 
@@ -261,7 +261,7 @@ namespace Playtime_Painter
         public virtual void Stop() { }
 
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -330,7 +330,7 @@ namespace Playtime_Painter
 
         public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgDatas);
 
-        public override bool PEGI()
+        public override bool Inspect()
         {
             "Source".select(50, ref id, Data.imgDatas);
             Texture tmp = Texture;
@@ -422,7 +422,7 @@ namespace Playtime_Painter
         }
 
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
             "name".edit(50, ref name).nl();
             "width".edit(ref width).nl();
@@ -587,7 +587,7 @@ namespace Playtime_Painter
 
 #if PEGI
         public override string NameForPEGIdisplay() => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
-        public override bool PEGI() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
+        public override bool Inspect() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
 
     }
@@ -658,10 +658,10 @@ namespace Playtime_Painter
         public override Texture GetTextureNext() => buffer;
 
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
-            var changed = base.PEGI();
+            var changed = base.Inspect();
 
             "Name".edit(ref name).nl();
 
@@ -806,7 +806,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        public bool PEGI()
+        public bool Inspect()
         {
             bool changed = false;
 

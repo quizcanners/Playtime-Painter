@@ -1063,7 +1063,7 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-            MeshTool.PEGI();
+            MeshTool.Inspect();
 
             pegi.newLine();
 
@@ -1164,7 +1164,7 @@ namespace Playtime_Painter {
             bool changed = false;
 
             if (undoMoves.Count > 1) {
-                if (pegi.Click(icon.Undo.getIcon(), 25)) {
+                if (pegi.Click(icon.Undo.GetIcon(), 25)) {
                     redoMoves.Add(undoMoves.RemoveLast());
                     undoMoves.Last().DecodeInto(out edMesh);
                     Redraw();
@@ -1172,10 +1172,10 @@ namespace Playtime_Painter {
                 }
             }
             else
-                pegi.Click(icon.UndoDisabled.getIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
+                pegi.Click(icon.UndoDisabled.GetIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
 
             if (redoMoves.Count > 0) {
-                if (pegi.Click(icon.Redo.getIcon(),  25)) {
+                if (pegi.Click(icon.Redo.GetIcon(),  25)) {
                     changed = true;
                     redoMoves.Last().DecodeInto(out edMesh);
                     undoMoves.Add(redoMoves.RemoveLast());
@@ -1183,7 +1183,7 @@ namespace Playtime_Painter {
                 }
             }
             else
-                pegi.Click(icon.RedoDisabled.getIcon(), "Nothing to Redo", 25);
+                pegi.Click(icon.RedoDisabled.GetIcon(), "Nothing to Redo", 25);
 
             pegi.newLine();
 

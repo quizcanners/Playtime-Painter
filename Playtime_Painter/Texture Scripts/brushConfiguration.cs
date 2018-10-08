@@ -361,7 +361,7 @@ namespace Playtime_Painter
                     changed = true;
                 }
 
-            changed |= Type(CPU).PEGI().nl();
+            changed |= Type(CPU).Inspect().nl();
 
             if (!overrideBlitModePegi)
             changed |= BlitMode.PEGI();
@@ -385,7 +385,7 @@ namespace Playtime_Painter
 
             bool smooth = Type(TargetIsTex2D) != BrushTypePixel.Inst;
 
-            if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.getIcon(), icon.Square.getIcon(), "Smooth/Pixels Brush", 45))
+            if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45))
             {
                 changed = true;
                 TypeSet(TargetIsTex2D,  smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
@@ -394,7 +394,7 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public virtual bool PEGI()  {
+        public virtual bool Inspect()  {
 
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
@@ -473,7 +473,7 @@ namespace Playtime_Painter
 
         public bool ChannelSlider(BrushMask m, ref float channel)
         {
-            pegi.write(m.getIcon(), 25);
+            pegi.write(m.GetIcon(), 25);
             bool changed = pegi.edit(ref channel, 0, 1).nl();
             return changed;
         }
@@ -483,7 +483,7 @@ namespace Playtime_Painter
             bool changed = false;
 
             if (icon == null)
-                icon = m.getIcon();
+                icon = m.GetIcon();
 
             string letter = m.ToText();
             bool maskVal = mask.GetFlag(m);

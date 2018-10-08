@@ -218,7 +218,7 @@ namespace Playtime_Painter {
             }
         }
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             //"Edge Click as Chanel 2".toggle(ref atlasEdgeAsChanel2).nl();

@@ -44,6 +44,14 @@ namespace SharedTools_Stuff
         }
     }
 
+    public interface IAttributeWithTaggetTypes_STD {
+        Type GetType(string tag);
+
+        List<string> AllTags();
+    }
+
+
+
     #endregion
 
     #region Unrecognized Tags Persistance
@@ -102,7 +110,7 @@ namespace SharedTools_Stuff
 
         [SerializeField] int inspectedStuff = -1;
         [SerializeField] int inspectedReference = -1;
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
 
             bool changed = false;
@@ -197,7 +205,7 @@ namespace SharedTools_Stuff
 #if PEGI
         int inspected = -1;
         bool foldout = false;
-        public bool PEGI( )
+        public bool Inspect( )
         {
             bool changed = false;
 
@@ -277,7 +285,7 @@ namespace SharedTools_Stuff
 #if PEGI
         public bool showDebug;
 
-        public virtual bool PEGI() {
+        public virtual bool Inspect() {
             bool changed = false;
            
             if (!showDebug && icon.Config.Click())
@@ -376,7 +384,7 @@ namespace SharedTools_Stuff
 
         [SerializeField] int inspectedStuff = -1;
         [SerializeField] int inspectedReference = -1;
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
 
             bool changed = false;
@@ -441,12 +449,36 @@ namespace SharedTools_Stuff
 
     public static class STDExtensions {
 
+        public static IAttributeWithTaggetTypes_STD TryGetTaggetClasses(this Type type) {
+
+            if (type.IsClass) {
+                var attrs = type.GetCustomAttributes(typeof(IAttributeWithTaggetTypes_STD),true);
+                if (attrs.Length > 0) {
+                    foreach (var a in attrs)
+                    {
+                        var att = a as IAttributeWithTaggetTypes_STD;
+                        if (att != null) {
+                            if (att.AllTags() != null && att.AllTags().Count > 0)
+                            return att;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public static List<Type> TryGetDerrivedClasses (this Type t)
         {
             List<Type> tps = null;
             var att = t.ClassAttribute<DerrivedListAttribute>();
             if (att != null)
+            {
                 tps = att.derrivedTypes;
+                if (tps != null && tps.Count == 0)
+                    tps = null;
+            }
+
 
             return tps;
         }

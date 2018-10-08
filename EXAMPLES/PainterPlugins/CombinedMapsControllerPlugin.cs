@@ -326,7 +326,7 @@ namespace Playtime_Painter {
 
             #if PEGI
 
-            public bool PEGI()
+            public bool Inspect()
             {
 
 
@@ -454,7 +454,7 @@ namespace Playtime_Painter {
 
 
             #if PEGI
-            public virtual bool PEGI() => PEGI(null);
+            public virtual bool Inspect() => PEGI(null);
             
             public bool PEGI(TextureSetForForCombinedMaps sets)
             {
@@ -683,7 +683,7 @@ namespace Playtime_Painter {
 
             #if PEGI
 
-            public virtual bool PEGI()
+            public virtual bool Inspect()
             {
 
                 bool changed = false;

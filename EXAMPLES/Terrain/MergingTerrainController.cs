@@ -147,7 +147,7 @@ namespace Playtime_Painter
 
         }
 #if PEGI
-        public bool PEGI() {
+        public bool Inspect() {
             bool changed = false;
 
             "Merge Submasks".edit(() => mergeSubmasks, this).nl();

@@ -105,7 +105,7 @@ namespace STD_Logic {
         }
 
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
             
             bool changed = false;
 
@@ -127,7 +127,7 @@ namespace STD_Logic {
                 
             pegi.nl();
 
-            changed |= base.PEGI();
+            changed |= base.Inspect();
 
             pegi.newLine();
             

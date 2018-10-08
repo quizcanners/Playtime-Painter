@@ -374,9 +374,9 @@ namespace Playtime_Painter
 
 
 
-        public override bool PEGI()  {
+        public override bool Inspect()  {
 
-            bool changed = base.PEGI();
+            bool changed = base.Inspect();
 
             changed |= lights.Nested_Inspect();
             

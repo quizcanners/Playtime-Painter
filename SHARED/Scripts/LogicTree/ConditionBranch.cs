@@ -115,14 +115,14 @@ namespace STD_Logic {
         int browsedCondition = -1;
 
 #if PEGI
-        public override bool PEGI() {
+        public override bool Inspect() {
 
             var tmpVals = Values.global;
             tmpVals = targ.TryGetValues(tmpVals);
 
         
 
-            bool changed = base.PEGI();
+            bool changed = base.Inspect();
 
             if (!showDebug)   {
 

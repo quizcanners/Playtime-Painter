@@ -37,7 +37,7 @@ namespace PlayerAndEditorGUI {
                 return false;
 
             start(so);
-            bool changed = o.PEGI();
+            bool changed = o.Inspect();
             end(o.gameObject);
 
             return changed;
@@ -47,7 +47,7 @@ namespace PlayerAndEditorGUI {
         {
             
             start(so);
-            bool changed = o.PEGI();
+            bool changed = o.Inspect();
             end(o);
 
             return changed;

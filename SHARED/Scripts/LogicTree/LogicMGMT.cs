@@ -75,12 +75,12 @@ namespace STD_Logic
         [SerializeField] protected int inspectedLogicBranchStuff = -1;
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
-        public override bool PEGI()
+        public override bool Inspect()
         {
             var changed = false;
 
             if (inspectedLogicBranchStuff == -1)
-                changed |= base.PEGI();
+                changed |= base.Inspect();
             else
                 showDebug = false;
 

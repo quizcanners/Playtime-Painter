@@ -190,12 +190,12 @@ namespace STD_Animations
         public int inspectedElement = -1;
         public bool inspectElements = false;
 
-        public override bool PEGI()  {
+        public override bool Inspect()  {
 
             if (gameObject.IsPrefab())
                 return false;
 
-            bool changed = base.PEGI();
+            bool changed = base.Inspect();
 
             if (!showDebug) {
                 
@@ -704,7 +704,7 @@ namespace STD_Animations
         [SerializeField] bool transformInLocalSpace = true;
         [SerializeField] bool showDependencies = true;
         List<string> materialProperties = new List<string>();
-        public override bool PEGI()
+        public override bool Inspect()
         {
             inspectedAnimatedObject = this;
 
@@ -750,7 +750,7 @@ namespace STD_Animations
 
             }
 
-            Mgmt.CurrentFrame.PEGI();
+            Mgmt.CurrentFrame.Inspect();
 
             if (rendy)  {
                 if (propertyName.Length > 0 && icon.Delete.Click())
@@ -902,7 +902,7 @@ namespace STD_Animations
         #endregion
 
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
             pegi.nl();

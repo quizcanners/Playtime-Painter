@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -149,24 +150,17 @@ namespace PlayerAndEditorGUI {
         }
 
         #if PEGI
-        public bool PEGI()
+        public bool Inspect()
         {
             
             "Speed:".edit("Speed of movement", 50, ref speed).nl();
-            pegi.newLine();
+  
+            if ("sensitivity:".edit(60, ref sensitivity).nl())
+                PlayerPrefs.SetFloat(PrefSens, sensitivity);
+ 
+            "Rotate without RMB".toggleIcon(ref rotateWithotRMB).nl();
 
-            pegi.write("sensitivity:");
-            if (pegi.edit(ref sensitivity))
-                PlayerPrefs.SetFloat(GodMode.PrefSens, sensitivity);
-            pegi.newLine();
-
-            "Rotate without RMB".toggle(ref rotateWithotRMB).nl();
-
-            pegi.write("WASD - move"); pegi.newLine();
-            pegi.write("Q, E - Dwn, Up"); pegi.newLine();
-            pegi.write("Shift - faster"); pegi.newLine();
-            pegi.write("RMB - look around"); pegi.newLine();
-            pegi.write("MMB - Orbit Collider");
+            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNL);
 
             return false;
         }
