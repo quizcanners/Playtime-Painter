@@ -44,6 +44,15 @@
 #endif
 	};
 
+
+		inline float getLOD(float2 uv, float4 _TexelSize) {
+
+			float2 px = _TexelSize.z * ddx(uv);
+			float2 py = _TexelSize.w * ddy(uv);
+
+			return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
+		}
+
 		v2f vert(appdata_full v) {
 			v2f o;
 			o.pos = UnityObjectToClipPos(v.vertex);   
@@ -111,7 +120,9 @@
 
 		fromCenter =(gridCircleSize - fromCenter)/(gridCircleSize);
 
-		float border = (1-saturate(fromCenter)) * max(offset.x, offset.y); 
+		float lod = getLOD(i.texcoord.xy, _PreviewTex_TexelSize);
+
+		float border = (1-saturate(fromCenter)) * max(offset.x, offset.y) * max(0, 1- lod*16);
 
 		col = col*(1-border) + (0.5 - col * 0.5)*border;
 

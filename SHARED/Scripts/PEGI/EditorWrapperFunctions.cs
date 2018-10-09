@@ -976,18 +976,20 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width)
-        {
-            //checkLine();
+        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null) {
             bool before = val;
+
+            if (style == null)
+                style = PEGI_Styles.ImageButton;
+
 
             if (val)
             {
-                if (Click(TrueIcon, tip, width)) val = false;
+                if (Click(TrueIcon, tip, width, style)) val = false;
             }
             else
             {
-                if (Click(FalseIcon, tip, width)) val = true;
+                if (Click(FalseIcon, tip, width, style)) val = true;
             }
 
             return (before != val);
@@ -1049,22 +1051,27 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(cont, GUILayout.MaxWidth(width)) ? change : false;
         }
 
-        public static bool Click(Texture img, int width)   {
+        public static bool Click(Texture img, int width, GUIStyle style = null)   {
+            if (style == null)
+                style = PEGI_Styles.ImageButton;
             checkLine();
-            return GUILayout.Button(img, PEGI_Styles.ImageButton, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            return GUILayout.Button(img, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
         }
 
-        public static bool Click(Texture img, string tip, int width) => Click(img, tip, width, width);
+        public static bool Click(Texture img, string tip, int width, GUIStyle style = null) => Click(img, tip, width, width, style);
 
-        public static bool Click(Texture img, string tip, int width, int height)
+        public static bool Click(Texture img, string tip, int width, int height, GUIStyle style = null)
         {
+            if (style == null)
+                style = PEGI_Styles.ImageButton;
+
             checkLine();
             GUIContent cont = new GUIContent
             {
                 tooltip = tip,
                 image = img
             };
-            return GUILayout.Button(cont, PEGI_Styles.ImageButton, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Set(); 
+            return GUILayout.Button(cont, style, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Set(); 
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object
@@ -1129,7 +1136,7 @@ namespace PlayerAndEditorGUI {
                 text = text,
                 tooltip = tip
             };
-            EditorGUILayout.LabelField(cont);
+            EditorGUILayout.LabelField(cont, PEGI_Styles.WrappingText);
         }
 
         public static void write(string text, string tip, int width)
@@ -1141,26 +1148,26 @@ namespace PlayerAndEditorGUI {
                 text = text,
                 tooltip = tip
             };
-            EditorGUILayout.LabelField(cont, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(cont, PEGI_Styles.WrappingText, GUILayout.MaxWidth(width));
         }
 
-        public static void write(string text)
-        {
+        public static void write(string text) => write(text, PEGI_Styles.WrappingText);
+      /*  {
             checkLine();
 
-            EditorGUILayout.LabelField(text);
-        }
+            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
+        }*/
 
         public static void write(string text, GUIStyle style )
         {
             checkLine();
-            EditorGUILayout.LabelField("", style);
+            EditorGUILayout.LabelField(text, style);
         }
 
         public static void write(string text, int width, GUIStyle style)
         {
             checkLine();
-            EditorGUILayout.LabelField("", style, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(text, style, GUILayout.MaxWidth(width));
         }
 
         public static void write(string text, string hint, GUIStyle style)

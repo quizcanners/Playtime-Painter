@@ -31,23 +31,75 @@ namespace PlayerAndEditorGUI
     
         }
 
-        static GUIStyle _toggleText;
-        public static GUIStyle ToggleLabel
+        #region Toggle
+
+        static GUIStyle _toggleButton;
+        public static GUIStyle ToggleButton
         {
             get
             {
-                if (_toggleText == null)
-                    _toggleText = new GUIStyle(GUI.skin.label)  {
-                        contentOffset = new Vector2(0, 2),
-                        wordWrap = true
-                       // fontStyle = FontStyle.Bold
+                if (_toggleButton == null)
+                {
+                    _toggleButton = new GUIStyle(GUI.skin.button)
+                    {
+
+                        overflow = new RectOffset(-3, -3, 0, 0),
+                        margin = new RectOffset(-13, -13, -10, -10),
+                        contentOffset = new Vector2(0, 6),
                     };
 
-                
-                return _toggleText;
+                    
+                    //  _imageButton.normal.background = iconGackground.Frame.GetSprite();
+                }
+
+                return _toggleButton;
+            }
+
+        }
+
+        public static GUIStyle ToggleLabel(bool isOn) => isOn ? ToggleLabel_On : ToggleLabel_Off;
+            
+        static GUIStyle _toggleTextOff;
+        static GUIStyle ToggleLabel_Off
+        {
+            get
+            {
+                if (_toggleTextOff == null)
+                    _toggleTextOff = new GUIStyle(GUI.skin.label)  {
+                        contentOffset = new Vector2(0, 2),
+                        wordWrap = true,
+                        //fontSize = 10
+                        
+                        //fontStyle = FontStyle.Italic
+                    };
+
+                _toggleTextOff.normal.textColor = new Color32(40, 40, 40, 255); //2C1F0B);
+                return _toggleTextOff;
             }
         }
 
+        static GUIStyle _toggleTextOn;
+        static GUIStyle ToggleLabel_On
+        {
+            get
+            {
+                if (_toggleTextOn == null)
+                    _toggleTextOn = new GUIStyle(GUI.skin.label)
+                    {
+                        contentOffset = new Vector2(0, 2),
+                        wordWrap = true,
+                       
+                        
+                        // fontStyle = FontStyle.Bold
+                    };
+             
+
+                return _toggleTextOn;
+            }
+        }
+        #endregion
+
+        #region List
         static GUIStyle _listLabel;
         public static GUIStyle ListLabel { get {
                 if (_listLabel == null)
@@ -68,6 +120,13 @@ namespace PlayerAndEditorGUI
         
         }
 
+        public static Color listReadabilityRed = new Color(1, 0.9f, 0.9f, 1);
+        public static Color listReadabilityBlue = new Color(0.95f, 0.95f, 1f, 1);
+
+
+        #endregion
+
+        #region Fold / Enter / Exit
         static GUIStyle _enterLabel;
         public static GUIStyle EnterLabel
         {
@@ -143,9 +202,28 @@ namespace PlayerAndEditorGUI
             }
          
         }
-        
-        public static Color listReadabilityRed = new Color(1, 0.9f,0.9f,1);
-        public static Color listReadabilityBlue = new Color(0.95f, 0.95f, 1f, 1);
+        #endregion
+
+
+        static GUIStyle _wrappingText;
+        public static GUIStyle WrappingText
+        {
+            get
+            {
+                if (_wrappingText == null)
+                {
+                    _wrappingText = new GUIStyle(GUI.skin.label)
+                    {
+                        clipping = TextClipping.Overflow,
+                        wordWrap = true
+                    };
+
+
+                }
+
+                return _wrappingText;
+            }
+        }
 
         // Testing stuff
 

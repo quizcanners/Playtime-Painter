@@ -2828,6 +2828,7 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Toggle
+        const int defaultToggleIconSize = 35;
 
         public static bool toggleInt(ref int val)
         {
@@ -2907,39 +2908,39 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width);
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width, style);
 
-        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize);
+        public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize, style);
 
-        public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True.BGColor(Color.clear), icon.False).PreviousBGcolor();
+        public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True.BGColor(Color.clear), icon.False, "Toggle On/Off", defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
         public static bool toggleIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false)
         {
             SetBgColor(Color.clear);
 
-            var ret = toggle(ref val, icon.True, icon.False, hint).PreviousBGcolor();
+            var ret = toggle(ref val, icon.True, icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel);
+            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel(val));
 
             return ret;
         }
 
         public static bool toggleIcon(this string label, ref bool val, bool showTextWhenTrue = false)
         {
-            var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label).PreviousBGcolor();
+            var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if (!val || showTextWhenTrue) label.write(PEGI_Styles.ToggleLabel);
+            if (!val || showTextWhenTrue) label.write(PEGI_Styles.ToggleLabel(val));
 
             return ret;
         }
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width)
+        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
         {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
-                return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width);
+                return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width, style);
             }
             else
 #endif
@@ -4495,8 +4496,7 @@ namespace PlayerAndEditorGUI
 
             edit(ref addingNewNameHolder);
 
-            if (addingNewNameHolder.Length > 1)
-            {
+            if (addingNewNameHolder.Length > 1) {
                 if (indTypes == null  && tagTypes == null)
                 {
                     if (icon.Create.Click("Create new object").nl())
@@ -4551,20 +4551,17 @@ namespace PlayerAndEditorGUI
             return changed;
 
         }
-
-
+        
         public static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
         {
             if (editingOrder != null && editingOrder == lst)
                 return false;
 
             var intTypes = typeof(T).TryGetDerrivedClasses();
-
-
+            
             var tagTypes = typeof(T).TryGetTaggetClasses();
-
-
-            if (intTypes == null && tagTypes == null && typeof(T).IsAbstract)
+            
+            if (intTypes == null && tagTypes == null) // && typeof(T).IsAbstract)
                 return false;
 
             bool changed = false;
@@ -4576,20 +4573,15 @@ namespace PlayerAndEditorGUI
             else
                 (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
 
-            if (!hasName || addingNewNameHolder.Length > 1)
-            {
-
-
-                if (intTypes == null && tagTypes == null)
-                {
-                    if (icon.Create.Click("Instantiate a new object").nl())
-                    {
+            if (!hasName || addingNewNameHolder.Length > 1) {
+               /* if (intTypes == null && tagTypes == null) {
+                    if (icon.Create.Click("Instantiate a new object").nl()) {
                         added = lst.AddWithUniqueNameAndIndex(addingNewNameHolder);
                         changed = true;
                     }
                 }
                 else
-                {
+                {*/
 
                     bool selectingDerrived = lst == addingNewOptionsInspected;
 
@@ -4631,7 +4623,7 @@ namespace PlayerAndEditorGUI
                                 }
                             }
                     }
-                }
+              //  }
             }
             else
                 "Add".write("Input a name for a new element", 40);
@@ -4970,8 +4962,7 @@ namespace PlayerAndEditorGUI
         }
 
         static IList listCopyBuffer = null;
-
-
+        
 
         public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, UnnullableSTD<ElementData> datas = null)
         {
@@ -5137,7 +5128,7 @@ namespace PlayerAndEditorGUI
         static bool ListAddClick<T>(this List<T> list, ref T added) where T : new()
         {
 
-            if (!typeof(T).IsUnityObject() && typeof(T).ClassAttribute<DerrivedListAttribute>() != null)
+            if (!typeof(T).IsUnityObject() && (typeof(T).ClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
             if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
