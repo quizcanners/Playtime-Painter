@@ -65,8 +65,7 @@ public interface IGotIndex
 namespace PlayerAndEditorGUI
 {
 #if PEGI
-    public static class pegi
-    {
+    public static class pegi {
 
         #region Other Stuff
         public delegate bool CallDelegate();

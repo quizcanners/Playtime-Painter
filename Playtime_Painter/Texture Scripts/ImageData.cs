@@ -704,6 +704,8 @@ namespace Playtime_Painter
 
             if ("CPU blit options".conditional_enter_exit(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
             {
+               // changed |= "Use Unity Jobs".toggle("Unity 2018 or newer", ref Cfg.useJobsForCPUpainting).nl();
+
                 changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref GlobalBrush.repaintDelay, 0.01f, 0.5f).nl();
 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",

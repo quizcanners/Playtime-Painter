@@ -203,8 +203,7 @@ namespace PlayerAndEditorGUI
          
         }
         #endregion
-
-
+        
         static GUIStyle _wrappingText;
         public static GUIStyle WrappingText
         {
@@ -214,8 +213,8 @@ namespace PlayerAndEditorGUI
                 {
                     _wrappingText = new GUIStyle(GUI.skin.label)
                     {
-                        clipping = TextClipping.Overflow,
-                        wordWrap = true
+                        clipping = TextClipping.Clip,
+                        //wordWrap = true
                     };
 
 

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 //using System.Windows;
 
 namespace SharedTools_Stuff
@@ -34,11 +37,49 @@ namespace SharedTools_Stuff
 
     }
 
-    public class ListPEGI_Data : Abstract_STD
+    public class ListPEGI_Data : Abstract_STD, IPEGI
     {
 
+        public string folderToSearch = "Assets/";
         public int inspectedElement = -1;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
+
+
+#if PEGI
+        public bool Inspect() {
+
+            return false;
+        }
+
+        public bool Inspect<T>(List<T> list) where T: UnityEngine.Object { 
+            bool changed = false;
+#if UNITY_EDITOR
+
+            "Folder".edit(50, ref folderToSearch);
+            if (icon.Search.Click("Populate list with objects from folder.")) {
+                if (folderToSearch.Length > 0)
+                {
+                    var scrObjs = AssetDatabase.FindAssets("t:Object", new string[] { folderToSearch });
+                    foreach (var o in scrObjs)
+                    {
+                        var ass = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(o));
+                        if (ass)
+                        {
+                            if (list.TryAdd_UObj_ifNew(ass)) continue;
+                        }
+                    }
+                }
+            }
+
+            if (list.Count>0 && list[0]!= null && icon.Refresh.Click("Use location of the first element in the list")) 
+                folderToSearch = AssetDatabase.GetAssetPath(list[0]);
+            
+#endif
+            return changed;
+        }
+#endif
+
+        #region Encode & Decode
 
         public override bool Decode(string tag, string data)
         {
@@ -46,12 +87,17 @@ namespace SharedTools_Stuff
             {
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspectedElement = data.ToInt(); break;
+                case "fld": folderToSearch = data; break;
                 default: return false;
             }
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder().Add("ed", elementDatas).Add("insp", inspectedElement);
+        public override StdEncoder Encode() => new StdEncoder()
+            .Add("ed", elementDatas)
+            .Add("insp", inspectedElement)
+            .Add_String("fld", folderToSearch);
+        #endregion
 
     }
 

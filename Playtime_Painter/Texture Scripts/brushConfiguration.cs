@@ -272,7 +272,6 @@ namespace Playtime_Painter
                 if (id == null) return pntr;
             }
             
-          
             var cpu = id.TargetIsTexture2D();
             var t = Type(cpu);
 
@@ -287,16 +286,13 @@ namespace Playtime_Painter
 
                 if (id.renderTexture == null && !TexMGMT.materialsUsingTendTex.Contains(md)) {
                     TexMGMT.ChangeBufferTarget(id, md, pntr.GetMaterialTexturePropertyName, pntr);
-                    //materialsUsingTendTex.Add(md);
                     pntr.SetTextureOnMaterial(id);
-                    //Debug.Log("Adding RT target");
                 }
 
                 bool rendered = false;
 
                 foreach (var pl in TexMGMT.Plugins)
-                    if (pl.PaintRenderTexture(stroke, id, this, pntr))
-                    {
+                    if (pl.PaintRenderTexture(stroke, id, this, pntr)) {
                         rendered = true;
                         break;
                     }

@@ -160,11 +160,8 @@ namespace Playtime_Painter
         public static PlaytimePainter currently_Painted_Object;
         public static PlaytimePainter last_MouseOver_Object;
 
-        public PlaytimePainter Paint(StrokeVector stroke, BrushConfig brush)
-        {
-            return brush.Paint(stroke, this);
-        }
-
+        public PlaytimePainter Paint(StrokeVector stroke, BrushConfig brush) => brush.Paint(stroke, this);
+        
 #if BUILD_WITH_PAINTER
         double mouseBttnTime = 0;
 

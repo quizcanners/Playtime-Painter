@@ -8,8 +8,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public static class BlitModeExtensions
-    {
+    public static class BlitModeExtensions {
         public static void KeywordSet(string name, bool to)
         {
             if (to)
@@ -23,9 +22,6 @@ namespace Playtime_Painter
             Shader.DisableKeyword(value ? iffalse : iftrue);
             Shader.EnableKeyword(value ? iftrue : iffalse);
         }
-
-
-
     }
 
     public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI
@@ -178,17 +174,14 @@ namespace Playtime_Painter
             return change;
         }
 #endif
-        public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
-        {
+        public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             Vector2 delta_uv = st.uvTo - st.uvFrom;
 
             if (delta_uv.magnitude > (0.2f + st.avgBrushSpeed * 3)) delta_uv = Vector2.zero; // This is made to avoid glitch strokes on seams
             else st.avgBrushSpeed = (st.avgBrushSpeed + delta_uv.magnitude) / 2;
 
-
             float alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
-
 
             bool worldSpace = pntr.NeedsGrid();
 
@@ -204,33 +197,26 @@ namespace Playtime_Painter
 
             st.uvFrom += delta_uv;
             st.posFrom += deltaPos;
+            
+            Blit_Functions.PaintTexture2DMethod blitMethod = null;
 
-
-            Blit_Functions.PaintTexture2DMethod pluginBlit = null;
-
-            if (pluginBlit == null && tex2DPaintPlugins != null)
+            if (blitMethod == null && tex2DPaintPlugins != null)
                 foreach (Blit_Functions.PaintTexture2DMethod p in tex2DPaintPlugins.GetInvocationList())
-                    if (p(st, alpha, id, br, pntr))
-                    {
-                        pluginBlit = p;
+                    if (p(st, alpha, id, br, pntr)) {
+                        blitMethod = p;
                         break;
                     }
 
-            if (pluginBlit == null)
-            {
-                pluginBlit = Blit_Functions.Paint;
-                pluginBlit(st, alpha, id, br, pntr);
+            if (blitMethod == null) {
+                blitMethod = Blit_Functions.Paint;
+                blitMethod(st, alpha, id, br, pntr);
             }
 
-
-            for (float i = 1; i < steps; i++)
-            {
+            for (float i = 1; i < steps; i++) {
                 st.uvFrom += delta_uv;
                 st.posFrom += deltaPos;
-                pluginBlit(st, alpha, id, br, pntr);
+                blitMethod(st, alpha, id, br, pntr);
             }
-
-
 
             pntr.AfterStroke(st);
         }
@@ -338,8 +324,7 @@ namespace Playtime_Painter
 
     }
 
-    public class BrushTypeNormal : BrushType
-    {
+    public class BrushTypeNormal : BrushType {
 
         static BrushTypeNormal _inst;
         public BrushTypeNormal() { _inst = this; }
@@ -381,11 +366,9 @@ namespace Playtime_Painter
 
 
         }
-
     }
 
-    public class BrushTypeDecal : BrushType
-    {
+    public class BrushTypeDecal : BrushType {
 
         static BrushTypeDecal _inst;
         public BrushTypeDecal() { _inst = this; }
@@ -526,8 +509,7 @@ namespace Playtime_Painter
 
     }
 
-    public class BrushTypeLazy : BrushType
-    {
+    public class BrushTypeLazy : BrushType {
 
         static BrushTypeLazy _inst;
         public BrushTypeLazy() { _inst = this; }

@@ -203,6 +203,8 @@ namespace Playtime_Painter
         public bool pixelPerfectMeshEditing = false;
         public bool useGridForBrush = false;
 
+        public bool useJobsForCPUpainting = true;
+
         public string materialsFolderName;
         public string texturesFolderName;
         public string meshesFolderName;
