@@ -5,11 +5,9 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
-    public abstract class BlitMode : PainterStuff, IEditorDropdown
-    {
+    public abstract class BlitMode : PainterStuff, IEditorDropdown {
 
         private static List<BlitMode> _allModes;
 
@@ -17,18 +15,15 @@ namespace Playtime_Painter
 
         public virtual bool supportsTransparentLayer => false;
 
-        public static List<BlitMode> AllModes
-        {
-            get
-            {
+        public static List<BlitMode> AllModes {
+            get {
                 if (_allModes == null)
                     InstantiateBrushes();
                 return _allModes;
             }
         }
 
-        public virtual bool ShowInDropdown()
-        {
+        public virtual bool ShowInDropdown() {
 
             bool CPU = BrushConfig.InspectedIsCPUbrush;
 
@@ -41,11 +36,9 @@ namespace Playtime_Painter
                 return false;
 
             return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
-                (
-                    (id.destination == TexTarget.RenderTexture) &&
+                ((id.destination == TexTarget.RenderTexture) &&
                     ((SupportedByRenderTexturePair && (id.renderTexture == null))
-                        || (SupportedBySingleBuffer && (id.renderTexture != null)))
-                );
+                        || (SupportedBySingleBuffer && (id.renderTexture != null))));
         }
 
 

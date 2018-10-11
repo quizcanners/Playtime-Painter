@@ -336,7 +336,7 @@ namespace SharedTools_Stuff
 
             return this;
         }
-
+        
         public StdEncoder TryAdd<T>(string tag, T obj)
         {
             if (obj != null)

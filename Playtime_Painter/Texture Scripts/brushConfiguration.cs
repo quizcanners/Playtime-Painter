@@ -8,45 +8,28 @@ using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
-    public static class BrushExtensions
-    {
+    public static class BrushExtensions {
+        public static bool GetFlag(this BrushMask mask, int flag) => (mask & (BrushMask)(Mathf.Pow(2, flag))) != 0;
 
-        public static bool GetFlag(this BrushMask mask, int flag)
-        {
-            return (mask & (BrushMask)(Mathf.Pow(2,flag))) != 0;
-        }
-
-        public static bool GetFlag(this BrushMask mask, BrushMask flag)
-        {
-            return (mask & flag) != 0;
-        }
+        public static bool GetFlag(this BrushMask mask, BrushMask flag) => (mask & flag) != 0;
     }
 
-   
-
-    public enum DecalRotationMethod
-    {
-        Set, Random, StrokeDirection
-    }
+    public enum DecalRotationMethod { Set, Random, StrokeDirection }
 
     [Serializable]
-    public class BrushConfig : PainterStuff_STD , IPEGI
+    public class BrushConfig : PainterStuff_STD, IPEGI
     {
 
         public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
         public static BrushConfigPEGIplugin brushConfigPegies;
 
         #region Encode Decode
-        public override StdEncoder Encode()
-        {
-            StdEncoder cody = new StdEncoder();
+        public override StdEncoder Encode() {
 
-            // No use for this one yet
-
-            Debug.Log("Brush is saved trough serializarion at the moment, but there is a function to provide stroke data");
+            StdEncoder cody = new StdEncoder()
+                .Add_Abstract("dyn", brushDynamic);
 
             return cody;
         }
@@ -79,7 +62,7 @@ namespace Playtime_Painter
             if (useMask)
                 cody.Add("mask", (int)mask);
 
-                cody.Add("bc", colorLinear);
+            cody.Add("bc", colorLinear);
 
             if (mode.UsingSourceTexture)
                 cody.Add("source", selectedSourceTexture);
@@ -142,7 +125,8 @@ namespace Playtime_Painter
 
                 case "hard": Hardness = data.ToFloat(); break;
                 case "speed": speed = data.ToFloat(); break;
-                // case "smooth": Smooth= data.ToBool(); break;
+                case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
+
                 case "maskOff": maskOffset = data.ToVector2(); break;
                 default: return false;
             }
@@ -155,7 +139,7 @@ namespace Playtime_Painter
         #region Brush Mask
         public void MaskToggle(BrushMask flag) =>
             mask ^= flag;
-        
+
 
         public void MaskSet(BrushMask flag, bool to)
         {
@@ -170,23 +154,23 @@ namespace Playtime_Painter
 
         #region Modes & Types
         public int _bliTMode;
-        public int _type (bool CPU) => CPU ? inCPUtype : inGPUtype;
-        public void TypeSet (bool CPU, BrushType t ) { if (CPU) inCPUtype = t.index; else  inGPUtype = t.index; }
+        public int _type(bool CPU) => CPU ? inCPUtype : inGPUtype;
+        public void TypeSet(bool CPU, BrushType t) { if (CPU) inCPUtype = t.index; else inGPUtype = t.index; }
         public int inGPUtype;
         public int inCPUtype;
 
         public BrushType Type(PlaytimePainter pntr) => pntr == null ? Type(TargetIsTex2D) : Type(pntr.ImgData.TargetIsTexture2D());
-        
+
         public BrushType Type(bool CPU) => BrushType.AllTypes[_type(CPU)];
-        
+
         public BlitMode BlitMode { get { return BlitMode.AllModes[_bliTMode]; } set { _bliTMode = value.index; } }
 
         #endregion
 
-        public void SetSupportedFor (bool CPU, bool RTpair) {
+        public void SetSupportedFor(bool CPU, bool RTpair) {
             if (!CPU) {
                 if (RTpair) {
-                    if (!Type(CPU).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { TypeSet(CPU,t); break; } }
+                    if (!Type(CPU).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { TypeSet(CPU, t); break; } }
                     if (!BlitMode.SupportedByRenderTexturePair) foreach (var t in BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { BlitMode = t; break; } }
                 } else
                 {
@@ -219,11 +203,15 @@ namespace Playtime_Painter
         public bool flipMaskAlpha = false;
         public bool TargetIsTex2D = false;
 
+        public bool useBrushDynamic = false;
+
+        public BrushDynamic brushDynamic;
+
         public float Brush3D_Radius = 16;
         public float Brush2D_Radius = 16;
 
-        public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius); 
-        
+        public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius);
+
         public virtual bool IsA3Dbrush(PlaytimePainter pntr)
         {
             bool overrideOther = false;
@@ -242,7 +230,7 @@ namespace Playtime_Painter
 
             return isA3d;
         }
-        
+
         public float speed = 10;
         public bool MB1ToLinkPositions;
         public bool DontRedoMipmaps;
@@ -258,11 +246,11 @@ namespace Playtime_Painter
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
 
-        public bool PaintingAllChannels => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A); 
+        public bool PaintingAllChannels => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A);
 
-        public bool PaintingRGB => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A)); 
-        
-        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr)  {
+        public bool PaintingRGB => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A));
+
+        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr) {
 
             var id = pntr.ImgData;
 
@@ -271,7 +259,7 @@ namespace Playtime_Painter
                 id = pntr.ImgData;
                 if (id == null) return pntr;
             }
-            
+
             var cpu = id.TargetIsTexture2D();
             var t = Type(cpu);
 
@@ -296,22 +284,22 @@ namespace Playtime_Painter
                         rendered = true;
                         break;
                     }
-                        
+
                 if ((pntr.terrain != null) && (!t.SupportedForTerrain_RT))
                     return pntr;
-              
-                    pntr.RecordingMGMT();
+
+                pntr.RecordingMGMT();
 
                 if (!rendered)
                     t.PaintRenderTexture(pntr, this, stroke);
             }
-            
+
             return pntr;
         }
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D; 
+        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
 #if PEGI
         public bool Mode_Type_PEGI()
         {
@@ -324,7 +312,7 @@ namespace Playtime_Painter
 
             _inspectedBrush = this;
             bool changed = false;
-            
+
             pegi.newLine();
 
             Msg.BlitMode.Write("How final color will be calculated", 80);
@@ -345,28 +333,28 @@ namespace Playtime_Painter
             bool overrideBlitModePegi = false;
 
             if (brushConfigPegies != null)
-            foreach (BrushConfigPEGIplugin pl in brushConfigPegies.GetInvocationList())
-                changed |= pl(ref overrideBlitModePegi, this).nl();
-               
+                foreach (BrushConfigPEGIplugin pl in brushConfigPegies.GetInvocationList())
+                    changed |= pl(ref overrideBlitModePegi, this).nl();
+
 
             if (p != null)
-            foreach (var pl in p.plugins)
-                if (pl.BrushConfigPEGI().nl())
-                {
-                    pl.SetToDirty();
-                    changed = true;
-                }
+                foreach (var pl in p.plugins)
+                    if (pl.BrushConfigPEGI().nl())
+                    {
+                        pl.SetToDirty();
+                        changed = true;
+                    }
 
             changed |= Type(CPU).Inspect().nl();
 
             if (!overrideBlitModePegi)
-            changed |= BlitMode.PEGI();
+                changed |= BlitMode.PEGI();
 
             _inspectedBrush = null;
 
             return changed;
         }
-        
+
         public bool Targets_PEGI()
         {
             bool changed = false;
@@ -384,18 +372,18 @@ namespace Playtime_Painter
             if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45))
             {
                 changed = true;
-                TypeSet(TargetIsTex2D,  smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                TypeSet(TargetIsTex2D, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
             }
 
             return changed;
         }
 
-        public virtual bool Inspect()  {
+        public virtual bool Inspect() {
 
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
             if (p == null) { "No Painter Detected".nl(); return false; }
-            
+
             if ((p.skinnedMeshRendy != null) && ("Update Collider from Skinned Mesh".Click()))
                 p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
@@ -429,7 +417,7 @@ namespace Playtime_Painter
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
                 {
                     changed = true;
-                    TypeSet(cpuBlit,  smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                    TypeSet(cpuBlit, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
                 }
             }
 
@@ -452,7 +440,7 @@ namespace Playtime_Painter
                 changed = true;
             }
 
-            if (p.terrain != null)  {
+            if (p.terrain != null) {
 
                 if ((p.ImgData != null) && ((p.IsTerrainHeightTexture())) && (p.IsOriginalShader))
                     pegi.writeWarning(" You need to use Preview Shader to see changes");
@@ -490,18 +478,18 @@ namespace Playtime_Painter
                 if (mat != null) {
                     var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + m.ToString(), false, null);
                     if (tag != null && tag.Length > 0) {
-                       
+
                         if (maskVal)
-                            (tag+":").nl();
+                            (tag + ":").nl();
                         else
-                            letter = tag+" ";
+                            letter = tag + " ";
                     }
 
-                    
+
                 }
 
             }
-            
+
             if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal)) {
                 MaskToggle(m);
                 changed = true;
@@ -524,7 +512,7 @@ namespace Playtime_Painter
             bool changed = false;
 
             Color col = colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl())  {
+            if (pegi.edit(ref col).nl()) {
                 colorLinear.From(col);
                 changed = true;
             }
@@ -539,11 +527,11 @@ namespace Playtime_Painter
             return changed;
         }
 
-        bool ColorSliders( ) {
+        bool ColorSliders() {
 
             if (!Cfg.showColorSliders)
                 return false;
-                
+
 
             bool changed = false;
             PlaytimePainter painter = PlaytimePainter.inspectedPainter;
@@ -584,5 +572,31 @@ namespace Playtime_Painter
 #endif
         #endregion
     }
+    
+
+    public class BrushDynamicAttribute : TaggedTypeHolder  {
+        public override TaggedTypes_STD TaggedTypes => BrushDynamic.all;
+    }
+
+    [BrushDynamic]
+    public abstract class BrushDynamic : Abstract_STD, IGotClassTag {
+        public abstract string ClassTag { get; }
+
+        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(BrushDynamic));
+        public TaggedTypes_STD AllTypes => all;
+    }
+
+    #region Size to Speed Dynamic
+    [TaggedType(classTag, "Size from Speed")]
+    public class SpeedToSize : BrushDynamic {
+        const string classTag = "sts";
+
+        public override string ClassTag => classTag;
+
+        public override bool Decode(string tag, string data) => true;
+
+        public override StdEncoder Encode() => new StdEncoder();
+    }
+    #endregion
 
 }

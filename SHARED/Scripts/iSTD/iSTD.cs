@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using SharedTools_Stuff;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,8 +11,7 @@ using UnityEditor;
 // This interface works for simple data and for complex classes
 // Usually the base class for comples classes will have 
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
 
     public interface ISTD {
         StdEncoder Encode(); 
@@ -19,8 +19,7 @@ namespace SharedTools_Stuff
         bool Decode(string tag, string data);
     }
 
-    #region Nested
-    
+
     ///<summary>For runtime initialization.
     ///<para> Best used on Scriptable Objects. They don't loose references. Prefabs needs to be updated and scenes saved to keep any references</para>
     ///<seealso cref="StdEncoder"/>
@@ -30,28 +29,19 @@ namespace SharedTools_Stuff
         int GetISTDreferenceIndex(UnityEngine.Object obj);
         T GetISTDreferenced<T>(int index) where T: UnityEngine.Object;
     }
-    
+
+    #region EnumeratedTypeList
     ///<summary>For runtime initialization.
     ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
     ///<seealso cref="StdEncoder"/>
     ///</summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class DerrivedListAttribute : Attribute
-    {
+    public class DerrivedListAttribute : Attribute {
         public readonly List<Type> derrivedTypes;
         public DerrivedListAttribute(params Type[] ntypes) {
             derrivedTypes = new List<Type>(ntypes);
         }
     }
-
-    public interface IAttributeWithTaggetTypes_STD {
-        Type GetType(string tag);
-
-        List<string> AllTags();
-    }
-
-
-
     #endregion
 
     #region Unrecognized Tags Persistance
@@ -449,20 +439,13 @@ namespace SharedTools_Stuff
 
     public static class STDExtensions {
 
-        public static IAttributeWithTaggetTypes_STD TryGetTaggetClasses(this Type type) {
+        public static TaggedTypes_STD TryGetTaggetClasses(this Type type) {
 
-            if (type.IsClass) {
-                var attrs = type.GetCustomAttributes(typeof(IAttributeWithTaggetTypes_STD),true);
-                if (attrs.Length > 0) {
-                    foreach (var a in attrs)
-                    {
-                        var att = a as IAttributeWithTaggetTypes_STD;
-                        if (att != null) {
-                            if (att.AllTags() != null && att.AllTags().Count > 0)
-                            return att;
-                        }
-                    }
-                }
+            if (typeof(IGotClassTag).IsAssignableFrom(type)) {
+
+                var attrs = type.GetCustomAttributes(typeof(TaggedType),true);
+                if (attrs.Length > 0) 
+                   return (attrs[0] as TaggedTypeHolder).TaggedTypes;         
             }
 
             return null;
@@ -471,7 +454,7 @@ namespace SharedTools_Stuff
         public static List<Type> TryGetDerrivedClasses (this Type t)
         {
             List<Type> tps = null;
-            var att = t.ClassAttribute<DerrivedListAttribute>();
+            var att = t.TryGetClassAttribute<DerrivedListAttribute>();
             if (att != null)
             {
                 tps = att.derrivedTypes;

@@ -171,7 +171,7 @@ namespace SharedTools_Stuff
             return null;
         }*/
 
-        public static T ClassAttribute<T>(this Type type) where T : Attribute
+        public static T TryGetClassAttribute<T>(this Type type) where T : Attribute
         {
             T attr = null;
 
@@ -408,7 +408,7 @@ namespace SharedTools_Stuff
         
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new() => list.AddWithUniqueNameAndIndex(new T(), name);
         
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) where T : new()
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) 
         {
             list.AssignUniqueIndex(e);
             list.Add(e);
@@ -534,6 +534,12 @@ namespace SharedTools_Stuff
             return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s + "/" : s;
         }
         #endregion
+
+        public static T TryGet<T>(this Dictionary<string, T> dic, string tag) {
+            T value;
+            dic.TryGetValue(tag, out value);
+            return value;
+        }
 
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
@@ -701,7 +707,7 @@ namespace SharedTools_Stuff
             MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
             return expressionBody.Member.Name;
         }
-        
+
         /*
         public static TValue GetAttributeValue<TAttribute, TValue>(
             this Type type,
@@ -736,7 +742,9 @@ namespace SharedTools_Stuff
             return GetAllChildTypesOf<T> ();
         }*/
 
-        public static List<Type> GetAllChildTypesOf<T>()
+        public static List<Type> GetAllChildTypesOf<T>() =>
+            GetAllChildTypes(typeof(T));
+            /*
         {
             List<Type> types = new List<Type>();
             foreach (Type type in Assembly.GetAssembly(typeof(T)).GetTypes())
@@ -744,6 +752,19 @@ namespace SharedTools_Stuff
                 if (type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)) && (type != typeof(T)))
                 {
                     types.Add(type);
+                }
+            }
+            return types;
+        }*/
+
+        public static List<Type> GetAllChildTypes(this Type type)
+        {
+            List<Type> types = new List<Type>();
+            foreach (Type t in Assembly.GetAssembly(type).GetTypes())
+            {
+                if (t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type))
+                {
+                    types.Add(t);
                 }
             }
             return types;
