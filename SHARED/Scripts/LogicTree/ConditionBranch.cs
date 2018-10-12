@@ -47,8 +47,8 @@ namespace STD_Logic {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
                 case "d": description = data; break;
                 case "tag": data.DecodeInto(out targ); break;
-                case "wb": data.DecodeInto(out branches); break;
-                case "v": data.DecodeInto(out conds); break;
+                case "wb": data.DecodeInto_List(out branches); break;
+                case "v": data.DecodeInto_List(out conds); break;
                 case "insB": browsedBranch = data.ToInt(); break;
                 case "ic": browsedCondition = data.ToInt(); break;
                 default: return false;

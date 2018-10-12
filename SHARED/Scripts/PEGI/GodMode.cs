@@ -100,9 +100,8 @@ namespace PlayerAndEditorGUI {
                     SpinCenter = hit.point;
                 }
                 else return;
-
-
-                Quaternion before = camTr.transform.rotation;//cam.transform.rotation;
+                
+                Quaternion before = camTr.transform.rotation;
                 camTr.transform.LookAt(SpinCenter);
                 Vector3 rot = camTr.transform.rotation.eulerAngles;
                 camOrbit.x = rot.y;

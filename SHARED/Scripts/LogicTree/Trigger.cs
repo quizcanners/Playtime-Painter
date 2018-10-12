@@ -75,7 +75,7 @@ namespace STD_Logic
             var cody = new StdEncoder()
             .Add_String("n", name)
             .Add("u", usage)
-            .Add_IfNotEmpty("e", enm)
+            .Add("e", enm)
             .Add_Bool ("s", isStatic);
             return cody;
         }

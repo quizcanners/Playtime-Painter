@@ -1258,10 +1258,25 @@ namespace PlayerAndEditorGUI {
         static IList current_Reordered_List;
         static Type current_Reordered_Type;
         static List<Type> current_Reordered_ListTypes;
-        public static bool reorder_List<T>(List<T> l)
+        static TaggedTypes_STD current_TaggedTypes;
+        static UnnullableSTD<ElementData> elementDatas;
+        static bool keepTypeDatas = false;
+        public static bool reorder_List<T>(List<T> l, UnnullableSTD<ElementData> datas, bool keepTypeData)
         {
+            elementDatas = datas;
+            keepTypeDatas = keepTypeData;
+
+
             EditorGUI.BeginChangeCheck();
             current_Reordered_ListTypes = typeof(T).TryGetDerrivedClasses();
+
+            if (current_Reordered_ListTypes == null) {
+                current_TaggedTypes = typeof(T).TryGetTaggetClasses();
+                if (current_TaggedTypes != null)
+                    current_Reordered_ListTypes = current_TaggedTypes.Types;
+            }
+            else current_TaggedTypes = null;
+
             current_Reordered_Type = typeof(T);
             current_Reordered_List = l;
             l.GetReordable().DoLayoutList();
@@ -1274,11 +1289,10 @@ namespace PlayerAndEditorGUI {
         {
             
             var el = current_Reordered_List[index];
-         
 
-            if (el != null) {
+            if (el != null)
+            {
 
-            
                 if (el != null && current_Reordered_ListTypes != null)
                 {
                     var ty = el.GetType();
@@ -1289,7 +1303,7 @@ namespace PlayerAndEditorGUI {
                         text = el.ToPEGIstring()
                     };
 
-                 
+
 
                     var uo = el as UnityEngine.Object;
                     if (uo)
@@ -1299,8 +1313,37 @@ namespace PlayerAndEditorGUI {
                         rect.width = 100;
                         EditorGUI.LabelField(rect, cont);
                         rect.x += 100;
+                        rect.width = 130;
+
                         if (select_Type(ref ty, current_Reordered_ListTypes, rect))
-                            current_Reordered_List[index] = (el as ISTD).TryDecodeInto<object>(ty);
+                        {
+                         
+                            var ed = elementDatas.TryGet(index);
+
+                            var iTag = el as IGotClassTag;
+
+                            var std = (el as ISTD);
+
+                            if (keepTypeDatas && iTag != null && ed != null) {
+
+                                var allConfigs = ed.perTypeConfig;
+
+                                if (std != null)
+                                    allConfigs[iTag.ClassTag] = std.Encode().ToString();
+                                
+                                string data;
+
+                                if (allConfigs.TryGetValue(iTag.AllTypes.Tag(ty), out data)) {
+                                    el = Activator.CreateInstance(ty);
+                                    current_Reordered_List[index] = el;
+                                    (el as ISTD).Decode_ifNotNull(data);
+                                }
+                                else current_Reordered_List[index] = std.TryDecodeInto<object>(ty);
+
+                            }
+                            else
+                                current_Reordered_List[index] = std.TryDecodeInto<object>(ty);
+                        }
                     }
                 }
                 else
@@ -1308,9 +1351,41 @@ namespace PlayerAndEditorGUI {
                     rect.width = 200;
                     EditorGUI.LabelField(rect, el.ToPEGIstring());
                 }
-            } else
-            EditorGUI.LabelField(rect, "Empty {0}".F(current_Reordered_Type.ToPEGIstring()));
-            
+            }
+            else
+            {
+                var ed = elementDatas.TryGet(index);
+                
+                if (ed != null && ed.unrecognized) {
+
+                    if (current_TaggedTypes != null) {
+
+                        GUIContent cont = new GUIContent {
+                            tooltip = "Select New Class",
+                            text = "UNREC {0}".F(ed.unrecognizedUnderTag)
+                        };
+
+                        rect.width = 100;
+                        EditorGUI.LabelField(rect, cont);
+                        rect.x += 100;
+                        rect.width = 130;
+
+                        Type ty = null;
+
+                        if (select_Type(ref ty, current_Reordered_ListTypes, rect)) {
+                            el = Activator.CreateInstance(ty);
+                            current_Reordered_List[index] = el;
+
+                            var std = el as ISTD;
+
+                            if (std != null) 
+                                 std.Decode(ed.SetRecognized().std_dta);
+                            
+                        }
+                    }
+                } else 
+                EditorGUI.LabelField(rect, "Empty {0}".F(current_Reordered_Type.ToPEGIstring()));
+            }
         }
 
         static void AddItem(ReorderableList list)

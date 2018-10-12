@@ -328,10 +328,10 @@ namespace Playtime_Painter
         {
             switch (tag)
             {
-                case "imgs": data.DecodeInto(out imgDatas, this); break;
+                case "imgs": data.DecodeInto_List(out imgDatas, this); break;
                 case "sch": selectedColorScheme = data.ToInt(); break;
-                case "mats": data.DecodeInto(out matDatas, this); break;
-                case "pals": data.DecodeInto(out colorSchemes); break;
+                case "mats": data.DecodeInto_List(out matDatas, this); break;
+                case "pals": data.DecodeInto_List(out colorSchemes); break;
                 default: return false;
             }
             return true;

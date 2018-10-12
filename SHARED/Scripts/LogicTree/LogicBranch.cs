@@ -41,8 +41,8 @@ namespace STD_Logic
             {
                 case "name": name = data; break;
                 case "cond": conds.Decode(data); break;
-                case "sub": data.DecodeInto(out subBranches); break;
-                case "el": data.DecodeInto(out elements); break;
+                case "sub": data.DecodeInto_List(out subBranches); break;
+                case "el": data.DecodeInto_List(out elements); break;
                 case "ie": inspectedElement = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
                 case "br": inspectedBranch = data.ToInt(); break;

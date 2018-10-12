@@ -19,8 +19,7 @@ namespace Playtime_Painter {
     public enum DecalRotationMethod { Set, Random, StrokeDirection }
 
     [Serializable]
-    public class BrushConfig : PainterStuff_STD, IPEGI
-    {
+    public class BrushConfig : PainterStuff_STD, IPEGI {
 
         public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
         public static BrushConfigPEGIplugin brushConfigPegies;
@@ -184,6 +183,8 @@ namespace Playtime_Painter {
             }
         }
 
+        public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius);
+
         public float repaintDelay = 0.016f;
         public int selectedSourceTexture = 0;
         public int selectedSourceMask = 0;
@@ -203,14 +204,12 @@ namespace Playtime_Painter {
         public bool flipMaskAlpha = false;
         public bool TargetIsTex2D = false;
 
-        public bool useBrushDynamic = false;
+        public ElementData brushDunamicConfigs = new ElementData();
 
-        public BrushDynamic brushDynamic;
+        public BrushDynamic brushDynamic = null;
 
         public float Brush3D_Radius = 16;
         public float Brush2D_Radius = 16;
-
-        public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius);
 
         public virtual bool IsA3Dbrush(PlaytimePainter pntr)
         {
@@ -327,7 +326,7 @@ namespace Playtime_Painter {
 
             if (!CPU) {
                 Msg.BrushType.Write(80);
-                changed |= pegi.select<BrushType>(ref inGPUtype, BrushType.AllTypes);
+                changed |= pegi.select(ref inGPUtype, BrushType.AllTypes);
             }
 
             bool overrideBlitModePegi = false;
@@ -335,12 +334,10 @@ namespace Playtime_Painter {
             if (brushConfigPegies != null)
                 foreach (BrushConfigPEGIplugin pl in brushConfigPegies.GetInvocationList())
                     changed |= pl(ref overrideBlitModePegi, this).nl();
-
-
+            
             if (p != null)
                 foreach (var pl in p.plugins)
-                    if (pl.BrushConfigPEGI().nl())
-                    {
+                    if (pl.BrushConfigPEGI().nl()) {
                         pl.SetToDirty();
                         changed = true;
                     }
@@ -422,9 +419,14 @@ namespace Playtime_Painter {
             }
 
             pegi.newLine();
+            
+            changed |= "Brush Dynamic".selectType(90, ref brushDynamic, brushDunamicConfigs, true).nl();
+
+            if (brushDynamic != null)
+                brushDynamic.Nested_Inspect().nl();
+
 #if UNITY_EDITOR
-            if (Tools.current != Tool.None)
-            {
+            if (Tools.current != Tool.None) {
                 Msg.LockToolToUseTransform.Get().writeWarning();
                 if (Msg.HideTransformTool.Get().Click().nl())
                     PlaytimePainter.HideUnityTool();
@@ -432,8 +434,7 @@ namespace Playtime_Painter {
 #endif
 
 
-            if (Mode_Type_PEGI())
-            {
+            if (Mode_Type_PEGI()) {
                 if (Type(cpuBlit) == BrushTypeDecal.Inst)
                     MaskSet(BrushMask.A, true);
 
@@ -573,17 +574,52 @@ namespace Playtime_Painter {
         #endregion
     }
     
-
-    public class BrushDynamicAttribute : TaggedTypeHolder  {
+    public class BrushDynamicAttribute : Abstract_WithTaggedTypes  {
         public override TaggedTypes_STD TaggedTypes => BrushDynamic.all;
     }
 
     [BrushDynamic]
-    public abstract class BrushDynamic : Abstract_STD, IGotClassTag {
+    public abstract class BrushDynamic : Abstract_STD, IPEGI, IGotClassTag {
         public abstract string ClassTag { get; }
 
         public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(BrushDynamic));
         public TaggedTypes_STD AllTypes => all;
+
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
+                case "t": testValue = data.ToInt(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        public override StdEncoder Encode() => new StdEncoder().Add("t", testValue);
+
+        #region Inspector
+        int testValue = -1;
+
+#if PEGI
+        public bool Inspect()
+        {
+            bool changed = false;
+
+            changed |= "Test Value".edit(60, ref testValue).nl();
+
+            return changed;
+        }
+#endif
+        #endregion
+    }
+
+    [TaggedType(classTag, "None")]
+    public class BrushDynamic_None : BrushDynamic
+    {
+        const string classTag = "none";
+
+        public override string ClassTag => classTag;
+
+      
     }
 
     #region Size to Speed Dynamic
@@ -593,9 +629,9 @@ namespace Playtime_Painter {
 
         public override string ClassTag => classTag;
 
-        public override bool Decode(string tag, string data) => true;
+//        public override bool Decode(string tag, string data) => true;
 
-        public override StdEncoder Encode() => new StdEncoder();
+  //      public override StdEncoder Encode() => new StdEncoder();
     }
     #endregion
 

@@ -37,17 +37,15 @@ namespace SharedTools_Stuff
 
     }
 
-    public class ListPEGI_Data : Abstract_STD, IPEGI
-    {
+    public class List_Data : Abstract_STD, IPEGI {
 
         public string folderToSearch = "Assets/";
         public int inspectedElement = -1;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
-
-
+        
+        #region Inspector
 #if PEGI
         public bool Inspect() {
-
             return false;
         }
 
@@ -78,6 +76,7 @@ namespace SharedTools_Stuff
             return changed;
         }
 #endif
+        #endregion
 
         #region Encode & Decode
 
@@ -97,20 +96,66 @@ namespace SharedTools_Stuff
             .Add("ed", elementDatas)
             .Add("insp", inspectedElement)
             .Add_String("fld", folderToSearch);
+
         #endregion
 
     }
 
-    public class ElementData : Abstract_STD
-    {
-        public string name;
+    public class ElementData : Abstract_STD {
+        public string name; 
         public string componentType;
         public string std_dta;
         public string guid;
+        public bool unrecognized = false;
+        public string unrecognizedUnderTag;
+        
+        public Dictionary<string, string> perTypeConfig = new Dictionary<string, string>();
+
+        public ElementData SetRecognized() {
+            if (unrecognized) {
+                unrecognized = false;
+                unrecognizedUnderTag = null;
+                std_dta = null;
+            }
+            return this;
+        }
+
+        public void Unrecognized(string tag, string data) {
+            unrecognized = true;
+            unrecognizedUnderTag = tag;
+            std_dta = data;
+        }
 
 #if PEGI
-        public void Save<T>(T el)
-        {
+        public bool SelectType<T>(ref T obj, bool keepTypeConfig = false) where T : IGotClassTag {
+            bool changed = false;
+
+            var all = obj.GetTaggedTypes_Safe();
+            var type = obj?.GetType();
+
+            if (all == null) {
+                "No Types Holder".writeWarning();
+                return false;
+            }
+
+            if (all.select(ref type).nl())
+            {
+                if (keepTypeConfig && obj != null)
+                    perTypeConfig[obj.ClassTag] = obj.Encode().ToString();
+
+                string data = "";
+                var key = all.Tag(type);
+
+
+                perTypeConfig.TryGetValue(key, out data);
+
+                obj = data.DecodeInto_Type<T>(type);
+            }
+
+            return changed;
+        }
+
+        public void Save<T>(T el) {
             name = el.ToPEGIstring();
 
             var cmp = el as Component;
@@ -152,14 +197,15 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool Inspect<T>(ref T field) where T : UnityEngine.Object
-        {
+        public bool Inspect<T>(ref T field) where T : UnityEngine.Object {
+
+            if (unrecognized)
+                unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
 
             bool changed = name.edit(100, ref field);
 
 #if UNITY_EDITOR
-            if (guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl())
-            {
+            if (guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
                 if (!TryGetByGUID(ref field))
                     (typeof(T).ToString() + " Not found ").showNotification();
@@ -167,29 +213,37 @@ namespace SharedTools_Stuff
             }
 #endif
 
-
             return changed;
         }
 #endif
 
-        public override bool Decode(string tag, string data)
-        {
-            switch (tag)
-            {
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
                 case "n": name = data; break;
                 case "std": std_dta = data; break;
                 case "guid": guid = data; break;
                 case "t": componentType = data; break;
+                case "ur": unrecognized = data.ToBool(); break;
+                case "tag": unrecognizedUnderTag = data; break;
+                case "perType": data.DecodeInto(out perTypeConfig); break;
                 default: return false;
             }
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override StdEncoder Encode() {
+            var cody = new StdEncoder()
             .Add_String("n", name)
             .Add_String("std", std_dta)
             .Add_String("guid", guid)
-            .Add_String("t", componentType);
+            .Add_String("t", componentType)
+            .Add("perType", perTypeConfig);
+            if (unrecognized) { 
+            cody.Add_Bool("ur", unrecognized)
+            .Add_String("tag", unrecognizedUnderTag);
+            }
+            return cody;
+        }
 
     }
 

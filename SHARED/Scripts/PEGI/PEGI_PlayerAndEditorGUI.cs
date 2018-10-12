@@ -985,12 +985,48 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
+        public static bool selectType<T>(this string text, string hint, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        {
+            text.write(hint, width);
+            return selectType<T>(ref obj, ed, keepTypeConfig);
+        }
+
+        public static bool selectType<T>(this string text, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        {
+            text.write(width);
+            return selectType<T>(ref obj, ed, keepTypeConfig);
+        }
+
+        public static bool selectType<T>(this string text, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        {
+            text.write();
+            return selectType<T>(ref obj, ed, keepTypeConfig);
+        }
+
+            public static bool selectType<T>(ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag {
+
+            if (ed != null)
+                return ed.SelectType<T>(ref obj, keepTypeConfig);
+            
+            var type = obj?.GetType();
+
+            if (obj.GetTaggedTypes_Safe().select(ref type).nl()) {
+                obj = (T)Activator.CreateInstance(type);
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool select(ref int no, List<string> from)
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
-                return ef.select(ref no, from.ToArray());
+                if (from == null)
+                    return "select from null ".edit(90, ref no);
+                else
+                    return ef.select(ref no, from.ToArray());
             }
             else
 #endif
@@ -4540,7 +4576,7 @@ namespace PlayerAndEditorGUI
 
                                 write(tagTypes.DisplayNames[i]);
                                 if (icon.Create.Click().nl()) {
-                                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.Types.TryGet(k[i]));
+                                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
                                     changed = true;
                                 }
 
@@ -4621,7 +4657,7 @@ namespace PlayerAndEditorGUI
                             write(tagTypes.DisplayNames[i]);
                             if (icon.Create.Click().nl())
                             {
-                                added = (T)Activator.CreateInstance(tagTypes.Types.TryGet((k[i])));
+                                added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet((k[i])));
 
                                 lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
                                 changed = true;
@@ -4674,7 +4710,7 @@ namespace PlayerAndEditorGUI
                             write(types.DisplayNames[i]);
                             if (icon.Create.Click().nl())
                             {
-                                added = (T)Activator.CreateInstance(types.Types.TryGet(k[i]));
+                                added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
 
                                 lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
 
@@ -4855,7 +4891,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        static bool edit_List_Order<T>(this List<T> list)
+        static bool edit_List_Order<T>(this List<T> list, UnnullableSTD<ElementData> datas = null, bool keepTypeData = false)
         {
             bool changed = false;
 
@@ -4879,7 +4915,7 @@ namespace PlayerAndEditorGUI
                 if (!paintingPlayAreaGUI)
                 {
                     nl();
-                    changed |= ef.reorder_List(list);
+                    changed |= ef.reorder_List(list, datas, keepTypeData);
                 }
                 else
 #endif
@@ -5023,7 +5059,6 @@ namespace PlayerAndEditorGUI
 
         static IList listCopyBuffer = null;
         
-
         public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, UnnullableSTD<ElementData> datas = null)
         {
             bool changed = false;
@@ -5085,23 +5120,19 @@ namespace PlayerAndEditorGUI
                     {
                         Texture tex = null;
 
-                        if (uo)
-                        {
+                        if (uo) {
                             tex = uo as Texture;
                             if (tex)
                             {
-                                uo.clickHighlight(tex); //, 25);
+                                uo.clickHighlight(tex); 
                                 clickHighlightHandeled = true;
                             }
                         }
 
-                        write(el.ToPEGIstring());//, 120 + defaultButtonSize * ((uo == null ? 1 : 0) + (pg == null ? 1 : 0) + (datas == null ? 1 : 0)));
+                        write(el.ToPEGIstring());
 
                     }
                 }
-
-                //  write(el.ToPEGIstring(), 120 + defaultButtonSize*((uo == null ? 1 : 0)  + (pg == null ? 1 : 0) + (datas == null ? 1: 0)));
-
 
                 if (pg != null)
                 {
@@ -5129,7 +5160,7 @@ namespace PlayerAndEditorGUI
 
                 var dta = ExtensionsForGenericCountless.TryGet(datas, index);
                 if (std != null && dta != null && dta.std_dta != null && icon.Load.Click("Load STD", 25, 25))
-                    std.Decode(dta.std_dta); //.DecodeTagsFor(std);
+                    std.Decode(dta.std_dta); 
 
             }
 
@@ -5140,7 +5171,7 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-
+        
         public static bool clickHighlight(this UnityEngine.Object obj) =>
            obj.clickHighlight(icon.Search.GetIcon());
 
@@ -5453,7 +5484,7 @@ namespace PlayerAndEditorGUI
             return list.edit_List_Obj(ref edited);
         }
 
-        public static bool edit_List_Obj<T>(this string label, List<T> list, ListPEGI_Data ld) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this string label, List<T> list, List_Data ld) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, ld.inspectedElement);
             return list.edit_or_select_List_Obj(null, ref ld.inspectedElement, ld.elementDatas);
@@ -5612,12 +5643,18 @@ namespace PlayerAndEditorGUI
             return added;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types) {
+        public static T edit_List<T>(this string label, List<T> list, List_Data ld, ref bool changed, TaggedTypes_STD types, bool keepTypeData = false)
+        {
+            label.write_ListLabel(list, ld.inspectedElement);
+            return list.edit_List(ref ld.inspectedElement, ref changed, types, ld.elementDatas);
+        }
+
+        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types, UnnullableSTD<ElementData> datas = null, bool keepTypeData = false) {
             label.write_ListLabel(list, edited);
-            return list.edit_List(ref edited, ref changed, types);
+            return list.edit_List(ref edited, ref changed, types, datas);
         }
         
-        public static T edit_List<T>(this List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types) {
+        public static T edit_List<T>(this List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types, UnnullableSTD<ElementData> datas = null, bool keepTypeData = false) {
 
             T added = default(T);
 
@@ -5634,7 +5671,7 @@ namespace PlayerAndEditorGUI
 
             if (edited == -1) {
 
-                changed |= list.edit_List_Order();
+                changed |= list.edit_List_Order(datas, keepTypeData);
 
                 if (list != editingOrder) {
  
@@ -5651,7 +5688,7 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited, datas);
 
                         newLine();
                     }

@@ -122,7 +122,7 @@ namespace Playtime_Painter
             switch (tag)
             {
                 case "n": name = data; break;
-                case "sln":  data.DecodeInto(out sln); break;
+                case "sln":  data.DecodeInto_List(out sln); break;
                 default: return false;
             }
             return true;
@@ -493,7 +493,7 @@ namespace Playtime_Painter
             switch (tag) {
                 case "en": enabled = data.ToBool();  break;
                 case "t": targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
-                case "vals": data.DecodeInto(out vals); sameSizeDataIndex = -1; break;
+                case "vals": data.DecodeInto_List(out vals); sameSizeDataIndex = -1; break;
                 case "sameSize": sameSizeDataIndex = data.ToInt(); InitVals(); break;
 
                 default: return false;

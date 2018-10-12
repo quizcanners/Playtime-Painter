@@ -430,16 +430,16 @@ namespace Playtime_Painter
                             shared_v2s.Last()[0] = data.ToVector2(); break;
                 case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
                 case "uvs": currentlyDecoded = this;
-                    data.DecodeInto(out uvpoints);
+                    data.DecodeInto_List(out uvpoints);
                     break;
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": SmoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
-                case "bw": data.DecodeInto(out boneWeight); //ToBoneWeight();
+                case "bw": boneWeight = data.ToBoneWeight(); 
                     break;
-                case "biP":  data.DecodeInto(out bindPoses);  break;
+                case "biP": bindPoses = data.ToMatrix4x4();  break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
-                case "bs": data.DecodeInto(out shapes); break;
+                case "bs": data.DecodeInto_ListOfList(out shapes); break;
                 case "gr": vertexGroup = data.ToInt(); break;
                 default: return false;
             }

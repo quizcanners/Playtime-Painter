@@ -6,44 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Globalization;
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
 
     public static class DecodeExtensions {
 
-        public static void ToAssetByGUID<T>(this string data, ref T val) where T : UnityEngine.Object
-        {
-            var ass = UnityHelperFunctions.GUIDtoAsset<T>(data);
-            if (ass)
-                val = ass;
-        }
-
+        #region Non-Instancible
         public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
-      
-        public static void DecodeInto(this string data, out BoneWeight b) {
-            var cody = new StdDecoder(data);
-             b = new BoneWeight();
 
-            foreach (var tag in cody)
-            {
-                var d = cody.GetData();
-                switch (tag)
-                {
-                    case "i0": b.boneIndex0 = d.ToInt(); break;
-                    case "w0": b.weight0 = d.ToFloat(); break;
-
-                    case "i1": b.boneIndex1 = d.ToInt(); break;
-                    case "w1": b.weight1 = d.ToFloat(); break;
-
-                    case "i2": b.boneIndex2 = d.ToInt(); break;
-                    case "w2": b.weight2 = d.ToFloat(); break;
-
-                    case "i3": b.boneIndex3 = d.ToInt(); break;
-                    case "w3": b.weight3 = d.ToFloat(); break;
-                }
-            }
-        }
-        
         public static void DecodeInto(this string data, Transform tf)
         {
 
@@ -85,10 +54,40 @@ namespace SharedTools_Stuff
                 }
             }
         }
+        #endregion
 
-        public static void DecodeInto (this string data, out Matrix4x4 m) {
+        #region To Value Type
+
+        public static BoneWeight ToBoneWeight(this string data)
+        {
             var cody = new StdDecoder(data);
-             m = new Matrix4x4();
+            var b = new BoneWeight();
+
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "i0": b.boneIndex0 = d.ToInt(); break;
+                    case "w0": b.weight0 = d.ToFloat(); break;
+
+                    case "i1": b.boneIndex1 = d.ToInt(); break;
+                    case "w1": b.weight1 = d.ToFloat(); break;
+
+                    case "i2": b.boneIndex2 = d.ToInt(); break;
+                    case "w2": b.weight2 = d.ToFloat(); break;
+
+                    case "i3": b.boneIndex3 = d.ToInt(); break;
+                    case "w3": b.weight3 = d.ToFloat(); break;
+                }
+            }
+            return b;
+        }
+
+        public static Matrix4x4 ToMatrix4x4(this string data)
+        {
+            var cody = new StdDecoder(data);
+            var m = new Matrix4x4();
 
             foreach (var tag in cody)
             {
@@ -119,7 +118,7 @@ namespace SharedTools_Stuff
                     default: Debug.Log("Uncnown component: " + tag); break;
                 }
             }
-           // return m;
+            return m;
         }
 
         public static Quaternion ToQuaternion(this string data)
@@ -129,7 +128,7 @@ namespace SharedTools_Stuff
 
             Quaternion q = new Quaternion();
 
-            foreach  (var tag in cody)
+            foreach (var tag in cody)
             {
                 var d = cody.GetData();
                 switch (tag)
@@ -143,7 +142,7 @@ namespace SharedTools_Stuff
             }
             return q;
         }
-        
+
         public static Vector4 ToVector4(this string data) {
 
             StdDecoder cody = new StdDecoder(data);
@@ -153,17 +152,17 @@ namespace SharedTools_Stuff
             foreach (var tag in cody)
             {
                 var d = cody.GetData();
-                switch (tag) { 
+                switch (tag) {
                     case "x": v4.x = d.ToFloat(); break;
                     case "y": v4.y = d.ToFloat(); break;
                     case "z": v4.z = d.ToFloat(); break;
                     case "w": v4.w = d.ToFloat(); break;
-                    default: Debug.Log("Uncnown component: "+tag); break;
+                    default: Debug.Log("Uncnown component: " + tag); break;
                 }
             }
             return v4;
         }
-        
+
         public static Vector3 ToVector3(this string data) {
 
             StdDecoder cody = new StdDecoder(data);
@@ -218,8 +217,7 @@ namespace SharedTools_Stuff
             }
             return rect;
         }
-        
-        // Integer
+
         public static bool ToBool(this string data) {
             return data == "y";
         }
@@ -231,7 +229,7 @@ namespace SharedTools_Stuff
 
             return variable;
             //return Convert.ToInt32(data); //int.Parse(data);
-        
+
         }
 
         public static uint ToUInt(this string data) {
@@ -239,15 +237,43 @@ namespace SharedTools_Stuff
             uint.TryParse(data, out value);
             return value;
         }
-        
-        // Float
+
         public static float ToFloat(this string data) {
             float val;
-                float.TryParse(data, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat,out val);
+            float.TryParse(data, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out val);
             return val;
         }
-        
-        // List (base type)
+
+        public static LinearColor ToLinearColor(this string data)
+        {
+            LinearColor lc = new LinearColor();
+            lc.Decode(data);
+            return lc;
+        }
+
+        public static Color ToColor(this string data)
+        {
+            var cody = new StdDecoder(data);
+            Color c = new Color();
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+                switch (tag)
+                {
+                    case "r": c.r = d.ToFloat(); break;
+                    case "g": c.g = d.ToFloat(); break;
+                    case "b": c.b = d.ToFloat(); break;
+                    case "a": c.a = d.ToFloat(); break;
+                    default:
+                        cody.GetData(); break;
+                }
+            }
+
+            return c;
+        }
+        #endregion
+
+        #region To List Of Value Type
         public static List<string> DecodeInto(this string data, out List<string> l)
         {
 
@@ -257,11 +283,11 @@ namespace SharedTools_Stuff
 
             foreach (var tag in cody)
                 l.Add(cody.GetData());
-            
+
             return l;
         }
 
-        public static List<int> DecodeInto (this string data, out List<int> l ) {
+        public static List<int> DecodeInto(this string data, out List<int> l) {
 
             l = new List<int>();
 
@@ -269,7 +295,7 @@ namespace SharedTools_Stuff
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToInt());
-            
+
             return l;
         }
 
@@ -282,7 +308,7 @@ namespace SharedTools_Stuff
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToFloat());
-            
+
 
             return l;
         }
@@ -290,13 +316,13 @@ namespace SharedTools_Stuff
         public static List<uint> DecodeInto(this string data, out List<uint> l)
         {
 
-             l = new List<uint>();
+            l = new List<uint>();
 
             StdDecoder cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToUInt());
-            
+
 
             return l;
         }
@@ -314,10 +340,271 @@ namespace SharedTools_Stuff
 
             return l;
         }
+        #endregion
 
-        // Arrays
+        #region InternalDecode 
 
-        public static T[] DecodeInto<T>(this string data, out T[] l) where T : ISTD, new() {
+        static T Decode<T>(string tag, string data, TaggedTypes_STD tps, List_Data ld, int index) where T : IGotClassTag
+        {
+
+            T ret = default(T);
+
+            if (tag != StdEncoder.nullTag) {
+                var type = tps.TaggedTypes.TryGet(tag);
+                if (type != null)
+                    ret = data.DecodeInto_Type<T>(type);
+                else ld.elementDatas[index].Unrecognized(tag, data);
+
+            }
+
+            return ret;
+        }
+
+        static T Decode<T>(string tag, string data, TaggedTypes_STD tps) where T : IGotClassTag
+        {
+
+            T ret = default(T);
+
+            if (tag != StdEncoder.nullTag) {
+                var type = tps.TaggedTypes.TryGet(tag);
+                if (type != null)
+                    ret = data.DecodeInto_Type<T>(type);
+            }
+
+            return ret;
+        }
+
+
+        static T Decode<T>(string tag, string data, List<Type> tps, List_Data ld, int index) where T : ISTD, new() {
+
+            T ret = default(T);
+
+            if (tag != StdEncoder.nullTag)
+            {
+                var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+                if (type != null)
+                    ret = data.DecodeInto_Type<T>(type);
+                else
+                    ld.elementDatas[index].Unrecognized(tag, data);
+            }
+
+            return ret;
+        }
+
+        static T Decode<T>(string tag, string data, List<Type> tps) where T : ISTD, new() {
+
+            T ret = default(T);
+
+            if (tag != StdEncoder.nullTag) {
+                var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+                if (type != null)
+                    ret = data.DecodeInto_Type<T>(type);
+            }
+
+            return ret;
+        }
+
+        #endregion
+
+        #region STD List
+        public static bool TryDecodeInto_List<T>(this string data, List<T> val)
+        {
+            if (val != null) {
+                var cody = new StdDecoder(data);
+
+                while (cody.GotData) {
+                    var ind = cody.GetTag().ToIntFromTextSafe(-1);
+                    cody.GetData().TryDecodeInto(val.TryGet(ind));
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public static List<List<T>> DecodeInto_ListOfList<T>(this string data, out List<List<T>> l) where T : ISTD, new()
+        {
+            l = new List<List<T>>();
+
+            var cody = new StdDecoder(data);
+
+            while (cody.GotData) {
+                cody.GetTag();
+                List<T> el;
+                cody.GetData().DecodeInto_List(out el);
+                l.Add(el);
+            }
+
+            return l;
+        }
+
+        public static List<T> DecodeInto_List<T>(this string data, out List<T> l, List_Data ld = null) where T : ISTD, new() {
+
+            StdDecoder cody = new StdDecoder(data);
+
+            l = new List<T>();
+
+            List<Type> tps = typeof(T).TryGetDerrivedClasses();
+
+            if (tps != null && ld != null) {
+                foreach (var tag in cody)
+                    l.Add(Decode<T>(tag, cody.GetData(), tps, ld, cody.currentTagIndex));
+            }
+            else if (tps != null) {
+                foreach (var tag in cody)
+                    l.Add(Decode<T>(tag, cody.GetData(), tps));
+            }
+            else foreach (var tag in cody)
+                    l.Add(cody.GetData().DecodeInto<T>());
+
+            return l;
+        }
+
+        public static List<T> DecodeInto_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, List_Data ld = null) where T : IGotClassTag
+            => data.DecodeInto_List_Abstract(out l, tps, ld);
+        
+        public static List<T> DecodeInto_List_Abstract<T>(this string data, out List<T> l, TaggedTypes_STD tps = null, List_Data ld = null) where T : IGotClassTag
+        {
+            StdDecoder cody = new StdDecoder(data);
+
+            l = new List<T>();
+
+            if (tps == null)
+                tps = typeof(T).TryGetTaggetClasses();
+
+            if (tps != null && ld != null)
+            {
+                foreach (var tag in cody)
+                    l.Add(Decode<T>(tag, cody.GetData(), tps, ld, cody.currentTagIndex));
+            }
+            else if (tps != null)
+            {
+                foreach (var tag in cody)
+                    l.Add(Decode<T>(tag, cody.GetData(), tps));
+            }
+            else foreach (var tag in cody)
+                {
+                    var type = tps.TaggedTypes.TryGet(tag);
+                    if (type != null)
+                        l.Add(cody.GetData().DecodeInto_Type<T>(type));
+                }
+            return l;
+        }
+
+        #endregion
+
+        #region Dictionary
+        public static void DecodeInto(this string data, out Dictionary<int, string> dic)
+        {
+            var cody = new StdDecoder(data);
+
+            dic = new Dictionary<int, string>();
+
+            while (cody.GotData)
+                dic.Add(cody.GetTag().ToInt(), cody.GetData());
+
+        }
+
+        public static void DecodeInto(this string data, out Dictionary<string, string> dic)
+        {
+            var cody = new StdDecoder(data);
+
+            dic = new Dictionary<string, string>();
+
+            while (cody.GotData)
+                dic.Add(cody.GetTag(), cody.GetData());
+
+        }
+        #endregion
+
+        #region STD class
+        public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
+        {
+            if (val == null)
+                return val;
+
+            new StdDecoder(data).DecodeTagsFor(val);
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
+        {
+            val = data.DecodeInto<T>();
+            return val;
+        }
+
+        public static T DecodeInto<T>(this string data) where T : ISTD, new()
+        {
+            var obj = new T();
+            obj.Decode(data);
+            return obj;
+        }
+
+        public static bool TryDecodeInto<T>(this string data, T val) => (val as ISTD).Decode_ifNotNull(data);
+
+        public static bool Decode_ifNotNull(this ISTD istd, string data)
+        {
+            if (istd != null)
+            {
+                istd.Decode(data);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static T TryDecodeInto<T>(this string data) where T : new()
+        {
+            var obj = new T();
+            data.TryDecodeInto(obj);
+            return obj;
+        }
+
+        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD
+        {
+            T val = (T)Activator.CreateInstance(childType);
+            val.Decode(data);
+            return val;
+        }
+
+        public static T TryDecodeInto_Type<T>(this string data, Type childType)
+        {
+            T val = (T)Activator.CreateInstance(childType);
+            var std = val as ISTD;
+            if (std != null)
+                std.Decode(data); //.DecodeTagsFor(std);
+
+            return val;
+        }
+
+        public static T TryDecodeInto<T>(this ISTD ovj, Type childType)
+        {
+            T val = (T)Activator.CreateInstance(childType);
+
+            if (ovj != null)
+            {
+                var std = val as ISTD;
+
+                if (std != null)
+                    std.Decode(ovj.Encode().ToString()); //.DecodeTagsFor(std);
+            }
+
+            return val;
+        }
+        #endregion
+
+        public static void DecodeInto<T>(this string data, out T val, TaggedTypes_STD typeList) where T : IGotClassTag {
+
+            val = default(T);
+
+            var cody = new StdDecoder(data);
+
+            var type = typeList.TaggedTypes.TryGet(cody.GetTag());
+
+            if (type != null)
+                val = cody.GetData().DecodeInto_Type<T>(type);
+        }
+
+        public static T[] DecodeInto_Array<T>(this string data, out T[] l) where T : ISTD, new() {
 
             StdDecoder cody = new StdDecoder(data);
 
@@ -351,82 +638,8 @@ namespace SharedTools_Stuff
 
             return l;
         }
-
-        // STD
-        public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
-        {
-            if (val == null)
-                return val;
-            
-                new StdDecoder(data).DecodeTagsFor(val);
-            return val;
-        }
         
-        public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
-        {
-            val = data.DecodeInto<T>();
-            return val;
-        }
-
-        public static T DecodeInto<T>(this string data) where T : ISTD, new()
-        {
-            var obj = new T();
-            obj.Decode(data);
-            return obj;
-        }
-
-        public static bool TryDecodeInto<T>(this string data, T val) =>  (val as ISTD).Decode_ifNotNull(data);
-
-        public static bool Decode_ifNotNull(this ISTD istd, string data) {
-            if (istd != null)
-            {
-                istd.Decode(data);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static T TryDecodeInto<T>(this string data) where T : new()
-        {
-            var obj = new T();
-            data.TryDecodeInto(obj);
-            return obj;
-        }
-        
-        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD
-        {
-            T val = (T)Activator.CreateInstance(childType);
-            val.Decode(data);
-            return val;
-        }
-
-        public static T TryDecodeInto_Type<T>(this string data, Type childType) 
-        {
-            T val = (T)Activator.CreateInstance(childType);
-            var std = val as ISTD;
-            if (std != null)
-                std.Decode(data); //.DecodeTagsFor(std);
-
-            return val;
-        }
-
-        public static T TryDecodeInto<T>(this ISTD ovj, Type childType) 
-        {
-            T val = (T)Activator.CreateInstance(childType);
-
-            if (ovj != null)
-            {
-                var std = val as ISTD;
-
-                if (std != null)
-                    std.Decode(ovj.Encode().ToString()); //.DecodeTagsFor(std);
-            }
-
-            return val;
-        }
-        
-        // STD with references
+        #region Into Unity Objects
         static ISTD_SerializeNestedReferences keeper;
 
         public static bool TryDecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) {
@@ -471,12 +684,12 @@ namespace SharedTools_Stuff
             return false;
         }
 
-       public static List<T> DecodeInto<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
+       public static List<T> DecodeInto_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, List_Data ld = null) where T : ISTD, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
 
-            data.DecodeInto(out val);
+            data.DecodeInto_List(out val, ld);
 
             keeper = prevKeeper;
 
@@ -509,123 +722,23 @@ namespace SharedTools_Stuff
             }
             return list;
         }
-        
-            // ToListOfSTD
-        public static bool TryDecodeInto<T>(this string data, List<T> val) 
+
+        public static void ToAssetByGUID<T>(this string data, ref T val) where T : UnityEngine.Object
         {
-            if (val != null)
-            {
-
-                var cody = new StdDecoder(data);
-
-                while (cody.GotData)
-                {
-                    var ind = cody.GetTag().ToIntFromTextSafe(-1);
-                    cody.GetData().TryDecodeInto(val.TryGet(ind));
-                }
-                return true;
-            }
-            return false;
+            var ass = UnityHelperFunctions.GUIDtoAsset<T>(data);
+            if (ass)
+                val = ass;
         }
+        #endregion
 
-        public static List<List<T>> DecodeInto<T>(this string data, out List<List<T>> l) where T : ISTD, new()
-        {
-            l = new List<List<T>>();
-
-            var cody = new StdDecoder(data);
-
-            while (cody.GotData) {
-                cody.GetTag();
-                List<T> el;
-                cody.GetData().DecodeInto(out el);
-                l.Add(el);
-            }
-
-            return l;
-        }
-
-        public static List<T> DecodeInto<T>(this string data, out List<T> l) where T : ISTD, new() {
-
-            StdDecoder cody = new StdDecoder(data);
-
-             l = new List<T>();
-
-            List<Type> tps = typeof(T).TryGetDerrivedClasses();
-
-            foreach (var tag in cody)
-            {
-                var d = cody.GetData();
-
-                var isNull = tag == StdEncoder.nullTag;
-                if (isNull)
-                    l.Add(default(T));
-                else
-                {
-                    if (tps != null)
-                    {
-                        var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
-                        if (type == null)
-                        {
-                            type = tps[0];
-                            #if UNITY_EDITOR
-                                Debug.Log("Couldn't decode class no: " + tag + " for " + typeof(T).ToString());
-                            #endif
-                        }
-
-                        if (type != null)
-                            l.Add(d.DecodeInto_Type<T>(type));
-                    }
-                    else {
-                        l.Add(d.DecodeInto<T>()); 
-                    }
-                }
-                
-            }
-            
-
-            return l;
-        }
-
-        public static void DecodeInto(this string data, out Dictionary<int, string> dic) {
-            var cody = new StdDecoder(data);
-
-            dic = new Dictionary<int, string>();
-
-            while (cody.GotData)
-                dic.Add(cody.GetTag().ToInt(), cody.GetData());
-            
-        }
-        
-        public static LinearColor ToLinearColor(this string data) {
-            LinearColor lc = new LinearColor();
-            lc.Decode(data);
-            return lc;
-        }
-
-        public static Color ToColor(this string data) {
-            var cody = new StdDecoder(data);
-            Color c = new Color();
-            foreach (var tag in cody)
-            {
-                var d = cody.GetData();
-                switch (tag)
-                {
-                    case "r": c.r = d.ToFloat(); break;
-                    case "g": c.g = d.ToFloat(); break;
-                    case "b": c.b = d.ToFloat(); break;
-                    case "a": c.a = d.ToFloat(); break;
-                    default:
-                        cody.GetData(); break;
-                }
-            }
-
-            return c;
-        }
-        
     }
-
+    
 
     public class StdDecoder   {
+
+        public static char Splitter => StdEncoder.splitter;
+        public static string NullTag => StdEncoder.nullTag;
+        public static string UnrecognizedTag => StdEncoder.unrecognizedTag;
 
         public delegate bool DecodeDelegate(string tag, string data);
 
@@ -650,17 +763,21 @@ namespace SharedTools_Stuff
 
             var unrec = (storyComponent as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
 
-            if (unrec == null)
-                foreach (var tag in this)
-                    storyComponent.Decode(tag, GetData());
-            else
-                foreach (var tag in this)
-                {
-                    var d = GetData();
-                    if (!storyComponent.Decode(tag, d))
-                        unrec.Add(tag, d);
-                }
-
+            try {
+                if (unrec == null)
+                    foreach (var tag in this)
+                        storyComponent.Decode(tag, GetData());
+                else
+                    foreach (var tag in this)
+                    {
+                        var d = GetData();
+                        if (!storyComponent.Decode(tag, d))
+                            unrec.Add(tag, d);
+                    }
+            } catch (Exception ex) {
+                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, storyComponent, ex));
+            }
+            
             return storyComponent;
         }
 
@@ -673,7 +790,7 @@ namespace SharedTools_Stuff
             return data.Substring(start, position - start - 1);
         }
 
-        public bool GotData { get { return position < data.Length; } }
+        public bool GotData => position < data.Length; 
 
         public string GetTag()
         {
@@ -691,6 +808,8 @@ namespace SharedTools_Stuff
             expectingGetData = true;
 
             _currentTag = ToNextSplitter();
+
+            currentTagIndex++;
 
             return _currentTag;
         }
@@ -712,13 +831,16 @@ namespace SharedTools_Stuff
 
         string _currentTag;
 
+        public int currentTagIndex = 0;
+
         public IEnumerator<string> GetEnumerator()
         {
+            currentTagIndex = 0;
             while (NextTag())
                 yield return _currentTag;
         }
 
-        public bool NextTag()
+        bool NextTag()
         {
             if (expectingGetData)
                 GetData();

@@ -476,6 +476,43 @@ namespace SharedTools_Stuff
 
         #endregion
 
+        #region Dictionaries
+
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TValue : new()
+        {
+            TValue val;
+
+            if (!dict.TryGetValue(key, out val))
+            {
+                val = new TValue();
+                dict.Add(key, val);
+            }
+
+            return val;
+        }
+
+        public static T TryGet<T>(this Dictionary<string, T> dic, string tag)
+        {
+            T value;
+            dic.TryGetValue(tag, out value);
+            return value;
+        }
+
+        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
+        {
+            string value;
+            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
+            {
+                dic.Remove(before);
+                dic.Add(now, value);
+                return true;
+            }
+            return false;
+        }
+
+
+        #endregion
+
         #region String Editing
         public static string ToStringShort(this Vector3 v)
         {
@@ -535,23 +572,6 @@ namespace SharedTools_Stuff
         }
         #endregion
 
-        public static T TryGet<T>(this Dictionary<string, T> dic, string tag) {
-            T value;
-            dic.TryGetValue(tag, out value);
-            return value;
-        }
-
-        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
-        {
-            string value;
-            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
-            {
-                dic.Remove(before);
-                dic.Add(now, value);
-                return true;
-            }
-            return false;
-        }
 
         public static bool IsDefaultOrNull<T>(this T obj)
         {

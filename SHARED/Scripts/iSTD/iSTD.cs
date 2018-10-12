@@ -18,7 +18,7 @@ namespace SharedTools_Stuff {
         ISTD Decode(string data);
         bool Decode(string tag, string data);
     }
-
+    
 
     ///<summary>For runtime initialization.
     ///<para> Best used on Scriptable Objects. They don't loose references. Prefabs needs to be updated and scenes saved to keep any references</para>
@@ -435,17 +435,30 @@ namespace SharedTools_Stuff {
         
     }
 
-#endregion
+    #endregion
 
+    #region Extensions
     public static class STDExtensions {
+
+        public static TaggedTypes_STD GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag {
+            if (obj != null)
+                return obj.AllTypes;
+            else
+                return typeof(T).TryGetTaggetClasses();
+        } 
 
         public static TaggedTypes_STD TryGetTaggetClasses(this Type type) {
 
             if (typeof(IGotClassTag).IsAssignableFrom(type)) {
 
-                var attrs = type.GetCustomAttributes(typeof(TaggedType),true);
-                if (attrs.Length > 0) 
-                   return (attrs[0] as TaggedTypeHolder).TaggedTypes;         
+                var attrs = type.GetCustomAttributes(typeof(Abstract_WithTaggedTypes), true);
+                if (attrs.Length > 0)
+                    return (attrs[0] as Abstract_WithTaggedTypes).TaggedTypes;
+
+                else
+                    if (Debug.isDebugBuild)
+                    Debug.Log("{0} does not have Abstract_WithTaggedTypes Attribute");
+
             }
 
             return null;
@@ -561,4 +574,5 @@ namespace SharedTools_Stuff {
         public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) => ur.UnrecognizedSTD.GetAll();
   
     }
+    #endregion
 }

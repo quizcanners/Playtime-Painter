@@ -950,7 +950,7 @@ namespace SharedTools_Stuff {
             switch (tag) {
 
                 case "inds": data.DecodeInto(out tmpDecodeInds); break;
-                case "vals": List<T> tmps; data.DecodeInto(out tmps);
+                case "vals": List<T> tmps; data.DecodeInto_List(out tmps);
                     for (int i = 0; i < tmps.Count; i++) {
                         var tmp = tmps[i];
                         if (!tmp.Equals(default(T))) 
@@ -1585,7 +1585,7 @@ namespace SharedTools_Stuff {
         {
             List<T> el; 
             int index = tag.ToInt();
-            this[index] = data.DecodeInto(out el);
+            this[index] = data.DecodeInto_List(out el);
             return true;
         }
 
