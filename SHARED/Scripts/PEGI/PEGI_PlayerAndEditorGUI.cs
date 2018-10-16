@@ -983,6 +983,21 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static bool selectEnum<T>(this string text, string tip, int width, ref int eval) {
+            write(text, tip, width);
+            return selectEnum<T>(ref eval);
+        }
+
+        public static bool selectEnum<T>(this string text, int width, ref int eval) {
+            write(text, width);
+            return selectEnum<T>(ref eval);
+        }
+
+        public static bool selectEnum<T>(this string text, ref int eval) {
+            write(text);
+            return selectEnum<T>(ref eval);
+        }
+
         #endregion
 
         public static bool selectType<T>(this string text, string hint, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
@@ -1003,7 +1018,7 @@ namespace PlayerAndEditorGUI
             return selectType<T>(ref obj, ed, keepTypeConfig);
         }
 
-            public static bool selectType<T>(ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag {
+        public static bool selectType<T>(ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag {
 
             if (ed != null)
                 return ed.SelectType<T>(ref obj, keepTypeConfig);
@@ -1605,6 +1620,8 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
+        
         public static bool selectEnum(ref int current, Type type)
         {
 #if UNITY_EDITOR
@@ -2523,6 +2540,23 @@ namespace PlayerAndEditorGUI
                 lbl.edit_List(list, ref inspectedElement).nl();
 
             return changed;
+        }
+
+        public static bool conditional_enter_exit_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        {
+
+            bool changed = false;
+
+            if (!canEnter && enteredOne == thisOne)
+                enteredOne = -1;
+
+            if (canEnter)
+                changed |= label.fold_enter_exit_List(list, ref inspectedElement, ref enteredOne, thisOne);
+            else
+                isFoldedOut = false;
+
+            return changed;
+
         }
 
         #endregion

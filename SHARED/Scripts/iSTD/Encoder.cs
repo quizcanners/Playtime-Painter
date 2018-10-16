@@ -312,9 +312,21 @@ namespace SharedTools_Stuff
             Add_String(tag, val ? "y" : "n");
 
         public StdEncoder Add(string tag, ISTD other) {
-            if (other != null)
-                Add(tag, other.Encode());
+            if (other != null) {
+                var safe = other as ISTD_SafeEncoding;
+                if (safe!= null) {
+                    var ll = safe.GetLoopLock();
 
+                    if (ll.Unlocked)
+                        using (ll.Lock()) {
+                            Add(tag, other.Encode());
+                        }
+                    else
+                        Debug.LogError("Infinite encoding loop detected");
+                }
+                else 
+                Add(tag, other.Encode());
+            }
             return this;
         }
         

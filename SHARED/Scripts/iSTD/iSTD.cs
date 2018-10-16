@@ -30,6 +30,11 @@ namespace SharedTools_Stuff {
         T GetISTDreferenced<T>(int index) where T: UnityEngine.Object;
     }
 
+    public interface ISTD_SafeEncoding: ISTD
+    {
+        LoopLock GetLoopLock();
+    }
+
     #region EnumeratedTypeList
     ///<summary>For runtime initialization.
     ///<para> Usage [DerrivedListAttribute(derrivedClass1, DerrivedClass2, DerrivedClass3 ...)] </para>
@@ -250,14 +255,17 @@ namespace SharedTools_Stuff {
 
     }
     
-    public abstract class Abstract_STD : ISTD
+    public abstract class Abstract_STD : ISTD_SafeEncoding
     {
-
         public abstract StdEncoder Encode();
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tag, string data);
+
+        public LoopLock GetLoopLock() => loopLock_std;
+
+        public LoopLock loopLock_std = new LoopLock();
     }
-    
+
     public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
