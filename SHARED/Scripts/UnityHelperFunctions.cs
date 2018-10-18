@@ -19,8 +19,8 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-    public static class UnityHelperFunctions
-    {
+    public static class UnityHelperFunctions {
+
         #region Timing
 
 
@@ -285,7 +285,7 @@ namespace SharedTools_Stuff
 
             return false;
         }
-        
+
         public static void Log(this string text)
         {
 
@@ -293,7 +293,7 @@ namespace SharedTools_Stuff
             UnityEngine.Debug.Log(text);
 #endif
         }
-        
+
         public static bool GetDefine(this string define)
         {
 
@@ -324,7 +324,7 @@ namespace SharedTools_Stuff
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
 #endif
         }
-        
+
         public static bool ApplicationIsAboutToEnterPlayMode(this MonoBehaviour mb)
         {
 #if UNITY_EDITOR
@@ -1588,10 +1588,9 @@ namespace SharedTools_Stuff
 
         }
 #endif
-#endregion
+        #endregion
 
-
-#region Terrain Layers
+        #region Terrain Layers
         public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
 
@@ -1669,9 +1668,118 @@ namespace SharedTools_Stuff
         }
 #endif
 #endregion
-
-#endregion
+        #endregion
     }
+
+    #region Linked Lerps
+
+    public interface IlinkedLerping {
+
+        void Portion(ref float portion, ref string dominantParameter);
+
+        void Lerp(float portion);
+    }
+
+    public class ShaderFloatValue : IlinkedLerping {
+
+        string name;
+        public float value;
+        public float targetValue;
+        public float speed;
+        bool defaultSet;
+        Material mat;
+        Renderer rendy;
+
+        public void Set(Renderer on) {
+            if (Application.isPlaying)
+                on.material.SetFloat (name, value);
+            else
+                on.sharedMaterial.SetFloat(name, value);
+        }
+
+        void Set() {
+            if (mat)
+                Set(mat);
+            else
+                Shader.SetGlobalFloat(name, value);
+        }
+        
+        void Set(Material on) => on.SetFloat(name, value);
+
+        public ShaderFloatValue(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
+            name = nname;
+            value = startingValue;
+            speed = startingSpeed;
+            mat = m;
+        }
+
+        public void LerpBySpeedTo(float dvalue, Material mat = null) => LerpBySpeedTo(dvalue, speed, mat);
+
+        public void LerpBySpeedTo(float dvalue, float nspeed, Material mat = null) {
+            speed = nspeed;
+            targetValue = dvalue;
+
+            if (!defaultSet || dvalue != value) {
+                value = MyMath.Lerp_bySpeed(value, dvalue, speed);
+                if (mat)
+                    Set(mat);
+                else
+                    Set();
+                defaultSet = true;
+            }
+        }
+
+        public void Portion(ref float portion, ref string dominantParameter) {
+
+            if (speed.SpeedToMinPortion(value-targetValue, ref portion)) 
+                dominantParameter = name;
+
+        }
+
+        public void Lerp(float portion, Renderer rendy) {
+            if (value != targetValue || !defaultSet) {
+                value = Mathf.Lerp(value, targetValue, portion);
+                Set(rendy);
+            }
+        }
+
+        public void Lerp(float portion) {
+            if (value != targetValue || !defaultSet) {
+                value = Mathf.Lerp(value, targetValue, portion);
+                Set();
+            }
+        }
+
+    }
+
+    public static class LinkedLerpingExtensions {
+
+        public static string GetMinPortion(this List<IlinkedLerping> list, ref float portion) {
+            string dom = "None (weird)";
+
+            foreach (var e in list)
+                if (e != null)
+                    e.Portion(ref portion, ref dom);
+
+            return dom;
+        }
+
+        public static void GetMinPortion (this List<IlinkedLerping> list, ref float portion, ref string dominantValue) {
+            foreach (var e in list) 
+                if (e != null)
+                    e.Portion(ref portion, ref dominantValue);
+        }
+
+        public static void Lerp(this List<IlinkedLerping> list,  float portion) {
+            foreach (var e in list)
+                if (e != null)
+                    e.Lerp(portion);
+        }
+    }
+
+    #endregion
+
+
 }
 
 

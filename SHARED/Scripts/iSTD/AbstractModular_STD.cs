@@ -27,8 +27,7 @@ namespace SharedTools_Stuff {
 
         public string displayName;
 
-        public TaggedType(string ntag, string ndisplayName = null)
-        {
+        public TaggedType(string ntag, string ndisplayName = null) {
             tag = ntag;
             displayName = ndisplayName ?? tag;
         }
@@ -36,7 +35,7 @@ namespace SharedTools_Stuff {
 
     public class TaggedTypes_STD
     {
-        Type coreType;
+        readonly Type coreType;
 
         public TaggedTypes_STD(Type type)
         {
@@ -68,17 +67,19 @@ namespace SharedTools_Stuff {
 
                 List<Type> allTypes = CsharpFuncs.GetAllChildTypes(coreType);
 
-                foreach (var t in allTypes)
-                {
+                foreach (var t in allTypes) {
                     var att = t.TryGetClassAttribute<TaggedType>();
 
-                    if (att != null)
-                    {
-                        displayNames.Add(att.displayName);
-                        keys.Add(att.tag);
-                        types.Add(t);
-                        dictionary.Add(att.tag, t);
-
+                    if (att != null) {
+                        if (dictionary.ContainsKey(att.tag)) 
+                            Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName, dictionary[att.tag].ToString(), att.tag));
+                        else
+                        {
+                            dictionary.Add(att.tag, t);
+                            displayNames.Add(att.displayName);
+                            keys.Add(att.tag);
+                            types.Add(t);
+                        }
                     }
                 }
             }

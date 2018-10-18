@@ -881,11 +881,11 @@ namespace STD_Animations
         {
             switch (tag)
             {
-                case "lpos": data.DecodeInto(out localPos); break;
-                case "lsize": data.DecodeInto(out LocalScale); break;
-                case "lrot": data.DecodeInto(out localRotation); break;
-                case "encData": data.DecodeInto(out customData); break;
-                case "shadeVal": data.DecodeInto(out shaderValue); break;
+                case "lpos": data.DecodeInto_Countless(out localPos); break;
+                case "lsize": data.DecodeInto_Countless(out LocalScale); break;
+                case "lrot": data.DecodeInto_Countless(out localRotation); break;
+                case "encData": data.DecodeInto_Countless(out customData); break;
+                case "shadeVal": data.DecodeInto_Countless(out shaderValue); break;
                 case "speed": frameSpeed = data.ToFloat(); isOverrideSpeed = true; break;
                 case "src": frameSpeedSource = (SpeedSource)data.ToInt(); break;
                 case "emt": data.DecodeInto(out emit); break;
@@ -967,10 +967,10 @@ namespace STD_Animations
         {
             if (other != null)
             {
-                other.localPos.Encode().ToString().DecodeInto(out localPos);
-                other.LocalScale.Encode().ToString().DecodeInto(out LocalScale);
-                other.localRotation.Encode().ToString().DecodeInto(out localRotation);
-                other.shaderValue.Encode().ToString().DecodeInto(out shaderValue);
+                other.localPos.Encode().ToString().DecodeInto_Countless(out localPos);
+                other.LocalScale.Encode().ToString().DecodeInto_Countless(out LocalScale);
+                other.localRotation.Encode().ToString().DecodeInto_Countless(out localRotation);
+                other.shaderValue.Encode().ToString().DecodeInto_Countless(out shaderValue);
                 other.emit.Encode().ToString().DecodeInto(out emit);
                 isOverrideSpeed = other.isOverrideSpeed;
                 frameSpeed = other.frameSpeed;

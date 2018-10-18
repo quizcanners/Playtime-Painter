@@ -1653,7 +1653,7 @@ namespace SharedTools_Stuff {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<string> c)
+        public static void DecodeInto_Countless(this string data, out Countless<string> c)
         {
             c = new Countless<string>();
             var cody = new StdDecoder(data);
@@ -1672,7 +1672,7 @@ namespace SharedTools_Stuff {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<float> c)
+        public static void DecodeInto_Countless(this string data, out Countless<float> c)
         {
             c = new Countless<float>();
             var cody = new StdDecoder(data);
@@ -1694,7 +1694,7 @@ namespace SharedTools_Stuff {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<Vector3> c)
+        public static void DecodeInto_Countless(this string data, out Countless<Vector3> c)
         {
             c = new Countless<Vector3>();
             var cody = new StdDecoder(data);
@@ -1713,7 +1713,7 @@ namespace SharedTools_Stuff {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<Quaternion> c)
+        public static void DecodeInto_Countless(this string data, out Countless<Quaternion> c)
         {
             c = new Countless<Quaternion>();
             var cody = new StdDecoder(data);
