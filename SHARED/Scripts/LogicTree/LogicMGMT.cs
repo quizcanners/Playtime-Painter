@@ -86,7 +86,7 @@ namespace STD_Logic
 
             pegi.nl();
 
-            if (!showDebug && icon.Condition.fold_enter_exit("Trigger Groups", ref inspectedLogicBranchStuff, 0))
+            if (!showDebug && icon.Condition.enter("Trigger Groups", ref inspectedLogicBranchStuff, 0))
             {
 
                 pegi.nl();

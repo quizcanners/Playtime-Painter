@@ -61,8 +61,7 @@ namespace STD_Logic
             get { return name; }
             set { name = value; }
         }
-
-        int inspectedStuff = -1;
+        
         int inspectedElement = -1;
         int inspectedBranch = -1;
 
@@ -70,12 +69,11 @@ namespace STD_Logic
         public override bool Inspect() {
             bool changed = false;
 
-            changed |= NameForElements.fold_enter_exit_List(elements, ref inspectedElement, ref inspectedStuff, 0).nl();
+            changed |= NameForElements.enter_List(elements, ref inspectedElement, ref inspectedStuff, 1).nl();
 
-            "Conditions".fold_enter_exit(ref inspectedStuff, 1).nl();
-            changed |= conds.Inspect();
+            changed |=  "Conditions".enter_Inspect(conds, ref inspectedStuff, 2).nl();
 
-            changed |= "Sub Branches".fold_enter_exit_List(subBranches, ref inspectedBranch, ref inspectedStuff, 2).nl();
+            changed |= "Sub Branches".enter_List(subBranches, ref inspectedBranch, ref inspectedStuff, 3).nl();
 
             return changed;
         }

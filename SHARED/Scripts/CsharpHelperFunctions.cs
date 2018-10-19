@@ -146,31 +146,6 @@ namespace SharedTools_Stuff
 
         #endregion
 
-
-/*
-        public static IAttributeWithTaggetTypes_STD TryGetAttributeInterface(this Type type)
-        {
-
-            if (type.IsClass)
-            {
-                var attrs = type.GetCustomAttributes(, true);
-                if (attrs.Length > 0)
-                {
-                    foreach (var a in attrs)
-                    {
-                        var att = a as IAttributeWithTaggetTypes_STD;
-                        if (att != null)
-                        {
-                            if (att.AllTags() != null && att.AllTags().Count > 0)
-                                return att;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }*/
-
         public static T TryGetClassAttribute<T>(this Type type) where T : Attribute
         {
             T attr = null;
@@ -420,8 +395,7 @@ namespace SharedTools_Stuff
             e.AssignUniqueNameIn(list);
             return e;
         }
-
-
+        
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
         {
             T item = list[oldIndex];
@@ -570,31 +544,13 @@ namespace SharedTools_Stuff
         {
             return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s + "/" : s;
         }
-        #endregion
-
-
-        public static bool IsDefaultOrNull<T>(this T obj)
-        {
-            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
-        }
-
-        public static float RoundTo(this float val, int percision)
-        {
-            return (float)Math.Round(val, percision);
-        }
-
-        public static float RoundTo6Dec(this float val)
-        {
-            return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
-        }
-
-  
-
-        public static string RemoveFirst(this string name, int index)
-        {
-            return name.Substring(index, name.Length - index);
-        }
-
+        
+        public static string RemoveFirst(this string name, int index) =>
+            name.Substring(index, name.Length - index);
+        
+        public static bool IsIncludedIn(this string sub, string big) 
+            => Regex.IsMatch(big, sub, RegexOptions.IgnoreCase);
+        
         public static int FindMostSimilarFrom(this string s, string[] t)
         {
             int mostSimilar = -1;
@@ -629,41 +585,46 @@ namespace SharedTools_Stuff
 
             // Step 1
             if (n == 0)
-            {
                 return m;
-            }
+            
 
             if (m == 0)
-            {
                 return n;
-            }
+            
 
             // Step 2
-            for (int i = 0; i <= n; d[i, 0] = i++)
-            {
-            }
+            for (int i = 0; i <= n; d[i, 0] = i++){ }
 
-            for (int j = 0; j <= m; d[0, j] = j++)
-            {
-            }
+            for (int j = 0; j <= m; d[0, j] = j++) { }
 
             // Step 3
-            for (int i = 1; i <= n; i++)
-            {
-                //Step 4
-                for (int j = 1; j <= m; j++)
-                {
-                    // Step 5
+            for (int i = 1; i <= n; i++)  
+                for (int j = 1; j <= m; j++) {
                     int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
-
-                    // Step 6
+                    
                     d[i, j] = Math.Min(
                         Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
                         d[i - 1, j - 1] + cost);
                 }
-            }
-            // Step 7
+            
             return d[n, m];
+        }
+
+        #endregion
+        
+        public static bool IsDefaultOrNull<T>(this T obj)
+        {
+            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        }
+
+        public static float RoundTo(this float val, int percision)
+        {
+            return (float)Math.Round(val, percision);
+        }
+
+        public static float RoundTo6Dec(this float val)
+        {
+            return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
         }
 
         public static void RemoveEmpty<T>(this List<T> list)
@@ -717,65 +678,15 @@ namespace SharedTools_Stuff
             return (int)(c - '0');
         }
 
-        public static bool IsIncludedIn(this string sub, string big)
-        {
-            return Regex.IsMatch(big, sub, RegexOptions.IgnoreCase);
-        }
-        
+        #region Type MGMT
         public static string GetMemberName<T>(Expression<Func<T>> memberExpression)
         {
             MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
             return expressionBody.Member.Name;
         }
 
-        /*
-        public static TValue GetAttributeValue<TAttribute, TValue>(
-            this Type type,
-            Func<TAttribute, TValue> valueSelector)
-            where TAttribute : Attribute
-        {
-            var att = type.GetCustomAttributes(
-                typeof(TAttribute), true
-            ) as TAttribute;
-            if (att != null)
-            {
-                return valueSelector(att);
-            }
-            return default(TValue);
-        }
-        */
-
-        /*
-        public static List<Type> GetTypesWithAttribute<TAttribute> (bool inherit) where TAttribute: System.Attribute{
-
-            List<Type> types = new List<Type>();
-
-            foreach (Type type in AppDomain.CurrentDomain.GetAssemblies()) {
-                if (type.IsDefined(typeof(TAttribute),inherit))
-                    types.Add(type);
-            }
-
-            return types;
-        }*/
-
-        /*public static List<Type> GetAllChildTypes<T>(this T daddy){
-            return GetAllChildTypesOf<T> ();
-        }*/
-
         public static List<Type> GetAllChildTypesOf<T>() =>
             GetAllChildTypes(typeof(T));
-            /*
-        {
-            List<Type> types = new List<Type>();
-            foreach (Type type in Assembly.GetAssembly(typeof(T)).GetTypes())
-            {
-                if (type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)) && (type != typeof(T)))
-                {
-                    types.Add(type);
-                }
-            }
-            return types;
-        }*/
 
         public static List<Type> GetAllChildTypes(this Type type)
         {
@@ -810,20 +721,7 @@ namespace SharedTools_Stuff
             }
             return types;
         }
+        #endregion
 
-
-        /*  public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs)
-          {
-              List<T> objects = new List<T>();
-              foreach (Type type in Assembly.GetAssembly(typeof(T)).GetTypes())
-              {
-                  if (type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)))
-                      objects.Add((T)Activator.CreateInstance(type, constructorArgs));
-              }
-              objects.Sort();
-              return objects;
-          }*/
-
-       
     }
 }

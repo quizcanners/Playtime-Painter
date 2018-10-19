@@ -565,6 +565,12 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add_IfNotDefault(string tag, IcanBeDefault_STD std) {
+            if (std != null && !std.isDefault)
+                Add(tag, std);
+            return this;
+        }
+
         public StdEncoder Add_IfNotEmpty(string tag, string val) {
             if ((val != null) && (val.Length > 0)) 
                 Add_String(tag, val);

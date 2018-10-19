@@ -15,9 +15,7 @@ namespace Playtime_Painter {
         public bool modifyBrightness;
         public bool colorBleed;
 
-        public override string ToString() {
-            return "Color Bleed";
-        }
+        public override string NameForPEGIdisplay => "Color Bleed";
 
         public override void OnEnable() {
             SetStuff();
@@ -26,6 +24,8 @@ namespace Playtime_Painter {
         public void SetStuff() {
             Shader.SetGlobalVector("_lightControl", new Vector4(colorBleeding, 0, 0, eyeBrightness));
         }
+
+        #region Inspector
 #if PEGI
         bool showHint;
         public override bool ConfigTab_PEGI() {
@@ -79,5 +79,6 @@ namespace Playtime_Painter {
             return changed;
         }
 #endif
+        #endregion
     }
 }

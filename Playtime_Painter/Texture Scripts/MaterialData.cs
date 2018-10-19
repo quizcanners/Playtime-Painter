@@ -53,7 +53,7 @@ namespace Playtime_Painter
 
         public MaterialData()  {   }
 
-        public string NameForPEGIdisplay() => material == null ? "Error" : material.name;
+        public string NameForPEGIdisplay => material == null ? "Error" : material.name;
 
 
 #if PEGI

@@ -123,7 +123,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public override string NameForPEGIdisplay() => name;
+        public override string NameForPEGIdisplay => name;
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {

@@ -49,6 +49,8 @@ namespace STD_Logic
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
         public abstract bool IsBoolean();
+
+        #region Inspector
 #if PEGI
         public static Trigger selectedTrig;
         public static ValueIndex selected;
@@ -93,12 +95,10 @@ namespace STD_Logic
             if (this == edited)
                 t.Inspect();
 
-            if ((pegi.nameFocused == (focusName)) && (this != edited))
-            {
+            if ((pegi.nameFocused == (focusName)) && (this != edited)) {
                 selected = this;
 
-                if (Trigger.focusIndex != index)
-                {
+                if (Trigger.focusIndex != index) {
                     Trigger.focusIndex = index;
                     Trigger.searchField = Trigger.name;
                 }
@@ -171,8 +171,9 @@ namespace STD_Logic
             return changed;
         }
 
-        public virtual string NameForPEGIdisplay() => Trigger.ToPEGIstring();
+        public virtual string NameForPEGIdisplay => Trigger.ToPEGIstring();
 #endif
+        #endregion
     }
 
     public static class ValueSettersExtensions

@@ -177,7 +177,7 @@ namespace SharedTools_Stuff
         }
 
 #if PEGI
-        public string NameForPEGIdisplay() => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
+        public string NameForPEGIdisplay => name + (count > 0 ? "[" + count + "]" : "") + (value > 0 ? " = " + value : "");
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {

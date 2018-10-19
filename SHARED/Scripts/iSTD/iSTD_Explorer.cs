@@ -30,7 +30,7 @@ namespace SharedTools_Stuff
             if ("Target Obj: ".edit(60, ref mono).nl() && mono != null)
                 ConnectSTD = mono as ISTD;
 
-            return data.PEGI(ConnectSTD);
+            return data.Inspect(ConnectSTD);
 
         }
 #endif
@@ -138,7 +138,7 @@ namespace SharedTools_Stuff
                 return false;
             }
 
-            if (all.select(ref type).nl())
+            if (all.Select(ref type).nl())
             {
                 if (keepTypeConfig && obj != null)
                     perTypeConfig[obj.ClassTag] = obj.Encode().ToString();
@@ -504,7 +504,7 @@ namespace SharedTools_Stuff
         }
 
         public static ISTD_ExplorerData inspected;
-        public bool PEGI(ISTD target)
+        public bool Inspect(ISTD target)
         {
             bool changed = false;
             inspectedSTD = target;

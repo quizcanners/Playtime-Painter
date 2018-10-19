@@ -48,7 +48,7 @@ public interface IGotName
 public interface IGotDisplayName
 {
 #if PEGI
-    string NameForPEGIdisplay();
+    string NameForPEGIdisplay { get; }
 #endif
 }
 
@@ -1025,7 +1025,7 @@ namespace PlayerAndEditorGUI
             
             var type = obj?.GetType();
 
-            if (obj.GetTaggedTypes_Safe().select(ref type).nl()) {
+            if (obj.GetTaggedTypes_Safe().Select(ref type).nl()) {
                 obj = (T)Activator.CreateInstance(type);
                 return true;
             }
@@ -2322,7 +2322,7 @@ namespace PlayerAndEditorGUI
 
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.GetIcon().foldout(text, ref selected, current);
 
-        public static bool fold_enter_exit(ref int enteredOne, int current)
+        public static bool enter(ref int enteredOne, int current)
         {
 
             if (enteredOne == current)
@@ -2338,7 +2338,28 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, ref bool state)
+        public static bool enter(this icon ico, ref int enteredOne, int thisOne)
+        {
+            bool outside = enteredOne == -1;
+
+            if (enteredOne == thisOne) {
+                if (icon.Exit.ClickUnfocus())
+                    enteredOne = -1;
+
+            }
+            else if (outside)  {
+                if (ico.ClickUnfocus())
+                    enteredOne = thisOne;
+            }
+
+         
+
+            isFoldedOut = (enteredOne == thisOne);
+
+            return isFoldedOut;
+        }
+        
+        public static bool enter(this icon ico, ref bool state)
         {
 
             if (state)
@@ -2357,7 +2378,7 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false)
+        public static bool enter(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false)
         {
 
             if (state)
@@ -2379,7 +2400,7 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
+        public static bool enter(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
             bool outside = enteredOne == -1;
 
@@ -2404,9 +2425,17 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit(this string txt, ref bool state) => icon.Enter.fold_enter_exit(txt, ref state);
+        public static bool enter(this string txt, ref bool state) => icon.Enter.enter(txt, ref state);
 
-        public static bool fold_enter_exit(this string txt, ref int enteredOne, int thisOne) => icon.Enter.fold_enter_exit(txt, ref enteredOne, thisOne);
+        public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
+
+        public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
+            if (txt.enter(ref enteredOne, thisOne))
+                return var.Nested_Inspect();
+            else if (enteredOne == -1) nl();
+
+            return false;
+        }
 
         public static bool foldout(this string txt)
         {
@@ -2433,35 +2462,35 @@ namespace PlayerAndEditorGUI
 
         public static void foldIn() => selectedFold = -1;
 
-        public static bool conditional_enter_exit(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne)
+        public static bool conditional_enter(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne)
         {
 
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
 
             if (canEnter)
-                ico.fold_enter_exit(label, ref enteredOne, thisOne);
+                ico.enter(label, ref enteredOne, thisOne);
             else
                 isFoldedOut = false;
 
             return isFoldedOut;
         }
 
-        public static bool conditional_enter_exit(this string label, bool canEnter, ref int enteredOne, int thisOne)
+        public static bool conditional_enter(this string label, bool canEnter, ref int enteredOne, int thisOne)
         {
 
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
 
             if (canEnter)
-                label.fold_enter_exit(ref enteredOne, thisOne);
+                label.enter(ref enteredOne, thisOne);
             else
                 isFoldedOut = false;
 
             return isFoldedOut;
         }
 
-        public static bool toggle_enter_exit(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed, bool showLabelWhenEntered = false)
+        public static bool toggle_enter(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed, bool showLabelWhenEntered = false)
         {
 
             if (enteredOne == -1)
@@ -2469,7 +2498,7 @@ namespace PlayerAndEditorGUI
 
 
             if (val)
-                fold_enter_exit(ref enteredOne, thisOne);
+                enter(ref enteredOne, thisOne);
             else
                 isFoldedOut = false;
 
@@ -2482,7 +2511,7 @@ namespace PlayerAndEditorGUI
             return isFoldedOut;
         }
 
-        public static bool fold_enter_exit_List_Obj<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        public static bool enter_List_Obj<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -2496,13 +2525,14 @@ namespace PlayerAndEditorGUI
             }
 
             var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+            if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, ref inspectedElement, datas).nl();
+            else if (enteredOne == -1) nl();
 
             return changed;
         }
 
-        public static bool fold_enter_exit_List_Obj<T>(this string label, List<T> list, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
+        public static bool enter_List_Obj<T>(this string label, List<T> list, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -2516,13 +2546,14 @@ namespace PlayerAndEditorGUI
             }
 
             var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+            if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, datas).nl();
+            else if (enteredOne == -1) nl();
 
             return changed;
         }
 
-        public static bool fold_enter_exit_List<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        public static bool enter_List<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
         {
 
             bool changed = false;
@@ -2536,13 +2567,14 @@ namespace PlayerAndEditorGUI
             }
 
             var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.fold_enter_exit(ref enteredOne, thisOne))
+            if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List(list, ref inspectedElement).nl();
+            else if (enteredOne == -1) nl();
 
             return changed;
         }
 
-        public static bool conditional_enter_exit_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        public static bool conditional_enter_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
         {
 
             bool changed = false;
@@ -2551,7 +2583,7 @@ namespace PlayerAndEditorGUI
                 enteredOne = -1;
 
             if (canEnter)
-                changed |= label.fold_enter_exit_List(list, ref inspectedElement, ref enteredOne, thisOne);
+                changed |= label.enter_List(list, ref inspectedElement, ref enteredOne, thisOne);
             else
                 isFoldedOut = false;
 
@@ -4553,7 +4585,7 @@ namespace PlayerAndEditorGUI
 
         static IList addingNewOptionsInspected = null;
         static string addingNewNameHolder = "New Name";
-        public static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added) where T : ScriptableObject
+        static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added) where T : ScriptableObject
         {
             if (editingOrder != null && editingOrder == lst)
                 return false;
@@ -4625,7 +4657,7 @@ namespace PlayerAndEditorGUI
 
         }
         
-        public static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
         {
             if (editingOrder != null && editingOrder == lst)
                 return false;
@@ -4710,7 +4742,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types) 
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types) 
         {
             if (editingOrder != null && editingOrder == lst)
                 return false;
@@ -4760,16 +4792,9 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        static int listInspectionIndex = -1;
 
-        //
-        /*  public static bool PEGI_InstantiateOptions<T>(this List<T> lst) where T : new()
-          {
-              T tmp = default(T);
-              return lst.PEGI_InstantiateOptions(ref tmp);
-
-          }*/
-
-        public static int listInspectionIndex = -1;
+        public static int ListInspectedIndex => listInspectionIndex;
 
         static IEnumerable<int> InspectionIndexes<T>(this List<T> list)
         {
@@ -4834,18 +4859,15 @@ namespace PlayerAndEditorGUI
 
             }
 
-            Line(Color.gray);
+            if (list.Count > 0)
+                Line(Color.gray);
 
             var cnt = list.Count;
-
-            if (cnt <= SectionSizeOptimal * 2)
-            {
-
-                if (cnt > SectionSizeOptimal)
+            
+                if (ListSectionStartIndex > 0 ||  cnt > ListSectionMax)
                 {
 
                     nl();
-
                     if (cnt > ListSectionMax)
                     {
                         if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight))
@@ -4860,25 +4882,25 @@ namespace PlayerAndEditorGUI
                 }
                 else if (list.Count > 0)
                     Line(Color.gray);
-            }
+            
         }
 
         static void write_ListLabel(this string label, IList lst, int inspected)
         {
 
-            bool couldInspect = false;
+            bool editedName = false;
 
             if (lst != null && inspected >= 0 && lst.Count > inspected)
             {
                 var el = lst[inspected];
 
-                el.Try_NameInspect(out couldInspect);
+                el.Try_NameInspect(out editedName, label);
 
-                if (!couldInspect)
-                    label = lst[inspected].ToPEGIstring();
+                if (!editedName)
+                    label = label + lst[inspected].ToPEGIstring();
             }
 
-            if (!couldInspect)
+            if (!editedName)
                 write(label, PEGI_Styles.ListLabel);
 
 
@@ -5144,10 +5166,7 @@ namespace PlayerAndEditorGUI
 
 
                 }
-                else
-                {
-
-
+                else {
                     if (uo == null && pg == null && datas == null)
                         el.ToPEGIstring().write();
                     else
@@ -5186,7 +5205,7 @@ namespace PlayerAndEditorGUI
             if (warningText != null)
                 icon.Warning.write(warningText, 25);
 
-            if (datas != null)
+           /* if (datas != null)
             {
                 var std = el as ISTD;
                 if ((datas.GetIfExists(index) != null ? icon.Save : icon.SaveAsNew).Click("Save guid, name {0}".F((std != null ? "configuration." : ".")), 25, 25))
@@ -5196,7 +5215,7 @@ namespace PlayerAndEditorGUI
                 if (std != null && dta != null && dta.std_dta != null && icon.Load.Click("Load STD", 25, 25))
                     std.Decode(dta.std_dta); 
 
-            }
+            }*/
 
             if (!clickHighlightHandeled)
                 uo.clickHighlight();
@@ -5222,7 +5241,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool TryClickHighlight(this object obj)
+        public static bool tryClickHighlight(this object obj)
         {
 #if UNITY_EDITOR
             var uo = obj as UnityEngine.Object;
@@ -5362,7 +5381,7 @@ namespace PlayerAndEditorGUI
 
             return list.edit_List_SO(ref edited, ref changed);
         }
-
+        
         public static bool edit_List_SO<T>(this List<T> list, ref int edited) where T : ScriptableObject
         {
             bool changed = false;
@@ -6075,15 +6094,18 @@ namespace PlayerAndEditorGUI
         }
         public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
 
-        public static bool Try_NameInspect(this object obj, out bool coulInspect)
+        public static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
         {
-            coulInspect = true;
+
+            bool gotLabel = label != null && label.Length > 0;
+
+            couldInspect = true;
             var iname = obj as IGotName;
             if (iname != null)
-                return iname.inspect_Name();
+                return iname.inspect_Name(label);
 
             if (obj as MonoBehaviour != null) {
-                coulInspect = false;
+                couldInspect = false;
                 return false;
             }
 
@@ -6092,14 +6114,13 @@ namespace PlayerAndEditorGUI
             if (uobj != null)
             {
                 var n = uobj.name;
-                if (edit(ref n))
-                {
+                if (gotLabel ? label.edit(60, ref n) : edit(ref n)) {
                     uobj.name = n;
                     uobj.RenameAsset(n);
                 }
             }
             else
-                coulInspect = false;
+                couldInspect = false;
 
 
 
@@ -6114,7 +6135,7 @@ namespace PlayerAndEditorGUI
 
             bool gotLabel = label != null && label.Length > 0;
 
-            if ((gotLabel && label.edit(ref n) || (!gotLabel && edit(ref n))))
+            if ((gotLabel && label.edit(60, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
 
@@ -6246,11 +6267,11 @@ namespace PlayerAndEditorGUI
 
             if ((!uobj) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
                 return "NULL Object";
-
+            
 #if PEGI
             var dn = obj as IGotDisplayName;
             if (dn != null)
-                return dn.NameForPEGIdisplay();
+                return dn.NameForPEGIdisplay;
 
             var sn = obj as IGotName;
             if (sn != null)

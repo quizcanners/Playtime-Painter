@@ -33,7 +33,7 @@ public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
                 return changed;
         }
 
-        public string NameForPEGIdisplay() => "{0} ({1})".F(decalName, type);
+        public string NameForPEGIdisplay => "{0} ({1})".F(decalName, type);
         
 #endif
     }

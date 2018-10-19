@@ -26,8 +26,7 @@ namespace STD_Logic
 
             List<Type> triggerGroups = CsharpFuncs.GetAllChildTypesOf<TriggerGroup>();
 
-            foreach (Type group in triggerGroups)
-            {
+            foreach (Type group in triggerGroups)  {
                 TriggerGroup s = (TriggerGroup)Activator.CreateInstance(group);
                 Browsed = s;
             }
@@ -72,8 +71,6 @@ namespace STD_Logic
         public int IndexForPEGI { get { return index; } set { index = value; } }
 
         public string NameForPEGI { get { return name; } set { name = value; } }
-
-        public override string ToString() => name;
 
         [NonSerialized]
         public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
@@ -246,9 +243,6 @@ namespace STD_Logic
             bool changed = false;
 
             changed |= base.Inspect();
-
-            if (showDebug)
-                return changed;
 
             changed |= "{0} Name".F(index).edit(60, ref name).nl();
             Trigger.Search_PEGI();

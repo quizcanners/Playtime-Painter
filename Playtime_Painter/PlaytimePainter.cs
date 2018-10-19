@@ -2191,7 +2191,7 @@ namespace Playtime_Painter
 
                         if (Cfg.moreOptions)  {
 
-                            if ("Show/Hide stuff".fold_enter_exit(ref id.inspectedStuff, 7).nl()) {
+                            if ("Show/Hide stuff".enter(ref id.inspectedStuff, 7).nl()) {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
@@ -2207,7 +2207,7 @@ namespace Playtime_Painter
                                 changed |= "Show Recording/Playback".toggleIcon(ref id.showRecording, true).nl();
                             }
 
-                            if ("New Texture Config ".conditional_enter_exit(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl()) {
+                            if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl()) {
 
                                 if (Cfg.newTextureIsColor)
                                     "Clear Color".edit(ref Cfg.newTextureClearColor).nl();

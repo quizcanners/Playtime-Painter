@@ -233,7 +233,7 @@ namespace Playtime_Painter
 
         #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay() => "Volume Painting";
+        public override string NameForPEGIdisplay => "Volume Painting";
 
 
         public bool Component_PEGI()

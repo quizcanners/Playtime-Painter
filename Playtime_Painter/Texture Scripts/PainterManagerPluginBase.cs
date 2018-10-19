@@ -11,11 +11,11 @@ namespace Playtime_Painter
 
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName
-        
-    {
-        public virtual string NameForPEGIdisplay() => ToString();
-        
+    public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName {
+
+        public virtual string NameForPEGIdisplay => ToString();
+
+        #region Inspector
 #if PEGI
         pegi.CallDelegate plugins_ComponentPEGI;
 
@@ -26,7 +26,15 @@ namespace Playtime_Painter
                 PlaytimePainter.plugins_ComponentPEGI += value;
             }
         }
+        
+        pegi.CallDelegate VertexEdgePEGIdelegates;
+        protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d)
+        {
+            VertexEdgePEGIdelegates += d;
+            VertexEdgeTool.PEGIdelegates += d;
+        }
 #endif
+        #endregion
 
         PainterBoolPlugin plugins_GizmoDraw;
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
@@ -54,13 +62,7 @@ namespace Playtime_Painter
             BrushConfig.brushConfigPegies += d;
         }
 
-        #if PEGI
-        pegi.CallDelegate VertexEdgePEGIdelegates;
-        protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d) {
-            VertexEdgePEGIdelegates += d;
-            VertexEdgeTool.PEGIdelegates += d;
-        }
-#endif
+      
 
         MeshToolBase.meshToolPlugBool showVerticesPlugs;
         protected void PlugIn_MeshToolShowVertex(MeshToolBase.meshToolPlugBool d) {

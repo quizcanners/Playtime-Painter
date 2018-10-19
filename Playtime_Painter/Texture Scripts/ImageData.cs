@@ -702,7 +702,7 @@ namespace Playtime_Painter
 
             bool changed = false;
 
-            if ("CPU blit options".conditional_enter_exit(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
+            if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
             {
                // changed |= "Use Unity Jobs".toggle("Unity 2018 or newer", ref Cfg.useJobsForCPUpainting).nl();
 
@@ -712,7 +712,7 @@ namespace Playtime_Painter
                     ref GlobalBrush.DontRedoMipmaps, true).nl();
             }
 
-            if ("Save Textures In Game".fold_enter_exit(ref inspectedStuff, 1).nl())
+            if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl())
             {
 
                 "Save Name".edit(70, ref SaveName);
@@ -728,9 +728,9 @@ namespace Playtime_Painter
             }
 
             #region Processors
-            if ("Texture Processors".fold_enter_exit(ref inspectedStuff, 6).nl()) {
+            if ("Texture Processors".enter(ref inspectedStuff, 6).nl()) {
 
-                if ("Resize Texture ({0} * {1})".F(width, height).fold_enter_exit(ref inspectedProcess, 0).nl_ifFalse())  {
+                if ("Resize Texture ({0} * {1})".F(width, height).enter(ref inspectedProcess, 0).nl_ifFalse())  {
                     "New size ".select(60, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
                     int size = PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize);
 
@@ -753,7 +753,7 @@ namespace Playtime_Painter
                  
                 }
 
-                if ("Colorize ".fold_enter_exit(ref inspectedProcess, 1).nl_ifFalse()) {
+                if ("Colorize ".enter(ref inspectedProcess, 1).nl_ifFalse()) {
 
                     "Clear Color".edit(80, ref clearColor).nl();
                     if ("Clear Texture".Click().nl())
@@ -763,7 +763,7 @@ namespace Playtime_Painter
                     }
                 }
 
-                    if ("Render Buffer Debug".fold_enter_exit(ref inspectedProcess, 3).nl())
+                    if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl())
                 {
                     pegi.write(TexMGMT.BigRT_pair[0], 200);
                     pegi.nl();
@@ -775,7 +775,7 @@ namespace Playtime_Painter
 
             #endregion
 
-            if ("Undo Redo".toggle_enter_exit(ref enableUndoRedo, ref inspectedStuff, 2, ref changed).nl())
+            if ("Undo Redo".toggle_enter(ref enableUndoRedo, ref inspectedStuff, 2, ref changed).nl())
             {
 
                 changed |=
@@ -794,7 +794,7 @@ namespace Playtime_Painter
 
             }
 
-            if ("Color Schemes".toggle_enter_exit(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl())
+            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl())
             {
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { PaletteName = "New Color Scheme" });

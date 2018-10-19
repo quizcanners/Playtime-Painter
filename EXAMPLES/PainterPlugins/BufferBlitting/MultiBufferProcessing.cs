@@ -39,8 +39,9 @@ namespace Playtime_Painter
                 ManualUpdate();
         }
 
+        #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay() => "Buffer Blitting";
+        public override string NameForPEGIdisplay => "Buffer Blitting";
 
         [SerializeField] int GUITextureSize = 128;
         int texIndex = 0;
@@ -121,6 +122,7 @@ namespace Playtime_Painter
         [SerializeField] int editedSection = -1;
 
 #endif
+        #endregion
 
         public override void OnDisable()
         {
@@ -211,7 +213,7 @@ namespace Playtime_Painter
 
         protected static PainterDataAndConfig Data { get { return PainterCamera.Data; } }
 
-        public virtual string NameForPEGIdisplay() => "Override This";
+        public virtual string NameForPEGIdisplay => "Override This";
 
         public virtual Texture GetTextureNext() => null;
 
@@ -272,7 +274,7 @@ namespace Playtime_Painter
 
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = NameForPEGIdisplay().toggle(ref showOnGUI);
+            bool changed = NameForPEGIdisplay.toggle(ref showOnGUI);
 
             var asP = this as IPEGI;
             if (asP != null && icon.Enter.Click())
@@ -325,8 +327,9 @@ namespace Playtime_Painter
 
         protected override RenderTexture RenderTexture() => Texture ? (RenderTexture)Texture : null;
 
+        #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay() => "Custom: " + Texture.ToPEGIstring();
+        public override string NameForPEGIdisplay => "Custom: " + Texture.ToPEGIstring();
 
         public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgDatas);
 
@@ -341,12 +344,13 @@ namespace Playtime_Painter
         }
 
 #endif
+        #endregion
     }
 
     public class BigRTpair : TextureBuffer
     {
 
-        public override string NameForPEGIdisplay() => "BIG RT pair";
+        public override string NameForPEGIdisplay => "BIG RT pair";
 
         public override void AfterRender()
         {
@@ -390,7 +394,7 @@ namespace Playtime_Painter
         public bool linear;
         public RenderTextureReadWrite colorMode;
 
-        public override string NameForPEGIdisplay() => "RT " + name;
+        public override string NameForPEGIdisplay => "RT " + name;
 
         public override bool CanBeTarget => true;
 
@@ -438,7 +442,7 @@ namespace Playtime_Painter
     {
         RenderTexture[] rts; // = new RenderTexture[2];
 
-        public override string NameForPEGIdisplay() => "RT PAIR " + name;
+        public override string NameForPEGIdisplay => "RT PAIR " + name;
 
         public override bool CanBeTarget => true;
 
@@ -499,7 +503,7 @@ namespace Playtime_Painter
             }
         }
 
-        public override string NameForPEGIdisplay() => "Web Cam Tex";
+        public override string NameForPEGIdisplay => "Web Cam Tex";
 
         public override Texture GetTextureDisplay() => Data.webCamTexture;
 
@@ -586,7 +590,7 @@ namespace Playtime_Painter
         
 
 #if PEGI
-        public override string NameForPEGIdisplay() => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
+        public override string NameForPEGIdisplay => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
         public override bool Inspect() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
 
@@ -601,7 +605,7 @@ namespace Playtime_Painter
         Shader shader;
         Texture2D buffer;
 
-        public override string NameForPEGIdisplay() => (name == null || name.Length == 0 ? "Scaler" : name);
+        public override string NameForPEGIdisplay => (name == null || name.Length == 0 ? "Scaler" : name);
 
         public override bool CanBeTarget => true;
 
@@ -787,7 +791,7 @@ namespace Playtime_Painter
 
 #if PEGI
 
-        public string NameForPEGIdisplay() => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
+        public string NameForPEGIdisplay => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
 
 
         public bool PEGI_inList(IList list, int ind, ref int edited)

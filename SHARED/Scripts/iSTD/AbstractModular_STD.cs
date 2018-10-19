@@ -63,7 +63,7 @@ namespace SharedTools_Stuff {
 
                 displayNames = new List<string>();
 
-                Debug.Log("Getting all types of {0}".F(coreType));
+             //   Debug.Log("Getting all types of {0}".F(coreType));
 
                 List<Type> allTypes = CsharpFuncs.GetAllChildTypes(coreType);
 
@@ -111,7 +111,7 @@ namespace SharedTools_Stuff {
 
 #if PEGI
         // public bool select (string name, int width, ref Type type) =>  name.select(width, ref type, types);
-        public bool select(ref Type type) {
+        public bool Select(ref Type type) {
 
             int ind = type != null ? Types.IndexOf(type) : -1;
             if (pegi.select(ref ind, DisplayNames)) {

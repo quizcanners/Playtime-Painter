@@ -93,15 +93,15 @@ namespace STD_Logic  {
         
         #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay() => base.NameForPEGIdisplay() + type + " " + updateValue;
+        public override string NameForPEGIdisplay => base.NameForPEGIdisplay + type + " " + updateValue;
 
         public bool PEGI_inList(IList list, int ind, ref int edited) {
    
-            var changed = FocusedField_PEGI(pegi.listInspectionIndex, "Res");
+            var changed = FocusedField_PEGI(pegi.ListInspectedIndex, "Res");
 
             changed |= Trigger._usage.Inspect(this);
 
-            changed |= SearchAndAdd_PEGI(pegi.listInspectionIndex);
+            changed |= SearchAndAdd_PEGI(pegi.ListInspectedIndex);
 
             return changed;
         }

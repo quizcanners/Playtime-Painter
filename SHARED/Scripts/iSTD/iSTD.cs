@@ -19,6 +19,9 @@ namespace SharedTools_Stuff {
         bool Decode(string tag, string data);
     }
     
+    public interface IcanBeDefault_STD : ISTD {
+        bool isDefault { get; }
+    }
 
     ///<summary>For runtime initialization.
     ///<para> Best used on Scriptable Objects. They don't loose references. Prefabs needs to be updated and scenes saved to keep any references</para>
@@ -127,13 +130,13 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("STD Saves: " + explorer.states.Count).fold_enter_exit(ref inspectedStuff, 0).nl_ifTrue())
-                    explorer.PEGI(this);
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedStuff, 0).nl_ifTrue())
+                    explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedStuff, 1).nl_ifTrue())
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
 
@@ -146,7 +149,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2).nl_ifTrue())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedStuff, 2).nl_ifTrue())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)
@@ -281,21 +284,13 @@ namespace SharedTools_Stuff {
         public override bool Decode(string tag, string data) => false;
         #region Inspector
 #if PEGI
-        public bool showDebug;
+        public int inspectedStuff = -1;
 
         public virtual bool Inspect() {
             bool changed = false;
-           
-            if (!showDebug && icon.Config.Click())
-                showDebug = true;
 
-            if (showDebug)
-            {
-                if (icon.Exit.Click("Back to element inspection").nl())
-                    showDebug = false;
-
-                explorer.PEGI(this);
-
+            if (icon.Config.enter(ref inspectedStuff, 0)) {
+                explorer.Inspect(this);
                 changed |= uTags.Nested_Inspect();
             }
 
@@ -405,13 +400,13 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("STD Saves: " + explorer.states.Count).fold_enter_exit(ref inspectedStuff, 0).nl_ifTrue())
-                    explorer.PEGI(this);
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedStuff, 0).nl_ifTrue())
+                    explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).fold_enter_exit(ref inspectedStuff, 1).nl_ifTrue())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedStuff, 1).nl_ifTrue())
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
                     if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
@@ -423,7 +418,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).fold_enter_exit(ref inspectedStuff, 2).nl_ifTrue())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedStuff, 2).nl_ifTrue())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)

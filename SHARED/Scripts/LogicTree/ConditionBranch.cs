@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 namespace STD_Logic {
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD
     {
 
         public enum ConditionBranchType { OR, AND }
@@ -17,6 +17,7 @@ namespace STD_Logic {
         public ConditionBranchType type;
         public string description = "new branch";
         public TaggedTarget targ;
+
 
         public string NameForPEGI
         {
@@ -31,14 +32,17 @@ namespace STD_Logic {
             }
         }
 
+        #region Encode & Decode
+        public bool isDefault => conds.Count == 0;
+
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)
             .Add_IfNotEmpty("v", conds)
             .Add_ifNotZero("t", (int)type)
-            .Add_String("d", description)
+            .Add_IfNotEmpty("d", description)
             .Add("tag", targ)
             .Add_IfNotNegative("insB", browsedBranch)
-            .Add("ic", browsedCondition);
+            .Add_IfNotNegative("ic", browsedCondition);
 
         public override bool Decode(string subtag, string data)
         {
@@ -56,8 +60,10 @@ namespace STD_Logic {
             return true;
         }
 
+        #endregion
+
         public bool IsTrue => CheckConditions(Values.global);
-        
+
         public bool CheckConditions(Values vals) {
             vals = targ.TryGetValues(vals);
 
@@ -120,11 +126,9 @@ namespace STD_Logic {
             var tmpVals = Values.global;
             tmpVals = targ.TryGetValues(tmpVals);
 
-        
 
-            bool changed = base.Inspect();
 
-            if (!showDebug)   {
+            bool changed = false;
 
                 if (browsedBranch == -1) {
                     if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
@@ -137,7 +141,7 @@ namespace STD_Logic {
                 }
 
                 changed |= "Sub Conditions".edit_List(branches, ref browsedBranch);
-            }
+            
 
             pegi.newLine();
 
