@@ -58,7 +58,7 @@ namespace Playtime_Painter
 #if PEGI
         public override bool Inspect() {
             bool changed = base.Inspect();
-            if (!showDebug)
+            if (inspectedStuff == -1)
             {
                 changed |= "Foam".edit(70, ref foamMask).nl();
                 changed |= "Thickness:".edit(70, ref thickness, 5, 300).nl();

@@ -72,22 +72,15 @@ namespace STD_Logic
         public void Awake() => RealTimeNow();
 
 #if PEGI
-        [SerializeField] protected int inspectedLogicBranchStuff = -1;
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
         public override bool Inspect()
         {
             var changed = false;
 
-            if (inspectedLogicBranchStuff == -1)
-                changed |= base.Inspect();
-            else
-                showDebug = false;
-
-            pegi.nl();
-
-            if (!showDebug && icon.Condition.enter("Trigger Groups", ref inspectedLogicBranchStuff, 0))
-            {
+            changed |= base.Inspect().nl();
+    
+            if (icon.Condition.enter("Trigger Groups", ref inspectedStuff, 1)) {
 
                 pegi.nl();
                 "Trigger Groups".nl();

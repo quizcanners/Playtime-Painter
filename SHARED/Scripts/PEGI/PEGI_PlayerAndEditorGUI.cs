@@ -597,7 +597,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                GUILayout.Label(text, style);
+                GUILayout.Label(text);
             }
         }
 
@@ -1050,10 +1050,12 @@ namespace PlayerAndEditorGUI
                 if ((from == null) || (from.Count == 0)) return false;
 
                 foldout(from[Mathf.Min(from.Count - 1, no)]);
-                newLine();
+                //
 
                 if (isFoldedOut)
                 {
+                    if (from.Count>1)
+                    newLine();
                     for (int i = 0; i < from.Count; i++)
                     {
                         if (i != no)
@@ -1088,12 +1090,14 @@ namespace PlayerAndEditorGUI
                 if ((from == null) || (from.Length == 0)) return false;
 
                 foldout((no > -1) ? from[Mathf.Min(from.Length - 1, no)] : ". . .");
-                newLine();
+            
 
-                if (isFoldedOut)
-                {
-                    for (int i = 0; i < from.Length; i++)
-                    {
+                if (isFoldedOut) {
+
+                    if (from.Length > 1)
+                        newLine();
+
+                    for (int i = 0; i < from.Length; i++) {
                         if (i != no)
                             if ("{0}: {1}".F(i, from[i]).Click())
                             {
@@ -2352,8 +2356,6 @@ namespace PlayerAndEditorGUI
                     enteredOne = thisOne;
             }
 
-         
-
             isFoldedOut = (enteredOne == thisOne);
 
             return isFoldedOut;
@@ -2461,6 +2463,19 @@ namespace PlayerAndEditorGUI
         }
 
         public static void foldIn() => selectedFold = -1;
+
+        public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne) {
+
+            if (!canEnter && enteredOne == thisOne)
+                enteredOne = -1;
+
+            if (canEnter)
+                ico.enter(ref enteredOne, thisOne);
+            else
+                isFoldedOut = false;
+
+            return isFoldedOut;
+        }
 
         public static bool conditional_enter(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne)
         {

@@ -197,7 +197,7 @@ namespace STD_Animations
 
             bool changed = base.Inspect();
 
-            if (!showDebug) {
+            if (inspectedStuff == -1) {
                 
                 if (icon.Save.Click()) {
                     this.Save_STDdata();

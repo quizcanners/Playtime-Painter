@@ -33,18 +33,13 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
     public override StdEncoder Encode() => 
         this.EncodeUnrecognized().Add("refs", nestedReferenceDatas);
 
+    #region Inspector
 #if PEGI
-       [SerializeField] int inspectedObject = -1;
-
     public override bool Inspect() {
-
         bool changed = base.Inspect();
-
-        if (!showDebug) {
-            "inspect Objects:".edit_List_Obj(objects, ref inspectedObject, nestedReferenceDatas);
-        }
-
+        "inspect Objects:".enter_List_Obj(objects, ref inspectedStuff, 3, nestedReferenceDatas);
         return changed;
     }
 #endif
+    #endregion
 }

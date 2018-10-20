@@ -102,27 +102,18 @@ namespace SharedTools_Stuff {
 #endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
-        public bool showDebug;
-
 #if PEGI
 
-        [SerializeField] int inspectedStuff = -1;
+        [SerializeField] protected int inspectedStuff = -1;
+        int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
         public virtual bool Inspect()
         {
 
             bool changed = false;
 
-            if (!showDebug)
-            {
-                if (icon.Config.Click())
-                    showDebug = true;
-            }
-            else
-            {
-                if (icon.Edit.Click("Back to element inspection"))
-                    showDebug = false;
-
+            if (icon.Config.enter(ref inspectedStuff, 0)) {
+          
                 this.Try_Nested_Inspect();
 
                 this.clickHighlight();
@@ -130,13 +121,13 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedStuff, 0).nl_ifTrue())
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifFalse())
                     explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedStuff, 1).nl_ifTrue())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
 
@@ -149,7 +140,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedStuff, 2).nl_ifTrue())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifFalse())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)
@@ -330,7 +321,7 @@ namespace SharedTools_Stuff {
 #endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
-        public bool showDebug;
+        #region Inspector
 
         public virtual string NameForPEGI
         {
@@ -375,7 +366,8 @@ namespace SharedTools_Stuff {
             return changed;
         }
 
-        [SerializeField] int inspectedStuff = -1;
+        [SerializeField] protected int inspectedStuff = -1;
+        int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
         public virtual bool Inspect()
         {
@@ -384,29 +376,20 @@ namespace SharedTools_Stuff {
 
             var attention = NeedAttention();
 
-            if (!showDebug && (attention!= null ? icon.Warning.Click(attention) : icon.Config.Click()))
-                showDebug = true;
+            if (inspectedStuff == -1)
+                pegi.Lock_UnlockWindow(gameObject);
 
-            if (showDebug)
-            {
+           if (icon.Config.enter(ref inspectedStuff, 0)) {
 
-                if (icon.Edit.Click("Back to element inspection"))
-                    showDebug = false;
+                "{0} Debug ".F(this.ToPEGIstring()).nl();
 
-                //(this.ToPEGIstring() + " Debug").write();
-
-
-
-                if (inspectedStuff == -1)
-                    pegi.nl();
-
-                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedStuff, 0).nl_ifTrue())
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifFalse())
                     explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedStuff, 1).nl_ifTrue())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
                 {
                     "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
                     if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
@@ -418,7 +401,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedStuff, 2).nl_ifTrue())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifFalse())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)
@@ -428,7 +411,7 @@ namespace SharedTools_Stuff {
             return changed;
         }
 #endif
-
+        #endregion
         public virtual ISTD Decode(string data)
         {
             Reboot();
