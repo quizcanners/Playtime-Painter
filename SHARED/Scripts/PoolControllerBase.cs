@@ -1,17 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
-#if PEGI
 using PlayerAndEditorGUI;
-#endif
 
 namespace SharedTools_Stuff
 {
 
-    public interface IManageDestroyOnPlay
-    {
-        void DestroyYourself();
-    }
+
 
     public interface IManageFading
     {

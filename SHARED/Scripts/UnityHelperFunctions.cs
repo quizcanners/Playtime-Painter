@@ -237,18 +237,10 @@ namespace SharedTools_Stuff
             return co;
         }
 
-        public static void DestroyWhatever(this UnityEngine.Object go)
-        {
-            if (go != null)
-            {
-                if (Application.isPlaying)
-                {
-                    var clean = go as IManageDestroyOnPlay;
-                    if (clean != null)
-                        clean.DestroyYourself();
-                    else
-                        UnityEngine.Object.Destroy(go);
-                }
+        public static void DestroyWhatever(this UnityEngine.Object go) {
+            if (go != null) {
+                if (Application.isPlaying)   
+                    UnityEngine.Object.Destroy(go);
                 else
                     UnityEngine.Object.DestroyImmediate(go);
             }

@@ -897,13 +897,10 @@ namespace PlayerAndEditorGUI
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref no, tree);
-            }
-            else
 #endif
-            {
-
+            
+            
                 List<int> inds;
                 List<T> objs = tree.GetAllObjs(out inds);
                 List<string> filtered = new List<string>();
@@ -924,7 +921,7 @@ namespace PlayerAndEditorGUI
                     return true;
                 }
                 return false;
-            }
+            
         }
 
         public static bool select<T>(this string label, int width, ref int no, Countless<T> tree, Func<T, bool> lambda)
@@ -966,21 +963,12 @@ namespace PlayerAndEditorGUI
             return change;
         }
 
-        public static bool select<T>(ref int ind, List<T> lst, int width)
-        {
-
+        public static bool select<T>(ref int ind, List<T> lst, int width) {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref ind, lst, width);
-            }
-            else
-#endif
-
-            {
+#endif            
                 return select(ref ind, lst);
-
-            }
         }
 
         public static bool selectEnum<T>(this string text, string tip, int width, ref int eval) {
@@ -1032,6 +1020,8 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
+
+        public static bool selectTypeTag(this TaggedTypes_STD types, ref string tag) => select(ref tag, types.Keys);
 
         public static bool select(ref int no, List<string> from)
         {
@@ -2326,6 +2316,33 @@ namespace PlayerAndEditorGUI
 
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.GetIcon().foldout(text, ref selected, current);
 
+        public static bool foldout(this string txt)
+        {
+
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.foldout(txt);
+            }
+            else
+#endif
+
+            {
+
+                foldout(txt, ref selectedFold, elementIndex);
+
+                elementIndex++;
+
+                return isFoldedOut;
+            }
+
+        }
+
+        public static void foldIn() => selectedFold = -1;
+        #endregion
+        
+        #region Enter & Exit
         public static bool enter(ref int enteredOne, int current)
         {
 
@@ -2430,39 +2447,61 @@ namespace PlayerAndEditorGUI
         public static bool enter(this string txt, ref bool state) => icon.Enter.enter(txt, ref state);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
+        
+        public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne) {
+            if (enteredOne == -1)
+                label.write(width);
+            return var.enter_Inspect(ref enteredOne, thisOne);
+        }
+
+        public static bool enter_Inspect(this IPEGI_ListInspect var, ref int enteredOne, int thisOne) {
+            bool changed = false;
+
+            bool outside = enteredOne == -1;
+
+            if (var != null) {
+
+                if (outside)
+                    changed |= var.PEGI_inList(null, thisOne, ref enteredOne).nl();
+                else if (enteredOne == thisOne) {
+                    if (icon.Exit.Click())
+                        enteredOne = -1;
+                    changed |= var.Try_Nested_Inspect();
+                }
+            }
+            else  {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                if (outside)
+                    "NULL".write();
+            }
+            return changed;
+        }
 
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
-            if (txt.enter(ref enteredOne, thisOne))
+
+            if (txt.enter(ref enteredOne, thisOne).nl_ifFalse())
                 return var.Nested_Inspect();
             else if (enteredOne == -1) nl();
 
             return false;
         }
 
-        public static bool foldout(this string txt)
-        {
+        public static bool enter_Inspect<T>(T var, ref int enteredOne, int thisOne) where T : IPEGI, IGotName {
 
+            var changed = false;
 
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.foldout(txt);
+            if (var != null && enteredOne == -1)
+                changed |= var.inspect_Name();
+
+            if (enter(ref enteredOne, thisOne).nl_ifFalse()) {
+                changed |= var.inspect_Name();
+                changed |= var.Nested_Inspect();
             }
-            else
-#endif
+            else if (enteredOne == -1) nl();
 
-            {
-
-                foldout(txt, ref selectedFold, elementIndex);
-
-                elementIndex++;
-
-                return isFoldedOut;
-            }
-
+            return changed;
         }
-
-        public static void foldIn() => selectedFold = -1;
 
         public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne) {
 
@@ -3495,17 +3534,54 @@ namespace PlayerAndEditorGUI
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.edit(ref col);
-            }
-            else
+            
 #endif
-            {
-                checkLine();
-                // Color editing not implemented yet
-                return false;
-            }
+                nl();
+                bool changed = icon.Red.edit_ColorChannel(ref col, 0).nl();
+                changed |= icon.Green.edit_ColorChannel(ref col, 1).nl();
+                changed |= icon.Blue.edit_ColorChannel(ref col, 2).nl();
+                changed |= icon.Alpha.edit_ColorChannel(ref col, 3).nl();
+
+                return changed;
         }
+
+        public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)
+        {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "Color has no channel {0} ".F(channel).writeWarning();
+            else
+            {
+                var chan = col[channel];
+
+                if (ico.edit(ref chan, 0, 1)) {
+                    changed = true;
+                    col[channel] = chan;
+                }
+            }
+
+            return changed;
+        }
+
+        public static bool edit_ColorChannel(this string label, ref Color col, int channel) {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "{0} color does not have {1}'th channel".F(label, channel).writeWarning();
+            else {
+                var chan = col[channel];
+
+                if (label.edit(ref chan, 0, 1)) {
+                    changed = true;
+                    col[channel] = chan;
+                }
+            }
+
+            return changed;
+        }
+
 
         public static bool edit(ref int val)
         {
@@ -4336,10 +4412,13 @@ namespace PlayerAndEditorGUI
                 write(label, tip, width);
         }
 
-        public static bool edit(this string label, ref float val, float min, float max)
-        {
+        public static bool edit(this string label, ref float val, float min, float max) {
             label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
 
+        public static bool edit(this icon ico, ref float val, float min, float max) {
+            ico.write();
             return edit(ref val, min, max);
         }
 
@@ -4400,20 +4479,31 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, ref Color col)
         {
-            if (paintingPlayAreaGUI)
-                return false;
+            if (paintingPlayAreaGUI) {
+                if (label.foldout())
+                    return edit(ref col);
+            }
+            else {
+                write(label);
+                return edit(ref col);
+            }
 
-            write(label);
-            return edit(ref col);
+            return false;
         }
 
-        public static bool edit(this string label, int width, ref Color col)
-        {
-            if (paintingPlayAreaGUI)
-                return false;
+        public static bool edit(this string label, int width, ref Color col) {
+            if (paintingPlayAreaGUI) {
+                if (label.foldout())
+                    return edit(ref col);
+                
+            }
+            else
+            {
+                write(label, width);
+                return edit(ref col);
+            }
 
-            write(label, width);
-            return edit(ref col);
+            return false;
         }
 
         public static bool edit(this string label, string tip, int width, ref Color col)
@@ -4874,8 +4964,8 @@ namespace PlayerAndEditorGUI
 
             }
 
-            if (list.Count > 0)
-                Line(Color.gray);
+          //  if (list.Count > 0)
+            //    Line(Color.gray);
 
             var cnt = list.Count;
             

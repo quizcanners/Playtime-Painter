@@ -127,4 +127,20 @@ namespace SharedTools_Stuff {
     }
 
 
+    public static class AbstractModularExtensions
+    {
+
+        public static T TryGetByTag <T>(this List<T> lst, string tag) where T: IGotClassTag {
+
+            if (lst != null && tag != null && tag.Length > 0) {
+                foreach (var e in lst) {
+                    if (e != null && e.ClassTag.SameAs(tag))
+                        return e;
+                }
+            }
+            return default(T);
+
+        }
+    }
+
 }

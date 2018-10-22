@@ -102,9 +102,10 @@ namespace SharedTools_Stuff {
 #endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
+        #region Inspector
 #if PEGI
 
-        [SerializeField] protected int inspectedStuff = -1;
+        [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
         public virtual bool Inspect()
@@ -149,8 +150,9 @@ namespace SharedTools_Stuff {
             }
             return changed;
         }
-        
+
 #endif
+        #endregion
     }
 
     public class UnrecognizedTags_List :IPEGI
@@ -274,8 +276,11 @@ namespace SharedTools_Stuff {
 
         public override bool Decode(string tag, string data) => false;
         #region Inspector
-#if PEGI
+
         public int inspectedStuff = -1;
+
+#if PEGI
+
 
         public virtual bool Inspect() {
             bool changed = false;
@@ -366,7 +371,7 @@ namespace SharedTools_Stuff {
             return changed;
         }
 
-        [SerializeField] protected int inspectedStuff = -1;
+        [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
         public virtual bool Inspect()

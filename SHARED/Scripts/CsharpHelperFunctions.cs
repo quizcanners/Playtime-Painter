@@ -54,7 +54,6 @@ namespace SharedTools_Stuff
 
     }
 
-
     public static class CsharpFuncs
     {
 
