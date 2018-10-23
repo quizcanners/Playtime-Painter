@@ -1145,7 +1145,7 @@ namespace Playtime_Painter {
 
             if ((!Application.isPlaying) && ("references".foldout(ref showReferences).nl()))  {
 
-                "vertexPointMaterial".write(Grid.vertexPointMaterial);
+                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
                 pegi.newLine();
 
                 "vertexPrefab".edit(ref Grid.vertPrefab).nl();

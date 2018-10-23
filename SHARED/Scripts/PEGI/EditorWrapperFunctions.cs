@@ -118,8 +118,10 @@ namespace PlayerAndEditorGUI {
                 EditorGUILayout.EndHorizontal();
             }
         }
-        
-        public static bool isFoldedOut { get { return pegi.isFoldedOut; } set { pegi.isFoldedOut = value; } }
+
+      
+
+        public static bool isFoldedOut { get { return pegi.isFoldedOut_or_Entered; } set { pegi.isFoldedOut_or_Entered = value; } }
 
         static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut") {
 
@@ -1078,6 +1080,12 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
             EditorGUILayout.ObjectField(field, typeof(T), false);
+        }
+
+        public static void write<T>(T field, int width) where T : UnityEngine.Object
+        {
+            checkLine();
+            EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
         }
 
         public static void write(Texture icon, int width) => write(icon, icon ? icon.name : "Null Icon", width, width);

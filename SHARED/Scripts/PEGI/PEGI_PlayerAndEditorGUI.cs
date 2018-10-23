@@ -128,7 +128,10 @@ namespace PlayerAndEditorGUI
 
         static int elementIndex;
 
-        public static bool isFoldedOut = false;
+        public static bool isFoldedOut_or_Entered = false;
+        public static bool IsFoldedOut => isFoldedOut_or_Entered;
+        public static bool IsEntered => isFoldedOut_or_Entered; 
+
         public static bool mouseOverUI = false;
 
         static int selectedFold = -1;
@@ -418,6 +421,34 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static void nl_ifFolded() => isFoldedOut_or_Entered.nl_ifFalse();
+
+        public static void nl_ifFoldedOut() => isFoldedOut_or_Entered.nl_ifTrue();
+        
+        public static void nl_ifNotEntered() => isFoldedOut_or_Entered.nl_ifFalse();
+
+        public static void nl_ifEntered() => isFoldedOut_or_Entered.nl_ifTrue();
+
+        public static bool nl_ifFolded(this bool value) {
+            nl_ifFolded();
+            return value;
+        }
+
+        public static bool nl_ifFoldedOut(this bool value) {
+            nl_ifFoldedOut();
+            return value;
+        }
+
+        public static bool nl_ifNotEntered(this bool value) {
+            nl_ifNotEntered();
+            return value;
+        }
+
+        public static bool nl_ifEntered(this bool value) {
+            nl_ifEntered();
+            return value;
+        }
+
         public static bool nl_ifTrue(this bool value)
         {
             if (value)
@@ -484,22 +515,30 @@ namespace PlayerAndEditorGUI
                 ef.write(field);
 #endif
         }
+        
+        public static void write_obj<T>(T field, int width) where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                ef.write(field, width);
+#endif
+        }
 
-        public static void write<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
+        public static void write_obj<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
         {
             write(label, tip, width);
             write(field);
 
         }
 
-        public static void write<T>(this string label, int width, T field) where T : UnityEngine.Object
+        public static void write_obj<T>(this string label, int width, T field) where T : UnityEngine.Object
         {
             write(label, width);
             write(field);
 
         }
 
-        public static void write<T>(this string label, T field) where T : UnityEngine.Object
+        public static void write_obj<T>(this string label, T field) where T : UnityEngine.Object
         {
             write(label);
             write(field);
@@ -561,8 +600,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this icon icon) => write(icon.GetIcon(), defaultButtonSize);
 
+        public static void write(this icon icon) => write(icon.GetIcon(), defaultButtonSize);
+        
         public static void write(this icon icon, int size) => write(icon.GetIcon(), size);
 
         public static void write(this icon icon, string tip, int size) => write(icon.GetIcon(), tip, size);
@@ -1042,7 +1082,7 @@ namespace PlayerAndEditorGUI
                 foldout(from[Mathf.Min(from.Count - 1, no)]);
                 //
 
-                if (isFoldedOut)
+                if (isFoldedOut_or_Entered)
                 {
                     if (from.Count>1)
                     newLine();
@@ -1082,7 +1122,7 @@ namespace PlayerAndEditorGUI
                 foldout((no > -1) ? from[Mathf.Min(from.Length - 1, no)] : ". . .");
             
 
-                if (isFoldedOut) {
+                if (isFoldedOut_or_Entered) {
 
                     if (from.Length > 1)
                         newLine();
@@ -1122,7 +1162,7 @@ namespace PlayerAndEditorGUI
                 foldout(from[Mathf.Min(from.Length - 1, no)]);
                 newLine();
 
-                if (isFoldedOut)
+                if (isFoldedOut_or_Entered)
                 {
                     for (int i = 0; i < from.Length; i++)
                     {
@@ -2167,7 +2207,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != state;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
 
         }
 
@@ -2179,7 +2219,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != selected;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
 
         }
 
@@ -2202,9 +2242,9 @@ namespace PlayerAndEditorGUI
                     state = !state;
 
 
-                isFoldedOut = state;
+                isFoldedOut_or_Entered = state;
 
-                return isFoldedOut;
+                return isFoldedOut_or_Entered;
             }
         }
 
@@ -2222,19 +2262,19 @@ namespace PlayerAndEditorGUI
 
                 checkLine();
 
-                isFoldedOut = (selected == current);
+                isFoldedOut_or_Entered = (selected == current);
 
-                if (Click((isFoldedOut ? "..⏵ " : "..⏷ ") + txt))
+                if (Click((isFoldedOut_or_Entered ? "..⏵ " : "..⏷ ") + txt))
                 {
-                    if (isFoldedOut)
+                    if (isFoldedOut_or_Entered)
                         selected = -1;
                     else
                         selected = current;
                 }
 
-                isFoldedOut = selected == current;
+                isFoldedOut_or_Entered = selected == current;
 
-                return isFoldedOut;
+                return isFoldedOut_or_Entered;
             }
         }
 
@@ -2246,7 +2286,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != selected;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
 
         }
 
@@ -2258,7 +2298,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != state;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
 
         }
 
@@ -2334,7 +2374,7 @@ namespace PlayerAndEditorGUI
 
                 elementIndex++;
 
-                return isFoldedOut;
+                return isFoldedOut_or_Entered;
             }
 
         }
@@ -2354,9 +2394,9 @@ namespace PlayerAndEditorGUI
             else if (enteredOne == -1 && icon.Enter.Click())
                 enteredOne = current;
 
-            isFoldedOut = (enteredOne == current);
+            isFoldedOut_or_Entered = (enteredOne == current);
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool enter(this icon ico, ref int enteredOne, int thisOne)
@@ -2373,9 +2413,9 @@ namespace PlayerAndEditorGUI
                     enteredOne = thisOne;
             }
 
-            isFoldedOut = (enteredOne == thisOne);
+            isFoldedOut_or_Entered = (enteredOne == thisOne);
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
         
         public static bool enter(this icon ico, ref bool state)
@@ -2392,9 +2432,9 @@ namespace PlayerAndEditorGUI
                     state = true;
             }
 
-            isFoldedOut = state;
+            isFoldedOut_or_Entered = state;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool enter(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false)
@@ -2414,9 +2454,9 @@ namespace PlayerAndEditorGUI
             if (showLabelIfTrue || !state)
                 write(txt, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel);
 
-            isFoldedOut = state;
+            isFoldedOut_or_Entered = state;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool enter(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
@@ -2439,9 +2479,9 @@ namespace PlayerAndEditorGUI
             if (showLabelIfTrue || outside)
                 write(txt, outside ? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel);
 
-            isFoldedOut = (enteredOne == thisOne);
+            isFoldedOut_or_Entered = (enteredOne == thisOne);
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool enter(this string txt, ref bool state) => icon.Enter.enter(txt, ref state);
@@ -2462,7 +2502,7 @@ namespace PlayerAndEditorGUI
             if (var != null) {
 
                 if (outside)
-                    changed |= var.PEGI_inList(null, thisOne, ref enteredOne).nl();
+                    changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
                 else if (enteredOne == thisOne) {
                     if (icon.Exit.Click())
                         enteredOne = -1;
@@ -2475,15 +2515,17 @@ namespace PlayerAndEditorGUI
                 if (outside)
                     "NULL".write();
             }
+
+            isFoldedOut_or_Entered = !outside;
+
             return changed;
         }
 
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
 
-            if (txt.enter(ref enteredOne, thisOne).nl_ifFalse())
+            if (txt.enter(ref enteredOne, thisOne))
                 return var.Nested_Inspect();
-            else if (enteredOne == -1) nl();
-
+ 
             return false;
         }
 
@@ -2494,11 +2536,10 @@ namespace PlayerAndEditorGUI
             if (var != null && enteredOne == -1)
                 changed |= var.inspect_Name();
 
-            if (enter(ref enteredOne, thisOne).nl_ifFalse()) {
+            if (enter(ref enteredOne, thisOne)) {
                 changed |= var.inspect_Name();
                 changed |= var.Nested_Inspect();
             }
-            else if (enteredOne == -1) nl();
 
             return changed;
         }
@@ -2511,9 +2552,9 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 ico.enter(ref enteredOne, thisOne);
             else
-                isFoldedOut = false;
+                isFoldedOut_or_Entered = false;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool conditional_enter(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne)
@@ -2525,13 +2566,12 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 ico.enter(label, ref enteredOne, thisOne);
             else
-                isFoldedOut = false;
+                isFoldedOut_or_Entered = false;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
-        public static bool conditional_enter(this string label, bool canEnter, ref int enteredOne, int thisOne)
-        {
+        public static bool conditional_enter(this string label, bool canEnter, ref int enteredOne, int thisOne) {
 
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
@@ -2539,9 +2579,28 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 label.enter(ref enteredOne, thisOne);
             else
-                isFoldedOut = false;
+                isFoldedOut_or_Entered = false;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
+        }
+
+        public static bool conditional_enter_inspect(this IPEGI_ListInspect obj, bool canEnter, ref int enteredOne, int thisOne) {
+            if (!canEnter && enteredOne == thisOne)
+                enteredOne = -1;
+
+            if (canEnter)
+                return obj.enter_Inspect(ref enteredOne, thisOne); 
+            else
+                isFoldedOut_or_Entered = false;
+
+            return false;
+        }
+
+        public static bool conditional_enter_inspect(this string label, bool canEnter, IPEGI obj, ref int enteredOne, int thisOne) {
+            if (label.conditional_enter(canEnter, ref enteredOne, thisOne))
+                return obj.Nested_Inspect();
+
+            return false;
         }
 
         public static bool toggle_enter(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed, bool showLabelWhenEntered = false)
@@ -2549,12 +2608,11 @@ namespace PlayerAndEditorGUI
 
             if (enteredOne == -1)
                 changed |= label.toggleIcon(ref val, true);
-
-
+            
             if (val)
                 enter(ref enteredOne, thisOne);
             else
-                isFoldedOut = false;
+                isFoldedOut_or_Entered = false;
 
             if (enteredOne == thisOne)
                 changed |= label.toggleIcon(ref val, true);
@@ -2562,7 +2620,7 @@ namespace PlayerAndEditorGUI
             if (!val && enteredOne == thisOne)
                 enteredOne = -1;
 
-            return isFoldedOut;
+            return isFoldedOut_or_Entered;
         }
 
         public static bool enter_List_Obj<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, UnnullableSTD<ElementData> datas = null) where T : UnityEngine.Object
@@ -2581,7 +2639,7 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, ref inspectedElement, datas).nl();
-            else if (enteredOne == -1) nl();
+           // else if (enteredOne == -1) nl();
 
             return changed;
         }
@@ -2602,7 +2660,7 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, datas).nl();
-            else if (enteredOne == -1) nl();
+           // else if (enteredOne == -1) nl();
 
             return changed;
         }
@@ -2623,7 +2681,44 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List(list, ref inspectedElement).nl();
-            else if (enteredOne == -1) nl();
+            //else if (enteredOne == -1) nl();
+
+            return changed;
+        }
+
+        public static T enter_List<T>(this string label, List<T> list, List_Data meta, ref int enteredOne, int thisOne, TaggedTypes_STD types, ref bool changed ,bool keepTypeData = false) {
+
+            if (list == null) {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                "{0} list is null".F(label).nl();
+            } else {
+                var lbl = "{0} [{1}]".F(label, list.Count);
+
+                if (lbl.enter(ref enteredOne, thisOne))
+                    return lbl.edit_List(list, meta, ref changed, types, keepTypeData);
+            }
+
+            return default(T);
+        }
+
+        public static bool enter_List<T>(this string label, List<T> list, List_Data meta, ref int enteredOne, int thisOne, TaggedTypes_STD types,  bool keepTypeData = false) {
+
+            bool changed = false;
+
+            if (list == null)
+            {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                "{0} list is null".F(label).nl();
+            }
+            else
+            {
+                var lbl = "{0} [{1}]".F(label, list.Count);
+
+                if (lbl.enter(ref enteredOne, thisOne))
+                    lbl.edit_List(list, meta, ref changed, types, keepTypeData);
+            }
 
             return changed;
         }
@@ -2639,7 +2734,7 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 changed |= label.enter_List(list, ref inspectedElement, ref enteredOne, thisOne);
             else
-                isFoldedOut = false;
+                isFoldedOut_or_Entered = false;
 
             return changed;
 
@@ -5017,7 +5112,6 @@ namespace PlayerAndEditorGUI
 
             if (icon.List.ClickUnfocus("{0} of {1}".F(Msg.ReturnToListView.Get(), typeof(T).ToPEGIstring())).nl())
                 index = -1;
-
             else
                 changed |= list[index].Try_Nested_Inspect();
 

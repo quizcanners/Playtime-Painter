@@ -612,7 +612,7 @@ namespace Playtime_Painter {
                         }
                     }
                     else if (mats.Length > 0)
-                        "Source Material".write("Submesh which will be converted", 90, mats[0]);
+                        "Source Material".write_obj("Submesh which will be converted", 90, mats[0]);
                 }
                 pegi.newLine();
                 pegi.Space();
