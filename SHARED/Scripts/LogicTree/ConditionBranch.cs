@@ -124,8 +124,10 @@ namespace STD_Logic {
 #if PEGI
         public override bool Inspect() {
 
-            var tmpVals = Values.global;
-            tmpVals = targ.TryGetValues(tmpVals);
+            var before = ConditionLogic.inspectedTarget;
+
+            ConditionLogic.inspectedTarget = TargetValues;
+
 
             bool changed = false;
 
@@ -134,17 +136,17 @@ namespace STD_Logic {
                     (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition or sub branch should be true")))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                (CheckConditions(tmpVals) ? icon.Active : icon.InActive).write();
+                (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
 
-                changed |= conds.edit_List(ref browsedCondition);
+                changed |= "Conditions".edit_List(conds, ref browsedCondition);
             }
 
             pegi.Line(Color.black);
 
             changed |= "Sub Branches".edit_List(branches, ref browsedBranch);
+            
 
-
-            pegi.newLine();
+            ConditionLogic.inspectedTarget = before;
 
             return changed;
         }

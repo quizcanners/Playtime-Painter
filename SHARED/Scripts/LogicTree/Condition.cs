@@ -27,9 +27,13 @@ namespace STD_Logic
         #region Inspector
 #if PEGI
 
+        public static Values inspectedTarget = null;
+
         public virtual bool PEGI_inList(IList list, int ind, ref int inspected) {
 
             bool changed = false;
+
+            (TestFor(inspectedTarget) ? icon.Active : icon.InActive).write();
 
             if (this != edited) {
                 FocusedField_PEGI(ind, "Cond");

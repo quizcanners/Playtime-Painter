@@ -504,7 +504,12 @@ namespace PlayerAndEditorGUI
             newLine();
         }
 
-        public static void nl(this icon icon, int size) => write(icon.GetIcon(), size);
+        public static void nl(this icon icon, int size) {
+            icon.write(size);
+            nl();
+        }
+
+        public static void nl(this icon icon) => icon.nl(defaultButtonSize);
 
         #endregion
 
@@ -5094,7 +5099,7 @@ namespace PlayerAndEditorGUI
                 el.Try_NameInspect(out editedName, label);
 
                 if (!editedName)
-                    label = label + lst[inspected].ToPEGIstring();
+                    label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
             }
 
             if (!editedName)

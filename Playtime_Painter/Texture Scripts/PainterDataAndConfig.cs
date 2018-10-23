@@ -319,7 +319,12 @@ namespace Playtime_Painter
                 .Add("imgs", imgDatas, this)
                 .Add("sch", selectedColorScheme)
                 .Add("mats", matDatas, this)
-                .Add("pals", colorSchemes);
+                .Add("pals", colorSchemes)
+              .Add_IfNotNegative("iid", inspectedImgData)
+              .Add_IfNotNegative("isfs", inspectedStuffs)
+              .Add_IfNotNegative("im", inspectedMaterial)
+              .Add_IfNotNegative("id", inspectedDecal)
+              .Add_IfNotNegative("is", inspectedStuff);
 
             return cody;
         }
@@ -332,6 +337,11 @@ namespace Playtime_Painter
                 case "sch": selectedColorScheme = data.ToInt(); break;
                 case "mats": data.DecodeInto_List(out matDatas, this); break;
                 case "pals": data.DecodeInto_List(out colorSchemes); break;
+                case "iid": inspectedImgData = data.ToInt(); break;
+                case "isfs": inspectedStuffs = data.ToInt(); break;
+                case "im": inspectedMaterial = data.ToInt(); break;
+                case "id": inspectedDecal = data.ToInt(); break;
+                case "is": inspectedStuff = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -339,12 +349,13 @@ namespace Playtime_Painter
         #endregion
 
         #region Inspector
-#if PEGI
 
         int inspectedImgData = -1;
         int inspectedStuffs = -1;
         int inspectedMaterial = -1;
         int inspectedDecal = -1;
+
+#if PEGI
 
         public bool DatasPEGI()
         {
@@ -374,57 +385,54 @@ namespace Playtime_Painter
             return changes;
         }
 
-        bool inspectLists = false;
-
         public override bool Inspect()
         {
             bool changed = false; 
 
             PainterCamera rtp = PainterCamera.Inst;
 
-            if (rtp.PluginsInspect().nl())
+            if ("Plugins".enter(ref inspectedStuff, 0).nl_ifFalse() && rtp.PluginsInspect().nl())
                 rtp.SetToDirty();
 
-            if (rtp.browsedPlugin == -1)
-            {
+            if ("Lists".enter(ref inspectedStuff, 1).nl())
+                changed |= DatasPEGI();
 
-                bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
+            if (inspectedStuff == -1) {
 
-                if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
-                    UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
+                    bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
-                if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
-                    MeshManager.Inst.DisconnectMesh();
+                    if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
+                        UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
 
-                if (!PainterStuff.IsNowPlaytimeAndDisabled)
-                {
+                    if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
+                        MeshManager.Inst.DisconnectMesh();
 
-                    if (Painter && Painter.meshEditing == false)
-                        "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
+                    if (!PainterStuff.IsNowPlaytimeAndDisabled) {
 
-                    if ("Lists".foldout(ref inspectLists).nl())
-                        changed |= DatasPEGI();
+                        if (Painter && Painter.meshEditing == false)
+                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
-                    "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
+                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
 
-                    "Save Textures To".edit(110, ref texturesFolderName).nl();
+                        "Save Textures To".edit(110, ref texturesFolderName).nl();
 
-                    "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
+                        "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
 
-                    "Save Materials To".edit(110, ref materialsFolderName).nl();
+                        "Save Materials To".edit(110, ref materialsFolderName).nl();
 
-                    "Save Meshes To".edit(110, ref meshesFolderName).nl();
-                }
+                        "Save Meshes To".edit(110, ref meshesFolderName).nl();
+                    }
 #if UNITY_EDITOR
-                if (icon.Discord.Click("Join Discord", 64))
-                    PlaytimePainter.Open_Discord();
+                    if (icon.Discord.Click("Join Discord", 64))
+                        PlaytimePainter.Open_Discord();
 
-                if (icon.Docs.Click("Open Asset Documentation", 64))
-                    PlaytimePainter.OpenWWW_Documentation();
+                    if (icon.Docs.Click("Open Asset Documentation", 64))
+                        PlaytimePainter.OpenWWW_Documentation();
 
-                if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
-                    PlaytimePainter.Open_Email();
+                    if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
+                        PlaytimePainter.Open_Email();
 #endif
+                
             }
             return changed;
         }

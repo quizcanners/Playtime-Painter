@@ -862,15 +862,15 @@ namespace Playtime_Painter
 
                 "Plugins".write_List(Plugins, ref browsedPlugin);
 
-                if ("Find New Plugins".Click())
-                    RefreshPlugins();
+                if (browsedPlugin == -1) {
 
-                if ("Clear Data".Click().nl())
-                {
-                    DeletePlugins();
-                    RefreshPlugins();
+                    if ("Find Plugins".Click())
+                        RefreshPlugins();
+
+                    if ("Delete Plugins".Click().nl()) 
+                        DeletePlugins();
+                    
                 }
-
             }
             else browsedPlugin = -1;
 

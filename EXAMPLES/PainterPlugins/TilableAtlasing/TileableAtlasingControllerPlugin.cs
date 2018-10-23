@@ -30,13 +30,10 @@ namespace Playtime_Painter {
 
         public List<MaterialAtlases> atlasedMaterials;
 
-        [SerializeField]
-        protected bool showAtlasedMaterial;
-        [SerializeField]
-        protected bool showAtlases;
+
 
         [SerializeField]
-        protected int browsedAtlas;
+        protected int inspectedAtlas;
 #if PEGI
         public static bool PutEdgesBetweenSubmeshes()
         {
@@ -87,6 +84,9 @@ namespace Playtime_Painter {
         }
 
 #if PEGI
+
+        int InspectedStuff = -1;
+
         public override bool ConfigTab_PEGI()
         {
             bool changed = false;
@@ -135,25 +135,10 @@ namespace Playtime_Painter {
                 pegi.newLine();
 
             }
-            else if ("Atlased Materials".foldout(ref showAtlasedMaterial).nl())
-            {
-                showAtlases = false;
-                changed |= atlasedMaterials.edit_List(ref InspectedPainter.selectedAtlasedMaterial).nl();
-            }
 
-            if ("Atlases".foldout(ref showAtlases))
-            {
+            changed |= "Atlased Materials".enter_List(atlasedMaterials, ref InspectedPainter.selectedAtlasedMaterial, ref InspectedStuff, 0).nl();
 
-                if ((browsedAtlas > -1) && (browsedAtlas >= atlases.Count))
-                    browsedAtlas = -1;
-
-                pegi.newLine();
-
-                atlases.edit_List(ref browsedAtlas);
-
-             
-
-            }
+            changed |= "Atlases".enter_List(atlases, ref inspectedAtlas, ref InspectedStuff, 1).nl();
 
             return changed;
 

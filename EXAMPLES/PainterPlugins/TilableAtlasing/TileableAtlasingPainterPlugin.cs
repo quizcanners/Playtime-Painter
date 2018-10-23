@@ -938,7 +938,6 @@ namespace Playtime_Painter {
 
 
             this.inspect_Name().nl();
-           // changed |= "Name:".edit(60, ref name).nl();
 
             changed |= "Atlas size:".editDelayed( ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
