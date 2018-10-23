@@ -109,28 +109,25 @@ namespace STD_Logic {
             
             bool changed = false;
 
-                if ("quest++".Click().nl())
-                    LogicMGMT.AddLogicVersion();
-
-                Trigger.Search_PEGI();
-
-                Trigger.searchMatchesFound = 0;
-
-                foreach (TriggerGroup td in TriggerGroup.all) 
-                    td.Nested_Inspect();
-
-            if (TriggerGroup.Browsed != null)
-            {
-                TriggerGroup.Browsed.AddTrigger_PEGI(null);
-                TriggerGroup.Browsed.showInInspectorBrowser = true;
-            }
-                
-            pegi.nl();
-
             changed |= base.Inspect();
 
-            pegi.newLine();
-            
+            if ("quest++".Click().nl())
+                    LogicMGMT.AddLogicVersion();
+
+            foreach (var bGr in bools) {
+                var group = TriggerGroup.all[bools.currentEnumerationIndex];
+                foreach (var b in bGr)
+                    group[b].PEGI_inList();
+                
+            }
+
+            foreach (var iGr in ints) {
+                var group = TriggerGroup.all[ints.currentEnumerationIndex];
+                foreach (var i in iGr) 
+                   group[iGr.currentEnumerationIndex].PEGI_inList();
+                
+            }
+
             return changed;
         }
 #endif

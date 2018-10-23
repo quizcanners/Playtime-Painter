@@ -82,13 +82,8 @@ namespace STD_Logic
             return changed;
         }
 
-        public bool SearchAndAdd_PEGI(int index)
-        {
+        public bool SearchAndAdd_PEGI(int index) {
             bool changed = false;
-
-            pegi.newLine();
-            pegi.Space();
-            pegi.newLine();
 
             Trigger t = Trigger;
 
@@ -117,7 +112,7 @@ namespace STD_Logic
             pegi.newLine();
 
             if (this == selected)
-                changed |= Group.AddTrigger_PEGI(this);
+                changed |= TriggerGroup.AddTrigger_PEGI(this);
 
             return changed;
         }
@@ -139,8 +134,6 @@ namespace STD_Logic
             pegi.newLine();
 
 
-            // List<TriggerGroup> lst = TriggerGroup.all.GetAllObjsNoOrder();
-
             int searchMax = 20;
 
             current.ToPEGIstring().write();
@@ -150,24 +143,21 @@ namespace STD_Logic
                 pegi.FocusControl("none");
                 changed = true;
             }
-            else
-                foreach (var gb in TriggerGroup.all)
-                {
+            else foreach (var gb in TriggerGroup.all) {
                     var lst = gb.GetFilteredList(ref searchMax);
                     foreach (var t in lst)
-                    {
-                        if (t != current)
-                        {
+                        if (t != current) {
                             Trigger.searchMatchesFound++;
-                            t.ToPEGIstring().write();
-                            if (icon.Done.ClickUnfocus(20).nl())
-                            {
+
+                            if (icon.Done.ClickUnfocus(20)) {
                                 Trigger = t;
                                 changed = true;
                             }
+
+                            t.ToPEGIstring().nl();
                         }
-                    }
-                }
+
+            }
             return changed;
         }
 

@@ -405,8 +405,21 @@ namespace SharedTools_Stuff {
 
         }
 
+
+        public IEnumerator<int> GetEnumerator() {
+            List<int> indx;
+            List<int> vals;
+             GetItAll(out indx, out vals);
+            for (int i = 0; i < vals.Count; i++)  {
+                currentEnumerationIndex = indx[i];
+                yield return vals[i];
+            }
+        }
+
+        public int currentEnumerationIndex;
+
     }
-    
+
     public class CountlessBool : STDCountlessBase
     {
 
@@ -430,8 +443,8 @@ namespace SharedTools_Stuff {
 
         public override StdEncoder Encode() => new StdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
 
-      //  public const string storyTag = "TreeBool";
-      //  public override string getDefaultTagName() =>  storyTag; 
+        //  public const string storyTag = "TreeBool";
+        //  public override string getDefaultTagName() =>  storyTag; 
 
         public List<int> GetItAll()
         {
@@ -480,11 +493,11 @@ namespace SharedTools_Stuff {
         bool Get(int ind)
         {
 
-//#if UNITY_EDITOR
+            //#if UNITY_EDITOR
             if (ind < 0)
                 return false;
-                //Debug.LogError("Sending " + ind + " as index to Variable Tree, that is a nono");
-//#endif
+            //Debug.LogError("Sending " + ind + " as index to Variable Tree, that is a nono");
+            //#endif
 
             int bitNo = ind % 32;
             ind /= 32;
@@ -655,11 +668,19 @@ namespace SharedTools_Stuff {
 
             return rslt;
         }
-        
-    }
+
+        public IEnumerator<int> GetEnumerator()
+        {
+            foreach (var i in GetItAll())
+                yield return i;
+        }
     
-    ///  Generic Trees
-    public class Countless<T> : CountlessBase //, IEnumerable
+    
+
+}
+
+///  Generic Trees
+public class Countless<T> : CountlessBase //, IEnumerable
     {
         
         T[] objs = new T[0];
@@ -980,16 +1001,10 @@ namespace SharedTools_Stuff {
                 .Add_IfNotNegative("brws", edited)
                 .Add("last", lastFreeIndex);
 
-            /*  for (int i = 0; i < inds.Count; i++) {
-                  var dta = vals[i].Encode().ToString();
-                  cody.Add_String(inds[i].ToString(), dta);
-              }*/
-
             return cody;
         }
 
-        public void Expand(ref T[] args, int add) // no instantiating
-        {
+        public void Expand(ref T[] args, int add) {
             T[] temp;
             if (args != null)
             {
@@ -998,8 +1013,7 @@ namespace SharedTools_Stuff {
             }
             else temp = new T[add];
             args = temp;
-            // for (int i = args.Length - add; i < args.Length; i++)
-            //   args[i] = new T();
+
         }
 
         public T this[int index]
@@ -1197,13 +1211,9 @@ namespace SharedTools_Stuff {
         {
             List<int> indx;
             var all = GetAllObjs(out indx);
-            for (int i = 0; i < all.Count; i++)
-            {
-               
+            for (int i = 0; i < all.Count; i++) {
 
                 var e = all[i];
-
-                //Debug.Log("Enum " + indx[i] + " " +e.ToString());
 
                 if (!e.IsDefaultOrNull())
                 {
@@ -1216,8 +1226,8 @@ namespace SharedTools_Stuff {
         public int currentEnumerationIndex;
 
         int edited = -1;
+
 #if PEGI
-        
         public override bool Inspect()
         {
             bool changed = false;
@@ -1237,11 +1247,14 @@ namespace SharedTools_Stuff {
                 for (int i = 0; i < allElements.Count; i++)  {
                     var ind = indxs[i];
                     var el = allElements[i];
-                 
-                    if (icon.Delete.Click())
+
+                    if (icon.Delete.Click("Clear element without shifting the rest"))
                         this[ind] = default(T);
                     else
+                    {
+                        "{0}".F(ind).write(20);
                         el.Name_ClickInspect_PEGI<T>(null, ind, ref edited);
+                    }
 
                     pegi.nl();
 
@@ -1615,23 +1628,16 @@ namespace SharedTools_Stuff {
     public static class ExtensionsForGenericCountless
     {
         #if PEGI
-        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: ISTD, IPEGI
-            
-            , new() {
+        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: ISTD, IPEGI, new() {
 
             bool changed = false;
             
             if (edited > -1) {
                 var e = Cstd[edited];
-                if (e.IsDefaultOrNull() || icon.Back.Click())
+                if (e.IsDefaultOrNull() || icon.Back.ClickUnfocus())
                     edited = -1;
                 else
                     changed |= e.Try_Nested_Inspect();
-                /*{
-                    var pg = e as iPEGI;
-                    if (pg != null)
-                        changed |= pg.PEGI();
-                }*/
             }
 
             if (edited == -1)

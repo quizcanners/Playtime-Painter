@@ -344,7 +344,7 @@ namespace PlayerAndEditorGUI
             return (PEGI_Extensions.focusInd - 1);
         }
 
-        public static string nameFocused => GUI.GetNameOfFocusedControl();
+        public static string nameFocused { get { return GUI.GetNameOfFocusedControl(); } }
 
         public static void Space()
         {
@@ -363,6 +363,8 @@ namespace PlayerAndEditorGUI
             }
         }
 
+        public static void Line() => Line(paintingPlayAreaGUI ? Color.white : Color.black);
+  
         public static void Line(Color col)
         {
             nl();
@@ -2388,10 +2390,10 @@ namespace PlayerAndEditorGUI
 
             if (enteredOne == current)
             {
-                if (icon.Exit.Click())
+                if (icon.Exit.ClickUnfocus())
                     enteredOne = -1;
             }
-            else if (enteredOne == -1 && icon.Enter.Click())
+            else if (enteredOne == -1 && icon.Enter.ClickUnfocus())
                 enteredOne = current;
 
             isFoldedOut_or_Entered = (enteredOne == current);
@@ -2423,12 +2425,12 @@ namespace PlayerAndEditorGUI
 
             if (state)
             {
-                if (icon.Exit.Click())
+                if (icon.Exit.ClickUnfocus())
                     state = false;
             }
             else if (!state)
             {
-                if (ico.Click())
+                if (ico.ClickUnfocus())
                     state = true;
             }
 
@@ -2442,12 +2444,12 @@ namespace PlayerAndEditorGUI
 
             if (state)
             {
-                if (icon.Exit.Click())
+                if (icon.Exit.ClickUnfocus())
                     state = false;
             }
             else if (!state)
             {
-                if (ico.Click())
+                if (ico.ClickUnfocus())
                     state = true;
             }
 
@@ -2504,7 +2506,7 @@ namespace PlayerAndEditorGUI
                 if (outside)
                     changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
                 else if (enteredOne == thisOne) {
-                    if (icon.Exit.Click())
+                    if (icon.Exit.ClickUnfocus())
                         enteredOne = -1;
                     changed |= var.Try_Nested_Inspect();
                 }
@@ -2628,8 +2630,7 @@ namespace PlayerAndEditorGUI
 
             bool changed = false;
 
-            if (list == null)
-            {
+            if (list == null) {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
                 "{0} list is null".F(label).nl();
@@ -2639,7 +2640,6 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, ref inspectedElement, datas).nl();
-           // else if (enteredOne == -1) nl();
 
             return changed;
         }
@@ -2649,8 +2649,7 @@ namespace PlayerAndEditorGUI
 
             bool changed = false;
 
-            if (list == null)
-            {
+            if (list == null){
                 if (enteredOne == thisOne)
                     enteredOne = -1;
                 "{0} list is null".F(label).nl();
@@ -2660,7 +2659,6 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List_Obj(list, datas).nl();
-           // else if (enteredOne == -1) nl();
 
             return changed;
         }
@@ -2681,8 +2679,7 @@ namespace PlayerAndEditorGUI
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 lbl.edit_List(list, ref inspectedElement).nl();
-            //else if (enteredOne == -1) nl();
-
+   
             return changed;
         }
 
@@ -6656,6 +6653,10 @@ namespace PlayerAndEditorGUI
             return default(T);
         }
 
+        public static bool PEGI_inList (this IPEGI_ListInspect obj) {
+            int tmp = -1;
+            return obj.PEGI_inList(null, 0, ref tmp);
+        }
 
 #endif
 

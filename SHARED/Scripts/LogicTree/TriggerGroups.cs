@@ -63,6 +63,27 @@ namespace STD_Logic
             }
         }
 
+        public void Add(string name, ValueIndex arg = null)
+        {
+            int ind = triggers.AddNew();
+            Trigger t = this[ind];
+            t.name = name;
+            t.groupIndex = IndexForPEGI;
+            t.triggerIndex = ind;
+
+            if (arg != null)
+            {
+                if (arg.IsBoolean())
+                    t._usage = TriggerUsage.boolean;
+                else
+                    t._usage = TriggerUsage.number;
+
+                arg.Trigger = t;
+            }
+
+            listDirty = true;
+        }
+        
         public bool showInInspectorBrowser = true;
 
         string name = "Unnamed_Triggers";
@@ -213,48 +234,41 @@ namespace STD_Logic
 
         public static TriggerGroup inspected;
 
-        public bool ListInspecting()
-        {
+        public bool ListInspecting() {
             bool changed = false;
 
             int showMax = 20;
 
             var lst = GetFilteredList(ref showMax);
 
-            if (lst.Count > 0 || Trigger.searchField.Length == 0)
-            {
-                if (showInInspectorBrowser && icon.FoldedOut.Click())
-                    showInInspectorBrowser = false;
-
-                if (showInInspectorBrowser)
+            if (lst.Count > 0 || Trigger.searchField.Length == 0) {
+                if (this.ToPEGIstring().toggleIcon(ref showInInspectorBrowser, true))
                     changed |= this.ToPEGIstring().write_List(lst);
-                else
-                    changed |= this.ToPEGIstring().foldout(ref showInInspectorBrowser);
             }
 
             return changed;
         }
-
-        public override bool Inspect()
-        {
+        
+        public override bool Inspect()  {
 
             inspected = this;
 
             bool changed = false;
 
-            changed |= base.Inspect();
-
-            changed |= "{0} Name".F(index).edit(60, ref name).nl();
-            Trigger.Search_PEGI();
-
-            changed |= ListInspecting().nl();
-
+            if (inspectedStuff == -1) {
+                changed |= "Index {0} : ".F(index).edit(60, ref name).nl();
+                "New Variable".edit(80, ref Trigger.searchField);
+                AddTriggerToGroup_PEGI();
+                
+                changed |= triggers.Nested_Inspect(); 
+            }
             inspected = null;
 
             return changed;
 
         }
 
+        /*
         public bool SearchTriggers_PEGI()
         {
 
@@ -265,8 +279,7 @@ namespace STD_Logic
 
             int showMax = 20;
 
-            for (int i = 0; i < lt.Count; i++)
-            {
+            for (int i = 0; i < lt.Count; i++) {
                 Trigger t = lt[i];
 
                 if (((Trigger.searchField.Length < 1) || Regex.IsMatch(t.name, Trigger.searchField, RegexOptions.IgnoreCase)))
@@ -277,7 +290,7 @@ namespace STD_Logic
 
                     t.Inspect();
 
-                    if (t._usage.HasMoreTriggerOptions())
+                    if (t._usage.HasMoreTriggerOptions)
                     {
                         if (Trigger.editedTrigger != t)
                         {
@@ -290,7 +303,7 @@ namespace STD_Logic
 
                     changed |= t._usage.Inspect(t).nl();
 
-                    if (t._usage.HasMoreTriggerOptions())
+                    if (t._usage.HasMoreTriggerOptions)
                     {
                         pegi.Space();
                         pegi.newLine();
@@ -303,63 +316,59 @@ namespace STD_Logic
             return changed;
 
         }
+        */
 
-        public bool AddTrigger_PEGI(ValueIndex arg)
+
+        public bool AddTriggerToGroup_PEGI(ValueIndex arg = null)
         {
+            bool changed = false;
+
+            if ((Trigger.searchMatchesFound == 0) && (Trigger.searchField.Length > 3)) {
+
+                Trigger selectedTrig = arg?.Trigger;
+
+                if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
+                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
+                        Add(Trigger.searchField, arg);
+                        changed = true;
+                        pegi.DropFocus();
+                    }
+                }
+            }
+
+            return changed; 
+        }
+
+        public static bool AddTrigger_PEGI(ValueIndex arg = null) {
 
             bool changed = false;
 
             Trigger selectedTrig = arg?.Trigger;
 
-            if ((Trigger.searchMatchesFound == 0) && (Trigger.searchField.Length > 3))
-            {
+            if (Trigger.searchMatchesFound == 0 && Trigger.searchField.Length > 3 && selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField)) {
 
-                if ((selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField))
-                    && "Rename {0}".F(selectedTrig.name).Click())
-                {
+                if (icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)))  {
                     selectedTrig.name = Trigger.searchField;
                     changed = true;
                 }
 
-                if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name))
-                {
-                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]"))
-                    {
-                        int ind = triggers.AddNew();
-                        Trigger t = this[ind];
-                        t.name = Trigger.searchField;
-                        t.groupIndex = IndexForPEGI;
-                        t.triggerIndex = ind;
 
-                        if (arg != null)
-                        {
-                            if (arg.IsBoolean())
-                                t._usage = TriggerUsage.boolean;
-                            else
-                                t._usage = TriggerUsage.number;
-
-                            arg.Trigger = t;
-                        }
-
-                        listDirty = true;
-
-                        changed = true;
-                    }
-                }
-
-                var trigList = all.GetAllObjsNoOrder();
-
-                if (trigList.Count > 0)
-                {
+                var groupLost = all.GetAllObjsNoOrder();
+                if (groupLost.Count > 0)   {
                     int slctd = Browsed == null ? -1 : Browsed.IndexForPEGI;
+
                     if (pegi.select(ref slctd, all))
                         Browsed = all[slctd];
+
                 }
                 else
                     "No Trigger Groups found".nl();
 
-                pegi.nl();
+                if (Browsed != null)
+                    Browsed.AddTriggerToGroup_PEGI(arg);
             }
+
+            pegi.nl();
 
             return changed;
         }

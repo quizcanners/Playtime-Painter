@@ -16,10 +16,8 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
     
-    public class Trigger : ValueIndex , IPEGI, IGotDisplayName , IPEGI_ListInspect
-    {
-
-        // public static string searched = "";
+    public class Trigger : ValueIndex , IGotDisplayName , IPEGI_ListInspect, IGotName {
+        
         public static string TriggerEdControlName;
         public static string EditedtextHold;
         public static int focusIndex = -2;
@@ -28,12 +26,14 @@ namespace STD_Logic
         public static bool filterIntagers = true;
         public static bool showTriggers;
         public static int searchMatchesFound;
+        public static Trigger inspected;
+        
 
-        public static Trigger editedTrigger;
         public string name = "";
-        public bool isStatic;
-
+       // public bool isStatic;
         public Dictionary<int, string> enm;
+
+
 
         public string this[int index] {
             get {
@@ -49,9 +49,7 @@ namespace STD_Logic
 
         public override bool IsBoolean() => _usage.UsingBool;
 
-#if PEGI
-        public static void Search_PEGI() => "Search".edit(60, ref searchField).nl();
-#endif
+
 
         public bool SearchWithGroupName(string groupName) {
             
@@ -71,12 +69,15 @@ namespace STD_Logic
             
         }
 
+        #region Encode & Decode
+
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
             .Add_String("n", name)
             .Add("u", usage)
-            .Add("e", enm)
-            .Add_Bool ("s", isStatic);
+            // .Add_Bool ("s", isStatic)
+            .Add("e", enm);
+          
             return cody;
         }
 
@@ -86,66 +87,70 @@ namespace STD_Logic
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
                 case "e": data.DecodeInto(out enm); break;
-                case "s": isStatic = data.ToBool(); break;
+              //  case "s": isStatic = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
 
+        #endregion
+
         public Trigger() {
             if (enm == null)
                 enm = new Dictionary<int, string>();
-                isStatic = true;
+               // isStatic = true;
         }
 
-        public const string storyTag_Trg = "Trg";
+        #region Inspector
+
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
 #if PEGI
-        public override bool Inspect() {
-            bool changed = "static".toggle(50, ref isStatic);
 
-            changed |= TriggerUsage.SelectUsage(ref usage);
-
-            if (_usage.HasMoreTriggerOptions())
-            {
-                if (icon.Close.Click(20))
-                    editedTrigger = null;
-            }
-
-            changed |= _usage.Inspect(this).nl();
-
-            if (_usage.HasMoreTriggerOptions())
-            {
-                pegi.Space();
-                pegi.newLine();
-            }
-
-            return changed;
-        }
+        public static bool Search_PEGI() => "Search".edit(60, ref searchField);
 
         public override string NameForPEGIdisplay => name;
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
-        {
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
 
-            bool chnaged = false;
+            bool changed = false;
 
-            name.write();
+            if (inspected == this) {
 
-            if (icon.Edit.Click(20))
-                Trigger.editedTrigger = this;
+                if (_usage.HasMoreTriggerOptions) {
+                    if (icon.Close.Click(20))
+                        inspected = null;
+                }
 
-            return chnaged;
+                //changed |= pegi.toggleIcon(ref isStatic);
+
+                changed |= TriggerUsage.SelectUsage(ref usage);
+
+                changed |= _usage.Inspect(this).nl();
+
+                if (_usage.HasMoreTriggerOptions)
+                {
+                    pegi.Space();
+                    pegi.newLine();
+                }
+
+            }
+            else
+            {
+                this.inspect_Name();
+
+                if (icon.Edit.ClickUnfocus())
+                    inspected = this;
+            }
+            return changed;
         }
 
-      
+
 #endif
+
+        #endregion
+
     }
-
-
-
-  
-
 }
 
 

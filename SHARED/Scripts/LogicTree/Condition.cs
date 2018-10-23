@@ -10,8 +10,7 @@ namespace STD_Logic
     public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
     [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
-    public class ConditionLogic : ValueIndex, ISTD , IPEGI, IPEGI_ListInspect 
-    {
+    public class ConditionLogic : ValueIndex, ISTD , IPEGI, IPEGI_ListInspect  {
 
         public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
 
@@ -25,32 +24,42 @@ namespace STD_Logic
         
         public override bool IsBoolean() => false;
 
+        #region Inspector
 #if PEGI
-        
+
         public virtual bool PEGI_inList(IList list, int ind, ref int inspected) {
 
             bool changed = false;
 
-
-            if (this != edited)
-            {
+            if (this != edited) {
                 FocusedField_PEGI(ind, "Cond");
 
                 Trigger._usage.Inspect(this);
                 if (icon.Edit.Click())
                     edited = this;
-            }
-            else
-                if (icon.FoldedOut.Click())
-                    edited = null;
-            
 
-            changed |= SearchAndAdd_PEGI(ind);
+                changed |= SearchAndAdd_PEGI(ind);
+
+            }
+            else {
+                if (icon.FoldedOut.Click().nl())
+                    edited = null;
+
+                Trigger.inspected = Trigger;
+
+                Trigger.PEGI_inList();
+
+                if (Trigger.inspected != Trigger)
+                    edited = null;
+            }
+
+         
 
             return changed;
         }
 
 #endif
+        #endregion
 
         public ConditionLogic()
         {

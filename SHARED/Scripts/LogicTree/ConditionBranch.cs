@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 namespace STD_Logic {
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD, IPEGI_ListInspect
     {
 
         public enum ConditionBranchType { OR, AND }
@@ -18,7 +18,8 @@ namespace STD_Logic {
         public string description = "new branch";
         public TaggedTarget targ;
 
-
+        Values TargetValues => targ.TryGetValues(Values.global);
+        
         public string NameForPEGI
         {
             get
@@ -62,7 +63,7 @@ namespace STD_Logic {
 
         #endregion
 
-        public bool IsTrue => CheckConditions(Values.global);
+        public bool IsTrue => CheckConditions(TargetValues);
 
         public bool CheckConditions(Values vals) {
             vals = targ.TryGetValues(vals);
@@ -126,35 +127,40 @@ namespace STD_Logic {
             var tmpVals = Values.global;
             tmpVals = targ.TryGetValues(tmpVals);
 
-
-
             bool changed = false;
 
-                if (browsedBranch == -1) {
-                    if (pegi.Click("Logic: " + type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)")
-                        + (tmpVals != null ? (CheckConditions(tmpVals) ? "True" : "false") : " ")
-                        , (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" :
-                            "At least one condition or sub branch should be true")  ))
-                        type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
+            if (browsedBranch == -1) {
+                if (pegi.Click(type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)"),
+                    (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition or sub branch should be true")))
+                    type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                    conds.edit_List(ref browsedCondition);
-                }
+                (CheckConditions(tmpVals) ? icon.Active : icon.InActive).write();
 
-                changed |= "Sub Conditions".edit_List(branches, ref browsedBranch);
-            
+                changed |= conds.edit_List(ref browsedCondition);
+            }
+
+            pegi.Line(Color.black);
+
+            changed |= "Sub Branches".edit_List(branches, ref browsedBranch);
+
 
             pegi.newLine();
 
             return changed;
         }
 
-        public void ConditionsFoldout(ref ConditionBranch cond, ref bool Show, string descr)
+        public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool AnyConditions = ((cond != null) && (cond.conds.Count > 0));
-            pegi.foldout(descr + (Show ? "..." :
-              ((AnyConditions) ? "[" + cond.conds.Count + "]: " + cond.conds[0].ToString() : "UNCONDITIONAL")), ref Show);
+            (IsTrue ? icon.Active : icon.InActive).write();
 
+            var changed = this.inspect_Name();
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            return changed;
         }
+
 
 
 #endif

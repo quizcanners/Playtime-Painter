@@ -51,9 +51,9 @@ namespace STD_Logic
         public override bool Inspect() {
             bool changed = false;
            
-            if (Trigger.editedTrigger != Trigger) {
+            if (Trigger.inspected != Trigger) {
                 if (icon.Edit.Click(20))
-                    Trigger.editedTrigger = Trigger;
+                    Trigger.inspected = Trigger;
 
                 string focusName = "Tt";
                 int index = pegi.NameNextUnique(ref focusName);
@@ -66,7 +66,7 @@ namespace STD_Logic
                     changed |= pegi.edit(ref tmpname);
 
             } else if (icon.Close.Click(20))
-                Trigger.editedTrigger = null;
+                Trigger.inspected = null;
 
             return false;
         }

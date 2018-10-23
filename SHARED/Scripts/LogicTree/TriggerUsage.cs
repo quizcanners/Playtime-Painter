@@ -11,7 +11,7 @@ namespace STD_Logic
 
     // Trigger usage is only used for PEGI. Logic engine will not need this to process triggers
 
-    public abstract class TriggerUsage  {
+    public abstract class TriggerUsage : IGotDisplayName  {
         
         protected static List<TriggerUsage> usgs = new List<TriggerUsage>();
 
@@ -20,15 +20,17 @@ namespace STD_Logic
         }
 
         public static List<string> names = new List<string>();
-#if PEGI
+
+        #region Inspector
+        #if PEGI
         public static bool SelectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
         
         public bool Inspect(ValueIndex arg) => Inspect(arg.Trigger);
         
         public virtual void Inspect(ConditionLogic c) { }
 
-        public abstract bool Inspect(Result r);// => false;
-        
+        public abstract bool Inspect(Result r);
+
         public virtual bool Select(ref ResultType r, Dictionary<int, string> resultUsages) {
             bool changed = false;
             int t = (int)r;
@@ -75,7 +77,7 @@ namespace STD_Logic
         public virtual bool Inspect(Trigger t) {
             bool changed = false;
             string before = t.name;
-            if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions() ? 30 : 0))) {
+            if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions ? 30 : 0))) {
                 Trigger.searchField = before;
                 t.name = before;
                 pegi.FocusControl("none");
@@ -84,14 +86,15 @@ namespace STD_Logic
             return changed;
         }
 
-#endif
+        #endif
+        #endregion
 
-        public virtual bool HasMoreTriggerOptions() {
-            return false;
-        }
+        public virtual bool HasMoreTriggerOptions => false;
+        
         
         public virtual bool UsingBool => false;
-        
+
+        public abstract string NameForPEGIdisplay { get;  }
 
         public virtual bool UsingEnum() {
             return false;
@@ -121,7 +124,9 @@ namespace STD_Logic
 
     public class Usage_Boolean : TriggerUsage {
 
-        public override string ToString() { return string.Format("YesNo"); }
+        public override string NameForPEGIdisplay => "YesNo";
+
+        #region Inspector
 #if PEGI
         public override void Inspect(ConditionLogic c) {
             if (!c.IsBoolean())
@@ -155,12 +160,14 @@ namespace STD_Logic
             return changed;
         }
 #endif
+        #endregion
+
         public Usage_Boolean(int index) : base(index) { }
     }
 
     public class Usage_Number : TriggerUsage {
-        
-        public override string ToString() { return string.Format("Number"); }
+
+        public override string NameForPEGIdisplay => "Number";
 
         public static readonly Dictionary<int,string> conditionUsages = new Dictionary<int, string> { 
             { ((int)ConditionType.Equals), "==" },
@@ -174,6 +181,8 @@ namespace STD_Logic
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
         };
+
+        #region Inspector
 #if PEGI
         public override void Inspect(ConditionLogic c) {
 
@@ -205,6 +214,7 @@ namespace STD_Logic
             return changed;
         }
 #endif
+        #endregion
 
         public Usage_Number(int index) : base(index) { }
     }
@@ -213,9 +223,10 @@ namespace STD_Logic
     public class Usage_StringEnum : TriggerUsage
     {
 
-        public override string ToString() { return string.Format("Enums"); }
-#if PEGI
+        public override string NameForPEGIdisplay => "Enums";
 
+        #region Inspector
+#if PEGI
         public override void Inspect(ConditionLogic c) {
 
 
@@ -246,48 +257,38 @@ namespace STD_Logic
             
            changed |= Values.global.ints.Select(t).nl(); 
 
-            if (Trigger.editedTrigger != t) return changed;
+            if (Trigger.inspected != t) return changed;
 
             "__ Enums__".write(60);
             changed |= t.enm.edit_PEGI();
 
             return changed;
         }
-
 #endif
+        #endregion
 
-        public override bool HasMoreTriggerOptions()
-        {
-            return true;
-        }
-
+        public override bool HasMoreTriggerOptions => true;
+        
         public Usage_StringEnum(int index) : base(index) { }
     }
 
-    
-   /* public class Usage_Pointer : TriggerUsage {
-      
-        public override string ToString() { return string.Format("Pointer"); }
-
-        public Usage_Pointer(int index) : base(index) { }
-    }*/
-
     public class Usage_GameTimeStemp : TriggerUsage {
-       
-        public override string ToString() { return string.Format("Game Time"); }
+
+        public override string NameForPEGIdisplay => "Game Time";
 
         public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.VirtualTimePassedAbove), "Game_Time passed > " },
             { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
 
-#if PEGI
+        #region Inspector
+        #if PEGI
         public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
             if (num == null)
-                "Condition is not a number".write();
+                icon.Warning.write("Condition is not a number", 90); //.write();
             else
             {
                 Select(ref num.type, conditionUsages);
@@ -296,7 +297,7 @@ namespace STD_Logic
             }
         }
 
-         public override bool Inspect(Result r) {
+        public override bool Inspect(Result r) {
             bool changed = false;
             
             changed |= Select(ref r.type , resultUsages);
@@ -306,9 +307,9 @@ namespace STD_Logic
 
             return changed;
         }
-
-#endif
-
+        #endif
+        #endregion
+        
         public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
             {(int)ResultType.SetTimeGame, ResultType.SetTimeGame.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
@@ -316,29 +317,26 @@ namespace STD_Logic
             {(int)ResultType.Set, ResultType.Set.GetText()},
         };
 
-       
-
-
         public Usage_GameTimeStemp(int index) : base(index) { }
     }
 
     public class Usage_RealTimestemp : TriggerUsage {
 
-        public override string ToString() { return string.Format("Real Time"); }
+        public override string NameForPEGIdisplay => "Real Time";
 
         public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.RealTimePassedAbove), "Real_Time passed > " },
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
 
+        #region Inspector
 #if PEGI
-
         public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicInt;
 
             if (num == null)
-                "Condition is not a number".write();
+                icon.Warning.write("Condition is not a number", 90);
             else
             {
                 Select(ref num.type, conditionUsages);
@@ -359,6 +357,8 @@ namespace STD_Logic
         }
 
 #endif
+        #endregion
+
         public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
             {(int)ResultType.SetTimeReal, ResultType.SetTimeReal.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
@@ -372,10 +372,10 @@ namespace STD_Logic
 
     public class Usage_IntTag : TriggerUsage {
 
-        public override string ToString() { return string.Format("TagGroup"); }
+        public override string NameForPEGIdisplay => "TagGroup";
 
+        #region Inspector
         #if PEGI
-
         public override bool Inspect(Trigger t) {
             var changed = base.Inspect(t);
 
@@ -390,7 +390,7 @@ namespace STD_Logic
 
             pegi.newLine();
 
-            if (Trigger.editedTrigger != t) return changed;
+            if (Trigger.inspected != t) return changed;
 
             pegi.write("__ Tags __");
 
@@ -416,9 +416,8 @@ namespace STD_Logic
             var num = c as ConditionLogicInt;
 
             if (num == null)
-                "Condition is not a number".write();
-            else
-            {
+                icon.Warning.write("Condition is not a number", 60); //.write();
+            else {
                 Select(ref num.type, Usage_Number.conditionUsages);
 
                 pegi.select(ref num.compareValue, num.Trigger.enm);
@@ -431,33 +430,31 @@ namespace STD_Logic
             bool changed = false;
 
             changed |= Select(ref r.type, Usage_Number.resultUsages);
-
             
             pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
         }
+        #endif
+        #endregion
 
-#endif
-
-        public override bool HasMoreTriggerOptions() => true;
+        public override bool HasMoreTriggerOptions => true;
         
 
         public Usage_IntTag(int index) : base(index) { }
     }
 
     public class Usage_BoolTag : TriggerUsage {
-     
-        public override string ToString() { return string.Format("Tag"); }
 
+        public override string NameForPEGIdisplay => "Tag";
 
+        #region Inspector
         #if PEGI
-
         public override void Inspect(ConditionLogic c) {
 
             var num = c as ConditionLogicBool;
 
             if (num == null)
-                "Condition is not a bool".write();
+                icon.Warning.write("Condition is not a bool",60);
             else
                 pegi.toggle(ref num.compareValue);
         }
@@ -476,8 +473,8 @@ namespace STD_Logic
 
             return changed;
         }
-
         #endif
+        #endregion
 
         public Usage_BoolTag(int index) : base(index) { }
     }

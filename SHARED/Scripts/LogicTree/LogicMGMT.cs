@@ -71,6 +71,7 @@ namespace STD_Logic
 
         public void Awake() => RealTimeNow();
 
+        #region Inspector
 #if PEGI
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
@@ -82,13 +83,12 @@ namespace STD_Logic
     
             if (icon.Condition.enter("Trigger Groups", ref inspectedStuff, 1)) {
 
+                "Trigger Groups".write(PEGI_Styles.ListLabel); 
                 pegi.nl();
-                "Trigger Groups".nl();
 
                 changed |= TriggerGroup.all.Inspect<UnnullableSTD<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
 
-                if (inspectedTriggerGroup == -1)
-                {
+                if (inspectedTriggerGroup == -1) {
                     "At Index: ".edit(60, ref tmpIndex);
                     if (tmpIndex >= 0 && ExtensionsForGenericCountless.TryGet(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnfocus("Create New Group"))
                     {
@@ -103,6 +103,7 @@ namespace STD_Logic
 
             return changed;
         }
-# endif
+#endif
+        #endregion
     }
 }
