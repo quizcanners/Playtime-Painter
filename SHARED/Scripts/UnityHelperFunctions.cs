@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
+using UnityEngine.Networking;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -1661,6 +1662,179 @@ namespace SharedTools_Stuff
 #endif
 #endregion
         #endregion
+    }
+
+
+
+    public class TextureDownloadManager : IPEGI {
+        List<WebRequestMeta> loadedTextures = new List<WebRequestMeta>();
+
+        class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI {
+            UnityWebRequest request;
+            string address;
+            public string URL => address;
+            Texture texture;
+            bool failed = false;
+
+            public string NameForPEGI { get { return address; } set { address = value; } }
+
+            Texture Take() {
+                var tmp = texture;
+                texture = null;
+                failed = false;
+                request.Dispose();
+                request = null;
+                return tmp;
+            }
+
+            public bool TryGetTexture(out Texture tex, bool remove = false) {
+                tex = texture;
+
+                if (remove && texture) Take();
+
+                if (failed) return true;
+
+                if (request != null) {
+                    if (request.isNetworkError || request.isHttpError) {
+
+                        failed = true;
+
+#if UNITY_EDITOR
+                        Debug.Log(request.error);
+#endif
+                        return true;
+                    }
+
+                    if (texture == null && request.isDone) {
+                        texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+                        request.Dispose();
+                        tex = texture;
+
+                        if (remove && texture)
+                            Take();
+                    }
+                    else return false;
+                }
+                else Start();
+
+                return true;
+            }
+
+            void Start() {
+                if (request != null) request.Dispose();
+                request = UnityWebRequestTexture.GetTexture(address);
+                request.SendWebRequest();
+                failed = false;
+            }
+
+            public WebRequestMeta(string URL) {
+                address = URL;
+                Start();
+            }
+
+            public void Dispose() {
+                if (texture != null)
+                    texture.DestroyWhatever();
+                
+                    request?.Dispose();
+            }
+
+            #region Inspector
+            #if PEGI
+            public bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                var changed = false;
+                Texture tex;
+                TryGetTexture(out tex);
+
+                if (texture) {
+                    if (icon.Refresh.Click())
+                            Start();
+
+                    if (texture.Click())
+                        edited = ind;
+
+                } else {
+
+                    if (failed) {
+                        if (icon.Refresh.Click())
+                            Start();
+                        "Failed ".F(address).write(40);
+                    }
+                    else {
+                        icon.Active.write();
+                        "Loding ".write(40);
+                    } 
+                        
+                }
+                address.write();
+                return changed;
+            }
+
+            public bool Inspect()
+            {
+                Texture tex;
+                TryGetTexture(out tex);
+                
+                if (texture)
+                    pegi.write(texture,200);
+
+                return false;
+            }
+            #endif
+            #endregion
+        }
+
+        public string GetURL(int ind) {
+            var el = loadedTextures.TryGet(ind);
+            if (el != null)
+                return el.URL;
+            return "";
+        }
+
+         public bool TryGetTexture(int ind, out Texture tex, bool remove = false) {
+            tex = null;
+            var el = loadedTextures.TryGet(ind);
+            if (el != null)
+                return el.TryGetTexture(out tex, remove);
+            return true;
+        }
+
+
+
+        public int StartDownload(string address) {
+            var el = loadedTextures.GetByIGotName(address);   
+
+            if (el == null) {
+                el = new WebRequestMeta(address);
+                loadedTextures.Add(el);
+            }
+
+            return loadedTextures.IndexOf(el);
+        }
+
+        public void Dispose() {
+            foreach (var t in loadedTextures)
+                t.Dispose();
+
+            loadedTextures.Clear();
+        }
+
+#if PEGI
+        int inspected = -1;
+        string tmp = "";
+        public bool Inspect()
+        {
+
+            bool changed = "Textures and Requests".write_List(loadedTextures, ref inspected);
+
+            "URL".edit(30, ref tmp);
+            if (tmp.Length > 0 && icon.Add.Click().nl())
+                StartDownload(tmp);
+
+            return changed;
+        }
+#endif
     }
 
     #region Linked Lerps

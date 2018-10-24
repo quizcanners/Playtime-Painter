@@ -130,6 +130,16 @@ namespace SharedTools_Stuff {
     public static class AbstractModularExtensions
     {
 
+        public static void Replace_IfDifferent<T>(this TaggedTypes_STD std, ref T obj, Type newType)
+        {
+            if (obj.GetType() != newType)
+            {
+                obj = (T)Activator.CreateInstance(newType);
+                Debug.Log("Replacing type");
+            }
+        }
+        
+
         public static T TryGetByTag <T>(this List<T> lst, string tag) where T: IGotClassTag {
 
             if (lst != null && tag != null && tag.Length > 0) {

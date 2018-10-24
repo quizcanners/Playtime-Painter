@@ -62,11 +62,13 @@ public interface IGotIndex
 #endregion
 
 #pragma warning disable IDE1006 // Naming Styles
-namespace PlayerAndEditorGUI
-{
-#if PEGI
+namespace PlayerAndEditorGUI {
+
     public static class pegi {
 
+        public static string EnvironmentNL => Environment.NewLine;
+
+#if PEGI
         #region Other Stuff
         public delegate bool CallDelegate();
 
@@ -404,8 +406,6 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region New Line
-
-        public static string EnvironmentNL => Environment.NewLine;
 
         public static void newLine()
         {
@@ -1044,19 +1044,19 @@ namespace PlayerAndEditorGUI
         public static bool selectType<T>(this string text, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
         {
             text.write(width);
-            return selectType<T>(ref obj, ed, keepTypeConfig);
+            return selectType(ref obj, ed, keepTypeConfig);
         }
 
         public static bool selectType<T>(this string text, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
         {
             text.write();
-            return selectType<T>(ref obj, ed, keepTypeConfig);
+            return selectType(ref obj, ed, keepTypeConfig);
         }
 
         public static bool selectType<T>(ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag {
 
             if (ed != null)
-                return ed.SelectType<T>(ref obj, keepTypeConfig);
+                return ed.SelectType(ref obj, keepTypeConfig);
             
             var type = obj?.GetType();
 
@@ -2494,7 +2494,16 @@ namespace PlayerAndEditorGUI
         public static bool enter(this string txt, ref bool state) => icon.Enter.enter(txt, ref state);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
-        
+
+        public static bool enter_inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
+        {
+            if (ico.enter(txt, ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered())
+                return var.Nested_Inspect();
+
+            return false;
+        }
+
+
         public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne) {
             if (enteredOne == -1)
                 label.write(width);
@@ -4025,7 +4034,7 @@ namespace PlayerAndEditorGUI
         static string editedHash = "";
         public static bool editDelayed(ref string val)
         {
-            if (val.LengthIsTooLong()) return false;
+            if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -4068,7 +4077,7 @@ namespace PlayerAndEditorGUI
         public static bool editDelayed(ref string val, int width)
         {
 
-            if (val.LengthIsTooLong()) return false;
+            if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -4212,7 +4221,7 @@ namespace PlayerAndEditorGUI
 
         const int maxStringSize = 1000;
 
-        static bool LengthIsTooLong(this string label)
+        static bool LengthIsTooLong(ref string label)
         {
             if (label == null || label.Length < maxStringSize)
                 return false;
@@ -4220,7 +4229,8 @@ namespace PlayerAndEditorGUI
             {
                 if (icon.Delete.Click())
                     label = "";
-                write("String is too long {0}".F(label.Substring(0, 10)));
+                else 
+                    write("String is too long {0}".F(label.Substring(0, 10)));
             }
             return true;
         }
@@ -4228,7 +4238,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref string val)
         {
 
-            if (val.LengthIsTooLong()) return false;
+            if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -4250,10 +4260,9 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static bool edit(ref string val, int width)
-        {
+        public static bool edit(ref string val, int width) {
 
-            if (val.LengthIsTooLong()) return false;
+            if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -6440,8 +6449,9 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-    }
 #endif
+    }
+
 
     #region Extensions
     public static class PEGI_Extensions
@@ -6677,6 +6687,20 @@ namespace PlayerAndEditorGUI
 
             return default(T);
         }
+
+        public static T GetByIGotName<T>(this List<T> lst, T other) where T : IGotName
+        {
+
+#if PEGI
+            if (lst != null)
+                foreach (var el in lst)
+                    if (el != null && el.NameForPEGI.SameAs(other.NameForPEGI))
+                        return el;
+#endif
+
+            return default(T);
+        }
+
 
         public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T
         {

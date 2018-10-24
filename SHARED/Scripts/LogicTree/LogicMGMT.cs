@@ -75,6 +75,8 @@ namespace STD_Logic
 #if PEGI
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
+        [NonSerialized] TriggerGroup replaceRecieved = null;
+        [NonSerialized] bool inspectReplacementOption = false;
         public override bool Inspect()
         {
             var changed = false;
@@ -82,6 +84,50 @@ namespace STD_Logic
             changed |= base.Inspect().nl();
     
             if (icon.Condition.enter("Trigger Groups", ref inspectedStuff, 1)) {
+
+                if (inspectedTriggerGroup == -1) {
+
+                    #region Paste Options
+
+                    if (replaceRecieved != null) {
+
+                        if (replaceRecieved.NameForPEGI.enter(ref inspectReplacementOption))
+                            replaceRecieved.Nested_Inspect();
+                        else
+                        {
+                            if (icon.Done.ClickUnfocus())
+                            {
+                                TriggerGroup.all[replaceRecieved.IndexForPEGI] = replaceRecieved;
+                                replaceRecieved = null;
+                            }
+                            if (icon.Close.ClickUnfocus())
+                                replaceRecieved = null;
+                        }
+                    }
+                    else
+                    {
+
+                        string tmp = "";
+                        if ("Paste Messaged STD data".edit(140, ref tmp) || STDExtensions.LoadOnDrop(out tmp)) {
+                            var group = new TriggerGroup();
+                            group.DecodeFromExternal(tmp);
+                            if (TriggerGroup.all.GetIfExists(group.IndexForPEGI) == null)
+                                TriggerGroup.all[group.IndexForPEGI] = group;
+                            else
+                            {
+                                replaceRecieved = group;
+                                replaceRecieved.NameForPEGI += " replaces {0}".F(TriggerGroup.all[group.IndexForPEGI].NameForPEGI);
+                            }
+                        }
+
+
+
+                    }
+                    pegi.nl();
+
+                    #endregion
+
+                }
 
                 "Trigger Groups".write(PEGI_Styles.ListLabel); 
                 pegi.nl();

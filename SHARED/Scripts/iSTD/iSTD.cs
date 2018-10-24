@@ -13,6 +13,7 @@ using UnityEditor;
 
 namespace SharedTools_Stuff {
 
+    #region Manual Serialization Interfaces
     public interface ISTD {
         StdEncoder Encode(); 
         ISTD Decode(string data);
@@ -23,10 +24,6 @@ namespace SharedTools_Stuff {
         bool isDefault { get; }
     }
 
-    ///<summary>For runtime initialization.
-    ///<para> Best used on Scriptable Objects. They don't loose references. Prefabs needs to be updated and scenes saved to keep any references</para>
-    ///<seealso cref="StdEncoder"/>
-    ///</summary>
     public interface ISTD_SerializeNestedReferences
     {
         int GetISTDreferenceIndex(UnityEngine.Object obj);
@@ -37,6 +34,7 @@ namespace SharedTools_Stuff {
     {
         LoopLock GetLoopLock();
     }
+    #endregion
 
     #region EnumeratedTypeList
     ///<summary>For runtime initialization.
@@ -431,6 +429,68 @@ namespace SharedTools_Stuff {
     #region Extensions
     public static class STDExtensions {
 
+        const string stdStart = "<-<-<";
+        const string stdEnd = ">->->";
+
+        public static void EmailData(this ISTD std, string subject, string note) {
+            if (std != null) {
+
+                var data = std.Encode().ToString();
+
+                ExternalCommunication.SendEmail ( "somebody@gmail.com", subject, "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNL, pegi.EnvironmentNL,
+                    stdStart, data, stdEnd ) ) ;
+
+               // Debug.Log("Sending {0}".F(data));
+
+            }
+        }
+
+        public static void DecodeFromExternal(this ISTD std, string data) {
+            if (std != null){
+                if (data.Contains(stdStart)) {
+                    var start = data.IndexOf(stdStart) + stdStart.Length;
+                    var end = data.IndexOf(stdEnd);
+
+                    data = data.Substring(start, end - start);
+                }
+
+               // Debug.Log("Decoding {0}".F(data));
+
+                std.Decode(data);
+            }
+
+        }
+
+#if PEGI
+        public static bool Send_Recieve_PEGI(this ISTD std, string name, string folderName) {
+  
+            if (icon.Email.Click("Send {0} to somebody via email.".F(folderName)))
+                std.EmailData(name, "Use this {0}".F(name));
+
+            string tmp = "";
+            if (pegi.edit(ref tmp)) {
+                std.DecodeFromExternal(tmp);
+                return true;
+            }
+
+            if (icon.Folder.Click("Save {0} to the file".F(name)))
+            {
+                std.SaveToAssets(folderName, name);
+                UnityHelperFunctions.RefreshAssetDatabase();
+            }
+
+            std.LoadOnDrop();
+
+            pegi.nl();
+
+            return false;
+        }
+
+
+
+#endif
+
+
         public static TaggedTypes_STD GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag {
             if (obj != null)
                 return obj.AllTypes;
@@ -473,19 +533,30 @@ namespace SharedTools_Stuff {
         public static string copyBufferValue;
         public static string copyBufferTag;
 
-        public static bool LoadOnDrop<T>(this T obj) where T: ISTD
-        {
+        public static bool LoadOnDrop(out string txt) {
 
+            txt = null;
 #if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                obj.Decode(StuffLoader.LoadTextAsset(myType));
-
+                txt = StuffLoader.LoadTextAsset(myType);
+                Debug.Log("Decoded {0}".F(txt));
                 ("Loaded " + myType.name).showNotification();
 
                 return true;
             }
 #endif
+            return false;
+        }
+
+        public static bool LoadOnDrop<T>(this T obj) where T: ISTD
+        {
+            string txt;
+            if (LoadOnDrop(out txt)) {
+                obj.Decode(txt);
+                return true;
+            }
+
             return false;
         }
 

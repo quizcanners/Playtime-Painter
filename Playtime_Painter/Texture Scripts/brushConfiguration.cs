@@ -203,10 +203,11 @@ namespace Playtime_Painter {
         public float decalAngleModifier;
         public bool flipMaskAlpha = false;
         public bool TargetIsTex2D = false;
+        public bool showBrushDynamics = false;
 
         public ElementData brushDunamicConfigs = new ElementData();
 
-        public BrushDynamic brushDynamic = null;
+        public BrushDynamic brushDynamic = new BrushDynamic_None();
 
         public float Brush3D_Radius = 16;
         public float Brush2D_Radius = 16;
@@ -419,11 +420,17 @@ namespace Playtime_Painter {
             }
 
             pegi.newLine();
-            
-            changed |= "Brush Dynamic".selectType(90, ref brushDynamic, brushDunamicConfigs, true).nl();
 
-            if (brushDynamic != null)
-                brushDynamic.Nested_Inspect().nl();
+            if (showBrushDynamics)
+            {
+
+                changed |= "Brush Dynamic".selectType(90, ref brushDynamic, brushDunamicConfigs, true).nl();
+
+                if (brushDynamic != null)
+                    brushDynamic.Nested_Inspect().nl();
+            }
+            else
+                brushDynamic.AllTypes.Replace_IfDifferent(ref brushDynamic, typeof(BrushDynamic_None));
 
 #if UNITY_EDITOR
             if (Tools.current != Tool.None) {

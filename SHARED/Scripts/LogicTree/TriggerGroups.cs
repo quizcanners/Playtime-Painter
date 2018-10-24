@@ -15,7 +15,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public class TriggerGroup : AbstractKeepUnrecognized_STD, IGotName, IGotIndex, IPEGI
+    public class TriggerGroup : AbstractKeepUnrecognized_STD, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect
     {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
@@ -160,20 +160,17 @@ namespace STD_Logic
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("n", name)
             .Add("ind", index)
-            .Add("t", triggers)
+            .Add_IfNotDefault("t", triggers)
             .Add("br", browsedGroup)
             .Add_IfTrue("show", showInInspectorBrowser);
 
-        public override bool Decode(string tag, string data)
-        {
-            switch (tag)
-            {
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
                 case "n": name = data; break;
                 case "ind": index = data.ToInt(); break;
                 case "t":
                     data.DecodeInto(out triggers);
-                    foreach (var t in triggers)
-                    {
+                    foreach (var t in triggers){
                         t.groupIndex = index;
                         t.triggerIndex = triggers.currentEnumerationIndex;
                     }
@@ -196,10 +193,9 @@ namespace STD_Logic
         #endregion
 
         #region Inspector
-        
-#if PEGI
-
         bool listDirty;
+
+#if PEGI
 
         string lastFilteredString = "";
 
@@ -248,7 +244,19 @@ namespace STD_Logic
 
             return changed;
         }
-        
+
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
+            var changed = this.inspect_Name();
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            if (icon.Email.Click("Send this Trigger Group to somebody via email."))
+                this.EmailData("Trigger Group {0} [index: {1}]".F(name, index), "Use this Trigger Group in your Node Books");
+
+            return changed;
+        }
+
         public override bool Inspect()  {
 
             inspected = this;
@@ -256,7 +264,31 @@ namespace STD_Logic
             bool changed = false;
 
             if (inspectedStuff == -1) {
-                changed |= "Index {0} : ".F(index).edit(60, ref name).nl();
+
+
+                "Share:".write(50);
+
+                var ind = index;
+                if (this.Send_Recieve_PEGI("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups")) {
+                    if (ind != index) {
+                        Debug.LogError("Pasted trigger group had different index, replacing");
+                        index = ind;
+                    }
+                }
+
+                changed |= "{0} : ".F(index).edit(50, ref name);
+
+                pegi.nl();
+
+                /* if (icon.Email.Click("Send this Trigger Group to somebody via email."))
+                      this.EmailData("Trigger Group {0} [index: {1}]".F(name, index), "Use this Trigger Group in your Node Books");
+
+                  string std = "";
+                  if ("Paste Trigger Group:".edit(150, ref std).nl()) 
+                      this.DecodeEmail(std);*/
+
+                pegi.Line();
+
                 "New Variable".edit(80, ref Trigger.searchField);
                 AddTriggerToGroup_PEGI();
                 
@@ -267,57 +299,6 @@ namespace STD_Logic
             return changed;
 
         }
-
-        /*
-        public bool SearchTriggers_PEGI()
-        {
-
-            bool changed = false;
-
-            List<int> indxs;
-            List<Trigger> lt = triggers.GetAllObjs(out indxs);
-
-            int showMax = 20;
-
-            for (int i = 0; i < lt.Count; i++) {
-                Trigger t = lt[i];
-
-                if (((Trigger.searchField.Length < 1) || Regex.IsMatch(t.name, Trigger.searchField, RegexOptions.IgnoreCase)))
-                {
-                    showMax--;
-
-                    Trigger.searchMatchesFound++;
-
-                    t.Inspect();
-
-                    if (t._usage.HasMoreTriggerOptions)
-                    {
-                        if (Trigger.editedTrigger != t)
-                        {
-                            if (icon.Edit.Click(20))
-                                Trigger.editedTrigger = t;
-                        }
-                        else if (icon.Close.Click(20))
-                            Trigger.editedTrigger = null;
-                    }
-
-                    changed |= t._usage.Inspect(t).nl();
-
-                    if (t._usage.HasMoreTriggerOptions)
-                    {
-                        pegi.Space();
-                        pegi.newLine();
-                    }
-
-                }
-                if (showMax < 0) break;
-            }
-
-            return changed;
-
-        }
-        */
-
 
         public bool AddTriggerToGroup_PEGI(ValueIndex arg = null)
         {
@@ -387,6 +368,7 @@ namespace STD_Logic
             return null;
         }
 
+      
     }
 }
 

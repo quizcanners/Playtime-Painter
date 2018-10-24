@@ -950,23 +950,18 @@ namespace Playtime_Painter
             SetTextureOnMaterial(GetMaterialTexturePropertyName, null);
         }
 
-        public void SetTextureOnMaterial(ImageData id)
+        public void SetTextureOnMaterial(ImageData id) => SetTextureOnMaterial(GetMaterialTexturePropertyName, id.CurrentTexture());
+        
+        public ImageData SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTexturePropertyName, tex);
+        
+        public ImageData SetTextureOnMaterial(string fieldName, Texture tex)
         {
-            SetTextureOnMaterial(GetMaterialTexturePropertyName, id.CurrentTexture());
-        }
-
-        public void SetTextureOnMaterial(Texture tex)
-        {
-            SetTextureOnMaterial(GetMaterialTexturePropertyName, tex);
-        }
-
-        public void SetTextureOnMaterial(string fieldName, Texture tex)
-        {
-            SetTextureOnMaterial(fieldName, tex, GetMaterial(true));
+            var id = SetTextureOnMaterial(fieldName, tex, GetMaterial(true));
             CheckPreviewShader();
+            return id;
         }
 
-        public void SetTextureOnMaterial(string fieldName, Texture tex, Material mat)
+        public ImageData SetTextureOnMaterial(string fieldName, Texture tex, Material mat)
         {
 
             var id = tex.GetImgData();
@@ -978,7 +973,7 @@ namespace Playtime_Painter
 
                 foreach (PainterPluginBase nt in plugins)
                     if (nt.SetTextureOnMaterial(fieldName, id, this))
-                        return;
+                        return id;
             }
 
             if (mat != null)
@@ -989,6 +984,8 @@ namespace Playtime_Painter
                 if (!IsOriginalShader && (terrain == null))
                     SetTextureOnPreview(id.CurrentTexture());
             }
+
+            return id;
         }
 
         void SetTextureOnPreview(Texture tex)
@@ -1655,27 +1652,16 @@ namespace Playtime_Painter
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord()
-        {
-            Application.OpenURL("https://discord.gg/rF7yXq3");
-        }
-
+        public static void Open_Discord() =>  Application.OpenURL("https://discord.gg/rF7yXq3");
+        
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
-        public static void OpenWWW_Documentation()
-        {
-            Application.OpenURL(WWW_Manual);
-        }
+        public static void OpenWWW_Documentation() => Application.OpenURL(WWW_Manual);
+        
+        public static void OpenWWW_Forum() => Application.OpenURL("https://www.quizcanners.com/forum/texture-editor");
 
-        public static void OpenWWW_Forum()
-        {
-            Application.OpenURL("https://www.quizcanners.com/forum/texture-editor");
-        }
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-
-        public static void Open_Email()
-        {
-            Application.OpenURL("mailto:quizcanners@gmail.com");
-        }
+        public static void Open_Email() => ExternalCommunication.SendEmail("quizcanners@gmail.com", "About your Playtime Painter", 
+            "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ..."); 
 
 #endif
 
@@ -1832,83 +1818,6 @@ namespace Playtime_Painter
 
         #endregion
 
-        #region UPDATES  
-
-        public bool textureWasChanged = false;
-
-        float repaintTimer;
-
-#if UNITY_EDITOR
-        public void FeedEvents(Event e)
-        {
-
-
-            var id = ImgData;
-
-            if ((e.type == EventType.KeyDown) && !meshEditing && id != null)
-            {
-
-                if ((e.keyCode == KeyCode.Z) && (id.cache.undo.gotData()))
-                    id.cache.undo.ApplyTo(id);
-                else if ((e.keyCode == KeyCode.X) && (id.cache.redo.gotData()))
-                    id.cache.redo.ApplyTo(id);
-            }
-        }
-#endif
-
-#if UNITY_EDITOR || BUILD_WITH_PAINTER
-        bool texture2DDataWasChanged;
-        public void Update()
-        {
-
-            if (IsEditingThisMesh && (Application.isPlaying))
-                MeshManager.Inst.DRAW_Lines(false);
-
-            if (textureWasChanged)
-                OnChangedTexture_OnMaterial();
-
-            repaintTimer -= (Application.isPlaying) ? Time.deltaTime : 0.016f;
-
-            if (texture2DDataWasChanged && ((repaintTimer < 0) || (stroke.mouseUp)))
-            {
-                // Debug.Log("repainting delay");
-                texture2DDataWasChanged = false;
-                var id = ImgData;
-
-                if ((id != null) && (id.texture2D != null))
-                    id.SetAndApply(!GlobalBrush.DontRedoMipmaps);
-                repaintTimer = GlobalBrush.repaintDelay;
-            }
-
-        }
-#endif
-
-        public void PreviewShader_StrokePosition_Update()
-        {
-            CheckPreviewShader();
-            if (!IsOriginalShader)
-            {
-                bool hide = Application.isPlaying ? Input.GetMouseButton(0) : currently_Painted_Object == this;
-                PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
-            }
-        }
-
-        public void Update_Brush_Parameters_For_Preview_Shader()
-        {
-            var id = ImgData;
-
-            if ((id != null) && (!IsOriginalShader))
-            {
-                TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, this);
-
-                foreach (var p in plugins)
-                    p.Update_Brush_Parameters_For_Preview_Shader(this);
-
-            }
-        }
-
-        #endregion
-
         #region Inspector 
 
         public override void OnGUI()
@@ -1928,7 +1837,11 @@ namespace Playtime_Painter
 
         public static PlaytimePainter inspectedPainter;
 
-        #if PEGI
+#if PEGI
+        static string tmpURL = "";
+        Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
+
+
         public bool PEGI_MAIN()
         {
 
@@ -1985,7 +1898,7 @@ namespace Playtime_Painter
                             changed = true;
                         }
 
-        
+
 
                     }
                 }
@@ -2167,11 +2080,13 @@ namespace Playtime_Painter
 
                         pegi.nl();
 
-                        if (!Cfg.moreOptions) {
+                        if (!Cfg.moreOptions)
+                        {
 
                             changed |= GlobalBrush.ColorSliders_PEGI().nl();
 
-                            if (Cfg.showColorSchemes) {
+                            if (Cfg.showColorSchemes)
+                            {
 
                                 var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
 
@@ -2189,9 +2104,11 @@ namespace Playtime_Painter
                         #region Fancy Options
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
-                        if (Cfg.moreOptions)  {
+                        if (Cfg.moreOptions)
+                        {
 
-                            if ("Show/Hide stuff".enter(ref id.inspectedStuff, 7).nl()) {
+                            if ("Show/Hide stuff".enter(ref id.inspectedStuff, 7).nl())
+                            {
 
                                 "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
@@ -2202,12 +2119,17 @@ namespace Playtime_Painter
 
                                 "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
 
-                                "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl();
+                                changed |= "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl();
 
                                 changed |= "Show Recording/Playback".toggleIcon(ref id.showRecording, true).nl();
+
+                                changed |= "Brush Dynamics".toggleIcon(ref GlobalBrush.showBrushDynamics, true).nl();
+                                
+                                changed |= "Show URL field".toggleIcon(ref Cfg.showURLfield, true);
                             }
 
-                            if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl()) {
+                            if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl())
+                            {
 
                                 if (Cfg.newTextureIsColor)
                                     "Clear Color".edit(ref Cfg.newTextureClearColor).nl();
@@ -2226,7 +2148,9 @@ namespace Playtime_Painter
                         bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
 
                         changed |= id.ComponentDependent_PEGI(showToggles, this);
-                        
+
+                     
+
                         if (Cfg.moreOptions)
                             pegi.Line(Color.red);
 
@@ -2238,7 +2162,8 @@ namespace Playtime_Painter
                         if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                             id.SetAndApply(true);
                         #endregion
-                    } else 
+                    }
+                    else
                         if (!IsOriginalShader)
                         this.PreviewShaderToggle_PEGI();
 
@@ -2287,6 +2212,29 @@ namespace Playtime_Painter
                             #endregion
 
                             #region Texture Instantiation Options
+
+                            if (Cfg.showURLfield)
+                            {
+                                if (id != null)
+                                    tmpURL = id.URL;
+
+                                "URL".edit(40,ref tmpURL);
+                                if (tmpURL.Length > 5 && icon.Download.Click())
+                                {
+                                    loadingOrder.Add(TexMGMT.downloadManager.StartDownload(tmpURL), GetMaterialTexturePropertyName);
+                                    tmpURL = "";
+                                    "Loading for {0}".F(GetMaterialTexturePropertyName).showNotification();
+                                }
+
+                                pegi.nl();
+                                if (loadingOrder.Count > 0)
+                                    "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "").nl();
+
+                                pegi.nl();
+                                if (id != null)
+                                    id.URL = tmpURL;
+
+                            }
 
                             if (this.SelectTexture_PEGI())
                             {
@@ -2354,7 +2302,8 @@ namespace Playtime_Painter
                                         string texName = GetMaterialTexturePropertyName;
 
                                         if ((texName != null) && (PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs))
-                                            && ((recentTexs.Count > 0) || (id == null))) {
+                                            && ((recentTexs.Count > 0) || (id == null)))
+                                        {
 
                                             if ("Recent Textures:".select(100, ref id, recentTexs).nl())
                                             {
@@ -2421,9 +2370,6 @@ namespace Playtime_Painter
 
                             #region Texture Saving/Loading
 
-                       
-
-
                             if (!LockTextureEditing)
                             {
                                 pegi.nl();
@@ -2436,9 +2382,10 @@ namespace Playtime_Painter
                                     id = ImgData;
 
 #if UNITY_EDITOR
-                                    if (id.texture2D != null) {
+                                    if (id.texture2D != null)
+                                    {
                                         Orig = id.texture2D.GetPathWithout_Assets_Word();
-                                        if (Orig!= null && icon.Load.Click("Will reload " + Orig, 25))
+                                        if (Orig != null && icon.Load.Click("Will reload " + Orig, 25))
                                         {
                                             ForceReimportMyTexture(Orig);
                                             id.SaveName = id.texture2D.name;
@@ -2586,6 +2533,105 @@ namespace Playtime_Painter
 
         }
 #endif
+
+        #endregion
+
+        #region UPDATES  
+
+        public bool textureWasChanged = false;
+
+        float repaintTimer;
+
+#if UNITY_EDITOR
+        public void FeedEvents(Event e)
+        {
+
+
+            var id = ImgData;
+
+            if ((e.type == EventType.KeyDown) && !meshEditing && id != null)
+            {
+
+                if ((e.keyCode == KeyCode.Z) && (id.cache.undo.gotData()))
+                    id.cache.undo.ApplyTo(id);
+                else if ((e.keyCode == KeyCode.X) && (id.cache.redo.gotData()))
+                    id.cache.redo.ApplyTo(id);
+            }
+        }
+#endif
+
+#if UNITY_EDITOR || BUILD_WITH_PAINTER
+        bool texture2DDataWasChanged;
+        public void Update()
+        {
+
+            #region URL Loading
+            if (loadingOrder.Count > 0) {
+
+                List<int> extracted = new List<int>();
+
+                foreach (var l in loadingOrder) {
+                    Texture tmp;
+                    if (TexMGMT.downloadManager.TryGetTexture(l.Key, out tmp, true)) {
+                        if (tmp != null) {
+                            var id = SetTextureOnMaterial(l.Value, tmp);
+                            if (id != null)
+                                id.URL = TexMGMT.downloadManager.GetURL(l.Key);
+                        }
+                        extracted.Add(l.Key);
+                    }
+                }
+
+                foreach (var e in extracted)
+                    loadingOrder.Remove(e);
+            }
+            #endregion
+
+            if (IsEditingThisMesh && (Application.isPlaying))
+                MeshManager.Inst.DRAW_Lines(false);
+
+            if (textureWasChanged)
+                OnChangedTexture_OnMaterial();
+
+            repaintTimer -= (Application.isPlaying) ? Time.deltaTime : 0.016f;
+
+            if (texture2DDataWasChanged && ((repaintTimer < 0) || (stroke.mouseUp)))
+            {
+                // Debug.Log("repainting delay");
+                texture2DDataWasChanged = false;
+                var id = ImgData;
+
+                if ((id != null) && (id.texture2D != null))
+                    id.SetAndApply(!GlobalBrush.DontRedoMipmaps);
+                repaintTimer = GlobalBrush.repaintDelay;
+            }
+
+        }
+#endif
+
+        public void PreviewShader_StrokePosition_Update()
+        {
+            CheckPreviewShader();
+            if (!IsOriginalShader)
+            {
+                bool hide = Application.isPlaying ? Input.GetMouseButton(0) : currently_Painted_Object == this;
+                PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
+            }
+        }
+
+        public void Update_Brush_Parameters_For_Preview_Shader()
+        {
+            var id = ImgData;
+
+            if ((id != null) && (!IsOriginalShader))
+            {
+                TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, this);
+
+                foreach (var p in plugins)
+                    p.Update_Brush_Parameters_For_Preview_Shader(this);
+
+            }
+        }
 
         #endregion
 

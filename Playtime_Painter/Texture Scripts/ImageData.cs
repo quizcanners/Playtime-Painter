@@ -46,6 +46,7 @@ namespace Playtime_Painter
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
+        public string URL = "";
         public Color[] _pixels;
         public Color clearColor = Color.black;
 
@@ -135,7 +136,8 @@ namespace Playtime_Painter
 .Add_IfTrue("trnsp", isATransparentLayer)
 .Add_Bool("bu", enableUndoRedo)
 .Add_Bool("tc2Auto", useTexcoord2_AutoAssigned)
-.Add("clear", clearColor);
+.Add("clear", clearColor)
+.Add_IfNotEmpty("URL", URL);
 
             if (enableUndoRedo)
                 cody.Add("2dUndo", numberOfTexture2Dbackups)
@@ -167,6 +169,7 @@ namespace Playtime_Painter
                 case "bu": enableUndoRedo = data.ToBool(); break;
                 case "tc2Auto": useTexcoord2_AutoAssigned = data.ToBool(); break;
                 case "clear": clearColor = data.ToColor(); break;
+                case "URL": URL = data; break;
                 default: return false;
             }
             return true;
@@ -815,8 +818,7 @@ namespace Playtime_Painter
 
             bool hasTPtag = painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property);
 
-            if (!isATransparentLayer && hasTPtag)
-            {
+            if (!isATransparentLayer && hasTPtag)  {
                 "Material Field {0} is a Transparent Layer ".F(property).writeHint();
                 forceOpenUTransparentLayer = true;
             }
@@ -845,6 +847,7 @@ namespace Playtime_Painter
             if (showToggles || (!painter.IsOriginalShader && Cfg.previewAlphaChanel))
                 changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel, true).nl();
 
+           
             return changed;
         }
 

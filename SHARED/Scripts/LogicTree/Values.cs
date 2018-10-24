@@ -18,15 +18,14 @@ namespace STD_Logic {
         UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
         UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
 
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder();
-            cody.Add("ints", ints);
-            cody.Add("bools", bools);
-            cody.Add("tags", boolTags);
-            cody.Add("enumTags", enumTags);
-            cody.Add("Test Unrecognized values", 1);
-            return cody;
-        }
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_IfNotDefault("ints", ints)
+            .Add_IfNotDefault("bools", bools)
+            .Add_IfNotDefault("tags", boolTags)
+            .Add_IfNotDefault("enumTags", enumTags);
+           
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
@@ -38,6 +37,18 @@ namespace STD_Logic {
             }
             return true;
         }
+
+        public override ISTD Decode(string data) {
+
+            bools = new UnnullableSTD<CountlessBool>();
+            ints = new UnnullableSTD<CountlessInt>();
+            enumTags = new UnnullableSTD<CountlessInt>();
+            boolTags = new UnnullableSTD<CountlessBool>();
+
+            return base.Decode(data);
+        }
+
+        #endregion
 
         public bool GetTagBool(ValueIndex ind) => boolTags.Get(ind);
 

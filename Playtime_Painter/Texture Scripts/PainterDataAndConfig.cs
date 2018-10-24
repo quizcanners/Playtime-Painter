@@ -182,6 +182,9 @@ namespace Playtime_Painter
         public int selectedColorScheme = 0;
 
         public int inspectedColorScheme = -1;
+
+        public bool showURLfield = false;
+
         #endregion
 
         public int _meshTool;
@@ -394,8 +397,11 @@ namespace Playtime_Painter
             if ("Plugins".enter(ref inspectedStuff, 0).nl_ifFalse() && rtp.PluginsInspect().nl())
                 rtp.SetToDirty();
 
-            if ("Lists".enter(ref inspectedStuff, 1).nl())
+            if ("Lists".enter (ref inspectedStuff, 1).nl())
                 changed |= DatasPEGI();
+
+            changed |= "Downloads".enter_Inspect(rtp.downloadManager, ref inspectedStuff, 2).nl();
+
 
             if (inspectedStuff == -1) {
 

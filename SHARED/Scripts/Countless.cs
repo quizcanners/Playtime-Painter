@@ -133,8 +133,8 @@ namespace SharedTools_Stuff {
         protected VariableBranch br;
         protected int lastFreeIndex;
 
-        #if PEGI
-
+        #region Inspector
+#if PEGI
         public virtual bool Inspect()
         {
             ("Depth: " + depth).nl();
@@ -143,6 +143,7 @@ namespace SharedTools_Stuff {
             return false;
         }
 #endif
+        #endregion
 
         public CountlessBase()
         {
@@ -155,9 +156,14 @@ namespace SharedTools_Stuff {
     }
 
 
-    public abstract class STDCountlessBase : CountlessBase, ISTD
+    public abstract class STDCountlessBase : CountlessBase, ISTD, IcanBeDefault_STD
     {
+        public virtual bool isDefault { get {
+                var def = (br == null || br.value == 0);
+              //  if (def) Debug.Log("Found default Countless");
+                return def;
 
+            } }
         public virtual StdEncoder Encode() {
             return null; }
 
@@ -172,8 +178,7 @@ namespace SharedTools_Stuff {
 
     }
 
-    public class CountlessInt : STDCountlessBase
-    {
+    public class CountlessInt : STDCountlessBase {
 
         List<int> inds;
 
@@ -405,7 +410,6 @@ namespace SharedTools_Stuff {
 
         }
 
-
         public IEnumerator<int> GetEnumerator() {
             List<int> indx;
             List<int> vals;
@@ -417,12 +421,14 @@ namespace SharedTools_Stuff {
         }
 
         public int currentEnumerationIndex;
-
     }
 
     public class CountlessBool : STDCountlessBase
     {
 
+ 
+
+        #region Encode & Decode
         public override bool Decode(string subtag, string data)
         {
             switch (subtag)
@@ -442,9 +448,7 @@ namespace SharedTools_Stuff {
         }
 
         public override StdEncoder Encode() => new StdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
-
-        //  public const string storyTag = "TreeBool";
-        //  public override string getDefaultTagName() =>  storyTag; 
+        #endregion
 
         public List<int> GetItAll()
         {
@@ -965,6 +969,10 @@ public class Countless<T> : CountlessBase //, IEnumerable
         protected T[] objs = new T[0];
         int firstFreeObj = 0;
 
+        public bool allowAdd;
+        public bool allowDelete;
+
+        #region Encode & Decode
         static List<int> tmpDecodeInds;
         public override bool Decode(string tag, string data) {
 
@@ -982,6 +990,8 @@ public class Countless<T> : CountlessBase //, IEnumerable
                     break;
                 case "brws": edited = data.ToInt(); break;
                 case "last": lastFreeIndex = data.ToInt(); break;
+                case "add": allowAdd = data.ToBool(); break;
+                case "del": allowDelete = data.ToBool(); break;
                 default: 
                     // Legacy method:
             this[tag.ToInt()] = data.DecodeInto<T>(); break;
@@ -999,10 +1009,13 @@ public class Countless<T> : CountlessBase //, IEnumerable
                 .Add("inds", inds)
                 .Add("vals", vals)
                 .Add_IfNotNegative("brws", edited)
-                .Add("last", lastFreeIndex);
+                .Add("last", lastFreeIndex)
+                 .Add_Bool("add", allowAdd)
+                 .Add_Bool("del", allowDelete);
 
             return cody;
         }
+        #endregion
 
         public void Expand(ref T[] args, int add) {
             T[] temp;
@@ -1237,18 +1250,20 @@ public class Countless<T> : CountlessBase //, IEnumerable
                 List<int> indxs;
                 var allElements = GetAllObjs(out indxs);
 
-                if (icon.Add.Click("Add "+typeof(T).ToPEGIstring()).nl()) {
+                if (allowAdd && icon.Add.Click("Add "+typeof(T).ToPEGIstring())) {
                     while (!this.GetIfExists(lastFreeIndex).IsDefaultOrNull())
                         lastFreeIndex++;
 
                     this[lastFreeIndex] = new T();
                 }
 
+                pegi.nl();
+
                 for (int i = 0; i < allElements.Count; i++)  {
                     var ind = indxs[i];
                     var el = allElements[i];
 
-                    if (icon.Delete.Click("Clear element without shifting the rest"))
+                    if (allowDelete && icon.Delete.Click("Clear element without shifting the rest"))
                         this[ind] = default(T);
                     else
                     {
@@ -1627,28 +1642,34 @@ public class Countless<T> : CountlessBase //, IEnumerable
 
     public static class ExtensionsForGenericCountless
     {
-        #if PEGI
-        public static bool Inspect<G, T>(this G Cstd, ref int edited) where G : CountlessSTD<T> where T: ISTD, IPEGI, new() {
+
+        #region Inspector
+#if PEGI
+        public static bool Inspect<G, T>(this G Cstd, ref int inspected) where G : CountlessSTD<T> where T: ISTD, IPEGI, new() {
 
             bool changed = false;
             
-            if (edited > -1) {
-                var e = Cstd[edited];
+            if (inspected > -1) {
+                var e = Cstd[inspected];
                 if (e.IsDefaultOrNull() || icon.Back.ClickUnfocus())
-                    edited = -1;
+                    inspected = -1;
                 else
                     changed |= e.Try_Nested_Inspect();
             }
 
-            if (edited == -1)
-                foreach (var e in Cstd)
-                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref edited).nl();
-            
+            if (inspected == -1)
+                foreach (var e in Cstd) {
+                    "{0}: ".F(Cstd.currentEnumerationIndex).write(35);
+                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref inspected).nl();
+                }
             
             pegi.newLine();
             return changed;
         }
 #endif
+        #endregion
+
+        #region Encode & Decode
         public static StdEncoder Encode(this Countless<string> c)
         {
             var cody = new StdEncoder();
@@ -1728,23 +1749,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
 
         }
 
-       /* public static stdEncoder EncodeText(this Countless<String> c)
-        {
-            var cody = new stdEncoder();
-            List<int> inds;
-            List<String> vals = c.GetAllObjs(out inds);
-            for (int i = 0; i < inds.Count; i++)
-                cody.AddText(inds[i].ToString(), vals[i]);
-            return cody;
-        }
-
-        public static void DecodeIntoText(this string data, out Countless<String> c)
-        {
-            c = new Countless<String>();
-            var cody = new stdDecoder(data);
-            foreach (var tag in cody)
-                c[tag.ToIntFromText()] = cody.getData();
-        }*/
+        #endregion
 
         public static int Get(this UnnullableSTD<CountlessInt> unn, int group, int index)
         {

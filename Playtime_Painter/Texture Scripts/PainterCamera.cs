@@ -154,6 +154,8 @@ namespace Playtime_Painter
 
         public Camera rtcam;
 
+        public TextureDownloadManager downloadManager = new TextureDownloadManager();
+
         public RenderBrush brushPrefab;
         public const float orthoSize = 128; // Orthographic size of the camera. 
 
@@ -693,6 +695,8 @@ namespace Playtime_Painter
 
             if (PlaytimePainter.IsCurrent_Tool())
                 PlaytimeToolComponent.SetPrefs();
+
+            downloadManager.Dispose();
 
 #if UNITY_EDITOR
             BeforeClosing();
