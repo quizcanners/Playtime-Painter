@@ -61,14 +61,15 @@ public interface IGotIndex
 
 #endregion
 
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 
 namespace PlayerAndEditorGUI {
 
     public static class pegi {
 
         public static string EnvironmentNL => Environment.NewLine;
 
-#if PEGI
+        #if PEGI
+
         #region Other Stuff
         public delegate bool CallDelegate();
 
@@ -2524,13 +2525,11 @@ namespace PlayerAndEditorGUI {
 
             bool outside = enteredOne == -1;
 
-            if (var != null)
-            {
+            if (var != null) {
 
                 if (outside)
                     changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
-                else if (enteredOne == thisOne)
-                {
+                else if (enteredOne == thisOne) {
                     if (icon.Exit.ClickUnfocus())
                         enteredOne = -1;
                     changed |= var.Try_Nested_Inspect();
@@ -2544,7 +2543,7 @@ namespace PlayerAndEditorGUI {
                     "NULL".write();
             }
 
-            isFoldedOut_or_Entered = !outside;
+            isFoldedOut_or_Entered = enteredOne == thisOne;
 
             return changed;
         }
@@ -2564,17 +2563,19 @@ namespace PlayerAndEditorGUI {
             return changed;
         }*/
 
-        public static bool TryEnter_Inspect(this string label, object obj, ref int enteredOne, int thisIne) {
+        public static bool TryEnter_Inspect(this string label, object obj, ref int enteredOne, int thisOne) {
             bool changed = false;
 
             var ilpgi = obj as IPEGI_ListInspect;
 
             if (ilpgi != null)
-                changed |= label.enter_Inspect(50, ilpgi, ref enteredOne, thisIne).nl_ifFolded();
+                changed |= label.enter_Inspect(50, ilpgi, ref enteredOne, thisOne).nl_ifFolded();
             else {
                 var ipg = obj as IPEGI;
-                changed |= label.conditional_enter_inspect(ipg != null, ipg, ref enteredOne, thisIne).nl_ifFolded();
+                changed |= label.conditional_enter_inspect(ipg != null, ipg, ref enteredOne, thisOne).nl_ifFolded();
             }
+
+        
 
             return changed;
         }
@@ -2634,6 +2635,8 @@ namespace PlayerAndEditorGUI {
         public static bool conditional_enter_inspect(this string label, bool canEnter, IPEGI obj, ref int enteredOne, int thisOne) {
             if (label.conditional_enter(canEnter, ref enteredOne, thisOne))
                 return obj.Nested_Inspect();
+
+            isFoldedOut_or_Entered = enteredOne == thisOne;
 
             return false;
         }
@@ -6488,10 +6491,10 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-#endif
+        #endif
+
     }
-
-
+    
     #region Extensions
     public static class PEGI_Extensions
     {
