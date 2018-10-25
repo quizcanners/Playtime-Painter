@@ -12,7 +12,13 @@ namespace SharedTools_Stuff {
         public static void SendEmail(string email, string subject, string body) =>
         Application.OpenURL("mailto:{0}?subject={1}&body={2}".F(email, subject.MyEscapeURL(), body.MyEscapeURL()));
 
-        static string MyEscapeURL(this string url) => UnityWebRequest.EscapeURL(url).Replace("+", "%20");
+        static string MyEscapeURL(this string url) =>
+#if UNITY_2018_1_OR_NEWER
+            UnityWebRequest
+#else
+            WWW
+#endif
+            .EscapeURL(url).Replace("+", "%20");
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 

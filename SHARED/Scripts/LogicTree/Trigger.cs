@@ -21,7 +21,7 @@ namespace STD_Logic
         public static string TriggerEdControlName;
         public static string EditedtextHold;
         public static int focusIndex = -2;
-        public static string searchField = " ";
+        public static string searchField = "";
         public static bool filterBoolean = true;
         public static bool filterIntagers = true;
         public static bool showTriggers;

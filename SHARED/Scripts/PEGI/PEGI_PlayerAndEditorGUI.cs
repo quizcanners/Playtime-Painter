@@ -2495,37 +2495,49 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
 
-        public static bool enter_inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
+        public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
             if (ico.enter(txt, ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered())
                 return var.Nested_Inspect();
 
             return false;
         }
+        
+        public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
 
+            if (txt.enter(ref enteredOne, thisOne))
+                return var.Nested_Inspect();
+ 
+            return false;
+        }
 
-        public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne) {
+        public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
+        {
             if (enteredOne == -1)
                 label.write(width);
             return var.enter_Inspect(ref enteredOne, thisOne);
         }
 
-        public static bool enter_Inspect(this IPEGI_ListInspect var, ref int enteredOne, int thisOne) {
+        public static bool enter_Inspect(this IPEGI_ListInspect var, ref int enteredOne, int thisOne)
+        {
             bool changed = false;
 
             bool outside = enteredOne == -1;
 
-            if (var != null) {
+            if (var != null)
+            {
 
                 if (outside)
                     changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
-                else if (enteredOne == thisOne) {
+                else if (enteredOne == thisOne)
+                {
                     if (icon.Exit.ClickUnfocus())
                         enteredOne = -1;
                     changed |= var.Try_Nested_Inspect();
                 }
             }
-            else  {
+            else
+            {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
                 if (outside)
@@ -2536,16 +2548,8 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
-        public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
-
-            if (txt.enter(ref enteredOne, thisOne))
-                return var.Nested_Inspect();
- 
-            return false;
-        }
-
-        public static bool enter_Inspect<T>(T var, ref int enteredOne, int thisOne) where T : IPEGI, IGotName {
+        
+    /*    public static bool enter_Inspect<T>(T var, ref int enteredOne, int thisOne) where T : IPEGI, IGotName {
 
             var changed = false;
 
@@ -2555,6 +2559,21 @@ namespace PlayerAndEditorGUI {
             if (enter(ref enteredOne, thisOne)) {
                 changed |= var.inspect_Name();
                 changed |= var.Nested_Inspect();
+            }
+
+            return changed;
+        }*/
+
+        public static bool TryEnter_Inspect(this string label, object obj, ref int enteredOne, int thisIne) {
+            bool changed = false;
+
+            var ilpgi = obj as IPEGI_ListInspect;
+
+            if (ilpgi != null)
+                changed |= label.enter_Inspect(50, ilpgi, ref enteredOne, thisIne).nl_ifFolded();
+            else {
+                var ipg = obj as IPEGI;
+                changed |= label.conditional_enter_inspect(ipg != null, ipg, ref enteredOne, thisIne).nl_ifFolded();
             }
 
             return changed;
@@ -3176,6 +3195,26 @@ namespace PlayerAndEditorGUI {
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width, style);
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize, style);
+
+        public static bool toggleVisibilityIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false)
+        {
+            SetBgColor(Color.clear);
+
+            var ret = toggle(ref val, icon.Show, icon.Hide, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
+
+            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel(val));
+
+            return ret;
+        }
+
+        public static bool toggleVisibilityIcon(this string label, ref bool val, bool showTextWhenTrue = false)
+        {
+            var ret = toggle(ref val, icon.Show.BGColor(Color.clear), icon.Hide, label, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
+
+            if (!val || showTextWhenTrue) label.write(PEGI_Styles.ToggleLabel(val));
+
+            return ret;
+        }
 
         public static bool toggleIcon(ref bool val) => toggle(ref val, icon.True.BGColor(Color.clear), icon.False, "Toggle On/Off", defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 

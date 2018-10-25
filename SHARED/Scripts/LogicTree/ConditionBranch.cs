@@ -6,8 +6,7 @@ using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 namespace STD_Logic {
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD, IPEGI_ListInspect
-    {
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD, IPEGI_ListInspect {
 
         public enum ConditionBranchType { OR, AND }
 
@@ -31,6 +30,15 @@ namespace STD_Logic {
             {
                 description = value;
             }
+        }
+
+        public int CountRecursive() {
+            int count = conds.Count;
+
+            foreach (var b in branches)
+                count += b.CountRecursive();
+
+            return count; 
         }
 
         #region Encode & Decode
@@ -60,7 +68,6 @@ namespace STD_Logic {
             }
             return true;
         }
-
         #endregion
 
         public bool IsTrue => CheckConditions(TargetValues);
@@ -87,34 +94,36 @@ namespace STD_Logic {
             return true;
         }
 
-        public void ForceToTrue(Values vals)
-        {
+        public bool TryForceTo(bool toTrue) => TryForceTo(TargetValues, toTrue);
+        
+        public bool TryForceTo(Values vals, bool toTrue)  {
 
             vals = targ.TryGetValues(vals);
 
-            switch (type)
-            {
-                case ConditionBranchType.AND:
-                    foreach (var c in conds)
-                        c.ForceConditionTrue(vals);
-                    foreach (var b in branches)
-                        b.ForceToTrue(vals);
-                    break;
-                case ConditionBranchType.OR:
-                    if (conds.Count > 0)
-                    {
+            if ((toTrue && type == ConditionBranchType.AND) || (!toTrue && type == ConditionBranchType.OR)) {
+                bool anyApplied = false;
+                foreach (var c in conds)
+                    anyApplied |= c.TryForceConditionValue(vals, toTrue);
+                foreach (var b in branches)
+                    anyApplied |= b.TryForceTo(vals, toTrue);
 
-                        conds[0].ForceConditionTrue(vals);
-                        return;
-                    }
-                    if (branches.Count > 0)
-                    {
-                        branches[0].ForceToTrue(vals);
-                        return;
-                    }
-                    break;
+                return toTrue || anyApplied;
+
+            } else {
+
+                foreach (var c in conds)
+                    if (c.TryForceConditionValue(vals, toTrue))
+                        return true;
+                
+
+                foreach (var b in branches)
+                    if (b.TryForceTo(vals, toTrue))
+                        return true;
+
+                return toTrue; 
+
             }
-
+            
         }
 
         #region Inspector
@@ -153,18 +162,16 @@ namespace STD_Logic {
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            (IsTrue ? icon.Active : icon.InActive).write();
-
-            var changed = this.inspect_Name();
+            if ((IsTrue ? icon.Active : icon.InActive).Click() && !TryForceTo(!IsTrue)) 
+                Debug.Log("No Conditions to force to {0}".F(!IsTrue));
+            
+            var changed = this.inspect_Name("[{0}]".F(CountRecursive()));
 
             if (icon.Enter.Click())
                 edited = ind;
 
             return changed;
         }
-
-
-
 #endif
         #endregion
 

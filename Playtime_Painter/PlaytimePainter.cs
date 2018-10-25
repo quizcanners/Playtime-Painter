@@ -2107,25 +2107,25 @@ namespace Playtime_Painter
                         if (Cfg.moreOptions)
                         {
 
-                            if ("Show/Hide stuff".enter(ref id.inspectedStuff, 7).nl())
+                            if (icon.Show.enter("Show/Hide stuff", ref id.inspectedStuff, 7).nl())
                             {
 
-                                "Show Previous Textures (if any) ".toggleIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
+                                "Show Previous Textures (if any) ".toggleVisibilityIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
                                 var mats = GetMaterials();
                                 if ((mats != null) && (mats.Length > 1))
                                     "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
                                                                    ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
 
-                                "Exclusive Render Textures".toggleIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
+                                "Exclusive Render Textures".toggleVisibilityIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
 
-                                changed |= "Color Sliders ".toggleIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl();
+                                changed |= "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl();
 
-                                changed |= "Show Recording/Playback".toggleIcon(ref id.showRecording, true).nl();
+                                changed |= "Recording/Playback".toggleVisibilityIcon("Show options for brush recording",ref id.showRecording, true).nl();
 
-                                changed |= "Brush Dynamics".toggleIcon(ref GlobalBrush.showBrushDynamics, true).nl();
+                                changed |= "Brush Dynamics".toggleVisibilityIcon("Will modify scale and other values based on movement.",ref GlobalBrush.showBrushDynamics, true).nl();
                                 
-                                changed |= "Show URL field".toggleIcon(ref Cfg.showURLfield, true);
+                                changed |= "URL field".toggleVisibilityIcon("Option to load images by URL",ref Cfg.showURLfield, true);
                             }
 
                             if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture(), ref id.inspectedStuff, 4).nl())

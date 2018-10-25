@@ -41,6 +41,8 @@ namespace STD_Logic
 
         UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
 
+        public int Count => triggers.GetAllObjsNoOrder().Count; 
+        
         public Trigger this[int index]
         {
             get
@@ -98,12 +100,9 @@ namespace STD_Logic
 
         public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
 
-        public TriggerGroup()
-        {
+        public TriggerGroup() {
 
             index = UnnullableSTD<TriggerGroup>.IndexOfCurrentlyCreatedUnnulable;
-
-            triggers = new UnnullableSTD<Trigger>();
 
 #if UNITY_EDITOR
 
@@ -256,7 +255,7 @@ namespace STD_Logic
 
             return changed;
         }
-
+        
         public override bool Inspect()  {
 
             inspected = this;
@@ -266,27 +265,26 @@ namespace STD_Logic
             if (inspectedStuff == -1) {
 
 
-                "Share:".write(50);
+                changed |= "{0} : ".F(index).edit(50, ref name).nl();
+
+
+                "Share:".write("Paste message full with numbers and lost of ' | ' symbols into the first line or drop file into second" ,50);
 
                 var ind = index;
-                if (this.Send_Recieve_PEGI("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups")) {
-                    if (ind != index) {
-                        Debug.LogError("Pasted trigger group had different index, replacing");
-                        index = ind;
+                string data;
+                if (this.Send_Recieve_PEGI("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups", out data)) {
+                    TriggerGroup tmp = new TriggerGroup();
+                    tmp.Decode(data);
+                    if (tmp.index == index) {
+
+                        Decode(data);
+                        Debug.Log("Decoded Trigger Group {0}".F(name));
                     }
+                    else
+                        Debug.LogError("Pasted trigger group had different index, replacing");
                 }
 
-                changed |= "{0} : ".F(index).edit(50, ref name);
-
-                pegi.nl();
-
-                /* if (icon.Email.Click("Send this Trigger Group to somebody via email."))
-                      this.EmailData("Trigger Group {0} [index: {1}]".F(name, index), "Use this Trigger Group in your Node Books");
-
-                  string std = "";
-                  if ("Paste Trigger Group:".edit(150, ref std).nl()) 
-                      this.DecodeEmail(std);*/
-
+           
                 pegi.Line();
 
                 "New Variable".edit(80, ref Trigger.searchField);

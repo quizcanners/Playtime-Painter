@@ -440,13 +440,17 @@ namespace SharedTools_Stuff {
                 ExternalCommunication.SendEmail ( "somebody@gmail.com", subject, "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNL, pegi.EnvironmentNL,
                     stdStart, data, stdEnd ) ) ;
 
-               // Debug.Log("Sending {0}".F(data));
-
             }
         }
 
         public static void DecodeFromExternal(this ISTD std, string data) {
-            if (std != null){
+            if (std != null)
+                std.Decode(ClearFromExternal(data));
+
+        }
+
+        public static string ClearFromExternal(string data)  {
+           
                 if (data.Contains(stdStart)) {
                     var start = data.IndexOf(stdStart) + stdStart.Length;
                     var end = data.IndexOf(stdEnd);
@@ -454,40 +458,36 @@ namespace SharedTools_Stuff {
                     data = data.Substring(start, end - start);
                 }
 
-               // Debug.Log("Decoding {0}".F(data));
-
-                std.Decode(data);
-            }
+            return data;
 
         }
 
 #if PEGI
-        public static bool Send_Recieve_PEGI(this ISTD std, string name, string folderName) {
+        public static bool Send_Recieve_PEGI(this ISTD std, string name, string folderName, out string data) {
   
             if (icon.Email.Click("Send {0} to somebody via email.".F(folderName)))
                 std.EmailData(name, "Use this {0}".F(name));
 
-            string tmp = "";
-            if (pegi.edit(ref tmp)) {
-                std.DecodeFromExternal(tmp);
+            data = "";
+            if (pegi.edit(ref data)) {
+                data = ClearFromExternal(data);
+                pegi.DropFocus();
                 return true;
             }
 
-            if (icon.Folder.Click("Save {0} to the file".F(name)))
-            {
+            if (icon.Folder.Click("Save {0} to the file".F(name))) {
                 std.SaveToAssets(folderName, name);
                 UnityHelperFunctions.RefreshAssetDatabase();
             }
 
-            std.LoadOnDrop();
+            if (LoadOnDrop(out data))
+                return true;
+
 
             pegi.nl();
 
             return false;
         }
-
-
-
 #endif
 
 

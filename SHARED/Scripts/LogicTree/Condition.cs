@@ -12,20 +12,22 @@ namespace STD_Logic
     [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
     public class ConditionLogic : ValueIndex, ISTD , IPEGI, IPEGI_ListInspect  {
 
+        #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
 
         public override bool Decode(string subtag, string data) => true;
-        
-        public virtual void ForceConditionTrue(Values st) { }
+        #endregion
 
-        public virtual bool TestFor(Values st) => false;
+        public virtual bool TryForceConditionValue(Values values, bool toTrue) => false;
 
-        public virtual int IsItClaimable( int dir, Values st) => -2;
+        public virtual bool TestFor(Values values) => false;
+
+        public virtual int IsItClaimable( int dir, Values values) => -2;
         
         public override bool IsBoolean() => false;
 
         #region Inspector
-#if PEGI
+        #if PEGI
 
         public static Values inspectedTarget = null;
 
@@ -62,7 +64,7 @@ namespace STD_Logic
             return changed;
         }
 
-#endif
+        #endif
         #endregion
 
         public ConditionLogic()
@@ -73,8 +75,8 @@ namespace STD_Logic
 
     }
 
-    public class ConditionLogicBool : ConditionLogic
-    {
+    public class ConditionLogicBool : ConditionLogic {
+
         public bool compareValue;
 
         public override StdEncoder Encode() => new StdEncoder()
@@ -91,21 +93,27 @@ namespace STD_Logic
             }
             return true;
         }
-        
-        public override void ForceConditionTrue(Values st) =>  SetBool(st, compareValue);
-        
-        public override bool TestFor(Values st) => GetBool(st) == compareValue;
+
+        public override bool TryForceConditionValue(Values values, bool toTrue)
+        {
+            SetBool(values, toTrue ? compareValue : !compareValue);
+            LogicMGMT.currentLogicVersion++;
+            return true;
+        }
+
+        public override bool TestFor(Values values) => GetBool(values) == compareValue;
 
         public override int IsItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
         
         public override bool IsBoolean() => true;
+
     }
 
-    public class ConditionLogicInt : ConditionLogic
-    {
+    public class ConditionLogicInt : ConditionLogic {
         public ConditionType type;
         public int compareValue;
 
+        #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
             .Add_ifNotZero("v", compareValue)
             .Add_ifNotZero("ty", (int)type)
@@ -122,17 +130,42 @@ namespace STD_Logic
             }
             return true;
         }
-        
-        public override void ForceConditionTrue(Values st)
-        {
+        #endregion
 
-            switch (type)
-            {
-                case ConditionType.Above: SetInt(st, compareValue + 1); break;
-                case ConditionType.Below: SetInt(st, compareValue - 1); break;
-                case ConditionType.Equals: SetInt(st, compareValue); break;
-                case ConditionType.NotEquals: if (GetInt(st) == compareValue) st.ints[groupIndex].Add(triggerIndex, 1); break;
+        public override bool TryForceConditionValue(Values value,bool toTrue) {
+
+            if (TestFor(value) == toTrue)
+                return true;
+
+
+
+            if (toTrue) {
+                switch (type) { 
+                    case ConditionType.Above: SetInt(value, compareValue + 1); break;
+                    case ConditionType.Below: SetInt(value, compareValue - 1); break;
+                    case ConditionType.Equals: SetInt(value, compareValue); break;
+                    case ConditionType.NotEquals: if (GetInt(value) == compareValue) value.ints[groupIndex].Add(triggerIndex, 1); break;
+                    case ConditionType.RealTimePassedAbove: SetInt(value, (int)LogicMGMT.RealTimeNow() - compareValue - 1); break;
+                    case ConditionType.RealTimePassedBelow: SetInt(value, (int)LogicMGMT.RealTimeNow()); break;
+                    case ConditionType.VirtualTimePassedAbove: SetInt(value, (int)Time.time - compareValue - 1); break;
+                    case ConditionType.VirtualTimePassedBelow: SetInt(value, (int)Time.time); break;
+                }
+            } else {
+                switch (type) {
+                    case ConditionType.Above: SetInt(value, compareValue - 1); break;
+                    case ConditionType.Below: SetInt(value, compareValue + 1); break;
+                    case ConditionType.Equals: SetInt(value, compareValue + 1); break;
+                    case ConditionType.NotEquals: SetInt(value, compareValue); break;
+                    case ConditionType.RealTimePassedAbove: SetInt(value, (int)LogicMGMT.RealTimeNow() ); break;
+                    case ConditionType.RealTimePassedBelow: SetInt(value, (int)LogicMGMT.RealTimeNow() - compareValue - 1); break;
+                    case ConditionType.VirtualTimePassedAbove: SetInt(value, (int)Time.time ); break;
+                    case ConditionType.VirtualTimePassedBelow: SetInt(value, (int)Time.time - compareValue - 1); break;
+                }
             }
+
+            LogicMGMT.currentLogicVersion++;
+
+            return true;
         }
 
         public override bool TestFor(Values st)
@@ -164,14 +197,13 @@ namespace STD_Logic
             return false;
         }
 
-        public override int IsItClaimable(int dir, Values st)
-        {
-            switch (type)
-            {
+        public override int IsItClaimable(int dir, Values st) {
+            switch (type) {
                 case ConditionType.Above: if ((GetInt(st) < compareValue) && (dir > 0)) return (compareValue - GetInt(st) + 1); break;
                 case ConditionType.Below: if ((GetInt(st) > compareValue) && (dir < 0)) return (GetInt(st) - compareValue + 1); break;
                 case ConditionType.Equals: if ((GetInt(st) > compareValue) == (dir < 0)) return Mathf.Abs(GetInt(st) - compareValue); break;
             }
+
             return -2;
         }
     }

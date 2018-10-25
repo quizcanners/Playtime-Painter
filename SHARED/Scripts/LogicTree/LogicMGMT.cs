@@ -91,7 +91,10 @@ namespace STD_Logic
 
                     if (replaceRecieved != null) {
 
-                        if (replaceRecieved.NameForPEGI.enter(ref inspectReplacementOption))
+                        var current = TriggerGroup.all.GetIfExists(replaceRecieved.IndexForPEGI);
+                        string hint = (current != null) ? "{0} [ Old: {1} => New: {2} triggers ] ".F(replaceRecieved.NameForPEGI, current.Count, replaceRecieved.Count) : replaceRecieved.NameForPEGI;
+                        
+                        if (hint.enter(ref inspectReplacementOption))
                             replaceRecieved.Nested_Inspect();
                         else
                         {
@@ -109,14 +112,18 @@ namespace STD_Logic
 
                         string tmp = "";
                         if ("Paste Messaged STD data".edit(140, ref tmp) || STDExtensions.LoadOnDrop(out tmp)) {
+
                             var group = new TriggerGroup();
                             group.DecodeFromExternal(tmp);
-                            if (TriggerGroup.all.GetIfExists(group.IndexForPEGI) == null)
+
+                            var current = TriggerGroup.all.GetIfExists(group.IndexForPEGI);
+                           
+                            if (current == null)
                                 TriggerGroup.all[group.IndexForPEGI] = group;
-                            else
-                            {
+                            else {
                                 replaceRecieved = group;
-                                replaceRecieved.NameForPEGI += " replaces {0}".F(TriggerGroup.all[group.IndexForPEGI].NameForPEGI);
+                                if (!replaceRecieved.NameForPEGI.SameAs(current.NameForPEGI))
+                                    replaceRecieved.NameForPEGI += " replaces {0}".F(current.NameForPEGI);
                             }
                         }
 
