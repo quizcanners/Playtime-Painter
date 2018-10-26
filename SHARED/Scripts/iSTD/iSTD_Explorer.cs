@@ -237,7 +237,7 @@ namespace SharedTools_Stuff
             .Add_String("std", std_dta)
             .Add_String("guid", guid)
             .Add_String("t", componentType)
-            .Add("perType", perTypeConfig);
+            .Add_IfNotEmpty("perType", perTypeConfig);
             if (unrecognized) { 
             cody.Add_Bool("ur", unrecognized)
             .Add_String("tag", unrecognizedUnderTag);

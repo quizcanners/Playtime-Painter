@@ -20,8 +20,8 @@ namespace SharedTools_Stuff {
         bool Decode(string tag, string data);
     }
     
-    public interface IcanBeDefault_STD : ISTD {
-        bool isDefault { get; }
+    public interface ICanBeDefault_STD : ISTD {
+        bool IsDefault { get; }
     }
 
     public interface ISTD_SerializeNestedReferences
@@ -249,7 +249,7 @@ namespace SharedTools_Stuff {
 
     }
     
-    public abstract class Abstract_STD : ISTD_SafeEncoding
+    public abstract class Abstract_STD : ISTD_SafeEncoding, ICanBeDefault_STD
     {
         public abstract StdEncoder Encode();
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
@@ -258,6 +258,8 @@ namespace SharedTools_Stuff {
         public LoopLock GetLoopLock() => loopLock_std;
 
         public LoopLock loopLock_std = new LoopLock();
+
+        public virtual bool IsDefault => false;
     }
 
     public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD {
@@ -294,7 +296,7 @@ namespace SharedTools_Stuff {
         #endregion
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ICanBeDefault_STD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         
@@ -315,7 +317,9 @@ namespace SharedTools_Stuff {
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
         public virtual void Reboot() => uTags.Clear();
-        
+
+        public virtual bool IsDefault => false;
+
         public abstract bool Decode(string tag, string data);
         public abstract StdEncoder Encode();
 
@@ -540,7 +544,7 @@ namespace SharedTools_Stuff {
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 txt = StuffLoader.LoadTextAsset(myType);
-                Debug.Log("Decoded {0}".F(txt));
+               // Debug.Log("Decoded {0}".F(txt));
                 ("Loaded " + myType.name).showNotification();
 
                 return true;
@@ -634,7 +638,9 @@ namespace SharedTools_Stuff {
 		}
 
         public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) => ur.UnrecognizedSTD.GetAll();
-  
+
+        public static bool Decode(this ISTD std, string data, ISTD_SerializeNestedReferences keeper) => data.DecodeInto(std, keeper);
+
     }
     #endregion
 }

@@ -1682,8 +1682,7 @@ namespace SharedTools_Stuff
                 var tmp = texture;
                 texture = null;
                 failed = false;
-                request.Dispose();
-                request = null;
+                DisposeRequest();
                 return tmp;
             }
 
@@ -1707,7 +1706,7 @@ namespace SharedTools_Stuff
 
                     if (texture == null && request.isDone) {
                         texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
-                        request.Dispose();
+                        DisposeRequest();
                         tex = texture;
 
                         if (remove && texture)
@@ -1732,11 +1731,16 @@ namespace SharedTools_Stuff
                 Start();
             }
 
+            void DisposeRequest() {
+                request?.Dispose();
+                request = null;
+            }
+
             public void Dispose() {
                 if (texture != null)
                     texture.DestroyWhatever();
-                
-                    request?.Dispose();
+
+                DisposeRequest();
             }
 
             #region Inspector

@@ -30,11 +30,8 @@ namespace STD_Logic
         
 
         public string name = "";
-       // public bool isStatic;
         public Dictionary<int, string> enm;
-
-
-
+        
         public string this[int index] {
             get {
                 string hold = "_";
@@ -43,7 +40,7 @@ namespace STD_Logic
             }
         }
         
-        int usage;
+        int usage = 0;
 
         public TriggerUsage _usage { get { return TriggerUsage.Get(usage); }  set { usage = value.index; } }
 
@@ -74,9 +71,8 @@ namespace STD_Logic
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
             .Add_String("n", name)
-            .Add("u", usage)
-            // .Add_Bool ("s", isStatic)
-            .Add("e", enm);
+            .Add_ifNotZero("u", usage)
+            .Add_IfNotEmpty("e", enm);
           
             return cody;
         }

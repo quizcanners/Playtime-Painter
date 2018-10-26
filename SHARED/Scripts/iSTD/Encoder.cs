@@ -531,8 +531,34 @@ namespace SharedTools_Stuff
 
             return this;
         }
+        
+        public StdEncoder Add(string tag, Dictionary<int, string> dic)
+        {
+            var sub = new StdEncoder();
 
+            if (dic != null)
+                foreach (var e in dic)
+                    sub.Add_String(e.Key.ToString(), e.Value);
 
+            Add(tag, sub);
+
+            return this;
+        }
+
+        public StdEncoder Add(string tag, Dictionary<string, string> dic)
+        {
+
+            var sub = new StdEncoder();
+
+            if (dic != null)
+                foreach (var e in dic)
+                    sub.Add_String(e.Key, e.Value);
+
+            Add(tag, sub);
+
+            return this;
+        }
+        
         public StdEncoder Add<T>(string tag, T[] val) where T : ISTD => Add(tag, val.Encode());
 
         #region ValueTypes
@@ -565,8 +591,8 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotDefault(string tag, IcanBeDefault_STD std) {
-            if (std != null && !std.isDefault)
+        public StdEncoder Add_IfNotDefault(string tag, ICanBeDefault_STD std) {
+            if (std != null && !std.IsDefault)
                 Add(tag, std);
             return this;
         }
@@ -599,31 +625,17 @@ namespace SharedTools_Stuff
             }
             return this;
         }
-        
-        public StdEncoder Add(string tag, Dictionary<int, string> dic) {
-            if (dic!= null && dic.Count > 0) {
 
-                var sub = new StdEncoder();
-
-                foreach (var e in dic) 
-                    sub.Add_String(e.Key.ToString(), e.Value);
-                
-                Add(tag, sub);
-            }
+        public StdEncoder Add_IfNotEmpty(string tag, Dictionary<int, string> dic) {
+            if (dic != null && dic.Count > 0)
+                Add(tag, dic);
             return this;
         }
-
-        public StdEncoder Add(string tag, Dictionary<string, string> dic)
-        {
-            if (dic!= null && dic.Count > 0) {
-
-                var sub = new StdEncoder();
-
-                foreach (var e in dic)
-                    sub.Add_String(e.Key, e.Value);
-
-                Add(tag, sub);
-            }
+        
+        public StdEncoder Add_IfNotEmpty(string tag, Dictionary<string, string> dic){
+            if (dic!= null && dic.Count > 0) 
+                Add(tag, dic);
+            
             return this;
         }
 

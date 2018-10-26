@@ -5076,7 +5076,9 @@ namespace PlayerAndEditorGUI {
                     {
                         if (icon.Up.ClickUnfocus("To previous elements of the list. ", UpDownWidth, UpDownHeight))
                         {
-                            ListSectionStartIndex = Mathf.Max(0, ListSectionStartIndex - SectionSizeOptimal);
+                            ListSectionStartIndex = Mathf.Max(0, ListSectionStartIndex - SectionSizeOptimal+1);
+                            if (ListSectionStartIndex == 1)
+                                ListSectionStartIndex = 0;
                             changed = true;
                         }
                     }
@@ -5123,9 +5125,8 @@ namespace PlayerAndEditorGUI {
                     nl();
                     if (cnt > ListSectionMax)
                     {
-                        if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight))
-                        {
-                            ListSectionStartIndex += SectionSizeOptimal;
+                        if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
+                            ListSectionStartIndex += SectionSizeOptimal-1;
                             listInspectionIndexes[list] = ListSectionStartIndex;
                         }
                     }

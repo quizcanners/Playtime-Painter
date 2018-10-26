@@ -6,7 +6,7 @@ using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 namespace STD_Logic {
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, IcanBeDefault_STD, IPEGI_ListInspect {
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect {
 
         public enum ConditionBranchType { OR, AND }
 
@@ -42,7 +42,7 @@ namespace STD_Logic {
         }
 
         #region Encode & Decode
-        public bool isDefault => conds.Count == 0;
+        public bool IsDefault => conds.Count == 0;
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)

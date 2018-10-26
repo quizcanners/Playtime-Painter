@@ -156,9 +156,9 @@ namespace SharedTools_Stuff {
     }
 
 
-    public abstract class STDCountlessBase : CountlessBase, ISTD, IcanBeDefault_STD
+    public abstract class STDCountlessBase : CountlessBase, ISTD, ICanBeDefault_STD
     {
-        public virtual bool isDefault { get {
+        public virtual bool IsDefault { get {
                 var def = (br == null || br.value == 0);
               //  if (def) Debug.Log("Found default Countless");
                 return def;
