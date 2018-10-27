@@ -42,7 +42,7 @@ namespace STD_Logic {
         }
 
         #region Encode & Decode
-        public bool IsDefault => conds.Count == 0;
+        public override bool IsDefault => conds.Count == 0;
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)
@@ -145,7 +145,8 @@ namespace STD_Logic {
                     (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition or sub branch should be true")))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
-                (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
+                 (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
+              
 
                 changed |= "Conditions".edit_List(conds, ref browsedCondition);
             }

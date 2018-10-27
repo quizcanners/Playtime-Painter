@@ -1770,9 +1770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   atlases: []
   atlasedMaterials: []
-  showAtlasedMaterial: 0
-  showAtlases: 0
-  browsedAtlas: 0
+  inspectedAtlas: 0
 --- !u!114 &753615961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1904,7 +1902,7 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     GizmoLines: 1
-  focusedPainter: {fileID: 1689211757}
+  focusedPainter: {fileID: 1815085832}
   isLinearColorSpace: 1
   _plugins:
   - {fileID: 753615959}
@@ -4032,9 +4030,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.33315817, y: 0.7842489}
     posFrom: {x: -12.183316, y: 36.95, z: 11.132503}
-    uvTo: {x: 0.35818684, y: 0.041148853}
-    posTo: {x: -12.233374, y: 36.95, z: 12.618703}
-    unRepeatedUV: {x: 0.35818684, y: 0.041148853}
+    uvTo: {x: 0.45696092, y: 0.82688904}
+    posTo: {x: -12.695086, y: 36.607376, z: 12.797}
+    unRepeatedUV: {x: 0.45696092, y: 0.82688904}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.000007298212
     mouseDwn: 0
@@ -4918,7 +4916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   ship: {fileID: 1219904143}
-  timer: -685.0993
+  timer: -481.33774
   style:
     m_Name: Hint Style
     m_Normal:

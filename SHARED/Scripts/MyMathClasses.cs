@@ -341,15 +341,15 @@ namespace SharedTools_Stuff
         
         public static Vector2 XY(this Vector3 vec) => new Vector2(vec.x, vec.y);
 
-        public static Vector4 ToVector4(this Vector2 v2) => new Vector4(v2.x, v2.y, 0, 0);
-        
-        public static Vector4 ToVector4(this Vector3 v3, float w) => new Vector4(v3.x, v3.y, v3.z, w);
+        public static Vector4 ToVector4(this Vector2 v2, float z = 0, float w = 0) => new Vector4(v2.x, v2.y, z, w);
 
-        public static Vector3 ToVector3(this Vector2 v2, float z) => new Vector3(v2.x, v2.y, z);
+        public static Vector2 ToVector2(this Vector3 v3) => new Vector2(v3.x, v3.y);
+        
+        public static Vector4 ToVector4(this Vector3 v3, float w = 0) => new Vector4(v3.x, v3.y, v3.z, w);
+
+        public static Vector3 ToVector3(this Vector2 v2, float z = 0) => new Vector3(v2.x, v2.y, z);
 
         public static Vector4 ToVector4(this Vector2 v2xy, Vector2 v2zw) => new Vector4(v2xy.x, v2xy.y, v2zw.x, v2zw.y);
-
-        public static Vector4 ToVector4(this Vector2 v2xy, float z, float w) => new Vector4(v2xy.x, v2xy.y, z, w);
         #endregion
     }
 

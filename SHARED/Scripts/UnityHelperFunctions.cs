@@ -1697,14 +1697,17 @@ namespace SharedTools_Stuff
                     if (request.isNetworkError || request.isHttpError) {
 
                         failed = true;
-
+                        
 #if UNITY_EDITOR
                         Debug.Log(request.error);
 #endif
+                        DisposeRequest();
                         return true;
                     }
 
-                    if (texture == null && request.isDone) {
+                    if (request.isDone) {
+                        if (texture != null)
+                            texture.DestroyWhatever();
                         texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
                         DisposeRequest();
                         tex = texture;
@@ -1714,7 +1717,7 @@ namespace SharedTools_Stuff
                     }
                     else return false;
                 }
-                else Start();
+                else if (texture == null) Start();
 
                 return true;
             }
@@ -1724,6 +1727,7 @@ namespace SharedTools_Stuff
                 request = UnityWebRequestTexture.GetTexture(address);
                 request.SendWebRequest();
                 failed = false;
+                Debug.Log("Loading {0}".F(address));
             }
 
             public WebRequestMeta(string URL) {
@@ -1751,6 +1755,11 @@ namespace SharedTools_Stuff
                 Texture tex;
                 TryGetTexture(out tex);
 
+                if (request != null)
+                    "Loading".write(60);
+                if (failed)
+                    "Failed".write(50);
+
                 if (texture) {
                     if (icon.Refresh.Click())
                             Start();
@@ -1761,13 +1770,13 @@ namespace SharedTools_Stuff
                 } else {
 
                     if (failed) {
-                        if (icon.Refresh.Click())
+                        if (icon.Refresh.Click("Failed"))
                             Start();
                         "Failed ".F(address).write(40);
                     }
                     else {
                         icon.Active.write();
-                        "Loding ".write(40);
+                        "Loading ".write(40);
                     } 
                         
                 }

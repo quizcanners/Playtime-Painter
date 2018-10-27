@@ -313,7 +313,15 @@ namespace SharedTools_Stuff
                 return default(T);
 
             return array[index];
+        }
 
+        public static T TryGet<T>(this T[] array, int index, T defaultValue)
+        {
+
+            if (array == null || array.Length <= index || index < 0)
+                return defaultValue;
+
+            return array[index];
         }
 
         public static T TryGetLast<T>(this IList<T> list)
@@ -328,10 +336,19 @@ namespace SharedTools_Stuff
 
         public static T TryGet<T>(this List<T> list, int index)
         {
-            if (list == null || index < 0 || index >= list.Count || index < 0)
+            if (list == null || index < 0 || index >= list.Count)
                 return default(T);
             return list[index];
         }
+
+        public static T TryGet<T>(this List<T> list, int index, T defaultValue)
+        {
+            if (list == null || index < 0 || index >= list.Count)
+                return defaultValue;
+
+            return list[index];
+        }
+
 
         public static int TryGetIndex<T>(this List<T> list, T obj)
         {

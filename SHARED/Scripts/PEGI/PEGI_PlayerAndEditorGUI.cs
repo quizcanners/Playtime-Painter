@@ -567,7 +567,7 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 GUIContent c = new GUIContent() { image = img };
 
-                GUILayout.Label(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));
+                GUILayout.Button(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));
             }
 
         }
@@ -1087,8 +1087,7 @@ namespace PlayerAndEditorGUI {
             {
                 if ((from == null) || (from.Count == 0)) return false;
 
-                foldout(from[Mathf.Min(from.Count - 1, no)]);
-                //
+                foldout(from.TryGet(no, "...")); 
 
                 if (isFoldedOut_or_Entered)
                 {
@@ -1127,7 +1126,7 @@ namespace PlayerAndEditorGUI {
             {
                 if ((from == null) || (from.Length == 0)) return false;
 
-                foldout((no > -1) ? from[Mathf.Min(from.Length - 1, no)] : ". . .");
+                foldout(from.TryGet(no,"..."));
             
 
                 if (isFoldedOut_or_Entered) {
@@ -1158,16 +1157,14 @@ namespace PlayerAndEditorGUI {
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref no, from, width);
-            }
-            else
+         
 #endif
 
-            {
+            
                 if ((from == null) || (from.Length == 0)) return false;
 
-                foldout(from[Mathf.Min(from.Length - 1, no)]);
+                foldout(from.TryGet(no,"..."));
                 newLine();
 
                 if (isFoldedOut_or_Entered)
@@ -1189,7 +1186,7 @@ namespace PlayerAndEditorGUI {
                 GUILayout.Space(10);
 
                 return false;
-            }
+            
         }
 
         static bool select_Final(ref int val, ref int jindx, List<string> lnms)
@@ -1363,7 +1360,7 @@ namespace PlayerAndEditorGUI {
                     if ((jindx == -1) && tmp.Equals(val))
                         jindx = lnms.Count;
 
-                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); 
                     indxs.Add(j);
                 }
             }
@@ -1394,7 +1391,7 @@ namespace PlayerAndEditorGUI {
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPEGIstring()));
+                    lnms.Add(_compileName(showIndex, j, tmp)); 
                     indxs.Add(j);
                 }
             }
@@ -1409,8 +1406,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<G,T>(ref T val, Dictionary<G, T> dic, bool showIndex = false) =>
-          select(ref val, new List<T>(dic.Values), showIndex);
+        public static bool select<G,T>(ref T val, Dictionary<G, T> dic, bool showIndex = false) => select(ref val, new List<T>(dic.Values), showIndex);
 
         public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false)
         {
@@ -1531,66 +1527,7 @@ namespace PlayerAndEditorGUI {
             return false;
 
         }
-        /*
-                public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
-                {
-
-        #if UNITY_EDITOR
-                    if (!paintingPlayAreaGUI)
-                    {
-                        return ef.select<T>(ref i, ar, clampValue);
-                    }
-                    else
-        #endif
-
-                    {
-                        checkLine();
-
-                        bool changed = false;
-
-                        List<string> lnms = new List<string>();
-                        List<int> ints = new List<int>();
-
-                        int ind = -1;
-
-                        if (clampValue)
-                        {
-                            i = i.ClampZeroTo(ar.Length);
-                            if (ar[i].ShowInDropdown() == false)
-                                for (int v = 0; v < ar.Length; v++)
-                                {
-                                    T val = ar[v];
-                                    if (val.ShowInDropdown())
-                                    {
-                                        i = v;
-                                        changed = true;
-                                        break;
-                                    }
-                                }
-                        }
-
-                        for (int j = 0; j < ar.Length; j++)
-                        {
-                            T val = ar[j];
-                            if (val.ShowInDropdown())
-                            {
-                                if (i == j) ind = ints.Count;
-                                lnms.Add(val.ToPEGIstring());
-                                ints.Add(j);
-                            }
-                        }
-
-                        //int newNo = ind; EditorGUILayout.Popup(ind, lnms.ToArray());
-
-                        if (select(ref ind, lnms.ToArray())) // (newNo != ind)
-                        {
-                            i = ints[ind];
-                            changed = true;
-                        }
-                        return changed;
-                    }
-                }
-                */
+      
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
 #if UNITY_EDITOR
@@ -1715,16 +1652,10 @@ namespace PlayerAndEditorGUI {
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref current, from);
-            }
-            else
+          
 #endif
-
-            {
-                checkLine();
-
-                checkLine();
+            
                 string[] options = new string[from.Count];
 
                 int ind = current;
@@ -1737,27 +1668,20 @@ namespace PlayerAndEditorGUI {
                         ind = i;
                 }
 
-                if (select(ref ind, options))
-                {
+                if (select(ref ind, options)) {
                     current = from.ElementAt(ind).Key;
                     return true;
                 }
                 return false;
-            }
+            
         }
 
         public static bool select(ref int current, Dictionary<int, string> from, int width)
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref current, from, width);
-            }
-            else
 #endif
-
-            {
-                checkLine();
 
                 string[] options = new string[from.Count];
 
@@ -1777,7 +1701,7 @@ namespace PlayerAndEditorGUI {
                     return true;
                 }
                 return false;
-            }
+            
         }
 
         public static bool select(CountlessInt cint, int ind, Dictionary<int, string> from)
@@ -1785,11 +1709,8 @@ namespace PlayerAndEditorGUI {
 
             int value = cint[ind];
 
-            if (select(ref value, from))
-            {
-
+            if (select(ref value, from))  {
                 cint[ind] = value;
-
                 return true;
             }
             return false;
@@ -1800,12 +1721,9 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref no, tex);
-            }
-            else
+           
 #endif
-            {
 
                 if (tex.Length == 0) return false;
 
@@ -1832,7 +1750,7 @@ namespace PlayerAndEditorGUI {
                 }
 
                 return changed;
-            }
+            
         }
 
         // ***************************** Select or edit
@@ -5709,7 +5627,10 @@ namespace PlayerAndEditorGUI {
                         if (el == null)
                         {
                             if (datas.TryGet(i).TryInspect(ref el))
+                            {
+                                changed = true;
                                 list[i] = el;
+                            }
                         }
                         else
                         {
@@ -5723,7 +5644,7 @@ namespace PlayerAndEditorGUI {
                             {
                                 if (icon.Copy.Click())
                                 {
-
+                                    changed = true;
                                     added = el.DuplicateScriptableObject();
 
                                     list.Insert(i + 1, added);
@@ -5754,7 +5675,7 @@ namespace PlayerAndEditorGUI {
                     }
 
                     if (typeof(T).TryGetDerrivedClasses() != null)
-                        list.PEGI_InstantiateOptions_SO(ref added);
+                        changed |= list.PEGI_InstantiateOptions_SO(ref added);
 
                     nl();
 
@@ -5938,7 +5859,7 @@ namespace PlayerAndEditorGUI {
                         newLine();
                     }
 
-                        list.PEGI_InstantiateOptions(ref added);
+                    changed |= list.PEGI_InstantiateOptions(ref added);
 
                     nl();
                 }
@@ -5999,7 +5920,7 @@ namespace PlayerAndEditorGUI {
                         newLine();
                     }
 
-                    list.PEGI_InstantiateOptions(ref added, types);
+                    changed |= list.PEGI_InstantiateOptions(ref added, types);
 
                     nl();
                 }
