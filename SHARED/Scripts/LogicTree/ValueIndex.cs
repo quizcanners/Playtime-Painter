@@ -44,7 +44,9 @@ namespace STD_Logic
 
         public void SetBool(Values st, bool value) => st.bools[groupIndex][triggerIndex] = value;
 
-        public Trigger Trigger { get { return Group[triggerIndex]; } set { groupIndex = value.groupIndex; triggerIndex = value.triggerIndex; } }
+        public Trigger Trigger {
+            get { return Group[triggerIndex]; }
+            set { groupIndex = value.groupIndex; triggerIndex = value.triggerIndex; } }
 
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
@@ -64,11 +66,11 @@ namespace STD_Logic
 
         public static ValueIndex edited;
 
-        public bool FocusedField_PEGI(int index, string prefix)
-        {
+        public bool FocusedField_PEGI(int index, string prefix) {
+
             bool changed = false;
 
-                focusName = prefix + index;
+                focusName = "{0}{1}_{2}".F(prefix,index,groupIndex);
 
                 pegi.NameNext(focusName);
 

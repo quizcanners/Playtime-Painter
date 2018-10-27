@@ -982,8 +982,10 @@ public class Countless<T> : CountlessBase //, IEnumerable
                 case "vals": List<T> tmps; data.DecodeInto_List(out tmps);
                     for (int i = 0; i < tmps.Count; i++) {
                         var tmp = tmps[i];
-                        if (!tmp.Equals(default(T))) 
+                        if (!tmp.Equals(default(T)))
                             this[tmpDecodeInds[i]] = tmp;
+                            
+                        
                     }
 
                     tmpDecodeInds = null;
@@ -1657,11 +1659,16 @@ public class Countless<T> : CountlessBase //, IEnumerable
                     changed |= e.Try_Nested_Inspect();
             }
 
+            int deleted = -1;
+
             if (inspected == -1)
                 foreach (var e in Cstd) {
+                    if (icon.Delete.Click()) deleted = Cstd.currentEnumerationIndex;
                     "{0}: ".F(Cstd.currentEnumerationIndex).write(35);
                     changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref inspected).nl();
                 }
+            if (deleted != -1)
+                Cstd[deleted] = default(T);
             
             pegi.newLine();
             return changed;

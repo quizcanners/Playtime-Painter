@@ -214,7 +214,7 @@ namespace STD_Logic
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = FocusedField_PEGI(0, "Cond");
+            bool changed = FocusedField_PEGI(ind, "Cond");
 
             Trigger._usage.Inspect(this);
 

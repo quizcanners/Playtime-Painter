@@ -45,9 +45,7 @@ namespace STD_Logic
         public TriggerUsage _usage { get { return TriggerUsage.Get(usage); }  set { usage = value.index; } }
 
         public override bool IsBoolean() => _usage.UsingBool;
-
-
-
+        
         public bool SearchWithGroupName(string groupName) {
             
             if ((searchField.Length == 0) || Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
@@ -118,8 +116,6 @@ namespace STD_Logic
                         inspected = null;
                 }
 
-                //changed |= pegi.toggleIcon(ref isStatic);
-
                 changed |= TriggerUsage.SelectUsage(ref usage);
 
                 changed |= _usage.Inspect(this).nl();
@@ -133,7 +129,7 @@ namespace STD_Logic
             }
             else
             {
-                this.inspect_Name();
+                this.inspect_Name("g:{0}t:{1}".F(groupIndex,triggerIndex));
 
                 if (icon.Edit.ClickUnfocus())
                     inspected = this;
