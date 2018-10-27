@@ -205,7 +205,7 @@ namespace STD_Logic
                 return filteredList;
             else
             {
-                Debug.Log("Refiltering group {0} from {1} to {2}, because {3}".F(name,lastFilteredString, Trigger.searchField, lastFilteredString.SameAs(Trigger.searchField)));
+              //  Debug.Log("Refiltering group {0} from {1} to {2}, because {3}".F(name,lastFilteredString, Trigger.searchField, lastFilteredString.SameAs(Trigger.searchField)));
 
                 filteredList.Clear();
                 foreach (Trigger t in triggers)
