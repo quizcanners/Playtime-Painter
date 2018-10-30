@@ -6761,13 +6761,15 @@ namespace PlayerAndEditorGUI {
 
         public static bool TryInspect<T>(this List_Data ld, ref T obj, int ind) where T : UnityEngine.Object
         {
-            var el = ld != null ? ld.elementDatas.TryGet(ind) : null; 
+            var el = ld.TryGetElement(ind); 
 
             if (el != null)
                 return el.Inspect(ref obj);
             else
                 return pegi.edit(ref obj);
         }
+
+        public static ElementData TryGetElement(this List_Data ld, int ind) => ld?.elementDatas.TryGet(ind);
         
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {

@@ -294,56 +294,6 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        /*
-        public static bool select<T>(ref int i, T[] ar, bool clampValue) where T : IEditorDropdown
-        {
-            checkLine();
-
-            bool changed = false;
-
-            List<string> lnms = new List<string>();
-            List<int> ints = new List<int>();
-
-            int ind = -1;
-
-            if (clampValue)
-            {
-                i = i.ClampZeroTo(ar.Length);
-                if (ar[i].ShowInDropdown() == false)
-                    for (int v = 0; v < ar.Length; v++)
-                    {
-                        T val = ar[v];
-                        if (val.ShowInDropdown())
-                        {
-                            changed = true;
-                            i = v;
-                            break;
-                        }
-                    }
-            }
-
-
-            for (int j = 0; j < ar.Length; j++)
-            {
-                T val = ar[j];
-                if (val.ShowInDropdown())
-                {
-                    if (i == j) ind = ints.Count;
-                    lnms.Add("{0}: {1}".F(j, val.ToPEGIstring()));
-                    ints.Add(j);
-                }
-            }
-
-            int newNo = EditorGUILayout.Popup(ind, lnms.ToArray());
-            if (newNo != ind)
-            {
-                i = ints[newNo];
-                changed = change;
-            }
-            return changed;
-
-        }
-        */
         public static bool select(ref int no, string[] from, int width)
         {
             checkLine();
@@ -1088,25 +1038,9 @@ namespace PlayerAndEditorGUI {
         }
 
         public static void write(Texture icon, int width) => write(icon, icon ? icon.name : "Null Icon", width, width);
-        /* {
-
-             checkLine();
-
-             GUIContent c = new GUIContent
-             {
-                 image = icon
-             };
-
-             GUI.enabled = false;
-             pegi.SetBgColor(Color.clear);
-             GUILayout.Button(c, PEGI_Styles.ImageButton, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10));
-             pegi.PreviousBGcolor();
-             GUI.enabled = true;
-         }*/
-
+ 
         public static void write(Texture icon, string tip, int width) => write(icon, tip, width, width);
       
-
         public static void write(Texture icon, string tip, int width, int height)
         {
 
@@ -1159,11 +1093,6 @@ namespace PlayerAndEditorGUI {
         }
 
         public static void write(string text) => write(text, PEGI_Styles.WrappingText);
-      /*  {
-            checkLine();
-
-            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
-        }*/
 
         public static void write(string text, GUIStyle style )
         {
@@ -1296,20 +1225,15 @@ namespace PlayerAndEditorGUI {
             
             var el = current_Reordered_List[index];
 
-            if (el != null)
-            {
+            if (el != null) {
 
-                if (el != null && current_Reordered_ListTypes != null)
-                {
+                if (el != null && current_Reordered_ListTypes != null) {
                     var ty = el.GetType();
 
-                    GUIContent cont = new GUIContent
-                    {
+                    GUIContent cont = new GUIContent {
                         tooltip = ty.ToString(),
                         text = el.ToPEGIstring()
                     };
-
-
 
                     var uo = el as UnityEngine.Object;
                     if (uo)
@@ -1324,7 +1248,7 @@ namespace PlayerAndEditorGUI {
                         if (select_Type(ref ty, current_Reordered_ListTypes, rect))
                         {
                          
-                            var ed = listData.elementDatas.TryGet(index);
+                            var ed = listData.TryGetElement(index);
 
                             var iTag = el as IGotClassTag;
 
@@ -1360,7 +1284,7 @@ namespace PlayerAndEditorGUI {
             }
             else
             {
-                var ed = listData.elementDatas.TryGet(index);
+                var ed = listData.TryGetElement(index);
                 
                 if (ed != null && ed.unrecognized) {
 
