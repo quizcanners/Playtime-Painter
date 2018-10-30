@@ -335,9 +335,8 @@ namespace STD_Animations
                         if (CurrentFrame != null)
                         "Time (sec) ".edit(60, ref CurrentFrame.frameDuration).nl();
 
-                    if (Application.isPlaying || !playInEditor)
-                    {
-                        var added = elementsUnsorted.edit_List(ref inspectedElement,  ref changed);
+                    if (Application.isPlaying || !playInEditor) {
+                        var added = pegi.edit_List(ref elementsUnsorted, ref inspectedElement,  ref changed);
                         if (added != null)
                         {
                             added.NameForPEGI = "";

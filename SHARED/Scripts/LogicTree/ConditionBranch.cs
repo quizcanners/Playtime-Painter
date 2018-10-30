@@ -148,12 +148,12 @@ namespace STD_Logic {
                  (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
               
 
-                changed |= "Conditions".edit_List(conds, ref browsedCondition);
+                changed |= "Conditions".edit_List(ref conds, ref browsedCondition);
             }
 
             pegi.Line(Color.black);
 
-            changed |= "Sub Branches".edit_List(branches, ref browsedBranch);
+            changed |= "Sub Branches".edit_List(ref branches, ref browsedBranch);
             
 
             ConditionLogic.inspectedTarget = before;

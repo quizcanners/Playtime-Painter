@@ -802,7 +802,7 @@ namespace Playtime_Painter
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { PaletteName = "New Color Scheme" });
 
-                changed |= pegi.edit_List(Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
+                changed |= pegi.edit_List(ref Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
             }
 
             return changed;

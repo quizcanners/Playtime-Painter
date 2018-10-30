@@ -29,7 +29,6 @@ namespace PlayerAndEditorGUI {
         public static string searchBarInput = "";
         static int elementIndex;
         public static bool searchInFocus = false;
-        public static ArrayManagerAbstract<Texture> tarray = new ArrayManagerAbstract<Texture>();
         public static SerializedObject serObj;
 
         public static bool Inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, IPEGI {

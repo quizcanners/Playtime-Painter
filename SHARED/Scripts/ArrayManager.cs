@@ -1,20 +1,16 @@
 ﻿using UnityEngine;
 using System;
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
+    public static class Array_Extensions {
 
-    public class ArrayManagerAbstract<T>
-    {
-
-        public T[] GetCopy(ref T[] args)
-        {
+        public static T[] GetCopy<T>(this T[] args) {
             T[] temp = new T[args.Length];
             args.CopyTo(temp, 0);
             return temp;
         }
 
-        public void Resize(ref T[] args, int To)
+        public static void Resize<T>(ref T[] args, int To)
         {
             T[] temp;
             temp = new T[To];
@@ -24,7 +20,7 @@ namespace SharedTools_Stuff
                 args = temp;
         }
 
-        public void Expand(ref T[] args, int add)
+        public static void Expand<T>(ref T[] args, int add)
         {
             T[] temp;
             if (args != null)
@@ -36,7 +32,7 @@ namespace SharedTools_Stuff
             args = temp;
         }
 
-        public void Remove(ref T[] args, int ind)
+        public static void Remove<T>(ref T[] args, int ind)
         {
             T[] temp = new T[args.Length - 1];
             Array.Copy(args, 0, temp, 0, ind);
@@ -45,14 +41,7 @@ namespace SharedTools_Stuff
             args = temp;
         }
 
-
-    }
-
-
-    public class ArrayManager<T> : ArrayManagerAbstract<T> where T : new()
-    {
-
-        public void AddAndInit(ref T[] args, int add)
+        public static void AddAndInit<T>(ref T[] args, int add) where T:new()
         {
             T[] temp;
             if (args != null)
@@ -66,7 +55,7 @@ namespace SharedTools_Stuff
                 args[i] = new T();
         }
 
-        public T AddAndInit(ref T[] args)
+        public static T AddAndInit<T>(ref T[] args) where T : new()
         {
             T[] temp;
             if (args != null)
@@ -81,7 +70,7 @@ namespace SharedTools_Stuff
             return tmp;
         }
 
-        public void InsertAfterAndInit(ref T[] args, int ind)
+        public static void InsertAfterAndInit<T>(ref T[] args, int ind) where T : new()
         {
             if ((args != null) && (args.Length > 0))
             {
@@ -94,9 +83,7 @@ namespace SharedTools_Stuff
                 }
                 args = temp;
                 args[ind + 1] = new T();
-            }
-            else
-            {
+            } else {
 
                 args = new T[ind + 1];
                 for (int i = 0; i < ind + 1; i++)
@@ -105,7 +92,5 @@ namespace SharedTools_Stuff
 
 
         }
-
     }
-
 }

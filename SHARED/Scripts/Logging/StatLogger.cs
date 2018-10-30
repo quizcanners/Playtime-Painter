@@ -128,7 +128,7 @@ namespace SharedTools_Stuff
             bool changed = false;
 
             if (inspectedStat == -1)
-                "Logs".edit_List(executionOrder, ref inspectedStat);
+                "Logs".edit_List(ref executionOrder, ref inspectedStat);
             else
             {
                 if (icon.Back.Click())

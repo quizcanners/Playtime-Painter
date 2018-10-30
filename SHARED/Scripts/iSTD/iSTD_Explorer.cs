@@ -39,6 +39,7 @@ namespace SharedTools_Stuff
 
     public class List_Data : Abstract_STD, IPEGI {
 
+        public string name = "list";
         public string folderToSearch = "Assets/";
         public int inspectedElement = -1;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
@@ -53,8 +54,8 @@ namespace SharedTools_Stuff
             bool changed = false;
 #if UNITY_EDITOR
 
-            "Folder".edit(50, ref folderToSearch);
-            if (icon.Search.Click("Populate list with objects from folder.")) {
+            "{0} Folder".F(name).edit(90, ref folderToSearch);
+            if (icon.Search.Click("Populate {0} with objects from folder".F(name))) {
                 if (folderToSearch.Length > 0)
                 {
                     var scrObjs = AssetDatabase.FindAssets("t:Object", new string[] { folderToSearch });
@@ -84,6 +85,7 @@ namespace SharedTools_Stuff
         {
             switch (tag)
             {
+                case "n": name = data; break;
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspectedElement = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
@@ -95,10 +97,16 @@ namespace SharedTools_Stuff
         public override StdEncoder Encode() => new StdEncoder()
             .Add("ed", elementDatas)
             .Add("insp", inspectedElement)
-            .Add_String("fld", folderToSearch);
+            .Add_String("fld", folderToSearch)
+            .Add_String("n", name);
 
         #endregion
 
+        public List_Data() { }
+
+        public List_Data (string nameMe) {
+            name = nameMe;
+        }
     }
 
     public class ElementData : Abstract_STD {
@@ -279,6 +287,7 @@ namespace SharedTools_Stuff
             data = ndata;
         }
 
+        #region Inspector
 #if PEGI
 
         public string NameForPEGI
@@ -300,7 +309,7 @@ namespace SharedTools_Stuff
                 Decode(data);//.DecodeTagsFor(this);
 
             if (tags != null)
-                dirty |= tag.edit_List(tags, ref inspectedTag);
+                dirty |= tag.edit_List(ref tags, ref inspectedTag);
 
             if (inspectedTag == -1)
             {
@@ -368,7 +377,9 @@ namespace SharedTools_Stuff
         }
 
 #endif
+        #endregion
 
+        #region Encode & Decode
         public override StdEncoder Encode()
         {
             var cody = new StdEncoder();
@@ -388,20 +399,20 @@ namespace SharedTools_Stuff
             tags.Add(new Exploring_STD(tag, data));
             return true;
         }
-
+        #endregion
 
     }
 
     [Serializable]
-    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect
-    {
+    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect {
 
         ISTD Std => ISTD_ExplorerData.inspectedSTD;
 
-        public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
         public string comment;
         public Exploring_STD dataExplorer = new Exploring_STD("", "");
 
+        #region Inspector
+        public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
 #if PEGI
         public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
@@ -467,8 +478,8 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-
 #endif
+        #endregion
     }
 
     [Serializable]
@@ -480,6 +491,7 @@ namespace SharedTools_Stuff
         public static ISTD inspectedSTD;
         public bool SaveToFileOptions;
 
+        #region Inspector
 #if PEGI
 
         public static bool PEGI_Static(ISTD target)
@@ -510,7 +522,7 @@ namespace SharedTools_Stuff
             inspectedSTD = target;
             inspected = this;
 
-            var aded = "Saved CFGs:".edit_List(states, ref inspectedState, ref changed);
+            var aded = "Saved CFGs:".edit_List(ref states, ref inspectedState, ref changed);
 
             if (aded != null && target != null)
             {
@@ -549,6 +561,7 @@ namespace SharedTools_Stuff
             return changed;
         }
 #endif
+        #endregion
     }
 
 }

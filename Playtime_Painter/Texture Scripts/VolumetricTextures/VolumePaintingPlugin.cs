@@ -340,7 +340,7 @@ namespace Playtime_Painter
         {
             bool changes = false;
 
-            changes |= "Volumes".edit_List(VolumeTexture.all, ref exploredVolume);
+            changes |= "Volumes".edit_List(ref VolumeTexture.all, ref exploredVolume);
 
             return changes;
         }

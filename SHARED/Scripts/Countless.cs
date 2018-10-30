@@ -19,12 +19,12 @@ namespace SharedTools_Stuff {
         protected static VariableBranch[] fruitPool = new VariableBranch[32];
         protected static int brPoolMax = 0;
         protected static int frPoolMax = 0;
-        protected static ArrayManager<VariableBranch> array = new ArrayManager<VariableBranch>();
+       // protected static ArrayManager<VariableBranch> array = new ArrayManager<VariableBranch>();
         protected static int branchSize = 8;
         protected static void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
-                array.Expand(ref fruitPool, 32);
+                Array_Extensions.Expand(ref fruitPool, 32);
 
             fruitPool[frPoolMax] = b.br[no];
             VariableBranch vb = fruitPool[frPoolMax];
@@ -37,7 +37,7 @@ namespace SharedTools_Stuff {
         {
             if ((brPoolMax + 1) >= branchPool.Length)
             {
-                array.Expand(ref branchPool, 32);
+                Array_Extensions.Expand(ref branchPool, 32);
             }
             //Debug.Log("Deleting branch ");
             branchPool[brPoolMax] = b.br[no];
@@ -69,12 +69,9 @@ namespace SharedTools_Stuff {
         protected static void DiscardCascade(VariableBranch b, int depth)
         {
             if ((brPoolMax + 1) >= branchPool.Length)
-            {
-                array.Expand(ref branchPool, 32);
-            }
-
-            if (depth > 0)
-            {
+                Array_Extensions.Expand(ref branchPool, 32);
+            
+            if (depth > 0) {
                 for (int i = 0; i < branchSize; i++)
                 {
                     if (b.br[i] != null)

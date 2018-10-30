@@ -85,8 +85,6 @@ namespace SharedTools_Stuff
     {
         public T[] scripts;
         
-        public ArrayManager<T> ScrptArray = new ArrayManager<T>();
-
         bool locked = false;
 
 #if PEGI
@@ -130,7 +128,7 @@ namespace SharedTools_Stuff
 
         protected override void ExpandArrays()
         {
-            ScrptArray.Expand(ref scripts, ExpandBy);
+            Array_Extensions.Expand(ref scripts, ExpandBy);
             _BufferSize += ExpandBy;
         }
 

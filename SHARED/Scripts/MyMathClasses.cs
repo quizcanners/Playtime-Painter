@@ -698,9 +698,6 @@ namespace SharedTools_Stuff
             CopyFrom(col);
         }
 
-
-        public static ArrayManager<LinearColor> array = new ArrayManager<LinearColor>();
-
     }
 
 

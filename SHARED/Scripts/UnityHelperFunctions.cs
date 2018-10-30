@@ -1602,8 +1602,7 @@ namespace SharedTools_Stuff
 
             if (newProtos.Length <= index)
             {
-                ArrayManager<SplatPrototype> arrman = new ArrayManager<SplatPrototype>();
-                arrman.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+               Array_Extensions.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
             }
 
             newProtos[index].texture = tex;
