@@ -4,6 +4,14 @@ using System;
 namespace SharedTools_Stuff {
     public static class Array_Extensions {
 
+        public static void Swap<T>(ref T[] array, int a, int b) {
+            if (array != null && a<array.Length && b < array.Length && a!=b) {
+                var tmp = array[a];
+                array[a] = array[b];
+                array[b] = tmp;
+            }
+        }
+
         public static T[] GetCopy<T>(this T[] args) {
             T[] temp = new T[args.Length];
             args.CopyTo(temp, 0);

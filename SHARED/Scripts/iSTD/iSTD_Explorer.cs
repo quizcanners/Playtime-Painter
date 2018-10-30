@@ -49,8 +49,6 @@ namespace SharedTools_Stuff
             get { return elementDatas.TryGet(i); }            
         }
 
-
-
         #region Inspector
 #if PEGI
         public void SaveElementDataFrom<T>(List<T> list)
@@ -110,6 +108,7 @@ namespace SharedTools_Stuff
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
+                case "ktd": _keepTypeData = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -119,7 +118,8 @@ namespace SharedTools_Stuff
             .Add("ed", elementDatas)
             .Add("insp", inspected)
             .Add_String("fld", folderToSearch)
-            .Add_String("n", label);
+            .Add_String("n", label)
+            .Add_Bool("ktd", _keepTypeData);
 
         #endregion
 

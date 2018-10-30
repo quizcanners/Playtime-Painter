@@ -759,26 +759,26 @@ namespace SharedTools_Stuff {
                 dec(tag, GetData());
         }
 
-        public T DecodeTagsFor<T>(T storyComponent) where T : ISTD {
+        public T DecodeTagsFor<T>(T std) where T : ISTD {
 
-            var unrec = (storyComponent as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
+            var unrec = (std as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
 
             try {
                 if (unrec == null)
                     foreach (var tag in this)
-                        storyComponent.Decode(tag, GetData());
+                        std.Decode(tag, GetData());
                 else
                     foreach (var tag in this)
                     {
                         var d = GetData();
-                        if (!storyComponent.Decode(tag, d))
+                        if (!std.Decode(tag, d))
                             unrec.Add(tag, d);
                     }
             } catch (Exception ex) {
-                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, storyComponent, ex));
+                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, std, ex));
             }
             
-            return storyComponent;
+            return std;
         }
 
         string ToNextSplitter()

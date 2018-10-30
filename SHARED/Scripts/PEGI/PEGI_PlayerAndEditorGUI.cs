@@ -505,12 +505,25 @@ namespace PlayerAndEditorGUI {
             newLine();
         }
 
+        public static void nl(this string value, GUIStyle style) {
+            write(value, style);
+            nl();
+        }
+
+        public static void nl(this string value, string hint, GUIStyle style)
+        {
+            write(value, hint, style);
+            nl();
+        }
+
         public static void nl(this icon icon, int size) {
             icon.write(size);
             nl();
         }
 
         public static void nl(this icon icon) => icon.nl(defaultButtonSize);
+
+
 
         #endregion
 
@@ -2625,7 +2638,7 @@ namespace PlayerAndEditorGUI {
                 var lbl = "{0} [{1}]".F(label, list.Count);
 
                 if (lbl.enter(ref enteredOne, thisOne))
-                    return lbl.edit_List(list, meta, ref changed, types, keepTypeData);
+                    return lbl.edit_List(list, meta, ref changed, types);
             }
 
             return default(T);
@@ -2646,7 +2659,7 @@ namespace PlayerAndEditorGUI {
                 var lbl = "{0} [{1}]".F(label, list.Count);
 
                 if (lbl.enter(ref enteredOne, thisOne))
-                    lbl.edit_List(list, meta, ref changed, types, keepTypeData);
+                    lbl.edit_List(list, meta, ref changed, types);
             }
 
             return changed;
@@ -4753,7 +4766,7 @@ namespace PlayerAndEditorGUI {
         static string addingNewNameHolder = "New Name";
         static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added) where T : ScriptableObject
         {
-            if (editingOrder != null && editingOrder == lst)
+            if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
             var indTypes = typeof(T).TryGetDerrivedClasses();
@@ -4825,7 +4838,7 @@ namespace PlayerAndEditorGUI {
         
         static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
         {
-            if (editingOrder != null && editingOrder == lst)
+            if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
             var intTypes = typeof(T).TryGetDerrivedClasses();
@@ -4845,14 +4858,7 @@ namespace PlayerAndEditorGUI {
                 (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
 
             if (!hasName || addingNewNameHolder.Length > 1) {
-               /* if (intTypes == null && tagTypes == null) {
-                    if (icon.Create.Click("Instantiate a new object").nl()) {
-                        added = lst.AddWithUniqueNameAndIndex(addingNewNameHolder);
-                        changed = true;
-                    }
-                }
-                else
-                {*/
+             
 
                     bool selectingDerrived = lst == addingNewOptionsInspected;
 
@@ -4887,8 +4893,7 @@ namespace PlayerAndEditorGUI {
                         {
 
                             write(tagTypes.DisplayNames[i]);
-                            if (icon.Create.Click().nl())
-                            {
+                            if (icon.Create.Click().nl()) {
                                 added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet((k[i])));
 
                                 lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
@@ -4910,7 +4915,7 @@ namespace PlayerAndEditorGUI {
 
         static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types) 
         {
-            if (editingOrder != null && editingOrder == lst)
+            if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
             bool changed = false;
@@ -5116,7 +5121,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static IList editingOrder;
+        static IList editing_List_Order;
 
         static bool listIsNull<T>(ref List<T> list) {
             if (list == null) {
@@ -5156,41 +5161,117 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static bool edit_List_Order<T>(this List<T> list, List_Data datas = null, bool keepTypeData = false)
+        static Array editing_Array_Order;
+        static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null)
         {
             bool changed = false;
 
             const int bttnWidth = 25;
 
-            if (list != editingOrder)
+            if (array != editing_Array_Order) {
+                if (icon.Edit.Click("Change Order", 28))
+                    editing_Array_Order = array;
+            }
+
+            else if (icon.Done.Click("Finish moving", 28).nl()) {
+                changed = true;
+                editing_Array_Order = null;
+            }
+
+            if (array == editing_Array_Order)
+            {
+
+                    var derr = typeof(T).TryGetDerrivedClasses();
+
+                    for (int i = 0; i< array.Length; i++)
+                    {
+                        if (i > 0)  {
+                            if (icon.Up.Click("Move up", bttnWidth)) {
+                                changed = true;
+                                Array_Extensions.Swap(ref array, i, i -1);
+                            }
+                        }
+                        else
+                            icon.UpLast.write("Last", bttnWidth);
+
+                        if (i < array.Length - 1)
+                        {
+                            if (icon.Down.Click("Move down", bttnWidth)) {
+                                changed = true;
+                                Array_Extensions.Swap(ref array, i, i+1);
+                            }
+                        }
+                        else icon.DownLast.write(bttnWidth);
+
+                        var el = array[i];
+
+
+                        if (el != null && typeof(T).IsUnityObject()) {
+                            if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
+                            array[i] = default(T);
+                        }
+                        else
+                        {
+                            if (icon.Close.ClickUnfocus("Remove From Array", bttnWidth)) {
+                                Array_Extensions.Remove(ref array, i);
+                                changed = true;
+                                i--;
+                            }
+                        }
+
+
+                        if (el != null && derr != null)
+                        {
+                            var ty = el.GetType();
+                            if (select(ref ty, derr, el.ToPEGIstring()))
+                            array[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        }
+
+                        if (el != null)
+                            write(el.ToPEGIstring());
+                        else
+                            "Empty {0}".F(typeof(T).ToPEGIstring()).write();
+
+                        nl();
+                    }
+             
+            }
+
+            return changed;
+        }
+        
+        static bool edit_List_Order<T>(this List<T> list, List_Data datas = null)
+        {
+            bool changed = false;
+
+            const int bttnWidth = 25;
+
+            if (list != editing_List_Order)
             {
                 if (icon.Edit.Click("Change Order", 28))
-                    editingOrder = list;
+                    editing_List_Order = list;
             }
 
             else if (icon.Done.Click("Finish moving", 28))
             {
                 changed = true;
-                editingOrder = null;
+                editing_List_Order = null;
             }
 
-            if (list == editingOrder)
+            if (list == editing_List_Order)
             {
 #if UNITY_EDITOR
                 if (!paintingPlayAreaGUI)
                 {
                     nl();
-                    changed |= ef.reorder_List(list, datas, keepTypeData);
+                    changed |= ef.reorder_List(list, datas);
                 }
                 else
 #endif
                 {
                     var derr = typeof(T).TryGetDerrivedClasses();
 
-                    //  list.InspectionStart();
-
-                    foreach (var i in list.InspectionIndexes()) //int i = ListSectionStartIndex; i < ListSectionMax; i++)
-                    {
+                    foreach (var i in list.InspectionIndexes()) {
                         if (i > 0)
                         {
                             if (icon.Up.Click("Move up", bttnWidth))
@@ -5301,7 +5382,7 @@ namespace PlayerAndEditorGUI {
         {
             var changed = list.edit_List_Order(datas);
 
-            if (list == editingOrder && datas != null)
+            if (list == editing_List_Order && datas != null)
             {
 
                 if (icon.Search.Click("Find objects by GUID"))
@@ -5542,7 +5623,7 @@ namespace PlayerAndEditorGUI {
 
                 changed |= list.edit_List_Order_Obj(datas);
 
-                if (list != editingOrder)
+                if (list != editing_List_Order)
                 {
                     // list.InspectionStart();
                     foreach (var i in list.InspectionIndexes()) // (int i = ListSectionStartIndex; i < ListSectionMax; i++)
@@ -5657,7 +5738,7 @@ namespace PlayerAndEditorGUI {
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                if (list != editingOrder) {
+                if (list != editing_List_Order) {
                     foreach (var i in list.InspectionIndexes()) {
                         var el = list[i];
                         if (el == null)
@@ -5777,15 +5858,14 @@ namespace PlayerAndEditorGUI {
             inspected = Mathf.Clamp(inspected, -1, list.Count - 1);
             changed |= (inspected != before);
 
-            if (inspected == -1)
-            {
+            if (inspected == -1) {
 
                 if (datas != null && icon.Save.Click())
                     datas.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(datas, false);
+                changed |= list.edit_List_Order(datas);
 
-                if (list != editingOrder)
+                if (list != editing_List_Order)
                 {
                     changed |= list.ListAddClick<T>();
 
@@ -5877,7 +5957,7 @@ namespace PlayerAndEditorGUI {
 
                 changed |= list.edit_List_Order(datas);
 
-                if (list != editingOrder) {
+                if (list != editing_List_Order) {
 
                     changed |= list.ListAddClick(ref added);
 
@@ -5910,18 +5990,18 @@ namespace PlayerAndEditorGUI {
             return added;
         }
 
-        public static T edit_List<T>(this string label, List<T> list, List_Data ld, ref bool changed, TaggedTypes_STD types, bool keepTypeData = false)
+        public static T edit_List<T>(this string label, List<T> list, List_Data ld, ref bool changed, TaggedTypes_STD types)
         {
             label.write_ListLabel(list, ld.inspected);
             return list.edit_List(ref ld.inspected, ref changed, types, ld).listLabel_Used();
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types, List_Data datas = null, bool keepTypeData = false) {
+        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types, List_Data datas = null) {
             label.write_ListLabel(list, edited);
             return list.edit_List(ref edited, ref changed, types, datas).listLabel_Used();
         }
         
-        public static T edit_List<T>(this List<T> list, ref int inspected, ref bool changed, TaggedTypes_STD types, List_Data datas = null, bool keepTypeData = false) {
+        public static T edit_List<T>(this List<T> list, ref int inspected, ref bool changed, TaggedTypes_STD types, List_Data datas = null) {
 
             T added = default(T);
 
@@ -5938,9 +6018,9 @@ namespace PlayerAndEditorGUI {
 
             if (inspected == -1) {
 
-                changed |= list.edit_List_Order(datas, keepTypeData);
+                changed |= list.edit_List_Order(datas);
 
-                if (list != editingOrder) {
+                if (list != editing_List_Order) {
  
                     foreach (var i in list.InspectionIndexes())  {
 
@@ -5988,7 +6068,7 @@ namespace PlayerAndEditorGUI {
 
             changed |= list.edit_List_Order();
 
-            if (list != editingOrder)
+            if (list != editing_List_Order)
             {
                 changed |= list.ListAddClick(ref added);
      
@@ -6021,15 +6101,14 @@ namespace PlayerAndEditorGUI {
 
             bool changed = false;
 
-            if (list == null)
-            {
+            if (list == null) {
                 "Empty List".nl();
                 return false;
             }
 
             changed |= list.edit_List_Order();
 
-            if (list != editingOrder)
+            if (list != editing_List_Order)
             {
 
                 changed |= list.ListAddClick();
@@ -6053,8 +6132,7 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
-
-
+        
         public static bool edit_List(this string name, List<string> list, Func<string, string> lambda)
         {
             name.write_ListLabel(list, -1);
@@ -6072,7 +6150,7 @@ namespace PlayerAndEditorGUI {
 
             changed |= list.edit_List_Order();
 
-            if (list != editingOrder)
+            if (list != editing_List_Order)
             {
                 if (icon.Add.Click())
                 {
@@ -6245,15 +6323,22 @@ namespace PlayerAndEditorGUI {
 
         #region Arrays
 
-        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected) where T : new()  {
+        public static bool edit_Array<T>(this string label, ref T[] array, List_Data datas = null) where T : new()
+        {
+            int inspected = -1;
             label.write_ListLabel(array, inspected);
-            return edit_Array(ref array, ref inspected).listLabel_Used();
+            return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_Array<T>(ref T[] array, ref int inspected) where T : new()
+        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null) where T : new()  {
+            label.write_ListLabel(array, inspected);
+            return edit_Array(ref array, ref inspected, datas).listLabel_Used();
+        }
+
+        public static bool edit_Array<T>(ref T[] array, ref int inspected, List_Data datas = null) where T : new()
         {
             bool changes = false;
-            edit_Array(ref array, ref inspected, ref changes);
+            edit_Array(ref array, ref inspected, ref changes, datas);
             return changes;
         }
 
@@ -6270,9 +6355,13 @@ namespace PlayerAndEditorGUI {
                 changed |= ExitOrDrawPEGI(array, ref inspected);
                  
                 if (inspected == -1) {
-                    if (icon.Add.Click("Add and instantiate element").nl())
+
+                    if (icon.Add.Click("Add and instantiate element"))
                         Array_Extensions.AddAndInit(ref array, 1);
 
+                    changed |= edit_Array_Order(ref array, datas).nl();
+
+                    if (array != editing_Array_Order)
                     for (int i = 0; i < array.Length; i++) 
                         changed |= array[i].Name_ClickInspect_PEGI<T>(null, i, ref inspected, datas).nl();
                 }

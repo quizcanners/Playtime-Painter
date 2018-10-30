@@ -1268,12 +1268,11 @@ namespace PlayerAndEditorGUI {
         static TaggedTypes_STD current_TaggedTypes;
         static List_Data listData;
         static bool keepTypeDatas = false;
-        public static bool reorder_List<T>(List<T> l, List_Data datas, bool keepTypeData)
+        public static bool reorder_List<T>(List<T> l, List_Data datas)
         {
             listData = datas;
-            keepTypeDatas = keepTypeData;
-
-
+            keepTypeDatas = datas != null ? datas._keepTypeData : false;
+            
             EditorGUI.BeginChangeCheck();
             current_Reordered_ListTypes = typeof(T).TryGetDerrivedClasses();
 
