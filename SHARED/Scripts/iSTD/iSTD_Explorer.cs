@@ -39,13 +39,34 @@ namespace SharedTools_Stuff
 
     public class List_Data : Abstract_STD, IPEGI {
 
-        public string name = "list";
+        public string label = "list";
         public string folderToSearch = "Assets/";
-        public int inspectedElement = -1;
+        public int inspected = -1;
+        public bool _keepTypeData = false;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
+        public ElementData this[int i] {
+            get { return elementDatas.TryGet(i); }            
+        }
+
+
+
         #region Inspector
 #if PEGI
+        public void SaveElementDataFrom<T>(List<T> list)
+        {
+            for (int i = 0; i < list.Count; i++)
+                SaveElementDataFrom(list, i);
+        }
+
+        public void SaveElementDataFrom<T>(List<T> list, int i)
+        {
+            var el = list[i];
+            if (el != null)
+                elementDatas[i].Save(el);
+        }
+
+
         public bool Inspect() {
             return false;
         }
@@ -54,8 +75,8 @@ namespace SharedTools_Stuff
             bool changed = false;
 #if UNITY_EDITOR
 
-            "{0} Folder".F(name).edit(90, ref folderToSearch);
-            if (icon.Search.Click("Populate {0} with objects from folder".F(name))) {
+            "{0} Folder".F(label).edit(90, ref folderToSearch);
+            if (icon.Search.Click("Populate {0} with objects from folder".F(label))) {
                 if (folderToSearch.Length > 0)
                 {
                     var scrObjs = AssetDatabase.FindAssets("t:Object", new string[] { folderToSearch });
@@ -85,9 +106,9 @@ namespace SharedTools_Stuff
         {
             switch (tag)
             {
-                case "n": name = data; break;
+                case "n": label = data; break;
                 case "ed": data.DecodeInto(out elementDatas); break;
-                case "insp": inspectedElement = data.ToInt(); break;
+                case "insp": inspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
                 default: return false;
             }
@@ -96,16 +117,23 @@ namespace SharedTools_Stuff
 
         public override StdEncoder Encode() => new StdEncoder()
             .Add("ed", elementDatas)
-            .Add("insp", inspectedElement)
+            .Add("insp", inspected)
             .Add_String("fld", folderToSearch)
-            .Add_String("n", name);
+            .Add_String("n", label);
 
         #endregion
 
         public List_Data() { }
 
         public List_Data (string nameMe) {
-            name = nameMe;
+            label = nameMe;
+        }
+
+
+        public List_Data(string nameMe, bool keepTypeData)
+        {
+            label = nameMe;
+            _keepTypeData = keepTypeData;
         }
     }
 

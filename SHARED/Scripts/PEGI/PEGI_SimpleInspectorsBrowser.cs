@@ -10,8 +10,6 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
 
     public List<UnityEngine.Object> objects = new List<UnityEngine.Object>();
     
- 
-
     [SerializeField] string stdData = "";
 
     public string Config_STD { get { return stdData; } set { stdData = value; } }
@@ -24,20 +22,20 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
     {
         switch (tag)
         {
-            case "refs": data.DecodeInto(out nestedReferenceDatas); break;
+            case "ld": data.DecodeInto(out references_Meta); break;
             default: return false;
         }
         return true;
     }
 
     public override StdEncoder Encode() => 
-        this.EncodeUnrecognized().Add("refs", nestedReferenceDatas);
+        this.EncodeUnrecognized().Add("ld", references_Meta);
 
     #region Inspector
 #if PEGI
     public override bool Inspect() {
         bool changed = base.Inspect();
-        "inspect Objects:".enter_List_Obj(objects, ref inspectedStuff, 3, nestedReferenceDatas);
+        "inspect Objects:".enter_List_Obj(ref objects, ref inspectedStuff, 3, references_Meta);
         return changed;
     }
 #endif

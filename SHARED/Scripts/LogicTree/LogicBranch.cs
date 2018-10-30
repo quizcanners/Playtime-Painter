@@ -69,11 +69,11 @@ namespace STD_Logic
         public override bool Inspect() {
             bool changed = false;
 
-            changed |= NameForElements.enter_List(elements, ref inspectedElement, ref inspectedStuff, 1).nl();
+            changed |= NameForElements.enter_List(ref elements, ref inspectedElement, ref inspectedStuff, 1).nl();
 
             changed |=  "Conditions".enter_Inspect(conds, ref inspectedStuff, 2).nl();
 
-            changed |= "Sub Branches".enter_List(subBranches, ref inspectedBranch, ref inspectedStuff, 3).nl();
+            changed |= "Sub Branches".enter_List(ref subBranches, ref inspectedBranch, ref inspectedStuff, 3).nl();
 
             return changed;
         }

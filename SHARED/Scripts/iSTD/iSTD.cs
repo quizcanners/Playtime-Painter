@@ -72,7 +72,7 @@ namespace SharedTools_Stuff {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-        protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
+        protected List_Data listData = new List_Data();
         
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
@@ -81,7 +81,7 @@ namespace SharedTools_Stuff {
         public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add("refDta", nestedReferenceDatas);
+            .Add("listDta", listData);
 
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
 
@@ -89,7 +89,7 @@ namespace SharedTools_Stuff {
         {
             switch (tag)
             {
-                case "refDta": data.DecodeInto(out nestedReferenceDatas); break;
+                case "listDta": data.DecodeInto(out listData); break;
                 default: return false;
             }
             return true;
@@ -128,7 +128,7 @@ namespace SharedTools_Stuff {
 
                 if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
                 {
-                    "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
+                    "References".edit_List_Obj(ref _nestedReferences, ref inspectedReference, listData);
 
                     if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
                         ", that usu this object to hold references is currently decoded to avoid mixups"))
@@ -297,9 +297,9 @@ namespace SharedTools_Stuff {
     }
 
     public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ICanBeDefault_STD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
-
-        protected UnnullableSTD<ElementData> nestedReferenceDatas = new UnnullableSTD<ElementData>();
         
+        protected List_Data references_Meta = new List_Data("References");
+
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public int GetISTDreferenceIndex(UnityEngine.Object obj)
@@ -375,7 +375,6 @@ namespace SharedTools_Stuff {
 
         [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
-        [SerializeField] int inspectedReference = -1;
         public virtual bool Inspect()
         {
 
@@ -398,8 +397,8 @@ namespace SharedTools_Stuff {
 
                 if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
                 {
-                    "References".edit_List_Obj(_nestedReferences, ref inspectedReference, nestedReferenceDatas);
-                    if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
+                    references_Meta.edit_List_Obj(ref _nestedReferences);
+                    if (references_Meta.inspected == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
                     ", that usu this object to hold references is currently decoded to avoid mixups"))
                         _nestedReferences.Clear();
 

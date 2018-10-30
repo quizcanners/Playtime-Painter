@@ -1266,11 +1266,11 @@ namespace PlayerAndEditorGUI {
         static Type current_Reordered_Type;
         static List<Type> current_Reordered_ListTypes;
         static TaggedTypes_STD current_TaggedTypes;
-        static UnnullableSTD<ElementData> elementDatas;
+        static List_Data listData;
         static bool keepTypeDatas = false;
-        public static bool reorder_List<T>(List<T> l, UnnullableSTD<ElementData> datas, bool keepTypeData)
+        public static bool reorder_List<T>(List<T> l, List_Data datas, bool keepTypeData)
         {
-            elementDatas = datas;
+            listData = datas;
             keepTypeDatas = keepTypeData;
 
 
@@ -1325,7 +1325,7 @@ namespace PlayerAndEditorGUI {
                         if (select_Type(ref ty, current_Reordered_ListTypes, rect))
                         {
                          
-                            var ed = elementDatas.TryGet(index);
+                            var ed = listData.elementDatas.TryGet(index);
 
                             var iTag = el as IGotClassTag;
 
@@ -1361,7 +1361,7 @@ namespace PlayerAndEditorGUI {
             }
             else
             {
-                var ed = elementDatas.TryGet(index);
+                var ed = listData.elementDatas.TryGet(index);
                 
                 if (ed != null && ed.unrecognized) {
 

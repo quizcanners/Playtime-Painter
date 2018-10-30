@@ -626,6 +626,8 @@ namespace SharedTools_Stuff
             return d[n, m];
         }
 
+        public static bool isNullOrEmpty(this string s) => s == null || s.Length == 0;
+
         #endregion
         
         public static bool IsDefaultOrNull<T>(this T obj)

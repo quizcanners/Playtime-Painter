@@ -364,15 +364,15 @@ namespace Playtime_Painter
         {
             bool changes = false;
 
-            changes |= "Img datas".enter_List(imgDatas, ref inspectedImgData, ref inspectedStuffs, 0).nl();
+            changes |= "Img datas".enter_List(ref imgDatas, ref inspectedImgData, ref inspectedStuffs, 0).nl();
 
-            changes |= "Mat datas".enter_List(matDatas, ref inspectedMaterial, ref inspectedStuffs, 1).nl();
+            changes |= "Mat datas".enter_List(ref matDatas, ref inspectedMaterial, ref inspectedStuffs, 1).nl();
 
-            changes |= "Source Textures".enter_List_Obj(sourceTextures, ref inspectedStuffs, 2).nl();
+            changes |= "Source Textures".enter_List_Obj(ref sourceTextures, ref inspectedStuffs, 2).nl();
 
-            changes |= "Masks".enter_List_Obj(masks, ref inspectedStuffs, 3).nl();
+            changes |= "Masks".enter_List_Obj(ref masks, ref inspectedStuffs, 3).nl();
 
-            changes |= "Decals".enter_List(decals, ref inspectedDecal, ref inspectedStuffs, 4).nl();
+            changes |= "Decals".enter_List(ref decals, ref inspectedDecal, ref inspectedStuffs, 4).nl();
 
             if (inspectedStuffs == -1)
             {

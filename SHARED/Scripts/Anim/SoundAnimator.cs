@@ -99,7 +99,7 @@ namespace STD_Animations
             if ("Valume".edit(ref volume).nl() && source)
                     source.volume = volume;
 
-            changed |= "Audio Clips".edit_List_Obj(audioClips).nl();
+            changed |= "Audio Clips".edit_List_Obj(ref audioClips).nl();
 
             "Dependencies".foldout(ref showDependencies).nl();
 
