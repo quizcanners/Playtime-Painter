@@ -2577,8 +2577,8 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
 
-
-        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List_Data datas = null) where T : UnityEngine.Object
+ 
+        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -2588,12 +2588,27 @@ namespace PlayerAndEditorGUI {
 
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
-                lbl.edit_List_Obj(ref list, ref inspectedElement, datas).nl();
+                lbl.edit_List_Obj(ref list, ref inspectedElement, null).nl();
 
             return changed;
         }
 
-        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List_Data datas = null) where T : UnityEngine.Object
+        public static bool enter_List_Obj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        {
+
+            bool changed = false;
+
+            if (listIsNull(ref list))
+                return false;
+
+            var lbl = "{0} [{1}]".F(datas.label, list.Count);
+            if (lbl.enter(ref enteredOne, thisOne))
+                    datas.edit_List_Obj(ref list, selectFrom);
+
+            return changed;
+        }
+
+        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -2602,8 +2617,8 @@ namespace PlayerAndEditorGUI {
                 return false;
 
             var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne))
-                lbl.edit_List_Obj(ref list, datas).nl();
+            if (lbl.enter(ref enteredOne, thisOne)) 
+                    lbl.edit_List_Obj(ref list, selectFrom);   
 
             return changed;
         }
@@ -5073,26 +5088,28 @@ namespace PlayerAndEditorGUI {
             return val;
         }
 
+        static void write_ListLabel(this List_Data datas, IList lst) =>
+            write_ListLabel(datas.label, lst, datas.inspected);
+            
         static void write_ListLabel(this string label, IList lst, int inspected) {
 
             bool editedName = false;
 
             currentListLabel = label;
 
-            if (lst != null && inspected >= 0 && lst.Count > inspected)
-            {
+            if (lst != null && inspected >= 0 && lst.Count > inspected) {
+
                 var el = lst[inspected];
 
                 el.Try_NameInspect(out editedName, label);
 
                 if (!editedName)
                     label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
+
             }
 
             if (!editedName)
                 write(label, PEGI_Styles.ListLabel);
-
-
         }
 
         static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
@@ -5595,20 +5612,28 @@ namespace PlayerAndEditorGUI {
 
 
         //Lists ...... of Monobehaviour
-        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added, List_Data datas = null) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
             label.write_ListLabel(list, inspected);
-            return edit_List_MB(ref list, ref inspected, ref added, datas).listLabel_Used();
+            bool changed = false;
+            edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
+            return changed;
         }
 
-        public static bool edit_List_MB<T>(ref List<T> list, ref int inspected, ref T added, List_Data datas = null) where T : MonoBehaviour
-        {
+        public static bool edit_List_MB<T>(this List_Data datas, ref List<T> list) where T : MonoBehaviour {
+            datas.write_ListLabel(list);
             bool changed = false;
+            edit_List_MB(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+            return changed;
+        }
 
-            added = default(T);
+        public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : MonoBehaviour
+        {
+    
+            T added = default(T);
 
             if (listIsNull(ref list))
-                return false;
+                return added;
 
             int before = inspected;
             inspected = Mathf.Clamp(inspected, -1, list.Count - 1);
@@ -5660,7 +5685,7 @@ namespace PlayerAndEditorGUI {
 
             newLine();
 
-            return changed;
+            return added;
         }
 
 
@@ -5705,13 +5730,13 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, List_Data datas = null) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this List_Data datas, ref List<T> list) where T : ScriptableObject
         {
-            label.write_ListLabel(list, inspected);
+            write_ListLabel(datas, list);
 
             bool changed = false;
 
-            edit_List_SO(ref list, ref inspected, ref changed, datas).listLabel_Used();
+            edit_List_SO(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
 
             return changed;
         }
@@ -5807,43 +5832,36 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Obj
-        public static bool edit_List_Obj<T>(ref List<T> list, ref int inspected) where T : UnityEngine.Object
-            => edit_or_select_List_Obj(ref list, null, ref inspected);
 
-        public static bool edit_List_Obj<T>(this List<T> list, List_Data datas = null) where T : UnityEngine.Object
-        {
-            int edited = -1;
-            return edit_or_select_List_Obj(ref list, null, ref edited, datas);
-        }
-
-        public static bool edit_List_Obj<T>(this string label, ref List<T> list, List_Data datas = null) where T : UnityEngine.Object
-        {
-            label.write_ListLabel(list, -1);
-            return (list.edit_List_Obj(datas)).listLabel_Used();
-        }
-
-        public static bool edit_List_Obj<T>(this string label, ref List<T> list, ref int inspected) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, inspected);
-            return edit_List_Obj(ref list, ref inspected).listLabel_Used();
+            return edit_or_select_List_Obj(ref list, selectFrom, ref inspected);
         }
 
-        public static bool edit_List_Obj<T>(this List_Data datas, ref List<T> list) where T : UnityEngine.Object
+        public static bool edit_List_Obj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+            => edit_or_select_List_Obj(ref list, selectFrom, ref inspected);
+
+        public static bool edit_List_Obj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object {
+            label.write_ListLabel(list, -1);
+            return list.edit_List_Obj(selectFrom).listLabel_Used();
+        }
+
+        public static bool edit_List_Obj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
+                int edited = -1;
+                return edit_or_select_List_Obj(ref list, selectFrom, ref edited, null);
+        }
+        
+        public static bool edit_List_Obj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
             datas.label.write_ListLabel(list, datas.inspected);
-            return edit_or_select_List_Obj(ref list, null, ref datas.inspected, datas).listLabel_Used();
+            return edit_or_select_List_Obj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_List_Obj<T>(this string label, ref List<T> list, ref int inspected, List_Data datas = null) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T>(this string label, ref List<T> list, List<T> from, ref int inspected) where T : UnityEngine.Object
         {
             label.write_ListLabel(list, inspected);
-            return edit_or_select_List_Obj(ref list, null, ref inspected, datas).listLabel_Used();
-        }
-
-        public static bool edit_or_select_List_Obj<T>(this string label, ref List<T> list, List<T> from, ref int inspected, List_Data datas = null) where T : UnityEngine.Object
-        {
-            label.write_ListLabel(list, inspected);
-            return edit_or_select_List_Obj(ref list, from, ref inspected, datas).listLabel_Used();
+            return edit_or_select_List_Obj(ref list, from, ref inspected, null).listLabel_Used();
         }
 
         public static bool edit_or_select_List_Obj<T>(ref List<T> list, List<T> from, ref int inspected, List_Data datas = null) where T : UnityEngine.Object
@@ -5851,7 +5869,6 @@ namespace PlayerAndEditorGUI {
             if (listIsNull(ref list))
                 return false;
             
-
             bool changed = false;
 
             int before = inspected;
@@ -5903,37 +5920,44 @@ namespace PlayerAndEditorGUI {
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
         
-        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected, List_Data datas = null) where T : new()
+        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) where T : new()
         {
             label.write_ListLabel(list, inspected);
-            return edit_List(ref list, ref inspected, datas).listLabel_Used();
+            return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list, ref int inspected, List_Data datas = null) where T : new()
+        public static bool edit_List<T>(ref List<T> list, ref int inspected) where T : new()
         {
             bool changes = false;
-            edit_List(ref list, ref inspected, ref changes, datas);
+            edit_List(ref list, ref inspected, ref changes);
             return changes;
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, List_Data datas = null) where T : new()
+        public static bool edit_List<T>(this string label, ref List<T> list) where T : new()
         {
             label.write_ListLabel(list, -1);
-            return edit_List(ref list, datas).listLabel_Used();
+            return edit_List(ref list).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list, List_Data datas = null) where T : new()
+        public static bool edit_List<T>(ref List<T> list) where T : new()
         {
             int edited = -1;
             bool changes = false;
-            edit_List(ref list, ref edited, ref changes, datas);
+            edit_List(ref list, ref edited, ref changes);
             return changes;
         }
 
-        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : new()
+        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : new()
         {
             label.write_ListLabel(list, inspected);
-            return edit_List(ref list, ref inspected, ref changed, datas).listLabel_Used();
+            return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
+        }
+
+        public static bool edit_List<T>(this List_Data datas, ref List<T> list) where T : new() {
+           write_ListLabel(datas, list);
+            bool changed = false;
+            edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+            return changed;
         }
 
         public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : new() {
@@ -5990,15 +6014,17 @@ namespace PlayerAndEditorGUI {
             return added;
         }
 
+        #region Tagged Types
+
         public static T edit_List<T>(this string label, List<T> list, List_Data ld, ref bool changed, TaggedTypes_STD types)
         {
             label.write_ListLabel(list, ld.inspected);
             return list.edit_List(ref ld.inspected, ref changed, types, ld).listLabel_Used();
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types, List_Data datas = null) {
+        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types) {
             label.write_ListLabel(list, edited);
-            return list.edit_List(ref edited, ref changed, types, datas).listLabel_Used();
+            return list.edit_List(ref edited, ref changed, types).listLabel_Used();
         }
         
         public static T edit_List<T>(this List<T> list, ref int inspected, ref bool changed, TaggedTypes_STD types, List_Data datas = null) {
@@ -6050,7 +6076,10 @@ namespace PlayerAndEditorGUI {
             newLine();
             return added;
         }
-        
+
+        #endregion
+
+        #region Lambda
         public static T edit_List<T>(this string label, List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
         {
             label.write_ListLabel(list, -1);
@@ -6175,6 +6204,8 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
+        #endregion
+
         #endregion
 
         #region NotNew

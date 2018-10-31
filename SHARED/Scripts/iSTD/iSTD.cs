@@ -72,7 +72,7 @@ namespace SharedTools_Stuff {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-        protected List_Data listData = new List_Data();
+        protected List_Data listData = new List_Data("References");
         
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
@@ -89,7 +89,7 @@ namespace SharedTools_Stuff {
         {
             switch (tag)
             {
-                case "listDta": data.DecodeInto(out listData); break;
+                case "listDta": listData.Decode(data); break;
                 default: return false;
             }
             return true;
@@ -103,11 +103,17 @@ namespace SharedTools_Stuff {
         #region Inspector
 #if PEGI
 
+        [ContextMenu("Reset Inspector")]
+        public void ResetInspector() {
+            inspectedDebugStuff = -1;
+            inspectedReference = -1;
+            inspectedStuff = -1;
+        }
+
         [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
-        public virtual bool Inspect()
-        {
+        public virtual bool Inspect(){
 
             bool changed = false;
 
@@ -128,7 +134,7 @@ namespace SharedTools_Stuff {
 
                 if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
                 {
-                    "References".edit_List_Obj(ref _nestedReferences, ref inspectedReference, listData);
+                    listData.edit_List_Obj(ref _nestedReferences);
 
                     if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
                         ", that usu this object to hold references is currently decoded to avoid mixups"))
@@ -344,8 +350,16 @@ namespace SharedTools_Stuff {
         }
 
 #if PEGI
- 
-          bool nestedReferencesChanged;
+
+        [ContextMenu("Reset Inspector")]
+        public void ResetInspector()
+        {
+            inspectedDebugStuff = -1;
+            inspectedStuff = -1;
+        }
+
+
+        bool nestedReferencesChanged;
 
         public virtual string NeedAttention()
         {

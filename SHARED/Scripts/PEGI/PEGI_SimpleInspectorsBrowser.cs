@@ -22,7 +22,7 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
     {
         switch (tag)
         {
-            case "ld": data.DecodeInto(out references_Meta); break;
+            case "ld": references_Meta.Decode(data); break;
             default: return false;
         }
         return true;
@@ -35,7 +35,7 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
 #if PEGI
     public override bool Inspect() {
         bool changed = base.Inspect();
-        "inspect Objects:".enter_List_Obj(ref objects, ref inspectedStuff, 3, references_Meta);
+        references_Meta.enter_List_Obj(ref objects, ref inspectedStuff, 3);
         return changed;
     }
 #endif
