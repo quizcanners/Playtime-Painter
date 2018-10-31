@@ -56,7 +56,7 @@ namespace Playtime_Painter
         public bool Inspect() {
             bool changed = false;
 
-            changed |= PaletteName.edit_List(colors, EditColor);
+            changed |= PaletteName.edit_List(ref colors, EditColor);
 
             return changed;
         }

@@ -243,11 +243,11 @@ namespace PlayerAndEditorGUI
 
             "Some more text".nl();
 
-            icon.Docs.GetIcon().edit("Button icon" , () => TestImageButton, this).nl();
+            icon.Docs.GetIcon().edit_Property("Button icon" , () => TestImageButton, this).nl();
 
            
 
-            "List Label".edit(() => TestListLabel, this).nl();
+            "List Label".edit_Property(() => TestListLabel, this).nl();
 
             "List Label Test".write(TestListLabel); pegi.nl();
 

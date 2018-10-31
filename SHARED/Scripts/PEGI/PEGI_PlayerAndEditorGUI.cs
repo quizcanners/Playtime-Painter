@@ -4641,22 +4641,16 @@ namespace PlayerAndEditorGUI {
             return ival;
         }
 
-        public static bool edit<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-        {
-            return edit<T>(label, null, null, -1, memberExpression, obj);
-        }
-
-        public static bool edit<T>(this string label, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-        {
-            return edit<T>(label, null, tip, -1, memberExpression, obj);
-        }
-
-        public static bool edit<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-        {
-            return edit<T>(null, tex, tip, -1, memberExpression, obj);
-        }
-
-        public static bool edit<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+        public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+         => edit_Property(label, null, null, -1, memberExpression, obj);
+        
+        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+        => edit_Property(label, null, tip, -1, memberExpression, obj);
+        
+        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+         => edit_Property(null, tex, tip, -1, memberExpression, obj);
+        
+        public static bool edit_Property<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
         {
             bool changes = false;
 #if UNITY_EDITOR
@@ -6080,20 +6074,29 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Lambda
-        public static T edit_List<T>(this string label, List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
-        {
-            label.write_ListLabel(list, -1);
-            return edit_List<T>(list, ref changed, lambda).listLabel_Used();
+
+        static int lambda_int(int val) {
+            edit(ref val);
+            return val;
         }
 
-        public static T edit_List<T>(this List<T> list, ref bool changed, Func<T, T> lambda) where T : new() {
+
+        public static bool edit_List_Int(this string label, ref List<int> list) =>
+            label.edit_List(ref list, lambda_int);
+        
+
+        public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
+        {
+            label.write_ListLabel(list, -1);
+            return edit_List<T>(ref list, ref changed, lambda).listLabel_Used();
+        }
+
+        public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new() {
 
             T added = default(T);
 
-            if (list == null) {
-                "Empty List".nl();
+            if (listIsNull(ref list))
                 return added;
-            }
 
             changed |= list.edit_List_Order();
 
@@ -6119,21 +6122,19 @@ namespace PlayerAndEditorGUI {
             return added;
         }
 
-        public static bool edit_List<T>(this string label, List<T> list, Func<T, T> lambda) where T : new()
+        public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
         {
             label.write_ListLabel(list, -1);
-            return edit_List<T>(list, lambda).listLabel_Used();
+            return edit_List<T>(ref list, lambda).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this List<T> list, Func<T, T> lambda) where T : new()
+        public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
         {
 
             bool changed = false;
 
-            if (list == null) {
-                "Empty List".nl();
-                return false;
-            }
+            if (listIsNull(ref list))
+                return changed;
 
             changed |= list.edit_List_Order();
 
@@ -6162,33 +6163,28 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
         
-        public static bool edit_List(this string name, List<string> list, Func<string, string> lambda)
+        public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
             name.write_ListLabel(list, -1);
-            return list.edit_List(lambda).listLabel_Used();
+            return edit_List(ref list, lambda).listLabel_Used();
         }
 
-        public static bool edit_List(this List<string> list, Func<string, string> lambda)
+        public static bool edit_List(ref List<string> list, Func<string, string> lambda)
         {
             bool changed = false;
-            if (list == null)
-            {
-                "Empty List".nl();
+            if (listIsNull(ref list))
                 return changed;
-            }
 
             changed |= list.edit_List_Order();
 
             if (list != editing_List_Order)
             {
-                if (icon.Add.Click())
-                {
+                if (icon.Add.Click()) {
                     list.Add("");
                     changed = true;
                 }
 
-                foreach (var i in list.InspectionIndexes())
-                {
+                foreach (var i in list.InspectionIndexes()) {
                     var el = list[i];
                     var before = el;
                     list[i] = lambda(el);
@@ -6204,6 +6200,8 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
+
+
         #endregion
 
         #endregion
@@ -6467,6 +6465,9 @@ namespace PlayerAndEditorGUI {
         }
         public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
 
+        #endregion
+
+        #region Inspect Name
         public static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
         {
 
@@ -6517,7 +6518,9 @@ namespace PlayerAndEditorGUI {
             }
             return false;
         }
+        #endregion
 
+        #region Dictionary
         public static bool select_or_Edit_PEGI(this Dictionary<int, string> dic, ref int selected)
         {
             bool changed = false;
@@ -6609,10 +6612,9 @@ namespace PlayerAndEditorGUI {
             string dummy;
             while (dic.TryGetValue(newEnumKey, out dummy)) newEnumKey++;
         }
-
         #endregion
 
-        #endif
+#endif
 
     }
     
