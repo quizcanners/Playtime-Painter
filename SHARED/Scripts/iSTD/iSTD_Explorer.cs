@@ -42,7 +42,9 @@ namespace SharedTools_Stuff
         public string label = "list";
         public string folderToSearch = "Assets/";
         public int inspected = -1;
-        public bool _keepTypeData = false;
+        public bool _keepTypeData;
+        public bool allowDelete;
+        public bool allowReorder;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
         public ElementData this[int i] {
@@ -50,7 +52,7 @@ namespace SharedTools_Stuff
         }
 
         #region Inspector
-#if PEGI
+        #if PEGI
         public void SaveElementDataFrom<T>(List<T> list)
         {
             for (int i = 0; i < list.Count; i++)
@@ -64,8 +66,21 @@ namespace SharedTools_Stuff
                 elementDatas[i].Save(el);
         }
 
+        bool enterElementDatas = false;
+        public bool inspectListMeta = false;
 
         public bool Inspect() {
+
+            if (!enterElementDatas) {
+                "List Label".edit(70, ref label).nl();
+                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData, true).nl();
+                "Allow Delete".toggleIcon(ref allowDelete, true).nl();
+                "Allow Reorder".toggleIcon(ref allowReorder, true).nl();
+            }
+
+            if ("Elements".enter(ref enterElementDatas).nl())
+                elementDatas.Inspect();
+
             return false;
         }
 
@@ -95,7 +110,7 @@ namespace SharedTools_Stuff
 #endif
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         #region Encode & Decode
@@ -124,20 +139,17 @@ namespace SharedTools_Stuff
         #endregion
 
         public List_Data() { }
-
-        public List_Data (string nameMe) {
-            label = nameMe;
-        }
-
-
-        public List_Data(string nameMe, bool keepTypeData)
+        
+        public List_Data(string nameMe, bool keepTypeData = false, bool allowDeleting = true, bool allowReordering = true)
         {
+            allowDelete = allowDeleting;
+            allowReorder = allowReordering;
             label = nameMe;
             _keepTypeData = keepTypeData;
         }
     }
 
-    public class ElementData : Abstract_STD {
+    public class ElementData : Abstract_STD, IPEGI, IGotName {
         public string name; 
         public string componentType;
         public string std_dta;
@@ -162,7 +174,25 @@ namespace SharedTools_Stuff
             std_dta = data;
         }
 
+        #region Inspector
 #if PEGI
+
+        public string NameForPEGI { get { return name;  } set { name = value; } }
+        
+        public bool Inspect()
+        {
+            bool changed = false;
+
+            if (unrecognized)
+                "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
+
+            if (perTypeConfig.Count > 0)
+                "Per type config".edit_Dictionary(ref perTypeConfig).nl();
+
+
+            return changed;
+        }
+
         public bool SelectType<T>(ref T obj, bool keepTypeConfig = false) where T : IGotClassTag {
             bool changed = false;
 
@@ -252,7 +282,9 @@ namespace SharedTools_Stuff
             return changed;
         }
 #endif
+        #endregion
 
+        #region Encode & Decode
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "n": name = data; break;
@@ -280,7 +312,7 @@ namespace SharedTools_Stuff
             }
             return cody;
         }
-
+        #endregion
     }
 
     [Serializable]

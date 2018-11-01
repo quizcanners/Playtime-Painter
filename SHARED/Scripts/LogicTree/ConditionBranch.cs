@@ -141,8 +141,8 @@ namespace STD_Logic {
             bool changed = false;
 
             if (browsedBranch == -1) {
-                if (pegi.Click(type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one should be true)"),
-                    (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition or sub branch should be true")))
+                if (pegi.Click(type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one is true)"),
+                    (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition OR sub branch should be true")))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 
                  (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();

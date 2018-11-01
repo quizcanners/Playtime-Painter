@@ -105,7 +105,7 @@ namespace STD_Logic
 
         public override string NameForPEGIdisplay => name;
 
-        public bool PEGI_inList(IList list, int ind, ref int edited) {
+        public override bool PEGI_inList(IList list, int ind, ref int edited) {
 
             bool changed = false;
 

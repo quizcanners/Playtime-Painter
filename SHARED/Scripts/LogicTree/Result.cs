@@ -92,21 +92,52 @@ namespace STD_Logic  {
         }
         
         #region Inspector
-#if PEGI
+        #if PEGI
         public override string NameForPEGIdisplay => base.NameForPEGIdisplay + type + " " + updateValue;
 
-        public bool PEGI_inList(IList list, int ind, ref int edited) {
-   
-            var changed = FocusedField_PEGI(pegi.ListInspectedIndex, "Res");
+        public override bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) {
 
+            var changed = FocusedField_PEGI(ind, "Res");
             changed |= Trigger._usage.Inspect(this);
-
-            changed |= SearchAndAdd_PEGI(pegi.ListInspectedIndex);
 
             return changed;
         }
+        /*
+        public bool PEGI_inList(IList list, int ind, ref int inspected) {
 
-#endif
+            var changed = false;
+
+            if (this != edited) {
+                changed = FocusedField_PEGI(pegi.ListInspectedIndex, "Res");
+
+                changed |= Trigger._usage.Inspect(this);
+
+                changed |= SearchAndAdd_PEGI(pegi.ListInspectedIndex);
+                
+                if (icon.Edit.Click())
+                    edited = this;
+
+                changed |= SearchAndAdd_PEGI(ind);
+            }
+            else
+            {
+                if (icon.FoldedOut.Click())
+                    edited = null;
+
+                Trigger.inspected = Trigger;
+
+                Trigger.PEGI_inList();
+
+                if (Trigger.inspected != Trigger)
+                    edited = null;
+            }
+
+
+            return changed;
+        }
+        */
+
+        #endif
         #endregion
 
     }

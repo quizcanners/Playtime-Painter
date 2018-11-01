@@ -73,6 +73,12 @@ namespace STD_Logic
 
         #region Inspector
 #if PEGI
+
+        public override void ResetInspector() {
+            inspectedTriggerGroup = -1;
+            base.ResetInspector();
+        }
+
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
         [NonSerialized] TriggerGroup replaceRecieved = null;

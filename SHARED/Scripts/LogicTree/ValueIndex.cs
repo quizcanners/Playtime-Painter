@@ -66,6 +66,46 @@ namespace STD_Logic
 
         public static ValueIndex edited;
 
+        public virtual bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) {
+            /*
+            var  changed = FocusedField_PEGI(ind, "Tr");
+
+            changed |= Trigger._usage.Inspect(this);
+
+            return changed;*/
+            return false;
+        }
+
+        public virtual bool PEGI_inList(IList list, int ind, ref int inspected)
+        {
+
+            var changed = false;
+
+            if (this != edited) {
+                changed = PEGI_inList_Sub(list, ind, ref inspected);
+
+                if (icon.Edit.Click())
+                    edited = this;
+
+                changed |= SearchAndAdd_PEGI(ind);
+            }
+            else
+            {
+                if (icon.FoldedOut.Click())
+                    edited = null;
+
+                Trigger.inspected = Trigger;
+
+                Trigger.PEGI_inList();
+
+                if (Trigger.inspected != Trigger)
+                    edited = null;
+            }
+
+
+            return changed;
+        }
+        
         public bool FocusedField_PEGI(int index, string prefix) {
 
             bool changed = false;
@@ -90,7 +130,7 @@ namespace STD_Logic
             Trigger t = Trigger;
 
             if (this == edited)
-                t.Inspect();
+                changed |= t.Inspect();
 
             if ((pegi.nameFocused == (focusName)) && (this != edited)) {
                 selected = this;
@@ -100,7 +140,7 @@ namespace STD_Logic
                     Trigger.searchField = Trigger.name;
                 }
 
-                pegi.newLine();
+    
 
                 if (Search_PEGI(Trigger.searchField, Values.global))
                     Trigger.searchField = Trigger.name;
@@ -111,7 +151,7 @@ namespace STD_Logic
             else if (index == Trigger.focusIndex) Trigger.focusIndex = -2;
 
 
-            pegi.newLine();
+           
 
             if (this == selected)
                 changed |= TriggerGroup.AddTrigger_PEGI(this);
@@ -181,7 +221,7 @@ namespace STD_Logic
         public static bool Toogle(this UnnullableSTD<CountlessBool> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
-            if (pegi.toggle(ref tmp))
+            if (pegi.toggleIcon(ref tmp))
             {
                 uc.Set(ind, tmp);
                 return true;

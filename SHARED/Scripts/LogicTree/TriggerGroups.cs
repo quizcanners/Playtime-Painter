@@ -194,8 +194,7 @@ namespace STD_Logic
         #region Inspector
         bool listDirty;
 
-#if PEGI
-
+        #if PEGI
         string lastFilteredString = "";
 
         List<Trigger> filteredList = new List<Trigger>();
@@ -324,26 +323,26 @@ namespace STD_Logic
 
             Trigger selectedTrig = arg?.Trigger;
 
-            if (Trigger.searchMatchesFound == 0 && Trigger.searchField.Length > 3 && selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField)) {
+            if (Trigger.searchMatchesFound == 0 && selectedTrig != null && !selectedTrig.name.SameAs(Trigger.searchField)) {
 
-                if (icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)))  {
+                bool goodLength = Trigger.searchField.Length > 3;
+
+                if (goodLength && icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)))  {
                     selectedTrig.name = Trigger.searchField;
                     changed = true;
                 }
-
-
+                
                 var groupLost = all.GetAllObjsNoOrder();
-                if (groupLost.Count > 0)   {
+                if (groupLost.Count > 0) {
                     int slctd = Browsed == null ? -1 : Browsed.IndexForPEGI;
 
-                    if (pegi.select(ref slctd, all))
+                    if (pegi.select(ref slctd, all)) 
                         Browsed = all[slctd];
-
                 }
                 else
                     "No Trigger Groups found".nl();
 
-                if (Browsed != null)
+                if (goodLength && Browsed != null)
                     Browsed.AddTriggerToGroup_PEGI(arg);
             }
 
@@ -351,8 +350,7 @@ namespace STD_Logic
 
             return changed;
         }
-
-#endif
+        #endif
 
         #endregion
 

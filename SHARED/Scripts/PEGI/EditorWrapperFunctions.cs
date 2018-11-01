@@ -1172,13 +1172,14 @@ namespace PlayerAndEditorGUI {
         
         static Dictionary<IList, ReorderableList> reorderableList = new Dictionary<IList, ReorderableList>();
 
-        static ReorderableList GetReordable<T>(this List<T> list)
+        static ReorderableList GetReordable<T>(this List<T> list, List_Data datas)
         {
             ReorderableList rl;
             reorderableList.TryGetValue(list, out rl);
 
             if (rl == null)  {
-                rl = new ReorderableList(list, typeof(T), true, true, false, true);
+                rl = new ReorderableList(list, typeof(T), datas==null || datas.allowReorder, true,
+                    false, datas == null || datas.allowDelete);
                 reorderableList.Add(list, rl);
 
                 rl.drawHeaderCallback += DrawHeader;
@@ -1214,7 +1215,7 @@ namespace PlayerAndEditorGUI {
 
             current_Reordered_Type = typeof(T);
             current_Reordered_List = l;
-            l.GetReordable().DoLayoutList();
+            l.GetReordable(datas).DoLayoutList();
             return EditorGUI.EndChangeCheck();
         }
         
@@ -1256,14 +1257,12 @@ namespace PlayerAndEditorGUI {
 
                             if (keepTypeDatas && iTag != null && ed != null) {
 
-                                var allConfigs = ed.perTypeConfig;
-
                                 if (std != null)
-                                    allConfigs[iTag.ClassTag] = std.Encode().ToString();
+                                    ed.perTypeConfig[iTag.ClassTag] = std.Encode().ToString();
                                 
                                 string data;
 
-                                if (allConfigs.TryGetValue(iTag.AllTypes.Tag(ty), out data)) {
+                                if (ed.perTypeConfig.TryGetValue(iTag.AllTypes.Tag(ty), out data)) {
                                     el = Activator.CreateInstance(ty);
                                     current_Reordered_List[index] = el;
                                     (el as ISTD).Decode_ifNotNull(data);

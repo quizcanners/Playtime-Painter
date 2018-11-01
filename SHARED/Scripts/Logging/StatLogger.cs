@@ -203,7 +203,7 @@ namespace SharedTools_Stuff
             if (value > 0 && ("Reset Value " + value).Click().nl())
                 value = 0;
 
-            changed |= events.edit(ref editedEvent).nl();
+            changed |= pegi.edit_Dictionary(ref events, ref editedEvent).nl();
 
             return changed;
         }

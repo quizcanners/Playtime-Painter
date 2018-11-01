@@ -31,14 +31,24 @@ namespace STD_Logic
 
         public static Values inspectedTarget = null;
 
-        public virtual bool PEGI_inList(IList list, int ind, ref int inspected) {
+        public override bool PEGI_inList_Sub(IList list, int ind, ref int inspecte)
+        {
+            var changed = FocusedField_PEGI(ind, "Cond");
+
+            Trigger._usage.Inspect(this);
+
+            return changed;
+        }
+
+        /*
+        public override bool PEGI_inList(IList list, int ind, ref int inspected) {
 
             bool changed = false;
 
             (TestFor(inspectedTarget) ? icon.Active : icon.InActive).write();
 
             if (this != edited) {
-                FocusedField_PEGI(ind, "Cond");
+                changed |= FocusedField_PEGI(ind, "Cond");
 
                 Trigger._usage.Inspect(this);
                 if (icon.Edit.Click())
@@ -48,7 +58,7 @@ namespace STD_Logic
 
             }
             else {
-                if (icon.FoldedOut.Click().nl())
+                if (icon.FoldedOut.Click())
                     edited = null;
 
                 Trigger.inspected = Trigger;
@@ -59,10 +69,8 @@ namespace STD_Logic
                     edited = null;
             }
 
-         
-
             return changed;
-        }
+        }*/
 
         #endif
         #endregion

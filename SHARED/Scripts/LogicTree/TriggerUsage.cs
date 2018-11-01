@@ -36,7 +36,7 @@ namespace STD_Logic
             int t = (int)r;
 
             if (!resultUsages.ContainsKey(t)) {
-                if (("Is " + r.ToString() + ". FIX ").Click())
+                if (icon.Warning.Click("Is " + r.ToString() + ". Click to FIX "))
                     r = (ResultType)(resultUsages.First().Key);
                 changed = true;
             }
@@ -58,7 +58,7 @@ namespace STD_Logic
 
             if (!conditionUsages.ContainsKey(t))
             {
-                if (("Is " + c.ToString() + ". FIX ").Click())
+                if (icon.Warning.Click(("Is " + c.ToString() + ". FIX ")))
                     c = (ConditionType)(conditionUsages.First().Key);
                 changed = true;
             }
@@ -130,16 +130,16 @@ namespace STD_Logic
 #if PEGI
         public override void Inspect(ConditionLogic c) {
             if (!c.IsBoolean())
-                ("Wrong Type: " + c.IsBoolean()).write();
+                icon.Warning.write("Wrong Type: " + c.IsBoolean());
              else 
-                pegi.toggle(ref ((ConditionLogicBool)c).compareValue);
+                pegi.toggleIcon(ref ((ConditionLogicBool)c).compareValue, "Condition Value");
         }
         
         public override bool Inspect(Result r) {
 
             if (!r.IsBoolean())
             {
-                if (("Wrong Type:" + r.type.ToString() + ". Change To Bool").Click())
+                if (icon.Warning.Click("Wrong Type:" + r.type.ToString() + ". Change To Bool"))
                 {
                     r.type = ResultType.SetBool;
                     return true;
@@ -147,7 +147,7 @@ namespace STD_Logic
                 return false;
             }
 
-            return pegi.toggleInt(ref r.updateValue);
+            return pegi.toggleIcon(ref r.updateValue);
         }
 
         public override bool Inspect(Trigger t)
@@ -189,7 +189,7 @@ namespace STD_Logic
             var num = c as ConditionLogicInt;
 
             if (num == null)
-                "Condition is not a number".write();
+                icon.Warning.write("Condition is not a number");
             else
             {
                 Select(ref num.type, conditionUsages);
@@ -239,7 +239,7 @@ namespace STD_Logic
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
             else
-                "Incorrect type".write();
+                icon.Warning.write("Incorrect type");
         }
 
         public override bool Inspect(Result r) {
@@ -345,12 +345,11 @@ namespace STD_Logic
             }
         }
 
-          public override bool Inspect(Result r) {
+        public override bool Inspect(Result r) {
             bool changed = false;
 
             changed |= Select(ref r.type, resultUsages);
-
-          
+            
             if (r.type != ResultType.SetTimeReal)
                 changed |= pegi.edit(ref r.updateValue);
             return changed;
@@ -379,25 +378,18 @@ namespace STD_Logic
         public override bool Inspect(Trigger t) {
             var changed = base.Inspect(t);
 
-            var vals = Values.global;
-
-            int value = vals.GetTagEnum(t);//[group.GetIndex()][ind];
-            if (pegi.select(ref value, t.enm)) {
-                vals.SetTagEnum(t, value);
+            int value = Values.global.GetTagEnum(t);
+            if (pegi.select(ref value, t.enm).nl()) {
+                Values.global.SetTagEnum(t, value);
                 changed = true;
             }
 
-
-            pegi.newLine();
-
             if (Trigger.inspected != t) return changed;
 
-            pegi.write("__ Tags __");
+            "__ Tags __".nl();
 
             const string NoZerosForTrigs = "No04t";
-            pegi.newLine();
-            pegi.writeOneTimeHint("Can't use 0 as tag index. ", NoZerosForTrigs);
-            pegi.newLine();
+            "Can't use 0 as tag index. ".writeOneTimeHint(NoZerosForTrigs);
 
             if (t.enm.edit_PEGI()) {
                 string dummy;
@@ -416,14 +408,11 @@ namespace STD_Logic
             var num = c as ConditionLogicInt;
 
             if (num == null)
-                icon.Warning.write("Condition is not a number", 60); //.write();
+                icon.Warning.write("Condition is not a number", 60); 
             else {
                 Select(ref num.type, Usage_Number.conditionUsages);
-
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
-
-         
         }
 
         public override bool Inspect(Result r) {
@@ -439,7 +428,6 @@ namespace STD_Logic
 
         public override bool HasMoreTriggerOptions => true;
         
-
         public Usage_IntTag(int index) : base(index) { }
     }
 
@@ -456,16 +444,16 @@ namespace STD_Logic
             if (num == null)
                 icon.Warning.write("Condition is not a bool",60);
             else
-                pegi.toggle(ref num.compareValue);
+                pegi.toggleIcon(ref num.compareValue);
         }
 
-        public override bool Inspect(Result r) => pegi.toggleInt(ref r.updateValue);
+        public override bool Inspect(Result r) => pegi.toggleIcon(ref r.updateValue);
         
         public override bool Inspect(Trigger t) {
             bool changed = base.Inspect(t);
             
                 bool val = Values.global.GetTagBool(t);
-                if (pegi.toggle(ref val)) {
+                if (pegi.toggleIcon(ref val)) {
                     changed = true; 
                     Values.global.SetTagBool(t, val);
                 }
