@@ -32,7 +32,7 @@ namespace SharedTools_Stuff {
 
     public interface ISTD_SafeEncoding: ISTD
     {
-        LoopLock GetLoopLock();
+        LoopLock GetLoopLock { get;  }
     }
     #endregion
 
@@ -103,8 +103,10 @@ namespace SharedTools_Stuff {
         #region Inspector
 #if PEGI
 
-        [ContextMenu("Reset Inspector")]
-        public void ResetInspector() {
+        [ContextMenu("Reset Inspector")] // Because ContextMenu doesn't accepts overrides
+        void Reset() => ResetInspector();
+
+        public virtual void ResetInspector() {
             inspectedDebugStuff = -1;
             inspectedReference = -1;
             inspectedStuff = -1;
@@ -118,8 +120,9 @@ namespace SharedTools_Stuff {
             bool changed = false;
 
             if (icon.Config.enter(ref inspectedStuff, 0)) {
-          
-                this.Try_Nested_Inspect();
+
+                if (icon.Refresh.Click("Reset Inspector"))
+                    ResetInspector();
 
                 this.clickHighlight();
 
@@ -261,7 +264,7 @@ namespace SharedTools_Stuff {
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tag, string data);
 
-        public LoopLock GetLoopLock() => loopLock_std;
+        public LoopLock GetLoopLock => loopLock_std;
 
         public LoopLock loopLock_std = new LoopLock();
 
@@ -283,6 +286,10 @@ namespace SharedTools_Stuff {
         public override bool Decode(string tag, string data) => false;
         #region Inspector
 
+        public virtual void ResetInspector() {
+            inspectedStuff = -1;
+        }
+
         public int inspectedStuff = -1;
 
 #if PEGI
@@ -292,6 +299,9 @@ namespace SharedTools_Stuff {
             bool changed = false;
 
             if (icon.Config.enter(ref inspectedStuff, 0)) {
+                if (icon.Refresh.Click("Reset Inspector"))
+                    ResetInspector();
+
                 explorer.Inspect(this);
                 changed |= uTags.Nested_Inspect();
             }
@@ -302,7 +312,7 @@ namespace SharedTools_Stuff {
         #endregion
     }
 
-    public abstract class ComponentSTD : MonoBehaviour, IKeepUnrecognizedSTD, ICanBeDefault_STD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentSTD : MonoBehaviour, ISTD_SafeEncoding, IKeepUnrecognizedSTD, ICanBeDefault_STD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
         
         protected List_Data references_Meta = new List_Data("References");
 
@@ -322,13 +332,6 @@ namespace SharedTools_Stuff {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
-        public virtual void Reboot() => uTags.Clear();
-
-        public virtual bool IsDefault => false;
-
-        public abstract bool Decode(string tag, string data);
-        public abstract StdEncoder Encode();
-
 #if !UNITY_EDITOR
         [NonSerialized]
 #endif
@@ -352,7 +355,10 @@ namespace SharedTools_Stuff {
 #if PEGI
 
         [ContextMenu("Reset Inspector")]
-        public void ResetInspector()
+        void Reset() => ResetInspector();
+
+
+        public virtual void ResetInspector()
         {
             inspectedDebugStuff = -1;
             inspectedStuff = -1;
@@ -401,6 +407,9 @@ namespace SharedTools_Stuff {
 
            if (icon.Config.enter(ref inspectedStuff, 0)) {
 
+                if (icon.Refresh.Click("Reset Inspector"))
+                    ResetInspector();
+
                 "{0} Debug ".F(this.ToPEGIstring()).nl();
 
                 if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifFalse())
@@ -432,13 +441,22 @@ namespace SharedTools_Stuff {
         }
 #endif
         #endregion
+
         public virtual ISTD Decode(string data)
         {
-            Reboot();
+            uTags.Clear();
             data.DecodeTagsFor(this);
             return this;
         }
-        
+
+        readonly LoopLock loopLock = new LoopLock();
+        public LoopLock GetLoopLock => loopLock;
+
+        public virtual bool IsDefault => false;
+
+        public abstract bool Decode(string tag, string data);
+        public abstract StdEncoder Encode();
+
     }
 
     #endregion
@@ -558,7 +576,7 @@ namespace SharedTools_Stuff {
             if (pegi.edit(ref myType)) {
                 txt = StuffLoader.LoadTextAsset(myType);
                // Debug.Log("Decoded {0}".F(txt));
-                ("Loaded " + myType.name).showNotification();
+                ("Loaded " + myType.name).showNotificationIn3D_Views();
 
                 return true;
             }

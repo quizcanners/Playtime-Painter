@@ -274,7 +274,7 @@ namespace Playtime_Painter
             {
 #if PEGI
                 if (stroke.mouseDwn)
-                    "Can't edit without Preview".showNotification();
+                    "Can't edit without Preview".showNotificationIn3D_Views();
 #endif
 
                 return false;
@@ -287,7 +287,7 @@ namespace Playtime_Painter
             {
 #if PEGI
                 if (stroke.mouseDwn)
-                    "No texture to edit".showNotification();
+                    "No texture to edit".showNotificationIn3D_Views();
 #endif
 
                 return false;
@@ -606,7 +606,7 @@ namespace Playtime_Painter
                     if (extension != "png")
                     {
 #if PEGI
-                        "Converting {0} to .png".F(name).showNotification();
+                        "Converting {0} to .png".F(name).showNotificationIn3D_Views();
 #endif
                         texture = t2d.CreatePngSameDirectory(texture.name);
                     }
@@ -1064,7 +1064,7 @@ namespace Playtime_Painter
             if ((id != null) && (GetMaterial(false) != null))
                 UpdateOrSetTexTarget(id.destination);
 #if PEGI
-            "Instantiating Material on {0}".F(gameObject.name).showNotification();
+            "Instantiating Material on {0}".F(gameObject.name).showNotificationIn3D_Views();
 #endif
             return GetMaterial(false);
 
@@ -1878,7 +1878,7 @@ namespace Playtime_Painter
                             MeshMGMT.DisconnectMesh();
                             changed = true;
                             Cfg.showConfig = false;
-                            "Editing Texture".showNotification();
+                            "Editing Texture".showNotificationIn3D_Views();
                         }
                     }
                     else
@@ -1890,7 +1890,7 @@ namespace Playtime_Painter
                             SetOriginalShader();
                             UpdateOrSetTexTarget(TexTarget.Texture2D);
                             Cfg.showConfig = false;
-                            "Editing Mesh".showNotification();
+                            "Editing Mesh".showNotificationIn3D_Views();
 
                             if (SavedEditableMesh != null)
                                 MeshMGMT.EditMesh(this, false);
@@ -2223,7 +2223,7 @@ namespace Playtime_Painter
                                 {
                                     loadingOrder.Add(TexMGMT.downloadManager.StartDownload(tmpURL), GetMaterialTexturePropertyName);
                                     tmpURL = "";
-                                    "Loading for {0}".F(GetMaterialTexturePropertyName).showNotification();
+                                    "Loading for {0}".F(GetMaterialTexturePropertyName).showNotificationIn3D_Views();
                                 }
 
                                 pegi.nl();

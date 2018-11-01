@@ -1069,7 +1069,7 @@ namespace Playtime_Painter
             {
 #if PEGI
                 if (!PointedUV.meshPoint.AllPointsUnique())
-                    "Shared points found, Edge requires All Unique".showNotification();
+                    "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
 #endif
                 if (EditorInputManager.getControlKey()) {
                     edgeValue = MeshMGMT.PointedUV.meshPoint.edgeStrength;
@@ -1243,7 +1243,7 @@ namespace Playtime_Painter
             {
                 curSubmesh = (int)MeshMGMT.PointedTris.submeshIndex;
 #if PEGI
-                ("Submesh " + curSubmesh).showNotification();
+                ("Submesh " + curSubmesh).showNotificationIn3D_Views();
 #endif
             }
 

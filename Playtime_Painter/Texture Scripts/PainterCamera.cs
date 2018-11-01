@@ -134,7 +134,7 @@ namespace Playtime_Painter
                         c = (PainterManagerPluginBase)gameObject.AddComponent(t);
                     _plugins.Add(c);
 #if PEGI
-                    ("Painter Plugin " + c.ToPEGIstring() + " added").showNotification();
+                    ("Painter Plugin " + c.ToPEGIstring() + " added").showNotificationIn3D_Views();
 #endif
                 }
             }

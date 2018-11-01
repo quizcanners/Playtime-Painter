@@ -2429,8 +2429,11 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
-            if (ico.enter(txt, ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered())
+            if (ico.enter(txt, ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered()) 
+                var.Try_NameInspect();
+            if (isFoldedOut_or_Entered)
                 return var.Nested_Inspect();
+            
 
             return false;
         }
@@ -2438,6 +2441,8 @@ namespace PlayerAndEditorGUI {
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne) {
 
             if (txt.enter(ref enteredOne, thisOne))
+                var.Try_NameInspect();
+            if (isFoldedOut_or_Entered)
                 return var.Nested_Inspect();
  
             return false;
@@ -5558,7 +5563,7 @@ namespace PlayerAndEditorGUI {
                 if (edit(ref mb))
                 {
                     list[i] = mb.GetComponent<T>();
-                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
+                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
 
                 }
                 return true;
@@ -5658,7 +5663,7 @@ namespace PlayerAndEditorGUI {
                                 if (obj)
                                 {
                                     list[i] = obj.GetComponent<T>();
-                                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotification();
+                                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
                                 }
                             }
                         }
@@ -6468,7 +6473,12 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Inspect Name
-        public static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
+        public static bool Try_NameInspect(this object obj, string label = "") {
+            bool could;
+            return obj.Try_NameInspect(out could, label);
+        }
+
+            public static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
         {
 
             bool gotLabel = label != null && label.Length > 0;
@@ -6613,8 +6623,8 @@ namespace PlayerAndEditorGUI {
             while (dic.TryGetValue(newEnumKey, out dummy)) newEnumKey++;
         }
         #endregion
-
-#endif
+        
+        #endif
 
     }
     
@@ -6680,7 +6690,7 @@ namespace PlayerAndEditorGUI {
 #else
 #if UNITY_EDITOR
              if (GUILayout.Button("Enable PEGI inspector")){
-               "Recompilation in progress ".showNotification();
+               "Recompilation in progress ".showNotificationIn3D_Views();
             
 
             PEGI_StylesDrawer.EnablePegi();
@@ -6870,28 +6880,27 @@ namespace PlayerAndEditorGUI {
             return default(G);
         }
 
-        public static void showNotification(this string text)
+        static Type gameViewType;
+        public static void showNotificationIn3D_Views(this string text)
         {
 #if UNITY_EDITOR
 
-            if (!Application.isPlaying)
-            {
+          //  if (!Application.isPlaying) {
+
                 var lst = Resources.FindObjectsOfTypeAll<SceneView>();
-                if (lst.Length > 0)
-                    lst[0].ShowNotification(new GUIContent(text));
+            //if (lst.Length > 0)
+            foreach (var w in lst)
+                w.ShowNotification(new GUIContent(text));
 
-            }
-            else
+           // }  else {
 
-            {
+                if (gameViewType == null)
+                    gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
 
-
-                //   EditorWindow gameview =
-                var ed = EditorWindow.GetWindow(typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView"));
+                var ed = EditorWindow.GetWindow(gameViewType);
                 if (ed != null)
                     ed.ShowNotification(new GUIContent(text));
-                //var lst = Resources.FindObjectsOfTypeAll<>();
-            }
+           // }
 #endif
         }
 

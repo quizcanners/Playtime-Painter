@@ -105,9 +105,6 @@ namespace Playtime_Painter {
                 painter.Update();
 
         }
-
-     
-    
         
         public static Tool previousTool;
 
@@ -115,7 +112,7 @@ namespace Playtime_Painter {
 
 #if !PEGI
              if (GUILayout.Button("Enable PEGI inspector")){
-             "Recompilation in progress ".showNotification();
+             "Recompilation in progress ".showNotificationIn3D_Views();
                 PEGI_StylesDrawer.EnablePegi();
  
 }

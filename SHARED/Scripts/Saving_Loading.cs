@@ -46,7 +46,7 @@ namespace SharedTools_Stuff
             if (File.Exists(path))
             {
 #if PEGI  && UNITY_EDITOR
-                "Deleting {0}".F(path).showNotification();
+                "Deleting {0}".F(path).showNotificationIn3D_Views();
 #endif
 
                 File.Delete(path);
@@ -402,7 +402,7 @@ namespace SharedTools_Stuff
             FileStream file = File.Create(full);
 #if PEGI
             if (Application.isPlaying == false)
-                ("Saved To " + full).showNotification();
+                ("Saved To " + full).showNotificationIn3D_Views();
 #endif
             bf.Serialize(file, data);
             file.Close();

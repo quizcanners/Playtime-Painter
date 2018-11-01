@@ -315,7 +315,7 @@ namespace SharedTools_Stuff
             if (other != null) {
                 var safe = other as ISTD_SafeEncoding;
                 if (safe!= null) {
-                    var ll = safe.GetLoopLock();
+                    var ll = safe.GetLoopLock;
 
                     if (ll.Unlocked)
                         using (ll.Lock()) {
@@ -330,10 +330,8 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder TryAdd<T>(string tag, T obj)
-        {
-            if (obj != null)
-            {
+        public StdEncoder TryAdd<T>(string tag, T obj) {
+            if (obj != null) {
                 var objstd = obj as ISTD;
                 if (objstd != null)
                     Add(tag, objstd);

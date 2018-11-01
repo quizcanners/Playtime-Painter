@@ -449,19 +449,19 @@ namespace SharedTools_Stuff
                     var path = AssetDatabase.GetAssetPath(pf);//PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pf);
 
                     if (path == null || path.Length == 0)
-                        "Path is null, Update prefab manually".showNotification();
+                        "Path is null, Update prefab manually".showNotificationIn3D_Views();
                     else
                         PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.AutomatedAction);
                 }
 #else
                 PrefabUtility.ReplacePrefab(gameObject, gameObject.GetPrefab(), ReplacePrefabOptions.ConnectToPrefab);
-                   (gameObject.name + " prefab Updated").showNotification();
+                   (gameObject.name + " prefab Updated").showNotificationIn3D_Views();
 #endif
 
             }
             else
             {
-                (gameObject.name + " Not a prefab").showNotification();
+                (gameObject.name + " Not a prefab").showNotificationIn3D_Views();
             }
             gameObject.SetToDirty();
 #endif

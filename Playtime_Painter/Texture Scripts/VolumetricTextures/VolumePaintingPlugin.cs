@@ -259,9 +259,9 @@ namespace Playtime_Painter
                                 if (vol.ImageData != null)
                                     vol.AddIfNew(InspectedPainter);
                                 else
-                                    "Volume Has No Texture".showNotification();
+                                    "Volume Has No Texture".showNotificationIn3D_Views();
                             }
-                            else { ("Volume is for " + vol.MaterialPropertyName + " not " + matProp).showNotification(); }
+                            else { ("Volume is for " + vol.MaterialPropertyName + " not " + matProp).showNotificationIn3D_Views(); }
                         }
                     }
                 }

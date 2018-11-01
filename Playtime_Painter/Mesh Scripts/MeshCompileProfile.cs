@@ -33,7 +33,7 @@ namespace Playtime_Painter
             {
                 this.SaveToAssets(path, name);
                 UnityHelperFunctions.RefreshAssetDatabase();
-                (name + " Saved to " + path).showNotification();
+                (name + " Saved to " + path).showNotificationIn3D_Views();
             }
 
 

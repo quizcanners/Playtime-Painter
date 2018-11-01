@@ -134,7 +134,7 @@ namespace Playtime_Painter {
                     if (icon.Record.Click("Continue Recording", 18)) {
                         id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
                         id.ContinueRecording();
-                        "Recording resumed".showNotification();
+                        "Recording resumed".showNotificationIn3D_Views();
                     }
 
                     if (icon.Delete.Click("Delete", 18)) {
@@ -149,7 +149,7 @@ namespace Playtime_Painter {
                     )) {
                     id.SaveName = "Unnamed";
                     id.StartRecording();
-                    "Recording started".showNotification();
+                    "Recording started".showNotificationIn3D_Views();
                 }
 
             }
@@ -162,7 +162,7 @@ namespace Playtime_Painter {
 
         public static void TeachingNotification (this string text) {
             if (Cfg.ShowTeachingNotifications)
-                text.showNotification();
+                text.showNotificationIn3D_Views();
         }
 
 }

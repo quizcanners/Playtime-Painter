@@ -244,7 +244,7 @@ namespace SharedTools_Stuff
             if (guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
                 if (!TryGetByGUID(ref field))
-                    (typeof(T).ToString() + " Not found ").showNotification();
+                    (typeof(T).ToString() + " Not found ").showNotificationIn3D_Views();
                 else changed = true;
             }
 #endif
@@ -532,11 +532,6 @@ namespace SharedTools_Stuff
 
             if (icon.Copy.Click("Copy Component Data"))
                 STDExtensions.copyBufferValue = target.Encode().ToString();
-
-            var comp = target as ComponentSTD;
-            if (comp != null && "Clear Component".Click())
-                comp.Reboot();
-
 
             pegi.nl();
 

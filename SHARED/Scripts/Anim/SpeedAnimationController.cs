@@ -242,7 +242,7 @@ namespace STD_Animations
                     }
                 }
                 else if (icon.UndoDisabled.Click())
-                    "First Frame".showNotification();
+                    "First Frame".showNotificationIn3D_Views();
 
                 if (frameIndex < frames.Count - 1)
                 {
@@ -255,7 +255,7 @@ namespace STD_Animations
 
                 }
                 else if (icon.RedoDisabled.Click())
-                    "Last Frame".showNotification();
+                    "Last Frame".showNotificationIn3D_Views();
 
                 if (Application.isPlaying)
                 {
@@ -466,9 +466,8 @@ namespace STD_Animations
             
         }
         
-        public override void Reboot()
+        public void Reboot()
         {
-            base.Reboot();
             if (Application.isPlaying)
                 frameIndex = 0;
 

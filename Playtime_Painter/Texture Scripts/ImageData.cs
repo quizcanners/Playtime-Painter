@@ -85,7 +85,7 @@ namespace Playtime_Painter
 
                 playtimeSavedTextures.Add(fullPath);
 #if PEGI
-                msg.showNotification();
+                msg.showNotificationIn3D_Views();
 #endif
                 Debug.Log(msg);
 
@@ -108,7 +108,7 @@ namespace Playtime_Painter
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
 #if PEGI
-                else "Couldn't Load Image ".showNotification();
+                else "Couldn't Load Image ".showNotificationIn3D_Views();
 #endif
             }
         }
@@ -625,7 +625,7 @@ namespace Playtime_Painter
                       var extension = name.Substring(name.LastIndexOf(".") + 1);
 
                       if (extension != "png") {
-                          ("Converting " + name + " to .png").showNotification();
+                          ("Converting " + name + " to .png").showNotificationIn3D_Views();
                           texture = texture.CreatePngSameDirectory(texture.name);
                       }*/
 
