@@ -124,6 +124,8 @@ namespace SharedTools_Stuff
                 case "insp": inspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
                 case "ktd": _keepTypeData = data.ToBool(); break;
+                case "del": allowDelete = data.ToBool(); break;
+                case "reord": allowReorder = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -134,13 +136,18 @@ namespace SharedTools_Stuff
             .Add("insp", inspected)
             .Add_String("fld", folderToSearch)
             .Add_String("n", label)
-            .Add_Bool("ktd", _keepTypeData);
+            .Add_Bool("ktd", _keepTypeData)
+            .Add_Bool("del", allowDelete)
+            .Add_Bool("reord", allowReorder);
 
         #endregion
 
-        public List_Data() { }
+        public List_Data() {
+            allowDelete = true;
+            allowReorder = true;
+        }
         
-        public List_Data(string nameMe, bool keepTypeData = false, bool allowDeleting = true, bool allowReordering = true)
+        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false)
         {
             allowDelete = allowDeleting;
             allowReorder = allowReordering;

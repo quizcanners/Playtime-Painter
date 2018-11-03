@@ -525,8 +525,7 @@ namespace PlayerAndEditorGUI {
 
         #region WRITE
 
-        public static void write<T>(T field) where T : UnityEngine.Object
-        {
+        public static void write<T>(T field) where T : UnityEngine.Object {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
                 ef.write(field);
@@ -562,7 +561,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(Texture img, int width)
+        public static void write(this Texture img, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
@@ -581,7 +580,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(Texture img, string tip, int width)
+        public static void write(this Texture img, string tip, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
@@ -599,7 +598,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static void write(Texture img, string tip, int width, int height)
+        public static void write(this Texture img, string tip, int width, int height)
         {
 
 #if UNITY_EDITOR
@@ -5487,7 +5486,6 @@ namespace PlayerAndEditorGUI {
                         if (edit(ref n))
                         named.NameForPEGI = n;
 
-
                 }
                 else {
                     if (uo == null && pg == null && datas == null)
@@ -6780,6 +6778,20 @@ namespace PlayerAndEditorGUI {
                 return changes;
             }
             return false;
+        }
+
+        public static bool Attention_Or_Click(this INeedAttention attention, icon icon = icon.Enter, string hint = "") {
+            if (attention == null)
+                return icon.Warning.Click("Object is null; {0}".F(hint));
+
+            var msg = attention.NeedAttention();
+            if (msg != null)
+                return icon.Warning.Click(msg);
+
+            if (hint == null || hint.Length == 0)
+                hint = icon.ToString();
+
+            return icon.Click(hint);
         }
 
         public static IPEGI TryGetPEGI(this GameObject go)
