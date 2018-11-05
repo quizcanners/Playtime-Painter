@@ -82,13 +82,13 @@ namespace Playtime_Painter {
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
-                case "vrt":  data.DecodeInto_List(out meshPoints); break;
-                case "tri": data.DecodeInto_List(out triangles); break;
+                case "vrt":  data.Decode_List(out meshPoints); break;
+                case "tri": data.Decode_List(out triangles); break;
                 case "n": meshName = data; break;
                 case "sub":  submeshCount = data.ToInt(); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
                 case "bp": gotBindPos = data.ToBool(); break;
-                case "bv": data.DecodeInto(out baseVertex); break;
+                case "bv": data.Decode_List(out baseVertex); break;
                 case "UV2dR": UV2distributeRow = data.ToInt(); break;
                 case "UV2cur": UV2distributeCurrent = data.ToInt(); break;
                 case "sctdUV": selectedUV = meshPoints[data.ToInt()].uvpoints[0]; break;

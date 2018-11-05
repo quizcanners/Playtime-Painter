@@ -178,7 +178,7 @@ namespace Playtime_Painter
         {
             switch (tag)
             {
-                case "s": data.DecodeInto_List(out buffers); break;
+                case "s": data.Decode_List(out buffers); break;
                 default: return false;
             }
             return true;

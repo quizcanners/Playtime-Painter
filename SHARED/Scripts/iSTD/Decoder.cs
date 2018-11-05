@@ -1,12 +1,10 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Linq;
-using System.Text;
 using System.Globalization;
+using UnityEngine;
 
-namespace SharedTools_Stuff {
+namespace SharedTools_Stuff
+{
 
     public static class DecodeExtensions {
 
@@ -274,7 +272,7 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region To List Of Value Type
-        public static List<string> DecodeInto(this string data, out List<string> l)
+        public static List<string> Decode_List(this string data, out List<string> l)
         {
 
             l = new List<string>();
@@ -287,7 +285,7 @@ namespace SharedTools_Stuff {
             return l;
         }
 
-        public static List<int> DecodeInto(this string data, out List<int> l) {
+        public static List<int> Decode_List(this string data, out List<int> l) {
 
             l = new List<int>();
 
@@ -299,7 +297,7 @@ namespace SharedTools_Stuff {
             return l;
         }
 
-        public static List<float> DecodeInto(this string data, out List<float> l)
+        public static List<float> Decode_List(this string data, out List<float> l)
         {
 
             l = new List<float>();
@@ -313,7 +311,7 @@ namespace SharedTools_Stuff {
             return l;
         }
 
-        public static List<uint> DecodeInto(this string data, out List<uint> l)
+        public static List<uint> Decode_List(this string data, out List<uint> l)
         {
 
             l = new List<uint>();
@@ -327,7 +325,7 @@ namespace SharedTools_Stuff {
             return l;
         }
 
-        public static List<Color> DecodeInto(this string data, out List<Color> l)
+        public static List<Color> Decode_List(this string data, out List<Color> l)
         {
 
             l = new List<Color>();
@@ -407,7 +405,7 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region STD List
-        public static bool TryDecodeInto_List<T>(this string data, List<T> val)
+        public static bool TryDecode_List<T>(this string data, List<T> val)
         {
             if (val != null) {
                 var cody = new StdDecoder(data);
@@ -421,7 +419,7 @@ namespace SharedTools_Stuff {
             return false;
         }
 
-        public static List<List<T>> DecodeInto_ListOfList<T>(this string data, out List<List<T>> l) where T : ISTD, new()
+        public static List<List<T>> Decode_ListOfList<T>(this string data, out List<List<T>> l) where T : ISTD, new()
         {
             l = new List<List<T>>();
 
@@ -430,14 +428,14 @@ namespace SharedTools_Stuff {
             while (cody.GotData) {
                 cody.GetTag();
                 List<T> el;
-                cody.GetData().DecodeInto_List(out el);
+                cody.GetData().Decode_List(out el);
                 l.Add(el);
             }
 
             return l;
         }
 
-        public static List<T> DecodeInto_List<T>(this string data, out List<T> l, List_Data ld = null) where T : ISTD, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l, List_Data ld = null) where T : ISTD, new() {
 
             StdDecoder cody = new StdDecoder(data);
 
@@ -459,10 +457,10 @@ namespace SharedTools_Stuff {
             return l;
         }
 
-        public static List<T> DecodeInto_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, List_Data ld = null) where T : IGotClassTag
-            => data.DecodeInto_List_Abstract(out l, tps, ld);
+        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, List_Data ld = null) where T : IGotClassTag
+            => data.Decode_List_Abstract(out l, tps, ld);
         
-        public static List<T> DecodeInto_List_Abstract<T>(this string data, out List<T> l, TaggedTypes_STD tps = null, List_Data ld = null) where T : IGotClassTag
+        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypes_STD tps = null, List_Data ld = null) where T : IGotClassTag
         {
             StdDecoder cody = new StdDecoder(data);
 
@@ -493,7 +491,7 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region Dictionary
-        public static void DecodeInto(this string data, out Dictionary<int, string> dic)
+        public static void Decode_Dictionary(this string data, out Dictionary<int, string> dic)
         {
             var cody = new StdDecoder(data);
 
@@ -504,7 +502,7 @@ namespace SharedTools_Stuff {
 
         }
 
-        public static void DecodeInto(this string data, out Dictionary<string, string> dic)
+        public static void Decode_Dictionary(this string data, out Dictionary<string, string> dic)
         {
             var cody = new StdDecoder(data);
 
@@ -604,7 +602,7 @@ namespace SharedTools_Stuff {
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
 
-        public static T[] DecodeInto_Array<T>(this string data, out T[] l) where T : ISTD, new() {
+        public static T[] Decode_Array<T>(this string data, out T[] l) where T : ISTD, new() {
 
             StdDecoder cody = new StdDecoder(data);
 
@@ -684,12 +682,12 @@ namespace SharedTools_Stuff {
             return false;
         }
 
-       public static List<T> DecodeInto_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, List_Data ld = null) where T : ISTD, new()
+       public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, List_Data ld = null) where T : ISTD, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
 
-            data.DecodeInto_List(out val, ld);
+            data.Decode_List(out val, ld);
 
             keeper = prevKeeper;
 
@@ -715,7 +713,7 @@ namespace SharedTools_Stuff {
             if (referencesKeeper != null) {
 
                 List<int> indxs;
-                data.DecodeInto(out indxs);
+                data.Decode_List(out indxs);
 
                 foreach (var i in indxs)
                     list.Add(referencesKeeper.GetISTDreferenced<T>(i));

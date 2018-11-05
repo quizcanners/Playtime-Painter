@@ -132,13 +132,13 @@ namespace STD_Animations
                 case "MaxSpeed": maxSpeed = data.ToFloat(); break;
                 case "src": speedSource = (SpeedSource)data.ToInt(); break;
                 case "KeyElement": keyElementIndex = data.ToInt(); break;
-                case "frames": data.DecodeInto_List(out frames); break;
+                case "frames": data.Decode_List(out frames); break;
                 case "Nextind": indexForNewObject = data.ToInt(); break;
                 case "first": setFirstFrame = data.ToBool(); break;
 
                 case "elm":
                     List<AnimatedElement> tmp;
-                    data.DecodeInto_List(out tmp, this);
+                    data.Decode_List(out tmp, this);
                     foreach (var v in tmp)
                     {
                         if (elements[v.IndexForPEGI] == null)

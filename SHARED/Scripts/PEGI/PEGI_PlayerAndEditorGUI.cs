@@ -452,14 +452,14 @@ namespace PlayerAndEditorGUI {
             return value;
         }
 
-        public static bool nl_ifTrue(this bool value)
+        static bool nl_ifTrue(this bool value)
         {
             if (value)
                 newLine();
             return value;
         }
 
-        public static bool nl_ifFalse(this bool value)
+        static bool nl_ifFalse(this bool value)
         {
             if (!value)
                 newLine();
@@ -6093,17 +6093,72 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
+        #endregion
+
         #region Lambda
 
-        static int lambda_int(int val) {
+        #region SpecialLambdas
+
+        static IList listElementsRoles = null;
+
+        static int lambda_int(int val)
+        {
             edit(ref val);
             return val;
         }
 
+        static string lambda_string_role(string val)
+        {
 
-        public static bool edit_List_Int(this string label, ref List<int> list) =>
+            var role = listElementsRoles.TryGet(ListInspectedIndex);
+            if (role != null)
+                role.ToPEGIstring().edit(90, ref val);
+            else edit(ref val);
+
+            return val;
+        }
+
+        static string lambda_string(string val)
+        {
+            edit(ref val);
+            return val;
+        }
+
+        static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
+        {
+
+            var role = listElementsRoles.TryGet(ListInspectedIndex);
+            if (role != null)
+                role.ToPEGIstring().edit(90, ref val);
+            else edit(ref val);
+
+            return val;
+        }
+
+        public static bool edit_List(this string label, ref List<int> list) =>
             label.edit_List(ref list, lambda_int);
-        
+
+        public static bool edit_List(this string label, ref List<string> list) =>
+         label.edit_List(ref list, lambda_string);
+
+        public static bool edit_List_WithRoles(this string label, ref List<string> list, IList roles)
+        {
+            listElementsRoles = roles;
+            return label.edit_List(ref list, lambda_string_role);
+        }
+
+        public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : UnityEngine.Object
+        {
+            label.write_ListLabel(list, -1);
+            listElementsRoles = roles;
+            var ret = edit_List_Obj(ref list, lambda_Obj_role);
+            listElementsRoles = null;
+            return ret;
+        }
+
+        #endregion
+
+
 
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
         {
@@ -6111,7 +6166,8 @@ namespace PlayerAndEditorGUI {
             return edit_List<T>(ref list, ref changed, lambda).listLabel_Used();
         }
 
-        public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new() {
+        public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
+        {
 
             T added = default(T);
 
@@ -6123,12 +6179,14 @@ namespace PlayerAndEditorGUI {
             if (list != editing_List_Order)
             {
                 changed |= list.ListAddClick(ref added);
-     
-                foreach (var i in list.InspectionIndexes())      {
+
+                foreach (var i in list.InspectionIndexes())
+                {
                     var el = list[i];
                     var before = el;
                     el = lambda(el);
-                    if ((el != null && !el.Equals(before)) || (el == null && before != null))  {
+                    if ((el != null && !el.Equals(before)) || (el == null && before != null))
+                    {
                         list[i] = el;
                         changed = true;
                     }
@@ -6145,7 +6203,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
         {
             label.write_ListLabel(list, -1);
-            return edit_List<T>(ref list, lambda).listLabel_Used();
+            return edit_List(ref list, lambda).listLabel_Used();
         }
 
         public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
@@ -6182,7 +6240,42 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
-        
+
+        public static bool edit_List_Obj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
+        {
+
+            bool changed = false;
+
+            if (listIsNull(ref list))
+                return changed;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order)
+            {
+
+                changed |= list.ListAddClick();
+
+                foreach (var i in list.InspectionIndexes())
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+                    if ((el != null && !el.Equals(before)) || (el == null && before != null))
+                    {
+                        list[i] = el;
+                        changed = true;
+                    }
+                    nl();
+                }
+
+                nl();
+            }
+
+            newLine();
+            return changed;
+        }
+
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
             name.write_ListLabel(list, -1);
@@ -6199,12 +6292,14 @@ namespace PlayerAndEditorGUI {
 
             if (list != editing_List_Order)
             {
-                if (icon.Add.Click()) {
+                if (icon.Add.Click())
+                {
                     list.Add("");
                     changed = true;
                 }
 
-                foreach (var i in list.InspectionIndexes()) {
+                foreach (var i in list.InspectionIndexes())
+                {
                     var el = list[i];
                     var before = el;
                     list[i] = lambda(el);
@@ -6221,11 +6316,8 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-
         #endregion
-
-        #endregion
-
+        
         #region NotNew
 
         public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)

@@ -183,9 +183,9 @@ namespace SharedTools_Stuff {
         {
             switch (subtag)
             {
-                case "inds": data.DecodeInto(out inds); break;
+                case "inds": data.Decode_List(out inds); break;
                 case "vals":
-                    List<int> vals; data.DecodeInto(out vals);
+                    List<int> vals; data.Decode_List(out vals);
                     for (int i = 0; i < vals.Count; i++)
                         Set(inds[i], vals[i]);
                     inds = null;
@@ -431,7 +431,7 @@ namespace SharedTools_Stuff {
             switch (subtag)
             {
                 case "inds":
-                    List<int> inds; data.DecodeInto(out inds);
+                    List<int> inds; data.Decode_List(out inds);
                     foreach (int i in inds)
                         Set(i, true);
 
@@ -975,8 +975,8 @@ public class Countless<T> : CountlessBase //, IEnumerable
 
             switch (tag) {
 
-                case "inds": data.DecodeInto(out tmpDecodeInds); break;
-                case "vals": List<T> tmps; data.DecodeInto_List(out tmps);
+                case "inds": data.Decode_List(out tmpDecodeInds); break;
+                case "vals": List<T> tmps; data.Decode_List(out tmps);
                     for (int i = 0; i < tmps.Count; i++) {
                         var tmp = tmps[i];
                         if (!tmp.Equals(default(T)))
@@ -1612,7 +1612,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
         {
             List<T> el; 
             int index = tag.ToInt();
-            this[index] = data.DecodeInto_List(out el);
+            this[index] = data.Decode_List(out el);
             return true;
         }
 

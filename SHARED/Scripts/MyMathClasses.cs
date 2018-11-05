@@ -4,11 +4,9 @@ using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
 
-    public static class MyMath
-    {
+    public static class MyMath {
 
         #region Checks
         public static bool IsNaN(this Vector3 q)
@@ -182,8 +180,7 @@ namespace SharedTools_Stuff
         #region Trigonometry
         static List<Vector3> randomNormalized = new List<Vector3>();
         static int currentNormalized = 0;
-
-
+        
         public static Vector3 GetRandomPointWithin(this Vector3 v3)
         {
 
@@ -203,9 +200,7 @@ namespace SharedTools_Stuff
 
             return v3;
         }
-
-
-
+        
         public static float Angle(this Vector2 vec)
         {
             if (vec.x < 0)
@@ -232,8 +227,7 @@ namespace SharedTools_Stuff
 
             return v3;
         }
-
-
+        
         public static bool IsAcute(float a, float b, float c)
         {
             if (c == 0) return true;
@@ -354,8 +348,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public struct MyIntVec2
-    {
+    public struct MyIntVec2 {
         public int x;
         public int y;
 
@@ -434,7 +427,7 @@ namespace SharedTools_Stuff
     [Flags]
     public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
 
-    [System.Serializable]
+    [Serializable]
     public class LinearColor : Abstract_STD
     {
         public float r, g, b, a;
@@ -699,6 +692,5 @@ namespace SharedTools_Stuff
         }
 
     }
-
 
 }

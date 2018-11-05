@@ -81,6 +81,19 @@ namespace SharedTools_Stuff
         #endregion
 
         #region Components & GameObjects
+
+        public static bool TrySetAlpha(this Graphic graphic, float alpha) {
+            if (graphic != null) {
+                var col = graphic.color;
+                if (col.a != alpha) {
+                    col.a = alpha;
+                    graphic.color = col;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength)
         {
 
@@ -105,9 +118,7 @@ namespace SharedTools_Stuff
 #endif
             return name;
         }
-
-
-
+        
         public static bool IsUnityObject(this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
 
         public static Color ToOpaque(this Color col)
@@ -116,8 +127,7 @@ namespace SharedTools_Stuff
             col.a = 1;
             return col;
         }
-
-
+        
         public static void SetActive(this List<GameObject> goList, bool to)
         {
             if (goList != null)

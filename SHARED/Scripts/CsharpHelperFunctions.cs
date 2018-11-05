@@ -333,12 +333,20 @@ namespace SharedTools_Stuff
             return list[list.Count - 1];
 
         }
-
+        
         public static T TryGet<T>(this List<T> list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return default(T);
             return list[index];
+        }
+
+        public static object TryGet(this IList list, int index)
+        {
+            if (list == null || index < 0 || index >= list.Count)
+                return null;
+            var el = list[index];
+            return el;
         }
 
         public static T TryGet<T>(this List<T> list, int index, T defaultValue)

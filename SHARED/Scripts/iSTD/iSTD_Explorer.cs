@@ -300,7 +300,7 @@ namespace SharedTools_Stuff
                 case "t": componentType = data; break;
                 case "ur": unrecognized = data.ToBool(); break;
                 case "tag": unrecognizedUnderTag = data; break;
-                case "perType": data.DecodeInto(out perTypeConfig); break;
+                case "perType": data.Decode_Dictionary(out perTypeConfig); break;
                 default: return false;
             }
             return true;

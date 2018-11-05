@@ -80,7 +80,7 @@ namespace STD_Logic
             switch (tag) {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
-                case "e": data.DecodeInto(out enm); break;
+                case "e": data.Decode_Dictionary(out enm); break;
               //  case "s": isStatic = data.ToBool(); break;
                 default: return false;
             }

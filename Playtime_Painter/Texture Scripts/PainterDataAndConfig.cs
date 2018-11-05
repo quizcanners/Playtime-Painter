@@ -286,7 +286,7 @@ namespace Playtime_Painter
                 var d = cody.GetData();
                 switch (tag)
                 {
-                    case "strokes": d.DecodeInto(out strokes); break;
+                    case "strokes": d.Decode_List(out strokes); break;
                 }
             }
 
@@ -336,10 +336,10 @@ namespace Playtime_Painter
         {
             switch (tag)
             {
-                case "imgs": data.DecodeInto_List(out imgDatas, this); break;
+                case "imgs": data.Decode_List(out imgDatas, this); break;
                 case "sch": selectedColorScheme = data.ToInt(); break;
-                case "mats": data.DecodeInto_List(out matDatas, this); break;
-                case "pals": data.DecodeInto_List(out colorSchemes); break;
+                case "mats": data.Decode_List(out matDatas, this); break;
+                case "pals": data.Decode_List(out colorSchemes); break;
                 case "iid": inspectedImgData = data.ToInt(); break;
                 case "isfs": inspectedStuffs = data.ToInt(); break;
                 case "im": inspectedMaterial = data.ToInt(); break;
@@ -394,7 +394,7 @@ namespace Playtime_Painter
 
             PainterCamera rtp = PainterCamera.Inst;
 
-            if ("Plugins".enter(ref inspectedStuff, 0).nl_ifFalse() && rtp.PluginsInspect().nl())
+            if ("Plugins".enter(ref inspectedStuff, 0).nl_ifNotEntered() && rtp.PluginsInspect().nl())
                 rtp.SetToDirty();
 
             if ("Lists".enter (ref inspectedStuff, 1).nl())

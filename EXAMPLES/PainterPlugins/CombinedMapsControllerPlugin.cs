@@ -411,7 +411,7 @@ namespace Playtime_Painter {
             {
                 switch (tag)
                 {
-                    case "ch":data.DecodeInto_List(out channel); break;
+                    case "ch":data.Decode_List(out channel); break;
                     case "c": isColor = data.ToBool(); break;
                     case "n": name = data; break;
                     case "b": bumpStrength = data.ToFloat(); break;

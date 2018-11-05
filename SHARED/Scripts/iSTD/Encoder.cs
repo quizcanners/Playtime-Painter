@@ -440,8 +440,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add(string tag, List<string> lst)
         {
-            if (lst != null)
-            {
+            if (lst != null) {
                 StdEncoder cody = new StdEncoder();
                 foreach (var s in lst)
                     cody.Add_String("e", s);
@@ -606,6 +605,26 @@ namespace SharedTools_Stuff
             if (val.Count > 0) 
                 Add(tag, val);
             
+            return this;
+        }
+
+        public StdEncoder Add_IfNotEmpty(string tag, List<string> val) {
+            if (val.Count > 0)
+                Add(tag, val);
+            return this;
+        }
+
+        public StdEncoder Add_IfNotEmpty(string tag, List<int> val)
+        {
+            if (val.Count > 0)
+                Add(tag, val);
+            return this;
+        }
+
+        public StdEncoder Add_IfNotEmpty(string tag, List<uint> val)
+        {
+            if (val.Count > 0)
+                Add(tag, val);
             return this;
         }
 

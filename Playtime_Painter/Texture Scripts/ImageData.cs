@@ -163,7 +163,7 @@ namespace Playtime_Painter
                 case "tl": tiling = data.ToVector2(); break;
                 case "off": offset = data.ToVector2(); break;
                 case "sn": SaveName = data; break;
-                case "svs": data.DecodeInto(out playtimeSavedTextures); break;
+                case "svs": data.Decode_List(out playtimeSavedTextures); break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
@@ -733,7 +733,7 @@ namespace Playtime_Painter
             #region Processors
             if ("Texture Processors".enter(ref inspectedStuff, 6).nl()) {
 
-                if ("Resize Texture ({0} * {1})".F(width, height).enter(ref inspectedProcess, 0).nl_ifFalse())  {
+                if ("Resize Texture ({0} * {1})".F(width, height).enter(ref inspectedProcess, 0).nl_ifNotEntered())  {
                     "New size ".select(60, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
                     int size = PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize);
 
@@ -756,7 +756,7 @@ namespace Playtime_Painter
                  
                 }
 
-                if ("Colorize ".enter(ref inspectedProcess, 1).nl_ifFalse()) {
+                if ("Colorize ".enter(ref inspectedProcess, 1).nl_ifNotEntered()) {
 
                     "Clear Color".edit(80, ref clearColor).nl();
                     if ("Clear Texture".Click().nl())

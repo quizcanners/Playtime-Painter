@@ -114,7 +114,7 @@ namespace Playtime_Painter
             switch (tag)
             {
                 case "n": PaletteName = data; break;
-                case "cols": data.DecodeInto(out colors); break;
+                case "cols": data.Decode_List(out colors); break;
                 default: return false;
             }
             return true;

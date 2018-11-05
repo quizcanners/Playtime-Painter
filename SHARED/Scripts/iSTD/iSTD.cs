@@ -129,13 +129,13 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifFalse())
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifNotEntered())
                     explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifNotEntered())
                 {
                     listData.edit_List_Obj(ref _nestedReferences);
 
@@ -148,7 +148,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifFalse())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifNotEntered())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)
@@ -412,13 +412,13 @@ namespace SharedTools_Stuff {
 
                 "{0} Debug ".F(this.ToPEGIstring()).nl();
 
-                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifFalse())
+                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifNotEntered())
                     explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifFalse())
+                if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifNotEntered())
                 {
                     references_Meta.edit_List_Obj(ref _nestedReferences);
                     if (references_Meta.inspected == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
@@ -430,7 +430,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifFalse())
+                if (("Unrecognized Tags: " + uTags.Count).enter(ref inspectedDebugStuff, 2).nl_ifNotEntered())
                     changed |= uTags.Nested_Inspect();
 
                 if (inspectedStuff == -1)
