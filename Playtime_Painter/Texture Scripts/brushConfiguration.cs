@@ -338,10 +338,9 @@ namespace Playtime_Painter {
             
             if (p != null)
                 foreach (var pl in p.plugins)
-                    if (pl.BrushConfigPEGI().nl()) {
+                    if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty();
-                        changed = true;
-                    }
+                    
 
             changed |= Type(CPU).Inspect().nl();
 
@@ -358,20 +357,18 @@ namespace Playtime_Painter {
             bool changed = false;
 
             if ((TargetIsTex2D ? icon.CPU : icon.GPU).Click(
-                TargetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45))
+                TargetIsTex2D ? "Render Texture Config" : "Texture2D Config", ref changed ,45))
             {
                 TargetIsTex2D = !TargetIsTex2D;
                 SetSupportedFor(TargetIsTex2D, true);
-                changed = true;
             }
 
             bool smooth = Type(TargetIsTex2D) != BrushTypePixel.Inst;
 
-            if ((TargetIsTex2D) && pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45))
-            {
-                changed = true;
+            if ((TargetIsTex2D) && 
+                pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
                 TypeSet(TargetIsTex2D, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
-            }
+            
 
             return changed;
         }
@@ -399,24 +396,20 @@ namespace Playtime_Painter {
             if ((PainterCamera.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
-                    cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", 45))
+                    cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
                 {
                     p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.RenderTexture : TexTarget.Texture2D);
                     SetSupportedFor(cpuBlit, id.renderTexture == null);
-                    changed = true;
+            
                 }
             }
 
 
-            if (cpuBlit)
-            {
+            if (cpuBlit) {
                 bool smooth = _type(cpuBlit) != BrushTypePixel.Inst.index;
 
-                if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
-                {
-                    changed = true;
+                if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
                     TypeSet(cpuBlit, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
-                }
             }
 
             pegi.newLine();
@@ -441,12 +434,8 @@ namespace Playtime_Painter {
 #endif
 
 
-            if (Mode_Type_PEGI()) {
-                if (Type(cpuBlit) == BrushTypeDecal.Inst)
+            if (Mode_Type_PEGI().changes(ref changed) && Type(cpuBlit) == BrushTypeDecal.Inst)
                     MaskSet(BrushMask.A, true);
-
-                changed = true;
-            }
 
             if (p.terrain != null) {
 
@@ -498,10 +487,9 @@ namespace Playtime_Painter {
 
             }
 
-            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal)) {
+            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal).changes(ref changed)) 
                 MaskToggle(m);
-                changed = true;
-            }
+            
 
             if ((slider) && (mask.GetFlag(m)))
                 changed |= pegi.edit(ref chanel, 0, 1);
@@ -520,10 +508,9 @@ namespace Playtime_Painter {
             bool changed = false;
 
             Color col = colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl()) {
+            if (pegi.edit(ref col).nl(ref changed)) 
                 colorLinear.From(col);
-                changed = true;
-            }
+             
 
             if (Cfg.showColorSliders) {
                 changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);

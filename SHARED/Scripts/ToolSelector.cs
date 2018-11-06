@@ -127,20 +127,14 @@ namespace SharedTools_Stuff
         public bool ToolManagementPEGI()
         {
             bool changed = false;
-            if (!IsCurrentTool())
-            {
-                if (icon.Off.Click("Click to Enable Tool", 35))
-                {
+            if (!IsCurrentTool()) {
+                if (icon.Off.Click("Click to Enable Tool", 35).nl(ref changed))
                     enabledTool = this.GetType();
-                    changed = true;
-                }
-                pegi.nl();
             }
             else {
                 selectedInPlaytime = this;
-                if (icon.On.Click("Click to Disable Tool", 35))
+                if (icon.On.Click("Click to Disable Tool", ref changed,35))
                     enabledTool = null;
-                changed = true;
             }
 
 

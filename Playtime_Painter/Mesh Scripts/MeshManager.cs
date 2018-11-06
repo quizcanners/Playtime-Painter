@@ -1164,19 +1164,17 @@ namespace Playtime_Painter {
             bool changed = false;
 
             if (undoMoves.Count > 1) {
-                if (pegi.Click(icon.Undo.GetIcon(), 25)) {
+                if (pegi.Click(icon.Undo.GetIcon(), 25).changes(ref changed)) {
                     redoMoves.Add(undoMoves.RemoveLast());
                     undoMoves.Last().DecodeInto(out edMesh);
                     Redraw();
-                    changed = true;
                 }
             }
             else
                 pegi.Click(icon.UndoDisabled.GetIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
 
             if (redoMoves.Count > 0) {
-                if (pegi.Click(icon.Redo.GetIcon(),  25)) {
-                    changed = true;
+                if (pegi.Click(icon.Redo.GetIcon(),  25).changes(ref changed)) {
                     redoMoves.Last().DecodeInto(out edMesh);
                     undoMoves.Add(redoMoves.RemoveLast());
                     Redraw();

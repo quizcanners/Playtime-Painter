@@ -393,17 +393,15 @@ namespace Playtime_Painter
 
                     "Channel: ".edit(ref rayJobChannel, 0, 2).nl();
 
-                    if ("Recalculate ".Click())
+                    if ("Recalculate ".Click(ref changed))
                     {
-                        changed = true;
                         VolumeFromTexture();
                         lightSourceDirty[rayJobChannel] = true;
                         rayStep = RaycastsStep.Requested;
                     }
 
-                    if ("All".Click().nl())
+                    if ("All".Click().nl(ref changed))
                     {
-                        changed = true;
                         VolumeFromTexture();
                         for (int i = 0; i < 3; i++)
                             lightSourceDirty[i] = true;

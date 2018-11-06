@@ -602,7 +602,7 @@ namespace SharedTools_Stuff
         
         public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD {
 
-            if (val.Count > 0) 
+            if (val != null && val.Count > 0) 
                 Add(tag, val);
             
             return this;

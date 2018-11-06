@@ -352,16 +352,13 @@ namespace Playtime_Painter {
             if (id != null)
             {
 
-                if ("Set Tiling Offset".Click())
-                {
-
+                if ("Set Tiling Offset".Click(ref changed)) {
                     id.tiling = Vector2.one * 1.5f;
                     id.offset = -Vector2.one * 0.25f;
                     InspectedPainter.UpdateTylingToMaterial();
-                    changed = true;
                 }
 
-                if (InspectedPainter != null && "Generate Default".Click().nl())
+                if (InspectedPainter != null && "Generate Default".Click().nl(ref changed))
                 {
                     var pix = id.Pixels;
 

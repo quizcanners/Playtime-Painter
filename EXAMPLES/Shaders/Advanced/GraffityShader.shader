@@ -3,7 +3,7 @@
 		_Diffuse("Diffuse", 2D) = "white" {}
 		[NoScaleOffset] _Overlay("Graffity (Texcoord 2, Transparent Layer)", 2D) = "black" {}
 		[Toggle(_Metal)] metal("Metal", Float) = 0
-		_Bump("Bump", 2D) = "gray" {}
+		_Bump("Bump", 2D) = "bump" {}
 	}
 		SubShader{
 		Tags{ "RenderType" = "Opaque"

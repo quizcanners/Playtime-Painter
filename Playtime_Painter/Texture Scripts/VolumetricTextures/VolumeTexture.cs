@@ -315,22 +315,18 @@ namespace Playtime_Painter
             bool changed = false;
 
             string n = name;
-            if ("Name".editDelayed(30, ref n).nl())
-            {
+            if ("Name".editDelayed(30, ref n).nl(ref changed))
                 name = n;
-                changed = true;
-            }
+            
 
             var texture = ImageData.CurrentTexture();
 
             if (texture == null)
                 ImageData = null;
 
-            if ("Texture".edit(60, ref texture).nl())
-            {
-                changed = true;
+            if ("Texture".edit(60, ref texture).nl(ref changed))
                 ImageData = texture?.GetImgData();
-            }
+            
 
             changed |= "Volume Scale".edit(70, ref size).nl();
             size = Mathf.Max(0.0001f, size);
@@ -343,20 +339,16 @@ namespace Playtime_Painter
                     pegi.nl();
                     changed |= "Texture Width".edit(ref tmpWidth);
 
-                    if ("Create Pool".Click().nl())
+                    if ("Create Pool".Click().nl(ref changed))
                     {
                         tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(tmpWidth, 128, 2048));
                         TexturesPool.Inst.width = tmpWidth;
                     }
                 }
-                else
-                {
-                    if ("Get From Pool".Click().nl())
-                    {
+                else if ("Get From Pool".Click().nl(ref changed))
                         ImageData = TexturesPool._inst.GetTexture2D().GetImgData();
-                        changed = true;
-                    }
-                }
+                      
+                
             }
             pegi.nl();
 

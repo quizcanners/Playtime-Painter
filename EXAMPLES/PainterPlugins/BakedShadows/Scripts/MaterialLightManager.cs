@@ -65,23 +65,20 @@ namespace Playtime_Painter {
                         pegi.write("Probe " + ind, 50);
                     else
                     {
-                        if (icon.Delete.Click())
-                        {
-                            changed = true;
+                        if (icon.Delete.Click(ref changed)) {
                             probes[c] = -1;
                             probeChanged = c;
                         }
                     }
                         
-                    if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.allProbes.GetAllObjsNoOrder()).nl()) {
+                    if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.allProbes.GetAllObjsNoOrder()).nl(ref changed)) {
                         probes[c] = ind;
                         probeChanged = c;
-                        changed = true;
                     }
                         
                 }
                     
-                changed |= "Bounce Coefficient".edit(ref bounceCoefficient[c]).nl();
+                "Bounce Coefficient".edit(ref bounceCoefficient[c]).nl(ref changed);
             }
                 pegi.Space();
                 pegi.newLine();

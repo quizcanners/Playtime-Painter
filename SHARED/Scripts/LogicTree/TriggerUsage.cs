@@ -36,17 +36,13 @@ namespace STD_Logic
             int t = (int)r;
 
             if (!resultUsages.ContainsKey(t)) {
-                if (icon.Warning.Click("Is " + r.ToString() + ". Click to FIX "))
+                if (icon.Warning.Click("Is " + r.ToString() + ". Click to FIX ", ref changed))
                     r = (ResultType)(resultUsages.First().Key);
-                changed = true;
             }
             else
             {
-                if (pegi.select(ref t, resultUsages, 40)) {
-                    changed = true;
+                if (pegi.select(ref t, resultUsages, 40).changes(ref changed)) 
                     r = (ResultType)t;
-
-                }
             }
             return changed;
         }
@@ -58,30 +54,23 @@ namespace STD_Logic
 
             if (!conditionUsages.ContainsKey(t))
             {
-                if (icon.Warning.Click(("Is " + c.ToString() + ". FIX ")))
+                if (icon.Warning.Click("Is {0}. FIC".F(c), ref changed))
                     c = (ConditionType)(conditionUsages.First().Key);
-                changed = true;
+ 
             }
-            else
-            {
-                if (pegi.select(ref t, conditionUsages, 40))
-                {
-                    changed = true;
+            else if (pegi.select(ref t, conditionUsages, 40).changes(ref changed))
                     c = (ConditionType)t;
-
-                }
-            }
+            
             return changed;
         }
         
         public virtual bool Inspect(Trigger t) {
             bool changed = false;
             string before = t.name;
-            if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions ? 30 : 0))) {
+            if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions ? 30 : 0)).changes(ref changed)) {
                 Trigger.searchField = before;
                 t.name = before;
                 pegi.FocusControl("none");
-                changed = true;
             }
             return changed;
         }
@@ -379,11 +368,9 @@ namespace STD_Logic
             var changed = base.Inspect(t);
 
             int value = Values.global.GetTagEnum(t);
-            if (pegi.select(ref value, t.enm).nl()) {
+            if (pegi.select(ref value, t.enm).nl(ref changed)) 
                 Values.global.SetTagEnum(t, value);
-                changed = true;
-            }
-
+             
             if (Trigger.inspected != t) return changed;
 
             "__ Tags __".nl();
@@ -391,13 +378,12 @@ namespace STD_Logic
             const string NoZerosForTrigs = "No04t";
             "Can't use 0 as tag index. ".writeOneTimeHint(NoZerosForTrigs);
 
-            if (t.enm.edit_PEGI()) {
+            if (t.enm.edit_PEGI().changes(ref changed)) {
                 string dummy;
                 if (t.enm.TryGetValue(0, out dummy)) {
                     t.enm.Remove(0);
                     pegi.resetOneTimeHint(NoZerosForTrigs);
                 }
-                changed = true;
             }
 
             return changed;
@@ -453,11 +439,8 @@ namespace STD_Logic
             bool changed = base.Inspect(t);
             
                 bool val = Values.global.GetTagBool(t);
-                if (pegi.toggleIcon(ref val)) {
-                    changed = true; 
+                if (pegi.toggleIcon(ref val).changes(ref changed)) 
                     Values.global.SetTagBool(t, val);
-                }
-            
 
             return changed;
         }

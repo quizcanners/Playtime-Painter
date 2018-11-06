@@ -306,9 +306,8 @@ namespace STD_Logic
                 Trigger selectedTrig = arg?.Trigger;
 
                 if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
-                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]")) {
+                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]").changes(ref changed)) {
                         Add(Trigger.searchField, arg);
-                        changed = true;
                         pegi.DropFocus();
                     }
                 }
@@ -327,11 +326,9 @@ namespace STD_Logic
 
                 bool goodLength = Trigger.searchField.Length > 3;
 
-                if (goodLength && icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)))  {
+                if (goodLength && icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)).changes(ref changed))  
                     selectedTrig.name = Trigger.searchField;
-                    changed = true;
-                }
-                
+                 
                 var groupLost = all.GetAllObjsNoOrder();
                 if (groupLost.Count > 0) {
                     int slctd = Browsed == null ? -1 : Browsed.IndexForPEGI;

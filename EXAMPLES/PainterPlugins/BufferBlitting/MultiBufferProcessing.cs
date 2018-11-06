@@ -161,11 +161,9 @@ namespace Playtime_Painter
                     pauseBuffers = !pauseBuffers;
 
                 int cur = -1;
-                if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl())
-                {
-                    changed = true;
+                if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl(ref changed))
                     InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay());
-                }
+                
             }
 
             return changed;

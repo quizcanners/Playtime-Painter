@@ -595,7 +595,7 @@ namespace Playtime_Painter
 
                             if (absSin < absNSin) maxSinus = maxSinus * absSin / absNSin;
 
-                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate(maxSinus * clockwise) * trackPortion;
+                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(maxSinus * clockwise) * trackPortion;
                             LazySpeedDynamic = trackPortion;
                         }
                         else
@@ -603,7 +603,7 @@ namespace Playtime_Painter
                             LazySpeedDynamic = Mathf.Min(delta_uv.magnitude * 0.5f, Mathf.Lerp(LazySpeedDynamic, delta_uv.magnitude * 0.5f, 0.001f));
 
                             LazySpeedDynamic = Mathf.Max(trackPortion, LazySpeedDynamic);
-                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate(sin) * LazySpeedDynamic;
+                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(sin) * LazySpeedDynamic;
                         }
                     }
                     else

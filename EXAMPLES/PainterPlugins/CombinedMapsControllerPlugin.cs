@@ -499,23 +499,19 @@ namespace Playtime_Painter {
                 if (usingGlossMap)
                 {
 
-                    if (sets == null || sets.HeightMap != null)
-                    {
-                        if ("Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl())
-                        {
-                            changed = true;
+                    if ((sets == null || sets.HeightMap != null) &&
+                     "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
                             glossNoiseFromBump = false;
-                        }
-                    }
+                        
+                    
 
-                    if ((sets == null || sets.NormalMap != null) && "Gloss Mip -= Normal Noise".toggle(ref glossNoiseFromBump).nl())
-                    {
-                        changed = true;
+                    if ((sets == null || sets.NormalMap != null)
+                        && "Gloss Mip -= Normal Noise".toggle(ref glossNoiseFromBump).nl(ref changed))
                         glossNoiseFromHeight = false;
-                    }
+                    
 
                     if (glossNoiseFromHeight || glossNoiseFromBump)
-                        "Fraction".edit(ref bumpNoiseInGlossFraction, 0f, 40f).nl();
+                        "Fraction".edit(ref bumpNoiseInGlossFraction, 0f ,40f).nl();
 
                 }
 

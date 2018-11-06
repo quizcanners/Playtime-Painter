@@ -859,24 +859,19 @@ namespace Playtime_Painter
             if (recordedStrokes == null) recordedStrokes = new List<string>();
             if (recordedStrokes_forUndoRedo == null) recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
 
-            if (cache.undo.gotData())
-            {
-                if (icon.Undo.Click("Press Z to undo (Scene View)", 25))
-                {
+            if (cache.undo.gotData()) {
+                if (icon.Undo.Click("Press Z to undo (Scene View)",ref changed, 25))
                     cache.undo.ApplyTo(this);
-                    changed = true;
-                }
+                  
             }
             else
                 icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)", 25);
 
             if (cache.redo.gotData())
             {
-                if (icon.Redo.Click("X to Redo", 25))
-                {
-                    changed = true;
+                if (icon.Redo.Click("X to Redo", ref changed ,25))
                     cache.redo.ApplyTo(this);
-                }
+                
             }
             else
                 icon.RedoDisabled.write("Nothing to Redo", 25);

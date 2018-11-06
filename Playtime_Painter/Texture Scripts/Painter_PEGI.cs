@@ -58,41 +58,37 @@ namespace Playtime_Painter {
 
               //  if (tht != null) {
                   
-                        if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.GetIcon(), "Applies changes made on Texture to Actual physical Unity Terrain.", 45)))
+                        if ((!painter.IsOriginalShader) && 
+                    (pegi.Click(icon.PreviewShader.GetIcon(),
+                    "Applies changes made on Texture to Actual physical Unity Terrain.", 45).changes(ref changed)))
                         {
                             painter.Preview_To_UnityTerrain();
                             painter.Unity_To_Preview(); 
 
                             painter.MatDta.usePreviewShader = false;
                             painter.SetOriginalShaderOnThis();
-
-                            changed = true;
+                    
                         }
                     PainterCamera.Data.brushConfig.MaskSet(BrushMask.A, true);
                     
                     if (tht.GetImgData() != null)
-                        if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.GetIcon(),  "Applies changes made in Unity terrain Editor", 45))) {
+                        if ((painter.IsOriginalShader) && (pegi.Click(icon.OriginalShader.GetIcon(), 
+                            "Applies changes made in Unity terrain Editor", 45).changes(ref changed))) {
                             painter.Unity_To_Preview();
-                            
                             painter.SetPreviewShader();
-
-                            changed = true;
                         }
              //   }  
             } else {
                 
-                if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.GetIcon(), "Switch To Preview Shader", 45)))
-                {
-                    
-                    painter.SetPreviewShader();
-                    changed = true;
-                }
+                if ((painter.IsOriginalShader ) && (pegi.Click(icon.OriginalShader.GetIcon(), "Switch To Preview Shader", 45).changes(ref changed)))
 
-                if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.GetIcon(), "Return to Original Shader", 45)))
+                    painter.SetPreviewShader();
+                
+
+                if ((!painter.IsOriginalShader) && (pegi.Click(icon.PreviewShader.GetIcon(), "Return to Original Shader", 45).changes(ref changed)))
                 {
                     painter.MatDta.usePreviewShader = false;
                     painter.SetOriginalShaderOnThis();
-                    changed = true;
                 }
             }
 			return changed;
@@ -126,10 +122,9 @@ namespace Playtime_Painter {
 
                 if (gotVectors) {
                     pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
-                    if (icon.Play.Click("Play stroke vectors on current mesh", 18)) {
+                    if (icon.Play.Click("Play stroke vectors on current mesh",ref changed, 18)) 
                         trg.PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
-                        changed = true;
-                    }
+                   
 
                     if (icon.Record.Click("Continue Recording", 18)) {
                         id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
@@ -137,11 +132,9 @@ namespace Playtime_Painter {
                         "Recording resumed".showNotificationIn3D_Views();
                     }
 
-                    if (icon.Delete.Click("Delete", 18)) {
-                        changed = true;
+                    if (icon.Delete.Click("Delete", ref changed ,18)) 
                         Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
-                      
-                    }
+                    
                 }
 
                 if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) || 

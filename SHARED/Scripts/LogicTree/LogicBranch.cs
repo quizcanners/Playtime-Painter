@@ -54,14 +54,20 @@ namespace STD_Logic
 
         #region Inspector
 
-        public virtual string NameForElements => "Unnamed";
+        public virtual string NameForElements => typeof(T).ToPEGIstring();
 
         public string NameForPEGI
         {
             get { return name; }
             set { name = value; }
         }
-        
+
+        public override void ResetInspector() {
+            inspectedElement = -1;
+            inspectedBranch = -1;
+            base.ResetInspector();
+        }
+
         int inspectedElement = -1;
         int inspectedBranch = -1;
 

@@ -1870,20 +1870,18 @@ namespace Playtime_Painter
                 {
                     if (meshEditing)
                     {
-                        if (icon.Painter.Click("Edit Texture", 25))
-                        {
+                        if (icon.Painter.Click("Edit Texture",ref changed, 25)) {
                             SetOriginalShader();
                             meshEditing = false;
                             CheckPreviewShader();
                             MeshMGMT.DisconnectMesh();
-                            changed = true;
                             Cfg.showConfig = false;
                             "Editing Texture".showNotificationIn3D_Views();
                         }
                     }
                     else
                     {
-                        if (icon.Mesh.Click("Edit Mesh", 25))
+                        if (icon.Mesh.Click("Edit Mesh", ref changed, 25))
                         {
                             meshEditing = true;
 
@@ -1894,8 +1892,7 @@ namespace Playtime_Painter
 
                             if (SavedEditableMesh != null)
                                 MeshMGMT.EditMesh(this, false);
-
-                            changed = true;
+                            
                         }
 
 
@@ -2069,13 +2066,10 @@ namespace Playtime_Painter
                         BlitMode mode = GlobalBrush.BlitMode;
                         Color col = GlobalBrush.colorLinear.ToGamma();
 
-                        if ((CPU || (!mode.UsingSourceTexture)) && (IsTerrainHeightTexture() == false))
-                        {
-                            if (pegi.edit(ref col))
-                            {
-                                changed = true;
+                        if ((CPU || (!mode.UsingSourceTexture)) && (IsTerrainHeightTexture() == false)) {
+                            if (pegi.edit(ref col).changes(ref changed))
                                 GlobalBrush.colorLinear.From(col);
-                            }
+                            
                         }
 
                         pegi.nl();
@@ -2196,16 +2190,12 @@ namespace Playtime_Painter
 
                             Material mater = Material;
 
-                            if (pegi.edit(ref mater))
+                            if (pegi.edit(ref mater).changes(ref changed))
                                 Material = mater;
 
-                            if (icon.NewMaterial.Click("Instantiate Material", 25).nl())
-                            {
-                                changed = true;
+                            if (icon.NewMaterial.Click("Instantiate Material", 25).nl(ref changed))
                                 InstantiateMaterial(true);
-                            }
-
-
+                            
                             pegi.nl();
                             pegi.Space();
                             pegi.nl();
@@ -2265,12 +2255,9 @@ namespace Playtime_Painter
 
                             var tex = GetTextureOnMaterial();
 
-                            if (pegi.edit(ref tex))
-                            {
-                                changed = true;
+                            if (pegi.edit(ref tex).changes(ref changed))
                                 ChangeTexture(tex);
-                            }
-
+                            
                             if ((IsTerrainControlTexture() == false))
                             {
 
@@ -2286,9 +2273,9 @@ namespace Playtime_Painter
                                 {
                                     string param = GetMaterialTexturePropertyName;
 
-                                    if (icon.NewTexture.Click((id == null) ? "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl())
+                                    if (icon.NewTexture.Click((id == null) ?
+                                        "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale, 25).nl(ref changed))
                                     {
-                                        changed = true;
                                         if (isTerrainHeight)
                                             CreateTerrainHeightTexture(nameHolder);
                                         else
@@ -2305,41 +2292,31 @@ namespace Playtime_Painter
                                             && ((recentTexs.Count > 0) || (id == null)))
                                         {
 
-                                            if ("Recent Textures:".select(100, ref id, recentTexs).nl())
-                                            {
+                                            if ("Recent Textures:".select(100, ref id, recentTexs).nl(ref changed))
                                                 ChangeTexture(id.ExclusiveTexture());
-                                                changed = true;
-                                            }
+                                        
                                         }
                                     }
 
 
-                                    if ((id == null) && (Cfg.allowExclusiveRenderTextures) && ("Create Render Texture".Click()))
-                                    {
-                                        changed = true;
+                                    if ((id == null) && (Cfg.allowExclusiveRenderTextures) && ("Create Render Texture".Click(ref changed)))
                                         CreateRenderTexture(texScale, nameHolder);
-                                    }
+                                    
 
                                     if ((id != null) && (Cfg.allowExclusiveRenderTextures))
                                     {
-                                        if ((id.renderTexture == null) && ("Add Render Tex".Click()))
-                                        {
-                                            changed = true;
+                                        if ((id.renderTexture == null) && ("Add Render Tex".Click(ref changed)))
                                             id.AddRenderTexture();
-                                        }
+                                        
 
                                         if (id.renderTexture != null)
                                         {
 
-                                            if ("Replace RendTex".Click("Replace " + param + " with Rend Tex size: " + texScale))
-                                            {
-                                                changed = true;
+                                            if ("Replace RendTex".Click("Replace " + param + " with Rend Tex size: " + texScale, ref changed))
                                                 CreateRenderTexture(texScale, nameHolder);
-                                            }
-                                            if ("Remove RendTex".Click().nl())
-                                            {
-                                                changed = true;
-
+                                            
+                                            if ("Remove RendTex".Click().nl(ref changed)) {
+                                        
                                                 if (id.texture2D != null)
                                                 {
                                                     UpdateOrSetTexTarget(TexTarget.Texture2D);

@@ -318,8 +318,8 @@ namespace SharedTools_Stuff {
         #region Transformations
         public static Vector2 Rotate(this Vector2 v, float degrees)
         {
-            float sin = Mathf.Sin(degrees);
-            float cos = Mathf.Cos(degrees);
+            float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+            float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
 
             float tx = v.x;
             float ty = v.y;
@@ -327,7 +327,19 @@ namespace SharedTools_Stuff {
             v.y = (sin * tx) + (cos * ty);
             return v;
         }
-        
+
+        public static Vector2 Rotate_Radians(this Vector2 v, float radians)
+        {
+            float sin = Mathf.Sin(radians);
+            float cos = Mathf.Cos(radians);
+
+            float tx = v.x;
+            float ty = v.y;
+            v.x = (cos * tx) - (sin * ty);
+            v.y = (sin * tx) + (cos * ty);
+            return v;
+        }
+
         public static Vector4 ToVector4(this Color col)
         {
             return new Vector4(col.r, col.g, col.b, col.a);

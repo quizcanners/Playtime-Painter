@@ -234,9 +234,7 @@ namespace STD_Animations
 
                 if (frameIndex > 0)
                 {
-                    if (icon.Undo.ClickUnfocus())
-                    {
-                        changed = true;
+                    if (icon.Undo.ClickUnfocus(ref changed)) {
                         SetFrameIndex(frameIndex - 1);
                         editor_FramePortion = 1;
                     }
@@ -246,9 +244,8 @@ namespace STD_Animations
 
                 if (frameIndex < frames.Count - 1)
                 {
-                    if (icon.Redo.ClickUnfocus())
+                    if (icon.Redo.ClickUnfocus(ref changed))
                     {
-                        changed = true;
                         SetFrameIndex(frameIndex + 1);
                         editor_FramePortion = 0;
                     }

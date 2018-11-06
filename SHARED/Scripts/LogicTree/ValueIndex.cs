@@ -96,7 +96,7 @@ namespace STD_Logic
 
                 Trigger.inspected = Trigger;
 
-                Trigger.PEGI_inList();
+                Trigger.Inspect_AsInList();
 
                 if (Trigger.inspected != Trigger)
                     edited = null;
@@ -168,11 +168,9 @@ namespace STD_Logic
 
             Trigger.searchMatchesFound = 0;
 
-            if (KeyCode.Return.IsDown())
-            {
+            if (KeyCode.Return.IsDown().changes(ref changed))
                 pegi.FocusControl("none");
-                changed = true;
-            }
+            
             pegi.newLine();
 
 
@@ -180,22 +178,17 @@ namespace STD_Logic
 
             current.ToPEGIstring().write();
 
-            if (icon.Done.Click().nl())
-            {
+            if (icon.Done.Click().nl(ref changed))
                 pegi.FocusControl("none");
-                changed = true;
-            }
             else foreach (var gb in TriggerGroup.all) {
                     var lst = gb.GetFilteredList(ref searchMax);
                     foreach (var t in lst)
                         if (t != current) {
                             Trigger.searchMatchesFound++;
 
-                            if (icon.Done.ClickUnfocus(20)) {
+                            if (icon.Done.ClickUnfocus(20).changes(ref changed)) 
                                 Trigger = t;
-                                changed = true;
-                            }
-
+                            
                             t.ToPEGIstring().nl();
                         }
 

@@ -58,13 +58,11 @@ namespace Playtime_Painter
             bool changed = false;
 
             int tmp = index;
-            if ("Index".edit(ref tmp).nl()) {
-                changed = true;
+            if ("Index".edit(ref tmp).nl(ref changed)) 
                 ChangeIndexTo(tmp);
-            }
-
-            changed |= "Emission Color".edit(ref ecol).nl();
-            changed |= "Brightness".edit(ref brightness).nl();
+            
+            "Emission Color".edit(ref ecol).nl(ref changed);
+            "Brightness".edit(ref brightness).nl(ref changed);
 
             if (changed) UnityHelperFunctions.RepaintViews();
 

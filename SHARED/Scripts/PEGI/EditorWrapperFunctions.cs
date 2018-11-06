@@ -841,18 +841,7 @@ namespace PlayerAndEditorGUI {
 
             return false;//(String.Compare(before, text) != 0);
         }
-        
-        public static bool edit(Sentance val)
-        {
-            string before = val.ToString();
-            if (edit(ref before))
-            {
-                val.SetTranslation(before);
-                return change;
-            }
-            return false;
-        }
-
+ 
         public static bool edit(ref string text)
         {
             BeginCheckLine();

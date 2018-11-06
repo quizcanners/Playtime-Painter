@@ -15,120 +15,98 @@ namespace PlayerAndEditorGUI
 
     public enum Languages { en = 1, uk = 2, tr = 3, ru = 4 }
 
-    public static class SentenceEditorExtensions
-    {
-
-        public static string ToStringSafe(this List<Sentance> s, bool detail)
-        {
-            return "[" + s.Count + "]: " + (detail ? "..." : s[0].ToString());
-        }
-#if PEGI
-        public static void PEGI(this List<Sentance> options)
-        {
-            pegi.newLine();
-            for (int i = 0; i < options.Count; i++)
-            {// Sentance s in options) {
-                Sentance s = options[i];
-                s.Inspect();
-                if (pegi.Click("X", 35))
-                    options.RemoveAt(i);
-                pegi.newLine();
-            }
-
-            if (pegi.Click("Add Text"))
-                options.Add(new Sentance(null));
-        }
-#endif
-    }
-
     [Serializable]
-    public class Sentance : Abstract_STD , IPEGI
+    public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName {
 
-    {
+        public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
 
-        public static bool showTexts;
+        public Dictionary<int, string> txts = new Dictionary<int, string>();
 
-        public static Languages curlang; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
+        public static bool singleView = true;
 
-        public List<string> txt;
+        public string NameForPEGI { get { return this[curlang]; } set { this[curlang] = value; } }
 
-        public override StdEncoder Encode()
-        {
-            StdEncoder enc = new StdEncoder();
-            for (int i = 0; i < txt.Count; i++)
-                if (txt[i].Length > 0)
-                    enc.Add_String(i.ToString(), txt[i]);
-            return enc;
+        public string this[Languages lang] {
+            get {
+                string text;
+                int ind = (int)lang;
+
+                if (txts.TryGetValue(ind, out text))
+                    return text;
+                else
+                {
+                    if (lang == Languages.en)
+                    {
+                        text = "English Text";
+                        txts[ind] = text;
+                    }
+                    else
+                        text = this[Languages.en];
+                }
+
+                return text;
+            }
+            set { txts[(int)lang] = value; }
         }
 
-        public override bool Decode(string subtag, string data)
-        {
+        public bool Contains(Languages lang) => txts.ContainsKey((int)lang);
 
-            int l = subtag.ToInt();
-            SetTranslation((Languages)l, data);
+        public bool Contains() => Contains(curlang);
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("txts", txts);
+
+        public override bool Decode(string tag, string data){
+            switch (tag) {
+                case "txts": data.Decode_Dictionary(out txts); break;
+                default: return false;
+            }
             return true;
         }
+        #endregion
+
+        #region Inspector
         #if PEGI
-        public virtual bool Inspect()
-        {
-            string tmp = ToString();
-            if (pegi.editBig(ref tmp))
-            {
-                SetTranslation(tmp);
-                return true;
+
+        public static bool LanguageSelector_PEGI() {
+            return pegi.editEnum(ref curlang);
+        }
+
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
+            var changed = this.inspect_Name();
+
+            if (icon.Hint.Click(curlang.ToPEGIstring()))
+                edited = ind;
+
+            return changed;
+        }
+
+        public override bool Inspect() {
+            string tmp = NameForPEGI;
+
+            "Show All".toggleIcon(ref singleView);
+            if (singleView)  {
+                LanguageSelector_PEGI();
+                if (pegi.editBig(ref tmp)) {
+                    NameForPEGI = tmp;
+                    return true;
+                }
+            } else {
+                "Translations".edit_Dictionary(ref txts);
+
+                LanguageSelector_PEGI();
+                if (!Contains() && icon.Add.Click("Add {0}".F(curlang.ToPEGIstring())))
+                    NameForPEGI = this[curlang];
+
+                pegi.nl();
+
             }
+
             return false;
         }
-#endif
-        public override string ToString()
-        {
-            int no = (int)curlang;
-            while (txt.Count <= no) txt.Add("");
-            return txt[no];
-        }
-
-        public Sentance()
-        {
-            txt = new List<string>();
-        }
-
-        public Sentance(string data)
-        {
-            txt = new List<string>();
-
-            if (data != null)
-                Decode(data);
-        }
-
-        public Sentance(string str, Languages len)
-        {
-            txt = new List<string>();
-            SetTranslation(len, str);
-        }
-
-        public void SetTranslation(Languages len, string text)
-        {
-            int no = (int)len;
-            while (txt.Count <= no) txt.Add("");
-            txt[no] = text;
-        }
-
-        public void SetTranslation(string text)
-        {
-            int no = (int)curlang;
-            while (txt.Count <= no) txt.Add("");
-            txt[no] = text;
-        }
-
-        public string GetTranslation(Languages len)
-        {
-            int no = (int)len;
-            while (txt.Count <= no) txt.Add("");
-            return txt[no];
-        }
-
-
-
+        #endif
+        #endregion
     }
 
 

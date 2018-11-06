@@ -218,9 +218,8 @@ namespace SharedTools_Stuff {
                     {
                         for (int i = 0; i < tags.Count; i++)
                         {
-                            if (icon.Delete.Click())
+                            if (icon.Delete.Click(ref changed))
                             {
-                                changed = true;
                                 tags.RemoveAt(i);
                                 datas.RemoveAt(i);
                                 i--;
@@ -379,12 +378,9 @@ namespace SharedTools_Stuff {
         {
             bool changed = false;
             var n = gameObject.name;
-            if (pegi.editDelayed(ref n) && n.Length > 0)
-            {
+            if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
-                changed = true;
-            }
-
+            
             if (icon.Enter.Click())
                 edited = ind;
 

@@ -128,14 +128,14 @@ namespace STD_Logic {
             foreach (var bGr in bools) {
                 var group = TriggerGroup.all[bools.currentEnumerationIndex];
                 foreach (var b in bGr)
-                    group[b].PEGI_inList();
+                    group[b].Inspect_AsInList();
                 
             }
 
             foreach (var iGr in ints) {
                 var group = TriggerGroup.all[ints.currentEnumerationIndex];
                 foreach (var i in iGr) 
-                   group[iGr.currentEnumerationIndex].PEGI_inList();
+                   group[iGr.currentEnumerationIndex].Inspect_AsInList();
                 
             }
 

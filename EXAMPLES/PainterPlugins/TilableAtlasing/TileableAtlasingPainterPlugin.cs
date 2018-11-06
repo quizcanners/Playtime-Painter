@@ -256,12 +256,11 @@ namespace Playtime_Painter {
                         changed |= "Color".toggle(35, ref AtlasCreator.sRGB);
 
                     pegi.select(ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases);
-                    if (icon.Add.Click("Create new Atlas", 15).nl())
+                    if (icon.Add.Click("Create new Atlas", 15).nl(ref changed))
                     {
                         atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
                         var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
                         TileableAtlasingControllerPlugin.inst.atlases.Add(ac);
-                        changed = true;
                     }
                 }
                 else changed |= AtlasCreator.Nested_Inspect().nl();
@@ -591,12 +590,10 @@ namespace Playtime_Painter {
                     "Also if stuff looks smudged, rebuild the light.").writeHint();
             }
 
-            if (("Atlased Material:".edit(90, ref AtlasedMaterial).nl()) ||
-                (AtlasedMaterial != null && AtlasedMaterial.shader != atlasedShader))
-            {
+            if ((("Atlased Material:".edit(90, ref AtlasedMaterial).nl()) ||
+                (AtlasedMaterial != null && AtlasedMaterial.shader != atlasedShader)).changes(ref changed)) 
                 OnChangeMaterial(painter);
-                changed = true;
-            }
+            
 
             if (painter != null)
             {
@@ -605,11 +602,8 @@ namespace Playtime_Painter {
                 {
                     if (mats.Length > 1)
                     {
-                        if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubmesh, mats))
-                        {
-                            changed = true;
+                        if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubmesh, mats).changes(ref changed))
                             OnChangeMaterial(painter);
-                        }
                     }
                     else if (mats.Length > 0)
                         "Source Material".write_obj("Submesh which will be converted", 90, mats[0]);
@@ -942,13 +936,9 @@ namespace Playtime_Painter {
             changed |= "Atlas size:".editDelayed( ref AtlasSize, 80).nl();
             AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
-            if ("Textures size:".editDelayed( ref textureSize, 80).nl())
-            {
+            if ("Textures size:".editDelayed( ref textureSize, 80).nl(ref changed))
                 pegi.foldIn();
-                changed = true;
-
-            }
-
+        
             textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
 
             AdjustListSize();
