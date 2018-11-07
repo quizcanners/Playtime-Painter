@@ -10,12 +10,12 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : ISTD, IPEGI, IGotDisplayName
-    {
+    public abstract class ValueIndex : ISTD, IPEGI, IGotDisplayName {
 
         public int groupIndex;
         public int triggerIndex;
 
+        #region Encode & Decode
         public ISTD Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract StdEncoder Encode();
@@ -36,6 +36,8 @@ namespace STD_Logic
             return true;
         }
 
+        #endregion
+
         public int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
 
         public void SetInt(Values st, int value) => st.ints[groupIndex][triggerIndex] = value;
@@ -50,10 +52,16 @@ namespace STD_Logic
 
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
 
-        public abstract bool IsBoolean();
+
+        public abstract bool IsBoolean { get; }
+
 
         #region Inspector
 #if PEGI
+
+        public virtual bool SearchTriggerSameType => false;
+
+
         public static Trigger selectedTrig;
         public static ValueIndex selected;
 
@@ -66,16 +74,8 @@ namespace STD_Logic
 
         public static ValueIndex edited;
 
-        public virtual bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) {
-            /*
-            var  changed = FocusedField_PEGI(ind, "Tr");
-
-            changed |= Trigger._usage.Inspect(this);
-
-            return changed;*/
-            return false;
-        }
-
+        public virtual bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) => false;
+        
         public virtual bool PEGI_inList(IList list, int ind, ref int inspected)
         {
 
@@ -84,7 +84,7 @@ namespace STD_Logic
             if (this != edited) {
                 changed = PEGI_inList_Sub(list, ind, ref inspected);
 
-                if (icon.Edit.Click())
+                if (icon.Edit.ClickUnfocus())
                     edited = this;
 
                 changed |= SearchAndAdd_PEGI(ind);
@@ -140,8 +140,6 @@ namespace STD_Logic
                     Trigger.searchField = Trigger.name;
                 }
 
-    
-
                 if (Search_PEGI(Trigger.searchField, Values.global))
                     Trigger.searchField = Trigger.name;
 
@@ -150,17 +148,13 @@ namespace STD_Logic
             }
             else if (index == Trigger.focusIndex) Trigger.focusIndex = -2;
 
-
-           
-
             if (this == selected)
                 changed |= TriggerGroup.AddTrigger_PEGI(this);
 
             return changed;
         }
 
-        public bool Search_PEGI(string search, Values so)
-        {
+        public bool Search_PEGI(string search, Values so) {
 
             bool changed = false;
 
@@ -168,11 +162,8 @@ namespace STD_Logic
 
             Trigger.searchMatchesFound = 0;
 
-            if (KeyCode.Return.IsDown().changes(ref changed))
+            if (KeyCode.Return.IsDown().nl(ref changed))
                 pegi.FocusControl("none");
-            
-            pegi.newLine();
-
 
             int searchMax = 20;
 
@@ -181,7 +172,8 @@ namespace STD_Logic
             if (icon.Done.Click().nl(ref changed))
                 pegi.FocusControl("none");
             else foreach (var gb in TriggerGroup.all) {
-                    var lst = gb.GetFilteredList(ref searchMax);
+                    var lst = gb.GetFilteredList(ref searchMax, !SearchTriggerSameType || IsBoolean ,
+                        !SearchTriggerSameType || !IsBoolean );
                     foreach (var t in lst)
                         if (t != current) {
                             Trigger.searchMatchesFound++;

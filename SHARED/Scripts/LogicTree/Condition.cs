@@ -24,10 +24,12 @@ namespace STD_Logic
 
         public virtual int IsItClaimable( int dir, Values values) => -2;
         
-        public override bool IsBoolean() => false;
+        public override bool IsBoolean => false;
 
         #region Inspector
         #if PEGI
+
+        public override bool SearchTriggerSameType => true;
 
         public static Values inspectedTarget = null;
 
@@ -39,38 +41,6 @@ namespace STD_Logic
 
             return changed;
         }
-
-        /*
-        public override bool PEGI_inList(IList list, int ind, ref int inspected) {
-
-            bool changed = false;
-
-            (TestFor(inspectedTarget) ? icon.Active : icon.InActive).write();
-
-            if (this != edited) {
-                changed |= FocusedField_PEGI(ind, "Cond");
-
-                Trigger._usage.Inspect(this);
-                if (icon.Edit.Click())
-                    edited = this;
-
-                changed |= SearchAndAdd_PEGI(ind);
-
-            }
-            else {
-                if (icon.FoldedOut.Click())
-                    edited = null;
-
-                Trigger.inspected = Trigger;
-
-                Trigger.PEGI_inList();
-
-                if (Trigger.inspected != Trigger)
-                    edited = null;
-            }
-
-            return changed;
-        }*/
 
         #endif
         #endregion
@@ -87,6 +57,7 @@ namespace STD_Logic
 
         public bool compareValue;
 
+        #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
             .Add_IfTrue("b", compareValue)
             .Add("ind", EncodeIndex());
@@ -101,6 +72,7 @@ namespace STD_Logic
             }
             return true;
         }
+        #endregion
 
         public override bool TryForceConditionValue(Values values, bool toTrue)
         {
@@ -113,7 +85,7 @@ namespace STD_Logic
 
         public override int IsItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
         
-        public override bool IsBoolean() => true;
+        public override bool IsBoolean => true;
 
     }
 
@@ -144,9 +116,7 @@ namespace STD_Logic
 
             if (TestFor(value) == toTrue)
                 return true;
-
-
-
+            
             if (toTrue) {
                 switch (type) { 
                     case ConditionType.Above: SetInt(value, compareValue + 1); break;
@@ -218,8 +188,9 @@ namespace STD_Logic
     
     public class TestOnceCondition : ConditionLogicBool
     {
-        
-#if PEGI
+
+        #region Inspector
+        #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
             bool changed = FocusedField_PEGI(ind, "Cond");
@@ -230,7 +201,8 @@ namespace STD_Logic
 
             return base.Inspect() || changed;
         }
-#endif
+        #endif
+        #endregion
 
         public override bool TestFor(Values st)
         {

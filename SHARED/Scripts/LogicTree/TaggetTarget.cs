@@ -15,6 +15,7 @@ namespace STD_Logic
         
         public int targValue; // if zero - we are talking about bool target
 
+        #region Encode & Decode
         public override StdEncoder Encode() {
 
             StdEncoder cody = new StdEncoder();
@@ -34,12 +35,13 @@ namespace STD_Logic
             }
             return true;
         }
+        #endregion
+
+
+        public override bool IsBoolean => targValue == 0;
         
-        public override bool IsBoolean() {
-            return targValue == 0;
-        }
         
-        public string TagName => Trigger.name + (IsBoolean() ?  "" : Trigger.enm[triggerIndex]);
+        public string TagName => Trigger.name + (IsBoolean ?  "" : Trigger.enm[triggerIndex]);
 
         public List<Values> GetObjectsByTag() {
             if (targValue > 0)
@@ -47,12 +49,14 @@ namespace STD_Logic
             else 
                 return TriggerGroup.all[groupIndex].taggedBool[triggerIndex];
         }
+
+        #region Inspector
 #if PEGI
         public override bool Inspect() {
             bool changed = false;
            
             if (Trigger.inspected != Trigger) {
-                if (icon.Edit.Click(20))
+                if (icon.Edit.ClickUnfocus(20))
                     Trigger.inspected = Trigger;
 
                 string focusName = "Tt";
@@ -72,7 +76,7 @@ namespace STD_Logic
         }
 
 #endif
-        
+        #endregion
 
     }
     

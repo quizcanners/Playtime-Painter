@@ -118,15 +118,18 @@ namespace STD_Logic
         #region Inspector
 #if PEGI
         public override void Inspect(ConditionLogic c) {
-            if (!c.IsBoolean())
-                icon.Warning.write("Wrong Type: " + c.IsBoolean());
-             else 
+            if (!c.IsBoolean) {
+                icon.Warning.write("Wrong Type: " + c.IsBoolean);
+
+                
+            }
+            else
                 pegi.toggleIcon(ref ((ConditionLogicBool)c).compareValue, "Condition Value");
         }
         
         public override bool Inspect(Result r) {
 
-            if (!r.IsBoolean())
+            if (!r.IsBoolean)
             {
                 if (icon.Warning.Click("Wrong Type:" + r.type.ToString() + ". Change To Bool"))
                 {
@@ -248,8 +251,8 @@ namespace STD_Logic
 
             if (Trigger.inspected != t) return changed;
 
-            "__ Enums__".write(60);
-            changed |= t.enm.edit_PEGI();
+
+            "__ Enums__".edit_Dictionary(ref t.enm).changes(ref changed);
 
             return changed;
         }
@@ -373,12 +376,12 @@ namespace STD_Logic
              
             if (Trigger.inspected != t) return changed;
 
-            "__ Tags __".nl();
+           // "__ Tags __".nl();
 
             const string NoZerosForTrigs = "No04t";
             "Can't use 0 as tag index. ".writeOneTimeHint(NoZerosForTrigs);
 
-            if (t.enm.edit_PEGI().changes(ref changed)) {
+            if ("___Tags___".edit_Dictionary(ref t.enm).changes(ref changed)) {
                 string dummy;
                 if (t.enm.TryGetValue(0, out dummy)) {
                     t.enm.Remove(0);

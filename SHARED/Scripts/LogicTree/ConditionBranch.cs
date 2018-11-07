@@ -6,18 +6,21 @@ using SharedTools_Stuff;
 using PlayerAndEditorGUI;
 
 namespace STD_Logic {
-    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName, IPEGI, IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect {
+    public class ConditionBranch : AbstractKeepUnrecognized_STD, IGotName,
+        IPEGI, IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect, IGotCount {
 
         public enum ConditionBranchType { OR, AND }
 
         public List<ConditionLogic> conds = new List<ConditionLogic>();
         public List<ConditionBranch> branches = new List<ConditionBranch>();
 
-        public ConditionBranchType type;
+        public ConditionBranchType type = ConditionBranchType.AND;
         public string description = "new branch";
         public TaggedTarget targ;
 
         Values TargetValues => targ.TryGetValues(Values.global);
+
+        public int CountForInspector => CountRecursive();
         
         public string NameForPEGI
         {
@@ -141,7 +144,7 @@ namespace STD_Logic {
             bool changed = false;
 
             if (browsedBranch == -1) {
-                if (pegi.Click(type + (type == ConditionBranchType.AND ? " (ALL should be true)" : " (At least one is true)"),
+                if (pegi.Click(type.ToString(),
                     (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition OR sub branch should be true")))
                     type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
 

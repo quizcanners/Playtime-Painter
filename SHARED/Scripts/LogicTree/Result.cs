@@ -84,7 +84,7 @@ namespace STD_Logic  {
         
         public void Apply(Values to) => type.Apply(updateValue, this, to);
            
-        public override bool IsBoolean() => ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
+        public override bool IsBoolean => ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
         
         public Result()  {
             if (TriggerGroup.Browsed != null)

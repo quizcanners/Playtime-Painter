@@ -814,7 +814,7 @@ namespace STD_Animations
 
             }
 
-            if (icon.Enter.Click(NameForPEGI))
+            if (icon.Enter.ClickUnfocus(NameForPEGI))
                 edited = ind;
 
             return false;

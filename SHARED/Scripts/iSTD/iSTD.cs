@@ -227,7 +227,7 @@ namespace SharedTools_Stuff {
                             else
                             {
                                 pegi.write(tags[i]);
-                                if (icon.Edit.Click().nl())
+                                if (icon.Edit.ClickUnfocus().nl())
                                     inspected = i;
                             }
                         }

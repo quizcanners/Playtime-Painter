@@ -182,7 +182,7 @@ namespace SharedTools_Stuff
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
             this.ToPEGIstring().write();
-            if (icon.Edit.Click())
+            if (icon.Edit.ClickUnfocus())
                 edited = myIndex;
             return false;
         }
@@ -203,7 +203,7 @@ namespace SharedTools_Stuff
             if (value > 0 && ("Reset Value " + value).Click().nl())
                 value = 0;
 
-            changed |= pegi.edit_Dictionary(ref events, ref editedEvent).nl();
+            changed |= pegi.edit_Dictionary_Values(ref events, ref editedEvent).nl();
 
             return changed;
         }

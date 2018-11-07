@@ -194,8 +194,7 @@ namespace SharedTools_Stuff
                 "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
 
             if (perTypeConfig.Count > 0)
-                "Per type config".edit_Dictionary(ref perTypeConfig).nl();
-
+                "Per type config".edit_Dictionary_Values(ref perTypeConfig, pegi.lambda_string).nl();
 
             return changed;
         }

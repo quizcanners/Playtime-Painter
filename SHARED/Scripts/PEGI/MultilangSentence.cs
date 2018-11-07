@@ -10,17 +10,33 @@ using SharedTools_Stuff;
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI
-{
+namespace PlayerAndEditorGUI {
 
-    public enum Languages { en = 1, uk = 2, tr = 3, ru = 4 }
+    public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
 
     [Serializable]
-    public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName {
+    public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
 
+        List<string> lanCodes;
+
+        public List<string> LanguageCodes { get {
+                if (lanCodes == null) {
+                    lanCodes = new List<string>();
+                    string[] names = Enum.GetNames(typeof(Languages));
+                    var values = (int[])Enum.GetValues(typeof(Languages));
+                    for (int i = 0; i < values.Length; i++)
+                        lanCodes.ForceSet(values[i], names[i]);
+                }
+
+                return lanCodes;
+            }
+        }
+
         public Dictionary<int, string> txts = new Dictionary<int, string>();
+
+        bool needsReview = false;
 
         public static bool singleView = true;
 
@@ -55,11 +71,13 @@ namespace PlayerAndEditorGUI
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add("txts", txts);
+            .Add("txts", txts)
+            .Add_IfTrue("na", needsReview);
 
         public override bool Decode(string tag, string data){
             switch (tag) {
                 case "txts": data.Decode_Dictionary(out txts); break;
+                case "na": needsReview = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -69,16 +87,19 @@ namespace PlayerAndEditorGUI
         #region Inspector
         #if PEGI
 
-        public static bool LanguageSelector_PEGI() {
-            return pegi.editEnum(ref curlang);
+        public string NeedAttention() {
+            if (needsReview)
+                return "Marked for review";
+            return null;
         }
 
+        public static bool LanguageSelector_PEGI() => pegi.editEnum(ref curlang, 30);
+        
         public bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (icon.Hint.Click(curlang.ToPEGIstring()))
+            if (this.Attention_Or_Click(icon.Hint, curlang.ToPEGIstring()))
                 edited = ind;
-
             return changed;
         }
 
@@ -93,19 +114,24 @@ namespace PlayerAndEditorGUI
                     return true;
                 }
             } else {
-                "Translations".edit_Dictionary(ref txts);
+
+                "Translations".edit_Dictionary_Values(ref txts, LanguageCodes);
 
                 LanguageSelector_PEGI();
                 if (!Contains() && icon.Add.Click("Add {0}".F(curlang.ToPEGIstring())))
                     NameForPEGI = this[curlang];
 
                 pegi.nl();
-
             }
+
+            "Mark for review".toggleIcon(ref needsReview, "NEEDS REVIEW");
+          
 
             return false;
         }
-        #endif
+
+      
+#endif
         #endregion
     }
 

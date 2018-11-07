@@ -44,7 +44,7 @@ namespace STD_Logic
 
         public TriggerUsage _usage { get { return TriggerUsage.Get(usage); }  set { usage = value.index; } }
 
-        public override bool IsBoolean() => _usage.UsingBool;
+        public override bool IsBoolean => _usage.UsingBool;
         
         public bool SearchWithGroupName(string groupName) {
             

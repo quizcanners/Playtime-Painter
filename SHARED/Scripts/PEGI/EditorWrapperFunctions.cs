@@ -395,30 +395,7 @@ namespace PlayerAndEditorGUI {
 
             return (before != no);
         }
-
-        public static bool select(ref int current, Type type)
-        {
-            checkLine();
-            int tmpVal = -1;
-
-            string[] name = Enum.GetNames(type);
-            int[] val = (int[])Enum.GetValues(type);
-
-            for (int i = 0; i < val.Length; i++)
-                if (val[i] == current)
-                    tmpVal = i;
-
-            if (select(ref tmpVal, name))
-            {
-
-                current = val[tmpVal];
-
-                return true;
-            }
-
-            return false;
-        }
-
+   
         public static bool select_Type(ref Type current, List<Type> others, Rect rect)
         {
 
@@ -467,11 +444,6 @@ namespace PlayerAndEditorGUI {
             }
 
             return false;
-        }
-
-        public static bool edit(ref int current, Type type)
-        {
-            return select(ref current, type);
         }
 
         public static void tab()

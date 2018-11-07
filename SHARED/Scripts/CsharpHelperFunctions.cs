@@ -215,7 +215,7 @@ namespace SharedTools_Stuff
         }
         #endregion
 
-        #region ListManagement
+        #region List Management
 
         public static string GetUniqueName<T>(this string s, List<T> list)
         {
@@ -262,6 +262,16 @@ namespace SharedTools_Stuff
             return list[UnityEngine.Random.Range(0, list.Count)];
         }
 
+        public static void ForceSet<T>(this List<T> list, int index, T val) {
+            if (list != null && index>=0) {
+                while (list.Count <= index)
+                    list.Add(default(T));
+
+                list[index] = val;
+            }
+
+        }
+
         public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
 
         public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew)   {
@@ -296,34 +306,6 @@ namespace SharedTools_Stuff
 
         }
         
-        public static T TryGetLast<T>(this T[] array)
-        {
-
-            if (array == null || array.Length == 0)
-                return default(T);
-
-            return array[array.Length - 1];
-
-        }
-
-        public static T TryGet<T>(this T[] array, int index)
-        {
-
-            if (array == null || array.Length <= index || index < 0)
-                return default(T);
-
-            return array[index];
-        }
-
-        public static T TryGet<T>(this T[] array, int index, T defaultValue)
-        {
-
-            if (array == null || array.Length <= index || index < 0)
-                return defaultValue;
-
-            return array[index];
-        }
-
         public static T TryGetLast<T>(this IList<T> list)
         {
 
@@ -356,8 +338,7 @@ namespace SharedTools_Stuff
 
             return list[index];
         }
-
-
+        
         public static int TryGetIndex<T>(this List<T> list, T obj)
         {
             int ind = -1;
@@ -472,6 +453,36 @@ namespace SharedTools_Stuff
             list[indexB] = tmp;
         }
 
+        #endregion
+
+        #region Array Management
+        public static T TryGetLast<T>(this T[] array)
+        {
+
+            if (array == null || array.Length == 0)
+                return default(T);
+
+            return array[array.Length - 1];
+
+        }
+
+        public static T TryGet<T>(this T[] array, int index)
+        {
+
+            if (array == null || array.Length <= index || index < 0)
+                return default(T);
+
+            return array[index];
+        }
+
+        public static T TryGet<T>(this T[] array, int index, T defaultValue)
+        {
+
+            if (array == null || array.Length <= index || index < 0)
+                return defaultValue;
+
+            return array[index];
+        }
         #endregion
 
         #region Dictionaries

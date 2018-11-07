@@ -1965,7 +1965,7 @@ namespace Playtime_Painter
                                     mg.EditMesh(this, false);
                                 }
 
-                                if (icon.Edit.Click("Edit Mesh", 25).nl())
+                                if (icon.Edit.ClickUnfocus("Edit Mesh", 25).nl())
                                     mg.EditMesh(this, false);
                             }
                         }

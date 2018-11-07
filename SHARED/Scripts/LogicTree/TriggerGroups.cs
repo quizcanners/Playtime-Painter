@@ -75,7 +75,7 @@ namespace STD_Logic
 
             if (arg != null)
             {
-                if (arg.IsBoolean())
+                if (arg.IsBoolean)
                     t._usage = TriggerUsage.boolean;
                 else
                     t._usage = TriggerUsage.number;
@@ -198,18 +198,16 @@ namespace STD_Logic
         string lastFilteredString = "";
 
         List<Trigger> filteredList = new List<Trigger>();
-        public List<Trigger> GetFilteredList(ref int showMax)
+
+        public List<Trigger> GetFilteredList(ref int showMax, bool showBools = true, bool showInts = true)
         {
             if (!listDirty && lastFilteredString.SameAs(Trigger.searchField))
                 return filteredList;
-            else
-            {
-              //  Debug.Log("Refiltering group {0} from {1} to {2}, because {3}".F(name,lastFilteredString, Trigger.searchField, lastFilteredString.SameAs(Trigger.searchField)));
+            else  {
 
                 filteredList.Clear();
                 foreach (Trigger t in triggers)
-                    if (t.SearchWithGroupName(name))
-                    {
+                    if ((t.IsBoolean ? showBools : showInts) && t.SearchWithGroupName(name)) {
                         showMax--;
 
                         Trigger.searchMatchesFound++;
@@ -246,7 +244,7 @@ namespace STD_Logic
         public bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (icon.Enter.Click())
+            if (icon.Enter.ClickUnfocus())
                 edited = ind;
 
             if (icon.Email.Click("Send this Trigger Group to somebody via email."))
@@ -326,9 +324,18 @@ namespace STD_Logic
 
                 bool goodLength = Trigger.searchField.Length > 3;
 
-                if (goodLength && icon.Replace.ClickUnfocus("Rename {0}".F(selectedTrig.name)).changes(ref changed))  
+                pegi.nl();
+
+                if (goodLength && icon.Replace.ClickUnfocus(
+                    "Rename {0} if group {1} to {2}".F(selectedTrig.name, selectedTrig.Group.ToPEGIstring(), Trigger.searchField)
+                    ).changes(ref changed))  
                     selectedTrig.name = Trigger.searchField;
-                 
+
+                bool differentGroup = selectedTrig.Group != Browsed && Browsed != null;
+
+                if (goodLength && differentGroup)
+                    icon.Warning.write("Trigger {0} is of group {1} not {2}".F(selectedTrig.ToPEGIstring(), selectedTrig.Group.ToPEGIstring(), Browsed.ToPEGIstring()));
+
                 var groupLost = all.GetAllObjsNoOrder();
                 if (groupLost.Count > 0) {
                     int slctd = Browsed == null ? -1 : Browsed.IndexForPEGI;
