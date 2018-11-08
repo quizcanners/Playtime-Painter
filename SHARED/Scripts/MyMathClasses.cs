@@ -117,7 +117,7 @@ namespace SharedTools_Stuff {
         
         public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
-        public static Quaternion Lerp(this Quaternion from, Quaternion to, float speed, out float portion)
+        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed, out float portion)
         {
             portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
             return Quaternion.Lerp(from, to, portion);
@@ -140,12 +140,12 @@ namespace SharedTools_Stuff {
 
         public static Vector2 Lerp_bySpeed(this Vector2 from, Vector2 to, float speed) => Vector2.Lerp(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
 
-        public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed, out float portion) {
+        public static Vector2 Lerp_bySpeed(this Vector2 from, Vector2 to, float speed, out float portion) {
             portion = speed.SpeedToPortion(Vector3.Distance(from, to));
             return Vector3.Lerp(from, to, portion);
         }
 
-        public static bool Lerp(ref float from, float to, float speed)
+        public static bool Lerp_bySpeed(ref float from, float to, float speed)
         {
             if (from == to)
                 return false;
@@ -167,7 +167,8 @@ namespace SharedTools_Stuff {
             return true;
         }
 
-        public static float Lerp_bySpeed(float from, float to, float speed) => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+        public static float Lerp(float from, float to, float speed) 
+            => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
 
         public static float Lerp(float from, float to, float speed, out float portion)
         {

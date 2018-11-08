@@ -15,6 +15,12 @@ namespace STD_Logic
         public int groupIndex;
         public int triggerIndex;
 
+        public ValueIndex TriggerIndexes { set { if (value != null) {
+               groupIndex = value.groupIndex;
+               triggerIndex = value.triggerIndex;
+        }}}
+
+    
         #region Encode & Decode
         public ISTD Decode(string data) => data.DecodeTagsFor(this);
 
@@ -51,13 +57,11 @@ namespace STD_Logic
             set { groupIndex = value.groupIndex; triggerIndex = value.triggerIndex; } }
 
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
-
-
+        
         public abstract bool IsBoolean { get; }
-
-
+        
         #region Inspector
-#if PEGI
+        #if PEGI
 
         public virtual bool SearchTriggerSameType => false;
 
@@ -172,7 +176,8 @@ namespace STD_Logic
             if (icon.Done.Click().nl(ref changed))
                 pegi.FocusControl("none");
             else foreach (var gb in TriggerGroup.all) {
-                    var lst = gb.GetFilteredList(ref searchMax, !SearchTriggerSameType || IsBoolean ,
+                    var lst = gb.GetFilteredList(ref searchMax,
+                        !SearchTriggerSameType || IsBoolean ,
                         !SearchTriggerSameType || !IsBoolean );
                     foreach (var t in lst)
                         if (t != current) {
@@ -195,6 +200,13 @@ namespace STD_Logic
 
     public static class ValueSettersExtensions
     {
+
+        public static ValueIndex SetLastUsedTrigger(this ValueIndex index) {
+            if (index != null)
+                index.TriggerIndexes = TriggerGroup.TryGetLastUsedTrigger();
+            return index;
+        }
+
         public static bool Get(this UnnullableSTD<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
         public static void Set(this UnnullableSTD<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 

@@ -29,7 +29,7 @@ namespace STD_Logic
         #region Inspector
         #if PEGI
 
-        public override bool SearchTriggerSameType => true;
+        public override bool SearchTriggerSameType => false;
 
         public static Values inspectedTarget = null;
 
@@ -81,6 +81,8 @@ namespace STD_Logic
             return true;
         }
 
+        public override bool SearchTriggerSameType => true;
+
         public override bool TestFor(Values values) => GetBool(values) == compareValue;
 
         public override int IsItClaimable(int dir, Values st) => (dir > 0) == (compareValue) ?  1 : -2;
@@ -111,6 +113,8 @@ namespace STD_Logic
             return true;
         }
         #endregion
+
+        public override bool SearchTriggerSameType => true;
 
         public override bool TryForceConditionValue(Values value,bool toTrue) {
 

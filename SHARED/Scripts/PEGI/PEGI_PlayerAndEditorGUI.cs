@@ -2626,18 +2626,25 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
         {
-
             bool changed = false;
+            label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne, ref changed);
+            return changed;
+        }
+
+        public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed) where T : new()
+        {
+            T tmp = default(T);
 
             if (listIsNull(ref list))
-                return false;
+                return tmp;
 
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
-                lbl.edit_List(ref list, ref inspectedElement).nl();
-   
-            return changed;
+                tmp = lbl.edit_List(ref list, ref inspectedElement, ref changed);
+
+            return tmp;
         }
+
 
         public static bool enter_List_b<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered) where T : new()
         {
@@ -5052,7 +5059,7 @@ namespace PlayerAndEditorGUI {
 
         static string currentListLabel = "";
         static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
-                    (currentListLabel.isNullOrEmpty() ? typeof(T).ToPEGIstring()  : currentListLabel);
+                    (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring()  : currentListLabel);
 
         static bool listLabel_Used(this bool val) {
             currentListLabel = "";
@@ -6726,8 +6733,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static string ToPEGIstring(this object obj)
-        {
+        public static string ToPEGIstring(this object obj) {
 
             if (obj == null) return "NULL";
 

@@ -22,7 +22,6 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
-
     public class LoopLock
     {
         volatile bool llock;
@@ -133,11 +132,11 @@ namespace SharedTools_Stuff
         #endregion
 
         #region TextOperations
-        public static string F(this string format, object obj1) => string.Format(format, obj1);
+        public static string F(this string format, object obj1) => string.Format(format, obj1.ToPEGIstring());
         
-        public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1, obj2);
+        public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
 
-        public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1, obj2, obj3);
+        public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
 
         public static string F(this string format, params object[] objs) => string.Format(format, objs);
         
@@ -453,6 +452,8 @@ namespace SharedTools_Stuff
             list[indexB] = tmp;
         }
 
+        public static bool IsNullOrEmpty(this IList list) => list == null || list.Count == 0;
+
         #endregion
 
         #region Array Management
@@ -519,7 +520,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-
+        public static bool IsNullOrEmpty<T, G>(this Dictionary<T, G> dic) => dic == null || dic.Count == 0;
         #endregion
 
         #region String Editing
@@ -645,7 +646,7 @@ namespace SharedTools_Stuff
             return d[n, m];
         }
 
-        public static bool isNullOrEmpty(this string s) => s == null || s.Length == 0;
+        public static bool IsNullOrEmpty(this string s) => s == null || s.Length == 0;
 
         #endregion
         

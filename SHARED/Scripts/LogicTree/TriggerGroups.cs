@@ -32,13 +32,15 @@ namespace STD_Logic
             }
         }
 
+
+
         static int browsedGroup = -1;
         public static TriggerGroup Browsed
         {
             get { return browsedGroup >= 0 ? all[browsedGroup] : null; }
             set { browsedGroup = value != null ? value.IndexForPEGI : -1; }
         }
-
+        
         UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
 
         public int Count => triggers.GetAllObjsNoOrder().Count; 
@@ -65,6 +67,20 @@ namespace STD_Logic
             }
         }
 
+        int lastUsedTrigger = 0;
+
+        public Trigger LastUsedTrigger
+        {
+            get { return triggers.GetIfExists(lastUsedTrigger);  }
+            set { if (value != null) lastUsedTrigger = value.triggerIndex; }
+        }
+
+        public static Trigger TryGetLastUsedTrigger() {
+            if (Browsed != null)
+                return Browsed.LastUsedTrigger;
+            return null;
+        }
+
         public void Add(string name, ValueIndex arg = null)
         {
             int ind = triggers.AddNew();
@@ -82,6 +98,8 @@ namespace STD_Logic
 
                 arg.Trigger = t;
             }
+
+            lastUsedTrigger = ind;
 
             listDirty = true;
         }
@@ -161,7 +179,8 @@ namespace STD_Logic
             .Add("ind", index)
             .Add_IfNotDefault("t", triggers)
             .Add("br", browsedGroup)
-            .Add_IfTrue("show", showInInspectorBrowser);
+            .Add_IfTrue("show", showInInspectorBrowser)
+            .Add("last", lastUsedTrigger);
 
         public override bool Decode(string tag, string data) {
             switch (tag) {
@@ -176,6 +195,7 @@ namespace STD_Logic
                     break;
                 case "br": browsedGroup = data.ToInt(); break;
                 case "show": showInInspectorBrowser = data.ToBool(); break;
+                case "last": lastUsedTrigger = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -201,6 +221,12 @@ namespace STD_Logic
 
         public List<Trigger> GetFilteredList(ref int showMax, bool showBools = true, bool showInts = true)
         {
+            if (!showInInspectorBrowser)
+            {
+                filteredList.Clear();
+                return filteredList;
+            }
+
             if (!listDirty && lastFilteredString.SameAs(Trigger.searchField))
                 return filteredList;
             else  {
@@ -328,9 +354,8 @@ namespace STD_Logic
 
                 if (goodLength && icon.Replace.ClickUnfocus(
                     "Rename {0} if group {1} to {2}".F(selectedTrig.name, selectedTrig.Group.ToPEGIstring(), Trigger.searchField)
-                    ).changes(ref changed))  
-                    selectedTrig.name = Trigger.searchField;
-
+                    ).changes(ref changed)) selectedTrig.Using().name = Trigger.searchField;
+                
                 bool differentGroup = selectedTrig.Group != Browsed && Browsed != null;
 
                 if (goodLength && differentGroup)

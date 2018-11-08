@@ -150,8 +150,9 @@ namespace STD_Logic {
 
                  (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
               
-
-                changed |= "Conditions".edit_List(ref conds, ref browsedCondition);
+                var newC = "Conditions".edit_List(ref conds, ref browsedCondition, ref changed);
+                if (newC != null)
+                    newC.TriggerIndexes = TriggerGroup.TryGetLastUsedTrigger();
             }
 
             pegi.Line(Color.black);

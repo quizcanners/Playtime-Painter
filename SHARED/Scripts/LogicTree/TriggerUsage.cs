@@ -80,8 +80,7 @@ namespace STD_Logic
 
         public virtual bool HasMoreTriggerOptions => false;
         
-        
-        public virtual bool UsingBool => false;
+        public virtual bool IsBoolean => false;
 
         public abstract string NameForPEGIdisplay { get;  }
 
@@ -154,6 +153,8 @@ namespace STD_Logic
 #endif
         #endregion
 
+        public override bool IsBoolean => true;
+
         public Usage_Boolean(int index) : base(index) { }
     }
 
@@ -210,8 +211,7 @@ namespace STD_Logic
 
         public Usage_Number(int index) : base(index) { }
     }
-
-
+    
     public class Usage_StringEnum : TriggerUsage
     {
 
@@ -447,8 +447,10 @@ namespace STD_Logic
 
             return changed;
         }
-        #endif
+#endif
         #endregion
+        
+        public override bool IsBoolean => true;
 
         public Usage_BoolTag(int index) : base(index) { }
     }

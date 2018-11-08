@@ -42,6 +42,8 @@ namespace PlayerAndEditorGUI {
 
         public string NameForPEGI { get { return this[curlang]; } set { this[curlang] = value; } }
 
+        public override string ToString() => NameForPEGI;
+
         public string this[Languages lang] {
             get {
                 string text;
