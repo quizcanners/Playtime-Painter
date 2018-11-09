@@ -59,12 +59,11 @@ namespace STD_Logic
         public TriggerGroup Group => TriggerGroup.all[groupIndex];
         
         public abstract bool IsBoolean { get; }
+
+        public virtual bool SearchTriggerSameType => false;
         
         #region Inspector
         #if PEGI
-
-        public virtual bool SearchTriggerSameType => false;
-
 
         public static Trigger selectedTrig;
         public static ValueIndex selected;

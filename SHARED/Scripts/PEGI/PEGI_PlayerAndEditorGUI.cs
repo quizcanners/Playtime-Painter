@@ -1135,12 +1135,11 @@ namespace PlayerAndEditorGUI {
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-                return  width >0 ? 
+                return  width > 0 ? 
                     ef.select(ref no, from, width) : 
                     ef.select(ref no, from);
 #endif
 
-            
                 if ((from == null) || (from.Length == 0)) return false;
 
                 foldout(from.TryGet(no,"..."));
@@ -1800,7 +1799,7 @@ namespace PlayerAndEditorGUI {
             else
             {
                 bool changed = false;
-                if (obj && icon.Delete.ClickUnfocus().changes(ref changed))
+                if (obj != null && icon.Delete.ClickUnfocus().changes(ref changed))
                     obj = null;
                 
 
@@ -2356,17 +2355,15 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
 
-        public static bool enter(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false)
-        {
+        public static bool enter(this icon ico, string txt, ref bool state, bool showLabelIfTrue = false) {
 
-            if (state)
-            {
-                if (icon.Exit.ClickUnfocus())
+            if (state)  {
+                if (icon.Exit.ClickUnfocus("Exit {0}".F(txt)))
                     state = false;
             }
             else if (!state)
             {
-                if (ico.ClickUnfocus())
+                if (ico.ClickUnfocus("Enter {0}".F(txt)))
                     state = true;
             }
 
@@ -2384,7 +2381,7 @@ namespace PlayerAndEditorGUI {
 
             if (enteredOne == thisOne)
             {
-                if (icon.Exit.ClickUnfocus(txt))
+                if (icon.Exit.ClickUnfocus("Exit {0}".F(txt)))
                     enteredOne = -1;
 
             }
@@ -2458,23 +2455,19 @@ namespace PlayerAndEditorGUI {
 
             bool outside = enteredOne == -1;
 
-            if (var != null) {
+            if (!var.isNullOrDestroyed()) {
 
                 if (outside)
                     changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
                 else if (enteredOne == thisOne) {
-                    if (icon.Exit.ClickUnfocus())
+                    if (icon.Exit.ClickUnfocus("Exit {0}".F(var)))
                         enteredOne = -1;
                     changed |= var.Try_Nested_Inspect();
                 }
             }
-            else
-            {
-                if (enteredOne == thisOne)
+            else if (enteredOne == thisOne)
                     enteredOne = -1;
-                if (outside)
-                    "NULL".write();
-            }
+            
 
             isFoldedOut_or_Entered = enteredOne == thisOne;
 
@@ -2579,7 +2572,7 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
         
-        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : UnityEngine.Object
+        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -2589,7 +2582,7 @@ namespace PlayerAndEditorGUI {
 
             var lbl = "{0} [{1}]".F(label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
-                lbl.edit_List_Obj(ref list, ref inspectedElement, null).nl();
+                lbl.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
 
             return changed;
         }
@@ -2623,7 +2616,7 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
+        
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
         {
             bool changed = false;
@@ -4860,7 +4853,7 @@ namespace PlayerAndEditorGUI {
             if (hasName)
                 edit(ref addingNewNameHolder);
             else
-                (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring())).write();
+                (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
 
             if (!hasName || addingNewNameHolder.Length > 1) {
              
@@ -4927,7 +4920,7 @@ namespace PlayerAndEditorGUI {
             if (hasName)
                 edit(ref addingNewNameHolder);
             else
-                "Create new {0}".F(typeof(T).ToPEGIstring()).write();
+                "Create new {0}".F(typeof(T).ToPEGIstring_Type()).write();
 
             if (!hasName || addingNewNameHolder.Length > 1) {
 
@@ -5059,7 +5052,7 @@ namespace PlayerAndEditorGUI {
 
         static string currentListLabel = "";
         static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
-                    (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring()  : currentListLabel);
+                    (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring_Type()  : currentListLabel);
 
         static bool listLabel_Used(this bool val) {
             currentListLabel = "";
@@ -5233,7 +5226,7 @@ namespace PlayerAndEditorGUI {
                         if (el != null)
                             write(el.ToPEGIstring());
                         else
-                            "Empty {0}".F(typeof(T).ToPEGIstring()).write();
+                            "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
 
                         nl();
                     }
@@ -5327,7 +5320,7 @@ namespace PlayerAndEditorGUI {
                         if (el != null)
                             write(el.ToPEGIstring());
                         else
-                            "Empty {0}".F(typeof(T).ToPEGIstring()).write();
+                            "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
 
                         nl();
                     }
@@ -5371,7 +5364,7 @@ namespace PlayerAndEditorGUI {
                 {
                     for (int i = 0; i < list.Count; i++)
                     {
-                        if (list[i].isNullOrDestroyedUnityObject())
+                        if (list[i].isNullOrDestroyed())
                         {
                             list.RemoveAt(i);
                             i--;
@@ -5459,7 +5452,6 @@ namespace PlayerAndEditorGUI {
                     else
                         if (edit(ref n))
                         named.NameForPEGI = n;
-
                 }
                 else {
                     if (uo == null && pg == null && datas == null)
@@ -5833,13 +5825,13 @@ namespace PlayerAndEditorGUI {
             return edit_or_select_List_Obj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_Obj<T>(this string label, ref List<T> list, List<T> from, ref int inspected) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
             label.write_ListLabel(list, inspected);
-            return edit_or_select_List_Obj(ref list, from, ref inspected, null).listLabel_Used();
+            return edit_or_select_List_Obj(ref list, from, ref inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_Obj<T>(ref List<T> list, List<T> from, ref int inspected, List_Data datas = null) where T : UnityEngine.Object
+        public static bool edit_or_select_List_Obj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
             if (listIsNull(ref list))
                 return false;
@@ -5866,7 +5858,7 @@ namespace PlayerAndEditorGUI {
                         if (el == null)
                         {
 
-                            if (from != null && from.Count > 0 && select(ref el, from))
+                            if (from != null && from.Count > 0 && select_SameClass(ref el, from))
                                 list[i] = el;
 
                             if (datas.TryInspect(ref el, i))
@@ -6721,51 +6713,97 @@ namespace PlayerAndEditorGUI {
     public static class PEGI_Extensions
     {
 
-        public static bool isNullOrDestroyedUnityObject(this object obj)
+        static bool ToPEGIstringInterfacePart(this object obj, out string name)
         {
-
-            if (obj == null) return true;
-
-            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) && ((obj as UnityEngine.Object) == null))
-                return true;
-
-            return false;
-
-        }
-
-        public static string ToPEGIstring(this object obj) {
-
-            if (obj == null) return "NULL";
-
-            var uobj = obj as UnityEngine.Object;
-
-            if ((!uobj) && typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()))
-                return "NULL Object";
-            
-#if PEGI
+            name = null;
+            #if PEGI
             var dn = obj as IGotDisplayName;
-            if (dn != null)
-                return dn.NameForPEGIdisplay;
+            if (dn != null) {
+                name = dn.NameForPEGIdisplay;
+                if (!name.IsNullOrEmpty())
+                    return true;
+            }
+
 
             var sn = obj as IGotName;
-            if (sn != null)
-                return sn.NameForPEGI;
-#endif
-
-            if (uobj)
-                return uobj.name;
-
-            return obj.ToString();
+            if (sn != null) {
+                name = sn.NameForPEGI;
+                if (!name.IsNullOrEmpty())
+                return true;
+            }
+            #endif
+            return false;
         }
-
-        public static string ToPEGIstring(this Type type)
+        
+        public static string ToPEGIstring_Type(this Type type)
         {
             var name = type.ToString();
             int ind = name.LastIndexOf(".");
             return ind == -1 ? name : name.Substring(ind + 1);
 
         }
+        
+        public static string ToPEGIstring_UObj<T>(this T obj) where T: UnityEngine.Object {
+            if (obj == null)
+                return "NULL UObj {0}".F(typeof(T).ToPEGIstring_Type());
 
+            if (!obj)
+                return "Destroyed UObj {0}".F(typeof(T).ToPEGIstring_Type());
+
+            string tmp;
+            if (obj.ToPEGIstringInterfacePart(out tmp))
+                return tmp;
+            
+            return obj.name;
+        }
+
+        public static string ToPEGIstring<T>(this T obj) {
+
+            if (obj == null)
+                return "NULL {0}".F(typeof(T).ToPEGIstring_Type());
+
+            if (obj.GetType().IsAssignableFrom(typeof(UnityEngine.Object)))
+                return (obj as UnityEngine.Object).ToPEGIstring_UObj();
+
+            string tmp;
+            if (obj.ToPEGIstringInterfacePart(out tmp))
+                return tmp;
+
+            return obj.ToString();
+        }
+
+        public static string ToPEGIstring(this object obj) {
+
+            if (obj is string)
+                return (string)obj;
+
+            if (obj == null) return "NULL";
+
+            if (obj.GetType().IsAssignableFrom(typeof(UnityEngine.Object)))
+                return (obj as UnityEngine.Object).ToPEGIstring_UObj();
+
+            string tmp;
+            if (obj.ToPEGIstringInterfacePart(out tmp))
+                return tmp;
+
+            return obj.ToString();
+        }
+
+        public static bool isNullOrDestroyedUnityObject(this UnityEngine.Object obj) {
+            if (obj == null || !obj) return true;
+            return false;
+        }
+
+        public static bool isNullOrDestroyed(this object obj) {
+            if (obj == null) return true;
+
+            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) && ((obj as UnityEngine.Object).isNullOrDestroyedUnityObject()))
+                return true;
+
+            return false;
+
+        }
+        
         static void cantInspect()
         {
 
@@ -7026,8 +7064,6 @@ namespace PlayerAndEditorGUI {
            // }
 #endif
         }
-
-
     }
     #endregion
 

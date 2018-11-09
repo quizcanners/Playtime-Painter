@@ -1249,7 +1249,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
                 List<int> indxs;
                 var allElements = GetAllObjs(out indxs);
 
-                if (allowAdd && icon.Add.Click("Add "+typeof(T).ToPEGIstring())) {
+                if (allowAdd && icon.Add.Click("Add "+typeof(T).ToPEGIstring_Type())) {
                     while (!this.GetIfExists(lastFreeIndex).IsDefaultOrNull())
                         lastFreeIndex++;
 

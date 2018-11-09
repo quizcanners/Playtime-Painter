@@ -406,7 +406,7 @@ namespace PlayerAndEditorGUI {
             for (int i = 0; i < others.Count; i++)
             {
                 var el = others[i];
-                names[i] = el.ToPEGIstring();
+                names[i] = el.ToPEGIstring_Type();
                 if (el != null && el.Equals(current))
                     ind = i;
             }
@@ -1180,7 +1180,7 @@ namespace PlayerAndEditorGUI {
             return EditorGUI.EndChangeCheck();
         }
         
-        static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(current_Reordered_List.Count.ToString(), current_Reordered_Type.ToPEGIstring()));
+        static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(current_Reordered_List.Count.ToString(), current_Reordered_Type.ToPEGIstring_Type()));
 
         static void DrawElement(Rect rect, int index, bool active, bool focused)
         {
@@ -1274,7 +1274,7 @@ namespace PlayerAndEditorGUI {
                         }
                     }
                 } else 
-                EditorGUI.LabelField(rect, "Empty {0}".F(current_Reordered_Type.ToPEGIstring()));
+                EditorGUI.LabelField(rect, "Empty {0}".F(current_Reordered_Type.ToPEGIstring_Type()));
             }
         }
 

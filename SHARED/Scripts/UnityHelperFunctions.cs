@@ -1908,7 +1908,7 @@ namespace SharedTools_Stuff
             targetValue = dvalue;
 
             if (!defaultSet || dvalue != value) {
-                value = MyMath.Lerp(value, dvalue, speed);
+                value = MyMath.Lerp_bySpeed(value, dvalue, speed);
                 if (mat)
                     Set(mat);
                 else

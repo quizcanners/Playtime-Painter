@@ -232,7 +232,7 @@ namespace SharedTools_Stuff
 
             var cmp = el as Component;
             if (cmp != null)
-                componentType = cmp.GetType().ToPEGIstring();
+                componentType = cmp.GetType().ToPEGIstring_Type();
 
             var std = el as ISTD;
             if (std != null)

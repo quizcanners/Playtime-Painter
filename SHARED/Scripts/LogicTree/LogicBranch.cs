@@ -54,7 +54,7 @@ namespace STD_Logic
 
         #region Inspector
 
-        public virtual string NameForElements => typeof(T).ToPEGIstring();
+        public virtual string NameForElements => typeof(T).ToPEGIstring_Type();
 
         public string NameForPEGI
         {
@@ -74,6 +74,8 @@ namespace STD_Logic
         #if PEGI
         public override bool Inspect() {
             bool changed = false;
+
+            pegi.nl();
 
             changed |= NameForElements.enter_List(ref elements, ref inspectedElement, ref inspectedStuff, 1).nl();
 

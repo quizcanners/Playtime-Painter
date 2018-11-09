@@ -26,10 +26,10 @@ namespace STD_Logic
         
         public override bool IsBoolean => false;
 
+        public override bool SearchTriggerSameType => false;
+        
         #region Inspector
         #if PEGI
-
-        public override bool SearchTriggerSameType => false;
 
         public static Values inspectedTarget = null;
 

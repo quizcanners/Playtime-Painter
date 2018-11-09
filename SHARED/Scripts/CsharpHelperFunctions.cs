@@ -25,6 +25,8 @@ namespace SharedTools_Stuff
     public class LoopLock
     {
         volatile bool llock;
+        
+        bool loopErrorLogged = false;
 
         public SkipLock Lock()
         {
@@ -51,10 +53,16 @@ namespace SharedTools_Stuff
             }
         }
 
+        public void LogErrorOnce(string msg = "Infinite Loop Detected") {
+            if (!loopErrorLogged) {
+                UnityEngine.Debug.LogError(msg);
+                loopErrorLogged = true;
+            }
+        }
+
     }
 
-    public static class CsharpFuncs
-    {
+    public static class CsharpFuncs {
 
         #region Timer
         static Stopwatch stopWatch = new Stopwatch();
@@ -132,10 +140,16 @@ namespace SharedTools_Stuff
         #endregion
 
         #region TextOperations
+        public static string F(this string format, string obj1) => string.Format(format, obj1);
+        
         public static string F(this string format, object obj1) => string.Format(format, obj1.ToPEGIstring());
+
+        public static string F(this string format, string obj1, string obj2) => string.Format(format, obj1, obj2);
         
         public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
 
+        public static string F(this string format, string obj1, string obj2, string obj3) => string.Format(format, obj1, obj2, obj3);
+        
         public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
 
         public static string F(this string format, params object[] objs) => string.Format(format, objs);
@@ -381,7 +395,7 @@ namespace SharedTools_Stuff
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new() => list.AddWithUniqueNameAndIndex("New "
 #if PEGI
-            + typeof(T).ToPEGIstring()
+            + typeof(T).ToPEGIstring_Type()
 #endif
             );
         
