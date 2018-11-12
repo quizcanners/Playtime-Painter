@@ -50,6 +50,7 @@ namespace STD_Logic {
 
         #endregion
 
+        #region Get/Set
         public bool GetTagBool(ValueIndex ind) => boolTags.Get(ind);
 
         public int GetTagEnum(ValueIndex ind) => enumTags.Get(ind);
@@ -96,7 +97,8 @@ namespace STD_Logic {
             else if (value != 0)
                 s.taggedInts[tagIndex][value].Add(this);
         }
-        
+        #endregion
+
         public void RemoveAllTags() {
             List<int> groupInds;
             List<CountlessBool> lsts = boolTags.GetAllObjs(out groupInds);
@@ -128,14 +130,14 @@ namespace STD_Logic {
             foreach (var bGr in bools) {
                 var group = TriggerGroup.all[bools.currentEnumerationIndex];
                 foreach (var b in bGr)
-                    group[b].Inspect_AsInList();
+                    group[b].Inspect_AsInList().nl(ref changed);
                 
             }
 
             foreach (var iGr in ints) {
                 var group = TriggerGroup.all[ints.currentEnumerationIndex];
                 foreach (var i in iGr) 
-                   group[iGr.currentEnumerationIndex].Inspect_AsInList();
+                   group[iGr.currentEnumerationIndex].Inspect_AsInList().nl(ref changed);
                 
             }
 

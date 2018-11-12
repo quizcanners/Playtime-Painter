@@ -45,6 +45,7 @@ namespace SharedTools_Stuff
         public bool _keepTypeData;
         public bool allowDelete;
         public bool allowReorder;
+        public bool allowCreate;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
         public ElementData this[int i] {
@@ -145,10 +146,13 @@ namespace SharedTools_Stuff
         public List_Data() {
             allowDelete = true;
             allowReorder = true;
+            allowCreate = true;
+            _keepTypeData = false;
         }
         
-        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false)
+        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true)
         {
+            allowCreate = allowCreating;
             allowDelete = allowDeleting;
             allowReorder = allowReordering;
             label = nameMe;

@@ -1,9 +1,7 @@
 ﻿
-
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -13,15 +11,84 @@ using System.Text;
 using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace SharedTools_Stuff
-{
+namespace SharedTools_Stuff {
+
+
+    public class ChillLogger {
+        bool logged = false;
+        float lastLogged = 0;
+        int calls;
+        string message = "error";
+
+        public ChillLogger(string msg) {
+            message = msg;
+        }
+
+        public ChillLogger() {
+
+        }
+
+        public void Log_Now(string msg, bool asError, UnityEngine.Object obj = null) {
+
+            if (msg == null)
+                msg = message;
+
+            if (calls > 0)
+                msg += "[+ {0} calls]".F(calls);
+
+            if (lastLogged > 0)
+                msg += "[ after {0} seconds]".F(Time.time - lastLogged);
+            else
+                msg += "[at {0}]".F(Time.time);
+
+            if (asError)
+                Debug.LogError(msg, obj);
+            else
+                Debug.Log(msg, obj);
+
+            lastLogged = Time.time;
+            calls = 0;
+            logged = true;
+        }
+
+        public void Log_Once(string msg = null, bool asError = true, UnityEngine.Object obj = null)
+        {
+
+            if (!logged)
+                Log_Now(msg, asError, obj);
+            else
+                calls++;
+        }
+
+        public void Log_Interval(float seconds, string msg = null, bool asError = true, UnityEngine.Object obj = null)
+        {
+
+            if (!logged || (Time.time - lastLogged > seconds))
+                Log_Now(msg, asError, obj);
+            else
+                calls++;
+        }
+
+        public void Log_Every(int callCount, string msg = null, bool asError = true, UnityEngine.Object obj = null)
+        {
+
+            if (!logged || (calls > callCount))
+                Log_Now(msg, asError, obj);
+            else
+                calls++;
+        }
+
+    }
+
 
     public static class UnityHelperFunctions {
 
+    
         #region Timing
 
 

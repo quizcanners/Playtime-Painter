@@ -471,6 +471,27 @@ namespace PlayerAndEditorGUI {
             return value;
         }
 
+        public static bool nl_ifFolded(this bool value, ref bool changes) 
+        {
+            nl_ifFolded();
+            changes |= value;
+            return value;
+        }
+
+        public static bool nl_ifFoldedOut(this bool value, ref bool changes)
+        {
+            nl_ifFoldedOut();
+            changes |= value;
+            return value;
+        }
+
+        public static bool nl_ifEntered(this bool value, ref bool changes)
+        {
+            nl_ifEntered();
+            changes |= value;
+            return value;
+        }
+
         static bool nl_ifTrue(this bool value)
         {
             if (value)
@@ -492,8 +513,6 @@ namespace PlayerAndEditorGUI {
             newLine();
             return value;
         }
-
-   
 
         public static bool nl(this bool value, ref bool changed)
         {
@@ -2598,6 +2617,21 @@ namespace PlayerAndEditorGUI {
             var lbl = "{0} [{1}]".F(datas.label, list.Count);
             if (lbl.enter(ref enteredOne, thisOne))
                 datas.edit_List_Obj(ref list, selectFrom);
+
+            return changed;
+        }
+
+        public static bool enter_List<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne) where T : new()
+        {
+
+            bool changed = false;
+
+            if (listIsNull(ref list))
+                return false;
+
+            var lbl = "{0} [{1}]".F(datas.label, list.Count);
+            if (lbl.enter(ref enteredOne, thisOne))
+                datas.edit_List(ref list);
 
             return changed;
         }
@@ -4768,8 +4802,11 @@ namespace PlayerAndEditorGUI {
 
         static IList addingNewOptionsInspected = null;
         static string addingNewNameHolder = "New Name";
-        static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added) where T : ScriptableObject
+        static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, List_Data ld) where T : ScriptableObject
         {
+            if (ld != null && !ld.allowCreate)
+                return false;
+
             if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
@@ -4834,8 +4871,11 @@ namespace PlayerAndEditorGUI {
 
         }
         
-        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added) where T : new()
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, List_Data ld) where T : new()
         {
+            if (ld != null && !ld.allowCreate)
+                return false;
+
             if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
@@ -4908,8 +4948,11 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types) 
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types, List_Data ld) 
         {
+            if (ld != null && !ld.allowCreate)
+                return false;
+
             if (editing_List_Order != null && editing_List_Order == lst)
                 return false;
 
@@ -5543,8 +5586,11 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddClick<T>(this List<T> list, ref T added) where T : new()
+        static bool ListAddClick<T>(this List<T> list, ref T added, List_Data ld = null) where T : new()
         {
+
+            if (ld != null && !ld.allowCreate)
+                return false;
 
             if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
@@ -5564,8 +5610,11 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddClick<T>(this List<T> list)
+        static bool ListAddClick<T>(this List<T> list, List_Data ld = null)
         {
+
+            if (ld != null && !ld.allowCreate)
+                return false;
 
             if (!typeof(T).IsUnityObject() && typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null)
                 return false;
@@ -5611,7 +5660,7 @@ namespace PlayerAndEditorGUI {
 
             if (inspected == -1)
             {
-                changed |= list.ListAddClick<T>();
+                changed |= list.ListAddClick(datas);
 
                 if (datas != null && icon.Save.ClickUnfocus())
                     datas.SaveElementDataFrom(list);
@@ -5728,7 +5777,7 @@ namespace PlayerAndEditorGUI {
 
                 changed |= list.edit_List_Order_Obj(datas);
 
-                changed |= list.ListAddClick<T>();
+                changed |= list.ListAddClick(datas);
 
                 if (datas != null && icon.Save.ClickUnfocus())
                     datas.SaveElementDataFrom(list);
@@ -5784,7 +5833,7 @@ namespace PlayerAndEditorGUI {
                     }
 
                     if (typeof(T).TryGetDerrivedClasses() != null)
-                        changed |= list.PEGI_InstantiateOptions_SO(ref added);
+                        changed |= list.PEGI_InstantiateOptions_SO(ref added, datas);
 
                     nl();
 
@@ -5851,7 +5900,7 @@ namespace PlayerAndEditorGUI {
 
                 if (list != editing_List_Order)
                 {
-                    changed |= list.ListAddClick<T>();
+                    changed |= list.ListAddClick(datas);
 
                     foreach (var i in list.InspectionIndexes())     {
                         var el = list[i];
@@ -5949,8 +5998,8 @@ namespace PlayerAndEditorGUI {
                 changed |= list.edit_List_Order(datas);
 
                 if (list != editing_List_Order) {
-
-                    changed |= list.ListAddClick(ref added);
+                    
+                        list.ListAddClick(ref added, datas).changes(ref changed);
 
                     foreach (var i in list.InspectionIndexes())   {
 
@@ -5970,7 +6019,7 @@ namespace PlayerAndEditorGUI {
                         newLine();
                     }
 
-                    changed |= list.PEGI_InstantiateOptions(ref added);
+                    changed |= list.PEGI_InstantiateOptions(ref added, datas);
 
                     nl();
                 }
@@ -6033,7 +6082,7 @@ namespace PlayerAndEditorGUI {
                         newLine();
                     }
 
-                    changed |= list.PEGI_InstantiateOptions(ref added, types);
+                    changed |= list.PEGI_InstantiateOptions(ref added, types, datas);
 
                     nl();
                 }

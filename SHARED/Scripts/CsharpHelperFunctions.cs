@@ -22,6 +22,106 @@ using UnityEditor;
 namespace SharedTools_Stuff
 {
 
+
+    public class CallsTracker : IPEGI {
+
+#if PEGI
+
+        List<Step> steps = new List<Step>();
+        Step previous = null;
+
+        #region Inspector
+
+        static CallsTracker inspected; 
+        int inspectedStep = -1;
+        public bool Inspect() {
+            var changed = false;
+
+            if (icon.Delete.Click("Delete All", ref changed))
+                steps.Clear();
+
+            inspected = this;
+            "Steps".write_List(steps, ref inspectedStep);
+
+            return changed;
+        }
+     
+        #endregion
+
+        class Step : IPEGI_ListInspect {
+            public string tag;
+            public int count = 0;
+            public List<int> followedBy = new List<int>();
+
+            public int FollowedBy
+            {
+                get  {
+                    if (followedBy.Count > 0)
+                        return followedBy[0];
+                    else
+                        return -1;
+                }
+                set {
+                    followedBy.SetFirst(value);
+                }
+            }
+
+            public Step(string tagg) {
+                tag = tagg;
+            }
+
+            public void Track() {
+                count++;
+            }
+
+            public bool PEGI_inList(IList list, int ind, ref int edited) {
+                "{0}: [{1}] => {2}".F(tag, count, 
+                     (followedBy.Count>0) ?
+                    CallsTracker.inspected.steps[followedBy[0]].tag + (followedBy.Count>1 ? followedBy.Count.ToString() : "") : "").write();
+
+                if (icon.Refresh.Click())
+                    count = 0;
+
+                return false;
+            }
+        }
+#endif
+
+
+        public void Track(string tag) {
+#if PEGI
+
+            Step exp = null;
+
+            if (previous != null) {
+                for (int i =0; i< previous.followedBy.Count; i++){
+                    var e = previous.followedBy[i];
+                    var tmp = steps.TryGet(e);
+                    if (exp != null && exp.tag.SameAs(tag)) {
+                        exp = tmp;
+                        previous.FollowedBy = i;
+                        break;
+                    }
+                }
+            }
+
+            if (exp == null) {
+                if (previous != null)
+                    previous.FollowedBy = steps.Count;
+
+                exp = new Step(tag);
+                steps.Add(exp);
+            }  
+              
+            exp.Track();
+
+            previous = exp;
+            #endif
+        }
+
+
+    }
+
     public class LoopLock
     {
         volatile bool llock;
@@ -414,11 +514,24 @@ namespace SharedTools_Stuff
             return e;
         }
         
-        public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
-        {
-            T item = list[oldIndex];
-            list.RemoveAt(oldIndex);
-            list.Insert(newIndex, item);
+        public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
+            if (oldIndex != newIndex) {
+                T item = list[oldIndex];
+                list.RemoveAt(oldIndex);
+                list.Insert(newIndex, item);
+            }
+        }
+
+        public static void SetFirst<T>(this List<T> list, T value) {
+            for (int i = 0; i < list.Count; i++) 
+                if (list[i].Equals(value)) {
+                    list.Move(i, 0);
+                    return;
+                }
+
+            if (list.Count > 0)
+                list.Insert(0, value);
+            else list.Add(value);
         }
 
         public static List<T> RemoveLast<T>(this List<T> list, int count)

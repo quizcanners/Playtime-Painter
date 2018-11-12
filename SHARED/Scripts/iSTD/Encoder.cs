@@ -521,7 +521,6 @@ namespace SharedTools_Stuff
                         var v = val[i];
                         cody.Add_Abstract(v, ld, i);
                 }
-
             }
 
             Add(tag, cody);
