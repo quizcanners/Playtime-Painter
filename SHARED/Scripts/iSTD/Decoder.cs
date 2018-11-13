@@ -397,6 +397,8 @@ namespace SharedTools_Stuff
                 var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
                 if (type != null)
                     ret = data.DecodeInto_Type<T>(type);
+                else if (tag == StdDecoder.ListElementTag)
+                    ret = data.DecodeInto_Type<T>(tps[0]);
             }
 
             return ret;
@@ -737,6 +739,7 @@ namespace SharedTools_Stuff
         public static char Splitter => StdEncoder.splitter;
         public static string NullTag => StdEncoder.nullTag;
         public static string UnrecognizedTag => StdEncoder.unrecognizedTag;
+        public static string ListElementTag => StdEncoder.listElementTag;
 
         public delegate bool DecodeDelegate(string tag, string data);
 

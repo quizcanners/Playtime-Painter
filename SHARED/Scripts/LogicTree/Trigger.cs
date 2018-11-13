@@ -131,7 +131,7 @@ namespace STD_Logic
             }
             else
             {
-                this.inspect_Name("g:{0}t:{1}".F(groupIndex,triggerIndex));
+                this.inspect_Name(Group.ToPEGIstring(), "g:{0}t:{1}".F(groupIndex,triggerIndex));
 
                 if (icon.Edit.ClickUnfocus())
                     inspected = this;

@@ -80,7 +80,7 @@ namespace SharedTools_Stuff
                 else
                     foreach (var v in val) {
                     if (v != null)
-                        cody.Add("e", v.Encode());
+                        cody.Add(StdDecoder.ListElementTag, v.Encode());
                     else
                         cody.Add_String(StdEncoder.nullTag, "");
                 }
@@ -192,6 +192,7 @@ namespace SharedTools_Stuff
     {
         public const char splitter = '|';
         public const string nullTag = "null";
+        public const string listElementTag = "e";
         public const string unrecognizedTag = "_urec";
 
         StringBuilder builder = new StringBuilder();
@@ -431,7 +432,7 @@ namespace SharedTools_Stuff
 
             StdEncoder cody = new StdEncoder();
             foreach (int i in val)
-                cody.Add("e", i);
+                cody.Add(StdDecoder.ListElementTag, i);
 
             Add(tag, cody);
 
@@ -443,7 +444,7 @@ namespace SharedTools_Stuff
             if (lst != null) {
                 StdEncoder cody = new StdEncoder();
                 foreach (var s in lst)
-                    cody.Add_String("e", s);
+                    cody.Add_String(StdDecoder.ListElementTag, s);
 
                 Add(tag, cody);
             }
@@ -456,7 +457,7 @@ namespace SharedTools_Stuff
 
             StdEncoder cody = new StdEncoder();
             foreach (uint i in val)
-                cody.Add("e", i);
+                cody.Add(StdDecoder.ListElementTag, i);
             Add(tag, cody);
 
             return this;
@@ -466,7 +467,7 @@ namespace SharedTools_Stuff
 
             StdEncoder cody = new StdEncoder();
             foreach (Color i in val)
-                cody.Add("e", i);
+                cody.Add(StdDecoder.ListElementTag, i);
             Add(tag, cody);
 
             return this;
@@ -495,7 +496,7 @@ namespace SharedTools_Stuff
                 {
                     foreach (var v in val)
                         if (v != null)
-                            cody.Add("e", v.Encode());
+                            cody.Add(StdDecoder.ListElementTag, v.Encode());
                         else
                             cody.Add_String(nullTag, "");
                 }
@@ -635,7 +636,7 @@ namespace SharedTools_Stuff
                 StdEncoder sub = new StdEncoder();
 
                 foreach (var l in val)
-                    sub.Add_IfNotEmpty("e",l);
+                    sub.Add_IfNotEmpty(StdDecoder.ListElementTag, l);
 
                 Add_String(tag, sub.ToString());
             }

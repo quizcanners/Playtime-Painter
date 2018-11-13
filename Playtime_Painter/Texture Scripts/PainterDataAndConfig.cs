@@ -526,7 +526,7 @@ namespace Playtime_Painter
             StdEncoder cody = new StdEncoder();
             if (!PainterStuff.applicationIsQuitting)
             {
-                cody.Add("e", MeshToolBase.AllTools);
+                cody.Add(StdDecoder.ListElementTag, MeshToolBase.AllTools);
                 meshToolsSTD = cody.ToString();
             }
 

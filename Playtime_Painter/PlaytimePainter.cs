@@ -17,14 +17,14 @@ namespace Playtime_Painter
     [HelpURL(WWW_Manual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : PlaytimeToolComponent, ISTD, IPEGI
-    {
+    public class PlaytimePainter : PlaytimeToolComponent, ISTD, IPEGI {
 
         #region StaticGetters
 
-#if PEGI
+        #if PEGI
         public static pegi.CallDelegate plugins_ComponentPEGI;
-#endif
+        #endif
+
         public static PainterBoolPlugin plugins_GizmoDraw;
 
         public static bool IsCurrent_Tool() => enabledTool == typeof(PlaytimePainter);

@@ -15,36 +15,36 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public class TriggerGroup : AbstractKeepUnrecognized_STD, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect
-    {
+    public class TriggerGroup : AbstractKeepUnrecognized_STD, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
 
         public static UnnullableSTD<TriggerGroup> all = new UnnullableSTD<TriggerGroup>();
-
+        
         public static void FindAllTriggerGroups()
         {
             all = new UnnullableSTD<TriggerGroup>();
 
             List<Type> triggerGroups = CsharpFuncs.GetAllChildTypesOf<TriggerGroup>();
 
-            foreach (Type group in triggerGroups)  {
+            foreach (Type group in triggerGroups)
+            {
                 TriggerGroup s = (TriggerGroup)Activator.CreateInstance(group);
                 Browsed = s;
             }
         }
-
-
-
-        static int browsedGroup = -1;
-        public static TriggerGroup Browsed
-        {
-            get { return browsedGroup >= 0 ? all[browsedGroup] : null; }
-            set { browsedGroup = value != null ? value.IndexForPEGI : -1; }
-        }
         
         UnnullableSTD<Trigger> triggers = new UnnullableSTD<Trigger>();
 
-        public int Count => triggers.GetAllObjsNoOrder().Count; 
+        public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
+
+        public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
         
+        string name = "Unnamed_Triggers";
+        int index;
+
+        #region Getters & Setters 
+
+        public int Count => triggers.GetAllObjsNoOrder().Count;
+
         public Trigger this[int index]
         {
             get
@@ -67,20 +67,14 @@ namespace STD_Logic
             }
         }
 
-        int lastUsedTrigger = 0;
+        public virtual Type GetIntegerEnums() => null;
 
-        public Trigger LastUsedTrigger
-        {
-            get { return triggers.GetIfExists(lastUsedTrigger);  }
-            set { if (value != null) lastUsedTrigger = value.triggerIndex; }
-        }
+        public virtual Type GetBooleanEnums() => null;
 
-        public static Trigger TryGetLastUsedTrigger() {
-            if (Browsed != null)
-                return Browsed.LastUsedTrigger;
-            return null;
-        }
+        public int IndexForPEGI { get { return index; } set { index = value; } }
 
+        public string NameForPEGI { get { return name; } set { name = value; } }
+        
         public void Add(string name, ValueIndex arg = null)
         {
             int ind = triggers.AddNew();
@@ -104,73 +98,7 @@ namespace STD_Logic
             listDirty = true;
         }
         
-        public bool showInInspectorBrowser = true;
-
-        string name = "Unnamed_Triggers";
-        int index;
-
-        public int IndexForPEGI { get { return index; } set { index = value; } }
-
-        public string NameForPEGI { get { return name; } set { name = value; } }
-
-        [NonSerialized]
-        public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
-
-        public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
-
-        public TriggerGroup() {
-
-            index = UnnullableSTD<TriggerGroup>.IndexOfCurrentlyCreatedUnnulable;
-
-#if UNITY_EDITOR
-
-            Type type = GetIntegerEnums();
-
-            if (type != null)
-            {
-
-                string[] nms = Enum.GetNames(type);
-
-                int[] indexes = (int[])Enum.GetValues(type);
-
-                for (int i = 0; i < nms.Length; i++)
-                {
-
-                    Trigger tr = triggers[indexes[i]];
-
-                    if (tr.name != nms[i])
-                    {
-                        tr._usage = TriggerUsage.number;
-                        tr.name = nms[i];
-                    }
-                }
-            }
-
-            //Boolean enums
-            type = GetBooleanEnums();
-
-            if (type != null)
-            {
-
-                string[] nms = Enum.GetNames(type);
-
-                int[] indexes = (int[])Enum.GetValues(type);
-
-                for (int i = 0; i < nms.Length; i++)
-                {
-
-                    Trigger tr = triggers[indexes[i]];
-
-                    if (tr.name != nms[i])
-                    {
-                        tr._usage = TriggerUsage.boolean;
-                        tr.name = nms[i];
-                    }
-                }
-            }
-
-#endif
-        }
+        #endregion
 
         #region Encode_Decode
 
@@ -213,6 +141,28 @@ namespace STD_Logic
 
         #region Inspector
         bool listDirty;
+        static int browsedGroup = -1;
+        public bool showInInspectorBrowser = true;
+        int lastUsedTrigger = 0;
+
+        public Trigger LastUsedTrigger
+        {
+            get { return triggers.GetIfExists(lastUsedTrigger); }
+            set { if (value != null) lastUsedTrigger = value.triggerIndex; }
+        }
+
+        public static Trigger TryGetLastUsedTrigger()
+        {
+            if (Browsed != null)
+                return Browsed.LastUsedTrigger;
+            return null;
+        }
+
+        public static TriggerGroup Browsed
+        {
+            get { return browsedGroup >= 0 ? all[browsedGroup] : null; }
+            set { browsedGroup = value != null ? value.IndexForPEGI : -1; }
+        }
 
         #if PEGI
         string lastFilteredString = "";
@@ -379,21 +329,56 @@ namespace STD_Logic
 
             return changed;
         }
-        #endif
+#endif
 
         #endregion
+        
+        public TriggerGroup() {
 
-        public virtual Type GetIntegerEnums()
-        {
-            return null;
+            index = UnnullableSTD<TriggerGroup>.IndexOfCurrentlyCreatedUnnulable;
+            
+            #if UNITY_EDITOR
+            // Will use provided enums to create hardcoded trigger list.
+            Type type = GetIntegerEnums();
+
+            if (type != null)  {
+
+                string[] nms = Enum.GetNames(type);
+
+                int[] indexes = (int[])Enum.GetValues(type);
+
+                for (int i = 0; i < nms.Length; i++) {
+
+                    Trigger tr = triggers[indexes[i]];
+
+                    if (tr.name != nms[i])  {
+                        tr._usage = TriggerUsage.number;
+                        tr.name = nms[i];
+                    }
+                }
+            }
+
+            //Boolean enums
+            type = GetBooleanEnums();
+
+            if (type != null)   {
+                string[] nms = Enum.GetNames(type);
+
+                int[] indexes = (int[])Enum.GetValues(type);
+
+                for (int i = 0; i < nms.Length; i++) {
+                    Trigger tr = triggers[indexes[i]];
+                    if (tr.name != nms[i])
+                    {
+                        tr._usage = TriggerUsage.boolean;
+                        tr.name = nms[i];
+                    }
+                }
+            }
+
+#endif
         }
 
-        public virtual Type GetBooleanEnums()
-        {
-            return null;
-        }
-
-    
     }
 }
 

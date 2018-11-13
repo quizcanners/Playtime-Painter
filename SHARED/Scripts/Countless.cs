@@ -12,8 +12,7 @@ namespace SharedTools_Stuff {
         int CountlessIndex { get; set; }
     }
     
-    public abstract class CountlessBase : IPEGI
-    {
+    public abstract class CountlessBase : IPEGI, IGotCount {
 
         protected static VariableBranch[] branchPool = new VariableBranch[32];
         protected static VariableBranch[] fruitPool = new VariableBranch[32];
@@ -21,7 +20,7 @@ namespace SharedTools_Stuff {
         protected static int frPoolMax = 0;
        // protected static ArrayManager<VariableBranch> array = new ArrayManager<VariableBranch>();
         protected static int branchSize = 8;
-        protected static void DiscardFruit(VariableBranch b, int no)
+        protected void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
                 Array_Extensions.Expand(ref fruitPool, 32);
@@ -32,6 +31,7 @@ namespace SharedTools_Stuff {
             b.br[no] = null;
             b.value--;
             frPoolMax++;
+            count--;
         }
         protected static void DiscardBranch(VariableBranch b, int no)
         {
@@ -66,7 +66,7 @@ namespace SharedTools_Stuff {
                 // Debug.Log("Reducing depth to " + depth + " new Range: " + Max);
             }
         }
-        protected static void DiscardCascade(VariableBranch b, int depth)
+        protected void DiscardCascade(VariableBranch b, int depth)
         {
             if ((brPoolMax + 1) >= branchPool.Length)
                 Array_Extensions.Expand(ref branchPool, 32);
@@ -103,7 +103,9 @@ namespace SharedTools_Stuff {
             //Debug.Log("Returning existing branch");
             return branchPool[brPoolMax];
         }
-        protected static VariableBranch GetNewFruit()
+     
+
+        protected VariableBranch GetNewFruit()
         {
 
             if (frPoolMax == 0)
@@ -113,6 +115,7 @@ namespace SharedTools_Stuff {
                 return vb;
             }
             frPoolMax--;
+            count++;
             // Debug.Log("Returning existing fruit");
             return fruitPool[frPoolMax];
         }
@@ -125,12 +128,18 @@ namespace SharedTools_Stuff {
         protected int firstFree;
         protected int depth;
         protected int Max;
+        protected int count;
         protected VariableBranch[] path;
         protected int[] pathInd;
         protected VariableBranch br;
         protected int lastFreeIndex;
 
+
         #region Inspector
+
+        public int CountForInspector => count;
+
+
 #if PEGI
         public virtual bool Inspect()
         {
@@ -146,6 +155,7 @@ namespace SharedTools_Stuff {
         {
             Max = branchSize;
             depth = 0;
+            count = 0;
             br = GetNewBranch();
         }
 
@@ -189,6 +199,7 @@ namespace SharedTools_Stuff {
                     for (int i = 0; i < vals.Count; i++)
                         Set(inds[i], vals[i]);
                     inds = null;
+                    count = vals.Count;
                     break;
                 case "last": lastFreeIndex = data.ToInt(); break;
                 default: return false;
@@ -434,7 +445,7 @@ namespace SharedTools_Stuff {
                     List<int> inds; data.Decode_List(out inds);
                     foreach (int i in inds)
                         Set(i, true);
-
+                    count = inds.Count;
                     inds = null;
                     break;
                 case "last": lastFreeIndex = data.ToInt(); break;
@@ -713,13 +724,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
                 Set(index, value); }
         }
 
-#if PEGI
-        public T this[IGotIndex i]
-        {
-            get { return Get(i.IndexForPEGI); }
-            set { Set(i.IndexForPEGI, value); }
-        }
-#endif
+
         void Set(int ind, T obj)
         {
             
@@ -922,9 +927,15 @@ public class Countless<T> : CountlessBase //, IEnumerable
 
         public int currentEnumerationIndex;
 
+        #region Inspector
 #if PEGI
+        public T this[IGotIndex i]
+        {
+            get { return Get(i.IndexForPEGI); }
+            set { Set(i.IndexForPEGI, value); }
+        }
 
-          int edited = -1;
+        int edited = -1;
 
         public override bool Inspect()
         {
@@ -958,7 +969,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
             return changed;
         }
 #endif
-
+        #endregion
     }
 
     public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new() {
@@ -984,7 +995,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
                             
                         
                     }
-
+                    count = tmps.Count;
                     tmpDecodeInds = null;
                     break;
                 case "brws": edited = data.ToInt(); break;
@@ -1604,9 +1615,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
         }
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD, IPEGI
-        , new()
-    {
+    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD, IPEGI, new() {
 
         public override bool Decode(string tag, string data)
         {

@@ -731,7 +731,7 @@ namespace PlayerAndEditorGUI {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
             {
-                ef.write(text, hint, style);
+                ef.write(text, hint, width, style);
             }
             else
 #endif
@@ -2431,6 +2431,8 @@ namespace PlayerAndEditorGUI {
             return txt;
         }
 
+        static string AddCount(this string txt, IList lst) => "{0} [{1}]".F(txt, lst != null ? lst.Count.ToString() : "null");
+        
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
             if (ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered()) 
@@ -2598,10 +2600,9 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return false;
-
-            var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne))
-                lbl.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
+            
+            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                label.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
 
             return changed;
         }
@@ -2613,9 +2614,8 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return false;
-
-            var lbl = "{0} [{1}]".F(datas.label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne))
+            
+            if (datas.label.AddCount(list).enter(ref enteredOne, thisOne))
                 datas.edit_List_Obj(ref list, selectFrom);
 
             return changed;
@@ -2628,9 +2628,8 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return false;
-
-            var lbl = "{0} [{1}]".F(datas.label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne))
+            
+            if (datas.label.AddCount(list).enter(ref enteredOne, thisOne))
                 datas.edit_List(ref list);
 
             return changed;
@@ -2643,10 +2642,9 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return false;
-
-            var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne)) 
-                lbl.edit_List_Obj(ref list, selectFrom);   
+            
+            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                label.edit_List_Obj(ref list, selectFrom);   
 
             return changed;
         }
@@ -2664,10 +2662,9 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return tmp;
-
-            var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.enter(ref enteredOne, thisOne))
-                tmp = lbl.edit_List(ref list, ref inspectedElement, ref changed);
+            
+            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
 
             return tmp;
         }
@@ -2680,10 +2677,9 @@ namespace PlayerAndEditorGUI {
 
             if (listIsNull(ref list))
                 return false;
-
-            var lbl = "{0} [{1}]".F(label, list.Count);
-            if (lbl.enter(ref entered))
-                lbl.edit_List(ref list, ref inspectedElement).nl();
+            
+            if (label.AddCount(list).enter(ref entered))
+                label.edit_List(ref list, ref inspectedElement).nl();
 
             return changed;
         }
@@ -2700,10 +2696,9 @@ namespace PlayerAndEditorGUI {
                     enteredOne = -1;
                 "{0} list is null".F(label).nl();
             } else {
-                var lbl = "{0} [{1}]".F(label, list.Count);
-
-                if (lbl.enter(ref enteredOne, thisOne))
-                    return lbl.edit_List(list, meta, ref changed, types);
+ 
+                if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                    return label.edit_List(list, meta, ref changed, types);
             }
 
             return default(T);
@@ -2721,10 +2716,9 @@ namespace PlayerAndEditorGUI {
             }
             else
             {
-                var lbl = "{0} [{1}]".F(label, list.Count);
-
-                if (lbl.enter(ref enteredOne, thisOne))
-                    lbl.edit_List(list, meta, ref changed, types);
+             
+                if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                    label.edit_List(list, meta, ref changed, types);
             }
 
             return changed;
@@ -4802,6 +4796,16 @@ namespace PlayerAndEditorGUI {
 
         static IList addingNewOptionsInspected = null;
         static string addingNewNameHolder = "New Name";
+
+        static void listInstantiateNewName<T>()
+        {
+
+
+            "{0}".F(typeof(T).ToPEGIstring_Type()).write("Name for the new element you'll instantiate" ,90, PEGI_Styles.ExitLabel);
+            edit(ref addingNewNameHolder);
+
+        }
+
         static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, List_Data ld) where T : ScriptableObject
         {
             if (ld != null && !ld.allowCreate)
@@ -4819,7 +4823,8 @@ namespace PlayerAndEditorGUI {
 
             bool changed = false;
 
-            edit(ref addingNewNameHolder);
+           // "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
+            listInstantiateNewName<T>();
 
             if (addingNewNameHolder.Length > 1) {
                 if (indTypes == null  && tagTypes == null)
@@ -4891,7 +4896,8 @@ namespace PlayerAndEditorGUI {
             bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
             if (hasName)
-                edit(ref addingNewNameHolder);
+                listInstantiateNewName<T>();
+            // "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
             else
                 (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
 
@@ -4961,7 +4967,8 @@ namespace PlayerAndEditorGUI {
             bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
             if (hasName)
-                edit(ref addingNewNameHolder);
+                listInstantiateNewName<T>();
+            //  "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
             else
                 "Create new {0}".F(typeof(T).ToPEGIstring_Type()).write();
 
@@ -5130,7 +5137,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if (!editedName)
-                write(label, PEGI_Styles.ListLabel);
+                write(label.AddCount(lst), PEGI_Styles.ListLabel);
         }
 
         static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
@@ -5391,8 +5398,7 @@ namespace PlayerAndEditorGUI {
                         if (icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring())))
                         {
 
-                            foreach (var e in listCopyBuffer)
-                            {
+                            foreach (var e in listCopyBuffer)  {
 
                                 var istd = e as ISTD;
 
@@ -6735,15 +6741,17 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("");
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.ToPEGIstring());
 
-        public static bool inspect_Name(this IGotName obj, string label)
+        public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
+
+        public static bool inspect_Name(this IGotName obj, string label, string hint)
         {
             var n = obj.NameForPEGI;
 
             bool gotLabel = label != null && label.Length > 0;
 
-            if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
+            if ((gotLabel && label.edit(hint, 80, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
 
@@ -6921,14 +6929,19 @@ namespace PlayerAndEditorGUI {
             if (pgi == null)
                 return false;
 
-            if (pgi != null)
-            {
+            if (pgi != null) {
+
+                var isFOOE = pegi.isFoldedOut_or_Entered;
+
                 var changes = pgi.Inspect().RestoreBGColor();
 
                 if (changes || EfChanges)
                     pgi.SetToDirty();
 
+                pegi.isFoldedOut_or_Entered = isFOOE;
+
                 return changes;
+
             }
             return false;
         }

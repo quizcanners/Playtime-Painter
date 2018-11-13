@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using STD_Logic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,6 +16,7 @@ namespace PlayerAndEditorGUI {
     public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
 
     [Serializable]
+    [DerrivedList(typeof(Sentance), typeof(ConditionalSentance))]
     public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
@@ -97,7 +99,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool LanguageSelector_PEGI() => pegi.editEnum(ref curlang, 30);
         
-        public bool PEGI_inList(IList list, int ind, ref int edited) {
+        public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
             if (this.Attention_Or_Click(icon.Hint, curlang.ToPEGIstring()))
@@ -137,8 +139,66 @@ namespace PlayerAndEditorGUI {
         #endregion
     }
 
+    public class ConditionalSentance : Sentance, IAmConditional {
+
+        ConditionBranch condition = new ConditionBranch();
+
+        public bool CheckConditions(Values vals) => condition.CheckConditions(vals);
+
+        #region Inspector
+
+        public override bool PEGI_inList(IList list, int ind, ref int edited) {
+            var changed = this.inspect_Name();
+            if (this.Attention_Or_Click(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPEGIstring()))
+                edited = ind;
+            return changed;
+        }
+
+        public override bool Inspect() {
+            var changes = condition.Nested_Inspect().nl();
+            changes |= base.Inspect();
+            return changes;
+        }
+
+        #endregion
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => new StdEncoder()
+                .Add("b", base.Encode)
+                .Add_IfNotDefault("cnd", condition);
+         
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "b": data.DecodeInto(base.Decode); break;
+                case "cnd": condition.Decode(data); break;
+                default: return false;
+            }
+            return true;
+        }
+        #endregion
+
+    }
 
 
+    public static class MultilanguageSentanceExtensions
+    {
+
+        public static Sentance GetNextText (this List<Sentance> list, ref int startIndex) {
+
+            while (list.Count > startIndex) {
+                var txt = list[startIndex];
+
+                if (!txt.TryTestCondition())
+                    startIndex++;
+                else
+                    return txt;
+            }
+            return null;
+        }
+
+    }
 
 }
 

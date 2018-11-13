@@ -777,11 +777,8 @@ namespace SharedTools_Stuff
 
         #endregion
         
-        public static bool IsDefaultOrNull<T>(this T obj)
-        {
-            return (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
-        }
-
+        public static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        
         public static float RoundTo(this float val, int percision)
         {
             return (float)Math.Round(val, percision);

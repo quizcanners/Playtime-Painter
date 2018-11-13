@@ -45,7 +45,7 @@ namespace STD_Logic {
         }
 
         #region Encode & Decode
-        public override bool IsDefault => conds.Count == 0;
+        public override bool IsDefault => (conds.Count == 0 && branches.Count == 0);
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)
@@ -169,8 +169,10 @@ namespace STD_Logic {
         {
             if ((IsTrue ? icon.Active : icon.InActive).Click() && !TryForceTo(!IsTrue)) 
                 Debug.Log("No Conditions to force to {0}".F(!IsTrue));
-            
-            var changed = this.inspect_Name("[{0}]".F(CountRecursive()));
+
+            "[{0}]".F(this.CountForInspector).write(30);
+
+            var changed = this.inspect_Name();
 
             if (icon.Enter.Click())
                 edited = ind;
@@ -202,6 +204,13 @@ namespace STD_Logic {
             return true;
         }
 
+        public static bool IsTrue(this IAmConditional cond) => cond.CheckConditions(Values.global); 
+
+        public static bool TryTestCondition (this object obj) {
+            var cnd = obj as IAmConditional;
+            if (cnd == null) return true;
+            return cnd.IsTrue();
+        }
     }
 
 

@@ -644,7 +644,7 @@ namespace SharedTools_Stuff {
         public static T Clone_ISTD<T>(this T obj, ISTD_SerializeNestedReferences nested = null) where T : ISTD {
 
             if (obj != null) {
-                var ret = Activator.CreateInstance<T>();
+                T ret = (T)Activator.CreateInstance(obj.GetType());
 
                 if (nested != null)
                     obj.Encode(nested).ToString().DecodeInto(ret, nested);
@@ -668,6 +668,7 @@ namespace SharedTools_Stuff {
 
         public static bool Decode(this ISTD std, string data, ISTD_SerializeNestedReferences keeper) => data.DecodeInto(std, keeper);
 
+  
     }
     #endregion
 }

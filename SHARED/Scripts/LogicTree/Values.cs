@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 namespace STD_Logic {
 
 
-    public class Values: AbstractKeepUnrecognized_STD  , IPEGI
+    public class Values: AbstractKeepUnrecognized_STD  , IPEGI, IGotCount
     {
 
         public static Values global = new Values();
@@ -26,7 +26,6 @@ namespace STD_Logic {
             .Add_IfNotDefault("tags", boolTags)
             .Add_IfNotDefault("enumTags", enumTags);
            
-
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "ints": data.DecodeInto(out ints); break;
@@ -99,6 +98,14 @@ namespace STD_Logic {
         }
         #endregion
 
+        public void Clear()
+        {
+            ints.Clear();
+            bools.Clear();
+            RemoveAllTags();
+          
+        }
+
         public void RemoveAllTags() {
             List<int> groupInds;
             List<CountlessBool> lsts = boolTags.GetAllObjs(out groupInds);
@@ -114,24 +121,33 @@ namespace STD_Logic {
 
             }
 
-            boolTags = new UnnullableSTD<CountlessBool>();
+
+            enumTags.Clear();
+            boolTags.Clear(); // = new UnnullableSTD<CountlessBool>();
         }
 
+        #region Inspector
+
+        public int CountForInspector => bools.CountForInspector + ints.CountForInspector + enumTags.CountForInspector + boolTags.CountForInspector; 
+
 #if PEGI
+
+        public static Values inspected;
+
+
         public override bool Inspect() {
             
             bool changed = false;
 
-            changed |= base.Inspect();
+            inspected = this;
 
-            if ("quest++".Click().nl())
+            if (icon.Next.Click("Add 1 to logic version (to update all the logics)").nl())
                     LogicMGMT.AddLogicVersion();
 
             foreach (var bGr in bools) {
                 var group = TriggerGroup.all[bools.currentEnumerationIndex];
                 foreach (var b in bGr)
                     group[b].Inspect_AsInList().nl(ref changed);
-                
             }
 
             foreach (var iGr in ints) {
@@ -141,9 +157,12 @@ namespace STD_Logic {
                 
             }
 
+            inspected = null;
+
             return changed;
         }
-#endif
+        #endif
+        #endregion
     }
 
 
