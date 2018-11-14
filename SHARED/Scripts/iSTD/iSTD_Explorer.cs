@@ -46,6 +46,8 @@ namespace SharedTools_Stuff
         public bool allowDelete;
         public bool allowReorder;
         public bool allowCreate;
+        public icon icon;
+        public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
         public ElementData this[int i] {
@@ -150,13 +152,14 @@ namespace SharedTools_Stuff
             _keepTypeData = false;
         }
         
-        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true)
+        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
         {
             allowCreate = allowCreating;
             allowDelete = allowDeleting;
             allowReorder = allowReordering;
             label = nameMe;
             _keepTypeData = keepTypeData;
+            icon = enterIcon;
         }
     }
 

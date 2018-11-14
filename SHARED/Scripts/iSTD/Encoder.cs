@@ -109,6 +109,28 @@ namespace SharedTools_Stuff
             return cody;
         }
 
+        public static StdEncoder Encode(this Dictionary<string, string> dic)
+        {
+            var sub = new StdEncoder();
+
+            if (dic != null)
+                foreach (var e in dic)
+                    sub.Add_String(e.Key, e.Value);
+
+            return sub;
+        }
+
+        public static StdEncoder Encode(this Dictionary<int, string> dic)
+        {
+            var sub = new StdEncoder();
+
+            if (dic != null)
+                foreach (var e in dic)
+                    sub.Add_String(e.Key.ToString(), e.Value);
+
+            return sub;
+        }
+
         #region ValueTypes
         public static StdEncoder Encode(this Vector3 v3, int percision) => new StdEncoder()
             .Add_IfNotZero("x", v3.x.RoundTo(percision))
@@ -542,16 +564,9 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add(string tag, Dictionary<string, string> dic)
-        {
+        public StdEncoder Add(string tag, Dictionary<string, string> dic) {
 
-            var sub = new StdEncoder();
-
-            if (dic != null)
-                foreach (var e in dic)
-                    sub.Add_String(e.Key, e.Value);
-
-            Add(tag, sub);
+            Add(tag, dic.Encode());
 
             return this;
         }
@@ -600,10 +615,10 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD {
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val, List_Data ld = null) where T : ISTD {
 
             if (val != null && val.Count > 0) 
-                Add(tag, val);
+                Add(tag, val, ld);
             
             return this;
         }

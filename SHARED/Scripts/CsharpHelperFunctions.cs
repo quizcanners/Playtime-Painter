@@ -428,6 +428,8 @@ namespace SharedTools_Stuff
             return list[list.Count - 1];
 
         }
+
+        public static T TryGet<T>(this List<T> list, List_Data meta) => list.TryGet(meta.inspected);
         
         public static T TryGet<T>(this List<T> list, int index)
         {

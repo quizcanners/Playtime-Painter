@@ -2419,9 +2419,73 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
 
+        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne) {
+            if (enteredOne == -1 && inspected == -1 && list.Count == 1 && (list[0] as IPEGI != null) && icon.Next.Click()) {
+                enteredOne = thisOne;
+                inspected = 0;
+                isFoldedOut_or_Entered = true;
+                return true;
+            }
+            return false;
+        }
+
+        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref bool entered)
+        {
+            if (entered == false && inspected == -1 && list.Count == 1 && (list[0] as IPEGI != null) && icon.Next.Click())
+            {
+                entered = true;
+                inspected = 0;
+                isFoldedOut_or_Entered = true;
+                return true;
+            }
+            return false;
+        }
+
+        static bool enter_HeaderPart<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false) {
+
+            if (listIsNull(ref list)) {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                return false;
+            }
+
+            var ret = meta.Icon.enter(meta.label.AddCount(list), ref enteredOne, thisOne, showLabelIfTrue);
+            
+            ret |= list.enter_SkipToOnlyElement<T>(ref meta.inspected, ref enteredOne, thisOne);
+            
+            return ret;
+        }
+
         public static bool enter(this string txt, ref bool state) => icon.Enter.enter(txt, ref state);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
+
+        static bool enter_ListIcon<T>(this string txt, ref List<T> list,  ref int inspected, ref int enteredOne, int thisOne)
+        {
+            if (listIsNull(ref list)) {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                return false;
+            }
+
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref enteredOne, thisOne);
+            ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
+            return ret;
+        }
+
+        static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
+        {
+            if (listIsNull(ref list))
+            {
+                if (entered)
+                    entered = false;
+                return false;
+            }
+
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref entered);
+            ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
+            return ret;
+        }
 
         static string TryAddCount(this string txt, object obj) {
             var c = obj as IGotCount;
@@ -2431,7 +2495,10 @@ namespace PlayerAndEditorGUI {
             return txt;
         }
 
-        static string AddCount(this string txt, IList lst) => "{0} [{1}]".F(txt, lst != null ? lst.Count.ToString() : "null");
+        public static string AddCount(this string txt, IList lst) => "{0} {1}".F(txt, lst != null ?
+            (lst.Count>0 ? 
+            (lst.Count == 1 ? "|" : "[{0}]".F(lst.Count))
+            : "") : "null");
         
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
@@ -2598,24 +2665,19 @@ namespace PlayerAndEditorGUI {
 
             bool changed = false;
 
-            if (listIsNull(ref list))
-                return false;
+         
             
-            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (enter_ListIcon( label, ref list ,ref inspectedElement, ref enteredOne, thisOne))
                 label.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
 
             return changed;
         }
 
-        public static bool enter_List_Obj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
-        {
+        public static bool enter_List_Obj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object {
 
             bool changed = false;
-
-            if (listIsNull(ref list))
-                return false;
             
-            if (datas.label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (datas.enter_HeaderPart(ref list, ref enteredOne, thisOne))  
                 datas.edit_List_Obj(ref list, selectFrom);
 
             return changed;
@@ -2623,13 +2685,9 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter_List<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne) where T : new()
         {
-
             bool changed = false;
 
-            if (listIsNull(ref list))
-                return false;
-            
-            if (datas.label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (datas.enter_HeaderPart(ref list, ref enteredOne, thisOne)) 
                 datas.edit_List(ref list);
 
             return changed;
@@ -2640,10 +2698,9 @@ namespace PlayerAndEditorGUI {
 
             bool changed = false;
 
-            if (listIsNull(ref list))
-                return false;
-            
-            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+
+            int insp = -1;
+            if (enter_ListIcon(label, ref list ,ref insp, ref enteredOne, thisOne)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 label.edit_List_Obj(ref list, selectFrom);   
 
             return changed;
@@ -2660,10 +2717,9 @@ namespace PlayerAndEditorGUI {
         {
             T tmp = default(T);
 
-            if (listIsNull(ref list))
-                return tmp;
-            
-            if (label.AddCount(list).enter(ref enteredOne, thisOne))
+       
+
+            if (enter_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
 
             return tmp;
@@ -2674,56 +2730,36 @@ namespace PlayerAndEditorGUI {
         {
 
             bool changed = false;
-
-            if (listIsNull(ref list))
-                return false;
             
-            if (label.AddCount(list).enter(ref entered))
+            if (enter_ListIcon(label, ref list,ref inspectedElement, ref entered))// if (label.AddCount(list).enter(ref entered))
                 label.edit_List(ref list, ref inspectedElement).nl();
 
             return changed;
         }
 
+
         #region Tagged Types
-        public static T enter_List<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne,
-            TaggedTypes_STD types, ref bool changed)
-            => meta.label.enter_List(ref list, meta, ref enteredOne, thisOne, types, ref changed, meta._keepTypeData);
-        
-        public static T enter_List<T>(this string label, ref List<T> list, List_Data meta, ref int enteredOne, int thisOne, TaggedTypes_STD types, ref bool changed ,bool keepTypeData = false) {
 
-            if (list == null) {
-                if (enteredOne == thisOne)
-                    enteredOne = -1;
-                "{0} list is null".F(label).nl();
-            } else {
- 
-                if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                    return label.edit_List(list, meta, ref changed, types);
-            }
-
+        public static T enter_List<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types, ref bool changed) {
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))
+               return meta.label.edit_List(list, ref changed, types, meta);
             return default(T);
         }
 
-        public static bool enter_List<T>(this string label, ref List<T> list, List_Data meta, ref int enteredOne, int thisOne, TaggedTypes_STD types,  bool keepTypeData = false) {
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types) {
 
             bool changed = false;
+            int insp = -1;
 
-            if (list == null)
-            {
-                if (enteredOne == thisOne)
-                    enteredOne = -1;
-                "{0} list is null".F(label).nl();
-            }
-            else
-            {
-             
-                if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                    label.edit_List(list, meta, ref changed, types);
-            }
+             if (enter_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                label.edit_List(list, ref changed, types);
+            
 
             return changed;
         }
+       
         #endregion
+
 
         public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
         {
@@ -2742,7 +2778,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool conditional_enter_List<T>(this List_Data ld, bool canEnter, ref List<T> list, ref int enteredOne, int thisOne) where T : new() {
+        public static bool conditional_enter_List<T>(this List_Data meta, bool canEnter, ref List<T> list, ref int enteredOne, int thisOne) where T : new() {
 
             bool changed = false;
 
@@ -2750,7 +2786,7 @@ namespace PlayerAndEditorGUI {
                 enteredOne = -1;
 
             if (canEnter)
-                changed |= ld.label.enter_List(ref list, ref ld.inspected, ref enteredOne, thisOne);
+                changed |= meta.enter_List(ref list, ref enteredOne, thisOne);
             else
                 isFoldedOut_or_Entered = false;
 
@@ -4795,15 +4831,11 @@ namespace PlayerAndEditorGUI {
         }
 
         static IList addingNewOptionsInspected = null;
-        static string addingNewNameHolder = "New Name";
+        static string addingNewNameHolder = "Name";
 
-        static void listInstantiateNewName<T>()
-        {
-
-
-            "{0}".F(typeof(T).ToPEGIstring_Type()).write("Name for the new element you'll instantiate" ,90, PEGI_Styles.ExitLabel);
+        static void listInstantiateNewName<T>()  {
+               "New".write("Name for the new {0} you'll instantiate".F(typeof(T).ToPEGIstring_Type()) ,30, PEGI_Styles.ExitLabel);
             edit(ref addingNewNameHolder);
-
         }
 
         static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, List_Data ld) where T : ScriptableObject
@@ -5517,14 +5549,13 @@ namespace PlayerAndEditorGUI {
                                 clickHighlightHandeled = true;
                             }
                         }
-
                         write(el.ToPEGIstring());
                     }
                 }
 
                 if (pg != null)
                 {
-                    if ((warningText == null && icon.Enter.ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
+                    if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
                         edited = index;
                     warningText = null;
                 }
@@ -5537,9 +5568,7 @@ namespace PlayerAndEditorGUI {
 
             if (warningText != null)
                 icon.Warning.write(warningText, 25);
-
-
-
+            
             if (!clickHighlightHandeled)
                 uo.clickHighlight();
 
@@ -5982,6 +6011,13 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
+        public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) where T : new() {
+
+            write_ListLabel(datas, list);
+            return edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+
+        }
+
         public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : new() {
 
             T added = default(T);
@@ -6020,7 +6056,7 @@ namespace PlayerAndEditorGUI {
                             }
                         }
                         else
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected);
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, datas);
 
                         newLine();
                     }
@@ -6038,7 +6074,7 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-        public static T edit_List<T>(this string label, List<T> list, List_Data ld, ref bool changed, TaggedTypes_STD types)
+        public static T edit_List<T>(this string label, List<T> list, ref bool changed, TaggedTypes_STD types, List_Data ld = null)
         {
             label.write_ListLabel(list, ld.inspected);
             return list.edit_List(ref ld.inspected, ref changed, types, ld).listLabel_Used();
