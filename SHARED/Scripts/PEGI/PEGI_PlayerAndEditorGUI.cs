@@ -2716,8 +2716,7 @@ namespace PlayerAndEditorGUI {
         public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed) where T : new()
         {
             T tmp = default(T);
-
-       
+            
 
             if (enter_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
@@ -5416,7 +5415,7 @@ namespace PlayerAndEditorGUI {
                     if (icon.Close.ClickUnfocus("Clean buffer"))
                         listCopyBuffer = null;
 
-                    if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T)))
+                    if (typeof(T).IsUnityObject())
                     {
                         if (icon.Link.ClickUnfocus("Try Past References Of {0}".F(listCopyBuffer.ToPEGIstring())))
                         {
@@ -6855,7 +6854,7 @@ namespace PlayerAndEditorGUI {
             if (obj == null)
                 return "NULL {0}".F(typeof(T).ToPEGIstring_Type());
 
-            if (obj.GetType().IsAssignableFrom(typeof(UnityEngine.Object)))
+            if (obj.GetType().IsUnityObject())
                 return (obj as UnityEngine.Object).ToPEGIstring_UObj();
 
             string tmp;
@@ -6872,7 +6871,7 @@ namespace PlayerAndEditorGUI {
 
             if (obj == null) return "NULL";
 
-            if (obj.GetType().IsAssignableFrom(typeof(UnityEngine.Object)))
+            if (obj.GetType().IsUnityObject())
                 return (obj as UnityEngine.Object).ToPEGIstring_UObj();
 
             string tmp;
@@ -6890,7 +6889,7 @@ namespace PlayerAndEditorGUI {
         public static bool isNullOrDestroyed(this object obj) {
             if (obj == null) return true;
 
-            if (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) && ((obj as UnityEngine.Object).isNullOrDestroyedUnityObject()))
+            if (obj.GetType().IsUnityObject() && ((obj as UnityEngine.Object).isNullOrDestroyedUnityObject()))
                 return true;
 
             return false;
