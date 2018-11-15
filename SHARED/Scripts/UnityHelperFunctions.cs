@@ -17,16 +17,17 @@ using UnityEditor;
 #endif
 
 namespace SharedTools_Stuff {
-
-
+    
     public class ChillLogger {
         bool logged = false;
+        bool disabled = false;
         float lastLogged = 0;
         int calls;
         string message = "error";
-
-        public ChillLogger(string msg) {
+        
+        public ChillLogger(string msg, bool logInBuild = false) {
             message = msg;
+            disabled = (!logInBuild && !Application.isEditor);
         }
 
         public ChillLogger() {
@@ -35,16 +36,19 @@ namespace SharedTools_Stuff {
 
         public void Log_Now(string msg, bool asError, UnityEngine.Object obj = null) {
 
+            if (disabled)
+                return;
+
             if (msg == null)
                 msg = message;
 
             if (calls > 0)
-                msg += "[+ {0} calls]".F(calls);
+                msg += " [+ {0} calls]".F(calls);
 
             if (lastLogged > 0)
-                msg += "[ after {0} seconds]".F(Time.time - lastLogged);
+                msg += " [{0} s. later]".F(Time.time - lastLogged);
             else
-                msg += "[at {0}]".F(Time.time);
+                msg += " [at {0}]".F(Time.time);
 
             if (asError)
                 Debug.LogError(msg, obj);
@@ -84,11 +88,9 @@ namespace SharedTools_Stuff {
         }
 
     }
-
-
-    public static class UnityHelperFunctions {
-
     
+    public static class UnityHelperFunctions {
+        
         #region Timing
 
 

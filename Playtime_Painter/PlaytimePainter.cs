@@ -297,11 +297,16 @@ namespace Playtime_Painter
 
         }
 
-        public bool CastRayPlaytime(StrokeVector st, Vector3 mousePos)
-        {
+        ChillLogger logger = new ChillLogger("");
 
-            if (NeedsGrid)//globalBrush.type(this).needsGrid)
-            {
+        public bool CastRayPlaytime(StrokeVector st, Vector3 mousePos)  {
+
+            if (Camera.main == null) {
+                logger.Log_Interval(2, "No Main Camera to Raycast from", true, this);
+                return false;
+            }
+
+            if (NeedsGrid) {
                 ProcessGridDrag();
                 return true;
             }
@@ -1853,6 +1858,8 @@ namespace Playtime_Painter
                 return false;
             }
 
+         
+
             inspectedPainter = this;
 
 
@@ -2060,6 +2067,12 @@ namespace Playtime_Painter
                         #endregion
 
                         #region Brush
+
+                        if (Application.isPlaying && Camera.main == null)
+                        {
+                            "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
+                            pegi.nl();
+                        }
 
                         changed |= GlobalBrush.Inspect();
 

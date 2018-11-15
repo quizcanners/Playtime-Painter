@@ -146,7 +146,7 @@ namespace PlayerAndEditorGUI {
         public bool CheckConditions(Values vals) => condition.CheckConditions(vals);
 
         #region Inspector
-
+#if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
             if (this.Attention_Or_Click(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPEGIstring()))
@@ -159,8 +159,8 @@ namespace PlayerAndEditorGUI {
             changes |= base.Inspect();
             return changes;
         }
-
-        #endregion
+#endif
+#endregion
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()

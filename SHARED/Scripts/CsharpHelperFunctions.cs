@@ -665,7 +665,8 @@ namespace SharedTools_Stuff
         }
 
         public static bool SameAs(this string s, string other) =>
-            (((s == null || s.Length == 0) && (other == null || other.Length == 0)) || (String.Compare(s, other) == 0));
+            ((s.IsNullOrEmpty() && other.IsNullOrEmpty())
+            || (String.Compare(s, other) == 0));
 
         public static bool SearchCompare(this string search, string name)
         {

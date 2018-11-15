@@ -410,6 +410,9 @@ namespace Playtime_Painter
                     if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
                         UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
 
+                if (gotDefine)
+                    "In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the painting shaders will be build with the player.".writeHint();
+
                     if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
                         MeshManager.Inst.DisconnectMesh();
 

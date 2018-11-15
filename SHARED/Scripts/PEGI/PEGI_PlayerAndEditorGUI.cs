@@ -6334,9 +6334,11 @@ namespace PlayerAndEditorGUI {
                 foreach (var i in list.InspectionIndexes()) {
                     var el = list[i];
                     var before = el;
-                  
+
+                    el = lambda(el);
+
                     if ((!before.SameAs(el)).changes(ref changed))
-                        list[i] = lambda(el);
+                        list[i] = el;
 
                     nl();
                 }
