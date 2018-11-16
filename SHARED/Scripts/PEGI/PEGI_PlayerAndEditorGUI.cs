@@ -2318,7 +2318,36 @@ namespace PlayerAndEditorGUI {
 
         public static void foldIn() => selectedFold = -1;
         #endregion
-        
+
+        #region Tabs
+
+      
+        public static int tab(ref int selected, params icon[] icons) {
+            nl();
+
+            if (selected != -1) {
+                if (icon.Close.ClickUnfocus())
+                    selected = -1;
+            } else
+                icon.Next.write();
+            
+
+            for (int i=0; i<icons.Length; i++) {
+                if (selected == i)
+                    icons[i].write();
+                else
+                {
+                    if (icons[i].ClickUnfocus())
+                        selected = i;
+                }
+            }
+
+            nl();
+            return selected;
+        }
+
+        #endregion
+
         #region Enter & Exit
         public static bool enter(ref int enteredOne, int current)
         {
@@ -2797,15 +2826,6 @@ namespace PlayerAndEditorGUI {
         #region Click
         const int defaultButtonSize = 25;
 
-        public static int selectedTab;
-        public static void ClickTab(ref bool open, string text)
-        {
-            if (open)
-                "|{0}|".F(text).write(60);
-            else if (Click(text, 40)) selectedTab = tabIndex;
-            tabIndex++;
-        }
-
         public static bool ClickUnfocus(this string text, int width)
         {
 
@@ -3015,57 +3035,58 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
+
+        public static bool Click(this Sprite img, int size = defaultButtonSize) 
+            => img.GetTexture_orEmpty().Click(size);
+       
+        public static bool Click(this Sprite img, string tip, int size = defaultButtonSize)
+            => img.GetTexture_orEmpty().Click(tip, size);
+
+        public static bool Click(this Sprite img, string tip, int width, int height)
+            => img.GetTexture_orEmpty().Click(tip, width, height);
+        
         public static bool Click(this Texture img, int size = defaultButtonSize )
         {
 
+            if (!img) img = icon.Empty.GetIcon();
+
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(img, size);
-            }
-            else
 #endif
-
-            {
-                checkLine();
-                return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
-            }
+            
+            checkLine();
+            return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
+            
 
         }
 
         public static bool Click(this Texture img, string tip, int size = defaultButtonSize)  {
 
+            if (!img) img = icon.Empty.GetIcon();
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(img, tip, size);
-            }
-            else
 #endif
-            {
+            
                 checkLine();
                 return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
-            }
+            
 
         }
 
         public static bool Click(this Texture img, string tip, int width, int height)
         {
-
+            if (!img) img = icon.Empty.GetIcon();
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(img, tip, width, height);
-            }
-            else
 #endif
-            {
                 checkLine();
                 return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
-            }
-
         }
 
         public static bool Click(this icon icon) => Click(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize);
@@ -3151,6 +3172,22 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+        public static bool toggle(this icon icon, ref int selected, int current)
+          => icon.toggle(icon.ToString(), ref selected, current);
+
+        public static bool toggle(this icon icon, string label, ref int selected, int current)
+        {
+            if (selected == current)
+                icon.write(label);
+            else
+                if (icon.Click(label))
+            {
+                selected = current;
+                return true;
+            }
+            return false;
+        }
+        
         public static bool toggle(ref bool val)
         {
 
@@ -3233,8 +3270,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggleIcon(ref bool val, string hint = "Toggle On/Off") => toggle(ref val, icon.True.BGColor(Color.clear), icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-        public static bool toggleIcon(ref int val, string hint = "Toggle On/Off")
-        {
+        public static bool toggleIcon(ref int val, string hint = "Toggle On/Off") {
             var boo = val != 0;
             if (toggle(ref boo, icon.True.BGColor(Color.clear), icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor())
             {
@@ -4858,11 +4894,9 @@ namespace PlayerAndEditorGUI {
             listInstantiateNewName<T>();
 
             if (addingNewNameHolder.Length > 1) {
-                if (indTypes == null  && tagTypes == null)
-                {
+                if (indTypes == null  && tagTypes == null)  {
                     if (icon.Create.ClickUnfocus("Create new object").nl(ref changed))
                         added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder);
-                   
                 }
                 else
                 {
@@ -4879,11 +4913,9 @@ namespace PlayerAndEditorGUI {
                     {
                         if (indTypes != null)
                         foreach (var t in indTypes) {
-                            var n = t.ToString();
-                            write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
+                            write(t.ToPEGIstring_Type());
                             if (icon.Create.ClickUnfocus().nl(ref changed))
                                 added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
-                              
                         }
 
                         if (tagTypes != null)
@@ -4919,7 +4951,7 @@ namespace PlayerAndEditorGUI {
             
             var tagTypes = typeof(T).TryGetTaggetClasses();
             
-            if (intTypes == null && tagTypes == null) // && typeof(T).IsAbstract)
+            if (intTypes == null && tagTypes == null)
                 return false;
 
             bool changed = false;
@@ -4928,7 +4960,6 @@ namespace PlayerAndEditorGUI {
 
             if (hasName)
                 listInstantiateNewName<T>();
-            // "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
             else
                 (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
 
@@ -4947,16 +4978,11 @@ namespace PlayerAndEditorGUI {
                     if (selectingDerrived)
                     {
                         if (intTypes != null)
-                        foreach (var t in intTypes)
-                        {
-                            var n = t.ToString();
-                            write(n.Substring(Mathf.Max(0, n.LastIndexOf("."))));
-                            if (icon.Create.ClickUnfocus().nl(ref changed))
-                            {
+                        foreach (var t in intTypes)  {
+                            write(t.ToPEGIstring_Type());
+                            if (icon.Create.ClickUnfocus().nl(ref changed))  {
                                 added = (T)Activator.CreateInstance(t);
-
                                 lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
-                                
                             }
                         }
 
@@ -4976,7 +5002,6 @@ namespace PlayerAndEditorGUI {
                     }
 
                     }
-              //  }
             }
             else
                 "Add".write("Input a name for a new element", 40);
@@ -4999,7 +5024,6 @@ namespace PlayerAndEditorGUI {
 
             if (hasName)
                 listInstantiateNewName<T>();
-            //  "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
             else
                 "Create new {0}".F(typeof(T).ToPEGIstring_Type()).write();
 
@@ -6832,7 +6856,7 @@ namespace PlayerAndEditorGUI {
         public static string ToPEGIstring_Type(this Type type)
         {
             var name = type.ToString();
-            int ind = name.LastIndexOf(".");
+            int ind = Mathf.Max(name.LastIndexOf("."), name.LastIndexOf("+"));
             return ind == -1 ? name : name.Substring(ind + 1);
 
         }

@@ -54,7 +54,7 @@ namespace STD_Logic  {
         }
     }
     
-    public class Result : ValueIndex, IPEGI, IGotDisplayName, IPEGI_ListInspect {
+    public class Result : ValueIndex, IGotDisplayName, IPEGI_ListInspect {
         
         public ResultType type;
         public int updateValue;
@@ -102,41 +102,7 @@ namespace STD_Logic  {
 
             return changed;
         }
-        /*
-        public bool PEGI_inList(IList list, int ind, ref int inspected) {
-
-            var changed = false;
-
-            if (this != edited) {
-                changed = FocusedField_PEGI(pegi.ListInspectedIndex, "Res");
-
-                changed |= Trigger._usage.Inspect(this);
-
-                changed |= SearchAndAdd_PEGI(pegi.ListInspectedIndex);
-                
-                if (icon.Edit.Click())
-                    edited = this;
-
-                changed |= SearchAndAdd_PEGI(ind);
-            }
-            else
-            {
-                if (icon.FoldedOut.Click())
-                    edited = null;
-
-                Trigger.inspected = Trigger;
-
-                Trigger.PEGI_inList();
-
-                if (Trigger.inspected != Trigger)
-                    edited = null;
-            }
-
-
-            return changed;
-        }
-        */
-
+    
         #endif
         #endregion
 

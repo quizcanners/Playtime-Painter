@@ -72,12 +72,18 @@ namespace STD_Logic
         public void Awake() => RealTimeNow();
 
         #region Inspector
-#if PEGI
+        #if PEGI
 
         public override void ResetInspector() {
             inspectedTriggerGroup = -1;
             base.ResetInspector();
         }
+
+        public virtual void InspectionTabs() {
+            icon.Condition.toggle("Trigger groups", ref inspectedStuff, 1);
+            icon.Close.toggle("Close All", ref inspectedStuff, -1);
+        }
+
 
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
@@ -87,9 +93,11 @@ namespace STD_Logic
         {
             var changed = false;
 
+            InspectionTabs();
+
             changed |= base.Inspect().nl();
-    
-            if (icon.Condition.enter("Trigger Groups", ref inspectedStuff, 1)) {
+
+            if (inspectedStuff == 1) {
 
                 if (inspectedTriggerGroup == -1) {
 

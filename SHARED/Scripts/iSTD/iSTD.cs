@@ -67,10 +67,14 @@ namespace SharedTools_Stuff {
     }
 
 
-    public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD {
+    public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD, ISTD_SafeEncoding {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
+
+        LoopLock encodeingLoopLock = new LoopLock();
+
+        public LoopLock GetLoopLock => encodeingLoopLock;
 
         protected List_Data listData = new List_Data("References");
         
@@ -162,8 +166,8 @@ namespace SharedTools_Stuff {
         #endregion
     }
 
-    public class UnrecognizedTags_List :IPEGI
-    {
+    public class UnrecognizedTags_List :IPEGI {
+
         protected List<string> tags = new List<string>();
         protected List<string> datas = new List<string>();
 
@@ -200,7 +204,7 @@ namespace SharedTools_Stuff {
             Clear();
         }
 
-#if PEGI
+        #if PEGI
         int inspected = -1;
         bool foldout = false;
         public bool Inspect( )
@@ -253,12 +257,11 @@ namespace SharedTools_Stuff {
 
             return changed;
         }
-#endif
+        #endif
 
     }
     
-    public abstract class Abstract_STD : ISTD_SafeEncoding, ICanBeDefault_STD
-    {
+    public abstract class Abstract_STD : ISTD_SafeEncoding, ICanBeDefault_STD {
         public abstract StdEncoder Encode();
         public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tag, string data);
@@ -291,13 +294,11 @@ namespace SharedTools_Stuff {
 
         public int inspectedStuff = -1;
 
-#if PEGI
-
-
+        #if PEGI
         public virtual bool Inspect() {
             bool changed = false;
 
-            if (icon.Config.enter(ref inspectedStuff, 0)) {
+            if (icon.Debug.enter(ref inspectedStuff, 0)) {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
 
@@ -307,7 +308,7 @@ namespace SharedTools_Stuff {
 
             return changed;
         }
-#endif
+        #endif
         #endregion
     }
 
@@ -351,18 +352,16 @@ namespace SharedTools_Stuff {
             }
         }
 
-#if PEGI
+        #if PEGI
 
         [ContextMenu("Reset Inspector")]
         void Reset() => ResetInspector();
-
 
         public virtual void ResetInspector()
         {
             inspectedDebugStuff = -1;
             inspectedStuff = -1;
         }
-
 
         bool nestedReferencesChanged;
 
@@ -391,8 +390,7 @@ namespace SharedTools_Stuff {
 
         [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
-        public virtual bool Inspect()
-        {
+        public virtual bool Inspect() {
 
             bool changed = false;
 
@@ -401,7 +399,7 @@ namespace SharedTools_Stuff {
             if (inspectedStuff == -1)
                 pegi.Lock_UnlockWindow(gameObject);
 
-           if (icon.Config.enter(ref inspectedStuff, 0)) {
+           if (icon.Debug.enter(ref inspectedStuff, 0)) {
 
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
@@ -435,7 +433,7 @@ namespace SharedTools_Stuff {
             }
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         public virtual ISTD Decode(string data)

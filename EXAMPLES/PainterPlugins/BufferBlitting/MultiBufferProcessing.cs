@@ -188,16 +188,15 @@ namespace Playtime_Painter
 
     #region TextureBuffers
 
-    [DerrivedListAttribute(typeof(OnDemandRT), typeof(OnDemandRTPair), typeof(WebCamTextureBuffer), typeof(CustomImageData)
+    [DerrivedList(typeof(OnDemandRT)
+        , typeof(OnDemandRTPair)
+        , typeof(WebCamTextureBuffer)
+        , typeof(CustomImageData)
         , typeof(SectionTarget)
         , typeof(BigRTpair)
         , typeof(Downscaler)
         )]
-    public class TextureBuffer : AbstractKeepUnrecognized_STD
-#if PEGI
-            , IPEGI_ListInspect, IGotDisplayName
-#endif
-    {
+    public class TextureBuffer : AbstractKeepUnrecognized_STD, IPEGI_ListInspect, IGotDisplayName {
 
         int _version = 0;
 
@@ -260,7 +259,8 @@ namespace Playtime_Painter
 
         public virtual void Stop() { }
 
-#if PEGI
+        #region Inspector
+        #if PEGI
         public override bool Inspect()
         {
             bool changed = false;
@@ -282,7 +282,9 @@ namespace Playtime_Painter
         }
 
 #endif
+        #endregion
 
+        #region Encode & Decode
         public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
@@ -294,6 +296,7 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
     }
 
     public class CustomImageData : TextureBuffer  , IPEGI_ListInspect, IPEGI
@@ -302,8 +305,7 @@ namespace Playtime_Painter
         ImageData id;
         Texture Texture => id.CurrentTexture();
 
-
-
+        #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
             .Add_GUID("t", Texture)
             .Add_IfTrue("show", showOnGUI);
@@ -318,6 +320,7 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
         public override bool CanBeTarget => Texture && Texture.GetType() == typeof(RenderTexture);
 
@@ -472,11 +475,7 @@ namespace Playtime_Painter
         
     }
 
-    public class WebCamTextureBuffer : TextureBuffer
-#if PEGI
-           , IPEGI_ListInspect
-#endif
-    {
+    public class WebCamTextureBuffer : TextureBuffer, IPEGI_ListInspect {
 
         public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGUI);
 
@@ -511,7 +510,6 @@ namespace Playtime_Painter
 
         public override void Stop() => Data.webCamTexture.Stop();
         
-
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
         {
@@ -531,6 +529,7 @@ namespace Playtime_Painter
             return false;
         }
 #endif
+
     }
 
     public class SectionTarget : TextureBuffer
@@ -538,7 +537,7 @@ namespace Playtime_Painter
         int targetIndex;
 
 
-
+        #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGUI);
 
         public override bool Decode(string tag, string data)
@@ -551,6 +550,7 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
         TextureBuffer Target { get { var sct = Mgmt.sections.TryGet(targetIndex); if (sct != null) return sct.TargetRenderTexture; else return null; } }
 
@@ -585,13 +585,13 @@ namespace Playtime_Painter
         }
 
         public override RenderTexture GetTargetTextureNext() => Target?.GetTargetTextureNext();
-        
 
+        #region Inspector
 #if PEGI
         public override string NameForPEGIdisplay => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
         public override bool Inspect() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
-
+        #endregion
     }
 
     public class Downscaler : TextureBuffer, IPEGI
@@ -734,8 +734,7 @@ namespace Playtime_Painter
 
         int dependentVersion = 0;
         float timer = 0;
-
-
+        
         public bool Blit() => TargetRenderTexture != null ? TargetRenderTexture.BlitMethod(SourceBuffer, material, shader) : false;
 
         public void Update()
@@ -787,6 +786,7 @@ namespace Playtime_Painter
             }
         }
 
+        #region Inspector
 #if PEGI
 
         public string NameForPEGIdisplay => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
@@ -852,7 +852,7 @@ namespace Playtime_Painter
             return changed;
         }
 #endif
-
+        #endregion
     }
 
     #endregion

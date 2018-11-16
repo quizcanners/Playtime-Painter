@@ -27,7 +27,9 @@ namespace SharedTools_Stuff {
         
         public ChillLogger(string msg, bool logInBuild = false) {
             message = msg;
-            disabled = (!logInBuild && !Application.isEditor);
+            #if !UNITY_EDITOR
+            disabled = (!logInBuild);
+            #endif
         }
 
         public ChillLogger() {

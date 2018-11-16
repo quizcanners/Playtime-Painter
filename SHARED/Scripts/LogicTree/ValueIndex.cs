@@ -10,7 +10,7 @@ using SharedTools_Stuff;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : ISTD, IPEGI, IGotDisplayName {
+    public abstract class ValueIndex : ISTD, IGotDisplayName {
 
         public int groupIndex;
         public int triggerIndex;

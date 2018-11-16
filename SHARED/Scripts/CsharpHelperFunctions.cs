@@ -252,8 +252,13 @@ namespace SharedTools_Stuff
         
         public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
 
-        public static string F(this string format, params object[] objs) => string.Format(format, objs);
-        
+        public static string F(this string format, params object[] objs) {
+            try {
+                return string.Format(format, objs);
+            } catch(Exception ex) {
+                return "Wrong Format" + format + " "+ex.ToString();
+            }
+        }
         public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
 
         #endregion

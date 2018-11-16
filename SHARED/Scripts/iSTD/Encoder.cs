@@ -73,7 +73,6 @@ namespace SharedTools_Stuff
                 var types = typeof(T).TryGetDerrivedClasses();
 
                 if (types != null && types.Count > 0) {
-
                     foreach (var v in val)
                         cody.Add(v, types);
                 }
@@ -212,15 +211,48 @@ namespace SharedTools_Stuff
 
     public class StdEncoder
     {
+        #region Constants
         public const char splitter = '|';
         public const string nullTag = "null";
         public const string listElementTag = "e";
         public const string unrecognizedTag = "_urec";
+        public const string listTag = "_lst";
+        public const string listMetaTag = "_lstMeta";
+        #endregion
 
         StringBuilder builder = new StringBuilder();
+        public override string ToString() => builder.ToString();
 
         public delegate StdEncoder EncodeDelegate();
+        public StdEncoder Add(string tag, EncodeDelegate cody)
+        {
+            if (cody != null)
+                Add(tag, cody());
+            return this;
+        }
 
+        public StdEncoder Add(string tag, StdEncoder cody)
+        {
+            if (cody != null)
+                Add_String(tag, cody.ToString());
+            return this;
+        }
+        
+        public StdEncoder Add_String(string tag, String data)
+        {
+
+            if (data == null)
+                data = "";
+
+            builder.AppendSplit(tag);
+            builder.AppendSplit(data.Length.ToString());
+            builder.AppendSplit(data);
+            return this;
+        }
+
+        public StdEncoder Add_Bool(string tag, bool val) =>
+      Add_String(tag, val ? "y" : "n");
+        
         #region Unity_Objects
 
         public static ISTD_SerializeNestedReferences keeper;
@@ -234,9 +266,9 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_Reference(string tag, UnityEngine.Object obj) => Add(tag, obj, keeper);
+        public StdEncoder Add_Reference(string tag, UnityEngine.Object obj) => Add_Reference(tag, obj, keeper);
 
-        public StdEncoder Add(string tag, UnityEngine.Object obj, ISTD_SerializeNestedReferences referencesKeeper)
+        public StdEncoder Add_Reference(string tag, UnityEngine.Object obj, ISTD_SerializeNestedReferences referencesKeeper)
         {
             if (referencesKeeper != null && obj)
             {
@@ -295,44 +327,156 @@ namespace SharedTools_Stuff
             keeper = prevKeeper;
             return this;
         }
-        
-
-
         #endregion
 
-        public StdEncoder Add_String(string tag, String data) {
-
-            if (data == null)
-                data = "";
-
-            builder.AppendSplit(tag);
-            builder.AppendSplit(data.Length.ToString());
-            builder.AppendSplit(data);
-            return this;
-        }
-
-        public StdEncoder Add(string tag, EncodeDelegate cody)
-        {
-            if (cody != null)
-                Add(tag, cody());
-            return this;
-        }
-
-        public StdEncoder Add(string tag, StdEncoder cody)
-        {
-            if (cody!= null)
-            Add_String(tag, cody.ToString());
-            return this;
-        }
-        
+        #region ValueTypes
         public StdEncoder Add(string tag, float val) =>
-            Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));
-
-        public StdEncoder Add(string tag, float val, int percision) => 
+        Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));
+        public StdEncoder Add(string tag, float val, int percision) =>
             Add_String(tag, val.RoundTo(percision).ToString(CultureInfo.InvariantCulture.NumberFormat));
+        public StdEncoder Add(string tag, int val) => Add_String(tag, val.ToString());
+        public StdEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
+
+        public StdEncoder Add(string tag, Transform tf) => Add(tag, tf.Encode(true));
+        public StdEncoder Add(string tag, Transform tf, bool local) => Add(tag, tf.Encode(local));
+        public StdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
+        public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
+        public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
+        public StdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());
+        public StdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode());
+        public StdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode());
+        public StdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode());
+        public StdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision));
+        public StdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision));
+        public StdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
+        #endregion
+
+        #region Internal Add Unrecognized Data
+        StdEncoder Add<T>(T val, List<Type> types, List_Data ld, int index) where T : ISTD
+        {
+
+            var el = ld.elementDatas.GetIfExists(index);
+
+            if (val != null)
+            {
+                int typeIndex = types.IndexOf(val.GetType());
+                if (typeIndex != -1)
+                {
+                    if (el != null)
+                        el.SetRecognized();
+
+                    Add(typeIndex.ToString(), val.Encode());
+                }
+                else
+                {
+                    el = ld.elementDatas[index];
+                    el.unrecognized = true;
+                    el.std_dta = val.Encode().ToString();
+                    Add_String(unrecognizedTag, " ");
+                }
+            }
+            else
+            {
+                if (el != null && el.unrecognized)
+                    Add_String(el.unrecognizedUnderTag, el.std_dta);
+                else
+                    Add_String(nullTag, "");
+            }
+
+            return this;
+        }
+
+        StdEncoder Add_Abstract<T>(T val, List_Data ld, int index) where T : IGotClassTag
+        {
+            var el = ld.elementDatas.GetIfExists(index);
+
+            if (val != null) {
+
+                Add(val.ClassTag, val);
+
+                if (el != null)
+                    el.SetRecognized();
+
+            }
+            else
+            {
+                if (el != null && el.unrecognized)
+                    Add_String(el.unrecognizedUnderTag, el.std_dta);
+                else
+                    Add_String(nullTag, "");
+            }
+
+            return this;
+        }
+
+        public StdEncoder Add<T>(T v, List<Type> types) where T : ISTD
+        {
+            if (v != null)
+            {
+                int typeIndex = types.IndexOf(v.GetType());
+                if (typeIndex != -1)
+                    Add(typeIndex.ToString(), v.Encode());
+                else
+                    Add(unrecognizedTag, v.Encode());
+            }
+            else
+                Add_String(nullTag, "");
+
+            return this;
+        }
+        #endregion
+
+        #region Abstracts
+
+        public StdEncoder Add<T>(string tag, List<T> val, TaggedTypes_STD tts) where T : IGotClassTag
+            => Add_Abstract(tag, val);
+
+        public StdEncoder Add_Abstract<T>(string tag, List<T> val) where T : IGotClassTag {
+
+            StdEncoder cody = new StdEncoder();
+
+            if (val != null)
+                    foreach (var v in val)
+                        cody.Add(v.ClassTag, v);
+
+            Add(tag, cody);
+
+            return this;
+        }
         
-        public StdEncoder Add_Bool(string tag, bool val) =>
-            Add_String(tag, val ? "y" : "n");
+        public StdEncoder Add<T>(string tag, List<T> val, TaggedTypes_STD tts, List_Data ld) where T : IGotClassTag
+            => Add_Abstract(tag, val, ld);
+
+        public StdEncoder Add_Abstract<T>(string tag, List<T> val, List_Data ld) where T : IGotClassTag {
+
+            StdEncoder cody = new StdEncoder();
+
+            if (val != null) {
+
+                if (ld == null)
+                    foreach (var v in val)
+                        cody.Add(v.ClassTag, v);
+
+                else for (int i = 0; i < val.Count; i++) {
+                        var v = val[i];
+                        cody.Add_Abstract(v, ld, i);
+                }
+            }
+
+            Add(tag, new StdEncoder().Add(listMetaTag, ld).Add(listTag, cody));
+
+            return this;
+        }
+        
+        public StdEncoder Add_Abstract(string tag, IGotClassTag typeTag) {
+            if (typeTag != null) {
+                var sub = new StdEncoder().Add(typeTag.ClassTag, typeTag.Encode());
+                Add(tag, sub);
+            }
+
+            return this;
+        }
+        #endregion
 
         public StdEncoder Add(string tag, ISTD other) {
             if (other != null) {
@@ -353,102 +497,6 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder TryAdd<T>(string tag, T obj) {
-            if (obj != null) {
-                var objstd = obj as ISTD;
-                if (objstd != null)
-                    Add(tag, objstd);
-            }
-            return this;
-        }
-
-        #region Internal Add Unrecognized Data
-        
-        StdEncoder Add<T>(T val, List<Type> types, List_Data ld, int index) where T : ISTD {
-
-            var el = ld.elementDatas.GetIfExists(index);
-
-            if (val != null) {
-                int typeIndex = types.IndexOf(val.GetType());
-                if (typeIndex != -1) {
-                    if (el != null)
-                        el.SetRecognized();
-
-                    Add(typeIndex.ToString(), val.Encode());
-                } else {
-                    el = ld.elementDatas[index];
-                    el.unrecognized = true;
-                    el.std_dta = val.Encode().ToString();
-                    Add_String(unrecognizedTag, " ");
-                }
-            }
-            else  {
-                if (el != null && el.unrecognized)
-                    Add_String(el.unrecognizedUnderTag, el.std_dta);
-                else
-                    Add_String(nullTag, "");
-            }
-
-            return this;
-        }
-
-        StdEncoder Add_Abstract<T>(T val, List_Data ld, int index) where T : IGotClassTag {
-            var el = ld.elementDatas.GetIfExists(index);
-
-            if (val != null) {
-
-                Add(val.ClassTag, val);
-
-                if (el != null)
-                   el.SetRecognized();
-
-            } else {
-                if (el != null && el.unrecognized)
-                    Add_String(el.unrecognizedUnderTag, el.std_dta);
-                else
-                    Add_String(nullTag, "");
-            }
-
-            return this;
-        }
-
-        public StdEncoder Add<T>(T v, List<Type> types) where T : ISTD {
-            if (v != null) {
-                int typeIndex = types.IndexOf(v.GetType());
-                if (typeIndex != -1)
-                    Add(typeIndex.ToString(), v.Encode());
-                else
-                    Add(unrecognizedTag, v.Encode());
-            }
-            else
-                Add_String(nullTag, "");
-
-            return this;
-        }
-
-        #endregion
-
-        public override string ToString() {
-            
-            return builder.ToString();
-        }
-
-        public StdEncoder Add_IfNotNegative(string tag, int val) {
-            if (val >= 0)
-                Add_String(tag, val.ToString());
-            return this;
-        }
-        
-        public StdEncoder Add(string tag, int val) => Add_String(tag, val.ToString());
-        
-        public StdEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
-        
-        public StdEncoder Add(string tag, Transform tf) => Add(tag, tf.Encode(true));
-
-        public StdEncoder Add(string tag, Transform tf, bool local) => Add(tag, tf.Encode(local));
-
-        public StdEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
-
         public StdEncoder Add(string tag, List<int> val)
         {
 
@@ -495,34 +543,51 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld = null) where T : ISTD {
-                StdEncoder cody = new StdEncoder();
+        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld) where T : ISTD {
+
+            StdEncoder cody = new StdEncoder();
+
+            if (val != null) {
+                var indTypes = typeof(T).TryGetDerrivedClasses();
+
+                if (indTypes != null) {
+                    for (int i = 0; i < val.Count; i++) {
+                            var v = val[i];
+                            cody.Add(v, indTypes, ld, i);
+                    }
+                }
+                else  {
+                    foreach (var v in val)
+                        if (v != null)
+                            cody.Add(StdDecoder.ListElementTag, v);
+                        else
+                            cody.Add_String(nullTag, "");
+                }
+            }
+
+            Add(tag, new StdEncoder().Add(listMetaTag, ld).Add(listTag, cody));
+
+            return this;
+        }
+        
+        public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD {
+
+            StdEncoder cody = new StdEncoder();
 
             if (val != null) {
                 var indTypes = typeof(T).TryGetDerrivedClasses();
                 
                 if (indTypes != null)  {
-
-                    if (ld == null)
-                    {
                         foreach (var v in val)
                             cody.Add(v, indTypes);
-                    }
-                    else for (int i = 0; i < val.Count; i++)
-                        {
-                            var v = val[i];
-                            cody.Add(v, indTypes, ld, i);
-                        }
                 }
-                else
-                {
+                else  {
                     foreach (var v in val)
                         if (v != null)
                             cody.Add(StdDecoder.ListElementTag, v.Encode());
                         else
                             cody.Add_String(nullTag, "");
                 }
-
             }
 
             Add(tag, cody);
@@ -530,27 +595,6 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_Abstract<T>(string tag, List<T> val, List_Data ld = null) where T : IGotClassTag {
-
-            StdEncoder cody = new StdEncoder();
-
-            if (val != null)  {
-
-                if (ld == null)
-                    foreach (var v in val)
-                        cody.Add(v.ClassTag, v);
-                
-                else for (int i = 0; i < val.Count; i++)  {
-                        var v = val[i];
-                        cody.Add_Abstract(v, ld, i);
-                }
-            }
-
-            Add(tag, cody);
-
-            return this;
-        }
-        
         public StdEncoder Add(string tag, Dictionary<int, string> dic)
         {
             var sub = new StdEncoder();
@@ -573,29 +617,26 @@ namespace SharedTools_Stuff
         
         public StdEncoder Add<T>(string tag, T[] val) where T : ISTD => Add(tag, val.Encode());
 
-        #region ValueTypes
-        public StdEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
-        public StdEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
-        public StdEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());
-        public StdEncoder Add(string tag, Vector4 v4) => Add(tag, v4.Encode());
-        public StdEncoder Add(string tag, Vector3 v3) => Add(tag, v3.Encode());
-        public StdEncoder Add(string tag, Vector2 v2) => Add(tag, v2.Encode());
-        public StdEncoder Add(string tag, Vector3 v3, int percision) => Add(tag, v3.Encode(percision));
-        public StdEncoder Add(string tag, Vector2 v2, int percision) => Add(tag, v2.Encode(percision));
-        public StdEncoder Add(string tag, Color col) => Add(tag, col.Encode());
-        #endregion
+        #region NonDefault Encodes
 
-        public StdEncoder Add_Abstract(string tag, IGotClassTag typeTag)
+        public StdEncoder TryAdd<T>(string tag, T obj)
         {
-            if (typeTag != null) {
-                var sub = new StdEncoder().Add(typeTag.ClassTag, typeTag.Encode());
-                Add(tag, sub);
+            if (obj != null)
+            {
+                var objstd = obj as ISTD;
+                if (objstd != null)
+                    Add(tag, objstd);
             }
+            return this;
+        }
 
+        public StdEncoder Add_IfNotNegative(string tag, int val)
+        {
+            if (val >= 0)
+                Add_String(tag, val.ToString());
             return this;
         }
         
-        #region NonDefault Encodes
         public StdEncoder Add_IfTrue(string tag, bool val)
         {
             if (val)
@@ -615,10 +656,10 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val, List_Data ld = null) where T : ISTD {
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD {
 
             if (val != null && val.Count > 0) 
-                Add(tag, val, ld);
+                Add(tag, val);
             
             return this;
         }
@@ -655,6 +696,18 @@ namespace SharedTools_Stuff
 
                 Add_String(tag, sub.ToString());
             }
+            return this;
+        }
+        
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypes_STD tts) where T : IGotClassTag  {
+            if (!val.IsNullOrEmpty())
+                Add_Abstract(tag, val);
+            return this;
+        }
+
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypes_STD tts, List_Data ld) where T : IGotClassTag {
+            if (!val.IsNullOrEmpty())
+                Add_Abstract(tag, val, ld);
             return this;
         }
 
