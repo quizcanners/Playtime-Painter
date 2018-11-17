@@ -10,8 +10,7 @@ using UnityEditor;
 
 namespace SharedTools_Stuff
 {
-
-
+    /*
     public class ISTD_Explorer : MonoBehaviour, IPEGI
     {
         public ISTD ConnectSTD;
@@ -36,7 +35,7 @@ namespace SharedTools_Stuff
 #endif
 
     }
-
+    */
     public class List_Data : Abstract_STD, IPEGI {
 
         public string label = "list";

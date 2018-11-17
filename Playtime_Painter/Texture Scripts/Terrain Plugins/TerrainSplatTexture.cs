@@ -117,8 +117,6 @@ namespace Playtime_Painter
                     int no = fieldName[0].CharToInt();
                     painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
                     if (tex.GetType() != typeof(Texture2D))
-
-                        //else
                         Debug.Log("Can only use Texture2D for Splat Prototypes. If using regular terrain may not see changes.");
                     else
                     {

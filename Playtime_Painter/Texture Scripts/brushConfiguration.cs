@@ -440,7 +440,7 @@ namespace Playtime_Painter {
             if (p.terrain != null) {
 
                 if ((p.ImgData != null) && ((p.IsTerrainHeightTexture())) && (p.IsOriginalShader))
-                    pegi.writeWarning(" You need to use Preview Shader to see changes");
+                    pegi.writeWarning("Preview Shader is needed to see changes to terrain height.");
 
                 pegi.newLine();
 

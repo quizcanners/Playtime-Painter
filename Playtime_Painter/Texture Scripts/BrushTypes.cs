@@ -69,24 +69,6 @@ namespace Playtime_Painter
             return from;
         }
 
-        public virtual bool ShowInDropdown()
-        {
-            if (PlaytimePainter.inspectedPainter == null)
-                return false;
-
-            ImageData id = InspectedImageData;
-
-            if (id == null)
-                return false;
-
-            return  //((id.destination == dest.Texture2D) && (supportedByTex2D)) || 
-
-                (((id.destination == TexTarget.RenderTexture) &&
-                    ((SupportedByRenderTexturePair && (id.renderTexture == null))
-                        || (SupportedBySingleBuffer && (id.renderTexture != null)))
-                ));
-        }
-
         public void SetKeyword(bool texcoord2)
         {
 
@@ -126,7 +108,26 @@ namespace Playtime_Painter
         public virtual bool StartPaintingTheMomentMouseIsDown { get { return true; } }
         public virtual bool SupportedForTerrain_RT { get { return true; } }
         public virtual bool NeedsGrid { get { return false; } }
-#if PEGI
+
+        #if PEGI
+        public virtual bool ShowInDropdown()
+        {
+            if (PlaytimePainter.inspectedPainter == null)
+                return false;
+
+            ImageData id = InspectedImageData;
+
+            if (id == null)
+                return false;
+
+            return  //((id.destination == dest.Texture2D) && (supportedByTex2D)) || 
+
+                (((id.destination == TexTarget.RenderTexture) &&
+                    ((SupportedByRenderTexturePair && (id.renderTexture == null))
+                        || (SupportedBySingleBuffer && (id.renderTexture != null)))
+                ));
+        }
+
         public virtual bool Inspect()
         {
 

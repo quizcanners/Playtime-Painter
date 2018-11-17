@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
-using STD_Animations;
-
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -33,11 +31,7 @@ namespace SharedTools_Stuff {
 
     }
 
-    [CustomEditor(typeof(SpeedAnimationController))]
-    public class SpeedAnimationControllerDrawer : Editor
-    {
-        public override void OnInspectorGUI() => ((SpeedAnimationController)target).Inspect(serializedObject);
-    }
+
 
     [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
     public class PEGI_SimpleInspectorsBrowserDrawer : Editor
@@ -45,12 +39,12 @@ namespace SharedTools_Stuff {
         public override void OnInspectorGUI() => ((PEGI_SimpleInspectorsBrowser)target).Inspect(serializedObject);
     }
 
-
+/*
     [CustomEditor(typeof(ISTD_Explorer))]
     public class ISTD_ExplorerDrawer : Editor
     {
         public override void OnInspectorGUI() => ((ISTD_Explorer)target).Inspect(serializedObject);
-    }
+    }*/
 
     [CustomEditor(typeof(GodMode))]
     public class GodModeDrawer : Editor

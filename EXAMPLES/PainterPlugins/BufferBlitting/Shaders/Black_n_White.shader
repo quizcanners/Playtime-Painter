@@ -23,16 +23,23 @@
 		CGPROGRAM
 #pragma vertex vert
 #pragma fragment frag
-#include "Assets/Tools/Playtime_Painter/Resources/Shaders/qc_Includes.cginc"
+#include "UnityCG.cginc"	
 
 		sampler2D _MainTex;
+
+		sampler2D _SourceTexture;
 		float _Noise;
+		sampler2D _DestBuffer;
+		float4 _DestBuffer_TexelSize;
 
 	struct v2f {
 		float4 pos : POSITION;
 		float2 texcoord : TEXCOORD0;
 	};
 
+	inline float random(float2 st) {
+		return frac(sin(dot(st.xy + _Time.x, float2(12.9898f, 78.233f)))* 43758.5453123f);
+	}
 
 	v2f vert(appdata_full v) {
 		v2f o;

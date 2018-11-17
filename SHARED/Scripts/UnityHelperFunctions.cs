@@ -17,7 +17,13 @@ using UnityEditor;
 #endif
 
 namespace SharedTools_Stuff {
-    
+
+    public interface IManageFading
+    {
+        void FadeAway();
+        bool TryFadeIn();
+    }
+
     public class ChillLogger {
         bool logged = false;
         bool disabled = false;
@@ -92,7 +98,25 @@ namespace SharedTools_Stuff {
     }
     
     public static class UnityHelperFunctions {
-        
+
+        #region External Communications
+        public static void SendEmail(string to) => Application.OpenURL("mailto:{0}".F(to));
+
+        public static void SendEmail(string email, string subject, string body) =>
+        Application.OpenURL("mailto:{0}?subject={1}&body={2}".F(email, subject.MyEscapeURL(), body.MyEscapeURL()));
+
+        static string MyEscapeURL(this string url) =>
+#if UNITY_2018_1_OR_NEWER
+            UnityWebRequest
+#else
+            WWW
+#endif
+            .EscapeURL(url).Replace("+", "%20");
+
+        public static void OpenBrowser(string address) => Application.OpenURL(address);
+
+        #endregion
+
         #region Timing
 
 
@@ -1683,7 +1707,7 @@ namespace SharedTools_Stuff {
 
             if (newProtos.Length <= index)
             {
-               Array_Extensions.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+               CsharpFuncs.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
             }
 
             newProtos[index].texture = tex;

@@ -5,7 +5,8 @@ Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Stone
   m_Shader: {fileID: 4800000, guid: 5ebc3bbd9fcb9cd46b7ad6275c0e1158, type: 3}
   m_ShaderKeywords: _BUMP_COMBINED _NORMALMAP
@@ -112,7 +113,7 @@ Material:
     - _GlossMapScale: 0.208
     - _Glossiness: 0.13
     - _GlossyReflections: 1
-    - _Merge: 0.75
+    - _Merge: 1.1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 0.84

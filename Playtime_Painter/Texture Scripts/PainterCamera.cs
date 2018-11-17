@@ -22,15 +22,21 @@ namespace Playtime_Painter
 
         [SerializeField] PainterDataAndConfig dataHolder;
 
-        public static PainterDataAndConfig Data
-        {
-            get
-            {
-                if (_inst && _inst.dataHolder)
-                    return _inst.dataHolder;
+        static bool triedToFind = false;
 
-                return null;
+        public static PainterDataAndConfig Data  {
+            get  {
 
+                if (!_inst && Inst == null)
+                    return null;
+
+                if (!triedToFind && !_inst.dataHolder) {
+                    triedToFind = true;
+                    _inst.dataHolder = Resources.Load<PainterDataAndConfig>("");
+
+                }
+
+                return _inst.dataHolder;
             }
         }
 
@@ -594,18 +600,16 @@ namespace Playtime_Painter
             if (Data)
                 rtcam.cullingMask = 1 << Data.myLayer;
 
-            if (PlaytimeToolComponent.enabledTool == null)
+            if (PainterDataAndConfig.toolEnabled == false)
             {
                 if (!Application.isEditor)
                 {
 #if BUILD_WITH_PAINTER
-                    PlaytimeToolComponent.enabledTool = typeof(PlaytimePainter);
+                    PainterDataAndConfig.toolEnabled = true;
 #else
-                    PlaytimeToolComponent.GetPrefs();
+                    PlaytimePainter.GetPrefs();
 #endif
                 }
-                else
-                    PlaytimeToolComponent.GetPrefs();
             }
 #if UNITY_EDITOR
 
@@ -693,9 +697,6 @@ namespace Playtime_Painter
             if (Data)
                 Data.OnDisable();
 
-            if (PlaytimePainter.IsCurrent_Tool())
-                PlaytimeToolComponent.SetPrefs();
-
             downloadManager.Dispose();
 
 #if UNITY_EDITOR
@@ -749,6 +750,12 @@ namespace Playtime_Painter
                 meshManager.Update();
         }
 
+        public static GameObject refocusOnThis;
+#if UNITY_EDITOR
+        static int scipframes = 3;
+#endif
+      
+
         public void CombinedUpdate()
         {
             if (!Data)
@@ -778,7 +785,18 @@ namespace Playtime_Painter
                     l.Last().PlaybeckVectors();
             }
 
-            PlaytimeToolComponent.CheckRefocus();
+#if UNITY_EDITOR
+            if (refocusOnThis != null)
+            {
+                scipframes--;
+                if (scipframes == 0)
+                {
+                    UnityHelperFunctions.FocusOn(refocusOnThis);
+                    refocusOnThis = null;
+                    scipframes = 3;
+                }
+            }
+#endif
 
             if (Data && (Data.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
             {
@@ -786,7 +804,7 @@ namespace Playtime_Painter
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
                 {
                     Collider c = hit.collider;
-                    if ((c.GetType() != typeof(MeshCollider)) && (PlaytimeToolComponent.PainterCanEditWithTag(c.tag))) c.enabled = false;
+                    if ((c.GetType() != typeof(MeshCollider)) && (PlaytimePainter.CanEditWithTag(c.tag))) c.enabled = false;
                 }
             }
 

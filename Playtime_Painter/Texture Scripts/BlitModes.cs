@@ -23,24 +23,6 @@ namespace Playtime_Painter {
             }
         }
 
-        public virtual bool ShowInDropdown() {
-
-            bool CPU = BrushConfig.InspectedIsCPUbrush;
-
-            if (PlaytimePainter.inspectedPainter == null)
-                return (CPU ? SupportedByTex2D : SupportedByRenderTexturePair);
-
-            ImageData id = InspectedImageData;
-
-            if (id == null)
-                return false;
-
-            return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
-                ((id.destination == TexTarget.RenderTexture) &&
-                    ((SupportedByRenderTexturePair && (id.renderTexture == null))
-                        || (SupportedBySingleBuffer && (id.renderTexture != null))));
-        }
-
 
         public BlitMode SetKeyword(ImageData id)
         {
@@ -122,6 +104,27 @@ namespace Playtime_Painter {
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit;
 #if PEGI
+
+        public virtual bool ShowInDropdown()
+        {
+
+            bool CPU = BrushConfig.InspectedIsCPUbrush;
+
+            if (PlaytimePainter.inspectedPainter == null)
+                return (CPU ? SupportedByTex2D : SupportedByRenderTexturePair);
+
+            ImageData id = InspectedImageData;
+
+            if (id == null)
+                return false;
+
+            return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
+                ((id.destination == TexTarget.RenderTexture) &&
+                    ((SupportedByRenderTexturePair && (id.renderTexture == null))
+                        || (SupportedBySingleBuffer && (id.renderTexture != null))));
+        }
+
+
         public virtual bool PEGI()
         {
 

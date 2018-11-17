@@ -7,8 +7,7 @@ namespace SharedTools_Stuff
 
     public static class MyDebugClasses
     {
-
-
+        
         public static void DrawCubeDebug(Color col, Vector3 piecePos, Vector3 dest)
         {
             Debug.DrawLine(new Vector3(piecePos.x, piecePos.y, piecePos.z), new Vector3(dest.x, piecePos.y, piecePos.z), col);
@@ -36,9 +35,7 @@ namespace SharedTools_Stuff
             to = tf.TransformPoint(to);
             Debug.DrawLine(from, to, col);
         }
-
-
-
+        
         public static void DrawTransformedCubeDebug(this Transform tf, Color col)
         {
             Vector3 dlb = new Vector3(-0.5f, -0.5f, -0.5f);
@@ -99,7 +96,6 @@ namespace SharedTools_Stuff
             Gizmos.DrawLine(urb, ulb);
 
         }
-
 
     }
 }

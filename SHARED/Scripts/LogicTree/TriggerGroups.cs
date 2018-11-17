@@ -242,8 +242,7 @@ namespace STD_Logic
 
 
                 "Share:".write("Paste message full with numbers and lost of ' | ' symbols into the first line or drop file into second" ,50);
-
-                var ind = index;
+                
                 string data;
                 if (this.Send_Recieve_PEGI("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups", out data)) {
                     TriggerGroup tmp = new TriggerGroup();

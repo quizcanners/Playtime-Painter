@@ -28,17 +28,15 @@ namespace Playtime_Painter {
 
         public const string ToolName = "Mesh_Editor";
 
-        public static string ToolPath()
-        {
-			return PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
-        }
+        public const string ToolsFolder = "Tools";
+
+        public static string ToolPath() => "{0}/{1}".F(ToolsFolder,ToolName);
         
         public MeshToolBase MeshTool { get { return PainterCamera.Data.MeshTool; } }
 
         public int editedUV = 0;
         public static Vector3 editorMousePos;
-
-
+        
         [NonSerialized]
         public PlaytimePainter target;
         public PlaytimePainter previouslyEdited;
@@ -714,7 +712,7 @@ namespace Playtime_Painter {
                     tmpRay.origin = Transform.gameObject.TryGetCameraTransform().position;
                     tmpRay.direction = mrkr.go.transform.position - tmpRay.origin;
 
-                    if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!PlaytimeToolComponent.MeshEditorIgnore.Contains(hit.transform.tag)))
+                    if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!MeshEditorIgnore.Contains(hit.transform.tag)))
                         mrkr.go.SetActiveTo(false);
 
                     if (SameTrisAsPointed(vpoint))           
@@ -729,7 +727,17 @@ namespace Playtime_Painter {
 
 
         }
-        
+
+        public static List<string> MeshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
+
+        public static bool MesherCanEditWithTag(string tag)
+        {
+            foreach (string x in MeshEditorIgnore)
+                if (tag.Contains(x))
+                    return false;
+            return true;
+        }
+
         public void DRAW_Lines(bool isGizmoCall)
         {
 

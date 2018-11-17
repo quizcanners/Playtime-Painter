@@ -17,7 +17,7 @@ namespace Playtime_Painter
     [HelpURL(WWW_Manual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : PlaytimeToolComponent, ISTD, IPEGI {
+    public class PlaytimePainter : MonoBehaviour, ISTD, IPEGI {
 
         #region StaticGetters
 
@@ -27,7 +27,7 @@ namespace Playtime_Painter
 
         public static PainterBoolPlugin plugins_GizmoDraw;
 
-        public static bool IsCurrent_Tool() => enabledTool == typeof(PlaytimePainter);
+        public static bool IsCurrent_Tool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
 
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
 
@@ -41,14 +41,12 @@ namespace Playtime_Painter
 
         protected static GridNavigator Grid => GridNavigator.Inst();
 
-        public override string ToolName() => PainterDataAndConfig.ToolName;
+        public string ToolName => PainterDataAndConfig.ToolName;
 
         private bool NeedsGrid => this.NeedsGrid();
 
-        public override Texture ToolIcon()
-        {
-            return icon.Painter.GetIcon();
-        }
+        public Texture ToolIcon => icon.Painter.GetIcon();
+        
 
         #endregion
 
@@ -263,23 +261,16 @@ namespace Playtime_Painter
         bool CanPaint()
         {
 
-            if (!IsCurrentTool()) return false;
+            if (!IsCurrent_Tool) return false;
 
             last_MouseOver_Object = this;
 
             if (LockTextureEditing)
                 return false;
 
-            if (IsTerrainHeightTexture() && IsOriginalShader)
-            {
-#if PEGI
-                if (stroke.mouseDwn)
-                    "Can't edit without Preview".showNotificationIn3D_Views();
-#endif
-
+            if (IsTerrainHeightTexture() && IsOriginalShader)  
                 return false;
-            }
-
+            
             if ((stroke.mouseDwn) || (stroke.mouseUp))
                 InitIfNotInited();
 
@@ -443,7 +434,7 @@ namespace Playtime_Painter
         {
             if (MatDta == null)
                 return;
-            if ((!IsCurrentTool()) || (LockTextureEditing && !IsEditingThisMesh))
+            if ((!IsCurrent_Tool) || (LockTextureEditing && !IsEditingThisMesh))
                 SetOriginalShaderOnThis();
             else if ((MatDta.usePreviewShader) && (IsOriginalShader))
                 SetPreviewShader();
@@ -1622,12 +1613,22 @@ namespace Playtime_Painter
             if ((tf.GetComponent<PlaytimePainter>() == null)
                 && (tf.GetComponent<Renderer>() != null)
 
-                && (tf.GetComponent<RenderBrush>() == null) && (PlaytimeToolComponent.PainterCanEditWithTag(tf.tag)))
+                && (tf.GetComponent<RenderBrush>() == null) && (CanEditWithTag(tf.tag)))
                 tf.gameObject.AddComponent<PlaytimePainter>();
 
             for (int i = 0; i < tf.childCount; i++)
                 IterateAssignToChildren(tf.GetChild(i));
 
+        }
+
+        public static List<string> TextureEditorIgnore = new List<string> { "VertexEd", "toolComponent", "o" };
+
+        public static bool CanEditWithTag(string tag)
+        {
+            foreach (string x in TextureEditorIgnore)
+                if (tag.Contains(x))
+                    return false;
+            return true;
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
@@ -1665,18 +1666,14 @@ namespace Playtime_Painter
         public static void OpenWWW_Forum() => Application.OpenURL("https://www.quizcanners.com/forum/texture-editor");
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => ExternalCommunication.SendEmail("quizcanners@gmail.com", "About your Playtime Painter", 
+        public static void Open_Email() => UnityHelperFunctions.SendEmail("quizcanners@gmail.com", "About your Playtime Painter", 
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ..."); 
 
 #endif
 
-        public override void OnDestroy()
+        public void OnDestroy()
         {
 
-
-
-
-            base.OnDestroy();
 
             Collider[] collis = GetComponents<Collider>();
 
@@ -1711,12 +1708,11 @@ namespace Playtime_Painter
             }
         }
 
-        public override void OnEnable()
+        public void OnEnable()
         {
 
             PainterStuff.applicationIsQuitting = false;
-
-            base.OnEnable();
+            
             if (plugins == null)
                 plugins = new List<PainterPluginBase>();
 
@@ -1825,28 +1821,36 @@ namespace Playtime_Painter
 
         #region Inspector 
 
-        public override void OnGUI()
-        {
-#if !BUILD_WITH_PAINTER
-            //Debug.Log("Not building with painter");
-#endif
+        public void OnGUI() {
 
 #if BUILD_WITH_PAINTER
-            if (Cfg && Cfg.enablePainterUIonPlay)
-                base.OnGUI();
+            if (Cfg && Cfg.enablePainterUIonPlay) {
+              
+            if (selectedInPlaytime == null)
+                selectedInPlaytime = this;
+#if PEGI
+            if (selectedInPlaytime == this)
+                windowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTexturePropertyName));
+#endif
+        
+
+            }
 #endif
 
         }
 
-        public override string PlaytimeWindowName => "{0} {1}".F(gameObject.name, GetMaterialTexturePropertyName);
 
         public static PlaytimePainter inspectedPainter;
 
 #if PEGI
+        public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
+
+        public static PlaytimePainter selectedInPlaytime = null;
+
+
         static string tmpURL = "";
         Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
-
-
+        
         public bool PEGI_MAIN()
         {
 
@@ -2367,11 +2371,12 @@ namespace Playtime_Painter
                                 if (!IsTerrainControlTexture())
                                 {
 
-                                    string Orig = null;
+                                   
 
                                     id = ImgData;
 
 #if UNITY_EDITOR
+                                    string Orig = null;
                                     if (id.texture2D != null)
                                     {
                                         Orig = id.texture2D.GetPathWithout_Assets_Word();
@@ -2462,13 +2467,28 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public override bool Inspect()
+        public bool Inspect()
         {
             bool changed = false;
 
-            ToolManagementPEGI();
+         
+                if (!IsCurrent_Tool) {
+                if (icon.Off.Click("Click to Enable Tool", 35).nl(ref changed))
+                    IsCurrent_Tool = true;
+                }
+                else {
+                    selectedInPlaytime = this;
+                    if (icon.On.Click("Click to Disable Tool", ref changed, 35))
+                    IsCurrent_Tool = false;
+                }
 
-            if (IsCurrentTool())
+                if ((changed) && (!IsCurrent_Tool))
+                    windowPosition.collapse();
+
+          
+
+
+            if (IsCurrent_Tool)
             {
 
                 changed |= PEGI_MAIN().nl();
@@ -2486,9 +2506,9 @@ namespace Playtime_Painter
             return changed;
         }
 
-#endif
+        #endif
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         static Tool previousEditorTool = Tool.None;
         public static void RestoreUnityTool()
         {
@@ -2514,7 +2534,7 @@ namespace Playtime_Painter
                     MeshManager.Inst.DRAW_Lines(true);
             }
 
-            if ((IsOriginalShader) && (!LockTextureEditing) && (last_MouseOver_Object == this) && IsCurrentTool() && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
+            if ((IsOriginalShader) && (!LockTextureEditing) && (last_MouseOver_Object == this) && IsCurrent_Tool && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
 
             if (plugins_GizmoDraw != null)
@@ -2522,7 +2542,7 @@ namespace Playtime_Painter
                     gp(this);
 
         }
-#endif
+        #endif
 
         #endregion
 
@@ -2627,7 +2647,7 @@ namespace Playtime_Painter
 
         #region Mesh Editing 
 
-        public bool IsEditingThisMesh { get { return IsCurrentTool() && meshEditing && (MeshManager.Inst.target == this); } }
+        public bool IsEditingThisMesh { get { return IsCurrent_Tool && meshEditing && (MeshManager.Inst.target == this); } }
 
         public MeshManager MeshManager { get { return MeshManager.Inst; } }
 

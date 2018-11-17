@@ -24,7 +24,7 @@
 #pragma vertex vert
 #pragma fragment frag
 
-#include "Assets/Tools/Playtime_Painter/Resources/Shaders/qc_Includes.cginc"
+#include "UnityCG.cginc"	
 
 		sampler2D _MainTex;
 	float _Power;

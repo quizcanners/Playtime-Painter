@@ -18,24 +18,27 @@ public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
     public Texture2D heightMap;
     public Texture2D overlay;
 
-	public bool ShowInDropdown() => heightMap && overlay;
-    
+        #region Inspector
 #if PEGI
+        public bool ShowInDropdown() => heightMap && overlay;
+
         public string NameForPEGI { get { return decalName; } set { decalName = value; } }
 
-        public bool Inspect() {
+        public bool Inspect()
+        {
             var changed = this.inspect_Name().nl();
 
             "Type".editEnum(40, ref type).nl();
             "Height Map".edit(ref heightMap).nl();
             "Overlay".edit(ref overlay).nl();
 
-                return changed;
+            return changed;
         }
 
         public string NameForPEGIdisplay => "{0} ({1})".F(decalName, type);
-        
+
 #endif
+        #endregion
     }
 
 

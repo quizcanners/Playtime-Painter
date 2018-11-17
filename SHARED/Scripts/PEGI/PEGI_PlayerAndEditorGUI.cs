@@ -66,6 +66,14 @@ public interface IGotCount
 #endif
 }
 
+public interface IEditorDropdown
+{
+#if PEGI
+    bool ShowInDropdown();
+#endif
+}
+
+
 #endregion
 
 #pragma warning disable IDE1006 
@@ -5290,7 +5298,7 @@ namespace PlayerAndEditorGUI {
                         if (i > 0)
                         {
                             if (icon.Up.ClickUnfocus("Move up", bttnWidth).changes(ref changed))
-                                Array_Extensions.Swap(ref array, i, i - 1);
+                                CsharpFuncs.Swap(ref array, i, i - 1);
                             
                         }
                         else
@@ -5299,7 +5307,7 @@ namespace PlayerAndEditorGUI {
                         if (i < array.Length - 1)
                         {
                             if (icon.Down.ClickUnfocus("Move down", bttnWidth).changes(ref changed))
-                                Array_Extensions.Swap(ref array, i, i + 1);
+                                CsharpFuncs.Swap(ref array, i, i + 1);
                             
                         }
                         else icon.DownLast.write(bttnWidth);
@@ -5316,7 +5324,7 @@ namespace PlayerAndEditorGUI {
                         else
                         {
                             if (icon.Close.ClickUnfocus("Remove From Array", bttnWidth).changes(ref changed)) {
-                                Array_Extensions.Remove(ref array, i);
+                                CsharpFuncs.Remove(ref array, i);
                                 i--;
                             }
                         }
@@ -5599,7 +5607,34 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-        
+
+        public static bool clickHighlight(this Sprite sp)
+        {
+#if UNITY_EDITOR
+            if (sp != null && sp.Click(Msg.HighlightElement.Get()))
+            {
+                EditorGUIUtility.PingObject(sp);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+        public static bool clickHighlight(this Texture tex)
+        {
+#if UNITY_EDITOR
+            if (tex != null && tex.Click(Msg.HighlightElement.Get()))
+            {
+                EditorGUIUtility.PingObject(tex);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+
         public static bool clickHighlight(this UnityEngine.Object obj) =>
            obj.clickHighlight(icon.Search.GetIcon());
 
@@ -6687,7 +6722,7 @@ namespace PlayerAndEditorGUI {
                 if (inspected == -1) {
 
                     if (icon.Add.ClickUnfocus("Add and instantiate element"))
-                        Array_Extensions.AddAndInit(ref array, 1);
+                        CsharpFuncs.AddAndInit(ref array, 1);
 
                     changed |= edit_Array_Order(ref array, datas).nl();
 
@@ -7169,22 +7204,26 @@ namespace PlayerAndEditorGUI {
         {
 #if UNITY_EDITOR
 
-          //  if (!Application.isPlaying) {
-
-                var lst = Resources.FindObjectsOfTypeAll<SceneView>();
-            //if (lst.Length > 0)
-            foreach (var w in lst)
-                w.ShowNotification(new GUIContent(text));
-
-           // }  else {
-
+            if (Application.isPlaying)
+            {
                 if (gameViewType == null)
                     gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
 
                 var ed = EditorWindow.GetWindow(gameViewType);
                 if (ed != null)
                     ed.ShowNotification(new GUIContent(text));
-           // }
+            }
+            else
+            {
+                var lst = Resources.FindObjectsOfTypeAll<SceneView>();
+
+                foreach (var w in lst)
+                    w.ShowNotification(new GUIContent(text));
+
+            }
+         
+
+            
 #endif
         }
     }

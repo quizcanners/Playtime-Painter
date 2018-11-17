@@ -394,8 +394,6 @@ namespace SharedTools_Stuff {
 
             bool changed = false;
 
-            var attention = NeedAttention();
-
             if (inspectedStuff == -1)
                 pegi.Lock_UnlockWindow(gameObject);
 
@@ -466,7 +464,8 @@ namespace SharedTools_Stuff {
 
                 var data = std.Encode().ToString();
 
-                ExternalCommunication.SendEmail ( "somebody@gmail.com", subject, "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNL, pegi.EnvironmentNL,
+                UnityHelperFunctions.SendEmail ( "somebody@gmail.com", subject, 
+                    "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNL, pegi.EnvironmentNL,
                     stdStart, data, stdEnd ) ) ;
 
             }

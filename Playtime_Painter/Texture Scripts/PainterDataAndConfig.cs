@@ -17,6 +17,8 @@ namespace Playtime_Painter
         public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
+        public static bool toolEnabled = false;
+
         #region Shaders
         public Shader br_Blit = null;
         public Shader br_Add = null;
@@ -327,7 +329,8 @@ namespace Playtime_Painter
               .Add_IfNotNegative("isfs", inspectedStuffs)
               .Add_IfNotNegative("im", inspectedMaterial)
               .Add_IfNotNegative("id", inspectedDecal)
-              .Add_IfNotNegative("is", inspectedStuff);
+              .Add_IfNotNegative("is", inspectedStuff)
+              .Add_IfTrue("e", toolEnabled);
 
             return cody;
         }
@@ -345,6 +348,7 @@ namespace Playtime_Painter
                 case "im": inspectedMaterial = data.ToInt(); break;
                 case "id": inspectedDecal = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
+                case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
             }
             return true;

@@ -113,7 +113,7 @@ public static class TextureEditorExtensionFunctions  {
             
             if (!pntr.meshEditing) {
 
-                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrent_Tool()) {
+                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrent_Tool) {
                     if (pntr.GlobalBrushType.NeedsGrid) return true;
 
                     if (GridNavigator.pluginNeedsGrid_Delegates != null)

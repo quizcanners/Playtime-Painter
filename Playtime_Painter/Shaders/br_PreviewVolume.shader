@@ -24,7 +24,7 @@
 #pragma vertex vert
 #pragma fragment frag
 
-#include "Assets/Tools/Playtime_Painter/Resources/Shaders/qc_Includes.cginc"
+#include "qc_Includes.cginc"
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 
@@ -33,7 +33,6 @@
 	float4 _PreviewTex_TexelSize;
 	float4 VOLUME_H_SLICES;
 	float4 VOLUME_POSITION_N_SIZE;
-
 
 	struct v2f {
 		float4 pos : POSITION;
