@@ -126,14 +126,20 @@ namespace PlayerAndEditorGUI {
 
             public void Render(windowFunction doWindow, string c_windowName)
             {
+                windowRect.x = Mathf.Clamp( windowRect.x, 0, Screen.width - 10);
+                windowRect.y = Mathf.Clamp( windowRect.y, 0, Screen.height - 10);
+
+
                 funk = doWindow;
                 windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName);
             }
 
-            public void collapse()
+            public void Collapse()
             {
                 windowRect.width = 10;
                 windowRect.height = 10;
+                windowRect.x = 10;
+                windowRect.y = 10;
             }
 
             public windowPositionData()
@@ -620,10 +626,17 @@ namespace PlayerAndEditorGUI {
             else
 #endif
             {
-                checkLine();
-                GUIContent c = new GUIContent() { image = img };
 
-                GUILayout.Button(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));
+                SetBgColor(Color.clear);
+
+                img.Click(width);
+
+                RestoreBGcolor();
+
+                /* checkLine();
+                 GUIContent c = new GUIContent() { image = img };
+
+                 GUILayout.Button(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));*/
             }
 
         }
@@ -638,10 +651,19 @@ namespace PlayerAndEditorGUI {
             }
             else
 #endif
-            {
-                checkLine();
-                GUIContent c = new GUIContent() { image = img, tooltip = tip };
-                GUILayout.Label(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));
+
+            
+           {
+
+                SetBgColor(Color.clear);
+
+                img.Click(tip, width, width);
+
+                RestoreBGcolor();
+
+                /* checkLine();
+                 GUIContent c = new GUIContent() { image = img, tooltip = tip };
+                 GUILayout.Label(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width));*/
             }
 
         }
@@ -657,9 +679,17 @@ namespace PlayerAndEditorGUI {
             else
 #endif
             {
-                checkLine();
+
+                SetBgColor(Color.clear);
+
+                img.Click(tip, width, height);
+
+                RestoreBGcolor();
+
+
+                /*checkLine();
                 GUIContent c = new GUIContent() { image = img, tooltip = tip };
-                GUILayout.Label(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height));
+                GUILayout.Label(c, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height));*/
             }
 
         }

@@ -13,12 +13,12 @@ namespace Playtime_Painter {
     public class PlaytimePainterClassDrawer : Editor
     {
 
-        static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
+        static PainterDataAndConfig Cfg => PainterCamera.Data;
 
-        public bool AllowEditing(PlaytimePainter targ) {
-            return (targ) && ((!targ.LockTextureEditing) || targ.IsEditingThisMesh);
-        }
+        bool CurrentTool => PlaytimePainter.IsCurrent_Tool;
 
+        public bool AllowEditing(PlaytimePainter targ) => (targ) && ((!targ.LockTextureEditing) || targ.IsEditingThisMesh);
+        
         public bool OnEditorRayHit(RaycastHit hit, Ray ray) {
 
             Transform tf = hit.transform;
@@ -158,7 +158,26 @@ namespace Playtime_Painter {
                 painter.Update();
 
         }
-        
+
+        public virtual void OnSceneGUI()
+        {
+
+            if (CurrentTool && (painter != null) && (UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter) == false))
+                PlaytimePainter.IsCurrent_Tool = false;
+
+            if (AllowEditing(painter))
+            {
+
+                GridUpdate(SceneView.currentDrawingSceneView);
+
+                if ((!navigating) && CurrentTool)
+                    HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+
+            }
+
+            navigating = false;
+        }
+
         public static Tool previousTool;
 
         static PlaytimePainter painter;

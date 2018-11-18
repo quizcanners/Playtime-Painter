@@ -1597,7 +1597,17 @@ namespace Playtime_Painter
         public bool autoSelectMaterial_byNumberOfPointedSubmesh = true;
 
         public const string WWW_Manual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
+        
+        public static List<string> TextureEditorIgnore = new List<string> { "VertexEd", "toolComponent", "o" };
 
+        public static bool CanEditWithTag(string tag)
+        {
+            foreach (string x in TextureEditorIgnore)
+                if (tag.Contains(x))
+                    return false;
+            return true;
+        }
+        
 #if UNITY_EDITOR
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Attach Painter To Selected")]
@@ -1619,16 +1629,6 @@ namespace Playtime_Painter
             for (int i = 0; i < tf.childCount; i++)
                 IterateAssignToChildren(tf.GetChild(i));
 
-        }
-
-        public static List<string> TextureEditorIgnore = new List<string> { "VertexEd", "toolComponent", "o" };
-
-        public static bool CanEditWithTag(string tag)
-        {
-            foreach (string x in TextureEditorIgnore)
-                if (tag.Contains(x))
-                    return false;
-            return true;
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
@@ -2047,6 +2047,8 @@ namespace Playtime_Painter
                         #region Undo/Redo & Recording
                         id.Undo_redo_PEGI();
 
+                     
+
                         if (id.showRecording)
                             if (!id.recording)
                                 this.Playback_PEGI();
@@ -2078,12 +2080,14 @@ namespace Playtime_Painter
                             pegi.nl();
                         }
 
+                       
+
                         changed |= GlobalBrush.Inspect();
 
                         BlitMode mode = GlobalBrush.BlitMode;
                         Color col = GlobalBrush.colorLinear.ToGamma();
 
-                        if ((CPU || (!mode.UsingSourceTexture)) && (IsTerrainHeightTexture() == false)) {
+                        if ((CPU || (!mode.UsingSourceTexture)) && (!IsTerrainHeightTexture() ) && !pegi.paintingPlayAreaGUI) {
                             if (pegi.edit(ref col).changes(ref changed))
                                 GlobalBrush.colorLinear.From(col);
                             
@@ -2482,8 +2486,9 @@ namespace Playtime_Painter
                     IsCurrent_Tool = false;
                 }
 
-                if ((changed) && (!IsCurrent_Tool))
-                    windowPosition.collapse();
+            if ((changed) && (!IsCurrent_Tool)) 
+                windowPosition.Collapse();
+            
 
           
 

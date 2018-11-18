@@ -216,9 +216,7 @@ namespace SharedTools_Stuff {
         
         public static bool IsUnityObject(this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
 
-        public static Color ToOpaque(this Color col)
-        {
-            // if (col != null)
+        public static Color ToOpaque(this Color col)  {
             col.a = 1;
             return col;
         }

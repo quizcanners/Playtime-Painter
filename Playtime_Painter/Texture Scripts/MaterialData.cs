@@ -8,19 +8,20 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public class MaterialData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName
-    {
-
-     
-
+    public class MaterialData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName {
+        
+        #region Encode & Decode
+        
         public Material material;
         public int _selectedTexture;
         public bool usePreviewShader = false;
+        public List<string> materials_TextureFields = new List<string>();
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("mat", material)
             .Add("texInd", _selectedTexture)
-            .Add_Bool("pv", usePreviewShader);
+            .Add_Bool("pv", usePreviewShader)
+            .Add("tf", materials_TextureFields);
 
         public override bool Decode(string tag, string data)
         {
@@ -29,11 +30,12 @@ namespace Playtime_Painter
                 case "mat": data.Decode_Reference(ref material); break;
                 case "texInd":  _selectedTexture = data.ToInt(); break;
                 case "pv": usePreviewShader = data.ToBool(); break;
+                case "tf": data.Decode_List(out materials_TextureFields); break;
                 default: return false;
             }
             return true;
         }
-
+        #endregion
 
         [NonSerialized]
         public string bufferParameterTarget; // which texture is currently using RenderTexture buffer
@@ -45,8 +47,6 @@ namespace Playtime_Painter
                 painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.CurrentTexture(), material);
         }
 
-        public List<string> materials_TextureFields = new List<string>();
-
         public MaterialData (Material mat)  {
             material = mat;
         }
@@ -55,12 +55,12 @@ namespace Playtime_Painter
 
         public string NameForPEGIdisplay => material == null ? "Error" : material.name;
 
-
-#if PEGI
+        #region Inspector
+        #if PEGI
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            this.ToPEGIstring().write_obj(60, material);
+            this.ToPEGIstring().write_obj(90, material);
             if (icon.Enter.Click())
                 edited = ind;
             material.clickHighlight();
@@ -70,7 +70,9 @@ namespace Playtime_Painter
 
 
         public override bool Inspect() {
+
             bool changed = false;
+
             "Material:".write_obj(60, material);
             pegi.nl();
 
@@ -85,11 +87,10 @@ namespace Playtime_Painter
 
             return changed;
         }
-
-   
-
+        
 
 #endif
+        #endregion
     }
 
    

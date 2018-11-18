@@ -23,9 +23,6 @@
 	}
 
 
-	//	ColorMask RGB
-	//	Cull Off//Back
-
 		SubShader{
 		Pass{
 

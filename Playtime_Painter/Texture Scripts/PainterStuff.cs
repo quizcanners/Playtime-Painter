@@ -25,7 +25,7 @@ namespace Playtime_Painter
     {
     public abstract StdEncoder Encode();
 
-        public ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract bool Decode(string tag, string data);
     }

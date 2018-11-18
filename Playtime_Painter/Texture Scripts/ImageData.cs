@@ -146,6 +146,18 @@ namespace Playtime_Painter
             return cody;
         }
 
+        public override ISTD Decode(string data)
+        {
+            base.Decode(data);
+
+            if (texture2D) {
+                width = texture2D.width;
+                height = texture2D.height;
+            }
+
+            return this;
+        }
+
         public override bool Decode(string tag, string data)
         {
             switch (tag)
@@ -876,8 +888,9 @@ namespace Playtime_Painter
             else
                 icon.RedoDisabled.write("Nothing to Redo", 25);
 
+    
 
-            pegi.newLine();
+            pegi.nl();
 
 #if UNITY_EDITOR
             if (recording)
@@ -894,7 +907,7 @@ namespace Playtime_Painter
                 pegi.newLine();
             }
 #endif
-
+          
             return changed;
         }
 

@@ -1,7 +1,6 @@
 ﻿Shader "PlaytimePainter/BakedShadows/InVolume" {
 	Properties {
 		_MainTex_ATL ("Albedo (RGB) (Atlas)", 2D) = "white" {}
-		//_Glossiness("Smoothness", Range(0,1)) = 0.5
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0
 		[NoScaleOffset]_BumpMapC_ATL ("Combined Map ()", 2D) = "grey" {}
 		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}
