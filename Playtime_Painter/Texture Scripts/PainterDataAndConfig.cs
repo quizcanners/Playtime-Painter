@@ -325,11 +325,14 @@ namespace Playtime_Painter
                 .Add("sch", selectedColorScheme)
                 .Add("mats", matDatas, this)
                 .Add("pals", colorSchemes)
-              .Add_IfNotNegative("iid", inspectedImgData)
+
+#if PEGI
+                 .Add_IfNotNegative("iid", inspectedImgData)
               .Add_IfNotNegative("isfs", inspectedStuffs)
               .Add_IfNotNegative("im", inspectedMaterial)
               .Add_IfNotNegative("id", inspectedDecal)
               .Add_IfNotNegative("is", inspectedStuff)
+#endif
               .Add_IfTrue("e", toolEnabled);
 
             return cody;
@@ -343,11 +346,14 @@ namespace Playtime_Painter
                 case "sch": selectedColorScheme = data.ToInt(); break;
                 case "mats": data.Decode_List(out matDatas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
-                case "iid": inspectedImgData = data.ToInt(); break;
+
+#if PEGI
+                      case "iid": inspectedImgData = data.ToInt(); break;
                 case "isfs": inspectedStuffs = data.ToInt(); break;
                 case "im": inspectedMaterial = data.ToInt(); break;
                 case "id": inspectedDecal = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
+#endif
                 case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
             }
@@ -357,13 +363,13 @@ namespace Playtime_Painter
 
         #region Inspector
 
-        int inspectedImgData = -1;
+
+
+#if PEGI
+           int inspectedImgData = -1;
         int inspectedStuffs = -1;
         int inspectedMaterial = -1;
         int inspectedDecal = -1;
-
-#if PEGI
-
         public bool DatasPEGI()
         {
             bool changes = false;

@@ -1842,15 +1842,17 @@ namespace Playtime_Painter
 
         public static PlaytimePainter inspectedPainter;
 
-#if PEGI
-        public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
+        Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
 
         public static PlaytimePainter selectedInPlaytime = null;
 
+#if PEGI
+        public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
+
+
 
         static string tmpURL = "";
-        Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
-        
+  
         public bool PEGI_MAIN()
         {
 
@@ -1869,7 +1871,7 @@ namespace Playtime_Painter
 
             bool changed = false;
 
-            #region Top Buttons
+        #region Top Buttons
 
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
@@ -1914,9 +1916,9 @@ namespace Playtime_Painter
                 pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings", 25);
             }
 
-            #endregion
+        #endregion
 
-            #region Config 
+        #region Config 
 
             if ((Cfg.showConfig) || (PainterStuff.IsNowPlaytimeAndDisabled))
             {
@@ -1929,9 +1931,9 @@ namespace Playtime_Painter
             else
             {
 
-                #endregion
+        #endregion
 
-                #region Mesh Editing
+        #region Mesh Editing
 
                 if (meshEditing)
                 {
@@ -2032,9 +2034,9 @@ namespace Playtime_Painter
 
                 }
 
-                #endregion
+        #endregion
 
-                #region Texture Editing
+        #region Texture Editing
 
                 else
                 {
@@ -2044,7 +2046,7 @@ namespace Playtime_Painter
                     if (!LockTextureEditing)
                     {
 
-                        #region Undo/Redo & Recording
+        #region Undo/Redo & Recording
                         id.Undo_redo_PEGI();
 
                      
@@ -2070,9 +2072,9 @@ namespace Playtime_Painter
                         if (!CPU && id.texture2D != null && id.width != id.height)
                             "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
 
-                        #endregion
+        #endregion
 
-                        #region Brush
+        #region Brush
 
                         if (Application.isPlaying && Camera.main == null)
                         {
@@ -2114,9 +2116,9 @@ namespace Playtime_Painter
                             }
                         }
 
-                        #endregion
+        #endregion
 
-                        #region Fancy Options
+        #region Fancy Options
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
                         if (Cfg.moreOptions)
@@ -2176,7 +2178,7 @@ namespace Playtime_Painter
 
                         if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
                             id.SetAndApply(true);
-                        #endregion
+        #endregion
                     }
                     else
                         if (!IsOriginalShader)
@@ -2186,11 +2188,11 @@ namespace Playtime_Painter
 
                     if (!PainterStuff.IsNowPlaytimeAndDisabled)
                     {
-                        #region Save Load Options
+        #region Save Load Options
 
                         if ((meshRenderer != null || terrain != null) && !Cfg.showConfig)
                         {
-                            #region Material Clonning Options
+        #region Material Clonning Options
 
                             pegi.nl();
 
@@ -2220,9 +2222,9 @@ namespace Playtime_Painter
                             pegi.nl();
                             pegi.Space();
                             pegi.nl();
-                            #endregion
+        #endregion
 
-                            #region Texture Instantiation Options
+        #region Texture Instantiation Options
 
                             if (Cfg.showURLfield)
                             {
@@ -2364,9 +2366,9 @@ namespace Playtime_Painter
                             pegi.Space();
                             pegi.newLine();
 
-                            #endregion
+        #endregion
 
-                            #region Texture Saving/Loading
+        #region Texture Saving/Loading
 
                             if (!LockTextureEditing)
                             {
@@ -2439,27 +2441,27 @@ namespace Playtime_Painter
 
                             pegi.Space();
 
-                            #endregion
+        #endregion
 
                             pegi.nl();
 
 
                         }
 
-                        #endregion
+        #endregion
                     }
 
 
                 }
                 pegi.nl();
 
-                #endregion
+        #endregion
 
-                #region Plugins
+        #region Plugins
                 if (plugins_ComponentPEGI != null)
                     foreach (pegi.CallDelegate p in plugins_ComponentPEGI.GetInvocationList())
                         changed |= p().nl();
-                #endregion
+        #endregion
             }
 
             pegi.newLine();
@@ -2511,9 +2513,9 @@ namespace Playtime_Painter
             return changed;
         }
 
-        #endif
+#endif
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         static Tool previousEditorTool = Tool.None;
         public static void RestoreUnityTool()
         {

@@ -599,18 +599,10 @@ namespace Playtime_Painter
 
             if (Data)
                 rtcam.cullingMask = 1 << Data.myLayer;
-
-            if (PainterDataAndConfig.toolEnabled == false)
-            {
-                if (!Application.isEditor)
-                {
 #if BUILD_WITH_PAINTER
+            if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
                     PainterDataAndConfig.toolEnabled = true;
-#else
-                    PlaytimePainter.GetPrefs();
 #endif
-                }
-            }
 #if UNITY_EDITOR
 
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;

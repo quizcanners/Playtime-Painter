@@ -3860,13 +3860,13 @@ MonoBehaviour:
   - {fileID: 1292240838}
   - {fileID: 43443754}
   stroke:
-    uvFrom: {x: 0.09770966, y: 0.8668136}
-    posFrom: {x: -11.995588, y: 36.990543, z: 11.063373}
-    uvTo: {x: 0.902952, y: 0.005008189}
-    posTo: {x: -13.603888, y: 36.906673, z: 12.7869835}
-    unRepeatedUV: {x: 0.902952, y: 0.005008189}
+    uvFrom: {x: 0.29011345, y: 0.2732936}
+    posFrom: {x: -12.379873, y: 36.970505, z: 12.250413}
+    uvTo: {x: 0.3570337, y: 0.5155261}
+    posTo: {x: -12.513533, y: 36.963535, z: 11.765947}
+    unRepeatedUV: {x: 0.3570337, y: 0.5155261}
     previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0.0036432971
+    avgBrushSpeed: 0.000014021739
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
@@ -4906,7 +4906,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   leftCube: {fileID: 0}
-  timer: -29.185751
+  timer: -6.34794
   style:
     m_Name: Hint Style
     m_Normal:

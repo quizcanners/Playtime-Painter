@@ -95,9 +95,11 @@ namespace STD_Logic
 
             lastUsedTrigger = ind;
 
+#if PEGI
             listDirty = true;
+#endif
         }
-        
+
         #endregion
 
         #region Encode_Decode
@@ -140,7 +142,7 @@ namespace STD_Logic
         #endregion
 
         #region Inspector
-        bool listDirty;
+      
         static int browsedGroup = -1;
         public bool showInInspectorBrowser = true;
         int lastUsedTrigger = 0;
@@ -165,6 +167,8 @@ namespace STD_Logic
         }
 
         #if PEGI
+        bool listDirty;
+
         string lastFilteredString = "";
 
         List<Trigger> filteredList = new List<Trigger>();
@@ -195,7 +199,9 @@ namespace STD_Logic
                     }
 
                 lastFilteredString = Trigger.searchField;
+#if PEGI
                 listDirty = false;
+#endif
             }
             return filteredList;
         }
