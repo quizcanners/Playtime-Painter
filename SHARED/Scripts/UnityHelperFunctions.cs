@@ -1686,8 +1686,7 @@ namespace SharedTools_Stuff {
 #endregion
         #endregion
     }
-
-
+    
     public interface IManageFading
     {
         void FadeAway();
@@ -1770,8 +1769,7 @@ namespace SharedTools_Stuff {
         }
 
     }
-
-
+    
     public class TextureDownloadManager : IPEGI {
         List<WebRequestMeta> loadedTextures = new List<WebRequestMeta>();
 
@@ -1911,16 +1909,14 @@ namespace SharedTools_Stuff {
             return "";
         }
 
-         public bool TryGetTexture(int ind, out Texture tex, bool remove = false) {
+        public bool TryGetTexture(int ind, out Texture tex, bool remove = false) {
             tex = null;
             var el = loadedTextures.TryGet(ind);
             if (el != null)
                 return el.TryGetTexture(out tex, remove);
             return true;
         }
-
-
-
+        
         public int StartDownload(string address) {
             var el = loadedTextures.GetByIGotName(address);   
 
@@ -1939,7 +1935,8 @@ namespace SharedTools_Stuff {
             loadedTextures.Clear();
         }
 
-#if PEGI
+        #region Inspector
+        #if PEGI
         int inspected = -1;
         string tmp = "";
         public bool Inspect()
@@ -1953,19 +1950,149 @@ namespace SharedTools_Stuff {
 
             return changed;
         }
-#endif
+        #endif
+        #endregion
     }
 
     #region Linked Lerps
 
     public interface IlinkedLerping {
-
         void Portion(ref float portion, ref string dominantParameter);
 
         void Lerp(float portion);
     }
 
-    public class ShaderFloatValue : IlinkedLerping {
+    public class LinkedLerp_TransformLocalScale : LinkedLerp_TransformLocalPosition
+    {
+        protected override string Name => base.Name;
+
+        public override Vector3 Value { get => _transform.localScale ; set => _transform.localScale = value; }
+
+        public LinkedLerp_TransformLocalScale(Transform transform, float nspeed) : base(transform, nspeed) { }
+    }
+
+    public class LinkedLerp_TransformPosition : LinkedLerp_TransformLocalPosition
+    {
+        protected override string Name => base.Name;
+
+        public override Vector3 Value { get => _transform.position; set => _transform.position = value; }
+
+        public LinkedLerp_TransformPosition(Transform transform, float nspeed) : base(transform, nspeed) {}
+    }
+
+    public class LinkedLerp_TransformLocalPosition
+    {
+        protected virtual string Name => "Local Position";
+        public Transform _transform;
+        public Vector3 targetValue;
+        public float speed;
+
+        public virtual Vector3 Value  {
+            get { return _transform.localPosition; }
+            set { _transform.localPosition = value; }
+        }
+
+        public LinkedLerp_TransformLocalPosition(Transform transform, float nspeed)
+        {
+            _transform = transform;
+            speed = nspeed;
+        }
+
+        public void Lerp(float portion) {
+            if (!_transform)
+                return;
+
+            if (Value != targetValue)
+                Value = Vector3.Lerp(Value, targetValue, portion);
+        }
+
+        public void Portion(ref float portion, ref string dominantParameter)
+        {
+            if (!_transform)
+                return;
+            if (speed.SpeedToMinPortion((Value - targetValue).magnitude, ref portion))
+                dominantParameter = Name;
+        }
+
+    }
+
+    public class LinkedLerp_AnchoredPositionValue : IlinkedLerping
+    {
+        RectTransform rt;
+        public Vector2 targetValue;
+        public float speed;
+
+        Vector2 Position
+        {
+            get { return rt.anchoredPosition; }
+            set
+            {
+                rt.anchoredPosition = value;
+            }
+        }
+
+        public LinkedLerp_AnchoredPositionValue(RectTransform rect, float nspeed) {
+            rt = rect;
+            speed = nspeed;
+        }
+
+        public void Lerp(float portion) {
+
+            if (!rt)
+                return;
+
+            if (Position != targetValue)
+                Position = Vector2.Lerp(Position, targetValue, portion);            
+        }
+
+        public void Portion(ref float portion, ref string dominantParameter) {
+
+            if (!rt)
+                return;
+
+            if (speed.SpeedToMinPortion((Position - targetValue).magnitude, ref portion))
+                dominantParameter = "Anchored position";
+        }
+    }
+    
+    public class LinkedLerp_RectangleTransformWidthHeight : IlinkedLerping
+    {
+        RectTransform rt;
+        public Vector2 targetValue;
+        public float speed;
+
+        Vector2 size { get { return rt.sizeDelta; } set {
+                rt.sizeDelta = value; }  }
+
+        public LinkedLerp_RectangleTransformWidthHeight(RectTransform rect, float nspeed)
+        {
+            rt = rect;
+            speed = nspeed;
+        }
+
+        public void Lerp(float portion)
+        {
+
+            if (!rt)
+                return;
+
+            if (size != targetValue)
+                size = Vector2.Lerp(size, targetValue, portion);
+        }
+
+        public void Portion(ref float portion, ref string dominantParameter)
+        {
+
+            if (!rt)
+                return;
+
+            if (speed.SpeedToMinPortion((size - targetValue).magnitude, ref portion))
+                dominantParameter = "Anchored size";
+        }
+    }
+    
+    public class LinkedLerp_ShaderFloatValue : IlinkedLerping
+    {
 
         string name;
         public float value;
@@ -1975,23 +2102,26 @@ namespace SharedTools_Stuff {
         Material mat;
         Renderer rendy;
 
-        public void Set(Renderer on) {
+        public void Set(Renderer on)
+        {
             if (Application.isPlaying)
-                on.material.SetFloat (name, value);
+                on.material.SetFloat(name, value);
             else
                 on.sharedMaterial.SetFloat(name, value);
         }
 
-        void Set() {
+        void Set()
+        {
             if (mat)
                 Set(mat);
             else
                 Shader.SetGlobalFloat(name, value);
         }
-        
+
         void Set(Material on) => on.SetFloat(name, value);
 
-        public ShaderFloatValue(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
+        public LinkedLerp_ShaderFloatValue(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null)
+        {
             name = nname;
             value = startingValue;
             speed = startingSpeed;
@@ -2000,11 +2130,13 @@ namespace SharedTools_Stuff {
 
         public void LerpBySpeedTo(float dvalue, Material mat = null) => LerpBySpeedTo(dvalue, speed, mat);
 
-        public void LerpBySpeedTo(float dvalue, float nspeed, Material mat = null) {
+        public void LerpBySpeedTo(float dvalue, float nspeed, Material mat = null)
+        {
             speed = nspeed;
             targetValue = dvalue;
 
-            if (!defaultSet || dvalue != value) {
+            if (!defaultSet || dvalue != value)
+            {
                 value = MyMath.Lerp_bySpeed(value, dvalue, speed);
                 if (mat)
                     Set(mat);
@@ -2014,29 +2146,34 @@ namespace SharedTools_Stuff {
             }
         }
 
-        public void Portion(ref float portion, ref string dominantParameter) {
+        public void Portion(ref float portion, ref string dominantParameter)
+        {
 
-            if (speed.SpeedToMinPortion(value-targetValue, ref portion)) 
+            if (speed.SpeedToMinPortion(value - targetValue, ref portion))
                 dominantParameter = name;
 
         }
 
-        public void Lerp(float portion, Renderer rendy) {
-            if (value != targetValue || !defaultSet) {
+        public void Lerp(float portion, Renderer rendy)
+        {
+            if (value != targetValue || !defaultSet)
+            {
                 value = Mathf.Lerp(value, targetValue, portion);
                 Set(rendy);
             }
         }
 
-        public void Lerp(float portion) {
-            if (value != targetValue || !defaultSet) {
+        public void Lerp(float portion)
+        {
+            if (value != targetValue || !defaultSet)
+            {
                 value = Mathf.Lerp(value, targetValue, portion);
                 Set();
             }
         }
 
     }
-
+    
     public static class LinkedLerpingExtensions {
 
         public static string GetMinPortion(this List<IlinkedLerping> list, ref float portion) {
@@ -2063,7 +2200,6 @@ namespace SharedTools_Stuff {
     }
 
     #endregion
-
 
 }
 

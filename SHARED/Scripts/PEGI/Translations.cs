@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI
 
     public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement, LockToolToUseTransform, HideTransformTool,
         //LIST
-        HighlightElement, RemoveFromList, AddListElement, ReturnToListView, MakeElementNull};
+        HighlightElement, RemoveFromList, AddListElement, ReturnToList, MakeElementNull};
 
     // Will be used as:   msg.Texture2D.Get();     - will get translation in current language.
 
@@ -27,11 +27,11 @@ namespace PlayerAndEditorGUI
             Msg.BrushType.Add("Brush Type");
             Msg.BlitMode.Add("Blit Mode");
             Msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
-            Msg.InspectElement.Add("Inspect PEGI of this element");
+            Msg.InspectElement.Add("Inspect element");
             Msg.HighlightElement.Add("Highlight this element in the project");
             Msg.RemoveFromList.Add("Remove this list element");
             Msg.AddListElement.Add("Add element to a list");
-            Msg.ReturnToListView.Add("Return to list view");
+            Msg.ReturnToList.Add("Return to list");
             Msg.MakeElementNull.Add("Null this element.");
             Msg.LockToolToUseTransform.Add("Lock texture to use transform tools. Or click 'Hide transform tool'");
             Msg.HideTransformTool.Add("Hide transform tool");

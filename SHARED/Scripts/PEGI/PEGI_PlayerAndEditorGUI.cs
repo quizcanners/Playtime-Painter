@@ -819,7 +819,13 @@ namespace PlayerAndEditorGUI {
             }
 
         }
-
+        
+        public static bool write_ForCopy(string val) => edit(ref val);
+        public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
+        public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
+        public static bool write_ForCopy_Big(string val) => editBig(ref val);
+        public static bool write_ForCopy_Big(this string label, string val) => label.editBig(ref val);
+        
         public static void writeWarning(this string text)
         {
 
@@ -3465,67 +3471,9 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region edit
+        #region Edit
 
-        public static bool editKey(ref Dictionary<int, string> dic, int key)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editKey(ref dic, key);
-            }
-            else
-#endif
-            {
-                checkLine();
-                int pre = key;
-                if (editDelayed(ref key, 40))
-                    return dic.TryChangeKey(pre, key);
-
-                return false;
-            }
-        }
-
-        public static bool edit(ref Dictionary<int, string> dic, int atKey)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref dic, atKey);
-            }
-            else
-#endif
-            {
-                string before = dic[atKey];
-                if (editDelayed(ref before, 40))
-                {
-                    dic[atKey] = before;
-                    return false;
-                }
-
-                return false;
-            }
-        }
-
-        public static bool edit(this string name, ref AnimationCurve val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(name, ref val);
-            }
-            else
-#endif
-                return false;
-        }
-
-        public static bool edit(ref int current, Type type)
-        {
-            return selectEnum(ref current, type);
-        }
+        #region UnityObject
 
         public static bool edit<T>(ref T field) where T : UnityEngine.Object
         {
@@ -3555,894 +3503,6 @@ namespace PlayerAndEditorGUI {
 
                 return false;
         }
-
-        public static bool edit(GameObject go)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-
-                string name = go.name;
-                if (ef.edit(ref name))
-                {
-                    go.name = name;
-                    return true;
-                }
-                return false;
-            }
-            else
-#endif
-            {
-
-                string name = go.name;
-                if (edit(ref name))
-                {
-                    go.name = name;
-                    return true;
-                }
-                return false;
-            }
-
-        }
-
-        public static bool edit(ref Vector4 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z) | "W".edit(ref val.w);
-                return modified;
-            }
-        }
-
-        public static bool edit(this string label, ref Vector4 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(label, ref val);
-            }
-            else
-#endif
-            {
-
-                write(label);
-                bool modified = false;
-                modified |= edit(ref val.x);
-                modified |= edit(ref val.y);
-                modified |= edit(ref val.z);
-                modified |= edit(ref val.w);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(ref Vector3 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z);
-                return modified;
-            }
-        }
-
-        public static bool edit(ref Vector2 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= edit(ref val.x);
-                modified |= edit(ref val.y);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(this string label, ref Vector2 val, float min, float max)
-        {
-            "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
-            return edit(ref val, min, max);
-        }
-
-        public static bool edit(ref Vector2 val, float min, float max)
-        {
-            bool modified = false;
-
-            modified |= "X".edit(10, ref val.x, min, max);
-            modified |= "Y".edit(10, ref val.y, min, max);
-
-            return modified;
-        }
-
-        public static bool edit(this string label, ref Vector2 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(label, ref val);
-            }
-            else
-#endif
-            {
-
-                write(label);
-                bool modified = false;
-                modified |= edit(ref val.x);
-                modified |= edit(ref val.y);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(ref MyIntVec2 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= edit(ref val.x);
-                modified |= edit(ref val.y);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, int max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, min, max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= edit(ref val.x, min, max);
-                modified |= edit(ref val.y, min, max);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, min, max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                bool modified = false;
-                modified |= edit(ref val.x, min, max.x);
-                modified |= edit(ref val.y, min, max.y);
-                return modified;
-            }
-
-
-        }
-
-        public static bool edit(ref LinearColor col)
-        {
-            Color c = col.ToGamma();
-            if (edit(ref c))
-            {
-                col.From(c);
-                return true;
-            }
-            return false;
-        }
-
-        public static bool edit(ref Color col)
-        {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-                return ef.edit(ref col);
-            
-#endif
-                nl();
-                bool changed = icon.Red.edit_ColorChannel(ref col, 0).nl();
-                changed |= icon.Green.edit_ColorChannel(ref col, 1).nl();
-                changed |= icon.Blue.edit_ColorChannel(ref col, 2).nl();
-                changed |= icon.Alpha.edit_ColorChannel(ref col, 3).nl();
-
-                return changed;
-        }
-
-        public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)
-        {
-            bool changed = false;
-
-            if (channel < 0 || channel > 3)
-                "Color has no channel {0} ".F(channel).writeWarning();
-            else
-            {
-                var chan = col[channel];
-
-                if (ico.edit(ref chan, 0, 1).changes(ref changed)) 
-                    col[channel] = chan;
-                
-            }
-
-            return changed;
-        }
-
-        public static bool edit_ColorChannel(this string label, ref Color col, int channel) {
-            bool changed = false;
-
-            if (channel < 0 || channel > 3)
-                "{0} color does not have {1}'th channel".F(label, channel).writeWarning();
-            else {
-                var chan = col[channel];
-
-                if (label.edit(ref chan, 0, 1).changes(ref changed)) 
-                    col[channel] = chan;
-                
-            }
-
-            return changed;
-        }
-
-
-        public static bool edit(ref int val)
-        {
-
-
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before);
-                if (String.Compare(before, newval) != 0)
-                {
-
-                    int newValue;
-                    bool parsed = int.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
-
-                    return true;
-                }
-                return false;
-            }
-
-        }
-
-        public static bool edit(ref double val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-                return ef.edit(ref val);
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before);
-                if (String.Compare(before, newval) != 0)
-                {
-                    double newValue;
-                    if (double.TryParse(newval, out newValue))
-                    {
-                        val = newValue;
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-        }
-
-        public static bool edit(this string label, ref double val)
-        {
-            label.write();
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, int width, ref double val)
-        {
-            label.write(width);
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, string tip, int width, ref double val)
-        {
-            label.write(tip, width);
-            return edit(ref val);
-        }
-
-        public static bool edit(ref int val, int width)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, width);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (String.Compare(before, newval) != 0)
-                {
-
-                    int newValue;
-                    bool parsed = int.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
-
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool edit(ref float val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before);
-                if (String.Compare(before, newval) != 0)
-                {
-
-                    float newValue;
-                    bool parsed = float.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
-
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool edit(ref float val, int width)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, width);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (String.Compare(before, newval) != 0)
-                {
-
-                    float newValue;
-                    bool parsed = float.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
-
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool edit(ref double val, int width)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, width);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (String.Compare(before, newval) != 0)
-                {
-
-                    double newValue;
-                    bool parsed = double.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
-
-                    return true;
-                }
-                return false;
-            }
-        }
-
-
-        public static bool edit(this string label, ref float val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(label, ref val);
-            }
-            else
-#endif
-            {
-                write(label);
-                return edit(ref val);
-            }
-        }
-
-        public static bool editPOW(ref float val, float min, float max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editPOW(ref val, min, max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                float before = Mathf.Sqrt(val);
-                float after = GUILayout.HorizontalSlider(before, min, max);
-                if (before != after)
-                {
-                    val = after * after;
-                    return true;
-                }
-                return false;
-
-            }
-        }
-
-        public static bool edit(ref float val, float min, float max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, min, max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                float before = val;
-
-                val = GUILayout.HorizontalSlider(before, min, max);
-                return (before != val);
-            }
-        }
-
-        public static bool edit(ref int val, int min, int max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, (int)min, (int)max);
-            }
-            else
-#endif
-            {
-                checkLine();
-                float before = val;
-                //if (edit(ref val))
-                //val = Mathf.Clamp(val, min, max);
-                val = (int)GUILayout.HorizontalSlider(before, min, max);
-                return (before != val);
-            }
-        }
-
-        public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
-        {
-            write(text, tip, width);
-            return editEnum<T>(ref eval);
-        }
-
-        public static bool editEnum<T>(this string text, int width, ref T eval)
-        {
-            write(text, width);
-            return editEnum<T>(ref eval);
-        }
-
-        public static bool editEnum<T>(this string text, ref T eval)
-        {
-            write(text);
-            return editEnum<T>(ref eval);
-        }
-        
-        public static bool editEnum<T>(ref T eval, int width = -1)
-        {
-
-            int val = Convert.ToInt32(eval);
-
-            if (selectEnum(ref val, typeof(T), width)) {
-
-                eval = (T)((object)val);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool editTexture(this Material mat, string name)
-        {
-            return mat.editTexture(name, name);
-        }
-
-        public static bool editTexture(this Material mat, string name, string display)
-        {
-            write(display);
-            Texture tex = mat.GetTexture(name);
-
-            if (edit(ref tex))
-            {
-                mat.SetTexture(name, tex);
-                return true;
-            }
-
-            return false;
-        }
-
-        static string editedText;
-        static string editedHash = "";
-        public static bool editDelayed(ref string val)
-        {
-            if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editDelayed(ref val);
-            }
-            else
-#endif
-            {
-
-                checkLine();
-
-                if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
-                {
-                    GUILayout.TextField(val);
-
-
-                    val = editedText;
-
-                    return true;
-                }
-
-                string tmp = val;
-                if (edit(ref tmp))
-                {
-                    editedText = tmp;
-                    editedHash = val.GetHashCode().ToString();
-                }
-
-                return false;
-            }
-        }
-
-        public static bool editDelayed(this string label, ref string val)
-        {
-            write(label, Msg.editDelayed_HitEnter.Get());
-            return editDelayed(ref val);
-        }
-
-        public static bool editDelayed(ref string val, int width)
-        {
-
-            if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editDelayed(ref val, width);
-            }
-            else
-#endif
-            {
-
-                checkLine();
-
-                if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
-                {
-                    GUILayout.TextField(val);
-
-
-                    val = editedText;
-
-                    return true;
-                }
-
-                string tmp = val;
-                if (edit(ref tmp, width))
-                {
-                    editedText = tmp;
-                    editedHash = val.GetHashCode().ToString();
-                }
-
-                return false;
-            }
-        }
-
-        public static bool editDelayed(this string label, ref string val, int width)
-        {
-            write(label, Msg.editDelayed_HitEnter.Get(), width);
-
-            return editDelayed(ref val);
-
-
-        }
-
-        public static bool editDelayed(this string label, ref int val, int width)
-        {
-            write(label, Msg.editDelayed_HitEnter.Get());
-            return editDelayed(ref val, width);
-        }
-
-        public static bool editDelayed(this string label, int width, ref string val)
-        {
-            write(label, width);
-            return editDelayed(ref val);
-        }
-
-        static int editedInteger;
-        static int editedIntegerIndex;
-        public static bool editDelayed(ref int val, int width)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editDelayed(ref val, width);
-            }
-            else
-#endif
-            {
-
-                checkLine();
-
-                int tmp = (editedIntegerIndex == elementIndex) ? editedInteger : val;
-
-                if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
-                {
-                    edit(ref tmp);
-                    val = editedInteger;
-                    editedIntegerIndex = -1;
-
-                    elementIndex++;
-
-                    return true;
-                }
-
-
-                if (edit(ref tmp))
-                {
-                    editedInteger = tmp;
-                    editedIntegerIndex = elementIndex;
-                }
-
-                elementIndex++;
-
-                return false;
-            }
-        }
-
-        static string editedFloat;
-        static int editedFloatIndex;
-        public static bool editDelayed(ref float val, int width)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editDelayed(ref val, width);
-            }
-            else
-#endif
-            {
-
-                checkLine();
-
-                string tmp = (editedFloatIndex == elementIndex) ? editedFloat : val.ToString();
-
-                if (KeyCode.Return.IsDown() && (elementIndex == editedFloatIndex))
-                {
-                    edit(ref tmp);
-
-                    float newValue;
-                    if (float.TryParse(editedFloat, out newValue))
-                        val = newValue;
-                    elementIndex++;
-
-                    editedFloatIndex = -1;
-
-                    return true;
-                }
-
-
-                if (edit(ref tmp))
-                {
-                    editedFloat = tmp;
-                    editedFloatIndex = elementIndex;
-                }
-
-                elementIndex++;
-
-                return false;
-            }
-        }
-
-        const int maxStringSize = 1000;
-
-        static bool LengthIsTooLong(ref string label)
-        {
-            if (label == null || label.Length < maxStringSize)
-                return false;
-            else
-            {
-                if (icon.Delete.ClickUnfocus())
-                    label = "";
-                else 
-                    write("String is too long {0}".F(label.Substring(0, 10)));
-            }
-            return true;
-        }
-
-        public static bool edit(ref string val)
-        {
-
-            if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextField(before);
-                if (String.Compare(before, newval) != 0)
-                {
-                    val = newval;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool edit(ref string val, int width) {
-
-            if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.edit(ref val, width);
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (String.Compare(before, newval) != 0)
-                {
-                    val = newval;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool editBig(ref string val)
-        {
-
-            nl();
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                return ef.editBig(ref val).nl();
-            }
-            else
-#endif
-            {
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextArea(before);
-                if ((String.Compare(before, newval) != 0).nl())
-                {
-                    val = newval;
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        public static bool editBig(this string name, ref string val)
-        {
-
-            write(name);
-            return editBig(ref val);
-
-        }
-
-        public static bool edit<T>(ref int current) => selectEnum(ref current, typeof(T));
-
-        public static bool edit(this string label, ref LinearColor col)
-        {
-            write(label);
-            return edit(ref col);
-        }
-
         public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
         {
 
@@ -4533,6 +3593,349 @@ namespace PlayerAndEditorGUI {
             return false;
 
         }
+        #endregion
+
+        #region Vectors
+
+        public static bool edit(ref Vector4 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z) | "W".edit(ref val.w);
+                return modified;
+            }
+        }
+
+        public static bool edit(this string label, ref Vector4 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+
+                write(label);
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                modified |= edit(ref val.z);
+                modified |= edit(ref val.w);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref Vector3 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z);
+                return modified;
+            }
+        }
+
+        public static bool edit(this string label, ref Vector3 val)
+        {
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(ref Vector2 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(this string label, ref Vector2 val, float min, float max)
+        {
+            "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(ref Vector2 val, float min, float max)
+        {
+            bool modified = false;
+
+            modified |= "X".edit(10, ref val.x, min, max);
+            modified |= "Y".edit(10, ref val.y, min, max);
+
+            return modified;
+        }
+
+        public static bool edit(this string label, ref Vector2 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+
+                write(label);
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Vector2 v2)
+        {
+            write(label, tip, width);
+            return edit(ref v2);
+        }
+
+        public static bool edit(this string label, int width, ref Vector3 v3)
+        {
+            write(label, width);
+            return edit(ref v3);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Vector3 v3)
+        {
+            write(label, tip, width);
+            return edit(ref v3);
+        }
+        #endregion
+
+        #region Color
+
+        public static bool edit(ref Color col)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref col);
+
+#endif
+            nl();
+            bool changed = icon.Red.edit_ColorChannel(ref col, 0).nl();
+            changed |= icon.Green.edit_ColorChannel(ref col, 1).nl();
+            changed |= icon.Blue.edit_ColorChannel(ref col, 2).nl();
+            changed |= icon.Alpha.edit_ColorChannel(ref col, 3).nl();
+
+            return changed;
+        }
+
+        public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)
+        {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "Color has no channel {0} ".F(channel).writeWarning();
+            else
+            {
+                var chan = col[channel];
+
+                if (ico.edit(ref chan, 0, 1).changes(ref changed))
+                    col[channel] = chan;
+
+            }
+
+            return changed;
+        }
+
+        public static bool edit_ColorChannel(this string label, ref Color col, int channel)
+        {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "{0} color does not have {1}'th channel".F(label, channel).writeWarning();
+            else
+            {
+                var chan = col[channel];
+
+                if (label.edit(ref chan, 0, 1).changes(ref changed))
+                    col[channel] = chan;
+
+            }
+
+            return changed;
+        }
+
+        public static bool edit(this string label, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+            {
+                if (label.foldout())
+                    return edit(ref col);
+            }
+            else
+            {
+                write(label);
+                return edit(ref col);
+            }
+
+            return false;
+        }
+
+        public static bool edit(this string label, int width, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+            {
+                if (label.foldout())
+                    return edit(ref col);
+
+            }
+            else
+            {
+                write(label, width);
+                return edit(ref col);
+            }
+
+            return false;
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+                return false;
+
+            write(label, tip, width);
+            return edit(ref col);
+        }
+
+        #endregion
+
+        #region Unity Types
+
+        public static bool edit(this string name, ref AnimationCurve val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(name, ref val);
+            }
+            else
+#endif
+                return false;
+        }
+        
+        public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
+
+        public static bool editTexture(this Material mat, string name, string display)
+        {
+            write(display);
+            Texture tex = mat.GetTexture(name);
+
+            if (edit(ref tex))
+            {
+                mat.SetTexture(name, tex);
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Custom Structs
+        public static bool edit(ref MyIntVec2 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max);
+                modified |= edit(ref val.y, min, max);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max.x);
+                modified |= edit(ref val.y, min, max.y);
+                return modified;
+            }
+
+
+        }
 
         public static bool edit(this string label, ref MyIntVec2 val)
         {
@@ -4548,6 +3951,23 @@ namespace PlayerAndEditorGUI {
             return edit(ref val);
         }
 
+        public static bool edit(ref LinearColor col)
+        {
+            Color c = col.ToGamma();
+            if (edit(ref c))
+            {
+                col.From(c);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool edit(this string label, ref LinearColor col)
+        {
+            write(label);
+            return edit(ref col);
+        }
+
         public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
         {
             write(label, width);
@@ -4561,14 +3981,7 @@ namespace PlayerAndEditorGUI {
             nl();
             return edit(ref val, min, max);
         }
-
-        public static bool edit(this string label, ref Vector3 val)
-        {
-            write(label);
-            nl();
-            return edit(ref val);
-        }
-
+        /*
         public static bool edit(int ind, CountlessInt val)
         {
 
@@ -4595,57 +4008,145 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
         }
+        */
+        #endregion
 
+        #region Int
+
+        public static bool edit(ref int val)
+        {
+
+
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+
+        }
+        
+        public static bool edit(ref int val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, width);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+        
+        public static bool edit(ref int val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, (int)min, (int)max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                float before = val;
+                //if (edit(ref val))
+                //val = Mathf.Clamp(val, min, max);
+                val = (int)GUILayout.HorizontalSlider(before, min, max);
+                return (before != val);
+            }
+        }
+
+        static int editedInteger;
+        static int editedIntegerIndex;
+        public static bool editDelayed(ref int val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editDelayed(ref val, width);
+            }
+            else
+#endif
+            {
+
+                checkLine();
+
+                int tmp = (editedIntegerIndex == elementIndex) ? editedInteger : val;
+
+                if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
+                {
+                    edit(ref tmp);
+                    val = editedInteger;
+                    editedIntegerIndex = -1;
+
+                    elementIndex++;
+
+                    return true;
+                }
+
+
+                if (edit(ref tmp))
+                {
+                    editedInteger = tmp;
+                    editedIntegerIndex = elementIndex;
+                }
+
+                elementIndex++;
+
+                return false;
+            }
+        }
+
+        public static bool editDelayed(this string label, ref int val, int width) {
+            write(label, Msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val, width);
+        }
+        
         public static bool edit(this string label, ref int val)
         {
             write(label);
             return edit(ref val);
         }
 
-        public static bool edit(this string label, int width, ref float val)
-        {
-            write(label, width);
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, int width, ref float from, ref float to)
-        {
-            write(label, width);
-            bool changed = false;
-            if (edit(ref from).changes(ref changed))
-                to = Mathf.Max(from, to);
-            
-
-            write("-", 10);
-
-            if (edit(ref to).changes(ref changed))
-                from = Mathf.Min(from, to);
-           
-
-            return changed;
-        }
-
-        static void sliderText(this string label, float val, string tip, int width)
-        {
-            if (paintingPlayAreaGUI)
-                "{0} [{1}]".F(label, val.ToString("F3")).write(width);
-            else
-                write(label, tip, width);
-        }
-
-        public static bool edit(this string label, ref float val, float min, float max) {
-            label.sliderText(val, label, 90);
-            return edit(ref val, min, max);
-        }
-
-        public static bool edit(this icon ico, ref float val, float min, float max) {
-            ico.write();
-            return edit(ref val, min, max);
-        }
-
         public static bool edit(this string label, ref int val, int min, int max)
         {
-
             label.sliderText(val, label, 90);
             return edit(ref val, min, max);
         }
@@ -4668,6 +4169,215 @@ namespace PlayerAndEditorGUI {
             return edit(ref val, min, max);
         }
 
+        public static bool edit(this string label, int width, ref int val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+        #endregion
+
+        #region Float
+        public static bool edit(ref float val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    float newValue;
+                    bool parsed = float.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public static bool edit(ref float val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, width);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    float newValue;
+                    bool parsed = float.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public static bool edit(this string label, ref float val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+#endif
+            {
+                write(label);
+                return edit(ref val);
+            }
+        }
+
+        public static bool editPOW(ref float val, float min, float max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editPOW(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                float before = Mathf.Sqrt(val);
+                float after = GUILayout.HorizontalSlider(before, min, max);
+                if (before != after)
+                {
+                    val = after * after;
+                    return true;
+                }
+                return false;
+
+            }
+        }
+
+        public static bool edit(ref float val, float min, float max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+#endif
+            {
+                checkLine();
+                float before = val;
+
+                val = GUILayout.HorizontalSlider(before, min, max);
+                return (before != val);
+            }
+        }
+
+        static string editedFloat;
+        static int editedFloatIndex;
+        public static bool editDelayed(ref float val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editDelayed(ref val, width);
+#endif
+
+
+            checkLine();
+
+            string tmp = (editedFloatIndex == elementIndex) ? editedFloat : val.ToString();
+
+            if (KeyCode.Return.IsDown() && (elementIndex == editedFloatIndex))
+            {
+                edit(ref tmp);
+
+                float newValue;
+                if (float.TryParse(editedFloat, out newValue))
+                    val = newValue;
+                elementIndex++;
+
+                editedFloatIndex = -1;
+
+                return true;
+            }
+
+
+            if (edit(ref tmp))
+            {
+                editedFloat = tmp;
+                editedFloatIndex = elementIndex;
+            }
+
+            elementIndex++;
+
+            return false;
+
+        }
+        
+        public static bool edit(this string label, int width, ref float val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+        public static bool edit_Range(this string label, int width, ref float from, ref float to)
+        {
+            write(label, width);
+            bool changed = false;
+            if (edit(ref from).changes(ref changed))
+                to = Mathf.Max(from, to);
+
+
+            write("-", 10);
+
+            if (edit(ref to).changes(ref changed))
+                from = Mathf.Min(from, to);
+
+
+            return changed;
+        }
+
+        static void sliderText(this string label, float val, string tip, int width)
+        {
+            if (paintingPlayAreaGUI)
+                "{0} [{1}]".F(label, val.ToString("F3")).write(width);
+            else
+                write(label, tip, width);
+        }
+
+        public static bool edit(this string label, ref float val, float min, float max)
+        {
+            label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this icon ico, ref float val, float min, float max)
+        {
+            ico.write();
+            return edit(ref val, min, max);
+        }
+
         public static bool edit(this string label, int width, ref float val, float min, float max)
         {
             label.sliderText(val, label, width);
@@ -4680,78 +4390,319 @@ namespace PlayerAndEditorGUI {
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, int width, ref int val)
-        {
-            write(label, width);
-            return edit(ref val);
-        }
-
         public static bool edit(this string label, string tip, int width, ref float val)
         {
             write(label, tip, width);
             return edit(ref val);
         }
 
+        #endregion
+
+        #region double
+        public static bool edit(ref double val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (String.Compare(before, newval) != 0)
+                {
+                    double newValue;
+                    if (double.TryParse(newval, out newValue))
+                    {
+                        val = newValue;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        }
+
+        public static bool edit(this string label, ref double val)
+        {
+            label.write();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref double val)
+        {
+            label.write(width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref double val)
+        {
+            label.write(tip, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(ref double val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, width);
+            }
+            else
+#endif
+            {
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+
+                    double newValue;
+                    bool parsed = double.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = newValue;
+
+                    return true;
+                }
+                return false;
+            }
+        }
+        #endregion
+
+        #region Enum
+        public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
+        {
+            write(text, tip, width);
+            return editEnum<T>(ref eval);
+        }
+
+        public static bool editEnum<T>(this string text, int width, ref T eval)
+        {
+            write(text, width);
+            return editEnum<T>(ref eval);
+        }
+
+        public static bool editEnum<T>(this string text, ref T eval)
+        {
+            write(text);
+            return editEnum<T>(ref eval);
+        }
+        
+        public static bool editEnum<T>(ref T eval, int width = -1) {
+            int val = Convert.ToInt32(eval);
+
+            if (selectEnum(ref val, typeof(T), width)) {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+        
+        public static int editEnum<T>(T val)
+        {
+            int ival = Convert.ToInt32(val);
+            selectEnum(ref ival, typeof(T));
+            return ival;
+        }
+
+       /* public static bool edit(ref int current, Type type)
+        {
+            return selectEnum(ref current, type);
+        }*/
+        
+        // public static bool edit<T>(ref int current) => selectEnum(ref current, typeof(T));
+
+        #endregion
+
+        #region String
+        static string editedText;
+        static string editedHash = "";
+        public static bool editDelayed(ref string val)
+        {
+            if (LengthIsTooLong(ref val)) return false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editDelayed(ref val);
+            }
+            else
+#endif
+            {
+
+                checkLine();
+
+                if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
+                {
+                    GUILayout.TextField(val);
+
+
+                    val = editedText;
+
+                    return true;
+                }
+
+                string tmp = val;
+                if (edit(ref tmp))
+                {
+                    editedText = tmp;
+                    editedHash = val.GetHashCode().ToString();
+                }
+
+                return false;
+            }
+        }
+
+        public static bool editDelayed(this string label, ref string val)
+        {
+            write(label, Msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(ref string val, int width)
+        {
+
+            if (LengthIsTooLong(ref val)) return false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editDelayed(ref val, width);
+            }
+            else
+#endif
+            {
+
+                checkLine();
+
+                if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
+                {
+                    GUILayout.TextField(val);
+
+
+                    val = editedText;
+
+                    return true;
+                }
+
+                string tmp = val;
+                if (edit(ref tmp, width))
+                {
+                    editedText = tmp;
+                    editedHash = val.GetHashCode().ToString();
+                }
+
+                return false;
+            }
+        }
+
+        public static bool editDelayed(this string label, ref string val, int width)
+        {
+            write(label, Msg.editDelayed_HitEnter.Get(), width);
+
+            return editDelayed(ref val);
+
+
+        }
+        
+        public static bool editDelayed(this string label, int width, ref string val)
+        {
+            write(label, width);
+            return editDelayed(ref val);
+        }
+
+        const int maxStringSize = 1000;
+
+        static bool LengthIsTooLong(ref string label)
+        {
+            if (label == null || label.Length < maxStringSize)
+                return false;
+            else
+            {
+                if (icon.Delete.ClickUnfocus())
+                    label = "";
+                else
+                    write("String is too long {0}".F(label.Substring(0, 10)));
+            }
+            return true;
+        }
+
+        public static bool edit(ref string val) {
+            if (LengthIsTooLong(ref val)) return false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+#endif
+            
+                checkLine();
+                string before = val;
+                string newval = GUILayout.TextField(before);
+                if (String.Compare(before, newval) != 0)
+                {
+                    val = newval;
+                    return true;
+                }
+                return false;
+            
+        }
+
+        public static bool edit(ref string val, int width)
+        {
+
+            if (LengthIsTooLong(ref val)) return false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+#endif
+            
+                checkLine();
+                string before = val;
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (String.Compare(before, newval) != 0)
+                {
+                    val = newval;
+                    return true;
+                }
+                return false;
+            
+        }
+
+        public static bool editBig(ref string val)  {
+
+            nl();
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editBig(ref val).nl();
+#endif
+            
+                checkLine();
+                string before = val;
+                string newval = GUILayout.TextArea(before);
+                if ((String.Compare(before, newval) != 0).nl())
+                {
+                    val = newval;
+                    return true;
+                }
+                return false;
+            
+        }
+
+        public static bool editBig(this string name, ref string val) {
+            write(name);
+            return editBig(ref val);
+        }
+        
         public static bool edit(this string label, ref string val)
         {
             write(label);
             return edit(ref val);
-        }
-
-        public static bool edit(this string label, ref Color col)
-        {
-            if (paintingPlayAreaGUI) {
-                if (label.foldout())
-                    return edit(ref col);
-            }
-            else {
-                write(label);
-                return edit(ref col);
-            }
-
-            return false;
-        }
-
-        public static bool edit(this string label, int width, ref Color col) {
-            if (paintingPlayAreaGUI) {
-                if (label.foldout())
-                    return edit(ref col);
-                
-            }
-            else
-            {
-                write(label, width);
-                return edit(ref col);
-            }
-
-            return false;
-        }
-
-        public static bool edit(this string label, string tip, int width, ref Color col)
-        {
-            if (paintingPlayAreaGUI)
-                return false;
-
-            write(label, tip, width);
-            return edit(ref col);
-        }
-
-        public static bool edit(this string label, string tip, int width, ref Vector2 v2)
-        {
-            write(label, tip, width);
-            return edit(ref v2);
-        }
-
-        public static bool edit(this string label, int width, ref Vector3 v3)
-        {
-            write(label, width);
-            return edit(ref v3);
-        }
-
-        public static bool edit(this string label, string tip, int width, ref Vector3 v3)
-        {
-            write(label, tip, width);
-            return edit(ref v3);
         }
 
         public static bool edit(this string label, int width, ref string val)
@@ -4766,13 +4717,9 @@ namespace PlayerAndEditorGUI {
             return edit(ref val);
         }
 
-        public static int editEnum<T>(T val)
-        {
-            int ival = Convert.ToInt32(val);
-            selectEnum(ref ival, typeof(T));
-            return ival;
-        }
+        #endregion
 
+        #region Property
         public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
          => edit_Property(label, null, null, -1, memberExpression, obj);
         
@@ -4840,8 +4787,8 @@ namespace PlayerAndEditorGUI {
             return so;
 
         }
-
 #endif
+        #endregion
 
         #endregion
 
@@ -5251,7 +5198,7 @@ namespace PlayerAndEditorGUI {
         {
             bool changed = false;
 
-            if (icon.List.ClickUnfocus("{0} of {1}".F(Msg.ReturnToListView.Get(), GetCurrentListLabel<T>(ld))).nl())
+            if (icon.List.ClickUnfocus("{0}[{1}] of {2}".F(Msg.ReturnToList.Get(), list.Count, GetCurrentListLabel<T>(ld))).nl())
                 index = -1;
             else
                 changed |= list[index].Try_Nested_Inspect();
@@ -5752,8 +5699,7 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-
-        //Lists ...... of Monobehaviour
+        #region MonoBehaviour
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
             label.write_ListLabel(list, inspected);
@@ -5829,7 +5775,7 @@ namespace PlayerAndEditorGUI {
 
             return added;
         }
-
+        #endregion
 
         #region SO
         public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
@@ -6522,9 +6468,51 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #endregion
-        
-        #region Dictionaries
 
+        #region Dictionaries
+        
+        public static bool editKey(ref Dictionary<int, string> dic, int key)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.editKey(ref dic, key);
+            }
+            else
+#endif
+            {
+                checkLine();
+                int pre = key;
+                if (editDelayed(ref key, 40))
+                    return dic.TryChangeKey(pre, key);
+
+                return false;
+            }
+        }
+
+        public static bool edit(ref Dictionary<int, string> dic, int atKey)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref dic, atKey);
+            }
+            else
+#endif
+            {
+                string before = dic[atKey];
+                if (editDelayed(ref before, 40))
+                {
+                    dic[atKey] = before;
+                    return false;
+                }
+
+                return false;
+            }
+        }
+        
         static bool dicIsNull<G,T>(ref Dictionary<G,T> dic)
         {
             if (dic == null) {
@@ -6918,14 +6906,14 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        public static string ToPEGIstring_Type(this Type type)
+        static string RemovePreDots(this string name)
         {
-            var name = type.ToString();
             int ind = Mathf.Max(name.LastIndexOf("."), name.LastIndexOf("+"));
-            return ind == -1 ? name : name.Substring(ind + 1);
-
+            return (ind == -1 || ind>name.Length-5) ? name : name.Substring(ind + 1);
         }
-        
+
+        public static string ToPEGIstring_Type(this Type type) => type.ToString().RemovePreDots();
+           
         public static string ToPEGIstring_UObj<T>(this T obj) where T: UnityEngine.Object {
             if (obj == null)
                 return "NULL UObj {0}".F(typeof(T).ToPEGIstring_Type());
@@ -6952,7 +6940,7 @@ namespace PlayerAndEditorGUI {
             if (obj.ToPEGIstringInterfacePart(out tmp))
                 return tmp;
 
-            return obj.ToString();
+            return obj.ToString().RemovePreDots();
         }
 
         public static string ToPEGIstring(this object obj) {
@@ -6969,7 +6957,7 @@ namespace PlayerAndEditorGUI {
             if (obj.ToPEGIstringInterfacePart(out tmp))
                 return tmp;
 
-            return obj.ToString();
+            return obj.ToString().RemovePreDots();
         }
 
         public static bool isNullOrDestroyedUnityObject(this UnityEngine.Object obj) {
@@ -7027,8 +7015,7 @@ namespace PlayerAndEditorGUI {
             return false;
 #endif
         }
-
-
+        
 #if PEGI
         public static int focusInd;
 

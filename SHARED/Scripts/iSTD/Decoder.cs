@@ -453,19 +453,20 @@ namespace SharedTools_Stuff
             return l;
         }
         
-        public static List<T> Decode_List<T>(this string data, out List<T> l, out List_Data ld) where T : ISTD, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref List_Data ld) where T : ISTD, new() {
 
-            ld = new List_Data();
+            if (ld == null)
+                ld = new List_Data();
             l = new List<T>();
 
             List<Type> tps = typeof(T).TryGetDerrivedClasses();
-
+       
             var overCody = new StdDecoder(data);
             foreach (var tag in overCody) {
 
                 switch (tag) {
 
-                    case StdEncoder.listMetaTag: overCody.GetData().DecodeInto(out ld); break;
+                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
                         
                     case StdEncoder.listTag:
                         StdDecoder cody = new StdDecoder(overCody.GetData());
@@ -519,15 +520,16 @@ namespace SharedTools_Stuff
             return l;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, out List_Data ld) where T : IGotClassTag
+        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, ref List_Data ld) where T : IGotClassTag
         {
             l = new List<T>();
-            ld = new List_Data();
+            if (ld == null)
+                ld = new List_Data();
 
             var overCody = new StdDecoder(data);
             foreach (var tag in overCody) {
                 switch (tag) {
-                    case StdEncoder.listMetaTag: overCody.GetData().DecodeInto(out ld); break;
+                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
                     case StdEncoder.listTag:
                         StdDecoder cody = new StdDecoder(overCody.GetData());
                             foreach (var t in cody) l.Add(cody.DecodeData<T>(tps, ld));   break;
@@ -733,12 +735,12 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, out List_Data ld) where T : ISTD, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, ref List_Data ld) where T : ISTD, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
 
-            data.Decode_List(out val, out ld);
+            data.Decode_List(out val, ref ld);
 
             keeper = prevKeeper;
 

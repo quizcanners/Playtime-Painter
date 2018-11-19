@@ -30,29 +30,14 @@ namespace SharedTools_Stuff {
 #endif
 
     }
-
-
-
+    
     [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
-    public class PEGI_SimpleInspectorsBrowserDrawer : Editor
-    {
-        public override void OnInspectorGUI() => ((PEGI_SimpleInspectorsBrowser)target).Inspect(serializedObject);
-    }
-
-/*
-    [CustomEditor(typeof(ISTD_Explorer))]
-    public class ISTD_ExplorerDrawer : Editor
-    {
-        public override void OnInspectorGUI() => ((ISTD_Explorer)target).Inspect(serializedObject);
-    }*/
+    public class PEGI_SimpleInspectorsBrowserDrawer : Editor  {  public override void OnInspectorGUI() 
+            => ((PEGI_SimpleInspectorsBrowser)target).Inspect(serializedObject); }
 
     [CustomEditor(typeof(GodMode))]
-    public class GodModeDrawer : Editor
-    {
-        public override void OnInspectorGUI() => ((GodMode)target).Inspect(serializedObject);
-    }
-
-   
+    public class GodModeDrawer : Editor  { public override void OnInspectorGUI() 
+            => ((GodMode)target).Inspect(serializedObject); }
 
 }
 #endif
