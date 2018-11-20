@@ -1958,8 +1958,47 @@ namespace SharedTools_Stuff {
 
     public interface IlinkedLerping {
         void Portion(ref float portion, ref string dominantParameter);
-
         void Lerp(float portion);
+    }
+
+    public class LinkedLerp_Color : LinkedLerp_ShaderValue {
+        
+        public Color value;
+        public Color targetValue;
+        
+        public override void Set(Renderer on) {
+            if (Application.isPlaying)
+                on.material.SetColor(name, value);
+            else
+                on.sharedMaterial.SetColor(name, value);
+        }
+
+        public override void Set() {
+            if (mat)
+                Set(mat);
+            else
+                Shader.SetGlobalColor(name, value);
+        }
+
+        override public void Set(Material on) => on.SetColor(name, value);
+
+        public LinkedLerp_Color(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
+        {
+            value = startingValue;
+        }
+
+        public override void Portion(ref float portion, ref string dominantParameter) {
+            if (speed.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion))
+                dominantParameter = name;
+        }
+
+        public override void Lerp(float portion) {
+            if (value != targetValue || !defaultSet) {
+                value = Color.Lerp(value, targetValue, portion);
+                Set();
+            }
+        }
+
     }
 
     public class LinkedLerp_TransformLocalScale : LinkedLerp_TransformLocalPosition
@@ -2091,18 +2130,12 @@ namespace SharedTools_Stuff {
         }
     }
     
-    public class LinkedLerp_ShaderFloatValue : IlinkedLerping
-    {
+    public class LinkedLerp_MaterialFloat : LinkedLerp_ShaderValue {
 
-        string name;
         public float value;
         public float targetValue;
-        public float speed;
-        bool defaultSet;
-        Material mat;
-        Renderer rendy;
-
-        public void Set(Renderer on)
+    
+        public override void Set(Renderer on)
         {
             if (Application.isPlaying)
                 on.material.SetFloat(name, value);
@@ -2110,7 +2143,7 @@ namespace SharedTools_Stuff {
                 on.sharedMaterial.SetFloat(name, value);
         }
 
-        void Set()
+        public override void Set()
         {
             if (mat)
                 Set(mat);
@@ -2118,14 +2151,11 @@ namespace SharedTools_Stuff {
                 Shader.SetGlobalFloat(name, value);
         }
 
-        void Set(Material on) => on.SetFloat(name, value);
+        public override void Set(Material on) => on.SetFloat(name, value);
 
-        public LinkedLerp_ShaderFloatValue(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null)
+        public LinkedLerp_MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
         {
-            name = nname;
             value = startingValue;
-            speed = startingSpeed;
-            mat = m;
         }
 
         public void LerpBySpeedTo(float dvalue, Material mat = null) => LerpBySpeedTo(dvalue, speed, mat);
@@ -2146,7 +2176,7 @@ namespace SharedTools_Stuff {
             }
         }
 
-        public void Portion(ref float portion, ref string dominantParameter)
+        public override void Portion(ref float portion, ref string dominantParameter)
         {
 
             if (speed.SpeedToMinPortion(value - targetValue, ref portion))
@@ -2163,7 +2193,7 @@ namespace SharedTools_Stuff {
             }
         }
 
-        public void Lerp(float portion)
+        public override void Lerp(float portion)
         {
             if (value != targetValue || !defaultSet)
             {
@@ -2173,10 +2203,40 @@ namespace SharedTools_Stuff {
         }
 
     }
-    
+
+    public abstract class LinkedLerp_ShaderValue : IlinkedLerping {
+
+        protected string name;
+        public float speed;
+        protected bool defaultSet;
+        protected Material mat;
+        protected Renderer rendy;
+
+        public abstract void Set(Renderer on);
+
+        public abstract void Set();
+
+        public abstract void Set(Material on); 
+
+        public LinkedLerp_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null)
+        {
+            name = nname;
+            speed = startingSpeed;
+            mat = m;
+            rendy = renderer;
+        }
+
+        public abstract void Portion(ref float portion, ref string dominantParameter);
+
+        public abstract void Lerp(float portion);
+
+    }
+
+
     public static class LinkedLerpingExtensions {
 
-        public static string GetMinPortion(this List<IlinkedLerping> list, ref float portion) {
+        public static string Portion<T>(this List<T> list, ref float portion) where T: IlinkedLerping
+        {
             string dom = "None (weird)";
 
             foreach (var e in list)
@@ -2186,13 +2246,14 @@ namespace SharedTools_Stuff {
             return dom;
         }
 
-        public static void GetMinPortion (this List<IlinkedLerping> list, ref float portion, ref string dominantValue) {
+        public static void Portion<T> (this List<T> list, ref float portion, ref string dominantValue) where  T: IlinkedLerping {
             foreach (var e in list) 
                 if (e != null)
                     e.Portion(ref portion, ref dominantValue);
         }
 
-        public static void Lerp(this List<IlinkedLerping> list,  float portion) {
+        public static void Lerp<T>(this List<T> list,  float portion) where T: IlinkedLerping
+        {
             foreach (var e in list)
                 if (e != null)
                     e.Lerp(portion);

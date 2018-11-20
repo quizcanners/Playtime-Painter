@@ -533,7 +533,6 @@ namespace SharedTools_Stuff {
                 var attrs = type.GetCustomAttributes(typeof(Abstract_WithTaggedTypes), true);
                 if (attrs.Length > 0)
                     return (attrs[0] as Abstract_WithTaggedTypes).TaggedTypes;
-
                 else
                     if (Debug.isDebugBuild)
                     Debug.Log("{0} does not have Abstract_WithTaggedTypes Attribute");

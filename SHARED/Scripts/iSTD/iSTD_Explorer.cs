@@ -49,6 +49,19 @@ namespace SharedTools_Stuff
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
+        public bool GetIsSelected (int ind) {
+            var el = elementDatas.GetIfExists(ind);
+            if (el != null)
+                return el.selected;
+            return false;
+        }
+
+        public void SetIsSelected(int ind, bool value)
+        {
+            var el = value ? elementDatas[ind] : elementDatas.GetIfExists(ind);
+            if (el != null)
+                el.selected = value;
+        }
         public ElementData this[int i] {
             get { return elementDatas.TryGet(i); }            
         }
@@ -169,7 +182,8 @@ namespace SharedTools_Stuff
         public string guid;
         public bool unrecognized = false;
         public string unrecognizedUnderTag;
-        
+        public bool selected;
+
         public Dictionary<string, string> perTypeConfig = new Dictionary<string, string>();
 
         public ElementData SetRecognized() {
@@ -306,6 +320,7 @@ namespace SharedTools_Stuff
                 case "ur": unrecognized = data.ToBool(); break;
                 case "tag": unrecognizedUnderTag = data; break;
                 case "perType": data.Decode_Dictionary(out perTypeConfig); break;
+                case "sel": selected = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -313,11 +328,12 @@ namespace SharedTools_Stuff
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
-            .Add_String("n", name)
-            .Add_String("std", std_dta)
-            .Add_String("guid", guid)
-            .Add_String("t", componentType)
-            .Add_IfNotEmpty("perType", perTypeConfig);
+            .Add_IfNotEmpty("n", name)
+            .Add_IfNotEmpty("std", std_dta)
+            .Add_IfNotEmpty("guid", guid)
+            .Add_IfNotEmpty("t", componentType)
+            .Add_IfNotEmpty("perType", perTypeConfig)
+            .Add_IfTrue("sel", selected);
             if (unrecognized) { 
             cody.Add_Bool("ur", unrecognized)
             .Add_String("tag", unrecognizedUnderTag);

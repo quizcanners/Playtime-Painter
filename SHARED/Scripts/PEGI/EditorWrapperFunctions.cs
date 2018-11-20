@@ -1055,14 +1055,12 @@ namespace PlayerAndEditorGUI {
 
         public static void write(string text) => write(text, PEGI_Styles.WrappingText);
 
-        public static void write(string text, GUIStyle style )
-        {
+        public static void write(string text, GUIStyle style )  {
             checkLine();
             EditorGUILayout.LabelField(text, style);
         }
 
-        public static void write(string text, int width, GUIStyle style)
-        {
+        public static void write(string text, int width, GUIStyle style) {
             checkLine();
             EditorGUILayout.LabelField(text, style, GUILayout.MaxWidth(width));
         }
@@ -1077,24 +1075,13 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
             EditorGUILayout.LabelField(new GUIContent(text, hint), style, GUILayout.MaxWidth(width));
-
-            //  EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         }
 
-        public static void writeHint(string text, MessageType type)
-        {
+        public static void writeHint(string text, MessageType type)  {
             checkLine();
-
             EditorGUILayout.HelpBox(text, type);
         }
-        
-        public static void ShowTeture(Texture tex)
-        {
-            checkLine();
-            //Texture2D tex = (Texture2D)
-            EditorGUILayout.ObjectField(tex, typeof(Texture2D), true);
-        }
-        
+  
         public static IEnumerable<T> DropAreaGUI<T>() where T : UnityEngine.Object
         {
             newLine();
@@ -1158,34 +1145,63 @@ namespace PlayerAndEditorGUI {
         static List<Type> current_Reordered_ListTypes;
         static TaggedTypes_STD current_TaggedTypes;
         static List_Data listData;
+
+        static bool GetIsSelected(int ind) => (listData != null) ? listData.GetIsSelected(ind) : pegi.selectedEls[ind];
+
+        static void SetIsSelected(int ind, bool val) {
+            if (listData != null)
+                listData.SetIsSelected(ind, val);
+            else
+                pegi.selectedEls[ind] = val;
+        }
+        
         static bool keepTypeDatas = false;
+
         public static bool reorder_List<T>(List<T> l, List_Data datas)
         {
             listData = datas;
             keepTypeDatas = datas != null ? datas._keepTypeData : false;
             
             EditorGUI.BeginChangeCheck();
-            current_Reordered_ListTypes = typeof(T).TryGetDerrivedClasses();
 
-            if (current_Reordered_ListTypes == null) {
-                current_TaggedTypes = typeof(T).TryGetTaggetClasses();
-                if (current_TaggedTypes != null)
-                    current_Reordered_ListTypes = current_TaggedTypes.Types;
+            if (current_Reordered_List != l) {
+
+                current_Reordered_ListTypes = typeof(T).TryGetDerrivedClasses();
+
+                if (current_Reordered_ListTypes == null)
+                {
+                    current_TaggedTypes = typeof(T).TryGetTaggetClasses();
+                    if (current_TaggedTypes != null)
+                        current_Reordered_ListTypes = current_TaggedTypes.Types;
+                }
+                else current_TaggedTypes = null;
+
+                current_Reordered_Type = typeof(T);
+                current_Reordered_List = l;
+                if (datas == null)
+                    pegi.selectedEls.Clear();
+
             }
-            else current_TaggedTypes = null;
 
-            current_Reordered_Type = typeof(T);
-            current_Reordered_List = l;
             l.GetReordable(datas).DoLayoutList();
             return EditorGUI.EndChangeCheck();
         }
         
         static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(current_Reordered_List.Count.ToString(), current_Reordered_Type.ToPEGIstring_Type()));
 
-        static void DrawElement(Rect rect, int index, bool active, bool focused)
-        {
+        static void DrawElement(Rect rect, int index, bool active, bool focused) {
             
             var el = current_Reordered_List[index];
+
+            var selected = GetIsSelected(index);
+
+            var after = EditorGUI.Toggle(new Rect(rect.x, rect.y, 30, rect.height), selected);
+
+            if (after != selected)
+                SetIsSelected(index, after);
+
+            rect.x += 30;
+            rect.width -= 30;
 
             if (el != null) {
 
@@ -1205,10 +1221,9 @@ namespace PlayerAndEditorGUI {
                         rect.width = 100;
                         EditorGUI.LabelField(rect, cont);
                         rect.x += 100;
-                        rect.width = 130;
+                        rect.width = 100;
 
-                        if (select_Type(ref ty, current_Reordered_ListTypes, rect))
-                        {
+                        if (select_Type(ref ty, current_Reordered_ListTypes, rect)) {
                          
                             var ed = listData.TryGetElement(index);
 
@@ -1258,7 +1273,7 @@ namespace PlayerAndEditorGUI {
                         rect.width = 100;
                         EditorGUI.LabelField(rect, cont);
                         rect.x += 100;
-                        rect.width = 130;
+                        rect.width = 100;
 
                         Type ty = null;
 

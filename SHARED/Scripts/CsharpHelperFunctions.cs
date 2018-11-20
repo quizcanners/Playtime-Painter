@@ -251,37 +251,63 @@ namespace SharedTools_Stuff
         }
 
         public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
+        
+        public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true)  {
+            conv = default(T);
 
-        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew)   {
-            if (ass == null || list == null)
+            if (obj == null || list == null)
                 return false;
+            
+            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour))) {
+                var go = obj as GameObject;
+                if (go && !go.isNullOrDestroyed()) {
 
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-            {
-                var go = ass as GameObject;
-                if (go)
-                {
-                    var cmp = go.GetComponent<T>();
-                    if (cmp != null && !list.Contains(cmp))
-                    {
-                        list.Add(cmp);
-                        return true;
-                    }
+                    conv = go.GetComponent<T>();
+
+                    if (conv == null || (onlyIfNew && list.Contains(conv)))
+                        return false;
+                    else
+                        obj = conv;
                 }
-                return false;
+                else
+                    return false;
             }
 
-            T cst;
+            if (obj is T) {
 
-            ass.TryCast(out cst);
+                conv = (T)obj;
 
-            if (cst != null && (!onlyIfNew || !list.Contains(cst)))
-            {
-                list.Add(cst);
+                Type objType = obj.GetType();
+
+                var dl = typeof(T).TryGetDerrivedClasses();
+                if (dl != null && !dl.Contains(objType))
+                    return false;
+
+                if (dl == null) {
+                    var tc = typeof(T).TryGetTaggetClasses();
+
+                    if (tc != null && !tc.Types.Contains(objType))
+                        return false;
+                }
+
                 return true;
             }
+
             return false;
 
+        }
+
+        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)   {
+
+            T toAdd;
+
+            if (!list.CanAdd(ref ass, out toAdd, onlyIfNew))
+                return false;
+            else 
+                list.Add(toAdd);
+
+            return true;
+      
         }
         
         public static T TryGetLast<T>(this IList<T> list)
@@ -485,105 +511,102 @@ namespace SharedTools_Stuff
             args.CopyTo(temp, 0);
             return temp;
         }
-
         
-
-            public static void Swap<T>(ref T[] array, int a, int b)
+        public static void Swap<T>(ref T[] array, int a, int b)
+        {
+            if (array != null && a < array.Length && b < array.Length && a != b)
             {
-                if (array != null && a < array.Length && b < array.Length && a != b)
-                {
-                    var tmp = array[a];
-                    array[a] = array[b];
-                    array[b] = tmp;
-                }
+                var tmp = array[a];
+                array[a] = array[b];
+                array[b] = tmp;
             }
-
+        }
         
-            public static void Resize<T>(ref T[] args, int To)
-            {
-                T[] temp;
-                temp = new T[To];
-                if (args != null)
-                    Array.Copy(args, 0, temp, 0, Mathf.Min(To, args.Length));
-                else
-                    args = temp;
-            }
+        public static void Resize<T>(ref T[] args, int To)
+        {
+            T[] temp;
+            temp = new T[To];
+            if (args != null)
+                Array.Copy(args, 0, temp, 0, Mathf.Min(To, args.Length));
+            else
+                args = temp;
+        }
 
-            public static void Expand<T>(ref T[] args, int add)
+        public static void Expand<T>(ref T[] args, int add)
+        {
+            T[] temp;
+            if (args != null)
             {
-                T[] temp;
-                if (args != null)
+                temp = new T[args.Length + add];
+                args.CopyTo(temp, 0);
+            }
+            else temp = new T[add];
+            args = temp;
+        }
+
+        public static void Remove<T>(ref T[] args, int ind)
+        {
+            T[] temp = new T[args.Length - 1];
+            Array.Copy(args, 0, temp, 0, ind);
+            int count = args.Length - ind - 1;
+            Array.Copy(args, ind + 1, temp, ind, count);
+            args = temp;
+        }
+
+        public static void AddAndInit<T>(ref T[] args, int add) where T : new()
+        {
+            T[] temp;
+            if (args != null)
+            {
+                temp = new T[args.Length + add];
+                args.CopyTo(temp, 0);
+            }
+            else temp = new T[add];
+            args = temp;
+            for (int i = args.Length - add; i < args.Length; i++)
+                args[i] = new T();
+        }
+
+        public static T AddAndInit<T>(ref T[] args) where T : new()
+        {
+            T[] temp;
+            if (args != null)
+            {
+                temp = new T[args.Length + 1];
+                args.CopyTo(temp, 0);
+            }
+            else temp = new T[1];
+            args = temp;
+            T tmp = new T();
+            args[temp.Length - 1] = tmp;
+            return tmp;
+        }
+
+        public static void InsertAfterAndInit<T>(ref T[] args, int ind) where T : new()
+        {
+            if ((args != null) && (args.Length > 0))
+            {
+                T[] temp = new T[args.Length + 1];
+                Array.Copy(args, 0, temp, 0, ind + 1);
+                if (ind < args.Length - 1)
                 {
-                    temp = new T[args.Length + add];
-                    args.CopyTo(temp, 0);
+                    int count = args.Length - ind - 1;
+                    Array.Copy(args, ind + 1, temp, ind + 2, count);
                 }
-                else temp = new T[add];
                 args = temp;
+                args[ind + 1] = new T();
             }
-
-            public static void Remove<T>(ref T[] args, int ind)
+            else
             {
-                T[] temp = new T[args.Length - 1];
-                Array.Copy(args, 0, temp, 0, ind);
-                int count = args.Length - ind - 1;
-                Array.Copy(args, ind + 1, temp, ind, count);
-                args = temp;
-            }
 
-            public static void AddAndInit<T>(ref T[] args, int add) where T : new()
-            {
-                T[] temp;
-                if (args != null)
-                {
-                    temp = new T[args.Length + add];
-                    args.CopyTo(temp, 0);
-                }
-                else temp = new T[add];
-                args = temp;
-                for (int i = args.Length - add; i < args.Length; i++)
+                args = new T[ind + 1];
+                for (int i = 0; i < ind + 1; i++)
                     args[i] = new T();
             }
 
-            public static T AddAndInit<T>(ref T[] args) where T : new()
-            {
-                T[] temp;
-                if (args != null)
-                {
-                    temp = new T[args.Length + 1];
-                    args.CopyTo(temp, 0);
-                }
-                else temp = new T[1];
-                args = temp;
-                T tmp = new T();
-                args[temp.Length - 1] = tmp;
-                return tmp;
-            }
 
-            public static void InsertAfterAndInit<T>(ref T[] args, int ind) where T : new()
-            {
-                if ((args != null) && (args.Length > 0))
-                {
-                    T[] temp = new T[args.Length + 1];
-                    Array.Copy(args, 0, temp, 0, ind + 1);
-                    if (ind < args.Length - 1)
-                    {
-                        int count = args.Length - ind - 1;
-                        Array.Copy(args, ind + 1, temp, ind + 2, count);
-                    }
-                    args = temp;
-                    args[ind + 1] = new T();
-                }
-                else
-                {
+        }
 
-                    args = new T[ind + 1];
-                    for (int i = 0; i < ind + 1; i++)
-                        args[i] = new T();
-                }
-
-
-            }
-        
 
         #endregion
 

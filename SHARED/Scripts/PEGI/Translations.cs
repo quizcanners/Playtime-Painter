@@ -43,7 +43,8 @@ namespace PlayerAndEditorGUI
             Msg.BlitMode.Add("Метод");
             Msg.LockToolToUseTransform.Add("Постав блок на текстурі щоб рухати обєкт, або натисни на 'Приховати трансформації' щоб не мішали.");
             Msg.HideTransformTool.Add("Приховати трансформації");
-            
+            Msg.HighlightElement.Add("Показати цей елемент в проекті");
+
             systemLanguage = (int)Application.systemLanguage;
         }
 

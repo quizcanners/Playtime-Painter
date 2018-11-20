@@ -13,11 +13,11 @@ namespace PlayerAndEditorGUI
     {
         Alpha, Active,  Add, Animation, Audio,
         Back, Book, Save, Close, Condition, Config, Copy, Create,
-        Discord, Delete, Done, Docs, Download, Down, DownLast, Debug,
+        Discord, Delete, Done, Docs, Download, Down, DownLast, Debug, DeSelectAll,
         Edit, Enter, Exit, Email, Empty,
         False, FoldedOut, Folder,
         NewMaterial, NewTexture, Next, On, Off, Lock, Unlock, GPU, CPU, Round,
-        Search, Script, Square,  SaveAsNew, StateMachine, State, Show,
+        Search, Script, Square,  SaveAsNew, StateMachine, State, Show, SelectAll,
         Painter, PreviewShader, OriginalShader, Undo, Redo, 
         UndoDisabled, RedoDisabled, Play, Record, Replace,  True, 
         Load, Pause, Mesh, Red, Green, Blue,  InActive, 

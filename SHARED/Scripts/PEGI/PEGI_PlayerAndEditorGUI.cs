@@ -579,6 +579,7 @@ namespace PlayerAndEditorGUI {
 
         #region WRITE
 
+        #region Unity Object
         public static void write<T>(T field) where T : UnityEngine.Object {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
@@ -693,6 +694,8 @@ namespace PlayerAndEditorGUI {
             }
 
         }
+
+        #endregion
 
         public static void write(this icon icon, int size = defaultButtonSize) => write(icon.GetIcon(), size);
 
@@ -825,7 +828,8 @@ namespace PlayerAndEditorGUI {
         public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
         public static bool write_ForCopy_Big(string val) => editBig(ref val);
         public static bool write_ForCopy_Big(this string label, string val) => label.editBig(ref val);
-        
+
+        #region Warning & Hints
         public static void writeWarning(this string text)
         {
 
@@ -889,6 +893,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+        #endregion
 
         #endregion
 
@@ -5248,6 +5253,8 @@ namespace PlayerAndEditorGUI {
 
         static Array editing_Array_Order;
 
+        public static CountlessBool selectedEls = new CountlessBool();
+
         static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null) {
 
             bool changed = false;
@@ -5325,8 +5332,8 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
         
-        static bool edit_List_Order<T>(this List<T> list, List_Data datas = null)
-        {
+        static bool edit_List_Order<T>(this List<T> list, List_Data meta = null) {
+
             bool changed = false;
 
             const int bttnWidth = 25;
@@ -5340,17 +5347,12 @@ namespace PlayerAndEditorGUI {
                 editing_List_Order = null;
             
 
-            if (list == editing_List_Order)
-            {
+            if (list == editing_List_Order) {
 #if UNITY_EDITOR
-
-
-
-
                 if (!paintingPlayAreaGUI)
                 {
                     nl();
-                    changed |= ef.reorder_List(list, datas);
+                    changed |= ef.reorder_List(list, meta);
                 }
                 else
 #endif
@@ -5359,7 +5361,7 @@ namespace PlayerAndEditorGUI {
 
                     foreach (var i in list.InspectionIndexes()) {
 
-                        if (datas == null || datas.allowReorder)
+                        if (meta == null || meta.allowReorder)
                         {
 
                             if (i > 0)
@@ -5380,7 +5382,7 @@ namespace PlayerAndEditorGUI {
 
                         var el = list[i];
 
-                        if (datas == null || datas.allowDelete)
+                        if (meta == null || meta.allowDelete)
                         {
 
                             if (el != null && typeof(T).IsUnityObject())
@@ -5449,23 +5451,74 @@ namespace PlayerAndEditorGUI {
                     }
                 }
 
-                if ((datas == null || datas.allowDelete) && list.Count > 0 && icon.Delete.ClickUnfocus("Clean null elements"))
-                {
+
+                int selectedCount = 0;
+             
+
+                if (meta == null) {
                     for (int i = 0; i < list.Count; i++)
-                    {
-                        if (list[i].isNullOrDestroyed())
-                        {
-                            list.RemoveAt(i);
-                            i--;
-                        }
+                        if (selectedEls[i]) selectedCount++;
+                }
+                else for (int i = 0; i < list.Count; i++)
+                        if (meta.GetIsSelected(i)) selectedCount++;
+
+
+                if ((meta == null || meta.allowDelete) && list.Count > 0) {
+                    int nullOrDestroyedCount = 0;
+
+                for (int i = 0; i < list.Count; i++)
+                    if (list[i].isNullOrDestroyed()) nullOrDestroyedCount++;
+
+                    if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements")) {
+                        for (int i = list.Count-1; i >= 0; i--)
+                            if (list[i].isNullOrDestroyed())
+                                list.RemoveAt(i);
+
+                        SetSelected(meta, list, false);
                     }
                 }
 
-                if ((datas != null) && icon.Config.enter(ref datas.inspectListMeta))
-                    datas.Nested_Inspect();
+               
+                if (selectedCount>0 && icon.DeSelectAll.Click("Deselect All"))
+                    SetSelected(meta, list, false);
+                    
+                if (selectedCount == 0 && icon.SelectAll.Click("Select All"))
+                    SetSelected(meta, list, true);
+
+                if ((meta == null || meta.allowDelete) && list.Count > 0) {
+                    if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
+                    {
+                        if (meta == null)
+                        {
+                            for (int i = list.Count - 1; i >= 0; i--)
+                                if (selectedEls[i]) list.RemoveAt(i);
+                        }
+                        else for (int i = list.Count - 1; i >= 0; i--)
+                                if (meta.GetIsSelected(i))
+                                    list.RemoveAt(i);
+
+                        SetSelected(meta, list, false);
+
+                    }
+                }
+                
+                if ((meta != null) && icon.Config.enter(ref meta.inspectListMeta))
+                   meta.Nested_Inspect();
+
             }
 
             return changed;
+        }
+
+        static void SetSelected<T>(List_Data meta, List<T> list, bool val)
+        {
+            if (meta == null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                    selectedEls[i] = val;
+            }
+            else for (int i = 0; i < list.Count; i++)
+                    meta.SetIsSelected(i, val);
         }
 
         static bool edit_List_Order_Obj<T>(this List<T> list, List_Data datas) where T : UnityEngine.Object {
