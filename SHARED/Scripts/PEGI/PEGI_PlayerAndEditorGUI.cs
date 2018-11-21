@@ -575,6 +575,13 @@ namespace PlayerAndEditorGUI {
             nl();
         }
 
+        public static void nl(this icon icon, string hint, int size = defaultButtonSize)
+        {
+            icon.write(hint, size);
+            nl();
+        }
+
+
         #endregion
 
         #region WRITE
