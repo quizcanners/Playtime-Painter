@@ -146,7 +146,7 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override ISTD Decode(string data)
+        public override void Decode(string data)
         {
             base.Decode(data);
 
@@ -154,8 +154,7 @@ namespace Playtime_Painter
                 width = texture2D.width;
                 height = texture2D.height;
             }
-
-            return this;
+            
         }
 
         public override bool Decode(string tag, string data)

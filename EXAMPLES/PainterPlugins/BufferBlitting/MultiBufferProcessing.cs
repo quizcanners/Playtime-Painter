@@ -684,7 +684,7 @@ namespace Playtime_Painter
 
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("n", name)
-            .Add_IfNotZero("w", width)
+            .Add_IfNotEpsilon("w", width)
             .Add_IfTrue("l", linear)
             .Add_IfTrue("show", showOnGUI)
             .Add_GUID("s", shader);

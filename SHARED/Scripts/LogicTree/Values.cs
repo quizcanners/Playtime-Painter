@@ -37,14 +37,14 @@ namespace STD_Logic {
             return true;
         }
 
-        public override ISTD Decode(string data) {
+        public override void Decode(string data) {
 
             bools = new UnnullableSTD<CountlessBool>();
             ints = new UnnullableSTD<CountlessInt>();
             enumTags = new UnnullableSTD<CountlessInt>();
             boolTags = new UnnullableSTD<CountlessBool>();
 
-            return base.Decode(data);
+            base.Decode(data);
         }
 
         #endregion

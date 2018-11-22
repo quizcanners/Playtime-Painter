@@ -73,8 +73,8 @@ namespace STD_Logic  {
         public override StdEncoder Encode()
         {
             StdEncoder cody = new StdEncoder();
-            cody.Add_ifNotZero("ty", (int)type);
-            cody.Add_ifNotZero("val", updateValue);
+            cody.Add_IfNotZero("ty", (int)type);
+            cody.Add_IfNotZero("val", updateValue);
             cody.Add("ind", EncodeIndex);
             return cody;
         }

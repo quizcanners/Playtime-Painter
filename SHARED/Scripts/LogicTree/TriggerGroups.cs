@@ -131,12 +131,12 @@ namespace STD_Logic
             return true;
         }
 
-        public override ISTD Decode(string data)
+        public override void Decode(string data)
         {
 #if PEGI
             listDirty = true;
 #endif
-            return base.Decode(data);
+            base.Decode(data);
         }
 
         #endregion

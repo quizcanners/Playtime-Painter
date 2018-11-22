@@ -16,8 +16,7 @@ namespace SharedTools_Stuff {
     {
 
         #region Abstract Base
-        public abstract class BASE_AnyValue : Abstract_STD, IlinkedLerping, IPEGI, IPEGI_ListInspect
-        {
+        public abstract class BASE_AnyValue : Abstract_STD, IlinkedLerping, IPEGI, IPEGI_ListInspect {
 
             protected bool defaultSet = false;
 
@@ -116,7 +115,7 @@ namespace SharedTools_Stuff {
             }
 
             #region Inspector
-
+#if PEGI
             public override bool PEGI_inList(IList list, int ind, ref int edited)
             {
                 var changes = false;
@@ -156,8 +155,8 @@ namespace SharedTools_Stuff {
 
                 return changed;
             }
-
-            #endregion
+#endif
+#endregion
 
             #region Encode & Decode
             public override StdEncoder Encode()
@@ -378,6 +377,35 @@ namespace SharedTools_Stuff {
             #endregion
         }
         
+        public abstract class BASE_ShaderValue : IlinkedLerping {
+
+            protected string name;
+            public float speed;
+            protected bool defaultSet;
+            protected Material mat;
+            protected Renderer rendy;
+
+            public abstract void Set(Renderer on);
+
+            public abstract void Set();
+
+            public abstract void Set(Material on);
+
+            public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null)
+            {
+                name = nname;
+                speed = startingSpeed;
+                mat = m;
+                rendy = renderer;
+            }
+
+            public abstract void Portion(ref float portion, ref string dominantParameter);
+
+            public abstract void Lerp(float portion);
+
+        }
+
+
         #endregion
 
         #region Transform
@@ -488,7 +516,7 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region Material
-        public class MaterialFloat : ShaderValue
+        public class MaterialFloat : BASE_ShaderValue
         {
 
             public float value;
@@ -563,7 +591,7 @@ namespace SharedTools_Stuff {
 
         }
         
-        public class MaterialColor : ShaderValue
+        public class MaterialColor : BASE_ShaderValue
         {
 
             public Color value;
@@ -695,35 +723,6 @@ namespace SharedTools_Stuff {
                     graphic.TrySetAlpha(value);
                 }
             }
-        }
-
-        public abstract class ShaderValue : IlinkedLerping
-        {
-
-            protected string name;
-            public float speed;
-            protected bool defaultSet;
-            protected Material mat;
-            protected Renderer rendy;
-
-            public abstract void Set(Renderer on);
-
-            public abstract void Set();
-
-            public abstract void Set(Material on);
-
-            public ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null)
-            {
-                name = nname;
-                speed = startingSpeed;
-                mat = m;
-                rendy = renderer;
-            }
-
-            public abstract void Portion(ref float portion, ref string dominantParameter);
-
-            public abstract void Lerp(float portion);
-
         }
 
     }

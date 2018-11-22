@@ -123,13 +123,13 @@ namespace SharedTools_Stuff
 
         #endregion
 
-        public static T TryGetClassAttribute<T>(this Type type) where T : Attribute
+        public static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
         {
             T attr = null;
 
             if (type.IsClass)
             {
-                var attrs = type.GetCustomAttributes(typeof(T), true);
+                var attrs = type.GetCustomAttributes(typeof(T), inherit);
                 if (attrs.Length > 0)
                     attr = (T)attrs[0];
             }

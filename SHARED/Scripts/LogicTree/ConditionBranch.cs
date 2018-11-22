@@ -50,7 +50,7 @@ namespace STD_Logic {
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)
             .Add_IfNotEmpty("v", conds)
-            .Add_ifNotZero("t", (int)type)
+            .Add_IfNotZero("t", (int)type)
             .Add_IfNotEmpty("d", description)
             .Add("tag", targ)
             .Add_IfNotNegative("insB", browsedBranch)

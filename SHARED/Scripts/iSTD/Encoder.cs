@@ -132,80 +132,80 @@ namespace SharedTools_Stuff
 
         #region ValueTypes
         public static StdEncoder Encode(this Vector3 v3, int percision) => new StdEncoder()
-            .Add_IfNotZero("x", v3.x.RoundTo(percision))
-            .Add_IfNotZero("y", v3.y.RoundTo(percision))
-            .Add_IfNotZero("z", v3.z.RoundTo(percision));
+            .Add_IfNotEpsilon("x", v3.x.RoundTo(percision))
+            .Add_IfNotEpsilon("y", v3.y.RoundTo(percision))
+            .Add_IfNotEpsilon("z", v3.z.RoundTo(percision));
             
         public static StdEncoder Encode(this Vector2 v2, int percision) => new StdEncoder()
-            .Add_IfNotZero("x", v2.x.RoundTo(percision))
-            .Add_IfNotZero("y", v2.y.RoundTo(percision));
+            .Add_IfNotEpsilon("x", v2.x.RoundTo(percision))
+            .Add_IfNotEpsilon("y", v2.y.RoundTo(percision));
         
         public static StdEncoder Encode(this Quaternion q) => new StdEncoder()
-            .Add_IfNotZero("x", q.x.RoundTo6Dec())
-            .Add_IfNotZero("y", q.y.RoundTo6Dec())
-            .Add_IfNotZero("z", q.z.RoundTo6Dec())
-            .Add_IfNotZero("w", q.w.RoundTo6Dec());
+            .Add_IfNotEpsilon("x", q.x.RoundTo6Dec())
+            .Add_IfNotEpsilon("y", q.y.RoundTo6Dec())
+            .Add_IfNotEpsilon("z", q.z.RoundTo6Dec())
+            .Add_IfNotEpsilon("w", q.w.RoundTo6Dec());
             
         public static StdEncoder Encode(this BoneWeight bw) => new StdEncoder()
-            .Add_ifNotZero("i0", bw.boneIndex0)
+            .Add_IfNotZero("i0", bw.boneIndex0)
             .Add("w0", bw.weight0)
 
-            .Add_ifNotZero("i1", bw.boneIndex1)
+            .Add_IfNotZero("i1", bw.boneIndex1)
             .Add("w1", bw.weight1)
 
-            .Add_ifNotZero("i2", bw.boneIndex2)
+            .Add_IfNotZero("i2", bw.boneIndex2)
             .Add("w2", bw.weight2)
 
-            .Add_ifNotZero("i3", bw.boneIndex3)
+            .Add_IfNotZero("i3", bw.boneIndex3)
             .Add("w3", bw.weight3);
             
         public static StdEncoder Encode (this Matrix4x4 m)
         {
                 StdEncoder sub = new StdEncoder();
 
-                sub.Add_IfNotZero("00", m.m00);
-                sub.Add_IfNotZero("01", m.m01);
-                sub.Add_IfNotZero("02", m.m02);
-                sub.Add_IfNotZero("03", m.m03);
+                sub.Add_IfNotEpsilon("00", m.m00);
+                sub.Add_IfNotEpsilon("01", m.m01);
+                sub.Add_IfNotEpsilon("02", m.m02);
+                sub.Add_IfNotEpsilon("03", m.m03);
 
-                sub.Add_IfNotZero("10", m.m10);
-                sub.Add_IfNotZero("11", m.m11);
-                sub.Add_IfNotZero("12", m.m12);
-                sub.Add_IfNotZero("13", m.m13);
+                sub.Add_IfNotEpsilon("10", m.m10);
+                sub.Add_IfNotEpsilon("11", m.m11);
+                sub.Add_IfNotEpsilon("12", m.m12);
+                sub.Add_IfNotEpsilon("13", m.m13);
 
-                sub.Add_IfNotZero("20", m.m20);
-                sub.Add_IfNotZero("21", m.m21);
-                sub.Add_IfNotZero("22", m.m22);
-                sub.Add_IfNotZero("23", m.m23);
+                sub.Add_IfNotEpsilon("20", m.m20);
+                sub.Add_IfNotEpsilon("21", m.m21);
+                sub.Add_IfNotEpsilon("22", m.m22);
+                sub.Add_IfNotEpsilon("23", m.m23);
 
-                sub.Add_IfNotZero("30", m.m30);
-                sub.Add_IfNotZero("31", m.m31);
-                sub.Add_IfNotZero("32", m.m32);
-                sub.Add_IfNotZero("33", m.m33);
+                sub.Add_IfNotEpsilon("30", m.m30);
+                sub.Add_IfNotEpsilon("31", m.m31);
+                sub.Add_IfNotEpsilon("32", m.m32);
+                sub.Add_IfNotEpsilon("33", m.m33);
 
             return sub;
         }
 
         public static StdEncoder Encode(this Vector4 v4) => new StdEncoder()
-            .Add_IfNotZero("x", v4.x.RoundTo6Dec())
-            .Add_IfNotZero("y", v4.y.RoundTo6Dec())
-            .Add_IfNotZero("z", v4.z.RoundTo6Dec())
-            .Add_IfNotZero("w", v4.w.RoundTo6Dec());
+            .Add_IfNotEpsilon("x", v4.x.RoundTo6Dec())
+            .Add_IfNotEpsilon("y", v4.y.RoundTo6Dec())
+            .Add_IfNotEpsilon("z", v4.z.RoundTo6Dec())
+            .Add_IfNotEpsilon("w", v4.w.RoundTo6Dec());
 
         public static StdEncoder Encode(this Vector3 v3) => new StdEncoder()
-            .Add_IfNotZero("x", v3.x.RoundTo6Dec())
-            .Add_IfNotZero("y", v3.y.RoundTo6Dec())
-            .Add_IfNotZero("z", v3.z.RoundTo6Dec());
+            .Add_IfNotEpsilon("x", v3.x.RoundTo6Dec())
+            .Add_IfNotEpsilon("y", v3.y.RoundTo6Dec())
+            .Add_IfNotEpsilon("z", v3.z.RoundTo6Dec());
 
         public static StdEncoder Encode(this Vector2 v2) => new StdEncoder()
-            .Add_IfNotZero("x", v2.x.RoundTo6Dec())
-            .Add_IfNotZero("y", v2.y.RoundTo6Dec());
+            .Add_IfNotEpsilon("x", v2.x.RoundTo6Dec())
+            .Add_IfNotEpsilon("y", v2.y.RoundTo6Dec());
         
         public static StdEncoder Encode(this Color col) => new StdEncoder()
-            .Add_IfNotZero("r", col.r.RoundTo6Dec())
-            .Add_IfNotZero("g", col.g.RoundTo6Dec())
-            .Add_IfNotZero("b", col.b.RoundTo6Dec())
-            .Add_IfNotZero("a", col.a.RoundTo6Dec());
+            .Add_IfNotEpsilon("r", col.r.RoundTo6Dec())
+            .Add_IfNotEpsilon("g", col.g.RoundTo6Dec())
+            .Add_IfNotEpsilon("b", col.b.RoundTo6Dec())
+            .Add_IfNotEpsilon("a", col.a.RoundTo6Dec());
         #endregion
     }
 
@@ -644,6 +644,13 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add_IfFalse(string tag, bool val)
+        {
+            if (!val)
+                Add_Bool(tag, val);
+            return this;
+        }
+
         public StdEncoder Add_IfNotDefault(string tag, ICanBeDefault_STD std) {
             if (std != null && !std.IsDefault)
                 Add(tag, std);
@@ -724,7 +731,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotZero(string tag, float val) {
+        public StdEncoder Add_IfNotEpsilon(string tag, float val) {
 
             if (Mathf.Abs(val) > float.Epsilon * 100) 
                 Add(tag, val.RoundTo6Dec());
@@ -732,7 +739,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_ifNotZero(string tag, int val) {
+        public StdEncoder Add_IfNotZero(string tag, int val) {
 
             if (val != 0) 
                 Add_String(tag, val.ToString());
@@ -745,7 +752,6 @@ namespace SharedTools_Stuff
             if (Mathf.Abs(val) > percision) 
                 Add(tag, val);
             
-
             return this;
         }
         

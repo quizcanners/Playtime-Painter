@@ -71,7 +71,7 @@ namespace STD_Logic
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
             .Add_String("n", name)
-            .Add_ifNotZero("u", usage)
+            .Add_IfNotZero("u", usage)
             .Add_IfNotEmpty("e", enm);
           
             return cody;

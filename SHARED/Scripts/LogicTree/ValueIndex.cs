@@ -22,7 +22,7 @@ namespace STD_Logic
 
     
         #region Encode & Decode
-        public ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public void Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract StdEncoder Encode();
         public abstract bool Decode(string tag, string data);

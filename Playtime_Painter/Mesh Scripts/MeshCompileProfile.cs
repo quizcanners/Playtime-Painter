@@ -38,9 +38,10 @@ namespace Playtime_Painter
 
 
             UnityEngine.Object myType = null;
-            if (pegi.edit(ref myType).nl())
-            {
-                var msol = (MeshPackagingProfile)(new MeshPackagingProfile().Decode(StuffLoader.LoadTextAsset(myType)));
+            if (pegi.edit(ref myType).nl()) {
+               
+                var msol = new MeshPackagingProfile();
+                msol.Decode(StuffLoader.LoadTextAsset(myType));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(msol);
                 PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;

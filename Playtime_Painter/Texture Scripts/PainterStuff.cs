@@ -25,7 +25,7 @@ namespace Playtime_Painter
     {
     public abstract StdEncoder Encode();
 
-        public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract bool Decode(string tag, string data);
     }
@@ -55,7 +55,7 @@ namespace Playtime_Painter
         protected UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-        public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => data.DecodeTagsFor(this);
 
         public virtual bool Decode(string tag, string data) => true;
 

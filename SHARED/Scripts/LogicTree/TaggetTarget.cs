@@ -21,7 +21,7 @@ namespace STD_Logic
             StdEncoder cody = new StdEncoder();
             cody.Add("g", groupIndex);
             cody.Add("t",triggerIndex);
-            cody.Add_ifNotZero("v", targValue);
+            cody.Add_IfNotZero("v", targValue);
 
             return cody;
         }

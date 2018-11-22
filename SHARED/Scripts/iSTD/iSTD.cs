@@ -16,7 +16,7 @@ namespace SharedTools_Stuff {
     #region Manual Serialization Interfaces
     public interface ISTD {
         StdEncoder Encode(); 
-        ISTD Decode(string data);
+        void Decode(string data);
         bool Decode(string tag, string data);
     }
     
@@ -72,7 +72,7 @@ namespace SharedTools_Stuff {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-        LoopLock encodeingLoopLock = new LoopLock();
+        readonly LoopLock encodeingLoopLock = new LoopLock();
 
         public LoopLock GetLoopLock => encodeingLoopLock;
 
@@ -87,7 +87,7 @@ namespace SharedTools_Stuff {
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("listDta", listData);
 
-        public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => data.DecodeTagsFor(this);
 
         public virtual bool Decode(string tag, string data)
         {
@@ -263,7 +263,7 @@ namespace SharedTools_Stuff {
     
     public abstract class Abstract_STD : ISTD_SafeEncoding, ICanBeDefault_STD {
         public abstract StdEncoder Encode();
-        public virtual ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tag, string data);
 
         public LoopLock GetLoopLock => loopLock_std;
@@ -434,11 +434,11 @@ namespace SharedTools_Stuff {
         #endif
         #endregion
 
-        public virtual ISTD Decode(string data)
+        public virtual void Decode(string data)
         {
             uTags.Clear();
             data.DecodeTagsFor(this);
-            return this;
+          
         }
 
         readonly LoopLock loopLock = new LoopLock();

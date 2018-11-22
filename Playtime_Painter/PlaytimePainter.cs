@@ -1440,7 +1440,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public ISTD Decode(string data) => data.DecodeTagsFor(this);
+        public void Decode(string data) => data.DecodeTagsFor(this);
 
         #endregion
 

@@ -433,8 +433,8 @@ namespace Playtime_Painter {
             public override StdEncoder Encode()
             {
                 var cody = new StdEncoder()
-                .Add_ifNotZero("s", sourceRole)
-                .Add_ifNotZero("c", sourceChannel)
+                .Add_IfNotZero("s", sourceRole)
+                .Add_IfNotZero("c", sourceChannel)
                 .Add_Bool("f", flip);
                 return cody;
             }

@@ -419,7 +419,7 @@ namespace Playtime_Painter
             if (shapes != null)
                 cody.Add_IfNotEmpty("bs", shapes);
 
-            cody.Add_ifNotZero("gr", vertexGroup);
+            cody.Add_IfNotZero("gr", vertexGroup);
           
             return cody;
         }
@@ -804,7 +804,7 @@ namespace Playtime_Painter
 
             cody.Add("tex", textureNo)
 
-            .Add_ifNotZero("sub", submeshIndex);
+            .Add_IfNotZero("sub", submeshIndex);
            
 
             return cody;

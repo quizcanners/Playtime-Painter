@@ -5722,7 +5722,8 @@ namespace PlayerAndEditorGUI {
             if (ld != null && !ld.allowCreate)
                 return false;
 
-            if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
+            if (!typeof(T).IsUnityObject() 
+                && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
             if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
@@ -5746,7 +5747,7 @@ namespace PlayerAndEditorGUI {
             if (ld != null && !ld.allowCreate)
                 return false;
 
-            if (!typeof(T).IsUnityObject() && typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null)
+            if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
             if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))

@@ -97,8 +97,8 @@ namespace STD_Logic
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
-            .Add_ifNotZero("v", compareValue)
-            .Add_ifNotZero("ty", (int)type)
+            .Add_IfNotZero("v", compareValue)
+            .Add_IfNotZero("ty", (int)type)
             .Add("ind", EncodeIndex);
 
         public override bool Decode(string subtag, string data)

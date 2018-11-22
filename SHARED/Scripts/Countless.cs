@@ -174,10 +174,10 @@ namespace SharedTools_Stuff {
         public virtual StdEncoder Encode() {
             return null; }
 
-        public virtual ISTD Decode(string data)
+        public virtual void Decode(string data)
         {
             Clear();
-            return data.DecodeTagsFor(this);
+            data.DecodeTagsFor(this);
         }
 
         public virtual bool Decode(string subtag, string data) { return true; }
