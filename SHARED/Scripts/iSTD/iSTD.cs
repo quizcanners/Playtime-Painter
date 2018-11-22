@@ -116,6 +116,7 @@ namespace SharedTools_Stuff {
             inspectedStuff = -1;
         }
 
+        [HideInInspector]
         [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
@@ -291,7 +292,7 @@ namespace SharedTools_Stuff {
         public virtual void ResetInspector() {
             inspectedStuff = -1;
         }
-
+        [HideInInspector]
         public int inspectedStuff = -1;
 
         #if PEGI
@@ -387,8 +388,9 @@ namespace SharedTools_Stuff {
 
             return changed;
         }
-
+        [HideInInspector]
         [SerializeField] public int inspectedStuff = -1;
+        [HideInInspector]
         int inspectedDebugStuff = -1;
         public virtual bool Inspect() {
 
