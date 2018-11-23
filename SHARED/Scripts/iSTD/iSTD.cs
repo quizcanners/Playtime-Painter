@@ -14,7 +14,7 @@ using UnityEditor;
 
 namespace SharedTools_Stuff {
 
-    #region Manual Serialization Interfaces
+    #region Interfaces
     public interface ISTD {
         StdEncoder Encode(); 
         void Decode(string data);
@@ -35,6 +35,18 @@ namespace SharedTools_Stuff {
     {
         LoopLock GetLoopLock { get;  }
     }
+
+    public interface IKeepUnrecognizedSTD : ISTD
+    {
+        UnrecognizedTags_List UnrecognizedSTD { get; }
+    }
+
+    public interface IKeepMySTD : ISTD
+    {
+        string Config_STD { get; set; }
+    }
+
+
     #endregion
 
     #region EnumeratedTypeList
@@ -51,24 +63,125 @@ namespace SharedTools_Stuff {
     }
     #endregion
 
-    #region Unrecognized Tags Persistance
-
-    public interface IKeepUnrecognizedSTD : ISTD {
-       UnrecognizedTags_List UnrecognizedSTD { get; }
-    }
+    #region UNRECOGNIZED
 
 
-    ///<summary>Often controller may be storing his data in itself.
-    ///<para> Best to mark data [HideInInspector] </para>
-    ///<seealso cref="StdEncoder"/>
-    ///</summary>
-    public interface IKeepMySTD : ISTD
+    public class UnrecognizedTags_List : IPEGI
     {
-        string Config_STD { get; set; }
+
+        public class UnrecognizedElement : IPEGI, IGotName, IGotCount, IPEGI_ListInspect
+        {
+            public string _tag;
+            public string _data;
+
+            public List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
+
+            public UnrecognizedElement() { }
+
+            public UnrecognizedElement(string tag, string data)
+            {
+                _tag = tag;
+                _data = data;
+            }
+
+            public UnrecognizedElement(List<string> tags, string data)
+            {
+                Add(tags, data);
+            }
+
+            public void Add(List<string> tags, string data)
+            {
+                if (tags.Count > 1)
+                {
+                    _tag = tags[0];
+                    elements.Add(tags.GetRange(1, tags.Count - 1), data);
+                }
+                else
+                {
+                    _tag = tags[0];
+                    _data = data;
+                }
+            }
+
+            public string NameForPEGI { get { return _tag; } set { _tag = value; } }
+
+
+            #region Inspector
+#if PEGI
+            public int CountForInspector => elements.Count == 0 ? 1 : elements.CountForInspector();
+            
+            int inspected = -1;
+            public bool Inspect() => "{0} Subtags".F(_tag).edit_List(ref elements, ref inspected);
+
+            public bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                bool changed = false;
+
+                changed |= pegi.edit(ref _tag, 70);
+
+                if (elements.Count == 0)
+                    changed |= pegi.edit(ref _data);
+                else
+                {
+                    "+[{0}]".F(CountForInspector).write(50);
+                    if (icon.Enter.Click())
+                        edited = ind;
+                }
+                return changed;
+            }
+#endif
+            #endregion
+        }
+
+        List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
+
+        public bool locked = false;
+
+        public void Clear() => elements = new List<UnrecognizedElement>();
+
+        public void Add(string tag, string data)
+        {
+            var exst = elements.GetByIGotName(tag);
+
+            if (exst != null)
+                exst._data = data;
+            else
+                elements.Add(tag, data);
+        }
+
+        public void Add(List<string> tags, string data) => elements.Add(tags, data);
+
+        public StdEncoder Encode() => locked ? new StdEncoder() : elements.Encode().Lock(this);
+
+#if PEGI
+
+        public int Count => elements.CountForInspector();
+
+
+        int inspected = -1;
+        public bool Inspect()
+        {
+            bool changed = false;
+
+            pegi.nl();
+
+            "Unrecognized".edit_List(ref elements, ref inspected).nl(ref changed);
+
+            pegi.nl();
+
+            return changed;
+        }
+#endif
+
     }
 
 
-    public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD, ISTD_SafeEncoding {
+    #endregion
+
+    #region Abstract Implementations
+
+    public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD, ISTD_SafeEncoding
+    {
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -78,11 +191,11 @@ namespace SharedTools_Stuff {
         public LoopLock GetLoopLock => encodeingLoopLock;
 
         protected List_Data listData = new List_Data("References");
-        
+
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public virtual int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
-        
+
         public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
@@ -111,7 +224,8 @@ namespace SharedTools_Stuff {
         [ContextMenu("Reset Inspector")] // Because ContextMenu doesn't accepts overrides
         void Reset() => ResetInspector();
 
-        public virtual void ResetInspector() {
+        public virtual void ResetInspector()
+        {
             inspectedDebugStuff = -1;
             inspectedReference = -1;
             inspectedStuff = -1;
@@ -121,11 +235,13 @@ namespace SharedTools_Stuff {
         [SerializeField] public int inspectedStuff = -1;
         int inspectedDebugStuff = -1;
         [SerializeField] int inspectedReference = -1;
-        public virtual bool Inspect(){
+        public virtual bool Inspect()
+        {
 
             bool changed = false;
 
-            if (icon.Config.enter(ref inspectedStuff, 0)) {
+            if (icon.Config.enter(ref inspectedStuff, 0))
+            {
 
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
@@ -167,106 +283,8 @@ namespace SharedTools_Stuff {
 #endif
         #endregion
     }
-    
-    public class UnrecognizedTags_List :IPEGI {
 
-        public class UnrecognizedElement : IPEGI, IGotName, IGotCount, IPEGI_ListInspect {
-            public string _tag;
-            public string _data;
-           
-            public List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
 
-            public UnrecognizedElement() { }
-
-            public UnrecognizedElement(string tag, string data) {
-                _tag = tag;
-                _data = data;
-            }
-
-            public UnrecognizedElement(List<string> tags, string data) {
-                Add(tags, data);
-            }
-
-            public void Add (List<string> tags, string data) {
-                if (tags.Count > 1) {
-                    _tag = tags[0];
-                    elements.Add(tags.GetRange(1,tags.Count-1), data);
-                }
-                else
-                {
-                    _tag = tags[0];
-                    _data = data;
-                }
-            }
-
-            public string NameForPEGI { get { return _tag; } set { _tag = value; } }
-
-            public int CountForInspector => elements.Count == 0 ? 1 : elements.CountForInspector();
-            
-            #region Inspector
-            #if PEGI
-            int inspected = -1;
-            public bool Inspect() => "{0} Subtags".F(_tag).edit_List(ref elements, ref inspected);
-                
-            public bool PEGI_inList(IList list, int ind, ref int edited)
-            {
-                bool changed = false;
-
-                changed |= pegi.edit(ref _tag, 70);
-
-                if (elements.Count == 0) 
-                    changed |= pegi.edit(ref _data);
-                else
-                {
-                    "+[{0}]".F(CountForInspector).write(50);
-                    if (icon.Enter.Click())
-                        edited = ind;
-                }
-                return changed;
-            }
-#endif
-            #endregion
-        }
-
-        List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
-
-        public bool locked = false;
-
-        public int Count => elements.CountForInspector(); 
-
-        public void Clear() => elements = new List<UnrecognizedElement>();
-        
-        public void Add(string tag, string data)  {
-            var exst = elements.GetByIGotName(tag);
-
-            if (exst != null)
-                exst._data = data;
-            else
-                elements.Add(tag, data);
-        }
-
-        public void Add(List<string> tags, string data) => elements.Add(tags, data);
-
-        public StdEncoder Encode() => locked ?  new StdEncoder() : elements.Encode().Lock(this);
-        
-        #if PEGI
-        int inspected = -1;
-        public bool Inspect( )
-        {
-            bool changed = false;
-
-            pegi.nl();
-
-            "Unrecognized".edit_List(ref elements, ref inspected).nl(ref changed);
-
-            pegi.nl();
-
-            return changed;
-        }
-        #endif
-
-    }
-    
     public abstract class Abstract_STD : ISTD_SafeEncoding, ICanBeDefault_STD {
         public abstract StdEncoder Encode();
         public virtual void Decode(string data) => data.DecodeTagsFor(this);

@@ -3697,6 +3697,21 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        public static bool edit_Range(this string label, int width, ref Vector2 vec2) {
+
+            var x = vec2.x;
+            var y = vec2.y;
+
+            if (label.edit_Range(width, ref x, ref y)) {
+                vec2.x = x;
+                vec2.y = y;
+                return true;
+            }
+
+            return false;
+        }
+
+
         public static bool edit(this string label, ref Vector2 val, float min, float max)
         {
             "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
