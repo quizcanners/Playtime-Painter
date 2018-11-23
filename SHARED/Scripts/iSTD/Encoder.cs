@@ -221,13 +221,29 @@ namespace SharedTools_Stuff
         #endregion
 
         StringBuilder builder = new StringBuilder();
-        public override string ToString() => builder.ToString();
+
+        UnrecognizedTags_List toUnlock;
+
+        public StdEncoder Lock(UnrecognizedTags_List tags) {
+            toUnlock = tags;
+            tags.locked = true;
+            return this;
+        }
+
+
+        public override string ToString() {
+            if (toUnlock != null)
+                toUnlock.locked = false;
+
+            return builder.ToString();
+        }
 
         public delegate StdEncoder EncodeDelegate();
-        public StdEncoder Add(string tag, EncodeDelegate cody)
-        {
+        public StdEncoder Add(string tag, EncodeDelegate cody) {
+
             if (cody != null)
                 Add(tag, cody());
+            
             return this;
         }
 

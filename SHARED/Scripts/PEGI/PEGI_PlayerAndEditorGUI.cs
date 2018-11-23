@@ -7237,7 +7237,18 @@ namespace PlayerAndEditorGUI {
 
             return changes;
         }
+
+        public static int CountForInspector<T>(this List<T> lst) where T : IGotCount  {
+            int count = 0;
+            foreach (var e in lst)
+                if (e != null)
+                    count += e.CountForInspector;
+
+            return count;
+        }
 #endif
+
+
 
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
         {

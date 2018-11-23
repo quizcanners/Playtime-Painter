@@ -9,6 +9,10 @@ namespace SharedTools_Stuff
     public static class DecodeExtensions {
 
         #region Non-Instancible
+
+        public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag = "b") 
+            => new StdDecoder(data).DecodeTagsFor(dec, unrec, tag);
+        
         public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
 
         public static void DecodeInto(this string data, Transform tf)
@@ -823,6 +827,28 @@ namespace SharedTools_Stuff
         public void DecodeTagsFor (DecodeDelegate dec) {
             foreach (var tag in this)
                 dec(tag, GetData());
+        }
+
+
+        public static List<string> baseClassChain = new List<string>();
+        public void DecodeTagsFor(DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag) {
+
+            baseClassChain.Add(tag);
+            try {
+                foreach (var t in this) {
+                    var data = GetData();
+
+                    if (!dec(t, data)) {
+                        baseClassChain.Add(t);
+                        unrec.UnrecognizedSTD.Add(baseClassChain, data);
+                        baseClassChain.RemoveLast();
+                    }
+                }
+            }
+            finally {
+                baseClassChain.RemoveLast();
+            }
+           
         }
 
         public T DecodeTagsFor<T>(T std) where T : ISTD {

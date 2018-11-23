@@ -171,7 +171,7 @@ namespace PlayerAndEditorGUI {
         {
             switch (tag)
             {
-                case "b": data.DecodeInto(base.Decode); break;
+                case "b": data.DecodeInto(base.Decode, this); break;
                 case "cnd": condition.Decode(data); break;
                 default: return false;
             }

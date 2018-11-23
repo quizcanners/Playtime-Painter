@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
+using static SharedTools_Stuff.StdDecoder;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -166,93 +167,97 @@ namespace SharedTools_Stuff {
 #endif
         #endregion
     }
-
+    
     public class UnrecognizedTags_List :IPEGI {
 
-        protected List<string> tags = new List<string>();
-        protected List<string> datas = new List<string>();
+        public class UnrecognizedElement : IPEGI, IGotName, IGotCount, IPEGI_ListInspect {
+            public string _tag;
+            public string _data;
+           
+            public List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
 
-        public int Count { get { return tags.Count; } }
+            public UnrecognizedElement() { }
 
-        public void Clear() { tags = new List<string>(); datas = new List<string>(); }
-
-        public StdEncoder GetAll()
-        {
-            var cody = new StdEncoder();
-            for (int i = 0; i < tags.Count; i++)
-                cody.Add_String(tags[i], datas[i]);
-            return cody;
-        }
-
-        public void Add(string tag, string data)
-        {
-            if (tags.Contains(tag))
-            {
-                int ind = tags.IndexOf(tag);
-                tags[ind] = tag;
-                datas[ind] = data;
+            public UnrecognizedElement(string tag, string data) {
+                _tag = tag;
+                _data = data;
             }
-            else
-            {
-                tags.Add(tag);
-                datas.Add(data);
+
+            public UnrecognizedElement(List<string> tags, string data) {
+                Add(tags, data);
             }
+
+            public void Add (List<string> tags, string data) {
+                if (tags.Count > 1) {
+                    _tag = tags[0];
+                    elements.Add(tags.GetRange(1,tags.Count-1), data);
+                }
+                else
+                {
+                    _tag = tags[0];
+                    _data = data;
+                }
+            }
+
+            public string NameForPEGI { get { return _tag; } set { _tag = value; } }
+
+            public int CountForInspector => elements.Count == 0 ? 1 : elements.CountForInspector();
             
+            #region Inspector
+            #if PEGI
+            int inspected = -1;
+            public bool Inspect() => "{0} Subtags".F(_tag).edit_List(ref elements, ref inspected);
+                
+            public bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                bool changed = false;
+
+                changed |= pegi.edit(ref _tag, 70);
+
+                if (elements.Count == 0) 
+                    changed |= pegi.edit(ref _data);
+                else
+                {
+                    "+[{0}]".F(CountForInspector).write(50);
+                    if (icon.Enter.Click())
+                        edited = ind;
+                }
+                return changed;
+            }
+#endif
+            #endregion
         }
 
-        public UnrecognizedTags_List()
-        {
-            Clear();
+        List<UnrecognizedElement> elements = new List<UnrecognizedElement>();
+
+        public bool locked = false;
+
+        public int Count => elements.CountForInspector(); 
+
+        public void Clear() => elements = new List<UnrecognizedElement>();
+        
+        public void Add(string tag, string data)  {
+            var exst = elements.GetByIGotName(tag);
+
+            if (exst != null)
+                exst._data = data;
+            else
+                elements.Add(tag, data);
         }
 
+        public void Add(List<string> tags, string data) => elements.Add(tags, data);
+
+        public StdEncoder Encode() => locked ?  new StdEncoder() : elements.Encode().Lock(this);
+        
         #if PEGI
         int inspected = -1;
-        bool foldout = false;
         public bool Inspect( )
         {
             bool changed = false;
 
             pegi.nl();
 
-            var cnt = tags.Count;
-
-            if (cnt > 0 && ("Unrecognized ["+cnt+"]").foldout(ref foldout))
-                {
-
-                    if (inspected < 0)
-                    {
-                        for (int i = 0; i < tags.Count; i++)
-                        {
-                            if (icon.Delete.Click(ref changed))
-                            {
-                                tags.RemoveAt(i);
-                                datas.RemoveAt(i);
-                                i--;
-                            }
-                            else
-                            {
-                                pegi.write(tags[i]);
-                                if (icon.Edit.ClickUnfocus().nl())
-                                    inspected = i;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (inspected >= tags.Count || icon.Back.Click())
-                            inspected = -1;
-                        else
-                        {
-                            int i = inspected;
-                            var t = tags[i];
-                            if ("Tag".edit(40, ref t).nl())
-                                tags[i] = t;
-                            var d = datas[i];
-                            if ("Data".edit(50, ref d).nl())
-                                datas[i] = d;
-                        }
-                    }
-                }
+            "Unrecognized".edit_List(ref elements, ref inspected).nl(ref changed);
 
             pegi.nl();
 
@@ -520,6 +525,31 @@ namespace SharedTools_Stuff {
         }
 #endif
 
+        public static void Add (this List<UnrecognizedTags_List.UnrecognizedElement> lst, List<string> tags, string data) {
+
+
+
+            var exst = lst.GetByIGotName(tags[0]);
+            if (exst != null)
+                exst.Add(tags, data);
+            else
+                lst.Add(new UnrecognizedTags_List.UnrecognizedElement(tags, data));
+        }
+
+        public static void Add(this List<UnrecognizedTags_List.UnrecognizedElement> lst, string tag, string data)
+            =>  lst.Add(new UnrecognizedTags_List.UnrecognizedElement(tag, data));
+
+        public static StdEncoder Encode(this List<UnrecognizedTags_List.UnrecognizedElement> lst) {
+            var cody = new StdEncoder();
+            foreach (var e in lst) {
+                if (e.elements.Count == 0)
+                    cody.Add_String(e._tag, e._data);
+                else
+                    cody.Add(e._tag, e.elements.Encode());
+            }
+
+            return cody;
+        }
 
         public static TaggedTypes_STD GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag {
             if (obj != null)
@@ -662,11 +692,11 @@ namespace SharedTools_Stuff {
 			return s;
 		}
 
-        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) => ur.UnrecognizedSTD.GetAll();
+        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedSTD ur) {
+            return ur.UnrecognizedSTD.Encode();
+        }
 
         public static bool Decode(this ISTD std, string data, ISTD_SerializeNestedReferences keeper) => data.DecodeInto(std, keeper);
-
-  
     }
     #endregion
 }
