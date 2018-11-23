@@ -187,14 +187,12 @@ namespace SharedTools_Stuff {
             
             protected abstract float TargetValue { get; set; }
 
-            protected abstract float Value { get;  set; }
+            public abstract float Value { get;  set; }
 
             protected virtual bool CanLerp => true;
 
-            public override void Lerp(float portion)
-            {
-                if (CanLerp && (!defaultSet || Value != TargetValue))
-                {
+            public override void Lerp(float portion) {
+                if (CanLerp && (!defaultSet || Value != TargetValue)) {
                     Value = Mathf.Lerp(Value, TargetValue, portion);
                     defaultSet = true;
                 }
@@ -205,6 +203,16 @@ namespace SharedTools_Stuff {
                 if (CanLerp && speed.SpeedToMinPortion(Value - TargetValue, ref portion))
                     dominantParameter = Name;
             }
+
+            #region Inspect
+            #if PEGI
+            public override bool Inspect() {
+                var ret = base.Inspect();
+                "{0} => {1}".F(Value, TargetValue).nl();
+                return ret;
+            }
+            #endif
+            #endregion
 
             #region Encode & Decode
             public override StdEncoder Encode()
@@ -234,7 +242,7 @@ namespace SharedTools_Stuff {
 
             protected override float TargetValue { get { return targetTextures.Count > 1 ? 1 : 0; } set { } }
 
-            protected override float Value
+            public override float Value
             {
                 get { return portion; }
                 set
@@ -285,6 +293,7 @@ namespace SharedTools_Stuff {
                         }
                         else
                         {
+                            //>0
 
                             if (value == targetTextures[0])
                             {
@@ -294,21 +303,20 @@ namespace SharedTools_Stuff {
                                     Value = 1 - Value;
                                     current = next;
                                     next = value;
+                                    targetTextures.TryRemoveTill(2);
                                 }
                             }
                             else
                             {
-                                if (targetTextures.Count == 1)
-                                {
+                                if (targetTextures.Count == 1) {
                                     targetTextures.Add(value);
                                     next = value;
                                 }
-                                else
-                                {
+                                else {
                                     if (targetTextures[1] == value && targetTextures.Count == 3)
                                         targetTextures.RemoveAt(2);
                                     else
-                                        targetTextures[2] = value;
+                                        targetTextures.ForceSet(2, value);
                                 }
                             }
                         }
@@ -698,31 +706,17 @@ namespace SharedTools_Stuff {
         }
         #endregion
 
-        public class GraphicAlpha : IlinkedLerping
-        {
+        public class GraphicAlpha : BASE_FloatLerp {
 
             public Graphic graphic;
-            public float speed = 1;
-            protected bool defaultSet = false;
-            public float value = 0;
             public float targetValue = 0;
 
-            public void Portion(ref float portion, ref string dominantParameter)
-            {
-                if (speed.SpeedToMinPortion(value - targetValue, ref portion))
-                    dominantParameter = "Graphic Alpha";
-            }
+            protected override float TargetValue { get { return targetValue; }
+                set { targetValue = value; } }
 
-            public void Lerp(float portion)
-            {
+            public override float Value { get { return graphic ? graphic.color.a : targetValue; } set { graphic.TrySetAlpha(value); } }
 
-                if (value != targetValue || !defaultSet)
-                {
-                    defaultSet = true;
-                    value = Mathf.Lerp(value, targetValue, portion);
-                    graphic.TrySetAlpha(value);
-                }
-            }
+            protected override string Name => "Graphic Alpha";
         }
 
     }

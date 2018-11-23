@@ -309,7 +309,16 @@ namespace SharedTools_Stuff
             return true;
       
         }
-        
+
+        public static bool TryRemoveTill<T>(this List<T> list, int maxCountLeft) {
+            if (list != null && list.Count > maxCountLeft) {
+                list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
+                return true;
+            }
+
+            return false;
+        }
+
         public static T TryGetLast<T>(this IList<T> list)
         {
 

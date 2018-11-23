@@ -11,7 +11,7 @@ namespace SharedTools_Stuff
 
         public const string imageProjectionPosition = "_imgProjPos";
         public const string nextTexture = "_Next_MainTex";
-        public const string currentTexture = "_MainTex";
+        public const string currentTexture = "_MainTex_Current";
         public const string transitionPortion = "_Transition";
 
 
