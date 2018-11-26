@@ -163,8 +163,9 @@ namespace SharedTools_Stuff {
             {
                 var cody = new StdEncoder()
                       .Add("b", base.Encode)
-                      .Add("t", CurrentValue)
                       .Add_Bool("e", enabled);
+                if (enabled && allowChangeParameters)
+                    cody.Add("t", CurrentValue);
 
                 return cody;
             }
@@ -174,7 +175,7 @@ namespace SharedTools_Stuff {
                 switch (tag)
                 {
                     case "e": enabled = data.ToBool(); break;
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode_Delegate(base.Decode); break;
                     case "t": targetValue = data.ToVector2(); lerpFinished = false; break;
                     default: return false;
                 }
@@ -219,7 +220,7 @@ namespace SharedTools_Stuff {
             {
                 var cody = new StdEncoder()
                       .Add("b", base.Encode)
-                      .Add("t", Value);
+                      .Add("t", TargetValue);
                 return cody;
             }
 
@@ -228,7 +229,7 @@ namespace SharedTools_Stuff {
                 switch (tag)
                 {
                     case "t": TargetValue = data.ToFloat(); break;
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode_Delegate(base.Decode); break;
                     default: return false;
                 }
                 return true;
@@ -240,7 +241,7 @@ namespace SharedTools_Stuff {
         {
             float portion = 0;
 
-            protected override float TargetValue { get { return targetTextures.Count > 1 ? 1 : 0; } set { } }
+            protected override float TargetValue { get { return Mathf.Max(0, targetTextures.Count - 1); } set { } }
 
             public override float Value
             {
@@ -249,16 +250,15 @@ namespace SharedTools_Stuff {
                 {
                     portion = value;
 
-                    if (portion == 1)
-                    {
-                        portion = 0;
+                    while (portion >= 1) {
+                        portion -= 1;
                         targetTextures.RemoveAt(0);
                         current = targetTextures[0];
                         if (targetTextures.Count > 1)
                             next = targetTextures[1];
                     }
 
-                    material.SetFloat(transitionPropertyName, value);
+                    material.SetFloat(transitionPropertyName, portion);
                 }
             }
 
@@ -300,7 +300,7 @@ namespace SharedTools_Stuff {
                                 if (targetTextures.Count > 1)
                                 {
                                     targetTextures.Swap(0, 1);
-                                    Value = 1 - Value;
+                                    Value = Mathf.Max(0, 1 - Value);
                                     current = next;
                                     next = value;
                                     targetTextures.TryRemoveTill(2);
@@ -344,9 +344,9 @@ namespace SharedTools_Stuff {
             #endregion
 
             #region Encode & Decode
-            public override StdEncoder Encode()
-            {
-                var cody = new StdEncoder().Add("b", base.Encode());
+            public override StdEncoder Encode() {
+
+                var cody = new StdEncoder().Add("b", base.Encode);
                 if (allowChangeParameters)
                     cody.Add_Reference("s", targetTextures.TryGetLast());
 
@@ -357,7 +357,7 @@ namespace SharedTools_Stuff {
             {
                 switch (tag)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode_Delegate(base.Decode); break;
                     case "s":
                         Texture tmp = null;
                         data.Decode_Reference(ref tmp);
@@ -485,7 +485,7 @@ namespace SharedTools_Stuff {
 
             protected override Vector2 CurrentValue
             {
-                get { return rectTransform.anchoredPosition; }
+                get { return rectTransform ? rectTransform.anchoredPosition : targetValue; }
                 set
                 {
                     if (rectTransform)
@@ -498,10 +498,6 @@ namespace SharedTools_Stuff {
                 rectTransform = rect;
                 speed = nspeed;
             }
-
-           
-
-
         }
 
         public class RectangleTransform_WidthHeight : RectangleTransform_AnchoredPositionValue
@@ -511,7 +507,7 @@ namespace SharedTools_Stuff {
 
             protected override Vector2 CurrentValue
             {
-                get { return rectTransform.sizeDelta; }
+                get { return rectTransform ? rectTransform.sizeDelta : targetValue; }
                 set
                 {
                     rectTransform.sizeDelta = value;
@@ -666,7 +662,8 @@ namespace SharedTools_Stuff {
                 {
                     if (value != graphic)
                     {
-                        graphic = value; if (Application.isPlaying) graphic.material = UnityEngine.Object.Instantiate(graphic.material);
+                        graphic = value; if (Application.isPlaying)
+                            graphic.material = UnityEngine.Object.Instantiate(graphic.material);
                     }
                 }
             }

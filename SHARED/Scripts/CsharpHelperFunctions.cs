@@ -257,38 +257,39 @@ namespace SharedTools_Stuff
 
             if (obj == null || list == null)
                 return false;
-            
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour))) {
-                var go = obj as GameObject;
-                if (go && !go.isNullOrDestroyed()) {
 
+            if (!(obj is T)) {
+
+                GameObject go = null;
+
+                if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+                    go = (obj as MonoBehaviour)?.gameObject;
+                else go = obj as GameObject;
+
+                if (go && !go.isNullOrDestroyed()) 
                     conv = go.GetComponent<T>();
-
-                    if (conv == null || (onlyIfNew && list.Contains(conv)))
-                        return false;
-                    else
-                        obj = conv;
-                }
-                else
-                    return false;
             }
+            else conv = (T)obj;
 
-            if (obj is T) {
-
-                conv = (T)obj;
+            if (!conv.Equals(default(T))) {
 
                 Type objType = obj.GetType();
 
                 var dl = typeof(T).TryGetDerrivedClasses();
-                if (dl != null && !dl.Contains(objType))
-                    return false;
+                if (dl != null)  {
+                    if (!dl.Contains(objType))
+                        return false;
 
-                if (dl == null) {
+                } else  {
+
                     var tc = typeof(T).TryGetTaggetClasses();
 
                     if (tc != null && !tc.Types.Contains(objType))
                         return false;
                 }
+
+                if (onlyIfNew && list.Contains(conv))
+                    return false;
 
                 return true;
             }

@@ -10,10 +10,10 @@ namespace SharedTools_Stuff
 
         #region Non-Instancible
 
-        public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag = "b") 
+        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag = "b") 
             => new StdDecoder(data).DecodeTagsFor(dec, unrec, tag);
         
-        public static void DecodeInto(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
+        public static void Decode_Delegate(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
 
         public static void DecodeInto(this string data, Transform tf)
         {
@@ -427,14 +427,20 @@ namespace SharedTools_Stuff
         #endregion
 
         #region STD List
-        public static bool TryDecode_List<T>(this string data, List<T> val)
-        {
+        public static bool TryDecode_IntoList_Elements<T>(this string data, List<T> val) {
+
             if (val != null) {
                 var cody = new StdDecoder(data);
 
-                while (cody.GotData) {
-                    var ind = cody.GetTag().ToIntFromTextSafe(-1);
-                    cody.GetData().TryDecodeInto(val.TryGet(ind));
+                int index = 0;
+
+                foreach (var t in cody) {
+
+                    if (index >= val.Count)
+                        return true;
+      
+                    cody.GetData().TryDecodeInto(val[index]);
+                    index++;
                 }
                 return true;
             }

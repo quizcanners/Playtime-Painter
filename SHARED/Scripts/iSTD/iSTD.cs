@@ -15,12 +15,18 @@ using UnityEditor;
 namespace SharedTools_Stuff {
 
     #region Interfaces
+
     public interface ISTD {
         StdEncoder Encode(); 
         void Decode(string data);
         bool Decode(string tag, string data);
     }
-    
+
+    public interface IKeepUnrecognizedSTD : ISTD
+    {
+        UnrecognizedTags_List UnrecognizedSTD { get; }
+    }
+
     public interface ICanBeDefault_STD : ISTD {
         bool IsDefault { get; }
     }
@@ -34,11 +40,6 @@ namespace SharedTools_Stuff {
     public interface ISTD_SafeEncoding: ISTD
     {
         LoopLock GetLoopLock { get;  }
-    }
-
-    public interface IKeepUnrecognizedSTD : ISTD
-    {
-        UnrecognizedTags_List UnrecognizedSTD { get; }
     }
 
     public interface IKeepMySTD : ISTD

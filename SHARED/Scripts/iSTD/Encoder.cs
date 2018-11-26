@@ -229,8 +229,7 @@ namespace SharedTools_Stuff
             tags.locked = true;
             return this;
         }
-
-
+        
         public override string ToString() {
             if (toUnlock != null)
                 toUnlock.locked = false;
@@ -254,7 +253,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_String(string tag, String data)
+        public StdEncoder Add_String(string tag, string data)
         {
 
             if (data == null)

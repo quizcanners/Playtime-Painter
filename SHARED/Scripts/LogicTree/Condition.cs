@@ -67,7 +67,7 @@ namespace STD_Logic
             switch (subtag)
             {
                 case "b": compareValue = data.ToBool(); break;
-                case "ind": data.DecodeInto(DecodeIndex); break;
+                case "ind": data.Decode_Delegate(DecodeIndex); break;
                 default: return false;
             }
             return true;
@@ -107,7 +107,7 @@ namespace STD_Logic
             {
                 case "v": compareValue = data.ToInt(); break;
                 case "ty": type = (ConditionType)data.ToInt(); break;
-                case "ind": data.DecodeInto(DecodeIndex); break;
+                case "ind": data.Decode_Delegate(DecodeIndex); break;
                 default: return false;
             }
             return true;

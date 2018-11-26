@@ -64,7 +64,7 @@ namespace STD_Logic  {
             switch (subtag) {
                 case "ty": type = (ResultType)data.ToInt(); break;
                 case "val": updateValue = data.ToInt(); break;
-                case "ind": data.DecodeInto(DecodeIndex); break;
+                case "ind": data.Decode_Delegate(DecodeIndex); break;
                 default: return false;
             }
             return true;

@@ -3201,6 +3201,59 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool tryClickHighlight(this object obj, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            var uo = obj as UnityEngine.Object;
+            if (uo != null)
+                uo.clickHighlight(width);
+#endif
+
+            return false;
+        }
+
+        public static bool clickHighlight(this Sprite sp, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            if (sp != null && sp.Click(Msg.HighlightElement.Get(), width))
+            {
+                EditorGUIUtility.PingObject(sp);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+        public static bool clickHighlight(this Texture tex, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            if (tex != null && tex.Click(Msg.HighlightElement.Get(), width))
+            {
+                EditorGUIUtility.PingObject(tex);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+        
+        public static bool clickHighlight(this UnityEngine.Object obj, int width = defaultButtonSize) =>
+           obj.clickHighlight(icon.Search.GetIcon(), width);
+
+        public static bool clickHighlight(this UnityEngine.Object obj, Texture tex, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            if (obj != null && tex.Click(Msg.HighlightElement.Get()))
+            {
+                EditorGUIUtility.PingObject(obj);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+        
         #endregion
 
         #region Toggle
@@ -5659,61 +5712,7 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
-        public static bool clickHighlight(this Sprite sp)
-        {
-#if UNITY_EDITOR
-            if (sp != null && sp.Click(Msg.HighlightElement.Get()))
-            {
-                EditorGUIUtility.PingObject(sp);
-                return true;
-            }
-#endif
-
-            return false;
-        }
-
-        public static bool clickHighlight(this Texture tex)
-        {
-#if UNITY_EDITOR
-            if (tex != null && tex.Click(Msg.HighlightElement.Get()))
-            {
-                EditorGUIUtility.PingObject(tex);
-                return true;
-            }
-#endif
-
-            return false;
-        }
-
-
-        public static bool clickHighlight(this UnityEngine.Object obj) =>
-           obj.clickHighlight(icon.Search.GetIcon());
-
-        public static bool clickHighlight(this UnityEngine.Object obj, Texture tex)
-        {
-#if UNITY_EDITOR
-            if (obj != null && tex.Click(Msg.HighlightElement.Get()))
-            {
-                EditorGUIUtility.PingObject(obj);
-                return true;
-            }
-#endif
-
-            return false;
-        }
-
-        public static bool tryClickHighlight(this object obj)
-        {
-#if UNITY_EDITOR
-            var uo = obj as UnityEngine.Object;
-            if (uo != null)
-                uo.clickHighlight();
-#endif
-
-            return false;
-        }
-
+        
         static bool isMonoType<T>(List<T> list, int i)
         {
             if ((typeof(MonoBehaviour)).IsAssignableFrom(typeof(T)))
@@ -7279,8 +7278,6 @@ namespace PlayerAndEditorGUI {
             return count;
         }
 #endif
-
-
 
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
         {
