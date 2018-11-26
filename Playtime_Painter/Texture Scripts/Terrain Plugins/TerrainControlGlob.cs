@@ -8,7 +8,6 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    [System.Serializable]
     public class TerrainControlGlob : PainterPluginBase {
 
 

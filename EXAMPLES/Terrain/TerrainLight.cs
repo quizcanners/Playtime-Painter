@@ -7,7 +7,6 @@ using SharedTools_Stuff;
 namespace Playtime_Painter.Examples {
 
     [TaggedType(tag)]
-    [System.Serializable]
     public class TerrainLight : PainterPluginBase
     {
 

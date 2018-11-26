@@ -9,7 +9,6 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    [System.Serializable]
     public class TerrainSplatTexture : PainterPluginBase
     {
 

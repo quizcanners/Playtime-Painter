@@ -20,7 +20,7 @@ namespace SharedTools_Stuff {
 
             protected bool defaultSet = false;
 
-            public float speed = 50;
+            public float speed = 1;
             protected bool allowChangeParameters = true;
 
             protected abstract string Name { get;  } 
@@ -90,6 +90,8 @@ namespace SharedTools_Stuff {
             public Vector2 targetValue;
 
             protected abstract Vector2 CurrentValue { get; set; }
+
+            public override bool IsDefault => !enabled;
 
             protected virtual bool CanLerp => true;
 
@@ -219,8 +221,7 @@ namespace SharedTools_Stuff {
             public override StdEncoder Encode()
             {
                 var cody = new StdEncoder()
-                      .Add("b", base.Encode)
-                      .Add("t", TargetValue);
+                      .Add("b", base.Encode);
                 return cody;
             }
 
@@ -228,7 +229,6 @@ namespace SharedTools_Stuff {
             {
                 switch (tag)
                 {
-                    case "t": TargetValue = data.ToFloat(); break;
                     case "b": data.Decode_Delegate(base.Decode); break;
                     default: return false;
                 }
@@ -414,6 +414,26 @@ namespace SharedTools_Stuff {
         }
 
 
+        #endregion
+
+        #region Value Types
+        public class FloatValue : BASE_FloatLerp
+        {
+            string _name = "Float value"; 
+            float _value;
+            public float targetValue;
+            public override float Value { get { return _value; } set { _value = value; } }
+            protected override float TargetValue { get { return targetValue; } set { targetValue = value; } }
+
+            protected override string Name => _name;
+
+            public FloatValue() { }
+
+            public FloatValue(string name) {
+                _name = name;
+            }
+
+        }
         #endregion
 
         #region Transform

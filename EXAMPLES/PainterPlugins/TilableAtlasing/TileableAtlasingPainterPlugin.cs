@@ -16,7 +16,6 @@ using UnityEditor;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    [Serializable]
     public class TileableAtlasingPainterPlugin : PainterPluginBase {
 
         const string tag = "TilAtlsPntr";

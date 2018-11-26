@@ -19,11 +19,10 @@ namespace Playtime_Painter
         public virtual bool Inspect() => uTags.Nested_Inspect();
 #endif
     }
-
-    [Serializable]
+    
     public abstract class PainterStuff_STD : PainterStuff, ISTD  
     {
-    public abstract StdEncoder Encode();
+        public abstract StdEncoder Encode();
 
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
 
@@ -82,10 +81,8 @@ namespace Playtime_Painter
 
     }
 
-
-    [Serializable]
+    
     public class PainterStuff {
-
         protected static PainterDataAndConfig TexMGMTdata { get { return PainterCamera.Data; } }
         protected static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
         protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }

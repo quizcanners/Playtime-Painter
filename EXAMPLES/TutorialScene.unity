@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.58592916, g: 0.5938812, b: 0.7264151, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.0015
+  m_FogDensity: 0.0067
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.68485224, g: 0.69397473, b: 0.8490566, a: 1}
@@ -3868,7 +3868,7 @@ MonoBehaviour:
       role: 0
       p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
     GizmoLines: 0
-  focusedPainter: {fileID: 1689211757}
+  focusedPainter: {fileID: 1898692891}
   isLinearColorSpace: 1
   rtcam: {fileID: 1736878062}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -4473,7 +4473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   picture: {fileID: 1144922678}
   leftCube: {fileID: 0}
-  timer: -43.011414
+  timer: -28.696102
   style:
     m_Name: Hint Style
     m_Normal:
@@ -4611,6 +4611,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef1f0d8951f744a4683c56539f1f68b0, type: 3}
+--- !u!114 &1898692891 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114409623194588454, guid: ef1f0d8951f744a4683c56539f1f68b0,
+    type: 3}
+  m_PrefabInstance: {fileID: 1898692890}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1898692892 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114945857844550318, guid: ef1f0d8951f744a4683c56539f1f68b0,

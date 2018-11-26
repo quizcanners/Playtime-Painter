@@ -119,7 +119,7 @@ namespace Playtime_Painter
 
         public int selectedAtlasedMaterial = -1;
 
-        public List<PainterPluginBase> Plugins;
+        [NonSerialized] public List<PainterPluginBase> Plugins;
 
         PainterPluginBase lastFetchedPlugin;
         public T GetPlugin<T>() where T : PainterPluginBase

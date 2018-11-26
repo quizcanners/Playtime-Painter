@@ -7,7 +7,6 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    [System.Serializable]
     public class TerrainHeight : PainterPluginBase
     {
         const string tag = "TerHeight";

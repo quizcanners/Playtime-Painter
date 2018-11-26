@@ -14,8 +14,7 @@ namespace Playtime_Painter
     public class PainterPluginAttribute : Abstract_WithTaggedTypes {
         public override TaggedTypes_STD TaggedTypes => PainterPluginBase.all;
     }
-
-    [Serializable]
+    
     public abstract class PainterPluginBase : PainterStuffKeepUnrecognized_STD, IGotClassTag {
 
         #region Abstract Serialized
