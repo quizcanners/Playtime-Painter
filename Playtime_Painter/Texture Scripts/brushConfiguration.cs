@@ -337,7 +337,7 @@ namespace Playtime_Painter {
                     changed |= pl(ref overrideBlitModePegi, this).nl();
             
             if (p != null)
-                foreach (var pl in p.plugins)
+                foreach (var pl in p.Plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty();
                     

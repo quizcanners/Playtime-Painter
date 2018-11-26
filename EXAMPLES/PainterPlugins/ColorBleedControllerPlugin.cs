@@ -6,9 +6,13 @@ using System;
 using SharedTools_Stuff;
 
 
-namespace Playtime_Painter {
-    
+namespace Playtime_Painter.Examples {
+
+    [TaggedType(tag)]
     public class ColorBleedControllerPlugin : PainterManagerPluginBase  {
+
+        const string tag = "ColBleed";
+        public override string ClassTag => tag;
 
         public float eyeBrightness = 1;
         public float colorBleeding = 0.01f;

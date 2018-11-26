@@ -4,11 +4,12 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using Playtime_Painter;
 
-
-
-public class BrushConfigOnly : MonoBehaviour  , IPEGI
-
+namespace Playtime_Painter.Examples
 {
+
+    public class BrushConfigOnly : MonoBehaviour, IPEGI
+
+    {
         public BrushConfig brush = new BrushConfig();
 #if PEGI
         public bool Inspect()
@@ -23,4 +24,5 @@ public class BrushConfigOnly : MonoBehaviour  , IPEGI
         }
 
 #endif
+    }
 }

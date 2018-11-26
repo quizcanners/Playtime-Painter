@@ -4,22 +4,31 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
-   
 
+    public class PainterManagerPluginAttribute : Abstract_WithTaggedTypes
+    {
+        public override TaggedTypes_STD TaggedTypes => PainterManagerPluginBase.all;
+    }
+
+    [PainterManagerPlugin]
     [ExecuteInEditMode]
     [System.Serializable]
-    public class PainterManagerPluginBase : PainterStuffMono, IGotDisplayName {
+    public abstract class PainterManagerPluginBase : PainterStuffKeepUnrecognized_STD, IGotDisplayName, IGotClassTag {
+
+        #region Abstract Serialized
+        public abstract string ClassTag { get; } 
+        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterManagerPluginBase));
+        public TaggedTypes_STD AllTypes => all;
+        #endregion
 
         public virtual string NameForPEGIdisplay => ToString();
 
         #region Inspector
 #if PEGI
         pegi.CallDelegate plugins_ComponentPEGI;
-
-      
+        
         protected pegi.CallDelegate PlugIn_PainterComponent { set
             {
                 plugins_ComponentPEGI += value;
@@ -33,7 +42,23 @@ namespace Playtime_Painter
             VertexEdgePEGIdelegates += d;
             VertexEdgeTool.PEGIdelegates += d;
         }
+        
+        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
+
+        public override bool Inspect()
+        {
+            bool changed = ConfigTab_PEGI();
+            changed |= base.Inspect();
+            return changed;
+        }
+
 #endif
+        #endregion
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized();
+
+        public override bool Decode(string tag, string data) => false;
         #endregion
 
         PainterBoolPlugin plugins_GizmoDraw;
@@ -88,29 +113,13 @@ namespace Playtime_Painter
         
         public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
 
-        public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
-          
-            return false;
-        }
-
+        public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr)  =>  false;
+        
         public virtual Shader GetPreviewShader(PlaytimePainter p) { return null; }
 
         public virtual Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) { return null; }
 
         public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) { return null; }
         
-     
-
-#if PEGI
-        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
-        
-        public override bool Inspect()
-        {
-            bool changed =  ConfigTab_PEGI();
-            changed |= base.Inspect();
-            return changed;
-        }
-#endif
-      
     }
 }

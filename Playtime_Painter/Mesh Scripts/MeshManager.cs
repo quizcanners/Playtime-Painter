@@ -14,7 +14,7 @@ namespace Playtime_Painter {
 
 	[Serializable]
     [ExecuteInEditMode]
-    public class MeshManager : PainterStuff  {
+    public class MeshManager : PainterStuff, IKeepUnrecognizedSTD  {
         
         public static MeshManager Inst { get
             {
@@ -55,7 +55,26 @@ namespace Playtime_Painter {
         public Mesh previewMesh;
    
         public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
-      
+
+
+        #region Encode & Decode
+
+        public StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_IfTrue("byUV", SelectingUVbyNumber);
+
+        public void Decode(string data) => data.DecodeTagsFor(this);
+
+        public bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "byUV": SelectingUVbyNumber = data.ToBool(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+
+        #endregion
 
         int currentUV = 0;
         bool SelectingUVbyNumber = false;
@@ -233,6 +252,8 @@ namespace Playtime_Painter {
         [NonSerialized]
         bool _dragging;
         public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.4f; } }
+
+        public UnrecognizedTags_List UnrecognizedSTD => throw new NotImplementedException();
 
         public void DisconnectDragged()
         {
@@ -998,7 +1019,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             EditorApplication.update -= EditingUpdate;
-            if (!PainterCamera.Inst.ApplicationIsAboutToEnterPlayMode())
+            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += EditingUpdate;
 #endif
         }
@@ -1019,8 +1040,9 @@ namespace Playtime_Painter {
 
         int justLoaded;
 
-#if PEGI
-         List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
+        #region Inspector
+        #if PEGI
+        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
         bool showReferences = false;
         bool inspectMesh = false;
         bool showTooltip;
@@ -1195,8 +1217,8 @@ namespace Playtime_Painter {
 
             return changed;
         }
-
-#endif
+        #endif
+        #endregion
 
     }
 }

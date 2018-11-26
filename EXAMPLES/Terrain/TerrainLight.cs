@@ -4,13 +4,16 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
+namespace Playtime_Painter.Examples {
 
-namespace Playtime_Painter
-{
+    [TaggedType(tag)]
     [System.Serializable]
     public class TerrainLight : PainterPluginBase
     {
-    
+
+        const string tag = "TerLight";
+        public override string ClassTag => tag;
+
         public MergingTerrainController mergingTerrain;
         public int testData;
 

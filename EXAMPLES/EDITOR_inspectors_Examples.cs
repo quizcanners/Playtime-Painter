@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using Playtime_Painter.Examples;
 
 namespace Playtime_Painter
 {
 
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
-
-    [CustomEditor(typeof(ColorBleedControllerPlugin))]
-    public class ColorBleedControlsEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((ColorBleedControllerPlugin)target).Inspect(serializedObject);
-    }
 
     [CustomEditor(typeof(BrushConfigOnly))]
     public class BrushConfigOnlyEditor : Editor
@@ -31,12 +26,6 @@ namespace Playtime_Painter
     public class MergingTerrainEditor : Editor
     {
         public override void OnInspectorGUI() => ((MergingTerrainController)target).Inspect(serializedObject);
-    }
-
-    [CustomEditor(typeof(MultiBufferProcessing))]
-    public class MultiBufferProcessingEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((MultiBufferProcessing)target).Inspect(serializedObject);
     }
 
     [CustomEditor(typeof(PainterBall))]
@@ -79,18 +68,6 @@ namespace Playtime_Painter
     public class VolumeTextureEditor : Editor
     {
         public override void OnInspectorGUI() => ((VolumeTexture)target).Inspect(serializedObject);
-    }
-
-    [CustomEditor(typeof(VolumePaintingPlugin))]
-    public class VolumePaintingPluginEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((VolumePaintingPlugin)target).Inspect(serializedObject);
-    }
-
-    [CustomEditor(typeof(CombinedMaps.CombinedMapsControllerPlugin))]
-    public class CombinedMapsControllerEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((CombinedMaps.CombinedMapsControllerPlugin)target).Inspect(serializedObject);
     }
 
     [CustomEditor(typeof(WaterController))]

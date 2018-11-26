@@ -2826,7 +2826,7 @@ namespace PlayerAndEditorGUI {
 
         public static T enter_List<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types, ref bool changed) {
             if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))
-               return meta.label.edit_List(list, ref changed, types, meta);
+               return meta.edit_List(ref list, types, ref changed);
             return default(T);
         }
 
@@ -2835,8 +2835,8 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
             int insp = -1;
 
-             if (enter_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                label.edit_List(list, ref changed, types);
+             if (enter_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) 
+                label.edit_List(ref list, types, ref changed);
             
 
             return changed;
@@ -6184,24 +6184,41 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-        public static T edit_List<T>(this string label, List<T> list, ref bool changed, TaggedTypes_STD types, List_Data ld = null)
+        public static T edit_List<T>(this List_Data datas, ref List<T> list, TaggedTypes_STD types, ref bool changed)
         {
-            label.write_ListLabel(list, ld.inspected);
-            return list.edit_List(ref ld.inspected, ref changed, types, ld).listLabel_Used();
+            write_ListLabel(datas, list);
+            return edit_List(ref list, ref datas.inspected, types, ref changed, datas).listLabel_Used();
         }
 
-        public static T edit_List<T>(this string label, List<T> list, ref int edited, ref bool changed, TaggedTypes_STD types) {
+        public static bool edit_List<T>(this List_Data datas, ref List<T> list, TaggedTypes_STD types) {
+            bool changed = false;
+            write_ListLabel(datas, list);
+            edit_List(ref list, ref datas.inspected, types, ref changed, datas).listLabel_Used();
+            return changed;
+        }
+
+
+        public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data ld = null)
+        {
+            label.write_ListLabel(list, ld.inspected);
+            return edit_List(ref list, ref ld.inspected, types, ref changed, ld).listLabel_Used();
+        }
+
+        public static T edit_List<T>(this string label, ref List<T> list, ref int edited, TaggedTypes_STD types, ref bool changed) {
             label.write_ListLabel(list, edited);
-            return list.edit_List(ref edited, ref changed, types).listLabel_Used();
+            return edit_List(ref list, ref edited, types, ref changed).listLabel_Used();
         }
         
-        public static T edit_List<T>(this List<T> list, ref int inspected, ref bool changed, TaggedTypes_STD types, List_Data datas = null) {
+        public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed, List_Data datas = null) {
 
             T added = default(T);
 
-            if (list == null) {
-                "Empty List".nl();
-                return added;
+            if (list == null)
+            {
+                if ("Init list".ClickUnfocus())
+                    list = new List<T>();
+                else
+                    return added;
             }
 
             int before = inspected;

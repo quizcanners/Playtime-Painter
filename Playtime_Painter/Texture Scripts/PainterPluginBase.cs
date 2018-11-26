@@ -8,76 +8,43 @@ using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-// This is a base class to use when managing special cases, such as: Terrain ControlMaps, Global Textures, Textures that are RAM only.
 
 namespace Playtime_Painter
 {
-
-    // Inherit this base class to create textures that are not not part of the material. (GlobalShaderValues, Terrain Textures)
+    public class PainterPluginAttribute : Abstract_WithTaggedTypes {
+        public override TaggedTypes_STD TaggedTypes => PainterPluginBase.all;
+    }
 
     [Serializable]
-    public class PainterPluginBase : PainterStuffScriptable 
-    {
+    public abstract class PainterPluginBase : PainterStuffKeepUnrecognized_STD, IGotClassTag {
+
+        #region Abstract Serialized
+        public abstract string ClassTag { get; }
+        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterPluginBase));
+        public TaggedTypes_STD AllTypes => all;
+        #endregion
 
         [SerializeField]
         public PlaytimePainter parentPainter;
 
-        static List<Type> allTypes;
+        public static void UpdateList(PlaytimePainter pntr) {
 
-        public static void UpdateList(PlaytimePainter pntr)
-        {
-
-            if (allTypes == null)
-                allTypes = CsharpFuncs.GetAllChildTypesOf<PainterPluginBase>();
-
-            for (int i = 0; i < pntr.plugins.Count; i++)
-            {
-                var nt = pntr.plugins[i];
+            for (int i = 0; i < pntr.Plugins.Count; i++) {
+                var nt = pntr.Plugins[i];
 
                 if (nt == null) {
-                    pntr.plugins.RemoveAt(i);
+                    pntr.Plugins.RemoveAt(i);
                     i--;
                 }
             }
 
-            if (pntr.plugins.Count == 0)
-            {
-                foreach (Type t in allTypes)
-                {
-                    var obj = (PainterPluginBase)ScriptableObject.CreateInstance(t);
-                  
-                    pntr.plugins.Add(obj);
-                }
+            for (int i = 0; i < pntr.Plugins.Count; i++)
+                if (pntr.Plugins[i] == null) { pntr.Plugins.RemoveAt(i); i--; }
 
-#if UNITY_EDITOR
-                foreach (var p in pntr.plugins)
-                    Undo.RegisterCreatedObjectUndo(p, "plgns");
-#endif
-
-                return;
+            foreach (Type t in all) {
+                if (!pntr.Plugins.ContainsInstanceType(t)) 
+                    pntr.Plugins.Add((PainterPluginBase)Activator.CreateInstance(t));  
             }
-
-            //Debug.Log("lst was not null");
-
-
-            for (int i = 0; i < pntr.plugins.Count; i++)
-                if (pntr.plugins[i] == null) { pntr.plugins.RemoveAt(i); i--; Debug.Log("Removing missing dataa"); }
-
-            foreach (Type t in allTypes)
-            {
-                if (!pntr.plugins.ContainsInstanceType(t))
-                {
-                    Debug.Log("Creating instance of " + t.ToString());
-                    var np = (PainterPluginBase)CreateInstance(t);
-                  
-                    pntr.plugins.Add(np);  
-#if UNITY_EDITOR
-                    Undo.RegisterCreatedObjectUndo(np, "plgns");
-#endif
-                }
-            }
-
-
         }
 
         public virtual bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
@@ -109,8 +76,6 @@ namespace Playtime_Painter
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        //public virtual bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData p, BrushConfig bc, PlaytimePainter pntr) { return false; }
-
         public virtual void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
@@ -119,5 +84,10 @@ namespace Playtime_Painter
 
         }
 
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized();
+
+        public override bool Decode(string tag, string data) => false;
+        #endregion
     }
 }

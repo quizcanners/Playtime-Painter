@@ -1,13 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SharedTools_Stuff;
 using UnityEngine;
 
 namespace Playtime_Painter
 {
+
+    [TaggedType(tag)]
     [System.Serializable]
     public class TerrainHeight : PainterPluginBase
     {
-        
+        const string tag = "TerHeight";
+        public override string ClassTag => tag;
+
+
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainHeight)))
@@ -63,6 +69,8 @@ namespace Playtime_Painter
             if (painter.terrainHeightTexture != null)
                 Shader.SetGlobalTexture(PainterDataAndConfig.terrainHeight, painter.terrainHeightTexture.GetDestinationTexture());
         }
+
+    
     }
 
 }

@@ -13,10 +13,12 @@ namespace Playtime_Painter
 {
 
     #region Manager
-
+    [TaggedType(tag)]
     [ExecuteInEditMode]
     public class MultiBufferProcessing : PainterManagerPluginBase, ISTD
     {
+        const string tag = "MltBffr";
+        public override string ClassTag => tag;
 
         public static MultiBufferProcessing inst;
 
@@ -140,7 +142,7 @@ namespace Playtime_Painter
             Decode(std_data); //.DecodeTagsFor(this);
 #if UNITY_EDITOR
             EditorApplication.update -= ManualUpdate;
-            if (!this.ApplicationIsAboutToEnterPlayMode())
+            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += ManualUpdate;
 #endif
 
@@ -495,8 +497,8 @@ namespace Playtime_Painter
             {
                 var cam = TexMGMT ? Data.webCamTexture : null;
 
-                return Mgmt
-                    && (cam == null || cam.isPlaying == false || cam.didUpdateThisFrame);
+                return Mgmt!=null
+                    && (cam || !cam.isPlaying || cam.didUpdateThisFrame);
             }
         }
 

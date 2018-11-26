@@ -342,10 +342,10 @@ namespace SharedTools_Stuff {
 #endif
         }
 
-        public static bool ApplicationIsAboutToEnterPlayMode(this MonoBehaviour mb)
+        public static bool ApplicationIsAboutToEnterPlayMode()
         {
 #if UNITY_EDITOR
-            return (((EditorApplication.isPlayingOrWillChangePlaymode) && (Application.isPlaying == false)));
+            return EditorApplication.isPlayingOrWillChangePlaymode && !Application.isPlaying;
 #else
         return false;
 #endif

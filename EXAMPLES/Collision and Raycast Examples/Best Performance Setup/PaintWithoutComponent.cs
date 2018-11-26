@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 
 // For Painting On MObjects which don't have Painter Component
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
 
     public class PaintWithoutComponent : MonoBehaviour, IPEGI
@@ -24,21 +24,18 @@ namespace Playtime_Painter
                 Paint();
         }
 
+        List<ImageData> texturesNeedUpdate = new List<ImageData>();
 
         void Paint() {
 
             RaycastHit hit;
-
-           // bool anyHits = false;
-            //bool anyRecivers = false;
-            var texturesNeedUpdate = new List<ImageData>();
 
             for (int i = 0; i < shoots; i++)
                 if (Physics.Raycast(new Ray(transform.position, transform.forward + transform.right * Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
 
                     var recivers = hit.transform.GetComponentsInParent<PaintingReciever>();
                     PaintingReciever reciver = null;
-                  //  Debug.Log("Hit");
+                    //Debug.Log("Hit");
                     if (recivers.Length > 0) {
 
                         var submesh = 0;
@@ -104,16 +101,14 @@ namespace Playtime_Painter
                                     }
                             }
                             // TEXTURE SPACE BRUSH
-                            else if (reciver.texture.GetType() == typeof(Texture2D))
-                            {
+                            else if (reciver.texture.GetType() == typeof(Texture2D)) {
 
                                 if (hit.collider.GetType() != typeof(MeshCollider))
                                     Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
                                 Blit_Functions.Paint(reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)reciver.texture, Vector2.zero, Vector2.one, brush, null);
                                 var id = reciver.texture.GetImgData();
-
-                                if (!texturesNeedUpdate.Contains(id)) texturesNeedUpdate.Add(id);
+                                texturesNeedUpdate.AddIfNew(id);
 
                             }
                             else Debug.Log(reciver.gameObject.name + " doesn't have any combination of paintable things setup on his PainterReciver.");
@@ -121,21 +116,20 @@ namespace Playtime_Painter
                     }
                 }
             }
-
-            foreach (var t in texturesNeedUpdate) t.SetAndApply(true); // True for Mipmaps. Best to disable mipmaps on textures and set to false 
-            //Not to waste performance, don't SetAndApply after each edit, but at the end of the frame (LateUpdate maybe) and only if texture was changed.
-            //Mip maps will slow things down, so best is to disable them.
-
-
-         //   if (!anyHits) Debug.Log("No hits");
-           // else if (!anyRecivers) Debug.Log("Attach PaintingReciever script to objects you want to Paint on.");
-            
+    
         }
 
 
-#if UNITY_EDITOR
-        void OnDrawGizmosSelected()
+        void LateUpdate()
         {
+            foreach (var t in texturesNeedUpdate)
+                t.SetAndApply(true); // True for Mipmaps. But best to disable mipmaps on textures or set this to false 
+
+            texturesNeedUpdate.Clear();
+        }
+
+#if UNITY_EDITOR
+        void OnDrawGizmosSelected()  {
 
             Ray ray = new Ray(transform.position, transform.forward);
             RaycastHit hit;
@@ -149,9 +143,7 @@ namespace Playtime_Painter
                 Gizmos.DrawLine(transform.position, hit.point);
 
             }
-            else
-            {
-
+            else   {
                 Gizmos.color = Color.blue;
                 Gizmos.DrawLine(transform.position, transform.position + transform.forward);
             }
@@ -163,8 +155,8 @@ namespace Playtime_Painter
         {
             bool changed = false;
 
-            "Bullets:".edit(ref shoots, 1, 50).nl();
-            "Spread:".edit(ref spread, 0f , 1f).nl();
+            "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
+            "Spread:".edit(50, ref spread, 0f , 1f).nl(ref changed);
 
             if ("Fire!".Click().nl())
                 Paint();
@@ -178,9 +170,9 @@ namespace Playtime_Painter
                 "Editing will be symmetrical if mesh is symmetrical".nl();
             }
 
-            changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI().nl();
-            changed |= brush.ColorSliders_PEGI();
+            brush.Targets_PEGI().nl(ref changed);
+            brush.Mode_Type_PEGI().nl(ref changed);
+            brush.ColorSliders_PEGI().nl(ref changed);
 
             if (brush.PaintingRGB == false)
                 pegi.writeHint("Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).");

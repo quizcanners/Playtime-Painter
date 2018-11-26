@@ -310,6 +310,16 @@ namespace SharedTools_Stuff
       
         }
 
+        public static bool AddIfNew<T>(this List<T> list, T val)
+        {
+            if (!list.Contains(val))
+            {
+                list.Add(val);
+                return true;
+            }
+            return false;
+        }
+
         public static bool TryRemoveTill<T>(this List<T> list, int maxCountLeft) {
             if (list != null && list.Count > maxCountLeft) {
                 list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);

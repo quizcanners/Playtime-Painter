@@ -63,13 +63,13 @@ namespace Playtime_Painter
             nPoint.uvpoints.Add(this);
         }
 
+        #region Encode & Decode
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
 
             cody.Add("i", finalIndex);
-            cody.Add("uvi", uvIndex);
-            cody.Add("col", _color);
-
+            cody.Add_IfNotZero("uvi", uvIndex);
+            cody.Add_IfNotBlack("col", _color);
 
             return cody;
         }
@@ -83,17 +83,7 @@ namespace Playtime_Painter
             }
             return true;
         }
-
-       /* public UVpoint DeepCopyTo(vertexpointDta nvert)
-        {
-            UVpoint tmp = new UVpoint(nvert, GetUV(0), GetUV(1));
-            tmp.finalIndex = finalIndex;
-            tmp.uvIndex = uvIndex;
-            tmp._color = _color;
-
-            MyLastCopy = tmp;
-            return tmp;
-        }*/
+        #endregion
 
         public Vertex GetConnectedUVinVert(MeshPoint other)
         {
@@ -279,6 +269,7 @@ namespace Playtime_Painter
         public Vector3 deltaTangent;
         public Vector3 deltaNormal;
 
+        #region Encode & Decode
         public override bool Decode(string tag, string data)
         {
             switch (tag)
@@ -299,7 +290,9 @@ namespace Playtime_Painter
 
             return cody;
         }
-        
+        #endregion
+
+
         public BlendFrame()
         {
 
@@ -394,6 +387,7 @@ namespace Playtime_Painter
             return normal;
         }
 
+        #region Encode & Decode
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
 
@@ -406,15 +400,15 @@ namespace Playtime_Painter
 
             .Add("pos", localPos)
 
-            .Add_Bool("smth", SmoothNormal)
+            .Add_IfTrue("smth", SmoothNormal)
 
-            .Add("shad", shadowBake)
+            .Add_IfNotZero("shad", shadowBake)
 
             .Add("bw", boneWeight)
 
             .Add("biP", bindPoses)
 
-            .Add("edge", edgeStrength);
+            .Add_IfNotEpsilon("edge", edgeStrength);
 
             if (shapes != null)
                 cody.Add_IfNotEmpty("bs", shapes);
@@ -429,9 +423,7 @@ namespace Playtime_Painter
                 case "u0":  shared_v2s.Add(new Vector2[2]); 
                             shared_v2s.Last()[0] = data.ToVector2(); break;
                 case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
-                case "uvs": currentlyDecoded = this;
-                    data.Decode_List(out uvpoints);
-                    break;
+                case "uvs": currentlyDecoded = this;  data.Decode_List(out uvpoints); break;
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": SmoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
@@ -445,6 +437,7 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
         public int GetIndexFor(Vector2 uv_0, Vector2 uv_1) {
             int cnt = shared_v2s.Count;
@@ -605,33 +598,7 @@ namespace Playtime_Painter
                     }
 
         }
-        /*
-        public vertexpointDta DeepCopy()
-        {
-            vertexpointDta nyu = new vertexpointDta(localPos);
-            nyu.SmoothNormal = SmoothNormal;
-            nyu.distanceToPointed = distanceToPointed;
-            nyu.distanceToPointedV3 = distanceToPointedV3;
-            nyu.index = index;
-            nyu.shadowBake = shadowBake;
 
-            foreach (UVpoint u in uvpoints)
-            {
-                u.DeepCopyTo(nyu);
-            }
-
-            foreach (Vector2[] v2a in shared_v2s)
-            {
-                Vector2[] tmp = new Vector2[2];
-                tmp[0] = v2a[0];
-                tmp[1] = v2a[1];
-                nyu.shared_v2s.Add(tmp);
-            }
-
-
-            return nyu;
-        }
-        */
         public float DistanceTo (MeshPoint other) {
             return (localPos - other.localPos).magnitude;
         }
@@ -787,7 +754,8 @@ namespace Playtime_Painter
         public bool SameAsLastFrame { get { return this == EditedMesh.LastFramePointedTris; } }
 
         public float Area => Vector3.Cross(vertexes[0].Pos - vertexes[1].Pos, vertexes[0].Pos - vertexes[2].Pos).magnitude * 0.5f;
-        
+
+        #region Encode & Decode
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
 
@@ -795,14 +763,14 @@ namespace Playtime_Painter
             .Add_IfTrue("f1", DominantCourner[1])
             .Add_IfTrue("f2", DominantCourner[2])
 
-            .Add("ew0", edgeWeight[0])
-            .Add("ew1", edgeWeight[1])
-            .Add("ew2", edgeWeight[2]);
+            .Add_IfNotEpsilon("ew0", edgeWeight[0])
+            .Add_IfNotEpsilon("ew1", edgeWeight[1])
+            .Add_IfNotEpsilon("ew2", edgeWeight[2]);
 
             for (int i = 0; i < 3; i++)
                 cody.Add(i.ToString(),vertexes[i].finalIndex);
 
-            cody.Add("tex", textureNo)
+            cody.Add_IfNotZero("tex", textureNo)
 
             .Add_IfNotZero("sub", submeshIndex);
            
@@ -829,12 +797,7 @@ namespace Playtime_Painter
             return true;
 
         }
-
-       /* public override string GetDefaultTagName() {
-            return stdTag_tri;
-        }*/
-
-       // public const string stdTag_tri = "tri";
+        #endregion
 
         public Triangle CopySettingsFrom (Triangle td) {
             for (int i = 0; i < 3; i++)

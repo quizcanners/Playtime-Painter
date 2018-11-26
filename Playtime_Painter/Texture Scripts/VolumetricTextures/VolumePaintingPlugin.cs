@@ -12,11 +12,16 @@ using System;
 namespace Playtime_Painter
 {
 
+    [TaggedType(tag)]
     [Serializable]
     [ExecuteInEditMode]
     public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName
 
     {
+
+        const string tag = "VolumePntng";
+        public override string ClassTag => tag;
+
         public const string VOLUME_H_SLICES = "VOLUME_H_SLICES";
         public const string VOLUME_POSITION_N_SIZE = "VOLUME_POSITION_N_SIZE";
         public const string VolumeTextureTag = "_VOL";

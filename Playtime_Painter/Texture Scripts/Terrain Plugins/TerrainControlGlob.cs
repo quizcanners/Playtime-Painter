@@ -6,8 +6,14 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
+
+    [TaggedType(tag)]
     [System.Serializable]
     public class TerrainControlGlob : PainterPluginBase {
+
+
+        const string tag = "TerCol";
+        public override string ClassTag => tag;
 
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {

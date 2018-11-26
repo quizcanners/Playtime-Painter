@@ -306,36 +306,49 @@ namespace Playtime_Painter
             set { STDdata = value; }
         }
 
+        LoopLock encodeDecodeLock = new LoopLock();
+
         public override StdEncoder Encode()
         {
-            for (int i = 0; i < imgDatas.Count; i++)
+            if (encodeDecodeLock.Unlocked)
             {
-                var id = imgDatas[i];
-                if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
-            }
+                using (encodeDecodeLock.Lock())
+                {
 
-            for (int index = 0; index < matDatas.Count; index++)
-            {
-                var md = matDatas[index];
-                if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
-            }
+                    for (int i = 0; i < imgDatas.Count; i++)
+                    {
+                        var id = imgDatas[i];
+                        if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
+                    }
 
-            var cody = this.EncodeUnrecognized()
-                .Add("imgs", imgDatas, this)
-                .Add("sch", selectedColorScheme)
-                .Add("mats", matDatas, this)
-                .Add("pals", colorSchemes)
+                    for (int index = 0; index < matDatas.Count; index++)
+                    {
+                        var md = matDatas[index];
+                        if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
+                    }
+
+                    var cody = this.EncodeUnrecognized()
+                        .Add("imgs", imgDatas, this)
+                        .Add("sch", selectedColorScheme)
+                        .Add("mats", matDatas, this)
+                        .Add("pals", colorSchemes)
+                        .Add("cam", Painter)
 
 #if PEGI
                  .Add_IfNotNegative("iid", inspectedImgData)
-              .Add_IfNotNegative("isfs", inspectedStuffs)
-              .Add_IfNotNegative("im", inspectedMaterial)
-              .Add_IfNotNegative("id", inspectedDecal)
-              .Add_IfNotNegative("is", inspectedStuff)
+                      .Add_IfNotNegative("isfs", inspectedStuffs)
+                      .Add_IfNotNegative("im", inspectedMaterial)
+                      .Add_IfNotNegative("id", inspectedDecal)
+                      .Add_IfNotNegative("is", inspectedStuff)
 #endif
               .Add_IfTrue("e", toolEnabled);
 
-            return cody;
+                    return cody;
+                }
+            }
+            else Debug.LogError("Loop in Encoding");
+
+            return null;
         }
 
         public override bool Decode(string tag, string data)
@@ -346,9 +359,9 @@ namespace Playtime_Painter
                 case "sch": selectedColorScheme = data.ToInt(); break;
                 case "mats": data.Decode_List(out matDatas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
-
+                case "cam": Painter.Decode(data); break;
 #if PEGI
-                      case "iid": inspectedImgData = data.ToInt(); break;
+                case "iid": inspectedImgData = data.ToInt(); break;
                 case "isfs": inspectedStuffs = data.ToInt(); break;
                 case "im": inspectedMaterial = data.ToInt(); break;
                 case "id": inspectedDecal = data.ToInt(); break;

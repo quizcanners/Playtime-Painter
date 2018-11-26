@@ -76,7 +76,7 @@ namespace Playtime_Painter
 
 #if UNITY_EDITOR
             EditorApplication.update -= UpdateRaycasts;
-            if (!this.ApplicationIsAboutToEnterPlayMode())
+            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += UpdateRaycasts;
 #endif
 

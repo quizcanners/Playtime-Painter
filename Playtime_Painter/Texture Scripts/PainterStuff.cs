@@ -30,7 +30,7 @@ namespace Playtime_Painter
         public abstract bool Decode(string tag, string data);
     }
 
-
+    /*
     public class PainterStuffScriptable : ScriptableObject
     {
         protected static PainterDataAndConfig Cfg { get { return PainterCamera.Data; } }
@@ -48,6 +48,7 @@ namespace Playtime_Painter
         protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
     }
+    */
 
     public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedSTD, IPEGI
     {

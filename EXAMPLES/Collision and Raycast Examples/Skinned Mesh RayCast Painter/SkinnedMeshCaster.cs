@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 
 
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
 
 

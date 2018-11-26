@@ -460,7 +460,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add<T>(string tag, List<T> val, TaggedTypes_STD tts, List_Data ld) where T : IGotClassTag
+        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld, TaggedTypes_STD tts) where T : IGotClassTag
             => Add_Abstract(tag, val, ld);
 
         public StdEncoder Add_Abstract<T>(string tag, List<T> val, List_Data ld) where T : IGotClassTag {
@@ -770,10 +770,18 @@ namespace SharedTools_Stuff
             
             return this;
         }
+
+        public StdEncoder Add_IfNotZero(string tag, Vector4 v4)  {
+
+            if (v4.magnitude> Mathf.Epsilon) 
+                Add(tag, v4.Encode());
+
+            return this;
+        }
         
         public StdEncoder Add_IfNotZero(string tag, Vector3 v3) {
 
-            if ((Math.Abs(v3.x) > Mathf.Epsilon) || (Math.Abs(v3.y) > Mathf.Epsilon) || (Math.Abs(v3.z) > Mathf.Epsilon)) 
+            if (v3.magnitude> Mathf.Epsilon) 
                 Add(tag, v3.Encode());
             
             return this;
@@ -788,10 +796,16 @@ namespace SharedTools_Stuff
         
         public StdEncoder Add_IfNotZero(string tag, Vector2 v2) {
 
-            if ((Math.Abs(v2.x) > Mathf.Epsilon) || (Math.Abs(v2.y) > Mathf.Epsilon)) 
+            if (v2.magnitude > Mathf.Epsilon) 
                 Add(tag, v2.Encode());
             
 
+            return this;
+        }
+
+        public StdEncoder Add_IfNotBlack(string tag, Color col) {
+            if (col != Color.black)
+                Add(tag, col);
             return this;
         }
         #endregion

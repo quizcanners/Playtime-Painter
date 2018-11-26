@@ -18,10 +18,14 @@ namespace Playtime_Painter {
         using UnityEditor;
 
 #endif
-
+        [TaggedType(tag)]
         [Serializable]
         public class CombinedMapsControllerPlugin : PainterManagerPluginBase, IPEGI
         {
+            const string tag = "CmbndMpsCntrl";
+            public override string ClassTag => tag;
+
+
             public static CombinedMapsControllerPlugin _inst;
 
             public List<TextureSetForForCombinedMaps> forCombinedMaps;

@@ -119,7 +119,8 @@ namespace Playtime_Painter
 
         public int selectedAtlasedMaterial = -1;
 
-        public List<PainterPluginBase> plugins;
+        public List<PainterPluginBase> Plugins;
+
         PainterPluginBase lastFetchedPlugin;
         public T GetPlugin<T>() where T : PainterPluginBase
         {
@@ -129,14 +130,9 @@ namespace Playtime_Painter
             if (lastFetchedPlugin != null && lastFetchedPlugin.GetType() == typeof(T))
                 returnPlug = (T)lastFetchedPlugin;
             else
-                foreach (var p in plugins)
+                foreach (var p in Plugins)
                     if (p.GetType() == typeof(T))
                         returnPlug = (T)p;
-
-#if UNITY_EDITOR
-            if (returnPlug != null)
-                Undo.RecordObject(returnPlug, "Added new Item");
-#endif
 
             lastFetchedPlugin = returnPlug;
 
@@ -355,7 +351,7 @@ namespace Playtime_Painter
 
             var uv = id.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
 
-            foreach (var p in plugins)
+            foreach (var p in Plugins)
                 if (p.OffsetAndTileUV(hit, this, ref uv))
                     return uv;
 
@@ -542,7 +538,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            foreach (PainterPluginBase nt in plugins)
+            foreach (PainterPluginBase nt in Plugins)
                 if (nt.UpdateTylingFromMaterial(fieldName, this))
                     return;
 
@@ -563,7 +559,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            foreach (PainterPluginBase nt in plugins)
+            foreach (PainterPluginBase nt in Plugins)
                 if (nt.UpdateTylingToMaterial(fieldName, this))
                     return;
 
@@ -855,7 +851,7 @@ namespace Playtime_Painter
 
             MatDta.materials_TextureFields.Clear();
 
-            foreach (PainterPluginBase nt in plugins)
+            foreach (PainterPluginBase nt in Plugins)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materials_TextureFields);
 
             if (terrain == null)
@@ -903,7 +899,7 @@ namespace Playtime_Painter
             if (fieldName == null)
                 return null;
 
-            foreach (PainterPluginBase t in plugins)
+            foreach (PainterPluginBase t in Plugins)
             {
                 Texture tex = null;
                 if (t.GetTexture(fieldName, ref tex, this))
@@ -967,7 +963,7 @@ namespace Playtime_Painter
                 if (id != null)
                     Cfg.recentTextures.AddIfNew(fieldName, id);
 
-                foreach (PainterPluginBase nt in plugins)
+                foreach (PainterPluginBase nt in Plugins)
                     if (nt.SetTextureOnMaterial(fieldName, id, this))
                         return id;
             }
@@ -1076,7 +1072,7 @@ namespace Playtime_Painter
         public void UpdateShaderGlobals()
         {
 
-            foreach (PainterPluginBase nt in plugins)
+            foreach (PainterPluginBase nt in Plugins)
                 nt.OnUpdate(this);
 
             if (terrain == null) return;
@@ -1254,7 +1250,7 @@ namespace Playtime_Painter
         public TerrainHeight GetTerrainHeight()
         {
 
-            foreach (PainterPluginBase nt in plugins)
+            foreach (PainterPluginBase nt in Plugins)
             {
                 if (nt.GetType() == typeof(TerrainHeight))
                     return ((TerrainHeight)nt);
@@ -1713,8 +1709,8 @@ namespace Playtime_Painter
 
             PainterStuff.applicationIsQuitting = false;
             
-            if (plugins == null)
-                plugins = new List<PainterPluginBase>();
+            if (Plugins == null)
+                Plugins = new List<PainterPluginBase>();
 
 
             PainterPluginBase.UpdateList(this);
@@ -1800,7 +1796,7 @@ namespace Playtime_Painter
 
                 }
 
-                if ((this == TexMGMT.autodisabledBufferTarget) && (!LockTextureEditing) && (!this.ApplicationIsAboutToEnterPlayMode()))
+                if ((this == TexMGMT.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode()))
                     ReanableRenderTexture();
 
             }
@@ -2644,7 +2640,7 @@ namespace Playtime_Painter
             {
                 TexMGMT.Shader_UpdateBrush(GlobalBrush, 1, id, this);
 
-                foreach (var p in plugins)
+                foreach (var p in Plugins)
                     p.Update_Brush_Parameters_For_Preview_Shader(this);
 
             }

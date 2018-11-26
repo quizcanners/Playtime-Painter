@@ -7,9 +7,15 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
+
+    [TaggedType(tag)]
     [System.Serializable]
     public class TerrainSplatTexture : PainterPluginBase
     {
+
+        const string tag = "TerSplat";
+        public override string ClassTag => tag;
+
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
             if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainTexture)))

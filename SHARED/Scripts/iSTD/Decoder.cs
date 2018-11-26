@@ -524,7 +524,7 @@ namespace SharedTools_Stuff
             return l;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps, ref List_Data ld) where T : IGotClassTag
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref List_Data ld, TaggedTypes_STD tps) where T : IGotClassTag
         {
             l = new List<T>();
             if (ld == null)

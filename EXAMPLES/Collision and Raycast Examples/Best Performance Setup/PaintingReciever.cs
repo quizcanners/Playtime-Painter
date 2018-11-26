@@ -5,17 +5,12 @@ using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
 
-namespace Playtime_Painter {
-
-
-
-    public class PaintingReciever : MonoBehaviour, IPEGI
-    {
+namespace Playtime_Painter.Examples {
+    
+    public class PaintingReciever : MonoBehaviour, IPEGI {
 
         public enum RendererType {regular, Skinned, Terrain }
-
-        //public bool useTextureSpacePainting;
-        // public Material editMaterial;
+        
         public RendererType type;
 
         public Mesh originalMesh;

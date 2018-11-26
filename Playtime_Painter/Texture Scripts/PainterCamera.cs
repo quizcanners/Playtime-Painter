@@ -1,24 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Linq;
+using SharedTools_Stuff;
+using PlayerAndEditorGUI;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
-using System;
-#if PEGI
-using PlayerAndEditorGUI;
-#endif
-using UnityEngine.EventSystems;
-using System.Linq;
-using SharedTools_Stuff;
 
 namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class PainterCamera : PainterStuffMono, IPEGI
-    {
+    public class PainterCamera : PainterStuffMono, IPEGI, IKeepUnrecognizedSTD {
 
         [SerializeField] PainterDataAndConfig dataHolder;
 
@@ -46,14 +42,14 @@ namespace Playtime_Painter
         {
             get
             {
-                if (_inst == null)
+                if (!_inst)
                 {
 
                     if (!PainterStuff.applicationIsQuitting)
                     {
 
 
-                        _inst = GameObject.FindObjectOfType<PainterCamera>();
+                        _inst = FindObjectOfType<PainterCamera>();
                         if (_inst == null)
                         {
                             if (_inst != null)
@@ -96,19 +92,14 @@ namespace Playtime_Painter
 
         [SerializeField]
         private List<PainterManagerPluginBase> _plugins;
-        public int browsedPlugin;
+        List_Data plauginsMeta = new List_Data("Plugins", true, true, true, false, icon.Link);
 
         public List<PainterManagerPluginBase> Plugins
         {
-            get
-            {
+            get {
 
                 if (_plugins == null)
                     RefreshPlugins();
-                else
-                    for (int i = 0; i < _plugins.Count; i++)
-                        if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
-
 
                 return _plugins;
             }
@@ -123,39 +114,18 @@ namespace Playtime_Painter
                 for (int i = 0; i < _plugins.Count; i++)
                     if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
 
+            plauginsMeta.inspected = -1;
 
-            browsedPlugin = -1;
-            List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<PainterManagerPluginBase>();
-            foreach (var t in allTypes)
-            {
+            foreach (Type t in PainterManagerPluginBase.all) {
                 bool contains = false;
 
                 foreach (var p in _plugins)
                     if (p.GetType() == t) { contains = true; break; }
 
                 if (!contains)
-                {
-                    var c = (PainterManagerPluginBase)gameObject.GetComponent(t);
-                    if (c == null)
-                        c = (PainterManagerPluginBase)gameObject.AddComponent(t);
-                    _plugins.Add(c);
-#if PEGI
-                    ("Painter Plugin " + c.ToPEGIstring() + " added").showNotificationIn3D_Views();
-#endif
-                }
+                    _plugins.Add((PainterManagerPluginBase)Activator.CreateInstance(t));
+
             }
-
-            for (int i = 0; i < _plugins.Count; i++)
-                if (_plugins[i] != null && !_plugins[i].enabled)
-                    _plugins[i].enabled = true;
-
-        }
-        public void DeletePlugins()
-        {
-            for (int i = 0; i < _plugins.Count; i++)
-                _plugins[i].DestroyWhatever();
-
-            _plugins = null;
         }
 
         public Camera rtcam;
@@ -171,6 +141,25 @@ namespace Playtime_Painter
 
         static Vector3 prevPosPreview;
         static float previewAlpha = 1;
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("mm", meshManager)
+            .Add_Abstract("pl", _plugins, plauginsMeta);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "pl": data.Decode_List(out _plugins, ref plauginsMeta, PainterManagerPluginBase.all); break;
+                case "mm": meshManager.Decode(data); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
         // ******************* Buffers MGMT
 
@@ -619,7 +608,7 @@ namespace Playtime_Painter
             isLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
-            if (!this.ApplicationIsAboutToEnterPlayMode())
+            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += CombinedUpdate;
 
 
@@ -872,21 +861,23 @@ namespace Playtime_Painter
 
             bool changed = false;
 
-            if (!PainterStuff.IsNowPlaytimeAndDisabled) {
+            if (!PainterStuff.IsNowPlaytimeAndDisabled)
+            {
 
-                "Plugins".write_List(Plugins, ref browsedPlugin);
+                changed |= plauginsMeta.edit_List(ref _plugins, PainterManagerPluginBase.all);
 
-                if (browsedPlugin == -1) {
+                if (!plauginsMeta.Inspecting)
+                {
 
                     if ("Find Plugins".Click())
                         RefreshPlugins();
 
-                    if ("Delete Plugins".Click().nl()) 
-                        DeletePlugins();
-                    
+                    if ("Delete Plugins".Click().nl())
+                        _plugins = null;
+
                 }
             }
-            else browsedPlugin = -1;
+            else plauginsMeta.Inspecting = false;
 
             return changed;
         }

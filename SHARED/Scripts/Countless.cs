@@ -18,8 +18,8 @@ namespace SharedTools_Stuff {
         protected static VariableBranch[] fruitPool = new VariableBranch[32];
         protected static int brPoolMax = 0;
         protected static int frPoolMax = 0;
-       // protected static ArrayManager<VariableBranch> array = new ArrayManager<VariableBranch>();
         protected static int branchSize = 8;
+
         protected void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
@@ -33,6 +33,7 @@ namespace SharedTools_Stuff {
             frPoolMax++;
             count--;
         }
+
         protected static void DiscardBranch(VariableBranch b, int no)
         {
             if ((brPoolMax + 1) >= branchPool.Length)

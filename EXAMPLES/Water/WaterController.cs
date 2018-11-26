@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
     [ExecuteInEditMode]
     public class WaterController : ComponentSTD

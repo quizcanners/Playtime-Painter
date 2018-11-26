@@ -14,10 +14,14 @@ using UnityEditor;
 
 namespace Playtime_Painter {
 
+    [TaggedType(tag)]
     [ExecuteInEditMode]
     [Serializable]
     public class TileableAtlasingControllerPlugin : PainterManagerPluginBase
     {
+        const string tag = "TilAtlCntrl";
+        public override string ClassTag => tag;
+
 
         public static TileableAtlasingControllerPlugin inst;
 

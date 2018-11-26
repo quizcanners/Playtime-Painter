@@ -10,82 +10,85 @@ using Playtime_Painter.CombinedMaps;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
-    
-    [ExecuteInEditMode]
-    public class MergingTerrainController : MonoBehaviour, IPEGI
-    {
 
-        public List<ChannelSetsForDefaultMaps> mergeSubmasks;
-        [HideInInspector]
-        public PlaytimePainter painter;
-        [HideInInspector]
-        public Terrain terrain;
-        public Texture2D lightTexture;
+  
 
-
-        void OnEnable()
+        [ExecuteInEditMode]
+        public class MergingTerrainController : MonoBehaviour, IPEGI
         {
- 
-            if (painter == null)
-                painter = GetComponent<PlaytimePainter>();
 
-            if (painter == null)
-                painter = this.gameObject.AddComponent<PlaytimePainter>();
-
-            UpdateTextures();
-        }
-
-      
+            public List<ChannelSetsForDefaultMaps> mergeSubmasks;
+            [HideInInspector]
+            public PlaytimePainter painter;
+            [HideInInspector]
+            public Terrain terrain;
+            public Texture2D lightTexture;
 
 
-        public void UpdateTextures() {
-            if (terrain == null) terrain = GetComponent<Terrain>();
-
-#if UNITY_2018_3_OR_NEWER
-            var ls = (terrain) ? terrain.terrainData.terrainLayers : null ;
-
-            if (ls == null)
+            void OnEnable()
             {
-                Debug.Log("Terrain layers are null");
-                return;
+
+                if (painter == null)
+                    painter = GetComponent<PlaytimePainter>();
+
+                if (painter == null)
+                    painter = this.gameObject.AddComponent<PlaytimePainter>();
+
+                UpdateTextures();
             }
 
-            int copyProtsCount = ls.Length;
 
-            if (mergeSubmasks != null)
+
+
+            public void UpdateTextures()
             {
+                if (terrain == null) terrain = GetComponent<Terrain>();
 
-                int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
+#if UNITY_2018_3_OR_NEWER
+                var ls = (terrain) ? terrain.terrainData.terrainLayers : null;
 
-                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
-                    max++;
+                if (ls == null)
+                {
+                    Debug.Log("Terrain layers are null");
+                    return;
+                }
 
-                for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++)
+                int copyProtsCount = ls.Length;
+
+                if (mergeSubmasks != null)
                 {
 
-                    //if (i < mergeSubmasks.Count)
-                    
+                    int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
+
+                    while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
+                        max++;
+
+                    for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++)
+                    {
+
+                        //if (i < mergeSubmasks.Count)
+
                         ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                         if (tmp.Product_combinedBump != null)
                             Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
-                    
 
-                    if (tmp.Product_colorWithAlpha != null)
-                    {
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
-                        if (i<ls.Length)
-                            ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
 
-                        //if ((copyProts != null) && (copyProts.Length > i))
-                        //     copyProts[i].texture = tmp.Product_colorWithAlpha;
+                        if (tmp.Product_colorWithAlpha != null)
+                        {
+                            Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
+                            if (i < ls.Length)
+                                ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
+
+                            //if ((copyProts != null) && (copyProts.Length > i))
+                            //     copyProts[i].texture = tmp.Product_colorWithAlpha;
+                        }
                     }
-                }
 
-                if (terrain)
-                    terrain.terrainData.terrainLayers = ls;
-            }
+                    if (terrain)
+                        terrain.terrainData.terrainLayers = ls;
+                }
 
 #else
             SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
@@ -131,117 +134,120 @@ namespace Playtime_Painter
 #endif
 
 
-        }
+            }
 
-        #region Inspector
+            #region Inspector
 #if PEGI
-        int inspectedElement = -1;
-        public bool Inspect() {
-            bool changed = false;
-
-            if ("Merge Submasks".edit_List(ref mergeSubmasks, ref inspectedElement).nl(ref changed))  {
-                painter.UpdateShaderGlobals();
-                UpdateTextures();
-            }
-
-            if (inspectedElement == -1)
+            int inspectedElement = -1;
+            public bool Inspect()
             {
-                if (painter != null)
-                    changed |= "Light Texture ".edit(ref lightTexture).nl();
+                bool changed = false;
 
-                if ("Update".Click())
+                if ("Merge Submasks".edit_List(ref mergeSubmasks, ref inspectedElement).nl(ref changed))
+                {
+                    painter.UpdateShaderGlobals();
                     UpdateTextures();
+                }
+
+                if (inspectedElement == -1)
+                {
+                    if (painter != null)
+                        changed |= "Light Texture ".edit(ref lightTexture).nl();
+
+                    if ("Update".Click())
+                        UpdateTextures();
+                }
+
+                return changed;
             }
-
-            return changed;
-        }
 #endif
-#endregion
+            #endregion
 
 
 
-        [Serializable]
-        public class ChannelSetsForDefaultMaps : IPEGI, IGotName, IPEGI_ListInspect
-        {
-            public string productName;
-            public Texture2D colorTexture;
-            public Texture2D height;
-            public Texture2D normalMap;
-            public Texture2D smooth;
-            public Texture2D ambient;
-            public Texture2D reflectiveness;
-
-            public Texture2D Product_colorWithAlpha;
-            public Texture2D Product_combinedBump;
-            public int size = 1024;
-            public float normalStrength = 1;
-            
-            void RegenerateMasks()
+            [Serializable]
+            public class ChannelSetsForDefaultMaps : IPEGI, IGotName, IPEGI_ListInspect
             {
+                public string productName;
+                public Texture2D colorTexture;
+                public Texture2D height;
+                public Texture2D normalMap;
+                public Texture2D smooth;
+                public Texture2D ambient;
+                public Texture2D reflectiveness;
+
+                public Texture2D Product_colorWithAlpha;
+                public Texture2D Product_combinedBump;
+                public int size = 1024;
+                public float normalStrength = 1;
+
+                void RegenerateMasks()
+                {
 
 #if UNITY_EDITOR
-                Product_combinedBump = NormalMapFrom(normalStrength, 0.1f, height, normalMap, ambient, productName, Product_combinedBump);
-                if (colorTexture != null)
-                    Product_colorWithAlpha = GlossToAlpha(smooth, colorTexture, productName);
+                    Product_combinedBump = NormalMapFrom(normalStrength, 0.1f, height, normalMap, ambient, productName, Product_combinedBump);
+                    if (colorTexture != null)
+                        Product_colorWithAlpha = GlossToAlpha(smooth, colorTexture, productName);
 #endif
-  
-            }
-            
-#region Inspector
-            public string NameForPEGI { get => productName; set => productName = value; }
+
+                }
+
+                #region Inspector
+                public string NameForPEGI { get => productName; set => productName = value; }
 #if PEGI
 
-            public bool PEGI_inList(IList list, int ind, ref int edited)
-            {
-                var changed = this.inspect_Name();
+                public bool PEGI_inList(IList list, int ind, ref int edited)
+                {
+                    var changed = this.inspect_Name();
 
-                Product_colorWithAlpha.clickHighlight();
-                Product_combinedBump.clickHighlight();
+                    Product_colorWithAlpha.clickHighlight();
+                    Product_combinedBump.clickHighlight();
 
-                if (icon.Enter.Click())
-                    edited = ind;
+                    if (icon.Enter.Click())
+                        edited = ind;
 
-                return changed;
-            }
+                    return changed;
+                }
 
-            public bool Inspect() {
+                public bool Inspect()
+                {
 
-                var changed = false;
+                    var changed = false;
 
-                "Color".edit(90, ref colorTexture).nl();
-                "Height".edit(90, ref height).nl();
-                if (!normalMap && height)
-                    "Normal from height strength".edit(ref normalStrength, 0, 1f).nl();
-                "Bump".edit(90, ref normalMap).nl();
-           
-                "Smooth".edit(90, ref smooth).nl();
-                "Ambient Occlusion".edit(90, ref ambient).nl();
-                "Reflectivness".edit(110, ref reflectiveness).nl();
+                    "Color".edit(90, ref colorTexture).nl();
+                    "Height".edit(90, ref height).nl();
+                    if (!normalMap && height)
+                        "Normal from height strength".edit(ref normalStrength, 0, 1f).nl();
+                    "Bump".edit(90, ref normalMap).nl();
 
-                "Size".edit(ref size).nl();
+                    "Smooth".edit(90, ref smooth).nl();
+                    "Ambient Occlusion".edit(90, ref ambient).nl();
+                    "Reflectivness".edit(110, ref reflectiveness).nl();
 
-                if (size < 8)
-                    "Size is too small".writeWarning();
-                else
-                if (!Mathf.IsPowerOfTwo(size))
-                    "Size is not power of two".writeWarning();
-                else if ("Generate".Click(ref changed))
-                    RegenerateMasks();
+                    "Size".edit(ref size).nl();
 
-                pegi.nl();
+                    if (size < 8)
+                        "Size is too small".writeWarning();
+                    else
+                    if (!Mathf.IsPowerOfTwo(size))
+                        "Size is not power of two".writeWarning();
+                    else if ("Generate".Click(ref changed))
+                        RegenerateMasks();
 
-                "COLOR+GLOSS".edit(120, ref Product_colorWithAlpha).nl(ref changed);
-                "BUMP+HEIGHT+AO".edit(120, ref Product_combinedBump).nl(ref changed);
-          
-                return changed;
-            }
+                    pegi.nl();
+
+                    "COLOR+GLOSS".edit(120, ref Product_colorWithAlpha).nl(ref changed);
+                    "BUMP+HEIGHT+AO".edit(120, ref Product_combinedBump).nl(ref changed);
+
+                    return changed;
+                }
 #endif
-#endregion
+                #endregion
 
 
 
 
-        }
+            }
 
 
 
@@ -254,7 +260,7 @@ namespace Playtime_Painter
             static Color[] srcSm;
             static Color[] srcAmbient;
             static Color[] dst;
-        
+
             static int width;
             static int height;
 
@@ -446,14 +452,15 @@ namespace Playtime_Painter
                 return product;
             }
 #endif
-        
-
-
-
-    }
 
 
 
 
+        }
 
+
+
+
+
+    
 }

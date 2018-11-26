@@ -96,9 +96,14 @@ namespace SharedTools_Stuff {
         public List<Type> Types =>
                 RefreshNodeTypesList().types;
 
+        public IEnumerator<Type> GetEnumerator()
+        {
+            foreach (var t in Types)
+                yield return t;
+        }
+
         public List<string> DisplayNames =>
                 RefreshNodeTypesList().displayNames;
-
 
         public string Tag (Type type) {
 
@@ -110,7 +115,6 @@ namespace SharedTools_Stuff {
         }
 
 #if PEGI
-        // public bool select (string name, int width, ref Type type) =>  name.select(width, ref type, types);
         public bool Select(ref Type type) {
 
             int ind = type != null ? Types.IndexOf(type) : -1;

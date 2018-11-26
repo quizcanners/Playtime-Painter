@@ -41,6 +41,7 @@ namespace SharedTools_Stuff
         public string label = "list";
         public string folderToSearch = "Assets/";
         public int inspected = -1;
+        public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool _keepTypeData;
         public bool allowDelete;
         public bool allowReorder;
