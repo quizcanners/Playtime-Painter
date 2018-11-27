@@ -8,18 +8,16 @@ using UnityEngine.SceneManagement;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using SharedTools_Stuff;
-
-
-namespace Playtime_Painter {
-    namespace CombinedMaps {
-
-
-#if UNITY_EDITOR 
-        using UnityEditor;
-
+#if UNITY_EDITOR
+using UnityEditor;
 #endif
+
+namespace Playtime_Painter.Examples
+{
+
+
+
         [TaggedType(tag)]
-        [Serializable]
         public class CombinedMapsControllerPlugin : PainterManagerPluginBase, IPEGI
         {
             const string tag = "CmbndMpsCntrl";
@@ -994,4 +992,3 @@ namespace Playtime_Painter {
 
     }
 
-}

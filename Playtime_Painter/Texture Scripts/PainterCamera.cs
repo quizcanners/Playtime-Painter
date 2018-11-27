@@ -18,7 +18,7 @@ namespace Playtime_Painter
 
         [SerializeField] PainterDataAndConfig dataHolder;
 
-        static bool triedToFind = false;
+        [NonSerialized] public bool triedToFind = false;
 
         public static PainterDataAndConfig Data  {
             get  {
@@ -26,8 +26,8 @@ namespace Playtime_Painter
                 if (!_inst && Inst == null)
                     return null;
 
-                if (!triedToFind && !_inst.dataHolder) {
-                    triedToFind = true;
+                if (!_inst.triedToFind && !_inst.dataHolder) {
+                    _inst.triedToFind = true;
                     _inst.dataHolder = Resources.Load<PainterDataAndConfig>("");
 
                 }
@@ -89,8 +89,8 @@ namespace Playtime_Painter
         public bool isLinearColorSpace;
 
         public const int renderTextureSize = 2048;
-
-        [SerializeField]
+        
+        [NonSerialized]
         private List<PainterManagerPluginBase> _plugins;
         List_Data plauginsMeta = new List_Data("Plugins", true, true, true, false, icon.Link);
 
@@ -306,9 +306,7 @@ namespace Playtime_Painter
 
             rtcam.cullingMask = 1 << cfg.myLayer;
 
-            if (!GotBuffers())
-            {
-                // Debug.Log("Initing buffers");
+            if (!GotBuffers) {
                 BigRT_pair = new RenderTexture[2];
                 BigRT_pair[0] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
                 BigRT_pair[1] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
@@ -330,12 +328,8 @@ namespace Playtime_Painter
                 Camera.main.cullingMask &= ~(1 << Data.myLayer);
         }
 
-        public static bool GotBuffers()
-        {
-            return ((Inst.BigRT_pair != null) && (_inst.BigRT_pair.Length > 0) && (_inst.BigRT_pair[0] != null));
-        }
-
-
+        public static bool GotBuffers => Inst && Inst.BigRT_pair!=null && _inst.BigRT_pair.Length > 0 && _inst.BigRT_pair[0];
+        
         // ******************* Brush Shader MGMT
 
         public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)

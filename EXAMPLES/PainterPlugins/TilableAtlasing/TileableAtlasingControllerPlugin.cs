@@ -12,30 +12,24 @@ using System.IO;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter {
+namespace Playtime_Painter.Examples
+{
 
     [TaggedType(tag)]
-    [ExecuteInEditMode]
-    [Serializable]
     public class TileableAtlasingControllerPlugin : PainterManagerPluginBase
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
-
-
+        
         public static TileableAtlasingControllerPlugin inst;
 
-        public override string ToString()
-        {
-            return "Tilable Atlasing";
-        }
-
+        public override string ToString() => "Tilable Atlasing";
+        
         public List<AtlasTextureCreator> atlases;
 
         public List<MaterialAtlases> atlasedMaterials;
 
-
-
+        #region Inspector
         [SerializeField]
         protected int inspectedAtlas;
 #if PEGI
@@ -71,6 +65,7 @@ namespace Playtime_Painter {
             return false;
         }
 #endif
+
         public override void OnEnable() {
 
             inst = this;
@@ -149,6 +144,7 @@ namespace Playtime_Painter {
         }
 
 #endif
+        #endregion
 
         public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
             var pl = pntr.GetPlugin<TileableAtlasingPainterPlugin>();

@@ -13,8 +13,6 @@ namespace Playtime_Painter {
     }
 
     [PainterManagerPlugin]
-    [ExecuteInEditMode]
-    [System.Serializable]
     public abstract class PainterManagerPluginBase : PainterStuffKeepUnrecognized_STD, IGotDisplayName, IGotClassTag {
 
         #region Abstract Serialized

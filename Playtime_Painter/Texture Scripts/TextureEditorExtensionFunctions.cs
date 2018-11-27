@@ -18,7 +18,6 @@ public static class TextureEditorExtensionFunctions  {
         
         public static float GetChanel(this Color col, ColorChanel chan)
         {
-
             switch (chan)
             {
                 case ColorChanel.R:
@@ -34,7 +33,6 @@ public static class TextureEditorExtensionFunctions  {
 
         public static void SetChanel(this ColorChanel chan,  ref Color col,  float value)
         {
-   
             switch (chan)
             {
                 case ColorChanel.R:
@@ -54,8 +52,6 @@ public static class TextureEditorExtensionFunctions  {
 
         public static void Transfer(this BrushMask bm, ref Color col, Color c)
         {
-           
-
             if ((bm & BrushMask.R) != 0)
                 col.r = c.r;
             if ((bm & BrushMask.G) != 0)
@@ -68,8 +64,6 @@ public static class TextureEditorExtensionFunctions  {
 
         public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
         {
-
-
             if ((bm & BrushMask.R) != 0)
                 col.x = c.r;
             if ((bm & BrushMask.G) != 0)
@@ -98,16 +92,10 @@ public static class TextureEditorExtensionFunctions  {
 
 		public static float StrokeWidth (this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.orthoSize;
 		
-
         public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.isLinearColorSpace && b.BlitMode.SupportedBySingleBuffer && b.Type(false).SupportedBySingleBuffer && b.PaintingRGB);
         
+        public static bool IsProjected(this Material mat) => mat == null ? false :  mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
         
-        public static bool IsProjected(this Material mat)
-        {
-            if (mat == null) return false;
-            return mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
-        }
-
         public static bool NeedsGrid (this PlaytimePainter pntr) {
             if (pntr == null || !pntr.enabled) return false;
             
@@ -146,27 +134,18 @@ public static class TextureEditorExtensionFunctions  {
 
         }
 
-        public static bool TargetIsTexture2D(this ImageData id)
-        {
-            if (id == null) return false;
-            return id.destination == TexTarget.Texture2D;
-        }
-
-        public static bool TargetIsRenderTexture(this ImageData id)
-        {
-            if (id == null) return false;
-            return id.destination == TexTarget.RenderTexture;
-        }
-
-        public static bool TargetIsBigRenderTexture(this ImageData id)
-        {
-            if (id == null) return false;
-            return (id.destination == TexTarget.RenderTexture) && (id.renderTexture == null);
-        }
-
+        public static bool TargetIsTexture2D(this ImageData id)=>
+             id == null ? false :  id.destination == TexTarget.Texture2D;
+        
+        public static bool TargetIsRenderTexture(this ImageData id) =>
+             id == null ? false :  id.destination == TexTarget.RenderTexture;
+        
+        public static bool TargetIsBigRenderTexture(this ImageData id)=>
+            id == null ? false : (id.destination == TexTarget.RenderTexture) && (id.renderTexture == null);
+        
         public static ImageData GetImgDataIfExists(this Texture texture)
         {
-            if (texture == null)
+            if (texture == null || PainterCamera.Data==null)
                 return null;
 
             if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgDataUsingRendTex != null)
@@ -176,6 +155,7 @@ public static class TextureEditorExtensionFunctions  {
 
             var lst = PainterCamera.Data.imgDatas;
 
+            if (lst != null)
             for (int i = 0; i < lst.Count; i++) {
                 ImageData id = lst[i];
                 if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
@@ -202,11 +182,9 @@ public static class TextureEditorExtensionFunctions  {
             return nid;
         }
 
-        public static bool IsBigRenderTexturePair(this Texture tex)
-        {
-            return ((tex != null) && PainterCamera.GotBuffers() && ((tex == PainterCamera.Inst.BigRT_pair[0])));
-        }
-
+        public static bool IsBigRenderTexturePair(this Texture tex) =>
+             ((tex != null) && PainterCamera.GotBuffers && ((tex == PainterCamera.Inst.BigRT_pair[0])));
+        
         public static bool ContainsDuplicant(this List<ImageData> texs, ImageData other)
         {
 
@@ -284,8 +262,5 @@ public static class TextureEditorExtensionFunctions  {
         public static MaterialData GetMaterialData (this Material mat) {
             return  PainterCamera.Data?.GetMaterialDataFor(mat);
         }
-
-
     }
-
 }

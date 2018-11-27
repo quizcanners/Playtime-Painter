@@ -5,19 +5,14 @@ using System;
 using UnityEngine.SceneManagement;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
-using Playtime_Painter.CombinedMaps;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples
-{
-
-  
+namespace Playtime_Painter.Examples {
 
         [ExecuteInEditMode]
-        public class MergingTerrainController : MonoBehaviour, IPEGI
-        {
+        public class MergingTerrainController : MonoBehaviour, IPEGI {
 
             public List<ChannelSetsForDefaultMaps> mergeSubmasks;
             [HideInInspector]
@@ -25,7 +20,6 @@ namespace Playtime_Painter.Examples
             [HideInInspector]
             public Terrain terrain;
             public Texture2D lightTexture;
-
 
             void OnEnable()
             {
@@ -38,9 +32,6 @@ namespace Playtime_Painter.Examples
 
                 UpdateTextures();
             }
-
-
-
 
             public void UpdateTextures()
             {
@@ -162,8 +153,6 @@ namespace Playtime_Painter.Examples
             }
 #endif
             #endregion
-
-
 
             [Serializable]
             public class ChannelSetsForDefaultMaps : IPEGI, IGotName, IPEGI_ListInspect

@@ -121,7 +121,7 @@ namespace Playtime_Painter
 
         [NonSerialized] public List<PainterPluginBase> Plugins;
 
-        PainterPluginBase lastFetchedPlugin;
+        [NonSerialized] PainterPluginBase lastFetchedPlugin;
         public T GetPlugin<T>() where T : PainterPluginBase
         {
 

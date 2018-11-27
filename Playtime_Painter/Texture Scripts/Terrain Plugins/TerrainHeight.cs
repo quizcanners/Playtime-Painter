@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using SharedTools_Stuff;
 using UnityEngine;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
     [TaggedType(tag)]
     public class TerrainHeight : PainterPluginBase

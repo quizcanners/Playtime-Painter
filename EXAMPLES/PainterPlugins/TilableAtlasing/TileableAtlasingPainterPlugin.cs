@@ -13,7 +13,7 @@ using SharedTools_Stuff;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter {
+namespace Playtime_Painter.Examples {
 
     [TaggedType(tag)]
     public class TileableAtlasingPainterPlugin : PainterPluginBase {

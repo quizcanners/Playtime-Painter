@@ -13,11 +13,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    [Serializable]
-    [ExecuteInEditMode]
-    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName
-
-    {
+    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName  {
 
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
@@ -56,8 +52,7 @@ namespace Playtime_Painter
             PlugIn_CPUblitMethod(PaintTexture2D);
 
         }
-
-
+        
         public override Shader GetPreviewShader(PlaytimePainter p)
         {
             if (p.GetVolumeTexture() != null)

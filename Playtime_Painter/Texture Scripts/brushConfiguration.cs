@@ -393,7 +393,7 @@ namespace Playtime_Painter {
 
             changed |= p.PreviewShaderToggle_PEGI();
 
-            if ((PainterCamera.GotBuffers() || (id.renderTexture != null)) && (id.texture2D != null))
+            if ((PainterCamera.GotBuffers || (id.renderTexture != null)) && (id.texture2D != null))
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))

@@ -1,12 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Reflection;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
 namespace Playtime_Painter
@@ -15,10 +9,11 @@ namespace Playtime_Painter
         public override TaggedTypes_STD TaggedTypes => PainterPluginBase.all;
     }
     
-    public abstract class PainterPluginBase : PainterStuffKeepUnrecognized_STD, IGotClassTag {
+    [PainterPlugin]
+    public class PainterPluginBase : Abstract_STD, IGotClassTag {
 
         #region Abstract Serialized
-        public abstract string ClassTag { get; }
+        public virtual string ClassTag => "Override me";//{ get; }
         public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterPluginBase));
         public TaggedTypes_STD AllTypes => all;
         #endregion
@@ -84,7 +79,7 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized();
+        public override StdEncoder Encode() => new StdEncoder();
 
         public override bool Decode(string tag, string data) => false;
         #endregion

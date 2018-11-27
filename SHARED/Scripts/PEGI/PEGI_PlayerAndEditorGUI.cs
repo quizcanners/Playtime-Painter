@@ -7057,16 +7057,9 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool isNullOrDestroyed(this object obj) {
-            if (obj == null) return true;
-
-            if (obj.GetType().IsUnityObject() && ((obj as UnityEngine.Object).isNullOrDestroyedUnityObject()))
-                return true;
-
-            return false;
-
-        }
-        
+        public static bool isNullOrDestroyed(this object obj) =>
+            obj == null ? true : (obj as UnityEngine.Object).isNullOrDestroyedUnityObject();
+       
         static void cantInspect()
         {
 

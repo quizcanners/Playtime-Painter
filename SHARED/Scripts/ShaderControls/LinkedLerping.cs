@@ -60,10 +60,9 @@ namespace SharedTools_Stuff {
                 var changed = false;
                 
                 if (!allowChangeParameters)
-                    "Edit".toggleIcon(ref allowChangeParameters);
-                
-                if (allowChangeParameters)
-                    "{0} Lerp Speed".F(Name).edit(90, ref speed);
+                    Name.toggleIcon(ref allowChangeParameters);
+                else
+                    Name.edit(80, ref speed);
 
                 if (icon.Enter.Click())
                     edited = ind;

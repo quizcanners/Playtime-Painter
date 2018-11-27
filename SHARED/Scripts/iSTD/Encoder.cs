@@ -636,7 +636,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder TryAdd<T>(string tag, T obj)
         {
-            if (obj != null)
+            if (!obj.isNullOrDestroyed())
             {
                 var objstd = obj as ISTD;
                 if (objstd != null)

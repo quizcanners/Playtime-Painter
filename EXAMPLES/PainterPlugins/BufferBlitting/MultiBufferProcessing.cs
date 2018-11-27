@@ -9,12 +9,11 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
 
     #region Manager
     [TaggedType(tag)]
-    [ExecuteInEditMode]
     public class MultiBufferProcessing : PainterManagerPluginBase, ISTD
     {
         const string tag = "MltBffr";

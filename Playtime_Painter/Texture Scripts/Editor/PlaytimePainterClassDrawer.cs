@@ -186,6 +186,10 @@ namespace Playtime_Painter {
 
 #if PEGI
 
+            PainterCamera rtp = PainterCamera.Inst;
+
+            var cfg = Cfg;
+
             painter = (PlaytimePainter)target;
 
             if  (painter.gameObject.IsPrefab()) {
@@ -193,10 +197,15 @@ namespace Playtime_Painter {
                 return;
             }
 
-            PainterCamera rtp = PainterCamera.Inst;
+          
 
-            if (!Cfg) {
+            if (!cfg) {
                 "No Config Detected".nl();
+                if (icon.Refresh.Click()) {
+                    PainterStuff.applicationIsQuitting = false;
+                    if (PainterCamera.Inst)
+                    PainterCamera.Inst.triedToFind = false;
+                }
                 return;
             }
 
