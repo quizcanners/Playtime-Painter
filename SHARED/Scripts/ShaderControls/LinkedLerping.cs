@@ -60,7 +60,7 @@ namespace SharedTools_Stuff {
                 var changed = false;
                 
                 if (!allowChangeParameters)
-                    Name.toggleIcon(ref allowChangeParameters);
+                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true);
                 else
                     Name.edit(80, ref speed);
 
@@ -70,12 +70,14 @@ namespace SharedTools_Stuff {
                 return changed;
             }
 
-            public virtual bool Inspect()
-            {
-                var changed = "Edit".toggleIcon(ref allowChangeParameters).nl();
+            public virtual bool Inspect() {
+
+                var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true);
 
                 if (allowChangeParameters)
-                    "{0} Lerp Speed".F(Name).edit(90, ref speed).nl(ref changed);
+                    "Lerp Speed for {0}".F(Name).edit(120, ref speed).nl(ref changed);
+
+                pegi.nl();
 
                 return changed;
             }
@@ -123,7 +125,9 @@ namespace SharedTools_Stuff {
 
                 if (!enabled) {
 
-                    "{0} Disabled".F(Name).toggleIcon(ref enabled, "{0} Enabled".F(Name)).changes(ref changes);
+                    if ("{0} Disabled".F(Name).toggleIcon(ref enabled, "{0} Enabled".F(Name)).changes(ref changes))
+                        targetValue = CurrentValue;
+
                     if (icon.Enter.Click())
                         edited = ind;
                 }
@@ -140,7 +144,10 @@ namespace SharedTools_Stuff {
             {
                 pegi.nl();
 
-                var changed =  "Enabled".toggleIcon(ref enabled, true);
+                var changed = false;
+
+                if ("Enable".toggleIcon(ref enabled, true).changes(ref changed))
+                    targetValue = CurrentValue;
 
                 if (enabled) {
 

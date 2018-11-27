@@ -78,9 +78,7 @@ namespace PlayerAndEditorGUI {
                 SpinAround();
             }
         }
-
-
-
+        
         public Vector2 camOrbit = new Vector2();
         public Vector3 SpinCenter;
         protected float OrbitDistance = 0;
@@ -148,7 +146,7 @@ namespace PlayerAndEditorGUI {
         {
         }
 
-        #if PEGI
+#if PEGI
         public bool Inspect()
         {
             
@@ -157,7 +155,7 @@ namespace PlayerAndEditorGUI {
             if ("sensitivity:".edit(60, ref sensitivity).nl())
                 PlayerPrefs.SetFloat(PrefSens, sensitivity);
  
-            "Rotate without RMB".toggleIcon(ref rotateWithotRMB).nl();
+            "Rotate without RMB".toggleIcon(ref rotateWithotRMB, true).nl();
 
             "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNL);
 

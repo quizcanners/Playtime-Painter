@@ -168,6 +168,7 @@ namespace Playtime_Painter.Examples
                 "Also its better to use textures without mipmaps".nl();
                 "Render Texture Painting will fail if material has tiling or offset".nl();
                 "Editing will be symmetrical if mesh is symmetrical".nl();
+                "Brush type should be Sphere".nl();
             }
 
             brush.Targets_PEGI().nl(ref changed);

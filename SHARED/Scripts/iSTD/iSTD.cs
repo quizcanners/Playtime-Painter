@@ -373,7 +373,7 @@ namespace SharedTools_Stuff {
 
             set
             {
-                gameObject.name = value;
+                gameObject.RenameAsset(value);
             }
         }
 

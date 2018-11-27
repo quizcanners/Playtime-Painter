@@ -7,6 +7,7 @@ using SharedTools_Stuff;
 
 namespace Playtime_Painter.Examples {
     
+    [ExecuteInEditMode]
     public class PaintingReciever : MonoBehaviour, IPEGI {
 
         public enum RendererType {regular, Skinned, Terrain }
@@ -127,13 +128,37 @@ namespace Playtime_Painter.Examples {
 
         }
 
+        void Refresh()
+        {
+            if (!meshFilter)
+                meshFilter = GetComponent<MeshFilter>();
+
+            if (!meshRenderer)
+                meshRenderer = GetComponent<Renderer>();
+
+            if (!skinnedMeshRenderer)
+                skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
+        }
+
+
         private void OnDisable() {
             if (fromRTmanager) Restore();
+
+
+            Refresh();
+
+
         }
-        #if PEGI
+
+#if PEGI
         public virtual bool Inspect() {
 
-            if ("Renderer Type:".edit_Property(() => type, this).nl()) {
+            bool changes = false;
+
+            if (icon.Refresh.Click("Find stuff automatically"))
+                Refresh();
+
+            if ("Renderer Type:".editEnum(90, ref type).nl()) {
                 if ((type == RendererType.Skinned) && (skinnedMeshRenderer == null))
                     skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
                 if ((type == RendererType.regular) && (meshFilter == null)) {
@@ -142,64 +167,59 @@ namespace Playtime_Painter.Examples {
                 }
             }
 
-            if (type == RendererType.Terrain) {
-                "Not yet ready that one".nl();
+            switch (type) {
+                case  RendererType.Terrain:
+                "Terrain damage not yet implemented in this example.".nl();
                 return false;
+                    
+                case RendererType.Skinned:
+                "   Skinned Mesh Renderer".edit(90, ref skinnedMeshRenderer).nl(ref changes);
+                    break;
+
+                case RendererType.regular:
+                "   Mesh Filter".edit(60, ref meshFilter).nl(ref changes);
+                "   Renderer".edit(60, ref meshRenderer).nl(ref changes);
+                    break;
             }
 
-            if (type == RendererType.Skinned)
-                "   Skinned Mesh Renderer".edit_Property(() => skinnedMeshRenderer, this).nl();
-
-
-            if (type == RendererType.regular) {
-                "   Mesh Filter".edit_Property(() => meshFilter, this).nl();
-                "   Renderer".edit_Property(() => meshRenderer, this).nl();
-            }
-
-            if ((Rendy != null && (Rendy.sharedMaterials.Length > 1)) || materialIndex != 0) {
-                "If more then one material:".nl();
+            if ((Rendy && (Rendy.sharedMaterials.Length > 1)) || materialIndex != 0) 
                 "   Material".select(ref materialIndex, Rendy.sharedMaterials).nl();
-            }
-
+            
             if (Material) {
                 var lst = Material.MyGetTextureProperties();
-                if (lst.Count > 0) {
+                if (lst.Count > 0) 
                     "   Property".select(ref textureField, lst).nl();
-                }
                 else textureField = "";
             }
             
-            if (this.gameObject.isStatic && originalMesh == null) {
+            if (gameObject.isStatic && originalMesh == null) {
                 pegi.writeWarning("Original mesh is not set.");
                 pegi.newLine();
                 if ((meshFilter != null) && "find mesh".Click().nl()) 
                         originalMesh = meshFilter.sharedMesh;
             }
 
-            if (this.gameObject.isStatic) {
+            if (gameObject.isStatic) {
                 "For STATIC Game Objects:".nl();
                 "   Original Mesh".edit_Property("Static objects use Combined mesh, so original one will be needed for painting", () => originalMesh, this).nl();
             }
 
-            "For shaders which use Texcoord 2:".nl();
-            if ("    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, this is what you want.", ref useTexcoord2).nl() && texture)
+            "For shaders which use Texcoord 2 (Baked Light UV):".nl();
+            if ("    Use second texture coordinates".toggle("If shader uses texcoord2 to display damage, turn this ON.", ref useTexcoord2).nl() && texture)
                 texture.GetImgData().useTexcoord2 = useTexcoord2;
 
 
-            if ((texture != null) || (MatTex == null))
-                "Original Texture:".edit_Property("Copy of this texture will be modified.", () => originalTexture, this).nl();
+            if (texture  || !MatTex)
+                "Original Texture:".edit("Copy of this texture will be modified.",90, ref originalTexture).nl(ref changes);
             "If not using Render Textures Pool:".nl();
-            "Texture".edit_Property(() => texture, this);
-            if ("Find".Click().nl())
-            {
-                if (Rendy && Material)
+            "Texture".edit(70, ref  texture);
+            if (Rendy && Material && "Find".Click().nl())
                     texture = MatTex;
-            }
             
-            if (texture == null || texture.GetType() == typeof(RenderTexture)) {
+            if (!texture  || texture.GetType() == typeof(RenderTexture)) {
                 "Mesh UV Offset".edit("Some Meshes have UV coordinates with displacement for some reason. " +
                     "If your object doesn't use a mesh collider to provide a UV offset, this will be used.", 80, ref meshUVoffset).nl();
-                if (Mesh != null && "Offset from Mesh".Click().nl()) {
+                if (Mesh && "Offset from Mesh".Click().nl()) {
                     int firstVertInSubmeshIndex = Mesh.GetTriangles(materialIndex)[0];
                     meshUVoffset = useTexcoord2 ? Mesh.uv2[firstVertInSubmeshIndex] : Mesh.uv[firstVertInSubmeshIndex];
 
@@ -209,13 +229,11 @@ namespace Playtime_Painter.Examples {
                 }
             }
 
-            if (Material != null)
+            if (Material)
             {
 
-                if (!Material.HasProperty(textureField) && Material.mainTexture == null)
-                {
+                if (!Material.HasProperty(textureField) && !Material.mainTexture )
                     "No Material Property Selected and no MainTex on Material".nl();
-                }
                 else
                 {
                     if (texture != null)
@@ -225,24 +243,18 @@ namespace Playtime_Painter.Examples {
                             icon.Done.write();
                             "CPU brush will work if object has MeshCollider".nl();
 
-                            if (originalTexture != null)
-                            {
+                            if (originalTexture) {
 
-                                if (originalTexture.GetType() == typeof(Texture2D))
-                                {
+                                if (originalTexture.GetType() == typeof(Texture2D)) {
 
                                     var ot = (Texture2D)originalTexture;
                                     var t = (Texture2D)texture;
 
                                     if ((ot.width == t.width) && (ot.height == ot.height)) {
-
                                         if (("Undo Changes".Click()).nl())
                                             Restore();
-                                        
                                     }
                                     else "Original and edited texture are not of the same size".nl();
-
-
                                 }
                                 else "Original Texture is not a Texture 2D".nl();
                             }
@@ -266,20 +278,15 @@ namespace Playtime_Painter.Examples {
                             if ((originalTexture != null) && ("Undo Changes".Click().nl()))
                                 Restore();
                         }
-
-
                     }
                     else
                     {
-
                         var rtm = TexturesPool._inst;
 
-                        if (rtm != null)
-                        {
+                        if (rtm != null) {
                             "Render Texture Pool will be used to get texture".nl();
                             if (Rendy == null) "! Renderer needs to be Assigned.".nl();
-                            else
-                            {
+                            else {
                                 icon.Done.write("Component set up properly", 25);
                                 if (fromRTmanager && "Restore".Click())
                                     Restore();
@@ -289,18 +296,16 @@ namespace Playtime_Painter.Examples {
                         {
                             "No Render Texture Pool found".write();
                             if ("Create".Click().nl())
-                                (TexturesPool.Inst.gameObject.name + " created").showNotificationIn3D_Views(); //new GameObject().AddComponent<TexturesPool>().gameObject.name = "Texture Pool";
+                                (TexturesPool.Inst.gameObject.name + " created").showNotificationIn3D_Views(); 
                         }
                     }
                 }
             }
             else "No material found".nl();
-
-           
-
-            return false;
+            
+            return changes;
         }
-#endif
+        #endif
     }
 
 }

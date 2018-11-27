@@ -133,7 +133,7 @@ namespace Playtime_Painter
 
             bool change = false;
   
-            if (BrushConfig.InspectedIsCPUbrush)
+            if (BrushConfig.InspectedIsCPUbrush || !PainterCamera.Inst)
                 return change;
 
             if (TexMGMTdata.masks.Count > 0)

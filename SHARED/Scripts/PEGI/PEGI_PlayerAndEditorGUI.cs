@@ -7057,9 +7057,12 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool isNullOrDestroyed(this object obj) =>
-            obj == null ? true : (obj as UnityEngine.Object).isNullOrDestroyedUnityObject();
-       
+        public static bool isNullOrDestroyed(this object obj)
+        {
+            return obj == null ? true : 
+                (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
+                (obj as UnityEngine.Object).isNullOrDestroyedUnityObject() : false);
+        }
         static void cantInspect()
         {
 
@@ -7102,6 +7105,24 @@ namespace PlayerAndEditorGUI {
         }
         
 #if PEGI
+
+        public static int TryCountForInspector<T>(this List<T> list) {
+
+
+            if (list == null)
+                return 0;
+
+            int count = list.Count;
+
+            foreach (var e in list) {
+                var cnt = e as IGotCount;
+                if (cnt != null)
+                    count += cnt.CountForInspector;
+            }
+
+            return count;
+        }
+
         public static int focusInd;
 
         public static bool EfChanges
