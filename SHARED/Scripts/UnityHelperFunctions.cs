@@ -1719,13 +1719,12 @@ namespace SharedTools_Stuff {
 #endif
         #endregion
         #endregion
+
+     
+
     }
 
-    public interface IManageFading
-    {
-        void FadeAway();
-        bool TryFadeIn();
-    }
+
 
     public class ChillLogger
     {

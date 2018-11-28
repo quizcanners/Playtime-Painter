@@ -89,7 +89,7 @@ namespace Playtime_Painter.Examples
 
                                     if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer != null)
                                         BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, st, submesh);
-                                    else if (reciver.type == PaintingReciever.RendererType.regular && reciver.meshFilter != null)
+                                    else if (reciver.type == PaintingReciever.RendererType.Regular && reciver.meshFilter != null)
                                     {
                                         var mat = reciver.Material;
                                         if (mat != null && mat.IsAtlased())

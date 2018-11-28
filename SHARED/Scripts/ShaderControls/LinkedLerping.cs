@@ -12,6 +12,12 @@ namespace SharedTools_Stuff {
         void Lerp(float portion);
     }
 
+    public interface IManageFading
+    {
+        void FadeAway();
+        bool TryFadeIn();
+    }
+
     public class LinkedLerp
     {
 
@@ -766,6 +772,27 @@ namespace SharedTools_Stuff {
             foreach (var e in list)
                 if (e != null)
                     e.Lerp(portion);
+        }
+
+        public static void FadeAway<T>(this List<T> list) where T : IManageFading
+        {
+
+            if (list != null)
+                foreach (var e in list)
+                    if (e != null) e.FadeAway();
+
+        }
+
+        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading
+        {
+
+            bool fadedIn = false;
+
+            if (list != null)
+                foreach (var e in list)
+                    if (e != null) fadedIn |= e.TryFadeIn();
+
+            return fadedIn;
         }
     }
     

@@ -2256,7 +2256,7 @@ namespace Playtime_Painter
 
 
 
-                            if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(), "Lock/Unlock editing of selected Texture.", 25))
+                            if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(), "Lock/Unlock editing of {0} Texture.".F(id.ToPEGIstring()), 25))
                             {
                                 CheckPreviewShader();
                                 if (LockTextureEditing)
