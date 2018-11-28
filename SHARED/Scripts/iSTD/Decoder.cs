@@ -352,11 +352,11 @@ namespace SharedTools_Stuff
         static T DecodeData<T>(this StdDecoder cody, TaggedTypes_STD tps) where T : IGotClassTag
              => Decode<T>(cody._currentTag, cody.GetData(), tps);
         
-        static T DecodeData<T>(this StdDecoder cody, List<Type> tps, List_Data ld) where T : ISTD, new()
+        static T DecodeData<T>(this StdDecoder cody, List<Type> tps, List_Data ld) where T : ISTD
             => Decode<T>(cody._currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
 
-        static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ISTD, new()
+        static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ISTD
             => Decode<T>(cody._currentTag, cody.GetData(), tps);
 
         static T Decode<T>(string tag, string data, TaggedTypes_STD tps, List_Data ld, int index) where T : IGotClassTag
@@ -391,7 +391,7 @@ namespace SharedTools_Stuff
             return ret;
         }
 
-        static T Decode<T>(string tag, string data, List<Type> tps, List_Data ld, int index) where T : ISTD, new()
+        static T Decode<T>(string tag, string data, List<Type> tps, List_Data ld, int index) where T : ISTD
         {
 
             T ret = default(T);
@@ -408,7 +408,7 @@ namespace SharedTools_Stuff
             return ret;
         }
 
-        static T Decode<T>(string tag, string data, List<Type> tps) where T : ISTD, new()
+        static T Decode<T>(string tag, string data, List<Type> tps) where T : ISTD
         {
 
             T ret = default(T);
@@ -515,6 +515,23 @@ namespace SharedTools_Stuff
 
             return l;
         }
+        
+        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l) where T : ISTD {
+
+            StdDecoder cody = new StdDecoder(data);
+
+            l = new List<T>();
+
+            List<Type> tps = typeof(T).TryGetDerrivedClasses();
+
+            if (tps != null)
+                foreach (var tag in cody)
+                    l.Add(cody.DecodeData<T>(tps));
+            else
+                Debug.LogError("{0} doesn't provide a list of derrived types to decode".F(typeof(T).ToString()));
+
+            return l;
+        }
         #endregion
 
         #region Abstract 
@@ -600,8 +617,9 @@ namespace SharedTools_Stuff
             return obj;
         }
 
-        public static bool TryDecodeInto<T>(this string data, T val) => (val as ISTD).Decode_ifNotNull(data);
-
+        public static bool TryDecodeInto<T>(this string data, T val) =>
+            ((typeof(T) is ISTD) ? val as ISTD : val.TryGet_fromObj<ISTD>()).Decode_ifNotNull(data);
+        
         public static bool Decode_ifNotNull(this ISTD istd, string data)
         {
             if (istd != null)

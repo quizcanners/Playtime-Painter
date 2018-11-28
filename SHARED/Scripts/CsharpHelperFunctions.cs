@@ -101,22 +101,22 @@ namespace SharedTools_Stuff
 
         #region TextOperations
         public static string F(this string format, string obj1) => string.Format(format, obj1);
-        
+
         public static string F(this string format, object obj1) => string.Format(format, obj1.ToPEGIstring());
 
         public static string F(this string format, string obj1, string obj2) => string.Format(format, obj1, obj2);
-        
+
         public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
 
         public static string F(this string format, string obj1, string obj2, string obj3) => string.Format(format, obj1, obj2, obj3);
-        
+
         public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
 
         public static string F(this string format, params object[] objs) {
             try {
                 return string.Format(format, objs);
-            } catch(Exception ex) {
-                return "Wrong Format" + format + " "+ex.ToString();
+            } catch (Exception ex) {
+                return "Wrong Format" + format + " " + ex.ToString();
             }
         }
         public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
@@ -188,7 +188,7 @@ namespace SharedTools_Stuff
         {
             if (obj is T)
                 return (T)obj;
-                
+
             return default(T);
         }
         #endregion
@@ -232,8 +232,8 @@ namespace SharedTools_Stuff
 
             return total;
         }
-        
-        public static T GetRandom<T>(this List<T>list) {
+
+        public static T GetRandom<T>(this List<T> list) {
             if (list.Count == 0)
                 return default(T);
 
@@ -241,7 +241,7 @@ namespace SharedTools_Stuff
         }
 
         public static void ForceSet<T>(this List<T> list, int index, T val) {
-            if (list != null && index>=0) {
+            if (list != null && index >= 0) {
                 while (list.Count <= index)
                     list.Add(default(T));
 
@@ -251,8 +251,8 @@ namespace SharedTools_Stuff
         }
 
         public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
-        
-        public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true)  {
+
+        public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true) {
             conv = default(T);
 
             if (obj == null || list == null)
@@ -266,7 +266,7 @@ namespace SharedTools_Stuff
                     go = (obj as MonoBehaviour)?.gameObject;
                 else go = obj as GameObject;
 
-                if (go && !go.isNullOrDestroyed()) 
+                if (go && !go.isNullOrDestroyed())
                     conv = go.GetComponent<T>();
             }
             else conv = (T)obj;
@@ -276,11 +276,11 @@ namespace SharedTools_Stuff
                 Type objType = obj.GetType();
 
                 var dl = typeof(T).TryGetDerrivedClasses();
-                if (dl != null)  {
+                if (dl != null) {
                     if (!dl.Contains(objType))
                         return false;
 
-                } else  {
+                } else {
 
                     var tc = typeof(T).TryGetTaggetClasses();
 
@@ -298,17 +298,17 @@ namespace SharedTools_Stuff
 
         }
 
-        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)   {
+        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true) {
 
             T toAdd;
 
             if (!list.CanAdd(ref ass, out toAdd, onlyIfNew))
                 return false;
-            else 
+            else
                 list.Add(toAdd);
 
             return true;
-      
+
         }
 
         public static bool AddIfNew<T>(this List<T> list, T val)
@@ -341,7 +341,7 @@ namespace SharedTools_Stuff
         }
 
         public static T TryGet<T>(this List<T> list, List_Data meta) => list.TryGet(meta.inspected);
-        
+
         public static T TryGet<T>(this List<T> list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
@@ -364,21 +364,21 @@ namespace SharedTools_Stuff
 
             return list[index];
         }
-        
+
         public static int TryGetIndex<T>(this List<T> list, T obj)
         {
             int ind = -1;
             if (list != null && obj != null)
                 ind = list.IndexOf(obj);
-            
+
             return ind;
         }
 
         public static int TryGetIndexOrAdd<T>(this List<T> list, T obj) {
             int ind = -1;
-            if (list != null && obj != null){
+            if (list != null && obj != null) {
                 ind = list.IndexOf(obj);
-                if (ind == -1){
+                if (ind == -1) {
                     list.Add(obj);
                     ind = list.Count - 1;
                 }
@@ -396,24 +396,27 @@ namespace SharedTools_Stuff
                 int MaxIndex = ind.IndexForPEGI;
                 foreach (var o in list)
                     if (!el.Equals(o))
-                {
-                    var oind = o as IGotIndex;
-                    if (oind != null)
-                        MaxIndex = Mathf.Max(MaxIndex, oind.IndexForPEGI  + 1);
-                }
+                    {
+                        var oind = o as IGotIndex;
+                        if (oind != null)
+                            MaxIndex = Mathf.Max(MaxIndex, oind.IndexForPEGI + 1);
+                    }
                 ind.IndexForPEGI = MaxIndex;
             }
 #endif
         }
 
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) where T : new() => list.AddWithUniqueNameAndIndex("New "
+        public static bool IsNew(this Type t) => t.IsValueType || (!t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
+
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) => list.AddWithUniqueNameAndIndex("New "
 #if PEGI
             + typeof(T).ToPEGIstring_Type()
 #endif
             );
-        
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) where T : new() => list.AddWithUniqueNameAndIndex(new T(), name);
-        
+
+        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) =>
+                list.AddWithUniqueNameAndIndex((T)Activator.CreateInstance(typeof(T)), name);
+
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) 
         {
             list.AssignUniqueIndex(e);

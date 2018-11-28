@@ -2749,8 +2749,6 @@ namespace PlayerAndEditorGUI {
         {
 
             bool changed = false;
-
-         
             
             if (enter_ListIcon( label, ref list ,ref inspectedElement, ref enteredOne, thisOne))
                 label.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
@@ -2768,7 +2766,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool enter_List<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne) where T : new()
+        public static bool enter_List<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne)
         {
             bool changed = false;
 
@@ -2791,14 +2789,14 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
         
-        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
             bool changed = false;
             label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne, ref changed);
             return changed;
         }
 
-        public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed) where T : new()
+        public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed) 
         {
             T tmp = default(T);
             
@@ -2810,7 +2808,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
-        public static bool enter_List_b<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered) where T : new()
+        public static bool enter_List_b<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered) 
         {
 
             bool changed = false;
@@ -2845,7 +2843,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
 
-        public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) where T : new()
+        public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
 
             bool changed = false;
@@ -2862,7 +2860,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool conditional_enter_List<T>(this List_Data meta, bool canEnter, ref List<T> list, ref int enteredOne, int thisOne) where T : new() {
+        public static bool conditional_enter_List<T>(this List_Data meta, bool canEnter, ref List<T> list, ref int enteredOne, int thisOne) {
 
             bool changed = false;
 
@@ -5004,7 +5002,7 @@ namespace PlayerAndEditorGUI {
 
         }
         
-        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, List_Data ld) where T : new()
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, List_Data ld)
         {
             if (ld != null && !ld.allowCreate)
                 return false;
@@ -5029,7 +5027,6 @@ namespace PlayerAndEditorGUI {
                 (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
 
             if (!hasName || addingNewNameHolder.Length > 1) {
-             
 
                     bool selectingDerrived = lst == addingNewOptionsInspected;
 
@@ -5629,14 +5626,10 @@ namespace PlayerAndEditorGUI {
 
             var go = el as GameObject;
 
-            IPEGI pg = null;
-
-            if (go != null)
-            {
-                pg = go.TryGetPEGI();
+            IPEGI pg = go.TryGet<IPEGI>();
                 if (pg != null)
                     el = pg;
-            }
+            
 
             var pl = el as IPEGI_ListInspect;
 
@@ -5730,10 +5723,9 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddClick<T>(this List<T> list, ref T added, List_Data ld = null) where T : new()
-        {
+        static bool ListAddClick<T>(this List<T> list, ref T added, List_Data ld = null) {
 
-            if (ld != null && !ld.allowCreate)
+            if ((ld != null && !ld.allowCreate) || !typeof(T).IsNew() )
                 return false;
 
             if (!typeof(T).IsUnityObject() 
@@ -6075,31 +6067,32 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region OfNew
-        public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed) where T: new() {
+        public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
+        {
             ld.label.write_ListLabel(list, ld.inspected);
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
         
-        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) where T : new()
+        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) 
         {
             label.write_ListLabel(list, inspected);
             return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list, ref int inspected) where T : new()
+        public static bool edit_List<T>(ref List<T> list, ref int inspected) 
         {
             bool changes = false;
             edit_List(ref list, ref inspected, ref changes);
             return changes;
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list) where T : new()
+        public static bool edit_List<T>(this string label, ref List<T> list) 
         {
             label.write_ListLabel(list);
             return edit_List(ref list).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list) where T : new()
+        public static bool edit_List<T>(ref List<T> list) 
         {
             int edited = -1;
             bool changes = false;
@@ -6107,27 +6100,27 @@ namespace PlayerAndEditorGUI {
             return changes;
         }
 
-        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : new()
+        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
         {
             label.write_ListLabel(list, inspected);
             return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this List_Data datas, ref List<T> list) where T : new() {
+        public static bool edit_List<T>(this List_Data datas, ref List<T> list)  {
            write_ListLabel(datas, list);
             bool changed = false;
             edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
             return changed;
         }
 
-        public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) where T : new() {
+        public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) {
 
             write_ListLabel(datas, list);
             return edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
 
         }
 
-        public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : new() {
+        public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null)  {
 
             T added = default(T);
 
@@ -7179,27 +7172,28 @@ namespace PlayerAndEditorGUI {
             return icon.ClickUnfocus(hint);
         }
 
-        public static IPEGI TryGetPEGI(this GameObject go)
-        {
-            if (go == null)
+      //  public static IPEGI TryGetPEGI(this GameObject go)
+        //    => go.TryGet<IPEGI>();
+
+            /*if (go == null)
                 return null;
 
             var monos = go.GetComponents<MonoBehaviour>();
 
-            foreach (var m in monos)
-            {
+            foreach (var m in monos)  {
                 var p = m as IPEGI;
                 if (p != null)
                     return p;
             }
             return null;
-        }
+            }*/
+
 
         public static bool Try_Nested_Inspect(this GameObject other)
         {
             bool changed = false;
 
-            var pgi = other.TryGetPEGI();
+            var pgi = other.TryGet<IPEGI>();
 
             if (pgi != null)
                 changed |= pgi.Nested_Inspect().RestoreBGColor();
@@ -7207,20 +7201,9 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool Try_Nested_Inspect(this object other)
-        {
-            if (other == null)
-                return false;
-
-            var go = other as GameObject;
-
-            if (go)
-                return go.Try_Nested_Inspect();
-            else
-            {
-                var pgi = other as IPEGI;
-                return pgi != null ? pgi.Nested_Inspect() : false;
-            }
+        public static bool Try_Nested_Inspect(this object other) {
+            var pgi = other.TryGet_fromObj<IPEGI>();
+            return pgi != null ? pgi.Nested_Inspect() : false;
         }
 
         public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne)
@@ -7228,12 +7211,12 @@ namespace PlayerAndEditorGUI {
             if (obj == null)
                 return false;
 
-            var l = obj as IPEGI_ListInspect;
+            var l = obj.TryGet_fromObj<IPEGI_ListInspect>();
 
             if (l != null)
                 return l.enter_Inspect_AsList(ref enteredOne, thisOne);
 
-            var p = obj as IPEGI;
+            var p = obj.TryGet_fromObj<IPEGI>();
 
             if (p != null)
                 return p.enter_Inspect(ref enteredOne, thisOne);

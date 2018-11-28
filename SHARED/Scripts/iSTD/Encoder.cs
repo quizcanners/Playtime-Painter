@@ -237,6 +237,14 @@ namespace SharedTools_Stuff
             return builder.ToString();
         }
 
+        public static StdEncoder TryEncode(object obj) {
+            var std = obj.TryGet_fromObj<ISTD>();
+
+            if (std != null)
+                return std.Encode();
+            else return new StdEncoder();
+        }
+
         public delegate StdEncoder EncodeDelegate();
         public StdEncoder Add(string tag, EncodeDelegate cody) {
 
@@ -633,15 +641,13 @@ namespace SharedTools_Stuff
         public StdEncoder Add<T>(string tag, T[] val) where T : ISTD => Add(tag, val.Encode());
 
         #region NonDefault Encodes
+        
+        public StdEncoder TryAdd<T>(string tag, T obj) {
 
-        public StdEncoder TryAdd<T>(string tag, T obj)
-        {
-            if (!obj.isNullOrDestroyed())
-            {
-                var objstd = obj as ISTD;
-                if (objstd != null)
-                    Add(tag, objstd);
-            }
+            var objstd = (typeof(T) is ISTD) ? (obj as ISTD) : obj.TryGet_fromObj<ISTD>();
+            if (objstd != null)
+               Add(tag, objstd);
+            
             return this;
         }
 

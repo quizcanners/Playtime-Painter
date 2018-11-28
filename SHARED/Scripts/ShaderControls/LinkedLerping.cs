@@ -60,9 +60,9 @@ namespace SharedTools_Stuff {
                 var changed = false;
                 
                 if (!allowChangeParameters)
-                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true);
+                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true).changes(ref changed);
                 else
-                    Name.edit(80, ref speed);
+                    Name.edit(80, ref speed).changes(ref changed);
 
                 if (icon.Enter.Click())
                     edited = ind;
@@ -92,27 +92,23 @@ namespace SharedTools_Stuff {
 
             protected abstract Vector2 CurrentValue { get; set; }
 
-            public override bool IsDefault => !enabled;
-
             protected virtual bool CanLerp => true;
-
-            bool lerpFinished = false;
-
-            bool enabled = false;
+            
+            public bool enabled = false;
 
             public override void Lerp(float portion)
             {
-                if ( enabled && CanLerp &&  !lerpFinished && (CurrentValue != targetValue || !defaultSet)) {
+                if ( enabled && CanLerp &&  (CurrentValue != targetValue || !defaultSet)) {
                     defaultSet = true;
                     CurrentValue = Vector2.Lerp(CurrentValue, targetValue, portion);
-
-                    if (portion == 1)
-                        lerpFinished = true;
-
                 }
             }
 
             public override void Portion(ref float portion, ref string dominantParameter) {
+
+                if (!Application.isPlaying)
+                    return;
+
                 if ( enabled && CanLerp && speed.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion))
                     dominantParameter = Name;
             }
@@ -134,10 +130,7 @@ namespace SharedTools_Stuff {
                 else
                     changes |= base.PEGI_inList(list, ind, ref edited);
 
-                if (changes)
-                    lerpFinished = false;
-
-                return false;
+                return changes;
             }
 
             public override bool Inspect()
@@ -157,9 +150,6 @@ namespace SharedTools_Stuff {
 
                     base.Inspect().nl(ref changed);
                 }
-
-                if (changed)
-                    lerpFinished = false;
 
                 return changed;
             }
@@ -184,7 +174,7 @@ namespace SharedTools_Stuff {
                 {
                     case "e": enabled = data.ToBool(); break;
                     case "b": data.Decode_Delegate(base.Decode); break;
-                    case "t": targetValue = data.ToVector2(); lerpFinished = false; break;
+                    case "t": targetValue = data.ToVector2(); break;
                     default: return false;
                 }
                 return true;
@@ -209,6 +199,9 @@ namespace SharedTools_Stuff {
 
             public override void Portion(ref float portion, ref string dominantParameter)
             {
+                if (!Application.isPlaying)
+                    return;
+
                 if (CanLerp && speed.SpeedToMinPortion(Value - TargetValue, ref portion))
                     dominantParameter = Name;
             }
@@ -491,7 +484,7 @@ namespace SharedTools_Stuff {
 
             public void Portion(ref float portion, ref string dominantParameter)
             {
-                if (!_transform)
+                if (!_transform || !Application.isPlaying)
                     return;
                 if (speed.SpeedToMinPortion((Value - targetValue).magnitude, ref portion))
                     dominantParameter = Name;
@@ -595,6 +588,8 @@ namespace SharedTools_Stuff {
 
             public override void Portion(ref float portion, ref string dominantParameter)
             {
+                if (!Application.isPlaying)
+                    return;
 
                 if (speed.SpeedToMinPortion(value - targetValue, ref portion))
                     dominantParameter = name;
@@ -652,6 +647,9 @@ namespace SharedTools_Stuff {
 
             public override void Portion(ref float portion, ref string dominantParameter)
             {
+                if (!Application.isPlaying)
+                    return;
+
                 if (speed.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion))
                     dominantParameter = name;
             }
@@ -699,7 +697,6 @@ namespace SharedTools_Stuff {
 
         public class RendererMaterialTextureTransition : BASE_MaterialTextureTransition
         {
-
             Renderer graphic;
 
             protected override string Name => "Renderer Texture Transition";
@@ -746,7 +743,6 @@ namespace SharedTools_Stuff {
 
     public static class LinkedLerpingExtensions
     {
-
         public static string Portion<T>(this List<T> list, ref float portion) where T : IlinkedLerping
         {
             string dom = "None (weird)";

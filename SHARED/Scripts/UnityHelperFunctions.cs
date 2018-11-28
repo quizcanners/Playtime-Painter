@@ -98,6 +98,40 @@ namespace SharedTools_Stuff {
 
         #region Components & GameObjects
 
+        public static T TryGet_fromObj<T>(this object other) where T : class
+        {
+            if (other == null)
+                return null;
+
+            var go = other as GameObject;
+
+            if (go)
+                return go.TryGet<T>();
+            else
+                return other as T;
+        }
+
+        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb.gameObject.TryGet<T>();
+        
+        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf.gameObject.TryGet<T>();
+
+        public static T TryGet<T>(this GameObject go) where T:class {
+           
+                if (go.isNullOrDestroyed())
+                    return null;
+
+                var monos = go.GetComponents<MonoBehaviour>();
+
+                foreach (var m in monos) {
+                    var p = m as T;
+                    if (p != null)
+                        return p;
+                }
+                return null;
+        }
+
+       
+
         public static bool TrySetAlpha(this Graphic graphic, float alpha) {
             if (graphic != null) {
                 var col = graphic.color;
