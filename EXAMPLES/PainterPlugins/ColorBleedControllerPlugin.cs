@@ -37,7 +37,7 @@ namespace Playtime_Painter.Examples {
         public override bool ConfigTab_PEGI() {
             bool changed = false;
 
-            changed |= "Enable".toggleIcon(ref colorBleed);
+            changed |= "Enable".toggleIcon(ref colorBleed, true);
 
             if (colorBleed)
                 changed |= pegi.edit(ref colorBleeding, 0.0001f, 0.3f).nl();
@@ -45,7 +45,7 @@ namespace Playtime_Painter.Examples {
                 colorBleeding = 0;
             pegi.nl();
 
-            changed |= "Brightness".toggleIcon(ref modifyBrightness);
+            changed |= "Brightness".toggleIcon(ref modifyBrightness, true);
 
             if (modifyBrightness)
                 changed |= pegi.edit(ref eyeBrightness, 0.0001f, 8f);
@@ -56,7 +56,7 @@ namespace Playtime_Painter.Examples {
             
         
             bool fog = RenderSettings.fog;
-            if ("Fog".toggleIcon(ref fog)) 
+            if ("Fog".toggleIcon(ref fog, true)) 
                 RenderSettings.fog = fog;
             
             if (fog) {

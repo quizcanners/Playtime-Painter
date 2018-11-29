@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SharedTools_Stuff {
 
-    public interface IlinkedLerping
+    public interface ILinkedLerping
     {
         void Portion(ref float portion, ref string dominantParameter);
         void Lerp(float portion);
@@ -22,7 +22,7 @@ namespace SharedTools_Stuff {
     {
 
         #region Abstract Base
-        public abstract class BASE_AnyValue : Abstract_STD, IlinkedLerping, IPEGI, IPEGI_ListInspect {
+        public abstract class BASE_AnyValue : Abstract_STD, ILinkedLerping, IPEGI, IPEGI_ListInspect {
 
             protected bool defaultSet = false;
 
@@ -66,9 +66,9 @@ namespace SharedTools_Stuff {
                 var changed = false;
                 
                 if (!allowChangeParameters)
-                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true).changes(ref changed);
+                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters).changes(ref changed);
                 else
-                    Name.edit(80, ref speed).changes(ref changed);
+                    Name.edit(150, ref speed).changes(ref changed);
 
                 if (icon.Enter.Click())
                     edited = ind;
@@ -78,10 +78,10 @@ namespace SharedTools_Stuff {
 
             public virtual bool Inspect() {
 
-                var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters, true);
+                var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters).nl();
 
                 if (allowChangeParameters)
-                    "Lerp Speed for {0}".F(Name).edit(120, ref speed).nl(ref changed);
+                    "Lerp Speed for {0}".F(Name).edit(150, ref speed).nl(ref changed);
 
                 pegi.nl();
 
@@ -145,7 +145,7 @@ namespace SharedTools_Stuff {
 
                 var changed = false;
 
-                if ("Enable".toggleIcon(ref enabled, true).changes(ref changed))
+                if ("Enable".toggleIcon(ref enabled).changes(ref changed))
                     targetValue = CurrentValue;
 
                 if (enabled) {
@@ -216,7 +216,8 @@ namespace SharedTools_Stuff {
             #if PEGI
             public override bool Inspect() {
                 var ret = base.Inspect();
-                "{0} => {1}".F(Value, TargetValue).nl();
+                if (Application.isPlaying)
+                    "{0} => {1}".F(Value, TargetValue).nl();
                 return ret;
             }
             #endif
@@ -242,9 +243,12 @@ namespace SharedTools_Stuff {
             #endregion
         }
         
-        public abstract class BASE_MaterialTextureTransition : BASE_FloatLerp
-        {
+        public abstract class BASE_MaterialTextureTransition : BASE_FloatLerp {
             float portion = 0;
+
+            enum onStart {Nothing = 0, ClearTexture = 1, LoadCurrent = 2 }
+
+            onStart _onStart = onStart.Nothing;
 
             protected override float TargetValue { get { return Mathf.Max(0, targetTextures.Count - 1); } set { } }
 
@@ -258,12 +262,12 @@ namespace SharedTools_Stuff {
                     while (portion >= 1) {
                         portion -= 1;
                         targetTextures.RemoveAt(0);
-                        current = targetTextures[0];
+                        Current = targetTextures[0];
                         if (targetTextures.Count > 1)
-                            next = targetTextures[1];
+                            Next = targetTextures[1];
                     }
 
-                    material.SetFloat(transitionPropertyName, portion);
+                    Material.SetFloat(transitionPropertyName, portion);
                 }
             }
 
@@ -273,10 +277,10 @@ namespace SharedTools_Stuff {
 
             List<Texture> targetTextures = new List<Texture>();
 
-            public abstract Material material { get; }
+            public abstract Material Material { get; }
 
-            Texture current { get { return material.GetTexture(currentTexturePropertyName); } set { material.SetTexture(currentTexturePropertyName, value); } }
-            Texture next { get { return material.GetTexture(nextTexturePropertyName); } set { material.SetTexture(nextTexturePropertyName, value); } }
+            Texture Current { get { return Material.GetTexture(currentTexturePropertyName); } set { Material.SetTexture(currentTexturePropertyName, value); } }
+            Texture Next { get { return Material.GetTexture(nextTexturePropertyName); } set { Material.SetTexture(nextTexturePropertyName, value); } }
 
             public Texture TargetTexture
             {
@@ -288,13 +292,13 @@ namespace SharedTools_Stuff {
                 set
                 {
 
-                    if (value != null && material)
+                    if (value != null && Material)
                     {
 
                         if (targetTextures.Count == 0)
                         {
                             targetTextures.Add(value);
-                            current = value;
+                            Current = value;
                         }
                         else
                         {
@@ -306,8 +310,8 @@ namespace SharedTools_Stuff {
                                 {
                                     targetTextures.Swap(0, 1);
                                     Value = Mathf.Max(0, 1 - Value);
-                                    current = next;
-                                    next = value;
+                                    Current = Next;
+                                    Next = value;
                                     targetTextures.TryRemoveTill(2);
                                 }
                             }
@@ -315,7 +319,7 @@ namespace SharedTools_Stuff {
                             {
                                 if (targetTextures.Count == 1) {
                                     targetTextures.Add(value);
-                                    next = value;
+                                    Next = value;
                                 }
                                 else {
                                     if (targetTextures[1] == value && targetTextures.Count == 3)
@@ -330,31 +334,36 @@ namespace SharedTools_Stuff {
             }
 
             #region Inspector
-#if PEGI
+            #if PEGI
             public override bool Inspect()
             {
                 var changed = base.Inspect();
 
-                var tex = current;
-                if (allowChangeParameters)
-                {
+                var tex = Current;
+                if (allowChangeParameters) {
+
+                    "On Start:".editEnum(60, ref _onStart).nl(ref changed);
+
                     if ("Texture[{0}]".F(targetTextures.Count).edit(90, ref tex).nl(ref changed))
                         TargetTexture = tex;
+                    
                 }
                 else TargetTexture.write();
 
                 return changed;
             }
-#endif
+            #endif
             #endregion
 
             #region Encode & Decode
             public override StdEncoder Encode() {
 
                 var cody = new StdEncoder().Add("b", base.Encode);
-                if (allowChangeParameters)
-                    cody.Add_Reference("s", targetTextures.TryGetLast());
-
+                if (allowChangeParameters) {
+                    cody.Add_IfNotZero("onStart", (int)_onStart);
+                    if (_onStart == onStart.LoadCurrent)
+                        cody.Add_Reference("s", targetTextures.TryGetLast());
+                }
                 return cody;
             }
 
@@ -368,12 +377,24 @@ namespace SharedTools_Stuff {
                         data.Decode_Reference(ref tmp);
                         TargetTexture = tmp;
                         break;
+                    case "clear": _onStart = onStart.ClearTexture; break;
+                    case "onStart": _onStart = (onStart)data.ToInt(); break;
                     default: return false;
                 }
 
                 return true;
             }
 
+            public override void Decode(string data)
+            {
+                _onStart = onStart.Nothing;
+                base.Decode(data);
+
+                if (_onStart == onStart.ClearTexture) {
+                    Current = null;
+                    Next = null;
+                }
+            }
 
             public BASE_MaterialTextureTransition()
             {
@@ -390,7 +411,7 @@ namespace SharedTools_Stuff {
             #endregion
         }
         
-        public abstract class BASE_ShaderValue : IlinkedLerping {
+        public abstract class BASE_ShaderValue : ILinkedLerping {
 
             protected string name;
             public float speed;
@@ -424,7 +445,7 @@ namespace SharedTools_Stuff {
         #region Value Types
         public class FloatValue : BASE_FloatLerp
         {
-            string _name = "Float value"; 
+            readonly string _name = "Float value"; 
             float _value;
             public float targetValue;
             public override float Value { get { return _value; } set { _value = value; } }
@@ -698,7 +719,7 @@ namespace SharedTools_Stuff {
                 }
             }
 
-            public override Material material => graphic?.material;
+            public override Material Material => graphic?.material;
         }
 
         public class RendererMaterialTextureTransition : BASE_MaterialTextureTransition
@@ -728,7 +749,7 @@ namespace SharedTools_Stuff {
                 }
             }
 
-            public override Material material => graphic?.MaterialWhaever();
+            public override Material Material => graphic?.MaterialWhaever();
         }
         #endregion
 
@@ -749,7 +770,7 @@ namespace SharedTools_Stuff {
 
     public static class LinkedLerpingExtensions
     {
-        public static string Portion<T>(this List<T> list, ref float portion) where T : IlinkedLerping
+        public static string Portion<T>(this List<T> list, ref float portion) where T : ILinkedLerping
         {
             string dom = "None (weird)";
 
@@ -760,14 +781,14 @@ namespace SharedTools_Stuff {
             return dom;
         }
 
-        public static void Portion<T>(this List<T> list, ref float portion, ref string dominantValue) where T : IlinkedLerping
+        public static void Portion<T>(this List<T> list, ref float portion, ref string dominantValue) where T : ILinkedLerping
         {
             foreach (var e in list)
                 if (e != null)
                     e.Portion(ref portion, ref dominantValue);
         }
 
-        public static void Lerp<T>(this List<T> list, float portion) where T : IlinkedLerping
+        public static void Lerp<T>(this List<T> list, float portion) where T : ILinkedLerping
         {
             foreach (var e in list)
                 if (e != null)

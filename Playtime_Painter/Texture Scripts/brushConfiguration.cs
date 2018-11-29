@@ -487,7 +487,7 @@ namespace Playtime_Painter {
 
             }
 
-            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal).changes(ref changed)) 
+            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
                 MaskToggle(m);
             
 
@@ -499,8 +499,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        public bool ColorSliders_PEGI()
-        {
+        public bool ColorSliders_PEGI() {
 
             if (InspectedPainter != null)
                 return ColorSliders();
@@ -511,7 +510,6 @@ namespace Playtime_Painter {
             if (pegi.edit(ref col).nl(ref changed)) 
                 colorLinear.From(col);
              
-
             if (Cfg.showColorSliders) {
                 changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);
                 changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, true);
@@ -526,8 +524,7 @@ namespace Playtime_Painter {
 
             if (!Cfg.showColorSliders)
                 return false;
-
-
+            
             bool changed = false;
             PlaytimePainter painter = PlaytimePainter.inspectedPainter;
             bool slider = BlitMode.ShowColorSliders;
@@ -537,7 +534,6 @@ namespace Playtime_Painter {
             }
             else if ((painter != null) && painter.IsTerrainControlTexture())
             {
-                // Debug.Log("Is control texture");
                 changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider);
                 changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider);
                 changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider);

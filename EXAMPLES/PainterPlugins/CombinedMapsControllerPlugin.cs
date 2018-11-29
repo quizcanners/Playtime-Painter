@@ -241,7 +241,7 @@ namespace Playtime_Painter.Examples
                 }
                 pegi.nl();
 
-                changed |= "Color texture ".toggleIcon(ref isColor, true).nl();
+                changed |= "Color texture ".toggleIcon(ref isColor).nl();
 
                 bool usingBumpStrength = false;
                 bool usingColorSelector = false;

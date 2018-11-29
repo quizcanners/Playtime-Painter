@@ -2128,7 +2128,7 @@ namespace Playtime_Painter
                                 var mats = GetMaterials();
                                 if ((mats != null) && (mats.Length > 1))
                                     "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
-                                                                   ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
+                                                                   ref autoSelectMaterial_byNumberOfPointedSubmesh, true).nl();
 
                                 "Exclusive Render Textures".toggleVisibilityIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
 
@@ -2149,7 +2149,7 @@ namespace Playtime_Painter
                                 else
                                     "Clear Value".edit(ref Cfg.newTextureClearNonColorValue).nl();
 
-                                "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor, true).nl();
+                                "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor).nl();
 
                                 "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions).nl();
                             }

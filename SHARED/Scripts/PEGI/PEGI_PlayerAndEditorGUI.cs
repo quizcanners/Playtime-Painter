@@ -2729,7 +2729,7 @@ namespace PlayerAndEditorGUI {
         {
 
             if (enteredOne == -1)
-                changed |= label.toggleIcon(ref val, true);
+                changed |= label.toggleIcon(ref val);
             
             if (val)
                 enter(ref enteredOne, thisOne);
@@ -2737,7 +2737,7 @@ namespace PlayerAndEditorGUI {
                 isFoldedOut_or_Entered = false;
 
             if (enteredOne == thisOne)
-                changed |= label.toggleIcon(ref val, true);
+                changed |= label.toggleIcon(ref val);
 
             if (!val && enteredOne == thisOne)
                 enteredOne = -1;
@@ -3388,28 +3388,28 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool toggleIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false)
+        public static bool toggleIcon(this string label, string hint, ref bool val, bool hideTextWhenTrue = false)
         {
             SetBgColor(Color.clear);
 
             var ret = toggle(ref val, icon.True, icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel(val));
+            if (!val || !hideTextWhenTrue) label.write(hint, PEGI_Styles.ToggleLabel(val));
 
             return ret;
         }
 
-        public static bool toggleIcon(this string label, ref bool val, bool showTextWhenTrue = false)
+        public static bool toggleIcon(this string label, ref bool val, bool hideTextWhenTrue = false)
         {
             var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if (!val || showTextWhenTrue) label.write(PEGI_Styles.ToggleLabel(val));
+            if (!val || !hideTextWhenTrue) label.write(PEGI_Styles.ToggleLabel(val));
 
             return ret;
         }
 
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
-            => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val, true);
+            => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
         {
@@ -4587,13 +4587,26 @@ namespace PlayerAndEditorGUI {
             return ival;
         }
 
-       /* public static bool edit(ref int current, Type type)
-        {
-            return selectEnum(ref current, type);
-        }*/
-        
-        // public static bool edit<T>(ref int current) => selectEnum(ref current, typeof(T));
+        public static bool editEnum<T>(ref int current, Type type, int width = -1)
+                => selectEnum(ref current, typeof(T), width);
 
+        public static bool editEnum<T>(this string text, string tip, int width, ref int eval)
+        {
+            write(text, tip, width);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
+
+        public static bool editEnum<T>(this string text, int width, ref int eval)
+        {
+            write(text, width);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
+
+        public static bool editEnum<T>(this string text, ref int eval)
+        {
+            write(text);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
         #endregion
 
         #region String

@@ -110,7 +110,7 @@ namespace PlayerAndEditorGUI {
         public override bool Inspect() {
             string tmp = NameForPEGI;
 
-            "Show All".toggleIcon(ref singleView);
+            "Show All".toggleIcon(ref singleView, true);
             if (singleView)  {
                 LanguageSelector_PEGI();
                 if (pegi.editBig(ref tmp)) {

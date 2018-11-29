@@ -404,7 +404,7 @@ namespace Playtime_Painter
                 myLayer = EditorGUILayout.LayerField(myLayer);
 #endif
                 pegi.newLine();
-                "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate, true).nl();
+                "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate).nl();
             }
 
 
@@ -430,21 +430,21 @@ namespace Playtime_Painter
 
                     bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
-                    if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine, true).nl())
+                    if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
                         UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
 
                 if (gotDefine)
                     "In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the painting shaders will be build with the player.".writeHint();
 
-                    if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay, true).nl())
+                    if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                         MeshManager.Inst.DisconnectMesh();
 
                     if (!PainterStuff.IsNowPlaytimeAndDisabled) {
 
                         if (Painter && Painter.meshEditing == false)
-                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
+                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode, true).nl();
 
-                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
+                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications, true).nl();
 
                         "Save Textures To".edit(110, ref texturesFolderName).nl();
 

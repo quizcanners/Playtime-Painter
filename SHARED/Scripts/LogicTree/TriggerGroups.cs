@@ -216,7 +216,7 @@ namespace STD_Logic
             var lst = GetFilteredList(ref showMax);
 
             if (lst.Count > 0 || Trigger.searchField.Length == 0) {
-                if (this.ToPEGIstring().toggleIcon(ref showInInspectorBrowser, true))
+                if (this.ToPEGIstring().toggleIcon(ref showInInspectorBrowser))
                     changed |= this.ToPEGIstring().write_List(lst);
             }
 

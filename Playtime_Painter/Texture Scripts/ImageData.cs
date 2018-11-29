@@ -796,7 +796,7 @@ namespace Playtime_Painter
               "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups) ||
               "RendTex".edit(60, ref numberOfRenderTextureBackups).nl();
 
-                "Backup manually".toggleIcon(ref backupManually, true).nl();
+                "Backup manually".toggleIcon(ref backupManually).nl();
 
                 if (numberOfTexture2Dbackups > 50 || numberOfRenderTextureBackups > 50)
                     "Too big of a number will eat up lot of memory".writeWarning();
@@ -835,7 +835,7 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (isATransparentLayer && !hasTPtag) || forceOpenUTransparentLayer)
-                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer, true).nl();
+                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer).nl();
 
             bool forceOpenUV2 = false;
             bool hasUV2tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
@@ -853,10 +853,10 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (useTexcoord2 && !hasUV2tag) || forceOpenUV2)
-                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2, true).nl();
+                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2).nl();
 
             if (showToggles || (!painter.IsOriginalShader && Cfg.previewAlphaChanel))
-                changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel, true).nl();
+                changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel).nl();
 
            
             return changed;

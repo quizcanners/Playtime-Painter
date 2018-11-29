@@ -142,7 +142,7 @@ namespace Playtime_Painter
                 pegi.Space();
                 pegi.newLine();
 
-                change |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask);
+                change |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true);
 
                 if (InspectedBrush.useMask) {
 
@@ -153,7 +153,7 @@ namespace Playtime_Painter
                     if (!InspectedBrush.randomMaskOffset)
                         change |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
 
-                    change |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset).nl();
+                    change |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl();
 
           
                     if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl())
@@ -162,7 +162,7 @@ namespace Playtime_Painter
                         change = true;
                     }
 
-                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
+                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha, true).nl();
                     
                 }
 
@@ -754,7 +754,7 @@ namespace Playtime_Painter
 #if PEGI
         public override bool Inspect()
         {
-            bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush); 
+            bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true); 
 
             changed |= base.Inspect();
 

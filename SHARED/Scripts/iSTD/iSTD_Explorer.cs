@@ -89,9 +89,9 @@ namespace SharedTools_Stuff
 
             if (!enterElementDatas) {
                 "List Label".edit(70, ref label).nl();
-                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData, true).nl();
-                "Allow Delete".toggleIcon(ref allowDelete, true).nl();
-                "Allow Reorder".toggleIcon(ref allowReorder, true).nl();
+                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData).nl();
+                "Allow Delete".toggleIcon(ref allowDelete).nl();
+                "Allow Reorder".toggleIcon(ref allowReorder).nl();
             }
 
             if ("Elements".enter(ref enterElementDatas).nl())
