@@ -148,8 +148,6 @@ namespace Playtime_Painter
 
                     change |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl();
 
-                  
-
                     if (!InspectedBrush.randomMaskOffset)
                         change |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
 
@@ -162,7 +160,7 @@ namespace Playtime_Painter
                         change = true;
                     }
 
-                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha, true).nl();
+                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
                     
                 }
 

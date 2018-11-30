@@ -442,9 +442,9 @@ namespace Playtime_Painter
                     if (!PainterStuff.IsNowPlaytimeAndDisabled) {
 
                         if (Painter && Painter.meshEditing == false)
-                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode, true).nl();
+                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
-                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications, true).nl();
+                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
 
                         "Save Textures To".edit(110, ref texturesFolderName).nl();
 

@@ -2471,8 +2471,9 @@ namespace PlayerAndEditorGUI {
                     state = true;
             }
 
-            if (showLabelIfTrue || !state)
-                write(txt, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel);
+            if ((showLabelIfTrue || !state) &&
+                txt.ClickLabel(txt, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
+                state = !state;
 
             isFoldedOut_or_Entered = state;
 
@@ -2493,11 +2494,12 @@ namespace PlayerAndEditorGUI {
             {
                 if (ico.ClickUnfocus(txt))
                     enteredOne = thisOne;
-                //write(txt, PEGI_Styles.EnterLabel);
             }
 
-            if (showLabelIfTrue || outside)
-                write(txt, outside ? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel);
+            if ((showLabelIfTrue || outside) &&
+                txt.ClickLabel(txt, outside ? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel)) 
+                enteredOne = outside ? thisOne : -1;
+            
 
             isFoldedOut_or_Entered = (enteredOne == thisOne);
 
@@ -2880,6 +2882,26 @@ namespace PlayerAndEditorGUI {
         #region Click
         const int defaultButtonSize = 25;
 
+        static bool ClickLabel(this string label, string hint, GUIStyle style = null) {
+            SetBgColor(Color.clear);
+
+            var changed = false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                changed = (style == null) ? ef.Click(label, hint) : ef.Click(label, hint, style);
+            else
+#endif
+            {
+                checkLine();
+                GUIContent cont = new GUIContent() { text = label, tooltip = hint };
+                changed = style == null ? GUILayout.Button(cont) : GUILayout.Button(cont, style);
+            }
+            PreviousBGcolor();
+
+            return changed;
+        }
+
         public static bool ClickUnfocus(this string text, int width)
         {
 
@@ -3010,83 +3032,48 @@ namespace PlayerAndEditorGUI {
 
         public static bool Click(this string text, int width)
         {
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(text, width);
-            }
-            else
 #endif
-
-            {
                 checkLine();
                 return GUILayout.Button(text, GUILayout.MaxWidth(width));
-            }
-
         }
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
 
         public static bool Click(this string text)
         {
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(text);
-            }
-            else
 #endif
-
-            {
                 checkLine();
                 return GUILayout.Button(text);
-            }
-
         }
 
         public static bool Click(this string text, string tip, ref bool changed) => text.Click(tip).changes(ref changed);
         
         public static bool Click(this string text, string tip)
         {
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(text, tip);
-            }
-            else
 #endif
-
-            {
                 checkLine();
                 GUIContent cont = new GUIContent() { text = text, tooltip = tip };
                 return GUILayout.Button(cont);
-            }
-
         }
 
         public static bool Click(this string text, string tip, int width = defaultButtonSize)
         {
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.Click(text, tip, width);
-            }
-            else
 #endif
-
-            {
                 checkLine();
                 GUIContent cont = new GUIContent() { text = text, tooltip = tip };
                 return GUILayout.Button(cont, GUILayout.MaxWidth(width));
-            }
-
         }
 
         static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
@@ -3177,11 +3164,9 @@ namespace PlayerAndEditorGUI {
 
         public static bool ClickToEditScript()
         {
-
 #if UNITY_EDITOR
             if (icon.Script.Click("Click to edit current position in a script", 20))
             {
-
                 var frame = new StackFrame(1, true);
 
                 string fileName = frame.GetFileName();
@@ -3297,20 +3282,16 @@ namespace PlayerAndEditorGUI {
         
         public static bool toggle(ref bool val)
         {
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.toggle(ref val);
-            }
-            else
 #endif
-            {
+            
                 checkLine();
                 bool before = val;
                 val = GUILayout.Toggle(val, "", GUILayout.MaxWidth(30));
                 return (before != val);
-            }
+            
         }
 
         public static bool toggle(ref bool val, string text, int width)
@@ -3337,18 +3318,14 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.toggle(ref val, text, tip);
-            }
-            else
+            
 #endif
-            {
                 checkLine();
                 bool before = val;
                 GUIContent cont = new GUIContent() { text = text, tooltip = tip };
                 val = GUILayout.Toggle(val, cont);
                 return (before != val);
-            }
         }
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width, style);
@@ -3393,8 +3370,11 @@ namespace PlayerAndEditorGUI {
             SetBgColor(Color.clear);
 
             var ret = toggle(ref val, icon.True, icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
-
-            if (!val || !hideTextWhenTrue) label.write(hint, PEGI_Styles.ToggleLabel(val));
+            if ((!val || !hideTextWhenTrue) && 
+                 label.ClickLabel(hint, PEGI_Styles.ToggleLabel(val))) {
+                ret = true;
+                val = !val;
+            }
 
             return ret;
         }
@@ -3403,9 +3383,13 @@ namespace PlayerAndEditorGUI {
         {
             var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if (!val || !hideTextWhenTrue) label.write(PEGI_Styles.ToggleLabel(val));
+            if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, PEGI_Styles.ToggleLabel(val)))
+            {
+                ret = true;
+                val = !val;
+            }
 
-            return ret;
+                return ret;
         }
 
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
@@ -3413,35 +3397,23 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
         {
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width, style);
-            }
-            else
 #endif
-            {
+            
                 checkLine();
                 bool before = val;
 
-                if (val)
-                {
+                if (val)  {
                     if (Click(TrueIcon, tip, width))
                         val = false;
                 }
                 else
-                {
                     if (Click(FalseIcon, tip, width))
                         val = true;
-                }
-
-
 
                 return (before != val);
-            }
-
-
         }
 
         public static bool toggle(ref bool val, string text, string tip, int width)
@@ -3453,35 +3425,30 @@ namespace PlayerAndEditorGUI {
                 ef.write(text, tip, width);
                 return ef.toggle(ref val);
             }
-            else
+
 #endif
-            {
-                checkLine();
-                bool before = val;
-                GUIContent cont = new GUIContent() { text = text, tooltip = tip };
-                val = GUILayout.Toggle(val, cont);
-                return (before != val);
-            }
+
+            checkLine();
+            bool before = val;
+            GUIContent cont = new GUIContent() { text = text, tooltip = tip };
+            val = GUILayout.Toggle(val, cont);
+            return (before != val);
+
         }
 
         public static bool toggle(int ind, CountlessBool tb)
         {
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.toggle(ind, tb);
-            }
-            else
 #endif
+            bool has = tb[ind];
+            if (toggle(ref has))
             {
-                bool has = tb[ind];
-                if (toggle(ref has))
-                {
-                    tb.Toggle(ind);
-                    return true;
-                }
-                return false;
+                tb.Toggle(ind);
+                return true;
             }
+            return false;
         }
 
         public static bool toggle(this icon img, ref bool val)
@@ -5247,9 +5214,15 @@ namespace PlayerAndEditorGUI {
         }
 
         static void write_ListLabel(this List_Data datas, IList lst) =>
-            write_ListLabel(datas.label, lst, datas.inspected);
-            
-        static void write_ListLabel(this string label, IList lst=null, int inspected = -1) {
+            write_ListLabel(datas.label, ref datas.inspected, lst);
+
+        static void write_ListLabel(this string label, IList lst = null)
+        {
+            int notInsp = -1;
+            label.write_ListLabel(ref notInsp, lst);
+        }
+
+            static void write_ListLabel(this string label, ref int inspected, IList lst = null) {
 
             bool editedName = false;
 
@@ -5263,11 +5236,10 @@ namespace PlayerAndEditorGUI {
 
                 if (!editedName)
                     label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
-
             }
 
-            if (!editedName)
-                write(label.AddCount(lst), PEGI_Styles.ListLabel);
+            if (!editedName && label.AddCount(lst).ClickLabel(label, PEGI_Styles.ListLabel) && inspected != -1)
+                inspected = -1;
         }
 
         static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
@@ -5782,7 +5754,7 @@ namespace PlayerAndEditorGUI {
         #region MonoBehaviour
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel( ref inspected, list);
             bool changed = false;
             edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
             return changed;
@@ -5860,7 +5832,7 @@ namespace PlayerAndEditorGUI {
         #region SO
         public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
 
             return edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
         }
@@ -5876,7 +5848,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
 
             bool changed = false;
 
@@ -6000,7 +5972,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List_Obj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
             return edit_or_select_List_Obj(ref list, selectFrom, ref inspected);
         }
 
@@ -6019,13 +5991,13 @@ namespace PlayerAndEditorGUI {
         
         public static bool edit_List_Obj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            datas.label.write_ListLabel(list, datas.inspected);
+            datas.label.write_ListLabel(ref datas.inspected, list);
             return edit_or_select_List_Obj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
         }
 
         public static bool edit_or_select_List_Obj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
             return edit_or_select_List_Obj(ref list, from, ref inspected, datas).listLabel_Used();
         }
 
@@ -6082,13 +6054,13 @@ namespace PlayerAndEditorGUI {
         #region OfNew
         public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
         {
-            ld.label.write_ListLabel(list, ld.inspected);
+            ld.label.write_ListLabel(ref ld.inspected, list);
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
         
         public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) 
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
             return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
@@ -6115,7 +6087,7 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
         {
-            label.write_ListLabel(list, inspected);
+            label.write_ListLabel(ref inspected, list);
             return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
         }
 
@@ -6205,13 +6177,13 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data ld = null)
         {
-            label.write_ListLabel(list, ld.inspected);
+            label.write_ListLabel(ref ld.inspected, list);
             return edit_List(ref list, ref ld.inspected, types, ref changed, ld).listLabel_Used();
         }
 
-        public static T edit_List<T>(this string label, ref List<T> list, ref int edited, TaggedTypes_STD types, ref bool changed) {
-            label.write_ListLabel(list, edited);
-            return edit_List(ref list, ref edited, types, ref changed).listLabel_Used();
+        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed) {
+            label.write_ListLabel(ref inspected, list);
+            return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
         }
         
         public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed, List_Data datas = null) {
@@ -6520,16 +6492,16 @@ namespace PlayerAndEditorGUI {
         public static bool write_List<T>(this string label, List<T> list)
         {
             int edited = -1;
-            label.write_ListLabel(list, edited);
+            label.write_ListLabel(list);
             return list.write_List<T>(ref edited).listLabel_Used();
         }
 
-        public static bool write_List<T>(this string label, List<T> list, ref int edited)
+        public static bool write_List<T>(this string label, List<T> list, ref int inspected)
         {
             nl();
-            label.write_ListLabel(list, edited);
+            label.write_ListLabel(ref inspected, list);
 
-            return list.write_List<T>(ref edited).listLabel_Used();
+            return list.write_List<T>(ref inspected).listLabel_Used();
         }
 
         public static bool write_List<T>(this List<T> list, ref int edited)
@@ -6624,7 +6596,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected)
         {
-            label.write_ListLabel(null, inspected);
+            label.write_ListLabel(ref inspected);
             return edit_Dictionary_Values(ref dic, ref inspected);
         }
 
@@ -6807,12 +6779,12 @@ namespace PlayerAndEditorGUI {
         public static bool edit_Array<T>(this string label, ref T[] array, List_Data datas = null) where T : new()
         {
             int inspected = -1;
-            label.write_ListLabel(array, inspected);
+            label.write_ListLabel(array);
             return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 
         public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null) where T : new()  {
-            label.write_ListLabel(array, inspected);
+            label.write_ListLabel(ref inspected, array);
             return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 

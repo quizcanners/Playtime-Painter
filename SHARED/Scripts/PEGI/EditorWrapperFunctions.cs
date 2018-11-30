@@ -952,6 +952,18 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(cont) ? change : false;
         }
 
+
+        public static bool Click(string txt, string tip, GUIStyle style)
+        {
+            checkLine();
+            GUIContent cont = new GUIContent
+            {
+                text = txt,
+                tooltip = tip
+            };
+            return GUILayout.Button(cont, style) ? change : false;
+        }
+
         public static bool Click(string txt, string tip, int width)
         {
             checkLine();

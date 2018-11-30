@@ -65,10 +65,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 09463deb7cf82134797348afe93fa9a0, type: 3}
   explorer:
     states: []
-    inspectedState: -1
     fileFolderHolder: STDEncodes
-    SaveToFileOptions: 0
-  inspectedStuff: -1
+  inspectedStuff: 1
   inspectedReference: -1
   myLayer: 30
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
@@ -631,7 +629,7 @@ MonoBehaviour:
   meshesFolderName: Models
   vectorsFolderName: Vectors
   atlasFolderName: ATLASES
-  enablePainterUIonPlay: 1
+  enablePainterUIonPlay: 0
   brushConfig:
     mask: 15
     _bliTMode: 0
