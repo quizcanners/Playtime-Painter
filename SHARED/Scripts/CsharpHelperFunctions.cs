@@ -1033,7 +1033,16 @@ namespace SharedTools_Stuff
 
             return new SkipLock(this);
         }
+
         public bool Unlocked => !llock;
+        
+        public void Run(Action action) {
+            if (Unlocked) {
+                using (Lock()) {
+                    action();
+                }
+            }
+        }
 
         public class SkipLock : IDisposable
         {
@@ -1061,5 +1070,4 @@ namespace SharedTools_Stuff
         }
 
     }
-
 }

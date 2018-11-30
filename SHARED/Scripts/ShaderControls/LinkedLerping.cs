@@ -21,35 +21,44 @@ namespace SharedTools_Stuff {
     public class LinkedLerp
     {
 
+        public enum LerpSpeedMode { Treshold = 0, Unlimited = 1, LerpDisabled = 2 }
+
         #region Abstract Base
         public abstract class BASE_AnyValue : Abstract_STD, ILinkedLerping, IPEGI, IPEGI_ListInspect {
 
-            protected bool defaultSet = false;
+            public LerpSpeedMode lerpMode = LerpSpeedMode.Treshold;
+            public virtual bool UsingTreshold => (lerpMode == LerpSpeedMode.Treshold && Application.isPlaying);
+            public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
 
-            public float speed = 1;
+            protected bool defaultSet = false;
+            public float speedTreshold = 1;
             protected bool allowChangeParameters = true;
 
             protected abstract string Name { get;  } 
 
             #region Encode & Decode
-            public override StdEncoder Encode()
-            {
+            public override StdEncoder Encode() {
 
                 var cody = new StdEncoder()
                     .Add_Bool("ch", allowChangeParameters);
 
-                if (allowChangeParameters)
-                    cody.Add("sp", speed);
+                if (allowChangeParameters) {
+
+                    cody.Add("lm",(int)lerpMode);
+
+                    if (lerpMode == LerpSpeedMode.Treshold)
+                    cody.Add("sp", speedTreshold);
+                }
 
                 return cody;
             }
-
             public override bool Decode(string tag, string data)
             {
                 switch (tag)
                 {
                     case "ch": allowChangeParameters = data.ToBool(); break;
-                    case "sp": speed = data.ToFloat(); defaultSet = false; break;
+                    case "sp": speedTreshold = data.ToFloat(); defaultSet = false; break;
+                    case "lm": lerpMode = (LerpSpeedMode)data.ToInt(); break;
                     default: return false;
                 }
                 return true;
@@ -57,18 +66,32 @@ namespace SharedTools_Stuff {
             #endregion
 
             public abstract void Lerp(float portion);
-            public abstract void Portion(ref float portion, ref string dominantParameter);
 
+            public virtual void Portion(ref float portion, ref string dominantParameter) {
+                if (UsingTreshold && Portion(ref portion))
+                    dominantParameter = Name;
+            }
+
+            public abstract bool Portion(ref float portion);
+                  
             #region Inspector
 #if PEGI
             public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
 
                 var changed = false;
-                
+
+       
                 if (!allowChangeParameters)
                     Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters).changes(ref changed);
-                else
-                    Name.edit(150, ref speed).changes(ref changed);
+                else {
+
+                    if (Application.isPlaying)
+                        (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
+
+                    if (lerpMode == LerpSpeedMode.Treshold)
+                        (Name + " Thld").edit(170, ref speedTreshold).changes(ref changed);
+                    else (Name + " Mode").editEnum(120, ref lerpMode).changes(ref changed);
+                }
 
                 if (icon.Enter.Click())
                     edited = ind;
@@ -80,10 +103,11 @@ namespace SharedTools_Stuff {
 
                 var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters).nl();
 
-                if (allowChangeParameters)
-                    "Lerp Speed for {0}".F(Name).edit(150, ref speed).nl(ref changed);
-
-                pegi.nl();
+                if (allowChangeParameters) {
+                    "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
+                    if (lerpMode == LerpSpeedMode.Treshold)
+                        "Lerp Speed for {0}".F(Name).edit(150, ref speedTreshold).nl(ref changed);
+                }
 
                 return changed;
             }
@@ -97,46 +121,31 @@ namespace SharedTools_Stuff {
             public Vector2 targetValue;
 
             protected abstract Vector2 CurrentValue { get; set; }
-
-            protected virtual bool CanLerp => true;
             
-            public bool enabled = false;
+            public override bool UsingTreshold => base.UsingTreshold && Enabled;
 
             public override void Lerp(float portion)
             {
-                if ( enabled && CanLerp &&  (CurrentValue != targetValue || !defaultSet)) {
+                if (Enabled && (CurrentValue != targetValue || !defaultSet)) {
                     defaultSet = true;
                     CurrentValue = Vector2.Lerp(CurrentValue, targetValue, portion);
                 }
             }
 
-            public override void Portion(ref float portion, ref string dominantParameter) {
-
-                if (!Application.isPlaying)
-                    return;
-
-                if ( enabled && CanLerp && speed.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion))
-                    dominantParameter = Name;
-            }
+            public override bool Portion(ref float portion) =>
+                speedTreshold.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion);
 
             #region Inspector
-#if PEGI
+                #if PEGI
+
             public override bool PEGI_inList(IList list, int ind, ref int edited)
             {
-                var changes = false;
-
-                if (!enabled) {
-
-                    if ("{0} Disabled".F(Name).toggleIcon(ref enabled, "{0} Enabled".F(Name)).changes(ref changes))
-                        targetValue = CurrentValue;
-
-                    if (icon.Enter.Click())
-                        edited = ind;
+                if (base.PEGI_inList(list, ind, ref edited))
+                {
+                    targetValue = CurrentValue;
+                    return true;
                 }
-                else
-                    changes |= base.PEGI_inList(list, ind, ref edited);
-
-                return changes;
+                return false;
             }
 
             public override bool Inspect()
@@ -145,40 +154,31 @@ namespace SharedTools_Stuff {
 
                 var changed = false;
 
-                if ("Enable".toggleIcon(ref enabled).changes(ref changed))
+                if (base.Inspect().nl(ref changed))
                     targetValue = CurrentValue;
 
-                if (enabled) {
-
-                    (CanLerp ? icon.Active : icon.InActive).nl(CanLerp ? "Can Lerp" : "Can't lerp");
-
+                if (lerpMode != LerpSpeedMode.LerpDisabled) 
                     "Target".edit(ref targetValue).nl(ref changed);
-
-                    base.Inspect().nl(ref changed);
-                }
+                
 
                 return changed;
             }
 #endif
-#endregion
+            #endregion
 
             #region Encode & Decode
             public override StdEncoder Encode()
             {
                 var cody = new StdEncoder()
-                      .Add("b", base.Encode)
-                      .Add_Bool("e", enabled);
-                if (enabled && allowChangeParameters)
+                      .Add("b", base.Encode);
+                if (allowChangeParameters)
                     cody.Add("t", CurrentValue);
 
                 return cody;
             }
 
-            public override bool Decode(string tag, string data)
-            {
-                switch (tag)
-                {
-                    case "e": enabled = data.ToBool(); break;
+            public override bool Decode(string tag, string data) {
+                switch (tag) {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     case "t": targetValue = data.ToVector2(); break;
                     default: return false;
@@ -186,6 +186,10 @@ namespace SharedTools_Stuff {
                 return true;
             }
             #endregion
+
+            public BASE_Vector2Lerp() {
+                lerpMode = LerpSpeedMode.LerpDisabled;
+            }
         }
 
         public abstract class BASE_FloatLerp : BASE_AnyValue, IPEGI_ListInspect  {
@@ -203,15 +207,9 @@ namespace SharedTools_Stuff {
                 }
             }
 
-            public override void Portion(ref float portion, ref string dominantParameter)
-            {
-                if (!Application.isPlaying)
-                    return;
-
-                if (CanLerp && speed.SpeedToMinPortion(Value - TargetValue, ref portion))
-                    dominantParameter = Name;
-            }
-
+            public override bool Portion(ref float portion) =>
+                speedTreshold.SpeedToMinPortion(Value - TargetValue, ref portion);
+            
             #region Inspect
             #if PEGI
             public override bool Inspect() {
@@ -250,7 +248,8 @@ namespace SharedTools_Stuff {
 
             onStart _onStart = onStart.Nothing;
 
-            protected override float TargetValue { get { return Mathf.Max(0, targetTextures.Count - 1); } set { } }
+            protected override float TargetValue {
+                get { return Mathf.Max(0, targetTextures.Count - 1); } set { } }
 
             public override float Value
             {
@@ -261,10 +260,12 @@ namespace SharedTools_Stuff {
 
                     while (portion >= 1) {
                         portion -= 1;
-                        targetTextures.RemoveAt(0);
-                        Current = targetTextures[0];
-                        if (targetTextures.Count > 1)
-                            Next = targetTextures[1];
+                        if (targetTextures.Count > 1) {
+                            targetTextures.RemoveAt(0);
+                            Current = targetTextures[0];
+                            if (targetTextures.Count > 1)
+                                Next = targetTextures[1];
+                        }
                     }
 
                     Material.SetFloat(transitionPropertyName, portion);
@@ -292,17 +293,14 @@ namespace SharedTools_Stuff {
                 set
                 {
 
-                    if (value != null && Material)
-                    {
+                    if (value != null && Material) {
 
-                        if (targetTextures.Count == 0)
-                        {
+                        if (targetTextures.Count == 0) {
+                            targetTextures.Add(null);
                             targetTextures.Add(value);
-                            Current = value;
-                        }
-                        else
-                        {
-                            //>0
+                            Current = null;
+                            Next = value;
+                        } else {
 
                             if (value == targetTextures[0])
                             {
@@ -411,39 +409,41 @@ namespace SharedTools_Stuff {
             #endregion
         }
         
-        public abstract class BASE_ShaderValue : ILinkedLerping {
+        public abstract class BASE_ShaderValue : BASE_AnyValue, IGotName {
 
             protected string name;
-            public float speed;
-            protected bool defaultSet;
-            protected Material mat;
-            protected Renderer rendy;
+            private Material mat;
+            private Renderer rendy;
 
-            public abstract void Set(Renderer on);
+            protected Material Material => mat ? mat : rendy.MaterialWhaever(); 
 
-            public abstract void Set();
+            protected override string Name => name;
+            public string NameForPEGI { get { return name;  } set { name = value;  } }
 
+            public override sealed void Lerp(float portion) {
+                if (Lerp_Internal(portion))
+                    Set();
+            }
+
+            protected abstract bool Lerp_Internal(float portion);
+            
+            protected void Set() => Set(Material);
+  
             public abstract void Set(Material on);
 
-            public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null)
-            {
+            public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
                 name = nname;
-                speed = startingSpeed;
+                speedTreshold = startingSpeed;
                 mat = m;
                 rendy = renderer;
             }
-
-            public abstract void Portion(ref float portion, ref string dominantParameter);
-
-            public abstract void Lerp(float portion);
-
         }
 
 
         #endregion
 
         #region Value Types
-        public class FloatValue : BASE_FloatLerp
+        public class FloatValue : BASE_FloatLerp, IGotName
         {
             readonly string _name = "Float value"; 
             float _value;
@@ -452,6 +452,8 @@ namespace SharedTools_Stuff {
             protected override float TargetValue { get { return targetValue; } set { targetValue = value; } }
 
             protected override string Name => _name;
+
+            public string NameForPEGI { get { return _name; } set { } }
 
             public FloatValue() { }
 
@@ -481,12 +483,13 @@ namespace SharedTools_Stuff {
             public Transform_Position(Transform transform, float nspeed) : base(transform, nspeed) { }
         }
 
-        public class Transform_LocalPosition
+        public class Transform_LocalPosition : BASE_AnyValue
         {
-            protected virtual string Name => "Local Position";
+            protected override string Name => "Local Position";
             public Transform _transform;
             public Vector3 targetValue;
-            public float speed;
+
+            public override bool Enabled => base.Enabled && _transform; 
 
             public virtual Vector3 Value
             {
@@ -497,26 +500,17 @@ namespace SharedTools_Stuff {
             public Transform_LocalPosition(Transform transform, float nspeed)
             {
                 _transform = transform;
-                speed = nspeed;
+                speedTreshold = nspeed;
             }
 
-            public void Lerp(float portion)
-            {
-                if (!_transform)
-                    return;
-
-                if (Value != targetValue)
+            public override void Lerp(float portion) {
+                if (Enabled && Value != targetValue)
                     Value = Vector3.Lerp(Value, targetValue, portion);
             }
 
-            public void Portion(ref float portion, ref string dominantParameter)
-            {
-                if (!_transform || !Application.isPlaying)
-                    return;
-                if (speed.SpeedToMinPortion((Value - targetValue).magnitude, ref portion))
-                    dominantParameter = Name;
-            }
-
+            public override bool Portion(ref float portion) =>
+                speedTreshold.SpeedToMinPortion((Value - targetValue).magnitude, ref portion);
+                
         }
         #endregion
 
@@ -525,7 +519,7 @@ namespace SharedTools_Stuff {
         {
             public RectTransform rectTransform;
 
-            protected override bool CanLerp => rectTransform;
+            public override bool Enabled => base.Enabled && rectTransform;
 
             protected override string Name => "Anchored Position";
 
@@ -542,7 +536,7 @@ namespace SharedTools_Stuff {
             public RectangleTransform_AnchoredPositionValue(RectTransform rect, float nspeed)
             {
                 rectTransform = rect;
-                speed = nspeed;
+                speedTreshold = nspeed;
             }
         }
 
@@ -566,79 +560,32 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region Material
-        public class MaterialFloat : BASE_ShaderValue
-        {
+        public class MaterialFloat : BASE_ShaderValue {
 
             public float value;
             public float targetValue;
 
-            public override void Set(Renderer on)
-            {
-                if (Application.isPlaying)
-                    on.material.SetFloat(name, value);
-                else
-                    on.sharedMaterial.SetFloat(name, value);
-            }
-
-            public override void Set()
-            {
+            public override void Set(Material mat) {
                 if (mat)
-                    Set(mat);
+                    mat.SetFloat(name, value);
                 else
                     Shader.SetGlobalFloat(name, value);
             }
 
-            public override void Set(Material on) => on.SetFloat(name, value);
-
-            public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
+            public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Renderer renderer = null, Material m = null) : base(nname, startingSpeed, m, renderer)
             {
                 value = startingValue;
             }
+            
+            public override bool Portion(ref float portion) =>
+                speedTreshold.SpeedToMinPortion(value - targetValue, ref portion);
 
-            public void LerpBySpeedTo(float dvalue, Material mat = null) => LerpBySpeedTo(dvalue, speed, mat);
-
-            public void LerpBySpeedTo(float dvalue, float nspeed, Material mat = null)
-            {
-                speed = nspeed;
-                targetValue = dvalue;
-
-                if (!defaultSet || dvalue != value)
-                {
-                    value = MyMath.Lerp_bySpeed(value, dvalue, speed);
-                    if (mat)
-                        Set(mat);
-                    else
-                        Set();
-                    defaultSet = true;
-                }
-            }
-
-            public override void Portion(ref float portion, ref string dominantParameter)
-            {
-                if (!Application.isPlaying)
-                    return;
-
-                if (speed.SpeedToMinPortion(value - targetValue, ref portion))
-                    dominantParameter = name;
-
-            }
-
-            public void Lerp(float portion, Renderer rendy)
-            {
-                if (value != targetValue || !defaultSet)
-                {
+            protected override bool Lerp_Internal(float portion) {
+                if (Enabled && (value != targetValue || !defaultSet)) {
                     value = Mathf.Lerp(value, targetValue, portion);
-                    Set(rendy);
+                    return true;
                 }
-            }
-
-            public override void Lerp(float portion)
-            {
-                if (value != targetValue || !defaultSet)
-                {
-                    value = Mathf.Lerp(value, targetValue, portion);
-                    Set();
-                }
+                return false;
             }
 
         }
@@ -649,46 +596,30 @@ namespace SharedTools_Stuff {
             public Color value;
             public Color targetValue;
 
-            public override void Set(Renderer on)
-            {
-                if (Application.isPlaying)
-                    on.material.SetColor(name, value);
-                else
-                    on.sharedMaterial.SetColor(name, value);
-            }
 
-            public override void Set()
-            {
+            public override void Set(Material mat) {
                 if (mat)
-                    Set(mat);
+                    mat.SetColor(name, value);
                 else
                     Shader.SetGlobalColor(name, value);
             }
 
-            override public void Set(Material on) => on.SetColor(name, value);
 
             public MaterialColor(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
             {
                 value = startingValue;
             }
 
-            public override void Portion(ref float portion, ref string dominantParameter)
-            {
-                if (!Application.isPlaying)
-                    return;
-
-                if (speed.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion))
-                    dominantParameter = name;
-            }
-
-            public override void Lerp(float portion)
-            {
-                if (value != targetValue || !defaultSet)
-                {
+            protected override bool Lerp_Internal(float portion) {
+                if (value != targetValue || !defaultSet)  {
                     value = Color.Lerp(value, targetValue, portion);
-                    Set();
+                    return true;
                 }
+                return false;
             }
+
+            public override bool Portion(ref float portion) =>
+                speedTreshold.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion);
 
         }
         
@@ -704,7 +635,7 @@ namespace SharedTools_Stuff {
 
             public GraphicMaterialTextureTransition(float nspeed = 1) : base()
             {
-                speed = nspeed;
+                speedTreshold = nspeed;
             }
 
             public Graphic Graphic
@@ -713,8 +644,9 @@ namespace SharedTools_Stuff {
                 {
                     if (value != graphic)
                     {
-                        graphic = value; if (Application.isPlaying)
-                            graphic.material = UnityEngine.Object.Instantiate(graphic.material);
+                        graphic = value;
+                        if (Application.isPlaying)
+                            graphic.material = Object.Instantiate(graphic.material);
                     }
                 }
             }
@@ -733,9 +665,10 @@ namespace SharedTools_Stuff {
 
             }
 
-            public RendererMaterialTextureTransition(float nspeed = 1) : base()
+            public RendererMaterialTextureTransition(Renderer rendy, float nspeed = 1) : base()
             {
-                speed = nspeed;
+                speedTreshold = nspeed;
+                graphic = rendy;
             }
 
             public Renderer Renderer

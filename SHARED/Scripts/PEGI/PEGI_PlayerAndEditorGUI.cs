@@ -315,21 +315,21 @@ namespace PlayerAndEditorGUI {
 
         public static void DropFocus() => FocusControl("_");
 
-        public static string needsAttention(this IList list, bool canBeNull = true, string listName = "list")
-        {
+        public static string LastNeedAttentionMessage;
+        public static bool NeedsAttention(this IList list, string listName = "list", bool canBeNull = false) {
+            LastNeedAttentionMessage = null;
+            LastNeedAttentionMessage = list.NeedAttentionMessage(listName, canBeNull);
+            return LastNeedAttentionMessage != null;
+        }
 
-            for (int i = 0; i < list.Count; i++)
-            {
-
+        public static string NeedAttentionMessage(this IList list, string listName = "list", bool canBeNull = false) {
+            for (int i = 0; i < list.Count; i++)  {
                 var el = list[i];
-                if (el != null)
-                {
+                if (el != null)  {
                     var need = el as INeedAttention;
-                    if (need != null)
-                    {
+                    if (need != null) {
                         var what = need.NeedAttention();
-                        if (what != null)
-                        {
+                        if (what != null)  {
                             what = " {0} on {1}:{2}".F(what, i, need.ToPEGIstring());
                             return what;
                         }
@@ -7184,23 +7184,6 @@ namespace PlayerAndEditorGUI {
 
             return icon.ClickUnfocus(hint);
         }
-
-      //  public static IPEGI TryGetPEGI(this GameObject go)
-        //    => go.TryGet<IPEGI>();
-
-            /*if (go == null)
-                return null;
-
-            var monos = go.GetComponents<MonoBehaviour>();
-
-            foreach (var m in monos)  {
-                var p = m as IPEGI;
-                if (p != null)
-                    return p;
-            }
-            return null;
-            }*/
-
 
         public static bool Try_Nested_Inspect(this GameObject other)
         {

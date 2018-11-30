@@ -575,10 +575,10 @@ namespace SharedTools_Stuff
     public class ISTD_ExplorerData
     {
         public List<SavedISTD> states = new List<SavedISTD>();
+        [NonSerialized]
         public int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
         public static ISTD inspectedSTD;
-        public bool SaveToFileOptions;
 
         #region Inspector
 #if PEGI
