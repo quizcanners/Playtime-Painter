@@ -183,6 +183,8 @@ namespace SharedTools_Stuff {
 
     public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD, ISTD_SafeEncoding
     {
+        
+        #region Encode & Decode
 
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
@@ -193,11 +195,11 @@ namespace SharedTools_Stuff {
 
         protected List_Data listData = new List_Data("References");
 
-        [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public virtual int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
 
         public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("listDta", listData);
@@ -213,14 +215,12 @@ namespace SharedTools_Stuff {
             }
             return true;
         }
+        #endregion
 
-#if !UNITY_EDITOR
-        [NonSerialized]
-#endif
         public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
 
         #region Inspector
-#if PEGI
+        #if PEGI
 
         [ContextMenu("Reset Inspector")] // Because ContextMenu doesn't accepts overrides
         void Reset() => ResetInspector();
@@ -252,7 +252,7 @@ namespace SharedTools_Stuff {
                 if (inspectedStuff == -1)
                     pegi.nl();
 
-                if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifNotEntered())
+                if ("STD Saves: ".AddCount(explorer).enter(ref inspectedDebugStuff, 0).nl_ifNotEntered())
                     explorer.Inspect(this);
 
                 if (inspectedStuff == -1)
@@ -281,7 +281,7 @@ namespace SharedTools_Stuff {
             return changed;
         }
 
-#endif
+        #endif
         #endregion
     }
 

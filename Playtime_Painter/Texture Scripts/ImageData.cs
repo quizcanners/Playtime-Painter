@@ -19,7 +19,7 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention
+    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefault_STD
     {
 
         #region Values
@@ -36,20 +36,19 @@ namespace Playtime_Painter
         public bool useTexcoord2_AutoAssigned = false;
         public bool lockEditing;
         public bool isATransparentLayer;
-        public bool NeedsToBeSaved { get { return ((texture2D != null && texture2D.SavedAsAsset()) || (renderTexture != null && renderTexture.SavedAsAsset())); } }
+        public bool NeedsToBeSaved { get { return ((texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset())); } }
         public bool showRecording = false;
         public bool enableUndoRedo;
 
         public int numberOfTexture2Dbackups = 10;
         public int numberOfRenderTextureBackups = 10;
-        public bool backupManually;
+        public bool backupManually = false;
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
         public string SaveName = "No Name";
         public string URL = "";
         public Color[] _pixels;
         public Color clearColor = Color.black;
-
 
         public Color[] Pixels
         {
@@ -117,31 +116,33 @@ namespace Playtime_Painter
 
         #region Encode Decode
 
+        public bool IsDefault => !NeedsToBeSaved;
+
         public override StdEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
-            .Add("dst", (int)destination)
-.Add_Reference("tex2D", texture2D)
-.Add_Reference("other", other)
-.Add("w", width)
-.Add("h", height)
-.Add_Bool("useUV2", useTexcoord2)
-.Add_Bool("Lock", lockEditing)
-.Add_Bool("b", backupManually)
-.Add("tl", tiling)
-.Add("off", offset)
-.Add_String("sn", SaveName)
-.Add("svs", playtimeSavedTextures)
-.Add_Bool("rec", showRecording)
-.Add_IfTrue("trnsp", isATransparentLayer)
-.Add_Bool("bu", enableUndoRedo)
-.Add_Bool("tc2Auto", useTexcoord2_AutoAssigned)
-.Add("clear", clearColor)
-.Add_IfNotEmpty("URL", URL);
+            .Add_IfNotZero("dst", (int)destination)
+            .Add_Reference("tex2D", texture2D)
+            .Add_Reference("other", other)
+            .Add("w", width)
+            .Add("h", height)
+            .Add_IfTrue("useUV2", useTexcoord2)
+            .Add_IfTrue("Lock", lockEditing)
+            .Add_IfTrue("b", backupManually)
+            .Add_IfNotOne("tl", tiling)
+            .Add_IfNotZero("off", offset)
+            .Add_IfNotEmpty("sn", SaveName)
+            .Add_IfNotEmpty("svs", playtimeSavedTextures)
+            .Add_IfTrue("rec", showRecording)
+            .Add_IfTrue("trnsp", isATransparentLayer)
+            .Add_IfTrue("bu", enableUndoRedo)
+            .Add_IfTrue("tc2Auto", useTexcoord2_AutoAssigned)
+            .Add_IfNotBlack("clear", clearColor)
+            .Add_IfNotEmpty("URL", URL);
 
             if (enableUndoRedo)
                 cody.Add("2dUndo", numberOfTexture2Dbackups)
-.Add("rtBackups", numberOfRenderTextureBackups);
+                .Add("rtBackups", numberOfRenderTextureBackups);
 
             return cody;
         }
@@ -695,6 +696,8 @@ namespace Playtime_Painter
 
             set { SaveName = value; }
         }
+
+       
 
 
 #if PEGI

@@ -202,10 +202,10 @@ namespace SharedTools_Stuff
             .Add_IfNotEpsilon("y", v2.y.RoundTo6Dec());
         
         public static StdEncoder Encode(this Color col) => new StdEncoder()
-            .Add_IfNotEpsilon("r", col.r.RoundTo6Dec())
-            .Add_IfNotEpsilon("g", col.g.RoundTo6Dec())
-            .Add_IfNotEpsilon("b", col.b.RoundTo6Dec())
-            .Add_IfNotEpsilon("a", col.a.RoundTo6Dec());
+            .Add_IfNotEpsilon("r", col.r.RoundTo(3))
+            .Add_IfNotEpsilon("g", col.g.RoundTo(3))
+            .Add_IfNotEpsilon("b", col.b.RoundTo(3))
+            .Add_IfNotEpsilon("a", col.a.RoundTo(3));
         #endregion
     }
 
@@ -593,6 +593,8 @@ namespace SharedTools_Stuff
             return this;
         }
         
+
+
         public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD {
 
             StdEncoder cody = new StdEncoder();
@@ -641,7 +643,7 @@ namespace SharedTools_Stuff
         public StdEncoder Add<T>(string tag, T[] val) where T : ISTD => Add(tag, val.Encode());
 
         #region NonDefault Encodes
-        
+
         public StdEncoder TryAdd<T>(string tag, T obj) {
 
             var objstd = (typeof(T) is ISTD) ? (obj as ISTD) : obj.TryGet_fromObj<ISTD>();
@@ -675,6 +677,15 @@ namespace SharedTools_Stuff
         public StdEncoder Add_IfNotDefault(string tag, ICanBeDefault_STD std) {
             if (std != null && !std.IsDefault)
                 Add(tag, std);
+            return this;
+        }
+
+        public StdEncoder Add_IfNotDefault(string tag, ISTD std)  {
+            if (!std.IsNullOrDestroyed()) {
+                var def = std as ICanBeDefault_STD;
+                if (def == null || !def.IsDefault)
+                    Add(tag, std);
+            }
             return this;
         }
 
@@ -760,6 +771,31 @@ namespace SharedTools_Stuff
             return this;
         }
 
+        public StdEncoder Add_IfNotOne(string tag, Vector4 v4)
+        {
+            if (!v4.Equals(Vector4.one))
+                Add(tag, v4.Encode());
+
+            return this;
+        }
+
+
+        public StdEncoder Add_IfNotOne(string tag, Vector3 v3)
+        {
+            if (!v3.Equals(Vector3.one))
+                Add(tag, v3.Encode());
+
+            return this;
+        }
+
+        public StdEncoder Add_IfNotOne(string tag, Vector2 v2)
+        {
+            if (!v2.Equals(Vector2.one))
+                Add(tag, v2.Encode());
+
+            return this;
+        }
+        
         public StdEncoder Add_IfNotZero(string tag, int val) {
 
             if (val != 0) 
@@ -792,13 +828,6 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotOne(string tag, Vector3 v3) {
-            if (!v3.Equals(Vector3.one)) 
-                Add(tag, v3.Encode());
-
-            return this;
-        }
-        
         public StdEncoder Add_IfNotZero(string tag, Vector2 v2) {
 
             if (v2.magnitude > Mathf.Epsilon) 

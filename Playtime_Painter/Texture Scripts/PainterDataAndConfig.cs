@@ -192,9 +192,6 @@ namespace Playtime_Painter
         public int _meshTool;
         public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
         public float bevelDetectionSensetivity = 6;
-
-        //  public static string ToolPath() => PlaytimeToolComponent.ToolsFolder + "/" + ToolName;
-
         public string meshToolsSTD = null;
 
         #region User Settings
@@ -417,13 +414,13 @@ namespace Playtime_Painter
 
             PainterCamera rtp = PainterCamera.Inst;
 
-            if ("Plugins".enter(ref inspectedStuff, 0).nl_ifNotEntered() && rtp.PluginsInspect().nl())
+            if ("Plugins".enter(ref inspectedStuff, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl())
                 rtp.SetToDirty();
 
-            if ("Lists".enter (ref inspectedStuff, 1).nl())
+            if ("Lists".enter (ref inspectedStuff, 11).nl())
                 changed |= DatasPEGI();
 
-            changed |= "Downloads".enter_Inspect(rtp.downloadManager, ref inspectedStuff, 2).nl();
+            changed |= "Downloads".enter_Inspect(rtp.downloadManager, ref inspectedStuff, 12).nl();
 
 
             if (inspectedStuff == -1) {
@@ -464,8 +461,13 @@ namespace Playtime_Painter
                     if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
                         PlaytimePainter.Open_Email();
 #endif
-                
+
+              
+
             }
+
+            changed |= base.Inspect();
+
             return changed;
         }
 

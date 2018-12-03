@@ -2582,6 +2582,15 @@ namespace PlayerAndEditorGUI {
             return txt;
         }
 
+        public static string AddCount(this string txt, IGotCount obj)
+        {
+            var cnt = obj != null ? obj.CountForInspector : 0;
+            return "{0} {1}".F(txt, obj != null ?
+          (cnt > 0 ?
+          (cnt == 1 ? "|" : "[{0}]".F(cnt))
+          : "") : "null");
+        }
+
         public static string AddCount(this string txt, IList lst) => "{0} {1}".F(txt, lst != null ?
             (lst.Count>0 ? 
             (lst.Count == 1 ? "|" : "[{0}]".F(lst.Count))

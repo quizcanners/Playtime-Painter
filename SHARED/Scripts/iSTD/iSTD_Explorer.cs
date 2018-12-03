@@ -6,36 +6,10 @@ using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-//using System.Windows;
 
 namespace SharedTools_Stuff
 {
-    /*
-    public class ISTD_Explorer : MonoBehaviour, IPEGI
-    {
-        public ISTD ConnectSTD;
-        public ISTD_ExplorerData data = new ISTD_ExplorerData();
-
-#if PEGI
-
-        public bool Inspect()
-        {
-
-            UnityEngine.Object obj = ConnectSTD == null ? null : ConnectSTD as UnityEngine.Object;
-            if ("Target Obj: ".edit(60, ref obj) && obj != null)
-                ConnectSTD = obj as ISTD;
-
-            MonoBehaviour mono = ConnectSTD == null ? null : ConnectSTD as MonoBehaviour;
-            if ("Target Obj: ".edit(60, ref mono).nl() && mono != null)
-                ConnectSTD = mono as ISTD;
-
-            return data.Inspect(ConnectSTD);
-
-        }
-#endif
-
-    }
-    */
+   
     public class List_Data : Abstract_STD, IPEGI {
 
         public string label = "list";
@@ -345,7 +319,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class Exploring_STD : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect
+    public class Exploring_STD : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
     {
         ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
@@ -370,27 +344,22 @@ namespace SharedTools_Stuff
 
         public Exploring_STD() { tag = ""; data = ""; }
 
-        public Exploring_STD(string ntag, string ndata)
-        {
+        public Exploring_STD(string ntag, string ndata) {
             tag = ntag;
             data = ndata;
         }
 
         #region Inspector
-#if PEGI
+        #if PEGI
 
-        public string NameForPEGI
-        {
-            get
-            {
-                return tag;
-            }
+        public int CountForInspector => tags.IsNullOrEmpty() ? data.Length : tags.CountForInspector();
 
-            set
-            {
-                tag = value;
-            }
+
+        public string NameForPEGI  {
+            get  {  return tag; }
+            set {  tag = value; }
         }
+
 
         public bool Inspect()
         {
@@ -437,9 +406,11 @@ namespace SharedTools_Stuff
 
             bool changed = false;
 
+            CountForInspector.ToString().write(50);
+
             if (data != null && data.Contains("|"))
             {
-                changed |= pegi.edit(ref tag);//  tag.write(60);
+                changed |= pegi.edit(ref tag);
 
                 if (icon.Enter.Click("Explore data"))
                     edited = ind;
@@ -493,7 +464,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect {
+    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect, IGotCount {
 
         ISTD Std => ISTD_ExplorerData.inspectedSTD;
 
@@ -505,6 +476,8 @@ namespace SharedTools_Stuff
 
 #if PEGI
         public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
+
+        public int CountForInspector => dataExplorer.CountForInspector;
 
         public bool Inspect()
         {
@@ -552,7 +525,7 @@ namespace SharedTools_Stuff
         {
             bool changed = false;
 
-            pegi.edit(ref dataExplorer.tag, 100);
+            CountForInspector.ToString().edit(60, ref dataExplorer.tag);
 
             if (Std != null)
             {
@@ -572,7 +545,7 @@ namespace SharedTools_Stuff
     }
 
     [Serializable]
-    public class ISTD_ExplorerData
+    public class ISTD_ExplorerData : IGotCount
     {
         public List<SavedISTD> states = new List<SavedISTD>();
         [NonSerialized]
@@ -582,7 +555,8 @@ namespace SharedTools_Stuff
 
         #region Inspector
 #if PEGI
-
+        public int CountForInspector => states.Count;
+        
         public static bool PEGI_Static(ISTD target)
         {
             inspectedSTD = target;
@@ -600,6 +574,7 @@ namespace SharedTools_Stuff
         }
 
         public static ISTD_ExplorerData inspected;
+
         public bool Inspect(ISTD target)
         {
             bool changed = false;

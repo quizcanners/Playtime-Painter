@@ -13,14 +13,14 @@ namespace Playtime_Painter
         #region Encode & Decode
         
         public Material material;
-        public int _selectedTexture;
+        public int _selectedTexture = 0;
         public bool usePreviewShader = false;
         public List<string> materials_TextureFields = new List<string>();
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("mat", material)
-            .Add("texInd", _selectedTexture)
-            .Add_Bool("pv", usePreviewShader)
+            .Add_IfNotZero("texInd", _selectedTexture)
+            .Add_IfTrue("pv", usePreviewShader)
             .Add("tf", materials_TextureFields);
 
         public override bool Decode(string tag, string data)
