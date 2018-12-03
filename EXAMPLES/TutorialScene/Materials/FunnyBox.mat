@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FunnyBox
-  m_Shader: {fileID: 4800000, guid: 77dbeb96108acbf469f801c2a766050c, type: 3}
+  m_Shader: {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
   m_ShaderKeywords: _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _UVSEC_UV1
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0

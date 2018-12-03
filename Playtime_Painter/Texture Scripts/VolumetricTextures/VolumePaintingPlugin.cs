@@ -28,11 +28,28 @@ namespace Playtime_Painter
         public Shader preview;
         public Shader brush;
 
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_Bool("ug", useGrid);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "ug": useGrid = data.ToBool(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        #endregion
+
         public static VolumePaintingPlugin _inst;
 
-        public override void OnEnable()
+        public override void Enable()
         {
-            base.OnEnable();
+            base.Enable();
             _inst = this;
 
             if (preview == null)
@@ -232,9 +249,8 @@ namespace Playtime_Painter
         }
 
         #region Inspector
-#if PEGI
+        #if PEGI
         public override string NameForPEGIdisplay => "Volume Painting";
-
 
         public bool Component_PEGI()
         {
@@ -269,7 +285,6 @@ namespace Playtime_Painter
             return changed;
         }
 
-        [SerializeField]
         bool exploreVolumeData = false;
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
         {
@@ -306,7 +321,7 @@ namespace Playtime_Painter
 
                 bool cpuBlit = id.TargetIsTexture2D();
 
-                pegi.newLine();
+                pegi.nl();
 
                 if (!cpuBlit)
                     changed |= "Hardness:".edit("Makes edges more rough.", 70, ref br.Hardness, 1f, 512f).nl();
@@ -334,9 +349,8 @@ namespace Playtime_Painter
             return changed;
         }
 
-        [SerializeField]
         int exploredVolume;
-        public override bool ConfigTab_PEGI()
+        public override bool Inspect()
         {
             bool changes = false;
 
@@ -344,7 +358,7 @@ namespace Playtime_Painter
 
             return changes;
         }
-#endif
+        #endif
         #endregion
     }
 

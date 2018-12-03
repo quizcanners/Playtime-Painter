@@ -332,7 +332,7 @@ namespace Playtime_Painter
                         .Add("sch", selectedColorScheme)
                         .Add("mats", matDatas, this)
                         .Add("pals", colorSchemes)
-                        .Add("cam", Painter)
+                        .Add("cam", PainterCamera.Inst)
 
 #if PEGI
                  .Add_IfNotNegative("iid", inspectedImgData)
@@ -359,14 +359,14 @@ namespace Playtime_Painter
                 case "sch": selectedColorScheme = data.ToInt(); break;
                 case "mats": data.Decode_List(out matDatas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
-                case "cam": Painter.Decode(data); break;
-#if PEGI
+                case "cam": PainterCamera.Inst?.Decode(data); break;
+                #if PEGI
                 case "iid": inspectedImgData = data.ToInt(); break;
                 case "isfs": inspectedStuffs = data.ToInt(); break;
                 case "im": inspectedMaterial = data.ToInt(); break;
                 case "id": inspectedDecal = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
-#endif
+                #endif
                 case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
             }

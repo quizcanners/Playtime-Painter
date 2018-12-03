@@ -2630,7 +2630,7 @@ namespace PlayerAndEditorGUI {
 
             bool outside = enteredOne == -1;
 
-            if (!var.isNullOrDestroyed()) {
+            if (!var.IsNullOrDestroyed()) {
 
                 if (outside)
                     changed |= var.PEGI_inList(null, thisOne, ref enteredOne);
@@ -5524,11 +5524,11 @@ namespace PlayerAndEditorGUI {
                     int nullOrDestroyedCount = 0;
 
                 for (int i = 0; i < list.Count; i++)
-                    if (list[i].isNullOrDestroyed()) nullOrDestroyedCount++;
+                    if (list[i].IsNullOrDestroyed()) nullOrDestroyedCount++;
 
                     if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements")) {
                         for (int i = list.Count-1; i >= 0; i--)
-                            if (list[i].isNullOrDestroyed())
+                            if (list[i].IsNullOrDestroyed())
                                 list.RemoveAt(i);
 
                         SetSelected(meta, list, false);
@@ -7030,17 +7030,6 @@ namespace PlayerAndEditorGUI {
             return obj.ToString().RemovePreDots();
         }
 
-        public static bool isNullOrDestroyedUnityObject(this UnityEngine.Object obj) {
-            if (obj == null || !obj) return true;
-            return false;
-        }
-
-        public static bool isNullOrDestroyed(this object obj)
-        {
-            return obj == null ? true : 
-                (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
-                (obj as UnityEngine.Object).isNullOrDestroyedUnityObject() : false);
-        }
         static void cantInspect()
         {
 

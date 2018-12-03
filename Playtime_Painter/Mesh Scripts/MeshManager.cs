@@ -14,7 +14,7 @@ namespace Playtime_Painter {
 
 	[Serializable]
     [ExecuteInEditMode]
-    public class MeshManager : PainterStuff, IKeepUnrecognizedSTD  {
+    public class MeshManager : PainterStuffKeepUnrecognized_STD  {
         
         public static MeshManager Inst { get
             {
@@ -59,12 +59,10 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public StdEncoder Encode() => this.EncodeUnrecognized()
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfTrue("byUV", SelectingUVbyNumber);
 
-        public void Decode(string data) => data.DecodeTagsFor(this);
-
-        public bool Decode(string tag, string data)
+        public override bool Decode(string tag, string data)
         {
             switch (tag) {
                 case "byUV": SelectingUVbyNumber = data.ToBool(); break;
@@ -252,8 +250,6 @@ namespace Playtime_Painter {
         [NonSerialized]
         bool _dragging;
         public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.4f; } }
-
-        public UnrecognizedTags_List UnrecognizedSTD => throw new NotImplementedException();
 
         public void DisconnectDragged()
         {
@@ -1217,7 +1213,9 @@ namespace Playtime_Painter {
 
             return changed;
         }
-        #endif
+
+      
+#endif
         #endregion
 
     }

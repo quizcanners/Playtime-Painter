@@ -25,9 +25,28 @@ namespace Playtime_Painter.Examples
 
         public override string ToString() => "Tilable Atlasing";
         
-        public List<AtlasTextureCreator> atlases;
+        public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>(); 
 
-        public List<MaterialAtlases> atlasedMaterials;
+        public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("atl", atlases)
+            .Add("am", atlasedMaterials);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "atl": data.Decode_List(out atlases); break;
+                case "am": data.Decode_List(out atlasedMaterials); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        #endregion
 
         #region Inspector
         [SerializeField]
@@ -66,17 +85,13 @@ namespace Playtime_Painter.Examples
         }
 #endif
 
-        public override void OnEnable() {
+        public override void Enable() {
 
             inst = this;
-            if (atlases == null)
-                atlases = new List<AtlasTextureCreator>();
-
-            if (atlasedMaterials == null)
-                atlasedMaterials = new List<MaterialAtlases>();
+          
             #if PEGI
-            PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
-#endif
+                PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
+            #endif
             PlugIn_CPUblitMethod(PaintTexture2D);
             
 
@@ -86,7 +101,7 @@ namespace Playtime_Painter.Examples
 
         int InspectedStuff = -1;
 
-        public override bool ConfigTab_PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -114,7 +129,7 @@ namespace Playtime_Painter.Examples
 
                 if ("Undo Atlasing".Click())
                 {
-                    InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials;
+                    InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
 
                     if (atlPlug.preAtlasingMesh != null)
                         InspectedPainter.meshFilter.mesh = atlPlug.preAtlasingMesh;

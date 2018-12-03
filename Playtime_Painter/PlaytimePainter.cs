@@ -1844,13 +1844,12 @@ namespace Playtime_Painter
 
 #if PEGI
         public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
+        
+        const string defaultImageLoadURL = "https://picsbuffet.com/pixabay/";
 
-
-
-        static string tmpURL = "";
-  
-        public bool PEGI_MAIN()
-        {
+        static string tmpURL = defaultImageLoadURL;
+        
+        public bool PEGI_MAIN() {
 
             TexMGMT.focusedPainter = this;
 
@@ -2031,6 +2030,8 @@ namespace Playtime_Painter
                 }
 
         #endregion
+
+               
 
         #region Texture Editing
 
@@ -2224,14 +2225,14 @@ namespace Playtime_Painter
 
                             if (Cfg.showURLfield)
                             {
-                                if (id != null)
-                                    tmpURL = id.URL;
+                               // if (id != null)
+                                    //tmpURL = id.URL;
 
                                 "URL".edit(40,ref tmpURL);
                                 if (tmpURL.Length > 5 && icon.Download.Click())
                                 {
                                     loadingOrder.Add(TexMGMT.downloadManager.StartDownload(tmpURL), GetMaterialTexturePropertyName);
-                                    tmpURL = "";
+                                    tmpURL = defaultImageLoadURL;
                                     "Loading for {0}".F(GetMaterialTexturePropertyName).showNotificationIn3D_Views();
                                 }
 
@@ -2240,8 +2241,8 @@ namespace Playtime_Painter
                                     "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "").nl();
 
                                 pegi.nl();
-                                if (id != null)
-                                    id.URL = tmpURL;
+                                //if (id != null)
+                                  //  id.URL = tmpURL;
 
                             }
 
@@ -2366,14 +2367,9 @@ namespace Playtime_Painter
 
         #region Texture Saving/Loading
 
-                            if (!LockTextureEditing)
-                            {
+                            if (!LockTextureEditing)  {
                                 pegi.nl();
-
-                                if (!IsTerrainControlTexture())
-                                {
-
-                                   
+                                if (!IsTerrainControlTexture())  {
 
                                     id = ImgData;
 
@@ -2590,6 +2586,7 @@ namespace Playtime_Painter
                             var id = SetTextureOnMaterial(l.Value, tmp);
                             if (id != null)
                                 id.URL = TexMGMT.downloadManager.GetURL(l.Key);
+                            id.SaveName = "Loaded Texture {0}".F(l.Key);
                         }
                         extracted.Add(l.Key);
                     }
@@ -2610,7 +2607,6 @@ namespace Playtime_Painter
 
             if (texture2DDataWasChanged && ((repaintTimer < 0) || (stroke.mouseUp)))
             {
-                // Debug.Log("repainting delay");
                 texture2DDataWasChanged = false;
                 var id = ImgData;
 

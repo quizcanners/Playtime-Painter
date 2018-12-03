@@ -9,16 +9,10 @@ namespace Playtime_Painter.Examples
     public class SkyController : MonoBehaviour
     {
 
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
         public Light directional;
         public MeshRenderer _rendy;
 
-        void findComponents()
+        void FindComponents()
         {
             if (_rendy == null)
                 _rendy = GetComponent<MeshRenderer>();
@@ -33,26 +27,19 @@ namespace Playtime_Painter.Examples
                         i = ls.Length;
                     }
             }
-
-
         }
 
         private void OnEnable()
         {
-            findComponents();
+            FindComponents();
             _rendy.enabled = Application.isPlaying;
-
         }
 
         public float skyDynamics = 0.1f;
 
-        public virtual void Update()
-        {
+        public virtual void Update() {
 
-            // Got some clipping when using _WorldSpaceLightPos0 
-            if (directional != null)
-            {
-
+            if (directional != null) {
                 Vector3 v3 = directional.transform.rotation * Vector3.back;
                 Shader.SetGlobalVector("_SunDirection", new Vector4(v3.x, v3.y, v3.z));
                 Shader.SetGlobalColor("_Directional", directional.color);
@@ -65,10 +52,6 @@ namespace Playtime_Painter.Examples
             }
         }
 
-        void LateUpdate()
-        {
-            transform.rotation = Quaternion.identity;
-        }
-
+        void LateUpdate() => transform.rotation = Quaternion.identity;
     }
 }

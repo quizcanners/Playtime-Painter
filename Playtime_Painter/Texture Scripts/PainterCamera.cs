@@ -663,6 +663,10 @@ namespace Playtime_Painter
             autodisabledBufferTarget = null;
 
             RefreshPlugins();
+
+            foreach (var p in _plugins)
+                if (p != null) p.Enable();
+
         }
 
         private void OnDisable()
@@ -681,6 +685,9 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             EditorApplication.update -= meshManager.EditingUpdate;
 #endif
+
+            foreach (var p in _plugins)
+                if (p != null) p.Disable();
 
         }
 

@@ -9,8 +9,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples
-{
+namespace Playtime_Painter.Examples {
 
     #region Manager
     [TaggedType(tag)]
@@ -21,10 +20,23 @@ namespace Playtime_Painter.Examples
 
         public static MultiBufferProcessing inst;
 
-        [SerializeField] string std_data;
-
         public List<RenderSection> sections = new List<RenderSection>();
         public List<TextureBuffer> buffers = new List<TextureBuffer>();
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("s", buffers)
+            .Add("sc", sections);
+
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
+                case "s": data.Decode_List(out buffers); break;
+                case "sc": data.Decode_List(out sections); break;
+                default: return false;
+            }
+            return true;
+        }
+        #endregion
 
         bool pauseBuffers = false;
 
@@ -92,7 +104,7 @@ namespace Playtime_Painter.Examples
 
         }
 
-        public override bool ConfigTab_PEGI()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -122,36 +134,6 @@ namespace Playtime_Painter.Examples
         [SerializeField] int editedBuffer = -1;
         [SerializeField] int editedSection = -1;
 
-#endif
-        #endregion
-
-        public override void OnDisable()
-        {
-            std_data = Encode().ToString();
-
-            base.OnDisable();
-#if UNITY_EDITOR
-            EditorApplication.update -= ManualUpdate;
-#endif
-        }
-
-        public override void OnEnable()
-        {
-            inst = this;
-            Decode(std_data); //.DecodeTagsFor(this);
-#if UNITY_EDITOR
-            EditorApplication.update -= ManualUpdate;
-            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
-                EditorApplication.update += ManualUpdate;
-#endif
-
-#if PEGI
-            PlugIn_PainterComponent = Component_PEGI;
-#endif
-
-        }
-
-#if PEGI
         public bool Component_PEGI()
         {
             bool changed = false;
@@ -164,24 +146,39 @@ namespace Playtime_Painter.Examples
                 int cur = -1;
                 if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl(ref changed))
                     InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay());
-                
+
             }
 
             return changed;
         }
-#endif
-        public override StdEncoder Encode() =>this.EncodeUnrecognized()
-            .Add("s", buffers);
 
-        public override bool Decode(string tag, string data)
+#endif
+        #endregion
+
+        public override void Disable()
         {
-            switch (tag)
-            {
-                case "s": data.Decode_List(out buffers); break;
-                default: return false;
-            }
-            return true;
+            base.Disable();
+#if UNITY_EDITOR
+            EditorApplication.update -= ManualUpdate;
+#endif
         }
+
+        public override void Enable()
+        {
+            inst = this;
+#if UNITY_EDITOR
+            EditorApplication.update -= ManualUpdate;
+            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
+                EditorApplication.update += ManualUpdate;
+#endif
+
+#if PEGI
+            PlugIn_PainterComponent = Component_PEGI;
+#endif
+
+        }
+
+
         
     }
 
@@ -710,9 +707,8 @@ namespace Playtime_Painter.Examples
     #endregion
 
     #region Section
-
-    [Serializable]
-    public class RenderSection : PainterStuff , IPEGI, IGotDisplayName, IPEGI_ListInspect
+    
+    public class RenderSection : PainterStuffKeepUnrecognized_STD , IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
         enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 
@@ -732,6 +728,26 @@ namespace Playtime_Painter.Examples
         [SerializeField] BlitTrigger trigger = BlitTrigger.Manual;
         [SerializeField] bool enabled = true;
         [SerializeField] RenderSection triggerSection = null;
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_Reference("m", material)
+            .Add("trg", targetBufferIndex)
+            .Add_Bool("e", enabled);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "m": data.Decode_Reference(ref material); break;
+                case "trg": targetBufferIndex = data.ToInt(); break;
+                case "e": enabled = data.ToBool(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        #endregion
 
         int dependentVersion = 0;
         float timer = 0;
@@ -809,7 +825,7 @@ namespace Playtime_Painter.Examples
             return false;
         }
 
-        public bool Inspect()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -852,6 +868,8 @@ namespace Playtime_Painter.Examples
 
             return changed;
         }
+
+      
 #endif
         #endregion
     }

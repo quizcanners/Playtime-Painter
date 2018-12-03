@@ -252,46 +252,47 @@ namespace Playtime_Painter {
 
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr) {
 
-            var id = pntr.ImgData;
+            var imgData = pntr.ImgData;
 
-            if (id == null) {
+            if (imgData == null) {
                 pntr.InitIfNotInited();
-                id = pntr.ImgData;
-                if (id == null) return pntr;
+                imgData = pntr.ImgData;
+                if (imgData == null)
+                    return pntr;
             }
 
-            var cpu = id.TargetIsTexture2D();
-            var t = Type(cpu);
+            var cpu = imgData.TargetIsTexture2D();
+            var brushType = Type(cpu);
 
             BlitMode.PrePaint(pntr, this, stroke);
 
             if (cpu) {
                 pntr.RecordingMGMT();
-                t.PaintToTexture2D(pntr, this, stroke);
+                brushType.PaintToTexture2D(pntr, this, stroke);
             } else {
 
-                var md = pntr.MatDta;
+                var materialData = pntr.MatDta;
 
-                if (id.renderTexture == null && !TexMGMT.materialsUsingTendTex.Contains(md)) {
-                    TexMGMT.ChangeBufferTarget(id, md, pntr.GetMaterialTexturePropertyName, pntr);
-                    pntr.SetTextureOnMaterial(id);
+                if (imgData.renderTexture == null && !TexMGMT.materialsUsingTendTex.Contains(materialData)) {
+                    TexMGMT.ChangeBufferTarget(imgData, materialData, pntr.GetMaterialTexturePropertyName, pntr);
+                    pntr.SetTextureOnMaterial(imgData);
                 }
 
                 bool rendered = false;
 
                 foreach (var pl in TexMGMT.Plugins)
-                    if (pl.PaintRenderTexture(stroke, id, this, pntr)) {
+                    if (pl.PaintRenderTexture(stroke, imgData, this, pntr)) {
                         rendered = true;
                         break;
                     }
 
-                if ((pntr.terrain != null) && (!t.SupportedForTerrain_RT))
-                    return pntr;
+                if ((pntr.terrain == null) || (brushType.SupportedForTerrain_RT)) {
 
-                pntr.RecordingMGMT();
+                    pntr.RecordingMGMT();
 
-                if (!rendered)
-                    t.PaintRenderTexture(pntr, this, stroke);
+                    if (!rendered)
+                        brushType.PaintRenderTexture(pntr, this, stroke);
+                }
             }
 
             return pntr;
@@ -603,13 +604,10 @@ namespace Playtime_Painter {
     }
 
     [TaggedType(classTag, "None")]
-    public class BrushDynamic_None : BrushDynamic
-    {
+    public class BrushDynamic_None : BrushDynamic {
         const string classTag = "none";
 
         public override string ClassTag => classTag;
-
-      
     }
 
     #region Size to Speed Dynamic

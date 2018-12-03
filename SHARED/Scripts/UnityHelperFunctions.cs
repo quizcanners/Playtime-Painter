@@ -117,7 +117,7 @@ namespace SharedTools_Stuff {
 
         public static T TryGet<T>(this GameObject go) where T:class {
            
-                if (go.isNullOrDestroyed())
+                if (go.IsNullOrDestroyed())
                     return null;
 
                 var monos = go.GetComponents<MonoBehaviour>();
@@ -130,8 +130,21 @@ namespace SharedTools_Stuff {
                 return null;
         }
 
-       
 
+        public static bool IsNullOrDestroyedUnityObject(this UnityEngine.Object obj)
+        {
+            if (obj == null || !obj) return true;
+            return false;
+        }
+
+        public static bool IsNullOrDestroyed(this object obj) =>
+             obj == null ? true :
+                (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
+                (obj as UnityEngine.Object).IsNullOrDestroyedUnityObject() : false);
+        
+
+        public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed() ? default(T) : obj;
+  
         public static bool TrySetAlpha(this Graphic graphic, float alpha) {
             if (graphic != null) {
                 var col = graphic.color;

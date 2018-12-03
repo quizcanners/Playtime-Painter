@@ -16,28 +16,29 @@ namespace Playtime_Painter.Examples
 
         HintStage stage;
 
-        enum HintStage { enableTool, draw, addTool, addTexture, renderTexture, WellDone }
+        enum HintStage { enableTool, unlockTexture, draw, addTool, addTexture, renderTexture, WellDone }
 
         public GameObject picture;
-        public GameObject leftCube;
+        public GameObject pill;
+        public GameObject cube;
         public float timer = 5f;
 
-        void SetStage(HintStage st)
-        {
+        void SetStage(HintStage st)  {
             stage = st;
             string ntext = "Well Done! Remember to save your textures before entering/exiting playmode.";
             string mb = (Application.isPlaying) ? "RIGHT MOUSE BUTTON" : "LEFT MOUSE BUTTON";
 
-            switch (stage)
-            {
+            switch (stage) {
                 case HintStage.enableTool:
                     ntext = "Select the central cube with " + mb + " and click 'On/Off' to start using painter. Unlock texture if locked."; break;
+                case HintStage.unlockTexture:
+                    ntext = "Unlock texture (lock icon next to it)"; break;
                 case HintStage.draw:
                     ntext = "Draw on the cube. \n You can LOCK EDITING for selected texture."; break;
                 case HintStage.addTool:
                     ntext = "Picture to the right has no tool attached. \n Select it and \n Click 'Add Component'->'Mesh'->'Playtime Painter'"; break;
                 case HintStage.addTexture:
-                    ntext = "Cube on the left has no texture. Select him with " + mb + " and click 'Create Texture'"; break;
+                    ntext = "Pill on the left has no texture. Select it with " + mb + " and click 'Create Texture' icon"; break;
                 case HintStage.renderTexture:
                     int size = PainterCamera.renderTextureSize;
                     ntext = "Change MODE to GPU blit. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n"; break;
@@ -47,8 +48,7 @@ namespace Playtime_Painter.Examples
 
         }
 
-        void OnEnable()
-        {
+        void OnEnable() {
             SetStage(HintStage.enableTool);
             style.wordWrap = true;
         }
@@ -56,19 +56,14 @@ namespace Playtime_Painter.Examples
         public GUIStyle style = new GUIStyle();
         PlaytimePainter pp;
 
-        PlaytimePainter ShipPainter()
-        {
-
+        PlaytimePainter ShipPainter() {
             if (pp == null)
-                pp = leftCube.GetComponent<PlaytimePainter>();
+                pp = pill.GetComponent<PlaytimePainter>();
             return pp;
         }
 
-        private void OnGUI()
-        {
-
+        private void OnGUI() {
             var cont = new GUIContent(text);
-
             GUI.Box(new Rect(Screen.width - 400, 10, 390, 100), cont, style);
         }
 
@@ -80,7 +75,14 @@ namespace Playtime_Painter.Examples
             switch (stage)
             {
                 case HintStage.enableTool:
-                    if (PlaytimePainter.IsCurrent_Tool) { SetStage(HintStage.draw); timer = 3f; }
+                    if (PlaytimePainter.IsCurrent_Tool) { SetStage(HintStage.unlockTexture); timer = 3f; }
+                    break;
+                case HintStage.unlockTexture:
+                    if (cube) {
+                        var pntr = cube.GetComponent<PlaytimePainter>();
+                        if (pntr && pntr.ImgData != null && !pntr.ImgData.lockEditing)
+                            SetStage(HintStage.draw);
+                    }
                     break;
                 case HintStage.draw:
                     if (!PlaytimePainter.IsCurrent_Tool) { SetStage(HintStage.enableTool); break; }

@@ -447,6 +447,49 @@ namespace SharedTools_Stuff
             return false;
         }
 
+        public static List<T> TryDecode_IntoList_Elements<T>(this string data, List<T> l, ref List_Data ld) where T : ISTD, new() {
+
+            if (ld == null)
+                ld = new List_Data();
+
+            var overCody = new StdDecoder(data);
+            int index = 0;
+
+            foreach (var tag in overCody)  {
+
+                switch (tag) {
+
+                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
+
+                    case StdEncoder.listTag:
+                        StdDecoder cody = new StdDecoder(overCody.GetData());
+
+                        foreach (var t in cody) {
+
+                            var d = cody.GetData();
+
+                            if (index >= l.Count || !d.TryDecodeInto(l[index]))
+                                ld.elementDatas[index].Unrecognized(tag, d);
+
+                            index++;
+                        }
+                        break;
+
+                    default:
+                        var d1 = overCody.GetData();
+
+                        if (index >= l.Count || !d1.TryDecodeInto(l[index]))
+                            ld.elementDatas[index].Unrecognized(tag, d1);
+
+                        index++;
+                        break;
+                }
+            }
+
+            return l;
+        }
+
+
         public static List<List<T>> Decode_ListOfList<T>(this string data, out List<List<T>> l) where T : ISTD, new()
         {
             l = new List<List<T>>();
@@ -482,14 +525,14 @@ namespace SharedTools_Stuff
                         StdDecoder cody = new StdDecoder(overCody.GetData());
                         if (tps != null)
                             foreach (var t in cody)
-                                l.Add(cody.DecodeData<T>(tps, ld)); //Decode<T>(t, cody.GetData(), tps, ld, cody.currentTagIndex));
+                                l.Add(cody.DecodeData<T>(tps, ld)); 
                         else foreach (var t in cody)
                                 l.Add(cody.GetData().DecodeInto<T>());
                         break;
 
                     default:
                         if (tps != null)
-                            l.Add(overCody.DecodeData<T>(tps,ld)); //Decode<T>(tag, overCody.GetData(), tps));
+                            l.Add(overCody.DecodeData<T>(tps,ld)); 
                         else
                             l.Add(overCody.GetData().DecodeInto<T>());
                         break;
@@ -852,8 +895,7 @@ namespace SharedTools_Stuff
             foreach (var tag in this)
                 dec(tag, GetData());
         }
-
-
+        
         public static List<string> baseClassChain = new List<string>();
         public void DecodeTagsFor(DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag) {
 
@@ -879,7 +921,7 @@ namespace SharedTools_Stuff
 
             var unrec = (std as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
 
-            try {
+           // try {
                 if (unrec == null)
                     foreach (var tag in this)
                         std.Decode(tag, GetData());
@@ -890,9 +932,9 @@ namespace SharedTools_Stuff
                         if (!std.Decode(tag, d))
                             unrec.Add(tag, d);
                     }
-            } catch (Exception ex) {
-                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, std, ex));
-            }
+            /*} catch (Exception ex) {
+                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, std, ex.ToString()));
+            }*/
             
             return std;
         }

@@ -41,14 +41,6 @@ namespace Playtime_Painter {
             VertexEdgeTool.PEGIdelegates += d;
         }
         
-        public virtual bool ConfigTab_PEGI() { "Nothing here".nl(); return false; }
-
-        public override bool Inspect()
-        {
-            bool changed = ConfigTab_PEGI();
-            changed |= base.Inspect();
-            return changed;
-        }
 
 #endif
         #endregion
@@ -84,22 +76,24 @@ namespace Playtime_Painter {
             brushConfigPagies += d;
             BrushConfig.brushConfigPegies += d;
         }
-
-      
-
+        
         MeshToolBase.meshToolPlugBool showVerticesPlugs;
         protected void PlugIn_MeshToolShowVertex(MeshToolBase.meshToolPlugBool d) {
             showVerticesPlugs += d;
             MeshToolBase.showVerticesPlugs += d;
         }
 
+        public virtual void Enable() {
 
-        public virtual void OnDisable() {
+        }
+
+        public virtual void Disable() {
+
 #if PEGI
             PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
-          
 #endif
+
             PlaytimePainter.plugins_GizmoDraw -= plugins_GizmoDraw;
             BrushType.tex2DPaintPlugins -= tex2DPaintPlugins;
             GridNavigator.pluginNeedsGrid_Delegates -= pluginNeedsGrid_Delegates;
@@ -107,8 +101,11 @@ namespace Playtime_Painter {
             MeshToolBase.showVerticesPlugs -= showVerticesPlugs;
         }
 
-        public virtual void OnEnable()  { }
-        
+        public override void Decode(string data)
+        {
+            base.Decode(data);
+        }
+
         public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
 
         public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr)  =>  false;

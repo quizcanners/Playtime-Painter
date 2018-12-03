@@ -14,19 +14,45 @@ namespace Playtime_Painter.Examples {
         const string tag = "ColBleed";
         public override string ClassTag => tag;
 
-        public float eyeBrightness = 1;
-        public float colorBleeding = 0.01f;
-        public bool modifyBrightness;
-        public bool colorBleed;
-
-
-        public override void OnEnable() {
-            SetStuff();
-        }
+        public float eyeBrightness = 1f;
+        public float colorBleeding = 0f;
+        public bool modifyBrightness = false;
+        public bool colorBleed = false;
 
         public void SetStuff() {
             Shader.SetGlobalVector("_lightControl", new Vector4(colorBleeding, 0, 0, eyeBrightness));
         }
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized();
+            if (modifyBrightness)
+                cody.Add("br", eyeBrightness);
+            if (colorBleed)
+                cody.Add("bl", colorBleeding);
+
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
+                case "br": modifyBrightness = true; eyeBrightness = data.ToFloat(); break;
+                case "bl": colorBleed = true; colorBleeding = data.ToFloat(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        public override void Decode(string data)
+        {
+            base.Decode(data);
+
+            SetStuff();
+        }
+
+        #endregion
 
         #region Inspector
         public override string NameForPEGIdisplay => "Bleed & Brightness";
@@ -34,7 +60,7 @@ namespace Playtime_Painter.Examples {
 
 #if PEGI
         bool showHint;
-        public override bool ConfigTab_PEGI() {
+        public override bool Inspect() {
             bool changed = false;
 
             changed |= "Enable".toggleIcon(ref colorBleed, true);

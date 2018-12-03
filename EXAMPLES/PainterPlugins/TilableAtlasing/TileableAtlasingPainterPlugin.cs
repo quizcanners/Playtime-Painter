@@ -21,11 +21,38 @@ namespace Playtime_Painter.Examples {
         const string tag = "TilAtlsPntr";
         public override string ClassTag => tag;
 
-        public Material[] preAtlasingMaterials;
+        public List<Material> preAtlasingMaterials;
         public Mesh preAtlasingMesh;
         public string preAtlasingSavedMesh;
         public int inAtlasIndex;
         public int atlasRows = 1;
+
+        public static MyIntVec2 atlasSector = new MyIntVec2();
+        public static int sectorSize = 1;
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => new StdEncoder()
+            .Add_References("pam", preAtlasingMaterials)
+            .Add_Reference("pamsh", preAtlasingMesh)
+            .Add_String("sm", preAtlasingSavedMesh)
+            .Add("iai", inAtlasIndex)
+            .Add("ar", atlasRows);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "pam": data.Decode_References(out preAtlasingMaterials); break;
+                case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
+                case "sm": preAtlasingSavedMesh = data; break;
+                case "iai": inAtlasIndex = data.ToInt(); break;
+                case "ar": atlasRows = data.ToInt(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        #endregion
 
         public Vector2 GetAtlasedSection()  {
           
@@ -117,10 +144,7 @@ namespace Playtime_Painter.Examples {
 
             return false;
         }
-
-        public static MyIntVec2 atlasSector = new MyIntVec2();
-        public static int sectorSize = 1;
-
+        
         public override bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
         {
             if (p.IsAtlased()) {
@@ -144,7 +168,9 @@ namespace Playtime_Painter.Examples {
             }
             return false;
         }
-#if PEGI
+
+        #region Inspector
+        #if PEGI
         public override bool BrushConfigPEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
@@ -169,12 +195,14 @@ namespace Playtime_Painter.Examples {
 
                 if (!id.TargetIsTexture2D()) {
                     pegi.writeWarning("Render Texture painting does not yet support Atlas Editing");
-                    pegi.newLine();
+                    pegi.nl();
                 }
             }
             return changed;
         }
-#endif
+        #endif
+        #endregion
+
         public override void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type)
         {
             if (br.IsA3Dbrush(pntr) && pntr.IsAtlased())
@@ -188,38 +216,9 @@ namespace Playtime_Painter.Examples {
             if (br.IsA3Dbrush(p) && p.IsAtlased())
                 Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
         }
-
-      
-
-    }
-
-    public static class AtlasingExtensions {
-        public static bool IsAtlased(this PlaytimePainter p) {
-            if (p == null) return false;
-            var mat = p.GetMaterial(false);
-            if (mat == null) return false;
-            return p.GetMaterial(false).IsAtlased(p.GetMaterialTexturePropertyName); }
-        public static bool IsProjected(this PlaytimePainter p) { return p.GetMaterial(false).IsProjected(); }
-
-        public static bool IsAtlased(this Material mat, string property) {
-            return mat.IsAtlased() && mat.DisplayNameContains(property, PainterDataAndConfig.isAtlasableDisaplyNameTag);
-        }
-
-        public static bool IsAtlased(this Material mat) {
-            if (mat == null) return false;
-            return mat.shaderKeywords.Contains(PainterDataAndConfig.UV_ATLASED);
-        }
-
-        public static bool Contains(this List<AtlasTextureField> lst, Texture2D tex) {
-            foreach (var ef in lst)
-                if ((ef != null) && (ef.texture != null) && (ef.texture == tex))
-                    return false;
-            return true;
-        }
     }
     
-    [System.Serializable]
-    public class FieldAtlas : IPEGI
+    public class FieldAtlas : AbstractKeepUnrecognized_STD, IPEGI
     {
         static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
 
@@ -229,100 +228,111 @@ namespace Playtime_Painter.Examples {
         public bool enabled;
         public Color col;
         public AtlasTextureCreator AtlasCreator { get { return TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; } }
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_String("af", atlasedField)
+            .Add("of", originField)
+            .Add("acid", atlasCreatorId)
+            .Add_Bool("e", enabled)
+            .Add("c", col);
+
+        public override bool Decode(string tag, string data) {
+            switch (tag) {
+                case "af": atlasedField = data; break;
+                case "of": originField = data.ToInt(); break;
+                case "acid": atlasCreatorId = data.ToInt(); break;
+                case "e": enabled = data.ToBool(); break;
+                case "c": col = data.ToColor(); break;
+            default: return false;
+        }
+        return true;
+        }
+
+        #endregion
+
+        #region Inspector
 #if PEGI
-         
-        [SerializeField]
-        bool foldoutAtlas = false;
-        public bool Inspect()
-        {
+        public override bool Inspect() {
             bool changed = false;
 
             MaterialAtlases a = MaterialAtlases.inspectedAtlas;
 
-            changed |= atlasedField.toggle("Use this field", 50, ref enabled);
+            atlasedField.toggleIcon(ref enabled).nl(ref changed);
 
-            if (enabled)
-            {
+            if (enabled) {
 
-                changed |=  pegi.select(ref originField, a.originalTextures).nl();
+                pegi.select(ref originField, a.originalTextures).nl(ref changed);
 
                 pegi.Space();
 
-                if (AtlasCreator != null)
-                    "Atlas".foldout(ref foldoutAtlas);
+                "Atlas".enter_Inspect(AtlasCreator, ref inspectedStuff, 11).nl(ref changed);
 
-                else foldoutAtlas = false;
-
-                if (!foldoutAtlas)
-                {
-                    if (AtlasCreator != null)
-                        changed |= "Color".toggle(35, ref AtlasCreator.sRGB);
-
-                    pegi.select(ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases);
-                    if (icon.Add.Click("Create new Atlas", 15).nl(ref changed))
-                    {
+                if (inspectedStuff == -1) {
+                    "Atlases".select(70, ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases).changes(ref changed);
+                    if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
                         atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
                         var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
                         TileableAtlasingControllerPlugin.inst.atlases.Add(ac);
                     }
                 }
-                else changed |= AtlasCreator.Nested_Inspect().nl();
 
-
-
-                pegi.Space();
-
-
-
-                if ((atlasedField != null) && (a.originalMaterial != null) && (AtlasCreator != null) && (originField < a.originalTextures.Count))
+                if ((atlasedField != null) && (a.originalMaterial) && (AtlasCreator != null) && (originField < a.originalTextures.Count))
                 {
                     Texture t = a.originalMaterial.GetTexture(a.originalTextures[originField]);
-                    if ((t != null) && t.GetType() == typeof(Texture2D)) //&& (atlasCreator.textures.Contains((Texture2D)t)))
+                    if ((t) && t.GetType() == typeof(Texture2D))
                         icon.Done.write();
                     else "Will use Color".edit(ref col).nl();
                 }
                 else
                     "Color".edit("Color that will be used instead of a texture.", 35, ref col).nl();
-                pegi.Space();
-
-
             }
-
-
-            pegi.newLine();
-            pegi.Space();
-            pegi.newLine();
 
             return changed;
 
         }
 #endif
+        #endregion
     }
-
-    [System.Serializable]
-    public class MaterialAtlases : IGotName, IPEGI
-    {
-        //public static List<MaterialAtlases> all = new List<MaterialAtlases>();
+    
+    public class MaterialAtlases : AbstractKeepUnrecognized_STD, IGotName, IPEGI {
 
         public string name;
-
-        public override string ToString()
-        {
-            return name;
-        }
 
         public Material originalMaterial;
         public Shader originalShader;
         public List<string> originalTextures;
         public Material AtlasedMaterial;
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_String("n", name)
+            .Add_Reference("om", originalMaterial)
+            .Add("ot", originalTextures)
+            .Add_Reference("am", AtlasedMaterial);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "n": name = data; break;
+                case "om": data.Decode_Reference(ref originalMaterial); break;
+                case "ot": data.Decode_List(out originalTextures); break;
+                case "am": data.Decode_Reference(ref AtlasedMaterial); break;
+            default: return false;
+            }
+            return true;
+        }
+
+        #endregion
+
         Material DestinationMaterial { get { return AtlasedMaterial ? AtlasedMaterial : originalMaterial; } }
 
         public string NameForPEGI { get { return name; } set { name = value; } }
-
-      
+        
         public List<FieldAtlas> fields;
         public int matAtlasProfile;
-
 
         public MaterialAtlases()
         {
@@ -339,14 +349,10 @@ namespace Playtime_Painter.Examples {
 
             fields = new List<FieldAtlas>();
         }
-
-
+        
         public void ConvertToAtlased(PlaytimePainter painter)
         {
 #if UNITY_EDITOR
-
-         
-
 
             if (AtlasedMaterial == null)
                 AtlasedMaterial = painter.InstantiateMaterial(true);
@@ -425,7 +431,7 @@ namespace Playtime_Painter.Examples {
 
                 if (atlPlug.preAtlasingMaterials == null)
                 {
-                    atlPlug.preAtlasingMaterials = painter.GetMaterials();
+                    atlPlug.preAtlasingMaterials = painter.GetMaterials().ToList();
                     atlPlug.preAtlasingMesh = painter.GetMesh();
                     firstAtlasing = true;
                 }
@@ -437,8 +443,8 @@ namespace Playtime_Painter.Examples {
                 Vector2 tyling = mat.GetTextureScale(originalTextures[MainField.originField]);
                 Vector2 offset = mat.GetTextureOffset(originalTextures[MainField.originField]);
 
-                for (int i = 0; i < passedFields.Count; i++)
-                {// var f in passedFields){
+                for (int i = 0; i < passedFields.Count; i++) {
+
                     var f = passedFields[i];
                     var ac = f.AtlasCreator;
 
@@ -474,16 +480,14 @@ namespace Playtime_Painter.Examples {
                     var m = painter.GetMesh();
                     m.name = m.name + "_Atlased_" + index;
                 }
-                //painter.getMaterial(false).SetTextureOffset(1,Vector2.zero);
-
+ 
                 AtlasedMaterial.EnableKeyword(PainterDataAndConfig.UV_ATLASED);
 
             }
 #endif
                     }
 
-
-                    public void FindAtlas(int field)
+        public void FindAtlas(int field)
         {
             var texMGMT = PainterCamera.Inst;
 
@@ -505,7 +509,6 @@ namespace Playtime_Painter.Examples {
                 }
             }
         }
-
 
         public void OnChangeMaterial(PlaytimePainter painter)
         {
@@ -559,12 +562,12 @@ namespace Playtime_Painter.Examples {
 #endif
             }
 
-#if PEGI
+        #region Inspector
+        #if PEGI
         Shader atlasedShader;
         public static MaterialAtlases inspectedAtlas;
-        [SerializeField]
         private bool showHint;
-        public bool Inspect()
+        public override bool Inspect()
         {
             bool changed = false;
 
@@ -611,15 +614,15 @@ namespace Playtime_Painter.Examples {
                     else if (mats.Length > 0)
                         "Source Material".write_obj("Submesh which will be converted", 90, mats[0]);
                 }
-                pegi.newLine();
+                pegi.nl();
                 pegi.Space();
-                pegi.newLine();
+                pegi.nl();
             }
 
 
 
             pegi.Space();
-            pegi.newLine();
+            pegi.nl();
 
             foreach (var f in fields)
                 changed |= f.Nested_Inspect();
@@ -650,15 +653,17 @@ namespace Playtime_Painter.Examples {
             return changed;
 
         }
-#endif
+        #endif
+        #endregion
     }
     
-    [Serializable]
-    public class AtlasTextureField
+    public class AtlasTextureField: AbstractKeepUnrecognized_STD, IPEGI_ListInspect
     {
         public Texture2D texture;
-        public Color color;
+        public Color color = Color.black;
         public bool used;
+
+        public AtlasTextureField() { used = true; }
 
         public AtlasTextureField(Texture2D tex, Color col)
         {
@@ -667,17 +672,49 @@ namespace Playtime_Painter.Examples {
             used = true;
         }
 
-    }
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            (used ? icon.Active : icon.InActive).write();
 
-    [Serializable]
-    public class AtlasTextureCreator : IGotName, IPEGI
+            var changed = false;
+            pegi.edit(ref texture).changes(ref changed);
+            if (!texture)
+            pegi.edit(ref color).changes(ref changed);
+
+            return changed;
+        }
+
+        #region Encode & Decode
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_Reference("tex", texture)
+            .Add("col", color)
+            .Add_Bool("u", used);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "tex": data.Decode_Reference(ref texture); break;
+                case "col": color = data.ToColor(); break;
+                case "u": used = data.ToBool(); break;
+                default: return false;
+            }
+            return true;
+        }
+
+       
+        #endregion
+
+    }
+    
+    public class AtlasTextureCreator : AbstractKeepUnrecognized_STD, IGotName, IPEGI
     {
 
         static PainterDataAndConfig Cfg => PainterCamera.Data;
 
-        public int AtlasSize = 2048;
+        int AtlasSize = 2048;
 
-        public int textureSize = 512;
+        int textureSize = 512;
 
         public bool sRGB = true;
         
@@ -687,9 +724,44 @@ namespace Playtime_Painter.Examples {
 
         public List<string> atlasFields;
 
+        List<string> srcFields = new List<string>();
+
         public Texture2D a_texture;
 
         public List<AtlasTextureField> textures;
+        List_Data texturesMeta = new List_Data("Textures", enterIcon: icon.Painter);
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add("tf", targetFields)
+            .Add("af", atlasFields)
+            .Add("sf", srcFields)
+            .Add_Reference("atex", a_texture)
+            .Add("txs", textures, texturesMeta)
+            .Add_String("n", NameForPEGI)
+            .Add_Bool("rgb", sRGB)
+            .Add("s", textureSize)
+            .Add("as", AtlasSize);
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "tf": data.Decode_List(out targetFields); break;
+                case "af": data.Decode_List(out atlasFields); break;
+                case "sf": data.Decode_List(out srcFields); break;
+                case "atex": data.Decode_Reference(ref a_texture); break;
+                case "txs": data.Decode_List(out textures, ref texturesMeta); break;
+                case "n": NameForPEGI = data; break;
+                case "rgb": sRGB = data.ToBool(); break;
+                case "s": textureSize = data.ToInt(); break;
+                case "as": AtlasSize = data.ToInt(); break;
+            default: return false;
+            }
+            return true;
+        }
+
+        #endregion
 
         public int Row { get { return AtlasSize / textureSize; } }
 
@@ -701,11 +773,6 @@ namespace Playtime_Painter.Examples {
                 targetFields.Add(target);
         }
         
-        public override string ToString()
-        {
-            return NameForPEGI;
-        }
-
         void Init()
         {
             if (targetFields == null)
@@ -877,8 +944,7 @@ namespace Playtime_Painter.Examples {
 
         }
 
-        public List<string> srcFields = new List<string>();
-        
+
 #if UNITY_EDITOR
         public void ReconstructAsset()
         {
@@ -928,35 +994,32 @@ namespace Playtime_Painter.Examples {
 
 #if PEGI
 
-        public bool Inspect()
-        {
+        public override bool Inspect() {
             bool changed = false;
 #if UNITY_EDITOR
 
+            if (inspectedStuff == -1) {
 
-            this.inspect_Name().nl();
+                "Atlas size:".editDelayed(ref AtlasSize, 80).nl(ref changed);
+                    AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
 
-            changed |= "Atlas size:".editDelayed( ref AtlasSize, 80).nl();
-            AtlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(AtlasSize, 512, 4096));
+                if ("Textures size:".editDelayed(ref textureSize, 80).nl(ref changed))
 
-            if ("Textures size:".editDelayed( ref textureSize, 80).nl(ref changed))
-                pegi.foldIn();
-        
-            textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
+                textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, AtlasSize / 2));
 
-            AdjustListSize();
+                AdjustListSize();
+            }
 
-            if ("Textures:".foldout().nl())
-            {
+            texturesMeta.enter_List(ref textures, ref inspectedStuff, 11);
+
+            if ("Textures:".foldout().nl()) {
                 AdjustListSize();
                 int max = TextureCount;
 
-                for (int i = 0; i < max; i++)
-                {
+                for (int i = 0; i < max; i++) {
                     var t = textures[i];
 
-                    if (t.used)
-                    {
+                    if (t.used) {
                         pegi.edit(ref t.texture);
                         if (t.texture == null)
                             pegi.edit(ref t.color);
@@ -981,4 +1044,34 @@ namespace Playtime_Painter.Examples {
 #endif
     }
 
+    public static class AtlasingExtensions
+    {
+        public static bool IsAtlased(this PlaytimePainter p)
+        {
+            if (p == null) return false;
+            var mat = p.GetMaterial(false);
+            if (mat == null) return false;
+            return p.GetMaterial(false).IsAtlased(p.GetMaterialTexturePropertyName);
+        }
+        public static bool IsProjected(this PlaytimePainter p) { return p.GetMaterial(false).IsProjected(); }
+
+        public static bool IsAtlased(this Material mat, string property)
+        {
+            return mat.IsAtlased() && mat.DisplayNameContains(property, PainterDataAndConfig.isAtlasableDisaplyNameTag);
+        }
+
+        public static bool IsAtlased(this Material mat)
+        {
+            if (mat == null) return false;
+            return mat.shaderKeywords.Contains(PainterDataAndConfig.UV_ATLASED);
+        }
+
+        public static bool Contains(this List<AtlasTextureField> lst, Texture2D tex)
+        {
+            foreach (var ef in lst)
+                if ((ef != null) && (ef.texture != null) && (ef.texture == tex))
+                    return false;
+            return true;
+        }
+    }
 }

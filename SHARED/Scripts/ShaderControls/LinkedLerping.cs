@@ -708,8 +708,7 @@ namespace SharedTools_Stuff {
             string dom = "None (weird)";
 
             foreach (var e in list)
-                if (e != null)
-                    e.Portion(ref portion, ref dom);
+                    e.NullIfDestroyed()?.Portion(ref portion, ref dom);
 
             return dom;
         }
@@ -717,34 +716,28 @@ namespace SharedTools_Stuff {
         public static void Portion<T>(this List<T> list, ref float portion, ref string dominantValue) where T : ILinkedLerping
         {
             foreach (var e in list)
-                if (e != null)
-                    e.Portion(ref portion, ref dominantValue);
+                    e.NullIfDestroyed()?.Portion(ref portion, ref dominantValue);
         }
 
         public static void Lerp<T>(this List<T> list, float portion) where T : ILinkedLerping
         {
             foreach (var e in list)
-                if (e != null)
-                    e.Lerp(portion);
+                    e.NullIfDestroyed()?.Lerp(portion);
         }
 
-        public static void FadeAway<T>(this List<T> list) where T : IManageFading
-        {
-
+        public static void FadeAway<T>(this List<T> list) where T : IManageFading {
             if (list != null)
                 foreach (var e in list)
-                    if (e != null) e.FadeAway();
-
+                    e.NullIfDestroyed()?.FadeAway();
         }
 
-        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading
-        {
+        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading {
 
             bool fadedIn = false;
 
             if (list != null)
                 foreach (var e in list)
-                    if (e != null) fadedIn |= e.TryFadeIn();
+                    if (!e.IsNullOrDestroyed()) fadedIn |= e.TryFadeIn();
 
             return fadedIn;
         }

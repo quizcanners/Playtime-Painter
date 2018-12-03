@@ -131,36 +131,34 @@ namespace Playtime_Painter
         public virtual bool Inspect()
         {
 
-            bool change = false;
+            bool changed = false;
   
             if (BrushConfig.InspectedIsCPUbrush || !PainterCamera.Inst)
-                return change;
+                return changed;
 
             if (TexMGMTdata.masks.Count > 0)
             {
                 pegi.nl();
                 pegi.Space();
-                pegi.newLine();
+                pegi.nl();
 
-                change |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true);
+                changed |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true);
 
                 if (InspectedBrush.useMask) {
 
-                    change |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl();
+                    changed |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl();
 
                     if (!InspectedBrush.randomMaskOffset)
-                        change |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
+                        changed |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
 
-                    change |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl();
+                    changed |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl();
 
           
-                    if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl())
-                    {
+                    if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl(ref changed))
                         InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
-                        change = true;
-                    }
+                    
 
-                    change |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
+                    changed |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
                     
                 }
 
@@ -170,7 +168,7 @@ namespace Playtime_Painter
             if (InspectedPainter.NeedsGrid() && "Center Grid On Object".Click().nl())
                 GridNavigator.onGridPos = InspectedPainter.transform.position;
 
-            return change;
+            return changed;
         }
 #endif
         public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
