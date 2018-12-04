@@ -646,7 +646,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder TryAdd<T>(string tag, T obj) {
 
-            var objstd = (typeof(T) is ISTD) ? (obj as ISTD) : obj.TryGet_fromObj<ISTD>();
+            var objstd = obj.TryGet_fromObj<ISTD>(); 
             if (objstd != null)
                Add(tag, objstd);
             

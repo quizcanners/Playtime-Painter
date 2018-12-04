@@ -1319,10 +1319,7 @@ namespace PlayerAndEditorGUI {
             else
                 current_Reordered_List.RemoveAt(i);
         }
-
-    
-
-
+        
     #endregion
 
 }

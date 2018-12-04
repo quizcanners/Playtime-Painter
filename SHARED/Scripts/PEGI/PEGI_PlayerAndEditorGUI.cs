@@ -323,6 +323,9 @@ namespace PlayerAndEditorGUI {
         }
 
         public static string NeedAttentionMessage(this IList list, string listName = "list", bool canBeNull = false) {
+            if (list == null)
+                return canBeNull ? null : "{0} is Null".F(listName);
+
             for (int i = 0; i < list.Count; i++)  {
                 var el = list[i];
                 if (el != null)  {
@@ -3632,6 +3635,39 @@ namespace PlayerAndEditorGUI {
             return false;
 
         }
+
+        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object, IPEGI
+           => label.edit_enter_Inspect(90, ref obj, ref entered, current, selectFrom);
+        
+        public static bool edit_enter_Inspect<T>(this string label, int width ,ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object, IPEGI
+        {
+            var changed = false;
+
+            if (entered == -1) {
+                if (selectFrom == null) {
+                    label.write(width);
+                    if (!obj) changed |= edit(ref obj);
+                        else 
+                    if (icon.Delete.Click("Null this object"))
+                        obj = null;
+                }
+                else
+                    label.select_or_edit(width, ref obj, selectFrom).changes(ref changed);
+            }
+
+            var lst = obj as IPEGI_ListInspect;
+
+            if (lst!= null)  {
+
+                if (lst.enter_Inspect_AsList(ref entered, current))
+                    changed |= obj.Inspect();
+
+            } else if (icon.Enter.conditional_enter(obj, ref entered, current))
+                changed |= obj.Inspect();
+
+            return changed;
+        }
+        
         #endregion
 
         #region Vectors
@@ -5231,7 +5267,7 @@ namespace PlayerAndEditorGUI {
             label.write_ListLabel(ref notInsp, lst);
         }
 
-            static void write_ListLabel(this string label, ref int inspected, IList lst = null) {
+        static void write_ListLabel(this string label, ref int inspected, IList lst = null) {
 
             bool editedName = false;
 
@@ -5320,6 +5356,8 @@ namespace PlayerAndEditorGUI {
         static Array editing_Array_Order;
 
         public static CountlessBool selectedEls = new CountlessBool();
+
+        static List<int> copiedElements = new List<int>();
 
         static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null) {
 
@@ -5482,29 +5520,32 @@ namespace PlayerAndEditorGUI {
 
                         nl();
                     }
-                    //  list.InspectionEnd().nl();
+
                 }
 
-                if (list.Count > 0 && icon.Copy.ClickUnfocus("Copy List Elements"))
+                if (list.Count > 0 && icon.Copy.ClickUnfocus("Copy List Elements")) {
                     listCopyBuffer = list;
-                if (listCopyBuffer != null)
-                {
+                    if (meta != null)
+                        copiedElements = meta.GetSelectedElements();
+                    else
+                        copiedElements = selectedEls.GetItAll();
+                }
+
+                if (listCopyBuffer != null) {
+
                     if (icon.Close.ClickUnfocus("Clean buffer"))
                         listCopyBuffer = null;
 
-                    if (typeof(T).IsUnityObject())
-                    {
-                        if (icon.Link.ClickUnfocus("Try Past References Of {0}".F(listCopyBuffer.ToPEGIstring())))
-                        {
+                    if (typeof(T).IsUnityObject()) {
 
-                            foreach (var e in listCopyBuffer)
-                                list.TryAdd(e);
+                        if (icon.Paste.ClickUnfocus("Try Past References Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
+                            foreach (var e in copiedElements) 
+                                list.TryAdd(listCopyBuffer.TryGet(e));
                         }
-                    }
-                    else
-                    {
-                        if (icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring())))
-                        {
+
+                    } else {
+
+                        if (icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring()))) {
 
                             foreach (var e in listCopyBuffer)  {
 
@@ -5516,19 +5557,16 @@ namespace PlayerAndEditorGUI {
                         }
                     }
                 }
-
-
+                
                 int selectedCount = 0;
              
-
                 if (meta == null) {
                     for (int i = 0; i < list.Count; i++)
                         if (selectedEls[i]) selectedCount++;
                 }
                 else for (int i = 0; i < list.Count; i++)
                         if (meta.GetIsSelected(i)) selectedCount++;
-
-
+                
                 if ((meta == null || meta.allowDelete) && list.Count > 0) {
                     int nullOrDestroyedCount = 0;
 
@@ -5543,8 +5581,7 @@ namespace PlayerAndEditorGUI {
                         SetSelected(meta, list, false);
                     }
                 }
-
-               
+                
                 if (selectedCount>0 && icon.DeSelectAll.Click("Deselect All"))
                     SetSelected(meta, list, false);
                     
@@ -5618,16 +5655,13 @@ namespace PlayerAndEditorGUI {
 
             bool clickHighlightHandeled = false;
 
-            var go = el as GameObject;
+            var uo = el as UnityEngine.Object;
 
-            IPEGI pg = go.TryGet<IPEGI>();
-                if (pg != null)
-                    el = pg;
-            
+            IPEGI pg = el.TryGet_fromObj<IPEGI>();
+            if (pg != null)
+                el = pg;
 
             var pl = el as IPEGI_ListInspect;
-
-            var uo = el as UnityEngine.Object;
 
             var need = el as INeedAttention;
             string warningText = need?.NeedAttention();
@@ -5635,10 +5669,7 @@ namespace PlayerAndEditorGUI {
             if (warningText != null)
                 attentionColor.SetBgColor();
 
-            if (pl == null)
-            {
-                if (pg == null)
-                    pg = el as IPEGI;
+            if (pl == null)  {
 
                 var named = el as IGotName;
                 if (named != null)
@@ -5666,8 +5697,7 @@ namespace PlayerAndEditorGUI {
 
                         if (uo) {
                             tex = uo as Texture;
-                            if (tex)
-                            {
+                            if (tex) {
                                 uo.clickHighlight(tex); 
                                 clickHighlightHandeled = true;
                             }
@@ -6034,9 +6064,8 @@ namespace PlayerAndEditorGUI {
 
                     foreach (var i in list.InspectionIndexes())     {
                         var el = list[i];
-                        if (el == null)
+                        if (el.IsNullOrDestroyedUnityObject())
                         {
-
                             if (from != null && from.Count > 0 && select_SameClass(ref el, from))
                                 list[i] = el;
 
@@ -6896,12 +6925,12 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Inspect Name
-        public static bool Try_NameInspect(this object obj, string label = "") {
+        static bool Try_NameInspect(this object obj, string label = "") {
             bool could;
             return obj.Try_NameInspect(out could, label);
         }
 
-        public static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
+        static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
         {
 
             bool gotLabel = label != null && label.Length > 0;
@@ -7155,11 +7184,11 @@ namespace PlayerAndEditorGUI {
             return icon.ClickUnfocus(hint);
         }
 
-        public static bool Try_Nested_Inspect(this GameObject other)
+        public static bool Try_Nested_Inspect(this GameObject go)
         {
             bool changed = false;
 
-            var pgi = other.TryGet<IPEGI>();
+            var pgi = go.TryGet<IPEGI>();
 
             if (pgi != null)
                 changed |= pgi.Nested_Inspect().RestoreBGColor();
@@ -7167,14 +7196,16 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool Try_Nested_Inspect(this object other) {
-            var pgi = other.TryGet_fromObj<IPEGI>();
+        public static bool Try_Nested_Inspect(this Component cmp ) => cmp ? cmp.gameObject.Try_Nested_Inspect() : false;
+
+        public static bool Try_Nested_Inspect(this object obj) {
+            var pgi = obj.TryGet_fromObj<IPEGI>();
             return pgi != null ? pgi.Nested_Inspect() : false;
         }
 
         public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne)
         {
-            if (obj == null)
+            if (obj.IsNullOrDestroyed())
                 return false;
 
             var l = obj.TryGet_fromObj<IPEGI_ListInspect>();

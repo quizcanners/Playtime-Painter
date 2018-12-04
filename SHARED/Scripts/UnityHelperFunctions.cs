@@ -98,29 +98,42 @@ namespace SharedTools_Stuff {
 
         #region Components & GameObjects
 
-        public static T TryGet_fromObj<T>(this object other) where T : class
-        {
-            if (other == null)
-                return null;
+        public static GameObject TryGetGameObject(this object obj) {
+            var go = obj as GameObject;
 
-            var go = other as GameObject;
+            if (!go)  {
+                var cmp = obj as Component;
+                if (cmp)
+                    go = cmp.gameObject;
+            }
+
+            return go;
+        }
+
+        public static T TryGet_fromObj<T>(this object obj) where T : class {
+            var pgi = obj as T;
+
+            if (pgi != null)
+                return pgi;
+
+            var go = obj.TryGetGameObject();
 
             if (go)
                 return go.TryGet<T>();
             else
-                return other as T;
+                return pgi;
         }
 
-        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb.gameObject.TryGet<T>();
+        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb?.gameObject.TryGet<T>();
         
-        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf.gameObject.TryGet<T>();
+        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf?.gameObject.TryGet<T>();
 
         public static T TryGet<T>(this GameObject go) where T:class {
            
                 if (go.IsNullOrDestroyed())
                     return null;
 
-                var monos = go.GetComponents<MonoBehaviour>();
+                var monos = go.GetComponents<Component>();
 
                 foreach (var m in monos) {
                     var p = m as T;
@@ -129,8 +142,7 @@ namespace SharedTools_Stuff {
                 }
                 return null;
         }
-
-
+        
         public static bool IsNullOrDestroyedUnityObject(this UnityEngine.Object obj)
         {
             if (obj == null || !obj) return true;

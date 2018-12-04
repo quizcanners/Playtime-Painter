@@ -314,6 +314,11 @@ namespace SharedTools_Stuff {
                                 }
                             }
                             else
+                            if (targetTextures.Count >1 && value == targetTextures[1])
+                            {
+                                targetTextures.TryRemoveTill(2);
+                            }
+                            else 
                             {
                                 if (targetTextures.Count == 1) {
                                     targetTextures.Add(value);
@@ -697,6 +702,13 @@ namespace SharedTools_Stuff {
             public override float Value { get { return graphic ? graphic.color.a : targetValue; } set { graphic.TrySetAlpha(value); } }
 
             protected override string Name => "Graphic Alpha";
+
+            public GraphicAlpha() { }
+
+            public GraphicAlpha (Graphic _graphic) {
+                graphic = _graphic;
+            }
+
         }
 
     }

@@ -661,7 +661,7 @@ namespace SharedTools_Stuff
         }
 
         public static bool TryDecodeInto<T>(this string data, T val) =>
-            ((typeof(T) is ISTD) ? val as ISTD : val.TryGet_fromObj<ISTD>()).Decode_ifNotNull(data);
+            val.TryGet_fromObj<ISTD>().Decode_ifNotNull(data);
         
         public static bool Decode_ifNotNull(this ISTD istd, string data)
         {
@@ -765,7 +765,7 @@ namespace SharedTools_Stuff
         static ISTD_SerializeNestedReferences keeper;
 
         public static bool TryDecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) {
-            var std = val as ISTD;
+            var std = val.TryGet_fromObj<ISTD>();
             if (std != null) {
                 data.DecodeInto(std, referencesKeeper);
                 return true;

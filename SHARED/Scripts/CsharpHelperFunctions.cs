@@ -250,8 +250,6 @@ namespace SharedTools_Stuff
 
         }
 
-        public static bool TryAdd<T>(this List<T> list, object ass) => list.TryAdd(ass, true);
-
         public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true) {
             conv = default(T);
 

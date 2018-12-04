@@ -24,6 +24,13 @@ namespace SharedTools_Stuff
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
         
+        public List<int> GetSelectedElements() {
+            var sel = new List<int>();
+            foreach (var e in elementDatas)
+                if (e.selected) sel.Add(elementDatas.currentEnumerationIndex);
+            return sel;
+        }
+
         public bool GetIsSelected (int ind) {
             var el = elementDatas.GetIfExists(ind);
             if (el != null)
