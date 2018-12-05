@@ -176,6 +176,16 @@ namespace SharedTools_Stuff {
             return Mathf.Lerp(from, to, portion);
         }
 
+        public static bool LerpAngle_bySpeed (ref float from, float to, float speed) {
+            float dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
+            if (dist > 0) {
+                float portion = speed.SpeedToPortion(dist);
+                from = Mathf.LerpAngle(from, to, portion);
+                return true;
+            }
+            return false;
+        }
+
         #endregion
 
         #region Trigonometry

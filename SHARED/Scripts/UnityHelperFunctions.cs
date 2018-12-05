@@ -1744,12 +1744,7 @@ namespace SharedTools_Stuff {
 #endif
         #endregion
         #endregion
-
-     
-
     }
-
-
 
     public class ChillLogger
     {
@@ -1757,7 +1752,7 @@ namespace SharedTools_Stuff {
         bool disabled = false;
         float lastLogged = 0;
         int calls;
-        string message = "error";
+        readonly string message = "error";
 
         public ChillLogger(string msg, bool logInBuild = false)
         {

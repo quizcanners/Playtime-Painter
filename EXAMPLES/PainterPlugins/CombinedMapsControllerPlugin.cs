@@ -951,7 +951,7 @@ namespace Playtime_Painter.Examples
             height = id == null ? set.height : id.height;
             if (_pixels == null)
             {
-                ExtractPixels(set.HeightMap ?? set.Ambient, width, height);
+                ExtractPixels(set.HeightMap ? set.HeightMap : set.Ambient, width, height);
 
                 float xLeft;
                 float xRight;

@@ -24,23 +24,24 @@ namespace Playtime_Painter.Examples {
         [SerializeField]
         string textureField = "";
 
-        public Mesh Mesh { get { return skinnedMeshRenderer != null ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
-        public Renderer Rendy { get { return meshRenderer ?? skinnedMeshRenderer; } }
+        public Mesh Mesh { get { return skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
+        public Renderer Renderer { get { return meshRenderer ? meshRenderer : skinnedMeshRenderer; } }
         public Material Material { get {
-                if (Rendy == null) return null;
-                if (materialIndex < Rendy.sharedMaterials.Length)
-                    return Rendy.sharedMaterials[materialIndex];
+                if (!Renderer)
+                    return null;
+                if (materialIndex < Renderer.sharedMaterials.Length)
+                    return Renderer.sharedMaterials[materialIndex];
                 return null; }  set {
-                if (materialIndex < Rendy.sharedMaterials.Length)
+                if (materialIndex < Renderer.sharedMaterials.Length)
                 {
-                    var mats = Rendy.sharedMaterials;
+                    var mats = Renderer.sharedMaterials;
                     mats[materialIndex] = value;
-                    Rendy.materials = mats;
+                    Renderer.materials = mats;
                 }
             }
         }
         public Texture MatTex { get {
-                if (Material == null) return null;
+                if (!Material) return null;
                 return Material.HasProperty(textureField) ? Material.GetTexture(textureField) : Material.mainTexture;
 
             } set {
@@ -84,7 +85,7 @@ namespace Playtime_Painter.Examples {
              
                 Material = Instantiate(originalMaterial);
 
-                var tex = originalTexture ?? MatTex;
+                var tex = originalTexture ? originalTexture : MatTex;
                 if (tex != null)
                     PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
                 else
@@ -181,8 +182,10 @@ namespace Playtime_Painter.Examples {
                     break;
             }
 
-            if ((Rendy && (Rendy.sharedMaterials.Length > 1)) || materialIndex != 0) 
-                "   Material".select(80, ref materialIndex, Rendy.sharedMaterials).nl();
+            var r = Renderer;
+
+            if ((r && (r.sharedMaterials.Length > 1)) || materialIndex != 0) 
+                "   Material".select(80, ref materialIndex, r.sharedMaterials).nl();
             
             if (Material) {
                 var lst = Material.MyGetTextureProperties();
@@ -241,11 +244,11 @@ namespace Playtime_Painter.Examples {
                         }
                         else
                         {
-                            if (Rendy)
+                            if (Renderer)
                             {
                                 icon.Done.write();
                                 "Will paint if object has any collider".nl();
-                                if (skinnedMeshRenderer != null)
+                                if (skinnedMeshRenderer)
                                 {
                                     "Colliders should be placed close to actual mesh".nl();
                                     "Otherwise brush size may be too small to reach the mesh".nl();
@@ -264,7 +267,7 @@ namespace Playtime_Painter.Examples {
 
                         if (rtm != null) {
                             "Render Texture Pool will be used to get texture".nl();
-                            if (Rendy == null) "! Renderer needs to be Assigned.".nl();
+                            if (Renderer == null) "! Renderer needs to be Assigned.".nl();
                             else {
                                 icon.Done.write();
                                 "COMPONENT SET UP CORRECTLY".write();
@@ -290,7 +293,7 @@ namespace Playtime_Painter.Examples {
                     "Start Texture:".edit("Copy of this texture will be modified.", 110, ref originalTexture).nl(ref changes);
                 
                 "Target Texture".edit("If not using Render Textures Pool", 120, ref texture);
-                if (Rendy && Material && "Find".Click().nl())
+                if (Renderer && Material && "Find".Click().nl())
                     texture = MatTex;
 
                 if (!texture || texture.GetType() == typeof(RenderTexture)) {

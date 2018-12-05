@@ -3636,10 +3636,10 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object, IPEGI
+        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
            => label.edit_enter_Inspect(90, ref obj, ref entered, current, selectFrom);
         
-        public static bool edit_enter_Inspect<T>(this string label, int width ,ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object, IPEGI
+        public static bool edit_enter_Inspect<T>(this string label, int width ,ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
         {
             var changed = false;
 
@@ -3658,12 +3658,10 @@ namespace PlayerAndEditorGUI {
             var lst = obj as IPEGI_ListInspect;
 
             if (lst!= null)  {
-
                 if (lst.enter_Inspect_AsList(ref entered, current))
-                    changed |= obj.Inspect();
-
-            } else if (icon.Enter.conditional_enter(obj, ref entered, current))
-                changed |= obj.Inspect();
+                    changed |= obj.Try_Nested_Inspect();
+            } else if (icon.Enter.conditional_enter(obj.TryGet_fromObj<IPEGI>() != null, ref entered, current))
+                changed |= obj.Try_Nested_Inspect();
 
             return changed;
         }

@@ -50,7 +50,7 @@ namespace Playtime_Painter.Examples
                             if (recivers.Length > 1)
                             {
 
-                                var mats = reciver.Rendy.materials;
+                                var mats = reciver.Renderer.materials;
 
                                 var material = mats[submesh % mats.Length];
 

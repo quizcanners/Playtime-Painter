@@ -440,7 +440,7 @@ namespace Playtime_Painter
 
             PainterCamera rtp = PainterCamera.Inst;
             int size = PainterCamera.renderTextureSize / 4;
-            RenderTexture.active = renderTexture ?? rtp.GetDownscaledBigRT(size, size);
+            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRT(size, size);
 
             if (sampler == null) sampler = new Texture2D(8, 8);
 

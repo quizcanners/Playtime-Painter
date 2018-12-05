@@ -30,6 +30,10 @@ namespace SharedTools_Stuff {
             public virtual bool UsingTreshold => (lerpMode == LerpSpeedMode.Treshold && Application.isPlaying);
             public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
 
+            protected virtual bool EaseInOutImplemented => false;
+
+            protected bool easeInOut = false;
+            
             protected bool defaultSet = false;
             public float speedTreshold = 1;
             protected bool allowChangeParameters = true;
@@ -44,6 +48,9 @@ namespace SharedTools_Stuff {
 
                 if (allowChangeParameters) {
 
+                    if (EaseInOutImplemented)
+                        cody.Add_Bool("eio", easeInOut);
+
                     cody.Add("lm",(int)lerpMode);
 
                     if (lerpMode == LerpSpeedMode.Treshold)
@@ -52,13 +59,13 @@ namespace SharedTools_Stuff {
 
                 return cody;
             }
-            public override bool Decode(string tag, string data)
-            {
-                switch (tag)
-                {
+
+            public override bool Decode(string tag, string data) {
+                switch (tag) {
                     case "ch": allowChangeParameters = data.ToBool(); break;
                     case "sp": speedTreshold = data.ToFloat(); defaultSet = false; break;
                     case "lm": lerpMode = (LerpSpeedMode)data.ToInt(); break;
+                    case "eio": easeInOut = data.ToBool(); break;
                     default: return false;
                 }
                 return true;
@@ -68,8 +75,10 @@ namespace SharedTools_Stuff {
             public abstract void Lerp(float portion);
 
             public virtual void Portion(ref float portion, ref string dominantParameter) {
-                if (UsingTreshold && Portion(ref portion))
-                    dominantParameter = Name;
+                if (UsingTreshold) {
+                    if (Portion(ref portion))
+                        dominantParameter = Name;
+                }
             }
 
             public abstract bool Portion(ref float portion);
@@ -104,9 +113,13 @@ namespace SharedTools_Stuff {
                 var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters).nl();
 
                 if (allowChangeParameters) {
+                    
                     "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
                     if (lerpMode == LerpSpeedMode.Treshold)
                         "Lerp Speed for {0}".F(Name).edit(150, ref speedTreshold).nl(ref changed);
+
+                    if (EaseInOutImplemented)
+                        "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
                 }
 
                 return changed;
@@ -120,6 +133,10 @@ namespace SharedTools_Stuff {
         {
             public Vector2 targetValue;
 
+            protected override bool EaseInOutImplemented => true;
+
+            float easePortion = 0.1f;
+
             protected abstract Vector2 CurrentValue { get; set; }
             
             public override bool UsingTreshold => base.UsingTreshold && Enabled;
@@ -132,9 +149,19 @@ namespace SharedTools_Stuff {
                 }
             }
 
-            public override bool Portion(ref float portion) =>
-                speedTreshold.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion);
+            public override bool Portion(ref float portion) {
 
+                float magn = (CurrentValue - targetValue).magnitude;
+
+                float modSpeed = speedTreshold;
+                
+                if (easeInOut) {
+                    easePortion = Mathf.Lerp(easePortion, magn > speedTreshold*0.5f ? 1 : 0.1f, Time.deltaTime*2);
+                    modSpeed *= easePortion;
+                }
+
+               return modSpeed.SpeedToMinPortion(magn, ref portion);
+            }
             #region Inspector
                 #if PEGI
 
@@ -244,9 +271,9 @@ namespace SharedTools_Stuff {
         public abstract class BASE_MaterialTextureTransition : BASE_FloatLerp {
             float portion = 0;
 
-            enum onStart {Nothing = 0, ClearTexture = 1, LoadCurrent = 2 }
+            enum OnStart {Nothing = 0, ClearTexture = 1, LoadCurrent = 2 }
 
-            onStart _onStart = onStart.Nothing;
+            OnStart _onStart = OnStart.Nothing;
 
             protected override float TargetValue {
                 get { return Mathf.Max(0, targetTextures.Count - 1); } set { } }
@@ -280,7 +307,7 @@ namespace SharedTools_Stuff {
 
             public abstract Material Material { get; }
 
-            Texture Current { get { return Material.GetTexture(currentTexturePropertyName); } set { Material.SetTexture(currentTexturePropertyName, value); } }
+            Texture Current { get { return Material?.GetTexture(currentTexturePropertyName); } set { Material?.SetTexture(currentTexturePropertyName, value); } }
             Texture Next { get { return Material.GetTexture(nextTexturePropertyName); } set { Material.SetTexture(nextTexturePropertyName, value); } }
 
             public Texture TargetTexture
@@ -364,7 +391,7 @@ namespace SharedTools_Stuff {
                 var cody = new StdEncoder().Add("b", base.Encode);
                 if (allowChangeParameters) {
                     cody.Add_IfNotZero("onStart", (int)_onStart);
-                    if (_onStart == onStart.LoadCurrent)
+                    if (_onStart == OnStart.LoadCurrent)
                         cody.Add_Reference("s", targetTextures.TryGetLast());
                 }
                 return cody;
@@ -380,8 +407,8 @@ namespace SharedTools_Stuff {
                         data.Decode_Reference(ref tmp);
                         TargetTexture = tmp;
                         break;
-                    case "clear": _onStart = onStart.ClearTexture; break;
-                    case "onStart": _onStart = (onStart)data.ToInt(); break;
+                    case "clear": _onStart = OnStart.ClearTexture; break;
+                    case "onStart": _onStart = (OnStart)data.ToInt(); break;
                     default: return false;
                 }
 
@@ -390,10 +417,10 @@ namespace SharedTools_Stuff {
 
             public override void Decode(string data)
             {
-                _onStart = onStart.Nothing;
+                _onStart = OnStart.Nothing;
                 base.Decode(data);
 
-                if (_onStart == onStart.ClearTexture) {
+                if (_onStart == OnStart.ClearTexture) {
                     Current = null;
                     Next = null;
                 }
@@ -417,7 +444,7 @@ namespace SharedTools_Stuff {
         public abstract class BASE_ShaderValue : BASE_AnyValue, IGotName {
 
             protected string name;
-            private Material mat;
+            private readonly Material mat;
             private Renderer rendy;
 
             protected Material Material => mat ? mat : rendy.MaterialWhaever(); 
@@ -444,7 +471,52 @@ namespace SharedTools_Stuff {
             }
         }
 
+        public abstract class BASE_ColorValue : BASE_AnyValue {
+            protected override string Name => "Color";
+            public Color targetValue = Color.white;
+            public abstract Color Value { get; set; }
 
+            public override bool Portion(ref float portion) =>
+              speedTreshold.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref portion);
+
+            public sealed override void Lerp(float portion) {
+                if (Enabled && (targetValue != Value || !defaultSet)) {
+                    defaultSet = true;
+                    Value = Color.Lerp(Value, targetValue, portion);
+                }
+            }
+
+            #region Encode & Decode
+
+            public override StdEncoder Encode() => new StdEncoder()
+                .Add("b", base.Encode)
+                .Add("col", targetValue);
+
+            public override bool Decode(string tag, string data) {
+                switch (tag) {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "col": targetValue = data.ToColor(); break;
+                    default: return false;
+                }
+                return true;
+            }
+
+            #endregion
+
+            #region Inspector
+            #if PEGI
+            public override bool Inspect() {
+
+                var changed = base.Inspect();
+
+                if (pegi.edit(ref targetValue).nl(ref changed))
+                    defaultSet = false;
+
+                return changed;
+            }
+            #endif
+            #endregion
+        }
         #endregion
 
         #region Value Types
@@ -595,12 +667,10 @@ namespace SharedTools_Stuff {
 
         }
         
-        public class MaterialColor : BASE_ShaderValue
-        {
+        public class MaterialColor : BASE_ShaderValue {
 
             public Color value;
             public Color targetValue;
-
 
             public override void Set(Material mat) {
                 if (mat)
@@ -608,7 +678,6 @@ namespace SharedTools_Stuff {
                 else
                     Shader.SetGlobalColor(name, value);
             }
-
 
             public MaterialColor(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
             {
@@ -691,6 +760,7 @@ namespace SharedTools_Stuff {
         }
         #endregion
 
+        #region UIElement Values
         public class GraphicAlpha : BASE_FloatLerp {
 
             public Graphic graphic;
@@ -710,6 +780,26 @@ namespace SharedTools_Stuff {
             }
 
         }
+
+        public class GraphicColor : BASE_ColorValue {
+
+            protected override string Name => "Graphic Color";
+
+            public Graphic _graphic;
+            public override Color Value { get { return _graphic ? _graphic.color : targetValue; } set { _graphic.color = value; } }
+
+            public GraphicColor() { }
+
+            public GraphicColor(Graphic graphic)
+            {
+                _graphic = graphic;
+            }
+
+
+
+        }
+
+        #endregion
 
     }
 

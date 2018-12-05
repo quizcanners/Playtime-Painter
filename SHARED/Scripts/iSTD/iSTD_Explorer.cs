@@ -342,7 +342,7 @@ namespace SharedTools_Stuff
 
             dirty = false;
             if (tags != null)
-                data = this.Encode().ToString();
+                data = Encode().ToString();
         }
 
         public int inspectedTag = -1;
@@ -360,25 +360,23 @@ namespace SharedTools_Stuff
         #if PEGI
 
         public int CountForInspector => tags.IsNullOrEmpty() ? data.Length : tags.CountForInspector();
-
-
+        
         public string NameForPEGI  {
             get  {  return tag; }
             set {  tag = value; }
         }
-
-
+        
         public bool Inspect()
         {
             if (tags == null && data.Contains("|"))
                 Decode(data);//.DecodeTagsFor(this);
 
             if (tags != null)
-                dirty |= tag.edit_List(ref tags, ref inspectedTag);
+                tag.edit_List(ref tags, ref inspectedTag).changes(ref dirty);
 
             if (inspectedTag == -1)
             {
-                dirty |= "data".edit(40, ref data);
+                "data".edit(40, ref data).nl(ref dirty);
 
                 UnityEngine.Object myType = null;
 
@@ -536,8 +534,10 @@ namespace SharedTools_Stuff
 
             if (Std != null)
             {
-                if (icon.Load.ClickUnfocus("Decode Data into " + Std.ToPEGIstring()))
+                if (icon.Load.ClickUnfocus("Decode Data into " + Std.ToPEGIstring())) {
+                    dataExplorer.UpdateData();
                     Std.Decode(dataExplorer.data);
+                }
                 if (icon.Save.ClickUnfocus("Save data from " + Std.ToPEGIstring()))
                     dataExplorer = new Exploring_STD(dataExplorer.tag, Std.Encode().ToString());
             }
@@ -613,11 +613,22 @@ namespace SharedTools_Stuff
 
                 if (selfSTD != null)
                 {
-                    if (icon.Save.Click("Save On itself (IKeepMySTD)"))
+                    if (icon.Save.Click("Save itself (IKeepMySTD)"))
                         selfSTD.Save_STDdata();
                     var slfData = selfSTD.Config_STD;
-                    if (slfData != null && slfData.Length > 0 && icon.Load.Click("Load from itself (IKeepMySTD)"))
+                    if (slfData != null && slfData.Length > 0) {
+
+                        if (icon.Load.Click("Use IKeepMySTD data to create new CFG")) {
+                            var ss = new SavedISTD();
+                            states.Add(ss);
+                            ss.dataExplorer.data = slfData;
+                            ss.NameForPEGI = "from Keep my STD";
+                            ss.comment = DateTime.Now.ToString();
+                        }
+
+                      if (icon.Refresh.Click("Load from itself (IKeepMySTD)"))
                         target.Decode(slfData);
+                    }
                 }
                 pegi.nl();
             }

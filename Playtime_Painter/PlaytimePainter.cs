@@ -1025,7 +1025,7 @@ namespace Playtime_Painter
                 if (mat)
                     Mname = mat.name;
 
-                Material = Instantiate((mat ?? TexMGMT.defaultMaterial));
+                Material = Instantiate((mat ? mat : TexMGMT.defaultMaterial));
                 CheckPreviewShader();
             }
 

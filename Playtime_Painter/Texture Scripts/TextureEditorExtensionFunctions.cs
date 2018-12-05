@@ -215,7 +215,7 @@ public static class TextureEditorExtensionFunctions  {
         {
             if (id == null)
                 return null;
-            return id.renderTexture ?? PainterCamera.Inst.BigRT_pair[0];
+            return id.renderTexture ? id.renderTexture : PainterCamera.Inst.BigRT_pair[0];
         }
 
         public static Texture ExclusiveTexture(this ImageData id)

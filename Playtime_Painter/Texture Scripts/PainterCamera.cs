@@ -10,8 +10,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
     [ExecuteInEditMode]
     public class PainterCamera : PainterStuffMono, IPEGI, IKeepUnrecognizedSTD {
@@ -23,13 +22,15 @@ namespace Playtime_Painter
         public static PainterDataAndConfig Data  {
             get  {
 
-                if (!_inst && Inst == null)
+                if (!_inst && !Inst)
                     return null;
 
                 if (!_inst.triedToFind && !_inst.dataHolder) {
-                    _inst.triedToFind = true;
+                  
                     _inst.dataHolder = Resources.Load<PainterDataAndConfig>("");
 
+                    if (!_inst.dataHolder)
+                        _inst.triedToFind = true;
                 }
 
                 return _inst.dataHolder;
@@ -40,35 +41,32 @@ namespace Playtime_Painter
 
         public static PainterCamera Inst
         {
-            get
-            {
-                if (!_inst)
-                {
+            get {
 
-                    if (!PainterStuff.applicationIsQuitting)
-                    {
+                if (!_inst) {
 
+                    if (!PainterStuff.applicationIsQuitting) {
 
                         _inst = FindObjectOfType<PainterCamera>();
-                        if (_inst == null)
-                        {
-                            if (_inst != null)
-                                _inst.gameObject.SetActive(true);
-                            else
-                            {
+
+                        if (!_inst) {
+                            
 #if UNITY_EDITOR
                                 GameObject go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                                 _inst = Instantiate(go).GetComponent<PainterCamera>();
                                 _inst.name = PainterDataAndConfig.PainterCameraName;
                                 _inst.RefreshPlugins();
 #endif
-                            }
+                            
                         }
                         if (_inst.meshManager == null)
                             _inst.meshManager = new MeshManager();
 
+                        _inst.gameObject.SetActive(true);
+
                     }
-                    else { _inst = null; }
+                    else
+                        _inst = null; 
                 }
                 return _inst;
             }
@@ -669,8 +667,7 @@ namespace Playtime_Painter
 
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             PainterStuff.applicationIsQuitting = true;
 
             if (Data)
@@ -823,8 +820,7 @@ namespace Playtime_Painter
 
 #if PEGI
 
-        public override bool Inspect()
-        {
+        public override bool Inspect() {
 
             "Active Jobs: {0}".F(blitJobsActive.Count).nl();
 
@@ -847,14 +843,10 @@ namespace Playtime_Painter
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
 
             if (rtcam == null) { "no camera".nl(); return false; }
-
-
+            
             if (Data)
                 Data.Nested_Inspect().nl();
-
-
-
-
+            
             return false;
         }
 
