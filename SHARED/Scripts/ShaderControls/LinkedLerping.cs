@@ -423,6 +423,7 @@ namespace SharedTools_Stuff {
                 if (_onStart == OnStart.ClearTexture) {
                     Current = null;
                     Next = null;
+                    targetTextures.Clear();
                 }
             }
 
