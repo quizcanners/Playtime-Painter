@@ -328,7 +328,7 @@ namespace PlayerAndEditorGUI {
 
             for (int i = 0; i < list.Count; i++)  {
                 var el = list[i];
-                if (el != null)  {
+                if (!el.IsNullOrDestroyed())  {
                     var need = el as INeedAttention;
                     if (need != null) {
                         var what = need.NeedAttention();
@@ -1311,7 +1311,7 @@ namespace PlayerAndEditorGUI {
         {
             int count = lnms.Count;
 
-            if (jindx == -1 && val != null)
+            if (jindx == -1 && !val.IsNullOrDestroyed())
             {
                 lnms.Add("[{0}]".F(val.ToPEGIstring()));
                 jindx = lnms.Count - 1;
@@ -1595,7 +1595,7 @@ namespace PlayerAndEditorGUI {
 
             for (int j = 0; j < lst.Count; j++)
             {
-                if (lst[j] != null)
+                if (!lst[j].IsNullOrDestroyed())
                 {
                     if (ind == j)
                         jindx = indxs.Count;
@@ -1666,7 +1666,7 @@ namespace PlayerAndEditorGUI {
 
                     var el = objs[i];
 
-                    if (el != null && lambda(el))
+                    if (!el.IsNullOrDestroyed() && lambda(el))
                     {
                         inds.Add(unfinds[i]);
                         if (no == inds[j])
@@ -1810,7 +1810,7 @@ namespace PlayerAndEditorGUI {
 
                 int curno = 0;
                 for (int i = 0; i < tex.Length; i++)
-                    if (tex[i] != null)
+                    if (!tex[i].IsNullOrDestroyed())
                     {
                         tnumbers.Add(i);
                         tnames.Add("{0}: {1}".F(i, tex[i].name));
@@ -1877,7 +1877,7 @@ namespace PlayerAndEditorGUI {
             else
             {
                 bool changed = false;
-                if (obj != null && icon.Delete.ClickUnfocus().changes(ref changed))
+                if (!obj.IsNullOrDestroyedUnityObject() && icon.Delete.ClickUnfocus().changes(ref changed))
                     obj = null;
                 
 
@@ -2035,7 +2035,7 @@ namespace PlayerAndEditorGUI {
 
             foreach (var el in lst)
             {
-                if (el != null)
+                if (!el.IsNullOrDestroyed())
                 {
                     int index = el.IndexForPEGI;
 
@@ -2096,7 +2096,7 @@ namespace PlayerAndEditorGUI {
             for (int i = 0; i < lst.Count; i++)
             {
                 var el = lst[i];
-                if (el != null)
+                if (!el.IsNullOrDestroyed())
                 {
                     var name = el.NameForPEGI;
 
@@ -2164,7 +2164,7 @@ namespace PlayerAndEditorGUI {
             {
                 var g = el as G;
 
-                if (g != null)
+                if (!g.IsNullOrDestroyed())
                 {
                     int index = g.IndexForPEGI;
 
@@ -2579,7 +2579,7 @@ namespace PlayerAndEditorGUI {
 
         static string TryAddCount(this string txt, object obj) {
             var c = obj as IGotCount;
-            if (c != null)
+            if (!c.IsNullOrDestroyed())
                 txt += " [{0}]".F(c.CountForInspector);
 
             return txt;
@@ -2587,8 +2587,10 @@ namespace PlayerAndEditorGUI {
 
         public static string AddCount(this string txt, IGotCount obj)
         {
-            var cnt = obj != null ? obj.CountForInspector : 0;
-            return "{0} {1}".F(txt, obj != null ?
+            bool isNull = obj.IsNullOrDestroyed();
+
+            var cnt = !isNull ? obj.CountForInspector : 0;
+            return "{0} {1}".F(txt, !isNull ?
           (cnt > 0 ?
           (cnt == 1 ? "|" : "[{0}]".F(cnt))
           : "") : "null");
@@ -3200,7 +3202,7 @@ namespace PlayerAndEditorGUI {
         {
 #if UNITY_EDITOR
             var uo = obj as UnityEngine.Object;
-            if (uo != null)
+            if (uo)
                 uo.clickHighlight(width);
 #endif
 
@@ -3210,7 +3212,7 @@ namespace PlayerAndEditorGUI {
         public static bool clickHighlight(this Sprite sp, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
-            if (sp != null && sp.Click(Msg.HighlightElement.Get(), width))
+            if (sp  && sp.Click(Msg.HighlightElement.Get(), width))
             {
                 EditorGUIUtility.PingObject(sp);
                 return true;
@@ -3223,7 +3225,7 @@ namespace PlayerAndEditorGUI {
         public static bool clickHighlight(this Texture tex, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
-            if (tex != null && tex.Click(Msg.HighlightElement.Get(), width))
+            if (tex && tex.Click(Msg.HighlightElement.Get(), width))
             {
                 EditorGUIUtility.PingObject(tex);
                 return true;
@@ -3239,7 +3241,7 @@ namespace PlayerAndEditorGUI {
         public static bool clickHighlight(this UnityEngine.Object obj, Texture tex, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
-            if (obj != null && tex.Click(Msg.HighlightElement.Get()))
+            if (obj && tex.Click(Msg.HighlightElement.Get()))
             {
                 EditorGUIUtility.PingObject(obj);
                 return true;
@@ -4617,6 +4619,9 @@ namespace PlayerAndEditorGUI {
             write(text);
             return editEnum<T>(ref eval, typeof(T), -1);
         }
+        
+        public static bool editEnum<T>(ref int eval) => editEnum<T>(ref eval, typeof(T));
+        
         #endregion
 
         #region String
@@ -5401,8 +5406,10 @@ namespace PlayerAndEditorGUI {
 
                         var el = array[i];
 
+                    var isNull = el.IsNullOrDestroyed();
+
                     if (datas == null || datas.allowDelete) {
-                        if (el != null && typeof(T).IsUnityObject())
+                        if (!isNull && typeof(T).IsUnityObject())
                         {
                             if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth).changes(ref changed))
                                 array[i] = default(T);
@@ -5416,13 +5423,13 @@ namespace PlayerAndEditorGUI {
                         }
                     }
 
-                        if (el != null && derr != null) {
+                        if (!isNull && derr != null) {
                             var ty = el.GetType();
                             if (select(ref ty, derr, el.ToPEGIstring()))
                             array[i] = (el as ISTD).TryDecodeInto<T>(ty);
                         }
 
-                        if (el != null)
+                        if (!isNull)
                             write(el.ToPEGIstring());
                         else
                             "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
@@ -5484,10 +5491,12 @@ namespace PlayerAndEditorGUI {
 
                         var el = list[i];
 
+                        var isNull = el.IsNullOrDestroyed();
+
                         if (meta == null || meta.allowDelete)
                         {
 
-                            if (el != null && typeof(T).IsUnityObject())
+                            if (!isNull && typeof(T).IsUnityObject())
                             {
                                 if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
                                     list[i] = default(T);
@@ -5504,14 +5513,14 @@ namespace PlayerAndEditorGUI {
                         }
 
 
-                        if (el != null && derr != null)
+                        if (!isNull && derr != null)
                         {
                             var ty = el.GetType();
                             if (select(ref ty, derr, el.ToPEGIstring()))
                                 list[i] = (el as ISTD).TryDecodeInto<T>(ty);
                         }
 
-                        if (el != null)
+                        if (!isNull)
                             write(el.ToPEGIstring());
                         else
                             "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
@@ -5972,7 +5981,7 @@ namespace PlayerAndEditorGUI {
                                         int max = 0;
 
                                         foreach (var eee in list)
-                                            if (eee != null)
+                                            if (!eee.IsNullOrDestroyed())
                                             {
                                                 var eeind = eee as IGotIndex;
                                                 if (eeind != null)
@@ -6312,7 +6321,7 @@ namespace PlayerAndEditorGUI {
         {
 
             var role = listElementsRoles.TryGet(InspectedIndex);
-            if (role != null)
+            if (!role.IsNullOrDestroyed())
                 role.ToPEGIstring().edit(90, ref val);
             else edit(ref val);
 
@@ -6369,7 +6378,8 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     var before = el;
                     el = lambda(el);
-                    if (((el != null && !el.Equals(before)) || (el == null && before != null)).changes(ref changed))
+                    bool isNull = el.IsNullOrDestroyed();
+                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed())).changes(ref changed))
                         list[i] = el;
                     
                     nl();
@@ -6408,7 +6418,8 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     var before = el;
                     el = lambda(el);
-                    if (((el != null && !el.Equals(before)) || (el == null && before != null)).changes(ref changed))
+                    bool isNull = el.IsNullOrDestroyed();
+                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed())).changes(ref changed))
                         list[i] = el;
                     
                     nl();
@@ -6441,7 +6452,8 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     var before = el;
                     el = lambda(el);
-                    if (((el != null && !el.Equals(before)) || (el == null && before != null)).changes(ref changed))
+                    bool isNull = el.IsNullOrDestroyedUnityObject();
+                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed())).changes(ref changed))
                         list[i] = el;
                     
                     nl();
@@ -6938,14 +6950,14 @@ namespace PlayerAndEditorGUI {
             if (iname != null)
                 return iname.inspect_Name(label);
 
-            if (obj as MonoBehaviour != null) {
+            if (!(obj as MonoBehaviour).IsNullOrDestroyed()) {
                 couldInspect = false;
                 return false;
             }
 
             var uobj = obj as UnityEngine.Object;
 
-            if (uobj != null)
+            if (!uobj.IsNullOrDestroyed())
             {
                 var n = uobj.name;
                 if (gotLabel ? label.edit(80, ref n) : edit(ref n)) {
@@ -7119,7 +7131,7 @@ namespace PlayerAndEditorGUI {
 
             foreach (var e in list) {
                 var cnt = e as IGotCount;
-                if (cnt != null)
+                if (!cnt.IsNullOrDestroyed())
                     count += cnt.CountForInspector;
             }
 
@@ -7148,10 +7160,8 @@ namespace PlayerAndEditorGUI {
 
         public static bool Nested_Inspect(this IPEGI pgi)
         {
-            if (pgi == null)
+            if (pgi.IsNullOrDestroyed())
                 return false;
-
-            if (pgi != null) {
 
                 var isFOOE = pegi.isFoldedOut_or_Entered;
 
@@ -7164,8 +7174,6 @@ namespace PlayerAndEditorGUI {
 
                 return changes;
 
-            }
-            return false;
         }
 
         public static bool Attention_Or_Click(this INeedAttention attention, icon icon = icon.Enter, string hint = "") {
@@ -7201,10 +7209,7 @@ namespace PlayerAndEditorGUI {
             return pgi != null ? pgi.Nested_Inspect() : false;
         }
 
-        public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne)
-        {
-            if (obj.IsNullOrDestroyed())
-                return false;
+        public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne) {
 
             var l = obj.TryGet_fromObj<IPEGI_ListInspect>();
 
@@ -7215,6 +7220,9 @@ namespace PlayerAndEditorGUI {
 
             if (p != null)
                 return p.enter_Inspect(ref enteredOne, thisOne);
+
+            if (enteredOne == thisOne)
+                enteredOne = -1;
 
             return false;
         }
@@ -7235,7 +7243,7 @@ namespace PlayerAndEditorGUI {
         {
             if (lst != null)
                 foreach (var el in lst)
-                    if (el != null && el.IndexForPEGI == index)
+                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index)
                         return el;
 
             return default(T);
@@ -7245,7 +7253,7 @@ namespace PlayerAndEditorGUI {
         {
             if (lst != null)
                 foreach (var el in lst)
-                    if (el != null && el.IndexForPEGI == index && el.GetType() == typeof(G))
+                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index && el.GetType() == typeof(G))
                         return el;
 
             return default(T);
@@ -7264,7 +7272,7 @@ namespace PlayerAndEditorGUI {
         public static int CountForInspector<T>(this List<T> lst) where T : IGotCount  {
             int count = 0;
             foreach (var e in lst)
-                if (e != null)
+                if (!e.IsNullOrDestroyed())
                     count += e.CountForInspector;
 
             return count;
@@ -7277,7 +7285,7 @@ namespace PlayerAndEditorGUI {
 #if PEGI
             if (lst != null)
                 foreach (var el in lst)
-                    if (el != null && el.NameForPEGI.SameAs(name))
+                    if (!el.IsNullOrDestroyed() && el.NameForPEGI.SameAs(name))
                         return el;
 #endif
 
@@ -7288,9 +7296,9 @@ namespace PlayerAndEditorGUI {
         {
 
 #if PEGI
-            if (lst != null)
+            if (lst != null && !other.IsNullOrDestroyed())
                 foreach (var el in lst)
-                    if (el != null && el.NameForPEGI.SameAs(other.NameForPEGI))
+                    if (!el.IsNullOrDestroyed() && el.NameForPEGI.SameAs(other.NameForPEGI))
                         return el;
 #endif
 
@@ -7302,7 +7310,7 @@ namespace PlayerAndEditorGUI {
 #if PEGI
             if (lst != null)
                 foreach (var el in lst)
-                    if (el != null && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))
+                    if (!el.IsNullOrDestroyed() && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))
                         return el as G;
 #endif
 
