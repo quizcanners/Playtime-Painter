@@ -69,15 +69,15 @@ namespace Playtime_Painter.Examples
 
                         // ACTUAL PAINTING
 
-                    if (reciver != null) {
+                    if (reciver) {
                         var tex = reciver.GetTexture();
-                        if (tex != null)
+                        if (tex)
                         {
                             var rendTex = (reciver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)reciver.texture : null;
 
                                 // WORLD SPACE BRUSH
 
-                            if (rendTex != null)
+                            if (rendTex)
                             {
                                     var st = new StrokeVector(hit.point)
                                     {
@@ -87,12 +87,12 @@ namespace Playtime_Painter.Examples
 
                                     };
 
-                                    if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer != null)
+                                    if (reciver.type == PaintingReciever.RendererType.Skinned && reciver.skinnedMeshRenderer)
                                         BrushTypeSphere.Paint(rendTex, reciver.gameObject, reciver.skinnedMeshRenderer, brush, st, submesh);
-                                    else if (reciver.type == PaintingReciever.RendererType.Regular && reciver.meshFilter != null)
+                                    else if (reciver.type == PaintingReciever.RendererType.Regular && reciver.meshFilter)
                                     {
                                         var mat = reciver.Material;
-                                        if (mat != null && mat.IsAtlased())
+                                        if (mat && mat.IsAtlased())
                                             BrushTypeSphere.PaintAtlased (rendTex, reciver.gameObject,
                                           reciver.originalMesh ? reciver.originalMesh : reciver.meshFilter.sharedMesh, brush, st, new List<int> { submesh }, (int)mat.GetFloat(PainterDataAndConfig.atlasedTexturesInARow));
                                         else

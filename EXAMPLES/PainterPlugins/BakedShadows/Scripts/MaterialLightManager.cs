@@ -100,7 +100,7 @@ namespace Playtime_Painter {
 
                     var l = GetLight(c);
 
-                    if (l != null)
+                    if (l)
                     {
                         col = l.ecol * l.brightness;
                         pos = l.transform.position;
@@ -109,7 +109,7 @@ namespace Playtime_Painter {
                     col.a = bounceCoefficient[c];
 
                     foreach (var m in materials)
-                        if (m != null)
+                        if (m)
                         {
                             m.SetVector("l" + c + "col", col.ToVector4());
                             m.SetVector("l" + c + "pos", pos);

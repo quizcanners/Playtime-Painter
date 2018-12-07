@@ -1877,7 +1877,7 @@ namespace PlayerAndEditorGUI {
             else
             {
                 bool changed = false;
-                if (!obj.IsNullOrDestroyedUnityObject() && icon.Delete.ClickUnfocus().changes(ref changed))
+                if (obj && icon.Delete.ClickUnfocus().changes(ref changed))
                     obj = null;
                 
 
@@ -6070,7 +6070,7 @@ namespace PlayerAndEditorGUI {
 
                     foreach (var i in list.InspectionIndexes())     {
                         var el = list[i];
-                        if (el.IsNullOrDestroyedUnityObject())
+                        if (!el)
                         {
                             if (from != null && from.Count > 0 && select_SameClass(ref el, from))
                                 list[i] = el;
@@ -6451,8 +6451,8 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     var before = el;
                     el = lambda(el);
-                    bool isNull = el.IsNullOrDestroyedUnityObject();
-                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed())).changes(ref changed))
+              
+                    if (((el && !el.Equals(before)) || (!el && !before.IsNullOrDestroyed())).changes(ref changed))
                         list[i] = el;
                     
                     nl();

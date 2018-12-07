@@ -4190,7 +4190,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -3.0186431
+  timer: -52.072212
   style:
     m_Name: Hint Style
     m_Normal:

@@ -502,7 +502,7 @@ namespace Playtime_Painter.Examples {
                         {
                             fields[field].atlasCreatorId = a;
                             Texture tex = originalMaterial.GetTexture(originalTextures[i]);
-                            if ((tex != null) && (tex.GetType() == typeof(Texture2D)) && (atl.textures.Contains((Texture2D)tex)))
+                            if ((tex) && (tex.GetType() == typeof(Texture2D)) && (atl.textures.Contains((Texture2D)tex)))
                                 return;
                         }
                     }
@@ -514,10 +514,10 @@ namespace Playtime_Painter.Examples {
         {
 #if UNITY_EDITOR
 
-            if (originalMaterial != null)
+            if (originalMaterial)
                 originalTextures = originalMaterial.MyGetTextureProperties();
 
-            if ((DestinationMaterial != null) && (DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
+            if ((DestinationMaterial) && (DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
             {
                 List<string> aTextures = DestinationMaterial.MyGetTextureProperties();
                 fields.Clear();
@@ -544,7 +544,7 @@ namespace Playtime_Painter.Examples {
                 if (AtlasedMaterial == null)
                     for (int i = 0; i < fields.Count; i++)
                         fields[i].originField = i;
-                else if (originalMaterial != null)
+                else if (originalMaterial)
                 {
                     var orTexs = originalMaterial.MyGetTextureProperties();
                     foreach (var f in fields)
@@ -556,7 +556,7 @@ namespace Playtime_Painter.Examples {
                 }
             }
 
-            if (originalMaterial != null)
+            if (originalMaterial)
                 for (int i = 0; i < fields.Count; i++)
                     FindAtlas(i);
 #endif
@@ -580,7 +580,7 @@ namespace Playtime_Painter.Examples {
 
             Material mat = painter.GetMaterial(false);
 
-            if ((mat != null) && ((mat != originalMaterial) || mat.shader != originalShader))
+            if ((mat) && ((mat != originalMaterial) || mat.shader != originalShader))
             {
                 originalMaterial = mat;
                 originalShader = mat.shader;
@@ -597,11 +597,11 @@ namespace Playtime_Painter.Examples {
             }
 
             if ((("Atlased Material:".edit(90, ref AtlasedMaterial).nl()) ||
-                (AtlasedMaterial != null && AtlasedMaterial.shader != atlasedShader)).changes(ref changed)) 
+                (AtlasedMaterial && AtlasedMaterial.shader != atlasedShader)).changes(ref changed)) 
                 OnChangeMaterial(painter);
             
 
-            if (painter != null)
+            if (painter)
             {
                 var mats = painter.GetMaterials();
                 if (mats != null)
@@ -629,12 +629,12 @@ namespace Playtime_Painter.Examples {
 
             changed |= "Mesh Profile".select(110, ref matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
 
-            if ((DestinationMaterial != null) && (!DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
+            if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
             {
                 if (AtlasedMaterial == null) pegi.writeHint("Original Material doesn't have isAtlased property, change shader or add Destination Atlased Material");
                 else pegi.writeHint("Atlased Material doesn't have isAtlased property");
             }
-            else if (originalMaterial != null)
+            else if (originalMaterial)
             {
 
                 string names = "";
@@ -899,7 +899,7 @@ namespace Playtime_Painter.Examples {
         public void ReconstructAtlas()
         {
 
-            if ((a_texture != null) && (a_texture.width != AtlasSize))
+            if ((a_texture) && (a_texture.width != AtlasSize))
             {
                 GameObject.DestroyImmediate(a_texture);
                 a_texture = null;
@@ -921,7 +921,7 @@ namespace Playtime_Painter.Examples {
                     var t = textures[curIndex];
                     if ((textures.Count > curIndex) && (t != null) && (t.used))
                     {
-                        if (t.texture != null)
+                        if (t.texture)
                         {
 #if UNITY_EDITOR
                             t.texture.Reimport_IfNotReadale();
@@ -975,7 +975,7 @@ namespace Playtime_Painter.Examples {
             TextureImporter other = null;
 
             foreach (var t in textures)
-                if ((t != null) && (t.texture != null))
+                if ((t != null) && (t.texture))
                 {
                     other = t.texture.GetTextureImporter();
                     break;
@@ -1034,7 +1034,7 @@ namespace Playtime_Painter.Examples {
             if ("Generate".Click().nl())
                 ReconstructAsset();
 
-            if (a_texture != null)
+            if (a_texture)
                 ("Atlas At " + AssetDatabase.GetAssetPath(a_texture)).edit(ref a_texture, false).nl();
 
 #endif
@@ -1069,7 +1069,7 @@ namespace Playtime_Painter.Examples {
         public static bool Contains(this List<AtlasTextureField> lst, Texture2D tex)
         {
             foreach (var ef in lst)
-                if ((ef != null) && (ef.texture != null) && (ef.texture == tex))
+                if ((ef != null) && (ef.texture) && (ef.texture == tex))
                     return false;
             return true;
         }

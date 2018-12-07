@@ -31,7 +31,7 @@ namespace Playtime_Painter.Examples {
         PaintingCollision TryAddPainterFrom( GameObject go) {
             PlaytimePainter target = go.GetComponent<PlaytimePainter>();
 
-            if (target != null && !target.LockTextureEditing)   {
+            if (target && !target.LockTextureEditing)   {
                 PaintingCollision col = new PaintingCollision(target);
                 paintingOn.Add(col);
                 col.vector.posFrom = transform.position;

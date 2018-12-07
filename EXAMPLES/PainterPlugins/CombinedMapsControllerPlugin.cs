@@ -88,13 +88,13 @@ namespace Playtime_Painter.Examples
 
         public Texture2D GetTexture()
         {
-            if (Diffuse != null) return Diffuse;
-            if (HeightMap != null) return HeightMap;
-            if (NormalMap != null) return NormalMap;
-            if (Gloss != null) return Gloss;
-            if (Reflectivity != null) return Reflectivity;
-            if (Ambient != null) return Ambient;
-            if (LastProduct != null) return LastProduct;
+            if (Diffuse) return Diffuse;
+            if (HeightMap) return HeightMap;
+            if (NormalMap) return NormalMap;
+            if (Gloss) return Gloss;
+            if (Reflectivity) return Reflectivity;
+            if (Ambient) return Ambient;
+            if (LastProduct) return LastProduct;
             return null;
         }
 
@@ -152,7 +152,7 @@ namespace Playtime_Painter.Examples
 
             var id = InspectedImageData;
 
-            if (InspectedPainter != null && id != null)
+            if (InspectedPainter && id != null)
             {
                 "Editing:".write(40);
                 pegi.write(id.texture2D);
@@ -175,7 +175,7 @@ namespace Playtime_Painter.Examples
                 var frstTex = GetTexture();
                 changed |= "width:".edit(ref width).nl();
                 changed |= "height".edit(ref height).nl();
-                if (frstTex != null && "Match Source".Click().nl())
+                if (frstTex && "Match Source".Click().nl())
                 {
                     width = frstTex.width;
                     height = frstTex.height;
@@ -322,13 +322,13 @@ namespace Playtime_Painter.Examples
             if (usingGlossMap)
             {
 
-                if ((sets == null || sets.HeightMap != null) &&
+                if ((sets == null || sets.HeightMap) &&
                  "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
                     glossNoiseFromBump = false;
 
 
 
-                if ((sets == null || sets.NormalMap != null)
+                if ((sets == null || sets.NormalMap)
                     && "Gloss Mip -= Normal Noise".toggle(ref glossNoiseFromBump).nl(ref changed))
                     glossNoiseFromHeight = false;
 
@@ -344,7 +344,7 @@ namespace Playtime_Painter.Examples
                 if ("Combine".Click().nl())
                     Combine(sets, p);
 
-                if (p != null)
+                if (p)
                     "You will still need to press SAVE in Painter to update original texture.".writeHint();
             }
 
@@ -580,7 +580,7 @@ namespace Playtime_Painter.Examples
         protected void ExtractPixels(Texture2D tex, int width, int height)
         {
 
-            if (tex != null)
+            if (tex)
             {
                 try
                 {
@@ -792,7 +792,7 @@ namespace Playtime_Painter.Examples
             {
                 ExtractPixels(set.Gloss ? set.Gloss : set.Reflectivity, width, height);
 
-                if (set.Profile.glossNoiseFromHeight && set.HeightMap != null)
+                if (set.Profile.glossNoiseFromHeight && set.HeightMap)
                     GlossMipmapsFromHeightNoise(set.HeightMap, width, height, set.Profile.bumpNoiseInGlossFraction);
             }
 
@@ -1014,7 +1014,7 @@ namespace Playtime_Painter.Examples
             base.ClearPixels();
 
 #if UNITY_EDITOR
-            if (tex != null)
+            if (tex)
             {
                 var imp = tex.GetTextureImporter();
                 if (imp.WasMarkedAsNormal(wasMarkedAsNormal))

@@ -22,8 +22,8 @@ namespace Playtime_Painter
         public string NameForPEGI { get { return gameObject.name; } set { gameObject.name = value; } }
 
         private void OnEnable() {
-            if (allProbes[index] != null) {
-                while (allProbes[FreeIndex] != null) FreeIndex++;
+            if (allProbes[index]) {
+                while (allProbes[FreeIndex]) FreeIndex++;
                 index = FreeIndex;
             }
 
@@ -46,7 +46,7 @@ namespace Playtime_Painter
                 allProbes[index] = null;
             index = newIndex;
 
-            if (allProbes[index] != null)
+            if (allProbes[index])
                 Debug.Log("More then one probe is sharing index {0}".F(index));
 
             allProbes[index] = this;

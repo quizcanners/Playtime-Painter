@@ -343,7 +343,7 @@ namespace SharedTools_Stuff {
                 set
                 {
 
-                    if (value != null && Material) {
+                    if (value && Material) {
 
                         if (targetTextures.Count == 0) {
                             targetTextures.Add(null);
@@ -795,7 +795,7 @@ namespace SharedTools_Stuff {
         public class GraphicAlpha : BASE_FloatLerp {
 
             protected Graphic _graphic;
-            public Graphic Graphic { get { return _graphic;  } set { _graphic = value; if (setZeroOnStart) _graphic.TrySetAlpha(0); } }
+            public Graphic Graphic { get { return _graphic;  } set { _graphic = value; if (setZeroOnStart && !defaultSet) _graphic.TrySetAlpha(0); } }
             public float targetValue = 0;
             public bool setZeroOnStart = true;
 

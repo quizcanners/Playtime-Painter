@@ -129,36 +129,31 @@ namespace SharedTools_Stuff {
         public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf?.gameObject.TryGet<T>();
 
         public static T TryGet<T>(this GameObject go) where T:class {
-           
-                if (go.IsNullOrDestroyed())
-                    return null;
 
-                var monos = go.GetComponents<Component>();
-
-                foreach (var m in monos) {
-                    var p = m as T;
-                    if (p != null)
-                        return p;
-                }
+            if (!go)
                 return null;
+
+            var monos = go.GetComponents<Component>();
+
+            foreach (var m in monos)
+            {
+                var p = m as T;
+                if (p != null)
+                    return p;
+            }
+            return null;
         }
         
-        public static bool IsNullOrDestroyedUnityObject(this UnityEngine.Object obj)
-        {
-            if (obj == null || !obj) return true;
-            return false;
-        }
-
         public static bool IsNullOrDestroyed(this object obj) =>
              obj == null ? true :
                 (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
-                (obj as UnityEngine.Object).IsNullOrDestroyedUnityObject() : false);
+                !(obj as UnityEngine.Object) : false);
         
 
         public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed() ? default(T) : obj;
   
         public static bool TrySetAlpha(this Graphic graphic, float alpha) {
-            if (graphic != null) {
+            if (graphic) {
                 var col = graphic.color;
                 if (col.a != alpha) {
                     col.a = alpha;
@@ -177,7 +172,7 @@ namespace SharedTools_Stuff {
 #if PEGI
             Transform parent = go.transform.parent;
 
-            while (parent != null && maxLook > 0 && maxLength > 0)
+            while (parent && maxLook > 0 && maxLength > 0)
             {
                 string n = parent.name;
 
@@ -205,7 +200,7 @@ namespace SharedTools_Stuff {
         {
             if (goList != null)
                 foreach (var go in goList)
-                    if (go) go.SetActive(to);
+                    go?.SetActive(to);
         }
 
         public static GameObject GetFocused()
@@ -253,7 +248,7 @@ namespace SharedTools_Stuff {
 
             MeshCollider mc = go.GetComponent<MeshCollider>();
 
-            if (mc == null)
+            if (!mc)
                 mc = go.AddComponent<MeshCollider>();
 
             return mc;
@@ -265,7 +260,6 @@ namespace SharedTools_Stuff {
             Camera c = null;
             if (Application.isPlaying)
             {
-
                 c = Camera.main;
             }
 #if UNITY_EDITOR
@@ -277,11 +271,11 @@ namespace SharedTools_Stuff {
             }
 #endif
 
-            if (c != null)
+            if (c)
                 return c.transform;
 
-            c = GameObject.FindObjectOfType<Camera>();
-            if (c != null) return c.transform;
+            c = UnityEngine.Object.FindObjectOfType<Camera>();
+            if (c) return c.transform;
 
 
             return go.transform;
@@ -300,7 +294,7 @@ namespace SharedTools_Stuff {
 
 #if UNITY_EDITOR
             UnityEngine.Object[] tmp = Selection.objects;
-            if ((tmp == null) || (tmp.Length == 0) || tmp[0] == null)
+            if ((tmp == null) || (tmp.Length == 0) || !tmp[0])
                 return false;
 
             return (tmp[0].GetType() == typeof(GameObject)) && ((GameObject)tmp[0] == go);
@@ -311,10 +305,10 @@ namespace SharedTools_Stuff {
 
         public static T ForceComponent<T>(this GameObject go, ref T co) where T : Component
         {
-            if (co == null)
+            if (!co)
             {
                 co = go.GetComponent<T>();
-                if (co == null)
+                if (!co)
                     co = go.AddComponent<T>();
             }
 
@@ -322,7 +316,7 @@ namespace SharedTools_Stuff {
         }
 
         public static void DestroyWhatever(this UnityEngine.Object go) {
-            if (go != null) {
+            if (go) {
                 if (Application.isPlaying)
                     UnityEngine.Object.Destroy(go);
                 else
@@ -339,7 +333,7 @@ namespace SharedTools_Stuff {
         public static void EnabledUpdate(this Renderer c, bool setTo)
         {
             //There were some update when enabled state is changed
-            if (c != null && c.enabled != setTo)
+            if (c && c.enabled != setTo)
                 c.enabled = setTo;
         }
 
@@ -414,8 +408,6 @@ namespace SharedTools_Stuff {
         public static void RepaintViews()
         {
 #if UNITY_EDITOR
-            //            if (SceneView.lastActiveSceneView != null)
-            //              SceneView.lastActiveSceneView.Repaint();
             SceneView.RepaintAll();
             UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
 #endif
@@ -521,11 +513,11 @@ namespace SharedTools_Stuff {
 #else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
 #endif
-            if (pf != null)
+            if (pf)
             {
                 // SavePrefabAsset, SaveAsPrefabAsset, SaveAsPrefabAssetAndConnect'
 #if UNITY_2018_3_OR_NEWER
-                if (pf == null)
+                if (!pf)
                     Debug.LogError("Handle is null");
                 else
                 {
@@ -576,7 +568,7 @@ namespace SharedTools_Stuff {
 #if UNITY_EDITOR
 
             UnityEngine.Object parentObject = obj.GetPrefab();
-            if (parentObject != null)
+            if (parentObject)
                 obj = parentObject;
 
             string path = AssetDatabase.GetAssetPath(obj);
@@ -609,12 +601,12 @@ namespace SharedTools_Stuff {
 
         public static string GetGUID(this UnityEngine.Object obj, string current)
         {
-            if (obj == null)
+            if (!obj)
                 return current;
 
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(obj);
-            if (path != null && path.Length > 0)
+            if (!path.IsNullOrEmpty())
                 current = AssetDatabase.AssetPathToGUID(path);
 #endif
             return current;
@@ -624,7 +616,7 @@ namespace SharedTools_Stuff {
         {
 #if UNITY_EDITOR
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (path != null && path.Length > 0)
+            if (!path.IsNullOrEmpty())
                 return AssetDatabase.LoadAssetAtPath<T>(path);
 #endif
 
@@ -674,15 +666,13 @@ namespace SharedTools_Stuff {
         public static void RenameAsset<T>(this T obj, string newName) where T : UnityEngine.Object
         {
 
-            if (newName.Length > 0)
+            if (!newName.IsNullOrEmpty() && obj)
             {
 
 #if UNITY_EDITOR
                 var path = AssetDatabase.GetAssetPath(obj);
-                if (path != null && path.Length > 0)
-                {
+                if (!path.IsNullOrEmpty())
                     AssetDatabase.RenameAsset(path, newName);
-                }
 #endif
                 obj.name = newName;
             }
@@ -696,7 +686,7 @@ namespace SharedTools_Stuff {
 
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(el);
-            if (path != null && path.Length > 0)
+            if (!path.IsNullOrEmpty())
             {
 
                 added = ScriptableObject.CreateInstance(typeof(T)) as T;
@@ -728,7 +718,7 @@ namespace SharedTools_Stuff {
 
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(el);
-            if (path != null && path.Length > 0)
+            if (!path.IsNullOrEmpty())
             {
 
                 added = ScriptableObject.CreateInstance(el.GetType()) as T;
@@ -736,15 +726,11 @@ namespace SharedTools_Stuff {
                 string oldName = Path.GetFileName(path);
 
                 path = path.Replace(oldName, "");
-
-
-
+                
                 string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
 
                 AssetDatabase.CreateAsset(added, assetPathAndName);
-
-
-
+                
                 added.name = assetPathAndName.Substring(path.Length, assetPathAndName.Length - path.Length - 6);
 
                 AssetDatabase.SaveAssets();
@@ -759,7 +745,7 @@ namespace SharedTools_Stuff {
 
         public static bool TryAdd_UObj_ifNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
         {
-            if (ass == null)
+            if (!ass)
                 return false;
 
             if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
@@ -768,32 +754,24 @@ namespace SharedTools_Stuff {
                 if (go)
                 {
                     var cmp = go.GetComponent<T>();
-                    if (cmp != null && !list.Contains(cmp))
+                    if (cmp && !list.Contains(cmp))
                     {
-
                         list.Add(cmp);
-                        // Debug.Log("Added " + cmp.ToString() + " into " + typeof(T).ToString());
                         return true;
                     }
-                    //  else    Debug.Log("Failed on null "+(cmp == null));
-                } //else  Debug.Log("Not a GO");
+                } 
                 return false;
             }
 
             if (ass.GetType() == typeof(T) || ass.GetType().IsSubclassOf(typeof(T)))
             {
-                // Debug.Log("is other " + ass.ToString());
                 T cst = ass as T;
                 if (!list.Contains(cst))
-                {
                     list.Add(cst);
-                    // Debug.Log("Added " + cst.ToString() + " into " + typeof(T).ToString());
-                }
+                  
                 return true;
             }
-            // else Debug.Log("Wrong path");
             return false;
-
         }
 
         public static T CreateAsset_SO<T>(this List<T> objs, string path, string name) where T : ScriptableObject
@@ -1044,41 +1022,25 @@ namespace SharedTools_Stuff {
 
         #region Textures
         #region Material MGMT
-        public static bool HasTag(this Material mat, string tag)
-        {
-            if (mat != null)
-            {
+        public static bool HasTag(this Material mat, string tag) {
+            if (mat) {
                 var got = mat.GetTag(tag, false, null);
-                return (got != null && got.Length > 0);
+                return !got.IsNullOrEmpty(); 
             }
             return false;
         }
 
-        public static string TagValue(this Material mat, string tag)
-        {
-
-            if (mat != null)
-                return mat.GetTag(tag, false, null);
-
-            return null;
-
-        }
-
-        public static Material MaterialWhaever(this Renderer rendy)
-        {
-
-            if (rendy == null) return null;
-
-            return Application.isPlaying ? rendy.material : rendy.sharedMaterial;
-
-        }
-
+        public static string TagValue(this Material mat, string tag) => mat ? mat.GetTag(tag, false, null) : null;
+        
+        public static Material MaterialWhaever(this Renderer rendy) =>
+             !rendy ? null : (Application.isPlaying ? rendy.material : rendy.sharedMaterial);
+        
 #if UNITY_EDITOR
         public static List<string> GetFields(this Material m, MaterialProperty.PropType type)
         {
             List<string> fNames = new List<string>();
 
-            if (m == null) return fNames;
+            if (!m) return fNames;
 
             Material[] mat = new Material[1];
             mat[0] = m;
@@ -1186,11 +1148,8 @@ namespace SharedTools_Stuff {
         }
 
 
-        public static void CopyFrom(this Texture2D tex, RenderTexture rt)
-        {
-
-            if (rt == null || tex == null)
-            {
+        public static void CopyFrom(this Texture2D tex, RenderTexture rt) {
+            if (!rt || !tex){
 #if UNITY_EDITOR
                 Debug.Log("Texture is null");
 #endif
@@ -1214,7 +1173,7 @@ namespace SharedTools_Stuff {
         public static bool IsColorTexture(this Texture2D tex)
         {
 #if UNITY_EDITOR
-            if (tex == null) return true;
+            if (!tex) return true;
 
             TextureImporter importer = tex.GetTextureImporter();
 
@@ -1237,7 +1196,7 @@ namespace SharedTools_Stuff {
             TextureImporter dst = dest.GetTextureImporter();
             TextureImporter org = original.GetTextureImporter();
 
-            if ((dst == null) || (org == null)) return;
+            if (!dst || !org) return;
 
             int maxSize = Mathf.Max(original.width, org.maxTextureSize);
 
@@ -1280,9 +1239,8 @@ namespace SharedTools_Stuff {
 
         }
 
-        public static void Reimport_IfMarkedAsNOrmal(this Texture2D tex)
-        {
-            if (tex == null) return;
+        public static void Reimport_IfMarkedAsNOrmal(this Texture2D tex) {
+            if (!tex) return;
 
             TextureImporter importer = tex.GetTextureImporter();
 
@@ -1321,7 +1279,7 @@ namespace SharedTools_Stuff {
 
         public static void Reimport_IfClamped(this Texture2D tex)
         {
-            if (tex == null) return;
+            if (!tex) return;
 
             TextureImporter importer = tex.GetTextureImporter();
 
@@ -1346,7 +1304,7 @@ namespace SharedTools_Stuff {
 
         public static void Reimport_IfNotReadale(this Texture2D tex)
         {
-            if (tex == null) return;
+            if (!tex) return;
 
             TextureImporter importer = tex.GetTextureImporter();
 
@@ -1385,7 +1343,7 @@ namespace SharedTools_Stuff {
 
         public static void Reimport_SetIsColorTexture(this Texture2D tex, bool value)
         {
-            if (tex == null) return;
+            if (!tex) return;
 
             TextureImporter importer = tex.GetTextureImporter();
 
@@ -1408,12 +1366,12 @@ namespace SharedTools_Stuff {
 
         public static void Reimport_IfNotSingleChanel(this Texture2D tex)
         {
-            if (tex == null) return;
+            if (tex)  {
+                TextureImporter importer = tex.GetTextureImporter();
 
-            TextureImporter importer = tex.GetTextureImporter();
-
-            if ((importer != null) && (importer.WasNotSingleChanel()))
-                importer.SaveAndReimport();
+                if ((importer != null) && (importer.WasNotSingleChanel()))
+                    importer.SaveAndReimport();
+            }
         }
         public static bool WasNotSingleChanel(this TextureImporter importer)
         {
@@ -1443,14 +1401,15 @@ namespace SharedTools_Stuff {
 
         }
 
-        public static void Reimport_IfAlphaIsNotTransparency(this Texture2D tex)
-        {
-            if (tex == null) return;
+        public static void Reimport_IfAlphaIsNotTransparency(this Texture2D tex) {
 
-            TextureImporter importer = tex.GetTextureImporter();
+            if (tex) {
 
-            if ((importer != null) && (importer.WasAlphaNotTransparency()))
-                importer.SaveAndReimport();
+                TextureImporter importer = tex.GetTextureImporter();
+
+                if ((importer != null) && (importer.WasAlphaNotTransparency()))
+                    importer.SaveAndReimport();
+            }
 
         }
         public static bool WasAlphaNotTransparency(this TextureImporter importer)
@@ -1480,15 +1439,14 @@ namespace SharedTools_Stuff {
 
         }
 
-        public static void Reimport_IfWrongMaxSize(this Texture2D tex, int width)
-        {
-            if (tex == null) return;
+        public static void Reimport_IfWrongMaxSize(this Texture2D tex, int width) {
+            if (tex) {
 
-            TextureImporter importer = tex.GetTextureImporter();
+                TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasWrongMaxSize(width)))
-                importer.SaveAndReimport();
-
+                if ((importer != null) && (importer.WasWrongMaxSize(width)))
+                    importer.SaveAndReimport();
+            }
         }
         public static bool WasWrongMaxSize(this TextureImporter importer, int width)
         {
@@ -1670,9 +1628,7 @@ namespace SharedTools_Stuff {
         public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
 
-            if (terrain == null) return;
-
-
+            if (!terrain) return;
 
 #if UNITY_2018_3_OR_NEWER
             var l = terrain.terrainData.terrainLayers;
@@ -1723,7 +1679,7 @@ namespace SharedTools_Stuff {
         public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
         {
 
-            if (terrain == null) return null;
+            if (!terrain) return null;
 
             SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
             SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
@@ -1863,7 +1819,7 @@ namespace SharedTools_Stuff {
                     }
 
                     if (request.isDone) {
-                        if (texture != null)
+                        if (texture)
                             texture.DestroyWhatever();
                         texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
                         DisposeRequest();
@@ -1874,7 +1830,7 @@ namespace SharedTools_Stuff {
                     }
                     else return false;
                 }
-                else if (texture == null) Start();
+                else if (!texture) Start();
 
                 return true;
             }
@@ -1898,7 +1854,7 @@ namespace SharedTools_Stuff {
             }
 
             public void Dispose() {
-                if (texture != null)
+                if (texture)
                     texture.DestroyWhatever();
 
                 DisposeRequest();

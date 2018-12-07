@@ -181,7 +181,7 @@ namespace Playtime_Painter {
                 default: Debug.Log(width + " is not in range "); break;
             }
 
-            if (squareBuffers[no] == null)
+            if (!squareBuffers[no])
                 squareBuffers[no] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 
             return squareBuffers[no];
@@ -214,7 +214,7 @@ namespace Playtime_Painter {
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material, Shader shader)
         {
 
-            if (tex == null)
+            if (!tex)
                 return null;
 
             if (!shader) shader = Data.brushRendy_bufferCopy;
@@ -253,7 +253,7 @@ namespace Playtime_Painter {
             if (imgDataUsingRendTex == null)
                 return;
 
-            if (imgDataUsingRendTex.texture2D != null) //&& (Application.isPlaying == false))
+            if (imgDataUsingRendTex.texture2D) //&& (Application.isPlaying == false))
                 imgDataUsingRendTex.RenderTexture_To_Texture2D();
 
             imgDataUsingRendTex.destination = TexTarget.Texture2D;
@@ -276,7 +276,7 @@ namespace Playtime_Painter {
 
                 if (imgDataUsingRendTex != null)
                 {
-                    if (imgDataUsingRendTex.texture2D != null)
+                    if (imgDataUsingRendTex.texture2D)
                         imgDataUsingRendTex.RenderTexture_To_Texture2D();
 
                     imgDataUsingRendTex.destination = TexTarget.Texture2D;
@@ -315,14 +315,14 @@ namespace Playtime_Painter {
 
             }
 
-            if (secondBufferDebug != null)
+            if (secondBufferDebug)
             {
                 secondBufferDebug.sharedMaterial.mainTexture = BigRT_pair[1];
-                if (secondBufferDebug.GetComponent<PlaytimePainter>() != null)
-                    DestroyImmediate(secondBufferDebug.GetComponent<PlaytimePainter>());
+                var cmp = secondBufferDebug.GetComponent<PlaytimePainter>();
+                if (cmp) cmp.DestroyWhatever();
             }
 
-            if (Camera.main != null)
+            if (Camera.main)
                 Camera.main.cullingMask &= ~(1 << Data.myLayer);
         }
 
@@ -423,7 +423,7 @@ namespace Playtime_Painter {
         {
             if (BigRT_pair == null) UpdateBuffersState();
 
-            bool isDoubleBuffer = (id.renderTexture == null);
+            bool isDoubleBuffer = (!id.renderTexture);
 
             bool useSingle = (!isDoubleBuffer) || bc.IsSingleBufferBrush();
 
@@ -439,18 +439,16 @@ namespace Playtime_Painter {
                 Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, BigRT_pair[1]);
 
             Shader shd = null;
-            if (pntr != null)
-                foreach (var pl in Plugins)
-                {
+            if (pntr)
+                foreach (var pl in Plugins) {
                     Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
-                    if (bs != null)
-                    {
+                    if (bs) {
                         shd = bs;
                         break;
                     }
                 }
 
-            if (shd == null) shd = useSingle ? bc.BlitMode.ShaderForSingleBuffer : bc.BlitMode.ShaderForDoubleBuffer;
+            if (!shd) shd = useSingle ? bc.BlitMode.ShaderForSingleBuffer : bc.BlitMode.ShaderForDoubleBuffer;
 
             brushRendy.Set(shd);
 
@@ -458,7 +456,7 @@ namespace Playtime_Painter {
 
         public void Blit(Texture tex, ImageData id)
         {
-            if (tex == null || id == null)
+            if (!tex || id == null)
                 return;
             brushRendy.Set(Data.pixPerfectCopy);
             Graphics.Blit(tex, id.CurrentRenderTexture(), brushRendy.meshRendy.sharedMaterial);
@@ -482,7 +480,7 @@ namespace Playtime_Painter {
         {
             // Render(from, to, pixPerfectCopy);
 
-            if (from == null) return;
+            if (!from) return;
             brushRendy.Set(blitShader);
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
             AfterRenderBlit(to);
@@ -530,13 +528,9 @@ namespace Playtime_Painter {
             AfterRenderBlit(to);
         }
 
-        void AfterRenderBlit(Texture target)
-        {
-            if (BigRT_pair.Length > 0 && BigRT_pair[0] != null && BigRT_pair[0] == target)
-            {
-                // bigRTversion++;
+        void AfterRenderBlit(Texture target) {
+            if (BigRT_pair.Length > 0 && BigRT_pair[0] && BigRT_pair[0] == target)
                 secondBufferUpdated = false;
-            }
         }
 
         public void UpdateBufferTwo()
@@ -592,10 +586,10 @@ namespace Playtime_Painter {
             EditorSceneManager.sceneOpening -= OnSceneOpening;
             EditorSceneManager.sceneOpening += OnSceneOpening;
 
-            if (defaultMaterial == null)
+            if (!defaultMaterial)
                 defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 
-            if (defaultMaterial == null) Debug.Log("Default Material not found.");
+            if (!defaultMaterial) Debug.Log("Default Material not found.");
 
             isLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
 
@@ -604,15 +598,12 @@ namespace Playtime_Painter {
                 EditorApplication.update += CombinedUpdate;
 
 
-            if (brushPrefab == null)
-            {
-
+            if (!brushPrefab) {
                 GameObject go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
                 brushPrefab = go.GetComponent<RenderBrush>();
-                if (brushPrefab == null)
-                {
+                if (!brushPrefab)
                     Debug.Log("Couldn't find brush prefab.");
-                }
+                
             }
 
             if (Data)
@@ -620,10 +611,10 @@ namespace Playtime_Painter {
 
 #endif
 
-            if (brushRendy == null)
+            if (!brushRendy)
             {
                 brushRendy = GetComponentInChildren<RenderBrush>();
-                if (brushRendy == null)
+                if (!brushRendy)
                 {
                     brushRendy = Instantiate(brushPrefab.gameObject).GetComponent<RenderBrush>();
                     brushRendy.transform.parent = this.transform;
@@ -636,10 +627,10 @@ namespace Playtime_Painter {
 
 
             transform.position = Vector3.up * 3000;
-            if (rtcam == null)
+            if (!rtcam)
             {
                 rtcam = GetComponent<Camera>();
-                if (rtcam == null)
+                if (!rtcam)
                     rtcam = gameObject.AddComponent<Camera>();
             }
 
@@ -693,7 +684,7 @@ namespace Playtime_Painter {
         void BeforeClosing()
         {
 
-            if (PlaytimePainter.previewHolderMaterial != null)
+            if (PlaytimePainter.previewHolderMaterial)
                 PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
 
             if (materialsUsingTendTex.Count > 0)
@@ -758,18 +749,16 @@ namespace Playtime_Painter {
 
             if ((l.Count > 0) && (!StrokeVector.PausePlayback))
             {
-                if (l.Last() == null)
+                if (!l.Last())
                     l.RemoveLast(1);
                 else
                     l.Last().PlaybeckVectors();
             }
 
 #if UNITY_EDITOR
-            if (refocusOnThis != null)
-            {
+            if (refocusOnThis) {
                 scipframes--;
-                if (scipframes == 0)
-                {
+                if (scipframes == 0) {
                     UnityHelperFunctions.FocusOn(refocusOnThis);
                     refocusOnThis = null;
                     scipframes = 3;
@@ -789,21 +778,16 @@ namespace Playtime_Painter {
 
             PlaytimePainter p = PlaytimePainter.currently_Painted_Object;
 
-            if ((p != null) && (Application.isPlaying == false))
+            if (p && !Application.isPlaying)
             {
                 if ((p.ImgData == null))
-                {
                     PlaytimePainter.currently_Painted_Object = null;
-                }
                 else
                 {
                     TexMGMTdata.brushConfig.Paint(p.stroke, p);
                     p.Update();
                 }
-
-
             }
-
         }
 
 #endif
@@ -825,8 +809,7 @@ namespace Playtime_Painter {
             "Active Jobs: {0}".F(blitJobsActive.Count).nl();
 
 #if UNITY_EDITOR
-            if (Data == null)
-            {
+            if (!Data) {
                 "No data Holder detected".edit(ref dataHolder);
                 if ("Create".Click().nl())
                 {
@@ -840,9 +823,9 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-            (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((BigRT_pair[0] == null) ? "uninitialized" : "inited")).nl();
+            (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((!BigRT_pair[0]) ? "uninitialized" : "inited")).nl();
 
-            if (rtcam == null) { "no camera".nl(); return false; }
+            if (!rtcam) { "no camera".nl(); return false; }
             
             if (Data)
                 Data.Nested_Inspect().nl();

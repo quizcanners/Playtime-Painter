@@ -52,35 +52,32 @@ namespace Playtime_Painter
 
             var mat = InspectedPainter.Material;
 
-            if (mat != null)  {
+            if (mat)
+            {
                 ShadowVolumeTexture shadVT = null;
 
                 foreach (var vt in VolumeTexture.all)
                     if (vt.GetType() == typeof(ShadowVolumeTexture) && vt.materials.Contains(mat)) shadVT = (ShadowVolumeTexture)vt;
 
-                        if (shadVT != null && "Auto Raycast Shadows".Click().nl()) {
+                if (shadVT && "Auto Raycast Shadows".Click().nl()) {
 
-                            foreach (var v in EditedMesh.meshPoints) {
+                    foreach (var v in EditedMesh.meshPoints) {
 
-                                var vpos = v.WorldPos + v.GetWorldNormal() * 0.001f;
+                        var vpos = v.WorldPos + v.GetWorldNormal() * 0.001f;
 
-                                for (int i = 0; i < 3; i++) {
-                                    var pnt = shadVT.lights.GetLight(i);
-                                    if (pnt != null)
-                                    {
-
-                                //Vector3 ray = pnt.transform.position - vpos;
+                        for (int i = 0; i < 3; i++)
+                        {
+                            var pnt = shadVT.lights.GetLight(i);
+                            if (pnt)
                                 v.shadowBake[i] = pnt.transform.position.RaycastGotHit(vpos) ? 0.6f : 0;
-                                
-                                //Physics.Raycast(new Ray(vpos, ray), ray.magnitude) ? 1 : 0;
-                                    }
-                                }
-                            }
 
-                            EditedMesh.Dirty = true;
-
-                            "Raycast Complete".showNotificationIn3D_Views();
                         }
+                    }
+
+                    EditedMesh.Dirty = true;
+
+                    "Raycast Complete".showNotificationIn3D_Views();
+                }
             }
             return false;
         }

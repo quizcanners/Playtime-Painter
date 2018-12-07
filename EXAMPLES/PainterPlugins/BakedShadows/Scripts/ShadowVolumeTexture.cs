@@ -52,7 +52,7 @@ namespace Playtime_Painter
                 if (GlobalBrush.mask.GetFlag(i))
                 {
                     var l = lights.GetLight(i);
-                    if (l != null)
+                    if (l)
                     {
                         Gizmos.color = i == 0 ? Color.red : (i == 1 ? Color.green : Color.blue);
 
@@ -263,7 +263,7 @@ namespace Playtime_Painter
                 hitJobCommands.Dispose();
 
                 for (int i = 0; i < hitJobResults.Length; i++)
-                    gotHit[i] = (byte)((hitJobResults[i].collider != null) ? 1 : 0);
+                    gotHit[i] = (byte)((hitJobResults[i].collider) ? 1 : 0);
 
                 var fillArray = new JobToFillTheArray()
                 {
@@ -319,7 +319,7 @@ namespace Playtime_Painter
 
             var light = lights.GetLight(channel);
 
-            if (light != null)
+            if (light)
                 for (int side = 0; side < 3; side++)
                 {
 
@@ -386,7 +386,7 @@ namespace Playtime_Painter
             }
 
 #if UNITY_2018_1_OR_NEWER
-            if (ImageData != null && ImageData.texture2D != null) {
+            if (ImageData != null && ImageData.texture2D) {
 
                 if (!VolumeJobIsRunning)
                 {

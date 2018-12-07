@@ -22,9 +22,9 @@ namespace Playtime_Painter.Examples
 
               var painter = hit.transform.GetComponentInParent<PlaytimePainter>();
 
-              if (painter!= null) {
+              if (painter) {
 
-                    if ((painter.skinnedMeshRendy != null) && (brush.IsA3Dbrush(painter) == false)) {   
+                    if ((painter.skinnedMeshRendy) && (brush.IsA3Dbrush(painter) == false)) {   
 
                         painter.UpdateColliderForSkinnedMesh();
 

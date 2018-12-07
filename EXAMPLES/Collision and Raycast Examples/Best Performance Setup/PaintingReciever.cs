@@ -60,12 +60,12 @@ namespace Playtime_Painter.Examples {
             if (!Application.isPlaying)
                 Refresh();
 
-            if (Application.isPlaying && (originalTexture!= null) && (texture!= null) && (texture.GetType() == typeof(RenderTexture)))
+            if (Application.isPlaying && (originalTexture) && (texture) && (texture.GetType() == typeof(RenderTexture)))
                 PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
         }
 
         public Texture GetTexture() {
-            if (texture != null)
+            if (texture)
                 return texture;
 
             var rtm = TexturesPool._inst;
@@ -75,7 +75,7 @@ namespace Playtime_Painter.Examples {
                 return null;
             }
 
-            if (rtm!= null) {
+            if (rtm) {
                 
                 originalMaterial = Material;
 
@@ -86,7 +86,7 @@ namespace Playtime_Painter.Examples {
                 Material = Instantiate(originalMaterial);
 
                 var tex = originalTexture ? originalTexture : MatTex;
-                if (tex != null)
+                if (tex)
                     PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
                 else
                     PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
@@ -102,7 +102,7 @@ namespace Playtime_Painter.Examples {
 
         public void Restore() {
             
-            if ((fromRTmanager) && (originalMaterial!= null)) {
+            if ((fromRTmanager) && (originalMaterial)) {
                 fromRTmanager = false;
                 Material = originalMaterial;
                 originalMaterial = null;
@@ -218,7 +218,7 @@ namespace Playtime_Painter.Examples {
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
                 {
-                    if (texture != null)
+                    if (texture)
                     {
                         if (texture.GetType() == typeof(Texture2D))
                         {
@@ -257,7 +257,7 @@ namespace Playtime_Painter.Examples {
                             else
                                 "Render Texture Painting needs Skinned Mesh or Mesh Filter to work".nl();
 
-                            if ((originalTexture != null) && ("Undo Changes".Click().nl()))
+                            if ((originalTexture) && ("Undo Changes".Click().nl()))
                                 Restore();
                         }
                     }
@@ -265,7 +265,7 @@ namespace Playtime_Painter.Examples {
                     {
                         var rtm = TexturesPool._inst;
 
-                        if (rtm != null) {
+                        if (rtm) {
                             "Render Texture Pool will be used to get texture".nl();
                             if (Renderer == null) "! Renderer needs to be Assigned.".nl();
                             else {

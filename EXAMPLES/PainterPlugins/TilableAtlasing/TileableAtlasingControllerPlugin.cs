@@ -112,7 +112,7 @@ namespace Playtime_Painter.Examples
 #if UNITY_EDITOR
 
                 var m = InspectedPainter.GetMesh();
-                if (m != null && AssetDatabase.GetAssetPath(m).Length == 0)
+                if (m && AssetDatabase.GetAssetPath(m).Length == 0)
                 {
                     "Atlased Mesh is not saved".nl();
                     var n = m.name;
@@ -131,7 +131,7 @@ namespace Playtime_Painter.Examples
                 {
                     InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
 
-                    if (atlPlug.preAtlasingMesh != null)
+                    if (atlPlug.preAtlasingMesh)
                         InspectedPainter.meshFilter.mesh = atlPlug.preAtlasingMesh;
                     InspectedPainter.SavedEditableMesh = atlPlug.preAtlasingSavedMesh;
 
@@ -232,10 +232,8 @@ namespace Playtime_Painter.Examples
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
             if (MeshMGMT.SelectedTris != null)
-            {
                 ("Selected tris uses Atlas Texture " + MeshMGMT.SelectedTris.textureNo[0]).nl();
-            }
-
+            
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
             return false;
         }

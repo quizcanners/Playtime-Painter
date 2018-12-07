@@ -79,7 +79,7 @@ namespace Playtime_Painter.Examples {
                     var sct = sections.Where(s => s.TargetRenderTexture != null && s.TargetRenderTexture == b);
                     RenderSection section = sct.Count() > 0 ? sct.First() : null;
 
-                    var tex = b.GetTextureDisplay();
+                    var tex = b.GetTextureDisplay;
 
                     Rect pos = new Rect((texIndex / inColumn) * GUITextureSize, (texIndex % inColumn) * fullSize - textGap, GUITextureSize, GUITextureSize);
                     GUI.Label(pos, b.ToPEGIstring());
@@ -145,7 +145,7 @@ namespace Playtime_Painter.Examples {
 
                 int cur = -1;
                 if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl(ref changed))
-                    InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay());
+                    InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay);
 
             }
 
@@ -202,25 +202,21 @@ namespace Playtime_Painter.Examples {
 
         public bool showOnGUI = false;
 
-        protected static MultiBufferProcessing Mgmt { get { return MultiBufferProcessing.inst; } }
+        protected static MultiBufferProcessing Mgmt => MultiBufferProcessing.inst; 
 
-        protected static PainterCamera TexMGMT { get { return PainterCamera.Inst; } }
+        protected static PainterCamera TexMGMT => PainterCamera.Inst; 
 
-        protected static PainterDataAndConfig Data { get { return PainterCamera.Data; } }
+        protected static PainterDataAndConfig Data => PainterCamera.Data; 
 
         public virtual string NameForPEGIdisplay => "Override This";
 
-        public virtual Texture GetTextureNext() => null;
+        public virtual Texture TextureNext { get; }
 
-        public virtual Texture GetTextureDisplay() => GetTextureNext();
+        public virtual Texture GetTextureDisplay => TextureNext;
 
-        public virtual RenderTexture GetTargetTextureNext()
-        {
-            var rt = RenderTexture();
-            return rt;
-        }
-
-        protected virtual RenderTexture RenderTexture() => null;
+        public virtual RenderTexture GetTargetTextureNext => GetRenderTexture;
+        
+        protected virtual RenderTexture GetRenderTexture => null;
 
         public virtual void AfterRender() { }
 
@@ -232,8 +228,8 @@ namespace Playtime_Painter.Examples {
 
         public virtual bool BlitMethod(TextureBuffer sourceBuffer, Material material, Shader shader)
         {
-            var trg = GetTargetTextureNext();
-            var src = sourceBuffer?.GetTextureNext();
+            var trg = GetTargetTextureNext;
+            var src = sourceBuffer?.TextureNext;
 
             if (trg)
             {
@@ -312,7 +308,7 @@ namespace Playtime_Painter.Examples {
         {
             switch (tag)
             {
-                case "t": Texture tmp = Texture; data.ToAssetByGUID(ref tmp); if (tmp != null) id = Texture.GetImgData(); break;
+                case "t": Texture tmp = Texture; data.ToAssetByGUID(ref tmp); if (tmp) id = Texture.GetImgData(); break;
                 case "show": showOnGUI = data.ToBool(); break;
                 default: return false;
             }
@@ -322,9 +318,9 @@ namespace Playtime_Painter.Examples {
 
         public override bool CanBeTarget => Texture && Texture.GetType() == typeof(RenderTexture);
 
-        public override Texture GetTextureNext() => Texture;
+        public override Texture TextureNext => Texture;
 
-        protected override RenderTexture RenderTexture() => Texture ? (RenderTexture)Texture : null;
+        protected override RenderTexture GetRenderTexture => Texture ? (RenderTexture)Texture : null;
 
         #region Inspector
 #if PEGI
@@ -336,7 +332,7 @@ namespace Playtime_Painter.Examples {
         {
             "Source".select(50, ref id, Data.imgDatas);
             Texture tmp = Texture;
-            if ("Texture".edit(ref tmp).nl() && (tmp != null))
+            if ("Texture".edit(ref tmp).nl() && tmp)
                 id = tmp.GetImgData();
 
             return false;
@@ -370,15 +366,18 @@ namespace Playtime_Painter.Examples {
             }
         }
 
-        public override Texture GetTextureNext() => RenderTexture();
+        public override Texture TextureNext => GetRenderTexture;
 
-        protected override RenderTexture RenderTexture()
+        protected override RenderTexture GetRenderTexture
         {
-            Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, TexMGMT.BigRT_pair[1]);
-            return TexMGMT.BigRT_pair[0];
+            get
+            {
+                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, TexMGMT.BigRT_pair[1]);
+                return TexMGMT.BigRT_pair[0];
+            }
         }
 
-        public override Texture GetTextureDisplay() => TexMGMT.BigRT_pair[0];
+        public override Texture GetTextureDisplay => TexMGMT.BigRT_pair[0];
 
         public override bool CanBeTarget => true;
 
@@ -397,14 +396,22 @@ namespace Playtime_Painter.Examples {
 
         public override bool CanBeTarget => true;
 
-        public override Texture GetTextureNext() => RenderTexture();
-
+        public override Texture TextureNext
+        {
+            get
+            {
+                rt = GetRenderTexture;
+                return rt;
+            }
+        }
         public override bool CanBeAssignedToPainter => true;
 
-        protected override RenderTexture RenderTexture()
-        {
-            if (rt == null) rt = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
-            return rt;
+        protected override RenderTexture GetRenderTexture
+{ get
+    {
+        if (!rt ) rt = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+        return rt;
+    }
         }
 
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
@@ -445,22 +452,25 @@ namespace Playtime_Painter.Examples {
 
         public override bool CanBeTarget => true;
 
-        public override Texture GetTextureDisplay() => rts[0];
+        public override Texture GetTextureDisplay => rts[0];
 
-        protected override RenderTexture RenderTexture()
+        protected override RenderTexture GetRenderTexture
         {
-            if (rts == null)
+            get
             {
-                rts = new RenderTexture[2];
-                rts[0] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
-                rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
-            }
+                if (rts == null)
+                {
+                    rts = new RenderTexture[2];
+                    rts[0] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+                    rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+                }
 
-            Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, rts[1]);
-            return rts[0];
+                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, rts[1]);
+                return rts[0];
+            }
         }
 
-        public override Texture GetTextureNext() => RenderTexture();
+        public override Texture TextureNext => GetRenderTexture;
 
         public override void AfterRender()
         {
@@ -500,9 +510,9 @@ namespace Playtime_Painter.Examples {
 
         public override string NameForPEGIdisplay => "Web Cam Tex";
 
-        public override Texture GetTextureDisplay() => Data.webCamTexture;
+        public override Texture GetTextureDisplay => Data.webCamTexture;
 
-        public override Texture GetTextureNext() => Data.GetWebCamTexture();
+        public override Texture TextureNext => Data.GetWebCamTexture();
 
         public override bool CanBeAssignedToPainter => true;
 
@@ -516,7 +526,7 @@ namespace Playtime_Painter.Examples {
 
             var cam = TexMGMT ? Data.webCamTexture : null;
 
-            if (cam != null && cam.isPlaying && icon.Pause.Click("Stop Camera"))
+            if (cam && cam.isPlaying && icon.Pause.Click("Stop Camera"))
                 Data.StopCamera();
 
             if ((cam == null || !cam.isPlaying) && WebCamTexture.devices.Length > 0 && icon.Play.Click("Start Camera"))
@@ -552,26 +562,12 @@ namespace Playtime_Painter.Examples {
 
         TextureBuffer Target { get { var sct = Mgmt.sections.TryGet(targetIndex); if (sct != null) return sct.TargetRenderTexture; else return null; } }
 
-        public override void AfterRender()
-        {
-            var t = Target;
-            if (t != null)
-                t.AfterRender();
-        }
-
-        public override Texture GetTextureNext()
-        {
-            var t = Target;
-            if (t != null)
-                return t.GetTextureNext();
-            else
-                return null;
-
-        }
-
-        public override Texture GetTextureDisplay() => Target?.GetTextureDisplay();
+        public override void AfterRender() => Target?.AfterRender();
         
-
+        public override Texture TextureNext => Target?.TextureNext;
+        
+        public override Texture GetTextureDisplay => Target?.GetTextureDisplay;
+        
         public override bool CanBeTarget
         {
             get
@@ -582,7 +578,7 @@ namespace Playtime_Painter.Examples {
             }
         }
 
-        public override RenderTexture GetTargetTextureNext() => Target?.GetTargetTextureNext();
+        public override RenderTexture GetTargetTextureNext => Target?.GetTargetTextureNext;
 
         #region Inspector
 #if PEGI
@@ -630,8 +626,8 @@ namespace Playtime_Painter.Examples {
 
             if (other != null && lastReadVersion != other.Version)
             {
-                var tex = other.GetTextureNext();
-                if (tex != null)
+                var tex = other.TextureNext;
+                if (tex)
                 {
                     InitIfNull();
 
@@ -655,7 +651,7 @@ namespace Playtime_Painter.Examples {
             return false;
         }
 
-        public override Texture GetTextureNext() => buffer;
+        public override Texture TextureNext => buffer;
 
 #if PEGI
         public override bool Inspect()
