@@ -404,7 +404,7 @@ namespace SharedTools_Stuff
 #endif
         }
 
-        public static bool IsNew(this Type t) => t.IsValueType || (!t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
+        public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) => list.AddWithUniqueNameAndIndex("New "
 #if PEGI
@@ -574,7 +574,7 @@ namespace SharedTools_Stuff
             args = temp;
         }
 
-        public static void AddAndInit<T>(ref T[] args, int add) where T : new()
+        public static void AddAndInit<T>(ref T[] args, int add) 
         {
             T[] temp;
             if (args != null)
@@ -585,7 +585,7 @@ namespace SharedTools_Stuff
             else temp = new T[add];
             args = temp;
             for (int i = args.Length - add; i < args.Length; i++)
-                args[i] = new T();
+                args[i] = Activator.CreateInstance<T>();
         }
 
         public static T AddAndInit<T>(ref T[] args) where T : new()

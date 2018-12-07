@@ -5295,10 +5295,10 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
 
             if (index >= 0) {
-                if (array == null || index > array.Length || icon.List.ClickUnfocus("Return to {1} array".F(GetCurrentListLabel<T>(ld))).nl())
+                if (array == null || index >= array.Length || icon.List.ClickUnfocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
-                    changed |= array.Try_Nested_Inspect();
+                    changed |= array[index].Try_Nested_Inspect();
             }
 
             return changed;
@@ -5756,11 +5756,10 @@ namespace PlayerAndEditorGUI {
 
         static bool ListAddClick<T>(this List<T> list, ref T added, List_Data ld = null) {
 
-            if ((ld != null && !ld.allowCreate) || !typeof(T).IsNew() )
+            if ((ld != null && !ld.allowCreate) || !typeof(T).IsNew())
                 return false;
 
-            if (!typeof(T).IsUnityObject() 
-                && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
+            if ((typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
             if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
@@ -6824,26 +6823,26 @@ namespace PlayerAndEditorGUI {
 
         #region Arrays
 
-        public static bool edit_Array<T>(this string label, ref T[] array, List_Data datas = null) where T : new()
+        public static bool edit_Array<T>(this string label, ref T[] array, List_Data datas = null) 
         {
             int inspected = -1;
             label.write_ListLabel(array);
             return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null) where T : new()  {
+        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null)   {
             label.write_ListLabel(ref inspected, array);
             return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_Array<T>(ref T[] array, ref int inspected, List_Data datas = null) where T : new()
+        public static bool edit_Array<T>(ref T[] array, ref int inspected, List_Data datas = null) 
         {
             bool changes = false;
             edit_Array(ref array, ref inspected, ref changes, datas);
             return changes;
         }
 
-        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, List_Data datas = null) where T : new() {
+        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, List_Data datas = null)  {
 
 
             T added = default(T);
@@ -6857,8 +6856,13 @@ namespace PlayerAndEditorGUI {
                  
                 if (inspected == -1) {
 
-                    if (icon.Add.ClickUnfocus("Add and instantiate element"))
+                    if (!typeof(T).IsNew()) {
+                        if (icon.Add.ClickUnfocus("Add empty element"))
+                        CsharpFuncs.Expand(ref array, 1);
+                    } else if (icon.Create.ClickUnfocus("Add New Instance"))
                         CsharpFuncs.AddAndInit(ref array, 1);
+                    
+
 
                     changed |= edit_Array_Order(ref array, datas).nl();
 
