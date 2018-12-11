@@ -1,6 +1,6 @@
 ﻿Shader "PlaytimePainter/BakedShadows/SmokeEffect" {
 	Properties{
-		_MainTex("Albedo (RGB)", 2D) = "white" {}	
+		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}
 		_Thickness("Thickness", Range(0,20)) = 0.0
 		VOLUME_H_SLICES("Baked Shadow Slices", Vector) = (0,0,0,0)
@@ -14,33 +14,19 @@
 		l2col("Point light 2 Color", Vector) = (0,0,0,0)
 
 	}
-		Category{
-		Tags{
-			//"Queue" = "Transparent"
-		//"IgnoreProjector" = "True"
-		//"RenderType" = "Transparent"
-		//"LightMode" = "ForwardBase"
-
+		Category {
+		Tags {
 			"Queue" = "AlphaTest"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
+		}
 
-		//"Queue" = "AlphaTest+50"
-		//"IgnoreProjector" = "True" 
-		//"RenderType" = "TransparentCutout"
-	}
-
-
-		//	ColorMask RGB
-			Cull Off//Back
+			Cull Off
 			ZWrite Off
 			Blend SrcAlpha OneMinusSrcAlpha
 
-		SubShader{
-
-			     
-
-		Pass{
+		SubShader {
+		Pass {
 
 		CGPROGRAM
 #pragma vertex vert
@@ -59,7 +45,7 @@
 	float4 l1col;
 	float4 l2pos;
 	float4 l2col;
-	
+
 	float _Thickness;
 
 	float4  _MainTex_ST;
@@ -75,9 +61,7 @@
 		SHADOW_COORDS(3)
 		float3 viewDir: TEXCOORD4;
 		UNITY_FOG_COORDS(5)
-
 	};
-
 
 	v2f vert(appdata_full v) {
 		v2f o;
@@ -87,15 +71,13 @@
 		o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 		o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
-		o.texcoord = v.texcoord.xy;//TRANSFORM_TEX(v.texcoord.xy, _MainTex_ATL); ;
-	
+		o.texcoord = v.texcoord.xy;
+
 		UNITY_TRANSFER_FOG(o, o.pos);
 		TRANSFER_SHADOW(o);
 
 		return o;
 	}
-
-
 
 	float4 frag(v2f i) : COLOR{
 
@@ -106,27 +88,26 @@
 
 		float distance = (10 - max(0,10 - length(_WorldSpaceCameraPos - i.worldPos)))*0.1;
 
-
-		float alpha = max(0, (1- (off.x+ off.y) * 4)*abs(dot(i.viewDir.xyz, i.normal.xyz)))*distance;
+		float alpha = max(0, (1 - (off.x + off.y) * 4)*abs(dot(i.viewDir.xyz, i.normal.xyz)))*distance;
 
 		float2 tc = TRANSFORM_TEX(i.texcoord, _MainTex);
 		float4 col = tex2D(_MainTex, tc);
 
 		col.a *= alpha;
 
-		float ambientBlock =col.a;
+		float ambientBlock = col.a;
 
 		float3 normal = -i.viewDir.xyz;
 
 		float3 thickness = normal * _Thickness * ambientBlock;
 
-		float4 bake = 1- SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, thickness);
+		float4 bake = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, thickness);
 
-		float4 bake2 = 1-  SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
+		float4 bake2 = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
 
 		float4 directBake = (saturate((bake - 0.5) * 2) + saturate((bake2 - 0.5) * 2))*(ambientBlock);
 
-		bake =(bake + bake2) * 0.5;
+		bake = (bake + bake2) * 0.5;
 
 		float3 scatter = 0;
 		float3 directLight = 0;
@@ -148,9 +129,6 @@
 
 		col.rgb *= (directLight + scatter);
 
-
-
-
 		BleedAndBrightness(col, 1);
 
 		UNITY_APPLY_FOG(i.fogCoord, col);
@@ -161,11 +139,9 @@
 		ENDCG
 
 	}
-		//UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
 	}
 	Fallback "Legacy Shaders/Transparent/VertexLit"
-	//FallBack "Diffuse"
-	}
+		}
 
 }
 

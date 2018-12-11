@@ -6,10 +6,65 @@ using UnityEngine.UI;
 
 namespace SharedTools_Stuff {
 
-    public interface ILinkedLerping
-    {
-        void Portion(ref float portion, ref string dominantParameter);
-        void Lerp(float portion);
+    public interface ILinkedLerping {
+        void Portion(LerpData ld); 
+        void Lerp(LerpData ld, bool canTeleport);
+    }
+
+    public class LerpData : IPEGI, IGotName, IGotCount, IPEGI_ListInspect {
+        public float linkedPortion = 1;
+        public float teleportPortion = 0;
+        float minPortion = 1;
+        int resets = 0;
+        public string dominantParameter = "None";
+
+        public float Portion(bool canTeleport = false) => canTeleport ? Mathf.Max(teleportPortion, linkedPortion) : linkedPortion;
+
+        public float MinPortion { get { return Mathf.Min(minPortion, linkedPortion); } set { minPortion = Mathf.Min(minPortion, value); }  }
+
+        public int CountForInspector => resets;
+
+        public string NameForPEGI { get { return dominantParameter; } set { dominantParameter = value; } }
+
+        public void Reset() {
+            teleportPortion = 0;
+            linkedPortion = 1;
+            minPortion = 1;
+            resets++;
+        }
+
+        #region Inspector
+        #if PEGI
+        public bool Inspect() {
+            var changed = false;
+
+            "Dominant Parameter".edit(ref dominantParameter).nl(ref changed);
+
+            "Reboot calls".edit(ref resets).nl(ref changed);
+
+            "teleport portion: {0}".F(teleportPortion).nl();
+
+            "min Portion {0} ".F(minPortion).nl();
+
+            return changed;
+        }
+
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            "Lerp DP: {0} [{1}]".F(dominantParameter, resets).write();
+
+            if (icon.Refresh.Click("Reset stats")) {
+                dominantParameter = "None";
+                resets = 0;
+            }
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            return false;
+        }
+        #endif
+        #endregion
     }
 
     public interface IManageFading
@@ -21,35 +76,21 @@ namespace SharedTools_Stuff {
     public class LinkedLerp
     {
 
-        public enum LerpSpeedMode { Treshold = 0, Unlimited = 1, LerpDisabled = 2, UnlinkedTreshold = 3 }
+        public enum LerpSpeedMode { SpeedTreshold = 0, Unlimited = 1, LerpDisabled = 2, UnlinkedSpeed = 3 }
 
         #region Abstract Base
         public abstract class BASE_AnyValue : Abstract_STD, ILinkedLerping, IPEGI, IPEGI_ListInspect {
 
-            public LerpSpeedMode lerpMode = LerpSpeedMode.Treshold;
-            public virtual bool UsingLinkedTreshold => (lerpMode == LerpSpeedMode.Treshold && Application.isPlaying);
+            public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedTreshold;
+            public virtual bool UsingLinkedTreshold => (lerpMode == LerpSpeedMode.SpeedTreshold && Application.isPlaying);
             public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
 
             protected virtual bool EaseInOutImplemented => false;
 
             protected bool easeInOut = false;
 
-            protected float _portion = 1;
-            protected float Portion(float linkedPortion) {
-                switch (lerpMode) {
-                    case LerpSpeedMode.LerpDisabled: _portion = 0; break;
-                    case LerpSpeedMode.UnlinkedTreshold:
-                        if (Application.isPlaying)
-                            Portion(ref _portion);
-                        break;
-                    default:
-                        _portion = linkedPortion; break;
-                }
-                return _portion;
-            }
-
             protected bool defaultSet = false;
-            public float speedTreshold = 1;
+            public float speedLimit = 1;
             protected bool allowChangeParameters = true;
 
             protected abstract string Name { get;  } 
@@ -67,8 +108,8 @@ namespace SharedTools_Stuff {
 
                     cody.Add("lm",(int)lerpMode);
 
-                    if (lerpMode == LerpSpeedMode.Treshold)
-                    cody.Add("sp", speedTreshold);
+                    if (lerpMode == LerpSpeedMode.SpeedTreshold)
+                    cody.Add("sp", speedLimit);
                 }
 
                 return cody;
@@ -77,7 +118,7 @@ namespace SharedTools_Stuff {
             public override bool Decode(string tag, string data) {
                 switch (tag) {
                     case "ch": allowChangeParameters = data.ToBool(); break;
-                    case "sp": speedTreshold = data.ToFloat(); defaultSet = false; break;
+                    case "sp": speedLimit = data.ToFloat(); break;
                     case "lm": lerpMode = (LerpSpeedMode)data.ToInt(); break;
                     case "eio": easeInOut = data.ToBool(); break;
                     default: return false;
@@ -86,20 +127,39 @@ namespace SharedTools_Stuff {
             }
             #endregion
 
-            public void Lerp(float linkedPortion) {
+            public void Lerp(LerpData ld, bool canTeleport = false) {
+                if (Enabled) {
 
-                if (Enabled && Lerp_Internal(Portion(linkedPortion)))
+                    float p;
+
+                    switch (lerpMode) {
+                        case LerpSpeedMode.LerpDisabled: p = 0; break;
+                        case LerpSpeedMode.UnlinkedSpeed: p = 1;
+                            if (Application.isPlaying)
+                                Portion(ref p);
+
+                            if (canTeleport)
+                                p = Mathf.Max(p, ld.teleportPortion);
+
+                            break;
+                        default: p = ld.Portion(canTeleport); break;
+                    }
+
+                    Lerp_Internal(p);
                     defaultSet = true;
-
-                _portion = 1;
-            }
+                }
+                }
 
             public abstract bool Lerp_Internal(float linkedPortion);
 
-            public virtual void Portion(ref float linkedPortion, ref string dominantParameter) {
-                if (UsingLinkedTreshold && Portion(ref linkedPortion))
-                        dominantParameter = Name;
-                
+            public virtual void Portion(LerpData ld) {
+                if (UsingLinkedTreshold && Portion(ref ld.linkedPortion))
+                    ld.dominantParameter = Name;
+                else if (lerpMode == LerpSpeedMode.UnlinkedSpeed) {
+                    float _portion = 1;
+                    Portion(ref _portion);
+                    ld.MinPortion = _portion;
+                }
             }
 
             public abstract bool Portion(ref float linkedPortion);
@@ -118,8 +178,10 @@ namespace SharedTools_Stuff {
                     if (Application.isPlaying)
                         (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
 
-                    if (lerpMode == LerpSpeedMode.Treshold)
-                        (Name + " Thld").edit(170, ref speedTreshold).changes(ref changed);
+                    if (lerpMode == LerpSpeedMode.SpeedTreshold)
+                        (Name + " Thld").edit(170, ref speedLimit).changes(ref changed);
+                    else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
+                        (Name + " Speed").edit(170, ref speedLimit).changes(ref changed);
                     else (Name + " Mode").editEnum(120, ref lerpMode).changes(ref changed);
                 }
 
@@ -136,8 +198,8 @@ namespace SharedTools_Stuff {
                 if (allowChangeParameters) {
                     
                     "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
-                    if (lerpMode == LerpSpeedMode.Treshold)
-                        "Lerp Speed for {0}".F(Name).edit(150, ref speedTreshold).nl(ref changed);
+                    if (lerpMode == LerpSpeedMode.SpeedTreshold || lerpMode == LerpSpeedMode.UnlinkedSpeed)
+                        "Lerp Speed for {0}".F(Name).edit(150, ref speedLimit).nl(ref changed);
 
                     if (EaseInOutImplemented)
                         "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
@@ -165,7 +227,7 @@ namespace SharedTools_Stuff {
             public override bool Lerp_Internal(float linkedPortion)
             {
                 if (CurrentValue != targetValue || !defaultSet) 
-                    CurrentValue = Vector2.Lerp(CurrentValue, targetValue, Portion(linkedPortion));
+                    CurrentValue = Vector2.Lerp(CurrentValue, targetValue, linkedPortion);
                 else return false;
 
                 return true;
@@ -175,10 +237,10 @@ namespace SharedTools_Stuff {
 
                 float magn = (CurrentValue - targetValue).magnitude;
 
-                float modSpeed = speedTreshold;
+                float modSpeed = speedLimit;
                 
                 if (easeInOut) {
-                    easePortion = Mathf.Lerp(easePortion, magn > speedTreshold*0.5f ? 1 : 0.1f, Time.deltaTime*2);
+                    easePortion = Mathf.Lerp(easePortion, magn > speedLimit*0.5f ? 1 : 0.1f, Time.deltaTime*2);
                     modSpeed *= easePortion;
                 }
 
@@ -258,7 +320,7 @@ namespace SharedTools_Stuff {
             }
 
             public override bool Portion(ref float linkedPortion) =>
-                speedTreshold.SpeedToMinPortion(Value - TargetValue, ref linkedPortion);
+                speedLimit.SpeedToMinPortion(Value - TargetValue, ref linkedPortion);
             
             #region Inspect
             #if PEGI
@@ -492,7 +554,7 @@ namespace SharedTools_Stuff {
 
             public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
                 name = nname;
-                speedTreshold = startingSpeed;
+                speedLimit = startingSpeed;
                 mat = m;
                 rendy = renderer;
             }
@@ -504,7 +566,7 @@ namespace SharedTools_Stuff {
             public abstract Color Value { get; set; }
 
             public override bool Portion(ref float linkedPortion) =>
-              speedTreshold.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref linkedPortion);
+              speedLimit.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref linkedPortion);
 
             public sealed override bool Lerp_Internal(float linkedPortion) {
                 if (Enabled && (targetValue != Value || !defaultSet)) 
@@ -537,8 +599,8 @@ namespace SharedTools_Stuff {
 
                 var changed = base.Inspect();
 
-                if (pegi.edit(ref targetValue).nl(ref changed))
-                    defaultSet = false;
+                pegi.edit(ref targetValue).nl(ref changed);
+                   
 
                 return changed;
             }
@@ -605,7 +667,7 @@ namespace SharedTools_Stuff {
             public Transform_LocalPosition(Transform transform, float nspeed)
             {
                 _transform = transform;
-                speedTreshold = nspeed;
+                speedLimit = nspeed;
             }
 
             public override bool Lerp_Internal(float portion) {
@@ -617,7 +679,7 @@ namespace SharedTools_Stuff {
             }
 
             public override bool Portion(ref float portion) =>
-                speedTreshold.SpeedToMinPortion((Value - targetValue).magnitude, ref portion);
+                speedLimit.SpeedToMinPortion((Value - targetValue).magnitude, ref portion);
                 
         }
         #endregion
@@ -644,7 +706,7 @@ namespace SharedTools_Stuff {
             public RectangleTransform_AnchoredPositionValue(RectTransform rect, float nspeed)
             {
                 rectTransform = rect;
-                speedTreshold = nspeed;
+                speedLimit = nspeed;
             }
         }
 
@@ -686,7 +748,7 @@ namespace SharedTools_Stuff {
             }
             
             public override bool Portion(ref float linkedPortion) =>
-                speedTreshold.SpeedToMinPortion(value - targetValue, ref linkedPortion);
+                speedLimit.SpeedToMinPortion(value - targetValue, ref linkedPortion);
 
             protected override bool Lerp_SubInternal(float portion) {
                 if (Enabled && (value != targetValue || !defaultSet)) {
@@ -724,7 +786,7 @@ namespace SharedTools_Stuff {
             }
 
             public override bool Portion(ref float portion) =>
-                speedTreshold.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion);
+                speedLimit.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion);
 
         }
         
@@ -740,7 +802,7 @@ namespace SharedTools_Stuff {
 
             public GraphicMaterialTextureTransition(float nspeed = 1) : base()
             {
-                speedTreshold = nspeed;
+                speedLimit = nspeed;
             }
 
             public Graphic Graphic
@@ -772,7 +834,7 @@ namespace SharedTools_Stuff {
 
             public RendererMaterialTextureTransition(Renderer rendy, float nspeed = 1) : base()
             {
-                speedTreshold = nspeed;
+                speedLimit = nspeed;
                 graphic = rendy;
             }
 
@@ -795,7 +857,7 @@ namespace SharedTools_Stuff {
         public class GraphicAlpha : BASE_FloatLerp {
 
             protected Graphic _graphic;
-            public Graphic Graphic { get { return _graphic;  } set { _graphic = value; if (setZeroOnStart && !defaultSet) _graphic.TrySetAlpha(0); } }
+            public Graphic Graphic { get { return _graphic;  } set { _graphic = value; if (setZeroOnStart && !defaultSet) { _graphic.TrySetAlpha(0); defaultSet = true; } } }
             public float targetValue = 0;
             public bool setZeroOnStart = true;
 
@@ -875,26 +937,20 @@ namespace SharedTools_Stuff {
 
     public static class LinkedLerpingExtensions
     {
-        public static string Portion<T>(this List<T> list, ref float portion) where T : ILinkedLerping
-        {
-            string dom = "None (weird)";
+        public static float Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping {
+
+            float minPortion = 1;
 
             foreach (var e in list)
-                    e.NullIfDestroyed()?.Portion(ref portion, ref dom);
+                    if (!e.IsNullOrDestroyed())
+                      e.Portion(ld);
 
-            return dom;
+            return minPortion;
         }
 
-        public static void Portion<T>(this List<T> list, ref float portion, ref string dominantValue) where T : ILinkedLerping
-        {
+        public static void Lerp<T>(this List<T> list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping {
             foreach (var e in list)
-                    e.NullIfDestroyed()?.Portion(ref portion, ref dominantValue);
-        }
-
-        public static void Lerp<T>(this List<T> list, float portion) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                    e.NullIfDestroyed()?.Lerp(portion);
+                    e.NullIfDestroyed()?.Lerp(ld, canTeleport);
         }
 
         public static void FadeAway<T>(this List<T> list) where T : IManageFading {

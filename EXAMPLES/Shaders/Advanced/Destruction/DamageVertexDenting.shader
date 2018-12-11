@@ -34,7 +34,6 @@ Shader "PlaytimePainter/Destructible/Character" {
 #pragma multi_compile_fog
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"
-		//#include "UnityCG.cginc"
 #include "AutoLight.cginc"
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 

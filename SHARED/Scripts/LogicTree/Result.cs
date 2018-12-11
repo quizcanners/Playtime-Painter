@@ -80,11 +80,9 @@ namespace STD_Logic  {
         }
         #endregion
 
-        public static string CompileResultText(Result res) => res.Trigger.name + res.type.GetText() + " " + res.updateValue;
-        
         public void Apply(Values to) => type.Apply(updateValue, this, to);
            
-        public override bool IsBoolean => ((type == ResultType.SetBool) || (type == ResultType.SetTagBool));
+        public override bool IsBoolean => (type == ResultType.SetBool || type == ResultType.SetTagBool);
         
         public Result()  {
             if (TriggerGroup.Browsed != null)
@@ -93,7 +91,8 @@ namespace STD_Logic  {
         
         #region Inspector
         #if PEGI
-        public override string NameForPEGIdisplay => base.NameForPEGIdisplay + type + " " + updateValue;
+        public override string NameForPEGIdisplay => base.NameForPEGIdisplay + type.GetText() + " " + 
+            (IsBoolean ? (updateValue != 0).ToString() : updateValue.ToString());
 
         public override bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) {
 

@@ -405,7 +405,7 @@ namespace SharedTools_Stuff {
             if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
             
-            if (icon.Enter.Click())
+            if (this.Attention_Or_Click())
                 edited = ind;
 
             this.clickHighlight();

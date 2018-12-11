@@ -34,7 +34,7 @@
 #include "AutoLight.cginc"
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ CLIP_EDGES
+#pragma shader_feature  ___ CLIP_EDGES
 
 	sampler2D _MainTex;
 	float4 _MainTex_TexelSize;

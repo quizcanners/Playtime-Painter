@@ -19,6 +19,9 @@ namespace STD_Logic
 
         public List<T> CollectAll(ref List<T> lst) {
 
+            if (lst == null)
+                lst = new List<T>();
+
             lst.AddRange(elements);
 
             foreach (var b in subBranches)
@@ -75,18 +78,25 @@ namespace STD_Logic
         int inspectedElement = -1;
         int inspectedBranch = -1;
 
-        #if PEGI
+#if PEGI
+
+        static LogicBranch<T> parent;
+
         public override bool Inspect() {
             bool changed = false;
-
+         
             pegi.nl();
 
-            changed |= "Conditions".enter_Inspect(conditions, ref inspectedStuff, 2).nl();
+            if (parent != null || conditions.CountForInspector>0)
+                conditions.enter_Inspect_AsList(ref inspectedStuff, 1).nl(ref changed);
             
-            changed |= NameForElements.enter_List(ref elements, ref inspectedElement, ref inspectedStuff, 1).nl();
+            parent = this;
+
+            changed |= NameForElements.enter_List(ref elements, ref inspectedElement, ref inspectedStuff, 2).nl();
             
             changed |= "Sub Branches".enter_List(ref subBranches, ref inspectedBranch, ref inspectedStuff, 3).nl();
 
+            parent = null;
             return changed;
         }
 

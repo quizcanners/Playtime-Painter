@@ -33,8 +33,8 @@
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
-#pragma multi_compile  ___ UV_ATLASED
+#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma shader_feature  ___ UV_ATLASED
 
 	uniform sampler2D _MainTex;
 	uniform sampler2D _BumpMapC;

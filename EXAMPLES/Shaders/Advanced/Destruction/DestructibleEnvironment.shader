@@ -22,11 +22,9 @@ Shader "PlaytimePainter/Destructible/Walls" {
 		
 		CGPROGRAM
 		#pragma vertex vert
-		// Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Standard fullforwardshadows
 		#pragma multi_compile  ___ UV_ATLASED
 		#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
-		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
 		sampler2D _MainTex_ATL_UV2;

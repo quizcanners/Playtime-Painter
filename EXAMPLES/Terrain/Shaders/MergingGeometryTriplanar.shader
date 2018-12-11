@@ -38,8 +38,8 @@ Shader "Terrain/MergingGeometryTriplanar" {
 
 #pragma multi_compile_fwdbase 
 #pragma multi_compile  ___ WATER_FOAM
-#pragma multi_compile  ___ _BUMP_NONE  _BUMP_COMBINED 
-#pragma multi_compile  ___ CLIP_ALPHA
+#pragma shader_feature  ___ _BUMP_NONE  _BUMP_COMBINED 
+#pragma shader_feature  ___ CLIP_ALPHA
 
 	sampler2D _MainTex;
 	sampler2D _Map;

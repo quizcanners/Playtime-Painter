@@ -1,7 +1,6 @@
 ﻿Shader "PlaytimePainter/Water" {
 	Properties {
-		//_Color ("Color", Color) = (1,1,1,1)
-		_BumpMapC("BumpMap (RGB)", 2D) = "white" {}
+		_BumpMapC("BumpMap (RGB)", 2D) = "grey" {}
 	}
 
 	Category {
@@ -24,13 +23,8 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fog
-		#include "UnityLightingCommon.cginc" 
-			 #include "Lighting.cginc"
-			#include "UnityCG.cginc"
-			 #include "AutoLight.cginc"
 
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
-
 
 #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
@@ -38,13 +32,11 @@
 
 			struct v2f {
 				float4 pos : POSITION;
-				//float4 diff : COLOR;
-				float4 viewDir : TEXCOORD1; // 
+				float4 viewDir : TEXCOORD1;
 				float3 wpos : TEXCOORD2;
 				UNITY_FOG_COORDS(3)
 				SHADOW_COORDS(4) 
-					float3 tc_Control : TEXCOORD5;
-			//	float3 normal : TEXCOORD5;
+				float3 tc_Control : TEXCOORD5;
 			};
 
 			v2f vert (appdata_full v) {

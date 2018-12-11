@@ -316,6 +316,7 @@ namespace PlayerAndEditorGUI {
         public static void DropFocus() => FocusControl("_");
 
         public static string LastNeedAttentionMessage;
+        public static int LastNeedAttentionIndex;
         public static bool NeedsAttention(this IList list, string listName = "list", bool canBeNull = false) {
             LastNeedAttentionMessage = null;
             LastNeedAttentionMessage = list.NeedAttentionMessage(listName, canBeNull);
@@ -323,25 +324,39 @@ namespace PlayerAndEditorGUI {
         }
 
         public static string NeedAttentionMessage(this IList list, string listName = "list", bool canBeNull = false) {
+            LastNeedAttentionMessage = null;
             if (list == null)
-                return canBeNull ? null : "{0} is Null".F(listName);
+                LastNeedAttentionMessage = canBeNull ? null : "{0} is Null".F(listName);
+            else
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var el = list[i];
+                    if (!el.IsNullOrDestroyed())
+                    {
+                        var need = el as INeedAttention;
+                        if (need != null)
+                        {
+                            var what = need.NeedAttention();
+                            if (what != null)
+                            {
+                                LastNeedAttentionMessage = " {0} on {1}:{2}".F(what, i, need.ToPEGIstring());
+                                LastNeedAttentionIndex = i;
 
-            for (int i = 0; i < list.Count; i++)  {
-                var el = list[i];
-                if (!el.IsNullOrDestroyed())  {
-                    var need = el as INeedAttention;
-                    if (need != null) {
-                        var what = need.NeedAttention();
-                        if (what != null)  {
-                            what = " {0} on {1}:{2}".F(what, i, need.ToPEGIstring());
-                            return what;
+                                return LastNeedAttentionMessage;
+                            }
                         }
                     }
+                    else if (!canBeNull) {
+                        LastNeedAttentionMessage = "{0} element in {1} is NULL".F(i, listName);
+                        LastNeedAttentionIndex = i;
+
+                        return LastNeedAttentionMessage;
+                    }
                 }
-                else if (!canBeNull)
-                    return "{0} element in {1} is NULL".F(i, listName);
             }
-            return null;
+
+            return LastNeedAttentionMessage;
         }
 
         public static void FocusControl(string name)
@@ -2509,26 +2524,47 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
 
-        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne) {
-            if (enteredOne == -1 && inspected == -1 && list.Count == 1 && (list[0] as IPEGI != null) && icon.Next.Click()) {
-                enteredOne = thisOne;
-                inspected = 0;
+        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected)
+        {
+            int tmp;
+            icon ico;
+            string msg;
+
+            if (list.NeedsAttention()) {
+                tmp = LastNeedAttentionIndex;
+                ico = icon.Warning;
+                msg = LastNeedAttentionMessage;
+            }
+            else {
+                tmp = Mathf.Max(0, inspected);
+                ico = icon.Next;
+                msg = "Inspect element {0}".F(tmp);
+            }
+
+            var el = list.TryGet(tmp) as IPEGI;
+
+            if (el != null && ico.Click(msg)) {
+                inspected = tmp;
                 isFoldedOut_or_Entered = true;
                 return true;
             }
             return false;
         }
 
-        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref bool entered)
-        {
-            if (entered == false && inspected == -1 && list.Count == 1 && (list[0] as IPEGI != null) && icon.Next.Click())
-            {
+        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne) {
+            
+            if (enteredOne == -1 && list.enter_SkipToOnlyElement(ref inspected)) 
+                        enteredOne = thisOne;
+
+            return enteredOne == thisOne;
+        }
+
+        static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref bool entered) {
+
+            if (!entered && list.enter_SkipToOnlyElement(ref inspected)) 
                 entered = true;
-                inspected = 0;
-                isFoldedOut_or_Entered = true;
-                return true;
-            }
-            return false;
+
+            return entered;
         }
 
         static bool enter_HeaderPart<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false) {
@@ -2596,11 +2632,36 @@ namespace PlayerAndEditorGUI {
           : "") : "null");
         }
 
-        public static string AddCount(this string txt, IList lst) => "{0} {1}".F(txt, lst != null ?
-            (lst.Count>0 ? 
-            (lst.Count == 1 ? "|" : "[{0}]".F(lst.Count))
-            : "") : "null");
-        
+        public static string AddCount(this string txt, IList lst)
+        {
+            if (lst == null)
+                return "{0} is NULL".F(txt);
+
+            if (lst.Count > 1)
+                return "{0} [{1}]".F(txt, lst.Count);
+
+            if (lst.Count == 0)
+                return "NO {0}".F(txt);
+
+            var el = lst[0];
+
+            if (!el.IsNullOrDestroyed()) {
+
+                var nm = el as IGotDisplayName;
+
+                if (nm != null)
+                    return "{0}: {1}".F(txt, nm.NameForPEGIdisplay);
+
+                var n = el as IGotName;
+
+                if (n != null)
+                    return "{0}: {1}".F(txt, n.NameForPEGI);
+
+                return "{0} |".F(txt);
+
+            }
+            else return "{0} one Null Element".F(txt);
+        }
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
             if (ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered()) 
@@ -2796,8 +2857,7 @@ namespace PlayerAndEditorGUI {
         {
 
             bool changed = false;
-
-
+            
             int insp = -1;
             if (enter_ListIcon(label, ref list ,ref insp, ref enteredOne, thisOne)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 label.edit_List_Obj(ref list, selectFrom);   
@@ -2816,7 +2876,6 @@ namespace PlayerAndEditorGUI {
         {
             T tmp = default(T);
             
-
             if (enter_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
 
@@ -2944,7 +3003,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool ClickUnfocus(this Texture tex, int width)
+        public static bool ClickUnfocus(this Texture tex, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
@@ -2972,7 +3031,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool ClickUnfocus(this Texture tex, string tip, int width)
+        public static bool ClickUnfocus(this Texture tex, string tip, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
@@ -3659,11 +3718,19 @@ namespace PlayerAndEditorGUI {
 
             var lst = obj as IPEGI_ListInspect;
 
-            if (lst!= null)  {
+            if (lst != null)
+            {
                 if (lst.enter_Inspect_AsList(ref entered, current))
+                {
+                    obj.Try_NameInspect(label);
                     changed |= obj.Try_Nested_Inspect();
-            } else if (icon.Enter.conditional_enter(obj.TryGet_fromObj<IPEGI>() != null, ref entered, current))
+                }
+            }
+            else if (icon.Enter.conditional_enter(obj.TryGet_fromObj<IPEGI>() != null, ref entered, current))
+            {
+                obj.Try_NameInspect(label);
                 changed |= obj.Try_Nested_Inspect();
+            }
 
             return changed;
         }
@@ -5362,6 +5429,20 @@ namespace PlayerAndEditorGUI {
 
         static List<int> copiedElements = new List<int>();
 
+        static bool move = false;
+
+        static void TryMoveCopiedElement<T>(this List<T> list)
+        {
+            
+            foreach (var e in copiedElements)
+                list.TryAdd(listCopyBuffer.TryGet(e));
+
+            for (int i = copiedElements.Count - 1; i >= 0; i--)
+                listCopyBuffer.RemoveAt(copiedElements[i]);
+
+            listCopyBuffer = null;
+        }
+
         static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null) {
 
             bool changed = false;
@@ -5465,6 +5546,7 @@ namespace PlayerAndEditorGUI {
                 }
                 else
 #endif
+                #region Playtime UI reordering
                 {
                     var derr = typeof(T).TryGetDerrivedClasses();
 
@@ -5530,88 +5612,142 @@ namespace PlayerAndEditorGUI {
 
                 }
 
-                if (list.Count > 0 && icon.Copy.ClickUnfocus("Copy List Elements")) {
-                    listCopyBuffer = list;
-                    if (meta != null)
-                        copiedElements = meta.GetSelectedElements();
-                    else
-                        copiedElements = selectedEls.GetItAll();
-                }
+                #endregion
 
-                if (listCopyBuffer != null) {
-
-                    if (icon.Close.ClickUnfocus("Clean buffer"))
-                        listCopyBuffer = null;
-
-                    if (typeof(T).IsUnityObject()) {
-
-                        if (icon.Paste.ClickUnfocus("Try Past References Of {0}".F(listCopyBuffer.ToPEGIstring()))) {
-                            foreach (var e in copiedElements) 
-                                list.TryAdd(listCopyBuffer.TryGet(e));
-                        }
-
-                    } else {
-
-                        if (icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring()))) {
-
-                            foreach (var e in listCopyBuffer)  {
-
-                                var istd = e as ISTD;
-
-                                if (istd != null)
-                                    list.TryAdd(istd.Clone_ISTD());
-                            }
-                        }
-                    }
-                }
-                
+                #region Select
                 int selectedCount = 0;
-             
+
                 if (meta == null) {
                     for (int i = 0; i < list.Count; i++)
                         if (selectedEls[i]) selectedCount++;
                 }
                 else for (int i = 0; i < list.Count; i++)
                         if (meta.GetIsSelected(i)) selectedCount++;
-                
-                if ((meta == null || meta.allowDelete) && list.Count > 0) {
-                    int nullOrDestroyedCount = 0;
 
-                for (int i = 0; i < list.Count; i++)
-                    if (list[i].IsNullOrDestroyed()) nullOrDestroyedCount++;
-
-                    if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements")) {
-                        for (int i = list.Count-1; i >= 0; i--)
-                            if (list[i].IsNullOrDestroyed())
-                                list.RemoveAt(i);
-
-                        SetSelected(meta, list, false);
-                    }
-                }
-                
-                if (selectedCount>0 && icon.DeSelectAll.Click("Deselect All"))
+                if (selectedCount > 0 && icon.DeSelectAll.Click("Deselect All"))
                     SetSelected(meta, list, false);
-                    
+
                 if (selectedCount == 0 && icon.SelectAll.Click("Select All"))
                     SetSelected(meta, list, true);
 
-                if ((meta == null || meta.allowDelete) && list.Count > 0) {
-                    if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
+
+                #endregion
+
+                #region Copy, Cut, Paste, Move 
+             
+                if (listCopyBuffer != null) {
+
+                    if (icon.Close.ClickUnfocus("Clean buffer"))
+                        listCopyBuffer = null;
+
+                    if (listCopyBuffer != list)
                     {
-                        if (meta == null)
+
+                        if (typeof(T).IsUnityObject())
                         {
-                            for (int i = list.Count - 1; i >= 0; i--)
-                                if (selectedEls[i]) list.RemoveAt(i);
+
+                            if (!move && icon.Paste.ClickUnfocus("Try Past References Of {0} to here".F(listCopyBuffer.ToPEGIstring())))
+                            {
+                                foreach (var e in copiedElements)
+                                    list.TryAdd(listCopyBuffer.TryGet(e));
+                            }
+
+                            if (move && icon.Move.ClickUnfocus("Try Move References Of {0}".F(listCopyBuffer)))
+                                list.TryMoveCopiedElement();
+
                         }
-                        else for (int i = list.Count - 1; i >= 0; i--)
-                                if (meta.GetIsSelected(i))
-                                    list.RemoveAt(i);
+                        else
+                        {
 
-                        SetSelected(meta, list, false);
+                            if (!move && icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring())))
+                            {
 
+                                foreach (var e in copiedElements)
+                                {
+
+                                    var istd = listCopyBuffer.TryGet(e) as ISTD;
+
+                                    if (istd != null)
+                                        list.TryAdd(istd.Clone_ISTD());
+                                }
+                            }
+
+                            if (move && icon.Move.ClickUnfocus("Try Move {0}".F(listCopyBuffer)))
+                                list.TryMoveCopiedElement();
+                        }
                     }
                 }
-                
+                else if (selectedCount > 0)
+                {
+                    bool copyOrMove = false;
+
+                    if (icon.Copy.ClickUnfocus("Copy List Elements"))
+                    {
+                        move = false;
+                        copyOrMove = true;
+                    }
+
+                    if (icon.Cut.ClickUnfocus("Cut List Elements"))
+                    {
+                        move = true;
+                        copyOrMove = true;
+                    }
+
+                    if (copyOrMove)
+                    {
+                        listCopyBuffer = list;
+                        if (meta != null)
+                            copiedElements = meta.GetSelectedElements();
+                        else
+                            copiedElements = selectedEls.GetItAll();
+                    }
+                }
+
+
+                #endregion
+
+                #region Clean & Delete
+
+                if (list != listCopyBuffer)
+                {
+
+                    if ((meta == null || meta.allowDelete) && list.Count > 0)
+                    {
+                        int nullOrDestroyedCount = 0;
+
+                        for (int i = 0; i < list.Count; i++)
+                            if (list[i].IsNullOrDestroyed()) nullOrDestroyedCount++;
+
+                        if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements"))
+                        {
+                            for (int i = list.Count - 1; i >= 0; i--)
+                                if (list[i].IsNullOrDestroyed())
+                                    list.RemoveAt(i);
+
+                            SetSelected(meta, list, false);
+                        }
+                    }
+
+                    if ((meta == null || meta.allowDelete) && list.Count > 0)
+                    {
+                        if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
+                        {
+                            if (meta == null)
+                            {
+                                for (int i = list.Count - 1; i >= 0; i--)
+                                    if (selectedEls[i]) list.RemoveAt(i);
+                            }
+                            else for (int i = list.Count - 1; i >= 0; i--)
+                                    if (meta.GetIsSelected(i))
+                                        list.RemoveAt(i);
+
+                            SetSelected(meta, list, false);
+
+                        }
+                    }
+                }
+                #endregion
+
                 if ((meta != null) && icon.Config.enter(ref meta.inspectListMeta))
                    meta.Nested_Inspect();
 
@@ -5656,27 +5792,29 @@ namespace PlayerAndEditorGUI {
 
         static IList listCopyBuffer = null;
 
-        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, List_Data datas = null)
-        {
+        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, List_Data datas = null) {
             bool changed = false;
 
-            bool clickHighlightHandeled = false;
+            var pl = el.TryGet_fromObj<IPEGI_ListInspect>();
 
-            var uo = el as UnityEngine.Object;
+            if (pl != null)
+            {
+                if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || PEGI_Extensions.EfChanges)
+                    pl.SetToDirty();
+            } else {
+                var uo = el as UnityEngine.Object;
 
-            IPEGI pg = el.TryGet_fromObj<IPEGI>();
-            if (pg != null)
-                el = pg;
+                IPEGI pg = el.TryGet_fromObj<IPEGI>();
+                if (pg != null)
+                    el = pg;
 
-            var pl = el as IPEGI_ListInspect;
+                var need = el as INeedAttention;
+                string warningText = need?.NeedAttention();
 
-            var need = el as INeedAttention;
-            string warningText = need?.NeedAttention();
+                if (warningText != null)
+                    attentionColor.SetBgColor();
 
-            if (warningText != null)
-                attentionColor.SetBgColor();
-
-            if (pl == null)  {
+                bool clickHighlightHandeled = false;
 
                 var named = el as IGotName;
                 if (named != null)
@@ -5698,8 +5836,7 @@ namespace PlayerAndEditorGUI {
                 else {
                     if (uo == null && pg == null && datas == null)
                         el.ToPEGIstring().write();
-                    else
-                    {
+                    else  {
                         Texture tex = null;
 
                         if (uo) {
@@ -5719,19 +5856,12 @@ namespace PlayerAndEditorGUI {
                         edited = index;
                     warningText = null;
                 }
-            } else {
-                clickHighlightHandeled = true;
-                changed |= pl.PEGI_inList(list, index, ref edited);
-                if (changed || PEGI_Extensions.EfChanges)
-                    pl.SetToDirty();
-            }
 
-            if (warningText != null)
-                icon.Warning.write(warningText, 25);
-            
-            if (!clickHighlightHandeled)
-                uo.clickHighlight();
+                if (!clickHighlightHandeled)
+                    uo.clickHighlight();
 
+            }  
+ 
             RestoreBGcolor();
 
             return changed;
@@ -6701,7 +6831,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_Dictionary_Values(this string label, ref Dictionary<int, string> dic, List<string> roles)
         {
-            write_ListLabel(label);
+            write_ListLabel(label, dic.ToList());
             return edit_Dictionary_Values(ref dic, roles);
         }
 
@@ -7193,6 +7323,22 @@ namespace PlayerAndEditorGUI {
 
             return icon.ClickUnfocus(hint);
         }
+
+        public static bool Attention_Or_Click(this INeedAttention attention, Texture tex, string hint = "")
+        {
+            if (attention == null)
+                return icon.Warning.ClickUnfocus("Object is null; {0}".F(hint));
+
+            var msg = attention.NeedAttention();
+            if (msg != null)
+                return icon.Warning.ClickUnfocus(msg);
+
+            if (hint == null || hint.Length == 0)
+                hint = tex ? tex.ToString() : "Null Texture";
+
+            return tex ? tex.ClickUnfocus(hint) : icon.Enter.ClickUnfocus(hint);
+        }
+
 
         public static bool Try_Nested_Inspect(this GameObject go)
         {

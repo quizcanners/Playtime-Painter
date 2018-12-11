@@ -7,6 +7,11 @@ using SharedTools_Stuff;
 
 namespace STD_Logic
 {
+
+    public interface IAmConditional {
+        bool CheckConditions(Values vals);
+    }
+    
     public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
     [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
@@ -74,6 +79,14 @@ namespace STD_Logic
         }
         #endregion
 
+        #region Inspect
+        #if PEGI
+
+        public override string NameForPEGIdisplay => "if {0} = {1}".F(base.NameForPEGIdisplay, compareValue);
+
+        #endif
+        #endregion
+
         public override bool TryForceConditionValue(Values values, bool toTrue)
         {
             SetBool(values, toTrue ? compareValue : !compareValue);
@@ -112,6 +125,19 @@ namespace STD_Logic
             }
             return true;
         }
+        #endregion
+
+        #region Inspect
+#if PEGI
+
+        public override string NameForPEGIdisplay {
+            get  {
+                var name = "If {0} {1} {2}".F(base.NameForPEGIdisplay, type.GetName(), compareValue);
+                return name;
+            }
+        }
+
+#endif
         #endregion
 
         public override bool SearchTriggerSameType => true;
@@ -220,6 +246,47 @@ namespace STD_Logic
 
     }
 
+    public static class ConditionExtensions
+    {
+        public static bool Test_And_For(this List<IAmConditional> lst, Values vals)
+        {
 
+            if (lst == null)
+                return true;
+
+            foreach (var e in lst)
+                if (e != null && !e.CheckConditions(vals))
+                    return false;
+
+
+            return true;
+        }
+
+        public static bool IsTrue(this IAmConditional cond) => cond.CheckConditions(Values.global);
+
+        public static bool TryTestCondition(this object obj)
+        {
+            var cnd = obj as IAmConditional;
+            if (cnd == null) return true;
+            return cnd.IsTrue();
+        }
+
+        public static string GetName(this ConditionType type)
+        {
+            switch (type) {
+                case ConditionType.Equals: return "==";
+                case ConditionType.Above: return ">";
+                case ConditionType.Below: return "<";
+                case ConditionType.NotEquals: return "!=";
+                case ConditionType.VirtualTimePassedAbove: return "Game_Time passed > ";
+                case ConditionType.VirtualTimePassedBelow: return "Game_Time passed < ";
+                case ConditionType.RealTimePassedAbove: return "Real_Time passed > ";
+                case ConditionType.RealTimePassedBelow: return "Real_Time passed < ";
+            }
+
+            return "!!!Unrecognized Condition Type";
+        }
+
+    }
 
 }

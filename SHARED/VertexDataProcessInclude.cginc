@@ -1,26 +1,3 @@
-/*
-struct v2fvd {
-				float4 pos : POSITION;
-				float4 texcoord : TEXCOORD0;  // xy - Main texture UV ; zw - UV from world Pos   
-				float4 vcol : COLOR1;  // rgb for border, a - for shadow
-				float4 viewDir: TEXCOORD1; // w - distance
-				float3 normal: TEXCOORD2;
-				float3 snormal: TEXCOORD3;
-				float3 scenepos: TEXCOORD4;
-				float4 bshad : TEXCOORD5;  //Baked Shadow	
-				float4 rendMapUV : TEXCOORD6; // xy - small, zw - big
-				float4 bC : TEXCOORD7; // xy - small, zw - big
-				};*/
-
-
-				/*
-
-				o.normal.xyz = UnityObjectToWorldNormal(v.tangent.xyz);//v.tangent.xyz;//v.normal;
-				o.snormal.xyz = UnityObjectToWorldNormal(v.normal.xyz);
-				o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
-
-*/
-
 #include "UnityCG.cginc"
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"

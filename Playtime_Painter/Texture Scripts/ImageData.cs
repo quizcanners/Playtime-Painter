@@ -696,10 +696,7 @@ namespace Playtime_Painter
 
             set { SaveName = value; }
         }
-
-       
-
-
+        
 #if PEGI
 
         bool LoadTexturePEGI(string path)
@@ -916,7 +913,7 @@ namespace Playtime_Painter
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
             this.ToPEGIstring().write_obj(60, texture2D);
-            if (icon.Enter.Click())
+            if (this.Attention_Or_Click(texture2D))
                 edited = ind;
             texture2D.clickHighlight();
 

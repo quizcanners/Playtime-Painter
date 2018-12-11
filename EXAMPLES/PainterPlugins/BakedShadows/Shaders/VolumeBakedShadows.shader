@@ -19,8 +19,8 @@
 		l1col("Point light 1 Color", Vector) = (0,0,0,0)
 		l2pos("Point light 2 world scene position", Vector) = (0,0,0,0)
 		l2col("Point light 2 Color", Vector) = (0,0,0,0)
-
 	}
+
 		Category{
 			Tags{ "Queue" = "Geometry"
 			"IgnoreProjector" = "True"
@@ -29,10 +29,6 @@
 			"VertexColorRole_A" = "Second Atlas Texture"
 			"VertexColorRole_B" = "Additional Wetness"
 		}
-
-
-			//	ColorMask RGB
-			//	Cull Off//Back
 
 			SubShader{
 			Pass{
@@ -45,9 +41,9 @@
 #pragma target 3.0
 #include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
-#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
-#pragma multi_compile  ___ UV_ATLASED
-#pragma multi_compile  ___ VERT_SHADOW
+#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+#pragma shader_feature  ___ UV_ATLASED
+#pragma shader_feature  ___ VERT_SHADOW
 
 		uniform sampler2D _MainTex_ATL;
 		uniform sampler2D _BumpMapC_ATL;
@@ -97,7 +93,6 @@
 
 		v2f vert(appdata_full v) {
 			v2f o;
-		
 
 			o.pos = UnityObjectToClipPos(v.vertex);
 			UNITY_TRANSFER_FOG(o, o.pos);
