@@ -2498,7 +2498,7 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
 
-        public static bool enter(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
+        public static bool enter(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = false, GUIStyle enterLabelStyle = null)
         {
             bool outside = enteredOne == -1;
 
@@ -2515,7 +2515,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || outside) &&
-                txt.ClickLabel(txt, outside ? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel)) 
+                txt.ClickLabel(txt, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
                 enteredOne = outside ? thisOne : -1;
             
 
@@ -2575,7 +2575,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = meta.Icon.enter(meta.label.AddCount(list), ref enteredOne, thisOne, showLabelIfTrue);
+            var ret = meta.Icon.enter(meta.label.AddCount(list), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
             ret |= list.enter_SkipToOnlyElement<T>(ref meta.inspected, ref enteredOne, thisOne);
             
@@ -2594,7 +2594,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref enteredOne, thisOne);
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
             return ret;
         }
@@ -2657,7 +2657,7 @@ namespace PlayerAndEditorGUI {
                 if (n != null)
                     return "{0}: {1}".F(txt, n.NameForPEGI);
 
-                return "{0} |".F(txt);
+                return "{0}: {1}".F(txt, el.ToPEGIstring());
 
             }
             else return "{0} one Null Element".F(txt);
