@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Basic/VertexColor" {
+﻿Shader "Playtime Painter/Basic/VertexColor" {
 	Properties{
 
 	}

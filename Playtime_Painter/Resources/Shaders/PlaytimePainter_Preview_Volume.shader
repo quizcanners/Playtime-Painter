@@ -1,4 +1,4 @@
-﻿Shader "Editor/br_PreviewVolume" {
+﻿Shader "Playtime Painter/Preview/Volume" {
 	Properties{
 		_PreviewTex("Base (RGB)", 2D) = "white" { }
 		VOLUME_H_SLICES("Baked Shadow Slices", Vector) = (0,0,0,0)

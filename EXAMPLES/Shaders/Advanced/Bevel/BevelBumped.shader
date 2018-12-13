@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Bevel/Bumped" {
+﻿Shader "Playtime Painter/Bevel/Bumped" {
 	Properties{
 	_MainTex("Base texture", 2D) = "white" {}
 	_BumpMap("Normal Map", 2D) = "bump" {}

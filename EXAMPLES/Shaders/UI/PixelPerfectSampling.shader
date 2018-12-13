@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/UI/PixelPerfectSampling"
+﻿Shader "Playtime Painter/UI/PixelPerfectSampling"
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "white" {}

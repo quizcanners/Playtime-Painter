@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/BufferBlit/Motion Mask" {
+﻿Shader "Playtime Painter/Buffer Blit/Motion Mask" {
 	Properties{
 		_MainTex("Camera Input", 2D) = "white" {}
 		_Previous("Previous Frame", 2D) = "white" {}

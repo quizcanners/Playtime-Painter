@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/BufferBlit/Black_n_White" {
+﻿Shader "Playtime Painter/Buffer Blit/Black and White" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 		//_Power("Black And White Detection", float) = 1

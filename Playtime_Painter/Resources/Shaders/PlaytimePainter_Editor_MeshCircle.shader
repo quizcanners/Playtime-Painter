@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Editor/Grid" {
+Shader "Playtime Painter/Editor/Grid" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_Size ("Scale", float) = 4

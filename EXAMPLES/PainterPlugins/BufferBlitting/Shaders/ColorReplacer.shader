@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/BufferBlit/ColorReplacer" {
+﻿Shader "Playtime Painter/Buffer Blit/Color Replacer" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 		_Color("New Color", Color) = (1,1,1,1)

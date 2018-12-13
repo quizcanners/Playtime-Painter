@@ -1,5 +1,5 @@
 ﻿
-Shader "PlaytimePainter/PixArt/Outline" {
+Shader "Playtime Painter/Pixel Art/Outline" {
 	Properties{
 		 _MainTex("Tex", 2D) = "white" {}
 	//[NoScaleOffset] _Bump("_bump", 2D) = "white" {}

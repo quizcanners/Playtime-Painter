@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/UI/TMPro_Perspective"
+﻿Shader "Playtime Painter/UI/TMPro_Perspective"
 {
 
 	Properties{

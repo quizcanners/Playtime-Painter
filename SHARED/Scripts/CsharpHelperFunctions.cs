@@ -27,7 +27,6 @@ namespace SharedTools_Stuff
         #region Timer
         static Stopwatch stopWatch = new Stopwatch();
 
-
         public static int timerLastSection = 0;
 
         static string timerStartLabel = null;

@@ -1,7 +1,7 @@
 ﻿// Note: I've commented out the Regulr BumpMap option because it was giving "Not Marked as Normal" warning on the material, which is annoying. 
 // It's safe to uncomment all comments below:
 
-Shader "Terrain/MergingGeometryTriplanar" {
+Shader "Playtime Painter/Terrain Integration/Triplanar" {
 	Properties{
 	[NoScaleOffset]_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
 	//[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0

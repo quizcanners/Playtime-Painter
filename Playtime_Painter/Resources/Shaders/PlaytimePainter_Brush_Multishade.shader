@@ -1,4 +1,4 @@
-﻿Shader "Editor/br_Multishade" {
+﻿Shader "Playtime Painter/Brush/DoubleBuffer" {
 	
 		Category{
 		Tags{ "Queue" = "Transparent"}

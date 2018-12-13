@@ -1,4 +1,4 @@
-﻿Shader "Editor/BufferBlit_Smooth" {
+﻿Shader "Playtime Painter/Buffer Blit/Smooth" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 	}

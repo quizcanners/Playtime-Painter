@@ -1,4 +1,4 @@
-﻿Shader "Editor/TerrainPreview" {
+﻿Shader "Playtime Painter/Preview/Terrain" {
 	Category{
             Tags { "RenderType" = "Opaque"
              "LightMode" = "ForwardBase"

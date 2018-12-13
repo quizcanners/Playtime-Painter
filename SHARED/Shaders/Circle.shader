@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Basic/Circle_Additive" {
+﻿Shader "Playtime Painter/Basic/Circle_Additive" {
 	Properties{
 		_Color("Color", Color) = (1,1,1,1)
 		_Hardness("Hardness", Range(1,16)) = 2

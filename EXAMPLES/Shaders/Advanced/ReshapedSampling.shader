@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/SamplingDisplacement/Simple" {
+﻿Shader "Playtime Painter/Sampling Displacement/Simple" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}

@@ -1,4 +1,4 @@
-﻿Shader "Editor/PixPerfectCopy" {
+﻿Shader "Playtime Painter/Buffer Blit/Pixel Perfect Copy" {
 	Properties{
 		 _MainTex("Tex", 2D) = "white" {}
 	}

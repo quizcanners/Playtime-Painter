@@ -1,4 +1,4 @@
-﻿Shader "Editor/BufferCopier" {
+﻿Shader "Playtime Painter/Buffer Blit/Copier" {
 	Properties{
 		 _MainTex("Tex", 2D) = "white" {}
 	}

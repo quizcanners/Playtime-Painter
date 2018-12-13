@@ -40,8 +40,6 @@ namespace SharedTools_Stuff {
 
         #region Timing
 
-
-
         public static double TimeSinceStartup()
         {
 #if UNITY_EDITOR
@@ -1701,7 +1699,90 @@ namespace SharedTools_Stuff {
         #endregion
         #endregion
     }
+    
+    public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
+    {
+        public string _name;
+        float timer = 0;
+        double perIntervalCount = 0;
+        double max = 0;
+        double min = float.PositiveInfinity;
+        double avarage = 0;
+        double totalCount = 0;
+        float intervalLength = 1f;
 
+      
+
+        public void Update(float add = 0)
+        {
+            timer += Time.deltaTime;
+            if (add != 0)
+                Add(add);
+
+            if (timer > intervalLength)
+            {
+
+                timer -= intervalLength;
+
+                max = Mathf.Max((float)perIntervalCount, (float)max);
+                min = Mathf.Min((float)perIntervalCount, (float)min);
+
+                totalCount += 1;
+
+                double portion = 1d / totalCount;
+                avarage = avarage * (1d - portion) + perIntervalCount * portion;
+
+                perIntervalCount = 0;
+            }
+
+        }
+
+        public void Add(float result = 1)
+        {
+            perIntervalCount += result;
+
+        }
+
+        public void ResetStats()
+        {
+            timer = 0;
+            perIntervalCount = 0;
+            max = 0;
+            min = float.PositiveInfinity;
+            avarage = 0;
+            totalCount = 0;
+        }
+
+        #region Inspector
+
+        public string NameForPEGIdisplay => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)avarage).ToString("0.00"),  (intervalLength != 1d) ? intervalLength.ToString("0") : "", (int)min, (int)max, (int)totalCount);
+
+#if PEGI
+        public bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+            if (icon.Refresh.Click("Reset Stats"))
+                ResetStats();
+
+         //   "_name interval".edit(80, ref intervalLength);
+
+            NameForPEGIdisplay.write();
+
+          
+            return false;
+        }
+#endif
+        #endregion
+
+        public PerformanceTimer(string name = "Timer", float interval = 1f)
+        {
+            _name = name;
+            intervalLength = interval;
+        }
+
+
+
+    }
+    
     public class ChillLogger
     {
         bool logged = false;

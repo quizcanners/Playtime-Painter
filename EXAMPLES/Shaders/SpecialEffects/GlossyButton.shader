@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
 
-Shader "PlaytimePainter/Basic/GlossyButton" {
+Shader "Playtime Painter/Basic/GlossyButton" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo", 2D) = "white" {}
 		_Courners ("Rounding Courners", Range(0,0.9)) = 0.5

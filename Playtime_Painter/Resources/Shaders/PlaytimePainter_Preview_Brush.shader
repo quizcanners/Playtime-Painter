@@ -1,4 +1,4 @@
-﻿Shader "Editor/br_Preview" {
+﻿Shader "Playtime Painter/Preview/Brush" {
 		Properties {
 		_PreviewTex ("Base (RGB)", 2D) = "white" { }
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1

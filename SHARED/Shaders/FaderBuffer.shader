@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Basic/FaderBuffer" {
+﻿Shader "Playtime Painter/Basic/FaderBuffer" {
 	Properties{
 		_Speed("FadeSpeed", Range(0.001,0.2)) = 0
 	}

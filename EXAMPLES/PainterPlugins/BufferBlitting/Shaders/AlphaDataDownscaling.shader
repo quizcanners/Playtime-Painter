@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/BufferBlit/AlphaDataDownscaling" {
+﻿Shader "Playtime Painter/Buffer Blit/Alpha Data Downscaling" {
 	Properties{
 		_MainTex("Tex", 2D) = "white" {}
 	}

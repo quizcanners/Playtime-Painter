@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Water" {
+﻿Shader "Playtime Painter/Terrain Integration/Water" {
 	Properties {
 		_BumpMapC("BumpMap (RGB)", 2D) = "grey" {}
 	}

@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Walls/Surface_Atlased" {
+﻿Shader "Playtime Painter/Walls/Surface Atlased" {
 	Properties {
 		_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0

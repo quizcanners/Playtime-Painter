@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Bevel/Bevel_Terrain Integration" {
+﻿Shader "Playtime Painter/Terrain Integration/BevelGeometry" {
 	Properties{
 		[NoScaleOffset]_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0

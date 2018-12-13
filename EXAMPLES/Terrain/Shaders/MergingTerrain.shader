@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Terrain/MergingTerrain" {
+Shader "Playtime Painter/Terrain Integration/Terrain Only" {
 
 	Category{
 			Tags { "RenderType" = "Opaque"

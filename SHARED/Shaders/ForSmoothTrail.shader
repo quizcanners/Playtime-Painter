@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Basic/ForSmoothTrail" {
+﻿Shader "Playtime Painter/Basic/ForSmoothTrail" {
 	Properties{
 		_Color("Color", Color) = (1,1,1,1)
 		_Hardness("Hardness", Range(1,16)) = 2

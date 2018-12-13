@@ -1,4 +1,4 @@
-﻿Shader "Editor/br_ColorFill" {
+﻿Shader "Playtime Painter/Buffer Blit/Color Fill" {
 	Properties{
 		_Color("Color", Color) = (1,1,1,1)
 	}

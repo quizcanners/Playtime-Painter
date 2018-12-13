@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/PixArt/Parallax" {
+﻿Shader "Playtime Painter/Pixel Art/Parallax" {
 	Properties {
 		[NoScaleOffset] _MainTex ("Albedo (RGB)", 2D) = "white" {}
 		//_Size ("Scale", float) = 4

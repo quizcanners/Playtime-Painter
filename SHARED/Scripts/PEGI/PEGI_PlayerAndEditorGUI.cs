@@ -15,70 +15,70 @@ using System.Linq.Expressions;
 using System.Reflection;
 using SharedTools_Stuff;
 
-#region interfaces & Attributes
-
-public interface IPEGI
-{
-#if PEGI
-    bool Inspect();
-#endif
-}
-
-public interface INeedAttention
-{
-#if PEGI
-    string NeedAttention();
-#endif
-}
-
-public interface IPEGI_ListInspect
-{
-#if PEGI
-    bool PEGI_inList(IList list, int ind, ref int edited);
-#endif
-}
-
-public interface IGotName
-{
-#if PEGI
-    string NameForPEGI { get; set; }
-#endif
-}
-
-public interface IGotDisplayName
-{
-#if PEGI
-    string NameForPEGIdisplay { get; }
-#endif
-}
-
-public interface IGotIndex
-{
-#if PEGI
-    int IndexForPEGI { get; set; }
-#endif
-}
-
-public interface IGotCount
-{
-#if PEGI
-    int CountForInspector { get; }
-#endif
-}
-
-public interface IEditorDropdown
-{
-#if PEGI
-    bool ShowInDropdown();
-#endif
-}
-
-
-#endregion
-
 #pragma warning disable IDE1006 
 namespace PlayerAndEditorGUI {
 
+    #region interfaces & Attributes
+
+    public interface IPEGI
+    {
+#if PEGI
+        bool Inspect();
+#endif
+    }
+
+    public interface INeedAttention
+    {
+#if PEGI
+        string NeedAttention();
+#endif
+    }
+
+    public interface IPEGI_ListInspect
+    {
+#if PEGI
+        bool PEGI_inList(IList list, int ind, ref int edited);
+#endif
+    }
+
+    public interface IGotName
+    {
+#if PEGI
+        string NameForPEGI { get; set; }
+#endif
+    }
+
+    public interface IGotDisplayName
+    {
+#if PEGI
+        string NameForPEGIdisplay { get; }
+#endif
+    }
+
+    public interface IGotIndex
+    {
+#if PEGI
+        int IndexForPEGI { get; set; }
+#endif
+    }
+
+    public interface IGotCount
+    {
+#if PEGI
+        int CountForInspector { get; }
+#endif
+    }
+
+    public interface IEditorDropdown
+    {
+#if PEGI
+        bool ShowInDropdown();
+#endif
+    }
+
+
+    #endregion
+    
     public static class pegi {
 
         public static string EnvironmentNL => Environment.NewLine;

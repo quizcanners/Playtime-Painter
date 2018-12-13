@@ -1,4 +1,4 @@
-﻿Shader "PlaytimePainter/Walls/GraffityShader" {
+﻿Shader "Playtime Painter/Walls/Graffity" {
 	Properties{
 		_Diffuse("Diffuse", 2D) = "white" {}
 		[NoScaleOffset] _Overlay("Graffity (Texcoord 2, Transparent Layer)", 2D) = "black" {}

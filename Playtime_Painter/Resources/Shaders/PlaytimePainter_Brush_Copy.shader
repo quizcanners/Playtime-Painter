@@ -1,4 +1,4 @@
-﻿Shader "Editor/br_Blit" {
+﻿Shader "Playtime Painter/Brush/Copy" {
 	Properties{
 		
 	}
@@ -20,10 +20,10 @@
 		Pass{
 
 		CGPROGRAM
-		#include "qc_Includes.cginc"
 
-		#pragma multi_compile  BRUSH_2D BRUSH_SQUARE  BRUSH_3D  BRUSH_3D_TEXCOORD2   BRUSH_DECAL
-		#pragma multi_compile  ___ BRUSH_COPY
+			#include "qc_Includes.cginc"
+
+		#pragma multi_compile  BRUSH_2D  BRUSH_SQUARE  BRUSH_3D    BRUSH_3D_TEXCOORD2   BRUSH_DECAL
 
 #pragma vertex vert
 #pragma fragment frag
@@ -31,8 +31,7 @@
 #include "UnityCG.cginc"
 #include "UnityLightingCommon.cginc"
 
-
-	#if BRUSH_2D || BRUSH_DECAL || BRUSH_SQUARE
+#if BRUSH_2D || BRUSH_DECAL || BRUSH_SQUARE
 		struct v2f {
 		float4 pos : POSITION;
 		float4 texcoord : TEXCOORD0;  
@@ -92,14 +91,11 @@
 
 
 	float4 frag(v2f i) : COLOR{
-	
 
-	#if BRUSH_COPY
 	 	_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
-	#endif
 
-	#if BRUSH_3D  ||   BRUSH_3D_TEXCOORD2
-		float alpha = prepareAlphaSphere (i.texcoord, i.worldPos);
+	#if BRUSH_3D || BRUSH_3D_TEXCOORD2
+        float alpha = prepareAlphaSphere (i.texcoord, i.worldPos);
 		clip(alpha - 0.000001);
     #endif
 
@@ -123,12 +119,16 @@
 		float changeColor = _DecalParameters.z;
 		_brushColor = overlay*overlay.a +  (_brushColor*changeColor + col*(1-changeColor))*(1-overlay.a);
 
+		//_brushColor = overlay*overlay.a + _brushColor*(1-overlay.a);
 		_brushColor.a = Height;
 	 #endif
 
 		_brushColor.a = alpha;
 
+		//clip(alpha);
+
 		return  _brushColor;
+
 
 	}
 		ENDCG

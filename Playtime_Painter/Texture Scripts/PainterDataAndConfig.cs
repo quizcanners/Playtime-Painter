@@ -502,29 +502,29 @@ namespace Playtime_Painter
             }
 
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
-            if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Editor/PixPerfectCopy");
+            if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Playtime Painter/Buffer Blit/Pixel Perfect Copy");
 
-            if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Editor/BufferBlit_Smooth");
+            if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Playtime Painter/Buffer Blit/Smooth");
 
-            if (brushRendy_bufferCopy == null) brushRendy_bufferCopy = Shader.Find("Editor/BufferCopier");
+            if (brushRendy_bufferCopy == null) brushRendy_bufferCopy = Shader.Find("Playtime Painter/Buffer Blit/Copier");
 
-            if (br_Blit == null) br_Blit = Shader.Find("Editor/br_Blit");
+            if (br_Blit == null) br_Blit = Shader.Find("Playtime Painter/Brush/Blit");
 
-            if (br_Add == null) br_Add = Shader.Find("Editor/br_Add");
+            if (br_Add == null) br_Add = Shader.Find("Playtime Painter/Brush/Add");
 
-            if (br_Copy == null) br_Copy = Shader.Find("Editor/br_Copy");
+            if (br_Copy == null) br_Copy = Shader.Find("Playtime Painter/Brush/Copy");
 
-            if (br_Multishade == null) br_Multishade = Shader.Find("Editor/br_Multishade");
+            if (br_Multishade == null) br_Multishade = Shader.Find("Playtime Painter/Brush/DoubleBuffer");
 
-            if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Editor/BlurN_SmudgeBrush");
+            if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Playtime Painter/Brush/BlurN_Smudge");
 
-            if (br_ColorFill == null) br_ColorFill = Shader.Find("Editor/br_ColorFill");
+            if (br_ColorFill == null) br_ColorFill = Shader.Find("Playtime Painter/Buffer Blit/Color Fill");
 
-            if (br_Preview == null) br_Preview = Shader.Find("Editor/br_Preview");
+            if (br_Preview == null) br_Preview = Shader.Find("Playtime Painter/Preview/Brush");
 
-            if (mesh_Preview == null) mesh_Preview = Shader.Find("Editor/MeshEditorAssist");
+            if (mesh_Preview == null) mesh_Preview = Shader.Find("Playtime Painter/Preview/Mesh");
 
-            TerrainPreview = Shader.Find("Editor/TerrainPreview");
+            TerrainPreview = Shader.Find("Playtime Painter/Preview/Terrain");
 #endif
 
             var encody = new StdDecoder(meshToolsSTD);
