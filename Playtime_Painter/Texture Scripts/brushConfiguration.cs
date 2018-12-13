@@ -417,8 +417,7 @@ namespace Playtime_Painter {
 
             if (showBrushDynamics)
             {
-
-                changed |= "Brush Dynamic".selectType(90, ref brushDynamic, brushDunamicConfigs, true).nl();
+                if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDunamicConfigs, true).nl(ref changed))
 
                 if (brushDynamic != null)
                     brushDynamic.Nested_Inspect().nl();

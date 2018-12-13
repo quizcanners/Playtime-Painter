@@ -1236,8 +1236,10 @@ namespace PlayerAndEditorGUI {
                         rect.width = 100;
 
                         if (select_Type(ref ty, current_Reordered_ListTypes, rect)) {
-                         
-                            var ed = listData.TryGetElement(index);
+
+                            current_Reordered_List.TryChangeObjectType(index, ty, listData);
+
+                           /* var ed = listData.TryGetElement(index);
 
                             var iTag = el as IGotClassTag;
 
@@ -1259,7 +1261,7 @@ namespace PlayerAndEditorGUI {
 
                             }
                             else
-                                current_Reordered_List[index] = std.TryDecodeInto<object>(ty);
+                                current_Reordered_List[index] = std.TryDecodeInto<object>(ty);*/
                         }
                     }
                 }

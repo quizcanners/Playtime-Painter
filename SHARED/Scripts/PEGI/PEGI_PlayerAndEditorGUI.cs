@@ -1147,33 +1147,46 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        public static bool selectType<T>(this string text, string hint, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        public static bool selectType<T>(this string text, string hint, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
         {
             text.write(hint, width);
-            return selectType<T>(ref obj, ed, keepTypeConfig);
+            return selectType<T>(ref el, ed, keepTypeConfig);
         }
 
-        public static bool selectType<T>(this string text, int width, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        public static bool selectType<T>(this string text, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
         {
             text.write(width);
-            return selectType(ref obj, ed, keepTypeConfig);
+            return selectType<T>(ref el, ed, keepTypeConfig);
         }
 
-        public static bool selectType<T>(this string text, ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag
+        public static bool selectType<T>(this string text, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
         {
             text.write();
-            return selectType(ref obj, ed, keepTypeConfig);
+            return selectType<T>(ref el, ed, keepTypeConfig);
         }
 
-        public static bool selectType<T>(ref T obj, ElementData ed = null, bool keepTypeConfig = false) where T : IGotClassTag {
+        public static bool selectType<T>(ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
+        {
+            object obj = el;
+
+            if (selectType_Obj<T>(ref obj, ed, keepTypeConfig)) {
+                el = obj as T;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool selectType_Obj<T>(ref object obj, ElementData ed = null, bool keepTypeConfig = true) where T : IGotClassTag {
 
             if (ed != null)
-                return ed.SelectType(ref obj, keepTypeConfig);
+                return ed.SelectType<T>(ref obj, keepTypeConfig);
             
             var type = obj?.GetType();
 
-            if (obj.GetTaggedTypes_Safe().Select(ref type).nl()) {
+            if (typeof(T).TryGetTaggetClasses().Select(ref type).nl()) {
+                var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
+                AbstractTaggedSTDExtensions.TryCopy_Std_AndOtherData(obj, previous);
                 return true;
             }
 
@@ -2822,23 +2835,23 @@ namespace PlayerAndEditorGUI {
             return isFoldedOut_or_Entered;
         }
         
-        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
             
             if (enter_ListIcon( label, ref list ,ref inspectedElement, ref enteredOne, thisOne))
-                label.edit_List_Obj(ref list, ref inspectedElement, selectFrom).nl();
+                label.edit_List_UObj(ref list, ref inspectedElement, selectFrom).nl();
 
             return changed;
         }
 
-        public static bool enter_List_Obj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object {
+        public static bool enter_List_UObj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object {
 
             bool changed = false;
             
             if (datas.enter_HeaderPart(ref list, ref enteredOne, thisOne))  
-                datas.edit_List_Obj(ref list, selectFrom);
+                datas.edit_List_UObj(ref list, selectFrom);
 
             return changed;
         }
@@ -2853,14 +2866,14 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool enter_List_Obj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
         {
 
             bool changed = false;
             
             int insp = -1;
             if (enter_ListIcon(label, ref list ,ref insp, ref enteredOne, thisOne)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                label.edit_List_Obj(ref list, selectFrom);   
+                label.edit_List_UObj(ref list, selectFrom);   
 
             return changed;
         }
@@ -2881,9 +2894,8 @@ namespace PlayerAndEditorGUI {
 
             return tmp;
         }
-
-
-        public static bool enter_List_b<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered) 
+        
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered) 
         {
 
             bool changed = false;
@@ -5802,64 +5814,77 @@ namespace PlayerAndEditorGUI {
                 if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || PEGI_Extensions.EfChanges)
                     pl.SetToDirty();
             } else {
-                var uo = el as UnityEngine.Object;
 
-                IPEGI pg = el.TryGet_fromObj<IPEGI>();
-                if (pg != null)
-                    el = pg;
-
-                var need = el as INeedAttention;
-                string warningText = need?.NeedAttention();
-
-                if (warningText != null)
-                    attentionColor.SetBgColor();
-
-                bool clickHighlightHandeled = false;
-
-                var named = el as IGotName;
-                if (named != null)
-                {
-                    var so = uo as ScriptableObject;
-                    var n = named.NameForPEGI;
-                    if (so)
-                    {
-                        if (editDelayed(ref n))
-                        {
-                            so.RenameAsset(n);
-                            named.NameForPEGI = n;
-                        }
-                    }
-                    else
-                        if (edit(ref n))
-                        named.NameForPEGI = n;
+                if (el.IsNullOrDestroyed()) {
+                    ElementData ed = datas != null ? datas[index] : null;
+                    if (ed == null)
+                        "{0}: NULL {1}".F(index, typeof(T).ToPEGIstring_Type()).write();
+                    else 
+                        ed.PEGI_inList<T>(ref el, index, ref edited);
                 }
                 else {
-                    if (uo == null && pg == null && datas == null)
-                        el.ToPEGIstring().write();
-                    else  {
-                        Texture tex = null;
+                    var uo = el as UnityEngine.Object;
 
-                        if (uo) {
-                            tex = uo as Texture;
-                            if (tex) {
-                                uo.clickHighlight(tex); 
-                                clickHighlightHandeled = true;
+                    IPEGI pg = el.TryGet_fromObj<IPEGI>();
+                    if (pg != null)
+                        el = pg;
+
+                    var need = el as INeedAttention;
+                    string warningText = need?.NeedAttention();
+
+                    if (warningText != null)
+                        attentionColor.SetBgColor();
+
+                    bool clickHighlightHandeled = false;
+
+                    var named = el as IGotName;
+                    if (named != null)
+                    {
+                        var so = uo as ScriptableObject;
+                        var n = named.NameForPEGI;
+                        if (so)
+                        {
+                            if (editDelayed(ref n))
+                            {
+                                so.RenameAsset(n);
+                                named.NameForPEGI = n;
                             }
                         }
-                        write(el.ToPEGIstring());
+                        else
+                            if (edit(ref n))
+                            named.NameForPEGI = n;
                     }
+                    else
+                    {
+                        if (uo == null && pg == null && datas == null)
+                            el.ToPEGIstring().write();
+                        else
+                        {
+                            Texture tex = null;
+
+                            if (uo)
+                            {
+                                tex = uo as Texture;
+                                if (tex)
+                                {
+                                    uo.clickHighlight(tex);
+                                    clickHighlightHandeled = true;
+                                }
+                            }
+                            write(el.ToPEGIstring());
+                        }
+                    }
+
+                    if (pg != null)
+                    {
+                        if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
+                            edited = index;
+                        warningText = null;
+                    }
+
+                    if (!clickHighlightHandeled)
+                        uo.clickHighlight();
                 }
-
-                if (pg != null)
-                {
-                    if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
-                        edited = index;
-                    warningText = null;
-                }
-
-                if (!clickHighlightHandeled)
-                    uo.clickHighlight();
-
             }  
  
             RestoreBGcolor();
@@ -6145,38 +6170,38 @@ namespace PlayerAndEditorGUI {
 
         #region Obj
 
-        public static bool edit_List_Obj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
             label.write_ListLabel(ref inspected, list);
-            return edit_or_select_List_Obj(ref list, selectFrom, ref inspected);
+            return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
         }
 
-        public static bool edit_List_Obj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
-            => edit_or_select_List_Obj(ref list, selectFrom, ref inspected);
+        public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+            => edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
 
-        public static bool edit_List_Obj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object {
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object {
             label.write_ListLabel(list);
-            return list.edit_List_Obj(selectFrom).listLabel_Used();
+            return list.edit_List_UObj(selectFrom).listLabel_Used();
         }
 
-        public static bool edit_List_Obj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
+        public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
                 int edited = -1;
-                return edit_or_select_List_Obj(ref list, selectFrom, ref edited, null);
+                return edit_or_select_List_UObj(ref list, selectFrom, ref edited, null);
         }
         
-        public static bool edit_List_Obj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
             datas.label.write_ListLabel(ref datas.inspected, list);
-            return edit_or_select_List_Obj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
+            return edit_or_select_List_UObj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_Obj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
+        public static bool edit_or_select_List_UObj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
             label.write_ListLabel(ref inspected, list);
-            return edit_or_select_List_Obj(ref list, from, ref inspected, datas).listLabel_Used();
+            return edit_or_select_List_UObj(ref list, from, ref inspected, datas).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_Obj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
+        public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
             if (listIsNull(ref list))
                 return false;
@@ -6311,7 +6336,7 @@ namespace PlayerAndEditorGUI {
                             if (!isMonoType(list, i))
                             {
                                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
-                                    write("use edit_List_Obj");
+                                    write("use edit_List_UObj");
                                 else
                                     write("is NUll");
                             }
@@ -6391,7 +6416,7 @@ namespace PlayerAndEditorGUI {
 
                             if (!isMonoType<T>(list, i)) {
                                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
-                                    write("use edit_List_Obj");
+                                    write("use edit_List_UObj");
                                 else
                                     write("is NUll");
                             }
@@ -6473,7 +6498,7 @@ namespace PlayerAndEditorGUI {
         {
             label.write_ListLabel(list);
             listElementsRoles = roles;
-            var ret = edit_List_Obj(ref list, lambda_Obj_role);
+            var ret = edit_List_UObj(ref list, lambda_Obj_role);
             listElementsRoles = null;
             return ret;
         }
@@ -6561,7 +6586,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool edit_List_Obj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
         {
 
             bool changed = false;
@@ -7338,8 +7363,7 @@ namespace PlayerAndEditorGUI {
 
             return tex ? tex.ClickUnfocus(hint) : icon.Enter.ClickUnfocus(hint);
         }
-
-
+        
         public static bool Try_Nested_Inspect(this GameObject go)
         {
             bool changed = false;
@@ -7379,16 +7403,14 @@ namespace PlayerAndEditorGUI {
 
         public static bool TryInspect<T>(this List_Data ld, ref T obj, int ind) where T : UnityEngine.Object
         {
-            var el = ld.TryGetElement(ind); 
+            var el = ld[ind]; 
 
             if (el != null)
-                return el.Inspect(ref obj);
+                return el.PEGI_inList_Obj(ref obj);
             else
                 return pegi.edit(ref obj);
         }
 
-        public static ElementData TryGetElement(this List_Data ld, int ind) => ld?.elementDatas.TryGet(ind);
-        
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
             if (lst != null)

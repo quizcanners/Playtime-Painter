@@ -35,7 +35,7 @@ public class PEGI_SimpleInspectorsBrowser : ComponentSTD, IPEGI, IKeepMySTD {
 #if PEGI
     public override bool Inspect() {
         bool changed = base.Inspect();
-        references_Meta.enter_List_Obj(ref objects, ref inspectedStuff, 3);
+        references_Meta.enter_List_UObj(ref objects, ref inspectedStuff, 3);
         return changed;
     }
 #endif

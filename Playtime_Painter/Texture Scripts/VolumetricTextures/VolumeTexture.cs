@@ -360,7 +360,7 @@ namespace Playtime_Painter
             int w = Width;
             ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
 
-            "Materials".edit_List_Obj(ref materials);
+            "Materials".edit_List_UObj(ref materials);
 
             if (InspectedPainter != null)
             {

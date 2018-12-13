@@ -9,7 +9,7 @@ using UnityEditor;
 
 namespace SharedTools_Stuff
 {
-   
+    #region List Data
     public class List_Data : Abstract_STD, IPEGI {
 
         public string label = "list";
@@ -23,7 +23,7 @@ namespace SharedTools_Stuff
         public icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
-        
+
         public List<int> GetSelectedElements() {
             var sel = new List<int>();
             foreach (var e in elementDatas)
@@ -31,7 +31,7 @@ namespace SharedTools_Stuff
             return sel;
         }
 
-        public bool GetIsSelected (int ind) {
+        public bool GetIsSelected(int ind) {
             var el = elementDatas.GetIfExists(ind);
             if (el != null)
                 return el.selected;
@@ -45,11 +45,11 @@ namespace SharedTools_Stuff
                 el.selected = value;
         }
         public ElementData this[int i] {
-            get { return elementDatas.TryGet(i); }            
+            get { return elementDatas.TryGet(i); }
         }
 
         #region Inspector
-        #if PEGI
+#if PEGI
         public void SaveElementDataFrom<T>(List<T> list)
         {
             for (int i = 0; i < list.Count; i++)
@@ -68,7 +68,9 @@ namespace SharedTools_Stuff
 
         public bool Inspect() {
 
+            pegi.nl();
             if (!enterElementDatas) {
+                "Show 'Explore Encoding' Button".toggleIcon(ref ElementData.EnableEnterInspectEncoding).nl();
                 "List Label".edit(70, ref label).nl();
                 "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData).nl();
                 "Allow Delete".toggleIcon(ref allowDelete).nl();
@@ -81,7 +83,7 @@ namespace SharedTools_Stuff
             return false;
         }
 
-        public bool Inspect<T>(List<T> list) where T: UnityEngine.Object { 
+        public bool Inspect<T>(List<T> list) where T : UnityEngine.Object {
             bool changed = false;
 #if UNITY_EDITOR
 
@@ -101,13 +103,13 @@ namespace SharedTools_Stuff
                 }
             }
 
-            if (list.Count>0 && list[0]!= null && icon.Refresh.Click("Use location of the first element in the list")) 
+            if (list.Count > 0 && list[0] != null && icon.Refresh.Click("Use location of the first element in the list"))
                 folderToSearch = AssetDatabase.GetAssetPath(list[0]);
-            
+
 #endif
             return changed;
         }
-        #endif
+#endif
         #endregion
 
         #region Encode & Decode
@@ -145,8 +147,8 @@ namespace SharedTools_Stuff
             allowCreate = true;
             _keepTypeData = false;
         }
-        
-        public List_Data(string nameMe,  bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
+
+        public List_Data(string nameMe, bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
         {
             allowCreate = allowCreating;
             allowDelete = allowDeleting;
@@ -158,13 +160,15 @@ namespace SharedTools_Stuff
     }
 
     public class ElementData : Abstract_STD, IPEGI, IGotName {
-        public string name; 
+        public string name;
         public string componentType;
         public string std_dta;
         public string guid;
         public bool unrecognized = false;
         public string unrecognizedUnderTag;
         public bool selected;
+
+        public static bool EnableEnterInspectEncoding = false;
 
         public Dictionary<string, string> perTypeConfig = new Dictionary<string, string>();
 
@@ -182,54 +186,33 @@ namespace SharedTools_Stuff
             unrecognizedUnderTag = tag;
             std_dta = data;
         }
-
-        #region Inspector
-#if PEGI
-
-        public string NameForPEGI { get { return name;  } set { name = value; } }
         
-        public bool Inspect()
+        public void ChangeType(ref object obj, Type newType, TaggedTypes_STD taggedTypes, bool keepTypeConfig = false)
         {
-            bool changed = false;
+            var previous = obj;
 
-            if (unrecognized)
-                "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
+            var tobj = obj as IGotClassTag;
 
-            if (perTypeConfig.Count > 0)
-                "Per type config".edit_Dictionary_Values(ref perTypeConfig, pegi.lambda_string).nl();
+            if (keepTypeConfig && tobj != null)
+                perTypeConfig[tobj.ClassTag] = tobj.Encode().ToString();
 
-            return changed;
-        }
+            obj = Activator.CreateInstance(newType);
 
-        public bool SelectType<T>(ref T obj, bool keepTypeConfig = false) where T : IGotClassTag {
-            bool changed = false;
+            var std = obj as ISTD;
 
-            var all = obj.GetTaggedTypes_Safe();
-            var type = obj?.GetType();
-
-            if (all == null) {
-                "No Types Holder".writeWarning();
-                return false;
-            }
-
-            if (all.Select(ref type).nl())
+            if (std != null)
             {
-                if (keepTypeConfig && obj != null)
-                    perTypeConfig[obj.ClassTag] = obj.Encode().ToString();
-
-                string data = "";
-                var key = all.Tag(type);
-
-
-                perTypeConfig.TryGetValue(key, out data);
-
-                obj = data.DecodeInto_Type<T>(type);
+                string data;
+                if (perTypeConfig.TryGetValue(taggedTypes.Tag(newType), out data))
+                    std.Decode(data);
             }
 
-            return changed;
+            AbstractTaggedSTDExtensions.TryCopy_Std_AndOtherData(obj, previous);
+
         }
 
-        public void Save<T>(T el) {
+        public void Save<T>(T el)
+        {
             name = el.ToPEGIstring();
 
             var cmp = el as Component;
@@ -242,9 +225,8 @@ namespace SharedTools_Stuff
 
             guid = (el as UnityEngine.Object).GetGUID(guid);
         }
-
-        public bool TryGetByGUID<T>(ref T field) where T : UnityEngine.Object
-        {
+        
+        public bool TryGetByGUID<T>(ref T field) where T : UnityEngine.Object {
 
             var obj = UnityHelperFunctions.GUIDtoAsset<T>(guid);
 
@@ -270,8 +252,86 @@ namespace SharedTools_Stuff
 
             return false;
         }
+        
+        #region Inspector
+        #if PEGI
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
-        public bool Inspect<T>(ref T field) where T : UnityEngine.Object {
+        public bool Inspect()
+        {
+            bool changed = false;
+
+            if (unrecognized)
+                "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
+
+            if (perTypeConfig.Count > 0)
+                "Per type config".edit_Dictionary_Values(ref perTypeConfig, pegi.lambda_string).nl();
+
+            return changed;
+        }
+
+        public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
+            bool changed = false;
+
+            var all = typeof(T).TryGetTaggetClasses();
+
+            if (all == null) {
+                "No Types Holder".writeWarning();
+                return false;
+            }
+
+            var previous = obj;
+
+            var type = obj?.GetType();
+
+            if (all.Select(ref type).nl()) {
+
+                ChangeType(ref obj, type, all, keepTypeConfig);
+
+
+                /* if (keepTypeConfig && tobj != null)
+                     perTypeConfig[tobj.ClassTag] = tobj.Encode().ToString();
+
+                 string data;
+
+                 if (!perTypeConfig.TryGetValue(all.Tag(type), out data) && tobj != null)
+                         data = tobj.Encode().ToString();
+
+                 obj = data.TryDecodeInto_Type<T>(type);*/
+
+
+            }
+
+            return changed;
+        }
+
+        public bool PEGI_inList<T>(ref object obj, int ind, ref int edited) {
+
+            bool changed = false;
+
+            if (typeof(T).IsUnityObject()) {
+
+                var uo = obj as UnityEngine.Object;
+                if (PEGI_inList_Obj(ref uo).changes(ref changed))
+                    obj = uo;
+
+            } else {
+
+                if (unrecognized)
+                    unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
+
+                if (!name.IsNullOrEmpty())
+                    name.write();
+
+                if (typeof(T) is IGotClassTag)
+                    SelectType<T>(ref obj);
+
+            }
+
+            return changed;
+        }
+
+        public bool PEGI_inList_Obj<T>(ref T field) where T : UnityEngine.Object {
 
             if (unrecognized)
                 unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
@@ -289,7 +349,7 @@ namespace SharedTools_Stuff
 
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         #region Encode & Decode
@@ -316,16 +376,26 @@ namespace SharedTools_Stuff
             .Add_IfNotEmpty("t", componentType)
             .Add_IfNotEmpty("perType", perTypeConfig)
             .Add_IfTrue("sel", selected);
-            if (unrecognized) { 
-            cody.Add_Bool("ur", unrecognized)
-            .Add_String("tag", unrecognizedUnderTag);
+            if (unrecognized) {
+                cody.Add_Bool("ur", unrecognized)
+                .Add_String("tag", unrecognizedUnderTag);
             }
             return cody;
         }
+
         #endregion
     }
 
-    [Serializable]
+    public static class STDListDataExtensions {
+
+        public static ElementData TryGetElement(this List_Data ld, int ind) => ld?.elementDatas.TryGet(ind);
+
+    }
+
+#endregion
+
+#region Saved STD
+[Serializable]
     public class Exploring_STD : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
     {
         ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
@@ -640,5 +710,5 @@ namespace SharedTools_Stuff
 #endif
         #endregion
     }
-
+    #endregion
 }

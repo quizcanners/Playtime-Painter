@@ -260,7 +260,7 @@ namespace SharedTools_Stuff {
 
                 if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifNotEntered())
                 {
-                    listData.edit_List_Obj(ref _nestedReferences);
+                    listData.edit_List_UObj(ref _nestedReferences);
 
                     if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
                         ", that usu this object to hold references is currently decoded to avoid mixups"))
@@ -438,7 +438,7 @@ namespace SharedTools_Stuff {
 
                 if (("Object References: " + _nestedReferences.Count).enter(ref inspectedDebugStuff, 1).nl_ifNotEntered())
                 {
-                    references_Meta.edit_List_Obj(ref _nestedReferences);
+                    references_Meta.edit_List_UObj(ref _nestedReferences);
                     if (!references_Meta.Inspecting && "Clear All References".Click("Will clear the list. Make sure everything" +
                     ", that usu this object to hold references is currently decoded to avoid mixups"))
                         _nestedReferences.Clear();
