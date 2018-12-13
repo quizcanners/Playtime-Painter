@@ -5,23 +5,20 @@ using System.Collections.Generic;
 namespace PlayerAndEditorGUI
 {
 
-    // Add new lines of text to enum:
-
     public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement, LockToolToUseTransform, HideTransformTool,
-        //LIST
-        HighlightElement, RemoveFromList, AddListElement, ReturnToList, MakeElementNull};
+        HighlightElement, RemoveFromList, AddListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New };
 
-    // Will be used as:   msg.Texture2D.Get();     - will get translation in current language.
+   
 
-    public static class LazyTranslationsExtensions {
+    public static class LazyTranslationsExtension {
     
-    // Add their translations here:
-
         static void Init() {
 
             texts = new List<List<string>>();
 
             WillBeTranslatingFrom(SystemLanguage.English);
+            Msg.New.Add("New");
+            Msg.NameNewBeforeInstancing_1p.Add("Name for the new {0} you'll instantiate");
             Msg.Texture2D.Add("Texture");
             Msg.RenderTexture.Add("Render Texture");
             Msg.BrushType.Add("Brush Type");
@@ -37,6 +34,7 @@ namespace PlayerAndEditorGUI
             Msg.HideTransformTool.Add("Hide transform tool");
 
             WillBeTranslatingFrom(SystemLanguage.Ukrainian);
+            Msg.New.Add("Новий");
             Msg.Texture2D.Add("Текстура");
             Msg.RenderTexture.Add("Рендер Текстура");
             Msg.BrushType.Add("Тип");
@@ -44,6 +42,8 @@ namespace PlayerAndEditorGUI
             Msg.LockToolToUseTransform.Add("Постав блок на текстурі щоб рухати обєкт, або натисни на 'Приховати трансформації' щоб не мішали.");
             Msg.HideTransformTool.Add("Приховати трансформації");
             Msg.HighlightElement.Add("Показати цей елемент в проекті");
+            Msg.RemoveFromList.Add("Забрати цей елемент зі списку");
+            Msg.AddListElement.Add("Створити новий елемент у списку");
 
             systemLanguage = (int)Application.systemLanguage;
         }
@@ -54,12 +54,17 @@ namespace PlayerAndEditorGUI
         public static List<List<string>> texts;
 
 #if PEGI
+
         public static void Nl(this Msg m) { m.Get().nl(); }
         public static void Nl(this Msg m, int width) { m.Get().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }
         public static void Write(this Msg m) { m.Get().write(); }
         public static void Write(this Msg m, int width) { m.Get().write(width); }
         public static void Write(this Msg m, string tip, int width) { m.Get().write(tip, width); }
+        public static bool Click(this icon icon, Msg text) => icon.ClickUnfocus(text.Get(), pegi.defaultButtonSize);
+        public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnfocus(text.Get(), pegi.defaultButtonSize).changes(ref changed);
+        public static bool ClickUnfocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnfocus(icon.GetIcon(), text.Get(), size);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnfocus(icon.GetIcon(), text.Get(), width, height);
 #endif
 
         public static string Get(this Msg s) {

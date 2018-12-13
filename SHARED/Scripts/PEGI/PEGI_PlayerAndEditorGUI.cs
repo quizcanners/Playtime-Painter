@@ -2965,7 +2965,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Click
-        const int defaultButtonSize = 25;
+        public const int defaultButtonSize = 25;
 
         static bool ClickLabel(this string label, string hint, GUIStyle style = null) {
             SetBgColor(Color.clear);
@@ -3219,19 +3219,11 @@ namespace PlayerAndEditorGUI {
 
         public static bool Click(this icon icon, ref bool changed) => Click(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize).changes(ref changed);
 
-        public static bool Click(this icon icon, Msg text) => icon.ClickUnfocus(text.Get(), defaultButtonSize);
-
-        public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnfocus(text.Get(), defaultButtonSize).changes(ref changed);
-        
         public static bool ClickUnfocus(this icon icon, ref bool changed) => ClickUnfocus(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize).changes(ref changed);
         
         public static bool ClickUnfocus(this icon icon, int size = defaultButtonSize) => ClickUnfocus(icon.GetIcon(), icon.ToPEGIstring(), size);
 
-        public static bool ClickUnfocus(this icon icon, Msg text, int size = defaultButtonSize) => ClickUnfocus(icon.GetIcon(), text.Get(), size);
-
         public static bool ClickUnfocus(this icon icon, string text, int size = defaultButtonSize) => ClickUnfocus(icon.GetIcon(), text, size);
-
-        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => ClickUnfocus(icon.GetIcon(), text.Get(), width, height);
 
         public static bool ClickUnfocus(this icon icon, string text, int width, int height) => ClickUnfocus(icon.GetIcon(), text, width, height);
 
@@ -4996,13 +4988,11 @@ namespace PlayerAndEditorGUI {
         {
             const int listShowMax = 10;
 
-            if (Count < listShowMax)
-            {
+            if (Count < listShowMax) {
                 SectionSizeOptimal = listShowMax;
                 return;
             }
-
-
+            
             if (Count > listShowMax * 3)
             {
                 SectionSizeOptimal = listShowMax;
@@ -5039,7 +5029,7 @@ namespace PlayerAndEditorGUI {
         static string addingNewNameHolder = "Name";
 
         static void listInstantiateNewName<T>()  {
-               "New".write("Name for the new {0} you'll instantiate".F(typeof(T).ToPEGIstring_Type()) ,30, PEGI_Styles.ExitLabel);
+              Msg.New.Get().write(Msg.NameNewBeforeInstancing_1p.Get().F(typeof(T).ToPEGIstring_Type()) ,30, PEGI_Styles.ExitLabel);
             edit(ref addingNewNameHolder);
         }
 
