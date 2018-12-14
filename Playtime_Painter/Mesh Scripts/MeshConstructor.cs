@@ -384,7 +384,7 @@ namespace Playtime_Painter {
             profile = solution;
             edMesh = edmesh;
             mesh = fmesh;
-            if (mesh == null)
+            if (!mesh)
                 mesh = new Mesh();
         }
 

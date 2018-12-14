@@ -14,10 +14,10 @@ namespace Playtime_Painter.Examples
 
         void FindComponents()
         {
-            if (_rendy == null)
+            if (!_rendy)
                 _rendy = GetComponent<MeshRenderer>();
 
-            if (directional == null)
+            if (!directional)
             {
                 Light[] ls = FindObjectsOfType<Light>();
                 for (int i = 0; i < ls.Length; i++)

@@ -40,17 +40,12 @@ namespace Playtime_Painter.Examples {
 
         bool pauseBuffers = false;
 
-        private void ManualUpdate()
-        {
+        public override void Update() {
             if (!pauseBuffers)
                 sections.ForEach(s => s.Update());
         }
 
-        void Update()
-        {
-            if (Application.isPlaying)
-                ManualUpdate();
-        }
+
 
         #region Inspector
 #if PEGI
@@ -155,27 +150,12 @@ namespace Playtime_Painter.Examples {
 #endif
         #endregion
 
-        public override void Disable()
-        {
-            base.Disable();
-#if UNITY_EDITOR
-            EditorApplication.update -= ManualUpdate;
-#endif
-        }
-
         public override void Enable()
         {
             inst = this;
-#if UNITY_EDITOR
-            EditorApplication.update -= ManualUpdate;
-            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
-                EditorApplication.update += ManualUpdate;
-#endif
-
 #if PEGI
             PlugIn_PainterComponent = Component_PEGI;
 #endif
-
         }
 
 
@@ -529,7 +509,7 @@ namespace Playtime_Painter.Examples {
             if (cam && cam.isPlaying && icon.Pause.Click("Stop Camera"))
                 Data.StopCamera();
 
-            if ((cam == null || !cam.isPlaying) && WebCamTexture.devices.Length > 0 && icon.Play.Click("Start Camera"))
+            if ((!cam || !cam.isPlaying) && WebCamTexture.devices.Length > 0 && icon.Play.Click("Start Camera"))
             {
                 Data.webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
                 Data.webCamTexture.Play();
@@ -597,7 +577,7 @@ namespace Playtime_Painter.Examples {
         Shader shader;
         Texture2D buffer;
 
-        public override string NameForPEGIdisplay => (name == null || name.Length == 0 ? "Scaler" : name);
+        public override string NameForPEGIdisplay => (name.IsNullOrEmpty() ? "Scaler" : name);
 
         public override bool CanBeTarget => true;
 
@@ -610,7 +590,7 @@ namespace Playtime_Painter.Examples {
 
         void InitIfNull()
         {
-            if (buffer == null)
+            if (!buffer)
             {
                 buffer = new Texture2D(width, width, TextureFormat.ARGB32, false, linear)
 #if UNITY_EDITOR
@@ -842,7 +822,7 @@ namespace Playtime_Painter.Examples {
             if (material || !shader)
                 "Blit Material".edit(100, ref material).nl();
 
-            if (material == null)
+            if (!material)
                 "Shader".edit(60, ref shader).nl();
 
             if (TargetRenderTexture != null)

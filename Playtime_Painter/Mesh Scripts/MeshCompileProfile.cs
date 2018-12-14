@@ -64,9 +64,7 @@ namespace Playtime_Painter
         public bool Repack(MeshConstructor sm)
         {
 
-
-            if (!sm.Valid)
-            {//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
+            if (!sm.Valid) {
                 Debug.Log("Got no stuff to regenerate mesh. ");
                 return false;
             }
@@ -87,12 +85,6 @@ namespace Playtime_Painter
         }
 
         public bool UpdatePackage(MeshConstructor sm, Type dataType) {
-
-           // if (!sm.valid)
-           //{//(sm.verts == null) || (sm.tris == null) || (sm.verts.Length < 3) || (sm.tris.TotalCount() < 3)) {
-           //  Debug.Log("Got no stuff to regenerate mesh. ");
-           //  return false;
-           //}
 
             MeshSolutions.CurMeshDta = sm;
 
@@ -515,7 +507,7 @@ namespace Playtime_Painter
 
         public static int GetMeshProfileByTag(this Material mat)
         {
-            if (mat == null)
+            if (!mat)
                 return 0;
 
             var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");

@@ -26,12 +26,9 @@ namespace Playtime_Painter
 
         public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
         {
-            if (painter.terrain != null)
-            {
-                Texture[] alphamaps = painter.terrain.terrainData.alphamapTextures;
-                for (int i = 0; i < alphamaps.Length; i++)
+            if (painter && painter.terrain && painter.terrain.terrainData) 
+                for (int i = 0; i < painter.terrain.terrainData.alphamapTextures.Length; i++)
                     dest.Add(i + "_" + PainterDataAndConfig.terrainControl);
-            }
         }
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)

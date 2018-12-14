@@ -61,7 +61,7 @@ namespace Playtime_Painter.Examples
 
                 var painter = hit.transform.GetComponentInParent<PlaytimePainter>();
 
-                Gizmos.color = painter == null ? Color.red : Color.green;
+                Gizmos.color = !painter ? Color.red : Color.green;
                 Gizmos.DrawLine(transform.position, hit.point);
 
             }

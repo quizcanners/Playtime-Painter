@@ -61,7 +61,7 @@ namespace Playtime_Painter {
                     
                     var prb = LightCaster.allProbes[ind];
 
-                    if (prb == null)
+                    if (!prb)
                         pegi.write("Probe " + ind, 50);
                     else
                     {

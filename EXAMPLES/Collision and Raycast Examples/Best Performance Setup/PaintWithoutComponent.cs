@@ -123,7 +123,7 @@ namespace Playtime_Painter.Examples
         void LateUpdate()
         {
             foreach (var t in texturesNeedUpdate)
-                t.SetAndApply(true); // True for Mipmaps. But best to disable mipmaps on textures or set this to false 
+                t.SetAndApply(); // True for Mipmaps. But best to disable mipmaps on textures or set this to false 
 
             texturesNeedUpdate.Clear();
         }
@@ -139,7 +139,7 @@ namespace Playtime_Painter.Examples
 
                 var painter = hit.transform.GetComponentInParent<PlaytimePainter>();
 
-                Gizmos.color = painter == null ? Color.red : Color.green;
+                Gizmos.color = !painter ? Color.red : Color.green;
                 Gizmos.DrawLine(transform.position, hit.point);
 
             }

@@ -48,7 +48,7 @@ namespace Playtime_Painter
         protected Vertex SelectedUV => MeshMGMT.SelectedUV; 
         protected MeshPoint PointedVertex => MeshMGMT.PointedUV.meshPoint; 
         protected EditableMesh FreshPreviewMesh {  get {
-                if (MeshMGMT.previewMesh == null)  {
+                if (!MeshMGMT.previewMesh)  {
                     MeshMGMT.previewEdMesh = new EditableMesh();
                     MeshMGMT.previewEdMesh.Decode(MeshMGMT.edMesh.Encode().ToString());
                 }

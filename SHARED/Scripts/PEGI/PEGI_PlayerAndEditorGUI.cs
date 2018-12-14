@@ -88,13 +88,13 @@ namespace PlayerAndEditorGUI {
         #region Other Stuff
         public delegate bool CallDelegate();
 
-        public class windowPositionData
+        public class WindowPositionData
         {
-            public windowFunction funk;
+            public WindowFunction funk;
             public Rect windowRect;
 
-            public void DrawFunction(int windowID)
-            {
+            public void DrawFunction(int windowID) {
+
                 paintingPlayAreaGUI = true;
 
                 try
@@ -124,31 +124,29 @@ namespace PlayerAndEditorGUI {
 
             public void Render(IPEGI p) => Render(p.Inspect, p.ToPEGIstring());
 
-            public void Render(windowFunction doWindow, string c_windowName)
+            public void Render(WindowFunction doWindow, string c_windowName)
             {
                 windowRect.x = Mathf.Clamp( windowRect.x, 0, Screen.width - 10);
                 windowRect.y = Mathf.Clamp( windowRect.y, 0, Screen.height - 10);
-
-
+                
                 funk = doWindow;
                 windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName);
             }
 
-            public void Collapse()
-            {
+            public void Collapse() {
                 windowRect.width = 10;
                 windowRect.height = 10;
                 windowRect.x = 10;
                 windowRect.y = 10;
             }
 
-            public windowPositionData()
+            public WindowPositionData()
             {
                 windowRect = new Rect(20, 20, 350, 400);
             }
         }
 
-        public delegate bool windowFunction();
+        public delegate bool WindowFunction();
 
         static int elementIndex;
 

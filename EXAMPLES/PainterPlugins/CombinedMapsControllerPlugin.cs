@@ -170,7 +170,7 @@ namespace Playtime_Painter.Examples
                 "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl();
             changed |= "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl();
 
-            if (InspectedPainter == null)
+            if (!InspectedPainter)
             {
                 var frstTex = GetTexture();
                 changed |= "width:".edit(ref width).nl();
@@ -612,7 +612,7 @@ namespace Playtime_Painter.Examples
                 }
             }
 
-            if (tex == null)
+            if (!tex)
             {
                 Debug.Log(this.ToString() + " texture not set, using default color.");
                 int size = width * height;
@@ -626,12 +626,10 @@ namespace Playtime_Painter.Examples
 
         public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
-
             if (_pixels == null)
-                ExtractPixels(set.Diffuse, width, height);
+                ExtractPixels(set.Diffuse, 
+                    id == null ? set.width : id.width,
+                    id == null ? set.height : id.height);
 
             return _pixels;
         }
@@ -716,7 +714,8 @@ namespace Playtime_Painter.Examples
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
 
-            if (id != null) return id.Pixels;
+            if (id != null)
+                return id.Pixels;
 
             if (_pixels == null)
                 ExtractPixels(set.LastProduct, set.width, set.height);
@@ -737,11 +736,14 @@ namespace Playtime_Painter.Examples
 
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
+          
 
             if (_pixels == null)
             {
+                bool noID = id == null;
+                int width = noID ? set.width : id.width;
+                int height = noID ? set.height : id.height;
+
                 var col = set.Profile.fillColor.ToGamma();
                 var size = width * height;
                 _pixels = new Color[size];
@@ -764,12 +766,9 @@ namespace Playtime_Painter.Examples
 
         public override string NameForPEGIdisplay => "Color";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
-        {
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id) {
             if (_pixels == null)
-                ExtractPixels(set.Diffuse, width, height);
+                ExtractPixels(set.Diffuse, id == null ? set.width : id.width, id == null ? set.height : id.height);
 
             return _pixels;
         }
@@ -786,10 +785,12 @@ namespace Playtime_Painter.Examples
 
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
+          
             if (_pixels == null)
             {
+                int width = id == null ? set.width : id.width;
+                int height = id == null ? set.height : id.height;
+
                 ExtractPixels(set.Gloss ? set.Gloss : set.Reflectivity, width, height);
 
                 if (set.Profile.glossNoiseFromHeight && set.HeightMap)
@@ -885,11 +886,13 @@ namespace Playtime_Painter.Examples
 
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
+         
             if (_pixels == null)
+            {
+                int width = id == null ? set.width : id.width;
+                int height = id == null ? set.height : id.height;
                 ExtractPixels(set.Reflectivity ? set.Reflectivity : set.Gloss, width, height);
-
+            }
             return _pixels;
         }
         public TextureRole_Reflectivity(int index) : base(index)
@@ -947,10 +950,12 @@ namespace Playtime_Painter.Examples
 
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-            width = id == null ? set.width : id.width;
-            height = id == null ? set.height : id.height;
+           
             if (_pixels == null)
             {
+                width = id == null ? set.width : id.width;
+                height = id == null ? set.height : id.height;
+
                 ExtractPixels(set.HeightMap ? set.HeightMap : set.Ambient, width, height);
 
                 float xLeft;
@@ -1028,10 +1033,13 @@ namespace Playtime_Painter.Examples
 #endif
         public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
         {
-            int width = id == null ? set.width : id.width;
-            int height = id == null ? set.height : id.height;
+          
             if (_pixels == null)
+            {
+                int width = id == null ? set.width : id.width;
+                int height = id == null ? set.height : id.height;
                 ExtractPixels(set.NormalMap, width, height);
+            }
 #if UNITY_EDITOR
             tex = set.NormalMap;
 #endif

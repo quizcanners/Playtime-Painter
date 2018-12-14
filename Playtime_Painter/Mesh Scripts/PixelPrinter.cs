@@ -6,7 +6,7 @@ using UnityEngine;
 public class PixelPrinter : MonoBehaviour {
     public static PixelPrinter inst()
     {
-        if (_inst == null)
+        if (!_inst)
             FindObjectOfType<PixelPrinter>();
         return _inst;
     }

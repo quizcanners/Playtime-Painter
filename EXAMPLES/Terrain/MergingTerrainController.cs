@@ -24,10 +24,10 @@ namespace Playtime_Painter.Examples {
             void OnEnable()
             {
 
-                if (painter == null)
+                if (!painter)
                     painter = GetComponent<PlaytimePainter>();
 
-                if (painter == null)
+                if (!painter)
                     painter = this.gameObject.AddComponent<PlaytimePainter>();
 
                 UpdateTextures();
@@ -35,7 +35,11 @@ namespace Playtime_Painter.Examples {
 
             public void UpdateTextures()
             {
-                if (terrain == null) terrain = GetComponent<Terrain>();
+                if (!terrain) terrain = GetComponent<Terrain>();
+
+            if (!terrain)
+                return;
+
 
 #if UNITY_2018_3_OR_NEWER
                 var ls = (terrain) ? terrain.terrainData.terrainLayers : null;
@@ -56,24 +60,15 @@ namespace Playtime_Painter.Examples {
                     while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
                         max++;
 
-                    for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++)
-                    {
-
-                        //if (i < mergeSubmasks.Count)
-
+                    for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++) {
                         ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                         if (tmp.Product_combinedBump != null)
                             Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
-
-
-                        if (tmp.Product_colorWithAlpha != null)
-                        {
+                        
+                        if (tmp.Product_colorWithAlpha != null) {
                             Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
                             if (i < ls.Length)
                                 ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
-
-                            //if ((copyProts != null) && (copyProts.Length > i))
-                            //     copyProts[i].texture = tmp.Product_colorWithAlpha;
                         }
                     }
 
@@ -267,7 +262,7 @@ namespace Playtime_Painter.Examples {
             static Texture2D NormalMapFrom(float strength, float diagonalPixelsCoef, Texture2D bump, Texture2D normalReady, Texture2D ambient, string name, Texture2D Result)
             {
 
-                if (bump == null)
+                if (!bump)
                 {
                     Debug.Log("No bump texture");
                     return null;
@@ -355,7 +350,7 @@ namespace Playtime_Painter.Examples {
                 }
 
 
-                if ((Result == null) || (Result.width != width) || (Result.height != height))
+                if ((!Result) || (Result.width != width) || (Result.height != height))
                     Result = bump.CreatePngSameDirectory(name + "_MASKnMAPS");
 
                 TextureImporter resImp = Result.GetTextureImporter();
@@ -378,7 +373,7 @@ namespace Playtime_Painter.Examples {
             static Texture2D GlossToAlpha(Texture2D gloss, Texture2D diffuse, string newName)
             {
 
-                if (gloss == null)
+                if (!gloss)
                 {
                     Debug.Log("No bump texture");
                     return null;

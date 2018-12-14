@@ -18,8 +18,7 @@ namespace Playtime_Painter
 
     [Serializable]
     [ExecuteInEditMode]
-    public class ShadowVolumeTexture : VolumeTexture
-    {
+    public class ShadowVolumeTexture : VolumeTexture {
 
         enum RaycastsStep { Nothing, Requested, Raycasting, FillingTheColor }
 
@@ -41,10 +40,6 @@ namespace Playtime_Painter
 #endif
         }
 
-
-
-
-
         public override bool DrawGizmosOnPainter(PlaytimePainter pntr)
         {
 
@@ -65,7 +60,6 @@ namespace Playtime_Painter
 
 #if UNITY_2018_1_OR_NEWER
         int rayJobChannel = 0;
-
 
         public override void OnEnable()
         {
@@ -228,7 +222,7 @@ namespace Playtime_Painter
             if (rayStep == RaycastsStep.Requested)
             {
 
-                if (lights == null || lights.GetLight(rayJobChannel) == null)
+                if (lights == null || !lights.GetLight(rayJobChannel))
                 {
                     rayStep = RaycastsStep.Nothing;
                     lightSourceDirty[rayJobChannel] = false;
@@ -370,10 +364,8 @@ namespace Playtime_Painter
             lights.UpdateLightOnMaterials(materials);
         }
 
-#if PEGI
-
-
-
+        #region Inspector
+        #if PEGI
         public override bool Inspect()  {
 
             bool changed = base.Inspect();
@@ -430,6 +422,7 @@ namespace Playtime_Painter
             return changed;
             
         }
-#endif
+        #endif
+        #endregion
     }
 }

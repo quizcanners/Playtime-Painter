@@ -70,7 +70,7 @@ namespace Playtime_Painter.Examples {
 
             var rtm = TexturesPool._inst;
 
-            if (Material == null) {
+            if (!Material) {
                 Debug.Log("No Material ");
                 return null;
             }
@@ -111,10 +111,10 @@ namespace Playtime_Painter.Examples {
                 return;
             }
 
-            if (texture == null)
+            if (!texture)
                 return;
 
-            if (originalTexture == null)
+            if (!originalTexture)
             {
                 Debug.Log("Original Texture is not defined");
                 return;
@@ -163,9 +163,9 @@ namespace Playtime_Painter.Examples {
                 Refresh();
 
             if ("Renderer Type:".editEnum(90, ref type).nl()) {
-                if ((type == RendererType.Skinned) && (skinnedMeshRenderer == null))
+                if ((type == RendererType.Skinned) && (!skinnedMeshRenderer))
                     skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-                if ((type == RendererType.Regular) && (meshFilter == null)) {
+                if ((type == RendererType.Regular) && (!meshFilter)) {
                     meshFilter = GetComponent<MeshFilter>();
                     meshRenderer = GetComponent<MeshRenderer>();
                 }
@@ -267,7 +267,7 @@ namespace Playtime_Painter.Examples {
 
                         if (rtm) {
                             "Render Texture Pool will be used to get texture".nl();
-                            if (Renderer == null) "! Renderer needs to be Assigned.".nl();
+                            if (!Renderer) "! Renderer needs to be Assigned.".nl();
                             else {
                                 icon.Done.write();
                                 "COMPONENT SET UP CORRECTLY".write();

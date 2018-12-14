@@ -15,9 +15,16 @@ namespace Playtime_Painter {
     [ExecuteInEditMode]
     public class PainterCamera : PainterStuffMono, IPEGI, IKeepUnrecognizedSTD {
 
+        public static BrushMeshGenerator brushMeshGenerator = new BrushMeshGenerator();
+
+        public static MeshManager meshManager = new MeshManager();
+
+        public static TextureDownloadManager downloadManager = new TextureDownloadManager();
+        
+        #region Painter Data
         [SerializeField] PainterDataAndConfig dataHolder;
 
-        [NonSerialized] public bool triedToFind = false;
+        [NonSerialized] public bool triedToFindPainterData = false;
 
         public static PainterDataAndConfig Data  {
             get  {
@@ -25,48 +32,50 @@ namespace Playtime_Painter {
                 if (!_inst && !Inst)
                     return null;
 
-                if (!_inst.triedToFind && !_inst.dataHolder) {
+                if (!_inst.triedToFindPainterData && !_inst.dataHolder) {
                   
                     _inst.dataHolder = Resources.Load<PainterDataAndConfig>("");
 
                     if (!_inst.dataHolder)
-                        _inst.triedToFind = true;
+                        _inst.triedToFindPainterData = true;
                 }
 
                 return _inst.dataHolder;
             }
         }
+        #endregion
 
+        #region Camera Singleton
         static PainterCamera _inst;
 
-        public static PainterCamera Inst
-        {
-            get {
+        static bool triedToFindCamera = false;
 
+        public static PainterCamera Inst {
+            get {
                 if (!_inst) {
+
+                    if (!triedToFindCamera) {
+                        _inst = FindObjectOfType<PainterCamera>();
+                        if (!_inst) triedToFindCamera = true;
+                    }
 
                     if (!PainterStuff.applicationIsQuitting) {
 
-                        _inst = FindObjectOfType<PainterCamera>();
-
                         if (!_inst) {
                             
-#if UNITY_EDITOR
+                            #if UNITY_EDITOR
                                 GameObject go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                                 _inst = Instantiate(go).GetComponent<PainterCamera>();
                                 _inst.name = PainterDataAndConfig.PainterCameraName;
                                 _inst.RefreshPlugins();
-#endif
+                            #endif
                             
                         }
-                        if (_inst.meshManager == null)
-                            _inst.meshManager = new MeshManager();
-
-                        _inst.gameObject.SetActive(true);
-
                     }
                     else
-                        _inst = null; 
+                        _inst = null;
+
+                    _inst?.gameObject.SetActive(true);
                 }
                 return _inst;
             }
@@ -77,8 +86,7 @@ namespace Playtime_Painter {
 
             }
         }
-
-        public MeshManager meshManager = new MeshManager();
+        #endregion
 
         public PlaytimePainter focusedPainter;
 
@@ -86,9 +94,7 @@ namespace Playtime_Painter {
 
         public bool isLinearColorSpace;
 
-        public const int renderTextureSize = 2048;
-        
-        [NonSerialized]
+        #region Plugins
         private List<PainterManagerPluginBase> _plugins;
         List_Data plauginsMeta = new List_Data("Plugins", true, true, true, false, icon.Link);
 
@@ -125,10 +131,9 @@ namespace Playtime_Painter {
 
             }
         }
+        #endregion
 
-        public Camera rtcam;
-
-        public TextureDownloadManager downloadManager = new TextureDownloadManager();
+        public Camera theCamera;
 
         public RenderBrush brushPrefab;
         public const float orthoSize = 128; // Orthographic size of the camera. 
@@ -159,8 +164,18 @@ namespace Playtime_Painter {
 
         #endregion
 
-        // ******************* Buffers MGMT
+        #region Double Buffer Painting
 
+        public const int renderTextureSize = 2048;
+        
+        public RenderTexture[] BigRT_pair;
+        public int bigRTversion = 0;
+
+        public MeshRenderer secondBufferDebug;
+
+        #endregion
+
+        #region Buffer Scaling
         [NonSerialized] readonly RenderTexture[] squareBuffers = new RenderTexture[10];
 
         public RenderTexture GetSquareBuffer(int width)
@@ -186,10 +201,6 @@ namespace Playtime_Painter {
 
             return squareBuffers[no];
         }
-
-        // Main Render Textures used for painting
-        public RenderTexture[] BigRT_pair;
-        public int bigRTversion = 0;
 
         [NonSerialized]
         List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
@@ -237,13 +248,12 @@ namespace Playtime_Painter {
                 return from;
             }
         }
-
-        public MeshRenderer secondBufferDebug;
+        #endregion
 
         // This are used in case user started to use Render Texture on another target. Data is moved to previous Material's Texture2D so that Render Texture Buffer can be used with new target. 
-        [NonSerialized]
+
+        #region Buffers MGMT
         public ImageData imgDataUsingRendTex;
-        [NonSerialized]
         public List<MaterialData> materialsUsingTendTex = new List<MaterialData>();
         public PlaytimePainter autodisabledBufferTarget;
 
@@ -302,9 +312,10 @@ namespace Playtime_Painter {
             if (!cfg)
                 return;
 
-            rtcam.cullingMask = 1 << cfg.myLayer;
+            theCamera.cullingMask = 1 << cfg.myLayer;
 
-            if (!GotBuffers) {
+            if (!GotBuffers)
+            {
                 BigRT_pair = new RenderTexture[2];
                 BigRT_pair[0] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
                 BigRT_pair[1] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
@@ -326,9 +337,10 @@ namespace Playtime_Painter {
                 Camera.main.cullingMask &= ~(1 << Data.myLayer);
         }
 
-        public static bool GotBuffers => Inst && Inst.BigRT_pair!=null && _inst.BigRT_pair.Length > 0 && _inst.BigRT_pair[0];
-        
-        // ******************* Brush Shader MGMT
+        public static bool GotBuffers => Inst && Inst.BigRT_pair != null && _inst.BigRT_pair.Length > 0 && _inst.BigRT_pair[0];
+        #endregion
+
+        #region Brush Shader MGMT
 
         public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
         {
@@ -433,7 +445,7 @@ namespace Playtime_Painter {
             if (stroke.firstStroke)
                 Shader_UpdateBrush(bc, brushAlpha, id, pntr);
 
-            rtcam.targetTexture = id.CurrentRenderTexture();
+            theCamera.targetTexture = id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, BigRT_pair[1]);
@@ -454,6 +466,9 @@ namespace Playtime_Painter {
 
         }
 
+        #endregion
+
+        #region Blit
         public void Blit(Texture tex, ImageData id)
         {
             if (!tex || id == null)
@@ -485,14 +500,16 @@ namespace Playtime_Painter {
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
             AfterRenderBlit(to);
         }
+        #endregion
 
+        #region Render
         public void Render()
         {
             transform.rotation = Quaternion.identity;
             Shader.SetGlobalVector("_RTcamPosition", transform.position);
 
             brushRendy.gameObject.SetActive(true);
-            rtcam.Render();
+            theCamera.Render();
             brushRendy.gameObject.SetActive(false);
 
             secondBufferUpdated = false;
@@ -522,7 +539,7 @@ namespace Playtime_Painter {
 
         public void Render(Color col, RenderTexture to)
         {
-            rtcam.targetTexture = to;
+            theCamera.targetTexture = to;
             brushRendy.PrepareColorPaint(col);
             Render();
             AfterRenderBlit(to);
@@ -547,18 +564,17 @@ namespace Playtime_Painter {
             if (!Data.DebugDisableSecondBufferUpdate)
             {
                 brushRendy.Set(BigRT_pair[0]);
-                rtcam.targetTexture = BigRT_pair[1];
+                theCamera.targetTexture = BigRT_pair[1];
                 brushRendy.Set(Data.brushRendy_bufferCopy);
                 Render();
                 secondBufferUpdated = true;
                 bigRTversion++;
             }
         }
+        #endregion
 
-
-        // *******************  Component MGMT
-        private void OnEnable()
-        {
+        #region Component MGMT
+        private void OnEnable() {
 
             PainterStuff.applicationIsQuitting = false;
 
@@ -567,13 +583,13 @@ namespace Playtime_Painter {
             if (!Data)
                 dataHolder = Resources.Load("Painter_Data") as PainterDataAndConfig;
 
-            if (meshManager == null)
-                meshManager = new MeshManager();
-
             meshManager.OnEnable();
 
-            if (Data)
-                rtcam.cullingMask = 1 << Data.myLayer;
+            if (!theCamera)
+                theCamera = GetComponent<Camera>();
+
+            if (Data && theCamera)
+                theCamera.cullingMask = 1 << Data.myLayer;
 #if BUILD_WITH_PAINTER
             if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
                     PainterDataAndConfig.toolEnabled = true;
@@ -627,17 +643,17 @@ namespace Playtime_Painter {
 
 
             transform.position = Vector3.up * 3000;
-            if (!rtcam)
+            if (!theCamera)
             {
-                rtcam = GetComponent<Camera>();
-                if (!rtcam)
-                    rtcam = gameObject.AddComponent<Camera>();
+                theCamera = GetComponent<Camera>();
+                if (!theCamera)
+                    theCamera = gameObject.AddComponent<Camera>();
             }
 
-            rtcam.orthographic = true;
-            rtcam.orthographicSize = orthoSize;
-            rtcam.clearFlags = CameraClearFlags.Nothing;
-            rtcam.enabled = Application.isPlaying;
+            theCamera.orthographic = true;
+            theCamera.orthographicSize = orthoSize;
+            theCamera.clearFlags = CameraClearFlags.Nothing;
+            theCamera.enabled = Application.isPlaying;
 
 #if UNITY_EDITOR
             EditorApplication.update -= CombinedUpdate;
@@ -666,21 +682,19 @@ namespace Playtime_Painter {
 
             downloadManager.Dispose();
 
+            triedToFindCamera = false ;
+
 #if UNITY_EDITOR
             BeforeClosing();
 #endif
 
-#if UNITY_EDITOR
-            EditorApplication.update -= meshManager.EditingUpdate;
-#endif
-
-            foreach (var p in _plugins)
-                if (p != null) p.Disable();
+            if (_plugins!= null)
+                foreach (var p in _plugins)
+                    if (p != null) p.Disable();
 
         }
 
 #if UNITY_EDITOR
-
         void BeforeClosing()
         {
 
@@ -711,36 +725,28 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
 
-        public void Update()
-        {
+        public void Update() {
             if (Application.isPlaying)
                 CombinedUpdate();
-
-            if (Data)
-                meshManager.Update();
         }
 
         public static GameObject refocusOnThis;
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         static int scipframes = 3;
-#endif
+        #endif
       
 
-        public void CombinedUpdate()
-        {
+        public void CombinedUpdate() {
+
             if (!Data)
                 return;
 
+            meshManager.EditingUpdate();
 
 #if UNITY_2018_1_OR_NEWER
-            for (int i = 0; i < blitJobsActive.Count; i++)
-            {
-
-                var j = blitJobsActive[i];
-
+            foreach( var j in blitJobsActive) 
                 if (j.jobHandle.IsCompleted)
                     j.CompleteJob();
-            }
 #endif
 
             Data.RemoteUpdate();
@@ -780,7 +786,7 @@ namespace Playtime_Painter {
 
             if (p && !Application.isPlaying)
             {
-                if ((p.ImgData == null))
+                if (p.ImgData == null)
                     PlaytimePainter.currently_Painted_Object = null;
                 else
                 {
@@ -788,9 +794,13 @@ namespace Playtime_Painter {
                     p.Update();
                 }
             }
+
+            foreach (var pl in _plugins)
+                pl.Update();
+
         }
 
-#endif
+        #endif
 
         public void CancelAllPlaybacks()
         {
@@ -800,15 +810,16 @@ namespace Playtime_Painter {
             PlaytimePainter.cody = new StdDecoder(null);
         }
 
-#region Inspector
+        #endregion
 
-#if PEGI
+        #region Inspector
+        #if PEGI
 
         public override bool Inspect() {
 
             "Active Jobs: {0}".F(blitJobsActive.Count).nl();
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!Data) {
                 "No data Holder detected".edit(ref dataHolder);
                 if ("Create".Click().nl())
@@ -818,14 +829,16 @@ namespace Playtime_Painter {
                     AssetDatabase.Refresh();
                 }
             }
-
-#endif
+            #endif
 
             pegi.nl();
 
             (((BigRT_pair == null) || (BigRT_pair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((!BigRT_pair[0]) ? "uninitialized" : "inited")).nl();
 
-            if (!rtcam) { "no camera".nl(); return false; }
+            if (!theCamera) {
+                "no camera".nl();
+                return false;
+            }
             
             if (Data)
                 Data.Nested_Inspect().nl();
@@ -858,8 +871,8 @@ namespace Playtime_Painter {
             return changed;
         }
 
-#endif
-#endregion
+        #endif
+        #endregion
 
     }
 }

@@ -235,7 +235,7 @@ namespace Playtime_Painter
             rb.localScale = Vector3.one;
             Vector2 direction = st.Delta_uv;
             float length = direction.magnitude;
-            BrushMesh = brushMeshGenerator.inst().GetLongMesh(length * 256, br.StrokeWidth(id.width, false));
+            BrushMesh = PainterCamera.brushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(id.width, false));
             rb.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 
             rb.localPosition = StrokeVector.BrushWorldPositionFrom((st.uvFrom + st.uvTo) / 2);
@@ -309,7 +309,7 @@ namespace Playtime_Painter
 
              Rtbrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
-             BrushMesh = brushMeshGenerator.inst().GetQuad();
+             BrushMesh = PainterCamera.brushMeshGenerator.GetQuad();
              Rtbrush.localRotation = Quaternion.identity;
 
              Rtbrush.localPosition = st.BrushWorldPosition;
@@ -351,7 +351,7 @@ namespace Playtime_Painter
 
             Rtbrush.localScale = Vector3.one;
 
-            BrushMesh = brushMeshGenerator.inst().GetLongMesh(0, width);
+            BrushMesh = PainterCamera.brushMeshGenerator.GetLongMesh(0, width);
             Rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
 
             Rtbrush.localPosition = StrokeVector.BrushWorldPositionFrom(uv);
@@ -413,7 +413,7 @@ namespace Playtime_Painter
                 Transform tf = Rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
-                BrushMesh = brushMeshGenerator.inst().GetQuad();
+                BrushMesh = PainterCamera.brushMeshGenerator.GetQuad();
 
                 st.uvTo = st.uvTo.To01Space();
 
@@ -631,7 +631,7 @@ namespace Playtime_Painter
                     r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st2, pntr);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
-                    BrushMesh = brushMeshGenerator.inst().GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
+                    BrushMesh = PainterCamera.brushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
                     tf.localScale = Vector3.one;
                     tf.localRotation = Quaternion.identity;
                     tf.localPosition = new Vector3(0, 0, 10);
@@ -644,7 +644,7 @@ namespace Playtime_Painter
 
                 r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
 
-                BrushMesh = brushMeshGenerator.inst().GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
+                BrushMesh = PainterCamera.brushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
                 tf.localScale = Vector3.one;
                 tf.localRotation = Quaternion.identity;
                 tf.localPosition = new Vector3(0, 0, 10);

@@ -16,12 +16,12 @@ public enum Gridside { xz, xy, zy }
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
     public static GridNavigator Inst()  {
-        if (_inst == null)
+        if (!_inst)
         {
             if (!ApplicationIsQuitting)
             {
                 _inst = PainterCamera.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
-                if (_inst == null)
+                if (!_inst)
                 {
                     try
                     {
@@ -207,7 +207,7 @@ public class GridNavigator : PainterStuffMono {
         MeshManager m = MeshMGMT;
         var cfg = TexMGMTdata;
 
-        if (cfg == null)
+        if (!cfg)
             return;
 
         bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
@@ -310,7 +310,7 @@ public class GridNavigator : PainterStuffMono {
         if (Application.isPlaying) 
             ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
 
-        if (MeshMGMT.target == null && TexMGMTdata)
+        if (!MeshMGMT.target && TexMGMTdata)
             UpdatePositions();
         
     }

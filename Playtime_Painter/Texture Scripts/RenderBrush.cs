@@ -152,7 +152,7 @@ namespace Playtime_Painter
             transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
-            meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+            meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
         }
 
         public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
@@ -180,12 +180,12 @@ namespace Playtime_Painter
                 aspectRatio = ar2 / aspectRatio;
 #endif
 
-                TexMGMT.rtcam.targetTexture = onto;
+                TexMGMT.theCamera.targetTexture = onto;
 
                 transform.localScale = new Vector3(size * aspectRatio, size, 0);
                 transform.localPosition = Vector3.forward * 10;
                 transform.localRotation = Quaternion.identity;
-                meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+                meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
 
                 Shader.SetGlobalFloat(PainterDataAndConfig.bufferCopyAspectRatio, 1f / aspectRatio);
 
@@ -223,7 +223,7 @@ namespace Playtime_Painter
             transform.localScale = new Vector3(size, size, 0);
             transform.localPosition = Vector3.forward * 10;
             transform.localRotation = Quaternion.identity;
-            meshFilter.mesh = brushMeshGenerator.inst().GetQuad();
+            meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
             Set(TexMGMTdata.br_ColorFill).Set(col);
         }
         

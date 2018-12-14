@@ -36,10 +36,12 @@ namespace Playtime_Painter
         public bool useTexcoord2_AutoAssigned = false;
         public bool lockEditing;
         public bool isATransparentLayer;
-        public bool NeedsToBeSaved { get { return ((texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset())); } }
+        public bool NeedsToBeSaved => (texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset());
         public bool showRecording = false;
         public bool enableUndoRedo;
+        public bool pixelsDirty = false;
 
+        public float repaintDelay = 0.016f;
         public int numberOfTexture2Dbackups = 10;
         public int numberOfRenderTextureBackups = 10;
         public bool backupManually = false;
@@ -264,9 +266,8 @@ namespace Playtime_Painter
 
                 PixelsFromTexture2D(texture2D);
 
-                SetAndApply(true);
-
-
+                SetAndApply();
+                
                 renderTexture = tmp;
 
                 Debug.Log("Resize Complete");
@@ -315,7 +316,7 @@ namespace Playtime_Painter
 
         public void RenderTexture_To_Texture2D(Texture2D tex)
         {
-            if (texture2D == null)
+            if (!texture2D)
                 return;
 
             RenderTexture rt = renderTexture;
@@ -323,7 +324,7 @@ namespace Playtime_Painter
             if (!rt && TexMGMT.imgDataUsingRendTex == this)
                 rt = PainterCamera.Inst.GetDownscaledBigRT(width, height);
 
-            if (rt == null)
+            if (!rt)
                 return;
 
             tex.CopyFrom(rt);
@@ -388,7 +389,7 @@ namespace Playtime_Painter
             //pixelsToLinear ();
 
             if (converted)
-                SetAndApply(true);
+                SetAndApply();
             else
                 texture2D.Apply(true);
             // 
@@ -424,29 +425,21 @@ namespace Playtime_Painter
 
         }
 
-        public Color SampleAT(Vector2 uv)
-        {
-            return (destination == TexTarget.Texture2D) ?
-            Pixel(UvToPixelNumber(uv)) :
-                SampleRenderTexture(uv);
-        }
-
-        public Color SampleRenderTexture(Vector2 uv)
-        {
+        public Color SampleAT(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
+        
+        public Color SampleRenderTexture(Vector2 uv) {
 
             RenderTexture curRT = RenderTexture.active;
-
-            // Debug.Log("Sampling Render Texture");
 
             PainterCamera rtp = PainterCamera.Inst;
             int size = PainterCamera.renderTextureSize / 4;
             RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRT(size, size);
 
-            if (sampler == null) sampler = new Texture2D(8, 8);
+            if (!sampler) sampler = new Texture2D(8, 8);
 
             UVto01(ref uv);
 
-            if (renderTexture == null)
+            if (!renderTexture)
                 uv.y = 1 - uv.y; // For some reason sampling is mirrored around Y axiz for BigRenderTexture (?)
 
             uv *= RenderTexture.active.width;
@@ -463,35 +456,31 @@ namespace Playtime_Painter
             return pix;
         }
 
-        public void PixelsFromTexture2D(Texture2D tex)
-        {
-            if (tex == null)
-                return;
-
-            Pixels = tex.GetPixels();
-            width = tex.width;
-            height = tex.height;
+        public void PixelsFromTexture2D(Texture2D tex) {
+            if (tex) {
+                Pixels = tex.GetPixels();
+                width = tex.width;
+                height = tex.height;
+            }
         }
 
         public void ChangeDestination(TexTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
         {
 
-            if (changeTo != destination)
-            {
-                //   Debug.Log("Changing destination");
+            if (changeTo != destination) {
 
                 if (changeTo == TexTarget.RenderTexture)
                 {
-                    if (renderTexture == null)
+                    if (!renderTexture)
                         PainterCamera.Inst.ChangeBufferTarget(this, mat, parameter, painter);
                     TextureToRenderTexture(texture2D);
                 }
                 else
                 {
-                    if (texture2D == null)
+                    if (!texture2D)
                         return;
 
-                    if (renderTexture == null)
+                    if (!renderTexture)
                         PainterCamera.Inst.EmptyBufferTarget();
                     else
                         if (painter.inited) // To avoid Clear to black when exiting playmode
@@ -503,8 +492,6 @@ namespace Playtime_Painter
 
             }
             else Debug.Log("Destination already Set");
-
-
 
         }
 
@@ -535,17 +522,14 @@ namespace Playtime_Painter
             return y * width + x;
         }
 
-        public MyIntVec2 UvToPixelNumber(Vector2 uv)
-        {
-            return new MyIntVec2(uv.x * width, uv.y * height);
-        }
+        public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(uv.x * width, uv.y * height);
 
-        public void SetAndApply(bool mipmaps)
+        public void SetAndApply(bool mipmaps = true)
         {
-            if (_pixels == null)
-                return;
-            texture2D.SetPixels(_pixels);
-            texture2D.Apply(mipmaps);
+            if (_pixels != null) {
+                texture2D.SetPixels(_pixels);
+                texture2D.Apply(mipmaps);
+            }
         }
         #endregion
 
@@ -578,7 +562,7 @@ namespace Playtime_Painter
                 _pixels = pixelsForJob.ToArray();
                 pixelsForJob.Dispose();
                 TexMGMT.blitJobsActive.Remove(this);
-                SetAndApply(true);
+                SetAndApply();
             }
         }
 #endif
@@ -665,7 +649,7 @@ namespace Playtime_Painter
             }
             else
 #endif
-               if (SaveName == null)
+               if (SaveName.IsNullOrEmpty())
                 SaveName = "New img";
         }
 
@@ -683,7 +667,7 @@ namespace Playtime_Painter
             }
             else
 #endif
-                if (SaveName == null)
+                if (SaveName.IsNullOrEmpty())
                 SaveName = "New img";
         }
 
@@ -718,10 +702,8 @@ namespace Playtime_Painter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
             {
-               // changed |= "Use Unity Jobs".toggle("Unity 2018 or newer", ref Cfg.useJobsForCPUpainting).nl();
-
-                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref GlobalBrush.repaintDelay, 0.01f, 0.5f).nl();
-
+                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref repaintDelay, 0.01f, 0.5f).nl();
+                
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref GlobalBrush.DontRedoMipmaps, true).nl();
             }
@@ -773,7 +755,7 @@ namespace Playtime_Painter
                     if ("Clear Texture".Click().nl())
                     {
                         Colorize(clearColor);
-                        SetAndApply(true);
+                        SetAndApply();
                     }
                 }
 
@@ -929,6 +911,22 @@ namespace Playtime_Painter
 
 #endif
         #endregion
+
+        float repaintTimer;
+        public void Update(bool mouseUp) {
+
+            if (pixelsDirty) {
+                repaintTimer -= Application.isPlaying ? Time.deltaTime : 0.016f;
+
+                if (repaintTimer < 0 || mouseUp) {
+                    if (texture2D)
+                        SetAndApply(!GlobalBrush.DontRedoMipmaps);
+
+                    pixelsDirty = false;
+                    repaintTimer = repaintDelay;
+                }
+            }
+        }
     }
 
 }

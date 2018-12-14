@@ -12,17 +12,11 @@ using UnityEditor;
 
 namespace Playtime_Painter {
 
-	[Serializable]
-    [ExecuteInEditMode]
     public class MeshManager : PainterStuffKeepUnrecognized_STD  {
         
-        public static MeshManager Inst { get
-            {
-                return PainterCamera.Inst.meshManager;
-            }
-        }
+        public static MeshManager Inst => PainterCamera.meshManager;
 
-        public static Transform Transform { get { return PainterCamera.Inst.transform; } }
+        public static Transform Transform => PainterCamera.Inst?.transform;
 
         public static float animTextureSize = 128;
 
@@ -32,26 +26,22 @@ namespace Playtime_Painter {
 
         public static string ToolPath() => "{0}/{1}".F(ToolsFolder,ToolName);
         
-        public MeshToolBase MeshTool { get { return PainterCamera.Data.MeshTool; } }
+        public MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
         public int editedUV = 0;
         public static Vector3 editorMousePos;
         
-        [NonSerialized]
         public PlaytimePainter target;
         public PlaytimePainter previouslyEdited;
-
-
-        [NonSerialized]
+        
         List<string> undoMoves = new List<string>();
-        [NonSerialized]
+
         List<string> redoMoves = new List<string>();
 
-        [NonSerialized]
         public EditableMesh edMesh = new EditableMesh();
-        [NonSerialized]
+
         public EditableMesh previewEdMesh = new EditableMesh();
-        [NonSerialized]
+
         public Mesh previewMesh;
    
         public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
@@ -70,7 +60,6 @@ namespace Playtime_Painter {
             }
             return true;
         }
-
 
         #endregion
 
@@ -102,7 +91,7 @@ namespace Playtime_Painter {
         }
         
         public void EditMesh(PlaytimePainter pntr, bool EditCopy) {
-            if ((pntr == null) || (pntr == target))
+            if ((!pntr) || (pntr == target))
                 return;
 
             if (target != null)
@@ -677,14 +666,11 @@ namespace Playtime_Painter {
 
         void SORT_AND_UPDATE_UI() {
 
-            if (Grid == null)
+            if (!Grid)
                 return;
 
-            if (Grid.verts[0].go == null)
+            if (!Grid.verts[0].go)
                 InitVertsIfNUll();
-
-           // if (_meshTool == MeshTool.vertices)
-             //   DrowLinesAroundTargetPiece();
 
             UpdateLocalSpaceV3s();
 
@@ -760,7 +746,7 @@ namespace Playtime_Painter {
 
             GizmoLines = isGizmoCall;
 
-            if (target == null) return;
+            if (!target) return;
 
 			//Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
 
@@ -820,7 +806,7 @@ namespace Playtime_Painter {
 
 
 
-            if (target == null)
+            if (!target)
                 return;
 
 			if (!target.enabled)  {
@@ -858,7 +844,7 @@ namespace Playtime_Painter {
         public void UpdateInputEditorTime(Event e, bool up, bool dwn)
         {
 
-            if (target == null || justLoaded > 0)
+            if (!target || justLoaded > 0)
                 return;
 
            
@@ -894,17 +880,10 @@ namespace Playtime_Painter {
             RAYCAST_SELECT_MOUSEedit();
             PROCESS_KEYS();           
         }
-
-        // Not redirected yet
+        
         public void EditingUpdate()
         {
-            if ((Application.isPlaying == false)) // && (_target != null ) && (UnityHelperFunctions.getFocused() == _target))
-                CombinedUpdate();
-        }
-
-        public void Update()
-        {
-            if (Application.isPlaying)
+            if ((!Application.isPlaying))
                 CombinedUpdate();
         }
 
@@ -990,13 +969,13 @@ namespace Playtime_Painter {
         
         void InitVertsIfNUll()
         {
-            if (Grid == null)
+            if (!Grid)
                 return;
             
-            if (Grid.vertPrefab == null)
+            if (!Grid.vertPrefab)
                 Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
 
-            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (Grid.verts[0].go == null))
+            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (!Grid.verts[0].go))
             {
                 Grid.verts = new MarkerWithText[vertsShowMax];
 
@@ -1012,18 +991,12 @@ namespace Playtime_Painter {
 
             Grid.pointedVertex.Init();
             Grid.selectedVertex.Init();
-
-#if UNITY_EDITOR
-            EditorApplication.update -= EditingUpdate;
-            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
-                EditorApplication.update += EditingUpdate;
-#endif
         }
 
         public void OnEnable() {
             InitVertsIfNUll();
 
-            if ((previouslyEdited != null) && (target == null)) {
+            if ((previouslyEdited != null) && (!target)) {
                 DisconnectMesh();
                 EditMesh(previouslyEdited, false);
                 justLoaded = 5;

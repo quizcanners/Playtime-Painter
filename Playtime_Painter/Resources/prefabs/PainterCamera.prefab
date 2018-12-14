@@ -87,6 +87,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1338627483454682}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: 52a4e34f1478688479020caf8c573659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -107,11 +108,10 @@ GameObject:
   - component: {fileID: 4003975465315076}
   - component: {fileID: 114624070626548024}
   - component: {fileID: 20914243665981438}
-  - component: {fileID: 114462804155251438}
   m_Layer: 0
   m_Name: PainterCamera
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2800000, guid: 083eab9c631e2aa44bb4833c0a34199e, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -139,21 +139,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1448749756403976}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: 09d12a17cafa5c145a6a83e8c6f744ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  meshManager:
-    editedUV: 0
-    previouslyEdited: {fileID: 0}
-    tmpCubeCfg:
-      Category: 0
-      role: 0
-      p: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    GizmoLines: 0
   focusedPainter: {fileID: 0}
   isLinearColorSpace: 1
-  rtcam: {fileID: 20914243665981438}
+  theCamera: {fileID: 0}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
     type: 3}
   brushRendy: {fileID: 114658260336127396}
@@ -177,9 +170,10 @@ Camera:
   m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_GateFitMode: 2
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -207,40 +201,3 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &114462804155251438
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1448749756403976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d996056c288ed0e4ca999aaccd93f267, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debug: {fileID: 0}
-  verts:
-  - {x: -64, y: 64.00005, z: 0}
-  - {x: 64, y: 64.00005, z: 0}
-  - {x: -64, y: 0.00005, z: 0}
-  - {x: 64, y: 0.00005, z: 0}
-  - {x: -64, y: -0.00005, z: 0}
-  - {x: 64, y: -0.00005, z: 0}
-  - {x: -64, y: -64.00005, z: 0}
-  - {x: 64, y: -64.00005, z: 0}
-  uv:
-  - {x: 0, y: 1}
-  - {x: 1, y: 1}
-  - {x: 0, y: 0.5}
-  - {x: 1, y: 0.5}
-  - {x: 0, y: 0.5}
-  - {x: 1, y: 0.5}
-  - {x: 0, y: 0}
-  - {x: 1, y: 0}
-  tris: 000000000100000002000000020000000100000003000000020000000300000004000000040000000300000005000000040000000500000006000000060000000500000007000000
-  rebuild: 0
-  width: 1
-  size: 15
-  pos1: {x: 0, y: 0, z: 0}
-  pos2: {x: 0, y: 0, z: 0}

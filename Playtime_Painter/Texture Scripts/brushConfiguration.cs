@@ -158,7 +158,7 @@ namespace Playtime_Painter {
         public int inGPUtype;
         public int inCPUtype;
 
-        public BrushType Type(PlaytimePainter pntr) => pntr == null ? Type(TargetIsTex2D) : Type(pntr.ImgData.TargetIsTexture2D());
+        public BrushType Type(PlaytimePainter pntr) => Type(!pntr ? TargetIsTex2D : pntr.ImgData.TargetIsTexture2D());
 
         public BrushType Type(bool CPU) => BrushType.AllTypes[_type(CPU)];
 
@@ -184,8 +184,7 @@ namespace Playtime_Painter {
         }
 
         public float Size(bool worldSpace) => (worldSpace ? Brush3D_Radius : Brush2D_Radius);
-
-        public float repaintDelay = 0.016f;
+        
         public int selectedSourceTexture = 0;
         public int selectedSourceMask = 0;
         public bool useMask = false;
@@ -273,7 +272,7 @@ namespace Playtime_Painter {
 
                 var materialData = pntr.MatDta;
 
-                if (imgData.renderTexture == null && !TexMGMT.materialsUsingTendTex.Contains(materialData)) {
+                if (!imgData.renderTexture  && !TexMGMT.materialsUsingTendTex.Contains(materialData)) {
                     TexMGMT.ChangeBufferTarget(imgData, materialData, pntr.GetMaterialTexturePropertyName, pntr);
                     pntr.SetTextureOnMaterial(imgData);
                 }
@@ -286,7 +285,7 @@ namespace Playtime_Painter {
                         break;
                     }
 
-                if ((pntr.terrain == null) || (brushType.SupportedForTerrain_RT)) {
+                if ((!pntr.terrain) || (brushType.SupportedForTerrain_RT)) {
 
                     pntr.RecordingMGMT();
 
@@ -378,7 +377,7 @@ namespace Playtime_Painter {
 
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
-            if (p == null) { "No Painter Detected".nl(); return false; }
+            if (!p) { "No Painter Detected".nl(); return false; }
 
             if ((p.skinnedMeshRendy != null) && ("Update Collider from Skinned Mesh".Click()))
                 p.UpdateColliderForSkinnedMesh();
@@ -400,7 +399,7 @@ namespace Playtime_Painter {
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
                 {
                     p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.RenderTexture : TexTarget.Texture2D);
-                    SetSupportedFor(cpuBlit, id.renderTexture == null);
+                    SetSupportedFor(cpuBlit, !id.renderTexture);
             
                 }
             }
@@ -410,7 +409,7 @@ namespace Playtime_Painter {
                 bool smooth = _type(cpuBlit) != BrushTypePixel.Inst.index;
 
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
-                    TypeSet(cpuBlit, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                    TypeSet(cpuBlit, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
             }
 
             pegi.newLine();
@@ -463,7 +462,7 @@ namespace Playtime_Painter {
 
             bool changed = false;
 
-            if (icon == null)
+            if (!icon)
                 icon = m.GetIcon();
 
             string letter = m.ToText();

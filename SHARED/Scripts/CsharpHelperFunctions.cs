@@ -99,25 +99,87 @@ namespace SharedTools_Stuff
         #endregion
 
         #region TextOperations
-        public static string F(this string format, string obj1) => string.Format(format, obj1);
 
-        public static string F(this string format, object obj1) => string.Format(format, obj1.ToPEGIstring());
+        const string badFormat = "!Bad format: ";
 
-        public static string F(this string format, string obj1, string obj2) => string.Format(format, obj1, obj2);
-
-        public static string F(this string format, object obj1, object obj2) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
-
-        public static string F(this string format, string obj1, string obj2, string obj3) => string.Format(format, obj1, obj2, obj3);
-
-        public static string F(this string format, object obj1, object obj2, object obj3) => string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
-
-        public static string F(this string format, params object[] objs) {
-            try {
-                return string.Format(format, objs);
-            } catch (Exception ex) {
-                return "Wrong Format" + format + " " + ex.ToString();
+        public static string F(this string format, string obj)
+        {
+            try
+            {
+                return string.Format(format, obj);
+            }
+            catch 
+            {
+                return badFormat + format + " "+obj;
             }
         }
+        public static string F(this string format, object obj1)
+        {
+            try
+            {
+                return string.Format(format, obj1.ToPEGIstring());
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+        public static string F(this string format, string obj1, string obj2)
+        {
+            try
+            {
+                return string.Format(format, obj1, obj2);
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+        public static string F(this string format, object obj1, object obj2)
+        {
+            try
+            {
+                return string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+        public static string F(this string format, string obj1, string obj2, string obj3)
+        {
+            try
+            {
+                return string.Format(format, obj1, obj2, obj3);
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+        public static string F(this string format, object obj1, object obj2, object obj3)
+        {
+            try
+            {
+                return string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+        public static string F(this string format, params object[] objs)
+        {
+            try
+            {
+                return string.Format(format, objs);
+            }
+            catch 
+            {
+                return badFormat + format;
+            }
+        }
+
         public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
 
         #endregion
@@ -194,6 +256,8 @@ namespace SharedTools_Stuff
 
         #region List Management
 
+        public static string CountToString(this IList list) => list == null ? "Null list" : list.Count.ToString();
+        
         public static string GetUniqueName<T>(this string s, List<T> list)
         {
 

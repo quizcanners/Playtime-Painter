@@ -24,7 +24,7 @@ namespace Playtime_Painter {
         public virtual string NameForPEGIdisplay => ToString();
 
         #region Inspector
-#if PEGI
+        #if PEGI
         pegi.CallDelegate plugins_ComponentPEGI;
         
         protected pegi.CallDelegate PlugIn_PainterComponent { set
@@ -83,6 +83,8 @@ namespace Playtime_Painter {
             MeshToolBase.showVerticesPlugs += d;
         }
 
+        public virtual void Update() { }
+
         public virtual void Enable() {
 
         }
@@ -101,20 +103,15 @@ namespace Playtime_Painter {
             MeshToolBase.showVerticesPlugs -= showVerticesPlugs;
         }
 
-        public override void Decode(string data)
-        {
-            base.Decode(data);
-        }
-
-        public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) { return false; }
+        public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) => false; 
 
         public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr)  =>  false;
         
-        public virtual Shader GetPreviewShader(PlaytimePainter p) { return null; }
+        public virtual Shader GetPreviewShader(PlaytimePainter p) => null; 
 
-        public virtual Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) { return null; }
+        public virtual Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) => null; 
 
-        public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) { return null; }
+        public virtual Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null; 
         
     }
 }

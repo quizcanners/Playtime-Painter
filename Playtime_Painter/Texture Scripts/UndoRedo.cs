@@ -152,8 +152,8 @@ namespace Playtime_Painter {
 
 
 			if (!fromRT) {
-                id.Pixels = (Color[])pixBackup.pixels;//.Clone();
-				id.SetAndApply (true);
+                id.Pixels = pixBackup.pixels;
+				id.SetAndApply();
 			}
 
 			if (toRT) {
@@ -184,7 +184,7 @@ namespace Playtime_Painter {
 
                 // In Linear dont turn to gamma if saved from Exclusive Render Texture
                 if (converted)
-                    id.SetAndApply(true);
+                    id.SetAndApply();
                 else
                     id.texture2D.Apply(true);
             } 

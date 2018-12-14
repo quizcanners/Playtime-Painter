@@ -71,7 +71,7 @@ namespace Playtime_Painter
         protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip?.ImgData; } }
         protected static GridNavigator Grid { get { return GridNavigator.Inst(); } }
         protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.edMesh; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst?.edMesh; } }
         protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
 

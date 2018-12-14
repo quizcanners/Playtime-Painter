@@ -204,7 +204,7 @@ namespace Playtime_Painter {
                 if (icon.Refresh.Click()) {
                     PainterStuff.applicationIsQuitting = false;
                     if (PainterCamera.Inst)
-                    PainterCamera.Inst.triedToFind = false;
+                    PainterCamera.Inst.triedToFindPainterData = false;
                 }
                 return;
             }

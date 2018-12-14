@@ -75,9 +75,12 @@ public static class TextureEditorExtensionFunctions  {
         }
 
         public static Mesh GetMesh(this PlaytimePainter p) {
-        if (p == null) return null;
-        if (p.skinnedMeshRendy != null) return p.colliderForSkinnedMesh;//skinnedMeshRendy.sharedMesh;
-        if (p.meshFilter != null) return p.meshFilter.sharedMesh;
+        if (!p) return null;
+
+        if (p.skinnedMeshRendy)
+                return p.colliderForSkinnedMesh;
+        if (p.meshFilter)
+                return p.meshFilter.sharedMesh;
 
         return null;
     }
@@ -94,10 +97,10 @@ public static class TextureEditorExtensionFunctions  {
 		
         public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.isLinearColorSpace && b.BlitMode.SupportedBySingleBuffer && b.Type(false).SupportedBySingleBuffer && b.PaintingRGB);
         
-        public static bool IsProjected(this Material mat) => mat == null ? false :  mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
+        public static bool IsProjected(this Material mat) => !mat ? false :  mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
         
         public static bool NeedsGrid (this PlaytimePainter pntr) {
-            if (pntr == null || !pntr.enabled) return false;
+            if (!pntr || !pntr.enabled) return false;
             
             if (!pntr.meshEditing) {
 
@@ -110,7 +113,7 @@ public static class TextureEditorExtensionFunctions  {
                 }
                 return false;
             }
-            else return PainterCamera.Inst.meshManager.target == pntr && PainterCamera.Data.MeshTool.ShowGrid;
+            else return PainterCamera.meshManager.target == pntr && PainterCamera.Data.MeshTool.ShowGrid;
         }
 
         public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
@@ -134,18 +137,15 @@ public static class TextureEditorExtensionFunctions  {
 
         }
 
-        public static bool TargetIsTexture2D(this ImageData id)=>
-             id == null ? false :  id.destination == TexTarget.Texture2D;
+        public static bool TargetIsTexture2D(this ImageData id) =>  id == null ? false :  id.destination == TexTarget.Texture2D;
         
-        public static bool TargetIsRenderTexture(this ImageData id) =>
-             id == null ? false :  id.destination == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this ImageData id) => id == null ? false :  id.destination == TexTarget.RenderTexture;
         
-        public static bool TargetIsBigRenderTexture(this ImageData id)=>
-            id == null ? false : (id.destination == TexTarget.RenderTexture) && (id.renderTexture == null);
+        public static bool TargetIsBigRenderTexture(this ImageData id)=> id == null ? false : (id.destination == TexTarget.RenderTexture) && (!id.renderTexture);
         
         public static ImageData GetImgDataIfExists(this Texture texture)
         {
-            if (texture == null || PainterCamera.Data==null)
+            if (!texture || PainterCamera.Data==null)
                 return null;
 
             if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgDataUsingRendTex != null)
@@ -171,7 +171,7 @@ public static class TextureEditorExtensionFunctions  {
         
         public static ImageData GetImgData(this Texture texture)
         {
-            if (texture == null)
+            if (!texture)
                 return null;
 
             var nid = texture.GetImgDataIfExists();
@@ -211,12 +211,8 @@ public static class TextureEditorExtensionFunctions  {
             return texture;
         }
 
-        public static RenderTexture CurrentRenderTexture(this ImageData id)
-        {
-            if (id == null)
-                return null;
-            return id.renderTexture ? id.renderTexture : PainterCamera.Inst.BigRT_pair[0];
-        }
+        public static RenderTexture CurrentRenderTexture(this ImageData id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.BigRT_pair[0]);
+        
 
         public static Texture ExclusiveTexture(this ImageData id)
         {
@@ -229,7 +225,7 @@ public static class TextureEditorExtensionFunctions  {
             switch (id.destination)
             {
                 case TexTarget.RenderTexture:
-                    return id.renderTexture == null ? (Texture)id.texture2D : (Texture)id.renderTexture;
+                    return !id.renderTexture ? (Texture)id.texture2D : (Texture)id.renderTexture;
                 case TexTarget.Texture2D:
                     return id.texture2D;
             }

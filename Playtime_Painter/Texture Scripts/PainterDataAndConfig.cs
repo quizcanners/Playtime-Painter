@@ -420,7 +420,7 @@ namespace Playtime_Painter
             if ("Lists".enter (ref inspectedStuff, 11).nl())
                 changed |= DatasPEGI();
 
-            changed |= "Downloads".enter_Inspect(rtp.downloadManager, ref inspectedStuff, 12).nl();
+            changed |= "Downloads".enter_Inspect(PainterCamera.downloadManager, ref inspectedStuff, 12).nl();
 
 
             if (inspectedStuff == -1) {

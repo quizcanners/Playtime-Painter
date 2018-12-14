@@ -148,44 +148,39 @@ namespace SharedTools_Stuff
             
         public static StdEncoder Encode(this BoneWeight bw) => new StdEncoder()
             .Add_IfNotZero("i0", bw.boneIndex0)
-            .Add("w0", bw.weight0)
+            .Add_IfNotEpsilon("w0", bw.weight0)
 
             .Add_IfNotZero("i1", bw.boneIndex1)
-            .Add("w1", bw.weight1)
+            .Add_IfNotEpsilon("w1", bw.weight1)
 
             .Add_IfNotZero("i2", bw.boneIndex2)
-            .Add("w2", bw.weight2)
+            .Add_IfNotEpsilon("w2", bw.weight2)
 
             .Add_IfNotZero("i3", bw.boneIndex3)
-            .Add("w3", bw.weight3);
+            .Add_IfNotEpsilon("w3", bw.weight3);
             
-        public static StdEncoder Encode (this Matrix4x4 m)
-        {
-                StdEncoder sub = new StdEncoder();
+        public static StdEncoder Encode (this Matrix4x4 m) => new StdEncoder()
 
-                sub.Add_IfNotEpsilon("00", m.m00);
-                sub.Add_IfNotEpsilon("01", m.m01);
-                sub.Add_IfNotEpsilon("02", m.m02);
-                sub.Add_IfNotEpsilon("03", m.m03);
+                .Add_IfNotEpsilon("00", m.m00)
+                .Add_IfNotEpsilon("01", m.m01)
+                .Add_IfNotEpsilon("02", m.m02)
+                .Add_IfNotEpsilon("03", m.m03)
 
-                sub.Add_IfNotEpsilon("10", m.m10);
-                sub.Add_IfNotEpsilon("11", m.m11);
-                sub.Add_IfNotEpsilon("12", m.m12);
-                sub.Add_IfNotEpsilon("13", m.m13);
+                .Add_IfNotEpsilon("10", m.m10)
+                .Add_IfNotEpsilon("11", m.m11)
+                .Add_IfNotEpsilon("12", m.m12)
+                .Add_IfNotEpsilon("13", m.m13)
 
-                sub.Add_IfNotEpsilon("20", m.m20);
-                sub.Add_IfNotEpsilon("21", m.m21);
-                sub.Add_IfNotEpsilon("22", m.m22);
-                sub.Add_IfNotEpsilon("23", m.m23);
+                .Add_IfNotEpsilon("20", m.m20)
+                .Add_IfNotEpsilon("21", m.m21)
+                .Add_IfNotEpsilon("22", m.m22)
+                .Add_IfNotEpsilon("23", m.m23)
 
-                sub.Add_IfNotEpsilon("30", m.m30);
-                sub.Add_IfNotEpsilon("31", m.m31);
-                sub.Add_IfNotEpsilon("32", m.m32);
-                sub.Add_IfNotEpsilon("33", m.m33);
-
-            return sub;
-        }
-
+                .Add_IfNotEpsilon("30", m.m30)
+                .Add_IfNotEpsilon("31", m.m31)
+                .Add_IfNotEpsilon("32", m.m32)
+                .Add_IfNotEpsilon("33", m.m33);
+        
         public static StdEncoder Encode(this Vector4 v4) => new StdEncoder()
             .Add_IfNotEpsilon("x", v4.x.RoundTo6Dec())
             .Add_IfNotEpsilon("y", v4.y.RoundTo6Dec())

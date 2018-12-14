@@ -60,14 +60,15 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
+        #region Encode & Decode
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
             cody.Add_String("n", meshName);
             cody.Add_IfNotEmpty("vrt",meshPoints);
             cody.Add_IfNotEmpty("tri",triangles);
             cody.Add("sub", submeshCount);
-            cody.Add_Bool("wei", gotBoneWeights);
-            cody.Add_Bool("bp", gotBindPos);
+            cody.Add_IfTrue("wei", gotBoneWeights);
+            cody.Add_IfTrue("bp", gotBindPos);
             cody.Add("bv", baseVertex);
             if (UV2distributeRow > 0) {
                 cody.Add("UV2dR", UV2distributeRow);
@@ -97,8 +98,9 @@ namespace Playtime_Painter {
             }
             return true;
         }
+        #endregion
 
-        [NonSerialized] public Mesh actualMesh;
+        public Mesh actualMesh;
 
         public void RemoveEmptyDots()
         {
@@ -178,7 +180,7 @@ namespace Playtime_Painter {
             if (m.target != null)
             {
                 PlaytimePainter em = m.target;
-                if (em == null) return;
+                if (!em) return;
                 int y = em.GetAnimationUVy();
                 foreach (MeshPoint v in meshPoints)
                     v.localPos += (v.anim[y]);
@@ -195,23 +197,23 @@ namespace Playtime_Painter {
         List<MeshPoint> sortVertsFar = new List<MeshPoint>();
         public CountlessSTD<Vertex> uvsByFinalIndex = new CountlessSTD<Vertex>();
 
-        [NonSerialized]
+        
         public Vertex selectedUV;
-        [NonSerialized]
+        
         public LineData selectedLine;
-        [NonSerialized]
+    
         public Triangle selectedTris;
-        [NonSerialized]
+    
         public Vertex pointedUV;
-        [NonSerialized]
+
         public LineData pointedLine;
-        [NonSerialized]
+
         public Triangle pointedTris;
-        [NonSerialized]
+
         public Vertex LastFramePointedUV;
-        [NonSerialized]
+
         public LineData LastFramePointedLine;
-        [NonSerialized]
+
         public Triangle LastFramePointedTris;
 
         public void ClearLastPointed()
@@ -238,10 +240,9 @@ namespace Playtime_Painter {
             ClearLastPointed();
             LastFramePointedTris = t;
         }
-
-        [NonSerialized]
+        
         public Vertex[] TrisSet = new Vertex[3];
-        [NonSerialized]
+
         public int trisVerts;
 
         public void SortAround(Vector3 center, bool forceRecalculate)  {
@@ -331,69 +332,36 @@ namespace Playtime_Painter {
                                        // Dirty = true;
 
         }
-        /*
-        public void MirrorVerticlesAgainsThePlane(Vector3 ptdPos)
-        {
-
-            Vector3 Mirror = GridNavigator.inst().getGridPerpendicularVector();//new Vector3(0,0,0);
-
-            int Count = vertices.Count;
-            for (int i = 0; i < Count; i++)
-            {
-                vertexpointDta vp;
-                vertexpointDta newvp;
-                Vector3 diff;
-
-                vp = vertices[i];
-                diff = 2 * (Vector3.Scale(ptdPos - vp.localPos, Mirror));
-
-                newvp = vp.DeepCopy();
-                newvp.localPos += diff;
-
-
-                vertices.Add(newvp);
-
-            }
-
-
-            Count = triangles.Count;
-
-            for (int i = 0; i < Count; i++)
-                triangles.Add(triangles[i].NewForCopiedVerticles());
-
-            for (int i = Count; i < triangles.Count; i++)
-                triangles[i].InvertNormal();
-            Debug.Log("Dirty");
-            dirty = true;
-
-        }
-        */
-
-           
 
         public void Edit(PlaytimePainter pntr) {
-            //Temporary
-            submeshCount = 1;
-            if (pntr.SavedEditableMesh != null)
-            {
-                Decode(pntr.SavedEditableMesh);
-                if (triangles.Count == 0)
+
+            if (pntr.meshFilter && pntr.meshFilter.sharedMesh){
+
+                //Temporary
+                submeshCount = 1;
+                if (pntr.SavedEditableMesh != null)
+                {
+                    Decode(pntr.SavedEditableMesh);
+                    if (triangles.Count == 0)
+                        BreakMesh(pntr.meshFilter.sharedMesh);
+
+                }
+                else
+                {
                     BreakMesh(pntr.meshFilter.sharedMesh);
+                    pntr.selectedMeshProfile = pntr.GetMaterial(false).GetMeshProfileByTag();
+                }
 
+                // Temporary
+                while (baseVertex.Count < submeshCount)
+                    baseVertex.Add(0);
             }
-            else
-            {
-                BreakMesh(pntr.meshFilter.sharedMesh);
-                pntr.selectedMeshProfile = pntr.GetMaterial(false).GetMeshProfileByTag();
-            }
-
-            // Temporary
-            while (baseVertex.Count < submeshCount)
-                baseVertex.Add(0);
-
         }
 
         public void BreakMesh(Mesh Nmesh) {
+
+            if (!Nmesh)
+                return;
 
             meshName = Nmesh.name;
 
@@ -890,6 +858,7 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
+        #region Inspector
         #if PEGI
         public bool Inspect()
         {
@@ -901,7 +870,8 @@ namespace Playtime_Painter {
             return changed;
         }
         public static EditableMesh inspected;
-#endif
+        #endif
+        #endregion
     }
 
     [Serializable]
@@ -910,14 +880,13 @@ namespace Playtime_Painter {
         public GameObject go;
         public TextMesh textm;
 
-        public void Init()
-        {
-            if (textm == null)
-                textm = go.GetComponentInChildren<TextMesh>();
-            go.hideFlags = HideFlags.DontSave;
-            go.SetActive(false);
+        public void Init() {
+            if (go) {
+                if (!textm)
+                    textm = go.GetComponentInChildren<TextMesh>();
+                go.hideFlags = HideFlags.DontSave;
+                go.SetActive(false);
+            }
         }
     }
-
-
 }

@@ -57,7 +57,7 @@ namespace Playtime_Painter.Examples
         PlaytimePainter pp;
 
         PlaytimePainter ShipPainter() {
-            if (pp == null)
+            if (!pp)
                 pp = pill.GetComponent<PlaytimePainter>();
             return pp;
         }

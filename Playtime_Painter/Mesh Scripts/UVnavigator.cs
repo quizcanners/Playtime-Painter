@@ -12,7 +12,7 @@ namespace Playtime_Painter
 
         public static UVnavigator Inst()
         {
-            if (_inst == null)
+            if (!_inst)
                 _inst = FindObjectOfType<UVnavigator>();
 
             return _inst;
@@ -237,7 +237,7 @@ namespace Playtime_Painter
             if (ProjectionUV)
             {
                 var m = MeshMGMT;
-                if ((m.target == null) || (m.edMesh.meshPoints == null) || (m.edMesh.meshPoints.Count < 1)) return;
+                if (!m.target || (m.edMesh.meshPoints == null) || (m.edMesh.meshPoints.Count < 1)) return;
 
                 var prMesh = FreshPreviewMesh;
                 
@@ -319,7 +319,7 @@ namespace Playtime_Painter
                 if (pvrt == vpoint) {
                     mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
                         (vpoint.SmoothNormal ? "s" : "")) : "";
-                    float tsize = tex == null ? 128 : tex.width;
+                    float tsize = !tex ? 128 : tex.width;
                        mrkr.textm.text +=
                         ("uv: " + (MeshMGMT.SelectedUV.EditedUV.x * tsize) + "," + (MeshMGMT.SelectedUV.EditedUV.y * tsize));
                 }

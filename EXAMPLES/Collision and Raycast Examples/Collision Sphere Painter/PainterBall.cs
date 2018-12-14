@@ -88,11 +88,11 @@ namespace Playtime_Painter.Examples {
 
         public void OnEnable()  {
             brush.TypeSet(false, BrushTypeSphere.Inst);
-            if (rendy == null) 
+            if (!rendy) 
                 rendy = GetComponent<MeshRenderer>();
-            if (rigid == null)
+            if (!rigid)
                 rigid = GetComponent<Rigidbody>();
-            if (_collider == null)
+            if (!_collider)
                 _collider = GetComponent<SphereCollider>();
 
             rendy.sharedMaterial.color = brush.colorLinear.ToGamma();

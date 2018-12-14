@@ -111,9 +111,9 @@ namespace Playtime_Painter
             }
         }
 
-        public MaterialData MatDta { get { return Material.GetMaterialData(); } }
+        public MaterialData MatDta => Material.GetMaterialData(); 
 
-        public ImageData ImgData { get { return GetTextureOnMaterial().GetImgData(); } }
+        public ImageData ImgData => GetTextureOnMaterial().GetImgData(); 
 
         public string nameHolder = "unnamed";
 
@@ -408,7 +408,7 @@ namespace Playtime_Painter
             st.mouseDwn = false;
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
             if (ImgData.TargetIsTexture2D())
-                texture2DDataWasChanged = true;
+                ImgData.pixelsDirty = true;
 #endif
         }
 
@@ -761,7 +761,7 @@ namespace Playtime_Painter
             }
 
             if (needFullUpdate)
-                id.SetAndApply(true);
+                id.SetAndApply();
             else
                 texture.Apply(true, false);
 
@@ -1833,16 +1833,15 @@ namespace Playtime_Painter
 #endif
 
         }
-
-
+        
         public static PlaytimePainter inspectedPainter;
 
         Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
 
         public static PlaytimePainter selectedInPlaytime = null;
 
-#if PEGI
-        public static pegi.windowPositionData windowPosition = new pegi.windowPositionData();
+        #if PEGI
+        public static pegi.WindowPositionData windowPosition = new pegi.WindowPositionData();
         
         const string defaultImageLoadURL = "https://picsbuffet.com/pixabay/";
 
@@ -2169,7 +2168,7 @@ namespace Playtime_Painter
                             id.Backup();
 
                         if ((GlobalBrush.DontRedoMipmaps) && ("Redo Mipmaps".Click().nl()))
-                            id.SetAndApply(true);
+                            id.SetAndApply();
         #endregion
                     }
                     else
@@ -2224,7 +2223,7 @@ namespace Playtime_Painter
                                 "URL".edit(40,ref tmpURL);
                                 if (tmpURL.Length > 5 && icon.Download.Click())
                                 {
-                                    loadingOrder.Add(TexMGMT.downloadManager.StartDownload(tmpURL), GetMaterialTexturePropertyName);
+                                    loadingOrder.Add(PainterCamera.downloadManager.StartDownload(tmpURL), GetMaterialTexturePropertyName);
                                     tmpURL = defaultImageLoadURL;
                                     "Loading for {0}".F(GetMaterialTexturePropertyName).showNotificationIn3D_Views();
                                 }
@@ -2493,9 +2492,9 @@ namespace Playtime_Painter
             return changed;
         }
 
-#endif
+        #endif
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         static Tool previousEditorTool = Tool.None;
         public static void RestoreUnityTool()
         {
@@ -2537,7 +2536,7 @@ namespace Playtime_Painter
 
         public bool textureWasChanged = false;
 
-        float repaintTimer;
+      
 
 #if UNITY_EDITOR
         public void FeedEvents(Event e)
@@ -2558,7 +2557,7 @@ namespace Playtime_Painter
 #endif
 
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
-        bool texture2DDataWasChanged;
+       // bool texture2DDataWasChanged;
         public void Update()
         {
 
@@ -2569,12 +2568,13 @@ namespace Playtime_Painter
 
                 foreach (var l in loadingOrder) {
                     Texture tmp;
-                    if (TexMGMT.downloadManager.TryGetTexture(l.Key, out tmp, true)) {
+                    if (PainterCamera.downloadManager.TryGetTexture(l.Key, out tmp, true)) {
                         if (tmp) {
-                            var id = SetTextureOnMaterial(l.Value, tmp);
-                            if (id != null)
-                                id.URL = TexMGMT.downloadManager.GetURL(l.Key);
-                            id.SaveName = "Loaded Texture {0}".F(l.Key);
+                            var idtom = SetTextureOnMaterial(l.Value, tmp);
+                            if (idtom != null) {
+                                idtom.URL = PainterCamera.downloadManager.GetURL(l.Key);
+                                idtom.SaveName = "Loaded Texture {0}".F(l.Key);
+                            }
                         }
                         extracted.Add(l.Key);
                     }
@@ -2585,24 +2585,17 @@ namespace Playtime_Painter
             }
             #endregion
 
-            if (IsEditingThisMesh && (Application.isPlaying))
+            if (IsEditingThisMesh && Application.isPlaying)
                 MeshManager.Inst.DRAW_Lines(false);
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
 
-            repaintTimer -= (Application.isPlaying) ? Time.deltaTime : 0.016f;
+     
+            var id = ImgData;
 
-            if (texture2DDataWasChanged && ((repaintTimer < 0) || (stroke.mouseUp)))
-            {
-                texture2DDataWasChanged = false;
-                var id = ImgData;
-
-                if ((id != null) && (id.texture2D))
-                    id.SetAndApply(!GlobalBrush.DontRedoMipmaps);
-                repaintTimer = GlobalBrush.repaintDelay;
-            }
-
+            if (id != null)
+                id.Update(stroke.mouseUp);
         }
 #endif
 

@@ -18,7 +18,7 @@ namespace Playtime_Painter.Examples
                 if (col.painter.gameObject == go) return col;
 
             PlaytimePainter pp = go.GetComponent<PlaytimePainter>();
-            if (pp == null) return null;
+            if (!pp) return null;
 
             PaintingCollision ncol = new PaintingCollision(pp);
             paintingOn.Add(ncol);
