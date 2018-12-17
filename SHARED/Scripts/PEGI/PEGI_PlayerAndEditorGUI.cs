@@ -1184,7 +1184,7 @@ namespace PlayerAndEditorGUI {
             if (typeof(T).TryGetTaggetClasses().Select(ref type).nl()) {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
-                AbstractTaggedSTDExtensions.TryCopy_Std_AndOtherData(obj, previous);
+                STDExtensions.TryCopy_Std_AndOtherData(previous, obj);
                 return true;
             }
 

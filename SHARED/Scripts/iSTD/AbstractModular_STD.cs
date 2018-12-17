@@ -151,49 +151,16 @@ namespace SharedTools_Stuff {
             var std = (el as ISTD);
 
             if (ld._keepTypeData && iTag != null && ed != null)
-            {
-
                 ed.ChangeType(ref el, type, iTag.GetTaggedTypes_Safe(), ld._keepTypeData);
-
-                /* if (std != null)
-                     ed.perTypeConfig[iTag.ClassTag] = std.Encode().ToString();
-
-                 string data;
-
-                 if (ed.perTypeConfig.TryGetValue(iTag.AllTypes.Tag(type), out data))
-                 {
-                     el = Activator.CreateInstance(type);
-                     list[index] = el;
-                     (el as ISTD).Decode_ifNotNull(data);
-                 }
-                 else el = std.TryDecodeInto<object>(type);*/
-
-            }
             else  {
                 el = std.TryDecodeInto<object>(type);
-                TryCopy_Std_AndOtherData(el, previous);
+                STDExtensions.TryCopy_Std_AndOtherData(previous, el);
             }
 
             list[index] = el;
 
         }
-        
-        public static void TryCopy_Std_AndOtherData (object el, object previous) {
-            if (el != null && el != previous) {
 
-                var estd = el as ISTD;
-                if (estd != null) {
-                    var pstd = previous as ISTD;
-                    if (pstd != null)
-                        estd.Decode(pstd.Encode().ToString());
-                }
-
-                var ch = el as ICanChangeClass;
-                if (ch != null && !previous.IsNullOrDestroyed())
-                    ch.Copy_NonSTDdata_From_PreviousInstance(previous);
-
-            }
-        }
 
         public static void Replace_IfDifferent<T>(this TaggedTypes_STD std, ref T obj, Type newType) {
             if (obj.GetType() != newType)

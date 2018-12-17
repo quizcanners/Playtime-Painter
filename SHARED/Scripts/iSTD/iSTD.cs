@@ -181,6 +181,15 @@ namespace SharedTools_Stuff {
 
     #region Abstract Implementations
 
+    public class STD_SimpleReferenceHolder : ISTD_SerializeNestedReferences {
+
+        [SerializeField] public List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        public virtual int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
+
+        public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+
+    }
+
     public class STD_ReferencesHolder : ScriptableObject, ISTD_SerializeNestedReferences, IPEGI, IKeepUnrecognizedSTD, ISTD_SafeEncoding
     {
         
@@ -326,6 +335,7 @@ namespace SharedTools_Stuff {
             if (icon.Debug.enter(ref inspectedStuff, 0)) {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
+                this.CopyPasteSTD_PEGI().nl(ref changed);
 
                 explorer.Inspect(this);
                 changed |= uTags.Nested_Inspect();
@@ -338,25 +348,7 @@ namespace SharedTools_Stuff {
     }
 
     public abstract class ComponentSTD : MonoBehaviour, ISTD_SafeEncoding, IKeepUnrecognizedSTD, ICanBeDefault_STD, ISTD_SerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
-        
-        protected List_Data references_Meta = new List_Data("References");
 
-        [HideInInspector]
-        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
-        public int GetISTDreferenceIndex(UnityEngine.Object obj)
-        {
-            int before = _nestedReferences.Count;
-            int index = _nestedReferences.TryGetIndexOrAdd(obj);
-            #if PEGI
-            if (before != _nestedReferences.Count) nestedReferencesChanged = true;
-            #endif
-            return index;
-        }
-        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
-        
-        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
-        public UnrecognizedTags_List UnrecognizedSTD => uTags;
-        
 #if !UNITY_EDITOR
         [NonSerialized]
 #endif
@@ -378,7 +370,6 @@ namespace SharedTools_Stuff {
         }
 
         #if PEGI
-
         [ContextMenu("Reset Inspector")]
         void Reset() => ResetInspector();
 
@@ -390,14 +381,8 @@ namespace SharedTools_Stuff {
 
         bool nestedReferencesChanged;
 
-        public virtual string NeedAttention()
-        {
-            if (nestedReferencesChanged && gameObject.IsPrefab())
-                return "Nested References changed";
-
-            return null;
-        }
-
+        public virtual string NeedAttention() => null;
+        
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
             bool changed = false;
@@ -427,6 +412,8 @@ namespace SharedTools_Stuff {
 
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
+
+                this.CopyPasteSTD_PEGI().nl(ref changed);
 
                 "{0} Debug ".F(this.ToPEGIstring()).nl();
 
@@ -460,21 +447,37 @@ namespace SharedTools_Stuff {
         #endif
         #endregion
 
-        public virtual void Decode(string data)
-        {
-            uTags.Clear();
-            data.DecodeTagsFor(this);
-          
-        }
-
+        #region Encoding & Decoding
         readonly LoopLock loopLock = new LoopLock();
         public LoopLock GetLoopLock => loopLock;
 
         public virtual bool IsDefault => false;
 
+        protected List_Data references_Meta = new List_Data("References");
+
+        [HideInInspector]
+        [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        public int GetISTDreferenceIndex(UnityEngine.Object obj)
+        {
+            int before = _nestedReferences.Count;
+            int index = _nestedReferences.TryGetIndexOrAdd(obj);
+            return index;
+        }
+        public T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
+
+        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+        
         public abstract bool Decode(string tag, string data);
+
         public abstract StdEncoder Encode();
 
+        public virtual void Decode(string data) {
+            uTags.Clear();
+            data.DecodeTagsFor(this);
+        }
+
+        #endregion
     }
 
     #endregion
@@ -517,6 +520,26 @@ namespace SharedTools_Stuff {
         }
 
 #if PEGI
+        static ISTD toCopy;
+
+        public static bool CopyPasteSTD_PEGI(this ISTD std) {
+            var changed = false;
+            if (std != null) {
+                if (toCopy == null && icon.Copy.Click("Copy {0}".F(std.ToPEGIstring())))
+                    toCopy = std;
+                if (toCopy != null) {
+                    if (icon.Close.Click("Empty copy buffer"))
+                        toCopy = null;
+                    else if (std != toCopy && icon.Paste.Click("Copy {0} into {1}".F(toCopy, std)))
+                        TryCopy_Std_AndOtherData(toCopy, std);
+
+                }
+            
+                        
+                        }
+            return changed;
+        }
+
         public static bool Send_Recieve_PEGI(this ISTD std, string name, string folderName, out string data) {
   
             if (icon.Email.Click("Send {0} to somebody via email.".F(folderName)))
@@ -543,6 +566,39 @@ namespace SharedTools_Stuff {
             return false;
         }
 #endif
+
+        static readonly STD_SimpleReferenceHolder tmpHolder = new STD_SimpleReferenceHolder();
+
+        public static void TryCopy_Std_AndOtherData(object from, object into)
+        {
+            if (into != null && into != from)
+            {
+
+                var intoSTD = into as ISTD;
+                if (intoSTD != null)
+                {
+                    var fromSTD = from as ISTD;
+
+                    if (fromSTD != null)
+                    {
+                        var prev = StdEncoder.keeper;
+                        StdEncoder.keeper = tmpHolder;
+                        intoSTD.Decode(fromSTD.Encode().ToString());
+                        StdEncoder.keeper = prev;
+
+                        tmpHolder._nestedReferences.Clear();
+                    }
+
+
+                }
+
+                var ch = into as ICanChangeClass;
+                if (ch != null && !from.IsNullOrDestroyed())
+                    ch.Copy_NonSTDdata_From_PreviousInstance(from);
+
+            }
+        }
+
 
         public static void Add (this List<UnrecognizedTags_List.UnrecognizedElement> lst, List<string> tags, string data) {
 

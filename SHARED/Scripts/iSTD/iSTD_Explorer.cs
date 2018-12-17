@@ -207,7 +207,7 @@ namespace SharedTools_Stuff
                     std.Decode(data);
             }
 
-            AbstractTaggedSTDExtensions.TryCopy_Std_AndOtherData(obj, previous);
+            STDExtensions.TryCopy_Std_AndOtherData(previous, obj);
 
         }
 

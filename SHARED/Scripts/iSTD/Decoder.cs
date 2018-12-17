@@ -762,7 +762,7 @@ namespace SharedTools_Stuff
         }
         
         #region Into Unity Objects
-        static ISTD_SerializeNestedReferences keeper;
+        public static ISTD_SerializeNestedReferences Keeper { get { return StdEncoder.keeper;  } set { StdEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) {
             var std = val.TryGet_fromObj<ISTD>();
@@ -786,20 +786,20 @@ namespace SharedTools_Stuff
             return obj;
         }
         
-        public static T Decode_Reference<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, keeper);
+        public static T Decode_Reference<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode<T>(ref val, Keeper);
 
-        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, keeper);
+        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, Keeper);
 
         public static bool DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
             if (val != null)  {
 
-                var prevKeeper = keeper;
-                keeper = referencesKeeper;
+                var prevKeeper = Keeper;
+                Keeper = referencesKeeper;
 
                 val.Decode(data); 
 
-                keeper = prevKeeper;
+                Keeper = prevKeeper;
                 return true;
             }
 
@@ -808,24 +808,24 @@ namespace SharedTools_Stuff
 
         public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, ref List_Data ld) where T : ISTD, new()
         {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
+            var prevKeeper = Keeper;
+            Keeper = referencesKeeper;
 
             data.Decode_List(out val, ref ld);
 
-            keeper = prevKeeper;
+            Keeper = prevKeeper;
 
             return val;
         }
 
         public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
         {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
+            var prevKeeper = Keeper;
+            Keeper = referencesKeeper;
 
             data.Decode_List(out val);
 
-            keeper = prevKeeper;
+            Keeper = prevKeeper;
 
             return val;
         }
