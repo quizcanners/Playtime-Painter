@@ -14,7 +14,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using SharedTools_Stuff;
-using Unity.Collections;
+
 
 #pragma warning disable IDE1006
 namespace PlayerAndEditorGUI {
@@ -2595,6 +2595,18 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
 
+        static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
+        {
+            if (listIsNull(ref list)) {
+                if (enteredOne == thisOne)
+                    enteredOne = -1;
+                return false;
+            }
+
+            var ret = icon.List.enter(txt.AddCount(list), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            return ret;
+        }
+
         static bool enter_ListIcon<T>(this string txt, ref List<T> list,  ref int inspected, ref int enteredOne, int thisOne)
         {
             if (listIsNull(ref list)) {
@@ -2842,22 +2854,22 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool enter_List_UObj<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object {
+        public static bool enter_List_UObj<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object {
 
             bool changed = false;
             
-            if (datas.enter_HeaderPart(ref list, ref enteredOne, thisOne))  
-                datas.edit_List_UObj(ref list, selectFrom);
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))  
+                meta.edit_List_UObj(ref list, selectFrom);
 
             return changed;
         }
 
-        public static bool enter_List<T>(this List_Data datas, ref List<T> list, ref int enteredOne, int thisOne)
+        public static bool enter_List<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne)
         {
             bool changed = false;
 
-            if (datas.enter_HeaderPart(ref list, ref enteredOne, thisOne)) 
-                changed |= datas.edit_List(ref list);
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne)) 
+                changed |= meta.edit_List(ref list);
 
             return changed;
         }
@@ -2878,6 +2890,26 @@ namespace PlayerAndEditorGUI {
         {
             bool changed = false;
             label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne, ref changed);
+            return changed;
+        }
+
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, Func<T, T> lambda) where T : new()
+        {
+            bool changed = false;
+
+            if (enter_ListIcon(label, ref list, ref enteredOne, thisOne))
+                edit_List(ref list, lambda);
+
+            return changed;
+        }
+
+        public static bool enter_List<T>(this List_Data meta, ref List<T> list, ref int enteredOne, int thisOne, Func<T, T> lambda) where T : new()
+        {
+            bool changed = false;
+
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))
+                changed |= edit_List(ref list, lambda);
+
             return changed;
         }
 
@@ -5311,7 +5343,7 @@ namespace PlayerAndEditorGUI {
         }
 
         static string currentListLabel = "";
-        static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
+        public static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
                     (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring_Type()  : currentListLabel);
 
         static bool listLabel_Used(this bool val) {
@@ -5319,7 +5351,7 @@ namespace PlayerAndEditorGUI {
 
             return val;
         }
-        static T listLabel_Used<T>(this T val)
+        public static T listLabel_Used<T>(this T val)
         {
             currentListLabel = "";
 
@@ -5329,13 +5361,13 @@ namespace PlayerAndEditorGUI {
         static void write_ListLabel(this List_Data datas, IList lst) =>
             write_ListLabel(datas.label, ref datas.inspected, lst);
 
-        static void write_ListLabel(this string label, IList lst = null)
+        public static void write_ListLabel(this string label, IList lst = null)
         {
             int notInsp = -1;
             label.write_ListLabel(ref notInsp, lst);
         }
 
-        static void write_ListLabel(this string label, ref int inspected, IList lst = null) {
+        public static void write_ListLabel(this string label, ref int inspected, IList lst = null) {
 
             bool editedName = false;
 
@@ -5354,22 +5386,7 @@ namespace PlayerAndEditorGUI {
             if (!editedName && label.AddCount(lst).ClickLabel(label, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
-
-        static bool ExitOrDrawPEGI<T>(NativeArray<T> array, ref int index, List_Data ld = null) where T: struct
-        {
-            bool changed = false;
-
-            if (index >= 0) {
-                if (array == null || index >= array.Length || icon.List.ClickUnfocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
-                    index = -1;
-                else
-                    changed |= array[index].Try_Nested_Inspect();
-            }
-
-            return changed;
-        }
-
-
+        
         static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
         {
             bool changed = false;
@@ -7035,42 +7052,6 @@ namespace PlayerAndEditorGUI {
 
             return added;
         }
-
-        #endregion
-
-        #region Native Arrays
-
-        public static bool edit_Array<T>(this string label, ref NativeArray<T> array, ref int inspected, List_Data datas = null) where T : struct
-        {
-            label.write_ListLabel(ref inspected);
-            bool changed = false;
-            edit_Array(ref array, ref inspected, ref changed, datas).listLabel_Used();
-
-            return changed;
-        }
-
-
-        public static T edit_Array<T>(ref NativeArray<T> array, ref int inspected, ref bool changed, List_Data datas = null) where T : struct
-        {
-            T added = default(T);
-
-            if (array == null) {
-                if ("init array".ClickUnfocus().nl())
-                    array = new NativeArray<T>();
-            }
-            else {
-
-                changed |= ExitOrDrawPEGI(array, ref inspected);
-
-                if (inspected == -1) {
-                    for (int i = 0; i < array.Length; i++)
-                        changed |= array[i].Name_ClickInspect_PEGI<T>(null, i, ref inspected, datas).nl();
-                }
-            }
-
-            return added;
-        }
-
 
         #endregion
 
