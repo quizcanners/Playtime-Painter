@@ -9,7 +9,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TerrainSplatTexture : PainterPluginBase
+    public class TerrainSplatTexture : PainterComponentPluginBase
     {
 
         const string tag = "TerSplat";

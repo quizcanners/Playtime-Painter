@@ -85,7 +85,7 @@ public static class TextureEditorExtensionFunctions  {
         return null;
     }
 
-        public static bool ContainsInstanceType(this List<PainterPluginBase> collection, Type type){
+        public static bool ContainsInstanceType(this List<PainterComponentPluginBase> collection, Type type){
 
 		foreach (var t in collection) 
 			if (t.GetType() == type) return true; 
@@ -145,7 +145,7 @@ public static class TextureEditorExtensionFunctions  {
         
         public static ImageData GetImgDataIfExists(this Texture texture)
         {
-            if (!texture || PainterCamera.Data==null)
+            if (!texture || !PainterCamera.Data)
                 return null;
 
             if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgDataUsingRendTex != null)

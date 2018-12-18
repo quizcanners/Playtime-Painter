@@ -119,10 +119,10 @@ namespace Playtime_Painter
 
         public int selectedAtlasedMaterial = -1;
 
-        [NonSerialized] public List<PainterPluginBase> Plugins;
+        [NonSerialized] public List<PainterComponentPluginBase> Plugins;
 
-        [NonSerialized] PainterPluginBase lastFetchedPlugin;
-        public T GetPlugin<T>() where T : PainterPluginBase
+        [NonSerialized] PainterComponentPluginBase lastFetchedPlugin;
+        public T GetPlugin<T>() where T : PainterComponentPluginBase
         {
 
             T returnPlug = null;
@@ -538,7 +538,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            foreach (PainterPluginBase nt in Plugins)
+            foreach (PainterComponentPluginBase nt in Plugins)
                 if (nt.UpdateTylingFromMaterial(fieldName, this))
                     return;
 
@@ -559,7 +559,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            foreach (PainterPluginBase nt in Plugins)
+            foreach (PainterComponentPluginBase nt in Plugins)
                 if (nt.UpdateTylingToMaterial(fieldName, this))
                     return;
 
@@ -850,7 +850,7 @@ namespace Playtime_Painter
 
             MatDta.materials_TextureFields.Clear();
 
-            foreach (PainterPluginBase nt in Plugins)
+            foreach (PainterComponentPluginBase nt in Plugins)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materials_TextureFields);
 
             if (!terrain)
@@ -898,7 +898,7 @@ namespace Playtime_Painter
             if (fieldName == null)
                 return null;
 
-            foreach (PainterPluginBase t in Plugins)
+            foreach (PainterComponentPluginBase t in Plugins)
             {
                 Texture tex = null;
                 if (t.GetTexture(fieldName, ref tex, this))
@@ -962,7 +962,7 @@ namespace Playtime_Painter
                 if (id != null)
                     Cfg.recentTextures.AddIfNew(fieldName, id);
 
-                foreach (PainterPluginBase nt in Plugins)
+                foreach (PainterComponentPluginBase nt in Plugins)
                     if (nt.SetTextureOnMaterial(fieldName, id, this))
                         return id;
             }
@@ -1071,7 +1071,7 @@ namespace Playtime_Painter
         public void UpdateShaderGlobals()
         {
 
-            foreach (PainterPluginBase nt in Plugins)
+            foreach (PainterComponentPluginBase nt in Plugins)
                 nt.OnUpdate(this);
 
             if (!terrain) return;
@@ -1249,7 +1249,7 @@ namespace Playtime_Painter
         public TerrainHeight GetTerrainHeight()
         {
 
-            foreach (PainterPluginBase nt in Plugins)
+            foreach (PainterComponentPluginBase nt in Plugins)
             {
                 if (nt.GetType() == typeof(TerrainHeight))
                     return ((TerrainHeight)nt);
@@ -1709,10 +1709,10 @@ namespace Playtime_Painter
             PainterStuff.applicationIsQuitting = false;
             
             if (Plugins == null)
-                Plugins = new List<PainterPluginBase>();
+                Plugins = new List<PainterComponentPluginBase>();
 
 
-            PainterPluginBase.UpdateList(this);
+            PainterComponentPluginBase.UpdateList(this);
 
             if (terrain)
                 UpdateShaderGlobals();

@@ -66,6 +66,7 @@ Terrain:
   m_MaterialTemplate: {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
+  m_DeringLightProbesForTrees: 1
   m_ScaleInLightmap: 0.0512
   m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
   m_GroupingID: 0
@@ -90,6 +91,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1163992285041006}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: 7a9fc20066c6f8242a7cc894c849cc07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -171,6 +173,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1163992285041006}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -180,7 +183,8 @@ MonoBehaviour:
   terrainCollider: {fileID: 154617216599668258}
   meshFilter: {fileID: 0}
   meshCollider: {fileID: 0}
-  terrainHeightTexture: {fileID: 0}
+  terrainHeightTexture: {fileID: 2800000, guid: 9da58cdd9148caf448a96f5649c14fc9,
+    type: 3}
   meshEditing: 0
   selectedMeshProfile: 0
   meshNameHolder: 

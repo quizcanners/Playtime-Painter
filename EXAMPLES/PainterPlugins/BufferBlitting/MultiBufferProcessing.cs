@@ -483,7 +483,7 @@ namespace Playtime_Painter.Examples {
             {
                 var cam = TexMGMT ? Data.webCamTexture : null;
 
-                return Mgmt!=null
+                return Mgmt != null
                     && (cam || !cam.isPlaying || cam.didUpdateThisFrame);
             }
         }
@@ -540,7 +540,7 @@ namespace Playtime_Painter.Examples {
         }
         #endregion
 
-        TextureBuffer Target { get { var sct = Mgmt.sections.TryGet(targetIndex); if (sct != null) return sct.TargetRenderTexture; else return null; } }
+        TextureBuffer Target { get { var sct = Mgmt.sections.TryGet(targetIndex); return sct?.TargetRenderTexture; } }
 
         public override void AfterRender() => Target?.AfterRender();
         

@@ -10,16 +10,18 @@ using UnityEditor;
 
 namespace Playtime_Painter
 {
-
-
-    [Serializable]
-    public class MeshPackagingProfile : Abstract_STD, IPEGI
+    
+    public class MeshPackagingProfile : Abstract_STD, IPEGI, IGotName
     {
-        public List<VertexSolution> sln;
+        public List<VertexSolution> sln = new List<VertexSolution>();
 
         public string name = "";
 
         public const string folderName = "Mesh Profiles";
+
+        #region Inspect
+        public string NameForPEGI { get { return name; } set { name = value;  } }
+
         #if PEGI
         public virtual bool Inspect()
         {
@@ -55,11 +57,8 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
-        public override string ToString()
-        {
-            return name;
-        }
+        #endif
+        #endregion
 
         public bool Repack(MeshConstructor sm)
         {
@@ -99,6 +98,7 @@ namespace Playtime_Painter
             return true;
         }
 
+        #region Encode & Decode
         public override StdEncoder Encode() 
         {
             StdEncoder cody = new StdEncoder();
@@ -120,18 +120,17 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
         public const string stdTag_vertSol = "vertSol";
-
-        
 
         public MeshPackagingProfile()
         {
             VertexDataTarget[] trgs = MeshSolutions.targets;
-            sln = new List<VertexSolution>(); //[trgs.Length];
+            sln = new List<VertexSolution>(); 
             name = "unnamedd";
-            for (int i = 0; i < trgs.Length; i++)
-                sln.Add(new VertexSolution(trgs[i]));
+            foreach (var t in trgs)
+                sln.Add(new VertexSolution(t));
         }
 
     }
@@ -193,7 +192,6 @@ namespace Playtime_Painter
     {
         public byte chanelsNeed;
         public int myIndex;
-       // public abstract string name();
 
         public virtual string GetFieldName(int ind)
         {
@@ -249,24 +247,24 @@ namespace Playtime_Painter
 
     }
 
-
-    [Serializable]
+    
     public class VertexDataValue : Abstract_STD {
 
-        public int typeIndex;
-        public int valueIndex;
+        public int typeIndex = 0;
+        public int valueIndex = 0;
 
-        public VertexDataType VertDataType { get { return MeshSolutions.types[typeIndex]; } }
+        public VertexDataType VertDataType => MeshSolutions.types[typeIndex]; 
 
         public float[] GetDataArray() {
             VertDataType.GenerateIfNull();
             return VertDataType.GetValue(valueIndex);
         }
 
+        #region Encode & Decode
         public override StdEncoder Encode() {
             StdEncoder cody = new StdEncoder();
-            cody.Add("t", typeIndex);
-            cody.Add("v", valueIndex);
+            cody.Add_IfNotZero("t", typeIndex);
+            cody.Add_IfNotZero("v", valueIndex);
             return cody;
         }
 
@@ -278,25 +276,23 @@ namespace Playtime_Painter
             }
             return true;
         }
-
-     
-
+        #endregion
     }
 
-
-    [Serializable]
+    
     public class VertexSolution : Abstract_STD, IPEGI
     {
-        public int sameSizeDataIndex;
+        public int sameSizeDataIndex = -1;
         public int targetIndex;
         public bool enabled;
         public static bool showHint;
-
-
+        
         public VertexDataType SameSizeValue { get { if (sameSizeDataIndex >= 0) return MeshSolutions.types[sameSizeDataIndex]; else return null; } }
         public VertexDataTarget Target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
-        public List<VertexDataValue> vals;
+        public List<VertexDataValue> vals = new List<VertexDataValue>();
+
+        #region Inspector
         #if PEGI
         public virtual bool Inspect()
         {
@@ -357,17 +353,16 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
+        #endif
+        #endregion
+
         public VertexSolution() {
 
         }
 
         public VertexSolution(VertexDataTarget ntrg) {
             Target = ntrg;
-
             InitVals();
-            sameSizeDataIndex = -1;
-         
             ntrg.SetDefaults(this);
         }
 
@@ -464,20 +459,18 @@ namespace Playtime_Painter
 
         }
 
+        #region Inspector
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
 
-           
-            cody.Add_Bool("en", enabled);
-            cody.Add("t", targetIndex);
+            cody.Add_IfTrue("en", enabled)
+            .Add_IfNotZero("t", targetIndex);
 
             if (enabled) {
                 if (sameSizeDataIndex == -1)
                     cody.Add_IfNotEmpty("vals", vals);
                 else
-                    cody.Add("sameSize", sameSizeDataIndex);
-
-               
+                    cody.Add_IfNotZero("sameSize", sameSizeDataIndex);
             }
             return cody;
         }
@@ -493,14 +486,14 @@ namespace Playtime_Painter
             }
             return true;
         }
+        #endregion
 
-       
     }
 
   
-    public static class MeshSolutions
-    {
+    public static class MeshSolutions {
 
+        #region Static
         public static Type dataTypeFilter;
 
         public const string shaderPreferedPackagingSolution = "Solution";
@@ -514,10 +507,10 @@ namespace Playtime_Painter
 
             var prf = PainterCamera.Data.meshPackagingSolutions;
 
-            for (int i = 0; i < prf.Count; i++)// (var s in PainterDataAndConfig.dataHolder.meshProfileSolutions)
-                if (String.Compare(prf[i].name, name) == 0) return i;
+            for (int i = 0; i < prf.Count; i++)
+                if (string.Compare(prf[i].name, name) == 0) return i;
 
-            return 0;//PainterDataAndConfig.dataHolder.meshProfileSolutions[0];
+            return 0;
         }
 
         private static MeshConstructor _curMeshDra;
@@ -536,7 +529,7 @@ namespace Playtime_Painter
 
         public static int vcnt = 0;
         public static float[] chanelMedium = null;
-        // ********************************************************* DATA Targets
+        #endregion
 
         public class VertexPosTrg : VertexDataTarget
         {
@@ -743,7 +736,6 @@ namespace Playtime_Painter
 
             }
         }
-
 
         public static VertexDataTarget[] targets = {
         new VertexPosTrg(0) , new VertexUVTrg(1) , new VertexUVTrg(2) , new VertexUVTrg(3),

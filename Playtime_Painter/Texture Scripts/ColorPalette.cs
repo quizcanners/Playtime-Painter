@@ -8,8 +8,7 @@ using UnityEngine;
 
 namespace Playtime_Painter
 {
-
-    [Serializable]
+    
     public class ColorScheme : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect
     {
 
@@ -48,8 +47,6 @@ namespace Playtime_Painter
             if (icon.Load.Click("To brush"))
                 GlobalBrush.colorLinear.From(col);
 
-           
-
             return col;
         }
 
@@ -62,8 +59,6 @@ namespace Playtime_Painter
         }
 
         public void PickerPEGI() {
-
-      
 
             int rowLimit = pegi.paintingPlayAreaGUI ? 6 : (int)((Screen.width-55) / 32f);
 

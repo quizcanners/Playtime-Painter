@@ -327,7 +327,7 @@ namespace SharedTools_Stuff
                     go = (obj as MonoBehaviour)?.gameObject;
                 else go = obj as GameObject;
 
-                if (go && !go.IsNullOrDestroyed())
+                if (go)
                     conv = go.GetComponent<T>();
             }
             else conv = (T)obj;

@@ -16,7 +16,7 @@ using UnityEditor;
 namespace Playtime_Painter.Examples {
 
     [TaggedType(tag)]
-    public class TileableAtlasingPainterPlugin : PainterPluginBase {
+    public class TileableAtlasingPainterPlugin : PainterComponentPluginBase {
 
         const string tag = "TilAtlsPntr";
         public override string ClassTag => tag;

@@ -94,7 +94,51 @@ namespace SharedTools_Stuff {
 
         #endregion
 
+        #region Transformations 
+
+        public static Color ToOpaque(this Color col)
+        {
+            col.a = 1;
+            return col;
+        }
+
+        #endregion
+
         #region Components & GameObjects
+
+        public static int GetSubmeshNumber(this Mesh m, int triangleIndex) {
+
+            if (m) {
+
+                if (m.subMeshCount == 1)
+                    return 0;
+
+                if (!m.isReadable) {
+                    Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
+                    return 0;
+                }
+                
+                int[] hittedTriangle = new int[] {
+                m.triangles[triangleIndex * 3],
+                m.triangles[triangleIndex * 3 + 1],
+                m.triangles[triangleIndex * 3 + 2] };
+                
+                for (int i = 0; i < m.subMeshCount; i++) {
+
+                    if (i == m.subMeshCount - 1)
+                        return i;
+
+                    int[] subMeshTris = m.GetTriangles(i);
+                    for (int j = 0; j < subMeshTris.Length; j += 3)
+                        if (subMeshTris[j] == hittedTriangle[0] &&
+                            subMeshTris[j + 1] == hittedTriangle[1] &&
+                            subMeshTris[j + 2] == hittedTriangle[2])
+                            return i;
+                }
+            }
+
+            return 0;
+        }
 
         public static GameObject TryGetGameObject(this object obj) {
             var go = obj as GameObject;
@@ -141,13 +185,12 @@ namespace SharedTools_Stuff {
             }
             return null;
         }
-        
+
         public static bool IsNullOrDestroyed(this object obj) =>
              obj == null ? true :
                 (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
                 !(obj as UnityEngine.Object) : false);
         
-
         public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed() ? default(T) : obj;
   
         public static bool TrySetAlpha(this Graphic graphic, float alpha) {
@@ -188,11 +231,6 @@ namespace SharedTools_Stuff {
         }
 
         public static bool IsUnityObject(this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
-
-        public static Color ToOpaque(this Color col) {
-            col.a = 1;
-            return col;
-        }
 
         public static void SetActive(this List<GameObject> goList, bool to)
         {

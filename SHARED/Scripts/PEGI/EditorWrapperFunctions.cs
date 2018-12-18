@@ -381,7 +381,7 @@ namespace PlayerAndEditorGUI {
 
             int curno = 0;
             for (int i = 0; i < tex.Length; i++)
-                if (tex[i] != null)
+                if (tex[i])
                 {
                     tnumbers.Add(i);
                     tnames.Add("{0}: {1}".F(i, tex[i].name));
@@ -668,13 +668,13 @@ namespace PlayerAndEditorGUI {
             return modified.Set();
         }
 
-        public static bool edit(ref Vector3 val)
+     /*   public static bool edit(ref Vector3 val)
         {
             checkLine();
             bool modified = false;
             modified |= "X".edit(ref val.x).nl() | "Y".edit(ref val.y).nl() | "Z".edit(ref val.z).nl();
             return modified.Set();
-        }
+        }*/
 
         public static bool edit(ref Vector4 val)
         {
@@ -1138,7 +1138,7 @@ namespace PlayerAndEditorGUI {
             reorderableList.TryGetValue(list, out rl);
 
             if (rl == null)  {
-                rl = new ReorderableList(list, typeof(T), datas==null || datas.allowReorder, true,
+                rl = new ReorderableList(list, typeof(T), datas == null || datas.allowReorder, true,
                     false, datas == null || datas.allowDelete);
                 reorderableList.Add(list, rl);
 

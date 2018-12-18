@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter.Examples {
 
     [TaggedType(tag)]
-    public class TerrainLight : PainterPluginBase
+    public class TerrainLight : PainterComponentPluginBase
     {
 
         const string tag = "TerLight";

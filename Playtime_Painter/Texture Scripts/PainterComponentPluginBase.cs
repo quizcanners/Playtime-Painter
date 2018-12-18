@@ -6,15 +6,15 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
     public class PainterPluginAttribute : Abstract_WithTaggedTypes {
-        public override TaggedTypes_STD TaggedTypes => PainterPluginBase.all;
+        public override TaggedTypes_STD TaggedTypes => PainterComponentPluginBase.all;
     }
     
     [PainterPlugin]
-    public class PainterPluginBase : Abstract_STD, IGotClassTag {
+    public class PainterComponentPluginBase : Abstract_STD, IGotClassTag {
 
         #region Abstract Serialized
-        public virtual string ClassTag => "Override me";//{ get; }
-        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterPluginBase));
+        public virtual string ClassTag => "Override me";
+        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterComponentPluginBase));
         public TaggedTypes_STD AllTypes => all;
         #endregion
 
@@ -37,7 +37,7 @@ namespace Playtime_Painter
 
             foreach (Type t in all) {
                 if (!pntr.Plugins.ContainsInstanceType(t)) 
-                    pntr.Plugins.Add((PainterPluginBase)Activator.CreateInstance(t));  
+                    pntr.Plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
             }
         }
 

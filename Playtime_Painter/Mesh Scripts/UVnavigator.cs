@@ -33,8 +33,6 @@ namespace Playtime_Painter
      
         Vector2 textureOffset = new Vector2();
 
-       
-
         void Update()
         {
             if (MMouseDwn)
@@ -153,7 +151,6 @@ namespace Playtime_Painter
 
     public class VertexUVTool : MeshToolBase
     {
-        public override string ToString() { return "vertex UV"; }
 
         public static VertexUVTool _inst;
 
@@ -161,6 +158,7 @@ namespace Playtime_Painter
         public Vector2 tiling = Vector2.one;
         public Vector2 offset;
 
+        #region Encode & Decode
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "gtuv": ProjectionUV = data.ToBool(); break;
@@ -178,11 +176,14 @@ namespace Playtime_Painter
             cody.Add("tile", tiling);
             return cody;
         }
+        #endregion
 
-        public VertexUVTool() {
-            _inst = this;
-        }
-#if PEGI
+        #region Inspect
+        public override string NameForPEGIdisplay => "vertex UV";
+
+        public override string Tooltip => ProjectionUV ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
+
+        #if PEGI
         public override bool Inspect() {
 
             bool changed = false;
@@ -225,12 +226,8 @@ namespace Playtime_Painter
             return changed;
 
         }
-
-#endif
-
-        public override string Tooltip { get {
-                return ProjectionUV ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
-            } }
+        #endif
+        #endregion
 
         void UpdatePreview() {
 
@@ -279,10 +276,8 @@ namespace Playtime_Painter
             return uv;
         }
 
-        public override void OnSelectTool() {
-                UpdatePreview();
-        }
-
+        public override void OnSelectTool() => UpdatePreview();
+        
         public override void OnDeSelectTool() {
 
             foreach (var v in EditedMesh.meshPoints)
@@ -292,22 +287,15 @@ namespace Playtime_Painter
                 MeshMGMT.Redraw();
         }
 
-        public override void OnGridChange() {
-            UpdatePreview();
-        }
+        public override void OnGridChange() => UpdatePreview();
+        
+        public override Color VertColor => Color.magenta; 
 
-        public override Color VertColor {
-            get
-            {
-                return Color.magenta; 
-            }
-        }
+        public override bool ShowGrid => ProjectionUV; 
 
-        public override bool ShowGrid { get { return ProjectionUV; } }
+        public override bool ShowVerticesDefault => !ProjectionUV && !MeshMGMT.Dragging; 
 
-        public override bool ShowVerticesDefault { get { return !ProjectionUV && !MeshMGMT.Dragging; } }
-
-        public override bool ShowLines { get { return false; } }
+        public override bool ShowLines => false; 
 
         public override void AssignText(MarkerWithText mrkr, MeshPoint vpoint) {
             var pvrt = MeshMGMT.GetSelectedVert();
@@ -451,9 +439,11 @@ namespace Playtime_Painter
                 EditedMesh.Dirty = true;
             }
         }
+        
+        public VertexUVTool()
+        {
+            _inst = this;
+        }
 
-    } 
-
-
-
+    }
 }

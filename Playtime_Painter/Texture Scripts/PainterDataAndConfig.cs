@@ -177,7 +177,7 @@ namespace Playtime_Painter
 
         public List<VolumetricDecal> decals = new List<VolumetricDecal>();
 
-        public List<MeshPackagingProfile> meshPackagingSolutions;
+        public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
 
         public List<ColorScheme> colorSchemes = new List<ColorScheme>();
 
@@ -330,6 +330,7 @@ namespace Playtime_Painter
                         .Add("mats", matDatas, this)
                         .Add("pals", colorSchemes)
                         .Add("cam", PainterCamera.Inst)
+                        .Add("Vpck", meshPackagingSolutions)
 
 #if PEGI
                  .Add_IfNotNegative("iid", inspectedImgData)
@@ -357,6 +358,7 @@ namespace Playtime_Painter
                 case "mats": data.Decode_List(out matDatas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
                 case "cam": PainterCamera.Inst?.Decode(data); break;
+                case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 #if PEGI
                 case "iid": inspectedImgData = data.ToInt(); break;
                 case "isfs": inspectedStuffs = data.ToInt(); break;
@@ -372,9 +374,6 @@ namespace Playtime_Painter
         #endregion
 
         #region Inspector
-
-
-
 #if PEGI
            int inspectedImgData = -1;
         int inspectedStuffs = -1;
@@ -396,11 +395,14 @@ namespace Playtime_Painter
 
             if (inspectedStuffs == -1)
             {
-#if UNITY_EDITOR
+                if ("Refresh Shaders".Click())
+                    CheckShaders(true);
+
+                #if UNITY_EDITOR
                 "Using layer:".nl();
                 myLayer = EditorGUILayout.LayerField(myLayer);
-#endif
-                pegi.newLine();
+                #endif
+                pegi.nl();
                 "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate).nl();
             }
 
@@ -474,13 +476,12 @@ namespace Playtime_Painter
 #endif
         #endregion
 
-        public void Init()
-        {
+        public void Init() {
 
             if (brushConfig == null)
                 brushConfig = new BrushConfig();
 
-            if ((meshPackagingSolutions == null) || (meshPackagingSolutions.Count == 0))
+            if (meshPackagingSolutions.IsNullOrEmpty())
                 meshPackagingSolutions = new List<MeshPackagingProfile>
                 {
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Simple"),
@@ -489,7 +490,8 @@ namespace Playtime_Painter
                     (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
                 };
 
-            if (samplingMaskSize.x == 0) samplingMaskSize = new MyIntVec2(4);
+            if (samplingMaskSize.x == 0)
+                samplingMaskSize = new MyIntVec2(4);
 
             if (atlasFolderName == null || atlasFolderName.Length == 0)
             {
@@ -501,31 +503,7 @@ namespace Playtime_Painter
                 recordingNames = new List<string>();
             }
 
-#if BUILD_WITH_PAINTER || UNITY_EDITOR
-            if (pixPerfectCopy == null) pixPerfectCopy = Shader.Find("Playtime Painter/Buffer Blit/Pixel Perfect Copy");
-
-            if (Blit_Smoothed == null) Blit_Smoothed = Shader.Find("Playtime Painter/Buffer Blit/Smooth");
-
-            if (brushRendy_bufferCopy == null) brushRendy_bufferCopy = Shader.Find("Playtime Painter/Buffer Blit/Copier");
-
-            if (br_Blit == null) br_Blit = Shader.Find("Playtime Painter/Brush/Blit");
-
-            if (br_Add == null) br_Add = Shader.Find("Playtime Painter/Brush/Add");
-
-            if (br_Copy == null) br_Copy = Shader.Find("Playtime Painter/Brush/Copy");
-
-            if (br_Multishade == null) br_Multishade = Shader.Find("Playtime Painter/Brush/DoubleBuffer");
-
-            if (br_BlurN_SmudgeBrush == null) br_BlurN_SmudgeBrush = Shader.Find("Playtime Painter/Brush/BlurN_Smudge");
-
-            if (br_ColorFill == null) br_ColorFill = Shader.Find("Playtime Painter/Buffer Blit/Color Fill");
-
-            if (br_Preview == null) br_Preview = Shader.Find("Playtime Painter/Preview/Brush");
-
-            if (mesh_Preview == null) mesh_Preview = Shader.Find("Playtime Painter/Preview/Mesh");
-
-            TerrainPreview = Shader.Find("Playtime Painter/Preview/Terrain");
-#endif
+            CheckShaders();
 
             var encody = new StdDecoder(meshToolsSTD);
             foreach (var tag in encody)
@@ -539,6 +517,44 @@ namespace Playtime_Painter
                     }
             }
 
+        }
+
+        void CheckShaders(bool forceReload = false)
+        {
+#if !UNITY_EDITOR
+            return;
+#endif
+
+            CheckShader(ref pixPerfectCopy, "Playtime Painter/Buffer Blit/Pixel Perfect Copy", forceReload);
+
+            CheckShader(ref Blit_Smoothed, "Playtime Painter/Buffer Blit/Smooth", forceReload);
+
+            CheckShader(ref brushRendy_bufferCopy, "Playtime Painter/Buffer Blit/Copier", forceReload);
+
+            CheckShader(ref br_Blit, "Playtime Painter/Brush/Blit", forceReload);
+
+            CheckShader(ref br_Add, "Playtime Painter/Brush/Add", forceReload);
+
+            CheckShader(ref br_Copy, "Playtime Painter/Brush/Copy", forceReload);
+
+            CheckShader(ref br_Multishade, "Playtime Painter/Brush/DoubleBuffer", forceReload);
+
+            CheckShader(ref br_BlurN_SmudgeBrush, "Playtime Painter/Brush/BlurN_Smudge", forceReload);
+
+            CheckShader(ref br_ColorFill, "Playtime Painter/Buffer Blit/Color Fill", forceReload);
+
+            CheckShader(ref br_Preview, "Playtime Painter/Preview/Brush", forceReload);
+
+            CheckShader(ref mesh_Preview, "Playtime Painter/Preview/Mesh", forceReload);
+
+            CheckShader(ref TerrainPreview, "Playtime Painter/Preview/Terrain", forceReload);
+        }
+
+        void CheckShader(ref Shader shade, string path, bool forceReload = false) {
+#if UNITY_EDITOR
+            if (forceReload || !shade)
+                shade = Shader.Find(path);
+#endif
         }
 
         public void OnEnable()

@@ -488,8 +488,7 @@ namespace SharedTools_Stuff
 
             return l;
         }
-
-
+        
         public static List<List<T>> Decode_ListOfList<T>(this string data, out List<List<T>> l) where T : ISTD, new()
         {
             l = new List<List<T>>();

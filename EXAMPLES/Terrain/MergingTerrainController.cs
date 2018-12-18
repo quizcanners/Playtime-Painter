@@ -140,8 +140,9 @@ namespace Playtime_Painter.Examples
 
             if (inspectedElement == -1) {
 
-                if (painter) 
-                    changed |= "Height Texture".edit(70, ref painter.terrainHeightTexture).nl();
+                if (painter)
+                    if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
+                        painter.SetToDirty();
 
                 changed |= "Light Texture ".edit(70, ref lightTexture).nl();
 

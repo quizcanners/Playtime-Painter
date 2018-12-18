@@ -171,21 +171,11 @@ namespace Playtime_Painter.Examples
     public class TriangleAtlasTool : MeshToolBase
     {
 
-        public override string ToString() { return "triangle Atlas Textures"; }
+        public override string NameForPEGIdisplay => "triangle Atlas Textures"; 
 
-        public override bool ShowLines
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool ShowLines=> false;
 
-        public override bool ShowVerticesDefault {
-            get {
-                return true;
-            }
-        }
+        public override bool ShowVerticesDefault => true;
 
         static TriangleAtlasTool _inst;
 
@@ -210,13 +200,9 @@ namespace Playtime_Painter.Examples
             _inst = this;
         }
 
-        public override string Tooltip
-        {
-            get
-            {
-                return "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
-            }
-        }
+        #region Inspecotr
+        public override string Tooltip => "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
+
 #if PEGI
         public override bool Inspect()
         {
@@ -238,13 +224,12 @@ namespace Playtime_Painter.Examples
             return false;
         }
 #endif
+        #endregion
+
         public override bool MouseEventPointedTriangle()
         {
-
             if (EditorInputManager.GetMouseButton(0))
             {
-                
-
                 if (EditorInputManager.getControlKey())
                     curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
                 else if (PointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
@@ -255,9 +240,6 @@ namespace Playtime_Painter.Examples
                     MeshMGMT.edMesh.Dirty = true;
                     return true;
                 }
-
-               
-
             }
             return false;
         }
@@ -300,8 +282,6 @@ namespace Playtime_Painter.Examples
             return false;
         }
 
-       
-
         public void SetAllTrianglesTextureTo(int no, int chanel)
         {
 
@@ -323,8 +303,6 @@ namespace Playtime_Painter.Examples
 
         public override void KeysEventPointedTriangle()
         {
-
-
             int keyDown = Event.current.NumericKeyDown();
 
             if (keyDown != -1)
@@ -334,29 +312,24 @@ namespace Playtime_Painter.Examples
                 MeshMGMT.edMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
-
         }
 
-        public override StdEncoder Encode()
-        {
-            var cody = new StdEncoder()
+        #region Encode & Decode
+        public override StdEncoder Encode() => new StdEncoder()
             .Add("cat", curAtlasTexture)
             .Add("cac", curAtlasChanel);
-           // cody.Add("aec2", atlasEdgeAsChanel2);
-            return cody;
-        }
-
+   
         public override bool Decode(string tag, string data)
         {
             switch (tag)
             {
                 case "cat": curAtlasTexture = data.ToInt(); break;
                 case "cac": curAtlasChanel = data.ToInt(); break;
-               // case "aec2": atlasEdgeAsChanel2 = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
+        #endregion
     }
 
 }

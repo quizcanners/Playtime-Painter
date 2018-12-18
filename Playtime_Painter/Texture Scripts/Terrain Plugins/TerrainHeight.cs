@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class TerrainHeight : PainterPluginBase
+    public class TerrainHeight : PainterComponentPluginBase
     {
         const string tag = "TerHeight";
         public override string ClassTag => tag;

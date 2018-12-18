@@ -335,7 +335,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add<T>(string tag, List<T> other, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
+        public StdEncoder Add<T>(string tag, List<T> other, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -561,7 +561,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld) where T : ISTD {
+        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld) where T : ISTD, new() {
 
             StdEncoder cody = new StdEncoder();
 
@@ -588,9 +588,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-
-
-        public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD {
+        public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD, new() {
 
             StdEncoder cody = new StdEncoder();
 
@@ -690,7 +688,7 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD {
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD, new() {
 
             if (val != null && val.Count > 0) 
                 Add(tag, val);
@@ -718,7 +716,7 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : ISTD
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : ISTD, new()
         {
 
             if (val.Count > 0) {

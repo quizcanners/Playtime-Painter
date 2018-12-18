@@ -7,7 +7,7 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
     public class VertexShadowTool : MeshToolBase {
-        public override string ToString() { return "vertex Shadow"; }
+        public override string NameForPEGIdisplay => "vertex Shadow";
 
         public override bool MouseEventPointedVertex() {
            
