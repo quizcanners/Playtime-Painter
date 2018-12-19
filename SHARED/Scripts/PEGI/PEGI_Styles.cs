@@ -112,7 +112,8 @@ namespace PlayerAndEditorGUI
                         richText = true,
                         wordWrap = false,
                         alignment = TextAnchor.MiddleCenter,
-                        fontStyle = FontStyle.Bold,
+                        fontStyle = FontStyle.Bold, 
+
                     };
                     _listLabel.normal.textColor = new Color32(43, 30, 11,255); //2C1F0B);
                 }

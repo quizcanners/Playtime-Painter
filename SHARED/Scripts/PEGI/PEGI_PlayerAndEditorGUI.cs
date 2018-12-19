@@ -2584,7 +2584,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = meta.Icon.enter(meta.label.AddCount(list), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            var ret = meta.Icon.enter(meta.label.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
             ret |= list.enter_SkipToOnlyElement<T>(ref meta.inspected, ref enteredOne, thisOne);
             
@@ -2603,7 +2603,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = icon.List.enter(txt.AddCount(list), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            var ret = icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             return ret;
         }
 
@@ -2615,7 +2615,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
             return ret;
         }
@@ -2629,7 +2629,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list), ref entered);
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
             return ret;
         }
@@ -2653,7 +2653,7 @@ namespace PlayerAndEditorGUI {
           : "") : "null");
         }
 
-        public static string AddCount(this string txt, IList lst)
+        public static string AddCount(this string txt, IList lst, bool entered = false)
         {
             if (lst == null)
                 return "{0} is NULL".F(txt);
@@ -2664,24 +2664,30 @@ namespace PlayerAndEditorGUI {
             if (lst.Count == 0)
                 return "NO {0}".F(txt);
 
-            var el = lst[0];
+            if (!entered)
+            {
 
-            if (!el.IsNullOrDestroyed()) {
+                var el = lst[0];
 
-                var nm = el as IGotDisplayName;
+                if (!el.IsNullOrDestroyed())
+                {
 
-                if (nm != null)
-                    return "{0}: {1}".F(txt, nm.NameForPEGIdisplay);
+                    var nm = el as IGotDisplayName;
 
-                var n = el as IGotName;
+                    if (nm != null)
+                        return "{0}: {1}".F(txt, nm.NameForPEGIdisplay);
 
-                if (n != null)
-                    return "{0}: {1}".F(txt, n.NameForPEGI);
+                    var n = el as IGotName;
 
-                return "{0}: {1}".F(txt, el.ToPEGIstring());
+                    if (n != null)
+                        return "{0}: {1}".F(txt, n.NameForPEGI);
 
+                    return "{0}: {1}".F(txt, el.ToPEGIstring());
+
+                }
+                else return "{0} one Null Element".F(txt);
             }
-            else return "{0} one Null Element".F(txt);
+            else return "{0} [1]".F(txt);
         }
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
@@ -2898,7 +2904,7 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
 
             if (enter_ListIcon(label, ref list, ref enteredOne, thisOne))
-                edit_List(ref list, lambda);
+                label.edit_List(ref list, lambda);
 
             return changed;
         }
@@ -2908,7 +2914,7 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
 
             if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))
-                changed |= edit_List(ref list, lambda);
+                changed |= meta.label.edit_List(ref list, lambda);
 
             return changed;
         }
@@ -5383,7 +5389,7 @@ namespace PlayerAndEditorGUI {
                     label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
             }
 
-            if (!editedName && label.AddCount(lst).ClickLabel(label, PEGI_Styles.ListLabel) && inspected != -1)
+            if (!editedName && label.AddCount(lst, true).ClickLabel(label, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
         

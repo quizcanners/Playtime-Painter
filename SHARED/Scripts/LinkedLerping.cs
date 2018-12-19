@@ -380,7 +380,7 @@ namespace SharedTools_Stuff {
                         }
                     }
 
-                    Material.SetFloat(transitionPropertyName, portion);
+                    Material?.SetFloat(transitionPropertyName, portion);
                 }
             }
 
