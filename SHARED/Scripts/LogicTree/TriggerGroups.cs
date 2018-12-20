@@ -36,7 +36,7 @@ namespace STD_Logic
 
         public UnnullableLists<Values> taggedBool = new UnnullableLists<Values>();
 
-        public UnnullableSTD<UnnullableLists<Values>> taggedInts = new UnnullableSTD<UnnullableLists<Values>>();
+        public UnnullableSTD<UnnulSTDLists<Values>> taggedInts = new UnnullableSTD<UnnulSTDLists<Values>>();
         
         string name = "Unnamed_Triggers";
         int index;

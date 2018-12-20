@@ -379,8 +379,6 @@ namespace SharedTools_Stuff {
             inspectedStuff = -1;
         }
 
-        bool nestedReferencesChanged;
-
         public virtual string NeedAttention() => null;
         
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)

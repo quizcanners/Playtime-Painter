@@ -4215,6 +4215,110 @@ namespace PlayerAndEditorGUI {
         */
         #endregion
 
+        #region UInt
+
+        public static bool edit(ref uint val)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+#endif
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (string.Compare(before, newval) != 0) {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = (uint)newValue;
+
+                    return true;
+                }
+                return false;
+            
+
+        }
+
+        public static bool edit(ref uint val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+#endif
+            
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (string.Compare(before, newval) != 0)
+                {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = (uint)newValue;
+
+                    return true;
+                }
+                return false;
+            
+        }
+
+        public static bool edit(ref uint val, uint min, uint max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, min, max);
+            
+#endif
+            
+                checkLine();
+                float before = val;
+                val = (uint)GUILayout.HorizontalSlider(before, (float)min, (float)max);
+                return (before != val);
+            
+        }
+
+        public static bool edit(this string label, ref uint val)
+        {
+            write(label);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, label, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref uint val)
+        {
+            write(label, tip, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, tip, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref uint val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+        #endregion
+
         #region Int
 
         public static bool edit(ref int val)
@@ -4342,7 +4446,7 @@ namespace PlayerAndEditorGUI {
             write(label, Msg.editDelayed_HitEnter.Get());
             return editDelayed(ref val, width);
         }
-        
+
         public static bool edit(this string label, ref int val)
         {
             write(label);
@@ -5841,7 +5945,7 @@ namespace PlayerAndEditorGUI {
             } else {
 
                 if (el.IsNullOrDestroyed()) {
-                    ElementData ed = datas != null ? datas[index] : null;
+                    ElementData ed = datas?[index];
                     if (ed == null)
                         "{0}: NULL {1}".F(index, typeof(T).ToPEGIstring_Type()).write();
                     else 
@@ -7128,8 +7232,7 @@ namespace PlayerAndEditorGUI {
             return obj.Try_NameInspect(out could, label);
         }
 
-        static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "")
-        {
+        static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "") {
 
             bool gotLabel = !label.IsNullOrEmpty();
 
@@ -7138,17 +7241,12 @@ namespace PlayerAndEditorGUI {
             if (iname != null)
                 return iname.inspect_Name(label);
 
-            if ((obj as MonoBehaviour)) {
-                couldInspect = false;
-                return false;
-            }
-
-            var uobj = obj as UnityEngine.Object;
+            var uobj = obj.TryGetGameObject(); 
 
             if (uobj)
             {
                 var n = uobj.name;
-                if (gotLabel ? label.edit(80, ref n) : edit(ref n)) {
+                if (gotLabel ? label.editDelayed(80, ref n) : editDelayed(ref n)) {
                     uobj.name = n;
                     uobj.RenameAsset(n);
                 }
@@ -7171,7 +7269,7 @@ namespace PlayerAndEditorGUI {
 
             bool gotLabel = !label.IsNullOrEmpty();
 
-            if ((gotLabel && label.edit(hint, 80, ref n) || (!gotLabel && edit(ref n))))
+            if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
             {
                 obj.NameForPEGI = n;
 

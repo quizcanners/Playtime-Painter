@@ -534,6 +534,15 @@ namespace PlayerAndEditorGUI {
             return (val != before).Set();
         }
 
+        public static bool edit(ref uint val, uint min, uint max)
+        {
+            checkLine();
+            int before = (int)val;
+            val = (uint)EditorGUILayout.IntSlider(before, (int)min, (int)max); //Slider(val, min, max);
+            return (val != before).Set();
+        }
+
+
         public static bool editPOW(ref float val, float min, float max)
         {
 
@@ -597,6 +606,14 @@ namespace PlayerAndEditorGUI {
             return (val != pre).Set();
         }
 
+        public static bool edit(ref uint val)
+        {
+            checkLine();
+            int pre = (int)val;
+            val = (uint)EditorGUILayout.IntField(pre);
+            return (val != pre).Set();
+        }
+
         public static bool edit(ref int val, int width)
         {
             checkLine();
@@ -604,6 +621,16 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.IntField(val, GUILayout.MaxWidth(width));
             return (val != pre).Set();
         }
+
+
+        public static bool edit(ref uint val, int width)
+        {
+            checkLine();
+            int pre = (int)val;
+            val = (uint)EditorGUILayout.IntField(pre, GUILayout.MaxWidth(width));
+            return (val != pre).Set();
+        }
+
 
         public static bool edit(string name, ref AnimationCurve val) {
 

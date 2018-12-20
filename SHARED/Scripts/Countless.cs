@@ -140,6 +140,8 @@ namespace SharedTools_Stuff {
 
         public int CountForInspector => count;
 
+        public virtual bool IsDefault => count == 0;
+
 
 #if PEGI
         public virtual bool Inspect()
@@ -152,11 +154,10 @@ namespace SharedTools_Stuff {
 #endif
         #endregion
 
-        public CountlessBase()
-        {
+
+
+        public CountlessBase() {
             Max = branchSize;
-            depth = 0;
-            count = 0;
             br = GetNewBranch();
         }
 
@@ -164,26 +165,25 @@ namespace SharedTools_Stuff {
     }
 
 
-    public abstract class STDCountlessBase : CountlessBase, ISTD, ICanBeDefault_STD
+    public abstract class STDCountlessBase : CountlessBase, ICanBeDefault_STD
     {
-        public virtual bool IsDefault { get {
+        public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
               //  if (def) Debug.Log("Found default Countless");
                 return def;
 
-            } }
-        public virtual StdEncoder Encode() {
-            return null; }
+            }
+        }
 
-        public virtual void Decode(string data)
+        public abstract StdEncoder Encode();
+
+        public abstract bool Decode(string subtag, string data);
+
+        public void Decode(string data)
         {
             Clear();
             data.DecodeTagsFor(this);
         }
-
-        public virtual bool Decode(string subtag, string data) { return true; }
-
-
     }
 
     public class CountlessInt : STDCountlessBase {
@@ -693,8 +693,7 @@ namespace SharedTools_Stuff {
 }
 
 ///  Generic Trees
-public class Countless<T> : CountlessBase //, IEnumerable
-    {
+public class Countless<T> : CountlessBase {
         
         T[] objs = new T[0];
         int firstFreeObj = 0;
@@ -969,6 +968,8 @@ public class Countless<T> : CountlessBase //, IEnumerable
             }
             return changed;
         }
+
+     
 #endif
         #endregion
     }
@@ -1381,7 +1382,7 @@ public class Countless<T> : CountlessBase //, IEnumerable
     }
 
     // List trees
-    public class UnnullableLists<T> : STDCountlessBase, IEnumerable {
+    public class UnnullableLists<T> : CountlessBase, IEnumerable {
 
         List<T>[] objs = new List<T>[0];
         int firstFreeObj = 0;
@@ -1616,9 +1617,9 @@ public class Countless<T> : CountlessBase //, IEnumerable
         }
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T> where T : ISTD, IPEGI, new() {
+    public class UnnulSTDLists<T> : UnnullableLists<T>, ISTD where T : ISTD, IPEGI, new() {
 
-        public override bool Decode(string tag, string data)
+        public bool Decode(string tag, string data)
         {
             List<T> el; 
             int index = tag.ToInt();
@@ -1626,7 +1627,11 @@ public class Countless<T> : CountlessBase //, IEnumerable
             return true;
         }
 
-        public override StdEncoder Encode()
+        public void Decode(string data) {
+            Clear();
+            data.DecodeTagsFor(this);
+         }
+        public StdEncoder Encode()
         {
             StdEncoder cody = new StdEncoder();
 

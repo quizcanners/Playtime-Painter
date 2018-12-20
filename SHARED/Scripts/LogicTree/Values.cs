@@ -8,7 +8,7 @@ using SharedTools_Stuff;
 namespace STD_Logic {
 
 
-    public class Values: AbstractKeepUnrecognized_STD  , IPEGI, IGotCount
+    public class Values : AbstractKeepUnrecognized_STD, IPEGI, IGotCount
     {
 
         public static Values global = new Values();

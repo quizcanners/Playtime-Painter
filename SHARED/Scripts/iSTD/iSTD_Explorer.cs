@@ -12,8 +12,10 @@ namespace SharedTools_Stuff
     #region List Data
     public class List_Data : Abstract_STD, IPEGI {
 
+        const string defaultFolderToSearch = "Assets/";
+
         public string label = "list";
-        public string folderToSearch = "Assets/";
+        public string folderToSearch = defaultFolderToSearch;
         public int inspected = -1;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool _keepTypeData;
@@ -118,7 +120,6 @@ namespace SharedTools_Stuff
         {
             switch (tag)
             {
-                case "n": label = data; break;
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
@@ -130,14 +131,21 @@ namespace SharedTools_Stuff
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
-            .Add("ed", elementDatas)
-            .Add("insp", inspected)
-            .Add_String("fld", folderToSearch)
-            .Add_String("n", label)
-            .Add_Bool("ktd", _keepTypeData)
-            .Add_Bool("del", allowDelete)
-            .Add_Bool("reord", allowReorder);
+        public override StdEncoder Encode()
+        {
+            var cody = new StdEncoder()
+                .Add_IfNotNegative("insp", inspected);
+            //.Add_Bool("ktd", _keepTypeData)
+            //.Add_Bool("del", allowDelete)
+            //.Add_Bool("reord", allowReorder);
+
+            if (!folderToSearch.SameAs(defaultFolderToSearch))
+                cody.Add_String("fld", folderToSearch);
+
+                cody.Add_IfNotDefault("ed", elementDatas);
+
+            return cody;
+        }
 
         #endregion
 
@@ -167,6 +175,8 @@ namespace SharedTools_Stuff
         public bool unrecognized = false;
         public string unrecognizedUnderTag;
         public bool selected;
+
+        public override bool IsDefault => (unrecognized || !guid.IsNullOrEmpty() || perTypeConfig.Count>0 );
 
         public static bool EnableEnterInspectEncoding = false;
 
@@ -370,12 +380,17 @@ namespace SharedTools_Stuff
 
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
-            .Add_IfNotEmpty("n", name)
-            .Add_IfNotEmpty("std", std_dta)
-            .Add_IfNotEmpty("guid", guid)
-            .Add_IfNotEmpty("t", componentType)
-            .Add_IfNotEmpty("perType", perTypeConfig)
-            .Add_IfTrue("sel", selected);
+                .Add_IfNotEmpty("n", name)
+                .Add_IfNotEmpty("std", std_dta);
+
+            if (!guid.IsNullOrEmpty()) {
+                cody.Add_IfNotEmpty("guid", guid)
+                    .Add_IfNotEmpty("t", componentType);
+            }
+
+            cody.Add_IfNotEmpty("perType", perTypeConfig)
+                .Add_IfTrue("sel", selected);
+
             if (unrecognized) {
                 cody.Add_Bool("ur", unrecognized)
                 .Add_String("tag", unrecognizedUnderTag);
