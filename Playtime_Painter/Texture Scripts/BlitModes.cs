@@ -22,22 +22,13 @@ namespace Playtime_Painter {
                 return _allModes;
             }
         }
-
-
-        public BlitMode SetKeyword(ImageData id)
-        {
+        
+        public BlitMode SetKeyword(ImageData id) {
 
             foreach (BlitMode bs in AllModes)
-            {
-                var name = ShaderKeyword(id);
-                if (name != null)
-                    BlitModeExtensions.KeywordSet(name, false);
-            }
+                UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), false);
 
-            var sw = ShaderKeyword(id);
-
-            if (sw != null)
-                BlitModeExtensions.KeywordSet(sw, true);
+            UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), true);
 
             return this;
 
@@ -50,7 +41,7 @@ namespace Playtime_Painter {
         public virtual void SetGlobalShaderParameters()
         {
             Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-            BlitModeExtensions.SetShaderToggle(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+            UnityHelperFunctions.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
 
         public BlitMode(int ind)

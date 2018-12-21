@@ -63,22 +63,22 @@ namespace SharedTools_Stuff
 
         }
 
-        public static StdEncoder Encode<T>(this T[] val) where T : ISTD {
+        public static StdEncoder Encode<T>(this T[] arr) where T : ISTD {
             StdEncoder cody = new StdEncoder();
 
-            if (val != null)  {
+            if (arr != null)  {
 
-                cody.Add("len", val.Length);
+                cody.Add("len", arr.Length);
 
                 var types = typeof(T).TryGetDerrivedClasses();
 
                 if (types != null && types.Count > 0) {
-                    foreach (var v in val)
+                    foreach (var v in arr)
                         cody.Add(v, types);
                 }
                 else
-                    foreach (var v in val) {
-                    if (v != null)
+                    foreach (var v in arr) {
+                    if (!v.IsNullOrDestroyed())
                         cody.Add(StdDecoder.ListElementTag, v.Encode());
                     else
                         cody.Add_String(StdEncoder.nullTag, "");
@@ -88,15 +88,15 @@ namespace SharedTools_Stuff
             return cody;
         }
         
-        public static StdEncoder TryEncode<T>(this List<T> val)
+        public static StdEncoder TryEncode<T>(this List<T> lst)
         {
             StdEncoder cody = new StdEncoder();
-            if (val != null)
+            if (lst != null)
             {
-                for (int i = 0; i < val.Count; i++)
+                for (int i = 0; i < lst.Count; i++)
                 {
-                    var v = val[i];
-                    if (v != null)
+                    var v = lst[i];
+                    if (!v.IsNullOrDestroyed())
                     {
                         var std = v as ISTD;
                         if (std!= null)
@@ -299,13 +299,13 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add_References<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References<T>(tag, objs,keeper);
 
-        public StdEncoder Add_References<T>(string tag, List<T> objs, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public StdEncoder Add_References<T>(string tag, List<T> lst, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
-            if (referencesKeeper != null && objs!= null)
+            if (referencesKeeper != null && lst!= null)
             {
                 var indxs = new List<int>();
 
-                foreach (var o in objs)
+                foreach (var o in lst)
                     indxs.Add(referencesKeeper.GetISTDreferenceIndex(o));
               
                 Add(tag, indxs);
@@ -375,7 +375,7 @@ namespace SharedTools_Stuff
 
             var el = ld.elementDatas.GetIfExists(index);
 
-            if (val != null)
+            if (!val.IsNullOrDestroyed())
             {
                 int typeIndex = types.IndexOf(val.GetType());
                 if (typeIndex != -1)
@@ -429,7 +429,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add<T>(T v, List<Type> types) where T : ISTD
         {
-            if (v != null)
+            if (!v.IsNullOrDestroyed())
             {
                 int typeIndex = types.IndexOf(v.GetType());
                 if (typeIndex != -1)
@@ -449,13 +449,18 @@ namespace SharedTools_Stuff
         public StdEncoder Add<T>(string tag, List<T> val, TaggedTypes_STD tts) where T : IGotClassTag
             => Add_Abstract(tag, val);
 
-        public StdEncoder Add_Abstract<T>(string tag, List<T> val) where T : IGotClassTag {
+        public StdEncoder Add_Abstract<T>(string tag, List<T> lst) where T : IGotClassTag {
 
             StdEncoder cody = new StdEncoder();
 
-            if (val != null)
-                    foreach (var v in val)
+            if (lst != null)
+                foreach (var v in lst)
+                {
+                    if (v!= null)
                         cody.Add(v.ClassTag, v);
+                    else
+                        Add_String(nullTag, "");
+                }
 
             Add(tag, cody);
 
@@ -497,7 +502,7 @@ namespace SharedTools_Stuff
         #endregion
 
         public StdEncoder Add(string tag, ISTD other) {
-            if (other != null) {
+            if (!other.IsNullOrDestroyed()) {
                 var safe = other as ISTD_SafeEncoding;
                 if (safe!= null) {
                     var ll = safe.GetLoopLock;
@@ -561,22 +566,22 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add<T>(string tag, List<T> val, List_Data ld) where T : ISTD, new() {
+        public StdEncoder Add<T>(string tag, List<T> lst, List_Data ld) where T : ISTD, new() {
 
             StdEncoder cody = new StdEncoder();
 
-            if (val != null) {
+            if (lst != null) {
                 var indTypes = typeof(T).TryGetDerrivedClasses();
 
                 if (indTypes != null) {
-                    for (int i = 0; i < val.Count; i++) {
-                            var v = val[i];
+                    for (int i = 0; i < lst.Count; i++) {
+                            var v = lst[i];
                             cody.Add(v, indTypes, ld, i);
                     }
                 }
                 else  {
-                    foreach (var v in val)
-                        if (v != null)
+                    foreach (var v in lst)
+                        if (v!= null)
                             cody.Add(StdDecoder.ListElementTag, v);
                         else
                             cody.Add_String(nullTag, "");
@@ -588,19 +593,19 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add<T>(string tag, List<T> val) where T : ISTD, new() {
+        public StdEncoder Add<T>(string tag, List<T> lst) where T : ISTD, new() {
 
             StdEncoder cody = new StdEncoder();
 
-            if (val != null) {
+            if (lst != null) {
                 var indTypes = typeof(T).TryGetDerrivedClasses();
                 
                 if (indTypes != null)  {
-                        foreach (var v in val)
+                        foreach (var v in lst)
                             cody.Add(v, indTypes);
                 }
                 else  {
-                    foreach (var v in val)
+                    foreach (var v in lst)
                         if (v != null)
                             cody.Add(StdDecoder.ListElementTag, v.Encode());
                         else
@@ -668,7 +673,7 @@ namespace SharedTools_Stuff
         }
 
         public StdEncoder Add_IfNotDefault(string tag, ICanBeDefault_STD std) {
-            if (std != null && !std.IsDefault)
+            if (!std.IsNullOrDestroyed() && !std.IsDefault)
                 Add(tag, std);
             return this;
         }
@@ -688,10 +693,10 @@ namespace SharedTools_Stuff
             return this;
         }
         
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> val) where T : ISTD, new() {
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ISTD, new() {
 
-            if (val != null && val.Count > 0) 
-                Add(tag, val);
+            if (!lst.IsNullOrEmpty()) 
+                Add(tag, lst);
             
             return this;
         }
@@ -716,14 +721,14 @@ namespace SharedTools_Stuff
             return this;
         }
 
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> val) where T : ISTD, new()
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> lst) where T : ISTD, new()
         {
 
-            if (val.Count > 0) {
+            if (!lst.IsNullOrEmpty()) {
 
                 StdEncoder sub = new StdEncoder();
 
-                foreach (var l in val)
+                foreach (var l in lst)
                     sub.Add_IfNotEmpty(StdDecoder.ListElementTag, l);
 
                 Add_String(tag, sub.ToString());

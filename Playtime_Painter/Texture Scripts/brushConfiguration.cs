@@ -217,7 +217,7 @@ namespace Playtime_Painter {
 
             bool isA3d = false;
 
-            if (pntr != null)
+            if (pntr)
                 foreach (var pl in TexMGMT.Plugins)
                 {
                     isA3d = pl.IsA3Dbrush(pntr, this, ref overrideOther);
@@ -299,16 +299,16 @@ namespace Playtime_Painter {
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter != null ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
+        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
 #if PEGI
         public bool Mode_Type_PEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspectedPainter;
 
-            inCPUtype = inCPUtype.ClampZeroTo(BrushType.AllTypes.Count);
-            inGPUtype = inGPUtype.ClampZeroTo(BrushType.AllTypes.Count);
-
-            bool CPU = p != null ? p.ImgData.TargetIsTexture2D() : TargetIsTex2D;
+            BrushType.AllTypes.ClampIndexToCount(ref inCPUtype);
+            BrushType.AllTypes.ClampIndexToCount(ref inGPUtype);
+            
+            bool CPU = p ? p.ImgData.TargetIsTexture2D() : TargetIsTex2D;
 
             _inspectedBrush = this;
             bool changed = false;
@@ -336,7 +336,7 @@ namespace Playtime_Painter {
                 foreach (BrushConfigPEGIplugin pl in brushConfigPegies.GetInvocationList())
                     changed |= pl(ref overrideBlitModePegi, this).nl();
             
-            if (p != null)
+            if (p)
                 foreach (var pl in p.Plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty();
@@ -379,7 +379,7 @@ namespace Playtime_Painter {
 
             if (!p) { "No Painter Detected".nl(); return false; }
 
-            if ((p.skinnedMeshRendy != null) && ("Update Collider from Skinned Mesh".Click()))
+            if ((p.skinnedMeshRendy) && ("Update Collider from Skinned Mesh".Click()))
                 p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
 
@@ -393,7 +393,7 @@ namespace Playtime_Painter {
 
             changed |= p.PreviewShaderToggle_PEGI();
 
-            if ((PainterCamera.GotBuffers || (id.renderTexture != null)) && (id.texture2D != null))
+            if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
                     cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
@@ -436,14 +436,14 @@ namespace Playtime_Painter {
             if (Mode_Type_PEGI().changes(ref changed) && Type(cpuBlit) == BrushTypeDecal.Inst)
                     MaskSet(BrushMask.A, true);
 
-            if (p.terrain != null) {
+            if (p.terrain) {
 
-                if ((p.ImgData != null) && ((p.IsTerrainHeightTexture())) && (p.IsOriginalShader))
+                if (p.ImgData != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
                     pegi.writeWarning("Preview Shader is needed to see changes to terrain height.");
 
                 pegi.newLine();
 
-                if ((p.terrain != null) && (pegi.Click("Update Terrain").nl()))
+                if (p.terrain && "Update Terrain".Click("Will Set Terrain texture as global shader values.").nl())
                     p.UpdateShaderGlobals();
 
             }
@@ -468,39 +468,33 @@ namespace Playtime_Painter {
             string letter = m.ToText();
             bool maskVal = mask.GetFlag(m);
 
-            if (InspectedPainter != null && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
+            if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
-                if (mat != null) {
+                if (mat) {
                     var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + m.ToString(), false, null);
-                    if (tag != null && tag.Length > 0) {
+                    if (!tag.IsNullOrEmpty()) {
 
                         if (maskVal)
                             (tag + ":").nl();
                         else
                             letter = tag + " ";
                     }
-
-
                 }
-
             }
 
             if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
                 MaskToggle(m);
             
-
-            if ((slider) && (mask.GetFlag(m)))
-                changed |= pegi.edit(ref chanel, 0, 1);
-
-            pegi.newLine();
+            if (slider && mask.GetFlag(m))
+                pegi.edit(ref chanel, 0, 1).nl(ref changed);
 
             return changed;
         }
 
         public bool ColorSliders_PEGI() {
 
-            if (InspectedPainter != null)
+            if (InspectedPainter)
                 return ColorSliders();
 
             bool changed = false;
@@ -528,10 +522,10 @@ namespace Playtime_Painter {
             PlaytimePainter painter = PlaytimePainter.inspectedPainter;
             bool slider = BlitMode.ShowColorSliders;
 
-            if ((painter != null) && (painter.IsTerrainHeightTexture())) {
+            if (painter && painter.IsTerrainHeightTexture) {
                 changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
             }
-            else if ((painter != null) && painter.IsTerrainControlTexture())
+            else if (painter && painter.IsTerrainControlTexture)
             {
                 changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider);
                 changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider);
@@ -541,7 +535,7 @@ namespace Playtime_Painter {
             else
             {
                 var id = painter.ImgData;
-                if ((id.TargetIsRenderTexture()) && (id.renderTexture != null))
+                if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
                     changed |= ChannelSlider(BrushMask.R, ref colorLinear.r);
                     changed |= ChannelSlider(BrushMask.G, ref colorLinear.g);

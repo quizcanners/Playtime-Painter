@@ -63,7 +63,7 @@ namespace Playtime_Painter
             this.ToPEGIstring().write_obj(90, material);
             if (icon.Enter.Click())
                 edited = ind;
-            material.clickHighlight();
+            material.ClickHighlight();
 
             return false;
         }

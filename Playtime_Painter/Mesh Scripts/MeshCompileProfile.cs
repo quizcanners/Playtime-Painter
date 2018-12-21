@@ -340,12 +340,11 @@ namespace Playtime_Painter
 
                         for (int j = 0; j < typeFields.Length; j++)
                             typeFields[j] = v.VertDataType.GetFieldName(j);
-
-
-
+                        
                         changed |= pegi.select(ref v.valueIndex, typeFields).nl();
 
-                        v.valueIndex = v.valueIndex.ClampZeroTo(typeFields.Length);
+                        typeFields.ClampIndexToLength(ref v.valueIndex);
+                        //v.valueIndex = v.valueIndex.ClampToLength(typeFields.Length);
                     }
                 }
                 "**************************************************".nl();

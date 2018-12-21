@@ -978,8 +978,7 @@ namespace PlayerAndEditorGUI {
             };
             return GUILayout.Button(cont) ? change : false;
         }
-
-
+        
         public static bool Click(string txt, string tip, GUIStyle style)
         {
             checkLine();

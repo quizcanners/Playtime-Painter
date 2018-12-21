@@ -597,7 +597,7 @@ namespace SharedTools_Stuff
                     if (uobj && icon.Done.Click("Use the same directory as current object."))
                         Mgmt.fileFolderHolder = uobj.GetAssetFolder();
 
-                    uobj.clickHighlight();
+                    uobj.ClickHighlight();
 
                     pegi.nl();
                 }

@@ -349,7 +349,7 @@ namespace Playtime_Painter {
                 else
                 {
                     BreakMesh(pntr.meshFilter.sharedMesh);
-                    pntr.selectedMeshProfile = pntr.GetMaterial(false).GetMeshProfileByTag();
+                    pntr.selectedMeshProfile = pntr.Material.GetMeshProfileByTag();
                 }
 
                 // Temporary

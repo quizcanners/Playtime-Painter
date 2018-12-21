@@ -659,7 +659,7 @@ namespace SharedTools_Stuff {
             return null;
         }
 
-        public static string GetGUID(this UnityEngine.Object obj) => obj.GetGUID(null);
+        public static string GetGUID(this UnityEngine.Object obj) =>   obj.GetGUID(null);
 
         public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder)
         {
@@ -1735,6 +1735,27 @@ namespace SharedTools_Stuff {
         }
 #endif
         #endregion
+        #endregion
+
+        #region Shaders
+
+        public static void ToggleShaderKeywords(bool value, string iftrue, string iffalse)
+        {
+            Shader.DisableKeyword(value ? iffalse : iftrue);
+            Shader.EnableKeyword(value ? iftrue : iffalse);
+        }
+
+        public static void SetShaderKeyword(string keyword, bool isTrue)
+        {
+            if (!keyword.IsNullOrEmpty())
+            {
+                if (isTrue)
+                    Shader.EnableKeyword(keyword);
+                else
+                    Shader.DisableKeyword(keyword);
+            }
+        }
+
         #endregion
     }
     

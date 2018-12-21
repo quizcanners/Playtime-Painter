@@ -102,7 +102,7 @@ namespace PlayerAndEditorGUI {
         public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (this.Attention_Or_Click(icon.Hint, curlang.ToPEGIstring()))
+            if (this.Click_Attention(icon.Hint, curlang.ToPEGIstring()))
                 edited = ind;
             return changed;
         }
@@ -149,7 +149,7 @@ namespace PlayerAndEditorGUI {
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
-            if (this.Attention_Or_Click(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPEGIstring()))
+            if (this.Click_Attention(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPEGIstring()))
                 edited = ind;
             return changed;
         }

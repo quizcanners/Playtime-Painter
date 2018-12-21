@@ -256,7 +256,7 @@ namespace SharedTools_Stuff {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
 
-                this.clickHighlight();
+                this.ClickHighlight();
 
                 if (inspectedStuff == -1)
                     pegi.nl();
@@ -388,10 +388,9 @@ namespace SharedTools_Stuff {
             if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
             
-            if (this.Attention_Or_Click())
+            if (this.Click_Attention_Highlight())
                 edited = ind;
-
-            this.clickHighlight();
+            
 
             return changed;
         }

@@ -194,8 +194,8 @@ namespace Playtime_Painter.Examples
             {
                 var changed = this.inspect_Name();
 
-                Product_colorWithAlpha.clickHighlight();
-                Product_combinedBump.clickHighlight();
+                Product_colorWithAlpha.ClickHighlight();
+                Product_combinedBump.ClickHighlight();
 
                 if (icon.Enter.Click())
                     edited = ind;
@@ -238,15 +238,7 @@ namespace Playtime_Painter.Examples
 #endif
             #endregion
 
-
-
-
         }
-
-
-
-
-
 
 #if UNITY_EDITOR
 
@@ -447,14 +439,6 @@ namespace Playtime_Painter.Examples
         }
 #endif
 
-
-
-
     }
-
-
-
-
-
 
 }

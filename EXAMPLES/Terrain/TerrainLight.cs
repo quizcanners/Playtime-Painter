@@ -31,13 +31,13 @@ namespace Playtime_Painter.Examples {
 
         void FindMergingTerrain(PlaytimePainter pntr)
         {
-            if ((mergingTerrain == null) && (pntr.terrain != null))
+            if (!mergingTerrain && pntr.terrain)
                 mergingTerrain = pntr.GetComponent<MergingTerrainController>();
         }
 
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
         {
-            if ((pntr.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainLight)))
+            if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.terrainLight))
             {
                 tex = mergingTerrain.lightTexture;
                 return true;
@@ -49,15 +49,13 @@ namespace Playtime_Painter.Examples {
         {
             FindMergingTerrain(pntr);
 
-            if ((pntr.terrain != null) && (mergingTerrain != null))
+            if (pntr.terrain && mergingTerrain )
                 dest.Add(PainterDataAndConfig.terrainLight);
         }
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter pntr)
         {
-            if (pntr.terrain != null && fieldName != null)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.terrainLight))
+                if (pntr.terrain && fieldName != null && fieldName.Contains(PainterDataAndConfig.terrainLight))
                 {
                     var id = pntr.ImgData;
                     if (id != null)
@@ -67,23 +65,20 @@ namespace Playtime_Painter.Examples {
                     }
                     return true; 
                 }
-            }
+            
             return false;
         }
 
         public override bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter pntr)
         {
-          //  if (id == null)
-            //    return;
 
             Texture tex = id.CurrentTexture();
 
-            if (pntr.terrain != null)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.terrainLight))
+    
+                if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.terrainLight))
                 {
                     FindMergingTerrain(pntr);
-                    if ((mergingTerrain != null) && (id!= null))
+                    if (mergingTerrain  && id!= null)
                         mergingTerrain.lightTexture = id.texture2D;
 
 #if UNITY_EDITOR
@@ -106,7 +101,7 @@ namespace Playtime_Painter.Examples {
 
 
                     return true;
-                }
+                
             }
             return false;
         }
@@ -116,9 +111,9 @@ namespace Playtime_Painter.Examples {
 
             FindMergingTerrain(painter);
 
-            if (mergingTerrain != null)
-            {
-                if (mergingTerrain.lightTexture != null)
+            if (mergingTerrain) {
+
+                if (mergingTerrain.lightTexture)
                     Shader.SetGlobalTexture(PainterDataAndConfig.terrainLight, mergingTerrain.lightTexture.GetDestinationTexture());
 
                 mergingTerrain.UpdateTextures();

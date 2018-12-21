@@ -1734,17 +1734,17 @@ namespace PlayerAndEditorGUI {
                 return false;
         }
 
-        public static bool select<T>(ref int ind, T[] lst, bool showIndex = false)
+        public static bool select<T>(ref int ind, T[] arr, bool showIndex = false)
         {
 
             checkLine();
 
             var lnms = new List<string>();
-
-            ind = ind.ClampZeroTo(lst.Length);
-
-            for (int i = 0; i < lst.Length; i++)
-                lnms.Add(_compileName(showIndex, i, lst[i])); //"{0}: {1}".F(i, lst[i].ToPEGIstring()));
+            
+            if (arr.ClampIndexToLength(ref ind)) {
+                for (int i = 0; i < arr.Length; i++)
+                    lnms.Add(_compileName(showIndex, i, arr[i])); 
+            }
 
             return select_Final(ind, ref ind, lnms);
 
@@ -1912,7 +1912,7 @@ namespace PlayerAndEditorGUI {
 
                 changed |= select(ref obj, list, showIndex);
 
-                obj.clickHighlight();
+                obj.ClickHighlight();
 
                 return changed;
             }
@@ -3295,18 +3295,18 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool tryClickHighlight(this object obj, int width = defaultButtonSize)
+        public static bool TryClickHighlight(this object obj, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             var uo = obj as UnityEngine.Object;
             if (uo)
-                uo.clickHighlight(width);
+                uo.ClickHighlight(width);
 #endif
 
             return false;
         }
 
-        public static bool clickHighlight(this Sprite sp, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Sprite sp, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             if (sp  && sp.Click(Msg.HighlightElement.Get(), width))
@@ -3319,7 +3319,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool clickHighlight(this Texture tex, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Texture tex, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             if (tex && tex.Click(Msg.HighlightElement.Get(), width))
@@ -3332,10 +3332,10 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        public static bool clickHighlight(this UnityEngine.Object obj, int width = defaultButtonSize) =>
-           obj.clickHighlight(icon.Search.GetIcon(), width);
+        public static bool ClickHighlight(this UnityEngine.Object obj, int width = defaultButtonSize) =>
+           obj.ClickHighlight(icon.Search.GetIcon(), width);
 
-        public static bool clickHighlight(this UnityEngine.Object obj, Texture tex, int width = defaultButtonSize)
+        public static bool ClickHighlight(this UnityEngine.Object obj, Texture tex, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             if (obj && tex.Click(Msg.HighlightElement.Get()))
@@ -3348,6 +3348,54 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
+        public static bool Click_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
+        {
+            var ch = obj.Click_Attention(icon, hint, canBeNull);
+            obj.ClickHighlight();
+            return ch;
+        }
+
+        public static bool Click_Attention(this INeedAttention attention, icon icon = icon.Enter, string hint = "", bool canBeNull = true)
+        {
+            if (attention.IsNullOrDestroyed())   {
+                if (!canBeNull)
+                    return icon.Warning.ClickUnfocus("Object is null; {0}".F(hint));
+            }
+            else
+            {
+
+                var msg = attention.NeedAttention();
+                if (msg != null)
+                    return icon.Warning.ClickUnfocus(msg);
+            }
+
+            if (hint.IsNullOrEmpty())
+                hint = icon.ToString();
+
+            return icon.ClickUnfocus(hint);
+        }
+
+        public static bool Click_Attention(this INeedAttention attention, Texture tex, string hint = "", bool canBeNull = true)
+        {
+            if (attention.IsNullOrDestroyed())
+            {
+                if (!canBeNull)
+                    return icon.Warning.ClickUnfocus("Object is null; {0}".F(hint));
+            }
+            else
+            {
+
+                var msg = attention.NeedAttention();
+                if (msg != null)
+                    return icon.Warning.ClickUnfocus(msg);
+            }
+
+            if (hint.IsNullOrEmpty())
+                hint = tex ? tex.ToString() : "Null Texture";
+
+            return tex ? tex.ClickUnfocus(hint) : icon.Enter.ClickUnfocus(hint);
+        }
+
         #endregion
 
         #region Toggle
@@ -4393,8 +4441,6 @@ namespace PlayerAndEditorGUI {
             {
                 checkLine();
                 float before = val;
-                //if (edit(ref val))
-                //val = Mathf.Clamp(val, min, max);
                 val = (int)GUILayout.HorizontalSlider(before, min, max);
                 return (before != val);
             }
@@ -6001,7 +6047,7 @@ namespace PlayerAndEditorGUI {
                                 tex = uo as Texture;
                                 if (tex)
                                 {
-                                    uo.clickHighlight(tex);
+                                    uo.ClickHighlight(tex);
                                     clickHighlightHandeled = true;
                                 }
                             }
@@ -6017,7 +6063,7 @@ namespace PlayerAndEditorGUI {
                     }
 
                     if (!clickHighlightHandeled)
-                        uo.clickHighlight();
+                        uo.ClickHighlight();
                 }
             }  
  
@@ -6110,7 +6156,9 @@ namespace PlayerAndEditorGUI {
                 return added;
 
             int before = inspected;
-            inspected = Mathf.Clamp(inspected, -1, list.Count - 1);
+
+            list.ClampIndexToCount(ref inspected, -1);
+
             changed |= (inspected != before);
 
             if (inspected == -1)
@@ -6224,7 +6272,7 @@ namespace PlayerAndEditorGUI {
             T added = default(T);
 
             int before = inspected;
-            inspected = Mathf.Clamp(inspected, -1, list.Count - 1);
+            if (list.ClampIndexToCount(ref inspected, -1))
             changed |= (inspected != before);
 
             if (inspected == -1)
@@ -6342,7 +6390,7 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
 
             int before = inspected;
-            inspected = Mathf.Clamp(inspected, -1, list.Count - 1);
+            if (list.ClampIndexToCount(ref inspected, -1))
             changed |= (inspected != before);
 
             if (inspected == -1) {
@@ -6844,7 +6892,9 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
 
             int before = edited;
-            edited = Mathf.Clamp(edited, -1, list.Count - 1);
+
+            list.ClampIndexToCount(ref edited, -1); 
+
             changed |= (edited != before);
 
             if (edited == -1)
@@ -7407,22 +7457,6 @@ namespace PlayerAndEditorGUI {
         
 #if PEGI
 
-        public static int TryCountForInspector<T>(this List<T> list) {
-
-            if (list.IsNullOrEmpty())
-                return 0;
-
-            int count = list.Count;
-
-            foreach (var e in list) {
-                var cnt = e as IGotCount;
-                if (!cnt.IsNullOrDestroyed())
-                    count += cnt.CountForInspector;
-            }
-
-            return count;
-        }
-
         public static int focusInd;
 
         public static bool EfChanges
@@ -7461,33 +7495,15 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool Attention_Or_Click(this INeedAttention attention, icon icon = icon.Enter, string hint = "") {
-            if (attention == null)
-                return icon.Warning.ClickUnfocus("Object is null; {0}".F(hint));
-
-            var msg = attention.NeedAttention();
-            if (msg != null)
-                return icon.Warning.ClickUnfocus(msg);
-
-            if (hint.IsNullOrEmpty())
-                hint = icon.ToString();
-
-            return icon.ClickUnfocus(hint);
-        }
-
-        public static bool Attention_Or_Click(this INeedAttention attention, Texture tex, string hint = "")
+        public static bool Inspect_AsInList(this IPEGI_ListInspect obj)
         {
-            if (attention == null)
-                return icon.Warning.ClickUnfocus("Object is null; {0}".F(hint));
+            int tmp = -1;
+            var changes = obj.PEGI_inList(null, 0, ref tmp);
 
-            var msg = attention.NeedAttention();
-            if (msg != null)
-                return icon.Warning.ClickUnfocus(msg);
+            if (changes)
+                obj.SetToDirty();
 
-            if (hint.IsNullOrEmpty())
-                hint = tex ? tex.ToString() : "Null Texture";
-
-            return tex ? tex.ClickUnfocus(hint) : icon.Enter.ClickUnfocus(hint);
+            return changes;
         }
         
         public static bool Try_Nested_Inspect(this GameObject go)
@@ -7537,36 +7553,6 @@ namespace PlayerAndEditorGUI {
                 return pegi.edit(ref obj);
         }
 
-        public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
-        {
-            if (lst != null)
-                foreach (var el in lst)
-                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index)
-                        return el;
-
-            return default(T);
-        }
-
-        public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
-        {
-            if (lst != null)
-                foreach (var el in lst)
-                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index && el.GetType() == typeof(G))
-                        return el;
-
-            return default(T);
-        }
-
-        public static bool Inspect_AsInList (this IPEGI_ListInspect obj) {
-            int tmp = -1;
-            var changes =  obj.PEGI_inList(null, 0, ref tmp);
-
-            if (changes)
-                obj.SetToDirty();
-
-            return changes;
-        }
-
         public static int CountForInspector<T>(this List<T> lst) where T : IGotCount  {
             int count = 0;
             foreach (var e in lst)
@@ -7575,7 +7561,48 @@ namespace PlayerAndEditorGUI {
 
             return count;
         }
+
+        public static int TryCountForInspector<T>(this List<T> list)
+        {
+
+            if (list.IsNullOrEmpty())
+                return 0;
+
+            int count = list.Count;
+
+            foreach (var e in list)
+            {
+                var cnt = e as IGotCount;
+                if (!cnt.IsNullOrDestroyed())
+                    count += cnt.CountForInspector;
+            }
+
+            return count;
+        }
+
 #endif
+
+        public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
+        {
+#if PEGI
+            if (lst != null)
+                foreach (var el in lst)
+                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index)
+                        return el;
+#endif
+            return default(T);
+        }
+
+        public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
+        {
+#if PEGI
+            if (lst != null)
+                foreach (var el in lst)
+                    if (!el.IsNullOrDestroyed() && el.IndexForPEGI == index && el.GetType() == typeof(G))
+                        return el;
+#endif
+            return default(T);
+        }
 
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
         {

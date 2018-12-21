@@ -8,22 +8,6 @@ using SharedTools_Stuff;
 namespace Playtime_Painter
 {
 
-    public static class BlitModeExtensions {
-        public static void KeywordSet(string name, bool to)
-        {
-            if (to)
-                Shader.EnableKeyword(name);
-            else
-                Shader.DisableKeyword(name);
-        }
-
-        public static void SetShaderToggle(bool value, string iftrue, string iffalse)
-        {
-            Shader.DisableKeyword(value ? iffalse : iftrue);
-            Shader.EnableKeyword(value ? iftrue : iffalse);
-        }
-    }
-
     public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI
     {
 
@@ -82,9 +66,8 @@ namespace Playtime_Painter
                 if (name != null)
                     Shader.DisableKeyword(name);
             }
-
-            if (ShaderKeyword(texcoord2) != null)
-                BlitModeExtensions.KeywordSet(ShaderKeyword(texcoord2), true);
+            
+            UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(texcoord2), true);
 
         }
 

@@ -15,7 +15,13 @@ using SharedTools_Stuff;
 namespace Playtime_Painter{
 
 public static class TextureEditorExtensionFunctions  {
-        
+
+        public static void TeachingNotification(this string text)
+        {
+            if (PainterCamera.Data && PainterCamera.Data.ShowTeachingNotifications)
+                text.showNotificationIn3D_Views();
+        }
+
         public static float GetChanel(this Color col, ColorChanel chan)
         {
             switch (chan)

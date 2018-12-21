@@ -895,9 +895,9 @@ namespace Playtime_Painter
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
             this.ToPEGIstring().write_obj(60, texture2D);
-            if (this.Attention_Or_Click(texture2D))
+            if (this.Click_Attention(texture2D))
                 edited = ind;
-            texture2D.clickHighlight();
+            texture2D.ClickHighlight();
 
             return false;
         }

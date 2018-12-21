@@ -62,11 +62,9 @@ namespace Playtime_Painter.Examples {
             return new Vector2(atX, atY);
         }
 
-        public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p)
-        {
-            BlitModeExtensions.SetShaderToggle(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
-        }
-
+        public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
+            UnityHelperFunctions.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
+        
         public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
             if (pntr.IsAtlased()) {
 
@@ -178,7 +176,7 @@ namespace Playtime_Painter.Examples {
             bool changed = false;
 
             if (p.IsAtlased()) {
-                var m = p.GetMaterial(false);
+                var m = p.Material;
                 if (p.IsOriginalShader) {
                     if (m.HasProperty(PainterDataAndConfig.atlasedTexturesInARow))
                         atlasRows = m.GetInt(PainterDataAndConfig.atlasedTexturesInARow);
@@ -361,7 +359,7 @@ namespace Playtime_Painter.Examples {
 
             painter.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-            Material mat = painter.GetMaterial(false);
+            Material mat = painter.Material;
             List<string> tfields = mat.MyGetTextureProperties();
 
             int index = 0;
@@ -578,7 +576,7 @@ namespace Playtime_Painter.Examples {
 
             painter.SetOriginalShaderOnThis();
 
-            Material mat = painter.GetMaterial(false);
+            Material mat = painter.Material;
 
             if ((mat) && ((mat != originalMaterial) || mat.shader != originalShader))
             {
@@ -1051,11 +1049,11 @@ namespace Playtime_Painter.Examples {
         public static bool IsAtlased(this PlaytimePainter p)
         {
             if (!p) return false;
-            var mat = p.GetMaterial(false);
+            var mat = p.Material;
             if (!mat) return false;
-            return p.GetMaterial(false).IsAtlased(p.GetMaterialTexturePropertyName);
+            return p.Material.IsAtlased(p.GetMaterialTexturePropertyName);
         }
-        public static bool IsProjected(this PlaytimePainter p) { return p.GetMaterial(false).IsProjected(); }
+        public static bool IsProjected(this PlaytimePainter p) { return p.Material.IsProjected(); }
 
         public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && mat.DisplayNameContains(property, PainterDataAndConfig.isAtlasableDisaplyNameTag);
         

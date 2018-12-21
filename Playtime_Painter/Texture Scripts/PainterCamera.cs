@@ -12,6 +12,8 @@ using UnityEditor.SceneManagement;
 
 namespace Playtime_Painter {
 
+    [HelpURL(PlaytimePainter.WWW_Manual)]
+    [DisallowMultipleComponent]
     [ExecuteInEditMode]
     public class PainterCamera : PainterStuffMono, IPEGI, IKeepUnrecognizedSTD {
 
@@ -54,6 +56,8 @@ namespace Playtime_Painter {
             get {
                 if (!_inst) {
 
+                    _inst = null;
+
                     if (!triedToFindCamera) {
                         _inst = FindObjectOfType<PainterCamera>();
                         if (!_inst) triedToFindCamera = true;
@@ -69,11 +73,11 @@ namespace Playtime_Painter {
                                 _inst.name = PainterDataAndConfig.PainterCameraName;
                                 _inst.RefreshPlugins();
                             #endif
-                            
+
+                            triedToFindCamera = false;
                         }
                     }
-                    else
-                        _inst = null;
+         
 
                     _inst?.gameObject.SetActive(true);
                 }
@@ -136,7 +140,7 @@ namespace Playtime_Painter {
         public Camera theCamera;
 
         public RenderBrush brushPrefab;
-        public const float orthoSize = 128; // Orthographic size of the camera. 
+        public const float orthoSize = 128; 
 
         public RenderBrush brushRendy = null;
 
@@ -250,8 +254,6 @@ namespace Playtime_Painter {
         }
         #endregion
 
-        // This are used in case user started to use Render Texture on another target. Data is moved to previous Material's Texture2D so that Render Texture Buffer can be used with new target. 
-
         #region Buffers MGMT
         public ImageData imgDataUsingRendTex;
         public List<MaterialData> materialsUsingTendTex = new List<MaterialData>();
@@ -345,13 +347,16 @@ namespace Playtime_Painter {
         public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
         {
 
-            if ((hidePreview) && (previewAlpha == 0)) return;
+            if (hidePreview && previewAlpha == 0)
+                return;
 
-            previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
+            MyMath.isLerping_bySpeed(ref previewAlpha, hidePreview ? 0 : 1, 0.1f);
 
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_POINTED_UV, new Vector4(st.uvTo.x, st.uvTo.y, 0, previewAlpha));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, new Vector4(prevPosPreview.x, prevPosPreview.y, prevPosPreview.z, size));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+            //previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
+
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_POINTED_UV, st.uvTo.ToVector4(0, previewAlpha));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, prevPosPreview.ToVector4(size));
+            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, st.posTo.ToVector4((st.posTo - prevPosPreview).magnitude)); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
             prevPosPreview = st.posTo;
         }
 
@@ -401,32 +406,33 @@ namespace Playtime_Painter {
                 (brush.flipMaskAlpha ? 0 : 1)
                 , 0));
 
-            Shader.SetGlobalVector("_maskOffset", new Vector4(
+            Shader.SetGlobalVector("_maskOffset", brush.maskOffset.ToVector4());/*new Vector4(
                 brush.maskOffset.x,
                 brush.maskOffset.y,
                 0,
-                0));
+                0));*/
 
             Shader.SetGlobalVector("_brushForm", new Vector4(
-                brushAlpha // x - transparency
-                , brush.Size(is3Dbrush) // y - scale for sphere
-                , brush.Size(is3Dbrush) / textureWidth // z - scale for uv space
-                , brush.blurAmount)); // w - blur amount
+                brushAlpha, // x - transparency
+                brush.Size(is3Dbrush), // y - scale for sphere
+                brush.Size(is3Dbrush), // textureWidth // z - scale for uv space
+                brush.blurAmount)); // w - blur amount
 
             brushType.SetKeyword(id.useTexcoord2);
 
-            if (id.useTexcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
-            else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
+            UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexcoord2);
+           // if (id.useTexcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
+           // else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
 
             if (brush.BlitMode.supportsTransparentLayer)
-            {
-                if (id.isATransparentLayer) Shader.EnableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
-                else Shader.DisableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
-            }
+                UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
+                //if (id.isATransparentLayer) Shader.EnableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
+                //else Shader.DisableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
+            
 
             brush.BlitMode.SetKeyword(id).SetGlobalShaderParameters();
 
-            if ((RendTex) && (brush.BlitMode.UsingSourceTexture))
+            if (RendTex && brush.BlitMode.UsingSourceTexture)
                 Shader.SetGlobalTexture("_SourceTexture", Data.sourceTextures.TryGet(brush.selectedSourceTexture));
 
         }
@@ -435,11 +441,11 @@ namespace Playtime_Painter {
         {
             if (BigRT_pair == null) UpdateBuffersState();
 
-            bool isDoubleBuffer = (!id.renderTexture);
+            bool isDoubleBuffer = !id.renderTexture;
 
-            bool useSingle = (!isDoubleBuffer) || bc.IsSingleBufferBrush();
+            bool useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
 
-            if ((!useSingle) && (!secondBufferUpdated))
+            if (!useSingle && !secondBufferUpdated)
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
@@ -478,24 +484,15 @@ namespace Playtime_Painter {
 
             AfterRenderBlit(id.CurrentRenderTexture());
 
-
         }
 
-        public void Blit(Texture from, RenderTexture to)
-        {
-            Blit(from, to, Data.pixPerfectCopy);
-
-            /* if (from == null) return;
-             brushRendy.Set(pixPerfectCopy);
-             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
-             AfterRenderBlit(to);*/
-        }
-
+        public void Blit(Texture from, RenderTexture to) =>  Blit(from, to, Data.pixPerfectCopy);
+        
         public void Blit(Texture from, RenderTexture to, Shader blitShader)
         {
-            // Render(from, to, pixPerfectCopy);
 
-            if (!from) return;
+            if (!from)
+                return;
             brushRendy.Set(blitShader);
             Graphics.Blit(from, to, brushRendy.meshRendy.sharedMaterial);
             AfterRenderBlit(to);

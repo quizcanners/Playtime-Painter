@@ -1336,10 +1336,7 @@ namespace Playtime_Painter
             selected = this;
 
             foreach (MeshSHaderMode s in _allModes)
-                if (this == s)
-                    Shader.EnableKeyword(s._value);
-                else
-                    Shader.DisableKeyword(s._value);
+                UnityHelperFunctions.SetShaderKeyword(s._value, this == s);
         }
     }
 }

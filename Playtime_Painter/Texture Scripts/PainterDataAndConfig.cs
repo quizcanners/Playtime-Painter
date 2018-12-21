@@ -395,15 +395,18 @@ namespace Playtime_Painter
 
             if (inspectedStuffs == -1)
             {
+                #if UNITY_EDITOR
                 if ("Refresh Shaders".Click())
                     CheckShaders(true);
 
-                #if UNITY_EDITOR
+             
                 "Using layer:".nl();
                 myLayer = EditorGUILayout.LayerField(myLayer);
-                #endif
+
                 pegi.nl();
                 "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate).nl();
+                #endif
+
             }
 
 
@@ -427,7 +430,9 @@ namespace Playtime_Painter
 
             if (inspectedStuff == -1) {
 
-                    bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
+                #if UNITY_EDITOR
+
+                bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
                     if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
                         UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
@@ -453,7 +458,7 @@ namespace Playtime_Painter
 
                         "Save Meshes To".edit(110, ref meshesFolderName).nl();
                     }
-#if UNITY_EDITOR
+
                     if (icon.Discord.Click("Join Discord", 64))
                         PlaytimePainter.Open_Discord();
 

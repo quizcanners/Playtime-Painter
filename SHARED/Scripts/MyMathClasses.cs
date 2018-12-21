@@ -50,10 +50,22 @@ namespace SharedTools_Stuff {
             return value;
         }
 
-        public static int ClampZeroTo(this int value, int Max)
+        public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
         {
-            value = Mathf.Max(0, Mathf.Min(value, Max - 1));
-            return value;
+            if (!ar.IsNullOrEmpty()) {
+                value = Mathf.Max(min, Mathf.Min(value, ar.Length - 1));
+                return true;
+            }
+            return false;
+        }
+
+        public static bool ClampIndexToCount(this IList list, ref int value, int min = 0)
+        {
+            if (!list.IsNullOrEmpty()) {
+                value = Mathf.Max(min, Mathf.Min(value, list.Count - 1));
+                return true;
+            }
+            return false;
         }
 
         public static Vector3 RoundDiv(Vector3 v3, int by)
