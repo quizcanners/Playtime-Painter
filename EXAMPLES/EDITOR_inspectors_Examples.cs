@@ -10,6 +10,12 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
+    [CustomEditor(typeof(PixelArtMeshGenerator))]
+    public class PixelArtMeshGeneratorEditor : Editor
+    {
+        public override void OnInspectorGUI() => ((PixelArtMeshGenerator)target).Inspect(serializedObject);
+    }
+
     [CustomEditor(typeof(BrushConfigOnly))]
     public class BrushConfigOnlyEditor : Editor
     {
@@ -64,11 +70,7 @@ namespace Playtime_Painter
         public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).Inspect(serializedObject);
     }
 
-    [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((VolumeTexture)target).Inspect(serializedObject);
-    }
+
 
     [CustomEditor(typeof(WaterController))]
     public class WaterEditor : Editor
