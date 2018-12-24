@@ -2595,6 +2595,13 @@ namespace PlayerAndEditorGUI {
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne) => icon.Enter.enter(txt, ref enteredOne, thisOne);
 
+        public static bool enter(this string txt, ref int enteredOne, int thisOne, IList forAddCount) =>
+            icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrEmpty() ? PEGI_Styles.WrappingText : PEGI_Styles.EnterLabel);
+
+        public static bool enter(this string txt, ref int enteredOne, int thisOne, IGotCount forAddCount) =>
+            icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrDestroyed() ? PEGI_Styles.EnterLabel :
+                (forAddCount.CountForInspector > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.WrappingText));
+                
         static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
         {
             if (listIsNull(ref list)) {
@@ -3347,7 +3354,33 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        
+
+        public static bool ClickHighlight(this UnityEngine.Object obj, icon icon, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            if (obj && icon.Click(Msg.HighlightElement.Get()))
+            {
+                EditorGUIUtility.PingObject(obj);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+        public static bool ClickHighlight(this UnityEngine.Object obj, string hint, icon icon = icon.Enter, int width = defaultButtonSize)
+        {
+#if UNITY_EDITOR
+            if (obj && icon.Click(hint)) {
+                EditorGUIUtility.PingObject(obj);
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+
         public static bool Click_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
         {
             var ch = obj.Click_Attention(icon, hint, canBeNull);

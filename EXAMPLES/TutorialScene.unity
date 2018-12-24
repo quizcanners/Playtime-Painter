@@ -3866,19 +3866,6 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 244.111, y: 392.356, z: -104.26099}
---- !u!114 &1580908964 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2080966481074766441, guid: b27376dd15f6f3b41b67e1b96c5cb627,
-    type: 3}
-  m_PrefabInstance: {fileID: 1728036927}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_GeneratorAsset: {fileID: 0}
-  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1661648410
 GameObject:
   m_ObjectHideFlags: 0
@@ -4400,7 +4387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1580908964}
+  focusedPainter: {fileID: 1815085832}
   isLinearColorSpace: 1
   theCamera: {fileID: 1775284537}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -4820,7 +4807,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -141.2223
+  timer: 0.64666665
   style:
     m_Name: Hint Style
     m_Normal:

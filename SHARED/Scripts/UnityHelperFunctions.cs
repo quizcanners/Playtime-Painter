@@ -153,6 +153,10 @@ namespace SharedTools_Stuff {
         }
 
         public static T TryGet_fromObj<T>(this object obj) where T : class {
+
+            if (obj.IsNullOrDestroyed())
+                return null;
+
             var pgi = obj as T;
 
             if (pgi != null)
@@ -186,10 +190,16 @@ namespace SharedTools_Stuff {
             return null;
         }
 
-        public static bool IsNullOrDestroyed(this object obj) =>
+        public static bool IsNullOrDestroyed(this object obj) {
+            if (obj as UnityEngine.Object)
+                return false;
+                
+             return obj == null;
+        }
+         /*=>
              obj == null ? true :
                 (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
-                !(obj as UnityEngine.Object) : false);
+                !(obj as UnityEngine.Object) : false);*/
         
         public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed() ? default(T) : obj;
   
@@ -371,6 +381,24 @@ namespace SharedTools_Stuff {
             //There were some update when enabled state is changed
             if (c && c.enabled != setTo)
                 c.enabled = setTo;
+        }
+
+        public static bool HasParameter(this Animator animator, string paramName) {
+            if (animator)
+            foreach (AnimatorControllerParameter param in animator.parameters) 
+                if (param.name.SameAs(paramName))
+                    return true;
+            
+            return false;
+        }
+
+        public static bool HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type) {
+            if (animator)
+                foreach (AnimatorControllerParameter param in animator.parameters)
+                    if (param.name.SameAs(paramName) && param.type == type)
+                        return true;
+                
+            return false;
         }
 
         #endregion

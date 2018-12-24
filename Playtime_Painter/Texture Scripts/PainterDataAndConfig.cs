@@ -121,6 +121,9 @@ namespace Playtime_Painter
         #endregion
 
         #region DataLists
+
+        public List<string> playtimeSavedTextures = new List<string>();
+        
         public List<ImageData> imgDatas = new List<ImageData>();
 
         public List<MaterialData> matDatas = new List<MaterialData>();

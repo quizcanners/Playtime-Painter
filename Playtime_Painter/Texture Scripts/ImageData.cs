@@ -63,8 +63,6 @@ namespace Playtime_Painter
 
         const string savedImagesFolder = "Saved Images";
 
-        List<string> playtimeSavedTextures = new List<string>();
-
         public string SaveInPlayer()
         {
             if (texture2D != null)
@@ -84,7 +82,7 @@ namespace Playtime_Painter
 
                 string msg = string.Format("Saved {0} to {1}", SaveName, fullPath);
 
-                playtimeSavedTextures.Add(fullPath);
+                Cfg.playtimeSavedTextures.Add(fullPath);
 #if PEGI
                 msg.showNotificationIn3D_Views();
 #endif
@@ -134,7 +132,6 @@ namespace Playtime_Painter
             .Add_IfNotOne("tl", tiling)
             .Add_IfNotZero("off", offset)
             .Add_IfNotEmpty("sn", SaveName)
-            .Add_IfNotEmpty("svs", playtimeSavedTextures)
             .Add_IfTrue("rec", showRecording)
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
@@ -177,7 +174,6 @@ namespace Playtime_Painter
                 case "tl": tiling = data.ToVector2(); break;
                 case "off": offset = data.ToVector2(); break;
                 case "sn": SaveName = data; break;
-                case "svs": data.Decode_List(out playtimeSavedTextures); break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
@@ -681,7 +677,7 @@ namespace Playtime_Painter
             set { SaveName = value; }
         }
         
-#if PEGI
+        #if PEGI
 
         bool LoadTexturePEGI(string path)
         {
@@ -695,6 +691,7 @@ namespace Playtime_Painter
 
         int inspectedProcess = -1;
         public int inspectedStuff = -1;
+     
         public override bool Inspect()
         {
 
@@ -705,11 +702,10 @@ namespace Playtime_Painter
                 changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref repaintDelay, 0.01f, 0.5f).nl();
                 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref GlobalBrush.DontRedoMipmaps, true).nl();
+                    ref GlobalBrush.DontRedoMipmaps).nl();
             }
 
-            if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl())
-            {
+            if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
 
                 "Save Name".edit(70, ref SaveName);
                 
@@ -719,8 +715,8 @@ namespace Playtime_Painter
                 if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
                     SaveInPlayer();
 
-                if (playtimeSavedTextures.Count > 0)
-                    "Playtime Saved Textures".write_List(playtimeSavedTextures, LoadTexturePEGI);
+                if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
+                    "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePEGI);
             }
 
             #region Processors
@@ -773,10 +769,9 @@ namespace Playtime_Painter
 
             if ("Undo Redo".toggle_enter(ref enableUndoRedo, ref inspectedStuff, 2, ref changed).nl())
             {
-
-                changed |=
-              "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups) ||
-              "RendTex".edit(60, ref numberOfRenderTextureBackups).nl();
+                
+                "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups).changes(ref changed);
+                "RendTex".edit(60, ref numberOfRenderTextureBackups).nl(ref changed);
 
                 "Backup manually".toggleIcon(ref backupManually).nl();
 
@@ -811,7 +806,8 @@ namespace Playtime_Painter
 
             bool hasTPtag = painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property);
 
-            if (!isATransparentLayer && hasTPtag)  {
+            if (!isATransparentLayer && hasTPtag)
+            {
                 "Material Field {0} is a Transparent Layer ".F(property).writeHint();
                 forceOpenUTransparentLayer = true;
             }
@@ -822,8 +818,8 @@ namespace Playtime_Painter
             bool forceOpenUV2 = false;
             bool hasUV2tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
 
-            if (!useTexcoord2 && hasUV2tag)
-            {
+            if (!useTexcoord2 && hasUV2tag) {
+
                 if (!useTexcoord2_AutoAssigned)
                 {
                     useTexcoord2 = true;
@@ -837,12 +833,9 @@ namespace Playtime_Painter
             if (showToggles || (useTexcoord2 && !hasUV2tag) || forceOpenUV2)
                 changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2).nl();
 
-            if (showToggles || (!painter.IsOriginalShader && Cfg.previewAlphaChanel))
-                changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel).nl();
-
-           
             return changed;
         }
+
 
         public bool Undo_redo_PEGI()
         {

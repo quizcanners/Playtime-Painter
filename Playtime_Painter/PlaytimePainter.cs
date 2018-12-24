@@ -1410,7 +1410,7 @@ namespace Playtime_Painter
 
         #region Saving
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
 
         public void ForceReimportMyTexture(string path)
         {
@@ -1536,7 +1536,7 @@ namespace Playtime_Painter
             }
         }
 
-#endif
+        #endif
 
         #endregion
 
@@ -1818,6 +1818,8 @@ namespace Playtime_Painter
 
         static string tmpURL = defaultImageLoadURL;
 
+        static int inspectedFancyStuff = -1;
+
         public bool PEGI_MAIN()
         {
 
@@ -2004,8 +2006,7 @@ namespace Playtime_Painter
 
                 #region Texture Editing
 
-                else
-                {
+                else {
 
                     var id = ImgData;
 
@@ -2134,54 +2135,82 @@ namespace Playtime_Painter
                         }
 
                         #endregion
+                    
 
-                        #region Fancy Options
-                        "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
-                        if (Cfg.moreOptions)
-                        {
+                    }
+                    else
+                        if (!IsOriginalShader)
+                        this.PreviewShaderToggle_PEGI();
 
-                            if (icon.Show.enter("Show/Hide stuff", ref id.inspectedStuff, 7).nl())
-                            {
 
-                                "Show Previous Textures (if any) ".toggleVisibilityIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
 
-                                var mats = GetMaterials();
-                                if (!mats.IsNullOrEmpty())
-                                    "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
-                                                                   ref autoSelectMaterial_byNumberOfPointedSubmesh, true).nl();
+                    id = ImgData;
 
-                                "Exclusive Render Textures".toggleVisibilityIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
 
-                                "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl(ref changed);
+                    #region Fancy Options
+                    pegi.nl();
+                    "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
+                    var inspSt = id != null ? id.inspectedStuff : inspectedFancyStuff;
+
+                    if (Cfg.moreOptions) {
+
+                        if (icon.Show.enter("Show/Hide stuff", ref inspSt, 7).nl()) {
+
+                            "Show Previous Textures (if any) ".toggleVisibilityIcon("Will show textures previously used for this material property.", ref Cfg.showRecentTextures, true).nl();
+
+                            "Exclusive Render Textures".toggleVisibilityIcon("Allow creation of simple Render Textures - the have limited editing capabilities.", ref Cfg.allowExclusiveRenderTextures, true).nl();
+
+                            "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ", ref Cfg.showColorSliders, true).nl(ref changed);
+
+                            if (id != null)
                                 "Recording/Playback".toggleVisibilityIcon("Show options for brush recording", ref id.showRecording, true).nl(ref changed);
 
-                                "Brush Dynamics".toggleVisibilityIcon("Will modify scale and other values based on movement.", ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
+                            "Brush Dynamics".toggleVisibilityIcon("Will modify scale and other values based on movement.", ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
 
-                                "URL field".toggleVisibilityIcon("Option to load images by URL", ref Cfg.showURLfield, true).changes(ref changed);
-                            }
-
-                            if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture, ref id.inspectedStuff, 4).nl())
-                            {
-
-                                if (Cfg.newTextureIsColor)
-                                    "Clear Color".edit(ref Cfg.newTextureClearColor).nl(ref changed);
-                                else
-                                    "Clear Value".edit(ref Cfg.newTextureClearNonColorValue).nl(ref changed);
-
-                                "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor).nl(ref changed);
-
-                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions).nl();
-                            }
-
-
-                            changed |= id.Inspect();
+                            "URL field".toggleVisibilityIcon("Option to load images by URL", ref Cfg.showURLfield, true).changes(ref changed);
                         }
 
+                        if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture, ref inspSt, 4).nl()) {
+
+                            if (Cfg.newTextureIsColor)
+                                "Clear Color".edit(ref Cfg.newTextureClearColor).nl(ref changed);
+                            else
+                                "Clear Value".edit(ref Cfg.newTextureClearNonColorValue).nl(ref changed);
+
+                            "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor).nl(ref changed);
+
+                            "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions).nl();
+                        }
+
+                        if (id != null) {
+                            id.inspectedStuff = inspSt;
+                            changed |= id.Inspect();
+                            inspSt = id.inspectedStuff;
+                        }
+                        else inspectedFancyStuff = inspSt;
+
+                    }
+
+
+                    if (id != null)
+                    {
                         bool showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
 
                         changed |= id.ComponentDependent_PEGI(showToggles, this);
+
+                        if (showToggles || (!IsOriginalShader && Cfg.previewAlphaChanel))
+                            changed |= "Preview Shows Only Enabled Chanels".toggleIcon(ref Cfg.previewAlphaChanel).nl();
+
+
+                        if (showToggles) {
+                            var mats = GetMaterials();
+                            if (autoSelectMaterial_byNumberOfPointedSubmesh || !mats.IsNullOrEmpty())
+                                "Auto Select Material".toggleIcon("Material will be changed based on the submesh you are painting on",
+                                                               ref autoSelectMaterial_byNumberOfPointedSubmesh).nl();
+                        }
+
 
                         if (Cfg.moreOptions)
                             pegi.Line(Color.red);
@@ -2191,13 +2220,11 @@ namespace Playtime_Painter
 
                         if (GlobalBrush.DontRedoMipmaps && "Redo Mipmaps".Click().nl())
                             id.SetAndApply();
-                        #endregion
                     }
-                    else
-                        if (!IsOriginalShader)
-                        this.PreviewShaderToggle_PEGI();
 
-                    id = ImgData;
+                    #endregion
+
+
 
 
                     #region Save Load Options

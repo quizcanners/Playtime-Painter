@@ -15,6 +15,9 @@ namespace Playtime_Painter {
         public float Size3D { get { return Brush.Brush3D_Radius; } set { Brush.Brush3D_Radius = value; } }
 
         public float alpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; } }
+
+
+
         #endregion
 
         #region Painter Configurations
@@ -58,9 +61,15 @@ namespace Playtime_Painter {
         public void LoadFromURL(string url) =>
                 painterComponent?.loadingOrder.Add(PainterCamera.downloadManager.StartDownload(url), painterComponent.GetMaterialTexturePropertyName);
 
+        public string urlName;
+
+        public string UrlName { set { urlName = value; } }
+
+        public void LoadMyURL() => LoadFromURL(urlName);
+
         // To fix the error above, inside PlaytimePainter.cs replace loadingOrder line with:
         // [NonSerialized] public Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
-        
+
         #endregion
     }
 }
