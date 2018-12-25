@@ -1,13 +1,10 @@
-﻿using System.Collections;
+﻿using SharedTools_Stuff;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using PlayerAndEditorGUI;
-using SharedTools_Stuff;
 
 
-namespace Playtime_Painter {
-
+namespace Playtime_Painter
+{
 
     public class TextureBackup {
         public int order;
@@ -28,8 +25,6 @@ namespace Playtime_Painter {
 
             SetB(from,globalOrder);
 			pixels = texturePixels;
-
-          
 		}
 
         public Texture2DBackup (Color[] texturePixels, ImageData from, int globalOrder){
@@ -80,22 +75,8 @@ namespace Playtime_Painter {
 
 		public string CurrentStep = "";
 
-		/*public void Transfer (Texture2DBackup bu){
-			bu.order = order;
-			order++;
-			tex2D.Add (bu);
-		}
-
-		public void Transfer (RenderTextureBackup bu){
-			bu.order = order;
-			order++;
-			rtex.Add (bu);
-		}*/
-
-		public bool gotData (){
-			return ((tex2D.Count > 0) || (rtex.Count>0));
-		}
-
+		public bool GotData => (tex2D.Count > 0) || (rtex.Count>0);
+		
 		public void Clear(){
 			foreach (RenderTextureBackup r in rtex)
 				r.DestroyRtex ();
@@ -113,8 +94,6 @@ namespace Playtime_Painter {
 			rtex.SetMaximumLength (maxTextures);
 		}
 
-
-
 		public void ApplyTo (ImageData id) {
 
 			bool fromRT = (tex2D.Count == 0) || ((rtex.Count > 0) && (tex2D [tex2D.Count - 1].order < rtex [rtex.Count - 1].order));
@@ -127,29 +106,17 @@ namespace Playtime_Painter {
                 otherDirection.backupRenderTexture(int.MaxValue, id);
              else 
                 otherDirection.backupTexture2D(int.MaxValue, id);
-
-           
+            
             RenderTextureBackup rtBackup = fromRT ? takeRenderTexture () : null;
             Texture2DBackup pixBackup = fromRT ? null : takeTexture2D ();
-            TextureBackup backup = fromRT ? (TextureBackup)rtBackup : (TextureBackup)pixBackup;
-
-
-           
+            TextureBackup backup = fromRT ? rtBackup : (TextureBackup)pixBackup;
+            
             if (!isUndo)
                 id.recordedStrokes.AddRange(backup.strokeRecord);
             else 
                 id.recordedStrokes.RemoveLast(toClear);
             
             id.recordedStrokes_forUndoRedo = backup.strokeRecord;
-
-          /*  if (isUndo) {
-             
-               
-            } else {
-                id.recordedStrokes.AddRange(backup.strokeRecord);
-                id.recordedStrokes_forUndoRedo.AddRange(backup.strokeRecord);
-            }*/
-
 
 			if (!fromRT) {
                 id.Pixels = pixBackup.pixels;
@@ -168,21 +135,11 @@ namespace Playtime_Painter {
 
                 bool converted = false;
 
-                if ((PainterCamera.Inst.isLinearColorSpace) && (!rtBackup.exclusive))
-                {
+                if ((PainterCamera.Inst.isLinearColorSpace) && !rtBackup.exclusive) {
                     converted = true;
                     id.PixelsToGamma();
                 }
-                //else
-                //   id.pixelsToLinear();
-                // if (!RenderTexturePainter.inst.isLinearColorSpace)
-                //{
-                //  Debug.Log("Pixels to lnear");
 
-                //   id.pixelsToLinear();
-                //}
-
-                // In Linear dont turn to gamma if saved from Exclusive Render Texture
                 if (converted)
                     id.SetAndApply();
                 else
@@ -192,9 +149,6 @@ namespace Playtime_Painter {
 			if (fromRT)
 				rtBackup.DestroyRtex ();
 
-
-                
-			
 		}
 
 		Texture2DBackup takeTexture2D (){
@@ -210,7 +164,6 @@ namespace Playtime_Painter {
 			rtex.RemoveAt (index);
 			return rt;
 		}
-
 
         public void backupTexture2D (int maxTextures, ImageData id){
 

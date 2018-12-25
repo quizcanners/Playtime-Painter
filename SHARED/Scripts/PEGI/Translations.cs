@@ -6,7 +6,7 @@ namespace PlayerAndEditorGUI
 {
 
     public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement, LockToolToUseTransform, HideTransformTool,
-        HighlightElement, RemoveFromList, AddListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New };
+        HighlightElement, RemoveFromList, AddNewListElement, AddEmptyListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New };
 
    
 
@@ -27,7 +27,8 @@ namespace PlayerAndEditorGUI
             Msg.InspectElement.Add("Inspect element");
             Msg.HighlightElement.Add("Highlight this element in the project");
             Msg.RemoveFromList.Add("Remove this list element");
-            Msg.AddListElement.Add("Add element to a list");
+            Msg.AddNewListElement.Add("Add New element to a list");
+            Msg.AddEmptyListElement.Add("Add NULL/default list element");
             Msg.ReturnToList.Add("Return to list");
             Msg.MakeElementNull.Add("Null this element.");
             Msg.LockToolToUseTransform.Add("Lock texture to use transform tools. Or click 'Hide transform tool'");
@@ -43,7 +44,7 @@ namespace PlayerAndEditorGUI
             Msg.HideTransformTool.Add("Приховати трансформації");
             Msg.HighlightElement.Add("Показати цей елемент в проекті");
             Msg.RemoveFromList.Add("Забрати цей елемент зі списку");
-            Msg.AddListElement.Add("Створити новий елемент у списку");
+            Msg.AddNewListElement.Add("Створити новий елемент у списку");
 
             systemLanguage = (int)Application.systemLanguage;
         }

@@ -2643,9 +2643,9 @@ namespace Playtime_Painter
 
             if (e.type == EventType.KeyDown && !meshEditing && id != null)
             {
-                if (e.keyCode == KeyCode.Z && id.cache.undo.gotData())
+                if (e.keyCode == KeyCode.Z && id.cache.undo.GotData)
                     id.cache.undo.ApplyTo(id);
-                else if (e.keyCode == KeyCode.X && id.cache.redo.gotData())
+                else if (e.keyCode == KeyCode.X && id.cache.redo.GotData)
                     id.cache.redo.ApplyTo(id);
             }
         }

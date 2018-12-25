@@ -7,36 +7,32 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
-[Serializable]
+    [Serializable]
     public class StrokeVector : Abstract_STD {
 
-	public Vector2 uvFrom;
-	public Vector3 posFrom;
-	public Vector2 uvTo;
-	public Vector3 posTo;
-       // public Vector2 inMeshUV;
+	    public Vector2 uvFrom;
+	    public Vector3 posFrom;
+	    public Vector2 uvTo;
+	    public Vector3 posTo;
         public Vector2 unRepeatedUV;
-
-     //public bool useTexcoord2; // For Sphere Brush
-    public Vector2 previousDelta;
-	public float avgBrushSpeed;
+        
+        public Vector2 previousDelta;
+	    public float avgBrushSpeed;
      
-
-	public bool mouseDwn;
-	public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
-	public bool mouseUp;
+	    public bool mouseDwn;
+	    public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
+	    public bool mouseUp;
 
         public static bool PausePlayback;
 
 
-	public Vector2 Delta_uv { get { return uvTo - uvFrom; } }
-	public Vector3 Delta_WorldPos { get { return posTo - posFrom; } }
+	    public Vector2 Delta_uv { get { return uvTo - uvFrom; } }
+	    public Vector3 Delta_WorldPos { get { return posTo - posFrom; } }
 
-    public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) {
-            return brush.Paint(this, painter);
-    }
+        public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) => brush.Paint(this, painter);
+        
 
-    public bool CrossedASeam() {
+        public bool CrossedASeam() {
 
             if (mouseDwn)
                 return false;
@@ -46,31 +42,27 @@ namespace Playtime_Painter {
             float prevMagn = previousDelta.magnitude;
 
             return ((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
-                     && (newDelta.magnitude > 0.1) && (newDelta.magnitude > prevMagn * 4))
-                     || (newDelta.magnitude > 0.2f) 
-                     //|| (newDelta.magnitude > prevMagn * 10)
-                     
-                     ;
+                        && (newDelta.magnitude > 0.1) && (newDelta.magnitude > prevMagn * 4))
+                        || (newDelta.magnitude > 0.2f)  ;
 
+            }
+
+        public override StdEncoder Encode() {
+
+            StdEncoder s = new StdEncoder();
+
+            if (mouseDwn) s.Add("fU", uvFrom, 4);
+            if (mouseDwn) s.Add("fP", posFrom, 4);
+
+            s.Add("tU", uvTo, 4);
+            s.Add("tP", posTo, 4);
+
+            if (mouseUp)
+                s.Add_String("Up", "_");
+
+            return s;
         }
-
-    public override StdEncoder Encode() {
-
-        StdEncoder s = new StdEncoder();
-
-        if (mouseDwn) s.Add("fU", uvFrom, 4);
-        if (mouseDwn) s.Add("fP", posFrom, 4);
-
-        s.Add("tU", uvTo, 4);
-        s.Add("tP", posTo, 4);
-
-        if (mouseUp)
-            s.Add_String("Up", "_");
-
-        return s;
-    }
-
-
+        
         public StdEncoder Encode(bool worldSpace) {
 
             StdEncoder s = new StdEncoder();
@@ -114,7 +106,6 @@ namespace Playtime_Painter {
         }
 
         public void Dwn(Vector2 uv) {
-          //  "decoding down".Log();
             Dwn();
             uvFrom  = uv;
         }
@@ -133,37 +124,26 @@ namespace Playtime_Painter {
             
         }
 
-      //  public const string storyTag = "s";
-
         public void SetWorldPosInShader()
         {
             Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, new Vector4(posFrom.x, posFrom.y, posFrom.z, 0));
             Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude));
         }
 
-	public static Vector3 BrushWorldPositionFrom (Vector2 uv) {  
-				Vector2 v2 = ((uv)*2 - Vector2.one) * PainterCamera.orthoSize;
+        public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.orthoSize).ToVector3(10);
 
-				return new Vector3 (v2.x, v2.y, 10);
-    }
+        /*{  
+			Vector2 v2 = ((uv)*2 - Vector2.one) * PainterCamera.orthoSize;
 
-      public  Vector3 BrushWorldPosition
-        {
-            get
-            {
-                return BrushWorldPositionFrom(uvTo);
-            }
-      }
+			return new Vector3 (v2.x, v2.y, 10);
+        }*/
 
-
-    public void SetPreviousValues() {
-           
-             
-        previousDelta = mouseDwn ? Vector2.zero : (uvTo - uvFrom);
-		uvFrom = uvTo;
-        posFrom = posTo;
-
-          //  Debug.Log(" prev From " + uvFrom + " to " + uvTo);
+        public  Vector3 BrushWorldPosition => BrushWorldPositionFrom(uvTo);
+        
+        public void SetPreviousValues() {
+            previousDelta = mouseDwn ? Vector2.zero : (uvTo - uvFrom);
+		    uvFrom = uvTo;
+            posFrom = posTo;
         }
 
         public StrokeVector()
@@ -172,7 +152,6 @@ namespace Playtime_Painter {
         }
 
         public StrokeVector (RaycastHit hit, bool texcoord2) {
-            //inMeshUV = hit.textureCoord;
             uvFrom = uvTo = (texcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
             posFrom = posTo = hit.point;
             Dwn();
@@ -180,14 +159,12 @@ namespace Playtime_Painter {
 
         public StrokeVector(Vector3 pos)
         {
-
             posFrom = posTo = pos;
             Dwn();
         }
 
         public StrokeVector(Vector2 uv)
         {
-
             uvFrom = uvTo = uv;
             Dwn();
         }

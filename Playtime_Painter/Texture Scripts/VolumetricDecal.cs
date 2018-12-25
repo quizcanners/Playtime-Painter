@@ -5,21 +5,19 @@ using System;
 using PlayerAndEditorGUI;
 using SharedTools_Stuff;
 
-namespace Playtime_Painter{
+namespace Playtime_Painter {
 
-public enum VolumetricDecalType {Add, Dent}
-
-
-
-[Serializable]
-public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName  {
-    public String decalName;
-    public VolumetricDecalType type;
-    public Texture2D heightMap;
-    public Texture2D overlay;
+    public enum VolumetricDecalType {Add, Dent}
+    
+    [Serializable]
+    public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName  {
+        public String decalName;
+        public VolumetricDecalType type;
+        public Texture2D heightMap;
+        public Texture2D overlay;
 
         #region Inspector
-#if PEGI
+        #if PEGI
         public bool ShowInDropdown() => heightMap && overlay;
 
         public string NameForPEGI { get { return decalName; } set { decalName = value; } }
@@ -37,7 +35,7 @@ public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
 
         public string NameForPEGIdisplay => "{0} ({1})".F(decalName, type);
 
-#endif
+        #endif
         #endregion
     }
 

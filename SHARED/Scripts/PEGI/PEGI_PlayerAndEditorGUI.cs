@@ -6122,7 +6122,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddClick<T>(this List<T> list, ref T added, List_Data ld = null) {
+        static bool ListAddNewClick<T>(this List<T> list, ref T added, List_Data ld = null) {
 
             if ((ld != null && !ld.allowCreate) || !typeof(T).IsNew())
                 return false;
@@ -6130,7 +6130,7 @@ namespace PlayerAndEditorGUI {
             if ((typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
-            if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
+            if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
             {
                 if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
                 {
@@ -6145,7 +6145,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddClick<T>(this List<T> list, List_Data ld = null)
+        static bool ListAddEmptyClick<T>(this List<T> list, List_Data ld = null)
         {
 
             if (ld != null && !ld.allowCreate)
@@ -6154,7 +6154,7 @@ namespace PlayerAndEditorGUI {
             if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
                 return false;
 
-            if (icon.Add.ClickUnfocus(Msg.AddListElement.Get()))
+            if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
             {
                 list.Add(default(T));
                 return true;
@@ -6196,7 +6196,7 @@ namespace PlayerAndEditorGUI {
 
             if (inspected == -1)
             {
-                changed |= list.ListAddClick(datas);
+                changed |= list.ListAddEmptyClick(datas);
 
                 if (datas != null && icon.Save.ClickUnfocus())
                     datas.SaveElementDataFrom(list);
@@ -6313,7 +6313,7 @@ namespace PlayerAndEditorGUI {
 
                 changed |= list.edit_List_Order_Obj(datas);
 
-                changed |= list.ListAddClick(datas);
+                changed |= list.ListAddEmptyClick(datas);
 
                 if (datas != null && icon.Save.ClickUnfocus())
                     datas.SaveElementDataFrom(list);
@@ -6435,7 +6435,7 @@ namespace PlayerAndEditorGUI {
 
                 if (list != editing_List_Order)
                 {
-                    changed |= list.ListAddClick(datas);
+                    changed |= list.ListAddEmptyClick(datas);
 
                     foreach (var i in list.InspectionIndexes())     {
                         var el = list[i];
@@ -6541,7 +6541,7 @@ namespace PlayerAndEditorGUI {
 
                 if (list != editing_List_Order) {
                     
-                        list.ListAddClick(ref added, datas).changes(ref changed);
+                        list.ListAddNewClick(ref added, datas).changes(ref changed);
 
                     foreach (var i in list.InspectionIndexes())   {
 
@@ -6739,7 +6739,7 @@ namespace PlayerAndEditorGUI {
 
             if (list != editing_List_Order)
             {
-                changed |= list.ListAddClick(ref added);
+                changed |= list.ListAddNewClick(ref added);
 
                 foreach (var i in list.InspectionIndexes())
                 {
@@ -6768,18 +6768,25 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
         {
-
             bool changed = false;
+            edit_List(ref list, lambda, ref changed);
+            return changed;
 
+        }
+
+        public static T edit_List<T>(ref List<T> list, Func<T, T> lambda, ref bool changed) where T : new()
+        {
+            T added = default(T);
+   
             if (listIsNull(ref list))
-                return changed;
+                return added;
 
             changed |= list.edit_List_Order();
 
             if (list != editing_List_Order)
             {
 
-                changed |= list.ListAddClick();
+                changed |= list.ListAddNewClick(ref added);
 
                 foreach (var i in list.InspectionIndexes())
                 {
@@ -6797,7 +6804,7 @@ namespace PlayerAndEditorGUI {
             }
 
             newLine();
-            return changed;
+            return added;
         }
 
         public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
@@ -6813,7 +6820,7 @@ namespace PlayerAndEditorGUI {
             if (list != editing_List_Order)
             {
 
-                changed |= list.ListAddClick();
+                changed |= list.ListAddEmptyClick();
 
                 foreach (var i in list.InspectionIndexes())
                 {
