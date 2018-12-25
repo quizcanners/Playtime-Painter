@@ -16,12 +16,6 @@ namespace Playtime_Painter
         public override void OnInspectorGUI() => ((PixelArtMeshGenerator)target).Inspect(serializedObject);
     }
 
-    [CustomEditor(typeof(BrushConfigOnly))]
-    public class BrushConfigOnlyEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((BrushConfigOnly)target).Inspect(serializedObject);
-    }
-
     [CustomEditor(typeof(LightCaster))]
     public class BakedShadowsLightProbeEditor : Editor
     {

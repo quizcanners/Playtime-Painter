@@ -1,25 +1,21 @@
 ﻿Shader "Playtime Painter/Pixel Art/ForPixelArtMesh" {
 	Properties {
 		_MainTex("_MainTex", 2D) = "white" {}
-	//_ExplodedTex ("_ExplodedTex", 2D) = "white" {}
-	[NoScaleOffset]_Bump("_bump", 2D) = "bump" {}
-	_Smudge("_smudge", 2D) = "gray" {}
-	[NoScaleOffset]_BumpEx("_bumpEx", 2D) = "bump" {}
-	_BumpDetail("_bumpDetail", 2D) = "bump" {}
-
+		[NoScaleOffset]_Bump("_bump", 2D) = "bump" {}
+		_Smudge("_smudge", 2D) = "gray" {}
+		[NoScaleOffset]_BumpEx("_bumpEx", 2D) = "bump" {}
+		_BumpDetail("_bumpDetail", 2D) = "bump" {}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
 		_Metallic ("Metallic", Range(0,1)) = 0.0
 	}
+
 	SubShader {
 		Tags { "RenderType"="Opaque" }
 		LOD 200
 
 		CGPROGRAM
-		// Physically based Standard lighting model, and enable shadows on all light types
 		#pragma vertex vert
 		#pragma surface surf Standard fullforwardshadows
-
-		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
 		sampler2D _MainTex;
@@ -31,8 +27,6 @@
 		uniform float4 _MainTex_ST;
 		float _Glossiness;
 		float _Metallic;
-		//float4 _touchPoint;
-		//float4 _OutlineColor;
 
 		struct Input {
 			float2 uv_MainTex;
@@ -85,25 +79,9 @@
 
 		}
 
-		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-		// #pragma instancing_options assumeuniformscaling
-		//UNITY_INSTANCING_BUFFER_START(Props)
-			// put more per-instance properties here
-		//UNITY_INSTANCING_BUFFER_END(Props)
-
 		void surf (Input i, inout SurfaceOutputStandard o) {
-			// Albedo comes from a texture tinted by color
-			float2 off = (i.texcoord.xy - i.perfuv.xy);
-
 		
-
-			/*float2 perfTex = (floor(i.texcoord.xy*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
-			float2 off = (i.texcoord.xy - i.perfuv);
-			off = off * saturate((abs(off) * _MainTex_TexelSize.z) * 20 - 19);
-			perfTex += off;*/
-
-			//off = (i.texcoord.xy - i.perfuv.xy);
+			float2 off = (i.texcoord.xy - i.perfuv.xy);
 
 			float2 bumpUV = off * _MainTex_TexelSize.zw;
 
@@ -120,12 +98,7 @@
 			bumpUV *= 0.98;
 			bumpUV += 0.5;
 			
-
-			float3 nn = UnpackNormal(
-				tex2Dlod(_Bump, float4(bumpUV
-					, 0, 0)) *(1 - i.hold.z)
-				+ tex2Dlod(_BumpEx, float4(bumpUV, 0, 0)) *(i.hold.z)
-			);
+			float3 nn = UnpackNormal(tex2Dlod(_Bump, float4(bumpUV, 0, 0)) *(1 - i.hold.z)+ tex2Dlod(_BumpEx, float4(bumpUV, 0, 0)) *(i.hold.z));
 
 			float3 nn2 = UnpackNormal(tex2Dlod(_BumpDetail, float4(i.uv_BumpDetail*(4 + nn.xy), 0, 0)));
 			nn += nn2 * ( 2 - c.a)*0.05;
@@ -136,9 +109,6 @@
 
 			float smudge = tex2D(_Smudge, i.uv_Smudge).a;
 			float deSmudge = 1 - smudge;
-
-
-			//float dist = length(i.texcoord.xy - i.texcoord.zw + nn.xy * 0.1);
 
 			float2 sat = abs(off) * 128 * _MainTex_TexelSize.zw;
 			float2 pixuv = i.perfuv.xy + off * min(1, sat*0.03);
@@ -154,18 +124,8 @@
 
 			col.rgb += bgr * 0.1;
 
-				
-			o.Albedo =
-				//bord
-				// nn
-				col.rgb
-				//i.hold.rgb;
-			//light.rgb
-			;
+			o.Albedo =col.rgb;
 
-			//o.Emission = o.Albedo;
-
-			// Metallic and smoothness come from slider variables
 			o.Metallic = _Metallic;
 			o.Smoothness = gloss;
 			o.Occlusion = 1-bord;

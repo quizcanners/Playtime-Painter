@@ -1,42 +1,42 @@
-﻿Shader "Playtime Painter/Basic/Circle_Additive" {
+﻿Shader "Playtime Painter/Basic/ColorPicker_Saturation" {
 	Properties{
-		_Color("Color", Color) = (1,1,1,1)
-		_Hardness("Hardness", Range(1,16)) = 2
+		_MainTex("Mask (RGB)", 2D) = "white" {}
+		_Circle("Circle", 2D) = "black" {}
+		_brght("Brightness", Range(0,1)) = 1
+		_ctrst("Contrast", Range(0,1)) = 1
+		_Value("HUE", Range(0,1)) = 1
 	}
 
 	Category{
 		Tags{
 			"Queue" = "AlphaTest"
 			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
 		}
 
 		Cull Off
-		ZWrite Off
-		Blend SrcAlpha One
 
 		SubShader{
 
 			Pass{
 
 				CGPROGRAM
-
-				#include "UnityCG.cginc"
+				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
 
-				float4 _Color;
-				float _Hardness;
+				sampler2D _MainTex;
+				sampler2D _Circle;
+				float _brght;
+				float _ctrst;
+				float _Value;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
 					float2 texcoord : TEXCOORD2;
-
 				};
 
 				v2f vert(appdata_full v) {
@@ -48,17 +48,17 @@
 
 				float4 frag(v2f i) : COLOR{
 
-					float2 off = i.texcoord - 0.5;
-					off *= off;
+					float4 col = tex2D(_MainTex, i.texcoord);
 
-					float alpha = saturate(pow(saturate((1 - (off.x + off.y) * 4)) * _Hardness, _Hardness +2));
+					col.rgb = HUEtoColor(_Value);
 
-					_Color.a *= alpha;
+					col.rgb = i.texcoord.y + col.rgb*(1-i.texcoord.y);
 
-					return _Color;
+					col.rgb *= i.texcoord.x;
+
+					return col;
 				}
-				ENDCG
-
+					ENDCG
 			}
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"

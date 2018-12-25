@@ -2,6 +2,9 @@
 	
 
 
+static const float GAMMA_TO_LINEAR = 2.2;
+static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
+
 
 	sampler2D _SourceTexture;
 	sampler2D _DestBuffer;
@@ -213,7 +216,7 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 
 
 #ifdef UNITY_COLORSPACE_GAMMA
-	col.rgb  = sqrt(src.rgb * src.rgb*_brushMask.rgb + col.rgb * col.rgb *(1 - _brushMask.rgb));
+	col.rgb  = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb + pow(col.rgb, GAMMA_TO_LINEAR) *(1 - _brushMask.rgb), LINEAR_TO_GAMMA);
 	col.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
 	return  max(0,col);
 #else 
@@ -229,8 +232,8 @@ inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoo
 	_brushMask *= alpha;
 
 #ifdef UNITY_COLORSPACE_GAMMA
-	col = src * src*_brushMask + col * col*(1 - _brushMask);
-	return  sqrt(col);
+	col = pow(src, GAMMA_TO_LINEAR)*_brushMask + pow(col, GAMMA_TO_LINEAR) *(1 - _brushMask);
+	return  pow(col, LINEAR_TO_GAMMA);
 #else 
 	col = src * _brushMask + col * (1 - _brushMask);
 	return  col;
@@ -243,7 +246,7 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 		float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
 		#ifdef UNITY_COLORSPACE_GAMMA
-		col.rgb = sqrt(src.rgb * src.rgb*_brushMask.rgb + col.rgb * col.rgb *(1 - _brushMask.rgb));
+		col.rgb = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb + pow(col.rgb, GAMMA_TO_LINEAR) *(1 - _brushMask.rgb), LINEAR_TO_GAMMA);
 		col.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
 		return  max(0, col);
 		#else 
@@ -256,8 +259,8 @@ inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, f
 		_brushMask*=alpha*_brushPointedUV.w;
 
 		#ifdef UNITY_COLORSPACE_GAMMA
-		col = src*src*_brushMask+col*col*(1-_brushMask);
-		return  sqrt(col);
+		col = pow(src, GAMMA_TO_LINEAR)*_brushMask+pow(col, GAMMA_TO_LINEAR)*(1-_brushMask);
+		return  pow(col, LINEAR_TO_GAMMA);
 		#else 
 		col = src*_brushMask+col*(1-_brushMask);
 		return  col;
@@ -270,8 +273,10 @@ inline float4 addWithDestBuffer (float alpha,float4 src, float2 texcoord){
 		float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
 		#ifdef UNITY_COLORSPACE_GAMMA
-		col = src*src*_brushMask+col*col;
-		return  sqrt(col);
+		col.rgb = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb+pow(col.rgb, GAMMA_TO_LINEAR), LINEAR_TO_GAMMA);
+		col.a = src.a*_brushMask.a + col.a;
+
+		return  col;
 		#else 
 		col = src*_brushMask+col;
 		return  col;
@@ -284,8 +289,9 @@ inline float4 addWithDestBufferPreview (float alpha,float4 src, float2 texcoord,
 		_brushMask*=alpha*_brushPointedUV.w;
 
 		#ifdef UNITY_COLORSPACE_GAMMA
-		col = src*src*_brushMask+col*col;
-		return  sqrt(col);
+		col.rgb = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb+pow(col.rgb, GAMMA_TO_LINEAR), LINEAR_TO_GAMMA);
+		col.a += src.a *_brushMask.a;
+		return  col;
 		#else 
 		col = src*_brushMask+col;
 		return  col;
@@ -295,17 +301,19 @@ inline float4 addWithDestBufferPreview (float alpha,float4 src, float2 texcoord,
 
 
 inline float4 subtractFromDestBuffer (float alpha,float4 src, float2 texcoord){
-        _brushMask*=alpha;
+    _brushMask*=alpha;
 
-        float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
+    float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
-        #ifdef UNITY_COLORSPACE_GAMMA
-        col = max(0,col*col - src*src*_brushMask);
-        return  sqrt(col);
-        #else 
-        col = max(0, col - src*_brushMask);
-        return  col;
-        #endif
+    #ifdef UNITY_COLORSPACE_GAMMA
+    col.rgb = pow(max(0, pow(col.rgb, GAMMA_TO_LINEAR) - pow(src.rgb, GAMMA_TO_LINEAR) *_brushMask.rgb), LINEAR_TO_GAMMA);
+	col.a -= src.a *_brushMask.a;
+
+    return  col;
+    #else 
+    col = max(0, col - src*_brushMask);
+    return  col;
+    #endif
 }
 
 
@@ -313,8 +321,8 @@ inline float4 subtractFromDestBufferPreview (float alpha,float4 src, float2 texc
         _brushMask*=alpha;
 
         #ifdef UNITY_COLORSPACE_GAMMA
-        col = max(0,col*col - src*src*_brushMask);
-        return  sqrt(col);
+        col = max(0, pow(col, GAMMA_TO_LINEAR) - pow(src, GAMMA_TO_LINEAR)*_brushMask);
+        return  pow(col, LINEAR_TO_GAMMA);
         #else 
         col = max(0, col - src*_brushMask);
         return  col;

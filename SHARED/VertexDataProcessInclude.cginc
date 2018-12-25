@@ -56,11 +56,6 @@ inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _
 	atlasedUV.w = 1 / _AtlasTextures;
 }
 
-
-
-
-
-
 inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
 	_TexelSize.zw *= mod;
 	float2 px = _TexelSize.z * ddx(uv);
@@ -217,6 +212,27 @@ inline float2 DetectEdge(float4 edge){
 	edge = max(0, edge - 0.965) * 28.5715;
 	float border = max(max(edge.r, edge.g), edge.b);
 	return float2(border, min(1,edge.a)*border);
+}
+
+inline float3 HUEtoColor(float hue) {
+
+	float val = hue * 6;
+
+	float3 col;
+
+	col.r = saturate(2 - abs(val - 2));
+
+	val = (val + 2) % 6;
+
+	col.g = saturate(2 - abs(val - 2));
+
+	val = (val + 2) % 6;
+
+	col.b = saturate(2 - abs(val - 2));
+
+	col.rgb = pow(col.rgb, 2.2);
+
+	return col;
 }
 
 inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
