@@ -1812,7 +1812,7 @@ namespace Playtime_Painter
         public static PlaytimePainter selectedInPlaytime = null;
 
 #if PEGI
-        public static pegi.WindowPositionData windowPosition = new pegi.WindowPositionData();
+        public static pegi.WindowPositionData_PEGI_GUI windowPosition = new pegi.WindowPositionData_PEGI_GUI();
 
         const string defaultImageLoadURL = "https://picsbuffet.com/pixabay/";
 
@@ -2072,7 +2072,7 @@ namespace Playtime_Painter
                             }
 
                             pegi.newLine();
-                            pegi.Space();
+                            pegi.space();
                             pegi.newLine();
                         }
 
@@ -2213,7 +2213,7 @@ namespace Playtime_Painter
 
 
                         if (Cfg.moreOptions)
-                            pegi.Line(Color.red);
+                            pegi.line(Color.red);
 
                         if (id.enableUndoRedo && id.backupManually && "Backup for UNDO".Click())
                             id.Backup();
@@ -2258,7 +2258,7 @@ namespace Playtime_Painter
                             InstantiateMaterial(true);
 
                         pegi.nl();
-                        pegi.Space();
+                        pegi.space();
                         pegi.nl();
                         #endregion
 
@@ -2395,7 +2395,7 @@ namespace Playtime_Painter
                         }
 
                         pegi.newLine();
-                        pegi.Space();
+                        pegi.space();
                         pegi.newLine();
 
                         #endregion
@@ -2467,7 +2467,7 @@ namespace Playtime_Painter
                         }
                         pegi.nl();
 
-                        pegi.Space();
+                        pegi.space();
                         pegi.nl();
                         #endregion
                     }

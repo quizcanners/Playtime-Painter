@@ -886,10 +886,10 @@ namespace Playtime_Painter
 
         public void UpdateInputPlaytime()
         {
-#if PEGI
+            #if PEGI
             if (pegi.mouseOverUI)
                 return;
-#endif
+            #endif
 
             RAYCAST_SELECT_MOUSEedit();
             PROCESS_KEYS();
@@ -1047,7 +1047,7 @@ namespace Playtime_Painter
             if (edMesh != null)
                 if ("Mesh ".foldout(ref inspectMesh).nl())
                     changed |= edMesh.Nested_Inspect().nl();
-            pegi.Space();
+            pegi.space();
 
             pegi.newLine();
 
@@ -1056,7 +1056,7 @@ namespace Playtime_Painter
             if ((!target.IsOriginalShader) && ("preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl()))
                 MeshSHaderMode.selected.Apply();
 
-            pegi.Space();
+            pegi.space();
 
             pegi.newLine();
 
@@ -1068,7 +1068,7 @@ namespace Playtime_Painter
                 MeshTool.OnSelectTool();
             }
 
-            pegi.Space();
+            pegi.space();
 
             pegi.newLine();
 

@@ -122,7 +122,7 @@ namespace Playtime_Painter
             if (TexMGMTdata.masks.Count > 0)
             {
                 pegi.nl();
-                pegi.Space();
+                pegi.space();
                 pegi.nl();
 
                 changed |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true);

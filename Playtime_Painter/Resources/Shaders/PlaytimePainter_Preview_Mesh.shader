@@ -23,7 +23,6 @@
 
 				#pragma multi_compile  MESH_PREVIEW_LIT MESH_PREVIEW_NORMAL MESH_PREVIEW_VERTCOLOR MESH_PREVIEW_PROJECTION MESH_PREVIEW_SHARP_NORMAL
 		
-
 				struct appdata_t {
 					float4 vertex : POSITION;
 					float2 texcoord : TEXCOORD0;
@@ -119,23 +118,23 @@
 					col = saturate(col)*val*0.95 + val*0.05;
 
 					#if MESH_PREVIEW_VERTCOLOR
-					return i.vcol;// -border.x;
+						return i.vcol;
 					#endif
 
 					#if MESH_PREVIEW_PROJECTION
-					col.r = frac(i.texcoord.z);
-					col.g = frac(i.texcoord.w);
-					col.b = 0.1;
+						col.r = frac(i.texcoord.z);
+						col.g = frac(i.texcoord.w);
+						col.b = 0.1;
 					#endif
 
 					#if MESH_PREVIEW_NORMAL
-					col.rgb = i.normal.xyz; 
-					col.rgb += 0.5;
+						col.rgb = i.normal.xyz; 
+						col.rgb += 0.5;
 					#endif
 
 					#if MESH_PREVIEW_SHARP_NORMAL
-					col.rgb = i.snormal.xyz; 
-					col.rgb += 0.5;
+						col.rgb = i.snormal.xyz; 
+						col.rgb += 0.5;
 					#endif
 
 					return col;

@@ -24,6 +24,10 @@ namespace SharedTools_Stuff
 
     public static class CsharpFuncs {
 
+        public static string ThisMethodName() => ThisMethodName(1);
+
+        public static string ThisMethodName(int up) => (new StackFrame(up))?.GetMethod()?.Name;
+
         #region Timer
         static Stopwatch stopWatch = new Stopwatch();
 

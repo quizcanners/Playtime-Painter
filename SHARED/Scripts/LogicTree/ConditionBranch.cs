@@ -62,7 +62,7 @@ namespace STD_Logic {
                     newC.TriggerIndexes = TriggerGroup.TryGetLastUsedTrigger();
             }
 
-            pegi.Line(Color.black);
+            pegi.line(Color.black);
 
             changed |= "Sub Branches".edit_List(ref branches, ref browsedBranch);
 

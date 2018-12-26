@@ -54,7 +54,7 @@
 					o.worldPos = worldPos.xyz;
 
 					#if BRUSH_3D_TEXCOORD2
-					v.texcoord.xy = v.texcoord2.xy;
+						v.texcoord.xy = v.texcoord2.xy;
 					#endif
 
 					// ATLASED CALCULATION
@@ -85,55 +85,55 @@
 					#endif
 
 					#if BRUSH_SAMPLE_DISPLACE
-					_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
-					_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
+						_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
+						_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-					float alpha = prepareAlphaSphere(i.texcoord, i.worldPos);
-					clip(alpha - 0.000001);
+						float alpha = prepareAlphaSphere(i.texcoord, i.worldPos);
+						clip(alpha - 0.000001);
 					#endif
 
 					#if BRUSH_2D
-					float alpha = prepareAlphaSmooth(i.texcoord);
+						float alpha = prepareAlphaSmooth(i.texcoord);
 					#endif
 
 					#if BRUSH_SQUARE
-					float alpha = prepareAlphaSquare(i.texcoord);
+						float alpha = prepareAlphaSquare(i.texcoord);
 					#endif
 
 					#if BRUSH_DECAL
-					float2 decalUV = i.texcoord.zw + 0.5;
-					float Height = tex2D(_VolDecalHeight, decalUV).a;
-					float4 overlay = tex2D(_VolDecalOverlay, decalUV);
-					float4 dest = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
-					float alpha = saturate((Height - dest.a) * 16 * _DecalParameters.y - 0.01);
-					float4 col = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
-					float changeColor = _DecalParameters.z;
-					_brushColor = overlay * overlay.a + (_brushColor*changeColor + col * (1 - changeColor))*(1 - overlay.a);
-					_brushColor.a = Height;
+						float2 decalUV = i.texcoord.zw + 0.5;
+						float Height = tex2D(_VolDecalHeight, decalUV).a;
+						float4 overlay = tex2D(_VolDecalOverlay, decalUV);
+						float4 dest = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
+						float alpha = saturate((Height - dest.a) * 16 * _DecalParameters.y - 0.01);
+						float4 col = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
+						float changeColor = _DecalParameters.z;
+						_brushColor = overlay * overlay.a + (_brushColor*changeColor + col * (1 - changeColor))*(1 - overlay.a);
+						_brushColor.a = Height;
 					#endif
 
 					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
 
 					#if (BRUSH_NORMAL || BRUSH_COPY) && TARGET_TRANSPARENT_LAYER
-					return AlphaBlitTransparent(alpha, _brushColor,  i.texcoord.xy);
+						return AlphaBlitTransparent(alpha, _brushColor,  i.texcoord.xy);
 					#else
-					return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);
+						return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);
 					#endif
 
 					#endif
 
 					#if BRUSH_ADD
-					return  addWithDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
+						return  addWithDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
 					#endif
 
 					#if BRUSH_SUBTRACT
-					return  subtractFromDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
+						return  subtractFromDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
 					#endif
 
 				}
-		ENDCG
+				ENDCG
 			}
 		}
 	}

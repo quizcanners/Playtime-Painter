@@ -5,13 +5,17 @@
 		_Metallic("Metallic", Range(0,1)) = 0.0
 		//_Size ("Scale", float) = 4
 	}
+
 	SubShader {
-		Tags {  "Queue"="Transparent"
+		Tags {  
+			"Queue"="Transparent"
 	 		"IgnoreProjector"="True" 
-	 		"RenderType"="Transparent" }
-			Cull Off
-			ZTest On
-			Lighting Off
+	 		"RenderType"="Transparent" 
+		}
+
+		Cull Off
+		ZTest On
+		Lighting Off
 		LOD 200
 		
 		CGPROGRAM
@@ -30,8 +34,6 @@
 		struct Input {
 			float2 uv_MainTex;
 		};
-
-
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 

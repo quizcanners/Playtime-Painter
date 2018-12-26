@@ -220,9 +220,10 @@ namespace Playtime_Painter {
                     PlaytimePainter.HideUnityTool();
                 }
 
-                pegi.Lock_UnlockWindow(painter.gameObject);
+                pegi.Lock_UnlockWindowClick(painter.gameObject);
+                ef.end(painter.gameObject);
 
-                painter.gameObject.end();
+                
                 return;
             } else {
 
@@ -235,7 +236,7 @@ namespace Playtime_Painter {
                     PlaytimePainter.RestoreUnityTool();
                 }
 
-                pegi.Lock_UnlockWindow(painter.gameObject);
+                pegi.Lock_UnlockWindowClick(painter.gameObject);
 
             }
 
@@ -244,12 +245,13 @@ namespace Playtime_Painter {
             ImageData image = painter.ImgData;
 
             Texture tex = painter.GetTextureOnMaterial();
-            if ((!painter.meshEditing) && ((tex != null) && (image == null)) || ((image != null) && (tex == null)) || ((image != null) && (tex != image.texture2D) && (tex != image.CurrentTexture())))
+            if (!painter.meshEditing && (tex && (image == null)) || (image != null && !tex) || (image != null && tex != image.texture2D && tex != image.CurrentTexture()))
                 painter.textureWasChanged = true;
 
             painter.PEGI_MAIN();
-
-            painter.gameObject.end();
+            
+            ef.end(painter.gameObject);
+           
 #else 
                if (GUILayout.Button("Enable PEGI inspector")){
                     "Recompilation in progress ".showNotificationIn3D_Views();

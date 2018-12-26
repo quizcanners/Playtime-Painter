@@ -262,7 +262,7 @@ namespace Playtime_Painter.Examples {
 
                 pegi.select(ref originField, a.originalTextures).nl(ref changed);
 
-                pegi.Space();
+                pegi.space();
 
                 "Atlas".enter_Inspect(AtlasCreator, ref inspectedStuff, 11).nl(ref changed);
 
@@ -613,13 +613,13 @@ namespace Playtime_Painter.Examples {
                         "Source Material".write_obj("Submesh which will be converted", 90, mats[0]);
                 }
                 pegi.nl();
-                pegi.Space();
+                pegi.space();
                 pegi.nl();
             }
 
 
 
-            pegi.Space();
+            pegi.space();
             pegi.nl();
 
             foreach (var f in fields)

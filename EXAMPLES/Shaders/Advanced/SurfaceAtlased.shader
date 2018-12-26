@@ -8,6 +8,7 @@
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
+
 	SubShader {
 		Tags { "RenderType"="Opaque" }
 		LOD 200
@@ -31,16 +32,16 @@
 
 		struct Input {
 			float2 uv_MainTex_ATL;
-#if defined(UV_ATLASED)
+			#if defined(UV_ATLASED)
 			float4 atlasedUV : TEXCOORD6;
-#endif
+			#endif
 		};
 
 		void vert(inout appdata_full v, out Input o) {
 			UNITY_INITIALIZE_OUTPUT(Input, o);
-#if defined(UV_ATLASED)
+			#if defined(UV_ATLASED)
 			vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
-#endif
+			#endif
 		}
 
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
@@ -52,7 +53,7 @@
 
 		void surf (Input i, inout SurfaceOutputStandard o) {
 
-#if UV_ATLASED
+			#if UV_ATLASED
 			float mip = 0;
 			atlasUVlod(i.uv_MainTex_ATL.xy, mip, _MainTex_ATL_TexelSize, i.atlasedUV);
 			float4 uvMip = float4 (i.uv_MainTex_ATL, 0, mip);
@@ -60,41 +61,41 @@
 			//col.a += (1 - col.a)*0.5;
 			//col.a -= (col.a)*mip / 16;
 
-#if !_BUMP_NONE
+			#if !_BUMP_NONE
 			float4 cmap = tex2Dlod(_CombinedMap, uvMip);
-#endif
+			#endif
 		
-#if _BUMP_REGULAR
+			#if _BUMP_REGULAR
 			o.Occlusion = tex2Dlod(_OcclusionMap, uvMip).a;
-#endif
+			#endif
 
-#else
+			#else
 			float4 col = tex2D(_MainTex_ATL, i.uv_MainTex_ATL);
 
-#if !_BUMP_NONE
+			#if !_BUMP_NONE
 			float4 cmap = tex2D(_CombinedMap, i.uv_MainTex_ATL);
-#endif
+			#endif
 
-#if _BUMP_REGULAR
+			#if _BUMP_REGULAR
 			o.Occlusion = tex2D(_OcclusionMap, i.uv_MainTex_ATL).a;
-#endif
+			#endif
 
-#endif
+			#endif
 
-#if _BUMP_REGULAR
+			#if _BUMP_REGULAR
 			o.Normal = UnpackNormal(cmap);	
-#endif
+			#endif
 
-#if _BUMP_COMBINED
+			#if _BUMP_COMBINED
 			cmap.rg = (cmap.rg - 0.5) * 2;
 			o.Normal = float3(cmap.r, cmap.g, 1);
-#endif
+			#endif
 
 			o.Albedo = col.rgb;
 
-#if _BUMP_COMBINED
+			#if _BUMP_COMBINED
 			o.Occlusion = cmap.a;		
-#endif
+			#endif
 			o.Smoothness = col.a;
 
 		}

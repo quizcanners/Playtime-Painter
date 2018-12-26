@@ -2,15 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 #if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.SceneManagement;
+    using UnityEditor;
 #endif
 using System;
 using System.Linq;
 
 using System.Diagnostics;
-using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using SharedTools_Stuff;
@@ -89,25 +88,24 @@ namespace PlayerAndEditorGUI {
         #region Other Stuff
         public delegate bool CallDelegate();
 
-        public class WindowPositionData
+        public class WindowPositionData_PEGI_GUI
         {
-            public WindowFunction funk;
+            public WindowFunction function;
             public Rect windowRect;
 
             public void DrawFunction(int windowID) {
 
                 paintingPlayAreaGUI = true;
 
-                try
-                {
+                try {
 
                     elementIndex = 0;
                     lineOpen = false;
                     PEGI_Extensions.focusInd = 0;
 
-                    funk();
+                    function();
 
-                    newLine();
+                    nl();
 
                     "Tip:{0}".F(GUI.tooltip).nl();
 
@@ -130,7 +128,7 @@ namespace PlayerAndEditorGUI {
                 windowRect.x = Mathf.Clamp( windowRect.x, 0, Screen.width - 10);
                 windowRect.y = Mathf.Clamp( windowRect.y, 0, Screen.height - 10);
                 
-                funk = doWindow;
+                function = doWindow;
                 windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName);
             }
 
@@ -141,7 +139,7 @@ namespace PlayerAndEditorGUI {
                 windowRect.y = 10;
             }
 
-            public WindowPositionData()
+            public WindowPositionData_PEGI_GUI()
             {
                 windowRect = new Rect(20, 20, 350, 400);
             }
@@ -267,13 +265,6 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        static void iconColor(this Color col)
-        {
-
-            //  GUI.color
-
-        }
-
         public static void RestoreBGcolor()
         {
             if (BGcolorReplaced)
@@ -288,34 +279,23 @@ namespace PlayerAndEditorGUI {
 
         public static void checkLine()
         {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                ef.checkLine();
-            }
-            else
-#endif
-        if (!lineOpen)
-            {
+            #if UNITY_EDITOR
+                if (!paintingPlayAreaGUI)
+                    ef.checkLine();
+                else
+            #endif
+            if (!lineOpen) {
                 tabIndex = 0;
                 GUILayout.BeginHorizontal();
                 lineOpen = true;
             }
         }
 
-        public static void end(this GameObject go)
-        {
-#if UNITY_EDITOR
-
-            ef.end(go);
-
-#endif
-        }
-
         public static void DropFocus() => FocusControl("_");
 
         public static string LastNeedAttentionMessage;
         public static int LastNeedAttentionIndex;
+
         public static bool NeedsAttention(this IList list, string listName = "list", bool canBeNull = false) {
             LastNeedAttentionMessage = null;
             LastNeedAttentionMessage = list.NeedAttentionMessage(listName, canBeNull);
@@ -369,11 +349,7 @@ namespace PlayerAndEditorGUI {
 #endif
                 GUI.FocusControl(name);
         }
-
-        public static string thisMethodName() => thisMethodName(1);
-
-        public static string thisMethodName(int up) => (new StackFrame(up))?.GetMethod()?.Name;
-
+        
         public static void NameNext(string name) => GUI.SetNextControlName(name);
 
         public static int NameNextUnique(ref string name)
@@ -385,18 +361,16 @@ namespace PlayerAndEditorGUI {
             return (PEGI_Extensions.focusInd - 1);
         }
 
-        public static string nameFocused { get { return GUI.GetNameOfFocusedControl(); } }
+        public static string nameFocused => GUI.GetNameOfFocusedControl(); 
 
-        public static void Space()
+        public static void space()
         {
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 ef.Space();
-            }
             else
-#endif
+            #endif
 
             {
                 checkLine();
@@ -404,17 +378,18 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static void Line() => Line(paintingPlayAreaGUI ? Color.white : Color.black);
+        public static void line() => line(paintingPlayAreaGUI ? Color.white : Color.black);
   
-        public static void Line(Color col)
+        public static void line(Color col)
         {
             nl();
 
             GUIStyle horizontalLine;
             horizontalLine = new GUIStyle();
-#if UNITY_EDITOR
-            horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
-#endif
+
+            #if UNITY_EDITOR
+                horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
+            #endif
             horizontalLine.margin = new RectOffset(0, 0, 4, 4);
             horizontalLine.fixedHeight = 1;
 
@@ -422,24 +397,6 @@ namespace PlayerAndEditorGUI {
             GUI.color = col;
             GUILayout.Box(GUIContent.none, horizontalLine);
             GUI.color = c;
-        }
-
-        public static void Lock_UnlockWindow (GameObject go)
-        {
-#if UNITY_EDITOR
-            if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnfocus("Lock Inspector Window"))
-            {
-                UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
-                ActiveEditorTracker.sharedTracker.isLocked = true;
-               
-            }
-
-            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnfocus("Unlock Inspector Window"))
-            {
-                ActiveEditorTracker.sharedTracker.isLocked = false;
-                UnityHelperFunctions.FocusOn(go);
-            }
-#endif
         }
 
         public static bool changes(this bool value, ref bool changed)
@@ -2403,8 +2360,6 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Tabs
-
-      
         public static int tab(ref int selected, params icon[] icons) {
             nl();
 
@@ -2428,7 +2383,6 @@ namespace PlayerAndEditorGUI {
             nl();
             return selected;
         }
-
         #endregion
 
         #region Enter & Exit
@@ -3007,7 +2961,24 @@ namespace PlayerAndEditorGUI {
 
         #region Click
         public const int defaultButtonSize = 25;
+        
+        public static void Lock_UnlockWindowClick(GameObject go)
+        {
+#if UNITY_EDITOR
+            if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnfocus("Lock Inspector Window"))
+            {
+                UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
+                ActiveEditorTracker.sharedTracker.isLocked = true;
+            }
 
+            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnfocus("Unlock Inspector Window"))
+            {
+                ActiveEditorTracker.sharedTracker.isLocked = false;
+                UnityHelperFunctions.FocusOn(go);
+            }
+#endif
+        }
+        
         static bool ClickLabel(this string label, string hint, GUIStyle style = null) {
             SetBgColor(Color.clear);
 
@@ -5481,13 +5452,13 @@ namespace PlayerAndEditorGUI {
                     if (changed)
                         listInspectionIndexes[list] = ListSectionStartIndex;
                 }
-                else Line(Color.gray);
+                else line(Color.gray);
 
 
                 ListSectionMax = Mathf.Min(ListSectionMax, ListSectionStartIndex + SectionSizeOptimal);
             }
             else if (list.Count > 0)
-                Line(Color.gray);
+                line(Color.gray);
 
             nl();
 
@@ -5527,7 +5498,7 @@ namespace PlayerAndEditorGUI {
 
                 }
                 else if (list.Count > 0)
-                    Line(Color.gray);
+                    line(Color.gray);
             
         }
 

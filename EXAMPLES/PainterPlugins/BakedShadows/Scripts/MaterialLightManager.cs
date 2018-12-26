@@ -80,7 +80,7 @@ namespace Playtime_Painter {
                     
                 "Bounce Coefficient".edit(ref bounceCoefficient[c]).nl(ref changed);
             }
-                pegi.Space();
+                pegi.space();
                 pegi.newLine();
         
             return changed;

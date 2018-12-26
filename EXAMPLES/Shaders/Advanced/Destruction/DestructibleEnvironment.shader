@@ -11,6 +11,7 @@
 		_DamDiffuse2("Damaged Diffuse Deep", 2D) = "white" {}
 		[NoScaleOffset]_BumpD2("Bump Damage 2", 2D) = "gray" {}
 	}
+
 	SubShader {
 
 		Tags { "RenderType"="Opaque" }

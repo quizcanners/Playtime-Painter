@@ -124,7 +124,7 @@ namespace STD_Logic
 
                 if (_usage.HasMoreTriggerOptions)
                 {
-                    pegi.Space();
+                    pegi.space();
                     pegi.nl();
                 }
 

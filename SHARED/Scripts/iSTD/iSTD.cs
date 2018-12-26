@@ -403,7 +403,7 @@ namespace SharedTools_Stuff {
             bool changed = false;
 
             if (inspectedStuff == -1)
-                pegi.Lock_UnlockWindow(gameObject);
+                pegi.Lock_UnlockWindowClick(gameObject);
 
            if (icon.Debug.enter(ref inspectedStuff, 0)) {
 

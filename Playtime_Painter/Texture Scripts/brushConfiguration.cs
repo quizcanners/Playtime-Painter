@@ -322,7 +322,7 @@ namespace Playtime_Painter {
             changed |= pegi.select(ref _bliTMode, BlitMode.AllModes);
 
             pegi.newLine();
-            pegi.Space();
+            pegi.space();
             pegi.newLine();
 
             if (!CPU) {

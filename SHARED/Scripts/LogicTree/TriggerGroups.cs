@@ -263,7 +263,7 @@ namespace STD_Logic
                 }
 
            
-                pegi.Line();
+                pegi.line();
 
                 "New Variable".edit(80, ref Trigger.searchField);
                 AddTriggerToGroup_PEGI();
