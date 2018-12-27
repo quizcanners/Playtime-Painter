@@ -51,6 +51,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _OutlineGradient:
+        m_Texture: {fileID: 2800000, guid: 9e84ee59d2cbbc443b3a4ce0e19de6d0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -58,11 +62,11 @@ Material:
     m_Floats:
     - _Blur: 0
     - _BumpScale: 1
-    - _Courners: 0.684
+    - _Courners: 0.75
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Edge: 0.984
+    - _Edge: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -78,4 +82,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ProjTexPos: {r: 1, g: 0.8242589, b: 0, a: 0}
+    - _ProjTexPos: {r: 0.3028117, g: 0.39724612, b: 384.9, a: 387.6}

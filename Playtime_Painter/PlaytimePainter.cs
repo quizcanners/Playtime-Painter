@@ -856,6 +856,7 @@ namespace Playtime_Painter
 
             MatDta.materials_TextureFields.Clear();
 
+            if (Plugins!= null)
             foreach (PainterComponentPluginBase nt in Plugins)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materials_TextureFields);
 
@@ -894,12 +895,13 @@ namespace Playtime_Painter
             if (fieldName == null)
                 return null;
 
-            foreach (PainterComponentPluginBase t in Plugins)
-            {
-                Texture tex = null;
-                if (t.GetTexture(fieldName, ref tex, this))
-                    return tex;
-            }
+            if (Plugins != null)
+                foreach (PainterComponentPluginBase t in Plugins)
+                {
+                    Texture tex = null;
+                    if (t.GetTexture(fieldName, ref tex, this))
+                        return tex;
+                }
 
             return Material.GetTexture(fieldName);
         }
