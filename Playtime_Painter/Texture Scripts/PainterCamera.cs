@@ -416,7 +416,7 @@ namespace Playtime_Painter {
             Shader.SetGlobalVector("_brushForm", new Vector4(
                 brushAlpha, // x - transparency
                 brush.Size(is3Dbrush), // y - scale for sphere
-                brush.Size(is3Dbrush), // textureWidth // z - scale for uv space
+                brush.Size(is3Dbrush) / textureWidth, // z - scale for uv space
                 brush.blurAmount)); // w - blur amount
 
             brushType.SetKeyword(id.useTexcoord2);
