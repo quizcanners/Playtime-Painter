@@ -730,7 +730,7 @@ namespace Playtime_Painter
 
             bool gotRenderTextureData = id != null && size == id.width && size == id.width && id.TargetIsRenderTexture();
 
-            Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, true, !isColor);
+            Texture2D texture = new Texture2D(size, size, TextureFormat.ARGB32, true, !isColor);
 
             if (gotRenderTextureData && (!id.texture2D || TextureName.SameAs(id.SaveName)))
                 id.texture2D = texture;
@@ -744,30 +744,24 @@ namespace Playtime_Painter
             id.SaveName = TextureName;
             texture.name = TextureName;
 
-            bool needFullUpdate = false;
+            bool needsFullUpdate = false;
+
+            bool needsRecolorizing = false;
+
+            Color colorData = isColor ? Cfg.newTextureClearNonColorValue : Cfg.newTextureClearColor;
 
             if (gotRenderTextureData)
                 id.RenderTexture_To_Texture2D();
             else
             {
-                if (!isColor)
-                {
-                    if (Cfg.newTextureClearNonColorValue != Color.white)
-                        id.Colorize(Cfg.newTextureClearNonColorValue);
-                    needFullUpdate = true;
-                }
-                else
-                {
-                    if (Cfg.newTextureClearColor != Color.white)
-                        id.Colorize(Cfg.newTextureClearColor);
-                    needFullUpdate = true;
-                }
+                 needsRecolorizing |= id.Colorize(colorData, true);
+                 needsFullUpdate = true;
             }
 
-            if (needFullUpdate)
-                id.SetAndApply();
-            else
-                texture.Apply(true, false);
+            if (needsFullUpdate)
+                id.SetPixelsInRAM();
+           // else
+             //   texture.Apply(true, false);
 
 #if UNITY_EDITOR
             SaveTextureAsAsset(true);
@@ -779,8 +773,13 @@ namespace Playtime_Painter
 
             if (needReimport) importer.SaveAndReimport();
 
-
+            if (needsRecolorizing) {
+                id.Colorize(colorData);
+                id.SetAndApply();
+            }
 #endif
+
+            ImgData.Apply_ToGPU();
 
         }
 
@@ -1453,14 +1452,33 @@ namespace Playtime_Painter
             return ("/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameHolder));
         }
 
-        void OnBeforeSaveTexture()
+        bool OnBeforeSaveTexture(ImageData id)
         {
-            var id = ImgData;
-
-            if (id.TargetIsRenderTexture())
-            {
+            if (id.TargetIsRenderTexture()) 
                 id.RenderTexture_To_Texture2D();
+
+            var tex = id.texture2D;
+
+            if (id. preserveTransparency && !tex.TextureHasAlpha()) {
+                
+                ChangeTexture(id.NewTexture2D());
+                
+                Debug.Log("Old Texture had no Alpha channel, creating new");
+
+                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.SaveName, false);
+
+                id.texture2D.CopyImportSettingFrom(tex);
+
+                id.texture2D.Reimport_IfNotReadale();
+
+               
+
+                return false;
             }
+
+            id.SetAlphaSavePixel();
+
+            return true;
         }
 
         void OnPostSaveTexture(ImageData id)
@@ -1468,40 +1486,41 @@ namespace Playtime_Painter
             SetTextureOnMaterial(id);
             UpdateOrSetTexTarget(id.destination);
             UpdateShaderGlobals();
+
+            id.UnsetAlphaSavePixel();
         }
 
-        public void RewriteOriginalTexture_Rename(string name)
-        {
+        public void RewriteOriginalTexture_Rename(string name) {
 
-            OnBeforeSaveTexture();
             var id = ImgData;
-            id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(name);
 
-            OnPostSaveTexture(id);
+            if (OnBeforeSaveTexture(id)) {
+                id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(name);
+
+                OnPostSaveTexture(id);
+            }
         }
 
-        public void RewriteOriginalTexture()
-        {
-
-            OnBeforeSaveTexture();
+        public void RewriteOriginalTexture() {
             var id = ImgData;
-            id.texture2D = id.texture2D.RewriteOriginalTexture();
 
-            OnPostSaveTexture(id);
+            if (OnBeforeSaveTexture(id)) {
+                id.texture2D = id.texture2D.RewriteOriginalTexture();
+                OnPostSaveTexture(id);
+            }
         }
 
-        public void SaveTextureAsAsset(bool asNew)
-        {
-
-            OnBeforeSaveTexture();
+        public void SaveTextureAsAsset(bool asNew) {
 
             var id = ImgData;
-            id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.SaveName, asNew);
 
-            id.texture2D.Reimport_IfNotReadale();
+            if (OnBeforeSaveTexture(id)) {
+                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.SaveName, asNew);
+
+                id.texture2D.Reimport_IfNotReadale();
+            }
 
             OnPostSaveTexture(id);
-
         }
 
         public void SaveMesh()
@@ -1813,7 +1832,7 @@ namespace Playtime_Painter
 
         public static PlaytimePainter selectedInPlaytime = null;
 
-#if PEGI
+        #if PEGI
         public static pegi.WindowPositionData_PEGI_GUI windowPosition = new pegi.WindowPositionData_PEGI_GUI();
 
         const string defaultImageLoadURL = "https://picsbuffet.com/pixabay/";
@@ -1883,19 +1902,14 @@ namespace Playtime_Painter
 
             #endregion
 
-            #region Config 
-
-            if ((Cfg.showConfig) || (PainterStuff.IsNowPlaytimeAndDisabled))
-            {
-
+ 
+            if ((Cfg.showConfig) || (PainterStuff.IsNowPlaytimeAndDisabled)) {
                 pegi.newLine();
                 Cfg.Nested_Inspect();
-
             }
             else
             {
-
-                #endregion
+           
 
                 #region Mesh Editing
 
@@ -2003,9 +2017,7 @@ namespace Playtime_Painter
                 }
 
                 #endregion
-
-
-
+                
                 #region Texture Editing
 
                 else {
@@ -2137,19 +2149,14 @@ namespace Playtime_Painter
                         }
 
                         #endregion
-                    
-
 
                     }
                     else
                         if (!IsOriginalShader)
                         this.PreviewShaderToggle_PEGI();
-
-
-
+                    
                     id = ImgData;
-
-
+                    
                     #region Fancy Options
                     pegi.nl();
                     "Fancy options".foldout(ref Cfg.moreOptions).nl();
@@ -2225,10 +2232,7 @@ namespace Playtime_Painter
                     }
 
                     #endregion
-
-
-
-
+                    
                     #region Save Load Options
 
                     if (!PainterStuff.IsNowPlaytimeAndDisabled && (meshRenderer || terrain) && !Cfg.showConfig)
@@ -2412,7 +2416,7 @@ namespace Playtime_Painter
 
                                 id = ImgData;
 
-#if UNITY_EDITOR
+                                #if UNITY_EDITOR
                                 string Orig = null;
                                 if (id.texture2D)
                                 {
@@ -2462,7 +2466,7 @@ namespace Playtime_Painter
                                     pegi.nl();
 
                                 }
-#endif
+                                #endif
 
                             }
                             pegi.nl();
@@ -2475,9 +2479,7 @@ namespace Playtime_Painter
                     }
 
                     #endregion
-
-
-
+                    
                 }
                 pegi.nl();
 
@@ -2589,10 +2591,7 @@ namespace Playtime_Painter
             return changed;
 
         }
-
-
-
-#endif
+        #endif
 
 #if UNITY_EDITOR
         static Tool previousEditorTool = Tool.None;

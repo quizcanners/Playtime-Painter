@@ -79,6 +79,10 @@
 
 	
 				float4 frag(v2f i) : COLOR{
+
+
+					//	return 1;
+
 					float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
 					#if UV_ATLASED
@@ -108,8 +112,10 @@
 
 						col = tex2Dlod(_PreviewTex, float4(i.texcoord.xy,0,0));
 						float2 off2 = i.texcoord.zw*i.texcoord.zw;
+
 						float fromCenter = sqrt(off2.x+off2.y);
-						float gridCircleSize = _brushForm.x;
+						float gridCircleSize =_brushForm.x;
+
 
 						fromCenter =(gridCircleSize - fromCenter)/(gridCircleSize);
 
@@ -141,7 +147,7 @@
 							float differentColor = min(0.5, (abs(col.g-_brushColor.g)+abs(col.r-_brushColor.r)+abs(col.b-_brushColor.b))*8);
 							_brushColor = _brushColor*(differentColor+0.5);
 						#else
-							alpha *= prepareAlphaSquarePreview (i.texcoord);
+							alpha *= prepareAlphaSquarePreview(i.texcoord);
 						#endif
 					#endif
 
@@ -200,6 +206,7 @@
 						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor,  i.texcoord.xy, col);
 					#endif
 
+					
 					return col;
 
 				}

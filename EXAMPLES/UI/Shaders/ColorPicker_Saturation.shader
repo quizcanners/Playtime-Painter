@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/ColorPicker_Saturation" {
+﻿Shader "Playtime Painter/UI/ColorPicker_Contrast" {
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Circle("Circle", 2D) = "black" {}

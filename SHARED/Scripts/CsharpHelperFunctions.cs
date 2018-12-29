@@ -859,7 +859,7 @@ namespace SharedTools_Stuff
             return d[n, m];
         }
 
-        public static bool IsNullOrEmpty(this string s) => s == null || s.Length == 0;
+        public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
 
         #endregion
         

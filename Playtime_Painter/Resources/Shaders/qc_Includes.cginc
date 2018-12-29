@@ -84,7 +84,7 @@ inline float checkersFromWorldPosition(float3 worldPos, float distance){
 inline float4 previewTexcoord (float2 texcoord){
 	float4 tmp;
 	tmp.xy = texcoord.xy;
-	tmp.zw = (_brushPointedUV.xy-floor(_brushPointedUV.xy) - tmp.xy + floor(tmp.xy))/_brushForm.z;
+	tmp.zw = (_brushPointedUV.xy - floor(_brushPointedUV.xy) - tmp.xy + floor(tmp.xy))/_brushForm.z;
 	//tmp.zw -= floor(tmp.zw);
 	return tmp;
 }
@@ -129,8 +129,6 @@ inline float calculateAlpha (float a, float fromMask){
 	return saturate(pow( a*(1-hardmod)+(a*(fromMask)*3*hardmod) ,(1+_maskDynamics.y*0.1))*_brushForm.x);
 }
 
-
-
 inline float prepareAlphaSphere (float2 texcoord, float3 worldPos){
 	float mask = getMaskedAlpha (texcoord);
 
@@ -146,8 +144,6 @@ inline float prepareAlphaSpherePreview (float2 texcoord, float3 worldPos){
 
 	return calculateAlpha (alpha, mask);
 }
-
-
 
 inline float alphaFromUV (float4 texcoord){
 		
@@ -167,6 +163,16 @@ inline float prepareAlphaSquare(float4 texcoord) {
 	return calculateAlpha(1, mask);
 }
 
+inline float prepareAlphaSquarePreview(float4 texcoord) {
+
+	float2 off = texcoord.zw * texcoord.zw;
+	float a = max(off.x, off.y);
+
+	a = max(0, 1 - a * (4));
+
+	return saturate(a * 128);
+}
+
 inline float prepareAlphaSmooth (float4 texcoord){
 	float mask = getMaskedAlpha (texcoord.xy);
 
@@ -184,17 +190,6 @@ inline float prepareAlphaSmoothPreview (float4 texcoord){
 
 	return calculateAlpha (a, mask);
 }
-
-inline float prepareAlphaSquarePreview (float4 texcoord){
-		
-	float2 off = texcoord.zw * texcoord.zw;
-	float a = max(off.x,off.y);
-		
-	a = max(0,1 - a*(4));
-
-	return saturate(a*128);
-}
-
 
 inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 	
@@ -305,7 +300,6 @@ inline float4 subtractFromDestBuffer (float alpha,float4 src, float2 texcoord){
     return  col;
     #endif
 }
-
 
 inline float4 subtractFromDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col){
     _brushMask*=alpha;

@@ -40,6 +40,8 @@ namespace Playtime_Painter
         public bool showRecording = false;
         public bool enableUndoRedo;
         public bool pixelsDirty = false;
+        public bool preserveTransparency = true;
+        public bool alphaPreservePixelSet = false;
 
         public float repaintDelay = 0.016f;
         public int numberOfTexture2Dbackups = 10;
@@ -57,6 +59,9 @@ namespace Playtime_Painter
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
+
+       
+
         #endregion
 
         #region SAVE IN PLAYER
@@ -137,7 +142,8 @@ namespace Playtime_Painter
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", useTexcoord2_AutoAssigned)
             .Add_IfNotBlack("clear", clearColor)
-            .Add_IfNotEmpty("URL", URL);
+            .Add_IfNotEmpty("URL", URL)
+            .Add_IfFalse("alpha", preserveTransparency);
 
             if (enableUndoRedo)
                 cody.Add("2dUndo", numberOfTexture2Dbackups)
@@ -180,6 +186,7 @@ namespace Playtime_Painter
                 case "tc2Auto": useTexcoord2_AutoAssigned = data.ToBool(); break;
                 case "clear": clearColor = data.ToColor(); break;
                 case "URL": URL = data; break;
+                case "alpha": preserveTransparency = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -310,6 +317,22 @@ namespace Playtime_Painter
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
 
+        public Texture2D NewTexture2D()
+        {
+
+            Texture2D newTex = new Texture2D(width, height, TextureFormat.RGBA32, true);
+            
+            newTex.SetPixels(Pixels);
+
+            newTex.Apply();
+
+            newTex.name = texture2D.name + "_A";
+
+            texture2D = newTex;
+            
+            return newTex;
+        }
+
         public void RenderTexture_To_Texture2D(Texture2D tex)
         {
             if (!texture2D)
@@ -392,74 +415,6 @@ namespace Playtime_Painter
 
         }
 
-        public void PixelsToGamma()
-        {
-            var p = Pixels;
-            for (int i = 0; i < p.Length; i++)
-                _pixels[i] = _pixels[i].gamma;
-        }
-
-        public void PixelsToLinear()
-        {
-            var p = Pixels;
-            for (int i = 0; i < p.Length; i++)
-                _pixels[i] = _pixels[i].linear;
-        }
-
-        void UVto01(ref Vector2 uv)
-        {
-            uv.x %= 1;
-            uv.y %= 1;
-            if (uv.x < 0) uv.x += 1;
-            if (uv.y < 0) uv.y += 1;
-        }
-
-        public void Colorize(Color col)
-        {
-            for (int i = 0; i < Pixels.Length; i++)
-                _pixels[i] = col;
-
-        }
-
-        public Color SampleAT(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
-        
-        public Color SampleRenderTexture(Vector2 uv) {
-
-            RenderTexture curRT = RenderTexture.active;
-
-            PainterCamera rtp = PainterCamera.Inst;
-            int size = PainterCamera.renderTextureSize / 4;
-            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRT(size, size);
-
-            if (!sampler) sampler = new Texture2D(8, 8);
-
-            UVto01(ref uv);
-
-            if (!renderTexture)
-                uv.y = 1 - uv.y; // For some reason sampling is mirrored around Y axiz for BigRenderTexture (?)
-
-            uv *= RenderTexture.active.width;
-
-            sampler.ReadPixels(new Rect(uv.x, uv.y, 1, 1), 0, 0);
-
-            RenderTexture.active = curRT;
-
-            var pix = sampler.GetPixel(0, 0);
-
-            if (PainterCamera.Inst.isLinearColorSpace)
-                pix = pix.linear;
-
-            return pix;
-        }
-
-        public void PixelsFromTexture2D(Texture2D tex) {
-            if (tex) {
-                Pixels = tex.GetPixels();
-                width = tex.width;
-                height = tex.height;
-            }
-        }
-
         public void ChangeDestination(TexTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
         {
 
@@ -490,6 +445,123 @@ namespace Playtime_Painter
             else Debug.Log("Destination already Set");
 
         }
+        
+        public void SetPixelsInRAM() => texture2D.SetPixels(_pixels);
+        
+        public void Apply_ToGPU(bool mipmaps = true) => texture2D.Apply(mipmaps, false);
+
+        public void SetAndApply(bool mipmaps = true) {
+            if (_pixels != null) {
+                SetPixelsInRAM();
+                Apply_ToGPU(mipmaps);
+            }
+        }
+        #endregion
+        
+        #region Pixels MGMT
+
+        public void UnsetAlphaSavePixel() {
+            if (alphaPreservePixelSet)
+            {
+                _pixels[0].a = 1;
+                SetAndApply();
+            }
+        }
+
+        public void SetAlphaSavePixel()  {
+
+            if (preserveTransparency && Pixels[0].a == 1) {
+                _pixels[0].a = 0.9f;
+                alphaPreservePixelSet = true;
+                SetPixel_InRAM(0, 0);
+            }
+
+        }
+
+        public void SetPixel_InRAM(int x, int y) => texture2D.SetPixel(x, y, _pixels[PixelNo(x, y)]);
+        
+        public void PixelsToGamma()
+        {
+            var p = Pixels;
+            for (int i = 0; i < p.Length; i++)
+                _pixels[i] = _pixels[i].gamma;
+        }
+
+        public void PixelsToLinear()
+        {
+            var p = Pixels;
+            for (int i = 0; i < p.Length; i++)
+                _pixels[i] = _pixels[i].linear;
+        }
+
+        void UVto01(ref Vector2 uv)
+        {
+            uv.x %= 1;
+            uv.y %= 1;
+            if (uv.x < 0) uv.x += 1;
+            if (uv.y < 0) uv.y += 1;
+        }
+
+        public bool Colorize(Color col, bool creatingNewTexture = false)
+        {
+            // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
+            bool needsRecolorizingAfterSave = false;
+
+#if UNITY_EDITOR
+            if (creatingNewTexture && col.a == 1)
+            {
+                needsRecolorizingAfterSave = true;
+                col.a = 0.5f;
+            }
+#endif
+
+            for (int i = 0; i < Pixels.Length; i++)
+                _pixels[i] = col;
+
+            return needsRecolorizingAfterSave;
+        }
+
+        public Color SampleAT(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
+
+        public Color SampleRenderTexture(Vector2 uv)
+        {
+
+            RenderTexture curRT = RenderTexture.active;
+
+            PainterCamera rtp = PainterCamera.Inst;
+            int size = PainterCamera.renderTextureSize / 4;
+            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRT(size, size);
+
+            if (!sampler) sampler = new Texture2D(8, 8);
+
+            UVto01(ref uv);
+
+            if (!renderTexture)
+                uv.y = 1 - uv.y; // For some reason sampling is mirrored around Y axiz for BigRenderTexture (?)
+
+            uv *= RenderTexture.active.width;
+
+            sampler.ReadPixels(new Rect(uv.x, uv.y, 1, 1), 0, 0);
+
+            RenderTexture.active = curRT;
+
+            var pix = sampler.GetPixel(0, 0);
+
+            if (PainterCamera.Inst.isLinearColorSpace)
+                pix = pix.linear;
+
+            return pix;
+        }
+
+        public void PixelsFromTexture2D(Texture2D tex)
+        {
+            if (tex)
+            {
+                Pixels = tex.GetPixels();
+                width = tex.width;
+                height = tex.height;
+            }
+        }
 
         public Color Pixel(MyIntVec2 v)
         {
@@ -518,17 +590,21 @@ namespace Playtime_Painter
             return y * width + x;
         }
 
+        public int PixelNo(int x, int y)
+        {
+            x %= width;
+            if (x < 0)
+                x += width;
+            y %= height;
+            if (y < 0)
+                y += height;
+            return y * width + x;
+        }
+
         public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(uv.x * width, uv.y * height);
 
-        public void SetAndApply(bool mipmaps = true)
-        {
-            if (_pixels != null) {
-                texture2D.SetPixels(_pixels);
-                texture2D.Apply(mipmaps);
-            }
-        }
         #endregion
-
+        
         #region BlitJobs
 #if UNITY_2018_1_OR_NEWER
         public NativeArray<Color> pixelsForJob;
@@ -813,7 +889,14 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (isATransparentLayer && !hasTPtag) || forceOpenUTransparentLayer)
-                changed |= "Transparent Layer".toggleIcon(ref isATransparentLayer).nl();
+                "Transparent Layer".toggleIcon(ref isATransparentLayer).nl(ref changed);
+
+            if (showToggles) {
+                if (isATransparentLayer)
+                    preserveTransparency = true;
+                else
+                    "Preserve Transparency".toggleIcon(ref preserveTransparency).nl(ref changed);
+            }
 
             bool forceOpenUV2 = false;
             bool hasUV2tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
@@ -835,8 +918,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-
-
+        
         public bool Undo_redo_PEGI()
         {
             bool changed = false;

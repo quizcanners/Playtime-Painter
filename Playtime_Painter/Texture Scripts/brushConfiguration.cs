@@ -441,7 +441,7 @@ namespace Playtime_Painter {
                 if (p.ImgData != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
                     pegi.writeWarning("Preview Shader is needed to see changes to terrain height.");
 
-                pegi.newLine();
+                pegi.nl();
 
                 if (p.terrain && "Update Terrain".Click("Will Set Terrain texture as global shader values.").nl())
                     p.UpdateShaderGlobals();
@@ -454,8 +454,7 @@ namespace Playtime_Painter {
         public bool ChannelSlider(BrushMask m, ref float channel)
         {
             pegi.write(m.GetIcon(), 25);
-            bool changed = pegi.edit(ref channel, 0, 1).nl();
-            return changed;
+            return pegi.edit(ref channel, 0, 1).nl();
         }
 
         public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider) {
@@ -489,6 +488,8 @@ namespace Playtime_Painter {
             if (slider && mask.GetFlag(m))
                 pegi.edit(ref chanel, 0, 1).nl(ref changed);
 
+
+
             return changed;
         }
 
@@ -504,10 +505,10 @@ namespace Playtime_Painter {
                 colorLinear.From(col);
              
             if (Cfg.showColorSliders) {
-                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, true);
-                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, true);
-                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, true);
-                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
+                ChannelSlider(BrushMask.R, ref colorLinear.r, null, true).nl(ref changed);
+                ChannelSlider(BrushMask.G, ref colorLinear.g, null, true).nl(ref changed);
+                ChannelSlider(BrushMask.B, ref colorLinear.b, null, true).nl(ref changed);
+                ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).nl(ref changed);
             }
 
             return changed;
@@ -527,28 +528,36 @@ namespace Playtime_Painter {
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
-                changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider);
-                changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider);
-                changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider);
-                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider);
+                ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider).nl(ref changed);
+                ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider).nl(ref changed);
+                ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider).nl(ref changed);
+                ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider).nl(ref changed);
             }
             else
             {
                 var id = painter.ImgData;
                 if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
-                    changed |= ChannelSlider(BrushMask.R, ref colorLinear.r);
-                    changed |= ChannelSlider(BrushMask.G, ref colorLinear.g);
-                    changed |= ChannelSlider(BrushMask.B, ref colorLinear.b);
+                    ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
+                    ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
+                    ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
 
                 }
                 else
                 {
 
-                    changed |= ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider);
-                    changed |= ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider);
-                    changed |= ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider);
-                    changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider);
+                    ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider).nl(ref changed);
+                    ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider).nl(ref changed);
+                    ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider).nl(ref changed);
+
+                    bool gotAlpha = InspectedPainter.ImgData.texture2D.TextureHasAlpha();
+
+                    if (gotAlpha || id.preserveTransparency) {
+
+                        if (!gotAlpha)
+                            icon.Warning.write("Texture as no alpha, clicking save will fix it");
+                        ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
+                    }
                 }
             }
             return changed;

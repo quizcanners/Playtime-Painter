@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/ColorPicker_HUE"{
+﻿Shader "Playtime Painter/UI/ColorPicker_HUE"{
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Arrow("Arrow", 2D) = "black" {}

@@ -1230,6 +1230,27 @@ namespace SharedTools_Stuff {
 
         }
 
+        public static bool TextureHasAlpha (this Texture2D tex)
+        {
+            
+                if (!tex) return false;
+
+                // May not cover all cases
+
+                switch (tex.format)
+                {
+                    case TextureFormat.ARGB32: return true;
+                    case TextureFormat.RGBA32: return true;
+                    case TextureFormat.ARGB4444: return true;
+                    case TextureFormat.BGRA32: return true;
+                    case TextureFormat.PVRTC_RGBA4: return true;
+                    case TextureFormat.RGBAFloat: return true;
+                    case TextureFormat.RGBAHalf: return true;
+                }
+                return false;
+            
+        }
+
         #endregion
 
         #region Texture Import Settings
@@ -1247,16 +1268,9 @@ namespace SharedTools_Stuff {
             return true;
         }
 
-#if UNITY_EDITOR
-
-        public static TextureImporter GetTextureImporter(this Texture2D tex)
+        public static void CopyImportSettingFrom(this Texture2D dest, Texture2D original)
         {
-            return AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-        }
-
-
-        public static void ReimportToMatchImportConfigOf(this Texture2D dest, Texture2D original)
-        {
+            #if UNITY_EDITOR
             TextureImporter dst = dest.GetTextureImporter();
             TextureImporter org = original.GetTextureImporter();
 
@@ -1285,9 +1299,17 @@ namespace SharedTools_Stuff {
                 dst.textureCompression = org.textureCompression;
                 dst.SaveAndReimport();
             }
-
+            #endif
         }
+        
 
+        #if UNITY_EDITOR
+
+        public static TextureImporter GetTextureImporter(this Texture2D tex)
+        {
+            return AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+        }
+        
         public static bool HadNoMipmaps(this TextureImporter importer)
         {
 
@@ -1338,9 +1360,7 @@ namespace SharedTools_Stuff {
             return needsReimport;
 
         }
-
-
-
+        
         public static void Reimport_IfClamped(this Texture2D tex)
         {
             if (!tex) return;
@@ -1372,8 +1392,11 @@ namespace SharedTools_Stuff {
 
             TextureImporter importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasNotReadable()))
+            if (importer != null && importer.WasNotReadable())
+            {
                 importer.SaveAndReimport();
+                Debug.Log("Reimporting to make readable");
+            }
         }
         public static bool WasNotReadable(this TextureImporter importer)
         {
@@ -1543,9 +1566,8 @@ namespace SharedTools_Stuff {
             return null;
 #endif
         }
-
-
-#if UNITY_EDITOR
+        
+        #if UNITY_EDITOR
         public static void SaveTexture(this Texture2D tex)
         {
 
@@ -1581,7 +1603,7 @@ namespace SharedTools_Stuff {
 
             Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            result.ReimportToMatchImportConfigOf(tex);
+            result.CopyImportSettingFrom(tex);
 
             AssetDatabase.DeleteAsset(tex.GetAssetPath());
 
@@ -1589,23 +1611,21 @@ namespace SharedTools_Stuff {
             return result;
         }
 
-        public static Texture2D RewriteOriginalTexture(this Texture2D tex)
-        {
-            //Debug.Log("Rewriting original texture");
+        public static Texture2D RewriteOriginalTexture(this Texture2D tex) {
+  
+            string dest = tex.GetPathWithout_Assets_Word();
+            if (dest.IsNullOrEmpty())
+                return tex;
 
             byte[] bytes = tex.EncodeToPNG();
-
-            string dest = tex.GetPathWithout_Assets_Word();
-            if (String.IsNullOrEmpty(dest)) return tex;
 
             File.WriteAllBytes(Application.dataPath + dest, bytes);
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
-            //AssetDatabase.Refresh();
 
             Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            result.ReimportToMatchImportConfigOf(tex);
+            result.CopyImportSettingFrom(tex);
 
             return result;
         }
@@ -1637,18 +1657,15 @@ namespace SharedTools_Stuff {
 
             textureName = result.name;
 
-            result.ReimportToMatchImportConfigOf(tex);
+            result.CopyImportSettingFrom(tex);
 
             return result;
         }
 
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName)
-        {
-            return CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
-        }
-
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height)
-        {
+        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) =>
+             CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
+        
+        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
 
             Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
 
@@ -1685,7 +1702,7 @@ namespace SharedTools_Stuff {
             return tex;
 
         }
-#endif
+        #endif
         #endregion
 
         #region Terrain Layers

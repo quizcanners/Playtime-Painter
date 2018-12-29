@@ -412,14 +412,12 @@ namespace PlayerAndEditorGUI {
         public static void newLine()
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
+            if (!paintingPlayAreaGUI) {
                 ef.newLine();
+                return;
             }
-            else
 #endif
-        if (lineOpen)
-            {
+            if (lineOpen) {
                 lineOpen = false;
                 GUILayout.EndHorizontal();
             }

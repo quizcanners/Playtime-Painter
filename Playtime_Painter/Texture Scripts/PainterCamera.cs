@@ -407,7 +407,8 @@ namespace Playtime_Painter {
                 , 0));
 
             Shader.SetGlobalVector("_maskOffset", brush.maskOffset.ToVector4());/*new Vector4(
-                brush.maskOffset.x,
+                
+            brush.maskOffset.x,
                 brush.maskOffset.y,
                 0,
                 0));*/

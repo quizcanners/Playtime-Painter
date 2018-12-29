@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/ColorPicker_HUE_Radial"
+﻿Shader "Playtime Painter/UI/ColorPicker_HUE_Radial"
 {
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
