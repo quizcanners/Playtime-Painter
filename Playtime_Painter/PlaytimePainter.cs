@@ -2190,7 +2190,7 @@ namespace Playtime_Painter
 
                             "Color Texture".toggleIcon("Will the new texture be a Color Texture", ref Cfg.newTextureIsColor).nl(ref changed);
 
-                            "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions).nl();
+                            "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl();
                         }
 
                         if (id != null) {
@@ -2326,7 +2326,7 @@ namespace Playtime_Painter
 
                             bool isTerrainHeight = IsTerrainHeightTexture;
 
-                            int texScale = !isTerrainHeight ? (PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize))
+                            int texScale = !isTerrainHeight ?  Cfg.SelectedWidthForNewTexture() //(PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex))
 
                                 : (terrain.terrainData.heightmapResolution - 1);
 

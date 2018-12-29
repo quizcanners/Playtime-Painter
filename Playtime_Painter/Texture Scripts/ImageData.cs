@@ -250,10 +250,12 @@ namespace Playtime_Painter
         #endregion
 
         #region Texture MGMT
-        public void Resize(int size)
+        public void Resize(int size) => Resize(size, size);
+
+        public void Resize(int newWight, int newHeight)
         {
 
-            if (size >= 8 && size <= 4096 && (size != width || size != height) && texture2D)
+            if (newHeight >= 8 && newHeight <= 4096 && newWight >= 8 && newWight <= 4096 && (newWight != width || newHeight != height) && texture2D)
             {
 
                 var tmp = renderTexture;
@@ -261,9 +263,11 @@ namespace Playtime_Painter
 
                 Texture2D_To_RenderTexture();
 
-                texture2D.Resize(size, size);
+                texture2D.Resize(newWight, newHeight);
 
-                width = height = size;
+                width = newWight;
+
+                height = newHeight;
 
                 texture2D.CopyFrom(PainterCamera.Inst.GetDownscaledBigRT(width, height));
 
@@ -796,50 +800,68 @@ namespace Playtime_Painter
             }
 
             #region Processors
-            if ("Texture Processors".enter(ref inspectedStuff, 6).nl()) {
 
-                if ("Resize Texture ({0} * {1})".F(width, height).enter(ref inspectedProcess, 0).nl_ifNotEntered())  {
-                    "New size ".select(60, ref PainterCamera.Data.selectedSize, PainterDataAndConfig.NewTextureSizeOptions);
-                    int size = PainterDataAndConfig.SelectedSizeForNewTexture(PainterCamera.Data.selectedSize);
+            int newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
+            int newHeight = Cfg.SelectedHeightForNewTexture();
 
-                    if (size != width || size != height)
-                    {
+            if ("Texture Processors".enter(ref inspectedStuff, 6).nl_ifFolded()) {
+
+                "<-Return".nl(PEGI_Styles.ListLabel);
+
+                if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).enter(ref inspectedProcess, 0).nl_ifFoldedOut())
+                {
+                    "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+
+                    "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+
+
+                    if (newWidth != width || newHeight != height) {
+
                         bool rescale = false;
 
-                        if (size <= width && size <= height)
+                        if (newWidth <= width && newHeight <= height)
                             rescale = "Downscale".Click();
-                        else if (size >= width && size >= height)
+                        else if (newWidth >= width && newHeight >= height)
                             rescale = "Upscale".Click();
                         else
                             rescale = "Rescale".Click();
 
                         if (rescale)
-                            Resize(size);
+                            Resize(newWidth, newHeight);
                     }
-
                     pegi.nl();
-                 
                 }
 
-                if ("Colorize ".enter(ref inspectedProcess, 1).nl_ifNotEntered()) {
+                if (inspectedProcess == -1)
+                {
+                    if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
+                        Resize(newWidth, newHeight);
+
+                    pegi.nl();
+                }
+
+                if ("Colorize ".enter(ref inspectedProcess, 1)) {
 
                     "Clear Color".edit(80, ref clearColor).nl();
-                    if ("Clear Texture".Click().nl())
-                    {
+                    if ("Clear Texture".Click().nl()) {
                         Colorize(clearColor);
                         SetAndApply();
                     }
                 }
-
-                    if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl())
-                {
+                
+                if (inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl()) {
+                    Colorize(clearColor);
+                    SetAndApply();
+                }
+                
+                if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl()) {
                     pegi.write(TexMGMT.BigRT_pair[0], 200);
                     pegi.nl();
                     pegi.write(TexMGMT.BigRT_pair[1], 200);
 
                     pegi.nl();
                 }
-                }
+            }
 
             #endregion
 
@@ -977,7 +999,7 @@ namespace Playtime_Painter
             return null;
         }
 
-#endif
+        #endif
         #endregion
 
         float repaintTimer;

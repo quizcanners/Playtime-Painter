@@ -9,10 +9,11 @@
 
 	Category{
 		Tags{
-			"Queue" = "AlphaTest"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 		}
 
+		Blend SrcAlpha OneMinusSrcAlpha
 		Cull Off
 
 		SubShader{

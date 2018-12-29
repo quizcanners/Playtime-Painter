@@ -80,7 +80,6 @@ inline float checkersFromWorldPosition(float3 worldPos, float distance){
 	
 }
 
-	
 inline float4 previewTexcoord (float2 texcoord){
 	float4 tmp;
 	tmp.xy = texcoord.xy;

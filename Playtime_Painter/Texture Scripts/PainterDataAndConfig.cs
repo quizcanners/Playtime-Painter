@@ -239,7 +239,9 @@ namespace Playtime_Painter
 
         public Color newTextureClearNonColorValue = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
-        public int selectedSize = 4;
+        public int selectedWidthIndex = 4;
+
+        public int selectedHeightIndex = 4;
 
         static string[] texSizes;
 
@@ -261,7 +263,11 @@ namespace Playtime_Painter
 
         }
 
-        public static int SelectedSizeForNewTexture(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
+        public int SelectedWidthForNewTexture() => SizeIndexToSize(selectedWidthIndex);
+
+        public int SelectedHeightForNewTexture() => SizeIndexToSize(selectedHeightIndex);
+
+        public static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
         #endregion
 
         #region BrushStrokeRecordings
