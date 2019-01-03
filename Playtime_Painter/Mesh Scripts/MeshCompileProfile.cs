@@ -188,10 +188,12 @@ namespace Playtime_Painter
         }
     }
 
-    public abstract class VertexDataType
+    public abstract class VertexDataType: IGotDisplayName
     {
         public byte chanelsNeed;
         public int myIndex;
+
+        public abstract string NameForPEGIdisplay { get; }
 
         public virtual string GetFieldName(int ind)
         {
@@ -217,16 +219,10 @@ namespace Playtime_Painter
 
         public abstract void Clear();
 
-        public virtual void GenerateIfNull()
-        {
-            Debug.Log(this.GetType() + " does not generate any data");
-        }
-
-        public virtual float[] GetValue(int no)
-        {
-            return null;
-        }
-
+        public virtual void GenerateIfNull() => Debug.Log(this.GetType() + " does not generate any data");
+        
+        public virtual float[] GetValue(int no) => null;
+        
         public virtual Vector2[] GetV2(VertexDataTarget trg)
         {
             Debug.Log("Mesh Data type " + this.GetType() + " does not provide Vector2 array");
@@ -773,10 +769,8 @@ namespace Playtime_Painter
                 return vertices;
             }
 
-            public override string ToString()
-            {
-                return "position";
-            }
+            public override string NameForPEGIdisplay => "position";
+            
 
             public VertexPos(int index) : base(dataSize, index)
             {
@@ -820,10 +814,7 @@ namespace Playtime_Painter
                 v2s = null;
             }
 
-            public override string ToString()
-            {
-                return "uv" + myUVindex.ToString();
-            }
+            public override string NameForPEGIdisplay => "uv" + myUVindex.ToString();
 
             public VertexUV(int index) : base(dataSize, index)
             {
@@ -869,16 +860,10 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override void Clear()
-            {
-                v4s = null;
-            }
-
-            public override string ToString()
-            {
-                return "tangent";
-            }
-
+            public override void Clear() => v4s = null;
+            
+            public override string NameForPEGIdisplay => "tangent";
+            
             public VertexTangent(int index) : base(dataSize, index)
             {
                 inst = this;
@@ -897,13 +882,9 @@ namespace Playtime_Painter
                 if (v3norms == null)
                     v3norms = CurMeshDta._normals;
             }
-
-           
-
+            
             public override float[] GetValue(int no)
             {
-               
-
                 for (int i = 0; i < vcnt; i++)
                     chanelMedium[i] = v3norms[i][no];
 
@@ -912,28 +893,14 @@ namespace Playtime_Painter
 
             public override Vector3[] GetV3(VertexDataTarget trg)
             {
-               // if (trg.GetType() == typeof(vertexNormalTrg))
-               // {
-                  //  curMeshDta.mesh.RecalculateNormals();
-                 //   return null;
-               // }
-
                 GenerateIfNull();
-
-
                 return v3norms;
             }
 
-            public override void Clear()
-            {
-                v3norms = null;
-            }
-
-            public override string ToString()
-            {
-                return "normal";
-            }
-
+            public override void Clear() => v3norms = null;
+            
+            public override string NameForPEGIdisplay => "normal";
+            
             public VertexNormal(int index) : base(dataSize, index)
             {
                 inst = this;
@@ -963,21 +930,12 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override Vector3[] GetV3(VertexDataTarget trg)
-            {
-                return v3norms;
-            }
-
-            public override void Clear()
-            {
-                v3norms = null;
-            }
+            public override Vector3[] GetV3(VertexDataTarget trg) => v3norms;
             
-            public override string ToString()
-            {
-                return "SharpNormal";
-            }
-
+            public override void Clear() => v3norms = null;
+            
+            public override string NameForPEGIdisplay => "SharpNormal";
+            
             public VertexSharpNormal(int index) : base(dataSize, index)
             {
                 inst = this;
@@ -1005,11 +963,8 @@ namespace Playtime_Painter
                 }
             }
 
-            public override Vector4[] GetV4(VertexDataTarget trg)
-            {
-                return cols;
-            }
-
+            public override Vector4[] GetV4(VertexDataTarget trg) => cols;
+            
             public override float[] GetValue(int no)
             {
                 for (int i = 0; i < vcnt; i++)
@@ -1018,11 +973,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "Color";
-            }
-
+            public override string NameForPEGIdisplay => "Color";
+            
             public override string GetFieldName(int ind)
             {
                 switch (ind)
@@ -1039,10 +991,9 @@ namespace Playtime_Painter
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                cols = null;
-            }
+
+            public override void Clear() => cols = null;
+            
         }
 
         public class VertexIndex : VertexDataType
@@ -1066,27 +1017,18 @@ namespace Playtime_Painter
 
                 return chanelMedium;
             }
-
-
-
-            public override string GetFieldName(int ind)
-            {
-                return "index";
-            }
-
-            public override string ToString()
-            {
-                return "vertexIndex";
-            }
-
+            
+            public override string GetFieldName(int ind) => "index";
+            
+            public override string NameForPEGIdisplay => "vertexIndex";
+            
             public VertexIndex(int index) : base(dataSize, index)
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                inds = null;
-            }
+
+            public override void Clear() => inds = null;
+            
         }
 
         public class VertexShadow : VertexDataType
@@ -1102,11 +1044,8 @@ namespace Playtime_Painter
 
             }
 
-            public override Vector4[] GetV4(VertexDataTarget trg)
-            {
-                return shads;
-            }
-
+            public override Vector4[] GetV4(VertexDataTarget trg) => shads;
+            
             public override float[] GetValue(int no)
             {
                 for (int i = 0; i < vcnt; i++)
@@ -1115,24 +1054,17 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string GetFieldName(int ind)
-            {
-                return "light " + ind;
-            }
-
-            public override string ToString()
-            {
-                return "shadow";
-            }
-
+            public override string GetFieldName(int ind) => "light " + ind;
+            
+            public override string NameForPEGIdisplay => "shadow";
+            
             public VertexShadow(int index) : base(dataSize, index)
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                shads = null;
-            }
+
+            public override void Clear() => shads = null;
+            
         }
 
         public class VertexAtlasedTextures : VertexDataType
@@ -1162,21 +1094,13 @@ namespace Playtime_Painter
             }
 
 
-            public override void Clear()
-            {
-                textureNumbers = null;
-            }
+            public override void Clear() => textureNumbers = null;
+            
 
-            public override string GetFieldName(int ind)
-            {
-                return "tex " + ind;
-            }
-
-            public override string ToString ()
-            {
-                return "Atlas Texture";
-            }
-
+            public override string GetFieldName(int ind) => "tex " + ind;
+            
+            public override string NameForPEGIdisplay => "Atlas Texture";
+            
             public VertexAtlasedTextures(int index) : base(dataSize, index)
             {
                 inst = this;
@@ -1191,34 +1115,19 @@ namespace Playtime_Painter
             const int dataSize = 1;
             public float[] zeroVal = null;
 
-            public override void GenerateIfNull()
-            {
-                zeroVal = new float[vcnt];
-
-            }
-
-            public override float[] GetValue(int no)
-            {
-
-                return zeroVal;
-            }
-
-
-
-            public override string GetFieldName(int ind)
-            {
-                return "null";
-            }
-
-            public override string ToString()
-            {
-                return "null";
-            }
-
+            public override void GenerateIfNull() => zeroVal = new float[vcnt];
+            
+            public override float[] GetValue(int no) => zeroVal;
+            
+            public override string GetFieldName(int ind) => "null";
+            
+            public override string NameForPEGIdisplay => "null";
+            
             public VertexNull(int index) : base(dataSize, index)
             {
                 inst = this;
             }
+
             public override void Clear()
             {
                 zeroVal = null;
@@ -1234,15 +1143,12 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull()
             {
-
                 if (edges == null)
                     edges = CurMeshDta._edgeData;
-                
             }
 
-            public override Vector4[] GetV4(VertexDataTarget trg) {
-                return edges;
-            }
+            public override Vector4[] GetV4(VertexDataTarget trg) => edges;
+            
 
             public override float[] GetValue(int no)
             {
@@ -1252,11 +1158,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "Edge";
-            }
-
+            public override string NameForPEGIdisplay => "Edge";
+            
             public override string GetFieldName(int ind)
             {
                 switch (ind)
@@ -1273,10 +1176,9 @@ namespace Playtime_Painter
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                edges = null;
-            }
+
+            public override void Clear() => edges = null;
+            
         }
 
         public class VertexEdgeByWeight : VertexDataType
@@ -1288,17 +1190,12 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull()
             {
-
                 if (edges == null)
                     edges = CurMeshDta._edgeDataByWeight;
-
             }
 
-            public override Vector3[] GetV3(VertexDataTarget trg)
-            {
-                return edges;
-            }
-
+            public override Vector3[] GetV3(VertexDataTarget trg) => edges;
+            
             public override float[] GetValue(int no)
             {
                 for (int i = 0; i < vcnt; i++)
@@ -1307,11 +1204,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "Edge * weight";
-            }
-
+            public override string NameForPEGIdisplay => "Edge * weight";
+            
             public override string GetFieldName(int ind)
             {
                 switch (ind)
@@ -1361,10 +1255,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "LineNormal_0";
-            }
+            public override string NameForPEGIdisplay => "LineNormal_0";
+            
 
             public override string GetFieldName(int ind)
             {
@@ -1415,10 +1307,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "LineNormal_1";
-            }
+            public override string NameForPEGIdisplay => "LineNormal_1";
+            
 
             public override string GetFieldName(int ind)
             {
@@ -1469,10 +1359,8 @@ namespace Playtime_Painter
                 return chanelMedium;
             }
 
-            public override string ToString()
-            {
-                return "LineNormal_2";
-            }
+            public override string NameForPEGIdisplay => "LineNormal_2";
+            
 
             public override string GetFieldName(int ind)
             {
@@ -1489,6 +1377,7 @@ namespace Playtime_Painter
             {
                 inst = this;
             }
+
             public override void Clear()
             {
                 edges = null;
@@ -1497,15 +1386,15 @@ namespace Playtime_Painter
 
         public static VertexDataType[] types = {
 
-        new VertexPos(0), new VertexUV(1), new VertexUV(2), new VertexNormal(3),
+            new VertexPos(0), new VertexUV(1), new VertexUV(2), new VertexNormal(3),
 
-        new VertexTangent(4), new VertexSharpNormal(5), new VertexColor(6), new VertexIndex(7),
+            new VertexTangent(4), new VertexSharpNormal(5), new VertexColor(6), new VertexIndex(7),
 
-        new VertexShadow(8), new VertexAtlasedTextures(9),  new VertexNull(10), new VertexEdge(11),
+            new VertexShadow(8), new VertexAtlasedTextures(9),  new VertexNull(10), new VertexEdge(11),
 
-        new EdgeNormal_0(12), new EdgeNormal_1(13), new EdgeNormal_2(14), new VertexEdgeByWeight(15)
+            new EdgeNormal_0(12), new EdgeNormal_1(13), new EdgeNormal_2(14), new VertexEdgeByWeight(15)
 
-    };
+        };
 
         static string[] typesNames;
         

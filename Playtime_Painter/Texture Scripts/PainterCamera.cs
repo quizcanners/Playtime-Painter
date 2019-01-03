@@ -332,7 +332,8 @@ namespace Playtime_Painter {
             {
                 secondBufferDebug.sharedMaterial.mainTexture = BigRT_pair[1];
                 var cmp = secondBufferDebug.GetComponent<PlaytimePainter>();
-                if (cmp) cmp.DestroyWhatever();
+                if (cmp)
+                    cmp.DestroyWhatever_Component();
             }
 
             if (Camera.main)

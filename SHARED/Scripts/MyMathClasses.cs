@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using PlayerAndEditorGUI;
 
 namespace SharedTools_Stuff {
 
@@ -52,7 +51,7 @@ namespace SharedTools_Stuff {
 
         public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
         {
-            if (!ar.IsNullOrEmpty()) {
+            if (ar != null && ar.Length > 0) {
                 value = Mathf.Max(min, Mathf.Min(value, ar.Length - 1));
                 return true;
             }
@@ -61,7 +60,7 @@ namespace SharedTools_Stuff {
 
         public static bool ClampIndexToCount(this IList list, ref int value, int min = 0)
         {
-            if (!list.IsNullOrEmpty()) {
+            if (list != null && list.Count > 0) {
                 value = Mathf.Max(min, Mathf.Min(value, list.Count - 1));
                 return true;
             }
@@ -114,7 +113,9 @@ namespace SharedTools_Stuff {
             if (nportion < portion)  {
                 portion = nportion;
                 return true;
-            }
+            } if (portion == 1 && dist > 0)
+                return true;
+
             return false;
         }
 
@@ -381,13 +382,19 @@ namespace SharedTools_Stuff {
         public static Vector4 ToVector4(this Vector2 v2xy, Vector2 v2zw) => new Vector4(v2xy.x, v2xy.y, v2zw.x, v2zw.y);
         #endregion
     }
+    
+    public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
+
+    [Flags]
+    public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
 
     [Serializable]
-    public struct MyIntVec2 {
+    public struct MyIntVec2
+    {
         public int x;
         public int y;
 
-        public int Max => x > y ? x : y; 
+        public int Max => x > y ? x : y;
 
         public override string ToString()
         {
@@ -456,12 +463,7 @@ namespace SharedTools_Stuff {
         }
 
     }
-
-    public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
-
-    [Flags]
-    public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
-
+    
     [Serializable]
     public class LinearColor : Abstract_STD
     {
@@ -492,8 +494,7 @@ namespace SharedTools_Stuff {
                 }
             }
         }
-
-
+        
         Color L_col { get { return new Color(r, g, b, a); } }
 
         public override StdEncoder Encode() => new StdEncoder()
@@ -516,8 +517,7 @@ namespace SharedTools_Stuff {
             return true;
 
         }
-
-
+        
         public LinearColor GetCopy()
         {
             return new LinearColor(this);

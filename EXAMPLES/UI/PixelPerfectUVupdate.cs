@@ -26,7 +26,7 @@ namespace Playtime_Painter.Examples
 
         }
 
-        void Update() {
+        void LateUpdate() {
 
             if (rect && mat) {
                 var pos = RectTransformUtility.WorldToScreenPoint(null, rect.position);

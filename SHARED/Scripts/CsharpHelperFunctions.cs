@@ -260,6 +260,18 @@ namespace SharedTools_Stuff
 
         #region List Management
 
+        public static T TryTake<T>(this List<T> list, int index) {
+
+            if (list.IsNullOrEmpty() || list.Count<= index)
+                return default(T);
+
+            var ret = list[index];
+
+            list.RemoveAt(index);
+
+            return ret;
+        }
+
         public static string CountToString(this IList list) => list == null ? "Null list" : list.Count.ToString();
         
         public static string GetUniqueName<T>(this string s, List<T> list)

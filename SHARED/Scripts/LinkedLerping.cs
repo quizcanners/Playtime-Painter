@@ -522,18 +522,16 @@ namespace SharedTools_Stuff {
                 currentTexturePropertyName = curTexPropName;
                 nextTexturePropertyName = nextTexPropName;
             }
-
-
             #endregion
         }
         
         public abstract class BASE_ShaderValue : BASE_AnyValue, IGotName {
 
             protected string name;
-            private readonly Material mat;
-            private Renderer rendy;
+            public Material material;
+            public Renderer rendy;
 
-            protected Material Material => mat ? mat : rendy.MaterialWhaever(); 
+            protected Material Material => material ? material : rendy.MaterialWhaever(); 
 
             protected override string Name => name;
             public string NameForPEGI { get { return name;  } set { name = value;  } }
@@ -555,7 +553,7 @@ namespace SharedTools_Stuff {
             public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
                 name = nname;
                 speedLimit = startingSpeed;
-                mat = m;
+                material = m;
                 rendy = renderer;
             }
         }
@@ -636,7 +634,7 @@ namespace SharedTools_Stuff {
         {
             protected override string Name => base.Name;
 
-            public override Vector3 Value { get => _transform.localScale; set => _transform.localScale = value; }
+            public override Vector3 Value { get { return _transform.localScale; } set { _transform.localScale = value; } }
 
             public Transform_LocalScale(Transform transform, float nspeed) : base(transform, nspeed) { }
         }
@@ -757,6 +755,25 @@ namespace SharedTools_Stuff {
                 }
                 return false;
             }
+
+            #region Inspector
+#if PEGI
+
+            public override bool Inspect()
+            {
+                var changed = base.Inspect();
+
+                "Target".edit(70, ref targetValue).nl(ref changed);
+
+                if ("Value".edit(ref value).nl(ref changed))
+                    Set();
+
+                return changed;
+            }
+
+#endif
+            #endregion
+
 
         }
         

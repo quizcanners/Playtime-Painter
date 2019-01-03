@@ -21,21 +21,15 @@ namespace Playtime_Painter {
 
             Color col = Color.black;
 
-            col.r = ApplyVeryTrickyColorConversion(val);//Mathf.Pow(Mathf.Clamp01(2 - Mathf.Abs(val - 2)), 2.2f);
+            col.r = ApplyVeryTrickyColorConversion(val);
 
             val = (val + 2) % 6;
 
-            col.g = ApplyVeryTrickyColorConversion(val);// Mathf.Pow(Mathf.Clamp01(2 - Mathf.Abs(val - 2)), 2.2f);
+            col.g = ApplyVeryTrickyColorConversion(val);
 
             val = (val + 2) % 6;
 
-            col.b = ApplyVeryTrickyColorConversion(val); // Mathf.Pow(Mathf.Clamp01(2 - Mathf.Abs(val - 2)), 2.2f);
-
-            // var xy = ColorPickerContrast.value;
-
-            // col.rgb = i.texcoord.y + col.rgb * (1 - i.texcoord.y);
-
-            // col.rgb *= i.texcoord.x;
+            col.b = ApplyVeryTrickyColorConversion(val); 
 
             PainterCamera.Data.brushConfig.colorLinear.From(col);
 

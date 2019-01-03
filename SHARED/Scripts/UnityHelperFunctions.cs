@@ -361,15 +361,21 @@ namespace SharedTools_Stuff {
             return co;
         }
 
-        public static void DestroyWhatever(this UnityEngine.Object go) {
-            if (go) {
+        static void DestroyWhatever_Obj(this UnityEngine.Object obj) {
+            if (obj) {
                 if (Application.isPlaying)
-                    UnityEngine.Object.Destroy(go);
+                    UnityEngine.Object.Destroy(obj);
                 else
-                    UnityEngine.Object.DestroyImmediate(go);
+                    UnityEngine.Object.DestroyImmediate(obj);
             }
         }
 
+        public static void DestroyWhatever(this Texture tex) => tex.DestroyWhatever_Obj();
+
+        public static void DestroyWhatever(this GameObject go) => go.DestroyWhatever_Obj();
+
+        public static void DestroyWhatever_Component(this Component cmp) => cmp.DestroyWhatever_Obj();
+        
         public static void SetActiveTo(this GameObject go, bool setTo)
         {
             if (go.activeSelf != setTo)
@@ -1814,9 +1820,7 @@ namespace SharedTools_Stuff {
         double avarage = 0;
         double totalCount = 0;
         float intervalLength = 1f;
-
-      
-
+        
         public void Update(float add = 0)
         {
             timer += Time.deltaTime;

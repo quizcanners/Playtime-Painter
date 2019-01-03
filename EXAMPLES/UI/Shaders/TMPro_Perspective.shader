@@ -1,5 +1,4 @@
-﻿Shader "Playtime Painter/UI/TMPro_Perspective"
-{
+﻿Shader "Playtime Painter/UI/TMPro_Perspective" {
 
 	Properties{
 		_FaceColor("Face Color", Color) = (1,1,1,1)
@@ -34,17 +33,19 @@
 		_VertexOffsetX("Vertex OffsetX", float) = 0
 		_VertexOffsetY("Vertex OffsetY", float) = 0
 
-		_ClipRect("Clip Rect", vector) = (-32767, -32767, 32767, 32767)
-		_MaskSoftnessX("Mask SoftnessX", float) = 0
-		_MaskSoftnessY("Mask SoftnessY", float) = 0
+			//_Fade("Fade", float) = 1
 
-		_StencilComp("Stencil Comparison", Float) = 8
-		_Stencil("Stencil ID", Float) = 0
-		_StencilOp("Stencil Operation", Float) = 0
-		_StencilWriteMask("Stencil Write Mask", Float) = 255
-		_StencilReadMask("Stencil Read Mask", Float) = 255
+			_ClipRect("Clip Rect", vector) = (-32767, -32767, 32767, 32767)
+			_MaskSoftnessX("Mask SoftnessX", float) = 0
+			_MaskSoftnessY("Mask SoftnessY", float) = 0
 
-		_ColorMask("Color Mask", Float) = 15
+			_StencilComp("Stencil Comparison", Float) = 8
+			_Stencil("Stencil ID", Float) = 0
+			_StencilOp("Stencil Operation", Float) = 0
+			_StencilWriteMask("Stencil Write Mask", Float) = 255
+			_StencilReadMask("Stencil Read Mask", Float) = 255
+
+			_ColorMask("Color Mask", Float) = 15
 	}
 
 	SubShader{
@@ -159,19 +160,20 @@
 			uniform float		_ScaleY;
 			uniform float		_PerspectiveFilter;
 
+			//	uniform float		_Fade;
 
 			struct vertex_t {
 				float4	vertex			: POSITION;
 				float3	normal			: NORMAL;
-				float4	color : COLOR;
+				float4	color			: COLOR;
 				float2	texcoord0		: TEXCOORD0;
 				float2	texcoord1		: TEXCOORD1;
 			};
 
 			struct pixel_t {
 				float4	vertex			: SV_POSITION;
-				float4	faceColor : COLOR;
-				float4	outlineColor : COLOR1;
+				float4	faceColor		: COLOR;
+				float4	outlineColor	: COLOR1;
 				float4	texcoord0		: TEXCOORD0;			// Texture UV, Mask UV
 				float4	param			: TEXCOORD1;			// Scale(x), BiasIn(y), BiasOut(z), Bias(w)
 				float4	mask			: TEXCOORD2;			// Position in clip space(xy), Softness(zw)
@@ -179,7 +181,8 @@
 				float4	texcoord1		: TEXCOORD3;			// Texture UV, alpha, reserved
 				float2	underlayParam	: TEXCOORD4;			// Scale(x), Bias(y)
 				#endif
-				float4 screenPos : TEXCOORD5;
+				float4	screenPos		: TEXCOORD5;
+				float2  fadeMask		: TEXCOORD6;
 			};
 
 
@@ -190,6 +193,30 @@
 				float4 vert = input.vertex;
 				vert.x += _VertexOffsetX;
 				vert.y += _VertexOffsetY;
+
+				float _Fade = input.color.a * 2;
+				// Fade tilting
+				float4 screenPos = ComputeScreenPos(UnityObjectToClipPos(vert));
+
+				float2 fadeMask;
+
+				const float _FadeWidth = 4;
+				const float _offset = 5;
+
+				float2 sp = screenPos.xy / screenPos.w;
+				fadeMask.x = saturate((_Fade - sp.x) *  _FadeWidth);
+				float fadeOut = saturate((_Fade - 1));
+
+				fadeMask.y = saturate((sp.x - fadeOut) *  _FadeWidth);
+
+				fadeMask = saturate(fadeMask + saturate(1 - abs(_Fade - 1) * 4));
+
+				float2 offCenter = sp - 0.5;
+
+				vert += mul(unity_WorldToObject, pow((1 - fadeMask.x), 4)*float3(offCenter.x * _offset, offCenter.y*_offset, 0) -
+					pow((1 - fadeMask.y), 4)*float3(offCenter.x * _offset, offCenter.y*_offset, 0)
+				);
+
 				float4 vPosition = UnityObjectToClipPos(vert);
 
 				float2 pixelSize = vPosition.w;
@@ -208,7 +235,7 @@
 				float bias = (0.5 - weight) * scale - 0.5;
 				float outline = _OutlineWidth * _ScaleRatioA * 0.5 * scale;
 
-				float opacity = input.color.a;
+				float opacity = 1;//input.color.a;
 				#if (UNDERLAY_ON | UNDERLAY_INNER)
 				opacity = 1.0;
 				#endif
@@ -235,6 +262,7 @@
 				float4 clampedRect = clamp(_ClipRect, -2e10, 2e10);
 				float2 maskUV = (vert.xy - clampedRect.xy) / (clampedRect.zw - clampedRect.xy);
 
+
 				// Structure for pixel shader
 				pixel_t output = {
 					vPosition,
@@ -244,18 +272,17 @@
 					half4(scale, bias - outline, bias + outline, bias),
 					half4(vert.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_MaskSoftnessX, _MaskSoftnessY) + pixelSize.xy)),
 					#if (UNDERLAY_ON | UNDERLAY_INNER)
-					float4(input.texcoord0 + layerOffset, input.color.a, 0),
+					float4(input.texcoord0 + layerOffset, 1, 0),
 					half2(layerScale, layerBias),
 					#endif
-					ComputeScreenPos(vPosition)
-
+					screenPos,
+					fadeMask
 				};
 
 				return output;
 			}
 
 
-			// PIXEL SHADER
 			float4 PixShader(pixel_t input) : SV_Target
 			{
 
@@ -286,12 +313,13 @@
 				c *= input.texcoord1.z;
 				#endif
 
+				c *= input.fadeMask.x * (input.fadeMask.y);
+
 				return c;
 			}
 			ENDCG
 		}
 	}
-
-		CustomEditor "TMPro.EditorUtilities.TMP_SDFShaderGUI"
+	CustomEditor "TMPro.EditorUtilities.TMP_SDFShaderGUI"
 }
 
