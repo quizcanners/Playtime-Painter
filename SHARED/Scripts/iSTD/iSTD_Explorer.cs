@@ -290,7 +290,7 @@ namespace SharedTools_Stuff
                 return false;
             }
 
-            var previous = obj;
+           // var previous = obj;
 
             var type = obj?.GetType();
 

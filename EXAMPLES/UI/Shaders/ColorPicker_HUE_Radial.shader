@@ -3,7 +3,6 @@
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Arrow("Arrow", 2D) = "black" {}
-		_Value("HUE", Range(0,1)) = 1
 	}
 
 	Category{
@@ -30,7 +29,7 @@
 
 				sampler2D _MainTex;
 				sampler2D _Arrow;
-				float _Value;
+
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -58,13 +57,15 @@
 
 					col.rgb = HUEtoColor(angle);
 
-					float2 arrowUV;
+					float2 arrowUV = 0;
 					 
-					arrowUV.x = ((angle - _Value - 1) % 1)*16+0.5;
+					float diff = abs(angle - _Picker_HUV);
+
+					arrowUV.x =  (min(diff, 1-diff ) % 1)*16;
 
 					arrowUV.y = length(uv)*8-3;
 
-					float2 inside = saturate((abs(arrowUV * 2) - 1) * 32);
+					float2 inside = saturate((abs(float2(arrowUV.x,arrowUV.y-0.5) * 2) - 1) * 32);
 
 					arrowUV.x += 0.5;
 
@@ -72,7 +73,9 @@
 
 					arrow.a *= 1 - max(inside.x, inside.y);
 
-					col = arrow * arrow.a + col * (1 - arrow.a);
+					//col.rgb += max(0, (1 - length((arrowUV - 0.5) * 2)));
+
+					col.rgb = arrow.rgb * arrow.a + col.rgb * (1 - arrow.a);
 
 					return col;
 				}

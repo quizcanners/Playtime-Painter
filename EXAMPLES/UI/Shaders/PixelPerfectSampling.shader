@@ -1,15 +1,15 @@
 ﻿Shader "Playtime Painter/UI/PixelPerfectSampling"
 {
 	Properties{
-	_MainTex("Albedo (RGB)", 2D) = "black" {}
-	_OutlineGradient("Outline Gradient", 2D) = "black" {}
-	_Courners("Rounding Courners", Range(0,0.75)) = 0.5
-	_Edge("Edge Sharpness", Range(0.1,1)) = 0.5
-	_ProjTexPos("Screen Space Position", Vector) = (0,0,0,0)
+		_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_OutlineGradient("Outline Gradient", 2D) = "black" {}
+		_Courners("Rounding Courners", Range(0,0.75)) = 0.5
+		_Edge("Edge Sharpness", Range(0.1,1)) = 0.5
+		_ProjTexPos("Screen Space Position", Vector) = (0,0,0,0)
 	}
 	Category{
 		Tags{
-			"Queue" = "AlphaTest"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 		}

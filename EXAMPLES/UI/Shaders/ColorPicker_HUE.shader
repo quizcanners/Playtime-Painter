@@ -2,7 +2,6 @@
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Arrow("Arrow", 2D) = "black" {}
-		_Value("HUE", Range(0,1)) = 1
 	}
 
 	Category{
@@ -29,7 +28,6 @@
 
 				sampler2D _MainTex;
 				sampler2D _Arrow;
-				float _Value;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -51,7 +49,7 @@
 
 					float2 arrowUV = i.texcoord;
 
-					arrowUV.x = (i.texcoord.x - _Value) * 4;
+					arrowUV.x = (i.texcoord.x - _Picker_HUV) * 4;
 
 					float2 inside = saturate((abs(arrowUV * 2) - 1)*32);
 

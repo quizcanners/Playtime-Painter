@@ -160,8 +160,12 @@ namespace Playtime_Painter
 #if BUILD_WITH_PAINTER
         double mouseBttnTime = 0;
 
-        public void OnMouseOver()
-        {
+        public void OnMouseOver() {
+
+            if (pegi.MouseOverUI) {
+                stroke.mouseDwn = false;
+                return;
+            }
 
             stroke.mouseUp = Input.GetMouseButtonUp(0);
             stroke.mouseDwn = Input.GetMouseButtonDown(0);

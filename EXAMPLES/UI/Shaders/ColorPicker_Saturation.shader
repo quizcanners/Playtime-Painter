@@ -2,9 +2,7 @@
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Circle("Circle", 2D) = "black" {}
-		_brght("Brightness", Range(0,1)) = 1
-		_ctrst("Contrast", Range(0,1)) = 1
-		_Value("HUE", Range(0,1)) = 1
+	
 	}
 
 	Category{
@@ -31,9 +29,6 @@
 
 				sampler2D _MainTex;
 				sampler2D _Circle;
-				float _brght;
-				float _ctrst;
-				float _Value;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -51,11 +46,25 @@
 
 					float4 col = tex2D(_MainTex, i.texcoord);
 
-					col.rgb = HUEtoColor(_Value);
+					col.rgb = HUEtoColor(_Picker_HUV);
+
+	
 
 					col.rgb = i.texcoord.y + col.rgb*(1-i.texcoord.y);
 
-					col.rgb *= i.texcoord.x;
+					col.rgb *= i.texcoord.x*i.texcoord.x;
+
+					float2 dist = (i.texcoord - float2(_Picker_Brightness, _Picker_Contrast))*8;
+
+					float ca = max(0, 1-max(0, abs(dist) - 0.5) * 32);
+
+				    float4 circle = tex2D(_Circle, dist+0.5);
+
+					ca *=  circle.a;
+
+					//col.rgb += saturate(1 - length(dist));
+
+					col.rgb = col.rgb*(1 - ca) + circle.rgb*ca;
 
 					return col;
 				}

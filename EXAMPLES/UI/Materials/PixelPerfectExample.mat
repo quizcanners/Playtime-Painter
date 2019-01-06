@@ -82,4 +82,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ProjTexPos: {r: 0.99250376, g: 0.563, b: 313.17474, a: 316.54}
+    - _ProjTexPos: {r: 0.99250376, g: 0.024390243, b: 256, a: 256}

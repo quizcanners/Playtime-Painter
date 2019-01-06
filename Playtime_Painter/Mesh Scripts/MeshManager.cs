@@ -887,7 +887,7 @@ namespace Playtime_Painter
         public void UpdateInputPlaytime()
         {
             #if PEGI
-            if (pegi.mouseOverUI)
+            if (pegi.MouseOverUI)
                 return;
             #endif
 

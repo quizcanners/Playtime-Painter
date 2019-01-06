@@ -1193,12 +1193,12 @@ namespace PlayerAndEditorGUI {
                 pegi.selectedEls[ind] = val;
         }
         
-        static bool keepTypeDatas = false;
+       // static bool keepTypeDatas = false;
 
         public static bool reorder_List<T>(List<T> l, List_Data datas)
         {
             listData = datas;
-            keepTypeDatas = datas != null ? datas._keepTypeData : false;
+            //keepTypeDatas = datas != null ? datas._keepTypeData : false;
             
             EditorGUI.BeginChangeCheck();
 

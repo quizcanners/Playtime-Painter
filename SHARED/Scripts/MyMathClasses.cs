@@ -340,6 +340,56 @@ namespace SharedTools_Stuff {
         #endregion
 
         #region Transformations
+
+        public static Vector2 Clamp01(this Vector2 v2) {
+            v2.x = Mathf.Clamp01(v2.x);
+            v2.y = Mathf.Clamp01(v2.y);
+
+            return v2;
+        }
+
+        public static Vector3 Clamp01(this Vector3 v3)
+        {
+            v3.x = Mathf.Clamp01(v3.x);
+            v3.y = Mathf.Clamp01(v3.y);
+            v3.z = Mathf.Clamp01(v3.z);
+
+            return v3;
+        }
+
+        public static Vector3 Clamp01(this Vector4 v4)
+        {
+            v4.x = Mathf.Clamp01(v4.x);
+            v4.y = Mathf.Clamp01(v4.y);
+            v4.z = Mathf.Clamp01(v4.z);
+            v4.w = Mathf.Clamp01(v4.w);
+
+            return v4;
+        }
+
+        public static Vector2 Abs(this Vector2 v2) {
+            v2.x = Mathf.Abs(v2.x);
+            v2.y = Mathf.Abs(v2.y);
+            return v2;
+        }
+
+        public static Vector3 Abs(this Vector3 v3)
+        {
+            v3.x = Mathf.Abs(v3.x);
+            v3.y = Mathf.Abs(v3.y);
+            v3.z = Mathf.Abs(v3.z);
+            return v3;
+        }
+
+        public static Vector4 Abs(this Vector4 v4)
+        {
+            v4.x = Mathf.Abs(v4.x);
+            v4.y = Mathf.Abs(v4.y);
+            v4.z = Mathf.Abs(v4.z);
+            v4.w = Mathf.Abs(v4.w);
+            return v4;
+        }
+
         public static Vector2 Rotate(this Vector2 v, float degrees)
         {
             float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);

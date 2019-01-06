@@ -6,6 +6,10 @@
 static const float MERGE_POWER = 512;
 static const float TERABOUNCE = 0.2;
 
+float _Picker_Brightness;
+float _Picker_Contrast;
+float _Picker_HUV;
+
 float4 _lightControl;
 sampler2D _mergeTerrainHeight;
 float4 _mergeTerrainHeight_TexelSize;
@@ -64,7 +68,6 @@ inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
 	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
 }
 
-
 inline float getLOD(float2 uv, float4 _TexelSize) {
 
 	float2 px = _TexelSize.z * ddx(uv);
@@ -72,7 +75,6 @@ inline float getLOD(float2 uv, float4 _TexelSize) {
 
 	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
 }
-
 
 inline float atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {
 
@@ -100,7 +102,6 @@ inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
 	float2 fractal = (frac(uv)*(atlasedUV.w - seam) + seam * 0.5);
 	uv = fractal + atlasedUV.xy;
 }
-
 
 inline void applyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
 	float3 wBitangent = cross(normal, wTangent.xyz) * wTangent.w;
@@ -154,7 +155,6 @@ inline void normalAndPositionToUV(float3 worldNormal, float3 scenepos, out float
 	uv.y = y;
 
 }
-
 
 inline void applyTangentNonNormalized (float4 tang, inout float3 normal, float2 bump){
 

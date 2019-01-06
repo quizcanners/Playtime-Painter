@@ -83,7 +83,14 @@ namespace PlayerAndEditorGUI {
 
         public static string EnvironmentNL => Environment.NewLine;
 
-        #if PEGI
+        static int mouseOverUI = -1;
+
+        public static bool MouseOverUI {
+            get { return mouseOverUI >= Time.frameCount - 1; }
+            set { if (value) mouseOverUI = Time.frameCount; }
+        }
+
+#if PEGI
 
         #region Other Stuff
         public delegate bool CallDelegate();
@@ -109,7 +116,7 @@ namespace PlayerAndEditorGUI {
 
                     "Tip:{0}".F(GUI.tooltip).nl();
 
-                    mouseOverUI = windowRect.Contains(Input.mousePosition);
+                    MouseOverUI = windowRect.Contains(Input.mousePosition);
 
                     GUI.DragWindow(new Rect(0, 0, 10000, 20));
                 }
@@ -152,9 +159,7 @@ namespace PlayerAndEditorGUI {
         public static bool isFoldedOut_or_Entered = false;
         public static bool IsFoldedOut => isFoldedOut_or_Entered;
         public static bool IsEntered => isFoldedOut_or_Entered; 
-
-        public static bool mouseOverUI = false;
-
+        
         static int selectedFold = -1;
         public static int tabIndex; // will be reset on every NewLine;
         public static bool paintingPlayAreaGUI { get; private set; }
@@ -411,12 +416,13 @@ namespace PlayerAndEditorGUI {
 
         public static void newLine()
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI) {
                 ef.newLine();
                 return;
             }
-#endif
+            #endif
+
             if (lineOpen) {
                 lineOpen = false;
                 GUILayout.EndHorizontal();
