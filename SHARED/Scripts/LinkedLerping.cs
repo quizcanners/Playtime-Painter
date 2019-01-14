@@ -959,7 +959,7 @@ namespace SharedTools_Stuff {
             float minPortion = 1;
 
             foreach (var e in list)
-                    if (!e.IsNullOrDestroyed())
+                    if (!e.IsNullOrDestroyed_Obj())
                       e.Portion(ld);
 
             return minPortion;
@@ -982,7 +982,7 @@ namespace SharedTools_Stuff {
 
             if (list != null)
                 foreach (var e in list)
-                    if (!e.IsNullOrDestroyed()) fadedIn |= e.TryFadeIn();
+                    if (!e.IsNullOrDestroyed_Obj()) fadedIn |= e.TryFadeIn();
 
             return fadedIn;
         }

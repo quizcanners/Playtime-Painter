@@ -24,7 +24,7 @@ namespace Playtime_Painter.Examples {
           //  changed |= "Test: ".edit(ref testData).nl();
 
             if (changed)
-                UnityHelperFunctions.SetToDirty(this);
+                UnityHelperFunctions.SetToDirty_Obj(this);
 
             return changed;
         }

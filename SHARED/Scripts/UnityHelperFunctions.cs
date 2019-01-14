@@ -140,7 +140,7 @@ namespace SharedTools_Stuff {
             return 0;
         }
 
-        public static GameObject TryGetGameObject(this object obj) {
+        public static GameObject TryGetGameObject_Obj(this object obj) {
             var go = obj as GameObject;
 
             if (!go)  {
@@ -154,7 +154,7 @@ namespace SharedTools_Stuff {
 
         public static T TryGet_fromObj<T>(this object obj) where T : class {
 
-            if (obj.IsNullOrDestroyed())
+            if (obj.IsNullOrDestroyed_Obj())
                 return null;
 
             var pgi = obj as T;
@@ -162,7 +162,7 @@ namespace SharedTools_Stuff {
             if (pgi != null)
                 return pgi;
 
-            var go = obj.TryGetGameObject();
+            var go = obj.TryGetGameObject_Obj();
 
             if (go)
                 return go.TryGet<T>();
@@ -190,7 +190,7 @@ namespace SharedTools_Stuff {
             return null;
         }
 
-        public static bool IsNullOrDestroyed(this object obj) {
+        public static bool IsNullOrDestroyed_Obj(this object obj) {
             if (obj as UnityEngine.Object)
                 return false;
                 
@@ -201,7 +201,7 @@ namespace SharedTools_Stuff {
                 (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
                 !(obj as UnityEngine.Object) : false);*/
         
-        public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed() ? default(T) : obj;
+        public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
   
         public static bool TrySetAlpha(this Graphic graphic, float alpha) {
             if (graphic) {
@@ -361,7 +361,7 @@ namespace SharedTools_Stuff {
             return co;
         }
 
-        static void DestroyWhatever_Obj(this UnityEngine.Object obj) {
+        public static void DestroyWhatever_UObj(this UnityEngine.Object obj) {
             if (obj) {
                 if (Application.isPlaying)
                     UnityEngine.Object.Destroy(obj);
@@ -370,11 +370,11 @@ namespace SharedTools_Stuff {
             }
         }
 
-        public static void DestroyWhatever(this Texture tex) => tex.DestroyWhatever_Obj();
+        public static void DestroyWhatever(this Texture tex) => tex.DestroyWhatever_UObj();
 
-        public static void DestroyWhatever(this GameObject go) => go.DestroyWhatever_Obj();
+        public static void DestroyWhatever(this GameObject go) => go.DestroyWhatever_UObj();
 
-        public static void DestroyWhatever_Component(this Component cmp) => cmp.DestroyWhatever_Obj();
+        public static void DestroyWhatever_Component(this Component cmp) => cmp.DestroyWhatever_UObj();
         
         public static void SetActiveTo(this GameObject go, bool setTo)
         {
@@ -473,8 +473,7 @@ namespace SharedTools_Stuff {
         return false;
 #endif
         }
-
-
+        
         public static void RepaintViews()
         {
 #if UNITY_EDITOR
@@ -483,20 +482,27 @@ namespace SharedTools_Stuff {
 #endif
         }
 
-        public static void SetToDirty(this UnityEngine.Object obj)
-        {
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(obj);
-#endif
+        public static void SetToDirty(this List<UnityEngine.Object> objs) {
+            #if UNITY_EDITOR
+            if (!objs.IsNullOrEmpty())
+                foreach (var o in objs)
+                    o.SetToDirty();
+            #endif
         }
 
-        public static void SetToDirty(this object obj)
+        public static void SetToDirty(this UnityEngine.Object obj)
         {
-#if UNITY_EDITOR
-            var uobj = obj as UnityEngine.Object;
-            if (uobj)
-                UnityHelperFunctions.SetToDirty(uobj);
-#endif
+            #if UNITY_EDITOR
+            if (obj)
+                EditorUtility.SetDirty(obj);
+            #endif
+        }
+
+        public static void SetToDirty_Obj(this object obj) {
+
+            #if UNITY_EDITOR
+            SetToDirty(obj as UnityEngine.Object);
+            #endif
         }
 
         public static void FocusOn(UnityEngine.Object go)

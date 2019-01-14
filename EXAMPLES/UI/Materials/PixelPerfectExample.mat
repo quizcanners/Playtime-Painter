@@ -66,7 +66,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Edge: 1
+    - _Edge: 0.98
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -82,4 +82,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ProjTexPos: {r: 0.99250376, g: 0.024390243, b: 256, a: 256}
+    - _ProjTexPos: {r: 0.9976013, g: 0.02951221, b: 256, a: 256}

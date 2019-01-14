@@ -37,7 +37,8 @@ namespace Playtime_Painter.Examples
 
         public void UpdateTextures()
         {
-            if (!terrain) terrain = GetComponent<Terrain>();
+            if (!terrain)
+                terrain = GetComponent<Terrain>();
 
             if (!terrain)
                 return;
@@ -54,7 +55,7 @@ namespace Playtime_Painter.Examples
 
             int copyProtsCount = ls.Length;
 
-            if (mergeSubmasks != null)
+            if (!mergeSubmasks.IsNullOrEmpty())
             {
 
                 int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);

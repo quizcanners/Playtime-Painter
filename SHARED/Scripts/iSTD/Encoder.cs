@@ -78,7 +78,7 @@ namespace SharedTools_Stuff
                 }
                 else
                     foreach (var v in arr) {
-                    if (!v.IsNullOrDestroyed())
+                    if (!v.IsNullOrDestroyed_Obj())
                         cody.Add(StdDecoder.ListElementTag, v.Encode());
                     else
                         cody.Add_String(StdEncoder.nullTag, "");
@@ -96,7 +96,7 @@ namespace SharedTools_Stuff
                 for (int i = 0; i < lst.Count; i++)
                 {
                     var v = lst[i];
-                    if (!v.IsNullOrDestroyed())
+                    if (!v.IsNullOrDestroyed_Obj())
                     {
                         var std = v as ISTD;
                         if (std!= null)
@@ -375,7 +375,7 @@ namespace SharedTools_Stuff
 
             var el = ld.elementDatas.GetIfExists(index);
 
-            if (!val.IsNullOrDestroyed())
+            if (!val.IsNullOrDestroyed_Obj())
             {
                 int typeIndex = types.IndexOf(val.GetType());
                 if (typeIndex != -1)
@@ -429,7 +429,7 @@ namespace SharedTools_Stuff
 
         public StdEncoder Add<T>(T v, List<Type> types) where T : ISTD
         {
-            if (!v.IsNullOrDestroyed())
+            if (!v.IsNullOrDestroyed_Obj())
             {
                 int typeIndex = types.IndexOf(v.GetType());
                 if (typeIndex != -1)
@@ -502,7 +502,7 @@ namespace SharedTools_Stuff
         #endregion
 
         public StdEncoder Add(string tag, ISTD other) {
-            if (!other.IsNullOrDestroyed()) {
+            if (!other.IsNullOrDestroyed_Obj()) {
                 var safe = other as ISTD_SafeEncoding;
                 if (safe!= null) {
                     var ll = safe.GetLoopLock;
@@ -673,13 +673,13 @@ namespace SharedTools_Stuff
         }
 
         public StdEncoder Add_IfNotDefault(string tag, ICanBeDefault_STD std) {
-            if (!std.IsNullOrDestroyed() && !std.IsDefault)
+            if (!std.IsNullOrDestroyed_Obj() && !std.IsDefault)
                 Add(tag, std);
             return this;
         }
 
         public StdEncoder Add_IfNotDefault(string tag, ISTD std)  {
-            if (!std.IsNullOrDestroyed()) {
+            if (!std.IsNullOrDestroyed_Obj()) {
                 var def = std as ICanBeDefault_STD;
                 if (def == null || !def.IsDefault)
                     Add(tag, std);

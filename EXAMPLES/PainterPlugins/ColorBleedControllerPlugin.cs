@@ -109,7 +109,7 @@ namespace Playtime_Painter.Examples {
             if (changed)  {
                 UnityHelperFunctions.RepaintViews();
                 SetStuff();
-                this.SetToDirty();
+                this.SetToDirty_Obj();
             }
             return changed;
         }

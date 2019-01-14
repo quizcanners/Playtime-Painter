@@ -339,7 +339,7 @@ namespace Playtime_Painter {
             if (p)
                 foreach (var pl in p.Plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
-                        pl.SetToDirty();
+                        pl.SetToDirty_Obj();
                     
 
             changed |= Type(CPU).Inspect().nl();

@@ -9,6 +9,7 @@ namespace Playtime_Painter.Examples
     [ExecuteInEditMode]
     public class PixelPerfectUVupdate : MonoBehaviour
     {
+        public Camera mainCamera = null;
 
         public RectTransform rect;
 
@@ -29,7 +30,7 @@ namespace Playtime_Painter.Examples
         void LateUpdate() {
 
             if (rect && mat) {
-                var pos = RectTransformUtility.WorldToScreenPoint(null, rect.position);
+                var pos = RectTransformUtility.WorldToScreenPoint(mainCamera, rect.position);
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
                 mat.SetVector("_ProjTexPos", pos.ToVector4(rect.rect.size));
             }

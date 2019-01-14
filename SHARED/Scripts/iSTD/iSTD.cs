@@ -590,7 +590,7 @@ namespace SharedTools_Stuff {
                 }
 
                 var ch = into as ICanChangeClass;
-                if (ch != null && !from.IsNullOrDestroyed())
+                if (ch != null && !from.IsNullOrDestroyed_Obj())
                     ch.Copy_NonSTDdata_From_PreviousInstance(from);
 
             }

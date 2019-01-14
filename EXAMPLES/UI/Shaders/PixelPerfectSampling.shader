@@ -76,7 +76,8 @@
 					float2 inPix = (screenUV - _ProjTexPos.xy)*_ScreenParams.xy;
 					float2 texUV = inPix * _MainTex_TexelSize.xy
 						// Just in case a texture is not divisible by 2
-						+ _MainTex_TexelSize.xy*0.5*(_MainTex_TexelSize.zw % 2);
+						+ _MainTex_TexelSize.xy*0.5*(_MainTex_TexelSize.zw % 2)
+						;
 
 					float4 col = tex2D(_MainTex, texUV + 0.5);  // Offset by 0.5 here if is not centered properly
 
