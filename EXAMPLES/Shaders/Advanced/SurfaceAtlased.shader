@@ -17,7 +17,7 @@
 		#pragma vertex vert
 		// Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Standard fullforwardshadows
-		#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+		#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 		#pragma multi_compile  ___ UV_ATLASED
 		#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 

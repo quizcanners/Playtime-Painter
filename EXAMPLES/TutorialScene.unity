@@ -705,6 +705,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: foamMask
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: foamParameters.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: foamParameters.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: foamParameters.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: thickness
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: noise
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: upscale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114725419413362556, guid: c7ec0cf439a55fa47bb3d344c1d4616c,
+        type: 3}
+      propertyPath: wetAreaHeight
+      value: 0.1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c7ec0cf439a55fa47bb3d344c1d4616c, type: 3}
 --- !u!1 &250041625
@@ -782,7 +822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1898692891}
+  focusedPainter: {fileID: 1815085832}
   isLinearColorSpace: 1
   theCamera: {fileID: 250041626}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -4447,9 +4487,54 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c3f44a42a8321804fa7b29439994b177, type: 2}
     - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 3}
+      propertyPath: materials.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
       propertyPath: materials.Array.data[2]
       value: 
       objectReference: {fileID: 2100000, guid: 7f82a6a9c1f99d74d82fae814b257186, type: 2}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: h_slices
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: image
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: lights.probes.Array.data[1]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: lights.probes.Array.data[2]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: lights.bounceCoefficient.Array.data[0]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: lights.bounceCoefficient.Array.data[1]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114712500847804548, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+        type: 3}
+      propertyPath: lights.bounceCoefficient.Array.data[2]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 64994971636431698, guid: b27376dd15f6f3b41b67e1b96c5cb627,
         type: 3}
       propertyPath: m_Enabled
@@ -4897,7 +4982,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -4.304028
+  timer: -121.33701
   style:
     m_Name: Hint Style
     m_Normal:

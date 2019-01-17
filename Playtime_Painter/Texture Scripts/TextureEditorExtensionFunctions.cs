@@ -9,7 +9,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-using SharedTools_Stuff;
+using QuizCannersUtilities;
 
 
 namespace Playtime_Painter{

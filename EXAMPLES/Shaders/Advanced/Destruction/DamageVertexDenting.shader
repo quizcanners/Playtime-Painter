@@ -34,7 +34,7 @@ Shader "Playtime Painter/Destructible/Character" {
 				#include "UnityLightingCommon.cginc" 
 				#include "Lighting.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				#pragma multi_compile_fwdbase 
 

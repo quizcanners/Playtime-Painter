@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
-using SharedTools_Stuff;
+using QuizCannersUtilities;
 #if UNITY_2018_1_OR_NEWER
 using Unity.Collections;
 #endif

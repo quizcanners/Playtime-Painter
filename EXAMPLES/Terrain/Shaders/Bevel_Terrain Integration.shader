@@ -27,7 +27,7 @@
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+			#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog

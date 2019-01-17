@@ -13,7 +13,7 @@
 				CGPROGRAM
 
 				#include "qc_Includes.cginc"
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				#pragma multi_compile  BRUSH_NORMAL  BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE
 

@@ -19,7 +19,7 @@
 		#pragma vertex vert
 		#pragma surface surf Standard fullforwardshadows
 		#pragma multi_compile _____ _Metal
-		#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+		#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 		#pragma target 3.0
 
 		sampler2D _Diffuse;

@@ -31,7 +31,7 @@
 #pragma fragment frag
 #pragma multi_compile_fwdbase
 #pragma target 3.0
-#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 #pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 #pragma shader_feature  ___ UV_ATLASED

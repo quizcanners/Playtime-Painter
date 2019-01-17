@@ -21,7 +21,7 @@
 				#include "Lighting.cginc"
 				#include "UnityCG.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				#pragma multi_compile_fwdbase 
 

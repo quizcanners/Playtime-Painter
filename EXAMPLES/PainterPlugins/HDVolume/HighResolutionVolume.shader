@@ -24,7 +24,7 @@
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma target 3.0
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				uniform sampler2D _Volume;
 				float4 _Volume_ST;

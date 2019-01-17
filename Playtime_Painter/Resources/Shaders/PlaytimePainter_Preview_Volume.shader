@@ -27,7 +27,7 @@
 				#pragma fragment frag
 
 				#include "qc_Includes.cginc"
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				sampler2D _PreviewTex;
 				float4 _PreviewTex_ST;

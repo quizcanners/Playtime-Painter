@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Playtime_Painter;
 using PlayerAndEditorGUI;
-using SharedTools_Stuff;
+using QuizCannersUtilities;
 
 namespace Playtime_Painter.Examples
 {

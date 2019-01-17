@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 using PlayerAndEditorGUI;
-using SharedTools_Stuff;
+using QuizCannersUtilities;
 
 
 namespace Playtime_Painter

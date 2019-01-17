@@ -30,7 +30,7 @@
 			#pragma fragment frag
 			#pragma target 3.0
 
-			#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+			#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 			#pragma shader_feature  ___ UV_ATLASED
 			#pragma shader_feature  ___ UV_PROJECTED

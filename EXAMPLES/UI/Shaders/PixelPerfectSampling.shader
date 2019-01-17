@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/UI/PixelPerfectSampling"
 {
 	Properties{
-		_MainTex("Albedo (RGB)", 2D) = "black" {}
+		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_OutlineGradient("Outline Gradient", 2D) = "black" {}
 		_Courners("Rounding Courners", Range(0,0.75)) = 0.5
 		_Edge("Edge Sharpness", Range(0.1,1)) = 0.5
@@ -38,7 +38,6 @@
 					float3 worldPos : TEXCOORD0;
 					float3 normal : TEXCOORD1;
 					float4 texcoord : TEXCOORD2;
-					float3 viewDir: TEXCOORD4;
 					float4 screenPos : TEXCOORD5;
 					float4 color: COLOR;
 				};
@@ -56,7 +55,6 @@
 					o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-					o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 					o.texcoord.xy = v.texcoord.xy;
 					o.screenPos = ComputeScreenPos(o.pos);
 					o.color = v.color;
@@ -90,15 +88,18 @@
 					uv *= uv;
 					float clipp = max(0, (1 - uv.x - uv.y));
 
-					float uvy = saturate(clipp * (3 - _Courners * 2)*(0.5 + _Edge * 0.5));
+					float uvy = saturate(clipp * (4 - _Courners * 3)*(0.5 + _Edge * 0.5));
 
 					float4 outline = tex2D(_OutlineGradient, float2(0, uvy));
 
 					outline.a *= saturate((1 - uvy) * 4);
 
-					col = col * (1 - outline.a) + outline * (outline.a);
+					col.rgb = col.rgb * (1 - outline.a) + outline.rgb * (outline.a);
 
-					col.a *= min(clipp* _Edge * (1 - _Blur)*deCourners * 30, 1);
+					col.a = max(col.a, outline.a);
+
+					col.a *= min(clipp//* _Edge
+						* (1 - _Blur)*deCourners * 30, 1)*i.color.a;
 
 					return col;
 				}

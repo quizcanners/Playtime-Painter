@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/UI/ColorPicker_HUE_Radial"
 {
 	Properties{
-		_MainTex("Mask (RGB)", 2D) = "white" {}
+		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Arrow("Arrow", 2D) = "black" {}
 	}
 
@@ -19,7 +19,7 @@
 
 				CGPROGRAM
 
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag

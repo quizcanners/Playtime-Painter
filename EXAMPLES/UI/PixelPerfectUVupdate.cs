@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SharedTools_Stuff;
+using QuizCannersUtilities;
 using UnityEngine.UI;
 
 namespace Playtime_Painter.Examples

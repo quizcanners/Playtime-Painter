@@ -23,7 +23,7 @@
 				#pragma multi_compile_fwdbase
 				#pragma target 3.0
 
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				sampler2D _MainTex;
 				float4 _MainTex_TexelSize;

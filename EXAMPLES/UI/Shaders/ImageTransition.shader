@@ -1,5 +1,6 @@
 ﻿Shader "MilkLab/EtiPuf/ImageTransition" {
 	Properties{
+		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		_MainTex_Current("First Texture", 2D) = "black" {}
 		_Next_MainTex("Next Texture", 2D) = "black" {}
 		_Transition("Transition", Range(0,1)) = 0
@@ -28,7 +29,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_instancing
 
-				#include "VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				sampler2D _MainTex_Current;
 				float4 _MainTex_Current_TexelSize;

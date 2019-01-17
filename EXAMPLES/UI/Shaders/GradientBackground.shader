@@ -1,5 +1,6 @@
 ﻿Shader "MilkLab/Effects/GradientBackground" {
 	Properties{
+		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Center("Center Position", Range(0,2)) = 0
 		_CenterSharpness("Center Sharpness", Range(0,5)) = 0
 		_Noise_Mask("Noise Mask (RGB)", 2D) = "white" {}
@@ -25,7 +26,7 @@
 			Pass{
 
 				CGPROGRAM
-				#include "Assets/Tools/SHARED/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
