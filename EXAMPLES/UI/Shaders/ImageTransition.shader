@@ -1,11 +1,11 @@
 ﻿Shader "MilkLab/EtiPuf/ImageTransition" {
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
-		_MainTex_Current("First Texture", 2D) = "black" {}
-		_Next_MainTex("Next Texture", 2D) = "black" {}
+		[NoScaleOffset]_MainTex_Current("First Texture", 2D) = "black" {}
+		[NoScaleOffset]_Next_MainTex("Next Texture", 2D) = "black" {}
 		_Transition("Transition", Range(0,1)) = 0
-		_Overlay("Overlay", 2D) = "black" {}
-		_Mask("Mask", 2D) = "white" {}
+		[NoScaleOffset]_Overlay("Overlay", 2D) = "black" {}
+		[NoScaleOffset]_Mask("Mask", 2D) = "white" {}
 	}
 
 	Category{

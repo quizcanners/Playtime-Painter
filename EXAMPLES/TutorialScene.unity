@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1815085832}
+  focusedPainter: {fileID: 1728036928}
   isLinearColorSpace: 1
   theCamera: {fileID: 250041626}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -4558,6 +4558,19 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 114524666172476076, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 3}
+--- !u!114 &1728036928 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2080966481074766441, guid: b27376dd15f6f3b41b67e1b96c5cb627,
+    type: 3}
+  m_PrefabInstance: {fileID: 1728036927}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!84 &1736250692
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -4982,7 +4995,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -121.33701
+  timer: -225.30461
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5854,12 +5867,12 @@ PrefabInstance:
     - target: {fileID: 9034530559984695703, guid: 823dea88b5d9bb74293861cf0cd711a1,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -3.2
+      value: -3.2000122
       objectReference: {fileID: 0}
     - target: {fileID: 9034530559984695703, guid: 823dea88b5d9bb74293861cf0cd711a1,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 12.1
+      value: 12.100006
       objectReference: {fileID: 0}
     - target: {fileID: 9034530559984695703, guid: 823dea88b5d9bb74293861cf0cd711a1,
         type: 3}

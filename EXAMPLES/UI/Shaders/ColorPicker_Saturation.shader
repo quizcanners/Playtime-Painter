@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/UI/ColorPicker_Contrast" {
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
-		_Circle("Circle", 2D) = "black" {}
+		[NoScaleOffset]_Circle("Circle", 2D) = "black" {}
 	
 	}
 

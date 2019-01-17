@@ -10,9 +10,13 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
+    [CustomEditor(typeof(PixelPerfectUVupdate))]
+    public class PixelPerfectUVupdateEditor : Editor {
+        public override void OnInspectorGUI() => ((PixelPerfectUVupdate)target).Inspect(serializedObject);
+    }
+
     [CustomEditor(typeof(PixelArtMeshGenerator))]
-    public class PixelArtMeshGeneratorEditor : Editor
-    {
+    public class PixelArtMeshGeneratorEditor : Editor{
         public override void OnInspectorGUI() => ((PixelArtMeshGenerator)target).Inspect(serializedObject);
     }
 

@@ -1,9 +1,9 @@
-﻿Shader "MilkLab/Effects/GradientBackground" {
+﻿Shader "Playtime Painter/Effects/GradientBackground" {
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Center("Center Position", Range(0,2)) = 0
 		_CenterSharpness("Center Sharpness", Range(0,5)) = 0
-		_Noise_Mask("Noise Mask (RGB)", 2D) = "white" {}
+		[NoScaleOffset]_Noise_Mask("Noise Mask (RGB)", 2D) = "white" {}
 		_BG_GRAD_COL_1("Background Upper", Color) = (1,1,1,1)
 		_BG_CENTER_COL("Background Center", Color) = (1,1,1,1)
 		_BG_GRAD_COL_2("Background Lower", Color) = (1,1,1,1)

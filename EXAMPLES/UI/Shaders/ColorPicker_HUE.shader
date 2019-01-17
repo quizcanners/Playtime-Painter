@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/UI/ColorPicker_HUE"{
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
-		_Arrow("Arrow", 2D) = "black" {}
+		[NoScaleOffset]_Arrow("Arrow", 2D) = "black" {}
 	}
 
 	Category{

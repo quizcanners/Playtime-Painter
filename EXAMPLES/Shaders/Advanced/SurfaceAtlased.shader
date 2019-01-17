@@ -1,6 +1,6 @@
 ﻿Shader "Playtime Painter/Walls/Surface Atlased" {
 	Properties {
-		_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
+		[NoScaleOffset]_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
 		[NoScaleOffset] _CombinedMap("Normal Map (ATL)", 2D) = "gray" {}
 		//_Glossiness("Glossiness ", Range(0.1,0.9)) = 0.5

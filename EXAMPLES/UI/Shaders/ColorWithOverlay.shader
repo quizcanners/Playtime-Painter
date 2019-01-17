@@ -2,7 +2,7 @@
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
-		_Overlay("Overlay (RGB)", 2D) = "black" {}
+		[NoScaleOffset]_Overlay("Overlay (RGB)", 2D) = "black" {}
 	
 	}
 	Category{
