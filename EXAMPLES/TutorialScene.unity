@@ -4995,7 +4995,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -225.30461
+  timer: -348.94968
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5913,6 +5913,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1915982416503641225, guid: 823dea88b5d9bb74293861cf0cd711a1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 646239235471061161, guid: 823dea88b5d9bb74293861cf0cd711a1,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.38
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 823dea88b5d9bb74293861cf0cd711a1, type: 3}

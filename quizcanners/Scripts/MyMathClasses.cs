@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 namespace QuizCannersUtilities {
 
@@ -93,6 +94,34 @@ namespace QuizCannersUtilities {
 
         #region Lerps
 
+        public static bool isLerpingAlpha_BySpeed<T>(this List<T> imgs, float alpha, float speed) where T : Graphic
+        {
+            bool changing = false;
+
+            if (!imgs.IsNullOrEmpty())
+                foreach (var i in imgs)
+                    changing |= i.isLerpingAlpha_BySpeed(alpha, speed);
+
+
+            return changing;
+        }
+
+        public static bool isLerpingAlpha_BySpeed<T>(this T img, float alpha, float speed) where T : Graphic
+        {
+            bool changing = false;
+
+            if (img)
+            {
+                var col = img.color;
+                col.a = Lerp_bySpeed(col.a, alpha, speed);
+
+                img.color = col;
+                changing |= col.a != alpha;
+            }
+
+            return changing;
+        }
+
         public static float DistanceRGB (this Color col, Color other)
             =>
             (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
@@ -104,7 +133,8 @@ namespace QuizCannersUtilities {
             return dist;
         }
 
-        public static float SpeedToPortion (this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
+        public static float SpeedToPortion (this float speed, float dist) 
+            => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
 
         public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
         {

@@ -6786,6 +6786,41 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
+        public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda)
+        {
+
+            bool changed = false;
+
+            if (listIsNull(ref list))
+                return changed;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order)
+            {
+
+                changed |= list.ListAddEmptyClick();
+
+                foreach (var i in list.InspectionIndexes())
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+
+                    if (((el && !el.Equals(before)) || (!el && before)).changes(ref changed))
+                        list[i] = el;
+
+                    nl();
+                }
+
+                nl();
+            }
+
+            newLine();
+            return changed;
+        }
+
+
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
             name.write_ListLabel(list);
