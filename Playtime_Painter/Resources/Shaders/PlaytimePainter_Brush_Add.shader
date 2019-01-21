@@ -20,7 +20,7 @@
 
 				CGPROGRAM
 
-				#include "qc_Includes.cginc"
+				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_2D BRUSH_SQUARE  BRUSH_3D BRUSH_3D_TEXCOORD2 BRUSH_DECAL
 

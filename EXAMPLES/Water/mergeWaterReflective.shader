@@ -22,7 +22,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fog
 
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 

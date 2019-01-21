@@ -10,6 +10,12 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
+    [CustomEditor(typeof(GodMode))]
+    public class GodModeDrawer : Editor {
+        public override void OnInspectorGUI()
+    => ((GodMode)target).Inspect(serializedObject);
+    }
+
     [CustomEditor(typeof(PixelPerfectUVupdate))]
     public class PixelPerfectUVupdateEditor : Editor {
         public override void OnInspectorGUI() => ((PixelPerfectUVupdate)target).Inspect(serializedObject);

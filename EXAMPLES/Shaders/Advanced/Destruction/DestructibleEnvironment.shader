@@ -21,7 +21,7 @@
 		#pragma vertex vert
 		#pragma surface surf Standard fullforwardshadows
 		#pragma multi_compile  ___ UV_ATLASED
-		#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+		#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 		#pragma target 3.0
 
 		sampler2D _MainTex_ATL_UV2;

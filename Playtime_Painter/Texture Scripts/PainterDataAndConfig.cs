@@ -383,7 +383,7 @@ namespace Playtime_Painter
         #endregion
 
         #region Inspector
-#if PEGI
+        #if PEGI
            int inspectedImgData = -1;
         int inspectedStuffs = -1;
         int inspectedMaterial = -1;
@@ -487,7 +487,7 @@ namespace Playtime_Painter
             return changed;
         }
 
-#endif
+        #endif
         #endregion
 
         public void Init() {

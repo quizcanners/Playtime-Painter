@@ -34,7 +34,7 @@
 #pragma multi_compile_fog
 #pragma multi_compile_fwdbase
 #pragma target 3.0
-#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 	uniform sampler2D _MainTex;
 	uniform sampler2D _BakedShadow_VOL;

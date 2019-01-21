@@ -4,15 +4,11 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
-namespace PlayerAndEditorGUI {
+namespace Playtime_Painter.Examples {
     
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour, IPEGI
-    {
+    public class GodMode : MonoBehaviour, IPEGI {
 
         public static GodMode inst;
         public float speed = 20;
@@ -21,6 +17,17 @@ namespace PlayerAndEditorGUI {
         public bool rotateWithotRMB;
         public static string PrefSpeed = "GodSpeed";
         public static string PrefSens = "GodSensitivity";
+        
+
+        bool Rotate() {
+
+            #if !UNITY_IOS && !UNITY_ANDROID
+            return (rotateWithotRMB || Input.GetMouseButton(1));
+            #else
+            return true;
+
+            #endif
+        }
 
         private void OnEnable() {
 
@@ -146,6 +153,7 @@ namespace PlayerAndEditorGUI {
         {
         }
 
+#region Inspector
 #if PEGI
         public bool Inspect()
         {
@@ -161,6 +169,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        #endif
+#endif
+#endregion
     }
 }

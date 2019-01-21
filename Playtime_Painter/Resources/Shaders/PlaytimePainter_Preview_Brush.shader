@@ -27,7 +27,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
-				#include "qc_Includes.cginc"
+				#include "PlaytimePainter_cg.cginc"
 		
 				sampler2D _PreviewTex;
 				float _AtlasTextures;

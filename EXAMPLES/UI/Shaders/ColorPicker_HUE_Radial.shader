@@ -19,7 +19,7 @@
 
 				CGPROGRAM
 
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag

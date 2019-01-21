@@ -2586,7 +2586,7 @@ namespace PlayerAndEditorGUI {
             return ret;
         }
 
-        static bool enter_Search_ListIcon<T>(this string txt, ref List<T> list,  ref int inspected, ref int enteredOne, int thisOne)
+        static bool enter_ListIcon<T>(this string txt, ref List<T> list,  ref int inspected, ref int enteredOne, int thisOne)
         {
             if (listIsNull(ref list)) {
                 if (enteredOne == thisOne)
@@ -2596,8 +2596,8 @@ namespace PlayerAndEditorGUI {
 
             bool entered = enteredOne == thisOne;
 
-            if (entered)
-                ToggleSearch(list);
+           //// if (entered)
+             //   ToggleSearch(list);
 
             var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
@@ -2841,7 +2841,7 @@ namespace PlayerAndEditorGUI {
 
             bool changed = false;
             
-            if (enter_Search_ListIcon( label, ref list ,ref inspectedElement, ref enteredOne, thisOne))
+            if (enter_ListIcon( label, ref list ,ref inspectedElement, ref enteredOne, thisOne))
                 label.edit_List_UObj(ref list, ref inspectedElement, selectFrom).nl();
 
             return changed;
@@ -2873,7 +2873,7 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
             
             int insp = -1;
-            if (enter_Search_ListIcon(label, ref list ,ref insp, ref enteredOne, thisOne)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (enter_ListIcon(label, ref list ,ref insp, ref enteredOne, thisOne)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 label.edit_List_UObj(ref list, selectFrom);   
 
             return changed;
@@ -2910,7 +2910,7 @@ namespace PlayerAndEditorGUI {
         {
             T tmp = default(T);
             
-            if (enter_Search_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (enter_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
 
             return tmp;
@@ -2941,7 +2941,7 @@ namespace PlayerAndEditorGUI {
             bool changed = false;
             int insp = -1;
 
-             if (enter_Search_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) 
+             if (enter_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) 
                 label.edit_List(ref list, types, ref changed);
             
 
@@ -3367,12 +3367,12 @@ namespace PlayerAndEditorGUI {
 
         public static bool Click_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
         {
-            var ch = obj.Click_Attention(icon, hint, canBeNull);
+            var ch = obj.Click_Enter_Attention(icon, hint, canBeNull);
             obj.ClickHighlight();
             return ch;
         }
 
-        public static bool Click_Attention(this INeedAttention attention, icon icon = icon.Enter, string hint = "", bool canBeNull = true)
+        public static bool Click_Enter_Attention(this INeedAttention attention, icon icon = icon.Enter, string hint = "", bool canBeNull = true)
         {
             if (attention.IsNullOrDestroyed_Obj())   {
                 if (!canBeNull)
@@ -5489,16 +5489,16 @@ namespace PlayerAndEditorGUI {
             return val;
         }
 
-        static void write_ListLabel(this List_Data datas, IList lst) =>
-            write_ListLabel(datas.label, ref datas.inspected, lst);
+        static void write_Search_ListLabel(this List_Data datas, IList lst) =>
+            write_Search_ListLabel(datas.label, ref datas.inspected, lst);
 
         public static void write_ListLabel(this string label, IList lst = null)
         {
             int notInsp = -1;
-            label.write_ListLabel(ref notInsp, lst);
+            label.write_Search_ListLabel(ref notInsp, lst);
         }
 
-        public static void write_ListLabel(this string label, ref int inspected, IList lst) {
+        public static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
 
             bool editedName = false;
 
@@ -6111,14 +6111,14 @@ namespace PlayerAndEditorGUI {
         #region MonoBehaviour
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
-            label.write_ListLabel( ref inspected, list);
+            label.write_Search_ListLabel( ref inspected, list);
             bool changed = false;
             edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
             return changed;
         }
 
         public static bool edit_List_MB<T>(this List_Data datas, ref List<T> list) where T : MonoBehaviour {
-            datas.write_ListLabel(list);
+            datas.write_Search_ListLabel(list);
             bool changed = false;
             edit_List_MB(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
             return changed;
@@ -6191,7 +6191,7 @@ namespace PlayerAndEditorGUI {
         #region SO
         public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
 
             return edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
         }
@@ -6207,7 +6207,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
 
             bool changed = false;
 
@@ -6231,7 +6231,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List_SO<T>(this List_Data datas, ref List<T> list) where T : ScriptableObject
         {
-            write_ListLabel(datas, list);
+            write_Search_ListLabel(datas, list);
 
             bool changed = false;
 
@@ -6330,7 +6330,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
         }
 
@@ -6349,13 +6349,13 @@ namespace PlayerAndEditorGUI {
         
         public static bool edit_List_UObj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            datas.label.write_ListLabel(ref datas.inspected, list);
+            datas.label.write_Search_ListLabel(ref datas.inspected, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
         }
 
         public static bool edit_or_select_List_UObj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
             return edit_or_select_List_UObj(ref list, from, ref inspected, datas).listLabel_Used();
         }
 
@@ -6411,13 +6411,13 @@ namespace PlayerAndEditorGUI {
         #region OfNew
         public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
         {
-            ld.label.write_ListLabel(ref ld.inspected, list);
+            ld.label.write_Search_ListLabel(ref ld.inspected, list);
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
         
         public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) 
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
             return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
@@ -6444,13 +6444,13 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
         {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
             return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
         }
 
         public static bool edit_List<T>(this List_Data datas, ref List<T> list)  {
 
-            write_ListLabel(datas, list);
+            write_Search_ListLabel(datas, list);
             bool changed = false;
             edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
             return changed;
@@ -6458,7 +6458,7 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) {
 
-            write_ListLabel(datas, list);
+            write_Search_ListLabel(datas, list);
             return edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
 
         }
@@ -6521,13 +6521,13 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this List_Data datas, ref List<T> list, TaggedTypes_STD types, ref bool changed)
         {
-            write_ListLabel(datas, list);
+            write_Search_ListLabel(datas, list);
             return edit_List(ref list, ref datas.inspected, types, ref changed, datas).listLabel_Used();
         }
 
         public static bool edit_List<T>(this List_Data datas, ref List<T> list, TaggedTypes_STD types) {
             bool changed = false;
-            write_ListLabel(datas, list);
+            write_Search_ListLabel(datas, list);
             edit_List(ref list, ref datas.inspected, types, ref changed, datas).listLabel_Used();
             return changed;
         }
@@ -6535,12 +6535,12 @@ namespace PlayerAndEditorGUI {
 
         public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data ld = null)
         {
-            label.write_ListLabel(ref ld.inspected, list);
+            label.write_Search_ListLabel(ref ld.inspected, list);
             return edit_List(ref list, ref ld.inspected, types, ref changed, ld).listLabel_Used();
         }
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed) {
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
             return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
         }
         
@@ -6785,7 +6785,7 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
-
+        /*
         public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda)
         {
 
@@ -6819,7 +6819,7 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
-
+        */
 
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
@@ -6902,7 +6902,7 @@ namespace PlayerAndEditorGUI {
         public static bool write_List<T>(this string label, List<T> list, ref int inspected)
         {
             nl();
-            label.write_ListLabel(ref inspected, list);
+            label.write_Search_ListLabel(ref inspected, list);
 
             return list.write_List<T>(ref inspected).listLabel_Used();
         }
@@ -7001,7 +7001,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected)
         {
-            label.write_ListLabel(ref inspected, null);
+            label.write_Search_ListLabel(ref inspected, null);
             return edit_Dictionary_Values(ref dic, ref inspected);
         }
 
@@ -7189,7 +7189,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null)   {
-            label.write_ListLabel(ref inspected, array);
+            label.write_Search_ListLabel(ref inspected, array);
             return edit_Array(ref array, ref inspected, datas).listLabel_Used();
         }
 
@@ -7482,7 +7482,7 @@ namespace PlayerAndEditorGUI {
                     filteredElements.Clear();
 
                 searchBy = txt;
-                searching = txt.Length>0;
+                searching = !txt.IsNullOrEmpty();
 
             } 
         }

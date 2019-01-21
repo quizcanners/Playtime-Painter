@@ -26,8 +26,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
-				#include "qc_Includes.cginc"
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "PlaytimePainter_cg.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				sampler2D _PreviewTex;
 				float4 _PreviewTex_ST;

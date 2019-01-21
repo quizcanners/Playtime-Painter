@@ -21,7 +21,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fog
 
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				sampler2D _MainTex;
 				sampler2D _FluffMask;

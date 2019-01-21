@@ -30,7 +30,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_instancing
 
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				sampler2D _MainTex_Current;
 				float4 _MainTex_Current_TexelSize;

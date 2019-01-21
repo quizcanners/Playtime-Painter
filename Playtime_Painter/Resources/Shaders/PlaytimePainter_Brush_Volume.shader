@@ -12,8 +12,8 @@
 
 				CGPROGRAM
 
-				#include "qc_Includes.cginc"
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "PlaytimePainter_cg.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma multi_compile  BRUSH_NORMAL  BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE
 

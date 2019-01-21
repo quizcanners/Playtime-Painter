@@ -20,7 +20,7 @@
 				#include "Lighting.cginc"
 				#include "UnityCG.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/quizcanners/VertexDataProcessInclude.cginc"
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
