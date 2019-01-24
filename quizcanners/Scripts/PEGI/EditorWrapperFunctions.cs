@@ -22,7 +22,6 @@ using UnityEditorInternal;
 namespace PlayerAndEditorGUI {
 
     public static class ef {
-
         
         static bool lineOpen = false;
         static int selectedFold = -1;
@@ -30,26 +29,45 @@ namespace PlayerAndEditorGUI {
         static int elementIndex;
         public static bool searchInFocus = false;
         public static SerializedObject serObj;
+        public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
+        {
 
-        public static bool Inspect<T>(T o, SerializedObject so) where T: MonoBehaviour, IPEGI {
+            T o = (T)editor.target;
+            SerializedObject so = editor.serializedObject;
+
             if (o.gameObject.IsPrefab())
                 return false;
 
-            start(so);
-            bool changed = o.Inspect();
-            end(o.gameObject);
+            var pgi = o as IPEGI;
+            if (pgi != null)
+            {
+                start(so);
+                bool changed = pgi.Inspect();
+                end(o.gameObject);
+                return changed;
+            }
+            else editor.DrawDefaultInspector();
 
-            return changed;
+            return false;
         }
 
-        public static bool Inspect_so<T>(T o, SerializedObject so) where T : ScriptableObject, IPEGI
+        public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
         {
-            
-            start(so);
-            bool changed = o.Inspect();
-            end(o);
 
-            return changed;
+            T o = (T)editor.target;
+            SerializedObject so = editor.serializedObject;
+
+            var pgi = o as IPEGI;
+            if (pgi != null)
+            {
+                start(so);
+                bool changed = pgi.Inspect();
+                end(o);
+                return changed;
+            }
+            else editor.DrawDefaultInspector();
+
+            return false;
         }
 
         public static void start(SerializedObject so)

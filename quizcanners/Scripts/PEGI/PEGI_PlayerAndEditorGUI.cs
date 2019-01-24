@@ -99,8 +99,7 @@ namespace PlayerAndEditorGUI {
             set { if (value) mouseOverUI = Time.frameCount; }
         }
 
-#if PEGI
-
+        #if PEGI
         #region Change Tracking 
         public static bool globChanged;
 
@@ -7572,53 +7571,7 @@ namespace PlayerAndEditorGUI {
             return obj.ToString().RemovePreDots();
         }
 
-        static void cantInspect()
-        {
-
-
-
 #if PEGI
-#if !UNITY_EDITOR
-             "PEGI is compiled without UNITY_EDITOR directive".nl();
-#endif
-#else
-#if UNITY_EDITOR
-             if (GUILayout.Button("Enable PEGI inspector")){
-               "Recompilation in progress ".showNotificationIn3D_Views();
-            
-
-            PEGI_StylesDrawer.EnablePegi();
-            }
-#endif
-#endif
-        }
-
-        public static bool Inspect<T>(this T o, object so) where T : MonoBehaviour, IPEGI
-        {
-#if PEGI && UNITY_EDITOR
-            return ef.Inspect(o, (SerializedObject)so).RestoreBGColor();
-#else
-            cantInspect();
-            return false;
-#endif
-        }
-
-        public static bool Inspect_so<T>(this T o, object so) where T : ScriptableObject, IPEGI
-        {
-#if PEGI && UNITY_EDITOR
-            return ef.Inspect_so(o, (SerializedObject)so).RestoreBGColor();
-#else
-            cantInspect();
-            return false;
-#endif
-        }
-        
-#if PEGI
-
-
-
-       
-
         public static int focusInd;
         
         public static bool Nested_Inspect(this IPEGI pgi)

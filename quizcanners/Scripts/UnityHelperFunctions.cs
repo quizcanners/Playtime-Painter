@@ -102,43 +102,15 @@ namespace QuizCannersUtilities {
             return col;
         }
 
+        public static Color ToTransparent(this Color col)
+        {
+            col.a = 0;
+            return col;
+        }
+
         #endregion
 
         #region Components & GameObjects
-
-        public static int GetSubmeshNumber(this Mesh m, int triangleIndex) {
-
-            if (m) {
-
-                if (m.subMeshCount == 1)
-                    return 0;
-
-                if (!m.isReadable) {
-                    Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
-                    return 0;
-                }
-                
-                int[] hittedTriangle = new int[] {
-                m.triangles[triangleIndex * 3],
-                m.triangles[triangleIndex * 3 + 1],
-                m.triangles[triangleIndex * 3 + 2] };
-                
-                for (int i = 0; i < m.subMeshCount; i++) {
-
-                    if (i == m.subMeshCount - 1)
-                        return i;
-
-                    int[] subMeshTris = m.GetTriangles(i);
-                    for (int j = 0; j < subMeshTris.Length; j += 3)
-                        if (subMeshTris[j] == hittedTriangle[0] &&
-                            subMeshTris[j + 1] == hittedTriangle[1] &&
-                            subMeshTris[j + 2] == hittedTriangle[2])
-                            return i;
-                }
-            }
-
-            return 0;
-        }
 
         public static GameObject TryGetGameObject_Obj(this object obj) {
             var go = obj as GameObject;
@@ -213,6 +185,30 @@ namespace QuizCannersUtilities {
                 }
             }
             return false;
+        }
+
+        public static void TrySetAlpha<T>(this List<T> graphics, float alpha) where T : Graphic
+        {
+            if (!graphics.IsNullOrEmpty())
+                foreach (var g in graphics)
+                    g.TrySetAlpha(alpha);
+        }
+
+        public static bool TrySetColor_RGB(this Graphic graphic, Color color)
+        {
+            if (graphic) {
+                color.a = graphic.color.a;
+                graphic.color = color;
+                return true;
+            }
+            return false;
+        }
+
+        public static void TrySetColor_RGB<T>(this List<T> graphics, Color color) where T: Graphic
+        {
+            if (!graphics.IsNullOrEmpty())
+                foreach (var g in graphics)
+                    g.TrySetColor_RGB(color);
         }
 
         public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength)
@@ -482,27 +478,33 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-        public static void SetToDirty(this List<UnityEngine.Object> objs) {
-            #if UNITY_EDITOR
+        public static List<UnityEngine.Object> SetToDirty(this List<UnityEngine.Object> objs)
+        {
+#if UNITY_EDITOR
             if (!objs.IsNullOrEmpty())
                 foreach (var o in objs)
                     o.SetToDirty();
-            #endif
+#endif
+            return objs;
+
         }
 
-        public static void SetToDirty(this UnityEngine.Object obj)
+        public static UnityEngine.Object SetToDirty(this UnityEngine.Object obj)
         {
             #if UNITY_EDITOR
             if (obj)
                 EditorUtility.SetDirty(obj);
             #endif
+            return obj;
         }
 
-        public static void SetToDirty_Obj(this object obj) {
+        public static object SetToDirty_Obj(this object obj) {
 
             #if UNITY_EDITOR
             SetToDirty(obj as UnityEngine.Object);
             #endif
+
+            return obj;
         }
 
         public static void FocusOn(UnityEngine.Object go)
@@ -1814,8 +1816,87 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
+
+        #region Meshes
+
+        public static void SetColor(this MeshFilter mf, Color col) {
+
+            if (mf) {
+
+                var m = mf.mesh;
+
+                var cols = new Color[m.vertexCount]; 
+
+                for (int i = 0; i < m.vertexCount; i++)
+                    cols[i] = col;
+
+                mf.mesh.colors = cols;
+
+            }
+        }
+
+        public static void SetAlpha(this MeshFilter mf, float alpha)
+        {
+
+            if (mf)
+            {
+
+                var m = mf.mesh;
+
+                var cols = mf.mesh.colors;
+                if (cols.IsNullOrEmpty())
+                    cols = new Color[m.vertexCount];
+
+                for (int i = 0; i < m.vertexCount; i++)
+                    cols[i].a = alpha;
+
+                mf.mesh.colors = cols;
+
+            }
+        }
+
+
+        public static int GetSubmeshNumber(this Mesh m, int triangleIndex)
+        {
+
+            if (m)
+            {
+
+                if (m.subMeshCount == 1)
+                    return 0;
+
+                if (!m.isReadable)
+                {
+                    Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
+                    return 0;
+                }
+
+                int[] hittedTriangle = new int[] {
+                m.triangles[triangleIndex * 3],
+                m.triangles[triangleIndex * 3 + 1],
+                m.triangles[triangleIndex * 3 + 2] };
+
+                for (int i = 0; i < m.subMeshCount; i++)
+                {
+
+                    if (i == m.subMeshCount - 1)
+                        return i;
+
+                    int[] subMeshTris = m.GetTriangles(i);
+                    for (int j = 0; j < subMeshTris.Length; j += 3)
+                        if (subMeshTris[j] == hittedTriangle[0] &&
+                            subMeshTris[j + 1] == hittedTriangle[1] &&
+                            subMeshTris[j + 2] == hittedTriangle[2])
+                            return i;
+                }
+            }
+
+            return 0;
+        }
+        
+        #endregion
     }
-    
+
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         public string _name;

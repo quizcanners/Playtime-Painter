@@ -9,10 +9,13 @@ namespace Playtime_Painter
     public class MeshOperations : PainterStuff
     {
 
-        public string[] toolsHints = new string[]
- {
-        "", "Press go on edge to grow outline", "Select a line ang press g to add a road segment", "Auto assign tris color", "Add vertex to the center of the line", "Delete triangle and all vertices", "I need to check what this does"
- };
+        public string[] toolsHints = new string[] {
+            "", "Press go on edge to grow outline",
+            "Select a line ang press g to add a road segment",
+            "Auto assign tris color",
+            "Add vertex to the center of the line",
+            "Delete triangle and all vertices", "I need to check what this does"
+        };
 
         public Vector2 uvChangeSpeed;
         public bool updated = false;
@@ -356,6 +359,7 @@ namespace Playtime_Painter
             }
 
         }
+
 #if PEGI
         void SomeOtherPathStuff()
         {
@@ -391,9 +395,6 @@ namespace Playtime_Painter
                     }
                 }
             }
-
-
-
         }
 
 #endif

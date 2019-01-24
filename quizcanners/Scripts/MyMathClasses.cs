@@ -153,11 +153,10 @@ namespace QuizCannersUtilities {
 
         public static Color Lerp_RGB(this Color from, Color to, float speed, out float portion) {
             portion = speed.SpeedToPortion(from.DistanceRGB(to));
+            to.a = from.a;
             return Color.Lerp(from, to, portion);
         }
 
-        public static Color Lerp_RGBA(this Color from, Color to, float portion) => Color.Lerp(from, to, portion);
-        
         public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
 
         public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed, out float portion)

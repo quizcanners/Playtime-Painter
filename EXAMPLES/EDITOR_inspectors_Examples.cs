@@ -10,77 +10,42 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
-    [CustomEditor(typeof(GodMode))]
-    public class GodModeDrawer : Editor {
-        public override void OnInspectorGUI()
-    => ((GodMode)target).Inspect(serializedObject);
-    }
 
+    [CustomEditor(typeof(GodMode))]
+    public class GodModeDrawer : PEGI_Editor<GodMode> {}
+    
     [CustomEditor(typeof(PixelPerfectUVupdate))]
-    public class PixelPerfectUVupdateEditor : Editor {
-        public override void OnInspectorGUI() => ((PixelPerfectUVupdate)target).Inspect(serializedObject);
-    }
+    public class PixelPerfectUVupdateEditor : PEGI_Editor<PixelPerfectUVupdate> { }
 
     [CustomEditor(typeof(PixelArtMeshGenerator))]
-    public class PixelArtMeshGeneratorEditor : Editor{
-        public override void OnInspectorGUI() => ((PixelArtMeshGenerator)target).Inspect(serializedObject);
-    }
+    public class PixelArtMeshGeneratorEditor : PEGI_Editor<PixelArtMeshGenerator> { }
 
     [CustomEditor(typeof(LightCaster))]
-    public class BakedShadowsLightProbeEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((LightCaster)target).Inspect(serializedObject);
-    }
+    public class BakedShadowsLightProbeEditor : PEGI_Editor<LightCaster> {}
 
     [CustomEditor(typeof(MergingTerrainController))]
-    public class MergingTerrainEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((MergingTerrainController)target).Inspect(serializedObject);
-    }
+    public class MergingTerrainEditor : PEGI_Editor<MergingTerrainController> { }
 
     [CustomEditor(typeof(PainterBall))]
-    public class PainterBallEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((PainterBall)target).Inspect(serializedObject);
-    }
+    public class PainterBallEditor : PEGI_Editor<PainterBall> { }
 
     [CustomEditor(typeof(PaintingReciever))]
-    public class PaintingRecieverEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((PaintingReciever)target).Inspect(serializedObject);
-    }
+    public class PaintingRecieverEditor : PEGI_Editor<PaintingReciever>  { }
 
     [CustomEditor(typeof(PaintWithoutComponent))]
-    public class PaintWithoutComponentEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((PaintWithoutComponent)target).Inspect(serializedObject);
-    }
+    public class PaintWithoutComponentEditor : PEGI_Editor<PaintWithoutComponent>  { }
 
     [CustomEditor(typeof(RaycastOnCollisionPainter))]
-    public class PainterCasterEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((RaycastOnCollisionPainter)target).Inspect(serializedObject);
-    }
+    public class PainterCasterEditor : PEGI_Editor<RaycastOnCollisionPainter> { }
 
     [CustomEditor(typeof(ShadowVolumeTexture))]
-    public class ShadowVolumeTextureEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((ShadowVolumeTexture)target).Inspect(serializedObject);
-    }
+    public class ShadowVolumeTextureEditor : PEGI_Editor<ShadowVolumeTexture> { }
 
     [CustomEditor(typeof(SkinnedMeshCaster))]
-    public class SkinnedMeshCasterEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((SkinnedMeshCaster)target).Inspect(serializedObject);
-    }
-
-
-
+    public class SkinnedMeshCasterEditor : PEGI_Editor<SkinnedMeshCaster> { }
+    
     [CustomEditor(typeof(WaterController))]
-    public class WaterEditor : Editor
-    {
-        public override void OnInspectorGUI() => ((WaterController)target).Inspect(serializedObject);
-    }
+    public class WaterEditor : PEGI_Editor<WaterController> { }
 
 #endif
 }

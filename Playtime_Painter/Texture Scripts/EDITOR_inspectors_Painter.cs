@@ -8,13 +8,9 @@ using UnityEditor;
 namespace Playtime_Painter {
     
     [CustomEditor(typeof(PainterCamera))]
-    public class RenderTexturePainterEditor : Editor {
-        public override void OnInspectorGUI() => ((PainterCamera)target).Inspect(serializedObject);
-    }
+    public class RenderTexturePainterEditor : PEGI_Editor<PainterCamera> { }
 
     [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureEditor : Editor {
-        public override void OnInspectorGUI() => ((VolumeTexture)target).Inspect(serializedObject);
-    }
+    public class VolumeTextureEditor : PEGI_Editor<VolumeTexture> { }
 }
 #endif
