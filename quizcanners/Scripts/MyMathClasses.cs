@@ -94,6 +94,121 @@ namespace QuizCannersUtilities {
 
         #region Lerps
 
+        public static float SpeedToPortion(this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
+
+        public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
+        {
+
+            var nportion = speed.SpeedToPortion(dist);
+            if (nportion < portion)
+            {
+                portion = nportion;
+                return true;
+            }
+
+            if (portion == 1 && dist > 0)
+                return true;
+
+            return false;
+        }
+        
+        public static bool isLerping_bySpeed(ref float from, float to, float speed)
+        {
+            if (from == to)
+                return false;
+
+            from = Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+            return true;
+        }
+
+        public static bool Lerp(ref float from, float to, float speed, out float portion)
+        {
+            if (from == to)
+            {
+                portion = 1;
+                return false;
+            }
+
+            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
+            from = Mathf.LerpUnclamped(from, to, portion);
+
+            return true;
+        }
+
+        public static float Lerp_bySpeed(float from, float to, float speed)
+            => Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+
+        public static float Lerp(float from, float to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
+            return Mathf.LerpUnclamped(from, to, portion);
+        }
+
+        public static bool LerpAngle_bySpeed(ref float from, float to, float speed)
+        {
+            float dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
+            if (dist > 0)
+            {
+                float portion = speed.SpeedToPortion(dist);
+                from = Mathf.LerpAngle(from, to, portion);
+                return true;
+            }
+            return false;
+        }
+        
+        public static Vector2 Lerp_bySpeed(this Vector2 from, Vector2 to, float speed) => Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
+
+        public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
+            return Vector3.LerpUnclamped(from, to, portion);
+        }
+        
+        public static Vector3 Lerp_bySpeed(this Vector3 from, Vector3 to, float speed) => Vector3.LerpUnclamped(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
+
+        public static Vector3 Lerp(this Vector3 from, Vector3 to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
+            return Vector3.LerpUnclamped(from, to, portion);
+        }
+        
+        public static Vector4 Lerp_bySpeed(this Vector4 from, Vector4 to, float speed) => Vector4.LerpUnclamped(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
+
+        public static Vector4 Lerp(this Vector4 from, Vector4 to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Vector4.Distance(from, to));
+            return Vector4.LerpUnclamped(from, to, portion);
+        }
+        
+        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.LerpUnclamped(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
+
+        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
+            return Quaternion.LerpUnclamped(from, to, portion);
+        }
+
+        public static float DistanceRGB(this Color col, Color other)
+            =>
+            (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
+
+        public static float DistanceRGBA(this Color col, Color other)
+        {
+
+            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b)) * 0.33f + Mathf.Abs(col.a - other.a));
+
+            return dist;
+        }
+
+        public static Color Lerp_bySpeed(this Color from, Color to, float speed) => Color.LerpUnclamped(from, to, speed.SpeedToPortion(from.DistanceRGB(to)));
+
+        public static Color Lerp_RGB(this Color from, Color to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(from.DistanceRGB(to));
+            to.a = from.a;
+            return Color.LerpUnclamped(from, to, portion);
+        }
+
         public static bool isLerpingAlpha_BySpeed<T>(this List<T> imgs, float alpha, float speed) where T : Graphic
         {
             bool changing = false;
@@ -121,113 +236,6 @@ namespace QuizCannersUtilities {
 
             return changing;
         }
-
-        public static float DistanceRGB (this Color col, Color other)
-            =>
-            (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
-
-        public static float DistanceRGBA(this Color col, Color other) {
-
-            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b))*0.33f + Mathf.Abs(col.a - other.a));
-
-            return dist;
-        }
-
-        public static float SpeedToPortion (this float speed, float dist) 
-            => dist != 0 ? Mathf.Clamp01(speed* Time.deltaTime / Mathf.Abs(dist)) : 1;
-
-        public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
-        {
-
-            var nportion = speed.SpeedToPortion(dist);
-            if (nportion < portion)  {
-                portion = nportion;
-                return true;
-            } if (portion == 1 && dist > 0)
-                return true;
-
-            return false;
-        }
-
-        public static Color Lerp_bySpeed(this Color from, Color to, float speed) => Color.Lerp(from, to, speed.SpeedToPortion(from.DistanceRGB(to)));
-
-        public static Color Lerp_RGB(this Color from, Color to, float speed, out float portion) {
-            portion = speed.SpeedToPortion(from.DistanceRGB(to));
-            to.a = from.a;
-            return Color.Lerp(from, to, portion);
-        }
-
-        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.Lerp(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
-
-        public static Quaternion Lerp_bySpeed(this Quaternion from, Quaternion to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
-            return Quaternion.Lerp(from, to, portion);
-        }
-
-        public static Vector4 Lerp_bySpeed(this Vector4 from, Vector4 to, float speed) => Vector4.Lerp(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
-
-        public static Vector4 Lerp(this Vector4 from, Vector4 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector4.Distance(from, to));
-            return Vector4.Lerp(from, to, portion);
-        }
-
-        public static Vector3 Lerp_bySpeed(this Vector3 from, Vector3 to, float speed) => Vector3.Lerp(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
-        
-        public static Vector3 Lerp(this Vector3 from, Vector3 to, float speed, out float portion) {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to)); 
-            return Vector3.Lerp(from, to, portion);
-        }
-
-        public static Vector2 Lerp_bySpeed(this Vector2 from, Vector2 to, float speed) => Vector2.Lerp(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
-
-        public static Vector2 Lerp(this Vector2 from, Vector2 to, float speed, out float portion) {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
-            return Vector3.Lerp(from, to, portion);
-        }
-
-        public static bool isLerping_bySpeed(ref float from, float to, float speed)
-        {
-            if (from == to)
-                return false;
-
-            from = Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
-            return true;
-        }
-
-        public static bool Lerp(ref float from, float to, float speed, out float portion)
-        {
-            if (from == to) {
-                portion = 1;
-                return false;
-            }
-
-            portion = speed.SpeedToPortion(Mathf.Abs(from-to));
-            from = Mathf.Lerp(from, to, portion);
-
-            return true;
-        }
-
-        public static float Lerp_bySpeed(float from, float to, float speed) 
-            => Mathf.Lerp(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
-
-        public static float Lerp(float from, float to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
-            return Mathf.Lerp(from, to, portion);
-        }
-
-        public static bool LerpAngle_bySpeed (ref float from, float to, float speed) {
-            float dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
-            if (dist > 0) {
-                float portion = speed.SpeedToPortion(dist);
-                from = Mathf.LerpAngle(from, to, portion);
-                return true;
-            }
-            return false;
-        }
-
         #endregion
 
         #region Trigonometry
@@ -254,6 +262,13 @@ namespace QuizCannersUtilities {
             return v3;
         }
         
+        public static Vector3 BezierCurve(float portion, Vector3 from, Vector3 mid, Vector3 to)
+        {
+            Vector3 m1 = Vector3.LerpUnclamped(from, mid, portion);
+            Vector3 m2 = Vector3.LerpUnclamped(mid, to, portion);
+            return Vector3.LerpUnclamped(m1, m2, portion);
+        }
+
         public static float Angle(this Vector2 vec)
         {
             if (vec.x < 0)

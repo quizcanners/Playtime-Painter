@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI
     [ExecuteInEditMode]
     public class PEGI_Styles : MonoBehaviour, IPEGI
     {
-
+        #region Button
         static GUIStyle _imageButton;
         public static GUIStyle ImageButton    {
             get {
@@ -30,6 +30,28 @@ namespace PlayerAndEditorGUI
             }
     
         }
+
+        static GUIStyle _clickableText;
+        public static GUIStyle ClickableText
+        {
+            get
+            {
+                if (_clickableText == null)
+                {
+                    _clickableText = new GUIStyle(GUI.skin.label)
+                    {
+                        wordWrap = false,
+                        fontStyle = FontStyle.Bold,
+                        contentOffset = new Vector2(0, 4),
+                    };
+                    _clickableText.normal.textColor = new Color32(40, 40, 255, 255);
+                }
+
+                return _clickableText;
+            }
+        }
+
+        #endregion
 
         #region Toggle
 
@@ -65,15 +87,17 @@ namespace PlayerAndEditorGUI
             get
             {
                 if (_toggleTextOff == null)
-                    _toggleTextOff = new GUIStyle(GUI.skin.label)  {
+                {
+                    _toggleTextOff = new GUIStyle(GUI.skin.label)
+                    {
                         contentOffset = new Vector2(0, 2),
                         wordWrap = true,
                         //fontSize = 10
-                        
                         //fontStyle = FontStyle.Italic
                     };
 
-                _toggleTextOff.normal.textColor = new Color32(40, 40, 40, 255); //2C1F0B);
+                    _toggleTextOff.normal.textColor = new Color32(40, 40, 40, 255); 
+                }
                 return _toggleTextOff;
             }
         }
@@ -101,7 +125,8 @@ namespace PlayerAndEditorGUI
 
         #region List
         static GUIStyle _listLabel;
-        public static GUIStyle ListLabel { get {
+        public static GUIStyle ListLabel {
+            get {
                 if (_listLabel == null)
                 {
                     _listLabel = new GUIStyle(GUI.skin.label)
@@ -117,7 +142,8 @@ namespace PlayerAndEditorGUI
                     };
                     _listLabel.normal.textColor = new Color32(43, 30, 11,255); //2C1F0B);
                 }
-                return _listLabel; }
+                return _listLabel;
+            }
         
         }
 
@@ -230,14 +256,13 @@ namespace PlayerAndEditorGUI
 
         // Testing stuff
 
-        public GUIStyle TestListLabel;
-        public GUIStyle TestImageButton;
+        public GUIStyle testListLabel;
+        public GUIStyle testImageButton;
         public GUISkin skin;
 
         public List<GameObject> testList = new List<GameObject>();
 
-#if PEGI
-
+        #if PEGI
         public bool Inspect()
         {
             bool changed = false;
@@ -247,33 +272,25 @@ namespace PlayerAndEditorGUI
 
             "Some more text".nl();
 
-            icon.Docs.GetIcon().edit_Property("Button icon" , () => TestImageButton, this).nl();
+            icon.Docs.GetIcon().edit_Property("Button icon" , () => testImageButton, this).nl();
 
            
 
-            "List Label".edit_Property(() => TestListLabel, this).nl();
+            "List Label".edit_Property(() => testListLabel, this).nl();
 
-            "List Label Test".write(TestListLabel); pegi.nl();
+            "List Label Test".write(testListLabel); pegi.nl();
 
             return changed;
         }
-
-#endif
+        #endif
 
         void Refresh()
         {
-            TestListLabel = ListLabel;
-            TestImageButton = ImageButton;
+            testListLabel = ListLabel;
+            testImageButton = ImageButton;
         }
-
-        // Use this for initialization
-        void OnEnable() => Refresh();
         
+        void OnEnable() => Refresh();
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
     }
 }

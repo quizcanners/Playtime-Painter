@@ -285,10 +285,8 @@ namespace STD_Logic
                 Trigger selectedTrig = arg?.Trigger;
 
                 if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
-                    if (icon.Add.Click("CREATE [" + Trigger.searchField + "]").changes(ref changed)) {
+                    if (icon.Add.ClickUnfocus("CREATE [" + Trigger.searchField + "]").changes(ref changed)) 
                         Add(Trigger.searchField, arg);
-                        pegi.DropFocus();
-                    }
                 }
             }
 

@@ -10,20 +10,17 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Editor<T> : Editor where T : MonoBehaviour
     {
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             #if PEGI
             ef.Inspect<T>(this).RestoreBGColor();
             #else
-             DrawDefaultInspector();
+            DrawDefaultInspector();
             #endif
         }
     }
 
-    public abstract class PEGI_Editor_SO<T> : Editor where T : ScriptableObject
-    {
-        public override void OnInspectorGUI()
-        {
+    public abstract class PEGI_Editor_SO<T> : Editor where T : ScriptableObject {
+        public override void OnInspectorGUI() {
             #if PEGI
             ef.Inspect_so<T>(this).RestoreBGColor();
             #else

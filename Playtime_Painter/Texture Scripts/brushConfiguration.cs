@@ -428,7 +428,7 @@ namespace Playtime_Painter {
             if (Tools.current != Tool.None) {
                 Msg.LockToolToUseTransform.Get().writeWarning();
                 if (Msg.HideTransformTool.Get().Click().nl())
-                    PlaytimePainter.HideUnityTool();
+                    UnityHelperFunctions.HideUnityTool();
             }
 #endif
 

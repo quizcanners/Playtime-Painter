@@ -230,7 +230,7 @@ namespace Playtime_Painter.Examples
         {
             if (EditorInputManager.GetMouseButton(0))
             {
-                if (EditorInputManager.getControlKey())
+                if (EditorInputManager.Control)
                     curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
                 else if (PointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
                 {
@@ -246,7 +246,7 @@ namespace Playtime_Painter.Examples
 
         public override bool MouseEventPointedLine()
         {
-            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.getControlKey())
+            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.Control)
             {
 
                 if (PointedLine.SameAsLastFrame)

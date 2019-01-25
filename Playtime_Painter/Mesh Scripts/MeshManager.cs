@@ -229,7 +229,7 @@ namespace Playtime_Painter
                 Triangle td = new Triangle(TrisSet);
                 edMesh.triangles.Add(td);
 
-                if (!EditorInputManager.getControlKey())
+                if (!EditorInputManager.Control)
                 {
                     MakeTriangleVertUnique(td, TrisSet[0]);
                     MakeTriangleVertUnique(td, TrisSet[1]);
@@ -277,7 +277,7 @@ namespace Playtime_Painter
                 edMesh.Dirty = true;
             }
             else
-                if (!EditorInputManager.getControlKey())
+                if (!EditorInputManager.Control)
             {
                 GridNavigator.onGridPos = SelectedUV.meshPoint.WorldPos;
                 Grid.UpdatePositions();
@@ -433,12 +433,10 @@ namespace Playtime_Painter
         public MeshPoint AddPoint(Vector3 pos)
         {
             MeshPoint hold = new MeshPoint(pos);
-            // hold.uv.Add(
             new Vertex(hold);
             edMesh.meshPoints.Add(hold);
-
-            // if (m_CapsLock)
-            if (!EditorInputManager.getControlKey())
+            
+            if (!EditorInputManager.Control)
                 AddToTrisSet(hold.uvpoints[0]);
 
             if (Cfg.pixelPerfectMeshEditing)
@@ -449,16 +447,6 @@ namespace Playtime_Painter
 
         public void MakeTriangleVertUnique(Triangle tris, Vertex pnt)
         {
-            // bool duplicant = false;
-
-            /* for (int i = 0; i < _Mesh.triangles.Count; i++) {
-                 trisDta other = _Mesh.triangles[i];
-                 if ((other.includes(pnt)) && (other != tris))   {
-                     duplicant = true;
-                     break;
-                 }
-             }*/
-            //if (!duplicant) return;
 
             if (pnt.tris.Count == 1) return;
 
@@ -468,7 +456,6 @@ namespace Playtime_Painter
 
             edMesh.Dirty = true;
 
-
         }
 
         bool ProcessLinesOnTriangle(Triangle t)
@@ -477,10 +464,6 @@ namespace Playtime_Painter
             const float percision = 0.05f;
 
             float acc = (target.transform.InverseTransformPoint(Transform.gameObject.TryGetCameraTransform().position) - collisionPosLocal).magnitude;
-
-            //if (meshTool.showTriangles)
-            //  acc = Mathf.Min( acc, t.ShortestLine().localLength * 0.5f
-            //    );
 
             acc *= percision;
 
@@ -549,7 +532,7 @@ namespace Playtime_Painter
             bool VertexIsPointed = false;
             if (edMesh.meshPoints.Count > 0)
             {
-                bool alt = EditorInputManager.getAltKey();
+                bool alt = EditorInputManager.Alt;
 
                 if (alt)
                     GridNavigator.collisionPos = GridNavigator.onGridPos;
@@ -1315,16 +1298,16 @@ namespace Playtime_Painter
 
         public string _value;
 
-        public static MeshSHaderMode lit = new MeshSHaderMode("MESH_PREVIEW_LIT");
-        public static MeshSHaderMode normVector = new MeshSHaderMode("MESH_PREVIEW_NORMAL");
-        public static MeshSHaderMode vertColor = new MeshSHaderMode("MESH_PREVIEW_VERTCOLOR");
-        public static MeshSHaderMode projection = new MeshSHaderMode("MESH_PREVIEW_PROJECTION");
+        public static MeshSHaderMode lit = new          MeshSHaderMode("MESH_PREVIEW_LIT");
+        public static MeshSHaderMode normVector = new   MeshSHaderMode("MESH_PREVIEW_NORMAL");
+        public static MeshSHaderMode vertColor = new    MeshSHaderMode("MESH_PREVIEW_VERTCOLOR");
+        public static MeshSHaderMode projection = new   MeshSHaderMode("MESH_PREVIEW_PROJECTION");
 
         public static MeshSHaderMode selected;
 
         public override string ToString() => _value;
 
-        public bool isSelected => selected == this;
+        public bool IsSelected => selected == this;
 
         public static void ApplySelected() {
             if (selected == null)

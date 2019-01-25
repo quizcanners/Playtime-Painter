@@ -326,7 +326,7 @@ namespace Playtime_Painter
             if (KeyCode.Delete.IsDown())
             {
                 //Debug.Log("Deleting");
-                if (!EditorInputManager.getControlKey())
+                if (!EditorInputManager.Control)
                 {
                     if (m.PointedUV.meshPoint.uvpoints.Count == 1)
                     {
@@ -484,7 +484,7 @@ namespace Playtime_Painter
 
                 bool canDrag = m.dragDelay <= 0;
 
-                if (beforeCouldDrag != canDrag && EditorInputManager.getAltKey() && (m.SelectedUV.meshPoint.uvpoints.Count > 1))
+                if (beforeCouldDrag != canDrag && EditorInputManager.Alt && (m.SelectedUV.meshPoint.uvpoints.Count > 1))
                     m.DisconnectDragged();
 
                 if (canDrag || !Application.isPlaying)
@@ -647,7 +647,7 @@ namespace Playtime_Painter
             if (KeyCode.N.IsDown())
             {
 
-                if (!EditorInputManager.getAltKey())
+                if (!EditorInputManager.Alt)
                 {
                     int no = PointedTris.NumberOf(PointedTris.GetClosestTo(MeshMGMT.collisionPosLocal));
                     PointedTris.DominantCourner[no] = !PointedTris.DominantCourner[no];
@@ -675,7 +675,7 @@ namespace Playtime_Painter
             if (KeyCode.N.IsDown())
             {
                 foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
-                    t.SetSharpCorners(!EditorInputManager.getAltKey());
+                    t.SetSharpCorners(!EditorInputManager.Alt);
 #if PEGI
                 "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
 #endif
@@ -780,13 +780,13 @@ namespace Playtime_Painter
             {
                 if (MergeUnmerge)
                 {
-                    if (EditorInputManager.getShiftKey())
+                    if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedTris.SetAllVerticesShared();
                     else
                         EditedMesh.Dirty |= EditedMesh.GiveTriangleUniqueVerticles(PointedTris);
                 }
                 else
-                    EditedMesh.Dirty |= PointedTris.SetSmoothVertices(!EditorInputManager.getShiftKey());
+                    EditedMesh.Dirty |= PointedTris.SetSmoothVertices(!EditorInputManager.Shift);
             }
 
             return false;
@@ -798,13 +798,13 @@ namespace Playtime_Painter
             {
                 if (MergeUnmerge)
                 {
-                    if (EditorInputManager.getShiftKey())
+                    if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
                     else
                         EditedMesh.Dirty |= PointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
                 }
                 else
-                    EditedMesh.Dirty |= PointedVertex.SetSmoothNormal(!EditorInputManager.getShiftKey());
+                    EditedMesh.Dirty |= PointedVertex.SetSmoothNormal(!EditorInputManager.Shift);
             }
 
             return false;
@@ -816,7 +816,7 @@ namespace Playtime_Painter
             {
                 if (MergeUnmerge)
                 {
-                    if (!EditorInputManager.getShiftKey())
+                    if (!EditorInputManager.Shift)
                         Dirty |= PointedLine.AllVerticesShared();
                     else
                     {
@@ -827,7 +827,7 @@ namespace Playtime_Painter
                 else
                 {
                     for (int i = 0; i < 2; i++)
-                        Dirty |= PointedLine[i].SetSmoothNormal(!EditorInputManager.getShiftKey());
+                        Dirty |= PointedLine[i].SetSmoothNormal(!EditorInputManager.Shift);
                 }
             }
 
@@ -937,7 +937,7 @@ namespace Playtime_Painter
 
             if ((EditorInputManager.GetMouseButtonDown(0)))
             {
-                if (EditorInputManager.getControlKey())
+                if (EditorInputManager.Control)
 
                     bcf.mask.Transfer(ref m.PointedUV._color, bcf.colorLinear.ToGamma());
 
@@ -1026,7 +1026,7 @@ namespace Playtime_Painter
         static bool editingFlexibleEdge = false;
         public static float edgeValue = 1;
 
-        public static float ShiftInvertedVelue => EditorInputManager.getShiftKey() ? 1f - edgeValue : edgeValue;
+        public static float ShiftInvertedVelue => EditorInputManager.Shift ? 1f - edgeValue : edgeValue;
         
         public override bool ShowTriangles => false;
 
@@ -1084,7 +1084,7 @@ namespace Playtime_Painter
                 if (!PointedUV.meshPoint.AllPointsUnique())
                     "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
 #endif
-                if (EditorInputManager.getControlKey())
+                if (EditorInputManager.Control)
                 {
                     edgeValue = MeshMGMT.PointedUV.meshPoint.edgeStrength;
                     if (AlsoDoColor) GlobalBrush.colorLinear.From(PointedUV._color);
@@ -1124,7 +1124,7 @@ namespace Playtime_Painter
                 var vrtA = PointedLine.pnts[0].meshPoint;
                 var vrtB = PointedLine.pnts[1].meshPoint;
 
-                if (EditorInputManager.getControlKey())
+                if (EditorInputManager.Control)
                     edgeValue = (vrtA.edgeStrength + vrtB.edgeStrength) * 0.5f;
                 else
                 {
@@ -1242,7 +1242,7 @@ namespace Playtime_Painter
         public override bool MouseEventPointedTriangle()
         {
 
-            if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.getControlKey())
+            if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
                 curSubmesh = (int)MeshMGMT.PointedTris.submeshIndex;
 #if PEGI
@@ -1250,7 +1250,7 @@ namespace Playtime_Painter
 #endif
             }
 
-            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.getControlKey() && (MeshMGMT.PointedTris.submeshIndex != curSubmesh))
+            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.Control && (MeshMGMT.PointedTris.submeshIndex != curSubmesh))
             {
                 if (PointedTris.SameAsLastFrame)
                     return true;

@@ -105,7 +105,7 @@ namespace PlayerAndEditorGUI {
 
         static bool change { get { globChanged = true; return true; } }
 
-        static bool Set(this bool val) { globChanged |= val; return val; }
+        static bool Dirty(this bool val) { globChanged |= val; return val; }
         
         public static bool changes(this bool value, ref bool changed)
         {
@@ -319,7 +319,18 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static void DropFocus() => FocusControl("_");
+        public static bool Unfocus(this bool anyChanges)
+        {
+            if (anyChanges)
+                FocusControl("_");
+            return anyChanges;
+        }
+
+        static bool Dirty_Unfocus(this bool anyChanges) {
+            if (anyChanges)
+                FocusControl("_");
+            return anyChanges.Dirty();
+        }
 
         public static string LastNeedAttentionMessage;
         public static int LastNeedAttentionIndex;
@@ -1882,10 +1893,9 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
-        {
-            return select_or_edit(name, null, 0, ref obj, list, showIndex);
-        }
+        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object 
+            =>  select_or_edit(name, null, 0, ref obj, list, showIndex);
+        
 
         public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         => select_or_edit(name, null, width, ref obj, list, showIndex);
@@ -1893,14 +1903,9 @@ namespace PlayerAndEditorGUI {
         public static bool select_or_edit<T>(ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
             => select_or_edit(null, null, 0, ref obj, list, showIndex);
 
-        public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false)
-        {
-            if (list.IsNullOrEmpty())
-                return name.edit(ref val);
-            else
-                return name.select(ref val, list, showIndex);
-        }
-
+        public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) =>
+             list.IsNullOrEmpty() ?  name.edit(ref val) : name.select(ref val, list, showIndex);
+        
         public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false)
         {
             bool changed = false;
@@ -2460,7 +2465,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || !state) &&
-                txt.ClickLabel(txt, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
+                txt.Click_Label(txt, -1, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
                 state = !state;
 
             isFoldedOut_or_Entered = state;
@@ -2485,7 +2490,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || outside) &&
-                txt.ClickLabel(txt, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
+                txt.Click_Label(txt, -1, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
                 enteredOne = outside ? thisOne : -1;
             
 
@@ -3004,24 +3009,21 @@ namespace PlayerAndEditorGUI {
 #endif
         }
         
-        static bool ClickLabel(this string label, string hint, GUIStyle style = null) {
+        public static bool Click_Label(this string label, string hint = "Clickable Text", int width = -1, GUIStyle style = null)
+        {
             SetBgColor(Color.clear);
 
-            var changed = false;
+            if (style == null)
+                style = PEGI_Styles.ClickableText;
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-                changed = (style == null) ? ef.Click(label, hint) : ef.Click(label, hint, style);
-            else
-#endif
-            {
-                checkLine();
-                GUIContent cont = new GUIContent() { text = label, tooltip = hint };
-                changed = style == null ? GUILayout.Button(cont) : GUILayout.Button(cont, style);
-            }
-            PreviousBGcolor();
-
-            return changed;
+                return (width == -1 ? ef.Click(label, hint, style) : ef.Click(label, hint, width, style)).Unfocus().RestoreBGColor();
+            #endif
+            
+            checkLine();
+            GUIContent cont = new GUIContent() { text = label, tooltip = hint };
+            return (width ==-1 ? GUILayout.Button(cont, style) : GUILayout.Button(cont, style, GUILayout.MaxWidth(width))).Dirty_Unfocus().PreviousBGcolor();
         }
 
         public static bool ClickUnfocus(this string text, int width)
@@ -3029,25 +3031,11 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
-                if (ef.Click(text, width))
-                {
-                    DropFocus();
-                    return change;
-                }
-                return false;
-            }
-            
+                return ef.Click(text, width).Unfocus();
 #endif
 
             checkLine();
-            if (GUILayout.Button(text, GUILayout.MaxWidth(width)))
-            {
-                DropFocus();
-                return change;
-            }
-            return false;
-
+            return GUILayout.Button(text, GUILayout.MaxWidth(width)).Dirty_Unfocus();
         }
 
         public static bool ClickUnfocus(this Texture tex, int width = defaultButtonSize)
@@ -3055,24 +3043,11 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
-                if (ef.Click(tex, width))
-                {
-                    DropFocus();
-                    return change;
-                }
-                return false;
-            }
+                return ef.Click(tex, width).Unfocus();
 #endif
 
             checkLine();
-            if (GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)))
-            {
-                DropFocus();
-                return change;
-            }
-            return false;
-            
+            return GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)).Dirty_Unfocus();
         }
 
         public static bool ClickUnfocus(this Texture tex, string tip, int width = defaultButtonSize)
@@ -3080,17 +3055,9 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
-                if (ef.Click(tex, tip, width))
-                {
-                    DropFocus();
-                    return change;
-                }
-                return false;
-            }
-         
+                return ef.Click(tex, tip, width).Unfocus();
 #endif
-            return Click(tex, tip, width);
+            return Click(tex, tip, width).Unfocus();
         }
 
         public static bool ClickUnfocus(this Texture tex, string tip, int width, int height)
@@ -3098,17 +3065,10 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
-                if (ef.Click(tex, tip, width, height))
-                {
-                    DropFocus();
-                    return change;
-                }
-                return false;
-            }
+                return ef.Click(tex, tip, width, height).Unfocus();
 #endif
 
-            return Click(tex, tip, width, height);
+            return Click(tex, tip, width, height).Unfocus();
 
         }
 
@@ -3117,26 +3077,10 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
-                if (ef.Click(text))
-                {
-                    DropFocus();
-                    return change;
-                }
-                return false;
-            }
+                return ef.Click(text).Unfocus();
 #endif
-
-            
             checkLine();
-            if (GUILayout.Button(text))
-            {
-                DropFocus();
-                return change;
-            }
-            return false;
-            
-
+            return GUILayout.Button(text).Dirty_Unfocus();
         }
 
         public static bool Click(this string text, int width)
@@ -3146,7 +3090,7 @@ namespace PlayerAndEditorGUI {
                 return ef.Click(text, width);
 #endif
             checkLine();
-            return GUILayout.Button(text, GUILayout.MaxWidth(width));
+            return GUILayout.Button(text, GUILayout.MaxWidth(width)).Dirty();
         }
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
@@ -3158,7 +3102,7 @@ namespace PlayerAndEditorGUI {
                 return ef.Click(text);
 #endif
             checkLine();
-            return GUILayout.Button(text);
+            return GUILayout.Button(text).Dirty();
         }
 
         public static bool Click(this string text, string tip, ref bool changed) => text.Click(tip).changes(ref changed);
@@ -3171,7 +3115,7 @@ namespace PlayerAndEditorGUI {
 #endif
             checkLine();
             GUIContent cont = new GUIContent() { text = text, tooltip = tip };
-            return GUILayout.Button(cont);
+            return GUILayout.Button(cont).Dirty();
         }
 
         public static bool Click(this string text, string tip, int width = defaultButtonSize)
@@ -3182,7 +3126,7 @@ namespace PlayerAndEditorGUI {
 #endif
             checkLine();
             GUIContent cont = new GUIContent() { text = text, tooltip = tip };
-            return GUILayout.Button(cont, GUILayout.MaxWidth(width));
+            return GUILayout.Button(cont, GUILayout.MaxWidth(width)).Dirty();
         }
 
         static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
@@ -3207,7 +3151,7 @@ namespace PlayerAndEditorGUI {
 #endif
             
             checkLine();
-            return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
+            return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
             
 
         }
@@ -3222,7 +3166,7 @@ namespace PlayerAndEditorGUI {
 #endif
             
                 checkLine();
-                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size));
+                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
             
 
         }
@@ -3236,7 +3180,7 @@ namespace PlayerAndEditorGUI {
                 return ef.Click(img, tip, width, height);
 #endif
                 checkLine();
-                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
+                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Dirty();
         }
 
         public static bool Click(this icon icon) => Click(icon.GetIcon(), icon.ToPEGIstring(), defaultButtonSize);
@@ -3362,8 +3306,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-
-
+        
         public static bool Click_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
         {
             var ch = obj.Click_Enter_Attention(icon, hint, canBeNull);
@@ -3464,7 +3407,7 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 bool before = val;
                 val = GUILayout.Toggle(val, "", GUILayout.MaxWidth(30));
-                return (before != val);
+                return (before != val).Dirty();
             
         }
 
@@ -3483,7 +3426,7 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 bool before = val;
                 val = GUILayout.Toggle(val, text);
-                return (before != val);
+                return (before != val).Dirty();
             }
         }
 
@@ -3499,7 +3442,7 @@ namespace PlayerAndEditorGUI {
                 bool before = val;
                 GUIContent cont = new GUIContent() { text = text, tooltip = tip };
                 val = GUILayout.Toggle(val, cont);
-                return (before != val);
+                return (before != val).Dirty();
         }
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), tip, width, style);
@@ -3545,7 +3488,7 @@ namespace PlayerAndEditorGUI {
 
             var ret = toggle(ref val, icon.True, icon.False, hint, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
             if ((!val || !hideTextWhenTrue) && 
-                 label.ClickLabel(hint, PEGI_Styles.ToggleLabel(val))) {
+                 label.Click_Label(hint,-1, PEGI_Styles.ToggleLabel(val))) {
                 ret = true;
                 val = !val;
             }
@@ -3557,7 +3500,7 @@ namespace PlayerAndEditorGUI {
         {
             var ret = toggle(ref val, icon.True.BGColor(Color.clear), icon.False, label, defaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBGcolor();
 
-            if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, PEGI_Styles.ToggleLabel(val)))
+            if ((!val || !hideTextWhenTrue) && label.Click_Label(label, -1, PEGI_Styles.ToggleLabel(val)))
             {
                 ret = true;
                 val = !val;
@@ -3606,7 +3549,7 @@ namespace PlayerAndEditorGUI {
             bool before = val;
             GUIContent cont = new GUIContent() { text = text, tooltip = tip };
             val = GUILayout.Toggle(val, cont);
-            return (before != val);
+            return (before != val).Dirty();
 
         }
 
@@ -4313,7 +4256,7 @@ namespace PlayerAndEditorGUI {
                 checkLine();
                 float before = val;
                 val = (uint)GUILayout.HorizontalSlider(before, (float)min, (float)max);
-                return (before != val);
+                return (before != val).Dirty();
             
         }
 
@@ -4359,33 +4302,25 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit(ref int val)
         {
-
-
-
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.edit(ref val);
-            }
-            else
+            
 #endif
+            checkLine();
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before);
+            if (string.Compare(before, newval) != 0)
             {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before);
-                if (string.Compare(before, newval) != 0)
-                {
 
-                    int newValue;
-                    bool parsed = int.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
+                int newValue;
+                bool parsed = int.TryParse(newval, out newValue);
+                if (parsed)
+                    val = newValue;
 
-                    return change;
-                }
-                return false;
+                return change;
             }
-
+            return false;
         }
         
         public static bool edit(ref int val, int width)
@@ -4393,27 +4328,24 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.edit(ref val, width);
-            }
-            else
 #endif
+            
+            checkLine();
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+            if (string.Compare(before, newval) != 0)
             {
-                checkLine();
-                string before = val.ToString();
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (string.Compare(before, newval) != 0)
-                {
 
-                    int newValue;
-                    bool parsed = int.TryParse(newval, out newValue);
-                    if (parsed)
-                        val = newValue;
+                int newValue;
+                bool parsed = int.TryParse(newval, out newValue);
+                if (parsed)
+                    val = newValue;
 
-                    return change;
-                }
-                return false;
+                return change;
             }
+            return false;
+            
         }
         
         public static bool edit(ref int val, int min, int max)
@@ -4421,17 +4353,14 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.edit(ref val, (int)min, (int)max);
-            }
-            else
 #endif
-            {
-                checkLine();
-                float before = val;
-                val = (int)GUILayout.HorizontalSlider(before, min, max);
-                return (before != val);
-            }
+            
+            checkLine();
+            float before = val;
+            val = (int)GUILayout.HorizontalSlider(before, min, max);
+            return (before != val).Dirty();
+            
         }
 
         static int editedInteger;
@@ -4441,40 +4370,36 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.editDelayed(ref val, width);
-            }
-            else
+            
 #endif
+            
+            checkLine();
+
+            int tmp = (editedIntegerIndex == elementIndex) ? editedInteger : val;
+
+            if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
             {
-
-                checkLine();
-
-                int tmp = (editedIntegerIndex == elementIndex) ? editedInteger : val;
-
-                if (KeyCode.Return.IsDown() && (elementIndex == editedIntegerIndex))
-                {
-                    edit(ref tmp);
-                    val = editedInteger;
-                    editedIntegerIndex = -1;
-
-                    elementIndex++;
-
-                    return change;
-                }
-
-
-                if (edit(ref tmp))
-                {
-                    editedInteger = tmp;
-                    editedIntegerIndex = elementIndex;
-                    globChanged = false;
-                }
+                edit(ref tmp);
+                val = editedInteger;
+                editedIntegerIndex = -1;
 
                 elementIndex++;
 
-                return false;
+                return change;
             }
+            
+            if (edit(ref tmp))
+            {
+                editedInteger = tmp;
+                editedIntegerIndex = elementIndex;
+                globChanged = false;
+            }
+
+            elementIndex++;
+
+            return false;
+            
         }
 
         public static bool editDelayed(this string label, ref int val, int width) {
@@ -4589,15 +4514,15 @@ namespace PlayerAndEditorGUI {
                 return ef.editPOW(ref val, min, max);
 #endif
             
-                checkLine();
-                float before = Mathf.Sqrt(val);
-                float after = GUILayout.HorizontalSlider(before, min, max);
-                if (before != after)
-                {
-                    val = after * after;
-                    return change;
-                }
-                return false;
+            checkLine();
+            float before = Mathf.Sqrt(val);
+            float after = GUILayout.HorizontalSlider(before, min, max);
+            if (before != after)
+            {
+                val = after * after;
+                return change;
+            }
+            return false;
 
             
         }
@@ -4963,15 +4888,15 @@ namespace PlayerAndEditorGUI {
                 return ef.edit(ref val);
 #endif
             
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextField(before);
-                if (string.Compare(before, newval) != 0)
-                {
-                    val = newval;
-                    return change;
-                }
-                return false;
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextField(before);
+            if (string.Compare(before, newval) != 0)
+            {
+                val = newval;
+                return change;
+            }
+            return false;
             
         }
 
@@ -4985,15 +4910,15 @@ namespace PlayerAndEditorGUI {
                 return ef.edit(ref val, width);
 #endif
             
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-                if (string.Compare(before, newval) != 0)
-                {
-                    val = newval;
-                    return change;
-                }
-                return false;
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+            if (string.Compare(before, newval) != 0)
+            {
+                val = newval;
+                return change;
+            }
+            return false;
             
         }
 
@@ -5006,15 +4931,15 @@ namespace PlayerAndEditorGUI {
                 return ef.editBig(ref val).nl();
 #endif
             
-                checkLine();
-                string before = val;
-                string newval = GUILayout.TextArea(before);
-                if ((string.Compare(before, newval) != 0).nl())
-                {
-                    val = newval;
-                    return change;
-                }
-                return false;
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextArea(before);
+            if ((string.Compare(before, newval) != 0).nl())
+            {
+                val = newval;
+                return change;
+            }
+            return false;
             
         }
 
@@ -5082,7 +5007,7 @@ namespace PlayerAndEditorGUI {
                         if (EditorGUI.EndChangeCheck())
                         {
                             sobj.ApplyModifiedProperties();
-                            changes = true;
+                            changes = change;
                         }
 
                     }
@@ -5515,7 +5440,7 @@ namespace PlayerAndEditorGUI {
                     label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
             }
 
-            if (!editedName && label.AddCount(lst, true).ClickLabel(label, PEGI_Styles.ListLabel) && inspected != -1)
+            if (!editedName && label.AddCount(lst, true).Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
         
@@ -5690,12 +5615,11 @@ namespace PlayerAndEditorGUI {
 
             const int bttnWidth = 25;
 
-            if (list != editing_List_Order) {
-                if (icon.Edit.ClickUnfocus("Change Order", 28))
-                    editing_List_Order = list;
-            }
-
-            else if (icon.Done.ClickUnfocus("Finish moving", 28).changes(ref changed))
+            if (list != editing_List_Order)
+            {
+                if (icon.Edit.ClickUnfocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
+                editing_List_Order = list;
+            } else if (icon.Done.ClickUnfocus("Finish moving", 28).changes(ref changed))
                 editing_List_Order = null;
             
 

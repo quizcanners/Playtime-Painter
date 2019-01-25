@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1728036928}
+  focusedPainter: {fileID: 1144922679}
   isLinearColorSpace: 1
   theCamera: {fileID: 250041626}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -1291,7 +1291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1815085832}
+  focusedPainter: {fileID: 1281475660}
   isLinearColorSpace: 1
   theCamera: {fileID: 431014434}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -3281,6 +3281,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: accaa2035970c074e89aefe5d0b5faea, type: 3}
+--- !u!114 &1281475660 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7258058356366792860, guid: accaa2035970c074e89aefe5d0b5faea,
+    type: 3}
+  m_PrefabInstance: {fileID: 1281475659}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281475661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_GeneratorAsset: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1281475661 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1248733619948634, guid: accaa2035970c074e89aefe5d0b5faea,
@@ -4595,19 +4608,6 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 114524666172476076, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b27376dd15f6f3b41b67e1b96c5cb627, type: 3}
---- !u!114 &1728036928 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2080966481074766441, guid: b27376dd15f6f3b41b67e1b96c5cb627,
-    type: 3}
-  m_PrefabInstance: {fileID: 1728036927}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_GeneratorAsset: {fileID: 0}
-  m_Script: {fileID: 11500000, guid: 8144dbcfef542084fb571aaa729b175d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1791512871
 GameObject:
   m_ObjectHideFlags: 0
@@ -4999,7 +4999,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -23.595007
+  timer: -8.066041
   style:
     m_Name: Hint Style
     m_Normal:

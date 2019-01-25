@@ -334,13 +334,9 @@ namespace QuizCannersUtilities {
             #endregion
 
             #region Encode & Decode
-            public override StdEncoder Encode()
-            {
-                var cody = new StdEncoder()
-                      .Add("b", base.Encode);
-                return cody;
-            }
-
+            public override StdEncoder Encode() => new StdEncoder()
+                .Add("b", base.Encode);
+        
             public override bool Decode(string tag, string data)
             {
                 switch (tag)
@@ -582,7 +578,7 @@ namespace QuizCannersUtilities {
 
             public override bool Decode(string tag, string data) {
                 switch (tag) {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b":   data.Decode_Delegate(base.Decode); break;
                     case "col": targetValue = data.ToColor(); break;
                     default: return false;
                 }

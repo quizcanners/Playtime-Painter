@@ -405,11 +405,11 @@ namespace Playtime_Painter
             if (inspectedStuffs == -1)
             {
                 #if UNITY_EDITOR
-                if ("Refresh Shaders".Click())
+                if ("Refresh Shaders".Click_Label("Search for shaders again").nl())
                     CheckShaders(true);
 
              
-                "Using layer:".nl();
+                "Using layer:".write(80);
                 myLayer = EditorGUILayout.LayerField(myLayer);
 
                 pegi.nl();
@@ -535,46 +535,49 @@ namespace Playtime_Painter
 
         void CheckShaders(bool forceReload = false)
         {
-#if !UNITY_EDITOR
-            return;
-#endif
+            #if !UNITY_EDITOR
+                return;
+            #endif
 
-            CheckShader(ref pixPerfectCopy, "Playtime Painter/Buffer Blit/Pixel Perfect Copy", forceReload);
+            CheckShader(ref pixPerfectCopy,         "Playtime Painter/Buffer Blit/Pixel Perfect Copy",  forceReload);
 
-            CheckShader(ref Blit_Smoothed, "Playtime Painter/Buffer Blit/Smooth", forceReload);
+            CheckShader(ref Blit_Smoothed,          "Playtime Painter/Buffer Blit/Smooth",              forceReload);
 
-            CheckShader(ref brushRendy_bufferCopy, "Playtime Painter/Buffer Blit/Copier", forceReload);
+            CheckShader(ref brushRendy_bufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
 
-            CheckShader(ref br_Blit, "Playtime Painter/Brush/Blit", forceReload);
+            CheckShader(ref br_Blit,                "Playtime Painter/Brush/Blit",                      forceReload);
 
-            CheckShader(ref br_Add, "Playtime Painter/Brush/Add", forceReload);
+            CheckShader(ref br_Add,                 "Playtime Painter/Brush/Add",                       forceReload);
 
-            CheckShader(ref br_Copy, "Playtime Painter/Brush/Copy", forceReload);
+            CheckShader(ref br_Copy,                "Playtime Painter/Brush/Copy",                      forceReload);
 
-            CheckShader(ref br_Multishade, "Playtime Painter/Brush/DoubleBuffer", forceReload);
+            CheckShader(ref br_Multishade,          "Playtime Painter/Brush/DoubleBuffer",              forceReload);
 
-            CheckShader(ref br_BlurN_SmudgeBrush, "Playtime Painter/Brush/BlurN_Smudge", forceReload);
+            CheckShader(ref br_BlurN_SmudgeBrush,   "Playtime Painter/Brush/BlurN_Smudge",              forceReload);
 
-            CheckShader(ref br_ColorFill, "Playtime Painter/Buffer Blit/Color Fill", forceReload);
+            CheckShader(ref br_ColorFill,           "Playtime Painter/Buffer Blit/Color Fill",          forceReload);
 
-            CheckShader(ref br_Preview, "Playtime Painter/Preview/Brush", forceReload);
+            CheckShader(ref br_Preview,             "Playtime Painter/Preview/Brush",                   forceReload);
 
-            CheckShader(ref mesh_Preview, "Playtime Painter/Preview/Mesh", forceReload);
+            CheckShader(ref mesh_Preview,           "Playtime Painter/Preview/Mesh",                    forceReload);
 
-            CheckShader(ref TerrainPreview, "Playtime Painter/Preview/Terrain", forceReload);
+            CheckShader(ref TerrainPreview,         "Playtime Painter/Preview/Terrain",                 forceReload);
         }
 
         void CheckShader(ref Shader shade, string path, bool forceReload = false) {
-#if UNITY_EDITOR
+
+            #if UNITY_EDITOR
+
             if (forceReload || !shade)
                 shade = Shader.Find(path);
-#endif
+
+            #endif
         }
 
         public void OnEnable()
         {
             Init();
-            Decode(STDdata); //.DecodeTagsFor(this);
+            Decode(STDdata);
         }
 
         public void OnDisable()

@@ -543,9 +543,8 @@ namespace QuizCannersUtilities {
                 std.EmailData(name, "Use this {0}".F(name));
 
             data = "";
-            if (pegi.edit(ref data)) {
+            if (pegi.edit(ref data).Unfocus()) {
                 data = ClearFromExternal(data);
-                pegi.DropFocus();
                 return true;
             }
 

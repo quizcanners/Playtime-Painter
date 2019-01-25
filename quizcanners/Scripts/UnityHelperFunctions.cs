@@ -442,11 +442,9 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-        public static void SetDefine(this string val, bool to)
-        {
+        public static void SetDefine(this string val, bool to) {
 
-#if UNITY_EDITOR
-
+            #if UNITY_EDITOR
             BuildTargetGroup buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
             string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
 
@@ -458,7 +456,7 @@ namespace QuizCannersUtilities {
                 defines = defines.Replace(val, "");
 
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
-#endif
+            #endif
         }
 
         public static bool ApplicationIsAboutToEnterPlayMode()
@@ -516,7 +514,26 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-#if UNITY_EDITOR
+        static Tool previousEditorTool = Tool.None;
+
+        public static void RestoreUnityTool() {
+            #if UNITY_EDITOR
+            if (previousEditorTool != Tool.None && Tools.current == Tool.None)
+                Tools.current = previousEditorTool;
+            #endif
+        }
+
+        public static void HideUnityTool() {
+            #if UNITY_EDITOR
+            if (Tools.current != Tool.None)
+            {
+                previousEditorTool = Tools.current;
+                Tools.current = Tool.None;
+            }
+            #endif
+        }
+        
+        #if UNITY_EDITOR
         public static void FocusOnGame()
         {
 
@@ -553,7 +570,7 @@ namespace QuizCannersUtilities {
 
             tagManager.ApplyModifiedProperties();
         }
-#endif
+        #endif
         #endregion
 
         #region Assets Management

@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlayerAndEditorGUI
 {
-
     public static class EditorInputManager
     {
-
         public static Ray raySceneView = new Ray();
         public static Ray GetScreenRay()
         {
@@ -19,35 +15,19 @@ namespace PlayerAndEditorGUI
         public enum MB_state_Editor { nothing, up, down, dragging }
         public static MB_state_Editor[] mouseBttnState = new MB_state_Editor[3];
 
-        public static bool getControlKey()
-        {
-            if (Application.isPlaying)
-            {
-                return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            }
-            else
-                return Event.current.control;
-        }
+        public static bool Control => Application.isPlaying ?
+                     (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    : Event.current.control;
+        
+        public static bool Alt => Application.isPlaying ?
+                    (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                    : (Event.current != null && Event.current.alt);
+        
 
-        public static bool getAltKey()
-        {
-            if (Application.isPlaying)
-            {
-                return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
-            }
-            else
-                return Event.current != null && Event.current.alt;
-        }
-
-        public static bool getShiftKey()
-        {
-            if (Application.isPlaying)
-            {
-                return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            }
-            else
-                return Event.current != null && Event.current.shift;
-        }
+        public static bool Shift => Application.isPlaying ? 
+                    (Input.GetKey(KeyCode.LeftShift)
+                    || Input.GetKey(KeyCode.RightShift)) : ( Event.current != null && Event.current.shift);
+        
 
         public static int GetNumberKeyDown()
         {
@@ -82,7 +62,7 @@ namespace PlayerAndEditorGUI
                 return ((mouseBttnState[no] == MB_state_Editor.dragging) || (mouseBttnState[no] == MB_state_Editor.down));
         }
 
-        public static void feedMouseEvent(Event e)
+        public static void FeedMouseEvent(Event e)
         {
             int mb = e.button;
 

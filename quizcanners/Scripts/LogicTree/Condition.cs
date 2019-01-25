@@ -149,25 +149,25 @@ namespace STD_Logic
             
             if (toTrue) {
                 switch (type) { 
-                    case ConditionType.Above: SetInt(value, compareValue + 1); break;
-                    case ConditionType.Below: SetInt(value, compareValue - 1); break;
-                    case ConditionType.Equals: SetInt(value, compareValue); break;
-                    case ConditionType.NotEquals: if (GetInt(value) == compareValue) value.ints[groupIndex].Add(triggerIndex, 1); break;
-                    case ConditionType.RealTimePassedAbove: SetInt(value, (int)LogicMGMT.RealTimeNow() - compareValue - 1); break;
-                    case ConditionType.RealTimePassedBelow: SetInt(value, (int)LogicMGMT.RealTimeNow()); break;
-                    case ConditionType.VirtualTimePassedAbove: SetInt(value, (int)Time.time - compareValue - 1); break;
-                    case ConditionType.VirtualTimePassedBelow: SetInt(value, (int)Time.time); break;
+                    case ConditionType.Above:                   SetInt(value, compareValue + 1);                                                break;
+                    case ConditionType.Below:                   SetInt(value, compareValue - 1);                                                break;
+                    case ConditionType.Equals:                  SetInt(value, compareValue);                                                    break;
+                    case ConditionType.NotEquals:               if (GetInt(value) == compareValue) value.ints[groupIndex].Add(triggerIndex, 1); break;
+                    case ConditionType.RealTimePassedAbove:     SetInt(value, LogicMGMT.RealTimeNow() - compareValue - 1);                      break;
+                    case ConditionType.RealTimePassedBelow:     SetInt(value, LogicMGMT.RealTimeNow());                                         break;
+                    case ConditionType.VirtualTimePassedAbove:  SetInt(value, (int)Time.time - compareValue - 1);                               break;
+                    case ConditionType.VirtualTimePassedBelow:  SetInt(value, (int)Time.time);                                                  break;
                 }
             } else {
                 switch (type) {
-                    case ConditionType.Above: SetInt(value, compareValue - 1); break;
-                    case ConditionType.Below: SetInt(value, compareValue + 1); break;
-                    case ConditionType.Equals: SetInt(value, compareValue + 1); break;
-                    case ConditionType.NotEquals: SetInt(value, compareValue); break;
-                    case ConditionType.RealTimePassedAbove: SetInt(value, (int)LogicMGMT.RealTimeNow() ); break;
-                    case ConditionType.RealTimePassedBelow: SetInt(value, (int)LogicMGMT.RealTimeNow() - compareValue - 1); break;
-                    case ConditionType.VirtualTimePassedAbove: SetInt(value, (int)Time.time ); break;
-                    case ConditionType.VirtualTimePassedBelow: SetInt(value, (int)Time.time - compareValue - 1); break;
+                    case ConditionType.Above:                   SetInt(value, compareValue - 1);                                                break;
+                    case ConditionType.Below:                   SetInt(value, compareValue + 1);                                                break;
+                    case ConditionType.Equals:                  SetInt(value, compareValue + 1);                                                break;
+                    case ConditionType.NotEquals:               SetInt(value, compareValue);                                                    break;
+                    case ConditionType.RealTimePassedAbove:     SetInt(value, LogicMGMT.RealTimeNow());                                         break;
+                    case ConditionType.RealTimePassedBelow:     SetInt(value, LogicMGMT.RealTimeNow() - compareValue - 1);                      break;
+                    case ConditionType.VirtualTimePassedAbove:  SetInt(value, (int)Time.time );                                                 break;
+                    case ConditionType.VirtualTimePassedBelow:  SetInt(value, (int)Time.time - compareValue - 1);                               break;
                 }
             }
 
@@ -182,24 +182,34 @@ namespace STD_Logic
 
             switch (type)
             {
-                case ConditionType.Above: if (GetInt(st) > compareValue) return true; break;
-                case ConditionType.Below: if (GetInt(st) < compareValue) return true; break;
-                case ConditionType.Equals: if (GetInt(st) == compareValue) return true; break;
-                case ConditionType.NotEquals: if (GetInt(st) != compareValue) return true; break;
+                case ConditionType.Above:                   if (GetInt(st) > compareValue) return true;                     break;
+                case ConditionType.Below:                   if (GetInt(st) < compareValue) return true;                     break;
+                case ConditionType.Equals:                  if (GetInt(st) == compareValue) return true;                    break;
+                case ConditionType.NotEquals:               if (GetInt(st) != compareValue) return true;                    break;
+
                 case ConditionType.VirtualTimePassedAbove:
-                    timeGap = (int)Time.time - GetInt(st);
-                    if (timeGap > compareValue) return true; LogicMGMT.inst.AddTimeListener(compareValue - timeGap); break;
+                                                            timeGap = (int)Time.time - GetInt(st);
+                                                            if (timeGap > compareValue) return true;
+                                                            LogicMGMT.inst.AddTimeListener(compareValue - timeGap);         break;
+
                 case ConditionType.VirtualTimePassedBelow:
-                    timeGap = (int)Time.time - GetInt(st);
-                    if (timeGap < compareValue) { LogicMGMT.inst.AddTimeListener(compareValue - timeGap); return true; }
-                    break;
+                                                            timeGap = (int)Time.time - GetInt(st);
+                                                            if (timeGap < compareValue) {
+                                                                LogicMGMT.inst.AddTimeListener(compareValue - timeGap);
+                                                                return true;
+                                                            }
+                                                                                                                            break;
                 case ConditionType.RealTimePassedAbove:
-                    timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
-                    if (timeGap > compareValue) return true; LogicMGMT.inst.AddTimeListener(compareValue - timeGap); break;
+                                                            timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
+                                                            if (timeGap > compareValue) return true;
+                                                                LogicMGMT.inst.AddTimeListener(compareValue - timeGap);     break;
+
                 case ConditionType.RealTimePassedBelow:
-                    timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
-                    if (timeGap < compareValue) { LogicMGMT.inst.AddTimeListener(compareValue - timeGap); return true; }
-                    break;
+                                                            timeGap = (LogicMGMT.RealTimeNow() - GetInt(st));
+                                                            if (timeGap < compareValue) {
+                                                                LogicMGMT.inst.AddTimeListener(compareValue - timeGap);
+                                                                return true;
+                                                            }                                                               break;
 
             }
             return false;
@@ -207,9 +217,9 @@ namespace STD_Logic
 
         public override int IsItClaimable(int dir, Values st) {
             switch (type) {
-                case ConditionType.Above: if ((GetInt(st) < compareValue) && (dir > 0)) return (compareValue - GetInt(st) + 1); break;
-                case ConditionType.Below: if ((GetInt(st) > compareValue) && (dir < 0)) return (GetInt(st) - compareValue + 1); break;
-                case ConditionType.Equals: if ((GetInt(st) > compareValue) == (dir < 0)) return Mathf.Abs(GetInt(st) - compareValue); break;
+                case ConditionType.Above:   if ((GetInt(st) < compareValue) && (dir > 0)) return (compareValue - GetInt(st) + 1);       break;
+                case ConditionType.Below:   if ((GetInt(st) > compareValue) && (dir < 0)) return (GetInt(st) - compareValue + 1);       break;
+                case ConditionType.Equals:  if ((GetInt(st) > compareValue) == (dir < 0)) return Mathf.Abs(GetInt(st) - compareValue);  break;
             }
 
             return -2;
@@ -274,14 +284,14 @@ namespace STD_Logic
         public static string GetName(this ConditionType type)
         {
             switch (type) {
-                case ConditionType.Equals: return "==";
-                case ConditionType.Above: return ">";
-                case ConditionType.Below: return "<";
-                case ConditionType.NotEquals: return "!=";
-                case ConditionType.VirtualTimePassedAbove: return "Game_Time passed > ";
-                case ConditionType.VirtualTimePassedBelow: return "Game_Time passed < ";
-                case ConditionType.RealTimePassedAbove: return "Real_Time passed > ";
-                case ConditionType.RealTimePassedBelow: return "Real_Time passed < ";
+                case ConditionType.Equals:                  return "==";
+                case ConditionType.Above:                   return ">";
+                case ConditionType.Below:                   return "<";
+                case ConditionType.NotEquals:               return "!=";
+                case ConditionType.VirtualTimePassedAbove:  return "Game_Time passed > ";
+                case ConditionType.VirtualTimePassedBelow:  return "Game_Time passed < ";
+                case ConditionType.RealTimePassedAbove:     return "Real_Time passed > ";
+                case ConditionType.RealTimePassedBelow:     return "Real_Time passed < ";
             }
 
             return "!!!Unrecognized Condition Type";

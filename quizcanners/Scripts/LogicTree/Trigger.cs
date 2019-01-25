@@ -69,15 +69,11 @@ namespace STD_Logic
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder()
-            .Add_String("n", name)
-            .Add_IfNotZero("u", usage)
-            .Add_IfNotEmpty("e", enm);
+        public override StdEncoder Encode() => new StdEncoder()
+                .Add_String("n", name)
+                .Add_IfNotZero("u", usage)
+                .Add_IfNotEmpty("e", enm);
           
-            return cody;
-        }
-
         public override bool Decode(string tag, string data) {
 
             switch (tag) {

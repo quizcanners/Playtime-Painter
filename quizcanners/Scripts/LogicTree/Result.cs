@@ -13,28 +13,29 @@ namespace STD_Logic  {
 
         public static void Apply(this ResultType type, int updateValue, ValueIndex dest, Values so) {
             switch (type)  {
-                case ResultType.SetBool: dest.SetBool(so, (updateValue > 0)); break;
-                case ResultType.Set: dest.SetInt(so, updateValue); break;
-                case ResultType.Add: so.ints[dest.groupIndex].Add(dest.triggerIndex, updateValue); break;
-                case ResultType.Subtract: so.ints[dest.groupIndex].Add(dest.triggerIndex, -updateValue); break;
-                case ResultType.SetTimeReal: dest.SetInt(so, LogicMGMT.RealTimeNow()); break;
-                case ResultType.SetTimeGame: dest.SetInt(so, (int)Time.time); break;
-                case ResultType.SetTagBool: so.SetTagBool(dest.groupIndex, dest.triggerIndex, updateValue > 0); break;
-                case ResultType.SetTagInt: so.SetTagEnum(dest.groupIndex, dest.triggerIndex, updateValue); break;
+                case ResultType.SetBool:        dest.SetBool(so, (updateValue > 0));                                break;
+                case ResultType.Set:            dest.SetInt(so, updateValue);                                       break;
+                case ResultType.Add:            so.ints[dest.groupIndex].Add(dest.triggerIndex, updateValue);       break;
+                case ResultType.Subtract:       so.ints[dest.groupIndex].Add(dest.triggerIndex, -updateValue);      break;
+                case ResultType.SetTimeReal:    dest.SetInt(so, LogicMGMT.RealTimeNow());                           break;
+                case ResultType.SetTimeGame:    dest.SetInt(so, (int)Time.time);                                    break;
+                case ResultType.SetTagBool:     so.SetTagBool(dest.groupIndex, dest.triggerIndex, updateValue > 0); break;
+                case ResultType.SetTagInt:      so.SetTagEnum(dest.groupIndex, dest.triggerIndex, updateValue);     break;
             }
         }
 
         public static string GetText(this ResultType type) {
             switch (type) {
-                case ResultType.SetBool: return "Set";
-                case ResultType.Set: return "=";
-                case ResultType.Add: return "+";
-                case ResultType.Subtract: return "-";
-                case ResultType.SetTimeReal: return "Set To Real_Time_Now";
-                case ResultType.SetTimeGame: return "Set To Game_Now_Time";
-                case ResultType.SetTagBool: return "Set Bool Tag";
-                case ResultType.SetTagInt: return "Set Int Tag";
-                default: return type.ToString();
+                case ResultType.SetBool:        return "Set";
+                case ResultType.Set:            return "=";
+                case ResultType.Add:            return "+";
+                case ResultType.Subtract:       return "-";
+                case ResultType.SetTimeReal:    return "Set To Real_Time_Now";
+                case ResultType.SetTimeGame:    return "Set To Game_Now_Time";
+                case ResultType.SetTagBool:     return "Set Bool Tag";
+                case ResultType.SetTagInt:      return "Set Int Tag";
+                default:
+                    return type.ToString();
             }
 
         }
@@ -70,14 +71,11 @@ namespace STD_Logic  {
             return true;
         }
         
-        public override StdEncoder Encode()
-        {
-            StdEncoder cody = new StdEncoder();
-            cody.Add_IfNotZero("ty", (int)type);
-            cody.Add_IfNotZero("val", updateValue);
-            cody.Add("ind", EncodeIndex);
-            return cody;
-        }
+        public override StdEncoder Encode()=> new StdEncoder()
+                .Add_IfNotZero("ty", (int)type)
+                .Add_IfNotZero("val", updateValue)
+                .Add("ind", EncodeIndex);
+
         #endregion
 
         public void Apply(Values to) => type.Apply(updateValue, this, to);

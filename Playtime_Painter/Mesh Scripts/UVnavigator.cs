@@ -431,7 +431,7 @@ namespace Playtime_Painter
                 Vertex a = PointedLine.pnts[0];
                 Vertex b = PointedLine.pnts[1];
 
-                if (!EditorInputManager.getControlKey())
+                if (!EditorInputManager.Control)
                     MeshMGMT.SwapLine(a.meshPoint, b.meshPoint);
                 else
                     MeshMGMT.DeleteLine(PointedLine);
