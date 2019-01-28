@@ -39,7 +39,7 @@ namespace PlayerAndEditorGUI {
     public interface IPEGI_Searchable
     {
     #if PEGI
-        bool SearchByString_Match(string searchString);
+        bool String_SearchMatch(string searchString);
     #endif
     }
 
@@ -2553,7 +2553,7 @@ namespace PlayerAndEditorGUI {
             bool entered = enteredOne == thisOne;
 
             if (entered)
-                searchData.ToggleSearch(list);
+                meta.searchData.ToggleSearch(list);
 
             var ret = meta.Icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
@@ -2940,7 +2940,7 @@ namespace PlayerAndEditorGUI {
             return default(T);
         }
 
-        public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types) {
+      /*  public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types) {
 
             bool changed = false;
             int insp = -1;
@@ -2950,7 +2950,7 @@ namespace PlayerAndEditorGUI {
             
 
             return changed;
-        }
+        }*/
        
         #endregion
 
@@ -5294,11 +5294,15 @@ namespace PlayerAndEditorGUI {
 
         static IEnumerable<int> InspectionIndexes<T>(this List<T> list, List_Data ld = null) {
 
+
+            var sd = ld == null? searchData : ld.searchData;
+
+
             #region Inspect Start
 
             bool searching;
             string[] searchby;
-            searchData.SearchString(list, out searching, out searchby);
+            sd.SearchString(list, out searching, out searchby);
   
             listSectionStartIndex = 0;
 
@@ -5376,9 +5380,7 @@ namespace PlayerAndEditorGUI {
             } else {
 
                 int sectionIndex = 0;
-
-                var sd = searchData;
-
+                
                 int fcnt = sd.filteredListElements.Count;
 
                 var filtered = sd.filteredListElements;
@@ -5391,7 +5393,7 @@ namespace PlayerAndEditorGUI {
                         inspectionIndex = filtered[listSectionStartIndex + sectionIndex];
                     else {
                         while (sd.uncheckedElement < cnt && inspectionIndex == -1) {
-                            if (list[sd.uncheckedElement].SearchMatch_Obj(searchby)) {
+                            if (list[sd.uncheckedElement].SearchMatch_Obj_Internal(searchby)) {
                                 inspectionIndex = sd.uncheckedElement;
                                 sd.filteredListElements.Add(inspectionIndex);
                             }
@@ -5457,9 +5459,6 @@ namespace PlayerAndEditorGUI {
             return val;
         }
 
-        static void write_Search_ListLabel(this List_Data datas, IList lst) =>
-            write_Search_ListLabel(datas.label, ref datas.inspected, lst);
-
         public static void write_ListLabel(this string label, IList lst = null)
         {
             int notInsp = -1;
@@ -5487,7 +5486,29 @@ namespace PlayerAndEditorGUI {
             if (!editedName && label.AddCount(lst, true).Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
-        
+
+        public static void write_Search_ListLabel(this List_Data ld, IList lst) {
+
+            bool editedName = false;
+
+            currentListLabel = ld.label;
+
+            ld.searchData.ToggleSearch(lst);
+
+            if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
+
+                var el = lst[ld.inspected];
+
+                el.Try_NameInspect(out editedName, ld.label);
+
+                if (!editedName)
+                    ld.label = "{0} {1}".F(ld.label, lst[ld.inspected].ToPEGIstring());
+            }
+
+            if (!editedName && ld.label.AddCount(lst, true).Click_Label(ld.label, -1, PEGI_Styles.ListLabel) && ld.inspected != -1)
+                ld.inspected = -1;
+        }
+
         static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
         {
             bool changed = false;
@@ -5659,10 +5680,12 @@ namespace PlayerAndEditorGUI {
 
             const int bttnWidth = 25;
 
+            var sd = meta == null ? searchData : meta.searchData;
+
             if (list != editing_List_Order)
             {
-                if (icon.Edit.ClickUnfocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
-                editing_List_Order = list;
+                if (sd.filteredList!= list && icon.Edit.ClickUnfocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
+                    editing_List_Order = list;
             } else if (icon.Done.ClickUnfocus("Finish moving", 28).changes(ref changed))
                 editing_List_Order = null;
             
@@ -5680,7 +5703,7 @@ namespace PlayerAndEditorGUI {
                 {
                     var derr = typeof(T).TryGetDerrivedClasses();
 
-                    foreach (var i in list.InspectionIndexes()) {
+                    foreach (var i in list.InspectionIndexes(meta)) {
 
                         if (meta == null || meta.allowReorder)
                         {
@@ -6316,14 +6339,8 @@ namespace PlayerAndEditorGUI {
         
         public static bool edit_List_UObj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            datas.label.write_Search_ListLabel(ref datas.inspected, list);
+            datas.write_Search_ListLabel(list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
-        }
-
-        public static bool edit_or_select_List_UObj<T,G>(this string label, ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
-        {
-            label.write_Search_ListLabel(ref inspected, list);
-            return edit_or_select_List_UObj(ref list, from, ref inspected, datas).listLabel_Used();
         }
 
         public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
@@ -6348,7 +6365,7 @@ namespace PlayerAndEditorGUI {
                 {
                     changed |= list.ListAddEmptyClick(datas);
 
-                    foreach (var i in list.InspectionIndexes())     {
+                    foreach (var i in list.InspectionIndexes(datas))     {
                         var el = list[i];
                         if (!el)
                         {
@@ -6378,7 +6395,7 @@ namespace PlayerAndEditorGUI {
         #region OfNew
         public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
         {
-            ld.label.write_Search_ListLabel(ref ld.inspected, list);
+            ld.write_Search_ListLabel(list);
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
         
@@ -6500,11 +6517,14 @@ namespace PlayerAndEditorGUI {
         }
 
 
-        public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data ld = null)
+       /* public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data ld = null)
         {
-            label.write_Search_ListLabel(ref ld.inspected, list);
+            if (ld != null)
+                ld.write_Search_ListLabel(list);
+            else 
+                label.write_Search_ListLabel(ref ld.inspected, list);
             return edit_List(ref list, ref ld.inspected, types, ref changed, ld).listLabel_Used();
-        }
+        }*/
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed) {
             label.write_Search_ListLabel(ref inspected, list);
@@ -7148,22 +7168,22 @@ namespace PlayerAndEditorGUI {
 
         #region Arrays
 
-        public static bool edit_Array<T>(this string label, ref T[] array, List_Data datas = null) 
+        public static bool edit_Array<T>(this string label, ref T[] array) 
         {
             int inspected = -1;
             label.write_ListLabel(array);
-            return edit_Array(ref array, ref inspected, datas).listLabel_Used();
+            return edit_Array(ref array, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected, List_Data datas = null)   {
+        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected)   {
             label.write_Search_ListLabel(ref inspected, array);
-            return edit_Array(ref array, ref inspected, datas).listLabel_Used();
+            return edit_Array(ref array, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_Array<T>(ref T[] array, ref int inspected, List_Data datas = null) 
+        public static bool edit_Array<T>(ref T[] array, ref int inspected) 
         {
             bool changes = false;
-            edit_Array(ref array, ref inspected, ref changes, datas);
+            edit_Array(ref array, ref inspected, ref changes);
             return changes;
         }
 
@@ -7316,7 +7336,19 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Searching
-        static bool SearchMatch_Obj(this object obj, string[] text, int[] indxs = null) {
+
+       public static bool SearchMatch (this IList list, string searchText) {
+
+            foreach (var e in list)
+                if (e.SearchMatch_Obj(searchText))
+                    return true;
+
+            return false;
+       }
+
+        public static bool SearchMatch_Obj (this object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText }, null);
+        
+        static bool SearchMatch_Obj_Internal(this object obj, string[] text, int[] indxs = null) {
 
             if (obj.IsNullOrDestroyed_Obj())
                 return false;
@@ -7325,30 +7357,30 @@ namespace PlayerAndEditorGUI {
 
             if (go) {
 
-                if (go.TryGet<IPEGI_Searchable>().SearchMatch(text))
+                if (go.TryGet<IPEGI_Searchable>().SearchMatch_Internal(text))
                     return true;
 
-                if (go.TryGet<IGotName>().SearchMatch(text))
+                if (go.TryGet<IGotName>().SearchMatch_Internal(text))
                     return true;
 
-                if (go.TryGet<IGotDisplayName>().SearchMatch(text))
+                if (go.TryGet<IGotDisplayName>().SearchMatch_Internal(text))
                     return true;
 
-                if (indxs != null && go.TryGet<IGotIndex>().SearchMatch(indxs))
+                if (indxs != null && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
                     return true;
 
             } else {
 
-                if ((obj.TryGet_fromObj<IPEGI_Searchable>()).SearchMatch(text))
+                if ((obj.TryGet_fromObj<IPEGI_Searchable>()).SearchMatch_Internal(text))
                     return true;
 
-                if (obj.TryGet_fromObj<IGotName>().SearchMatch(text))
+                if (obj.TryGet_fromObj<IGotName>().SearchMatch_Internal(text))
                     return true;
 
-                if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch(text))
+                if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch_Internal(text))
                     return true;
 
-                if (indxs != null && go.TryGet<IGotIndex>().SearchMatch(indxs))
+                if (indxs != null && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
                     return true;
             }
 
@@ -7357,11 +7389,11 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool SearchMatch(this IPEGI_Searchable psrchbl, string[] text)
+        static bool SearchMatch_Internal(this IPEGI_Searchable psrchbl, string[] text)
         {
             if (psrchbl != null) {
                 foreach (var t in text)
-                    if (!psrchbl.SearchByString_Match(t))
+                    if (!psrchbl.String_SearchMatch(t))
                         return false;
 
                 return true;
@@ -7370,7 +7402,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool SearchMatch(this IGotName psrchbl, string[] text)
+        static bool SearchMatch_Internal(this IGotName psrchbl, string[] text)
         {
             if (psrchbl != null) {
                 foreach (var t in text)
@@ -7383,7 +7415,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool SearchMatch(this IGotDisplayName psrchbl, string[] text)
+        static bool SearchMatch_Internal(this IGotDisplayName psrchbl, string[] text)
         {
             if (psrchbl != null)
             {
@@ -7397,7 +7429,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool SearchMatch(this IGotIndex psrchbl, int[] indxs)
+        static bool SearchMatch_Internal(this IGotIndex psrchbl, int[] indxs)
         {
             if (psrchbl != null)
             {
@@ -7412,8 +7444,10 @@ namespace PlayerAndEditorGUI {
         }
 
         static SearchData searchData = new SearchData();
+
+        static readonly char[] splitCharacters = { ' ', '.' };
         
-        public class SearchData {
+        public class SearchData: Abstract_STD, ICanBeDefault_STD {
             public IList filteredList;
             public string searchedText;
             public int uncheckedElement = 0;
@@ -7422,6 +7456,10 @@ namespace PlayerAndEditorGUI {
 
             public void ToggleSearch(IList ld)
             {
+
+                if (ld == null)
+                    return;
+
                 var active = ld == filteredList;
 
                 bool changed = false;
@@ -7429,7 +7467,7 @@ namespace PlayerAndEditorGUI {
                 if (active && icon.FoldedOut.Click("Hide Search ", 20).changes(ref changed))
                     active = false;
 
-                if (!active && icon.Search.Click("Search ", 20).changes(ref changed)) 
+                if (ld!= null && !active && ld!=editing_List_Order && icon.Search.Click("Search ", 20).changes(ref changed)) 
                     active = true;
 
 
@@ -7442,9 +7480,7 @@ namespace PlayerAndEditorGUI {
                 }
 
             }
-
-            static readonly char[] splitCharacters = { ' ', '.' };
-
+            
             public void SearchString(IList list, out bool searching, out string[] searchBy)
             {
                 searching = false;
@@ -7463,6 +7499,22 @@ namespace PlayerAndEditorGUI {
 
                 searchBy = searchBys;
             }
+
+            public override StdEncoder Encode() => new StdEncoder().Add_String("s", searchedText);
+
+            public override bool Decode(string tag, string data)
+            {
+                switch (tag)
+                {
+                    case "s": searchedText = data; 
+break;
+                    default: return false;
+                }
+                return true;
+            }
+
+            public override bool IsDefault => searchedText.IsNullOrEmpty();
+
         }
            
         #endregion

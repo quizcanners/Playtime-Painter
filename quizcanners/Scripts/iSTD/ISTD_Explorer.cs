@@ -26,6 +26,7 @@ namespace QuizCannersUtilities
         public icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
+        public pegi.SearchData searchData = new pegi.SearchData();
 
         public List<int> GetSelectedElements() {
             var sel = new List<int>();
@@ -129,6 +130,7 @@ namespace QuizCannersUtilities
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
+                case "s": searchData.Decode(data); break;
                 default: return false;
             }
             return true;
@@ -138,11 +140,9 @@ namespace QuizCannersUtilities
         {
             var cody = new StdEncoder()
                 .Add_IfNotNegative("insp", inspected)
-                .Add_IfNotZero("st", listSectionStartIndex);
-            //.Add_Bool("ktd", _keepTypeData)
-            //.Add_Bool("del", allowDelete)
-            //.Add_Bool("reord", allowReorder);
-
+                .Add_IfNotZero("st", listSectionStartIndex)
+                .Add_IfNotDefault("s", searchData);
+            
             if (!folderToSearch.SameAs(defaultFolderToSearch))
                 cody.Add_String("fld", folderToSearch);
 

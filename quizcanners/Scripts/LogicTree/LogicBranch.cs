@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace STD_Logic
 {
 
-    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI, IAmConditional, ICanBeDefault_STD  where T: ISTD, new() {
+    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI, IAmConditional, ICanBeDefault_STD, IPEGI_Searchable  where T: ISTD, new() {
 
         public string name = "no name";
 
@@ -61,6 +61,29 @@ namespace STD_Logic
 
         #region Inspector
 
+        LoopLock searchLoopLock = new LoopLock();
+
+        public bool String_SearchMatch(string searchString)
+        {
+            if (searchLoopLock.Unlocked)
+                using(searchLoopLock.Lock()){
+
+                    if (conditions.SearchMatch_Obj(searchString))
+                        return true;
+
+                    foreach (var e in elements)
+                        if (e.SearchMatch_Obj(searchString))
+                            return true;
+
+                    foreach (var sb in subBranches)
+                        if (sb.SearchMatch_Obj(searchString))
+                            return true;
+                }
+
+            return false;
+
+        }
+
         public virtual string NameForElements => typeof(T).ToPEGIstring_Type();
 
         public string NameForPEGI
@@ -78,8 +101,7 @@ namespace STD_Logic
         int inspectedElement = -1;
         int inspectedBranch = -1;
 
-#if PEGI
-
+        #if PEGI
         static LogicBranch<T> parent;
 
         public override bool Inspect() {
@@ -100,12 +122,8 @@ namespace STD_Logic
             return changed;
         }
 
-     
-#endif
+        #endif
         #endregion
 
     }
-
-
-
 }

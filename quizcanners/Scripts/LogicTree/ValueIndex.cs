@@ -90,7 +90,7 @@ namespace STD_Logic
                 if (icon.Edit.ClickUnfocus())
                     edited = this;
 
-                changed |= SearchAndAdd_PEGI(ind);
+                changed |= SearchAndAdd_Triggers_PEGI(ind);
             }
             else
             {
@@ -127,7 +127,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public bool SearchAndAdd_PEGI(int index) {
+        public bool SearchAndAdd_Triggers_PEGI(int index) {
             bool changed = false;
 
             Trigger t = Trigger;
@@ -143,7 +143,7 @@ namespace STD_Logic
                     Trigger.searchField = Trigger.name;
                 }
 
-                if (Search_PEGI(Trigger.searchField, Values.global))
+                if (Search_Triggers_PEGI(Trigger.searchField, Values.global))
                     Trigger.searchField = Trigger.name;
 
                 selectedTrig = Trigger;
@@ -157,7 +157,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public bool Search_PEGI(string search, Values so) {
+        public bool Search_Triggers_PEGI(string search, Values so) {
 
             bool changed = false;
 

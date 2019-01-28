@@ -8,7 +8,7 @@ using PlayerAndEditorGUI;
 namespace STD_Logic {
 
     public class ConditionBranch : AbstractKeepUnrecognized_STD, IPEGI, 
-        IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect, IGotCount {
+        IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName {
 
         public enum ConditionBranchType { OR, AND }
 
@@ -37,7 +37,28 @@ namespace STD_Logic {
         int browsedBranch = -1;
         int browsedCondition = -1;
 
-#if PEGI
+        #if PEGI
+        public string NameForPEGI { get => name; set => name = value; }
+
+        LoopLock searchLoopLock = new LoopLock();
+
+        public bool String_SearchMatch(string searchString) {
+
+            if (searchLoopLock.Unlocked)
+                using (searchLoopLock.Lock())
+                {
+                    foreach (var c in conditions)
+                        if (c.SearchMatch_Obj(searchString))
+                            return true;
+
+                    foreach (var b in branches)
+                        if (b.SearchMatch_Obj(searchString))
+                            return true;
+                }
+
+            return false;
+        }
+        
         public override bool Inspect()
         {
             if (!name.IsNullOrEmpty())
@@ -99,7 +120,7 @@ namespace STD_Logic {
 
             return changed;
         }
-#endif
+        #endif
         #endregion
         
         #region Encode & Decode
@@ -183,7 +204,7 @@ namespace STD_Logic {
             }
             
         }
-
+        
         public ConditionBranch() { }
 
         public ConditionBranch(string usage)

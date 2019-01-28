@@ -237,7 +237,7 @@ namespace STD_Logic
 
             Trigger._usage.Inspect(this);
 
-            changed |= SearchAndAdd_PEGI(0);
+            changed |= SearchAndAdd_Triggers_PEGI(0);
 
             return base.Inspect() || changed;
         }
