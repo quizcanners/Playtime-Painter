@@ -6,7 +6,7 @@
 
 	Category{
 		Tags{
-			"Queue" = "AlphaTest"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 		}
 

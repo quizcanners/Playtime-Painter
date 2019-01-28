@@ -7,7 +7,7 @@
 	}
 	Category{
 		Tags{
-			"Queue" = "Background"
+			"Queue" = "Transparent-500"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 		}

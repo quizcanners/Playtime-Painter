@@ -60,20 +60,20 @@ inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _
 	atlasedUV.w = 1 / _AtlasTextures;
 }
 
-inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
-	_TexelSize.zw *= mod;
-	float2 px = _TexelSize.z * ddx(uv);
-	float2 py = _TexelSize.w * ddy(uv);
-
-	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
-}
-
 inline float getLOD(float2 uv, float4 _TexelSize) {
 
 	float2 px = _TexelSize.z * ddx(uv);
 	float2 py = _TexelSize.w * ddy(uv);
 
-	return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
+	return max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
+}
+
+inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
+	//_TexelSize.zw *= mod;
+	//float2 px = _TexelSize.z * ddx(uv);
+	//float2 py = _TexelSize.w * ddy(uv);
+
+	return getLOD(uv,  _TexelSize * mod); //max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
 }
 
 inline float atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {

@@ -17,12 +17,12 @@ namespace QuizCannersUtilities
         public string label = "list";
         public string folderToSearch = defaultFolderToSearch;
         public int inspected = -1;
+        public int listSectionStartIndex = 0;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool _keepTypeData;
         public bool allowDelete;
         public bool allowReorder;
         public bool allowCreate;
-        public string searchString = "";
         public icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
@@ -52,7 +52,7 @@ namespace QuizCannersUtilities
         }
 
         #region Inspector
-#if PEGI
+        #if PEGI
 
         public void SaveElementDataFrom<T>(List<T> list)
         {
@@ -89,7 +89,7 @@ namespace QuizCannersUtilities
 
         public bool Inspect<T>(List<T> list) where T : UnityEngine.Object {
             bool changed = false;
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
             "{0} Folder".F(label).edit(90, ref folderToSearch);
             if (icon.Search.Click("Populate {0} with objects from folder".F(label))) {
@@ -128,7 +128,7 @@ namespace QuizCannersUtilities
                 case "ktd": _keepTypeData = data.ToBool(); break;
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
-                case "srchs": searchString = data; break;
+                case "st": listSectionStartIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -137,7 +137,8 @@ namespace QuizCannersUtilities
         public override StdEncoder Encode()
         {
             var cody = new StdEncoder()
-                .Add_IfNotNegative("insp", inspected);
+                .Add_IfNotNegative("insp", inspected)
+                .Add_IfNotZero("st", listSectionStartIndex);
             //.Add_Bool("ktd", _keepTypeData)
             //.Add_Bool("del", allowDelete)
             //.Add_Bool("reord", allowReorder);
@@ -145,9 +146,7 @@ namespace QuizCannersUtilities
             if (!folderToSearch.SameAs(defaultFolderToSearch))
                 cody.Add_String("fld", folderToSearch);
 
-            cody.Add_IfNotDefault("ed", elementDatas)
-    
-                .Add_IfNotEmpty("srchs", searchString);
+            cody.Add_IfNotDefault("ed", elementDatas);
  
             return cody;
         }

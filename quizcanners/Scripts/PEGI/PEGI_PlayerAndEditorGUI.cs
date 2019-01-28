@@ -2553,7 +2553,7 @@ namespace PlayerAndEditorGUI {
             bool entered = enteredOne == thisOne;
 
             if (entered)
-                ToggleSearch(list);
+                searchData.ToggleSearch(list);
 
             var ret = meta.Icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
@@ -2584,7 +2584,7 @@ namespace PlayerAndEditorGUI {
             bool entered = enteredOne == thisOne;
 
             if (entered)
-                ToggleSearch(list);
+                searchData.ToggleSearch(list);
 
             var ret = icon.List.enter(txt.AddCount(list, entered), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             return ret;
@@ -2618,7 +2618,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if (entered)
-                ToggleSearch(list);
+                searchData.ToggleSearch(list);
 
             var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
@@ -5051,7 +5051,7 @@ namespace PlayerAndEditorGUI {
         const int UpDownHeight = 30;
         static int SectionSizeOptimal = 0;
         static int ListSectionMax = 0;
-        static int ListSectionStartIndex = 0;
+        static int listSectionStartIndex = 0;
         static readonly CountlessInt ListSectionOptimal = new CountlessInt();
 
         static void SetOptimalSectionFor(int Count)
@@ -5297,47 +5297,39 @@ namespace PlayerAndEditorGUI {
             #region Inspect Start
 
             bool searching;
-            string searchby;
-
-            if (ld == null) {
-                SearchString(list, out searching, out searchby);
-                searchby = searchedText;
-            }
-            else {
-                SearchString(list, ref ld.searchString, out searching, out searchby);
-                searchby = ld.searchString;
-            }
-
-            string[] serachbys = searchby.IsNullOrEmpty() ? null : searchby.Split(' ');  
-            
-            ListSectionStartIndex = 0;
+            string[] searchby;
+            searchData.SearchString(list, out searching, out searchby);
+  
+            listSectionStartIndex = 0;
 
             ListSectionMax = list.Count;
 
             SetOptimalSectionFor(ListSectionMax);
 
-            if (ListSectionMax >= SectionSizeOptimal * 2)
-            {
-                if (!listInspectionIndexes.TryGetValue(list, out ListSectionStartIndex))
+            if (ListSectionMax >= SectionSizeOptimal * 2) {
+
+                if (ld != null)
+                    listSectionStartIndex = ld.listSectionStartIndex;
+                else if (!listInspectionIndexes.TryGetValue(list, out listSectionStartIndex))
                     listInspectionIndexes.Add(list, 0);
 
                 if (ListSectionMax > SectionSizeOptimal)
                 {
                     bool changed = false;
 
-                    while (ListSectionStartIndex > 0 && ListSectionStartIndex >= ListSectionMax) {
+                    while (listSectionStartIndex > 0 && listSectionStartIndex >= ListSectionMax) {
                         changed = true;
-                        ListSectionStartIndex = Mathf.Max(0, ListSectionStartIndex - SectionSizeOptimal);
+                        listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal);
                     }
 
                     nl();
-                    if (ListSectionStartIndex > 0)
+                    if (listSectionStartIndex > 0)
                     {
                         if (icon.Up.ClickUnfocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
                         {
-                            ListSectionStartIndex = Mathf.Max(0, ListSectionStartIndex - SectionSizeOptimal+1);
-                            if (ListSectionStartIndex == 1)
-                                ListSectionStartIndex = 0;
+                            listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal+1);
+                            if (listSectionStartIndex == 1)
+                                listSectionStartIndex = 0;
                         }
                     }
                     else
@@ -5345,12 +5337,17 @@ namespace PlayerAndEditorGUI {
                     nl();
 
                     if (changed)
-                        listInspectionIndexes[list] = ListSectionStartIndex;
+                    {
+                        if (ld != null)
+                            ld.listSectionStartIndex = listSectionStartIndex;
+                        else 
+                            listInspectionIndexes[list] = listSectionStartIndex;
+                    }
                 }
                 else line(Color.gray);
 
 
-                ListSectionMax = Mathf.Min(ListSectionMax, ListSectionStartIndex + SectionSizeOptimal);
+                ListSectionMax = Mathf.Min(ListSectionMax, listSectionStartIndex + SectionSizeOptimal);
             }
             else if (list.Count > 0)
                 line(Color.gray);
@@ -5359,41 +5356,88 @@ namespace PlayerAndEditorGUI {
 
             #endregion
 
-            for (inspectionIndex = ListSectionStartIndex; inspectionIndex < ListSectionMax; inspectionIndex++)
-            {
-                switch (inspectionIndex % 4)
-                {
-                    case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
-                    case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
-                }
-                yield return inspectionIndex;
+            var cnt = list.Count;
 
-                RestoreBGcolor();
+            if (!searching)
+            {
+
+                for (inspectionIndex = listSectionStartIndex; inspectionIndex < ListSectionMax; inspectionIndex++)
+                {
+                    switch (inspectionIndex % 4)
+                    {
+                        case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
+                        case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+                    }
+                    yield return inspectionIndex;
+
+                    RestoreBGcolor();
+
+                }
+            } else {
+
+                int sectionIndex = 0;
+
+                var sd = searchData;
+
+                int fcnt = sd.filteredListElements.Count;
+
+                var filtered = sd.filteredListElements;
+
+                while (sd.uncheckedElement <= cnt && sectionIndex < ListSectionMax) {
+
+                    inspectionIndex = -1;
+                    
+                    if (fcnt > listSectionStartIndex + sectionIndex)
+                        inspectionIndex = filtered[listSectionStartIndex + sectionIndex];
+                    else {
+                        while (sd.uncheckedElement < cnt && inspectionIndex == -1) {
+                            if (list[sd.uncheckedElement].SearchMatch_Obj(searchby)) {
+                                inspectionIndex = sd.uncheckedElement;
+                                sd.filteredListElements.Add(inspectionIndex);
+                            }
+
+                            sd.uncheckedElement++;
+                        }
+                    }
+                    
+                    if (inspectionIndex != -1)
+                    {
+            
+                        switch (sectionIndex % 4)
+                        {
+                            case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
+                            case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+                        }
+                        yield return inspectionIndex;
+
+                        RestoreBGcolor();
+
+                        sectionIndex++;
+                    }
+                    else break;
+
+                }
 
             }
 
-          //  if (list.Count > 0)
-            //    Line(Color.gray);
 
-            var cnt = list.Count;
-            
-                if (ListSectionStartIndex > 0 ||  cnt > ListSectionMax)
+            if (listSectionStartIndex > 0 ||  cnt > ListSectionMax)
+            {
+
+                nl();
+                if (cnt > ListSectionMax)
                 {
-
-                    nl();
-                    if (cnt > ListSectionMax)
-                    {
-                        if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
-                            ListSectionStartIndex += SectionSizeOptimal-1;
-                            listInspectionIndexes[list] = ListSectionStartIndex;
-                        }
+                    if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
+                        listSectionStartIndex += SectionSizeOptimal-1;
+                        listInspectionIndexes[list] = listSectionStartIndex;
                     }
-                    else if (ListSectionStartIndex > 0)
-                        icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
                 }
-                else if (list.Count > 0)
-                    line(Color.gray);
+                else if (listSectionStartIndex > 0)
+                    icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+
+            }
+            else if (list.Count > 0)
+                line(Color.gray);
             
         }
 
@@ -5428,7 +5472,7 @@ namespace PlayerAndEditorGUI {
 
             currentListLabel = label;
 
-            ToggleSearch(lst);
+            searchData.ToggleSearch(lst);
 
             if (lst != null && inspected >= 0 && lst.Count > inspected) {
 
@@ -7330,7 +7374,7 @@ namespace PlayerAndEditorGUI {
         {
             if (psrchbl != null) {
                 foreach (var t in text)
-                    if (!Regex.IsMatch(t, psrchbl.NameForPEGI, RegexOptions.IgnoreCase))
+                    if (!Regex.IsMatch( psrchbl.NameForPEGI, t, RegexOptions.IgnoreCase))
                         return false;
 
                 return true;
@@ -7344,7 +7388,7 @@ namespace PlayerAndEditorGUI {
             if (psrchbl != null)
             {
                 foreach (var t in text)
-                    if (!Regex.IsMatch(t, psrchbl.NameForPEGIdisplay, RegexOptions.IgnoreCase))
+                    if (!Regex.IsMatch(psrchbl.NameForPEGIdisplay, t, RegexOptions.IgnoreCase))
                         return false;
 
                 return true;
@@ -7367,49 +7411,60 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static IList searchedList;
-        static string searchedText;
-        static List<int> filteredElements = new List<int>();
+        static SearchData searchData = new SearchData();
         
-        static void ToggleSearch(this IList ld) {
-            var active = ld == searchedList;
+        public class SearchData {
+            public IList filteredList;
+            public string searchedText;
+            public int uncheckedElement = 0;
+            string[] searchBys;
+            public List<int> filteredListElements = new List<int>();
 
-            bool changed = false;
+            public void ToggleSearch(IList ld)
+            {
+                var active = ld == filteredList;
 
-            if (active && icon.FoldedOut.Click("Hide Search ", 20).changes(ref changed))
-                active = false;
+                bool changed = false;
 
-            if (!active && icon.Search.Click("Search ", 20).changes(ref changed))
-                active = true;
-            
-            if (changed) {
-                 if (active)
-                    searchedList = ld;
-                else
-                    searchedList = null;
+                if (active && icon.FoldedOut.Click("Hide Search ", 20).changes(ref changed))
+                    active = false;
+
+                if (!active && icon.Search.Click("Search ", 20).changes(ref changed)) 
+                    active = true;
+
+
+                if (changed)
+                {
+                    if (active)
+                        filteredList = ld;
+                    else
+                        filteredList = null;
+                }
+
             }
-         
+
+            static readonly char[] splitCharacters = { ' ', '.' };
+
+            public void SearchString(IList list, out bool searching, out string[] searchBy)
+            {
+                searching = false;
+               
+                if (list == filteredList) {
+
+                    nl();
+                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
+                        filteredListElements.Clear();
+                        searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
+                        uncheckedElement = 0;
+                    }
+
+                    searching = !searchBys.IsNullOrEmpty();
+                }
+
+                searchBy = searchBys;
+            }
         }
-
-        static void SearchString(IList list, out bool searching, out string searchBy) 
-            => SearchString(list, ref searchedText, out searching, out searchBy);
-
-        static void SearchString(IList list, ref string txt, out bool searching, out string searchBy) {
-            searching = false;
-            searchBy = txt;
-
-            if (list == searchedList) {
-
-                nl();
-                if (edit(ref txt) || icon.Refresh.Click("Search again", 20).nl())
-                    filteredElements.Clear();
-
-                searchBy = txt;
-                searching = !txt.IsNullOrEmpty();
-
-            } 
-        }
-
+           
         #endregion
         #endif
 

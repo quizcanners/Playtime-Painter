@@ -44,7 +44,7 @@
 
 				struct v2f {
 					float4 pos : POSITION;
-					float4 texcoord : TEXCOORD2;
+					float2 texcoord : TEXCOORD2;
 					float4 color : COLOR;
 				};
 
@@ -52,12 +52,8 @@
 				v2f vert(appdata_full v) {
 					v2f o;
 
-					o.texcoord.xy = v.texcoord.xy;
+					o.texcoord = v.texcoord;
 					o.pos = UnityObjectToClipPos(v.vertex);
-				
-					float2 scale = _MainTex_Current_TexelSize.zw;
-					o.texcoord.zw = float2 (max(0, (scale.x - scale.y) / scale.x), max(0, (scale.y - scale.x) / scale.y));
-
 					o.color = v.color;
 					return o;
 				}
@@ -65,7 +61,7 @@
 
 				float4 frag(v2f i) : COLOR{
 
-					float2 texUV = i.texcoord.xy;
+					float2 texUV = i.texcoord;
 
 					texUV -= 0.5;
 
@@ -81,10 +77,13 @@
 		
 					float4 mask = tex2D(_Mask, texUV);
 
-					float2 screenUV = i.screenPos.xy / i.screenPos.w;
+					float4 col = tex2Dlod(_MainTex_Current, float4(texUV, 0, 0));
+					float4 col2 = tex2Dlod(_Next_MainTex, float4(texUV, 0, 0));
 
-					float4 col = tex2Dlod(_MainTex_Current,float4(texUV, 0, 0))*(1 - _Transition)
-						+ tex2Dlod(_Next_MainTex, float4(texUV, 0, 0))*(_Transition);
+					float rgbAlpha = col2.a*_Transition;
+					rgbAlpha = saturate(rgbAlpha * 2 / (col.a + rgbAlpha));
+					col.a = col2.a * _Transition + col.a * (1 - _Transition);
+					col.rgb = col2.rgb * rgbAlpha + col.rgb * (1 - rgbAlpha);
 
 					col.a *= mask.a;
 

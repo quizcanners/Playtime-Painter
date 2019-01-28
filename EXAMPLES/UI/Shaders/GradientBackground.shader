@@ -14,7 +14,6 @@
 		Tags{
 			"Queue" = "Background"
 			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
 		}
 
 		ColorMask RGBA

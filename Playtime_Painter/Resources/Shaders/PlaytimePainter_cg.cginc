@@ -197,7 +197,7 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 
 	float rgbAlpha = src.a*alpha;
 	
-	rgbAlpha = saturate(rgbAlpha / (col.a + rgbAlpha));
+	rgbAlpha = saturate(rgbAlpha * 2 / (col.a + rgbAlpha));
 
 	_brushMask.a *= alpha;
 
