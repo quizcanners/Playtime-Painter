@@ -254,7 +254,7 @@ namespace Playtime_Painter {
             var imgData = pntr.ImgData;
 
             if (imgData == null) {
-                pntr.InitIfNotInited();
+                pntr.InitIfNotInitialized();
                 imgData = pntr.ImgData;
                 if (imgData == null)
                     return pntr;
@@ -266,7 +266,7 @@ namespace Playtime_Painter {
             BlitMode.PrePaint(pntr, this, stroke);
 
             if (cpu) {
-                pntr.RecordingMGMT();
+                pntr.RecordingMgmt();
                 brushType.PaintToTexture2D(pntr, this, stroke);
             } else {
 
@@ -287,7 +287,7 @@ namespace Playtime_Painter {
 
                 if ((!pntr.terrain) || (brushType.SupportedForTerrain_RT)) {
 
-                    pntr.RecordingMGMT();
+                    pntr.RecordingMgmt();
 
                     if (!rendered)
                         brushType.PaintRenderTexture(pntr, this, stroke);
@@ -337,7 +337,7 @@ namespace Playtime_Painter {
                     changed |= pl(ref overrideBlitModePegi, this).nl();
             
             if (p)
-                foreach (var pl in p.Plugins)
+                foreach (var pl in p.plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty_Obj();
                     
@@ -379,7 +379,7 @@ namespace Playtime_Painter {
 
             if (!p) { "No Painter Detected".nl(); return false; }
 
-            if ((p.skinnedMeshRendy) && ("Update Collider from Skinned Mesh".Click()))
+            if ((p.skinnedMeshRenderer) && ("Update Collider from Skinned Mesh".Click()))
                 p.UpdateColliderForSkinnedMesh();
             pegi.newLine();
 

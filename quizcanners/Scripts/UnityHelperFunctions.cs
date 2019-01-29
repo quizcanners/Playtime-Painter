@@ -1299,7 +1299,7 @@ namespace QuizCannersUtilities {
             return true;
         }
 
-        public static void CopyImportSettingFrom(this Texture2D dest, Texture2D original)
+        public static Texture2D CopyImportSettingFrom(this Texture2D dest, Texture2D original)
         {
             #if UNITY_EDITOR
             TextureImporter dst = dest.GetTextureImporter();
@@ -1331,6 +1331,8 @@ namespace QuizCannersUtilities {
                 dst.SaveAndReimport();
             }
             #endif
+
+            return dest;
         }
         
 

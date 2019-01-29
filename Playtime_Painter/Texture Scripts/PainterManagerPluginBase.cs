@@ -30,7 +30,7 @@ namespace Playtime_Painter {
         protected pegi.CallDelegate PlugIn_PainterComponent { set
             {
                 plugins_ComponentPEGI += value;
-                PlaytimePainter.plugins_ComponentPEGI += value;
+                PlaytimePainter.pluginsComponentPEGI += value;
             }
         }
         
@@ -55,7 +55,7 @@ namespace Playtime_Painter {
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
         {
             plugins_GizmoDraw += d;
-            PlaytimePainter.plugins_GizmoDraw += d;
+            PlaytimePainter.pluginsGizmoDraw += d;
         }
 
         Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
@@ -92,11 +92,11 @@ namespace Playtime_Painter {
         public virtual void Disable() {
 
 #if PEGI
-            PlaytimePainter.plugins_ComponentPEGI -= plugins_ComponentPEGI;
+            PlaytimePainter.pluginsComponentPEGI -= plugins_ComponentPEGI;
             VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
 #endif
 
-            PlaytimePainter.plugins_GizmoDraw -= plugins_GizmoDraw;
+            PlaytimePainter.pluginsGizmoDraw -= plugins_GizmoDraw;
             BrushType.tex2DPaintPlugins -= tex2DPaintPlugins;
             GridNavigator.pluginNeedsGrid_Delegates -= pluginNeedsGrid_Delegates;
             BrushConfig.brushConfigPegies -= brushConfigPagies;

@@ -238,7 +238,7 @@ namespace Playtime_Painter
 
         public virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
-            foreach (var p in pntr.Plugins)
+            foreach (var p in pntr.plugins)
                 p.BeforeGPUStroke(pntr, br, st, this);
         }
 
@@ -253,7 +253,7 @@ namespace Playtime_Painter
             if ((br.useMask) && (st.mouseUp) && (br.randomMaskOffset))
                 br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 
-            foreach (var p in pntr.Plugins)
+            foreach (var p in pntr.plugins)
                 p.AfterGPUStroke(pntr, br, st, this);
 
         }

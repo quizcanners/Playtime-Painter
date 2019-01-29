@@ -24,7 +24,7 @@ namespace Playtime_Painter.Examples
 
               if (painter) {
 
-                    if ((painter.skinnedMeshRendy) && (brush.IsA3Dbrush(painter) == false)) {   
+                    if ((painter.skinnedMeshRenderer) && (brush.IsA3Dbrush(painter) == false)) {   
 
                         painter.UpdateColliderForSkinnedMesh();
 

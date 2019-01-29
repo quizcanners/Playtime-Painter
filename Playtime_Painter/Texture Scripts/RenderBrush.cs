@@ -59,7 +59,7 @@ namespace Playtime_Painter
             GameObject go = painter.gameObject;
             Transform camTransform = PainterCamera.Inst.transform;
 
-            var skinny = painter.skinnedMeshRendy;
+            var skinny = painter.skinnedMeshRenderer;
 
             if (skinny != null)
                 UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);

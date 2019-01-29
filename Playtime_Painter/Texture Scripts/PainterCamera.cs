@@ -757,7 +757,7 @@ namespace Playtime_Painter {
                 if (!l.Last())
                     l.RemoveLast(1);
                 else
-                    l.Last().PlaybeckVectors();
+                    l.Last().PlaybackVectors();
             }
 
 #if UNITY_EDITOR
@@ -781,12 +781,12 @@ namespace Playtime_Painter {
                 }
             }
 
-            PlaytimePainter p = PlaytimePainter.currently_Painted_Object;
+            PlaytimePainter p = PlaytimePainter.currentlyPaintedObjectPainter;
 
             if (p && !Application.isPlaying)
             {
                 if (p.ImgData == null)
-                    PlaytimePainter.currently_Painted_Object = null;
+                    PlaytimePainter.currentlyPaintedObjectPainter = null;
                 else
                 {
                     TexMGMTdata.brushConfig.Paint(p.stroke, p);

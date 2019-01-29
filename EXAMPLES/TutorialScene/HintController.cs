@@ -75,7 +75,7 @@ namespace Playtime_Painter.Examples
             switch (stage)
             {
                 case HintStage.enableTool:
-                    if (PlaytimePainter.IsCurrent_Tool) { SetStage(HintStage.unlockTexture); timer = 3f; }
+                    if (PlaytimePainter.IsCurrentTool) { SetStage(HintStage.unlockTexture); timer = 3f; }
                     break;
                 case HintStage.unlockTexture:
                     if (cube) {
@@ -85,7 +85,7 @@ namespace Playtime_Painter.Examples
                     }
                     break;
                 case HintStage.draw:
-                    if (!PlaytimePainter.IsCurrent_Tool) { SetStage(HintStage.enableTool); break; }
+                    if (!PlaytimePainter.IsCurrentTool) { SetStage(HintStage.enableTool); break; }
                     if (timer < 0) { SetStage(HintStage.addTool); }
                     break;
                 case HintStage.addTool:

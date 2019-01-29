@@ -52,7 +52,7 @@ namespace STD_Logic
             waiting = true;
         }
 
-        public virtual void DerrivedUpdate() { }
+        public virtual void DerivedUpdate() { }
 
         public void Update()
         {
@@ -66,7 +66,7 @@ namespace STD_Logic
                 }
             }
 
-            DerrivedUpdate();
+            DerivedUpdate();
         }
 
         public void Awake() => RealTimeNow();

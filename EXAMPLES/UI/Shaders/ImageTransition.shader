@@ -81,7 +81,7 @@
 					float4 col2 = tex2Dlod(_Next_MainTex, float4(texUV, 0, 0));
 
 					float rgbAlpha = col2.a*_Transition;
-					rgbAlpha = saturate(rgbAlpha * 2 / (col.a + rgbAlpha));
+					rgbAlpha = saturate(rgbAlpha * 2 / (col.a + rgbAlpha + 0.001));
 					col.a = col2.a * _Transition + col.a * (1 - _Transition);
 					col.rgb = col2.rgb * rgbAlpha + col.rgb * (1 - rgbAlpha);
 

@@ -83,7 +83,7 @@ public static class TextureEditorExtensionFunctions  {
         public static Mesh GetMesh(this PlaytimePainter p) {
         if (!p) return null;
 
-        if (p.skinnedMeshRendy)
+        if (p.skinnedMeshRenderer)
                 return p.colliderForSkinnedMesh;
         if (p.meshFilter)
                 return p.meshFilter.sharedMesh;
@@ -110,7 +110,7 @@ public static class TextureEditorExtensionFunctions  {
             
             if (!pntr.meshEditing) {
 
-                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrent_Tool) {
+                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrentTool) {
                     if (pntr.GlobalBrushType.NeedsGrid) return true;
 
                     if (GridNavigator.pluginNeedsGrid_Delegates != null)

@@ -49,7 +49,7 @@ namespace Playtime_Painter {
                 }
                 else
                 {
-                    if (L_mouseDwn) PlaytimePainter.currently_Painted_Object = null;
+                    if (L_mouseDwn) PlaytimePainter.currentlyPaintedObjectPainter = null;
 
                     if (painter.NeedsGrid()) { pointedPainter = painter; allowRefocusing = false; }
                     
@@ -64,7 +64,7 @@ namespace Playtime_Painter {
 
                 }
             }
-            if (L_mouseUp) PlaytimePainter.currently_Painted_Object = null;
+            if (L_mouseUp) PlaytimePainter.currentlyPaintedObjectPainter = null;
 
             if (((e.button == 1) || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
                 navigating = true;
@@ -86,7 +86,7 @@ namespace Playtime_Painter {
         
         public void GridUpdate(SceneView sceneview) {
 
-            if (!PlaytimePainter.IsCurrent_Tool)
+            if (!PlaytimePainter.IsCurrentTool)
                 return;
 
 
@@ -140,7 +140,7 @@ namespace Playtime_Painter {
                     e.Use();
             }
 
-            if (!PlaytimePainter.IsCurrent_Tool) return;
+            if (!PlaytimePainter.IsCurrentTool) return;
 
             if ((painter) && (painter.textureWasChanged))
                 painter.Update();
@@ -150,14 +150,14 @@ namespace Playtime_Painter {
         public virtual void OnSceneGUI()
         {
 
-            if (PlaytimePainter.IsCurrent_Tool && painter && !UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter))
-                PlaytimePainter.IsCurrent_Tool = false;
+            if (PlaytimePainter.IsCurrentTool && painter && !UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter))
+                PlaytimePainter.IsCurrentTool = false;
 
             if (AllowEditing(painter))
             {
                 GridUpdate(SceneView.currentDrawingSceneView);
 
-                if (!navigating && PlaytimePainter.IsCurrent_Tool)
+                if (!navigating && PlaytimePainter.IsCurrentTool)
                     HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
             }
 

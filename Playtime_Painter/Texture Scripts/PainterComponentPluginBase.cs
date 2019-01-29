@@ -23,21 +23,21 @@ namespace Playtime_Painter
 
         public static void UpdateList(PlaytimePainter pntr) {
 
-            for (int i = 0; i < pntr.Plugins.Count; i++) {
-                var nt = pntr.Plugins[i];
+            for (int i = 0; i < pntr.plugins.Count; i++) {
+                var nt = pntr.plugins[i];
 
                 if (nt == null) {
-                    pntr.Plugins.RemoveAt(i);
+                    pntr.plugins.RemoveAt(i);
                     i--;
                 }
             }
 
-            for (int i = 0; i < pntr.Plugins.Count; i++)
-                if (pntr.Plugins[i] == null) { pntr.Plugins.RemoveAt(i); i--; }
+            for (int i = 0; i < pntr.plugins.Count; i++)
+                if (pntr.plugins[i] == null) { pntr.plugins.RemoveAt(i); i--; }
 
             foreach (Type t in all) {
-                if (!pntr.Plugins.ContainsInstanceType(t)) 
-                    pntr.Plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
+                if (!pntr.plugins.ContainsInstanceType(t)) 
+                    pntr.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
             }
         }
 
