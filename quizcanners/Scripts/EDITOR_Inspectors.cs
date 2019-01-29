@@ -2,31 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 using QuizCannersUtilities;
+using UnityEngine.UIElements;
 
 #if UNITY_EDITOR
 using UnityEditor;
 
 namespace PlayerAndEditorGUI {
 
-    public abstract class PEGI_Editor<T> : Editor where T : MonoBehaviour
-    {
-        public override void OnInspectorGUI() {
-            #if PEGI
-            ef.Inspect<T>(this).RestoreBGColor();
-            #else
+    public abstract class PEGI_Editor_Base : Editor {
+        public static bool drawDefaultInspector;
+
+        protected abstract bool Inspect(Editor editor);
+
+        public override void OnInspectorGUI()
+        {
+#if PEGI
+            if (!drawDefaultInspector)
+            {
+                Inspect(this).RestoreBGColor();
+                return;
+            }
+
+            pegi.toggleDefaultInspector();
+#endif
+
             DrawDefaultInspector();
-            #endif
         }
+
     }
 
-    public abstract class PEGI_Editor_SO<T> : Editor where T : ScriptableObject {
-        public override void OnInspectorGUI() {
-            #if PEGI
-            ef.Inspect_so<T>(this).RestoreBGColor();
-            #else
-            DrawDefaultInspector();
-            #endif
-        }
+     public abstract class PEGI_Editor<T> : PEGI_Editor_Base where T : MonoBehaviour {
+        protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
+     }
+
+    public abstract class PEGI_Editor_SO<T> : PEGI_Editor_Base where T : ScriptableObject {
+        protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);
     }
 
     [CustomEditor(typeof(PEGI_Styles))]

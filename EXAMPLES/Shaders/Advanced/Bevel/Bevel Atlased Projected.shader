@@ -1,14 +1,14 @@
 ﻿Shader "Playtime Painter/Bevel/Bevel Atlased Projected" {
 	Properties{
-		[NoScaleOffset]_MainTex_ATL("Base texture (ATL)", 2D) = "white" {}
-		[KeywordEnum(None, Regular, Combined)] _BUMP ("Bump Map", Float) = 0
-		[NoScaleOffset]_BumpMapC("Combined Maps Atlas (RGB)", 2D) = "gray" {}
-		[Toggle(UV_PROJECTED)] _PROJECTED ("Projected UV", Float) = 0
-		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
-		[Toggle(EDGE_WIDTH_FROM_COL_A)] _EDGE_WIDTH("Color A as Edge Width", Float) = 0
-		[Toggle(CLIP_EDGES)] _CLIP("Clip Edges", Float) = 0
-		[Toggle(UV_PIXELATED)] _PIXELATED("Smooth Pixelated", Float) = 0
+		[NoScaleOffset]							_MainTex_ATL	("Base texture (ATL)", 2D) = "white" {}
+		[KeywordEnum(None, Regular, Combined)]	_BUMP			("Bump Map", Float) = 0
+		[NoScaleOffset]							_BumpMapC		("Combined Maps Atlas (RGB)", 2D) = "gray" {}
+		[Toggle(UV_PROJECTED)]					_PROJECTED		("Projected UV", Float) = 0
+		[Toggle(UV_ATLASED)]					_ATLASED		("Is Atlased", Float) = 0
+		[NoScaleOffset]							_AtlasTextures	("_Textures In Row _ Atlas", float) = 1
+		[Toggle(EDGE_WIDTH_FROM_COL_A)]			_EDGE_WIDTH		("Color A as Edge Width", Float) = 0
+		[Toggle(CLIP_EDGES)]					_CLIP			("Clip Edges", Float) = 0
+		[Toggle(UV_PIXELATED)]					_PIXELATED		("Smooth Pixelated", Float) = 0
 	}
 
 	
@@ -42,18 +42,18 @@
 			float _AtlasTextures;
 
 			struct v2f {
-				float4 pos : SV_POSITION;
-				float4 vcol : COLOR0;
-				float3 worldPos : TEXCOORD0;
-				float3 normal : TEXCOORD1;
-				float2 texcoord : TEXCOORD2;
-				float4 edge : TEXCOORD3;
-				float3 snormal: TEXCOORD4;
+				float4 pos :		SV_POSITION;
+				float4 vcol :		COLOR0;
+				float3 worldPos :	TEXCOORD0;
+				float3 normal :		TEXCOORD1;
+				float2 texcoord :	TEXCOORD2;
+				float4 edge :		TEXCOORD3;
+				float3 snormal:		TEXCOORD4;
 				SHADOW_COORDS(5)
-				float3 viewDir: TEXCOORD6;
-				float3 edgeNorm0 : TEXCOORD7;
-				float3 edgeNorm1 : TEXCOORD8;
-				float3 edgeNorm2 : TEXCOORD9;
+				float3 viewDir:		TEXCOORD6;
+				float3 edgeNorm0 :	TEXCOORD7;
+				float3 edgeNorm1 :	TEXCOORD8;
+				float3 edgeNorm2 :	TEXCOORD9;
 				#if defined(UV_ATLASED)
 					float4 atlasedUV : TEXCOORD10;
 				#endif

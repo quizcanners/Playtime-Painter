@@ -90,6 +90,8 @@ namespace PlayerAndEditorGUI {
     
     public static class pegi {
         
+       
+
         public static string EnvironmentNL => Environment.NewLine;
 
         static int mouseOverUI = -1;
@@ -3614,6 +3616,10 @@ namespace PlayerAndEditorGUI {
         {
             write(text, tip, width);
             return toggle(ref val);
+        }
+
+        public static bool toggleDefaultInspector() {
+            return "Default Inspector".toggleIcon(ref PEGI_Editor_Base.drawDefaultInspector).nl();
         }
 
         #endregion

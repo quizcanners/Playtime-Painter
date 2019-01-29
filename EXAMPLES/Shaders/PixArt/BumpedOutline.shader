@@ -98,7 +98,7 @@ Shader "Playtime Painter/Pixel Art/BumpedOutline" {
 
 			float3 nn2 = UnpackNormal(tex2Dlod(_BumpDetail, float4(IN.uv_BumpDetail, 0, 0)));
 
-			float3 nn =UnpackNormal(tex2Dlod(_Bump, float4((IN.uv_MainTex* _MainTex_TexelSize.z % 1) +float2( -hold.x , -hold.y ),0,0)));
+			float3 nn =UnpackNormal(tex2Dlod(_Bump, float4((IN.uv_MainTex * frac(_MainTex_TexelSize.z)) +float2( -hold.x , -hold.y ),0,0)));
 
 			nn = (nn + nn2 *0.1* deBord);
 

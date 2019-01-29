@@ -61,7 +61,7 @@
 					 
 					float diff = abs(angle - _Picker_HUV);
 
-					arrowUV.x =  (min(diff, 1-diff ) % 1)*16;
+					arrowUV.x =  frac(min(diff, 1-diff ))*16;
 
 					arrowUV.y = length(uv)*8-3;
 

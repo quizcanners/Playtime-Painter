@@ -222,11 +222,11 @@ inline float3 HUEtoColor(float hue) {
 
 	col.r = saturate(2 - abs(val - 2));
 
-	val = (val + 2) % 6;
+	val = fmod((val + 2), 6);
 
 	col.g = saturate(2 - abs(val - 2));
 
-	val = (val + 2) % 6;
+	val = fmod((val + 2), 6);
 
 	col.b = saturate(2 - abs(val - 2));
 
@@ -239,7 +239,6 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 
 	edge = max(0, edge - 0.965) * 28.5715;
 
-	//edge = max(0, edge - 0.93) * 14;
 	float border = max(max(edge.r, edge.g), edge.b);
 
 	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
@@ -255,11 +254,9 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 inline float3 DetectSmoothEdge(float thickness ,float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
 
 	thickness = thickness*thickness*0.25;
-	//0.00125
 
 	edge = saturate((edge - 1 + thickness)/thickness);
 
-	//edge = max(0, edge - 0.93) * 14;
 	float border = max(max(edge.r, edge.g), edge.b);
 
 	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
@@ -713,7 +710,7 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 
 	float4 bakeUp = tex2Dlod(volume, float4(sector + bsPos.xz, 0, 0));
 
-	float deH = h % 1;
+	float deH = frac(h); 
 
 	bake = bake * (1 - deH) + bakeUp * (deH);
 

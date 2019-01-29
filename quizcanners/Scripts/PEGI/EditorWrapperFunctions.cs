@@ -28,8 +28,18 @@ namespace PlayerAndEditorGUI {
         static int elementIndex;
         public static SerializedObject serObj;
 
+        static bool DefaultInspector(Editor editor)
+        {
+            BeginCheckLine();
+            editor.DrawDefaultInspector();
+            return EndCheckLine();
+        }
+
         public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
         {
+
+            //if (PEGI_Editor_Base.drawDefaultInspector)
+               //return DefaultInspector(editor);
 
             T o = (T)editor.target;
             SerializedObject so = editor.serializedObject;
@@ -52,6 +62,9 @@ namespace PlayerAndEditorGUI {
 
         public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
         {
+
+           // if (PEGI_Editor_Base.drawDefaultInspector)
+            //    return DefaultInspector(editor);
 
             T o = (T)editor.target;
             SerializedObject so = editor.serializedObject;
