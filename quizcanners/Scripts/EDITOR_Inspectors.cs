@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using QuizCannersUtilities;
-using UnityEngine.UIElements;
 
 #if UNITY_EDITOR
 using UnityEditor;

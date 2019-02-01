@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Baked Shadows/In Volume" {
+﻿Shader "Playtime Painter/Volumes/Baked Shadows/In Volume" {
 	Properties {
 		_MainTex_ATL ("Albedo (RGB) (Atlas)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0

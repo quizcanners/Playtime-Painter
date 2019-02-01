@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/FadingText" {
+﻿Shader "Playtime Painter/UI/Text/FadingText" {
 	Properties
 	{
 		[PerRendererData]_MainTex("Font Texture", 2D) = "white" {}

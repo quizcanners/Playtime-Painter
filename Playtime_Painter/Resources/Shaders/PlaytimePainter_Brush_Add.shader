@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Brush/Add" {
+﻿Shader "Playtime Painter/Editor/Brush/Add" {
 	Properties{}
 
 	Category{

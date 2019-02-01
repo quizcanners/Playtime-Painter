@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Brush/Volume" {
+﻿Shader "Playtime Painter/Editor/Brush/Volume" {
 	Category{
 		Tags{ "Queue" = "Transparent" }
 

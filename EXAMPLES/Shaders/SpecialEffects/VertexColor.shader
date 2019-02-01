@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/VertexColor" {
+﻿Shader "Playtime Painter/Effects/VertexColor" {
 	Properties{}
 	Category{
 		Tags{
@@ -19,7 +19,6 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma target 3.0
 

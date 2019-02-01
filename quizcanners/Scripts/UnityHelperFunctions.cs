@@ -1760,7 +1760,10 @@ namespace QuizCannersUtilities {
             var l = terrain.terrainData.terrainLayers;
 
             if (l.Length > ind)
-                return l[ind].diffuseTexture;
+            {
+                var sp = l[ind];
+                return sp != null ? l[ind].diffuseTexture : null;
+            }
             else
                 return null;
 #else
@@ -1858,8 +1861,7 @@ namespace QuizCannersUtilities {
 
             }
         }
-
-
+        
         public static int GetSubmeshNumber(this Mesh m, int triangleIndex)
         {
 
@@ -1897,7 +1899,13 @@ namespace QuizCannersUtilities {
 
             return 0;
         }
-        
+
+        public static void AssignMeshAsCollider(this MeshCollider c, Mesh mesh)
+        {
+            c.sharedMesh = null;
+            c.sharedMesh = mesh;
+        }
+
         #endregion
     }
 

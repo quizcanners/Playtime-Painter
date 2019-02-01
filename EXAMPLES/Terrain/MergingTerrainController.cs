@@ -63,7 +63,7 @@ namespace Playtime_Painter.Examples
                 while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
                     max++;
 
-                for (int i = 0; i < Mathf.Max(mergeSubmasks.Count, ls.Length); i++)
+                for (int i = 0; i < Mathf.Min(mergeSubmasks.Count, ls.Length); i++)
                 {
                     ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                     if (tmp.Product_combinedBump != null)
@@ -72,7 +72,7 @@ namespace Playtime_Painter.Examples
                     if (tmp.Product_colorWithAlpha != null)
                     {
                         Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
-                        if (i < ls.Length)
+                        if (i < ls.Length && ls[i]!= null)
                             ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
                     }
                 }
@@ -194,6 +194,12 @@ namespace Playtime_Painter.Examples
             public bool PEGI_inList(IList list, int ind, ref int edited)
             {
                 var changed = this.inspect_Name();
+
+                if (!Product_colorWithAlpha)
+                    "COl".edit(40, ref Product_colorWithAlpha).changes(ref changed);
+                else
+                    if (!Product_combinedBump)
+                    "CMB".edit(40, ref Product_combinedBump).changes(ref changed);
 
                 Product_colorWithAlpha.ClickHighlight();
                 Product_combinedBump.ClickHighlight();

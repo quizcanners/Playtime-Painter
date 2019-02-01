@@ -11,7 +11,7 @@
 		
 		LOD 200
 		Blend OneMinusDstAlpha DstAlpha 
-		ColorMask RGBA
+		ColorMask RGB
 
 
 		SubShader {

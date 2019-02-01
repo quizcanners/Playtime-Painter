@@ -129,7 +129,7 @@ namespace STD_Logic {
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb", branches)
             .Add_IfNotEmpty("v", conditions)
-            .Add_IfNotZero("t", (int)type)
+            .Add("t", (int)type)
             .Add("tag", targ)
             .Add_IfNotNegative("insB", browsedBranch)
             .Add_IfNotNegative("ic", browsedCondition);

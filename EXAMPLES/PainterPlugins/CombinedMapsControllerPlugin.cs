@@ -469,6 +469,7 @@ namespace Playtime_Painter.Examples
 
         public TextureRole Role { get { return TextureRole.All[sourceRole]; } set { sourceRole = value.index; } }
 
+        #region Encode & Decode
         public override bool Decode(string tag, string data)
         {
             switch (tag)
@@ -481,16 +482,16 @@ namespace Playtime_Painter.Examples
             return true;
         }
 
-        public override StdEncoder Encode()
-        {
-            var cody = new StdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add_IfNotZero("s", sourceRole)
             .Add_IfNotZero("c", sourceChannel)
             .Add_Bool("f", flip);
-            return cody;
-        }
+        
 
-#if PEGI
+        #endregion
+        
+        #region Inspect
+        #if PEGI
 
         public virtual bool Inspect()
         {
@@ -512,11 +513,10 @@ namespace Playtime_Painter.Examples
             return changed;
         }
 
-#endif
+        #endif
+        #endregion
 
         public const string stdTag = "TexChan";
-
-
     }
 
 

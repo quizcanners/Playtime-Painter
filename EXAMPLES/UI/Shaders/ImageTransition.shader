@@ -1,6 +1,6 @@
 ﻿Shader "Playtime Painter/UI/ImageTransition" {
 	Properties{
-		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
+		_MainTex("Mask (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_MainTex_Current("First Texture", 2D) = "black" {}
 		[NoScaleOffset]_Next_MainTex("Next Texture", 2D) = "black" {}
 		[NoScaleOffset]_Mask("Mask", 2D) = "white" {}
@@ -17,7 +17,7 @@
 		}
 
 		LOD 200
-		ColorMask RGBA
+		ColorMask RGB
 		ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha
 

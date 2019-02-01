@@ -13,7 +13,7 @@ namespace Playtime_Painter
     
     public class MeshPackagingProfile : Abstract_STD, IPEGI, IGotName
     {
-        public List<VertexSolution> sln = new List<VertexSolution>();
+        public List<VertexContents> sln = new List<VertexContents>();
 
         public string name = "";
 
@@ -74,10 +74,10 @@ namespace Playtime_Painter
 
             MeshSolutions.dataTypeFilter = null;
 
-            foreach (VertexSolution vs in sln)
+            foreach (VertexContents vs in sln)
                 if (vs.enabled) vs.Pack();
 
-            foreach (VertexDataType vt in MeshSolutions.types)
+            foreach (VertexDataType vt in MeshSolutions.dataTypes)
                 vt.Clear();
 
             return true;
@@ -89,10 +89,10 @@ namespace Playtime_Painter
 
             MeshSolutions.dataTypeFilter = dataType;
 
-            foreach (VertexSolution vs in sln)
+            foreach (VertexContents vs in sln)
                 if (vs.enabled) vs.Pack();
 
-            foreach (VertexDataType vt in MeshSolutions.types)
+            foreach (VertexDataType vt in MeshSolutions.dataTypes)
                 vt.Clear();
 
             return true;
@@ -126,21 +126,22 @@ namespace Playtime_Painter
 
         public MeshPackagingProfile()
         {
-            VertexDataTarget[] trgs = MeshSolutions.targets;
-            sln = new List<VertexSolution>(); 
+            VertexDataTarget[] trgs = MeshSolutions.dataTargets;
+            sln = new List<VertexContents>(); 
             name = "unnamedd";
             foreach (var t in trgs)
-                sln.Add(new VertexSolution(t));
+                sln.Add(new VertexContents(t));
         }
 
     }
 
-
-
-    public abstract class VertexDataTarget
+    #region Data
+    public abstract class VertexDataTarget : IGotDisplayName
     {
         public byte chanelsHas;
         public int myIndex;
+
+        public abstract string NameForPEGIdisplay { get; }
 
         public virtual void Set(Vector3[] dta)
         {
@@ -152,9 +153,7 @@ namespace Playtime_Painter
             Debug.Log(dta.GetType() + " input not implemented for array of " + this.GetType());
         }
 
-        public abstract string Name();
-
-        public virtual void SetDefaults(VertexSolution to)
+        public virtual void SetDefaults(VertexContents to)
         {
             for (int i = 0; i < to.vals.Count; i++)
                 to.vals[i].valueIndex = i;
@@ -175,7 +174,7 @@ namespace Playtime_Painter
             return "Error";
         }
 
-        public VertexSolution GetMySolution()
+        public VertexContents GetMySolution()
         {
             MeshPackagingProfile pf = MeshSolutions.CurMeshDta.profile;
             return pf.sln[myIndex];
@@ -243,13 +242,12 @@ namespace Playtime_Painter
 
     }
 
-    
     public class VertexDataValue : Abstract_STD {
 
         public int typeIndex = 0;
         public int valueIndex = 0;
 
-        public VertexDataType VertDataType => MeshSolutions.types[typeIndex]; 
+        public VertexDataType VertDataType => MeshSolutions.dataTypes[typeIndex]; 
 
         public float[] GetDataArray() {
             VertDataType.GenerateIfNull();
@@ -274,17 +272,17 @@ namespace Playtime_Painter
         }
         #endregion
     }
+    #endregion
 
-    
-    public class VertexSolution : Abstract_STD, IPEGI
+    public class VertexContents : Abstract_STD, IPEGI
     {
         public int sameSizeDataIndex = -1;
         public int targetIndex;
         public bool enabled;
         public static bool showHint;
         
-        public VertexDataType SameSizeValue { get { if (sameSizeDataIndex >= 0) return MeshSolutions.types[sameSizeDataIndex]; else return null; } }
-        public VertexDataTarget Target { get { return MeshSolutions.targets[targetIndex]; } set { targetIndex = value.myIndex; } }
+        public VertexDataType SameSizeValue { get { if (sameSizeDataIndex >= 0) return MeshSolutions.dataTypes[sameSizeDataIndex]; else return null; } }
+        public VertexDataTarget Target { get { return MeshSolutions.dataTargets[targetIndex]; } set { targetIndex = value.myIndex; } }
 
         public List<VertexDataValue> vals = new List<VertexDataValue>();
 
@@ -294,16 +292,16 @@ namespace Playtime_Painter
         {
             bool changed = false;
 
-            (Target.Name() + ":").toggle(80, ref enabled);
+            (Target.ToPEGIstring() + ":").toggle(80, ref enabled);
 
             if (enabled)
             {
 
-                List<VertexDataType> tps = MeshSolutions.GetTypesBySize(vals.Count);
+                var tps = MeshSolutions.GetTypesBySize(vals.Count);
                 string[] nms = new string[tps.Count + 1];
 
                 for (int i = 0; i < tps.Count; i++)
-                    nms[i] = tps[i].ToString();
+                    nms[i] = tps[i].ToPEGIstring();
 
                 nms[tps.Count] = "Other";
 
@@ -319,7 +317,8 @@ namespace Playtime_Painter
 
                 changed |= pegi.select(ref selected, nms).nl();
 
-                if (selected >= tps.Count) sameSizeDataIndex = -1;
+                if (selected >= tps.Count)
+                    sameSizeDataIndex = -1;
                 else
                     sameSizeDataIndex = tps[selected].myIndex;
 
@@ -340,7 +339,6 @@ namespace Playtime_Painter
                         changed |= pegi.select(ref v.valueIndex, typeFields).nl();
 
                         typeFields.ClampIndexToLength(ref v.valueIndex);
-                        //v.valueIndex = v.valueIndex.ClampToLength(typeFields.Length);
                     }
                 }
                 "**************************************************".nl();
@@ -351,11 +349,9 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        public VertexSolution() {
+        public VertexContents() { }
 
-        }
-
-        public VertexSolution(VertexDataTarget ntrg) {
+        public VertexContents(VertexDataTarget ntrg) {
             Target = ntrg;
             InitVals();
             ntrg.SetDefaults(this);
@@ -369,11 +365,17 @@ namespace Playtime_Painter
 
         public void Pack()
         {
-            switch (Target.chanelsHas)
+            try
             {
-                case 3: PackVector3(); break;
-                case 4: PackVector4(); break;
-                default: Debug.Log("No packaging function for Vector" + Target.chanelsHas + " taget."); break;
+                switch (Target.chanelsHas)
+                {
+                    case 3: PackVector3(); break;
+                    case 4: PackVector4(); break;
+                    default: Debug.Log("No packaging function for Vector" + Target.chanelsHas + " taget."); break;
+                }
+            } catch (Exception ex)
+            {
+                Debug.LogError("Exception in {0}  :  {1}".F(Target.ToPEGIstring(), ex.ToString()));
             }
         }
 
@@ -399,7 +401,7 @@ namespace Playtime_Painter
                     ar[i] = new Vector3();
 
                 for (int i = 0; i < 3; i++) {
-                    VertexDataValue v = vals[i];
+                    var v = vals[i];
                     float[] tmp = v.GetDataArray();
 
                     if (tmp != null)
@@ -454,7 +456,7 @@ namespace Playtime_Painter
 
         }
 
-        #region Inspector
+        #region Encode & Decode
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
 
@@ -465,7 +467,7 @@ namespace Playtime_Painter
                 if (sameSizeDataIndex == -1)
                     cody.Add_IfNotEmpty("vals", vals);
                 else
-                    cody.Add_IfNotZero("sameSize", sameSizeDataIndex);
+                    cody.Add_IfNotNegative("sameSize", sameSizeDataIndex);
             }
             return cody;
         }
@@ -481,11 +483,21 @@ namespace Playtime_Painter
             }
             return true;
         }
+
+
+        public override void Decode(string data)
+        {
+            base.Decode(data);
+
+            InitVals();
+            Target.SetDefaults(this);
+
+        }
+
         #endregion
 
     }
-
-  
+    
     public static class MeshSolutions {
 
         #region Static
@@ -540,12 +552,9 @@ namespace Playtime_Painter
                 }
             }
 
-            public override string Name()
-            {
-                return "position";
-            }
-
-            public override void SetDefaults(VertexSolution to)
+            public override string NameForPEGIdisplay => "position";
+            
+            public override void SetDefaults(VertexContents to)
             {
                 base.SetDefaults(to);
                 to.enabled = true;
@@ -568,7 +577,7 @@ namespace Playtime_Painter
             public override void Set(Vector4[] dta)
             {
 
-                VertexSolution vs = GetMySolution();
+                VertexContents vs = GetMySolution();
                 
                 if ((vs.SameSizeValue != null) || (vs.vals[2].VertDataType != VertexNull.inst) || (vs.vals[3].VertDataType != VertexNull.inst))
                     CurMeshDta.mesh.SetUVs(MyUVChanel(), new List<Vector4>(dta));
@@ -596,13 +605,9 @@ namespace Playtime_Painter
                 }
             }
 
-            public override string Name()
-            {
-                return "UV" + MyUVChanel().ToString();
-            }
-
-
-            public override void SetDefaults(VertexSolution to)
+            public override string NameForPEGIdisplay => "UV" + MyUVChanel().ToString();
+            
+            public override void SetDefaults(VertexContents to)
             {
                 base.SetDefaults(to);
 
@@ -642,12 +647,9 @@ namespace Playtime_Painter
                 CurMeshDta.mesh.tangents = dta;
             }
 
-            public override string Name()
-            {
-                return "tangent";
-            }
-
-            public override void SetDefaults(VertexSolution to)
+             public override string NameForPEGIdisplay => "tangent";
+            
+            public override void SetDefaults(VertexContents to)
             {
                 base.SetDefaults(to);
                 to.enabled = true;
@@ -669,12 +671,9 @@ namespace Playtime_Painter
                 CurMeshDta.mesh.normals = dta;
             }
 
-            public override string Name()
-            {
-                return "normal";
-            }
-
-            public override void SetDefaults(VertexSolution to)
+            public override string NameForPEGIdisplay => "normal";
+            
+            public override void SetDefaults(VertexContents to)
             {
                 base.SetDefaults(to);
                 to.enabled = true;
@@ -700,11 +699,8 @@ namespace Playtime_Painter
                 CurMeshDta.mesh.colors = cols;
             }
 
-            public override string Name()
-            {
-                return "color";
-            }
-
+            public override string NameForPEGIdisplay => "color";
+            
             public override string GetFieldName(int ind)
             {
                 switch (ind)
@@ -717,7 +713,7 @@ namespace Playtime_Painter
                 return "Error";
             }
 
-            public override void SetDefaults(VertexSolution to)
+            public override void SetDefaults(VertexContents to)
             {
                 base.SetDefaults(to);
                 to.enabled = true;
@@ -732,14 +728,14 @@ namespace Playtime_Painter
             }
         }
 
-        public static VertexDataTarget[] targets = {
+        public static VertexDataTarget[] dataTargets = {
         new VertexPosTrg(0) , new VertexUVTrg(1) , new VertexUVTrg(2) , new VertexUVTrg(3),
         new VertexUVTrg(4),   new VertexNormalTrg(5), new VertexTangentTrg(6),  new VertexColorTrg(7)
 
     };
 
 
-        // ******************************************************** DATA Types
+        #region Data Types
 
         public class VertexPos : VertexDataType
         {
@@ -1107,8 +1103,7 @@ namespace Playtime_Painter
             }
 
         }
-
-
+        
         public class VertexNull : VertexDataType
         {
             public static VertexNull inst;
@@ -1384,7 +1379,7 @@ namespace Playtime_Painter
             }
         }
 
-        public static VertexDataType[] types = {
+        public static VertexDataType[] dataTypes = {
 
             new VertexPos(0), new VertexUV(1), new VertexUV(2), new VertexNormal(3),
 
@@ -1402,10 +1397,10 @@ namespace Playtime_Painter
         {
             if (typesNames == null)
             {
-                typesNames = new string[types.Length];
+                typesNames = new string[dataTypes.Length];
 
-                for (int i = 0; i < types.Length; i++)
-                    typesNames[i] = types[i].ToString();
+                for (int i = 0; i < dataTypes.Length; i++)
+                    typesNames[i] = dataTypes[i].ToPEGIstring();
             }
 
             return typesNames;
@@ -1416,12 +1411,14 @@ namespace Playtime_Painter
 
             List<VertexDataType> tmp = new List<VertexDataType>();
 
-            for (int i = 0; i < types.Length; i++)
-                if (types[i].chanelsNeed == size)
-                    tmp.Add(types[i]);
+            for (int i = 0; i < dataTypes.Length; i++)
+                if (dataTypes[i].chanelsNeed == size)
+                    tmp.Add(dataTypes[i]);
 
             return tmp;
         }
+
+        #endregion
 
     }
 }

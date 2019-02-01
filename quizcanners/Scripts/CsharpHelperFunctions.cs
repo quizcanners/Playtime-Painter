@@ -125,7 +125,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return badFormat + format + " " + obj1.ToPEGIstring();
             }
         }
         public static string F(this string format, string obj1, string obj2)
@@ -136,7 +136,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return badFormat + format + " " + obj1 + " " + obj2;
             }
         }
         public static string F(this string format, object obj1, object obj2)

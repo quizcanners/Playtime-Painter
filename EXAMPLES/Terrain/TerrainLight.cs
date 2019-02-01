@@ -7,8 +7,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter.Examples {
 
     [TaggedType(tag)]
-    public class TerrainLight : PainterComponentPluginBase
-    {
+    public class TerrainLight : PainterComponentPluginBase {
 
         const string tag = "TerLight";
         public override string ClassTag => tag;
@@ -19,9 +18,6 @@ namespace Playtime_Painter.Examples {
         public override bool BrushConfigPEGI()
         {
             bool changed = false;
-           // if (pntr.terrain != null)
-             //   "Found the terrain, yey!!".nl();
-          //  changed |= "Test: ".edit(ref testData).nl();
 
             if (changed)
                 UnityHelperFunctions.SetToDirty_Obj(this);

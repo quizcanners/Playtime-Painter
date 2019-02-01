@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Brush/Copy" {
+﻿Shader "Playtime Painter/Editor/Brush/Copy" {
 	Properties{}
 
 	Category{

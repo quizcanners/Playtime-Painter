@@ -72,7 +72,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public string meshNameHolder;
+        public string meshNameField;
 
         public string savedMeshData;
         public Mesh meshDataSavedFor;
@@ -1050,7 +1050,7 @@ namespace Playtime_Painter {
             var td = terrain.terrainData;
             var tds = td.size;
             
-            if (sp.Length != 0)
+            if (sp.Length != 0 && sp[0] != null)
             {
                 float tilingX = tds.x / sp[0].tileSize.x;
                 float tilingZ = tds.z / sp[0].tileSize.y;
@@ -1428,7 +1428,7 @@ namespace Playtime_Painter {
              "/{0}{1}.png".F(Cfg.texturesFolderName.AddPostSlashIfNotEmpty(), ImgData.SaveName);
 
         public string GenerateMeshSavePath() =>
-             meshFilter.sharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameHolder) : "None";
+             meshFilter.sharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameField) : "None";
 
         private bool OnBeforeSaveTexture(ImageData id)
         {
@@ -1499,9 +1499,7 @@ namespace Playtime_Painter {
             OnPostSaveTexture(id);
         }
 
-        public void SaveMesh()
-        {
-
+        public void SaveMesh() {
             var m = this.GetMesh();
             var path = AssetDatabase.GetAssetPath(m);
 
@@ -1509,17 +1507,14 @@ namespace Playtime_Painter {
             var folderPath = Application.dataPath + lastPart;
             Directory.CreateDirectory(folderPath);
 
-            try
-            {
-
+            try {
                 if (path.Length > 0)
                     meshFilter.sharedMesh = Instantiate(meshFilter.sharedMesh);
-
-
-                if (meshNameHolder.Length == 0)
-                    meshNameHolder = meshFilter.sharedMesh.name;
+                
+                if (meshNameField.Length == 0)
+                    meshNameField = meshFilter.sharedMesh.name;
                 else
-                    meshFilter.sharedMesh.name = meshNameHolder;
+                    meshFilter.sharedMesh.name = meshNameField;
 
                 AssetDatabase.CreateAsset(meshFilter.sharedMesh, "Assets{0}".F(GenerateMeshSavePath()));
 
@@ -1836,7 +1831,7 @@ namespace Playtime_Painter {
                 {
                     PainterDataAndConfig.toolEnabled = true;
 
-#if UNITY_EDITOR
+                    #if UNITY_EDITOR
                     enabled = true;
                     var cs = GetComponents(typeof(Component));
 
@@ -1847,7 +1842,7 @@ namespace Playtime_Painter {
                     UnityHelperFunctions.FocusOn(null);
                     PainterCamera.refocusOnThis = gameObject;
                     UnityHelperFunctions.HideUnityTool();
-#endif
+                    #endif
 
                     CheckPreviewShader();
                 }
@@ -1873,8 +1868,6 @@ namespace Playtime_Painter {
 
                 pegi.Lock_UnlockWindowClick(gameObject);
             }
-
-
 
             InitIfNotInitialized();
 
@@ -1929,7 +1922,7 @@ namespace Playtime_Painter {
 
             #endregion
 
-            if ((Cfg.showConfig) || (PainterStuff.IsNowPlaytimeAndDisabled))
+            if (Cfg.showConfig || PainterStuff.IsNowPlaytimeAndDisabled)
             {
                 pegi.newLine();
                 Cfg.Nested_Inspect();
@@ -2012,7 +2005,7 @@ namespace Playtime_Painter {
                                 if (MeshProfile.Inspect().nl())
                                     MeshMgmt.edMesh.Dirty = true;
 
-                                if ("Hint".foldout(ref VertexSolution.showHint).nl())
+                                if ("Hint".foldout(ref VertexContents.showHint).nl())
                                 {
                                     "If using projected UV, place sharpNormal in TANGENT.".writeHint();
                                     "Vectors should be placed in normal and tangent slots to batch correctly.".writeHint();

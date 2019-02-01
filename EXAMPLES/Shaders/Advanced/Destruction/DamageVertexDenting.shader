@@ -1,5 +1,5 @@
 ﻿
-Shader "Playtime Painter/Destructible/Character" {
+Shader "Playtime Painter/Geometry/Destructible/Character" {
 	Properties{
 		[NoScaleOffset]_MainTex("Damage Mask", 2D) = "black" {}
 		[NoScaleOffset]_Diffuse("Main", 2D) = "white" {}
@@ -20,7 +20,7 @@ Shader "Playtime Painter/Destructible/Character" {
 		}
 
 		LOD 200
-		ColorMask RGBA
+		ColorMask RGB
 
 
 		SubShader{

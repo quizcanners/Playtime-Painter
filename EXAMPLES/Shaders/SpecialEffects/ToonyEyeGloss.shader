@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/EyeGloss" {
+﻿Shader "Playtime Painter/Effects/EyeGloss" {
 	Properties{}
 
 	Category{
@@ -9,7 +9,7 @@
 		}
 
 		LOD 200
-		ColorMask RGBA
+		ColorMask RGB
 		ZWrite Off
 		Blend SrcAlpha One
 

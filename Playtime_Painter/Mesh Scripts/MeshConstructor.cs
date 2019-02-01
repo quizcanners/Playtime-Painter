@@ -40,7 +40,6 @@ namespace Playtime_Painter {
         Vector4[] edgeData;
         Vector3[] edgeWeightedOnly;
         Vector4[] shadowBake;
-        //Countless<vertexAnimationFrame> anims; // outer tree - animation no, inner - vertices
         int[] originalIndex;
 
         public MeshPackagingProfile profile;
@@ -174,8 +173,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public Vector3[] _normals {
-            get { if (normals == null) GenerateNormals(); return normals; } }
+        public Vector3[] _normals { get { if (normals == null) GenerateNormals(); return normals; } }
 
         public Vector3[] _sharpNormals { get { if (sharpNormals == null) GenerateNormals(); return sharpNormals; } }
 
@@ -317,8 +315,6 @@ namespace Playtime_Painter {
                         tri += 3;
 
                     }
-
-
 
                     for (int i = 0; i < (vertsCount); i++)
                     {
@@ -568,29 +564,20 @@ namespace Playtime_Painter {
 
         public bool Valid => ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); 
 
-        public void AssignMeshAsCollider(MeshCollider c)  {
-            c.sharedMesh = null;
-            c.sharedMesh = mesh;
-        }
+    
 
-        public void AssignMesh(GameObject go) {
-            AssignMesh(go.GetComponent<MeshFilter>(), go.GetComponent<MeshCollider>());
-
-        }
-
+        public void AssignMesh(GameObject go) => AssignMesh(go.GetComponent<MeshFilter>(), go.GetComponent<MeshCollider>());
+        
         public void AssignMesh(MeshFilter m, MeshCollider c) {
-            if ((tris == null) || (tris.TotalCount() < 3)) return;
-            if (m!= null)
-            m.sharedMesh = mesh;
-            if (c != null) {
+            if (tris.IsNullOrEmpty()) return;
+
+            if (m)
+                m.sharedMesh = mesh;
+
+            if (c) {
                 c.sharedMesh = null;
                 c.sharedMesh = m.sharedMesh;
             }
         }
     }
-
-    public enum MegavoxelRole { Solid, Damaged, Decorative }
-
-   
-
 }

@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Baked Shadows/Smoke Effect" {
+﻿Shader "Playtime Painter/Volumes/Baked Shadows/Smoke Effect" {
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}

@@ -108,7 +108,7 @@ namespace Playtime_Painter
 
             Redraw();
 
-            pntr.meshNameHolder = edMesh.meshName;
+            pntr.meshNameField = edMesh.meshName;
 
             InitVertsIfNUll();
 
@@ -168,31 +168,14 @@ namespace Playtime_Painter
                 }
                 else
                 {
-                    target.meshFilter.sharedMesh = mc.Construct();
-                    mc.AssignMeshAsCollider(target.meshCollider);
+                    var m = mc.Construct();
+                    target.meshFilter.sharedMesh = m;
+                    target.meshCollider.AssignMeshAsCollider(m);
                 }
 
             }
 
             edMesh.Dirty = false;
-
-            //  if (_meshTool == MeshTool.VertexAnimation)
-            //{
-            //UpdateAnimations(SaveAbleMesh sbm);
-            /*  int curFrame = _target.GetAnimationUVy();//getBaseDependencies().stretch_Monitor.curUVy;
-              MeshConstructionData svm = _target.saveMeshDta;
-              vertexAnimationFrame vaf = svm.anims[curFrame];
-              if (vaf != null)
-              {
-                  foreach (vertexpointDta vp in _Mesh.vertices)
-                      vaf.verts[ vp.index] = vp.anim[curFrame];
-
-                  svm.updateAnimation(curFrame);
-              }
-*/
-            //}
-
-            //  Debug.Log("Redraw ");
         }
 
         public static Vector2 RoundUVs(Vector2 source, float accuracy)
@@ -1055,11 +1038,17 @@ namespace Playtime_Painter
 
             pegi.newLine();
 
-            "Mesh Name:".edit(70, ref target.meshNameHolder);
+            "Mesh Name:".edit(70, ref target.meshNameField);
 
 #if UNITY_EDITOR
-            if (((AssetDatabase.GetAssetPath(target.GetMesh()).Length==0) || (String.Compare(target.meshNameHolder, target.GetMesh().name)!=0))  && 
-                (icon.Save.Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()),25).nl())) target.SaveMesh();
+            var mesh = target.GetMesh();
+
+            bool exists = AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+            
+            if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
+                target.SaveMesh();
+       
+            
 #endif
 
             pegi.newLine();

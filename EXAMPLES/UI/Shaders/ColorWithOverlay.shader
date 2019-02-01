@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/UI/ColorWithOverlay"
 {
 	Properties{
-		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_MainTex("Albedo (RGB)", 2D) = "black" {}
 		[NoScaleOffset]_Overlay("Overlay (RGB)", 2D) = "black" {}
 	
 	}
@@ -12,7 +12,7 @@
 			"RenderType" = "Transparent"
 		}
 
-		ColorMask RGBA
+		ColorMask RGB
 		Cull Off
 		ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha

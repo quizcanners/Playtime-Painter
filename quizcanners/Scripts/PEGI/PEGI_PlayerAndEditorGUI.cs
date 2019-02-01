@@ -7376,11 +7376,24 @@ namespace PlayerAndEditorGUI {
 
             bool gotLabel = !label.IsNullOrEmpty();
 
-            if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
+
+            if (obj as UnityEngine.Object)
+            {
+
+                if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
+                {
+                    obj.NameForPEGI = n;
+                    return change;
+                }
+            } else
+
+
+            if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
                 return change;
             }
+
             return false;
         }
         #endregion

@@ -7,13 +7,14 @@ using PlayerAndEditorGUI;
 
 namespace Playtime_Painter
 {
+
+    [ExecuteInEditMode]
     public abstract class CoordinatePickerBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler {
 
 
         static CoordinatePickerBase currentPicker;
-
-       // [NonSerialized]
-        public bool mouseDown = false;
+        
+        [NonSerialized] public bool mouseDown = false;
 
         bool Down { get { return mouseDown; }
             set {
@@ -41,17 +42,12 @@ namespace Playtime_Painter
 
         public void OnPointerUp(PointerEventData eventData) => Down = false;
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-           // if (currentPicker && currentPicker != this)
-             //   currentPicker.Down = false;
-        }
+        public void OnPointerEnter(PointerEventData eventData) {  }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             if (Down)
                 DataUpdate(eventData);
-           // Down = false;
         }
         
         bool DataUpdate(PointerEventData eventData)

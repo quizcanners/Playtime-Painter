@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -10,7 +8,8 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [CustomEditor(typeof(PlaytimePainter))]
-    public class PlaytimePainterClassDrawer : PEGI_Editor<PlaytimePainter> {
+    public class PlaytimePainterClassDrawer : PEGI_Editor<PlaytimePainter>
+    {
 
         public bool AllowEditing(PlaytimePainter targ) => targ && (!targ.LockTextureEditing || targ.IsEditingThisMesh);
         
@@ -177,6 +176,13 @@ namespace Playtime_Painter {
         
         public Vector2 mousePosition;
         public Ray rayGUI = new Ray();
+
+        public override void OnInspectorGUI()
+        {
+            painter = (PlaytimePainter)target;
+
+            base.OnInspectorGUI();
+        }
 
     }
 #endif

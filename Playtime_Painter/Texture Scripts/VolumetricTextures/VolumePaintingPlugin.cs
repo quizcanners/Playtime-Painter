@@ -53,10 +53,10 @@ namespace Playtime_Painter
             _inst = this;
 
             if (preview == null)
-                preview = Shader.Find("Playtime Painter/Preview/Volume");
+                preview = Shader.Find("Playtime Painter/Editor/Preview/Volume");
 
             if (brush == null)
-                brush = Shader.Find("Playtime Painter/Brush/Volume");
+                brush = Shader.Find("Playtime Painter/Editor/Brush/Volume");
 #if PEGI
             PlugIn_PainterComponent = Component_PEGI;
 

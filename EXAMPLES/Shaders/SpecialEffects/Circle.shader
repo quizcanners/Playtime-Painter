@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Basic/Circle_Additive" {
+﻿Shader "Playtime Painter/Effects/Circle_Additive" {
 	Properties{
 		_Color("Color", Color) = (1,1,1,1)
 		_Hardness("Hardness", Range(1,16)) = 2
@@ -25,7 +25,6 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0

@@ -10,12 +10,14 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
-
     [CustomEditor(typeof(GodMode))]
     public class GodModeDrawer : PEGI_Editor<GodMode> {}
     
     [CustomEditor(typeof(PixelPerfectUVupdate))]
     public class PixelPerfectUVupdateEditor : PEGI_Editor<PixelPerfectUVupdate> { }
+
+    [CustomEditor(typeof(PixelPerfcetUVmeshData))]
+    public class PixelPerfcetUVmeshDataDrawer : PEGI_Editor<PixelPerfcetUVmeshData> { }
 
     [CustomEditor(typeof(PixelArtMeshGenerator))]
     public class PixelArtMeshGeneratorEditor : PEGI_Editor<PixelArtMeshGenerator> { }

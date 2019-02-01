@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Bevel/Pixelated" {
+﻿Shader "Playtime Painter/Geometry/Bevel/Pixelated" {
 	Properties{
 		_MainTex("Base texture", 2D) = "white" {}
 	}

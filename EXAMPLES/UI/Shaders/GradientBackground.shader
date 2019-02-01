@@ -16,7 +16,7 @@
 			"IgnoreProjector" = "True"
 		}
 
-		ColorMask RGBA
+		ColorMask RGB
 		Cull Off
 		ZWrite Off
 		ZTest Off

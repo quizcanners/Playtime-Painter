@@ -1,11 +1,11 @@
-﻿Shader "PlaytimePainter/Effects/RoundLightRaysAnimated" {
+﻿Shader "Playtime Painter/Effects/RoundLightRaysAnimated" {
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "white" {}
 	}
 
 		Category{
 
-			ColorMask RGBA
+			ColorMask RGB
 			Cull Off
 			ZWrite Off
 			Blend SrcAlpha OneMinusSrcAlpha
@@ -26,7 +26,6 @@
 
 					#pragma vertex vert
 					#pragma fragment frag
-					#pragma multi_compile_fog
 					#pragma multi_compile_fwdbase
 					#pragma multi_compile_instancing
 					#pragma target 3.0

@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Preview/Terrain" {
+﻿Shader "Playtime Painter/Editor/Preview/Terrain" {
 	Category{
         Tags { 
 		"RenderType" = "Opaque"

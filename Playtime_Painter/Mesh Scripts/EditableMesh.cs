@@ -16,10 +16,9 @@ namespace Playtime_Painter {
 
     public class EditableMesh : PainterStuff_STD, IPEGI {
 
-        // Could give each vertex a unique index and Use Countless class to store new data for it.
-
-        public bool Dirty { get { return 
-                    dirty_Vertices || dirty_Color || dirty_Normals || dirty_Position;
+        public bool Dirty {
+            get {
+                return  dirty_Vertices || dirty_Color || dirty_Normals || dirty_Position;
             } set {
                 dirty_Vertices = value;
                 dirty_Color = value;
@@ -104,36 +103,27 @@ namespace Playtime_Painter {
 
         public void RemoveEmptyDots()
         {
-            foreach (MeshPoint v in meshPoints)
-            {
-                foreach (Vertex uv in v.uvpoints)
-                {
+            foreach (var v in meshPoints)
+                foreach (var uv in v.uvpoints)
                     uv.HasVertex = false;
-                }
-            }
-            foreach (Triangle t in triangles)
-            {
-                foreach (Vertex uv in t.vertexes) { uv.HasVertex = true; }
-            }
-
-            foreach (MeshPoint v in meshPoints)
-            {
+                
+            foreach (var t in triangles)
+                foreach (var uv in t.vertexes)
+                    uv.HasVertex = true; 
+            
+            foreach (var v in meshPoints)
                 for (int i = 0; i < v.uvpoints.Count; i++)
-                    if (v.uvpoints[i].HasVertex == false)
-                    {
+                    if (!v.uvpoints[i].HasVertex)  {
                         v.uvpoints.RemoveAt(i);
                         i--;
                     }
-            }
-
+            
             for (int i = 0; i < meshPoints.Count; i++)
-            {
-                if (meshPoints[i].uvpoints.Count == 0)
-                {
+                if (meshPoints[i].uvpoints.Count == 0) {
                     meshPoints.RemoveAt(i);
                     i--;
                 }
-            }
+            
         }
 
         public MeshPoint GetClosestToPos(Vector3 pos)
@@ -196,7 +186,6 @@ namespace Playtime_Painter {
         List<MeshPoint> sortVertsClose = new List<MeshPoint>();
         List<MeshPoint> sortVertsFar = new List<MeshPoint>();
         public CountlessSTD<Vertex> uvsByFinalIndex = new CountlessSTD<Vertex>();
-
         
         public Vertex selectedUV;
         

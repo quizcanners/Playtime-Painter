@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/TMPro_Perspective" {
+﻿Shader "Playtime Painter/UI/Text/TMPro_Perspective" {
 
 	Properties{
 		_FaceColor("Face Color", Color) = (1,1,1,1)

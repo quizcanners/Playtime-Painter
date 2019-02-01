@@ -63,7 +63,7 @@ namespace Playtime_Painter.Examples
                 Vector2 scale = rectTransform.rect.size;
                 scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
 
-                material.SetVector("_ProjTexPos", pos.ToVector4(scale));//rectTransform.rect.size));
+                material.SetVector("_ProjTexPos", pos.ToVector4(scale));
             }
         }
 

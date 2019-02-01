@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Brush/BlurN_Smudge" {
+﻿Shader "Playtime Painter/Editor/Brush/BlurN_Smudge" {
 
 	Category{
 		Tags{ "Queue" = "Transparent"}

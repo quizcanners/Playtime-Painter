@@ -545,23 +545,23 @@ namespace Playtime_Painter
 
             CheckShader(ref brushRendy_bufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
 
-            CheckShader(ref br_Blit,                "Playtime Painter/Brush/Blit",                      forceReload);
+            CheckShader(ref br_Blit,                "Playtime Painter/Editor/Brush/Blit",                      forceReload);
 
-            CheckShader(ref br_Add,                 "Playtime Painter/Brush/Add",                       forceReload);
+            CheckShader(ref br_Add,                 "Playtime Painter/Editor/Brush/Add",                       forceReload);
 
-            CheckShader(ref br_Copy,                "Playtime Painter/Brush/Copy",                      forceReload);
+            CheckShader(ref br_Copy,                "Playtime Painter/Editor/Brush/Copy",                      forceReload);
 
-            CheckShader(ref br_Multishade,          "Playtime Painter/Brush/DoubleBuffer",              forceReload);
+            CheckShader(ref br_Multishade,          "Playtime Painter/Editor/Brush/DoubleBuffer",              forceReload);
 
-            CheckShader(ref br_BlurN_SmudgeBrush,   "Playtime Painter/Brush/BlurN_Smudge",              forceReload);
+            CheckShader(ref br_BlurN_SmudgeBrush,   "Playtime Painter/Editor/Brush/BlurN_Smudge",              forceReload);
 
             CheckShader(ref br_ColorFill,           "Playtime Painter/Buffer Blit/Color Fill",          forceReload);
 
-            CheckShader(ref br_Preview,             "Playtime Painter/Preview/Brush",                   forceReload);
+            CheckShader(ref br_Preview,             "Playtime Painter/Editor/Preview/Brush",                   forceReload);
 
-            CheckShader(ref mesh_Preview,           "Playtime Painter/Preview/Mesh",                    forceReload);
+            CheckShader(ref mesh_Preview,           "Playtime Painter/Editor/Preview/Mesh",                    forceReload);
 
-            CheckShader(ref TerrainPreview,         "Playtime Painter/Preview/Terrain",                 forceReload);
+            CheckShader(ref TerrainPreview,         "Playtime Painter/Editor/Preview/Terrain",                 forceReload);
         }
 
         void CheckShader(ref Shader shade, string path, bool forceReload = false) {

@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Preview/Mesh" {
+﻿Shader "Playtime Painter/Editor/Preview/Mesh" {
 	Properties {
 		_MainTex("_MainTex", 2D) = "white" {}
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
