@@ -183,7 +183,7 @@ namespace QuizCannersUtilities {
 
     public class STD_SimpleReferenceHolder : ISTD_SerializeNestedReferences {
 
-        [SerializeField] public List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
+        [SerializeField] public readonly List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
         public virtual int GetISTDreferenceIndex(UnityEngine.Object obj) => _nestedReferences.TryGetIndexOrAdd(obj);
 
         public virtual T GetISTDreferenced<T>(int index) where T : UnityEngine.Object => _nestedReferences.TryGet(index) as T;
@@ -300,22 +300,22 @@ namespace QuizCannersUtilities {
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tag, string data);
 
-        public LoopLock GetLoopLock => loopLock_std;
+        public LoopLock GetLoopLock => _loopLockStd;
 
-        public LoopLock loopLock_std = new LoopLock();
+        private readonly LoopLock _loopLockStd = new LoopLock();
 
         public virtual bool IsDefault => false;
     }
 
     public abstract class AbstractKeepUnrecognized_STD : Abstract_STD, IKeepUnrecognizedSTD {
 
-        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
-        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+        private readonly UnrecognizedTags_List _uTags = new UnrecognizedTags_List();
+        public UnrecognizedTags_List UnrecognizedSTD => _uTags;
 
-#if !UNITY_EDITOR
+        #if !UNITY_EDITOR
         [NonSerialized]
-#endif
-        public ISTD_ExplorerData explorer = new ISTD_ExplorerData();
+        #endif
+        private readonly ISTD_ExplorerData _explorer = new ISTD_ExplorerData();
         
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
@@ -330,15 +330,15 @@ namespace QuizCannersUtilities {
 
         #if PEGI
         public virtual bool Inspect() {
-            bool changed = false;
+            var changed = false;
 
             if (icon.Debug.enter(ref inspectedStuff, 0)) {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
                 this.CopyPasteSTD_PEGI().nl(ref changed);
 
-                explorer.Inspect(this);
-                changed |= uTags.Nested_Inspect();
+                _explorer.Inspect(this);
+                changed |= _uTags.Nested_Inspect();
             }
 
             return changed;
@@ -373,7 +373,7 @@ namespace QuizCannersUtilities {
         [ContextMenu("Reset Inspector")]
         void Reset() => ResetInspector();
 
-        public virtual void ResetInspector()
+        protected virtual void ResetInspector()
         {
             inspectedDebugStuff = -1;
             inspectedStuff = -1;
@@ -383,7 +383,7 @@ namespace QuizCannersUtilities {
         
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = false;
+            var changed = false;
             var n = gameObject.name;
             if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
@@ -400,18 +400,20 @@ namespace QuizCannersUtilities {
         int inspectedDebugStuff = -1;
         public virtual bool Inspect() {
 
-            bool changed = false;
+            var changed = false;
 
             if (inspectedStuff == -1)
                 pegi.Lock_UnlockWindowClick(gameObject);
 
            if (icon.Debug.enter(ref inspectedStuff, 0)) {
-
+                
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
 
                 this.CopyPasteSTD_PEGI().nl(ref changed);
 
+                pegi.toggleDefaultInspector().nl();
+                
                 "{0} Debug ".F(this.ToPEGIstring()).nl();
 
                 if (("STD Saves: " + explorer.states.Count).enter(ref inspectedDebugStuff, 0).nl_ifNotEntered())
@@ -437,8 +439,8 @@ namespace QuizCannersUtilities {
 
                 if (inspectedStuff == -1)
                     pegi.nl();
-
             }
+           
             return changed;
         }
         #endif
@@ -450,7 +452,7 @@ namespace QuizCannersUtilities {
 
         public virtual bool IsDefault => false;
 
-        protected List_Data references_Meta = new List_Data("References");
+        protected readonly List_Data references_Meta = new List_Data("References");
 
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> _nestedReferences = new List<UnityEngine.Object>();
@@ -465,9 +467,17 @@ namespace QuizCannersUtilities {
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
         
-        public abstract bool Decode(string tag, string data);
+        public virtual bool Decode(string tag, string data)
+        {
+            switch (tag) {
+                case "db": inspectedStuff = data.ToInt(); break;
+                default: return false;
+            }
+            return true;
+        }
 
-        public abstract StdEncoder Encode();
+        public virtual StdEncoder Encode() => this.EncodeUnrecognized()
+            .Add_IfNotNegative("db", inspectedStuff);
 
         public virtual void Decode(string data) {
             uTags.Clear();
@@ -597,8 +607,6 @@ namespace QuizCannersUtilities {
 
 
         public static void Add (this List<UnrecognizedTags_List.UnrecognizedElement> lst, List<string> tags, string data) {
-
-
 
             var exst = lst.GetByIGotName(tags[0]);
             if (exst != null)

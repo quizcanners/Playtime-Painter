@@ -523,14 +523,15 @@ namespace QuizCannersUtilities {
         
         public abstract class BASE_ShaderValue : BASE_AnyValue, IGotName {
 
-            protected string name;
+            //protected ShaderProperty.BaseIndexHolder _property; 
             public Material material;
             public Renderer rendy;
+            protected string _name;
 
             protected Material Material => material ? material : rendy.MaterialWhaever(); 
 
-            protected override string Name => name;
-            public string NameForPEGI { get { return name;  } set { name = value;  } }
+            protected override string Name => _name;
+            public string NameForPEGI { get { return _name;  } set { _name = value;  } }
 
             public override sealed bool Lerp_Internal(float linkedPortion) {
                 if (Lerp_SubInternal(linkedPortion))
@@ -546,8 +547,7 @@ namespace QuizCannersUtilities {
   
             public abstract void Set(Material on);
 
-            public BASE_ShaderValue(string nname, float startingSpeed = 1, Material m = null, Renderer renderer = null) {
-                name = nname;
+            public BASE_ShaderValue(float startingSpeed = 1, Material m = null, Renderer renderer = null) {
                 speedLimit = startingSpeed;
                 material = m;
                 rendy = renderer;
@@ -726,34 +726,38 @@ namespace QuizCannersUtilities {
         #region Material
         public class MaterialFloat : BASE_ShaderValue {
 
-            public float value;
+            ShaderProperty.FloatValue property;
+            public float Value => property.lastValue;
+
             public float targetValue;
 
             public override void Set(Material mat) {
                 if (mat)
-                    mat.SetFloat(name, value);
+                    mat.Set(property);
                 else
-                    Shader.SetGlobalFloat(name, value);
+                    property.GlobalValue = property.lastValue; //Shader.SetGlobalFloat(name, value);
             }
 
-            public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Renderer renderer = null, Material m = null) : base(nname, startingSpeed, m, renderer)
+            public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Renderer renderer = null, Material m = null) : base(startingSpeed, m, renderer)
             {
-                value = startingValue;
+                property = new ShaderProperty.FloatValue(nname);
+
+                property.GlobalValue = startingValue;
             }
             
             public override bool Portion(ref float linkedPortion) =>
-                speedLimit.SpeedToMinPortion(value - targetValue, ref linkedPortion);
+                speedLimit.SpeedToMinPortion(property.lastValue - targetValue, ref linkedPortion);
 
             protected override bool Lerp_SubInternal(float portion) {
-                if (Enabled && (value != targetValue || !defaultSet)) {
-                    value = Mathf.Lerp(value, targetValue, portion);
+                if (Enabled && (property.lastValue != targetValue || !defaultSet)) {
+                    property.lastValue = Mathf.Lerp(property.lastValue, targetValue, portion);
                     return true;
                 }
                 return false;
             }
 
             #region Inspector
-#if PEGI
+            #if PEGI
 
             public override bool Inspect()
             {
@@ -761,13 +765,13 @@ namespace QuizCannersUtilities {
 
                 "Target".edit(70, ref targetValue).nl(ref changed);
 
-                if ("Value".edit(ref value).nl(ref changed))
+                if ("Value".edit(ref property.lastValue).nl(ref changed))
                     Set();
 
                 return changed;
             }
 
-#endif
+            #endif
             #endregion
 
 
@@ -775,31 +779,33 @@ namespace QuizCannersUtilities {
         
         public class MaterialColor : BASE_ShaderValue {
 
-            public Color value;
+            ShaderProperty.ColorValue property;
             public Color targetValue;
 
             public override void Set(Material mat) {
                 if (mat)
-                    mat.SetColor(name, value);
+                    mat.Set(property);
                 else
-                    Shader.SetGlobalColor(name, value);
+                    property.GlobalValue = property.lastValue;
             }
 
-            public MaterialColor(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(nname, startingSpeed, m, renderer)
+            public MaterialColor(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
-                value = startingValue;
+                property = new ShaderProperty.ColorValue(nname);
+
+                property.lastValue = startingValue;
             }
 
             protected override bool Lerp_SubInternal(float portion) {
-                if (value != targetValue || !defaultSet)  {
-                    value = Color.Lerp(value, targetValue, portion);
+                if (property.lastValue != targetValue || !defaultSet)  {
+                    property.lastValue = Color.Lerp(property.lastValue, targetValue, portion);
                     return true;
                 }
                 return false;
             }
 
             public override bool Portion(ref float portion) =>
-                speedLimit.SpeedToMinPortion(value.DistanceRGBA(targetValue), ref portion);
+                speedLimit.SpeedToMinPortion(property.lastValue.DistanceRGBA(targetValue), ref portion);
 
         }
         

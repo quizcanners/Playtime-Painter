@@ -27,22 +27,25 @@ namespace PlayerAndEditorGUI {
         static int selectedFold = -1;
         static int elementIndex;
         public static SerializedObject serObj;
+        static Editor _editor;
 
-        static bool DefaultInspector(Editor editor)
-        {
-            BeginCheckLine();
-            editor.DrawDefaultInspector();
-            return EndCheckLine();
+        public static bool DefaultInspector() {
+            if (!_editor) return false;
+
+            newLine();
+
+            EditorGUI.BeginChangeCheck();
+            _editor.DrawDefaultInspector();
+            return EditorGUI.EndChangeCheck();
+
         }
 
         public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
         {
+            _editor = editor;
 
-            //if (PEGI_Editor_Base.drawDefaultInspector)
-               //return DefaultInspector(editor);
-
-            T o = (T)editor.target;
-            SerializedObject so = editor.serializedObject;
+            var o = (T)editor.target;
+            var so = editor.serializedObject;
 
             if (o.gameObject.IsPrefab())
                 return false;
@@ -51,7 +54,7 @@ namespace PlayerAndEditorGUI {
             if (pgi != null)
             {
                 start(so);
-                bool changed = pgi.Inspect();
+                var changed = pgi.Inspect();
                 end(o.gameObject);
                 return changed;
             }
@@ -62,12 +65,10 @@ namespace PlayerAndEditorGUI {
 
         public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
         {
+            _editor = editor;
 
-           // if (PEGI_Editor_Base.drawDefaultInspector)
-            //    return DefaultInspector(editor);
-
-            T o = (T)editor.target;
-            SerializedObject so = editor.serializedObject;
+            var o = (T)editor.target;
+            var so = editor.serializedObject;
 
             var pgi = o as IPEGI;
             if (pgi != null)
@@ -81,6 +82,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+
 
         static void start(SerializedObject so)
         {
@@ -145,9 +147,9 @@ namespace PlayerAndEditorGUI {
             }
         }
         
-        static bool isFoldedOut { get { return pegi.isFoldedOut_or_Entered; } set { pegi.isFoldedOut_or_Entered = value; } }
+        private static bool IsFoldedOut { get { return pegi.isFoldedOut_or_Entered; } set { pegi.isFoldedOut_or_Entered = value; } }
 
-        static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut") {
+        private static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut") {
 
             var cnt = new GUIContent
             {
@@ -155,66 +157,56 @@ namespace PlayerAndEditorGUI {
                 tooltip = hint
             };
 
-            //  if (foldedOut)
-            //    cnt.image = icon.FoldedOut.getIcon();
-
-            if (foldedOut)
-                return EditorGUILayout.Foldout(foldedOut, cnt, true);//, PEGI_Styles.FoldedOutLabel);
-
-            else
-                return EditorGUILayout.Foldout(foldedOut, cnt, true);
-
-
-
+            return EditorGUILayout.Foldout(foldedOut, cnt, true);
         }
 
         public static bool foldout(string txt, ref bool state)
         {
             checkLine();
             state = StylizedFoldOut(state, txt);
-            if (isFoldedOut != state)
+            if (IsFoldedOut != state)
                 Dirty(true);
-            isFoldedOut = state;
-            return isFoldedOut;
+            IsFoldedOut = state;
+            return IsFoldedOut;
         }
 
         public static bool foldout(string txt, ref int selected, int current)
         {
             checkLine();
 
-            isFoldedOut = (selected == current);
+            IsFoldedOut = (selected == current);
 
-            if (StylizedFoldOut(isFoldedOut, txt))
+            if (StylizedFoldOut(IsFoldedOut, txt))
                 selected = current;
             else
-                if (isFoldedOut) selected = -1;
+                if (IsFoldedOut) selected = -1;
 
 
-            if (isFoldedOut != (selected == current))
+            if (IsFoldedOut != (selected == current))
                 Dirty(true);
 
-            isFoldedOut = selected == current;
+            IsFoldedOut = selected == current;
 
-            return isFoldedOut;
+            return IsFoldedOut;
         }
         
         public static bool foldout(string txt)
         {
             checkLine();
 
-            isFoldedOut = foldout(txt, ref selectedFold, elementIndex);
+            IsFoldedOut = foldout(txt, ref selectedFold, elementIndex);
 
             elementIndex++;
 
-            return isFoldedOut;
+            return IsFoldedOut;
         }
 
         public static bool select<T>(ref int no, List<T> lst, int width)
         {
             checkLine();
 
-            List<string> lnms = new List<string>();
-            List<int> indxs = new List<int>();
+            var lnms = new List<string>();
+            var indxs = new List<int>();
 
             int jindx = -1;
 

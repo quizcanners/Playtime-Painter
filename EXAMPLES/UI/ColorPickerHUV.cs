@@ -19,9 +19,9 @@ namespace Playtime_Painter {
         
         public static void UpdateBrushColor() {
             
-            float val = value * 6;
+            var val = value * 6;
 
-            Color col = Color.black;
+            var col = Color.black;
 
             col.r = ApplyVeryTrickyColorConversion(val);
 

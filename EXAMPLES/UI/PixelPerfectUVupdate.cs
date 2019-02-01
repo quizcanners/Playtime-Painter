@@ -59,7 +59,11 @@ namespace Playtime_Painter.Examples
             {
                 var pos = RectTransformUtility.WorldToScreenPoint(Application.isPlaying ? mainCamera : null, rectTransform.position);
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
-                material.SetVector("_ProjTexPos", pos.ToVector4(rectTransform.rect.size));
+                
+                Vector2 scale = rectTransform.rect.size;
+                scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
+
+                material.SetVector("_ProjTexPos", pos.ToVector4(scale));//rectTransform.rect.size));
             }
         }
 

@@ -307,6 +307,20 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
+        public static bool DrawDefaultInspector()
+        {
+            nl();
+
+            #if UNITY_EDITOR
+
+
+            if (!paintingPlayAreaGUI)
+                    return ef.DefaultInspector();
+            #endif
+
+            return false;
+        }
+
         public static void checkLine()
         {
             #if UNITY_EDITOR
@@ -3960,6 +3974,18 @@ namespace PlayerAndEditorGUI {
 
         #region Color
 
+        public static bool edit(ref Color32 col)
+        {
+            Color tcol = col;
+            if (edit(ref tcol))
+            {
+                col = tcol;
+                return true;
+            }
+            return false;
+        }
+
+
         public static bool edit(ref Color col)
         {
 #if UNITY_EDITOR
@@ -6600,6 +6626,18 @@ namespace PlayerAndEditorGUI {
 
         static IList listElementsRoles = null;
 
+        static Color lambda_Color(Color val)
+        {
+            edit(ref val);
+            return val;
+        }
+
+        static Color32 lambda_Color(Color32 val)
+        {
+            edit(ref val);
+            return val;
+        }
+        
         static int lambda_int(int val)
         {
             edit(ref val);
@@ -6636,6 +6674,12 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit_List(this string label, ref List<int> list) =>
             label.edit_List(ref list, lambda_int);
+
+        public static bool edit_List(this string label, ref List<Color> list) =>
+            label.edit_List(ref list, lambda_Color);
+
+        public static bool edit_List(this string label, ref List<Color32> list) =>
+            label.edit_List(ref list, lambda_Color);
 
         public static bool edit_List(this string label, ref List<string> list) =>
          label.edit_List(ref list, lambda_string);

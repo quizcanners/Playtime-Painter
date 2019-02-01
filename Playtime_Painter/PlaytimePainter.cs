@@ -2447,7 +2447,7 @@ namespace Playtime_Painter {
                                 id = ImgData;
 
                                 #if UNITY_EDITOR
-                                var orig = null;
+                                string orig = null;
                                 if (id.texture2D)
                                 {
                                     orig = id.texture2D.GetPathWithout_Assets_Word();
@@ -2468,11 +2468,11 @@ namespace Playtime_Painter {
                                     if (!id.SaveName.SameAs(id.texture2D.name) && icon.Refresh.Click("Use current texture name ({0})".F(id.texture2D.name)))
                                         id.SaveName = id.texture2D.name;
 
-                                    var DestPath =           GenerateTextureSavePath();
-                                    var existsAtDestination =  TextureExistsAtDestinationPath();
-                                    var originalExists =       !orig.IsNullOrEmpty();
-                                    var sameTarget =           originalExists && orig.Equals(DestPath);
-                                    var sameTextureName =      originalExists && id.texture2D.name.Equals(id.SaveName);
+                                    var DestPath =              GenerateTextureSavePath();
+                                    var existsAtDestination =   TextureExistsAtDestinationPath();
+                                    var originalExists =        !orig.IsNullOrEmpty();
+                                    var sameTarget =            originalExists && orig.Equals(DestPath);
+                                    var sameTextureName =       originalExists && id.texture2D.name.Equals(id.SaveName);
 
 
                                     if (!existsAtDestination || sameTextureName)
@@ -2665,7 +2665,7 @@ namespace Playtime_Painter {
         }
 #endif
 
-        public void PreviewShader_StrokePosition_Update()
+        private void PreviewShader_StrokePosition_Update()
         {
             CheckPreviewShader();
             if (!IsOriginalShader)

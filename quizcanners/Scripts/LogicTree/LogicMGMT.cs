@@ -74,12 +74,12 @@ namespace STD_Logic
         #region Inspector
         #if PEGI
 
-        public override void ResetInspector() {
+        protected override void ResetInspector() {
             inspectedTriggerGroup = -1;
             base.ResetInspector();
         }
 
-        public virtual void InspectionTabs() {
+        protected virtual void InspectionTabs() {
             icon.Condition.toggle("Trigger groups", ref inspectedStuff, 1);
             icon.Close.toggle("Close All", ref inspectedStuff, -1);
         }

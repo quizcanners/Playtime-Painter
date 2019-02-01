@@ -37,7 +37,7 @@
 					float4 pos : SV_POSITION;
 					float3 worldPos : TEXCOORD0;
 					float3 normal : TEXCOORD1;
-					float4 texcoord : TEXCOORD2;
+					float2 texcoord : TEXCOORD2;
 					float4 screenPos : TEXCOORD5;
 					float4 color: COLOR;
 				};
@@ -59,8 +59,8 @@
 					o.screenPos = ComputeScreenPos(o.pos);
 					o.color = v.color;
 
-					float2 scale = _ProjTexPos.zw;//_MainTex_TexelSize.zw;
-					o.texcoord.zw = float2 (max(0, (scale.x - scale.y) / scale.x), max(0, (scale.y - scale.x) / scale.y));
+					//float2 scale = _ProjTexPos.zw;//_MainTex_TexelSize.zw;
+					//o.texcoord.zw = float2 (max(0, (scale.x - scale.y) / scale.x), max(0, (scale.y - scale.x) / scale.y));
 
 					return o;
 				}
@@ -81,7 +81,7 @@
 					// Rounded Courners
 					float _Blur = (1 - i.color.a);
 					float2 uv = abs(i.texcoord.xy - 0.5) * 2;
-					uv = max(0, uv - i.texcoord.zw) / (1 - i.texcoord.zw) - _Courners;
+					uv = max(0, uv - _ProjTexPos.zw) / (1 - _ProjTexPos.zw) - _Courners;
 					float deCourners = 1 - _Courners;
 					uv = max(0, uv) / deCourners;
 					uv *= uv;
