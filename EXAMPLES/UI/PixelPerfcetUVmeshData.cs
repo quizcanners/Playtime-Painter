@@ -67,7 +67,11 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
         var mat = material;
         if ("Material".edit(90, ref mat).nl(ref changed))
             material = mat;
-        
+
+        var rt = raycastTarget;
+        if ("Raycast Target".toggleIcon(ref rt).nl(ref changed))
+            raycastTarget = rt;
+
         var sp = sprite;
         if ("Sprite".edit(90, ref sp).nl(ref changed))
             sprite = sp;

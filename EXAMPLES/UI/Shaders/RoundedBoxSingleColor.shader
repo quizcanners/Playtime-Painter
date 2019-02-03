@@ -5,9 +5,10 @@
 	}
 	Category{
 		Tags{
-			"Queue" = "Transparent-250"
+			"Queue" = "Transparent+10"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
+			"PixelPerfectUI" = "Position"
 		}
 
 		ColorMask RGB

@@ -4,8 +4,8 @@
 	}
 	Category{
 		Tags{
-			"Queue" = "Transparent-500"
-			"RenderType" = "Transparent"
+			"Queue" = "Geometry"
+			"IgnoreProjector" = "True"
 			"PixelPerfectUI" = "Position"
 		}
 
