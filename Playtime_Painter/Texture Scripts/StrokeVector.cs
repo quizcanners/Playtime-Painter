@@ -126,17 +126,11 @@ namespace Playtime_Painter {
 
         public void SetWorldPosInShader()
         {
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, new Vector4(posFrom.x, posFrom.y, posFrom.z, 0));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude));
+           PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = new Vector4(posFrom.x, posFrom.y, posFrom.z, 0);
+            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude);
         }
 
         public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.orthoSize).ToVector3(10);
-
-        /*{  
-			Vector2 v2 = ((uv)*2 - Vector2.one) * PainterCamera.orthoSize;
-
-			return new Vector3 (v2.x, v2.y, 10);
-        }*/
 
         public  Vector3 BrushWorldPosition => BrushWorldPositionFrom(uvTo);
         

@@ -355,11 +355,15 @@ namespace Playtime_Painter {
 
             //previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
 
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_POINTED_UV, st.uvTo.ToVector4(0, previewAlpha));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_FROM, prevPosPreview.ToVector4(size));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_WORLD_POS_TO, st.posTo.ToVector4((st.posTo - prevPosPreview).magnitude)); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, previewAlpha);
+            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = prevPosPreview.ToVector4(size);
+            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
             prevPosPreview = st.posTo;
         }
+
+        ShaderProperty.TextureValue decal_HeightProperty = new ShaderProperty.TextureValue("_VolDecalHeight");
+        ShaderProperty.TextureValue decal_OverlayProperty = new ShaderProperty.TextureValue("_VolDecalOverlay");
+        ShaderProperty.VectorValue decal_ParametersProperty = new ShaderProperty.VectorValue("_DecalParameters");
 
         public void Shader_UpdateDecal(BrushConfig brush)
         {
@@ -368,13 +372,21 @@ namespace Playtime_Painter {
 
             if (vd != null)
             {
-                Shader.SetGlobalTexture("_VolDecalHeight", vd.heightMap);
-                Shader.SetGlobalTexture("_VolDecalOverlay", vd.overlay);
-                Shader.SetGlobalVector("_DecalParameters", new Vector4(brush.decalAngle * Mathf.Deg2Rad, (vd.type == VolumetricDecalType.Add) ? 1 : -1,
-                        Mathf.Clamp01(brush.speed / 10f), 0));
+                decal_HeightProperty.GlobalValue = vd.heightMap;
+                decal_OverlayProperty.GlobalValue = vd.overlay;
+                decal_ParametersProperty.GlobalValue = new Vector4(brush.decalAngle * Mathf.Deg2Rad, (vd.type == VolumetricDecalType.Add) ? 1 : -1,
+                        Mathf.Clamp01(brush.speed / 10f), 0);
             }
 
         }
+
+        ShaderProperty.VectorValue brushColor_Property = new ShaderProperty.VectorValue("_brushColor");
+        ShaderProperty.VectorValue brushMask_Property = new ShaderProperty.VectorValue("_brushMask");
+        ShaderProperty.TextureValue sourceMask_Property = new ShaderProperty.TextureValue("_SourceMask");
+        ShaderProperty.VectorValue maskDynamics_Property = new ShaderProperty.VectorValue("_maskDynamics");
+        ShaderProperty.VectorValue maskOffset_Property = new ShaderProperty.VectorValue("_maskOffset");
+        ShaderProperty.VectorValue brushForm_Property = new ShaderProperty.VectorValue("_brushForm");
+        ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
 
         public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageData id, PlaytimePainter pntr)
         {
@@ -386,56 +398,46 @@ namespace Playtime_Painter {
             bool is3Dbrush = brush.IsA3Dbrush(pntr);
             bool isDecal = (RendTex) && (brushType.IsUsingDecals);
 
-            Color c = brush.colorLinear.ToGamma();
+            //Color c = brush.colorLinear.ToGamma();
 
-            Shader.SetGlobalVector("_brushColor", c);
+            brushColor_Property.GlobalValue = brush.colorLinear.ToGamma();
 
-            Shader.SetGlobalVector("_brushMask", new Vector4(
+            brushMask_Property.GlobalValue = new Vector4(
                 brush.mask.GetFlag(BrushMask.R) ? 1 : 0,
                 brush.mask.GetFlag(BrushMask.G) ? 1 : 0,
                 brush.mask.GetFlag(BrushMask.B) ? 1 : 0,
-                brush.mask.GetFlag(BrushMask.A) ? 1 : 0));
+                brush.mask.GetFlag(BrushMask.A) ? 1 : 0);
 
             if (isDecal) Shader_UpdateDecal(brush);
 
             if (brush.useMask && RendTex)
-                Shader.SetGlobalTexture("_SourceMask", Data.masks.TryGet(brush.selectedSourceMask));
+                sourceMask_Property.GlobalValue = Data.masks.TryGet(brush.selectedSourceMask);
 
-            Shader.SetGlobalVector("_maskDynamics", new Vector4(
+            maskDynamics_Property.GlobalValue = new Vector4(
                 brush.maskTiling,
                 RendTex ? brush.Hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
                 (brush.flipMaskAlpha ? 0 : 1)
-                , 0));
+                , 0);
 
-            Shader.SetGlobalVector("_maskOffset", brush.maskOffset.ToVector4());/*new Vector4(
+            maskOffset_Property.GlobalValue = brush.maskOffset.ToVector4();
                 
-            brush.maskOffset.x,
-                brush.maskOffset.y,
-                0,
-                0));*/
-
-            Shader.SetGlobalVector("_brushForm", new Vector4(
+            brushForm_Property.GlobalValue = new Vector4(
                 brushAlpha, // x - transparency
                 brush.Size(is3Dbrush), // y - scale for sphere
                 brush.Size(is3Dbrush) / textureWidth, // z - scale for uv space
-                brush.blurAmount)); // w - blur amount
+                brush.blurAmount); // w - blur amount
 
             brushType.SetKeyword(id.useTexcoord2);
 
             UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexcoord2);
-           // if (id.useTexcoord2) Shader.EnableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
-           // else Shader.DisableKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2);
 
-            if (brush.BlitMode.supportsTransparentLayer)
+            if (brush.BlitMode.SupportsTransparentLayer)
                 UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
-                //if (id.isATransparentLayer) Shader.EnableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
-                //else Shader.DisableKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER);
-            
 
             brush.BlitMode.SetKeyword(id).SetGlobalShaderParameters();
 
             if (RendTex && brush.BlitMode.UsingSourceTexture)
-                Shader.SetGlobalTexture("_SourceTexture", Data.sourceTextures.TryGet(brush.selectedSourceTexture));
+                sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
 
         }
 
@@ -456,7 +458,7 @@ namespace Playtime_Painter {
             theCamera.targetTexture = id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
-                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, BigRT_pair[1]);
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = BigRT_pair[1];
 
             Shader shd = null;
             if (pntr)
@@ -502,10 +504,13 @@ namespace Playtime_Painter {
         #endregion
 
         #region Render
+
+        ShaderProperty.VectorValue cameraPosition_Property = new ShaderProperty.VectorValue("_RTcamPosition");
+
         public void Render()
         {
             transform.rotation = Quaternion.identity;
-            Shader.SetGlobalVector("_RTcamPosition", transform.position);
+            cameraPosition_Property.GlobalValue = transform.position.ToVector4();
 
             brushRendy.gameObject.SetActive(true);
             theCamera.Render();

@@ -351,6 +351,10 @@ namespace QuizCannersUtilities {
         
         public abstract class BASE_MaterialTextureTransition : BASE_FloatLerp {
             float portion = 0;
+            
+            public int transitionPropertyName;
+            public int currentTexturePropertyName;
+            public int nextTexturePropertyName;
 
             enum OnStart {Nothing = 0, ClearTexture = 1, LoadCurrent = 2 }
 
@@ -379,11 +383,7 @@ namespace QuizCannersUtilities {
                     Material?.SetFloat(transitionPropertyName, portion);
                 }
             }
-
-            public string transitionPropertyName = CustomShaderParameters.transitionPortion;
-            public string currentTexturePropertyName = CustomShaderParameters.currentTexture;
-            public string nextTexturePropertyName = CustomShaderParameters.nextTexture;
-
+            
             List<Texture> targetTextures = new List<Texture>();
 
             public abstract Material Material { get; }
@@ -444,8 +444,15 @@ namespace QuizCannersUtilities {
                 }
             }
 
+            public BASE_MaterialTextureTransition()
+            {
+                transitionPropertyName = Shader.PropertyToID(CustomShaderParameters.transitionPortion);
+                currentTexturePropertyName = Shader.PropertyToID(CustomShaderParameters.currentTexture);
+                nextTexturePropertyName = Shader.PropertyToID(CustomShaderParameters.nextTexture);
+            }
+
             #region Inspector
-            #if PEGI
+#if PEGI
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -508,22 +515,11 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            public BASE_MaterialTextureTransition()
-            {
-            }
-
-            public BASE_MaterialTextureTransition(string transitionPropName, string curTexPropName, string nextTexPropName)
-            {
-                transitionPropertyName = transitionPropName;
-                currentTexturePropertyName = curTexPropName;
-                nextTexturePropertyName = nextTexPropName;
-            }
             #endregion
         }
         
         public abstract class BASE_ShaderValue : BASE_AnyValue, IGotName {
-
-            //protected ShaderProperty.BaseIndexHolder _property; 
+            
             public Material material;
             public Renderer rendy;
             protected string _name;
@@ -536,7 +532,8 @@ namespace QuizCannersUtilities {
             public override sealed bool Lerp_Internal(float linkedPortion) {
                 if (Lerp_SubInternal(linkedPortion))
                     Set();
-                else return false;
+                else
+                    return false;
 
                 return true;
             }
@@ -727,15 +724,15 @@ namespace QuizCannersUtilities {
         public class MaterialFloat : BASE_ShaderValue {
 
             ShaderProperty.FloatValue property;
-            public float Value => property.lastValue;
+            public float Value { get { return property.lastValue; } set { property.lastValue = value; defaultSet = false; } }
 
             public float targetValue;
 
-            public override void Set(Material mat) {
+            public override void Set(Material mat = null) {
                 if (mat)
                     mat.Set(property);
                 else
-                    property.GlobalValue = property.lastValue; //Shader.SetGlobalFloat(name, value);
+                    property.GlobalValue = property.lastValue;
             }
 
             public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Renderer renderer = null, Material m = null) : base(startingSpeed, m, renderer)
@@ -780,6 +777,9 @@ namespace QuizCannersUtilities {
         public class MaterialColor : BASE_ShaderValue {
 
             ShaderProperty.ColorValue property;
+
+            public Color Value { get { return property.lastValue; } set { property.lastValue = value; defaultSet = false; } }
+
             public Color targetValue;
 
             public override void Set(Material mat) {
@@ -815,10 +815,6 @@ namespace QuizCannersUtilities {
 
             Graphic graphic;
 
-            public GraphicMaterialTextureTransition(string transitionPropName, string curTexPropName, string nextTexPropName) : base(transitionPropName, curTexPropName, nextTexPropName)
-            {
-            }
-
             public GraphicMaterialTextureTransition(float nspeed = 1) : base()
             {
                 speedLimit = nspeed;
@@ -845,11 +841,6 @@ namespace QuizCannersUtilities {
             Renderer graphic;
 
             protected override string Name => "Renderer Texture Transition";
-
-            public RendererMaterialTextureTransition(string transitionPropName, string curTexPropName, string nextTexPropName) : base(transitionPropName, curTexPropName, nextTexPropName)
-            {
-
-            }
 
             public RendererMaterialTextureTransition(Renderer rendy, float nspeed = 1) : base()
             {
@@ -956,6 +947,25 @@ namespace QuizCannersUtilities {
 
     public static class LinkedLerpingExtensions
     {
+
+        public static float Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
+        {
+
+            float minPortion = 1;
+
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Portion(ld);
+
+            return minPortion;
+        }
+
+        public static void Lerp<T>(this T[] list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
+        {
+            foreach (var e in list)
+                e.NullIfDestroyed()?.Lerp(ld, canTeleport);
+        }
+
         public static float Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping {
 
             float minPortion = 1;

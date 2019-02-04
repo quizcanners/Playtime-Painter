@@ -16,7 +16,7 @@ namespace Playtime_Painter
 
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
         {
-            if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainControl)))
+            if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)))
             {
                 tex = painter.terrain.terrainData.alphamapTextures[fieldName[0].CharToInt()];
                 return true;
@@ -35,7 +35,7 @@ namespace Playtime_Painter
         {
             if (painter.terrain != null)
             {
-                if (fieldName.Contains(PainterDataAndConfig.terrainControl))
+                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE))
                 {
                     var id = painter.ImgData;
                     if (id != null) {
@@ -53,12 +53,12 @@ namespace Playtime_Painter
             Texture tex = id.CurrentTexture();
             if (painter.terrain != null)
             {
-                if (fieldName.Contains(PainterDataAndConfig.terrainControl))
+                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE))
                 {
                     int no = fieldName[0].CharToInt();
 
                     if (no == 0)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainControl, tex);
+                        PainterDataAndConfig.terrainControl.GlobalValue = tex;
 
                     painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
 

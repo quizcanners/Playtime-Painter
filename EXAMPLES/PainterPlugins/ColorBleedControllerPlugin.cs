@@ -19,10 +19,10 @@ namespace Playtime_Painter.Examples {
         public bool modifyBrightness = false;
         public bool colorBleed = false;
 
-        public void SetStuff() {
-            Shader.SetGlobalVector("_lightControl", new Vector4(colorBleeding, 0, 0, eyeBrightness));
-        }
+        ShaderProperty.VectorValue light_Property = new ShaderProperty.VectorValue("_lightControl");
 
+        public void UpdateShader() => light_Property.GlobalValue = new Vector4(colorBleeding, 0, 0, eyeBrightness);
+        
         #region Encode & Decode
 
         public override StdEncoder Encode()
@@ -49,7 +49,7 @@ namespace Playtime_Painter.Examples {
         {
             base.Decode(data);
 
-            SetStuff();
+            UpdateShader();
         }
 
         #endregion
@@ -108,7 +108,7 @@ namespace Playtime_Painter.Examples {
 
             if (changed)  {
                 UnityHelperFunctions.RepaintViews();
-                SetStuff();
+                UpdateShader();
                 this.SetToDirty_Obj();
             }
             return changed;

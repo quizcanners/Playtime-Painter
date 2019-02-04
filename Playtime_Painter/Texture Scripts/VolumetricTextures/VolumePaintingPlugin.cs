@@ -18,8 +18,10 @@ namespace Playtime_Painter
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
 
-        public const string VOLUME_H_SLICES = "VOLUME_H_SLICES";
-        public const string VOLUME_POSITION_N_SIZE = "VOLUME_POSITION_N_SIZE";
+        public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
+        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE");
+        public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
+        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
         public const string VolumeTextureTag = "_VOL";
         public const string VolumeSlicesCountTag = "_slices";
 
@@ -216,8 +218,8 @@ namespace Playtime_Painter
 
                 BrushTypeSphere.Inst.BeforeStroke(pntr, bc, stroke);
 
-                Shader.SetGlobalVector(VOLUME_POSITION_N_SIZE + "_BRUSH", vt.PosNsize4Shader);
-                Shader.SetGlobalVector(VOLUME_H_SLICES + "_BRUSH", vt.Slices4Shader);
+                VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosNsize4Shader;
+                VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
                 if (stroke.mouseDwn)
                     stroke.posFrom = stroke.posTo;
 
@@ -383,8 +385,8 @@ namespace Playtime_Painter
 
         public static void SetVolumeTexture(this Material material, string name, VolumeTexture vt)
         {
-            material.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, vt.PosNsize4Shader);
-            material.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, vt.Slices4Shader);
+            VolumePaintingPlugin.VOLUME_POSITION_N_SIZE.SetOn(material, vt.PosNsize4Shader);
+            VolumePaintingPlugin.VOLUME_H_SLICES.SetOn(material, vt.Slices4Shader);
             material.SetTexture(name, vt.ImageData.CurrentTexture());
         }
 
@@ -397,27 +399,15 @@ namespace Playtime_Painter
 
             foreach (var m in materials) if (m != null)
                 {
-                    m.SetVector(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, PnS);
-                    m.SetVector(VolumePaintingPlugin.VOLUME_H_SLICES, VhS);
+                    m.Set(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, PnS);
+                    m.Set(VolumePaintingPlugin.VOLUME_H_SLICES, VhS);
                     m.SetTexture(name, vt.ImageData.CurrentTexture());
                 }
         }
 
-        public static VolumeTexture GetVolumeTextureData(this Texture tex)
-        {
-            return GetVolumeTextureData(tex.GetImgData());
-            /* if (VolumePaintingPlugin._inst == null)
-                return null;
- 
-            for (int i = 0; i < VolumeTexture.all.Count; i++) {
-                var vt = VolumeTexture.all[i];
-                if (vt == null) { VolumeTexture.all.RemoveAt(i); i--; }
-                    else if (vt.tex != null && vt.tex.Equals(tex)) return vt;
-            }
+        public static VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetImgData());
 
-            return null;*/
-        }
-
+        
         static VolumeTexture lastFetchedVT;
         public static VolumeTexture GetVolumeTextureData(this ImageData id)
         {

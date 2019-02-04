@@ -673,8 +673,8 @@ namespace Playtime_Painter
 
             stroke.SetWorldPosInShader();
 
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_EDITED_UV_OFFSET, new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y));
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
+            PainterDataAndConfig.BRUSH_EDITED_UV_OFFSET.GlobalValue = new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y);
+            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
 
         public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
@@ -721,16 +721,17 @@ namespace Playtime_Painter
 
             br.BlitMode.PrePaint(null, br, st);
 
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, A_Textures_in_row, 1));
+            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, A_Textures_in_row, 1);
 
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
             TexMGMT.brushRendy.UseMeshAsBrush(go, mesh, submeshIndex);
             TexMGMT.Render();
             AfterStroke(br);
 
-            Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
+            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
-#if PEGI
+        #region Inspector
+        #if PEGI
         public override bool Inspect()
         {
             bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true); 
@@ -739,6 +740,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
+        #endif
+        #endregion
     }
 }

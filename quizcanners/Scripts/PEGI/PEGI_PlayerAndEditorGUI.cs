@@ -5953,7 +5953,7 @@ namespace PlayerAndEditorGUI {
                     meta.SetIsSelected(i, val);
         }
 
-        static bool edit_List_Order_Obj<T>(this List<T> list, List_Data datas) where T : UnityEngine.Object {
+        static bool edit_List_Order_Obj<T>(this List<T> list, List_Data datas = null) where T : UnityEngine.Object {
             var changed = list.edit_List_Order(datas);
 
             if (list == editing_List_Order && datas != null) {
@@ -6053,14 +6053,10 @@ namespace PlayerAndEditorGUI {
                             write(el.ToPEGIstring());
                         }
                     }
-
-                    if (pg != null)
-                    {
-                        if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
-                            edited = index;
-                        warningText = null;
-                    }
-
+                    
+                    if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
+                        edited = index;
+                        
                     if (!clickHighlightHandeled)
                         uo.ClickHighlight();
                 }
@@ -6822,41 +6818,6 @@ namespace PlayerAndEditorGUI {
             newLine();
             return changed;
         }
-        /*
-        public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda)
-        {
-
-            bool changed = false;
-
-            if (listIsNull(ref list))
-                return changed;
-
-            changed |= list.edit_List_Order();
-
-            if (list != editing_List_Order)
-            {
-
-                changed |= list.ListAddEmptyClick();
-
-                foreach (var i in list.InspectionIndexes())
-                {
-                    var el = list[i];
-                    var before = el;
-                    el = lambda(el);
-
-                    if (((el && !el.Equals(before)) || (!el && before)).changes(ref changed))
-                        list[i] = el;
-
-                    nl();
-                }
-
-                nl();
-            }
-
-            newLine();
-            return changed;
-        }
-        */
 
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
@@ -7696,7 +7657,32 @@ break;
 
             return changes;
         }
-        
+
+        static Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
+
+        static bool Try_DefaultInspect(this object obj) {
+
+            if (!pegi.paintingPlayAreaGUI) {
+
+                var uobj = obj as UnityEngine.Object;
+
+                if (uobj)  {
+
+                    Editor ed;
+                    if (!defaultEditors.TryGetValue(uobj.GetType(), out ed))
+                         ed = Editor.CreateEditor(uobj);
+
+                    if (ed != null) {
+                        pegi.nl();
+                        EditorGUI.BeginChangeCheck();
+                        ed.DrawDefaultInspector();
+                        return EditorGUI.EndChangeCheck();
+                    }
+                }
+            }
+                return false;
+        }
+
         public static bool Try_Nested_Inspect(this GameObject go)
         {
             bool changed = false;
@@ -7704,7 +7690,16 @@ break;
             var pgi = go.TryGet<IPEGI>();
 
             if (pgi != null)
-                changed |= pgi.Nested_Inspect().RestoreBGColor();
+                pgi.Nested_Inspect().RestoreBGColor().changes(ref changed);
+            else {
+                var mbs = go.GetComponents<Component>();
+
+                foreach (var m in mbs)
+                    m.Try_DefaultInspect().changes(ref changed);
+            }
+
+            if (changed)
+                go.SetToDirty();
 
             return changed;
         }
@@ -7713,8 +7708,13 @@ break;
 
         public static bool Try_Nested_Inspect(this object obj) {
             var pgi = obj.TryGet_fromObj<IPEGI>();
-            return pgi != null ? pgi.Nested_Inspect() : false;
+            if (pgi != null)
+                return pgi.Nested_Inspect();
+            
+            return obj.Try_DefaultInspect();
         }
+
+
 
         public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne) {
 

@@ -33,7 +33,7 @@ namespace Playtime_Painter.Examples {
 
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
         {
-            if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.terrainLight))
+            if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
             {
                 tex = mergingTerrain.lightTexture;
                 return true;
@@ -46,12 +46,12 @@ namespace Playtime_Painter.Examples {
             FindMergingTerrain(pntr);
 
             if (pntr.terrain && mergingTerrain )
-                dest.Add(PainterDataAndConfig.terrainLight);
+                dest.Add(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE);
         }
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter pntr)
         {
-                if (pntr.terrain && fieldName != null && fieldName.Contains(PainterDataAndConfig.terrainLight))
+                if (pntr.terrain && fieldName != null && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
                 {
                     var id = pntr.ImgData;
                     if (id != null)
@@ -71,7 +71,7 @@ namespace Playtime_Painter.Examples {
             Texture tex = id.CurrentTexture();
 
     
-                if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.terrainLight))
+                if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
                 {
                     FindMergingTerrain(pntr);
                     if (mergingTerrain  && id!= null)
@@ -92,7 +92,7 @@ namespace Playtime_Painter.Examples {
                     }
 #endif
 
-                    Shader.SetGlobalTexture(PainterDataAndConfig.terrainLight, tex);
+                    PainterDataAndConfig.terrainLight.GlobalValue = tex;
 
 
 
@@ -110,7 +110,7 @@ namespace Playtime_Painter.Examples {
             if (mergingTerrain) {
 
                 if (mergingTerrain.lightTexture)
-                    Shader.SetGlobalTexture(PainterDataAndConfig.terrainLight, mergingTerrain.lightTexture.GetDestinationTexture());
+                    PainterDataAndConfig.terrainLight.GlobalValue = mergingTerrain.lightTexture.GetDestinationTexture();
 
                 mergingTerrain.UpdateTextures();
             }

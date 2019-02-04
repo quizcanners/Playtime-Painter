@@ -168,10 +168,6 @@ namespace QuizCannersUtilities {
                 
              return obj == null;
         }
-         /*=>
-             obj == null ? true :
-                (typeof(UnityEngine.Object).IsAssignableFrom(obj.GetType()) ?
-                !(obj as UnityEngine.Object) : false);*/
         
         public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
   
@@ -1993,7 +1989,7 @@ namespace QuizCannersUtilities {
     public class ChillLogger
     {
         bool logged = false;
-        bool disabled = false;
+        //bool disabled = false;
         float lastLogged = 0;
         int calls;
         readonly string message = "error";
@@ -2014,8 +2010,8 @@ namespace QuizCannersUtilities {
         public void Log_Now(string msg, bool asError, UnityEngine.Object obj = null)
         {
 
-            if (disabled)
-                return;
+          //  if (disabled)
+              //  return;
 
             if (msg == null)
                 msg = message;
@@ -2256,10 +2252,10 @@ namespace QuizCannersUtilities {
         
         
         public abstract class BaseIndexHolder {
-            protected int _index;
+            protected int _ID;
 
             protected BaseIndexHolder(string name) {
-                _index = Shader.PropertyToID( name );
+                _ID = Shader.PropertyToID( name );
             }
         }
 
@@ -2272,14 +2268,19 @@ namespace QuizCannersUtilities {
             public void SetOn(Material material, float value)
             {
                 lastValue = value;
-                material.SetFloat(_index, value);
+
+                if (material)
+                    material.SetFloat(_ID, value);
+                
             } 
             
-            public void SetOn(Material material) => material.SetFloat(_index, lastValue);
+            public void SetOn(Material material) => material.SetFloat(_ID, lastValue);
+
+            public void SetGlobal(float value) => GlobalValue = value;
 
             public float GlobalValue {
-                get { return  Shader.GetGlobalFloat(_index); }
-                set { Shader.SetGlobalFloat(_index, value); lastValue = value; }
+                get { return  Shader.GetGlobalFloat(_ID); }
+                set { Shader.SetGlobalFloat(_ID, value); lastValue = value; }
             }
 
             public FloatValue(string name) : base(name) { }
@@ -2296,14 +2297,17 @@ namespace QuizCannersUtilities {
             
             public void SetOn(Material material, Color value) {
                 lastValue = value;
-                material.SetColor(_index, value);
+                if (material)
+                    material.SetColor(_ID, value);
             } 
             
-            public void SetOn(Material material) => material.SetColor(_index, lastValue);
+            public void SetOn(Material material) => material.SetColor(_ID, lastValue);
+
+            public void SetGlobal(Color value) => GlobalValue = value;
 
             public Color GlobalValue {
-                get { return  Shader.GetGlobalColor(_index); }
-                set { Shader.SetGlobalColor(_index, value); }
+                get { return  Shader.GetGlobalColor(_ID); }
+                set { Shader.SetGlobalColor(_ID, value); }
             }
 
             public ColorValue(string name) : base(name) { }
@@ -2321,14 +2325,17 @@ namespace QuizCannersUtilities {
             
             public void SetOn(Material material, Vector4 value) {
                 lastValue = value;
-                material.SetVector(_index, value);
+                if (material)
+                    material.SetVector(_ID, value);
             } 
             
-            public void SetOn(Material material) => material.SetColor(_index, lastValue);
+            public void SetOn(Material material) => material.SetColor(_ID, lastValue);
+
+            public void SetGlobal(Vector4 value) => GlobalValue = value;
 
             public Vector4 GlobalValue {
-                get { return  Shader.GetGlobalVector(_index); }
-                set { Shader.SetGlobalVector(_index, value); }
+                get { return  Shader.GetGlobalVector(_ID); }
+                set { Shader.SetGlobalVector(_ID, value); }
             }
 
             public VectorValue(string name) : base(name) { }
@@ -2346,22 +2353,63 @@ namespace QuizCannersUtilities {
             
             public void SetOn(Material material, Texture value) {
                 lastValue = value;
-                material.SetTexture(_index, value);
+                if (material)
+                    material.SetTexture(_ID, value);
             } 
             
-            public void SetOn(Material material) => material.SetTexture(_index, lastValue);
+            public void SetOn(Material material) => material.SetTexture(_ID, lastValue);
+
+            public void SetGlobal(Texture value) => GlobalValue = value;
 
             public Texture GlobalValue {
-                get { return  Shader.GetGlobalTexture(_index); }
-                set { Shader.SetGlobalTexture(_index, value); }
+                get { return  Shader.GetGlobalTexture(_ID); }
+                set { Shader.SetGlobalTexture(_ID, value); }
+            }
+
+            public Texture GetFrom( Material mat) => mat.GetTexture(_ID);
+
+            public Vector2 GetOffset (Material mat)
+            {
+                if (mat)
+                    return mat.GetTextureOffset(_ID);
+                return Vector2.zero;
+            }
+
+            public Vector2 GetTiling(Material mat)
+            {
+                if (mat)
+                    return mat.GetTextureScale(_ID);
+                return Vector2.zero;
+            }
+
+            public void SetOffset(Material mat, Vector2 value)
+            {
+                if (mat)
+                     mat.SetTextureOffset(_ID, value);
+            }
+
+            public void SetTiling(Material mat, Vector2 value)
+            {
+                if (mat)
+                     mat.SetTextureScale(_ID, value);
             }
 
             public TextureValue(string name) : base(name) { }
         }
 
+        public static Texture Get(this Material mat, TextureValue property) => property.GetFrom(mat);
+
         public static void Set(this Material mat, TextureValue property, Texture value) => property.SetOn(mat, value);
         
         public static void Set(this Material mat, TextureValue property) => property.SetOn(mat);
+
+        public static Vector2 GetOffset(this Material mat, TextureValue property) => property.GetOffset(mat);
+
+        public static Vector2 GetTiling(this Material mat, TextureValue property) => property.GetTiling(mat);
+
+        public static void SetOffset(this Material mat, TextureValue property, Vector2 value) => property.SetOffset(mat, value);
+
+        public static void SetTiling(this Material mat, TextureValue property, Vector2 value) => property.SetTiling(mat, value);
     } 
     
     

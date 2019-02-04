@@ -539,8 +539,8 @@ namespace Playtime_Painter {
             var mat = Material;
             if (!IsOriginalShader && !terrain)
             {
-                id.tiling = mat.GetTextureScale(PainterDataAndConfig.previewTexture);
-                id.offset = mat.GetTextureOffset(PainterDataAndConfig.previewTexture);
+                id.tiling = mat.GetTiling(PainterDataAndConfig.previewTexture);
+                id.offset = mat.GetOffset(PainterDataAndConfig.previewTexture);
                 return;
             }
 
@@ -560,8 +560,8 @@ namespace Playtime_Painter {
             var mat = Material;
             if (!IsOriginalShader && !terrain)
             {
-                mat.SetTextureScale(PainterDataAndConfig.previewTexture, id.tiling);
-                mat.SetTextureOffset(PainterDataAndConfig.previewTexture, id.offset);
+                mat.SetTiling(PainterDataAndConfig.previewTexture, id.tiling);
+                mat.SetOffset(PainterDataAndConfig.previewTexture, id.offset);
                 return;
             }
 
@@ -679,7 +679,7 @@ namespace Playtime_Painter {
 
             var field = GetMaterialTexturePropertyName;
 
-            if (field != PainterDataAndConfig.terrainHeight)
+            if (field != PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE)
             {
                 Debug.Log("Terrain height is not currently selected.");
                 return;
@@ -870,7 +870,7 @@ namespace Playtime_Painter {
                 if (!terrain)
                 {
                     var m = Material;
-                    return m ? Material.GetTexture(PainterDataAndConfig.previewTexture) : null;
+                    return m ? Material.Get(PainterDataAndConfig.previewTexture) : null;
                 }
             }
 
@@ -955,12 +955,12 @@ namespace Playtime_Painter {
             var mat = Material;
             var id = tex.GetImgData();
 
-            mat.SetTexture(PainterDataAndConfig.previewTexture, id.CurrentTexture());
+            PainterDataAndConfig.previewTexture.SetOn(mat, id.CurrentTexture());
             
             if (id == null) return;
             
-            mat.SetTextureOffset(PainterDataAndConfig.previewTexture, id.offset);
-            mat.SetTextureScale(PainterDataAndConfig.previewTexture, id.tiling);
+            mat.SetOffset(PainterDataAndConfig.previewTexture, id.offset);
+            mat.SetTiling(PainterDataAndConfig.previewTexture, id.tiling);
                
         }
 
@@ -1054,22 +1054,22 @@ namespace Playtime_Painter {
             {
                 float tilingX = tds.x / sp[0].tileSize.x;
                 float tilingZ = tds.z / sp[0].tileSize.y;
-                Shader.SetGlobalVector(PainterDataAndConfig.terrainTiling, new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y));
+               PainterDataAndConfig.terrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
 
                 _tilingY = td.size.y / sp[0].tileSize.x;
             }
             
-            Shader.SetGlobalVector(PainterDataAndConfig.terrainScale, new Vector4(tds.x, tds.y, tds.z, 0.5f / ((float)td.heightmapResolution)));
+         PainterDataAndConfig.terrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / ((float)td.heightmapResolution));
 
             UpdateTerrainPosition();
 
             Texture[] alphamapTextures = td.alphamapTextures;
             if (alphamapTextures.Length > 0)
-                Shader.SetGlobalTexture(PainterDataAndConfig.terrainControl, alphamapTextures[0].GetDestinationTexture());
+                PainterDataAndConfig.terrainControl.GlobalValue = alphamapTextures[0].GetDestinationTexture();
 
         }
 
-        private void UpdateTerrainPosition() => Shader.SetGlobalVector(PainterDataAndConfig.terrainPosition, transform.position.ToVector4(_tilingY));
+        private void UpdateTerrainPosition() => PainterDataAndConfig.terrainPosition.GlobalValue = transform.position.ToVector4(_tilingY);
 
         private void Preview_To_UnityTerrain()
         {
@@ -1201,7 +1201,7 @@ namespace Playtime_Painter {
                     return false;
                 var name = GetMaterialTexturePropertyName;
                 return name == null ? false :
-                 name.Contains(PainterDataAndConfig.terrainHeight);
+                 name.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE);
             }
         }
 
@@ -1216,7 +1216,7 @@ namespace Playtime_Painter {
 
         }
 
-        public bool IsTerrainControlTexture => ImgData != null && terrain && GetMaterialTexturePropertyName.Contains(PainterDataAndConfig.terrainControl);
+        public bool IsTerrainControlTexture => ImgData != null && terrain && GetMaterialTexturePropertyName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE);
 
         #endregion
 

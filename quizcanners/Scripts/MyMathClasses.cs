@@ -236,6 +236,23 @@ namespace QuizCannersUtilities {
 
             return changing;
         }
+
+        public static bool IsLerpingRGB_BySpeed<T>(this T img, Color target, float speed) where T : Graphic
+        {
+            bool changing = false;
+
+            if (img)
+            {
+                float portion;
+                img.color = img.color.Lerp_RGB(target, speed, out portion);
+                
+                changing = portion < 1;
+            }
+
+            return changing;
+        }
+
+
         #endregion
 
         #region Trigonometry

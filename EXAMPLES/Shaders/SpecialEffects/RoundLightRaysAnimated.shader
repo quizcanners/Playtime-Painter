@@ -53,11 +53,9 @@
 
 						float2 off = i.texcoord - 0.5;
 					
-						float angle = _Time.x;
-
 						float2 rotUV = off;
-						float si = sin(angle);
-						float co = cos(angle);
+						float si = _SinTime.w;
+						float co = _CosTime.w;
 
 						float tx = rotUV.x;
 						float ty = rotUV.y;
@@ -67,11 +65,9 @@
 
 						float4 col = i.color * tex2D(_MainTex, rotUV);
 
-						angle = -_Time.x * 1.15;
-
 						rotUV = off;
-						si = sin(angle);
-						co = cos(angle);
+						si = _SinTime.x;
+						co = _CosTime.x;
 
 						tx = rotUV.x;
 						ty = rotUV.y;

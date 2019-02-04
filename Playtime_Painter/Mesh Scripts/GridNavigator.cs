@@ -68,8 +68,11 @@ public class GridNavigator : PainterStuffMono {
     public float UVsnapToPixelPortion = 2;
     public MeshRenderer dot;
     public MeshRenderer rendy;
-    
-   public  void Deactivateverts() {
+
+    ShaderProperty.VectorValue dotPosition_Property = new ShaderProperty.VectorValue("_GridDotPosition");
+
+
+    public void Deactivateverts() {
 
         for (int i = 0; i < MeshManager.Inst.vertsShowMax; i++) {
             if (verts[i] == null)
@@ -201,7 +204,8 @@ public class GridNavigator : PainterStuffMono {
             MeshMGMT.MeshTool.OnGridChange();
 
     }
-    
+
+
     public void UpdatePositions() {
 
         MeshManager m = MeshMGMT;
@@ -264,7 +268,7 @@ public class GridNavigator : PainterStuffMono {
 
         transform.position = onGridPos+Vector3.one*0.01f;
 
-        Shader.SetGlobalVector("_GridDotPosition", new Vector4(onGridPos.x, onGridPos.y, onGridPos.z));
+        dotPosition_Property.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
 
         dot.transform.rotation = gameObject.TryGetCameraTransform().rotation;
 

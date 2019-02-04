@@ -35,11 +35,15 @@ namespace Playtime_Painter {
 
             PainterCamera.Data.brushConfig.colorLinear.From(col);
 
-            Shader.SetGlobalFloat("_Picker_Contrast", ColorPickerContrast.Contrast);
-            Shader.SetGlobalFloat("_Picker_Brightness", ColorPickerContrast.Brightness);
-            Shader.SetGlobalFloat("_Picker_HUV", value);
+            contrastProperty.GlobalValue = ColorPickerContrast.Contrast;
+            brightnessProperty.GlobalValue = ColorPickerContrast.Brightness;
+            huvProperty.GlobalValue = value;
 
         }
+
+        static ShaderProperty.FloatValue contrastProperty = new ShaderProperty.FloatValue("_Picker_Contrast");
+        static ShaderProperty.FloatValue brightnessProperty = new ShaderProperty.FloatValue("_Picker_Brightness");
+        static ShaderProperty.FloatValue huvProperty = new ShaderProperty.FloatValue("_Picker_HUV");
 
         public override bool UpdateFromUV(Vector2 clickUV) {
             value = (((-(clickUV-0.5f*Vector2.one)).Angle()+360) % 360) / 360f;

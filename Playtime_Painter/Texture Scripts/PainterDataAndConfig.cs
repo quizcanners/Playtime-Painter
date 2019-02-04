@@ -40,25 +40,36 @@ namespace Playtime_Painter
         public const string ToolName = "Playtime_Painter";
         public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
 
-        public const string terrainPosition = "_mergeTeraPosition";
-        public const string terrainTiling = "_mergeTerrainTiling";
-        public const string terrainScale = "_mergeTerrainScale";
-        public const string terrainHeight = "_mergeTerrainHeight";
-        public const string terrainControl = "_mergeControl";
+
+        #region Preperties
+        public static ShaderProperty.VectorValue terrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
+        public static ShaderProperty.VectorValue terrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
+        public static ShaderProperty.VectorValue terrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
+        public const string TERRAIN_HEIGHT_TEXTURE = "_mergeTerrainHeight";
+        public static ShaderProperty.TextureValue terrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
+        public const string TERRAIN_CONTROL_TEXTURE = "_mergeControl";
+        public static ShaderProperty.TextureValue terrainControl = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
         public const string terrainTexture = "_mergeSplat_";
         public const string terrainNormalMap = "_mergeSplatN_";
-        public const string terrainLight = "_TerrainColors";
-        public const string previewTexture = "_PreviewTex";
+        public const string TERRAIN_LIGHT_TEXTURE = "_TerrainColors";
+        public static ShaderProperty.TextureValue terrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
+        public static ShaderProperty.TextureValue previewTexture = new ShaderProperty.TextureValue("_PreviewTex");
 
-        public const string BRUSH_WORLD_POS_FROM = "_brushWorldPosFrom";
-        public const string BRUSH_WORLD_POS_TO = "_brushWorldPosTo";
-        public const string BRUSH_POINTED_UV = "_brushPointedUV";
-        public const string BRUSH_EDITED_UV_OFFSET = "_brushEditedUVoffset";
-        public const string BRUSH_ATLAS_SECTION_AND_ROWS = "_brushAtlasSectionAndRows";
-        public const string BRUSH_SAMPLING_DISPLACEMENT = "_brushSamplingDisplacement";
-        public const string DESTINATION_BUFFER = "_DestBuffer";
-        public const string SOURCE_TEXTURE = "_SourceTexture";
+        public static ShaderProperty.VectorValue BRUSH_WORLD_POS_FROM = new ShaderProperty.VectorValue("_brushWorldPosFrom");
+        public static ShaderProperty.VectorValue BRUSH_WORLD_POS_TO = new ShaderProperty.VectorValue("_brushWorldPosTo");
+        public static ShaderProperty.VectorValue BRUSH_POINTED_UV = new ShaderProperty.VectorValue("_brushPointedUV");
+        public static ShaderProperty.VectorValue BRUSH_EDITED_UV_OFFSET = new ShaderProperty.VectorValue("_brushEditedUVoffset");
+        public static ShaderProperty.VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new ShaderProperty.VectorValue("_brushAtlasSectionAndRows");
+        public static ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_brushSamplingDisplacement");
+        public static ShaderProperty.TextureValue DESTINATION_BUFFER = new ShaderProperty.TextureValue("_DestBuffer");
+        public static ShaderProperty.TextureValue SOURCE_TEXTURE = new ShaderProperty.TextureValue("_SourceTexture");
+        public const string ATLASED_TEXTURES = "_AtlasTextures";
+        public static ShaderProperty.FloatValue atlasedTexturesInARow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
+        public static ShaderProperty.FloatValue bufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
+        #endregion
 
+
+        #region Keywords
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
         public const string UV_PROJECTED = "UV_PROJECTED";
@@ -71,12 +82,13 @@ namespace Playtime_Painter
         public const string isAtlasedProperty = "_ATLASED";
         public const string isAtlasableDisaplyNameTag = "_ATL";
         public const string isUV2DisaplyNameTag = "_UV2";
-        public const string atlasedTexturesInARow = "_AtlasTextures";
+        #endregion
 
+     
         public const string TransparentLayerExpected = "TransparentLayerExpected";
         public const string TextureSampledWithUV2 = "TextureSampledWithUV2";
         public const string vertexColorRole = "VertexColorRole_";
-        public const string bufferCopyAspectRatio = "_BufferCopyAspectRatio";
+      
         #endregion
 
         #region WebCamStuff

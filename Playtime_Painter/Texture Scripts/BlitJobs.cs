@@ -53,7 +53,7 @@ namespace Playtime_Painter
             {
                 case BlitJobBlitMode.Add: _blitMode = AddBlit; break;
                 case BlitJobBlitMode.Alpha:
-                    if (bc.BlitMode.supportsTransparentLayer && id.isATransparentLayer)
+                    if (bc.BlitMode.SupportsTransparentLayer && id.isATransparentLayer)
                         _blitMode = AlphaBlitTransparent;
                     else
                         _blitMode = AlphaBlitOpaque; break;

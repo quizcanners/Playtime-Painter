@@ -210,7 +210,7 @@ namespace Playtime_Painter.Examples {
             if (trg)
             {
                 if (src)
-                    Shader.SetGlobalTexture(PainterDataAndConfig.SOURCE_TEXTURE, src);
+                   PainterDataAndConfig.SOURCE_TEXTURE.GlobalValue = src;
 
                 if (material)
                     Graphics.Blit(src, trg, material);
@@ -349,7 +349,7 @@ namespace Playtime_Painter.Examples {
         {
             get
             {
-                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, TexMGMT.BigRT_pair[1]);
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMGMT.BigRT_pair[1];
                 return TexMGMT.BigRT_pair[0];
             }
         }
@@ -444,7 +444,7 @@ namespace Playtime_Painter.Examples {
                     rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
                 }
 
-                Shader.SetGlobalTexture(PainterDataAndConfig.DESTINATION_BUFFER, rts[1]);
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = rts[1];
                 return rts[0];
             }
         }

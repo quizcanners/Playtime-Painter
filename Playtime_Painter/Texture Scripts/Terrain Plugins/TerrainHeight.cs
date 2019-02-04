@@ -12,7 +12,7 @@ namespace Playtime_Painter {
         public override string ClassTag => tag;
 
         public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter) {
-            if ((painter.terrain) && (fieldName.Contains(PainterDataAndConfig.terrainHeight))) {
+            if ((painter.terrain) && (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))) {
                 tex = painter.terrainHeightTexture;
                 return true;
             }
@@ -22,14 +22,14 @@ namespace Playtime_Painter {
         public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
         {
             if (painter.terrain)
-                dest.Add(PainterDataAndConfig.terrainHeight);
+                dest.Add(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE);
         }
 
         public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
         {
             if (painter.terrain)
             {
-                if (fieldName.Contains(PainterDataAndConfig.terrainHeight))
+                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))
                 {
                     var id = painter.ImgData;
                     if (id != null) {
@@ -47,14 +47,14 @@ namespace Playtime_Painter {
            
             if (painter.terrain)
             {
-                if (fieldName.Contains(PainterDataAndConfig.terrainHeight))
+                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))
                 {
                     if (id != null && id.texture2D)
                         painter.terrainHeightTexture = id.texture2D;
 
                     Texture tex = id.CurrentTexture();
 
-                    Shader.SetGlobalTexture(PainterDataAndConfig.terrainHeight, tex);
+                    PainterDataAndConfig.terrainHeight.GlobalValue = tex;
                     return true;
                 }
             }
@@ -63,7 +63,7 @@ namespace Playtime_Painter {
 
         public override void OnUpdate(PlaytimePainter painter) {
             if (painter.terrainHeightTexture)
-                Shader.SetGlobalTexture(PainterDataAndConfig.terrainHeight, painter.terrainHeightTexture.GetDestinationTexture());
+                PainterDataAndConfig.terrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
         }
 
     

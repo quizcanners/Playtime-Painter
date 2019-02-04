@@ -306,7 +306,7 @@ namespace Playtime_Painter
                 name = SaveName
             };
 
-            if ((global != null) && (global.Length > 0))
+            if (!global.IsNullOrEmpty())
                 Shader.SetGlobalTexture(global, renderTexture);
 
             if (destination == TexTarget.RenderTexture)

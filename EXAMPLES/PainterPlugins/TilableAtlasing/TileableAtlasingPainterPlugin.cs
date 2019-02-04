@@ -178,8 +178,8 @@ namespace Playtime_Painter.Examples {
             if (p.IsAtlased()) {
                 var m = p.Material;
                 if (p.IsOriginalShader) {
-                    if (m.HasProperty(PainterDataAndConfig.atlasedTexturesInARow))
-                        atlasRows = m.GetInt(PainterDataAndConfig.atlasedTexturesInARow);
+                    if (m.HasProperty(PainterDataAndConfig.ATLASED_TEXTURES))
+                        atlasRows = m.GetInt(PainterDataAndConfig.ATLASED_TEXTURES);
                 }
 
                ("Atlased Texture " + atlasRows + "*" + atlasRows).write("Shader has _ATLASED define");
@@ -206,13 +206,13 @@ namespace Playtime_Painter.Examples {
             if (br.IsA3Dbrush(pntr) && pntr.IsAtlased())
             {
                 var ats = GetAtlasedSection();
-                Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(ats.x, ats.y, atlasRows, 1));
+               PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
             }
         }
 
         public override void AfterGPUStroke(PlaytimePainter p, BrushConfig br, StrokeVector st, BrushType type) {
             if (br.IsA3Dbrush(p) && p.IsAtlased())
-                Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS, new Vector4(0, 0, 1, 0));
+               PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
     }
     
@@ -470,7 +470,7 @@ namespace Playtime_Painter.Examples {
                 MeshManager.Inst.Redraw();
                 MeshManager.Inst.DisconnectMesh();
 
-                AtlasedMaterial.SetFloat(PainterDataAndConfig.atlasedTexturesInARow, atlPlug.atlasRows);
+                AtlasedMaterial.SetFloat(PainterDataAndConfig.ATLASED_TEXTURES, atlPlug.atlasRows);
                 painter.Material = AtlasedMaterial;
 
                 if (firstAtlasing)

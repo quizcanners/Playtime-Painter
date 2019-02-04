@@ -13,7 +13,7 @@ namespace Playtime_Painter {
 
         public int index;
 
-        public virtual bool supportsTransparentLayer => false;
+        public virtual bool SupportsTransparentLayer => false;
 
         public static List<BlitMode> AllModes {
             get {
@@ -187,7 +187,7 @@ namespace Playtime_Painter {
         protected override string ShaderKeyword(ImageData id) => "BRUSH_NORMAL";
 
         public BlitModeAlphaBlit(int ind) : base(ind) { }
-        public override bool supportsTransparentLayer => true;
+        public override bool SupportsTransparentLayer => true;
     }
 
     public class BlitModeAdd : BlitMode
@@ -402,12 +402,14 @@ namespace Playtime_Painter {
 #endif
         #endregion
 
+        ShaderProperty.VectorValue pointedUV_Untiled_Property = new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
+
         public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
             var v4 = new Vector4(st.unRepeatedUV.x, st.unRepeatedUV.y, Mathf.Floor(st.unRepeatedUV.x), Mathf.Floor(st.unRepeatedUV.y));
 
-            Shader.SetGlobalVector("_brushPointedUV_Untiled", v4);
+            pointedUV_Untiled_Property.GlobalValue = v4;
 
             if (st.firstStroke)
             {
@@ -424,12 +426,12 @@ namespace Playtime_Painter {
                 if (method == (ColorSetMethod.MDownPosition))
                     FromUV(st.uvTo);
 
-                Shader.SetGlobalVector(PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT, new Vector4(
+                PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
                     ((float)currentPixel.x + 0.5f) / ((float)Cfg.samplingMaskSize.x),
 
                     ((float)currentPixel.y + 0.5f) / ((float)Cfg.samplingMaskSize.y),
 
-                    Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y));
+                    Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y);
 
             }
         }
