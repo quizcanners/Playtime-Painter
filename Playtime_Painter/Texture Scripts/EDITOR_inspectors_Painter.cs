@@ -8,9 +8,9 @@ using UnityEditor;
 namespace Playtime_Painter {
     
     [CustomEditor(typeof(PainterCamera))]
-    public class RenderTexturePainterEditor : PEGI_Editor<PainterCamera> { }
+    public class RenderTexturePainterEditor : PEGI_Inspector<PainterCamera> { }
 
     [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureEditor : PEGI_Editor<VolumeTexture> { }
+    public class VolumeTextureEditor : PEGI_Inspector<VolumeTexture> { }
 }
 #endif

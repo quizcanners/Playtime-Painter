@@ -22,20 +22,27 @@ using UnityEditorInternal;
 namespace PlayerAndEditorGUI {
 
     public static class ef {
-        
+
+
+        enum EditorType { Mono, ScriptableObject, Material, Unknown }
+
+        static EditorType editorType = EditorType.Unknown;
+
         static bool lineOpen = false;
         static int selectedFold = -1;
         static int elementIndex;
         public static SerializedObject serObj;
         static Editor _editor;
+        static PEGI_Inspector_Material _materialEditor;
 
         public static bool DefaultInspector() {
-            if (!_editor) return false;
-
             newLine();
 
             EditorGUI.BeginChangeCheck();
-            _editor.DrawDefaultInspector();
+            switch (editorType) {
+                case EditorType.Material: if (_materialEditor != null)  _materialEditor.DrawDefaultInspector(); break;
+                default: if (_editor!= null) _editor.DrawDefaultInspector(); break;
+            }
             return EditorGUI.EndChangeCheck();
 
         }
@@ -43,6 +50,8 @@ namespace PlayerAndEditorGUI {
         public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
         {
             _editor = editor;
+
+            editorType = EditorType.Mono;
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
@@ -67,6 +76,8 @@ namespace PlayerAndEditorGUI {
         {
             _editor = editor;
 
+            editorType = EditorType.ScriptableObject;
+
             var o = (T)editor.target;
             var so = editor.serializedObject;
 
@@ -82,32 +93,54 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+        
+        public static bool Inspect_Material(PEGI_Inspector_Material editor) {
 
+            _materialEditor = editor;
 
-        static void start(SerializedObject so)
-        {
+            editorType = EditorType.Material;
+
+            var mat = editor.unityMaterialEditor.target as Material;
+
+            start();
+
+            var changed = editor.Inspect(mat);
+
+            end(mat);
+
+            return changes;
+        }
+
+        static void start(SerializedObject so = null) {
             elementIndex = 0;
             PEGI_Extensions.focusInd = 0;
-            //  searchBarInd = 0;
             lineOpen = false;
             serObj = so;
             pegi.globChanged = false;
-            //editedStringIndex = 0;
         }
 
-        static bool change { get { pegi.globChanged = true; return true; } }
+        static bool end(Material mat)
+        {
 
-        static bool Dirty(this bool val) { pegi.globChanged |= val; return val; }
+            if (changes)
+            {
+                if (!Application.isPlaying)
+                    EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 
-        static bool changes => pegi.globChanged;
+                EditorUtility.SetDirty(mat);
+            }
+            newLine();
+
+            return changes;
+        }
 
         static bool end(GameObject go)
         {
-            if (changes) 
+            if (changes)
             {
                 if (!Application.isPlaying)
-                EditorSceneManager.MarkSceneDirty((go == null) ? EditorSceneManager.GetActiveScene() : go.scene);
-                
+                    EditorSceneManager.MarkSceneDirty((go == null) ? EditorSceneManager.GetActiveScene() : go.scene);
+
                 EditorUtility.SetDirty(go);
             }
 
@@ -115,15 +148,21 @@ namespace PlayerAndEditorGUI {
             return changes;
         }
 
-        static bool end<T>(T obj) where T :UnityEngine.Object  
+        static bool end<T>(T obj) where T : UnityEngine.Object
         {
             if (changes)
                 EditorUtility.SetDirty(obj);
-            
+
             newLine();
             return changes;
         }
-     
+        
+        static bool change { get { pegi.globChanged = true; return true; } }
+
+        static bool Dirty(this bool val) { pegi.globChanged |= val; return val; }
+
+        static bool changes => pegi.globChanged;
+
         static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
         static bool EndCheckLine() => EditorGUI.EndChangeCheck().Dirty(); 

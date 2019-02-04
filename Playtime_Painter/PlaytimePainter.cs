@@ -2600,13 +2600,13 @@ namespace Playtime_Painter {
         {
             var id = ImgData;
 
-            if (e.type == EventType.KeyDown && !meshEditing && id != null)
-            {
+            if (e.type != EventType.KeyDown || meshEditing || id == null) return;
+            
                 if (e.keyCode == KeyCode.Z && id.cache.undo.GotData)
                     id.cache.undo.ApplyTo(id);
                 else if (e.keyCode == KeyCode.X && id.cache.redo.GotData)
                     id.cache.redo.ApplyTo(id);
-            }
+            
         }
 #endif
 
@@ -2619,7 +2619,7 @@ namespace Playtime_Painter {
             if (loadingOrder.Count > 0)
             {
 
-                List<int> extracted = new List<int>();
+                var extracted = new List<int>();
 
                 foreach (var l in loadingOrder)
                 {
@@ -2653,42 +2653,41 @@ namespace Playtime_Painter {
 
             var id = ImgData;
 
-            if (id != null)
-                id.Update(stroke.mouseUp);
+            id?.Update(stroke.mouseUp);
         }
 #endif
 
         private void PreviewShader_StrokePosition_Update()
         {
             CheckPreviewShader();
-            if (!IsOriginalShader)
-            {
-                bool hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
-                PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
-            }
+            if (IsOriginalShader) return;
+            
+            var hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
+            PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
+            
         }
 
         private void Update_Brush_Parameters_For_Preview_Shader()
         {
             var id = ImgData;
 
-            if (id != null && !IsOriginalShader)
-            {
-                TexMgmt.Shader_UpdateBrush(GlobalBrush, 1, id, this);
+            if (id == null || IsOriginalShader) return;
+            
+            TexMgmt.Shader_UpdateBrush(GlobalBrush, 1, id, this);
 
-                foreach (var p in plugins)
-                    p.Update_Brush_Parameters_For_Preview_Shader(this);
+            foreach (var p in plugins)
+                p.Update_Brush_Parameters_For_Preview_Shader(this);
 
-            }
+            
         }
 
         #endregion
 
         #region Mesh Editing 
 
-        public bool IsEditingThisMesh { get { return IsCurrentTool && meshEditing && (MeshManager.Inst.target == this); } }
+        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshManager.Inst.target == this); 
 
-        public MeshManager MeshManager { get { return MeshManager.Inst; } }
+        private static MeshManager MeshManager => MeshManager.Inst; 
 
         public int GetAnimationUVy()
         {

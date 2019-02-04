@@ -8,6 +8,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
@@ -40,20 +41,15 @@ namespace QuizCannersUtilities {
 
         #region Timing
 
-        public static double TimeSinceStartup()
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-                return EditorApplication.timeSinceStartup;
-            else
-#endif
-                return Time.realtimeSinceStartup;
-        }
+        public static double TimeSinceStartup() =>
+        #if UNITY_EDITOR
+            (!Application.isPlaying)
+                ? EditorApplication.timeSinceStartup :
+        #endif
+                Time.realtimeSinceStartup;
 
-        public static bool TimePassedAbove(this double value, float interval)
-        {
-            return (TimeSinceStartup() - value) > interval;
-        }
+        public static bool TimePassedAbove(this double value, float interval) => (TimeSinceStartup() - value) > interval;
+        
 
         #endregion
 
@@ -61,24 +57,22 @@ namespace QuizCannersUtilities {
 
         public static bool RaycastGotHit(this Vector3 from, Vector3 vpos)
         {
-            Vector3 ray = from - vpos;
+            var ray = from - vpos;
             return Physics.Raycast(new Ray(vpos, ray), ray.magnitude);
         }
 
         public static bool RaycastGotHit(this Vector3 from, Vector3 vpos, float safeGap)
         {
-            Vector3 ray = vpos - from;
+            var ray = vpos - from;
 
-            float magnitude = ray.magnitude - safeGap;
+            var magnitude = ray.magnitude - safeGap;
 
-            if (magnitude < 0) return false;
-
-            return Physics.Raycast(new Ray(from, ray), magnitude);
+            return (magnitude <= 0) ? false : Physics.Raycast(new Ray(from, ray), magnitude);
         }
 
         public static bool RaycastHit(this Vector3 from, Vector3 to, out RaycastHit hit)
         {
-            Vector3 ray = to - from;
+            var ray = to - from;
             return Physics.Raycast(new Ray(from, ray), out hit);
         }
 
@@ -115,12 +109,12 @@ namespace QuizCannersUtilities {
         public static GameObject TryGetGameObject_Obj(this object obj) {
             var go = obj as GameObject;
 
-            if (!go)  {
-                var cmp = obj as Component;
-                if (cmp)
-                    go = cmp.gameObject;
-            }
-
+            if (go) return go; 
+            
+            var cmp = obj as Component;
+            if (cmp)
+                go = cmp.gameObject;
+            
             return go;
         }
 
@@ -136,24 +130,19 @@ namespace QuizCannersUtilities {
 
             var go = obj.TryGetGameObject_Obj();
 
-            if (go)
-                return go.TryGet<T>();
-            else
-                return pgi;
+             return go ? go.TryGet<T>() : pgi;
         }
 
-        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb?.gameObject.TryGet<T>();
-        
-        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf?.gameObject.TryGet<T>();
+        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
+
+        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf ? tf.gameObject.TryGet<T>() : null;
 
         public static T TryGet<T>(this GameObject go) where T:class {
 
             if (!go)
                 return null;
 
-            var monos = go.GetComponents<Component>();
-
-            foreach (var m in monos)
+            foreach (var m in go.GetComponents<Component>())
             {
                 var p = m as T;
                 if (p != null)
@@ -510,7 +499,9 @@ namespace QuizCannersUtilities {
 #endif
         }
 
+#if UNITY_EDITOR
         static Tool previousEditorTool = Tool.None;
+#endif
 
         public static void RestoreUnityTool() {
             #if UNITY_EDITOR
@@ -738,8 +729,8 @@ namespace QuizCannersUtilities {
 
                 foreach (FileInfo file in fileInfo)
                 {
-                    string name = file.Name.Substring(0, file.Name.Length - StuffSaver.fileType.Length);
-                    if ((file.Extension == StuffSaver.fileType) && (!l.Contains(name)))
+                    string name = file.Name.Substring(0, file.Name.Length - StuffSaver.FileType.Length);
+                    if ((file.Extension == StuffSaver.FileType) && (!l.Contains(name)))
                     {
                         l.Add(name);
                     }
@@ -876,7 +867,7 @@ namespace QuizCannersUtilities {
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
-            AssetDatabase.CopyAsset(path + oldName + StuffSaver.fileType, path + newName + StuffSaver.fileType);
+            AssetDatabase.CopyAsset(path + oldName + StuffSaver.FileType, path + newName + StuffSaver.FileType);
         }
 #endif
         // The function below uses this function's name
@@ -972,7 +963,7 @@ namespace QuizCannersUtilities {
 #if UNITY_EDITOR
             try
             {
-                string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources/" + insideAssetFolderAndName + StuffSaver.fileType;
+                string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources/" + insideAssetFolderAndName + StuffSaver.FileType;
                 //Debug.Log("Deleting " +path);
                 //Application.dataPath + "/"+assetFolder + "/Resources/" + insideAssetFolderAndName);
                 AssetDatabase.DeleteAsset(path);
@@ -1818,6 +1809,9 @@ namespace QuizCannersUtilities {
             }
         }
 
+        public static bool GetKeyword(this Material mat, string keyword) => Array.IndexOf(mat.shaderKeywords, keyword) != -1;
+        
+
         #endregion
 
         #region Meshes
@@ -1907,13 +1901,13 @@ namespace QuizCannersUtilities {
 
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
-        public string _name;
+        private string _name;
         float timer = 0;
         double perIntervalCount = 0;
-        double max = 0;
-        double min = float.PositiveInfinity;
-        double avarage = 0;
-        double totalCount = 0;
+        double _max = 0;
+        double _min = float.PositiveInfinity;
+        double _avarage = 0;
+        double _totalCount = 0;
         float intervalLength = 1f;
         
         public void Update(float add = 0)
@@ -1927,13 +1921,13 @@ namespace QuizCannersUtilities {
 
                 timer -= intervalLength;
 
-                max = Mathf.Max((float)perIntervalCount, (float)max);
-                min = Mathf.Min((float)perIntervalCount, (float)min);
+                _max = Mathf.Max((float)perIntervalCount, (float)_max);
+                _min = Mathf.Min((float)perIntervalCount, (float)_min);
 
-                totalCount += 1;
+                _totalCount += 1;
 
-                double portion = 1d / totalCount;
-                avarage = avarage * (1d - portion) + perIntervalCount * portion;
+                double portion = 1d / _totalCount;
+                _avarage = _avarage * (1d - portion) + perIntervalCount * portion;
 
                 perIntervalCount = 0;
             }
@@ -1950,15 +1944,15 @@ namespace QuizCannersUtilities {
         {
             timer = 0;
             perIntervalCount = 0;
-            max = 0;
-            min = float.PositiveInfinity;
-            avarage = 0;
-            totalCount = 0;
+            _max = 0;
+            _min = float.PositiveInfinity;
+            _avarage = 0;
+            _totalCount = 0;
         }
 
         #region Inspector
 
-        public string NameForPEGIdisplay => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)avarage).ToString("0.00"),  (intervalLength != 1d) ? intervalLength.ToString("0") : "", (int)min, (int)max, (int)totalCount);
+        public string NameForPEGIdisplay => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)_avarage).ToString("0.00"),  (intervalLength != 1d) ? intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
 
 #if PEGI
         public bool PEGI_inList(IList list, int ind, ref int edited)
@@ -1989,7 +1983,7 @@ namespace QuizCannersUtilities {
     public class ChillLogger
     {
         bool logged = false;
-        //bool disabled = false;
+        bool disabled = false;
         float lastLogged = 0;
         int calls;
         readonly string message = "error";
@@ -1997,9 +1991,9 @@ namespace QuizCannersUtilities {
         public ChillLogger(string msg, bool logInBuild = false)
         {
             message = msg;
-#if !UNITY_EDITOR
+            #if !UNITY_EDITOR
             disabled = (!logInBuild);
-#endif
+            #endif
         }
 
         public ChillLogger()
@@ -2064,82 +2058,82 @@ namespace QuizCannersUtilities {
     }
 
     public class TextureDownloadManager : IPEGI {
-        List<WebRequestMeta> loadedTextures = new List<WebRequestMeta>();
+        readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
 
         class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI {
-            UnityWebRequest request;
-            string address;
-            public string URL => address;
-            Texture texture;
-            bool failed = false;
+            UnityWebRequest _request;
+            string _address;
+            public string URL => _address;
+            Texture _texture;
+            bool _failed = false;
 
-            public string NameForPEGI { get { return address; } set { address = value; } }
+            public string NameForPEGI { get { return _address; } set { _address = value; } }
 
-            Texture Take() {
-                var tmp = texture;
-                texture = null;
-                failed = false;
+            private Texture Take() {
+                var tmp = _texture;
+                _texture = null;
+                _failed = false;
                 DisposeRequest();
                 return tmp;
             }
 
             public bool TryGetTexture(out Texture tex, bool remove = false) {
-                tex = texture;
+                tex = _texture;
 
-                if (remove && texture) Take();
+                if (remove && _texture) Take();
 
-                if (failed) return true;
+                if (_failed) return true;
 
-                if (request != null) {
-                    if (request.isNetworkError || request.isHttpError) {
+                if (_request != null) {
+                    if (_request.isNetworkError || _request.isHttpError) {
 
-                        failed = true;
+                        _failed = true;
 
 #if UNITY_EDITOR
-                        Debug.Log(request.error);
+                        Debug.Log(_request.error);
 #endif
                         DisposeRequest();
                         return true;
                     }
 
-                    if (request.isDone) {
-                        if (texture)
-                            texture.DestroyWhatever();
-                        texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+                    if (_request.isDone) {
+                        if (_texture)
+                            _texture.DestroyWhatever();
+                        _texture = ((DownloadHandlerTexture)_request.downloadHandler).texture;
                         DisposeRequest();
-                        tex = texture;
+                        tex = _texture;
 
-                        if (remove && texture)
+                        if (remove && _texture)
                             Take();
                     }
                     else return false;
                 }
-                else if (!texture) Start();
+                else if (!_texture) Start();
 
                 return true;
             }
 
             void Start() {
-                if (request != null) request.Dispose();
-                request = UnityWebRequestTexture.GetTexture(address);
-                request.SendWebRequest();
-                failed = false;
-                Debug.Log("Loading {0}".F(address));
+                if (_request != null) _request.Dispose();
+                _request = UnityWebRequestTexture.GetTexture(_address);
+                _request.SendWebRequest();
+                _failed = false;
+                Debug.Log("Loading {0}".F(_address));
             }
 
             public WebRequestMeta(string URL) {
-                address = URL;
+                _address = URL;
                 Start();
             }
 
             void DisposeRequest() {
-                request?.Dispose();
-                request = null;
+                _request?.Dispose();
+                _request = null;
             }
 
             public void Dispose() {
-                if (texture)
-                    texture.DestroyWhatever();
+                if (_texture)
+                    _texture.DestroyWhatever();
 
                 DisposeRequest();
             }
@@ -2152,24 +2146,24 @@ namespace QuizCannersUtilities {
                 Texture tex;
                 TryGetTexture(out tex);
 
-                if (request != null)
+                if (_request != null)
                     "Loading".write(60);
-                if (failed)
+                if (_failed)
                     "Failed".write(50);
 
-                if (texture) {
+                if (_texture) {
                     if (icon.Refresh.Click())
                         Start();
 
-                    if (texture.Click())
+                    if (_texture.Click())
                         edited = ind;
 
                 } else {
 
-                    if (failed) {
+                    if (_failed) {
                         if (icon.Refresh.Click("Failed"))
                             Start();
-                        "Failed ".F(address).write(40);
+                        "Failed ".F(_address).write(40);
                     }
                     else {
                         icon.Active.write();
@@ -2177,7 +2171,7 @@ namespace QuizCannersUtilities {
                     }
 
                 }
-                address.write();
+                _address.write();
                 return changed;
             }
 
@@ -2186,8 +2180,8 @@ namespace QuizCannersUtilities {
                 Texture tex;
                 TryGetTexture(out tex);
 
-                if (texture)
-                    pegi.write(texture, 200);
+                if (_texture)
+                    pegi.write(_texture, 200);
 
                 return false;
             }
@@ -2196,7 +2190,7 @@ namespace QuizCannersUtilities {
         }
 
         public string GetURL(int ind) {
-            var el = loadedTextures.TryGet(ind);
+            var el = _loadedTextures.TryGet(ind);
             if (el != null)
                 return el.URL;
             return "";
@@ -2204,28 +2198,28 @@ namespace QuizCannersUtilities {
 
         public bool TryGetTexture(int ind, out Texture tex, bool remove = false) {
             tex = null;
-            var el = loadedTextures.TryGet(ind);
+            var el = _loadedTextures.TryGet(ind);
             if (el != null)
                 return el.TryGetTexture(out tex, remove);
             return true;
         }
 
         public int StartDownload(string address) {
-            var el = loadedTextures.GetByIGotName(address);
+            var el = _loadedTextures.GetByIGotName(address);
 
             if (el == null) {
                 el = new WebRequestMeta(address);
-                loadedTextures.Add(el);
+                _loadedTextures.Add(el);
             }
 
-            return loadedTextures.IndexOf(el);
+            return _loadedTextures.IndexOf(el);
         }
 
         public void Dispose() {
-            foreach (var t in loadedTextures)
+            foreach (var t in _loadedTextures)
                 t.Dispose();
 
-            loadedTextures.Clear();
+            _loadedTextures.Clear();
         }
 
         #region Inspector
@@ -2235,7 +2229,7 @@ namespace QuizCannersUtilities {
         public bool Inspect()
         {
 
-            bool changed = "Textures and Requests".write_List(loadedTextures, ref inspected);
+            bool changed = "Textures and Requests".write_List(_loadedTextures, ref inspected);
 
             "URL".edit(30, ref tmp);
             if (tmp.Length > 0 && icon.Add.Click().nl())
@@ -2252,7 +2246,7 @@ namespace QuizCannersUtilities {
         
         
         public abstract class BaseIndexHolder {
-            protected int _ID;
+            protected readonly int _ID;
 
             protected BaseIndexHolder(string name) {
                 _ID = Shader.PropertyToID( name );
@@ -2321,15 +2315,15 @@ namespace QuizCannersUtilities {
         public class VectorValue : BaseIndexHolder
         {
 
-            public Vector4 lastValue = Vector4.zero;
+            private Vector4 _lastValue = Vector4.zero;
             
             public void SetOn(Material material, Vector4 value) {
-                lastValue = value;
+                _lastValue = value;
                 if (material)
                     material.SetVector(_ID, value);
             } 
             
-            public void SetOn(Material material) => material.SetColor(_ID, lastValue);
+            public void SetOn(Material material) => material.SetColor(_ID, _lastValue);
 
             public void SetGlobal(Vector4 value) => GlobalValue = value;
 
@@ -2349,15 +2343,15 @@ namespace QuizCannersUtilities {
         public class TextureValue : BaseIndexHolder
         {
 
-            public Texture lastValue = null;
+            private Texture _lastValue = null;
             
             public void SetOn(Material material, Texture value) {
-                lastValue = value;
+                _lastValue = value;
                 if (material)
                     material.SetTexture(_ID, value);
             } 
             
-            public void SetOn(Material material) => material.SetTexture(_ID, lastValue);
+            public void SetOn(Material material) => material.SetTexture(_ID, _lastValue);
 
             public void SetGlobal(Texture value) => GlobalValue = value;
 
@@ -2368,19 +2362,9 @@ namespace QuizCannersUtilities {
 
             public Texture GetFrom( Material mat) => mat.GetTexture(_ID);
 
-            public Vector2 GetOffset (Material mat)
-            {
-                if (mat)
-                    return mat.GetTextureOffset(_ID);
-                return Vector2.zero;
-            }
-
-            public Vector2 GetTiling(Material mat)
-            {
-                if (mat)
-                    return mat.GetTextureScale(_ID);
-                return Vector2.zero;
-            }
+            public Vector2 GetOffset (Material mat) => mat ? mat.GetTextureOffset(_ID) : Vector2.zero;
+            
+            public Vector2 GetTiling(Material mat) => mat ? mat.GetTextureScale(_ID) : Vector2.one;
 
             public void SetOffset(Material mat, Vector2 value)
             {

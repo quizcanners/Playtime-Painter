@@ -8,7 +8,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [CustomEditor(typeof(PlaytimePainter))]
-    public class PlaytimePainterClassDrawer : PEGI_Editor<PlaytimePainter>
+    public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter>
     {
 
         public bool AllowEditing(PlaytimePainter targ) => targ && (!targ.LockTextureEditing || targ.IsEditingThisMesh);

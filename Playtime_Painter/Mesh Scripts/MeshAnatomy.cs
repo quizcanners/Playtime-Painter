@@ -361,13 +361,14 @@ namespace Playtime_Painter
         }
 
         public Vector3 WorldPos { get {
-                PlaytimePainter emc = MeshManager.Inst.target;
-                if (emc.AnimatedVertices())   {
-                    int animNo = emc.GetVertexAnimationNumber();
-                    return emc.transform.TransformPoint(localPos + anim[animNo]);
-                }
-
-                return emc.transform.TransformPoint(localPos);
+                var emc = MeshManager.Inst.target;
+                
+                if (!emc.AnimatedVertices())  
+                    return emc.transform.TransformPoint(localPos);
+                
+                var animNo = emc.GetVertexAnimationNumber();
+                return emc.transform.TransformPoint(localPos + anim[animNo]);
+                
             } 
             set {
               localPos =  MeshMGMT.target.transform.InverseTransformPoint(value);
@@ -376,8 +377,9 @@ namespace Playtime_Painter
 
         public Vector3 GetWorldNormal() => MeshMGMT.target.transform.TransformDirection(GetNormal());
         
-        public Vector3 GetNormal() {
+        private Vector3 GetNormal() {
             normal = Vector3.zero;
+            
             foreach (var u in uvpoints)
                 foreach (var t in u.tris) 
                 normal += t.GetNormal();
@@ -440,21 +442,20 @@ namespace Playtime_Painter
         #endregion
 
         public int GetIndexFor(Vector2 uv_0, Vector2 uv_1) {
-            int cnt = shared_v2s.Count;
-            for (int i = 0; i < cnt; i++) {
-                Vector2[] v2 = shared_v2s[i];
-                if ((v2[0] == uv_0) && (v2[1] == uv_1))
+            var cnt = shared_v2s.Count;
+            
+            for (var i = 0; i < cnt; i++) {
+                var v2 = shared_v2s[i];
+                if (v2[0] == uv_0 && v2[1] == uv_1)
                     return i;
             }
 
-            Vector2[] tmp = new Vector2[2];
+            var tmp = new Vector2[2];
             tmp[0] = uv_0;
             tmp[1] = uv_1;
 
             shared_v2s.Add(tmp);
 
-            //if (uvpoints.Count < cnt)
-              //  CleanEmptyIndexes();
 
             return cnt;
         }
