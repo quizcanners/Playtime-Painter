@@ -16,7 +16,7 @@ namespace Playtime_Painter
                     return true;
                 BrushConfig bcf = Cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
-                MeshMGMT.edMesh.Dirty = true;
+                MeshMGMT.editedMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -31,7 +31,7 @@ namespace Playtime_Painter
                 BrushConfig bcf = Cfg.brushConfig;
                 foreach (var uv in PointedTris.vertexes)
                 bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
-                MeshMGMT.edMesh.Dirty = true;
+                MeshMGMT.editedMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -40,7 +40,7 @@ namespace Playtime_Painter
         #if PEGI
         public override bool Inspect()
         {
-            var col = GlobalBrush.colorLinear.ToGamma();
+            var col = GlobalBrush.Color;
             var msk = GlobalBrush.mask;
             if ("Paint All".Click().nl())
             {
@@ -48,7 +48,7 @@ namespace Playtime_Painter
                     msk.Transfer(ref v.shadowBake, col);
                 EditedMesh.Dirty = true;
             }
-            GlobalBrush.ColorSliders_PEGI().nl();
+            GlobalBrush.ColorSliders().nl();
 
             var mat = InspectedPainter.Material;
 

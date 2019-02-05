@@ -88,7 +88,7 @@ namespace Playtime_Painter
             b = bc.mask.GetFlag(BrushMask.B);
             a = bc.mask.GetFlag(BrushMask.A);
 
-            csrc = bc.colorLinear.ToGamma();
+            csrc = bc.Color;
         }
 
         public void PrepareVolumeBlit(BrushConfig bc, ImageData id, float alpha, StrokeVector stroke, VolumeTexture volume)

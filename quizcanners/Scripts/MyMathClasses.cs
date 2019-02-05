@@ -654,8 +654,7 @@ namespace QuizCannersUtilities {
         {
             return Mathf.Abs(Mathf.Sqrt(GetChanel(chan)));
         }
-
-
+        
         public void SetChanelFrom01(ColorChanel chan, float value)
         {
             value *= value;
@@ -724,15 +723,9 @@ namespace QuizCannersUtilities {
             tmp.a = alpha;
             return tmp;
         }
-
-
-
-        public Color ToGamma()
-        {
-
-            return L_col.gamma;
-        }
-
+        
+        public Color ToGamma() => L_col.gamma;
+        
         public void ToGamma(ref Color tmp)
         {
             tmp = L_col.gamma;

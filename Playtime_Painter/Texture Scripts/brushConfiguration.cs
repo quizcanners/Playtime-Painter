@@ -236,6 +236,8 @@ namespace Playtime_Painter {
 
         public LinearColor colorLinear;
 
+        public Color Color { get { return colorLinear.ToGamma(); } set { colorLinear.From(value); } }
+
         [NonSerialized]
         public Vector2 SampledUV;
 
@@ -493,16 +495,16 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        public bool ColorSliders_PEGI() {
+        public bool ColorSliders() {
 
             if (InspectedPainter)
-                return ColorSliders();
+                return ColorSliders_PlaytimePainter();
 
             bool changed = false;
 
-            Color col = colorLinear.ToGamma();
-            if (pegi.edit(ref col).nl(ref changed)) 
-                colorLinear.From(col);
+            Color col = Color;
+            if (pegi.edit(ref col).nl(ref changed))
+                Color = col;
              
             if (Cfg.showColorSliders) {
                 ChannelSlider(BrushMask.R, ref colorLinear.r, null, true).nl(ref changed);
@@ -514,7 +516,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        bool ColorSliders() {
+        bool ColorSliders_PlaytimePainter() {
 
             if (!Cfg.showColorSliders)
                 return false;
@@ -550,7 +552,7 @@ namespace Playtime_Painter {
                     ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider).nl(ref changed);
                     ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider).nl(ref changed);
 
-                    bool gotAlpha = InspectedPainter.ImgData.texture2D.TextureHasAlpha();
+                    bool gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();
 
                     if (gotAlpha || id.preserveTransparency) {
 

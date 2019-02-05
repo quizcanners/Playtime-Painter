@@ -98,7 +98,7 @@ namespace Playtime_Painter.Examples {
                 Blit_Functions.b = bc.mask.GetFlag(BrushMask.B);
                 Blit_Functions.a = bc.mask.GetFlag(BrushMask.A);
 
-                Blit_Functions.csrc = bc.colorLinear.ToGamma();
+                Blit_Functions.csrc = bc.Color;
 
                 MyIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
@@ -456,13 +456,13 @@ namespace Playtime_Painter.Examples {
                 MeshManager.Inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshManager.Inst.edMesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshManager.Inst.editedMesh.Encode().ToString();
 
                 painter.selectedMeshProfile = matAtlasProfile;
 
                 if ((tyling != Vector2.one) || (offset != Vector2.zero))
                 {
-                    MeshManager.Inst.edMesh.TileAndOffsetUVs(offset, tyling, 0);
+                    MeshManager.Inst.editedMesh.TileAndOffsetUVs(offset, tyling, 0);
                     Debug.Log("offsetting " + offset + " tyling " + tyling);
                 }
 

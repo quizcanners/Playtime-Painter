@@ -400,7 +400,7 @@ namespace Playtime_Painter {
 
             //Color c = brush.colorLinear.ToGamma();
 
-            brushColor_Property.GlobalValue = brush.colorLinear.ToGamma();
+            brushColor_Property.GlobalValue = brush.Color;
 
             brushMask_Property.GlobalValue = new Vector4(
                 brush.mask.GetFlag(BrushMask.R) ? 1 : 0,
@@ -745,6 +745,11 @@ namespace Playtime_Painter {
             if (!Data)
                 return;
 
+            PlaytimePainter uiPainter = null;
+
+           // if (Application.isPlaying)
+             //   uiPainter = PlaytimePainter.RaycastUI();
+
             meshManager.EditingUpdate();
 
 #if UNITY_2018_1_OR_NEWER
@@ -757,7 +762,7 @@ namespace Playtime_Painter {
 
             List<PlaytimePainter> l = PlaytimePainter.playbackPainters;
 
-            if ((l.Count > 0) && (!StrokeVector.PausePlayback))
+            if (l.Count > 0 && !StrokeVector.PausePlayback)
             {
                 if (!l.Last())
                     l.RemoveLast(1);
@@ -776,31 +781,43 @@ namespace Playtime_Painter {
             }
 #endif
 
-            if (Data && (Data.disableNonMeshColliderInPlayMode) && (Application.isPlaying))
-            {
+            if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode) {
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
                 {
-                    Collider c = hit.collider;
-                    if ((c.GetType() != typeof(MeshCollider)) && (PlaytimePainter.CanEditWithTag(c.tag))) c.enabled = false;
+                    var c = hit.collider;
+                    if (c.GetType() != typeof(MeshCollider) && PlaytimePainter.CanEditWithTag(c.tag)) c.enabled = false;
                 }
             }
 
-            PlaytimePainter p = PlaytimePainter.currentlyPaintedObjectPainter;
-
-            if (p && !Application.isPlaying)
+            if (!uiPainter || !uiPainter.CanPaint())
             {
-                if (p.ImgData == null)
-                    PlaytimePainter.currentlyPaintedObjectPainter = null;
-                else
+
+                var p = PlaytimePainter.currentlyPaintedObjectPainter;
+
+                if (p && !Application.isPlaying)
                 {
-                    TexMGMTdata.brushConfig.Paint(p.stroke, p);
-                    p.Update();
+                    if (p.ImgData == null)
+                        PlaytimePainter.currentlyPaintedObjectPainter = null;
+                    else
+                    {
+                        TexMGMTdata.brushConfig.Paint(p.stroke, p);
+                        p.Update();
+                    }
                 }
             }
 
+            bool needRefresh = false;
             foreach (var pl in _plugins)
-                pl.Update();
+                if (pl != null)
+                    pl.Update();
+                else needRefresh = true;
+
+            if (needRefresh)
+            {
+                Debug.Log("Refreshing plugins");
+                RefreshPlugins();
+            }
 
         }
 

@@ -11,7 +11,6 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public abstract class CoordinatePickerBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler {
 
-
         static CoordinatePickerBase currentPicker;
         
         [NonSerialized] public bool mouseDown = false;

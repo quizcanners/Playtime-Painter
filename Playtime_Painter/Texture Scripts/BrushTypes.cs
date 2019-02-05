@@ -157,7 +157,7 @@ namespace Playtime_Painter
         public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             Vector2 delta_uv = st.uvTo - st.uvFrom;
-
+            
             if (delta_uv.magnitude > (0.2f + st.avgBrushSpeed * 3)) delta_uv = Vector2.zero; // This is made to avoid glitch strokes on seams
             else st.avgBrushSpeed = (st.avgBrushSpeed + delta_uv.magnitude) / 2;
 

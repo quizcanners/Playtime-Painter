@@ -237,7 +237,7 @@ namespace Playtime_Painter.Examples
                     if (PointedTris.SameAsLastFrame)
                         return true;
                     PointedTris.textureNo[curAtlasChanel] = curAtlasTexture;
-                    MeshMGMT.edMesh.Dirty = true;
+                    MeshMGMT.editedMesh.Dirty = true;
                     return true;
                 }
             }
@@ -256,7 +256,7 @@ namespace Playtime_Painter.Examples
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
-                        MeshMGMT.edMesh.Dirty = true;
+                        MeshMGMT.editedMesh.Dirty = true;
                     }
                 return true;
             }
@@ -275,7 +275,7 @@ namespace Playtime_Painter.Examples
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = curAtlasTexture;
-                        MeshMGMT.edMesh.Dirty = true;
+                        MeshMGMT.editedMesh.Dirty = true;
                     }
                 return true;
             }
@@ -288,7 +288,7 @@ namespace Playtime_Painter.Examples
             foreach (Triangle t in EditedMesh.triangles)
                 t.textureNo[chanel] = no;
 
-            MeshMGMT.edMesh.Dirty = true;
+            MeshMGMT.editedMesh.Dirty = true;
         }
 
         public void SetAllTrianglesTextureTo(int no, int chanel, int submesh)
@@ -298,7 +298,7 @@ namespace Playtime_Painter.Examples
                 if (t.submeshIndex == submesh)
                     t.textureNo[chanel] = no;
 
-            MeshMGMT.edMesh.Dirty = true;
+            MeshMGMT.editedMesh.Dirty = true;
         }
 
         public override void KeysEventPointedTriangle()
@@ -309,7 +309,7 @@ namespace Playtime_Painter.Examples
             {
                 curAtlasTexture = keyDown;
                 MeshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
-                MeshMGMT.edMesh.Dirty = true;
+                MeshMGMT.editedMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
         }

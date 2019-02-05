@@ -311,7 +311,7 @@ namespace Playtime_Painter {
 
         public void FromColor(BrushConfig brush, Vector2 uv)
         {
-            var c = brush.colorLinear.ToGamma();
+            var c = brush.Color;
 
             currentPixel.x = (int)Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
             currentPixel.y = (int)Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);

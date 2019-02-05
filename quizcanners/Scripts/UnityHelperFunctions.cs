@@ -42,10 +42,10 @@ namespace QuizCannersUtilities {
         #region Timing
 
         public static double TimeSinceStartup() =>
-        #if UNITY_EDITOR
+            #if UNITY_EDITOR
             (!Application.isPlaying)
                 ? EditorApplication.timeSinceStartup :
-        #endif
+            #endif
                 Time.realtimeSinceStartup;
 
         public static bool TimePassedAbove(this double value, float interval) => (TimeSinceStartup() - value) > interval;

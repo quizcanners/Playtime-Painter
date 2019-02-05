@@ -95,7 +95,7 @@ namespace Playtime_Painter.Examples {
             if (!_collider)
                 _collider = GetComponent<SphereCollider>();
 
-            rendy.sharedMaterial.color = brush.colorLinear.ToGamma();
+            rendy.sharedMaterial.color = brush.Color;
             brush.TargetIsTex2D = false;
         }
 
@@ -152,8 +152,8 @@ namespace Playtime_Painter.Examples {
                 }
             }
 
-            if (brush.ColorSliders_PEGI()) 
-                rendy.sharedMaterial.color = brush.colorLinear.ToGamma();
+            if (brush.ColorSliders()) 
+                rendy.sharedMaterial.color = brush.Color;
 
             return false;
         }

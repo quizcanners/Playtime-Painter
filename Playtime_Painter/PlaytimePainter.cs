@@ -9,6 +9,8 @@ using System;
 using System.IO;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace Playtime_Painter {
 
@@ -16,8 +18,67 @@ namespace Playtime_Painter {
     [HelpURL(WWW_Manual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, ISTD, IPEGI
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ISTD, IPEGI
     {
+
+        #region UI
+
+        static PlaytimePainter mouseOverUIPainter = null;
+        Vector2 UiUv;
+        [NonSerialized] Camera clickCamera;
+        
+        public void OnPointerDown(PointerEventData eventData) => mouseOverUIPainter = DataUpdate(eventData) ? this : mouseOverUIPainter;
+
+        public void OnPointerUp(PointerEventData eventData) => mouseOverUIPainter = null;
+
+        public void OnPointerExit(PointerEventData eventData) {
+            if (mouseOverUIPainter == this)
+                DataUpdate(eventData);
+        }
+
+        bool DataUpdate(PointerEventData eventData) {
+
+            if (DataUpdate(eventData.position, eventData.pressEventCamera))
+                clickCamera = eventData.pressEventCamera;
+            else
+                return false;
+
+            return true;
+        }
+
+        bool DataUpdate(Vector2 position, Camera cam)
+        {
+            Vector2 localCursor;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(uiGraphic.rectTransform, position, cam, out localCursor))
+                return false;
+
+            UiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
+
+            return true;
+        }
+
+        private bool CastRayPlaytime_UI()
+        {
+
+            var rt = uiGraphic.rectTransform;
+
+            var id = ImgData;
+
+            if (id == null)
+                return false;
+
+            var uvClick = UiUv;
+
+            uvClick.Scale(id.tiling);
+            uvClick += id.offset;
+            stroke.unRepeatedUV = uvClick + id.offset;
+            stroke.uvTo = stroke.unRepeatedUV.To01Space();
+            PreviewShader_StrokePosition_Update();
+            return true;
+        }
+
+
+        #endregion
 
         #region StaticGetters
 
@@ -59,6 +120,7 @@ namespace Playtime_Painter {
         public MeshFilter meshFilter;
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
+        public Graphic uiGraphic;
         [NonSerialized] public Mesh colliderForSkinnedMesh;
 
         public bool meshEditing = false;
@@ -111,12 +173,16 @@ namespace Playtime_Painter {
                     terrain.materialTemplate = value;
                     terrain.materialType = value ? Terrain.MaterialType.Custom : Terrain.MaterialType.BuiltInStandard;
                 }
+                else if (uiGraphic)
+                    uiGraphic.material = value;
             }
         }
 
         public MaterialData MatDta => Material.GetMaterialData();
 
         public ImageData ImgData => GetTextureOnMaterial().GetImgData();
+
+        public bool HasMaterialSource => meshRenderer || terrain || uiGraphic;
 
         public string nameHolder = "unnamed";
 
@@ -162,19 +228,22 @@ namespace Playtime_Painter {
 #if BUILD_WITH_PAINTER
         private double _mouseBttnTime = 0;
 
+        
+
         public void OnMouseOver() {
 
-            if (pegi.MouseOverUI) {
+            if (pegi.MouseOverUI || (mouseOverUIPainter && mouseOverUIPainter!= this)) {
                 stroke.mouseDwn = false;
                 return;
             }
 
             stroke.mouseUp = Input.GetMouseButtonUp(0);
             stroke.mouseDwn = Input.GetMouseButtonDown(0);
+            bool mouseBttn = Input.GetMouseButton(0);
 
             if (Input.GetMouseButtonDown(1))
                 _mouseBttnTime = Time.time;
-            if ((Input.GetMouseButtonUp(1)) && ((Time.time - _mouseBttnTime) < 0.2f))
+            if (Input.GetMouseButtonUp(1) && ((Time.time - _mouseBttnTime) < 0.2f))
                 FocusOnThisObject();
 
             if (!CanPaint())
@@ -184,32 +253,33 @@ namespace Playtime_Painter {
 
             Vector3 mousePos = Input.mousePosition;
 
-            if (!CastRayPlaytime(stroke, mousePos)) return;
+            if (uiGraphic) {
+                if (!CastRayPlaytime_UI())
+                    return;
+            } else 
+                if (!CastRayPlaytime(stroke, mousePos)) return;
             
+            bool Cntr_Down = (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
 
-                bool Cntr_Down = (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+            ProcessMouseGrag(Cntr_Down);
 
-                ProcessMouseGrag(Cntr_Down);
-
-                if (!((Input.GetMouseButton(0) || (stroke.mouseUp)) && (!Cntr_Down))) return;
+            if ((!mouseBttn && !stroke.mouseUp) && !Cntr_Down) return;
             
+            if (currentlyPaintedObjectPainter != this) {
+                currentlyPaintedObjectPainter = this;
+                stroke.SetPreviousValues();
+                FocusOnThisObject();
+            }
 
-                if (currentlyPaintedObjectPainter != this)
-                {
-                    currentlyPaintedObjectPainter = this;
-                    stroke.SetPreviousValues();
-                    FocusOnThisObject();
-                }
+            if (!stroke.mouseDwn || CanPaintOnMouseDown(GlobalBrush))
+                GlobalBrush.Paint(stroke, this);
+            else RecordingMgmt();
 
-                if ((!stroke.mouseDwn) || (CanPaintOnMouseDown(GlobalBrush)))
-                    GlobalBrush.Paint(stroke, this);
-                else RecordingMgmt();
-
-                if (stroke.mouseUp)
-                    currentlyPaintedObjectPainter = null;
-            
-            
+            if (stroke.mouseUp)
+                currentlyPaintedObjectPainter = null;
+ 
         }
+
 
 #endif
 
@@ -261,7 +331,7 @@ namespace Playtime_Painter {
         }
 #endif
 
-        private bool CanPaint()
+        public bool CanPaint()
         {
 
             if (!IsCurrentTool) return false;
@@ -274,7 +344,7 @@ namespace Playtime_Painter {
             if (IsTerrainHeightTexture && IsOriginalShader)
                 return false;
 
-            if ((stroke.mouseDwn) || (stroke.mouseUp))
+            if (stroke.mouseDwn || stroke.mouseUp)
                 InitIfNotInitialized();
 
             if (ImgData != null) return true;
@@ -364,7 +434,7 @@ namespace Playtime_Painter {
 
             return uv;
         }
-
+        
         private void ProcessMouseGrag(bool control)
         {
 
@@ -416,9 +486,38 @@ namespace Playtime_Painter {
 #endif
         }
 
-        private bool CanPaintOnMouseDown(BrushConfig br) =>
-             (ImgData.TargetIsTexture2D() || GlobalBrushType.StartPaintingTheMomentMouseIsDown);
+        private bool CanPaintOnMouseDown(BrushConfig br) =>  ImgData.TargetIsTexture2D() || GlobalBrushType.StartPaintingTheMomentMouseIsDown;
         
+     /*   static GraphicRaycaster m_Raycaster;
+        static PointerEventData m_PointerEventData;
+        static EventSystem m_EventSystem;
+        static RaycastResult uiRaycast;
+
+        public static PlaytimePainter RaycastUI() {
+
+            if (!m_Raycaster)
+                m_Raycaster = FindObjectOfType<GraphicRaycaster>();
+            if (!m_EventSystem)
+                m_EventSystem = FindObjectOfType<EventSystem>();
+
+            m_PointerEventData = new PointerEventData(m_EventSystem);
+            m_PointerEventData.position = Input.mousePosition;
+
+            var results = new List<RaycastResult>();
+
+            m_Raycaster.Raycast(m_PointerEventData, results);
+
+            foreach (var result in results) {
+                var pp = result.gameObject.GetComponent<PlaytimePainter>();
+                if (pp.uiGraphic) {
+                    uiRaycast = result;
+                    pp.OnMouseOver();
+                    return pp;
+                }
+            }
+
+            return null;
+        }*/
 
         #endregion
 
@@ -800,10 +899,10 @@ namespace Playtime_Painter {
 
         #region Material MGMT
 
-        public Material[] GetMaterials()
-        {
+        public Material[] GetMaterials() {
 
-            if (!terrain)   return meshRenderer.sharedMaterials;
+            if (!terrain && !uiGraphic)
+                return meshRenderer.sharedMaterials;
             
             var mat = Material;
 
@@ -898,11 +997,15 @@ namespace Playtime_Painter {
             if (original)
                 SetOriginalShader();
 
-            if (!meshRenderer)
-                result = terrain ? terrain.materialTemplate : null;
-            else
+            if (meshRenderer) {
                 if (meshRenderer.sharedMaterials.ClampIndexToLength(ref selectedSubmesh))
-                result = meshRenderer.sharedMaterials[selectedSubmesh];
+                    result = meshRenderer.sharedMaterials[selectedSubmesh];
+            }
+            else if (uiGraphic)
+                result = uiGraphic.material;
+            else
+                result = terrain ? terrain.materialTemplate : null;
+
 
             return result;
         }
@@ -1677,6 +1780,8 @@ namespace Playtime_Painter {
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
 
+           
+
         }
 
         public void UpdateColliderForSkinnedMesh()
@@ -1691,63 +1796,65 @@ namespace Playtime_Painter {
 
         public void InitIfNotInitialized()
         {
-            //  return;
 
             if (!(!inited || ((!meshCollider || !meshRenderer) && (!terrain || !terrainCollider)))) return;
             
-                inited = true;
+            inited = true;
 
-                nameHolder = gameObject.name;
+            nameHolder = gameObject.name;
 
-                if (!meshRenderer)
-                    meshRenderer = GetComponent<Renderer>();
+            if (!meshRenderer)
+                meshRenderer = GetComponent<Renderer>();
 
-                if (meshRenderer)
+            if (!uiGraphic)
+                uiGraphic = GetComponent<Graphic>();
+            
+            if (meshRenderer)
+            {
+
+                var collis = GetComponents<Collider>();
+
+                foreach (var c in collis)
+                    if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
+
+                collis = GetComponentsInChildren<Collider>();
+
+                foreach (var c in collis)
+                    if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
+
+                meshCollider = GetComponent<MeshCollider>();
+                meshFilter = GetComponent<MeshFilter>();
+
+                if (!meshCollider)
                 {
-
-                    var collis = GetComponents<Collider>();
-
-                    foreach (var c in collis)
-                        if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
-
-                    collis = GetComponentsInChildren<Collider>();
-
-                    foreach (var c in collis)
-                        if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
-
-                    meshCollider = GetComponent<MeshCollider>();
-                    meshFilter = GetComponent<MeshFilter>();
-
-                    if (!meshCollider)
-                    {
-                        meshCollider = meshRenderer.gameObject.AddComponent<MeshCollider>();
-                        forcedMeshCollider = true;
-                    }
-                    else if (meshCollider.enabled == false)
-                    {
-                        meshCollider.enabled = true;
-                        forcedMeshCollider = true;
-                    }
-
+                    meshCollider = meshRenderer.gameObject.AddComponent<MeshCollider>();
+                    forcedMeshCollider = true;
+                }
+                else if (meshCollider.enabled == false)
+                {
+                    meshCollider.enabled = true;
+                    forcedMeshCollider = true;
                 }
 
-                if ((meshRenderer) && (meshRenderer.GetType() == typeof(SkinnedMeshRenderer)))
-                {
-                    skinnedMeshRenderer = (SkinnedMeshRenderer)meshRenderer;
-                    UpdateColliderForSkinnedMesh();
-                }
-                else skinnedMeshRenderer = null;
+            }
 
-                if (!meshRenderer)
-                {
-                    terrain = GetComponent<Terrain>();
-                    if (terrain)
-                        terrainCollider = GetComponent<TerrainCollider>();
+            if ((meshRenderer) && (meshRenderer.GetType() == typeof(SkinnedMeshRenderer))) {
+                skinnedMeshRenderer = (SkinnedMeshRenderer)meshRenderer;
+                UpdateColliderForSkinnedMesh();
+            }
+            else skinnedMeshRenderer = null;
 
-                }
+            if (!meshRenderer)
+            {
 
-                if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode()))
-                    ReEnableRenderTexture();
+                terrain = GetComponent<Terrain>();
+                if (terrain)
+                    terrainCollider = GetComponent<TerrainCollider>();
+
+            }
+
+            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode()))
+                ReEnableRenderTexture();
 
             
         }
@@ -2003,7 +2110,7 @@ namespace Playtime_Painter {
 
                                 pegi.newLine();
                                 if (MeshProfile.Inspect().nl())
-                                    MeshMgmt.edMesh.Dirty = true;
+                                    MeshMgmt.editedMesh.Dirty = true;
 
                                 if ("Hint".foldout(ref VertexContents.showHint).nl())
                                 {
@@ -2020,7 +2127,7 @@ namespace Playtime_Painter {
                         else
                         {
                             if ((" : ".select(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) && (IsEditingThisMesh))
-                                MeshMgmt.edMesh.Dirty = true;
+                                MeshMgmt.editedMesh.Dirty = true;
 
                             if (icon.Add.Click(25).nl())
                             {
@@ -2140,21 +2247,17 @@ namespace Playtime_Painter {
                         changed |= GlobalBrush.Inspect();
 
                         var mode = GlobalBrush.BlitMode;
-                        var col = GlobalBrush.colorLinear.ToGamma();
+                        var col = GlobalBrush.Color;
 
-                        if ((CPU || (!mode.UsingSourceTexture)) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI)
-                        {
-                            if (pegi.edit(ref col).changes(ref changed))
-                                GlobalBrush.colorLinear.From(col);
-
-                        }
-
+                        if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
+                                GlobalBrush.Color = col;
+                        
                         pegi.nl();
 
                         if (!Cfg.moreOptions)
                         {
 
-                            changed |= GlobalBrush.ColorSliders_PEGI().nl();
+                            changed |= GlobalBrush.ColorSliders().nl();
 
                             if (Cfg.showColorSchemes)
                             {
@@ -2261,7 +2364,7 @@ namespace Playtime_Painter {
 
                     #region Save Load Options
 
-                    if (!PainterStuff.IsNowPlaytimeAndDisabled && (meshRenderer || terrain) && !Cfg.showConfig)
+                    if (!PainterStuff.IsNowPlaytimeAndDisabled && HasMaterialSource && !Cfg.showConfig)
                     {
                         #region Material Clonning Options
 
@@ -2614,6 +2717,14 @@ namespace Playtime_Painter {
 
         public void Update()
         {
+
+            if (this == mouseOverUIPainter)
+            {
+                if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, clickCamera))
+                    mouseOverUIPainter = null;
+
+                OnMouseOver();
+            }
 
             #region URL Loading
             if (loadingOrder.Count > 0)

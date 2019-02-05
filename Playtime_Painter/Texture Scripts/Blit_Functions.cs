@@ -119,7 +119,7 @@ public static class Blit_Functions {
             b = bc.mask.GetFlag(BrushMask.B);
             a = bc.mask.GetFlag(BrushMask.A);
 
-            csrc = bc.colorLinear.ToGamma();
+            csrc = bc.Color;
 
         }
 

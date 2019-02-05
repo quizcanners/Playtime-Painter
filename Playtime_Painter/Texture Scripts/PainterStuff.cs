@@ -71,7 +71,7 @@ namespace Playtime_Painter
         protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip?.ImgData; } }
         protected static GridNavigator Grid { get { return GridNavigator.Inst(); } }
         protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh EditedMesh { get { return MeshManager.Inst?.edMesh; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst?.editedMesh; } }
         protected static bool ApplicationIsQuitting { get { return PainterStuff.applicationIsQuitting; }  }
         protected static bool IsNowPlaytimeAndDisabled { get { return PainterStuff.IsNowPlaytimeAndDisabled; } }
 
@@ -94,7 +94,7 @@ namespace Playtime_Painter
         protected static ImageData InspectedImageData { get { var ip = InspectedPainter; return ip ? ip.ImgData : null; } }
         protected static GridNavigator Grid { get { return GridNavigator.Inst(); } }
         protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
-        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.edMesh; } }
+        protected static EditableMesh EditedMesh { get { return MeshManager.Inst.editedMesh; } }
         public static bool applicationIsQuitting;
 
         public static bool IsNowPlaytimeAndDisabled { get

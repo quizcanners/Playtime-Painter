@@ -33,7 +33,7 @@ namespace Playtime_Painter {
 
             col.b = ApplyVeryTrickyColorConversion(val); 
 
-            PainterCamera.Data.brushConfig.colorLinear.From(col);
+            PainterCamera.Data.brushConfig.Color = col;
 
             contrastProperty.GlobalValue = ColorPickerContrast.Contrast;
             brightnessProperty.GlobalValue = ColorPickerContrast.Brightness;

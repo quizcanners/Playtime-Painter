@@ -34,13 +34,13 @@ namespace Playtime_Painter
 
         List<string> redoMoves = new List<string>();
 
-        public EditableMesh edMesh = new EditableMesh();
+        public EditableMesh editedMesh = new EditableMesh();
 
         public EditableMesh previewEdMesh = new EditableMesh();
 
         public Mesh previewMesh;
 
-        public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
+       public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
 
 
         #region Encode & Decode
@@ -63,14 +63,14 @@ namespace Playtime_Painter
         int currentUV = 0;
         bool SelectingUVbyNumber = false;
 
-        public Vertex SelectedUV { get { return edMesh.selectedUV; } set { edMesh.selectedUV = value; } }
-        public LineData SelectedLine { get { return edMesh.selectedLine; } set { edMesh.selectedLine = value; } }
-        public Triangle SelectedTris { get { return edMesh.selectedTris; } set { edMesh.selectedTris = value; } }
-        public Vertex PointedUV { get { return edMesh.pointedUV; } set { edMesh.pointedUV = value; } }
-        public LineData PointedLine { get { return edMesh.pointedLine; } set { edMesh.pointedLine = value; } }
-        public Triangle PointedTris { get { return edMesh.pointedTris; } set { edMesh.pointedTris = value; } }
-        Vertex[] TrisSet { get { return edMesh.TrisSet; } set { edMesh.TrisSet = value; } }
-        public int TrisVerts { get { return edMesh.trisVerts; } set { edMesh.trisVerts = value; } }
+        public Vertex SelectedUV { get { return editedMesh.selectedUV; } set { editedMesh.selectedUV = value; } }
+        public LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
+        public Triangle SelectedTris { get { return editedMesh.selectedTris; } set { editedMesh.selectedTris = value; } }
+        public Vertex PointedUV { get { return editedMesh.pointedUV; } set { editedMesh.pointedUV = value; } }
+        public LineData PointedLine { get { return editedMesh.pointedLine; } set { editedMesh.pointedLine = value; } }
+        public Triangle PointedTris { get { return editedMesh.pointedTris; } set { editedMesh.pointedTris = value; } }
+        Vertex[] TrisSet { get { return editedMesh.TrisSet; } set { editedMesh.TrisSet = value; } }
+        public int TrisVerts { get { return editedMesh.trisVerts; } set { editedMesh.trisVerts = value; } }
 
         [NonSerialized]
         public int vertsShowMax = 8;
@@ -99,16 +99,16 @@ namespace Playtime_Painter
 
             target = pntr;
 
-            edMesh = new EditableMesh();
+            editedMesh = new EditableMesh();
 
-            edMesh.Edit(pntr);
+            editedMesh.Edit(pntr);
 
             if (EditCopy)
                 pntr.meshFilter.sharedMesh = new Mesh();
 
             Redraw();
 
-            pntr.meshNameField = edMesh.meshName;
+            pntr.meshNameField = editedMesh.meshName;
 
             InitVertsIfNUll();
 
@@ -119,7 +119,7 @@ namespace Playtime_Painter
             undoMoves.Clear();
             redoMoves.Clear();
 
-            undoMoves.Add(edMesh.Encode().ToString());
+            undoMoves.Add(editedMesh.Encode().ToString());
 
             MeshTool.OnSelectTool();
 
@@ -131,7 +131,7 @@ namespace Playtime_Painter
             if (target != null)
             {
                 MeshTool.OnDeSelectTool();
-                target.SavedEditableMesh = edMesh.Encode().ToString();
+                target.SavedEditableMesh = editedMesh.Encode().ToString();
                 target = null;
             }
             Grid.Deactivateverts();
@@ -154,15 +154,15 @@ namespace Playtime_Painter
             if (target != null)
             {
 
-                MeshConstructor mc = new MeshConstructor(edMesh, target.MeshProfile, target.meshFilter.sharedMesh);
+                MeshConstructor mc = new MeshConstructor(editedMesh, target.MeshProfile, target.meshFilter.sharedMesh);
 
-                if (!edMesh.dirty_Vertices && !edMesh.dirty_Normals && EditedMesh.Dirty)
+                if (!editedMesh.dirty_Normals && EditedMesh.Dirty)
                 {
 
                     if (EditedMesh.dirty_Position)
                         mc.UpdateMesh<MeshSolutions.VertexPos>();
 
-                    if (edMesh.dirty_Color)
+                    if (editedMesh.dirty_Color)
                         mc.UpdateMesh<MeshSolutions.VertexColor>();
 
                 }
@@ -175,7 +175,7 @@ namespace Playtime_Painter
 
             }
 
-            edMesh.Dirty = false;
+            editedMesh.Dirty = false;
         }
 
         public static Vector2 RoundUVs(Vector2 source, float accuracy)
@@ -195,12 +195,12 @@ namespace Playtime_Painter
 
             if (TrisVerts == 3)
             {
-                foreach (Triangle t in edMesh.triangles)
+                foreach (Triangle t in editedMesh.triangles)
                 {
                     if (t.IsSamePoints(TrisSet))
                     {
                         t.Set(TrisSet);
-                        edMesh.Dirty = true;
+                        editedMesh.Dirty = true;
                         TrisVerts = 0;
                         return;
                     }
@@ -210,7 +210,7 @@ namespace Playtime_Painter
             if (TrisVerts >= 3)
             {
                 Triangle td = new Triangle(TrisSet);
-                edMesh.triangles.Add(td);
+                editedMesh.triangles.Add(td);
 
                 if (!EditorInputManager.Control)
                 {
@@ -220,27 +220,40 @@ namespace Playtime_Painter
                 }
 
                 TrisVerts = 0;
-                edMesh.Dirty = true;
+                editedMesh.Dirty = true;
             }
         }
 
         [NonSerialized]
-        public float dragDelay;
+        double dragStartTime;
+        public double DragDelay {
+            get
+            {
+                return dragStartTime - UnityHelperFunctions.TimeSinceStartup();   
+            }
+
+            set {
+
+                dragStartTime = UnityHelperFunctions.TimeSinceStartup() + value;
+
+            }
+
+        }
 
         [NonSerialized]
         bool _dragging;
-        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) dragDelay = 0.4f; } }
+        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) DragDelay = 0.4f; } }
 
         public void DisconnectDragged()
         {
             Debug.Log("Disconnecting dragged");
 
             MeshPoint temp = new MeshPoint(SelectedUV.Pos);
-            edMesh.meshPoints.Add(temp);
+            editedMesh.meshPoints.Add(temp);
 
             SelectedUV.AssignToNewVertex(temp);
 
-            edMesh.Dirty = true;//_Mesh.GenerateMesh(_targetPiece);
+            editedMesh.Dirty = true;//_Mesh.GenerateMesh(_targetPiece);
         }
 
         public void MoveVertexToGrid(MeshPoint vp)
@@ -257,7 +270,7 @@ namespace Playtime_Painter
             if (Input.GetKey(KeyCode.LeftAlt))
             {
                 MoveVertexToGrid(SelectedUV.meshPoint);
-                edMesh.Dirty = true;
+                editedMesh.Dirty = true;
             }
             else
                 if (!EditorInputManager.Control)
@@ -280,12 +293,12 @@ namespace Playtime_Painter
 
             int cnt = 0;
 
-            for (int i = 0; i < edMesh.triangles.Count; i++)
+            for (int i = 0; i < editedMesh.triangles.Count; i++)
             {
-                if (edMesh.triangles[i].Includes(vert))
+                if (editedMesh.triangles[i].Includes(vert))
                 {
                     if (cnt == 3) return false;
-                    trs[cnt] = edMesh.triangles[i];
+                    trs[cnt] = editedMesh.triangles[i];
                     cnt++;
                 }
             }
@@ -294,13 +307,13 @@ namespace Playtime_Painter
 
 
             trs[0].MergeAround(trs[1], vert); //Consume(trs[1]);
-            edMesh.triangles.Remove(trs[1]);
-            edMesh.triangles.Remove(trs[2]);
+            editedMesh.triangles.Remove(trs[1]);
+            editedMesh.triangles.Remove(trs[2]);
 
             // if ((selectedLine != null) && (selectedLine.includes(vert))) selectedLine = null;
             //if ((selectedUV != null) && (selectedUV.vert == vert)) selectedUV = null;
 
-            edMesh.meshPoints.Remove(vert);
+            editedMesh.meshPoints.Remove(vert);
 
 
             TrisVerts = 0;
@@ -316,9 +329,9 @@ namespace Playtime_Painter
 
             Triangle[] trs = new Triangle[2];
             int cnt = 0;
-            for (int i = 0; i < edMesh.triangles.Count; i++)
+            for (int i = 0; i < editedMesh.triangles.Count; i++)
             {
-                Triangle tmp = edMesh.triangles[i];
+                Triangle tmp = editedMesh.triangles[i];
                 if (tmp.Includes(a, b))
                 {
                     if (cnt == 2) return;
@@ -341,7 +354,7 @@ namespace Playtime_Painter
         {
             NullPoinedSelected();
 
-            edMesh.RemoveLine(ld);
+            editedMesh.RemoveLine(ld);
 
             if (IsInTrisSet(ld.pnts[0]) || IsInTrisSet(ld.pnts[1]))
                 TrisVerts = 0;
@@ -361,11 +374,11 @@ namespace Playtime_Painter
               if ((pointedLine != null) && (pointedLine.includes(uv))) pointedLine = null;
               */
 
-            for (int i = 0; i < edMesh.triangles.Count; i++)
+            for (int i = 0; i < editedMesh.triangles.Count; i++)
             {
-                if (edMesh.triangles[i].Includes(uv))
+                if (editedMesh.triangles[i].Includes(uv))
                 {
-                    edMesh.triangles.RemoveAt(i);
+                    editedMesh.triangles.RemoveAt(i);
                     i--;
                 }
             }
@@ -380,12 +393,12 @@ namespace Playtime_Painter
             if (vrt.uvpoints.Count == 0)
             {
 
-                edMesh.meshPoints.Remove(vrt);
+                editedMesh.meshPoints.Remove(vrt);
             }
 
 
 
-            edMesh.Dirty = true;
+            editedMesh.Dirty = true;
         }
 
         public void NullPoinedSelected()
@@ -417,7 +430,7 @@ namespace Playtime_Painter
         {
             MeshPoint hold = new MeshPoint(pos);
             new Vertex(hold);
-            edMesh.meshPoints.Add(hold);
+            editedMesh.meshPoints.Add(hold);
             
             if (!EditorInputManager.Control)
                 AddToTrisSet(hold.uvpoints[0]);
@@ -437,7 +450,7 @@ namespace Playtime_Painter
 
             tris.Replace(pnt, nuv);
 
-            edMesh.Dirty = true;
+            editedMesh.Dirty = true;
 
         }
 
@@ -475,12 +488,12 @@ namespace Playtime_Painter
         void GetPointedTRIANGLESorLINE()
         {
 
-            edMesh.TagTrianglesUnprocessed();
+            editedMesh.TagTrianglesUnprocessed();
 
             UpdateLocalSpaceV3s();
 
-            for (int i = 0; i < edMesh.meshPoints.Count; i++)
-                foreach (Vertex uv in edMesh.meshPoints[i].uvpoints)
+            for (int i = 0; i < editedMesh.meshPoints.Count; i++)
+                foreach (Vertex uv in editedMesh.meshPoints[i].uvpoints)
                     foreach (Triangle t in uv.tris)
                         if (!t.wasProcessed)
                         {
@@ -513,7 +526,7 @@ namespace Playtime_Painter
             RaycastHit hit;
             PointedUV = null;
             bool VertexIsPointed = false;
-            if (edMesh.meshPoints.Count > 0)
+            if (editedMesh.meshPoints.Count > 0)
             {
                 bool alt = EditorInputManager.Alt;
 
@@ -532,14 +545,14 @@ namespace Playtime_Painter
                         {
                             GridNavigator.collisionPos = hit.transform.position;
                             UpdateLocalSpaceV3s();
-                            edMesh.SortAround(collisionPosLocal, true);
+                            editedMesh.SortAround(collisionPosLocal, true);
 
                         }
                         else
                         {
                             GridNavigator.collisionPos = hit.point;
                             UpdateLocalSpaceV3s();
-                            edMesh.SortAround(collisionPosLocal, true);
+                            editedMesh.SortAround(collisionPosLocal, true);
                             GetPointedTRIANGLESorLINE();
                         }
                     }
@@ -594,10 +607,10 @@ namespace Playtime_Painter
             if (!_dragging)
             {
 
-                if ((pointingUV) && (currentUV <= edMesh.meshPoints[0].uvpoints.Count))
+                if (pointingUV && currentUV <= editedMesh.meshPoints[0].uvpoints.Count)
                 {
 
-                    var pointedVX = edMesh.meshPoints[0];
+                    var pointedVX = editedMesh.meshPoints[0];
 
                     if (currentUV == pointedVX.uvpoints.Count) currentUV--;
 
@@ -612,19 +625,19 @@ namespace Playtime_Painter
 
                 MeshToolBase t = MeshTool;
 
-                if ((t.ShowVertices) && (PointedUV != null))
+                if (t.ShowVertices && PointedUV != null)
                 {
                     if (t.MouseEventPointedVertex())
                         EditedMesh.SetLastPointed(PointedUV);
                     else EditedMesh.ClearLastPointed();
                 }
-                else if ((t.ShowLines) && (PointedLine != null))
+                else if (t.ShowLines && PointedLine != null)
                 {
                     if (t.MouseEventPointedLine())
                         EditedMesh.SetLastPointed(PointedLine);
                     else EditedMesh.ClearLastPointed();
                 }
-                else if ((t.ShowTriangles) && (PointedTris != null))
+                else if (t.ShowTriangles && PointedTris != null)
                 {
                     if (t.MouseEventPointedTriangle())
                         EditedMesh.SetLastPointed(PointedTris);
@@ -652,7 +665,7 @@ namespace Playtime_Painter
 
             UpdateLocalSpaceV3s();
 
-            edMesh.SortAround(collisionPosLocal, false);
+            editedMesh.SortAround(collisionPosLocal, false);
 
             float scaling = 16;
 
@@ -664,10 +677,10 @@ namespace Playtime_Painter
 
             if (MeshTool.ShowVertices)
                 for (int i = 0; i < vertsShowMax; i++)
-                    if (edMesh.meshPoints.Count > i)
+                    if (editedMesh.meshPoints.Count > i)
                     {
                         MarkerWithText mrkr = Grid.verts[i];
-                        MeshPoint vpoint = edMesh.meshPoints[i];
+                        MeshPoint vpoint = editedMesh.meshPoints[i];
 
                         Vector3 worldPos = vpoint.WorldPos;
                         float tmpScale;
@@ -678,7 +691,7 @@ namespace Playtime_Painter
                         {
                             mrkr = Grid.pointedVertex; tmpScale *= 2;
                         }
-                        else if (GetSelectedVert() == edMesh.meshPoints[i])
+                        else if (GetSelectedVert() == editedMesh.meshPoints[i])
                         {
                             mrkr = Grid.selectedVertex;
                             tmpScale *= 1.5f;
@@ -743,9 +756,9 @@ namespace Playtime_Painter
                 if (PointedLine != null)
                     Line(PointedLine.pnts[0].meshPoint, PointedLine.pnts[1].meshPoint, Color.green);
 
-                for (int i = 0; i < Mathf.Min(vertsShowMax, edMesh.meshPoints.Count); i++)
+                for (int i = 0; i < Mathf.Min(vertsShowMax, editedMesh.meshPoints.Count); i++)
                 {
-                    MeshPoint vp = edMesh.meshPoints[i];
+                    MeshPoint vp = editedMesh.meshPoints[i];
                     if (SameTrisAsPointed(vp))
                         Line(vp, PointedUV.meshPoint, Color.yellow);
                 }
@@ -756,9 +769,9 @@ namespace Playtime_Painter
 
                 if (PointedUV != null)
                 {
-                    for (int i = 0; i < edMesh.triangles.Count; i++)
+                    for (int i = 0; i < editedMesh.triangles.Count; i++)
                     {
-                        Triangle td = edMesh.triangles[i];
+                        Triangle td = editedMesh.triangles[i];
                         if (td.Includes(PointedUV))
                         {
 
@@ -784,13 +797,10 @@ namespace Playtime_Painter
         public void CombinedUpdate()
         {
 
-
-
             if (!target)
                 return;
 
-            if (!target.enabled)
-            {
+            if (!target.enabled)  {
                 DisconnectMesh();
                 return;
             }
@@ -807,10 +817,10 @@ namespace Playtime_Painter
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
 
-            if (edMesh.Dirty)
+            if (editedMesh.Dirty)
             {
                 redoMoves.Clear();
-                undoMoves.Add(edMesh.Encode().ToString());
+                undoMoves.Add(editedMesh.Encode().ToString());
                 if (undoMoves.Count > 10)
                     undoMoves.RemoveAt(0);
                 Redraw();
@@ -843,6 +853,11 @@ namespace Playtime_Painter
             
             if (e.isMouse || (e.type == EventType.ScrollWheel)) 
                 RAYCAST_SELECT_MOUSEedit();
+           /* else if (_dragging) {
+                Debug.Log("Setting dirty manually");
+                editedMesh.dirty_Position = true;
+                _dragging = false;
+            }*/
             
             SORT_AND_UPDATE_UI();
 
@@ -880,7 +895,7 @@ namespace Playtime_Painter
         bool SameTrisAsPointed(MeshPoint uvi)
         {
             if (PointedUV == null) return false;
-            foreach (Triangle t in edMesh.triangles)
+            foreach (Triangle t in editedMesh.triangles)
             {
                 if (t.Includes(uvi) && t.Includes(PointedUV)) return true;
             }
@@ -1006,13 +1021,13 @@ namespace Playtime_Painter
         public bool PEGI()  {
 
             bool changed = false;
-            EditableMesh.inspected = edMesh;
+            EditableMesh.inspected = editedMesh;
 
             pegi.newLine();
 
-            if (edMesh != null)
+            if (editedMesh != null)
                 if ("Mesh ".foldout(ref inspectMesh).nl())
-                    changed |= edMesh.Nested_Inspect().nl();
+                    changed |= editedMesh.Nested_Inspect().nl();
             pegi.space();
 
             pegi.newLine();
@@ -1043,7 +1058,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             var mesh = target.GetMesh();
 
-            bool exists = AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+            bool exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
             
             if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
                 target.SaveMesh();
@@ -1070,22 +1085,22 @@ namespace Playtime_Painter
 
                     if (selectedPainters.Count > 0) {
 
-                        if (edMesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref edMesh.UV2distributeRow).nl())
-                            edMesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
+                        if (editedMesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.UV2distributeRow).nl())
+                            editedMesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
                         else
                         {
-                            if (edMesh.UV2distributeCurrent > 0)
+                            if (editedMesh.UV2distributeCurrent > 0)
                             {
-                                ("All added meshes will be distributed in " + edMesh.UV2distributeRow + " by " + edMesh.UV2distributeRow + " grid. By cancelling this added" +
+                                ("All added meshes will be distributed in " + editedMesh.UV2distributeRow + " by " + editedMesh.UV2distributeRow + " grid. By cancelling this added" +
                                     "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
                                 if ("Cancel Distribution".Click().nl())
-                                    edMesh.UV2distributeRow = 0;
+                                    editedMesh.UV2distributeRow = 0;
                             }
                             else {
-                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref edMesh.UV2distributeRow, 2, 16).nl();
-                                "Start from".edit(ref edMesh.UV2distributeCurrent).nl();
+                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.UV2distributeRow, 2, 16).nl();
+                                "Start from".edit(ref editedMesh.UV2distributeCurrent).nl();
                             }
-                            pegi.write("Using " + (edMesh.UV2distributeCurrent + selectedPainters.Count + 1) + " out of " + (edMesh.UV2distributeRow * edMesh.UV2distributeRow).ToString() + " spots");
+                            pegi.write("Using " + (editedMesh.UV2distributeCurrent + selectedPainters.Count + 1) + " out of " + (editedMesh.UV2distributeRow * editedMesh.UV2distributeRow).ToString() + " spots");
                             pegi.newLine();
                         }
 
@@ -1114,9 +1129,9 @@ namespace Playtime_Painter
                         {
 
                             foreach (var p in selectedPainters)
-                                edMesh.MergeWith(p);
+                                editedMesh.MergeWith(p);
 
-                            edMesh.Dirty = true;
+                            editedMesh.Dirty = true;
 
                         }
                     }
@@ -1158,7 +1173,7 @@ namespace Playtime_Painter
             if (undoMoves.Count > 1) {
                 if (pegi.Click(icon.Undo.GetIcon(), 25).changes(ref changed)) {
                     redoMoves.Add(undoMoves.RemoveLast());
-                    undoMoves.Last().DecodeInto(out edMesh);
+                    undoMoves.Last().DecodeInto(out editedMesh);
                     Redraw();
                 }
             }
@@ -1167,7 +1182,7 @@ namespace Playtime_Painter
 
             if (redoMoves.Count > 0) {
                 if (pegi.Click(icon.Redo.GetIcon(),  25).changes(ref changed)) {
-                    redoMoves.Last().DecodeInto(out edMesh);
+                    redoMoves.Last().DecodeInto(out editedMesh);
                     undoMoves.Add(redoMoves.RemoveLast());
                     Redraw();
                 }

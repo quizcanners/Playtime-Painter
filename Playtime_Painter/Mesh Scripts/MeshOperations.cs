@@ -186,7 +186,7 @@ namespace Playtime_Painter
 
             selectedLine = new LineData(headTris, aUV, bUV);
 
-            mm.edMesh.Dirty = true;
+            mm.editedMesh.Dirty = true;
         }
 
         public void QUICK_G_Functions()
@@ -332,7 +332,7 @@ namespace Playtime_Painter
                             else
                                 new Vertex(hold);
 
-                            MeshMGMT.edMesh.meshPoints.Add(hold);
+                            MeshMGMT.editedMesh.meshPoints.Add(hold);
                             MeshMGMT.MoveVertexToGrid(hold);
                             hold.localPos += norm * outlineWidth;
 
@@ -344,10 +344,10 @@ namespace Playtime_Painter
                                 tri[1] = lines[i].pnts[1];
                                 tri[2] = lines[i].pnts[0];
 
-                                MeshMGMT.edMesh.triangles.Add(new Triangle(tri));
+                                MeshMGMT.editedMesh.triangles.Add(new Triangle(tri));
                             }
 
-                            MeshMGMT.edMesh.Dirty = true;
+                            MeshMGMT.editedMesh.Dirty = true;
                         }
 
 

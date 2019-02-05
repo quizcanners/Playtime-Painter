@@ -42,10 +42,10 @@ namespace Playtime_Painter
             pegi.edit(ref col);
 
             if (icon.Save.Click("From brush"))
-                col = GlobalBrush.colorLinear.ToGamma();
+                col = GlobalBrush.Color;
 
             if (icon.Load.Click("To brush"))
-                GlobalBrush.colorLinear.From(col);
+                GlobalBrush.Color = col;
 
             return col;
         }
@@ -69,12 +69,12 @@ namespace Playtime_Painter
 
                 if (lastPicked == i) {
                     if (icon.Save.BGColor(col.ToOpaque()).Click("Save changes").RestoreBGColor())
-                        colors[i] = GlobalBrush.colorLinear.ToGamma();
+                        colors[i] = GlobalBrush.Color;
                 }
                 else
                 if (col.ToOpaque().Click()) {
                     lastPicked = i;
-                    GlobalBrush.colorLinear.From(col);
+                    GlobalBrush.Color = col;
                 }
 
                 rowCount++;
@@ -85,9 +85,9 @@ namespace Playtime_Painter
                 }
             }
 
-            var curColor = GlobalBrush.colorLinear.ToGamma();
+            var curColor = GlobalBrush.Color;
 
-            if (icon.SaveAsNew.BGColor(GlobalBrush.colorLinear.ToGamma().ToOpaque()).Click().RestoreBGColor())
+            if (icon.SaveAsNew.BGColor(curColor.ToOpaque()).Click().RestoreBGColor())
                 colors.Add(curColor);
 
             pegi.nl();

@@ -8,8 +8,70 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [CustomEditor(typeof(PlaytimePainter))]
-    public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter>
-    {
+    public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter> {
+        
+        public void GridUpdate(SceneView sceneview)
+        {
+            Event e = Event.current;
+
+            if (e.isMouse || e.type == EventType.ScrollWheel)
+                EditorInputManager.FeedMouseEvent(e);
+            
+            if (!PlaytimePainter.IsCurrentTool)
+                return;
+            
+        
+            if (e.isMouse)
+            {
+
+                if (e.button == 0)
+                {
+                    L_mouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
+                    L_mouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
+                }
+                
+                mousePosition = Event.current.mousePosition;
+
+                bool offScreen = (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
+                    || mousePosition.x > Camera.current.pixelWidth ||
+                       mousePosition.y > Camera.current.pixelHeight));
+
+                if (!offScreen) {
+                    rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
+                    EditorInputManager.raySceneView = rayGUI;
+                }
+
+            }
+
+            FeedEvents(e);
+
+            if (e.isMouse)
+            {
+
+                RaycastHit hit;
+                var ishit = Physics.Raycast(rayGUI, out hit);
+
+                PlaytimePainter pp = ishit ? hit.transform.GetComponent<PlaytimePainter>() : null;
+
+                bool refocus = OnEditorRayHit(hit, rayGUI);
+
+                if (L_mouseDwn && e.button == 0 && refocus && ishit)
+                {
+
+                    if (pp && pp == painter && AllowEditing(painter))
+                        HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+
+                    UnityHelperFunctions.FocusOn(hit.transform.gameObject);
+                }
+
+                if ((!navigating) && AllowEditing(painter))
+                    e.Use();
+            }
+
+            if (painter && painter.textureWasChanged)
+                painter.Update();
+        }
+
 
         public bool AllowEditing(PlaytimePainter targ) => targ && (!targ.LockTextureEditing || targ.IsEditingThisMesh);
         
@@ -27,21 +89,17 @@ namespace Playtime_Painter {
                 {
 
                     PlaytimePainter edited = MeshManager.Inst.target;
-
-                    allowRefocusing = false;
-
-                    if (pointedPainter != null) {
-
-                        if ((pointedPainter != edited) && (pointedPainter.meshEditing) 
-                            && (pointedPainter.SavedEditableMesh != null ) && L_mouseDwn && (e.button == 0)) {
-                            MeshManager.Inst.EditMesh(pointedPainter, false);
-                            allowRefocusing = true;
-                        }
+                    
+                    if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
+                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && L_mouseDwn && e.button == 0) {
+                        MeshManager.Inst.EditMesh(pointedPainter, false);
+                        allowRefocusing = true;
                     }
+                    else allowRefocusing = false;
 
-                    if ((((e.button == 1) && (!MeshManager.Inst.Dragging))
-                        || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
 
+                    if (((e.button == 1 && !MeshManager.Inst.Dragging) || e.button == 2) 
+                        && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
                         navigating = true;
 
                     return allowRefocusing;
@@ -52,7 +110,7 @@ namespace Playtime_Painter {
 
                     if (painter.NeedsGrid()) { pointedPainter = painter; allowRefocusing = false; }
                     
-                    if (pointedPainter != null)
+                    if (pointedPainter)
                     {
                         StrokeVector st = pointedPainter.stroke;
                         st.mouseUp = L_mouseUp;
@@ -63,9 +121,11 @@ namespace Playtime_Painter {
 
                 }
             }
-            if (L_mouseUp) PlaytimePainter.currentlyPaintedObjectPainter = null;
 
-            if (((e.button == 1) || (e.button == 2)) && ((e.type == EventType.MouseDown) || (e.type == EventType.MouseDrag) || (e.type == EventType.MouseUp)))
+            if (L_mouseUp)
+                PlaytimePainter.currentlyPaintedObjectPainter = null;
+
+            if ((e.button == 1 || e.button == 2) && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
                 navigating = true;
 
 
@@ -81,69 +141,6 @@ namespace Playtime_Painter {
                 if (painter.meshEditing)
                     MeshManager.Inst.UpdateInputEditorTime(e,  L_mouseUp, L_mouseDwn);
             }
-        }
-        
-        public void GridUpdate(SceneView sceneview) {
-
-            if (!PlaytimePainter.IsCurrentTool)
-                return;
-
-
-            Event e = Event.current;
-
-            if (e.isMouse)
-            {
-
-                if (e.button != 0) return;
-
-                L_mouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
-                L_mouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
-
-                mousePosition = Event.current.mousePosition;
-
-                if (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
-                    || mousePosition.x > Camera.current.pixelWidth ||
-                       mousePosition.y > Camera.current.pixelHeight))
-                    return;
-
-                rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
-                EditorInputManager.raySceneView = rayGUI;
-
-            }
-
-            FeedEvents(e);
-
-            if (e.isMouse || (e.type == EventType.ScrollWheel))
-                EditorInputManager.FeedMouseEvent(e);
-
-            if (e.isMouse)
-            {
-
-                RaycastHit hit;
-                bool ishit = Physics.Raycast(rayGUI, out hit);
-
-                PlaytimePainter pp = ishit ? hit.transform.GetComponent<PlaytimePainter>() : null;
-
-                bool refocus = OnEditorRayHit(hit, rayGUI);
-
-                if ((L_mouseDwn) && (e.button == 0) && (refocus) && ishit)
-                {
-
-                    if ((pp) && (pp == painter) && (AllowEditing(painter)))
-                        HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-
-                    UnityHelperFunctions.FocusOn(hit.transform.gameObject);
-                }
-
-                if ((!navigating) && AllowEditing(painter))
-                    e.Use();
-            }
-
-            if (!PlaytimePainter.IsCurrentTool) return;
-
-            if ((painter) && (painter.textureWasChanged))
-                painter.Update();
-
         }
 
         public virtual void OnSceneGUI()

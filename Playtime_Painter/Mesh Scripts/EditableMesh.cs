@@ -18,9 +18,8 @@ namespace Playtime_Painter {
 
         public bool Dirty {
             get {
-                return  dirty_Vertices || dirty_Color || dirty_Normals || dirty_Position;
+                return  dirty_Color || dirty_Normals || dirty_Position;
             } set {
-                dirty_Vertices = value;
                 dirty_Color = value;
                 dirty_Normals = value;
                 dirty_Position = value;
@@ -100,6 +99,8 @@ namespace Playtime_Painter {
         #endregion
 
         public Mesh actualMesh;
+
+        public float avarageSize;
 
         public void RemoveEmptyDots()
         {

@@ -173,7 +173,7 @@ namespace Playtime_Painter.Examples
 
             brush.Targets_PEGI().nl(ref changed);
             brush.Mode_Type_PEGI().nl(ref changed);
-            brush.ColorSliders_PEGI().nl(ref changed);
+            brush.ColorSliders().nl(ref changed);
 
             if (brush.PaintingRGB == false)
                 pegi.writeHint("Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).");

@@ -347,11 +347,16 @@ namespace Playtime_Painter {
                 if (position == null) {
                     position = new Vector3[vertsCount];
 
+                    float totalSize = 0;
+
                     foreach (var vp in edMesh.meshPoints) {
+                        totalSize += vp.localPos.magnitude;
                         var lp = vp.localPos;
                         foreach (var uvi in vp.uvpoints)
                             position[uvi] = lp;
                     }
+
+                    edMesh.avarageSize = totalSize / edMesh.meshPoints.Count;
                 }
                 
                 return position;
@@ -403,12 +408,14 @@ namespace Playtime_Painter {
                 sharpNormals[i] = Vector3.zero;
             }
 
+            float scaleNormalizer = 1f / (edMesh.avarageSize + 0.001f);
+
             foreach (var tri in edMesh.triangles)
             {
 
                 // ********* Calculating Normals
 
-                tri.sharpNormal = tri.GetNormal() * tri.Area;
+                tri.sharpNormal = tri.GetNormalByArea(scaleNormalizer);
 
                 for (int no = 0; no < 3; no++)
                 {
@@ -463,10 +470,14 @@ namespace Playtime_Painter {
 
         void GenerateTris() {
 
-            if (mesh != null)
+            if (mesh)
                 mesh.Clear();
 
-            if (edMesh.triangles.Count == 0)
+            mesh.colors = null;
+
+            mesh.uv = null;
+
+            if (edMesh.triangles.IsNullOrEmpty())
                 return;
 
             edMesh.RefresVerticleTrisList();
@@ -511,7 +522,9 @@ namespace Playtime_Painter {
             GenerateTris();
 
             bool valid = profile.Repack(this);
-            if (!valid) return mesh;
+
+            if (!valid)
+                return mesh;
 
             if (edMesh.gotBindPos)
             {
@@ -562,14 +575,13 @@ namespace Playtime_Painter {
             return mesh;
         }
 
-        public bool Valid => ((tris != null) && (edMesh.vertexCount >= 3) && (tris.TotalCount() >= 3) && (mesh != null)); 
-
-    
-
+        public bool Valid => tris != null && edMesh.vertexCount >= 3 && tris.TotalCount() >= 3 && mesh; 
+        
         public void AssignMesh(GameObject go) => AssignMesh(go.GetComponent<MeshFilter>(), go.GetComponent<MeshCollider>());
         
         public void AssignMesh(MeshFilter m, MeshCollider c) {
-            if (tris.IsNullOrEmpty()) return;
+            if (tris.IsNullOrEmpty())
+                return;
 
             if (m)
                 m.sharedMesh = mesh;

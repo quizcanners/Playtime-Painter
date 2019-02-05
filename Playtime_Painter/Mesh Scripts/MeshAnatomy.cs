@@ -722,8 +722,7 @@ namespace Playtime_Painter
             return true;
         }
     }
-
-    [Serializable]
+    
     public class Triangle : PainterStuffKeepUnrecognized_STD
     {
         public MeshPoint this[int index] {
@@ -752,7 +751,21 @@ namespace Playtime_Painter
             return sharpNormal;
         }
 
-        public bool SameAsLastFrame { get { return this == EditedMesh.LastFramePointedTris; } }
+        public Vector3 GetNormalByArea(float accuracyFix = 1) {
+
+            Vector3 p0 = vertexes[0].Pos * accuracyFix;
+            Vector3 p1 = vertexes[1].Pos * accuracyFix;
+            Vector3 p2 = vertexes[2].Pos * accuracyFix;
+            
+            sharpNormal = MyMath.GetNormalOfTheTriangle(
+                    p0 ,
+                    p1,
+                    p2);
+
+            return sharpNormal * Vector3.Cross(p0 - p1, p0 - p2).magnitude;
+        }
+
+        public bool SameAsLastFrame => this == EditedMesh.LastFramePointedTris;
 
         public float Area => Vector3.Cross(vertexes[0].Pos - vertexes[1].Pos, vertexes[0].Pos - vertexes[2].Pos).magnitude * 0.5f;
 
@@ -1206,8 +1219,7 @@ namespace Playtime_Painter
         }
 
     }
-
-    [Serializable]
+    
     public class LineData : PainterStuff
     {
         public Triangle triangle;

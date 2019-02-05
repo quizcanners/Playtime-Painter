@@ -234,7 +234,7 @@ namespace Playtime_Painter
             if (ProjectionUV)
             {
                 var m = MeshMGMT;
-                if (!m.target || (m.edMesh.meshPoints == null) || (m.edMesh.meshPoints.Count < 1)) return;
+                if (!m.target || (m.editedMesh.meshPoints == null) || (m.editedMesh.meshPoints.Count < 1)) return;
 
                 var prMesh = FreshPreviewMesh;
                 

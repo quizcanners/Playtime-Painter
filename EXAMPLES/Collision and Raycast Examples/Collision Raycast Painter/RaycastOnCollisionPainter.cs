@@ -89,7 +89,7 @@ namespace Playtime_Painter.Examples
 
             changed |= brush.Targets_PEGI().nl();
             changed |= brush.Mode_Type_PEGI().nl();
-            changed |= brush.ColorSliders_PEGI();
+            changed |= brush.ColorSliders();
             return changed;
         }
 #endif
