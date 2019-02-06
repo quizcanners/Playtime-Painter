@@ -499,9 +499,11 @@ namespace Playtime_Painter {
                 tris[i] = new List<int>();
 
             foreach (var tri in edMesh.triangles) {
-                tris[tri.submeshIndex].Add(tri.vertexes[0]);
-                tris[tri.submeshIndex].Add(tri.vertexes[1]);
-                tris[tri.submeshIndex].Add(tri.vertexes[2]);
+                var trs = tris[tri.submeshIndex];
+
+                trs.Add(tri.vertexes[0]);
+                trs.Add(tri.vertexes[1]);
+                trs.Add(tri.vertexes[2]);
             }
 
             baseVertex = edMesh.baseVertex.ToArray();
@@ -526,16 +528,9 @@ namespace Playtime_Painter {
             if (!valid)
                 return mesh;
 
-            if (edMesh.gotBindPos)
-            {
-                bindPoses = new Matrix4x4[vertsCount];
-                for (int i = 0; i < edMesh.meshPoints.Count; i++)
-                    bindPoses[i] = edMesh.meshPoints[i].bindPoses;
-                mesh.bindposes = bindPoses;
-            }
-
-            if (edMesh.gotBoneWeights)
-            {
+            mesh.bindposes = edMesh.bindPoses;
+            
+            if (edMesh.gotBoneWeights) {
                 boneWeights = new BoneWeight[vertsCount];
                 for (int i = 0; i < edMesh.meshPoints.Count; i++)
                     boneWeights[i] = edMesh.meshPoints[i].boneWeight;
@@ -544,7 +539,7 @@ namespace Playtime_Painter {
 
             int vCnt = mesh.vertices.Length;
 
-            if (edMesh.shapes != null)
+            if (!edMesh.shapes.IsNullOrEmpty())
                 for (int s = 0; s < edMesh.shapes.Count; s++)
                 {
                     var name = edMesh.shapes[s];

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PixelPerfectExample_MeshData
-  m_Shader: {fileID: 4800000, guid: dd05376b705db7b4c9b2f4333a17e23e, type: 3}
+  m_Shader: {fileID: 4800000, guid: 28fd8f0dcb56caf44a65de559f658091, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -47,12 +47,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseMask:
+        m_Texture: {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineGradient:
-        m_Texture: {fileID: 2800000, guid: b7fdfbe5ad74fa04f962a034390a76f1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5054af0e472dc53439021cf623dc9b76, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:

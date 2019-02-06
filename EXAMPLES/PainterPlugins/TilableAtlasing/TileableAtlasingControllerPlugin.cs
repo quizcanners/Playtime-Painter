@@ -132,7 +132,7 @@ namespace Playtime_Painter.Examples
                     InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
 
                     if (atlPlug.preAtlasingMesh)
-                        InspectedPainter.meshFilter.mesh = atlPlug.preAtlasingMesh;
+                        InspectedPainter.Mesh = atlPlug.preAtlasingMesh;
                     InspectedPainter.SavedEditableMesh = atlPlug.preAtlasingSavedMesh;
 
                     atlPlug.preAtlasingMaterials = null;

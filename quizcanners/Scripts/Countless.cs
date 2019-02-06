@@ -695,7 +695,7 @@ namespace QuizCannersUtilities {
 ///  Generic Trees
 public class Countless<T> : CountlessBase {
         
-        T[] objs = new T[0];
+        protected T[] objs = new T[0];
         int firstFreeObj = 0;
 
         public void Expand(ref T[] args, int add)  {
@@ -723,9 +723,8 @@ public class Countless<T> : CountlessBase {
 #endif
                 Set(index, value); }
         }
-
-
-        void Set(int ind, T obj)
+        
+        protected virtual void Set(int ind, T obj)
         {
             
             if (ind >= Max)
@@ -821,7 +820,7 @@ public class Countless<T> : CountlessBase {
             }
         }
 
-        T Get(int ind)
+        protected virtual T Get(int ind)
         {
             if (ind >= Max || ind<0)
                 return default(T);
@@ -927,6 +926,9 @@ public class Countless<T> : CountlessBase {
 
         public int currentEnumerationIndex;
 
+        public virtual T GetIfExists(int ind) => Get(ind);
+
+
         #region Inspector
 #if PEGI
         public T this[IGotIndex i]
@@ -972,6 +974,91 @@ public class Countless<T> : CountlessBase {
      
 #endif
         #endregion
+    }
+
+    // Unnulable classes will create new instances
+    public class Unnullable<T> : Countless<T> where T : new()
+    {
+
+        public static int IndexOfCurrentlyCreatedUnnulable;
+
+        T Create(int ind)
+        {
+            IndexOfCurrentlyCreatedUnnulable = ind;
+            T tmp = new T();
+            Set(ind, tmp);
+            return tmp;
+        }
+
+        public int AddNew()
+        {
+            IndexOfCurrentlyCreatedUnnulable = -1;
+
+            while (IndexOfCurrentlyCreatedUnnulable == -1)
+            {
+                Get(firstFree);
+                firstFree++;
+            }
+
+            return IndexOfCurrentlyCreatedUnnulable;
+        }
+
+        protected override T Get(int ind)
+        {
+            int originalIndex = ind;
+
+            if (ind >= Max)
+                return Create(originalIndex);
+
+            int d = depth;
+            VariableBranch vb = br;
+            int subSize = Max;
+
+            while (d > 0)
+            {
+                subSize /= branchSize;
+                int no = ind / subSize;
+                ind -= no * subSize;
+                if (vb.br[no] == null)
+                    return Create(originalIndex);
+                d--;
+                vb = vb.br[no];
+            }
+
+            if (vb.br[ind] == null)
+                return Create(originalIndex);
+
+            return objs[vb.br[ind].value];
+        }
+
+        public override T GetIfExists(int ind)
+        {
+            // int originalIndex = ind;
+
+            if (ind >= Max)
+                return default(T);
+
+            int d = depth;
+            VariableBranch vb = br;
+            int subSize = Max;
+
+            while (d > 0)
+            {
+                subSize /= branchSize;
+                int no = ind / subSize;
+                ind -= no * subSize;
+                if (vb.br[no] == null)
+                    return default(T);
+                d--;
+                vb = vb.br[no];
+            }
+
+            if (vb.br[ind] == null)
+                return default(T);
+
+            return objs[vb.br[ind].value];
+        }
+
     }
 
     public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new() {
@@ -1223,8 +1310,6 @@ public class Countless<T> : CountlessBase {
             return objs[vb.br[ind].value];
         }
 
-        public virtual T GetIfExists(int ind) => Get(ind);
-        
         public override void Clear()
         {
             base.Clear();
@@ -1251,6 +1336,9 @@ public class Countless<T> : CountlessBase {
         public int currentEnumerationIndex;
 
         int edited = -1;
+
+        public virtual T GetIfExists(int ind) => Get(ind);
+
 
 #if PEGI
         public override bool Inspect()

@@ -39,7 +39,7 @@
 
 				struct v2f {
 					float4 pos : SV_POSITION;
-					float3 texcoord : TEXCOORD0;
+					float2 texcoord : TEXCOORD0;
 					float4 col01UVs : TEXCOORD1;
 					float4 col23UVs : TEXCOORD2;
 					float4 colPortions : TEXCOORD3;

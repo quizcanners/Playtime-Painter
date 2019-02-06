@@ -117,11 +117,20 @@ namespace Playtime_Painter {
         public SkinnedMeshRenderer skinnedMeshRenderer;
         public Terrain terrain;
         public TerrainCollider terrainCollider;
-        public MeshFilter meshFilter;
+        [SerializeField] private MeshFilter meshFilter;
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
         public Graphic uiGraphic;
         [NonSerialized] public Mesh colliderForSkinnedMesh;
+
+        public Mesh SharedMesh {
+
+            get { if (meshFilter) return meshFilter.sharedMesh; if (skinnedMeshRenderer) return skinnedMeshRenderer.sharedMesh; return null; }
+            set { if (meshFilter) meshFilter.sharedMesh = value; if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value; }
+        }
+
+        public Mesh Mesh { set { if (meshFilter) meshFilter.mesh = value; if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value; } }
+
 
         public bool meshEditing = false;
 
@@ -1531,7 +1540,7 @@ namespace Playtime_Painter {
              "/{0}{1}.png".F(Cfg.texturesFolderName.AddPostSlashIfNotEmpty(), ImgData.SaveName);
 
         public string GenerateMeshSavePath() =>
-             meshFilter.sharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameField) : "None";
+             SharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameField) : "None";
 
         private bool OnBeforeSaveTexture(ImageData id)
         {
@@ -1612,14 +1621,16 @@ namespace Playtime_Painter {
 
             try {
                 if (path.Length > 0)
-                    meshFilter.sharedMesh = Instantiate(meshFilter.sharedMesh);
-                
-                if (meshNameField.Length == 0)
-                    meshNameField = meshFilter.sharedMesh.name;
-                else
-                    meshFilter.sharedMesh.name = meshNameField;
+                    SharedMesh = Instantiate(SharedMesh);
 
-                AssetDatabase.CreateAsset(meshFilter.sharedMesh, "Assets{0}".F(GenerateMeshSavePath()));
+                var sm = SharedMesh;
+
+                if (meshNameField.Length == 0)
+                    meshNameField = sm.name;
+                else
+                    sm.name = meshNameField;
+
+                AssetDatabase.CreateAsset(sm, "Assets{0}".F(GenerateMeshSavePath()));
 
                 AssetDatabase.SaveAssets();
             }
@@ -1784,11 +1795,13 @@ namespace Playtime_Painter {
 
         }
 
-        public void UpdateColliderForSkinnedMesh()
-        {
+        public void UpdateColliderForSkinnedMesh() {
 
-            if (!colliderForSkinnedMesh) colliderForSkinnedMesh = new Mesh();
+            if (!colliderForSkinnedMesh)
+                colliderForSkinnedMesh = new Mesh();
+
             skinnedMeshRenderer.BakeMesh(colliderForSkinnedMesh);
+
             if (meshCollider)
                 meshCollider.sharedMesh = colliderForSkinnedMesh;
 
@@ -1963,7 +1976,7 @@ namespace Playtime_Painter {
             {
 
                 if ((IsCurrentTool && terrain && !Application.isPlaying && UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
-                    (icon.On.Click("Click to Disable Tool", 25)))
+                    icon.On.Click("Click to Disable Tool", 25))
                 {
                     PainterDataAndConfig.toolEnabled = false;
                     WindowPosition.Collapse();
@@ -2045,7 +2058,7 @@ namespace Playtime_Painter {
                     var mg = MeshMgmt;
                     mg.Undo_redo_PEGI().nl(ref changed);
 
-                    if (meshFilter)
+                    if (SharedMesh)
                     {
 
                         if (this != mg.target)
@@ -2079,7 +2092,7 @@ namespace Playtime_Painter {
 
                                 if ("New Mesh".Click())
                                 {
-                                    meshFilter.mesh = new Mesh();
+                                    Mesh = new Mesh();
                                     SavedEditableMesh = null;
                                     mg.EditMesh(this, false);
                                 }

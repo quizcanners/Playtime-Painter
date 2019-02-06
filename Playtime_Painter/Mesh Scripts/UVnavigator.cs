@@ -245,7 +245,7 @@ namespace Playtime_Painter
                         uv.SharedEditedUV = pUV;
                 }
 
-                m.target.meshFilter.sharedMesh = new MeshConstructor(prMesh, m.target.MeshProfile, m.target.meshFilter.sharedMesh).Construct();
+                m.target.SharedMesh = new MeshConstructor(prMesh, m.target.MeshProfile, m.target.SharedMesh).Construct();
                 
             }
         }
@@ -408,7 +408,7 @@ namespace Playtime_Painter
                     var prMesh = FreshPreviewMesh;
                     if (prMesh.selectedUV != null) {
                         prMesh.selectedUV.SharedEditedUV = lastCalculatedUV;
-                        MeshMGMT.target.meshFilter.sharedMesh = new MeshConstructor(prMesh, MeshMGMT.target.MeshProfile, MeshMGMT.target.meshFilter.sharedMesh).Construct();
+                        MeshMGMT.target.SharedMesh = new MeshConstructor(prMesh, MeshMGMT.target.MeshProfile, MeshMGMT.target.SharedMesh).Construct();
                     }
                 }
             }

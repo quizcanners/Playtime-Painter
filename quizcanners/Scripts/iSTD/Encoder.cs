@@ -566,6 +566,32 @@ namespace QuizCannersUtilities
             return this;
         }
 
+        public StdEncoder Add(string tag, List<Matrix4x4> val)  {
+
+            StdEncoder cody = new StdEncoder();
+            foreach (var i in val)
+                cody.Add(StdDecoder.ListElementTag, i);
+            Add(tag, cody);
+
+            return this;
+        }
+
+        public StdEncoder Add(string tag, Matrix4x4[] arr) 
+        {
+            StdEncoder cody = new StdEncoder();
+
+            if (arr != null)  {
+                cody.Add("len", arr.Length);
+
+                foreach (var v in arr) 
+                    cody.Add(StdDecoder.ListElementTag, v.Encode());
+            }
+
+            Add(tag, cody);
+
+            return this;
+        }
+
         public StdEncoder Add<T>(string tag, List<T> lst, List_Data ld) where T : ISTD, new() {
 
             StdEncoder cody = new StdEncoder();

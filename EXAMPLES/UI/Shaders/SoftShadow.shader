@@ -1,6 +1,7 @@
-﻿Shader "Playtime Painter/UI/SoftButtonShadow" {
+﻿Shader "Playtime Painter/UI/Soft Shadow" {
 	Properties{
-		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
 	}
 	Category{
 		Tags{
@@ -23,15 +24,18 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
+
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
 
 				struct v2f {
 					float4 pos : SV_POSITION;
-					float4 texcoord : TEXCOORD2;
+					float4 texcoord : TEXCOORD0;
+					float4 precompute : TEXCOORD1;
+					float3 offUV : TEXCOORD3;
+					float4 projPos : TEXCOORD4;
 					float4 color: COLOR;
-					float4 projPos : TEXCOORD6;
 				};
 
 				v2f vert(appdata_full v) {
@@ -46,29 +50,42 @@
 					o.projPos.xy = v.normal.xy;
 					o.projPos.zw = max(0, float2(v.normal.z, -v.normal.z));
 
+					o.precompute.w = 1 / (1.0001 - o.texcoord.w);
+					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
+					o.precompute.z = (1 + o.texcoord.z * 16);
+
+
+					o.offUV.xy = o.texcoord.xy - 0.5;
+					o.offUV.z = saturate((o.color.a - 0.8) * 5);
+
 					return o;
 				}
+
+				sampler2D _NoiseMask;
 
 				float4 frag(v2f i) : COLOR{
 
 					float4 _ProjTexPos = i.projPos;
 					float _Edge = i.texcoord.z;
 					float _Courners = i.texcoord.w;
+					float deCourners = i.precompute.w;
 
-					float _Blur = (1 - i.color.a);
-					float2 uv = abs(i.texcoord.xy - 0.5) * 2;
+					float4 noise = tex2Dlod(_NoiseMask, float4(i.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w)*32, 0, 0));
 
-					uv = max(0, uv - _ProjTexPos.zw) / (1 - _ProjTexPos.zw + 0.0001) - _Courners;
-					float deCourners = 1.0001 - _Courners;
-					uv = max(0, uv) / deCourners;
 
-					uv *= uv;
+					float2 uv = abs(i.offUV.xy + noise.xy*0.002) * 2;
 
-					float clipp = max(0, (1 - uv.x - uv.y));
+					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
+
+					uv = max(0, uv) * deCourners;
+
+			
+
+					float clipp = max(0, 1 - dot(uv,uv));
 
 					float4 col = i.color;
 
-					col.a *= pow(clipp, _Edge) *saturate((1 - clipp) * 10) * saturate((i.color.a - 0.8) * 5);
+					col.a *= pow(clipp, _Edge + 1) *saturate((1 - clipp) * 10) * i.offUV.z;
 
 					return col;
 				}

@@ -576,6 +576,81 @@ namespace QuizCannersUtilities
         }
         #endregion
 
+        #region Arrays
+        public static T[] Decode_Array<T>(this string data, out T[] l) where T : ISTD, new()
+        {
+
+            StdDecoder cody = new StdDecoder(data);
+
+            l = null;
+
+            List<T> tmpList = new List<T>();
+
+            int ind = 0;
+
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+
+                if (tag == "len")
+                    l = new T[d.ToInt()];
+                else
+                {
+                    bool isNull = tag == StdEncoder.nullTag;
+
+                    var obj = isNull ? default(T) : d.DecodeInto<T>();
+
+                    if (l != null)
+                        l[ind] = obj;
+                    else
+                        tmpList.Add(obj);
+
+                    ind++;
+                }
+            }
+
+            if (l == null)
+                l = tmpList.ToArray();
+
+            return l;
+        }
+
+        public static Matrix4x4[] Decode_Array(this string data, out Matrix4x4[] l)
+        {
+
+            var cody = new StdDecoder(data);
+
+            l = null;
+
+            var tmpList = new List<Matrix4x4>();
+
+            int ind = 0;
+
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+
+                if (tag == "len")
+                    l = new Matrix4x4[d.ToInt()];
+                else {
+                    var obj = d.ToMatrix4x4();
+
+                    if (l != null)
+                        l[ind] = obj;
+                    else
+                        tmpList.Add(obj);
+
+                    ind++;
+                }
+            }
+
+            if (l == null)
+                l = tmpList.ToArray();
+
+            return l;
+        }
+        #endregion
+
         #region Abstract 
 
         public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps) where T : IGotClassTag {
@@ -725,41 +800,8 @@ namespace QuizCannersUtilities
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
 
-        public static T[] Decode_Array<T>(this string data, out T[] l) where T : ISTD, new() {
 
-            StdDecoder cody = new StdDecoder(data);
 
-            l = null;
-
-            List<T> tmpList = new List<T>();
-
-            int ind = 0;
-
-            foreach (var tag in cody) {
-                var d = cody.GetData();
-
-                if (tag == "len")
-                    l = new T[d.ToInt()];
-                else {
-                    bool isNull = tag == StdEncoder.nullTag;
-
-                    var obj = isNull ? default(T) : d.DecodeInto<T>();
-
-                    if (l != null) 
-                         l[ind] = obj;
-                     else 
-                         tmpList.Add(obj);
-                       
-                    ind++;
-                }
-            }
-
-            if (l == null)
-                l = tmpList.ToArray();
-
-            return l;
-        }
-        
         #region Into Unity Objects
         public static ISTD_SerializeNestedReferences Keeper { get { return StdEncoder.keeper;  } set { StdEncoder.keeper = value; } }
 

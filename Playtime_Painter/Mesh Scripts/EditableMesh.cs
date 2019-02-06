@@ -16,6 +16,8 @@ namespace Playtime_Painter {
 
     public class EditableMesh : PainterStuff_STD, IPEGI {
 
+        public string meshName = "unnamed";
+
         public bool Dirty {
             get {
                 return  dirty_Color || dirty_Normals || dirty_Position;
@@ -32,42 +34,186 @@ namespace Playtime_Painter {
         public int vertexCount;
 
         public bool gotBoneWeights;
-        public bool gotBindPos;
         public int submeshCount;
         public int UV2distributeRow;
         public int UV2distributeCurrent;
+
         public List<uint> baseVertex = new List<uint>();
 
         public List<string> shapes;
-        public Countless<Countless<float>> blendWeights = new Countless<Countless<float>>();
 
-        public string meshName = "unnamed";
+        public Unnullable<Countless<float>> blendWeights = new Unnullable<Countless<float>>();
+
+        public Matrix4x4[] bindPoses;
+
         public List<MeshPoint> meshPoints = new List<MeshPoint>();
+
         public List<Triangle> triangles = new List<Triangle>();
         
         public CountlessBool hasFrame = new CountlessBool();
 
-        public void RunDebug()
-        {
-            foreach (var t in triangles)
-                t.RunDebug();
+        public Mesh actualMesh;
 
-            foreach (var m in meshPoints)
-                m.RunDebug();
+        public float avarageSize;
+
+        public void Edit(PlaytimePainter pntr)
+        {
+
+            if (pntr.SharedMesh)
+            {
+
+                //Temporary
+                submeshCount = 1;
+                if (pntr.SavedEditableMesh != null)
+                {
+                    Decode(pntr.SavedEditableMesh);
+                    if (triangles.Count == 0)
+                        BreakMesh(pntr.SharedMesh);
+
+                }
+                else
+                {
+                    BreakMesh(pntr.SharedMesh);
+                    pntr.selectedMeshProfile = pntr.Material.GetMeshProfileByTag();
+                }
+
+                // Temporary
+                while (baseVertex.Count < submeshCount)
+                    baseVertex.Add(0);
+            }
+        }
+
+        public void BreakMesh(Mesh Nmesh)
+        {
+
+            if (!Nmesh)
+                return;
+
+            meshName = Nmesh.name;
+
+            actualMesh = Nmesh;
+
+            int vCnt = actualMesh.vertices.Length;
+
+            meshPoints = new List<MeshPoint>();
+            Vector3[] vrts = actualMesh.vertices;
+            bool gotUV1 = (actualMesh.uv != null) && (actualMesh.uv.Length == vCnt);
+            bool gotUV2 = (actualMesh.uv2 != null) && (actualMesh.uv2.Length == vCnt);
+            bool gotColors = (actualMesh.colors != null) && (actualMesh.colors.Length == vCnt);
+            gotBoneWeights = (actualMesh.boneWeights != null) && (actualMesh.boneWeights.Length == vCnt);
+            bindPoses = actualMesh.bindposes;
+
+            for (int i = 0; i < vCnt; i++)
+            {
+                var v = new MeshPoint(vrts[i])
+                {
+                    SmoothNormal = false
+                };
+                meshPoints.Add(v);
+                Vertex uv = new Vertex(meshPoints[i], gotUV1 ? actualMesh.uv[i] : Vector2.zero, gotUV2 ? actualMesh.uv2[i] : Vector2.zero);
+                if (gotColors)
+                    uv._color = actualMesh.colors[i];
+                if (gotBoneWeights)
+                    v.boneWeight = actualMesh.boneWeights[i];
+            }
+
+            shapes = new List<string>();
+
+            for (int s = 0; s < actualMesh.blendShapeCount; s++)
+            {
+
+                for (int v = 0; v < vCnt; v++)
+                    meshPoints[v].shapes.Add(new List<BlendFrame>());
+
+                shapes.Add(actualMesh.GetBlendShapeName(s));
+
+                for (int f = 0; f < actualMesh.GetBlendShapeFrameCount(s); f++)
+                {
+
+                    blendWeights[s][f] = actualMesh.GetBlendShapeFrameWeight(s, f);
+
+                    Vector3[] nrms = new Vector3[vCnt];
+                    Vector3[] pos = new Vector3[vCnt];
+                    Vector3[] tng = new Vector3[vCnt];
+                    actualMesh.GetBlendShapeFrameVertices(s, f, pos, nrms, tng);
+
+                    for (int v = 0; v < vCnt; v++)
+                        meshPoints[v].shapes.Last().Add(new BlendFrame(pos[v], nrms[v], tng[v]));
+
+                }
+            }
+
+            triangles = new List<Triangle>();
+            Vertex[] pnts = new Vertex[3];
+
+            submeshCount = actualMesh.subMeshCount;
+            baseVertex = new List<uint>();
+
+            for (int s = 0; s < submeshCount; s++)
+            {
+
+                baseVertex.Add(
+#if UNITY_2018_1_OR_NEWER
+                    actualMesh.GetBaseVertex(s)
+#else
+                    0
+#endif
+
+                    );
+
+                int[] indices = actualMesh.GetTriangles(s);
+
+                int tCnt = indices.Length / 3;
+
+                for (int i = 0; i < tCnt; i++)
+                {
+
+                    for (int e = 0; e < 3; e++)
+                        pnts[e] = meshPoints[indices[i * 3 + e]].uvpoints[0];
+
+                    var t = new Triangle(pnts)
+                    {
+                        submeshIndex = s
+                    };
+                    triangles.Add(t);
+                }
+            }
+
+
+            // Debug.Log("Merging");
+
+            for (int i = 0; i < vCnt; i++)
+            {
+                MeshPoint main = meshPoints[i];
+                for (int j = i + 1; j < vCnt; j++)
+                {
+                    if ((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)
+                    {
+
+                        meshPoints[i].MergeWith(meshPoints[j]);
+                        j--;
+                        vCnt = meshPoints.Count;
+                    }
+
+                }
+            }
+
+            actualMesh = new Mesh();
 
             Dirty = true;
         }
-
+        
         #region Encode & Decode
         public override StdEncoder Encode() {
-            var cody = new StdEncoder();
-            cody.Add_String("n", meshName);
-            cody.Add_IfNotEmpty("vrt",meshPoints);
-            cody.Add_IfNotEmpty("tri",triangles);
-            cody.Add("sub", submeshCount);
-            cody.Add_IfTrue("wei", gotBoneWeights);
-            cody.Add_IfTrue("bp", gotBindPos);
-            cody.Add("bv", baseVertex);
+            var cody = new StdEncoder()
+            .Add_String("n", meshName)
+            .Add_IfNotEmpty("vrt",meshPoints)
+            .Add_IfNotEmpty("tri",triangles)
+            .Add("sub", submeshCount)
+            .Add_IfTrue("wei", gotBoneWeights)
+            .Add("bv", baseVertex)
+            .Add("biP", bindPoses);
+
             if (UV2distributeRow > 0) {
                 cody.Add("UV2dR", UV2distributeRow);
                 cody.Add("UV2cur", UV2distributeCurrent);
@@ -86,8 +232,9 @@ namespace Playtime_Painter {
                 case "n": meshName = data; break;
                 case "sub":  submeshCount = data.ToInt(); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
-                case "bp": gotBindPos = data.ToBool(); break;
+
                 case "bv": data.Decode_List(out baseVertex); break;
+                case "biP": data.Decode_Array(out bindPoses);  break;
                 case "UV2dR": UV2distributeRow = data.ToInt(); break;
                 case "UV2cur": UV2distributeCurrent = data.ToInt(); break;
                 case "sctdUV": selectedUV = meshPoints[data.ToInt()].uvpoints[0]; break;
@@ -97,35 +244,37 @@ namespace Playtime_Painter {
             return true;
         }
         #endregion
+        
+        #region Point & Select
+        
+        Vector3 previousPointed = new Vector3();
+        float recalculateDelay;
+        int nearestVertCount = 50;
+        public float distanceLimit = 1;
+        static readonly float nearTarget = 64;
 
-        public Mesh actualMesh;
+        List<MeshPoint> sortVertsClose = new List<MeshPoint>();
+        List<MeshPoint> sortVertsFar = new List<MeshPoint>();
+        public CountlessSTD<Vertex> uvsByFinalIndex = new CountlessSTD<Vertex>();
 
-        public float avarageSize;
 
-        public void RemoveEmptyDots()
-        {
-            foreach (var v in meshPoints)
-                foreach (var uv in v.uvpoints)
-                    uv.HasVertex = false;
-                
-            foreach (var t in triangles)
-                foreach (var uv in t.vertexes)
-                    uv.HasVertex = true; 
-            
-            foreach (var v in meshPoints)
-                for (int i = 0; i < v.uvpoints.Count; i++)
-                    if (!v.uvpoints[i].HasVertex)  {
-                        v.uvpoints.RemoveAt(i);
-                        i--;
-                    }
-            
-            for (int i = 0; i < meshPoints.Count; i++)
-                if (meshPoints[i].uvpoints.Count == 0) {
-                    meshPoints.RemoveAt(i);
-                    i--;
-                }
-            
-        }
+        public Vertex selectedUV;
+
+        public LineData selectedLine;
+
+        public Triangle selectedTris;
+
+        public Vertex pointedUV;
+
+        public LineData pointedLine;
+
+        public Triangle pointedTris;
+
+        public Vertex LastFramePointedUV;
+
+        public LineData LastFramePointedLine;
+
+        public Triangle LastFramePointedTris;
 
         public MeshPoint GetClosestToPos(Vector3 pos)
         {
@@ -144,68 +293,7 @@ namespace Playtime_Painter {
             }
             return closest;
         }
-
-        public int AssignIndexes() {
-            uvsByFinalIndex.Clear();
-            int index = 0;
-            for (int i = 0; i < meshPoints.Count; i++) {
-                for (int u = 0; u < meshPoints[i].uvpoints.Count; u++) {
-                    meshPoints[i].uvpoints[u].finalIndex = index;
-                    uvsByFinalIndex[index] = meshPoints[i].uvpoints[u];
-                    index++;
-                }
-            }
-            vertexCount = index;
-            return index;
-        }
-
-		public void TileAndOffsetUVs(Vector2 offs, Vector2 tile, int uvSet){
-			foreach (var v in meshPoints)
-				for (int i = 0; i < v.shared_v2s.Count; i++) 
-					v.shared_v2s[i][uvSet] = Vector2.Scale (v.shared_v2s [i][uvSet], tile) + offs;
-		}
-
-        public void AddTextureAnimDisplacement()
-        {
-            MeshManager m = MeshManager.Inst;
-            if (m.target != null)
-            {
-                PlaytimePainter em = m.target;
-                if (!em) return;
-                int y = em.GetAnimationUVy();
-                foreach (MeshPoint v in meshPoints)
-                    v.localPos += (v.anim[y]);
-            }
-        }
-
-        Vector3 previousPointed = new Vector3();
-        float recalculateDelay;
-		int nearestVertCount = 50;
-        public float distanceLimit = 1;
-		static readonly float nearTarget = 64;
-
-        List<MeshPoint> sortVertsClose = new List<MeshPoint>();
-        List<MeshPoint> sortVertsFar = new List<MeshPoint>();
-        public CountlessSTD<Vertex> uvsByFinalIndex = new CountlessSTD<Vertex>();
         
-        public Vertex selectedUV;
-        
-        public LineData selectedLine;
-    
-        public Triangle selectedTris;
-    
-        public Vertex pointedUV;
-
-        public LineData pointedLine;
-
-        public Triangle pointedTris;
-
-        public Vertex LastFramePointedUV;
-
-        public LineData LastFramePointedLine;
-
-        public Triangle LastFramePointedTris;
-
         public void ClearLastPointed()
         {
             LastFramePointedUV = null;
@@ -313,162 +401,18 @@ namespace Playtime_Painter {
             }
 
         }
+        #endregion
+        
+        #region Points MGMT
 
-        public void NumberVerticles()
+        public void MergeWith(PlaytimePainter other)
         {
-            for (int i = 0; i < meshPoints.Count; i++)
-                meshPoints[i].index = i; //< 128 ? i : 0;
-                                       // Debug.Log("Dirty");
-                                       // Dirty = true;
-
-        }
-
-        public void Edit(PlaytimePainter pntr) {
-
-            if (pntr.meshFilter && pntr.meshFilter.sharedMesh){
-
-                //Temporary
-                submeshCount = 1;
-                if (pntr.SavedEditableMesh != null)
-                {
-                    Decode(pntr.SavedEditableMesh);
-                    if (triangles.Count == 0)
-                        BreakMesh(pntr.meshFilter.sharedMesh);
-
-                }
-                else
-                {
-                    BreakMesh(pntr.meshFilter.sharedMesh);
-                    pntr.selectedMeshProfile = pntr.Material.GetMeshProfileByTag();
-                }
-
-                // Temporary
-                while (baseVertex.Count < submeshCount)
-                    baseVertex.Add(0);
-            }
-        }
-
-        public void BreakMesh(Mesh Nmesh) {
-
-            if (!Nmesh)
-                return;
-
-            meshName = Nmesh.name;
-
-            actualMesh = Nmesh;
-            
-            int vCnt = actualMesh.vertices.Length;
-    
-            meshPoints = new List<MeshPoint>();
-            Vector3[] vrts = actualMesh.vertices;
-            bool gotUV1 = (actualMesh.uv != null) && (actualMesh.uv.Length == vCnt);
-            bool gotUV2 = (actualMesh.uv2 != null) && (actualMesh.uv2.Length == vCnt);
-            bool gotColors = (actualMesh.colors != null) && (actualMesh.colors.Length == vCnt);
-            gotBoneWeights = (actualMesh.boneWeights != null) && (actualMesh.boneWeights.Length == vCnt);
-            gotBindPos = (actualMesh.bindposes != null) && (actualMesh.bindposes.Length == vCnt);
-
-            for (int i = 0; i < vCnt; i++) {
-                var v = new MeshPoint(vrts[i])
-                {
-                    SmoothNormal = false
-                };
-                meshPoints.Add(v);
-                Vertex uv = new Vertex(meshPoints[i], gotUV1 ? actualMesh.uv[i] : Vector2.zero, gotUV2 ? actualMesh.uv2[i] : Vector2.zero);
-                if (gotColors)
-                    uv._color = actualMesh.colors[i];
-                if (gotBoneWeights)
-                    v.boneWeight = actualMesh.boneWeights[i];
-                if (gotBindPos)
-                    v.bindPoses = actualMesh.bindposes[i];
-            }
-            
-            shapes = new List<string>();
-
-            for (int s=0; s<actualMesh.blendShapeCount; s++) {
-
-                for (int v = 0; v < vCnt; v++)
-                    meshPoints[v].shapes.Add(new List<BlendFrame>());
-
-                shapes.Add(actualMesh.GetBlendShapeName(s));
-
-                for (int f=0; f<actualMesh.GetBlendShapeFrameCount(s); f++) {
-
-                    blendWeights[s][f] = actualMesh.GetBlendShapeFrameWeight(s, f);
-
-                    Vector3[] nrms = new Vector3[vCnt];
-                    Vector3[] pos = new Vector3[vCnt];
-                    Vector3[] tng = new Vector3[vCnt];
-                    actualMesh.GetBlendShapeFrameVertices(s, f, pos, nrms, tng);
-
-                for (int v = 0; v < vCnt; v++) 
-                    meshPoints[v].shapes.Last().Add(new BlendFrame(pos[v], nrms[v], tng[v]));
-                
-                }
-            }
-            
-            triangles = new List<Triangle>();
-            Vertex[] pnts = new Vertex[3];
-
-            submeshCount = actualMesh.subMeshCount;
-            baseVertex = new List<uint>();
-
-            for (int s = 0; s < submeshCount; s++)  {
-
-                baseVertex.Add(
-#if UNITY_2018_1_OR_NEWER
-                    actualMesh.GetBaseVertex(s)
-#else
-                    0
-#endif
-
-                    );
-               
-                int[] indices = actualMesh.GetTriangles(s);
-
-                int tCnt = indices.Length / 3;
-
-                for (int i = 0; i < tCnt; i++) {
-
-                    for (int e = 0; e < 3; e++)
-                        pnts[e] = meshPoints[indices[i * 3 + e]].uvpoints[0];
-
-                    var t = new Triangle(pnts) {
-                        submeshIndex = s
-                    };
-                    triangles.Add(t);
-                }
-            }
-
-
-            // Debug.Log("Merging");
-
-            for (int i = 0; i < vCnt; i++)
-            {
-                MeshPoint main = meshPoints[i];
-                for (int j = i + 1; j < vCnt; j++)
-                {
-                    if ((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)
-                    {
-                       
-                        meshPoints[i].MergeWith(meshPoints[j]);
-                        j--;
-                        vCnt = meshPoints.Count;
-                    }
-
-                }
-            }
-
-            actualMesh = new Mesh();
-
-            Dirty = true;
-        }
-
-        public void MergeWith (PlaytimePainter other) {
 
             EditableMesh edm = new EditableMesh();
             edm.Edit(other);
 
-            if (UV2distributeRow > 1) {
+            if (UV2distributeRow > 1)
+            {
                 Vector2 tile = Vector2.one / UV2distributeRow;
                 int y = UV2distributeCurrent / UV2distributeRow;
                 int x = UV2distributeCurrent - y * UV2distributeRow;
@@ -483,19 +427,21 @@ namespace Playtime_Painter {
 
             triangles.AddRange(edm.triangles);
 
-            foreach (var v in edm.meshPoints) {
-                v.WorldPos  =  other.transform.TransformPoint(v.localPos);
+            foreach (var v in edm.meshPoints)
+            {
+                v.WorldPos = other.transform.TransformPoint(v.localPos);
                 meshPoints.Add(v);
             }
 
         }
-
+        
         public bool MoveTris(Vertex from, Vertex to)
         {
             if (from == to) return false;
 
             foreach (var td in triangles)
-                if (td.Includes(from)) {
+                if (td.Includes(from))
+                {
                     if (td.Includes(to)) return false;
                     td.Replace(from, to);
                 }
@@ -507,14 +453,7 @@ namespace Playtime_Painter {
 
             return true;
         }
-
-        public void AllVerticesShared() {
-            foreach (var vp in meshPoints)
-                while (vp.uvpoints.Count > 1)
-                    if (!MoveTris(vp.uvpoints[1], vp.uvpoints[0])) { break; }
-            
-        }
-
+        
         public void GiveLineUniqueVerticles_RefreshTrisListing(LineData ld)
         {
 
@@ -559,26 +498,6 @@ namespace Playtime_Painter {
             return change;
         }
 
-        public void Rescale(float By, Vector3 center)
-        {
-            foreach (MeshPoint vp in meshPoints)
-            {
-                Vector3 diff = vp.localPos - center;
-                vp.localPos = center + diff * By;
-            }
-
-        }
-
-        public Vertex GetUVpointAFromLine(MeshPoint a, MeshPoint b)
-        {
-            for (int i = 0; i < triangles.Count; i++)
-                if (triangles[i].Includes(a) && triangles[i].Includes(b))
-                    return triangles[i].GetByVert(a);
-
-            // Debug.Log("Error getting from line");
-            return null;
-        }
-
         public void RefresVerticleTrisList()
         {
             foreach (MeshPoint vp in meshPoints)
@@ -592,12 +511,107 @@ namespace Playtime_Painter {
 
         }
 
+        public Vertex GetUVpointAFromLine(MeshPoint a, MeshPoint b)
+        {
+            for (int i = 0; i < triangles.Count; i++)
+                if (triangles[i].Includes(a) && triangles[i].Includes(b))
+                    return triangles[i].GetByVert(a);
+            return null;
+        }
+
         public void TagTrianglesUnprocessed()
         {
             foreach (Triangle t in triangles)
                 t.wasProcessed = false;
         }
 
+        #endregion
+
+        #region Set All
+
+        public void RunDebug()
+        {
+            foreach (var t in triangles)
+                t.RunDebug();
+
+            foreach (var m in meshPoints)
+                m.RunDebug();
+
+            Dirty = true;
+        }
+        
+        public void TileAndOffsetUVs(Vector2 offs, Vector2 tile, int uvSet)
+        {
+            foreach (var v in meshPoints)
+                for (int i = 0; i < v.shared_v2s.Count; i++)
+                    v.shared_v2s[i][uvSet] = Vector2.Scale(v.shared_v2s[i][uvSet], tile) + offs;
+        }
+        
+        public void RemoveEmptyDots()
+        {
+            foreach (var v in meshPoints)
+                foreach (var uv in v.uvpoints)
+                    uv.HasVertex = false;
+
+            foreach (var t in triangles)
+                foreach (var uv in t.vertexes)
+                    uv.HasVertex = true;
+
+            foreach (var v in meshPoints)
+                for (int i = 0; i < v.uvpoints.Count; i++)
+                    if (!v.uvpoints[i].HasVertex)
+                    {
+                        v.uvpoints.RemoveAt(i);
+                        i--;
+                    }
+
+            for (int i = 0; i < meshPoints.Count; i++)
+                if (meshPoints[i].uvpoints.Count == 0)
+                {
+                    meshPoints.RemoveAt(i);
+                    i--;
+                }
+
+        }
+        
+        public void AllVerticesShared()
+        {
+            foreach (var vp in meshPoints)
+                while (vp.uvpoints.Count > 1)
+                    if (!MoveTris(vp.uvpoints[1], vp.uvpoints[0])) { break; }
+
+        }
+        
+        public void AddTextureAnimDisplacement()
+        {
+            MeshManager m = MeshManager.Inst;
+            if (m.target != null)
+            {
+                PlaytimePainter em = m.target;
+                if (!em) return;
+                int y = em.GetAnimationUVy();
+                foreach (MeshPoint v in meshPoints)
+                    v.localPos += (v.anim[y]);
+            }
+        }
+        
+        public int AssignIndexes()
+        {
+            uvsByFinalIndex.Clear();
+            int index = 0;
+            for (int i = 0; i < meshPoints.Count; i++)
+            {
+                for (int u = 0; u < meshPoints[i].uvpoints.Count; u++)
+                {
+                    meshPoints[i].uvpoints[u].finalIndex = index;
+                    uvsByFinalIndex[index] = meshPoints[i].uvpoints[u];
+                    index++;
+                }
+            }
+            vertexCount = index;
+            return index;
+        }
+        
         public void PaintAll(LinearColor col)
         {
             BrushMask bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
@@ -620,13 +634,39 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
-        public void Displace(Vector3 by)
+        public void NumberVerticles()
         {
-            foreach (MeshPoint vp in meshPoints)
-                vp.localPos += by;
+            for (int i = 0; i < meshPoints.Count; i++)
+                meshPoints[i].index = i; //< 128 ? i : 0;
+                                         // Debug.Log("Dirty");
+                                         // Dirty = true;
+
+        }
+        
+        public void AllSubmeshZero()
+        {
+            foreach (var t in triangles)
+                t.submeshIndex = 0;
+
+            Dirty = true;
         }
 
-        public MeshPoint InsertIntoLine(MeshPoint a, MeshPoint b, Vector3 pos) {
+        #endregion
+
+        #region Sculpting Shape
+
+        public void Rescale(float By, Vector3 center)
+        {
+            foreach (MeshPoint vp in meshPoints)
+            {
+                Vector3 diff = vp.localPos - center;
+                vp.localPos = center + diff * By;
+            }
+
+        }
+        
+        public MeshPoint InsertIntoLine(MeshPoint a, MeshPoint b, Vector3 pos)
+        {
             float dsta = Vector3.Distance(pos, a.localPos);
             float dstb = Vector3.Distance(pos, b.localPos);
             float sum = dsta + dstb;
@@ -638,10 +678,12 @@ namespace Playtime_Painter {
 
             List<Triangle> tris = a.Triangles();
 
-            for (int i = 0; i < tris.Count; i++) {
+            for (int i = 0; i < tris.Count; i++)
+            {
                 Triangle tr = tris[i];
 
-                if (tr.Includes(b)) {
+                if (tr.Includes(b))
+                {
 
                     Vertex auv;
                     Vertex buv;
@@ -655,7 +697,8 @@ namespace Playtime_Painter {
                     spliUV = tr.GetNotOneOf(a, b);
 
 
-                    if ((auv == null) || (buv == null))  {
+                    if ((auv == null) || (buv == null))
+                    {
                         Debug.Log("Didn't found a uv");
                         continue;
                     }
@@ -673,18 +716,18 @@ namespace Playtime_Painter {
                     newUV = null;
 
                     if ((Cfg.newVerticesUnique) || (newVrt.uvpoints == null) || (newVrt.uvpoints.Count == 0))
-                        newUV = new Vertex(newVrt,uv, uv1);
+                        newUV = new Vertex(newVrt, uv, uv1);
                     else
                     {
                         for (int j = 0; j < newVrt.uvpoints.Count; j++)
-                            if (newVrt.uvpoints[j].SameUV(uv,uv1)) //.uv - uv).magnitude < 0.0001f) dfsdf
+                            if (newVrt.uvpoints[j].SameUV(uv, uv1)) //.uv - uv).magnitude < 0.0001f) dfsdf
                                 newUV = newVrt.uvpoints[j];
                     }
 
                     if (newUV == null)
                         newUV = new Vertex(newVrt, uv, uv1);
                     else
-                    newUV.SetUVindexBy(uv, uv1);
+                        newUV.SetUVindexBy(uv, uv1);
                     tr.AssignWeightedData(newUV, w);
 
 
@@ -692,9 +735,10 @@ namespace Playtime_Painter {
                     trb = new Triangle(tr.vertexes).CopySettingsFrom(tr);
                     triangles.Add(trb);
                     tr.Replace(auv, newUV);
-                  
 
-                    if (Cfg.newVerticesUnique) {
+
+                    if (Cfg.newVerticesUnique)
+                    {
                         var split = new Vertex(spliUV);
                         trb.Replace(spliUV, split);
                         var newB = new Vertex(newUV);
@@ -711,7 +755,7 @@ namespace Playtime_Painter {
             Dirty = true;
 
             if (Cfg.pixelPerfectMeshEditing)
-            newVrt.PixPerfect();
+                newVrt.PixPerfect();
 
             return newVrt;
         }
@@ -729,6 +773,12 @@ namespace Playtime_Painter {
                 }
         }
 
+        public void Displace(Vector3 by)
+        {
+            foreach (MeshPoint vp in meshPoints)
+                vp.localPos += by;
+        }
+        
         public MeshPoint InsertIntoTriangle(Triangle a, Vector3 pos)
         {
             // Debug.Log("Inserting into triangle");
@@ -763,7 +813,8 @@ namespace Playtime_Painter {
             return newVrt;
         }
 
-        public MeshPoint InsertIntoTriangleUniqueVerticles(Triangle a, Vector3 localPos)  {
+        public MeshPoint InsertIntoTriangleUniqueVerticles(Triangle a, Vector3 localPos)
+        {
 
             MeshPoint newVrt = new MeshPoint(localPos);
             meshPoints.Add(newVrt);
@@ -772,7 +823,7 @@ namespace Playtime_Painter {
 
             Vector3 w = a.DistanceToWeight(localPos);
 
-            Vector2 newV2_0 = a.vertexes[0].GetUV(0) *w.x  + a.vertexes[1].GetUV(0) * w.y + a.vertexes[2].GetUV(0) * w.z;
+            Vector2 newV2_0 = a.vertexes[0].GetUV(0) * w.x + a.vertexes[1].GetUV(0) * w.y + a.vertexes[2].GetUV(0) * w.z;
             Vector2 newV2_1 = a.vertexes[0].GetUV(1) * w.x + a.vertexes[1].GetUV(1) * w.y + a.vertexes[2].GetUV(1) * w.z;
             //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (int i = 0; i < 3; i++)
@@ -804,6 +855,9 @@ namespace Playtime_Painter {
 
         }
 
+        #endregion
+
+        #region Colors
         public void AutoSetVertColors()
         {
             //  foreach (vertexpointDta v in vertices)
@@ -848,6 +902,9 @@ namespace Playtime_Painter {
             Dirty = true;
         }
 
+        
+        #endregion
+
         #region Inspector
         #if PEGI
         public bool Inspect()
@@ -856,6 +913,17 @@ namespace Playtime_Painter {
 
             if ("Run Debug".Click().nl())
                 RunDebug();
+
+            "{0} points; Avg size {1}; {2} submehses; {3} triangles".F(vertexCount, avarageSize, submeshCount, triangles.Count).nl();
+
+            "Bone Weights".write(); (gotBoneWeights ? icon.Done : icon.Close).nl(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights" );
+
+            bool gotBindPos = !bindPoses.IsNullOrEmpty();
+
+            "Bind Positions".write(); (gotBindPos ? icon.Done : icon.Close).nl(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
+
+            if (!shapes.IsNullOrEmpty())
+                "Shapes".edit_List(ref shapes).nl();
 
             return changed;
         }

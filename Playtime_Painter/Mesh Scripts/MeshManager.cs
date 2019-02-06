@@ -104,7 +104,7 @@ namespace Playtime_Painter
             editedMesh.Edit(pntr);
 
             if (EditCopy)
-                pntr.meshFilter.sharedMesh = new Mesh();
+                pntr.SharedMesh = new Mesh();
 
             Redraw();
 
@@ -143,7 +143,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
         public void SaveGeneratedMeshAsAsset()
         {
-            AssetDatabase.CreateAsset(target.meshFilter.mesh, "Assets/Models/" + target.gameObject.name + "_export.asset");
+            AssetDatabase.CreateAsset(target.SharedMesh, "Assets/Models/" + target.gameObject.name + "_export.asset");
             AssetDatabase.SaveAssets();
         }
 #endif
@@ -154,7 +154,7 @@ namespace Playtime_Painter
             if (target != null)
             {
 
-                MeshConstructor mc = new MeshConstructor(editedMesh, target.MeshProfile, target.meshFilter.sharedMesh);
+                MeshConstructor mc = new MeshConstructor(editedMesh, target.MeshProfile, target.SharedMesh);
 
                 if (!editedMesh.dirty_Normals && EditedMesh.Dirty)
                 {
@@ -169,7 +169,7 @@ namespace Playtime_Painter
                 else
                 {
                     var m = mc.Construct();
-                    target.meshFilter.sharedMesh = m;
+                    target.SharedMesh = m;
                     target.meshCollider.AssignMeshAsCollider(m);
                 }
 
@@ -1034,7 +1034,7 @@ namespace Playtime_Painter
 
             changed |= target.PreviewShaderToggle_PEGI();
 
-            if ((!target.IsOriginalShader) && ("preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl()))
+            if (!target.IsOriginalShader && ("preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl()))
                 MeshSHaderMode.selected.Apply();
 
             pegi.space();

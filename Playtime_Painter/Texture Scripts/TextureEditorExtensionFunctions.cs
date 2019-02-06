@@ -56,39 +56,38 @@ public static class TextureEditorExtensionFunctions  {
             }
         }
 
-        public static void Transfer(this BrushMask bm, ref Color col, Color c)
-        {
-            if ((bm & BrushMask.R) != 0)
-                col.r = c.r;
-            if ((bm & BrushMask.G) != 0)
-                col.g =  c.g;
-            if ((bm & BrushMask.B) != 0)
-                col.b =  c.b;
-            if ((bm & BrushMask.A) != 0)
-                col.a =  c.a;
-        }
+    public static void Transfer(this BrushMask bm, ref Color col, Color c)
+    {
+        if ((bm & BrushMask.R) != 0)
+            col.r = c.r;
+        if ((bm & BrushMask.G) != 0)
+            col.g =  c.g;
+        if ((bm & BrushMask.B) != 0)
+            col.b =  c.b;
+        if ((bm & BrushMask.A) != 0)
+            col.a =  c.a;
+    }
 
-        public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
-        {
-            if ((bm & BrushMask.R) != 0)
-                col.x = c.r;
-            if ((bm & BrushMask.G) != 0)
-                col.y = c.g;
-            if ((bm & BrushMask.B) != 0)
-                col.z = c.b;
-            if ((bm & BrushMask.A) != 0)
-                col.w = c.a;
-        }
+    public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
+    {
+        if ((bm & BrushMask.R) != 0)
+            col.x = c.r;
+        if ((bm & BrushMask.G) != 0)
+            col.y = c.g;
+        if ((bm & BrushMask.B) != 0)
+            col.z = c.b;
+        if ((bm & BrushMask.A) != 0)
+            col.w = c.a;
+    }
 
-        public static Mesh GetMesh(this PlaytimePainter p) {
+    public static Mesh GetMesh(this PlaytimePainter p) {
         if (!p) return null;
 
         if (p.skinnedMeshRenderer)
                 return p.colliderForSkinnedMesh;
-        if (p.meshFilter)
-                return p.meshFilter.sharedMesh;
 
-        return null;
+        return p.SharedMesh;
+        
     }
 
         public static bool ContainsInstanceType(this List<PainterComponentPluginBase> collection, Type type){

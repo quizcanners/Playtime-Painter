@@ -326,8 +326,7 @@ namespace Playtime_Painter
         public Vector4 shadowBake;
         public Countless<Vector3> anim;
         public BoneWeight boneWeight;
-        public Matrix4x4 bindPoses;
-        public List<List<BlendFrame>> shapes; // not currently working
+        public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
         //public int submeshIndex;
         public float edgeStrength;
         public int vertexGroup = 0;
@@ -408,14 +407,9 @@ namespace Playtime_Painter
 
             .Add("bw", boneWeight)
 
-            .Add("biP", bindPoses)
-
-            .Add_IfNotEpsilon("edge", edgeStrength);
-
-            if (shapes != null)
-                cody.Add_IfNotEmpty("bs", shapes);
-
-            cody.Add_IfNotZero("gr", vertexGroup);
+            .Add_IfNotEpsilon("edge", edgeStrength)
+            .Add_IfNotEmpty("bs", shapes)
+            .Add_IfNotZero("gr", vertexGroup);
           
             return cody;
         }
@@ -429,9 +423,7 @@ namespace Playtime_Painter
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": SmoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
-                case "bw": boneWeight = data.ToBoneWeight(); 
-                    break;
-                case "biP": bindPoses = data.ToMatrix4x4();  break;
+                case "bw": boneWeight = data.ToBoneWeight(); break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
                 case "bs": data.Decode_ListOfList(out shapes); break;
                 case "gr": vertexGroup = data.ToInt(); break;

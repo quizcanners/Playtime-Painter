@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using QuizCannersUtilities;
 
 [ExecuteInEditMode]
-public class MeshColorSetter : MonoBehaviour {
+public class MeshColorSetter : MonoBehaviour
+{
 
     public MeshFilter filter;
-    [NonSerialized] public Mesh meshCopy;
+    [NonSerialized] Mesh meshCopy;
+    [SerializeField] Mesh originalMesh;
 
     private void OnEnable()
     {
@@ -16,38 +16,73 @@ public class MeshColorSetter : MonoBehaviour {
             filter = GetComponent<MeshFilter>();
     }
 
+    private void OnDisable()
+    {
+        if (filter && originalMesh)
+        {
+            filter.sharedMesh = originalMesh;
+            this.SetToDirty();
+        }
+        meshCopy.DestroyWhatever_UObj();
+    }
+
     float previousAlpha = -1;
-    [Range(0,1)]
+    Color previousColor = Color.gray;
+    [Range(0, 1)]
     public float colorAlpha = 0;
 
-	// Update is called once per frame
-	void LateUpdate () {
+    public bool changeColor = false;
+    public Color color = Color.white;
 
-        if (Application.isPlaying)
+
+
+    // Update is called once per frame
+    void LateUpdate()
+    {
+
+        if (filter && (colorAlpha != previousAlpha || (changeColor && color!= previousColor)))
         {
-
-            if (colorAlpha != previousAlpha && filter)
+            if (!meshCopy)
             {
-                if (!meshCopy)
+                if (!filter.sharedMesh)
+                    filter.sharedMesh = originalMesh;
+                else
+                    originalMesh = filter.sharedMesh;
+
+                if (originalMesh)
                 {
-                    meshCopy = Instantiate(filter.mesh);
+                    meshCopy = Instantiate(originalMesh);
                     filter.mesh = meshCopy;
                 }
+            }
+
+            if (meshCopy)
+            {
+
+
                 var verts = meshCopy.vertexCount;
 
                 var cols = meshCopy.colors;
 
-                if (cols.IsNullOrEmpty())
-                {
+                if (cols.IsNullOrEmpty())  {
                     cols = new Color[verts];
 
                     for (int i = 0; i < verts; i++)
                         cols[i] = Color.white;
 
-                 
+
                 }
 
-                for (int i = 0; i < verts; i++)
+                if (changeColor) {
+                    color.a = colorAlpha;
+
+                    for (int i = 0; i < verts; i++)
+                        cols[i] = color;
+
+                    previousColor = color;
+
+                }
+                 else for (int i = 0; i < verts; i++)
                     cols[i].a = colorAlpha;
 
                 meshCopy.colors = cols;
@@ -55,5 +90,5 @@ public class MeshColorSetter : MonoBehaviour {
                 previousAlpha = colorAlpha;
             }
         }
-	}
+    }
 }

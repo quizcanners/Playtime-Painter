@@ -44,11 +44,11 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
                             _canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
                     }
                     
-                    if (needPosition && ((_canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.Tangent) == 0))
+                    if (needPosition && ((_canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
                     {
                         "Material requires Canvas to pass Position Data trough Tangent channel".writeWarning();
                         if ("Fix Canvas ".Click().nl())
-                            _canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
+                            _canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                     }
                 }
 
@@ -58,9 +58,9 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
             }
         }
 
-       var changed = "Smoothness".edit(90, ref edgeSmoothness, 0, 1).nl();
+       var changed = "Edges".edit(90, ref edgeSmoothness, 0, 1).nl();
 
-        "Courners".edit(90, ref roundingCourners, 0, 0.75f).nl(ref changed);
+        "Corners".edit(90, ref roundingCourners, 0, 0.75f).nl(ref changed);
 
         "Position Data".toggleIcon(ref feedPositionData).nl(ref changed);
 
@@ -113,7 +113,6 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
         }
         
         vert.uv0 = new Vector2(0, 0);
-        vert.uv2 = new Vector2(1, 1);
         vert.position = new Vector2(corner1.x, corner1.y);
         vh.AddVert(vert);
 

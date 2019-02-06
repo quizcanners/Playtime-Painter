@@ -134,6 +134,8 @@ namespace Playtime_Painter
         #endregion
     }
 
+    #region Position
+
     public class VertexPositionTool : MeshToolBase
     {
         public static VertexPositionTool inst;
@@ -527,6 +529,11 @@ namespace Playtime_Painter
 
     }
 
+    #endregion
+
+    #region Sharp Faces
+
+
     public class SharpFacesTool : MeshToolBase
     {
         public static SharpFacesTool inst;
@@ -702,6 +709,8 @@ namespace Playtime_Painter
         }
 
     }
+
+    #endregion
 
     public class SmoothingTool : MeshToolBase
     {
@@ -1278,14 +1287,24 @@ namespace Playtime_Painter
 
 
 #if PEGI
+        bool showAuto = false;
         public override bool Inspect()
         {
             ("Total Submeshes: " + EditedMesh.submeshCount).nl();
 
             "Submesh: ".edit(60, ref curSubmesh).nl();
+
+            if ("Auto".foldout(ref showAuto)) {
+
+                if ("Make all 0".Click().nl()) {
+                    EditedMesh.AllSubmeshZero();
+                }
+
+            }
+
             return false;
         }
-#endif
+        #endif
         #endregion
 
         #region Encode & Decode
@@ -1313,6 +1332,14 @@ namespace Playtime_Painter
     public class VertexGroupTool : MeshToolBase
     {
         public override string NameForPEGIdisplay => "Vertex Group";
+
+
+        public override bool Inspect() {
+            var changed = false;
+            
+            return changed;
+        }
+
     }
 
 }
