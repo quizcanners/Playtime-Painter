@@ -1979,7 +1979,11 @@ namespace Playtime_Painter {
             else
             {
 
-                if ((IsCurrentTool && terrain && !Application.isPlaying && UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
+                if (
+                    #if UNITY_EDITOR
+                    (IsCurrentTool && terrain && !Application.isPlaying && UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
+                    #endif
+
                     icon.On.Click("Click to Disable Tool", 25))
                 {
                     PainterDataAndConfig.toolEnabled = false;

@@ -28,7 +28,7 @@ namespace Playtime_Painter
 
             "Profile Name: ".edit(80, ref name);
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
             string path = PainterCamera.Data.meshesFolderName + "/" + folderName;
             if (icon.Save.Click("Save To:" + path, 25).nl())
@@ -126,7 +126,7 @@ namespace Playtime_Painter
 
         public MeshPackagingProfile()
         {
-            VertexDataTarget[] trgs = MeshSolutions.dataTargets;
+            var trgs = MeshSolutions.dataTargets;
             sln = new List<VertexContents>(); 
             name = "unnamedd";
             foreach (var t in trgs)
