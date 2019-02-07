@@ -10,8 +10,6 @@ namespace Playtime_Painter
     public class RenderBrush : PainterStuffMono
     {
 
-        //public static PainterManager rtp {get {return PainterManager.inst;}}
-
         public MeshRenderer meshRendy;
         public MeshFilter meshFilter;
         [NonSerialized] public Mesh modifiedMesh;
@@ -27,8 +25,8 @@ namespace Playtime_Painter
 
         public void RestoreBounds()
         {
-            // return;
-            if (replacedTargetsMaterial != null)
+
+            if (replacedTargetsMaterial)
             {
 
                 var lst = changedSkinnedMeshRendy.sharedMaterials;
@@ -61,7 +59,7 @@ namespace Playtime_Painter
 
             var skinny = painter.skinnedMeshRenderer;
 
-            if (skinny != null)
+            if (skinny)
                 UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);
             else
                 UseMeshAsBrush(go, painter.GetMesh(), new List<int> { painter.selectedSubmesh });
@@ -95,7 +93,7 @@ namespace Playtime_Painter
         public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
         {
 
-            Transform camTransform = PainterCamera.Inst.transform;
+            Transform camTransform = TexMGMT.transform;
 
             Transform target = go.transform;
 

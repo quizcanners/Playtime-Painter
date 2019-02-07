@@ -138,8 +138,7 @@ namespace Playtime_Painter {
         #region Brush Mask
         public void MaskToggle(BrushMask flag) =>
             mask ^= flag;
-
-
+        
         public void MaskSet(BrushMask flag, bool to)
         {
             if (to)
@@ -287,7 +286,7 @@ namespace Playtime_Painter {
                         break;
                     }
 
-                if ((!pntr.terrain) || (brushType.SupportedForTerrain_RT)) {
+                if (!pntr.terrain || brushType.SupportedForTerrain_RT) {
 
                     pntr.RecordingMgmt();
 
@@ -381,8 +380,9 @@ namespace Playtime_Painter {
 
             if (!p) { "No Painter Detected".nl(); return false; }
 
-            if ((p.skinnedMeshRenderer) && ("Update Collider from Skinned Mesh".Click()))
+            if (p.skinnedMeshRenderer && "Update Collider from Skinned Mesh".Click())
                 p.UpdateColliderForSkinnedMesh();
+
             pegi.newLine();
 
 
@@ -402,7 +402,6 @@ namespace Playtime_Painter {
                 {
                     p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.RenderTexture : TexTarget.Texture2D);
                     SetSupportedFor(cpuBlit, !id.renderTexture);
-            
                 }
             }
 

@@ -9,7 +9,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples {
+namespace Playtime_Painter {
 
     #region Manager
     [TaggedType(tag)]

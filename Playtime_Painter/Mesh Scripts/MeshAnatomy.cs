@@ -165,13 +165,13 @@ namespace Playtime_Painter
         }
 
         public Vector2 EditedUV {
-            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.editedUV]; }
+            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV]; }
             set { SetUVindexBy(value); }
         }
 
         public Vector2 SharedEditedUV {
-            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.editedUV]; }
-            set { meshPoint.shared_v2s[uvIndex][MeshMGMT.editedUV] = value; }
+            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV]; }
+            set { meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV] = value; }
         }
 
         public Vector2 GetUV(int ind) => meshPoint.shared_v2s[uvIndex][ind];
@@ -186,8 +186,8 @@ namespace Playtime_Painter
         public void SetUVindexBy(Vector2 uv_0, Vector2 uv_1) => uvIndex = meshPoint.GetIndexFor(uv_0, uv_1);
         
         public void SetUVindexBy(Vector2 uv_edited) {
-            var uv_0 = MeshMGMT.editedUV == 0 ? uv_edited : GetUV(0);
-            var uv_1 = MeshMGMT.editedUV == 1 ? uv_edited : GetUV(1);
+            var uv_0 = MeshMGMT.EditedUV == 0 ? uv_edited : GetUV(0);
+            var uv_1 = MeshMGMT.EditedUV == 1 ? uv_edited : GetUV(1);
 
             uvIndex = meshPoint.GetIndexFor(uv_0, uv_1);
         }
@@ -989,7 +989,7 @@ namespace Playtime_Painter
         public Vector2 LocalPosToEditedUV(Vector3 localPos)
         {
             Vector3 w = DistanceToWeight(localPos);
-            var ind = MeshMGMT.editedUV;
+            var ind = MeshMGMT.EditedUV;
             return vertexes[0].GetUV(ind) * w.x + vertexes[1].GetUV(ind) * w.y + vertexes[2].GetUV(ind) * w.z;
         }
 

@@ -12,7 +12,7 @@ using System.IO;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples
+namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
@@ -51,7 +51,8 @@ namespace Playtime_Painter.Examples
         #region Inspector
         [SerializeField]
         protected int inspectedAtlas;
-#if PEGI
+
+        #if PEGI
         public static bool PutEdgesBetweenSubmeshes()
         {
 

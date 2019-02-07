@@ -24,7 +24,13 @@ namespace Playtime_Painter
 
         public MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
-        public int editedUV = 0;
+        int _editedUV = 0;
+
+        public int EditedUV {
+            get { return _editedUV; }
+            set { _editedUV = value;  UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUV == 1);  }
+
+        }
         public static Vector3 editorMousePos;
 
         public PlaytimePainter target;
@@ -40,9 +46,8 @@ namespace Playtime_Painter
 
         public Mesh previewMesh;
 
-       public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
-
-
+        public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
+        
         #region Encode & Decode
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
@@ -178,52 +183,6 @@ namespace Playtime_Painter
             editedMesh.Dirty = false;
         }
 
-        public static Vector2 RoundUVs(Vector2 source, float accuracy)
-        {
-            Vector2 uv = source * accuracy;
-            uv.x = Mathf.Round(uv.x);
-            uv.y = Mathf.Round(uv.y);
-            uv /= accuracy;
-            return uv;
-        }
-
-        public void AddToTrisSet(Vertex nuv)
-        {
-
-            TrisSet[TrisVerts] = nuv;
-            TrisVerts++;
-
-            if (TrisVerts == 3)
-            {
-                foreach (Triangle t in editedMesh.triangles)
-                {
-                    if (t.IsSamePoints(TrisSet))
-                    {
-                        t.Set(TrisSet);
-                        editedMesh.Dirty = true;
-                        TrisVerts = 0;
-                        return;
-                    }
-                }
-            }
-
-            if (TrisVerts >= 3)
-            {
-                Triangle td = new Triangle(TrisSet);
-                editedMesh.triangles.Add(td);
-
-                if (!EditorInputManager.Control)
-                {
-                    MakeTriangleVertUnique(td, TrisSet[0]);
-                    MakeTriangleVertUnique(td, TrisSet[1]);
-                    MakeTriangleVertUnique(td, TrisSet[2]);
-                }
-
-                TrisVerts = 0;
-                editedMesh.Dirty = true;
-            }
-        }
-
         [NonSerialized]
         double dragStartTime;
         public double DragDelay {
@@ -243,6 +202,53 @@ namespace Playtime_Painter
         [NonSerialized]
         bool _dragging;
         public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) DragDelay = 0.4f; } }
+
+        #region Vertex Operations
+
+        public static Vector2 RoundUVs(Vector2 source, float accuracy)
+        {
+            Vector2 uv = source * accuracy;
+            uv.x = Mathf.Round(uv.x);
+            uv.y = Mathf.Round(uv.y);
+            uv /= accuracy;
+            return uv;
+        }
+
+        public void AddToTrisSet(Vertex nuv)
+        {
+
+            TrisSet[TrisVerts] = nuv;
+            TrisVerts++;
+
+            if (TrisVerts == 3)
+                foreach (Triangle t in editedMesh.triangles)
+                    if (t.IsSamePoints(TrisSet))
+                    {
+                        t.Set(TrisSet);
+                        editedMesh.Dirty = true;
+                        TrisVerts = 0;
+                        return;
+                    }
+                
+            
+
+            if (TrisVerts >= 3)
+            {
+                Triangle td = new Triangle(TrisSet);
+                editedMesh.triangles.Add(td);
+
+                if (!EditorInputManager.Control)
+                {
+                    MakeTriangleVertUnique(td, TrisSet[0]);
+                    MakeTriangleVertUnique(td, TrisSet[1]);
+                    MakeTriangleVertUnique(td, TrisSet[2]);
+                }
+
+                TrisVerts = 0;
+                editedMesh.Dirty = true;
+            }
+        }
+
 
         public void DisconnectDragged()
         {
@@ -280,7 +286,7 @@ namespace Playtime_Painter
             }
 
 
-            if (UVnavigator._inst != null)
+            if (UVnavigator._inst)
                 UVnavigator._inst.CenterOnUV(SelectedUV.EditedUV);
         }
 
@@ -453,7 +459,9 @@ namespace Playtime_Painter
             editedMesh.Dirty = true;
 
         }
+        #endregion
 
+        #region Tool MGMT
         bool ProcessLinesOnTriangle(Triangle t)
         {
             t.wasProcessed = true;
@@ -722,6 +730,7 @@ namespace Playtime_Painter
 
 
         }
+        #endregion
 
         public static List<string> MeshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
 
@@ -732,68 +741,7 @@ namespace Playtime_Painter
                     return false;
             return true;
         }
-
-        public void DRAW_Lines(bool isGizmoCall)
-        {
-
-            GizmoLines = isGizmoCall;
-
-            if (!target) return;
-
-            //Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
-
-            if (MeshTool.ShowTriangles)
-            {
-                if ((PointedTris != null) && ((PointedTris != SelectedTris) || (!MeshTool.ShowSelectedTriangle)))
-                    OutlineTriangle(PointedTris, Color.cyan, Color.gray);
-
-                if ((SelectedTris != null) && (MeshTool.ShowSelectedTriangle))
-                    OutlineTriangle(SelectedTris, Color.blue, Color.white);
-            }
-
-            if (MeshTool.ShowLines)
-            {
-                if (PointedLine != null)
-                    Line(PointedLine.pnts[0].meshPoint, PointedLine.pnts[1].meshPoint, Color.green);
-
-                for (int i = 0; i < Mathf.Min(vertsShowMax, editedMesh.meshPoints.Count); i++)
-                {
-                    MeshPoint vp = editedMesh.meshPoints[i];
-                    if (SameTrisAsPointed(vp))
-                        Line(vp, PointedUV.meshPoint, Color.yellow);
-                }
-            }
-
-            if (MeshTool.ShowVertices)
-            {
-
-                if (PointedUV != null)
-                {
-                    for (int i = 0; i < editedMesh.triangles.Count; i++)
-                    {
-                        Triangle td = editedMesh.triangles[i];
-                        if (td.Includes(PointedUV))
-                        {
-
-                            Line(td.vertexes[1].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
-                            Line(td.vertexes[1].meshPoint, td.vertexes[2].meshPoint, Color.yellow);
-                            Line(td.vertexes[2].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
-                        }
-                    }
-                    //Vector3 selPos = pointedUV.vert.worldPos; //.pos.ToV3 (false);
-                    //Gizmos.color = Color.green;
-                    //Gizmos.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos));
-                    //Line(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
-                }
-
-                /*if (selectedUV != null)
-                {
-                    Vector3 selPos = selectedUV.vert.getWorldPos();//.pos.ToV3 (false);
-                    Debug.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
-                }*/
-            }
-        }
-
+        
         public void CombinedUpdate()
         {
 
@@ -832,7 +780,7 @@ namespace Playtime_Painter
 
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         public void UpdateInputEditorTime(Event e, bool up, bool dwn)
         {
 
@@ -863,7 +811,7 @@ namespace Playtime_Painter
 
             return;
         }
-#endif
+        #endif
 
         public void UpdateInputPlaytime()
         {
@@ -901,6 +849,222 @@ namespace Playtime_Painter
             }
             return false;
         }
+        
+        void InitVertsIfNUll()
+        {
+            if (!Grid)
+                return;
+
+            if (!Grid.vertPrefab)
+                Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
+
+            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (!Grid.verts[0].go))
+            {
+                Grid.verts = new MarkerWithText[vertsShowMax];
+
+                for (int i = 0; i < vertsShowMax; i++)
+                {
+                    MarkerWithText v = new MarkerWithText();
+                    Grid.verts[i] = v;
+                    v.go = GameObject.Instantiate(Grid.vertPrefab);
+                    v.go.transform.parent = Grid.transform;
+                    v.Init();
+                }
+            }
+
+            Grid.pointedVertex.Init();
+            Grid.selectedVertex.Init();
+        }
+
+        public void OnEnable()
+        {
+            InitVertsIfNUll();
+
+            if ((previouslyEdited != null) && (!target))
+            {
+                DisconnectMesh();
+                EditMesh(previouslyEdited, false);
+                justLoaded = 5;
+            }
+
+            previouslyEdited = null;
+            TrisVerts = 0;
+            EditedUV = EditedUV;
+
+        }
+        
+        int justLoaded;
+
+        #region Inspector
+#if PEGI
+        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
+        bool showReferences = false;
+        bool inspectMesh = false;
+        bool showTooltip;
+        bool showCopyOptions;
+        public bool PEGI()  {
+
+            bool changed = false;
+            EditableMesh.inspected = editedMesh;
+
+            pegi.newLine();
+            
+                if (editedMesh != null && "Mesh ".foldout(ref inspectMesh).nl())
+                    changed |= editedMesh.Nested_Inspect().nl();
+
+            pegi.space();
+            pegi.nl();
+
+            target.PreviewShaderToggle_PEGI().changes(ref changed);
+
+            if (!target.IsOriginalShader && "preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl(ref changed))
+                MeshSHaderMode.ApplySelected();
+
+            pegi.space();
+            pegi.nl();
+
+            var previousTool = MeshTool;
+
+            if ("tool".select(70, ref Cfg._meshTool, MeshToolBase.AllTools).nl(ref changed)) {
+                Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
+                previousTool.OnDeSelectTool();
+                MeshTool.OnSelectTool();
+            }
+
+            pegi.space();
+            pegi.newLine();
+
+            "Mesh Name:".edit(70, ref target.meshNameField).changes(ref changed);
+
+#if UNITY_EDITOR
+            var mesh = target.GetMesh();
+
+            bool exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+            
+            if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
+                target.SaveMesh();
+       
+            
+#endif
+            
+            pegi.nl();
+
+            MeshTool.Inspect().nl(ref changed);
+
+            if ("Hint".foldout(ref showTooltip).nl())
+                MeshTool.Tooltip.writeHint();
+            
+            if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
+
+                if (!selectedPainters.Contains(target)) {
+                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
+                        selectedPainters.Add(target);
+
+                    if (!selectedPainters.IsNullOrEmpty()) {
+
+                        if (editedMesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.UV2distributeRow).nl(ref changed))
+                            editedMesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
+                        else
+                        {
+                            if (editedMesh.UV2distributeCurrent > 0)
+                            {
+                                ("All added meshes will be distributed in " + editedMesh.UV2distributeRow + " by " + editedMesh.UV2distributeRow + " grid. By cancelling this added" +
+                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
+                                if ("Cancel Distribution".Click().nl())
+                                    editedMesh.UV2distributeRow = 0;
+                            }
+                            else {
+                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.UV2distributeRow, 2, 16).nl(ref changed);
+                                "Start from".edit(ref editedMesh.UV2distributeCurrent).nl(ref changed);
+                            }
+
+                            "Using {0} out of {1} spots".F(editedMesh.UV2distributeCurrent + selectedPainters.Count + 1, editedMesh.UV2distributeRow * editedMesh.UV2distributeRow).nl();
+                          
+                        }
+
+                        "Will Merge with the following:".nl();
+                        for (int i = 0; i < selectedPainters.Count; i++)
+                            if (!selectedPainters[i] || icon.Delete.Click(25)) {
+                                selectedPainters.RemoveAt(i);
+                                i--;
+                            }
+                        else
+                                selectedPainters[i].gameObject.name.nl();
+                        
+                        if ("Merge!".Click().nl(ref changed)) {
+
+                            foreach (var p in selectedPainters)
+                                editedMesh.MergeWith(p);
+
+                            editedMesh.Dirty = true;
+
+                        }
+                    }
+                }
+                else
+                    if ("Remove from Copy Selection".Click().nl(ref changed))
+                        selectedPainters.Remove(target);
+                
+            }
+            
+            pegi.nl();
+
+            Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
+
+            if (!Application.isPlaying && "references".foldout(ref showReferences).nl())  {
+
+                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
+                pegi.newLine();
+
+                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
+                "Max Vert Markers ".edit(ref vertsShowMax).nl();
+                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
+                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
+            }
+
+            EditableMesh.inspected = null;
+            
+            if (changed)
+                MeshTool.SetShaderKeywords();
+
+            return changed;
+        }
+
+        public bool Undo_redo_PEGI()
+        {
+            bool changed = false;
+
+            if (undoMoves.Count > 1) {
+                if (pegi.Click(icon.Undo.GetIcon(), 25).changes(ref changed)) {
+                    redoMoves.Add(undoMoves.RemoveLast());
+                    undoMoves.Last().DecodeInto(out editedMesh);
+                    Redraw();
+                }
+            }
+            else
+                pegi.Click(icon.UndoDisabled.GetIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
+
+            if (redoMoves.Count > 0) {
+                if (pegi.Click(icon.Redo.GetIcon(),  25).changes(ref changed)) {
+                    redoMoves.Last().DecodeInto(out editedMesh);
+                    undoMoves.Add(redoMoves.RemoveLast());
+                    Redraw();
+                }
+            }
+            else
+                pegi.Click(icon.RedoDisabled.GetIcon(), "Nothing to Redo", 25);
+
+            pegi.newLine();
+
+            return changed;
+        }
+
+
+        #endif
+
+        #endregion
+
+        #region Editor Gizmos
 
         void OutlineTriangle(Triangle t, Color colA, Color colB)
         {
@@ -967,237 +1131,67 @@ namespace Playtime_Painter
 
 
         }
-
-        void InitVertsIfNUll()
+        
+        public void DRAW_Lines(bool isGizmoCall)
         {
-            if (!Grid)
-                return;
 
-            if (!Grid.vertPrefab)
-                Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
+            GizmoLines = isGizmoCall;
 
-            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (!Grid.verts[0].go))
+            if (!target) return;
+
+            //Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
+
+            if (MeshTool.ShowTriangles)
             {
-                Grid.verts = new MarkerWithText[vertsShowMax];
+                if ((PointedTris != null) && ((PointedTris != SelectedTris) || (!MeshTool.ShowSelectedTriangle)))
+                    OutlineTriangle(PointedTris, Color.cyan, Color.gray);
 
-                for (int i = 0; i < vertsShowMax; i++)
+                if ((SelectedTris != null) && (MeshTool.ShowSelectedTriangle))
+                    OutlineTriangle(SelectedTris, Color.blue, Color.white);
+            }
+
+            if (MeshTool.ShowLines)
+            {
+                if (PointedLine != null)
+                    Line(PointedLine.pnts[0].meshPoint, PointedLine.pnts[1].meshPoint, Color.green);
+
+                for (int i = 0; i < Mathf.Min(vertsShowMax, editedMesh.meshPoints.Count); i++)
                 {
-                    MarkerWithText v = new MarkerWithText();
-                    Grid.verts[i] = v;
-                    v.go = GameObject.Instantiate(Grid.vertPrefab);
-                    v.go.transform.parent = Grid.transform;
-                    v.Init();
+                    MeshPoint vp = editedMesh.meshPoints[i];
+                    if (SameTrisAsPointed(vp))
+                        Line(vp, PointedUV.meshPoint, Color.yellow);
                 }
             }
 
-            Grid.pointedVertex.Init();
-            Grid.selectedVertex.Init();
-        }
-
-        public void OnEnable()
-        {
-            InitVertsIfNUll();
-
-            if ((previouslyEdited != null) && (!target))
+            if (MeshTool.ShowVertices)
             {
-                DisconnectMesh();
-                EditMesh(previouslyEdited, false);
-                justLoaded = 5;
-            }
 
-            previouslyEdited = null;
-            TrisVerts = 0;
-        }
-        
-        int justLoaded;
-
-        #region Inspector
-#if PEGI
-        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
-        bool showReferences = false;
-        bool inspectMesh = false;
-        bool showTooltip;
-        bool showCopyOptions;
-        public bool PEGI()  {
-
-            bool changed = false;
-            EditableMesh.inspected = editedMesh;
-
-            pegi.newLine();
-
-            if (editedMesh != null)
-                if ("Mesh ".foldout(ref inspectMesh).nl())
-                    changed |= editedMesh.Nested_Inspect().nl();
-            pegi.space();
-
-            pegi.newLine();
-
-            changed |= target.PreviewShaderToggle_PEGI();
-
-            if (!target.IsOriginalShader && ("preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl()))
-                MeshSHaderMode.selected.Apply();
-
-            pegi.space();
-
-            pegi.newLine();
-
-            var previousTool = MeshTool;
-
-            if ("tool".select(70, ref Cfg._meshTool, MeshToolBase.AllTools).nl()) {
-                Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
-                previousTool.OnDeSelectTool();
-                MeshTool.OnSelectTool();
-            }
-
-            pegi.space();
-
-            pegi.newLine();
-
-            "Mesh Name:".edit(70, ref target.meshNameField);
-
-#if UNITY_EDITOR
-            var mesh = target.GetMesh();
-
-            bool exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
-            
-            if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
-                target.SaveMesh();
-       
-            
-#endif
-
-            pegi.newLine();
-
-            pegi.nl();
-
-            MeshTool.Inspect();
-
-            pegi.newLine();
-
-            if ("Hint".foldout(ref showTooltip).nl())
-                pegi.writeHint(MeshTool.Tooltip);
-            
-            if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
-
-                if (!selectedPainters.Contains(target)) {
-                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl())
-                        selectedPainters.Add(target);
-
-                    if (selectedPainters.Count > 0) {
-
-                        if (editedMesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.UV2distributeRow).nl())
-                            editedMesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
-                        else
-                        {
-                            if (editedMesh.UV2distributeCurrent > 0)
-                            {
-                                ("All added meshes will be distributed in " + editedMesh.UV2distributeRow + " by " + editedMesh.UV2distributeRow + " grid. By cancelling this added" +
-                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
-                                if ("Cancel Distribution".Click().nl())
-                                    editedMesh.UV2distributeRow = 0;
-                            }
-                            else {
-                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.UV2distributeRow, 2, 16).nl();
-                                "Start from".edit(ref editedMesh.UV2distributeCurrent).nl();
-                            }
-                            pegi.write("Using " + (editedMesh.UV2distributeCurrent + selectedPainters.Count + 1) + " out of " + (editedMesh.UV2distributeRow * editedMesh.UV2distributeRow).ToString() + " spots");
-                            pegi.newLine();
-                        }
-
-                        "Will Merge with the following:".nl();
-                        for (int i = 0; i < selectedPainters.Count; i++)
-                        {
-                            if (selectedPainters[i] == null)
-                            {
-                                selectedPainters.RemoveAt(i);
-                                i--;
-                            }
-                            else
-                            {
-                                if (icon.Delete.Click(25))
-                                {
-                                    selectedPainters.RemoveAt(i);
-                                    i--;
-                                }
-                                else
-                                    selectedPainters[i].gameObject.name.nl();
-
-                            }
-                        }
-
-                        if ("Merge!".Click().nl())
+                if (PointedUV != null)
+                {
+                    for (int i = 0; i < editedMesh.triangles.Count; i++)
+                    {
+                        Triangle td = editedMesh.triangles[i];
+                        if (td.Includes(PointedUV))
                         {
 
-                            foreach (var p in selectedPainters)
-                                editedMesh.MergeWith(p);
-
-                            editedMesh.Dirty = true;
-
+                            Line(td.vertexes[1].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
+                            Line(td.vertexes[1].meshPoint, td.vertexes[2].meshPoint, Color.yellow);
+                            Line(td.vertexes[2].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
                         }
                     }
-
+                    //Vector3 selPos = pointedUV.vert.worldPos; //.pos.ToV3 (false);
+                    //Gizmos.color = Color.green;
+                    //Gizmos.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos));
+                    //Line(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
                 }
-                else
+
+                /*if (selectedUV != null)
                 {
-                    if ("Remove from Copy Selection".Click().nl())
-                        selectedPainters.Remove(target);
-                }
+                    Vector3 selPos = selectedUV.vert.getWorldPos();//.pos.ToV3 (false);
+                    Debug.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
+                }*/
             }
-
-
-
-            pegi.newLine();
-
-            Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
-
-            if ((!Application.isPlaying) && ("references".foldout(ref showReferences).nl()))  {
-
-                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
-                pegi.newLine();
-
-                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
-                "Max Vert Markers ".edit(ref vertsShowMax).nl();
-                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
-                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
-            }
-
-            EditableMesh.inspected = null;
-
-            return changed;
         }
-
-        public bool Undo_redo_PEGI()
-        {
-            bool changed = false;
-
-            if (undoMoves.Count > 1) {
-                if (pegi.Click(icon.Undo.GetIcon(), 25).changes(ref changed)) {
-                    redoMoves.Add(undoMoves.RemoveLast());
-                    undoMoves.Last().DecodeInto(out editedMesh);
-                    Redraw();
-                }
-            }
-            else
-                pegi.Click(icon.UndoDisabled.GetIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
-
-            if (redoMoves.Count > 0) {
-                if (pegi.Click(icon.Redo.GetIcon(),  25).changes(ref changed)) {
-                    redoMoves.Last().DecodeInto(out editedMesh);
-                    undoMoves.Add(redoMoves.RemoveLast());
-                    Redraw();
-                }
-            }
-            else
-                pegi.Click(icon.RedoDisabled.GetIcon(), "Nothing to Redo", 25);
-
-            pegi.newLine();
-
-            return changed;
-        }
-
-      
-#endif
-        #endregion
         
         public static void DrawCubeDebug(Color col, Vector3 piecePos, Vector3 dest)
         {
@@ -1287,7 +1281,7 @@ namespace Playtime_Painter
             Gizmos.DrawLine(urb, ulb);
 
         }
-
+        #endregion
 
     }
 
@@ -1300,30 +1294,24 @@ namespace Playtime_Painter
 
         private MeshSHaderMode(string value) { _value = value; _allModes.Add(this); }
 
-        public string _value;
-
-        public static MeshSHaderMode lit = new          MeshSHaderMode("MESH_PREVIEW_LIT");
-        public static MeshSHaderMode normVector = new   MeshSHaderMode("MESH_PREVIEW_NORMAL");
-        public static MeshSHaderMode vertColor = new    MeshSHaderMode("MESH_PREVIEW_VERTCOLOR");
-        public static MeshSHaderMode projection = new   MeshSHaderMode("MESH_PREVIEW_PROJECTION");
+        public static MeshSHaderMode lit = new          MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_LIT);
+        public static MeshSHaderMode normVector = new   MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_NORMAL);
+        public static MeshSHaderMode vertColor = new    MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_VERTCOLOR);
+        public static MeshSHaderMode projection = new   MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_PROJECTION);
 
         public static MeshSHaderMode selected;
 
-        public override string ToString() => _value;
+        public string _value;
 
-        public bool IsSelected => selected == this;
+        public override string ToString() => _value;
 
         public static void ApplySelected() {
             if (selected == null)
                 selected = _allModes[0];
-            selected.Apply();
-        }
-
-        public void Apply() {
-            selected = this;
 
             foreach (MeshSHaderMode s in _allModes)
-                UnityHelperFunctions.SetShaderKeyword(s._value, this == s);
+                UnityHelperFunctions.SetShaderKeyword(s._value, selected == s);
+
         }
     }
 }

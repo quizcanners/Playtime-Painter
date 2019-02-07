@@ -115,12 +115,14 @@ namespace Playtime_Painter {
 
         public Renderer meshRenderer;
         public SkinnedMeshRenderer skinnedMeshRenderer;
+        public Graphic uiGraphic;
         public Terrain terrain;
+
         public TerrainCollider terrainCollider;
         [SerializeField] private MeshFilter meshFilter;
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
-        public Graphic uiGraphic;
+
         [NonSerialized] public Mesh colliderForSkinnedMesh;
 
         public Mesh SharedMesh {
@@ -192,6 +194,8 @@ namespace Playtime_Painter {
         public ImageData ImgData => GetTextureOnMaterial().GetImgData();
 
         public bool HasMaterialSource => meshRenderer || terrain || uiGraphic;
+
+        public bool IsUiGraphicPainter => !meshRenderer && !terrain && uiGraphic;
 
         public string nameHolder = "unnamed";
 
@@ -2168,125 +2172,132 @@ namespace Playtime_Painter {
                     if (!LockTextureEditing)
                     {
 
-                        #region Undo/Redo & Recording
-                        id.Undo_redo_PEGI();
-
-                        if (id.showRecording && !id.recording)
+                        if (IsUiGraphicPainter && !Application.isPlaying)
                         {
+                            pegi.nl();
+                            "UI Element editing only works during Play in Game View for now.".writeWarning();
+                        }
+                        else
+                        {
+                            #region Undo/Redo & Recording
+                            id.Undo_redo_PEGI();
 
-                            pegi.newLine();
-
-                            if (playbackPainters.Count > 0)
+                            if (id.showRecording && !id.recording)
                             {
-                                "Playback In progress".nl();
 
-                                if (icon.Close.Click("Cancel All Playbacks", 20))
-                                    TexMgmt.CancelAllPlaybacks();
+                                pegi.newLine();
 
-                                if (StrokeVector.PausePlayback)
+                                if (playbackPainters.Count > 0)
                                 {
-                                    if (icon.Play.Click("Continue Playback", 20))
-                                        StrokeVector.PausePlayback = false;
-                                }
-                                else if (icon.Pause.Click("Pause Playback", 20))
-                                    StrokeVector.PausePlayback = true;
+                                    "Playback In progress".nl();
 
-                            }
-                            else
-                            {
-                                var gotVectors = Cfg.recordingNames.Count > 0;
+                                    if (icon.Close.Click("Cancel All Playbacks", 20))
+                                        TexMgmt.CancelAllPlaybacks();
 
-                                Cfg.browsedRecord = Mathf.Max(0, Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
-
-                                if (gotVectors)
-                                {
-                                    pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
-                                    if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
-                                        PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
-
-
-                                    if (icon.Record.Click("Continue Recording", 18))
+                                    if (StrokeVector.PausePlayback)
                                     {
-                                        id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
-                                        id.ContinueRecording();
-                                        "Recording resumed".showNotificationIn3D_Views();
+                                        if (icon.Play.Click("Continue Playback", 20))
+                                            StrokeVector.PausePlayback = false;
+                                    }
+                                    else if (icon.Pause.Click("Pause Playback", 20))
+                                        StrokeVector.PausePlayback = true;
+
+                                }
+                                else
+                                {
+                                    var gotVectors = Cfg.recordingNames.Count > 0;
+
+                                    Cfg.browsedRecord = Mathf.Max(0, Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
+
+                                    if (gotVectors)
+                                    {
+                                        pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
+                                        if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
+                                            PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
+
+
+                                        if (icon.Record.Click("Continue Recording", 18))
+                                        {
+                                            id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
+                                            id.ContinueRecording();
+                                            "Recording resumed".showNotificationIn3D_Views();
+                                        }
+
+                                        if (icon.Delete.Click("Delete", ref changed, 18))
+                                            Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
+
                                     }
 
-                                    if (icon.Delete.Click("Delete", ref changed, 18))
-                                        Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
-
+                                    if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
+                                        (!gotVectors && "New Vector Recording".Click("Start New recording")))
+                                    {
+                                        id.SaveName = "Unnamed";
+                                        id.StartRecording();
+                                        "Recording started".showNotificationIn3D_Views();
+                                    }
                                 }
 
-                                if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
-                                    (!gotVectors && "New Vector Recording".Click("Start New recording")))
-                                {
-                                    id.SaveName = "Unnamed";
-                                    id.StartRecording();
-                                    "Recording started".showNotificationIn3D_Views();
-                                }
+                                pegi.newLine();
+                                pegi.space();
+                                pegi.newLine();
                             }
 
-                            pegi.newLine();
-                            pegi.space();
-                            pegi.newLine();
-                        }
-
-                        pegi.nl();
-
-                        var CPU = id.TargetIsTexture2D();
-
-                        var mat = Material;
-                        if (mat.IsProjected())
-                        {
-
-                            pegi.writeWarning("Projected UV Shader detected. Painting may not work properly");
-                            if ("Undo".Click(40).nl())
-                                mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
-                        }
-
-                        if (!CPU && id.texture2D && id.width != id.height)
-                            "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
-
-                        #endregion
-
-                        #region Brush
-
-                        if (Application.isPlaying && !Camera.main)
-                        {
-                            "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
                             pegi.nl();
-                        }
 
-                        changed |= GlobalBrush.Inspect();
+                            var CPU = id.TargetIsTexture2D();
 
-                        var mode = GlobalBrush.BlitMode;
-                        var col = GlobalBrush.Color;
-
-                        if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
-                                GlobalBrush.Color = col;
-                        
-                        pegi.nl();
-
-                        if (!Cfg.moreOptions)
-                        {
-
-                            changed |= GlobalBrush.ColorSliders().nl();
-
-                            if (Cfg.showColorSchemes)
+                            var mat = Material;
+                            if (mat.IsProjected())
                             {
 
-                                var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
+                                pegi.writeWarning("Projected UV Shader detected. Painting may not work properly");
+                                if ("Undo".Click(40).nl())
+                                    mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
+                            }
 
-                                scheme?.PickerPEGI();
+                            if (!CPU && id.texture2D && id.width != id.height)
+                                "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
+
+                            #endregion
+
+                            #region Brush
+
+                            if (Application.isPlaying && !Camera.main)
+                            {
+                                "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
+                                pegi.nl();
+                            }
+
+                            changed |= GlobalBrush.Inspect();
+
+                            var mode = GlobalBrush.BlitMode;
+                            var col = GlobalBrush.Color;
+
+                            if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
+                                GlobalBrush.Color = col;
+
+                            pegi.nl();
+
+                            if (!Cfg.moreOptions)
+                            {
+
+                                changed |= GlobalBrush.ColorSliders().nl();
 
                                 if (Cfg.showColorSchemes)
-                                    changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+                                {
 
+                                    var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
+
+                                    scheme?.PickerPEGI();
+
+                                    if (Cfg.showColorSchemes)
+                                        changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+
+                                }
                             }
+
+                            #endregion
                         }
-
-                        #endregion
-
                     }
                     else
                         if (!IsOriginalShader)

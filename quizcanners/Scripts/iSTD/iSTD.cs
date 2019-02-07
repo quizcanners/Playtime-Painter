@@ -470,26 +470,31 @@ namespace QuizCannersUtilities {
         public virtual bool Decode(string tag, string data)
         {
             switch (tag) {
+#if PEGI
                 case "db": inspectedStuff = data.ToInt(); break;
+#endif
                 default: return false;
             }
             return true;
         }
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add_IfNotNegative("db", inspectedStuff);
+#if PEGI
+            .Add_IfNotNegative("db", inspectedStuff)
+#endif
+            ;
 
         public virtual void Decode(string data) {
             uTags.Clear();
             data.DecodeTagsFor(this);
         }
 
-        #endregion
+#endregion
     }
 
-    #endregion
+#endregion
 
-    #region Extensions
+#region Extensions
     public static class STDExtensions {
 
         const string stdStart = "<-<-<";
@@ -777,5 +782,5 @@ namespace QuizCannersUtilities {
 
         public static bool Decode(this ISTD std, string data, ISTD_SerializeNestedReferences keeper) => data.DecodeInto(std, keeper);
     }
-    #endregion
+#endregion
 }

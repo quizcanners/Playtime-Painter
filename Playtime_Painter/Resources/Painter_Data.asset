@@ -50,6 +50,12 @@ MonoBehaviour:
   - {fileID: 2100000, guid: f31328199797eee49bce0088bbdf8a7f, type: 2}
   - {fileID: 2100000, guid: a43fd56943fa6f142948b717a8804dac, type: 2}
   - {fileID: 2800000, guid: d3166ff1db903a041a3c276e2cbcd25d, type: 3}
+  - {fileID: 2800000, guid: 23fdae93470066848bb3ad1b537a4b94, type: 3}
+  - {fileID: 2100000, guid: dc7fe3feacf86d849b21a688dad78442, type: 2}
+  - {fileID: 2800000, guid: e208af48fbb2f9e48999fd8fa1f9533f, type: 3}
+  - {fileID: 2100000, guid: b153561e2abe9994fbd574a6f428c194, type: 2}
+  - {fileID: 2100000, guid: cb02a1f6b880b384eb4f1d2f68fc0afb, type: 3}
+  - {fileID: 2800000, guid: 13a0c3f2ea6495445b9d81c63244938d, type: 3}
   explorer:
     states:
     - comment: 12/3/2018 7:06:18 PM
@@ -60,7 +66,7 @@ MonoBehaviour:
         dirty: 0
         inspectedTag: 3
     fileFolderHolder: STDEncodes
-  inspectedStuff: -1
+  inspectedStuff: 10
   inspectedReference: -1
   myLayer: 30
   br_Blit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
@@ -82,7 +88,8 @@ MonoBehaviour:
     0.png
   showRecentTextures: 0
   showColorSchemes: 0
-  sourceTextures: []
+  sourceTextures:
+  - {fileID: 2800000, guid: 6b10ecada9a3f014eb29f94331e6e530, type: 3}
   masks: []
   decals:
   - decalName: Ball
@@ -96,7 +103,7 @@ MonoBehaviour:
   selectedColorScheme: 1
   inspectedColorScheme: -1
   showURLfield: 1
-  _meshTool: 1
+  _meshTool: 7
   bevelDetectionSensetivity: 6
   meshToolsSTD: e|115|e|8|inM|1|n||e|23|v|1|1|doCol|1|n|fe|1|n||e|0||e|40|gtuv|1|n|offset|0||tile|12|x|1|1|y|1|1|||e|16|cat|1|0|cac|1|0|||
   allowEditingInFinalBuild: 0
@@ -125,7 +132,7 @@ MonoBehaviour:
     randomMaskOffset: 0
     selectedDecal: 0
     maskTiling: 1
-    Hardness: 197
+    Hardness: 512
     blurAmount: 1
     decalAngle: 327.78564
     decalRotationMethod: 0
@@ -134,22 +141,22 @@ MonoBehaviour:
     flipMaskAlpha: 0
     TargetIsTex2D: 0
     showBrushDynamics: 0
-    Brush3D_Radius: 0.75
-    Brush2D_Radius: 8
-    speed: 2.32
+    Brush3D_Radius: 1.12
+    Brush2D_Radius: 76.5
+    speed: 8.36
     MB1ToLinkPositions: 0
     DontRedoMipmaps: 0
     colorLinear:
-      r: 0.892
-      g: 0.671
-      b: 0.285
-      a: 0
+      r: 0
+      g: 0
+      b: 0
+      a: 0.711
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
-  moreOptions: 0
+  moreOptions: 1
   allowExclusiveRenderTextures: 0
-  showConfig: 0
+  showConfig: 1
   ShowTeachingNotifications: 0
   DebugDisableSecondBufferUpdate: 0
   samplingMaskSize:
@@ -163,4 +170,5 @@ MonoBehaviour:
   recordingNames:
   - Unnamed
   browsedRecord: 0
-  STDdata: imgs|1034|e|36|tex2D|1|0|w|3|256|h|3|256|sn|4|Cube||e|40|tex2D|1|1|w|4|2048|h|4|2048|sn|6|Volume||e|37|tex2D|2|23|w|2|16|h|2|16|sn|6|pixArt||e|48|tex2D|1|9|w|2|16|h|2|16|Lock|1|y|sn|9|SmoothBox||e|60|tex2D|2|33|w|4|1024|h|4|1024|sn|14|Sand_MASKnMAPS|trnsp|1|y||e|65|tex2D|1|2|w|4|2048|h|4|1024|tl|12|x|1|5|y|1|5||sn|11|Cliff_COLOR||e|46|tex2D|1|3|w|4|1024|h|4|1024|sn|11|Tiles_COLOR||e|79|tex2D|1|4|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Grass_COLOR||e|50|tex2D|1|5|w|4|2048|h|4|2048|sn|15|Grass_MASKnMAPS||e|78|tex2D|1|6|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Dirt_COLOR||e|45|tex2D|1|8|w|3|512|h|3|512|sn|12|TerrainLight||e|47|tex2D|2|10|w|3|256|h|3|256|sn|13|TerrainHeight||e|84|tex2D|2|11|w|4|1024|h|4|1024|tl|12|x|1|5|y|1|5||sn|29|GroundAsphaltBroken001_COL_1K||e|57|tex2D|2|12|w|3|128|h|3|128|tl|12|x|1|5|y|1|5||sn|5|noise||e|66|tex2D|2|13|w|4|2048|h|4|2048|tl|12|x|1|5|y|1|5||sn|11|RegularSoil||e|47|tex2D|2|14|w|4|1024|h|4|1024|sn|11|Microdetail||e|47|tex2D|2|15|w|4|2048|h|4|2048|sn|11|Diffuse_ATL|||sch|1|1|mats|612|e|38|mat|2|17|tf|22|e|8|_MainTex|e|4|_Map|||e|52|mat|2|19|tf|36|e|8|_MainTex|e|8|_BumpMap|e|5|_Refl|||e|104|mat|2|16|texInd|1|2|tf|77|e|12|_MainTex_ATL|e|13|_BumpMapC_ATL|e|16|_BakedShadow_VOL|e|12|_Microdetail|||e|80|mat|2|24|tf|64|e|8|_MainTex|e|5|_Bump|e|7|_Smudge|e|7|_BumpEx|e|11|_BumpDetail|||e|29|mat|2|20|tf|13|e|8|_MainTex|||e|182|mat|2|21|tf|165|e|8|_MainTex|e|17|_MetallicGlossMap|e|8|_BumpMap|e|12|_ParallaxMap|e|13|_OcclusionMap|e|12|_EmissionMap|e|11|_DetailMask|e|16|_DetailAlbedoMap|e|16|_DetailNormalMap|||e|30|mat|2|35|tf|14|e|9|_BumpMapC|||e|26|mat|2|18|texInd|1|1|tf|0|||e|15|mat|2|22|tf|0||||pals|1086|e|69|n|1|B|cols|54|e|12|r|1|1|a|1|1||e|30|r|5|0.917|g|5|0.957|b|5|0.802||||e|706|n|1|A|cols|690|e|16|b|5|0.701|a|1|1||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.963|g|5|0.877|b|5|0.888||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|22|r|1|1|g|5|0.118|b|1|1||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|26|r|1|1|g|5|0.737|b|5|0.802||e|26|r|5|0.663|g|1|1|b|5|0.802||e|25|r|4|0.25|g|1|1|b|5|0.267||e|35|r|5|0.941|g|5|0.923|b|4|0.49|a|1|1||||e|291|n|1|C|cols|275|e|21|r|1|1|g|4|0.94|a|1|1||e|12|r|1|1|a|1|1||e|12|r|1|1|a|1|1||e|30|r|5|0.917|g|5|0.957|b|5|0.802||e|30|r|5|0.917|g|5|0.957|b|5|0.802||e|22|g|5|0.462|b|1|1|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1|||||cam|153|mm|0||pl|139|_lstMeta|0||_lst|117|VolumePntng|7|ug|1|n||MltBffr|11|s|0||sc|0|||ColBleed|0||CmbndMpsCntrl|13|cm|0||tps|0|||TilAtlCntrl|13|atl|0||am|0||||||Vpck|1709|e|267|n|6|Simple|sln|247|e|31|en|1|y|vals|15|e|0||e|0||e|0||||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|523|n|5|Bevel|sln|504|e|31|en|1|y|vals|15|e|0||e|0||e|0||||e|81|en|1|y|t|1|1|vals|59|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|13|t|2|11|v|1|3||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|11||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|11|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|11|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|445|n|16|AtlasedProjected|sln|414|e|31|en|1|y|vals|15|e|0||e|0||e|0||||e|74|en|1|y|t|1|1|vals|52|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|7|t|2|10||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|81|en|1|y|t|1|6|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|26|en|1|y|t|1|7|sameSize|1|6||||e|446|n|16|Standard_Atlased|sln|415|e|31|en|1|y|vals|15|e|0||e|0||e|0||||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|12|t|1|9|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|26|en|1|y|t|1|3|sameSize|1|8||e|77|en|1|y|t|1|4|vals|55|e|7|t|2|15||e|13|t|2|15|v|1|1||e|13|t|2|15|v|1|2||e|0||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|
+  STDdata: imgs|1232|e|37|tex2D|2|42|w|3|256|h|3|256|sn|4|Cube||e|64|tex2D|2|39|w|3|256|h|3|256|sn|30|Granur
+    - Kirmizi Meyveli Puf 1||e|48|tex2D|1|9|w|2|16|h|2|16|Lock|1|y|sn|9|SmoothBox||e|79|tex2D|2|37|w|4|1024|h|4|1024|tl|14|x|3|0.5|y|1|1||sn|12|windtexture2|trnsp|1|y||e|36|tex2D|1|0|w|3|256|h|3|256|sn|4|Cube||e|40|tex2D|1|1|w|4|2048|h|4|2048|sn|6|Volume||e|37|tex2D|2|23|w|2|16|h|2|16|sn|6|pixArt||e|60|tex2D|2|33|w|4|1024|h|4|1024|sn|14|Sand_MASKnMAPS|trnsp|1|y||e|65|tex2D|1|2|w|4|2048|h|4|1024|tl|12|x|1|5|y|1|5||sn|11|Cliff_COLOR||e|46|tex2D|1|3|w|4|1024|h|4|1024|sn|11|Tiles_COLOR||e|79|tex2D|1|4|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Grass_COLOR||e|50|tex2D|1|5|w|4|2048|h|4|2048|sn|15|Grass_MASKnMAPS||e|78|tex2D|1|6|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Dirt_COLOR||e|45|tex2D|1|8|w|3|512|h|3|512|sn|12|TerrainLight||e|47|tex2D|2|10|w|3|256|h|3|256|sn|13|TerrainHeight||e|84|tex2D|2|11|w|4|1024|h|4|1024|tl|12|x|1|5|y|1|5||sn|29|GroundAsphaltBroken001_COL_1K||e|57|tex2D|2|12|w|3|128|h|3|128|tl|12|x|1|5|y|1|5||sn|5|noise||e|66|tex2D|2|13|w|4|2048|h|4|2048|tl|12|x|1|5|y|1|5||sn|11|RegularSoil||e|47|tex2D|2|14|w|4|1024|h|4|1024|sn|11|Microdetail||e|47|tex2D|2|15|w|4|2048|h|4|2048|sn|11|Diffuse_ATL|||sch|1|1|mats|1065|e|62|mat|2|38|tf|46|e|8|_MainTex|e|13|_SeamlessWind|e|9|_WindMask|||e|182|mat|2|21|tf|165|e|8|_MainTex|e|17|_MetallicGlossMap|e|8|_BumpMap|e|12|_ParallaxMap|e|13|_OcclusionMap|e|12|_EmissionMap|e|11|_DetailMask|e|16|_DetailAlbedoMap|e|16|_DetailNormalMap|||e|189|mat|2|40|pv|1|y|tf|165|e|8|_MainTex|e|17|_MetallicGlossMap|e|8|_BumpMap|e|12|_ParallaxMap|e|13|_OcclusionMap|e|12|_EmissionMap|e|11|_DetailMask|e|16|_DetailAlbedoMap|e|16|_DetailNormalMap|||e|182|mat|2|41|tf|165|e|8|_MainTex|e|17|_MetallicGlossMap|e|8|_BumpMap|e|12|_ParallaxMap|e|13|_OcclusionMap|e|12|_EmissionMap|e|11|_DetailMask|e|16|_DetailAlbedoMap|e|16|_DetailNormalMap|||e|29|mat|2|20|tf|13|e|8|_MainTex|||e|38|mat|2|17|tf|22|e|8|_MainTex|e|4|_Map|||e|52|mat|2|19|tf|36|e|8|_MainTex|e|8|_BumpMap|e|5|_Refl|||e|104|mat|2|16|texInd|1|2|tf|77|e|12|_MainTex_ATL|e|13|_BumpMapC_ATL|e|16|_BakedShadow_VOL|e|12|_Microdetail|||e|80|mat|2|24|tf|64|e|8|_MainTex|e|5|_Bump|e|7|_Smudge|e|7|_BumpEx|e|11|_BumpDetail|||e|30|mat|2|35|tf|14|e|9|_BumpMapC|||e|26|mat|2|18|texInd|1|1|tf|0|||e|15|mat|2|22|tf|0||||pals|1086|e|69|n|1|B|cols|54|e|12|r|1|1|a|1|1||e|30|r|5|0.917|g|5|0.957|b|5|0.802||||e|706|n|1|A|cols|690|e|16|b|5|0.701|a|1|1||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.963|g|5|0.877|b|5|0.888||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|22|r|1|1|g|5|0.118|b|1|1||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|30|r|5|0.663|g|5|0.737|b|5|0.802||e|26|r|1|1|g|5|0.737|b|5|0.802||e|26|r|5|0.663|g|1|1|b|5|0.802||e|25|r|4|0.25|g|1|1|b|5|0.267||e|35|r|5|0.941|g|5|0.923|b|4|0.49|a|1|1||||e|291|n|1|C|cols|275|e|21|r|1|1|g|4|0.94|a|1|1||e|12|r|1|1|a|1|1||e|12|r|1|1|a|1|1||e|30|r|5|0.917|g|5|0.957|b|5|0.802||e|30|r|5|0.917|g|5|0.957|b|5|0.802||e|22|g|5|0.462|b|1|1|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1||e|22|r|1|1|b|5|0.807|a|1|1|||||cam|153|mm|0||pl|139|_lstMeta|0||_lst|117|VolumePntng|7|ug|1|n||ColBleed|0||CmbndMpsCntrl|13|cm|0||tps|0|||TilAtlCntrl|13|atl|0||am|0|||MltBffr|11|s|0||sc|0||||||Vpck|1542|e|316|n|6|Simple|sln|296|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|425|n|5|Bevel|sln|406|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|60|en|1|y|t|1|3|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|3||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||is|2|10|e|1|y|

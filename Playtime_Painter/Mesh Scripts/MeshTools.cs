@@ -17,14 +17,24 @@ namespace Playtime_Painter
 
         protected static bool Dirty { get { return EditedMesh.Dirty; } set { EditedMesh.Dirty = value; } }
 
+        protected virtual void SetShaderKeyword(bool enablePart) { }
+
+        public virtual void SetShaderKeywords()  {
+
+            foreach (var t in AllTools)
+                t.SetShaderKeyword(false);
+
+            SetShaderKeyword(true);
+
+        }
+
         static List<MeshToolBase> _allTools;
 
         public static List<MeshToolBase> AllTools
         {
             get
             {
-                if (_allTools == null && !applicationIsQuitting)
-                {
+                if (_allTools.IsNullOrEmpty() && !applicationIsQuitting) {
                     _allTools = new List<MeshToolBase>();
 
                     var tps = CsharpFuncs.GetAllChildTypesOf<MeshToolBase>();
@@ -43,9 +53,7 @@ namespace Playtime_Painter
                 return _allTools;
             }
         }
-
-        //protected MeshManager mgmt { get { return MeshManager.inst; } }
-        // protected PainterDataAndConfig cfg { get { return PainterDataAndConfig.dataHolder; } }
+        
         protected LineData PointedLine => MeshMGMT.PointedLine;
         protected Triangle PointedTris => MeshMGMT.PointedTris;
         protected Triangle SelectedTris => MeshMGMT.SelectedTris;
@@ -64,8 +72,7 @@ namespace Playtime_Painter
                 return MeshMGMT.previewEdMesh;
             }
         }
-
-
+        
         public virtual bool ShowVerticesDefault => true;
 
         public bool ShowVertices
@@ -712,6 +719,7 @@ namespace Playtime_Painter
 
     #endregion
 
+    #region Vertex Smoothing
     public class SmoothingTool : MeshToolBase
     {
 
@@ -845,6 +853,8 @@ namespace Playtime_Painter
 
     }
 
+    #endregion
+
     /*
     public class VertexAnimationTool : MeshToolBase
     {
@@ -906,11 +916,10 @@ namespace Playtime_Painter
     }
     */
 
+    #region Color
     public class VertexColorTool : MeshToolBase
     {
         public static VertexColorTool inst;
-
-        // public override MeshTool myTool { get { return MeshTool.VertColor; } }
 
         public override Color VertColor => Color.white;
 
@@ -1037,7 +1046,9 @@ namespace Playtime_Painter
         }
 
     }
+    #endregion
 
+    #region Edges (Experimental tech)
     public class VertexEdgeTool : MeshToolBase {
 
         static bool AlsoDoColor = false;
@@ -1248,7 +1259,9 @@ namespace Playtime_Painter
         #endregion
 
     }
+    #endregion
 
+    #region Submesh
     public class TriangleSubmeshTool : MeshToolBase
     {
         public int curSubmesh = 0;
@@ -1328,6 +1341,8 @@ namespace Playtime_Painter
         }
         #endregion
     }
+    #endregion
+
 
     public class VertexGroupTool : MeshToolBase
     {

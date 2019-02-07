@@ -182,6 +182,8 @@ namespace Playtime_Painter {
         }
 
     }
+
+}
+
 #endif
-        }
 

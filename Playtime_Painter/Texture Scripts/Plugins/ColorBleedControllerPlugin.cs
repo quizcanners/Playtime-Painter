@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
-using System;
 using QuizCannersUtilities;
 
 
-namespace Playtime_Painter.Examples {
+namespace Playtime_Painter {
 
     [TaggedType(tag)]
     public class ColorBleedControllerPlugin : PainterManagerPluginBase  {

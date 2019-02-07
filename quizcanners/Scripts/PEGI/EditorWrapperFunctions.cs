@@ -632,7 +632,7 @@ namespace PlayerAndEditorGUI {
             var oldVal = val;
             val = EditorGUILayout.Vector2Field(label, val);
 
-            return (oldVal != val).Dirty(); ;
+            return (oldVal != val).Dirty();
         }
 
         public static bool edit(ref Vector2 val)

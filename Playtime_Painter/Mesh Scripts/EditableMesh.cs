@@ -916,11 +916,21 @@ namespace Playtime_Painter {
 
             "{0} points; Avg size {1}; {2} submehses; {3} triangles".F(vertexCount, avarageSize, submeshCount, triangles.Count).nl();
 
-            "Bone Weights".write(); (gotBoneWeights ? icon.Done : icon.Close).nl(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights" );
+            "Bone Weights".write(); (gotBoneWeights ? icon.Done : icon.Close).write(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights" );
+
+            if (gotBoneWeights && icon.Delete.Click("Don't Save Bone Weights"))
+                gotBoneWeights = false;
+
+            pegi.nl();
 
             bool gotBindPos = !bindPoses.IsNullOrEmpty();
 
-            "Bind Positions".write(); (gotBindPos ? icon.Done : icon.Close).nl(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
+            "Bind Positions".write(); (gotBindPos ? icon.Done : icon.Close).write(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
+
+            if (gotBindPos && icon.Delete.Click("Remove Bind Positions"))
+                bindPoses = null;
+
+            pegi.nl();
 
             if (!shapes.IsNullOrEmpty())
                 "Shapes".edit_List(ref shapes).nl();

@@ -1975,12 +1975,9 @@ namespace QuizCannersUtilities {
             _name = name;
             intervalLength = interval;
         }
-
-
-
     }
     
-    public class ChillLogger
+    public class ChillLogger : IGotDisplayName
     {
         bool logged = false;
         bool disabled = false;
@@ -1988,12 +1985,16 @@ namespace QuizCannersUtilities {
         int calls;
         readonly string message = "error";
 
+        public string NameForPEGIdisplay => message + (disabled ? " Disabled" : " Enabled");
+
         public ChillLogger(string msg, bool logInBuild = false)
         {
             message = msg;
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             disabled = (!logInBuild);
-            #endif
+#else 
+            disabled = false;
+#endif
         }
 
         public ChillLogger()

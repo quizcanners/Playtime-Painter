@@ -26,7 +26,7 @@ namespace QuizCannersUtilities
         public icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
-        public pegi.SearchData searchData = new pegi.SearchData();
+      
 
         public List<int> GetSelectedElements() {
             var sel = new List<int>();
@@ -54,6 +54,8 @@ namespace QuizCannersUtilities
 
         #region Inspector
         #if PEGI
+
+        public pegi.SearchData searchData = new pegi.SearchData();
 
         public void SaveElementDataFrom<T>(List<T> list)
         {
@@ -90,7 +92,7 @@ namespace QuizCannersUtilities
 
         public bool Inspect<T>(List<T> list) where T : UnityEngine.Object {
             bool changed = false;
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
             "{0} Folder".F(label).edit(90, ref folderToSearch);
             if (icon.Search.Click("Populate {0} with objects from folder".F(label))) {
@@ -114,7 +116,7 @@ namespace QuizCannersUtilities
 #endif
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         #region Encode & Decode
@@ -130,7 +132,9 @@ namespace QuizCannersUtilities
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
+#if PEGI
                 case "s": searchData.Decode(data); break;
+#endif
                 default: return false;
             }
             return true;
@@ -141,7 +145,10 @@ namespace QuizCannersUtilities
             var cody = new StdEncoder()
                 .Add_IfNotNegative("insp", inspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
-                .Add_IfNotDefault("s", searchData);
+                #if PEGI
+                .Add_IfNotDefault("s", searchData)
+                #endif
+                ;
             
             if (!folderToSearch.SameAs(defaultFolderToSearch))
                 cody.Add_String("fld", folderToSearch);
@@ -151,7 +158,7 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-        #endregion
+#endregion
 
         public List_Data() {
             allowDelete = true;
@@ -267,8 +274,8 @@ namespace QuizCannersUtilities
             return false;
         }
         
-        #region Inspector
-        #if PEGI
+#region Inspector
+#if PEGI
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         public bool Inspect()
@@ -363,10 +370,10 @@ namespace QuizCannersUtilities
 
             return changed;
         }
-        #endif
-        #endregion
+#endif
+#endregion
 
-        #region Encode & Decode
+#region Encode & Decode
         public override bool Decode(string tag, string data) {
             switch (tag) {
                 case "n": name = data; break;
@@ -402,7 +409,7 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-        #endregion
+#endregion
     }
 
     public static class STDListDataExtensions {
@@ -445,8 +452,8 @@ namespace QuizCannersUtilities
             data = ndata;
         }
 
-        #region Inspector
-        #if PEGI
+#region Inspector
+#if PEGI
 
         public int CountForInspector => tags.IsNullOrEmpty() ? data.Length : tags.CountForInspector();
         
@@ -531,9 +538,9 @@ namespace QuizCannersUtilities
         }
 
 #endif
-        #endregion
+#endregion
 
-        #region Encode & Decode
+#region Encode & Decode
         public override StdEncoder Encode()
         {
             var cody = new StdEncoder();
@@ -553,7 +560,7 @@ namespace QuizCannersUtilities
             tags.Add(new Exploring_STD(tag, data));
             return true;
         }
-        #endregion
+#endregion
 
     }
 
@@ -565,7 +572,7 @@ namespace QuizCannersUtilities
         public string comment;
         public Exploring_STD dataExplorer = new Exploring_STD("", "");
 
-        #region Inspector
+#region Inspector
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
 #if PEGI
@@ -637,7 +644,7 @@ namespace QuizCannersUtilities
             return changed;
         }
 #endif
-        #endregion
+#endregion
     }
 
     [Serializable]
@@ -649,7 +656,7 @@ namespace QuizCannersUtilities
         public string fileFolderHolder = "STDEncodes";
         public static ISTD inspectedSTD;
 
-        #region Inspector
+#region Inspector
 #if PEGI
         public int CountForInspector => states.Count;
         
@@ -727,7 +734,7 @@ namespace QuizCannersUtilities
             return changed;
         }
 #endif
-        #endregion
+#endregion
     }
-    #endregion
+#endregion
 }

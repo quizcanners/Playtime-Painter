@@ -8,6 +8,7 @@ using QuizCannersUtilities;
 
 public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
+#if PEGI
     public override bool Inspect(Material mat) {
 
         var changed = false;
@@ -21,5 +22,6 @@ public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
         return changed;
     }
+#endif
 }
 

@@ -61,6 +61,26 @@ namespace STD_Logic
 
         #region Inspector
 
+        public virtual string NameForElements => typeof(T).ToPEGIstring_Type();
+
+        public string NameForPEGI
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public override void ResetInspector() {
+            inspectedElement = -1;
+            inspectedBranch = -1;
+            base.ResetInspector();
+        }
+
+        int inspectedElement = -1;
+        int inspectedBranch = -1;
+
+#if PEGI
+
+        
         LoopLock searchLoopLock = new LoopLock();
 
         public bool String_SearchMatch(string searchString)
@@ -84,24 +104,7 @@ namespace STD_Logic
 
         }
 
-        public virtual string NameForElements => typeof(T).ToPEGIstring_Type();
 
-        public string NameForPEGI
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
-        public override void ResetInspector() {
-            inspectedElement = -1;
-            inspectedBranch = -1;
-            base.ResetInspector();
-        }
-
-        int inspectedElement = -1;
-        int inspectedBranch = -1;
-
-        #if PEGI
         static LogicBranch<T> parent;
 
         public override bool Inspect() {
@@ -122,7 +125,7 @@ namespace STD_Logic
             return changed;
         }
 
-        #endif
+#endif
         #endregion
 
     }

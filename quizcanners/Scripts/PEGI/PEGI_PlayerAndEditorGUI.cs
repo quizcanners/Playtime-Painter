@@ -925,6 +925,11 @@ namespace PlayerAndEditorGUI {
 
         #region SELECT
 
+        static T filterEditorDropdown<T>(this T obj)  {
+            var edd = obj as IEditorDropdown;
+            return (edd == null || edd.ShowInDropdown()) ? obj : default(T); 
+        }
+
         #region Extended Select
 
         public static bool select(this string text, int width, ref int value, string[] array)
@@ -1096,19 +1101,16 @@ namespace PlayerAndEditorGUI {
             return select<T>(ref no, tree, lambda);
         }
 
-        public static bool selectOrAdd(ref int selected, ref List<Texture> texes)
+        public static bool selectOrAdd<T>(ref int selected, ref List<T> texes) where T : UnityEngine.Object
         {
-            bool change = select(ref selected, texes);
+            bool changed = select(ref selected, texes);
 
-            Texture tex = texes.TryGet(selected);
+            T tex = texes.TryGet(selected);
 
-            if (edit(ref tex))
-            {
-                change = true;
+            if (edit(ref tex).changes(ref changed)) {
                 if (!tex)
                     selected = -1;
-                else
-                {
+                else {
                     int ind = texes.IndexOf(tex);
                     if (ind >= 0)
                         selected = ind;
@@ -1120,7 +1122,7 @@ namespace PlayerAndEditorGUI {
                 }
             }
 
-            return change;
+            return changed;
         }
 
         public static bool select<T>(ref int ind, List<T> lst, int width) {
@@ -1129,6 +1131,11 @@ namespace PlayerAndEditorGUI {
                 return ef.select(ref ind, lst, width);
 #endif            
                 return select(ref ind, lst);
+        }
+
+        public static bool selectOrAdd<T>(this string label, int width, ref int selected, ref List<T> objs) where T : UnityEngine.Object  {
+            label.write(width);
+            return selectOrAdd(ref selected, ref objs);
         }
 
         public static bool selectEnum<T>(this string text, string tip, int width, ref int eval) {
@@ -1363,7 +1370,7 @@ namespace PlayerAndEditorGUI {
             for (int j = 0; j < lst.Length; j++)
             {
                 T tmp = lst[j];
-                if (!tmp.IsDefaultOrNull())
+                if (!tmp.filterEditorDropdown().IsDefaultOrNull())
                 {
                     if ((!val.IsDefaultOrNull()) && val.Equals(tmp))
                         jindx = lnms.Count;
@@ -1396,7 +1403,7 @@ namespace PlayerAndEditorGUI {
             {
                 T tmp = lst[j];
 
-                if ((!tmp.IsDefaultOrNull()) && lambda(tmp))
+                if ((!tmp.filterEditorDropdown().IsDefaultOrNull()) && lambda(tmp))
                 {
                     if (val == j)
                         jindx = lnms.Count;
@@ -1429,7 +1436,7 @@ namespace PlayerAndEditorGUI {
             {
                 T tmp = lst[j];
 
-                if ((!tmp.IsDefaultOrNull()) && lambda(tmp))
+                if (!tmp.filterEditorDropdown().IsDefaultOrNull() && lambda(tmp))
                 {
                     int ind = tmp.IndexForPEGI;
 
@@ -1464,7 +1471,7 @@ namespace PlayerAndEditorGUI {
             for (int j = 0; j < lst.Count; j++)
             {
                 var tmp = lst[j];
-                if (!tmp.IsDefaultOrNull() && lambda(tmp))
+                if (!tmp.filterEditorDropdown().IsDefaultOrNull() && lambda(tmp))
                 {
                     if ((jindx == -1) && tmp.Equals(val))
                         jindx = lnms.Count;
@@ -1494,7 +1501,7 @@ namespace PlayerAndEditorGUI {
             for (int j = 0; j < lst.Count; j++)
             {
                 T tmp = lst[j];
-                if (!tmp.IsDefaultOrNull())
+                if (!tmp.filterEditorDropdown().IsDefaultOrNull())
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
@@ -1564,7 +1571,7 @@ namespace PlayerAndEditorGUI {
             for (int j = 0; j < lst.Count; j++)
             {
                 G tmp = lst[j];
-                if (!tmp.IsDefaultOrNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
+                if (!tmp.filterEditorDropdown().IsDefaultOrNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
                 {
                     if (tmp.Equals(val))
                         jindx = lnms.Count;
@@ -1611,7 +1618,7 @@ namespace PlayerAndEditorGUI {
             int jindx = -1;
 
             for (int j = 0; j < lst.Count; j++)
-                if (!lst[j].IsNullOrDestroyed_Obj())
+                if (!lst[j].filterEditorDropdown().IsNullOrDestroyed_Obj())
                 {
                     if (ind == j)
                         jindx = indxs.Count;
@@ -1631,32 +1638,30 @@ namespace PlayerAndEditorGUI {
       
         public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD, new()
         {
+
 #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.select(ref no, tree);
-            }
-            else
 #endif
+            
+            List<int> inds;
+            List<T> objs = tree.GetAllObjs(out inds);
+            List<string> filtered = new List<string>();
+            int tmpindex = -1;
+            for (int i = 0; i < objs.Count; i++)
             {
-                List<int> inds;
-                List<T> objs = tree.GetAllObjs(out inds);
-                List<string> filtered = new List<string>();
-                int tmpindex = -1;
-                for (int i = 0; i < objs.Count; i++)
-                {
-                    if (no == inds[i])
-                        tmpindex = i;
-                    filtered.Add(objs[i].ToPEGIstring());
-                }
-
-                if (select(ref tmpindex, filtered.ToArray()))
-                {
-                    no = inds[tmpindex];
-                    return change;
-                }
-                return false;
+                if (no == inds[i])
+                    tmpindex = i;
+                filtered.Add(objs[i].ToPEGIstring());
             }
+
+            if (select(ref tmpindex, filtered.ToArray()))
+            {
+                no = inds[tmpindex];
+                return change;
+            }
+            return false;
+            
         }
 
         public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
@@ -1680,7 +1685,7 @@ namespace PlayerAndEditorGUI {
 
                     var el = objs[i];
 
-                    if (!el.IsNullOrDestroyed_Obj() && lambda(el))
+                    if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj() && lambda(el))
                     {
                         inds.Add(unfinds[i]);
                         if (no == inds[j])
@@ -2042,7 +2047,7 @@ namespace PlayerAndEditorGUI {
             int jindx = -1;
 
             foreach (var el in lst)
-                if (!el.IsNullOrDestroyed_Obj())
+                if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj())
                 {
                     int index = el.IndexForPEGI;
 
@@ -2102,7 +2107,7 @@ namespace PlayerAndEditorGUI {
             for (int i = 0; i < lst.Count; i++)
             {
                 var el = lst[i];
-                if (!el.IsNullOrDestroyed_Obj())
+                if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj())
                 {
                     var name = el.NameForPEGI;
 
@@ -2170,7 +2175,7 @@ namespace PlayerAndEditorGUI {
             {
                 var g = el as G;
 
-                if (!g.IsNullOrDestroyed_Obj())
+                if (!g.filterEditorDropdown().IsNullOrDestroyed_Obj())
                 {
                     int index = g.IndexForPEGI;
 
@@ -3939,21 +3944,15 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
         if (!paintingPlayAreaGUI)
-        {
             return ef.edit(label, ref val);
-        }
-        else
 #endif
-        {
-
-            write(label);
-            bool modified = false;
-            modified |= edit(ref val.x);
-            modified |= edit(ref val.y);
-            return modified;
-        }
-
-
+        
+        write(label);
+        bool modified = false;
+        modified |= edit(ref val.x);
+        modified |= edit(ref val.y);
+        return modified;
+  
     }
 
     public static bool edit(this string label, string tip, int width, ref Vector2 v2)

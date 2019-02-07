@@ -23,6 +23,8 @@
 
 				#pragma multi_compile  MESH_PREVIEW_LIT MESH_PREVIEW_NORMAL MESH_PREVIEW_VERTCOLOR MESH_PREVIEW_PROJECTION MESH_PREVIEW_SHARP_NORMAL
 		
+				#pragma multi_compile ____ _MESH_PREVIEW_UV2
+
 				struct appdata_t {
 					float4 vertex : POSITION;
 					float2 texcoord : TEXCOORD0;
@@ -51,12 +53,22 @@
 					v2f o;
 			
 					o.pos = UnityObjectToClipPos(v.vertex);
-					o.texcoord.xy = v.texcoord;
+
 					o.vcol = v.color;
 					o.scenepos.xyz = mul(unity_ObjectToWorld, v.vertex);
 					o.edge = v.texcoord1;
 
 					normalAndPositionToUV(v.texcoord2.xyz, o.scenepos.xyz, o.bC, o.texcoord.zw);
+
+					#if !_MESH_PREVIEW_UV2
+						o.texcoord.xy = v.texcoord.xy;
+					#else
+						o.texcoord.xy = v.texcoord1.xy;
+					#endif
+
+					#if !MESH_PREVIEW_PROJECTION
+						o.texcoord.zw = o.texcoord.xy;
+					#endif
 
 					o.viewDir.xyz = WorldSpaceViewDir(v.vertex); 
 
@@ -79,6 +91,7 @@
 				}
 
 				float4 frag (v2f i) : COLOR {
+
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 					float dist = length(i.scenepos.xyz - _WorldSpaceCameraPos.xyz);
 				
@@ -102,7 +115,8 @@
 					i.texcoord.zw = (frac(i.texcoord.zw)*(i.atlasedUV.w - edge) + i.atlasedUV.xy+ edge*0.5);
 
 					float4 col =  tex2Dlod(_MainTex, float4(i.texcoord.zw,0, mip));   
-			
+
+
 					float dotprod = dot(i.viewDir.xyz, i.normal.xyz);					 
 					float3 reflected = normalize(i.viewDir.xyz - 2 * (dotprod)*i.normal.xyz);
 					float dott = max(0, dot(_WorldSpaceLightPos0, -reflected));

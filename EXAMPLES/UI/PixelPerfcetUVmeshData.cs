@@ -16,6 +16,7 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
 
     const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
 
+#if PEGI
     public bool Inspect()
     {
         pegi.toggleDefaultInspector();
@@ -87,6 +88,7 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
 
         return changed;
     }
+#endif
 
     protected override void OnPopulateMesh(VertexHelper vh) {
 
@@ -136,10 +138,10 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
 
         base.OnEnable();
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (!_canvas)
             _canvas = GetComponentInParent<Canvas>();
-        #endif
+#endif
     }
 
 }

@@ -106,7 +106,7 @@ namespace Playtime_Painter {
         {
             get {
 
-                if (_plugins == null)
+                if (_plugins.IsNullOrEmpty())
                     RefreshPlugins();
 
                 return _plugins;
@@ -353,8 +353,6 @@ namespace Playtime_Painter {
 
             MyMath.isLerping_bySpeed(ref previewAlpha, hidePreview ? 0 : 1, 0.1f);
 
-            //previewAlpha = Mathf.Lerp(previewAlpha, hidePreview ? 0 : 1, 0.1f);
-
             PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, previewAlpha);
             PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = prevPosPreview.ToVector4(size);
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
@@ -396,9 +394,7 @@ namespace Playtime_Painter {
             var brushType = brush.Type(!RendTex);
 
             bool is3Dbrush = brush.IsA3Dbrush(pntr);
-            bool isDecal = (RendTex) && (brushType.IsUsingDecals);
-
-            //Color c = brush.colorLinear.ToGamma();
+            bool isDecal = RendTex && brushType.IsUsingDecals;
 
             brushColor_Property.GlobalValue = brush.Color;
 
@@ -478,7 +474,7 @@ namespace Playtime_Painter {
 
         #endregion
 
-        #region Blit
+        #region Blit Textures
         public void Blit(Texture tex, ImageData id)
         {
             if (!tex || id == null)
@@ -808,10 +804,11 @@ namespace Playtime_Painter {
             }
 
             bool needRefresh = false;
-            foreach (var pl in _plugins)
-                if (pl != null)
-                    pl.Update();
-                else needRefresh = true;
+            if (!_plugins.IsNullOrEmpty())
+                foreach (var pl in _plugins)
+                    if (pl != null)
+                        pl.Update();
+                    else needRefresh = true;
 
             if (needRefresh)
             {

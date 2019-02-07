@@ -82,9 +82,16 @@ namespace Playtime_Painter
         public const string isAtlasedProperty = "_ATLASED";
         public const string isAtlasableDisaplyNameTag = "_ATL";
         public const string isUV2DisaplyNameTag = "_UV2";
+
+
+        public const string _MESH_PREVIEW_UV2 = "_MESH_PREVIEW_UV2";
+        public const string MESH_PREVIEW_LIT = "MESH_PREVIEW_LIT";
+        public const string MESH_PREVIEW_NORMAL = "MESH_PREVIEW_NORMAL";
+        public const string MESH_PREVIEW_VERTCOLOR = "MESH_PREVIEW_VERTCOLOR";
+        public const string MESH_PREVIEW_PROJECTION = "MESH_PREVIEW_PROJECTION";
         #endregion
 
-     
+
         public const string TransparentLayerExpected = "TransparentLayerExpected";
         public const string TextureSampledWithUV2 = "TextureSampledWithUV2";
         public const string vertexColorRole = "VertexColorRole_";
@@ -557,11 +564,11 @@ namespace Playtime_Painter
 
             CheckShader(ref brushRendy_bufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
 
-            CheckShader(ref br_Blit,                "Playtime Painter/Editor/Brush/Blit",                      forceReload);
+            CheckShader(ref br_Blit,                "Playtime Painter/Editor/Brush/Blit",               forceReload);
 
-            CheckShader(ref br_Add,                 "Playtime Painter/Editor/Brush/Add",                       forceReload);
+            CheckShader(ref br_Add,                 "Playtime Painter/Editor/Brush/Add",                forceReload);
 
-            CheckShader(ref br_Copy,                "Playtime Painter/Editor/Brush/Copy",                      forceReload);
+            CheckShader(ref br_Copy,                "Playtime Painter/Editor/Brush/Copy",                forceReload);
 
             CheckShader(ref br_Multishade,          "Playtime Painter/Editor/Brush/DoubleBuffer",              forceReload);
 

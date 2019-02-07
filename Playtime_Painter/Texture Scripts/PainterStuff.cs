@@ -15,9 +15,9 @@ namespace Playtime_Painter
         UnrecognizedTags_List uTags = new UnrecognizedTags_List();
         public UnrecognizedTags_List UnrecognizedSTD => uTags;
 
-#if PEGI
+        #if PEGI
         public virtual bool Inspect() => uTags.Nested_Inspect();
-#endif
+        #endif
     }
     
     public abstract class PainterStuff_STD : PainterStuff, ISTD  

@@ -26,7 +26,7 @@ namespace Playtime_Painter {
         public BlitMode SetKeyword(ImageData id) {
 
             foreach (BlitMode bs in AllModes)
-                UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), false);
+                UnityHelperFunctions.SetShaderKeyword(bs.ShaderKeyword(id), false);
 
             UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), true);
 
@@ -46,7 +46,7 @@ namespace Playtime_Painter {
 
         public BlitMode(int ind)
         {
-            index = ind;//AllModes.Count;
+            index = ind;
         }
 
         protected static void InstantiateBrushes()
@@ -158,16 +158,8 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            if ((InspectedBrush.BlitMode.UsingSourceTexture) && (id == null || id.TargetIsRenderTexture()))
-            {
-                if (TexMGMTdata.sourceTextures.Count > 0)
-                {
-                    pegi.write("Copy From:", 70);
-                    changed |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures);
-                }
-                else
-                    "Add Textures to Render Camera to copy from".nl();
-            }
+            if (InspectedBrush.BlitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
+                 "Copy From:".selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures).nl(ref changed);
 
             pegi.newLine();
 

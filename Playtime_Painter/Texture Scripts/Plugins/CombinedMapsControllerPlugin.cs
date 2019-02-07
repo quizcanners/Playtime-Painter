@@ -3,19 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
-using UnityEngine.SceneManagement;
-
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using QuizCannersUtilities;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples
+namespace Playtime_Painter
 {
-
-
 
     [TaggedType(tag)]
     public class CombinedMapsControllerPlugin : PainterManagerPluginBase, IPEGI

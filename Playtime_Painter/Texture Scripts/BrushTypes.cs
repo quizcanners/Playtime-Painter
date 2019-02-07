@@ -8,8 +8,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI
-    {
+    public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI, IGotDisplayName {
 
         public static Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
 
@@ -92,10 +91,13 @@ namespace Playtime_Painter
         public virtual bool SupportedForTerrain_RT { get { return true; } }
         public virtual bool NeedsGrid { get { return false; } }
 
-        #if PEGI
+        public abstract string NameForPEGIdisplay { get; }
+
+        #region Inspect
+#if PEGI
         public virtual bool ShowInDropdown()
         {
-            if (PlaytimePainter.inspectedPainter == null)
+            if (!PlaytimePainter.inspectedPainter)
                 return false;
 
             ImageData id = InspectedImageData;
@@ -103,12 +105,10 @@ namespace Playtime_Painter
             if (id == null)
                 return false;
 
-            return  //((id.destination == dest.Texture2D) && (supportedByTex2D)) || 
-
-                (((id.destination == TexTarget.RenderTexture) &&
-                    ((SupportedByRenderTexturePair && (id.renderTexture == null))
-                        || (SupportedBySingleBuffer && (id.renderTexture != null)))
-                ));
+            return (id.destination == TexTarget.Texture2D && SupportedByTex2D) ||
+                (id.destination == TexTarget.RenderTexture &&
+                ((SupportedByRenderTexturePair && !id.renderTexture)
+                || (SupportedBySingleBuffer && id.renderTexture)));
         }
 
         public virtual bool Inspect()
@@ -153,7 +153,8 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
+        #endif
+        #endregion
         public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
 
             Vector2 delta_uv = st.uvTo - st.uvFrom;
@@ -266,13 +267,13 @@ namespace Playtime_Painter
         public BrushTypePixel() { _inst = this; }
         public static BrushTypePixel Inst { get { InitIfNull(); return _inst; } }
 
-        protected override string ShaderKeyword(bool texcoord2) { return "BRUSH_SQUARE"; }
+        protected override string ShaderKeyword(bool texcoord2) => "BRUSH_SQUARE";
 
-        public override bool SupportedByTex2D { get { return true; } }
+        public override bool SupportedByTex2D => true; 
 
-        public override string ToString() { return "Pixel"; }
+        public override string NameForPEGIdisplay=> "Pixel"; 
 
-        public override bool IsPixelPerfect { get { return true; } }
+        public override bool IsPixelPerfect => true; 
 
         public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
@@ -310,15 +311,12 @@ namespace Playtime_Painter
         public BrushTypeNormal() { _inst = this; }
         public static BrushTypeNormal Inst { get { InitIfNull(); return _inst; } }
 
-        protected override string ShaderKeyword(bool texcoord) { return "BRUSH_2D"; }
+        protected override string ShaderKeyword(bool texcoord) => "BRUSH_2D"; 
 
-        public override bool SupportedByTex2D { get { return true; } }
+        public override bool SupportedByTex2D => true; 
 
-        public override string ToString()
-        {
-            return "Normal";
-        }
-
+        public override string NameForPEGIdisplay => "Normal";
+        
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
 
@@ -353,15 +351,12 @@ namespace Playtime_Painter
         static BrushTypeDecal _inst;
         public BrushTypeDecal() { _inst = this; }
         public static BrushTypeDecal Inst { get { InitIfNull(); return _inst; } }
-        public override bool SupportedBySingleBuffer { get { return false; } }
-        protected override string ShaderKeyword(bool texcoord) { return "BRUSH_DECAL"; }
-        public override bool IsUsingDecals { get { return true; } }
+        public override bool SupportedBySingleBuffer => false; 
+        protected override string ShaderKeyword(bool texcoord) => "BRUSH_DECAL"; 
+        public override bool IsUsingDecals => true; 
 
-        public override string ToString()
-        {
-            return "Decal";
-        }
-
+        public override string NameForPEGIdisplay => "Decal";
+        
         Vector2 previousUV;
 
         public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
@@ -495,13 +490,11 @@ namespace Playtime_Painter
         public BrushTypeLazy() { _inst = this; }
         public static BrushTypeLazy Inst { get { InitIfNull(); return _inst; } }
 
-        public override bool StartPaintingTheMomentMouseIsDown { get { return false; } }
-        protected override string ShaderKeyword(bool texcoord2) { return "BRUSH_2D"; }
+        public override bool StartPaintingTheMomentMouseIsDown => false; 
+        protected override string ShaderKeyword(bool texcoord2) => "BRUSH_2D"; 
 
-        public override string ToString()
-        {
-            return "Lazy";
-        }
+        public override string NameForPEGIdisplay => "Lazy";
+        
 
         public float LazySpeedDynamic = 1;
         public float LazyAngleSmoothed = 1;
@@ -649,25 +642,24 @@ namespace Playtime_Painter
         public BrushTypeSphere() { _inst = this; }
         public static BrushTypeSphere Inst { get { InitIfNull(); return _inst; } }
 
-        protected override string ShaderKeyword(bool texcoord2) { return (texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"); }
+        protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"; 
 
-        public override bool IsA3DBrush { get { return true; } }
-        public override bool SupportedForTerrain_RT { get { return false; } }
-        public override bool NeedsGrid { get { return Cfg.useGridForBrush; } }
+        public override bool IsA3DBrush => true; 
+        public override bool SupportedForTerrain_RT => false; 
+        public override bool NeedsGrid => Cfg.useGridForBrush; 
 
-        public override string ToString()
-        {
-            return "Sphere";
-        }
+        public override string NameForPEGIdisplay => "Sphere";
+        
 
         static void PrepareSphereBrush(ImageData id, BrushConfig br, StrokeVector stroke, PlaytimePainter pntr)
         {
-            if (TexMGMT.BigRT_pair == null) TexMGMT.UpdateBuffersState();
+            if (TexMGMT.BigRT_pair.IsNullOrEmpty())
+                TexMGMT.UpdateBuffersState();
 
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, pntr);
 
             Vector2 offset = id.offset - stroke.unRepeatedUV.Floor();
 
