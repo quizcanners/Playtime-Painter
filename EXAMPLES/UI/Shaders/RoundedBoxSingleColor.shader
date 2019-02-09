@@ -2,13 +2,14 @@
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_Edges("Sharpness", Range(0,1)) = 0.5
 	}
 	Category{
 		Tags{
 			"Queue" = "Transparent+10"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"PixelPerfectUI" = "Position"
+			"PixelPerfectUI" = "Simple"
 		}
 
 		ColorMask RGB
@@ -41,6 +42,8 @@
 					float4 color: COLOR;
 				};
 
+				float _Edges;
+
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
@@ -50,7 +53,7 @@
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		abs(o.texcoord.z);
+					o.texcoord.z =		_Edges;//abs(o.texcoord.z);
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.normal.z, -v.normal.z));
 
@@ -66,11 +69,12 @@
 					return o;
 				}
 
+			
 
 				float4 frag(v2f i) : COLOR{
 
 					float4 _ProjTexPos =	i.projPos;
-					float _Edge =			i.texcoord.z;
+					//float _Edge =			i.texcoord.z;
 					float _Courners =		i.texcoord.w;
 					float deCourners =		i.precompute.w;
 					float2 uv =				abs(i.offUV) * 2;

@@ -741,10 +741,15 @@ namespace QuizCannersUtilities {
             return s;
         }
 
-        public static ISTD LoadFromPersistantPath(this ISTD s, string path, string filename)
+        public static bool LoadFromPersistantPath(this ISTD s, string path, string filename)
         {
-            s.Decode(StuffLoader.LoadFromPersistantPath(path, filename));
-            return s;
+            var data = StuffLoader.LoadFromPersistantPath(path, filename);
+            if (data != null)
+            {
+                s.Decode(data);
+                return true;
+            }
+            return false;
         }
 
         public static ISTD SaveToResources(this ISTD s, string ResFolderPath, string InsideResPath, string filename)

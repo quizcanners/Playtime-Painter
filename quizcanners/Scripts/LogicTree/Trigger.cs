@@ -49,16 +49,16 @@ namespace STD_Logic
         public override bool IsBoolean => _usage.IsBoolean;
         
         public bool SearchWithGroupName(string groupName) {
-            
-            if ((searchField.Length == 0) || Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
+
+            if (searchField.Length == 0 || searchField.IsSubstringOf(name)) return true; // Regex.IsMatch(name, searchField, RegexOptions.IgnoreCase)) return true;
 
             if (searchField.Contains(" ")) {
                
                 string[] sgmnts = searchField.Split(' ');
                 for (int i = 0; i < sgmnts.Length; i++) {
                     string sub = sgmnts[i];
-                    if ((!Regex.IsMatch(name, sub, RegexOptions.IgnoreCase))
-                        && (!Regex.IsMatch(groupName, sub, RegexOptions.IgnoreCase))) return false;
+                    if (! sub.IsSubstringOf(name)
+                        && !sub.IsSubstringOf(groupName)) return false;
                 }
                     return true;
             }

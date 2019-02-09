@@ -2,14 +2,14 @@
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
-		
+		_Edges("Sharpness", Range(0.05,1)) = 0.5
 	}
 	Category{
 		Tags{
 			"Queue" = "Transparent+10"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"PixelPerfectUI" = "Position"
+			"PixelPerfectUI" = "Simple"
 		}
 
 		ColorMask RGB
@@ -39,9 +39,7 @@
 				};
 
 			
-				float _Courners;
-				float _Edge;
-				float4 _ProjTexPos;
+				float _Edges;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -51,7 +49,7 @@
 					o.color = v.color;
 
 					o.texcoord.zw = v.texcoord1.xy;
-					o.texcoord.z = abs(o.texcoord.z);
+					o.texcoord.z = 0;
 					o.projPos.xy = v.normal.xy;
 					o.projPos.zw = max(0, float2(v.normal.z, -v.normal.z));
 
@@ -62,7 +60,7 @@
 				float4 frag(v2f i) : COLOR{
 					
 					float4 _ProjTexPos = i.projPos;
-					float _Edge = i.texcoord.z;
+					
 					float _Courners = i.texcoord.w;
 				
 					float _Blur = (1 - i.color.a);
@@ -73,9 +71,9 @@
 					uv *= uv;
 					float clipp = max(0, (1 - uv.x - uv.y));
 
-					float uvy = saturate(clipp * (8 - _Courners * 7)*(0.5*(1 + _Edge)));
+					float uvy = saturate(clipp * (8 - _Courners * 7)*(0.5*(1 + _Edges)));
 
-					i.color.a *= saturate((1 - uvy) * 2) * min(clipp* _Edge * (1 - _Blur)*deCourners * 30, 1)*(2- _Edge);
+					i.color.a *= saturate((1 - uvy) * 2) * min(clipp* _Edges * (1 - _Blur)*deCourners * 30, 1)*(2- _Edges);
 
 					return i.color;
 				}

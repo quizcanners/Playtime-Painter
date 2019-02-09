@@ -38,7 +38,7 @@ namespace STD_Logic {
         int browsedCondition = -1;
 
         #if PEGI
-        public string NameForPEGI { get => name; set => name = value; }
+        public string NameForPEGI { get { return name; } set { name = value; } }
 
         LoopLock searchLoopLock = new LoopLock();
 

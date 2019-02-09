@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using PlayerAndEditorGUI;
 
 namespace QuizCannersUtilities {
 
@@ -832,4 +833,39 @@ namespace QuizCannersUtilities {
 
     }
 
+    [Serializable]
+    public struct DynamicRangeFloat : IPEGI_ListInspect {
+
+        [SerializeField] float min;
+        [SerializeField] float max;
+        [SerializeField] public float value;
+
+        #region Inspector
+        #if PEGI
+        public bool PEGI_inList(IList list, int ind, ref int edited) {
+            var changed = false;
+            bool rangeChanged = false;
+
+            pegi.edit(ref value, min, max).changes(ref changed);
+            
+            "[".write(10);
+
+            float before = min;
+
+            if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged) && min>=max)
+                max = min + (max - before);
+            "-".write(10);
+            if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged))
+                min = Mathf.Min(min, max);
+
+            "]".write(10);
+
+            if (rangeChanged)
+                value = Mathf.Clamp(value, min, max);
+
+            return changed | rangeChanged;
+        }
+        #endif
+        #endregion
+    }
 }

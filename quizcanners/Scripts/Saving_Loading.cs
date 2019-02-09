@@ -171,10 +171,10 @@ namespace QuizCannersUtilities
             var filePath = Path.Combine(Application.persistentDataPath, subPath,
                 "{0}{1}".F(filename, StuffSaver.JsonFileType));
 
-            return (!File.Exists(filePath)) ? File.ReadAllText(filePath) : null;
+            return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
         }
 
-        public static List<String> ListFileNamesFromPersistantFolder(string subPath)
+        public static List<string> ListFileNamesFromPersistantFolder(string subPath)
         {
             var lst = new List<string>(Directory.GetFiles(Path.Combine(Application.persistentDataPath, subPath)));
 

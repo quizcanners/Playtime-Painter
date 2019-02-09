@@ -87,8 +87,6 @@ namespace PlayerAndEditorGUI {
     #endregion
     
     public static class pegi {
-        
-       
 
         public static string EnvironmentNL => Environment.NewLine;
 
@@ -2590,8 +2588,8 @@ namespace PlayerAndEditorGUI {
         public static bool enter(this string txt, ref int enteredOne, int thisOne, IGotCount forAddCount) =>
             icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrDestroyed_Obj() ? PEGI_Styles.EnterLabel :
                 (forAddCount.CountForInspector > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.WrappingText));
-                
-        static bool enter_Search_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
+              
+        static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
         {
             if (listIsNull(ref list)) {
                 if (enteredOne == thisOne)
@@ -2599,15 +2597,9 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            bool entered = enteredOne == thisOne;
-
-            if (entered)
-                searchData.ToggleSearch(list);
-
-            var ret = icon.List.enter(txt.AddCount(list, entered), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
-            return ret;
+            return icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null); 
         }
-
+        
         static bool enter_ListIcon<T>(this string txt, ref List<T> list,  ref int inspected, ref int enteredOne, int thisOne)
         {
             if (listIsNull(ref list)) {
@@ -2617,9 +2609,6 @@ namespace PlayerAndEditorGUI {
             }
 
             bool entered = enteredOne == thisOne;
-
-           //// if (entered)
-             //   ToggleSearch(list);
 
             var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
@@ -2912,7 +2901,7 @@ namespace PlayerAndEditorGUI {
         {
             bool changed = false;
 
-            if (enter_Search_ListIcon(label, ref list, ref enteredOne, thisOne))
+            if (enter_ListIcon(label, ref list, ref enteredOne, thisOne))
                 label.edit_List(ref list, lambda);
 
             return changed;
@@ -3650,616 +3639,719 @@ namespace PlayerAndEditorGUI {
 
         #region UnityObject
 
-    public static bool edit<T>(ref T field) where T : UnityEngine.Object
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool edit<T>(ref T field) where T : UnityEngine.Object
         {
-            return ef.edit(ref field);
-        }
-        else
-#endif
 
-            return false;
-    }
-
-    public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
-    {
-
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(ref field, allowDrop);
-        }
-        else
-#endif
-
-            return false;
-    }
-    public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
-    {
-
-#if UNITY_EDITOR
-
-        if (!paintingPlayAreaGUI)
-        {
-            write(label);
-            return edit(ref field);
-        }
-
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : UnityEngine.Object
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            write(label);
-            return edit(ref field, allowDrop);
-        }
-
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit<T>(this string label, int width, ref T field) where T : UnityEngine.Object
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            write(label, width);
-            return edit(ref field);
-        }
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            write(label, width);
-            return edit(ref field, allowDrop);
-        }
-
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            write(label, tip, width);
-            return edit(ref field);
-        }
-
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            write(label, tip, width);
-            return edit(ref field, allowDrop);
-        }
-
-#endif
-
-        return false;
-
-    }
-
-    public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
-        => label.edit_enter_Inspect(90, ref obj, ref entered, current, selectFrom);
-        
-    public static bool edit_enter_Inspect<T>(this string label, int width ,ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
-    {
-        var changed = false;
-
-        if (entered == -1) {
-            if (selectFrom == null) {
-                label.write(width);
-                if (!obj) changed |= edit(ref obj);
-                    else 
-                if (icon.Delete.Click("Null this object"))
-                    obj = null;
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref field);
             }
             else
-                label.select_or_edit(width, ref obj, selectFrom).changes(ref changed);
+    #endif
+
+                return false;
         }
 
-        var lst = obj as IPEGI_ListInspect;
-
-        if (lst != null)
+        public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
         {
-            if (lst.enter_Inspect_AsList(ref entered, current))
+
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref field, allowDrop);
+            }
+            else
+    #endif
+
+                return false;
+        }
+        public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
+        {
+
+    #if UNITY_EDITOR
+
+            if (!paintingPlayAreaGUI)
+            {
+                write(label);
+                return edit(ref field);
+            }
+
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label);
+                return edit(ref field, allowDrop);
+            }
+
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit<T>(this string label, int width, ref T field) where T : UnityEngine.Object
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, width);
+                return edit(ref field);
+            }
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, width);
+                return edit(ref field, allowDrop);
+            }
+
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, tip, width);
+                return edit(ref field);
+            }
+
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                write(label, tip, width);
+                return edit(ref field, allowDrop);
+            }
+
+    #endif
+
+            return false;
+
+        }
+
+        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
+            => label.edit_enter_Inspect(90, ref obj, ref entered, current, selectFrom);
+        
+        public static bool edit_enter_Inspect<T>(this string label, int width ,ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
+        {
+            var changed = false;
+
+            if (entered == -1) {
+                if (selectFrom == null) {
+                    label.write(width);
+                    if (!obj) changed |= edit(ref obj);
+                        else 
+                    if (icon.Delete.Click("Null this object"))
+                        obj = null;
+                }
+                else
+                    label.select_or_edit(width, ref obj, selectFrom).changes(ref changed);
+            }
+
+            var lst = obj as IPEGI_ListInspect;
+
+            if (lst != null)
+            {
+                if (lst.enter_Inspect_AsList(ref entered, current))
+                {
+                    obj.Try_NameInspect(label);
+                    changed |= obj.Try_Nested_Inspect();
+                }
+            }
+            else if (icon.Enter.conditional_enter(obj.TryGet_fromObj<IPEGI>() != null, ref entered, current))
             {
                 obj.Try_NameInspect(label);
                 changed |= obj.Try_Nested_Inspect();
             }
-        }
-        else if (icon.Enter.conditional_enter(obj.TryGet_fromObj<IPEGI>() != null, ref entered, current))
-        {
-            obj.Try_NameInspect(label);
-            changed |= obj.Try_Nested_Inspect();
-        }
 
-        return changed;
-    }
+            return changed;
+        }
 
         #endregion
 
         #region Vectors
-
-
-    public static bool edit(this string label, int width, ref Quaternion qt) 
-    {
-        write(label, width);
-        return edit(ref qt);
-    }
-
-    public static bool edit(ref Quaternion qt)
-    {
-        var eul = qt.eulerAngles;
-
-        if (edit(ref eul)) {
-            qt.eulerAngles = eul;
-            return change;
+        
+        public static bool edit(this string label, int width, ref Quaternion qt) 
+        {
+            write(label, width);
+            return edit(ref qt);
         }
 
-        return false;
-    }
-
-    public static bool edit(ref Vector4 val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool edit(ref Quaternion qt)
         {
-            return ef.edit(ref val);
+            var eul = qt.eulerAngles;
+
+            if (edit(ref eul)) {
+                qt.eulerAngles = eul;
+                return change;
+            }
+
+            return false;
         }
-        else
-#endif
+
+        public static bool edit(ref Vector4 val)
         {
-            checkLine();
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z) | "W".edit(ref val.w);
+                return modified;
+            }
+        }
+
+        public static bool edit(this string label, ref Vector4 val)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(label, ref val);
+            }
+            else
+    #endif
+            {
+
+                write(label);
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                modified |= edit(ref val.z);
+                modified |= edit(ref val.w);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit(ref Vector3 val)
+        {
+            bool changed = "X".edit(15, ref val.x);
+            changed |= "Y".edit(15, ref val.y);
+            changed |= "Z".edit(15, ref val.z);
+
+            return changed;
+        }
+
+        public static bool edit(this string label, ref Vector3 val)
+        {
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(ref Vector2 val)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
+
+
+        }
+
+        public static bool edit_Range(this string label, int width, ref Vector2 vec2) {
+
+            var x = vec2.x;
+            var y = vec2.y;
+
+            if (label.edit_Range(width, ref x, ref y)) {
+                vec2.x = x;
+                vec2.y = y;
+                return change;
+            }
+
+            return false;
+        }
+        
+        public static bool edit(this string label, ref Vector2 val, float min, float max)
+        {
+            "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(ref Vector2 val, float min, float max)
+        {
             bool modified = false;
-            modified |= "X".edit(ref val.x) | "Y".edit(ref val.y) | "Z".edit(ref val.z) | "W".edit(ref val.w);
+
+            modified |= "X".edit(10, ref val.x, min, max);
+            modified |= "Y".edit(10, ref val.y, min, max);
+
             return modified;
         }
-    }
 
-    public static bool edit(this string label, ref Vector4 val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(label, ref val);
-        }
-        else
-#endif
+        public static bool edit(this string label, ref Vector2 val)
         {
 
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(label, ref val);
+    #endif
+        
             write(label);
             bool modified = false;
             modified |= edit(ref val.x);
             modified |= edit(ref val.y);
-            modified |= edit(ref val.z);
-            modified |= edit(ref val.w);
             return modified;
-        }
-
-
-    }
-
-    public static bool edit(ref Vector3 val)
-    {
-        bool changed = "X".edit(15, ref val.x);
-        changed |= "Y".edit(15, ref val.y);
-        changed |= "Z".edit(15, ref val.z);
-
-        return changed;
-    }
-
-    public static bool edit(this string label, ref Vector3 val)
-    {
-        write(label);
-        nl();
-        return edit(ref val);
-    }
-
-    public static bool edit(ref Vector2 val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(ref val);
-        }
-        else
-#endif
-        {
-            checkLine();
-            bool modified = false;
-            modified |= edit(ref val.x);
-            modified |= edit(ref val.y);
-            return modified;
-        }
-
-
-    }
-
-    public static bool edit_Range(this string label, int width, ref Vector2 vec2) {
-
-        var x = vec2.x;
-        var y = vec2.y;
-
-        if (label.edit_Range(width, ref x, ref y)) {
-            vec2.x = x;
-            vec2.y = y;
-            return change;
-        }
-
-        return false;
-    }
-        
-    public static bool edit(this string label, ref Vector2 val, float min, float max)
-    {
-        "{0} [X: {1} Y: {2}]".F(label, val.x.RoundTo(2), val.y.RoundTo(2)).nl();
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(ref Vector2 val, float min, float max)
-    {
-        bool modified = false;
-
-        modified |= "X".edit(10, ref val.x, min, max);
-        modified |= "Y".edit(10, ref val.y, min, max);
-
-        return modified;
-    }
-
-    public static bool edit(this string label, ref Vector2 val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(label, ref val);
-#endif
-        
-        write(label);
-        bool modified = false;
-        modified |= edit(ref val.x);
-        modified |= edit(ref val.y);
-        return modified;
   
-    }
+        }
 
-    public static bool edit(this string label, string tip, int width, ref Vector2 v2)
-    {
-        write(label, tip, width);
-        return edit(ref v2);
-    }
+        public static bool edit(this string label, string tip, int width, ref Vector2 v2)
+        {
+            write(label, tip, width);
+            return edit(ref v2);
+        }
 
-    public static bool edit(this string label, int width, ref Vector3 v3)
-    {
-        write(label, width);
-        return edit(ref v3);
-    }
+        public static bool edit(this string label, int width, ref Vector3 v3)
+        {
+            write(label, width);
+            return edit(ref v3);
+        }
 
-    public static bool edit(this string label, string tip, int width, ref Vector3 v3)
-    {
-        write(label, tip, width);
-        return edit(ref v3);
-    }
+        public static bool edit(this string label, string tip, int width, ref Vector3 v3)
+        {
+            write(label, tip, width);
+            return edit(ref v3);
+        }
         #endregion
 
         #region Color
 
-    public static bool edit(ref Color32 col)
-    {
-        Color tcol = col;
-        if (edit(ref tcol))
+        public static bool edit(ref Color32 col)
         {
-            col = tcol;
-            return true;
-        }
-        return false;
-    }
-
-
-    public static bool edit(ref Color col)
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref col);
-
-#endif
-        nl();
-        bool changed = icon.Red.edit_ColorChannel(ref col, 0).nl();
-        changed |= icon.Green.edit_ColorChannel(ref col, 1).nl();
-        changed |= icon.Blue.edit_ColorChannel(ref col, 2).nl();
-        changed |= icon.Alpha.edit_ColorChannel(ref col, 3).nl();
-
-        return changed;
-    }
-
-    public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)
-    {
-        bool changed = false;
-
-        if (channel < 0 || channel > 3)
-            "Color has no channel {0} ".F(channel).writeWarning();
-        else
-        {
-            var chan = col[channel];
-
-            if (ico.edit(ref chan, 0, 1).changes(ref changed))
-                col[channel] = chan;
-
-        }
-
-        return changed;
-    }
-
-    public static bool edit_ColorChannel(this string label, ref Color col, int channel)
-    {
-        bool changed = false;
-
-        if (channel < 0 || channel > 3)
-            "{0} color does not have {1}'th channel".F(label, channel).writeWarning();
-        else
-        {
-            var chan = col[channel];
-
-            if (label.edit(ref chan, 0, 1).changes(ref changed))
-                col[channel] = chan;
-
-        }
-
-        return changed;
-    }
-
-    public static bool edit(this string label, ref Color col)
-    {
-        if (paintingPlayAreaGUI)
-        {
-            if (label.foldout())
-                return edit(ref col);
-        }
-        else
-        {
-            write(label);
-            return edit(ref col);
-        }
-
-        return false;
-    }
-
-    public static bool edit(this string label, int width, ref Color col)
-    {
-        if (paintingPlayAreaGUI)
-        {
-            if (label.foldout())
-                return edit(ref col);
-
-        }
-        else
-        {
-            write(label, width);
-            return edit(ref col);
-        }
-
-        return false;
-    }
-
-    public static bool edit(this string label, string tip, int width, ref Color col)
-    {
-        if (paintingPlayAreaGUI)
+            Color tcol = col;
+            if (edit(ref tcol))
+            {
+                col = tcol;
+                return true;
+            }
             return false;
+        }
+        
+        public static bool edit(ref Color col)
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref col);
 
-        write(label, tip, width);
-        return edit(ref col);
-    }
+    #endif
+            nl();
+            bool changed = icon.Red.edit_ColorChannel(ref col, 0).nl();
+            changed |= icon.Green.edit_ColorChannel(ref col, 1).nl();
+            changed |= icon.Blue.edit_ColorChannel(ref col, 2).nl();
+            changed |= icon.Alpha.edit_ColorChannel(ref col, 3).nl();
+
+            return changed;
+        }
+
+        public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)
+        {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "Color has no channel {0} ".F(channel).writeWarning();
+            else
+            {
+                var chan = col[channel];
+
+                if (ico.edit(ref chan, 0, 1).changes(ref changed))
+                    col[channel] = chan;
+
+            }
+
+            return changed;
+        }
+
+        public static bool edit_ColorChannel(this string label, ref Color col, int channel)
+        {
+            bool changed = false;
+
+            if (channel < 0 || channel > 3)
+                "{0} color does not have {1}'th channel".F(label, channel).writeWarning();
+            else
+            {
+                var chan = col[channel];
+
+                if (label.edit(ref chan, 0, 1).changes(ref changed))
+                    col[channel] = chan;
+
+            }
+
+            return changed;
+        }
+
+        public static bool edit(this string label, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+            {
+                if (label.foldout())
+                    return edit(ref col);
+            }
+            else
+            {
+                write(label);
+                return edit(ref col);
+            }
+
+            return false;
+        }
+
+        public static bool edit(this string label, int width, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+            {
+                if (label.foldout())
+                    return edit(ref col);
+
+            }
+            else
+            {
+                write(label, width);
+                return edit(ref col);
+            }
+
+            return false;
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Color col)
+        {
+            if (paintingPlayAreaGUI)
+                return false;
+
+            write(label, tip, width);
+            return edit(ref col);
+        }
 
         #endregion
 
         #region Unity Types
 
-    public static bool edit(this string name, ref AnimationCurve val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool edit(this string name, ref AnimationCurve val)
         {
-            return ef.edit(name, ref val);
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(name, ref val);
+            }
+            else
+    #endif
+                return false;
         }
-        else
-#endif
-            return false;
-    }
         
-    public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
+        public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
 
-    public static bool editTexture(this Material mat, string name, string display)
-    {
-        write(display);
-        Texture tex = mat.GetTexture(name);
-
-        if (edit(ref tex))
+        public static bool editTexture(this Material mat, string name, string display)
         {
-            mat.SetTexture(name, tex);
-            return change; 
-        }
+            write(display);
+            Texture tex = mat.GetTexture(name);
 
-        return false;
-    }
+            if (edit(ref tex))
+            {
+                mat.SetTexture(name, tex);
+                return change; 
+            }
+
+            return false;
+        }
 
         #endregion
 
         #region Custom Structs
-    public static bool edit(ref MyIntVec2 val)
-    {
 
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool edit(ref MyIntVec2 val)
         {
-            return ef.edit(ref val);
-        }
-        else
-#endif
-        {
-            checkLine();
-            bool modified = false;
-            modified |= edit(ref val.x);
-            modified |= edit(ref val.y);
-            return modified;
-        }
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x);
+                modified |= edit(ref val.y);
+                return modified;
+            }
 
 
-    }
-
-    public static bool edit(ref MyIntVec2 val, int min, int max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(ref val, min, max);
-        }
-        else
-#endif
-        {
-            checkLine();
-            bool modified = false;
-            modified |= edit(ref val.x, min, max);
-            modified |= edit(ref val.y, min, max);
-            return modified;
         }
 
-
-    }
-
-    public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool edit(ref MyIntVec2 val, int min, int max)
         {
-            return ef.edit(ref val, min, max);
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max);
+                modified |= edit(ref val.y, min, max);
+                return modified;
+            }
+
+
         }
-        else
-#endif
+
+        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
         {
-            checkLine();
-            bool modified = false;
-            modified |= edit(ref val.x, min, max.x);
-            modified |= edit(ref val.y, min, max.y);
-            return modified;
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                bool modified = false;
+                modified |= edit(ref val.x, min, max.x);
+                modified |= edit(ref val.y, min, max.y);
+                return modified;
+            }
+
+
         }
 
-
-    }
-
-    public static bool edit(this string label, ref MyIntVec2 val)
-    {
-        write(label);
-        nl();
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, int width, ref MyIntVec2 val)
-    {
-        write(label, width);
-        nl();
-        return edit(ref val);
-    }
-
-    public static bool edit(ref LinearColor col)
-    {
-        Color c = col.ToGamma();
-        if (edit(ref c))
+        public static bool edit(this string label, ref MyIntVec2 val)
         {
-            col.From(c);
-            return change;
+            write(label);
+            nl();
+            return edit(ref val);
         }
-        return false;
-    }
 
-    public static bool edit(this string label, ref LinearColor col)
-    {
-        write(label);
-        return edit(ref col);
-    }
+        public static bool edit(this string label, int width, ref MyIntVec2 val)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val);
+        }
 
-    public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
-    {
-        write(label, width);
-        nl();
-        return edit(ref val, min, max);
-    }
+        public static bool edit(ref LinearColor col)
+        {
+            Color c = col.ToGamma();
+            if (edit(ref c))
+            {
+                col.From(c);
+                return change;
+            }
+            return false;
+        }
 
-    public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
-    {
-        write(label, width);
-        nl();
-        return edit(ref val, min, max);
-    }
+        public static bool edit(this string label, ref LinearColor col)
+        {
+            write(label);
+            return edit(ref col);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
  
         #endregion
 
         #region UInt
 
-    public static bool edit(ref uint val)
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val);
-#endif
+        public static bool edit(ref uint val)
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+    #endif
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before);
+                if (string.Compare(before, newval) != 0) {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = (uint)newValue;
+
+                    return change;
+                }
+                return false;
+            
+
+        }
+
+        public static bool edit(ref uint val, int width)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+    #endif
+            
+                checkLine();
+                string before = val.ToString();
+                string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+                if (string.Compare(before, newval) != 0)
+                {
+
+                    int newValue;
+                    bool parsed = int.TryParse(newval, out newValue);
+                    if (parsed)
+                        val = (uint)newValue;
+
+                    return change;
+                }
+                return false;
+            
+        }
+
+        public static bool edit(ref uint val, uint min, uint max)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, min, max);
+            
+    #endif
+            
+                checkLine();
+                float before = val;
+                val = (uint)GUILayout.HorizontalSlider(before, (float)min, (float)max);
+                return (before != val).Dirty();
+            
+        }
+
+        public static bool edit(this string label, ref uint val)
+        {
+            write(label);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, label, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref uint val)
+        {
+            write(label, tip, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref uint val, uint min, uint max)
+        {
+            label.sliderText(val, tip, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref uint val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+        #endregion
+
+        #region Int
+
+        public static bool edit(ref int val)
+        {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+            
+    #endif
             checkLine();
             string before = val.ToString();
             string newval = GUILayout.TextField(before);
-            if (string.Compare(before, newval) != 0) {
+            if (string.Compare(before, newval) != 0)
+            {
 
                 int newValue;
                 bool parsed = int.TryParse(newval, out newValue);
                 if (parsed)
-                    val = (uint)newValue;
+                    val = newValue;
 
                 return change;
             }
             return false;
-            
+        }
+        
+        public static bool edit(ref int val, int width)
+        {
 
-    }
-
-    public static bool edit(ref uint val, int width)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, width);
-#endif
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+    #endif
             
             checkLine();
             string before = val.ToString();
@@ -4270,805 +4362,705 @@ namespace PlayerAndEditorGUI {
                 int newValue;
                 bool parsed = int.TryParse(newval, out newValue);
                 if (parsed)
-                    val = (uint)newValue;
+                    val = newValue;
 
                 return change;
             }
             return false;
             
-    }
+        }
+        
+        public static bool edit(ref int val, int min, int max)
+        {
 
-    public static bool edit(ref uint val, uint min, uint max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, min, max);
-            
-#endif
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, (int)min, (int)max);
+    #endif
             
             checkLine();
             float before = val;
-            val = (uint)GUILayout.HorizontalSlider(before, (float)min, (float)max);
+            val = (int)GUILayout.HorizontalSlider(before, min, max);
             return (before != val).Dirty();
             
-    }
-
-    public static bool edit(this string label, ref uint val)
-    {
-        write(label);
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, ref uint val, uint min, uint max)
-    {
-        label.sliderText(val, label, 90);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, int width, ref uint val, uint min, uint max)
-    {
-        label.sliderText(val, label, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref uint val)
-    {
-        write(label, tip, width);
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref uint val, uint min, uint max)
-    {
-        label.sliderText(val, tip, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, int width, ref uint val)
-    {
-        write(label, width);
-        return edit(ref val);
-    }
-
-        #endregion
-
-        #region Int
-
-    public static bool edit(ref int val)
-    {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val);
-            
-#endif
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before);
-        if (string.Compare(before, newval) != 0)
-        {
-
-            int newValue;
-            bool parsed = int.TryParse(newval, out newValue);
-            if (parsed)
-                val = newValue;
-
-            return change;
         }
-        return false;
-    }
-        
-    public static bool edit(ref int val, int width)
-    {
 
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, width);
-#endif
-            
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-        if (string.Compare(before, newval) != 0)
+        static int editedInteger;
+        static int editedIntegerIndex;
+        public static bool editDelayed(ref int val, int width)
         {
 
-            int newValue;
-            bool parsed = int.TryParse(newval, out newValue);
-            if (parsed)
-                val = newValue;
-
-            return change;
-        }
-        return false;
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editDelayed(ref val, width);
             
-    }
-        
-    public static bool edit(ref int val, int min, int max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, (int)min, (int)max);
-#endif
+    #endif
             
-        checkLine();
-        float before = val;
-        val = (int)GUILayout.HorizontalSlider(before, min, max);
-        return (before != val).Dirty();
+            checkLine();
+
+            int tmp = (editedIntegerIndex == _elementIndex) ? editedInteger : val;
+
+            if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
+            {
+                edit(ref tmp);
+                val = editedInteger;
+                editedIntegerIndex = -1;
+
+                _elementIndex++;
+
+                return change;
+            }
             
-    }
-
-    static int editedInteger;
-    static int editedIntegerIndex;
-    public static bool editDelayed(ref int val, int width)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editDelayed(ref val, width);
-            
-#endif
-            
-        checkLine();
-
-        int tmp = (editedIntegerIndex == _elementIndex) ? editedInteger : val;
-
-        if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
-        {
-            edit(ref tmp);
-            val = editedInteger;
-            editedIntegerIndex = -1;
+            if (edit(ref tmp))
+            {
+                editedInteger = tmp;
+                editedIntegerIndex = _elementIndex;
+                globChanged = false;
+            }
 
             _elementIndex++;
 
-            return change;
-        }
+            return false;
             
-        if (edit(ref tmp))
+        }
+
+        public static bool editDelayed(this string label, ref int val, int width) {
+            write(label, Msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val, width);
+        }
+
+        public static bool edit(this string label, ref int val)
         {
-            editedInteger = tmp;
-            editedIntegerIndex = _elementIndex;
-            globChanged = false;
+            write(label);
+            return edit(ref val);
         }
 
-        _elementIndex++;
+        public static bool edit(this string label, ref int val, int min, int max)
+        {
+            label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
 
-        return false;
-            
-    }
+        public static bool edit(this string label, int width, ref int val, int min, int max)
+        {
+            label.sliderText(val, label, width);
+            return edit(ref val, min, max);
+        }
 
-    public static bool editDelayed(this string label, ref int val, int width) {
-        write(label, Msg.editDelayed_HitEnter.Get());
-        return editDelayed(ref val, width);
-    }
+        public static bool edit(this string label, string tip, int width, ref int val)
+        {
+            write(label, tip, width);
+            return edit(ref val);
+        }
 
-    public static bool edit(this string label, ref int val)
-    {
-        write(label);
-        return edit(ref val);
-    }
+        public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
+        {
+            label.sliderText(val, tip, width);
+            return edit(ref val, min, max);
+        }
 
-    public static bool edit(this string label, ref int val, int min, int max)
-    {
-        label.sliderText(val, label, 90);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, int width, ref int val, int min, int max)
-    {
-        label.sliderText(val, label, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref int val)
-    {
-        write(label, tip, width);
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
-    {
-        label.sliderText(val, tip, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, int width, ref int val)
-    {
-        write(label, width);
-        return edit(ref val);
-    }
+        public static bool edit(this string label, int width, ref int val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
 
         #endregion
 
         #region Float
-    public static bool edit(ref float val)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val);
-#endif
-            
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before);
-
-        if (string.Compare(before, newval) != 0)
+        public static bool edit(ref float val)
         {
 
-            float newValue;
-            bool parsed = float.TryParse(newval, out newValue);
-            if (parsed)
-                val = newValue;
-
-            return change;
-        }
-        return false;
-    }
-        
-
-    public static bool edit(ref float val, int width)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, width);
-#endif
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+    #endif
             
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-        if (string.Compare(before, newval) != 0)
-        {
-
-            float newValue;
-            bool parsed = float.TryParse(newval, out newValue);
-            if (parsed)
-                val = newValue;
-
-            return change;
-        }
-        return false;
-            
-    }
-
-    public static bool edit(this string label, ref float val) {
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(label, ref val);
-#endif
-            write(label);
-            return edit(ref val);
-    }
-
-    public static bool editPOW(ref float val, float min, float max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editPOW(ref val, min, max);
-#endif
-            
-        checkLine();
-        float before = Mathf.Sqrt(val);
-        float after = GUILayout.HorizontalSlider(before, min, max);
-        if (before != after)
-        {
-            val = after * after;
-            return change;
-        }
-        return false;
-
-            
-    }
-
-    public static bool edit(ref float val, float min, float max)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(ref val, min, max);
-        }
-        else
-#endif
-        {
             checkLine();
-            float before = val;
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before);
 
-            val = GUILayout.HorizontalSlider(before, min, max);
-            return (before != val);
+            if (string.Compare(before, newval) != 0)
+            {
+
+                float newValue;
+                bool parsed = float.TryParse(newval, out newValue);
+                if (parsed)
+                    val = newValue;
+
+                return change;
+            }
+            return false;
         }
-    }
-
-    static string editedFloat;
-    static int editedFloatIndex;
-    public static bool editDelayed(ref float val, int width)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editDelayed(ref val, width);
-#endif
-
-
-        checkLine();
-
-        string tmp = (editedFloatIndex == _elementIndex) ? editedFloat : val.ToString();
-
-        if (KeyCode.Return.IsDown() && (_elementIndex == editedFloatIndex))
+        
+        public static bool edit(ref float val, int width)
         {
-            edit(ref tmp);
 
-            float newValue;
-            if (float.TryParse(editedFloat, out newValue))
-                val = newValue;
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+    #endif
+            
+            checkLine();
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+            if (string.Compare(before, newval) != 0)
+            {
+
+                float newValue;
+                bool parsed = float.TryParse(newval, out newValue);
+                if (parsed)
+                    val = newValue;
+
+                return change;
+            }
+            return false;
+            
+        }
+
+        public static bool edit(this string label, ref float val) {
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(label, ref val);
+    #endif
+                write(label);
+                return edit(ref val);
+        }
+
+        public static bool editPOW(ref float val, float min, float max)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editPOW(ref val, min, max);
+    #endif
+            
+            checkLine();
+            float before = Mathf.Sqrt(val);
+            float after = GUILayout.HorizontalSlider(before, min, max);
+            if (before != after)
+            {
+                val = after * after;
+                return change;
+            }
+            return false;
+
+            
+        }
+
+        public static bool edit(ref float val, float min, float max)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref val, min, max);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                float before = val;
+
+                val = GUILayout.HorizontalSlider(before, min, max);
+                return (before != val);
+            }
+        }
+
+        static string editedFloat;
+        static int editedFloatIndex;
+        public static bool editDelayed(ref float val, int width)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editDelayed(ref val, width);
+    #endif
+
+
+            checkLine();
+
+            string tmp = (editedFloatIndex == _elementIndex) ? editedFloat : val.ToString();
+
+            if (KeyCode.Return.IsDown() && (_elementIndex == editedFloatIndex))
+            {
+                edit(ref tmp);
+
+                float newValue;
+                if (float.TryParse(editedFloat, out newValue))
+                    val = newValue;
+                _elementIndex++;
+
+                editedFloatIndex = -1;
+
+                return change;
+            }
+
+
+            if (edit(ref tmp))
+            {
+                editedFloat = tmp;
+                editedFloatIndex = _elementIndex;
+            }
+
             _elementIndex++;
 
-            editedFloatIndex = -1;
+            return false;
 
-            return change;
         }
-
-
-        if (edit(ref tmp))
-        {
-            editedFloat = tmp;
-            editedFloatIndex = _elementIndex;
-        }
-
-        _elementIndex++;
-
-        return false;
-
-    }
         
-    public static bool edit(this string label, int width, ref float val)
-    {
-        write(label, width);
-        return edit(ref val);
-    }
+        public static bool edit(this string label, int width, ref float val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
 
-    public static bool edit_Range(this string label, int width, ref float from, ref float to)
-    {
-        write(label, width);
-        bool changed = false;
-        if (edit(ref from).changes(ref changed))
-            to = Mathf.Max(from, to);
-
-
-        write("-", 10);
-
-        if (edit(ref to).changes(ref changed))
-            from = Mathf.Min(from, to);
+        public static bool edit_Range(this string label, int width, ref float from, ref float to)
+        {
+            write(label, width);
+            bool changed = false;
+            if (edit(ref from).changes(ref changed))
+                to = Mathf.Max(from, to);
 
 
-        return changed;
-    }
+            write("-", 10);
 
-    static void sliderText(this string label, float val, string tip, int width)
-    {
-        if (paintingPlayAreaGUI)
-            "{0} [{1}]".F(label, val.ToString("F3")).write(width);
-        else
+            if (edit(ref to).changes(ref changed))
+                from = Mathf.Min(from, to);
+
+
+            return changed;
+        }
+
+        static void sliderText(this string label, float val, string tip, int width)
+        {
+            if (paintingPlayAreaGUI)
+                "{0} [{1}]".F(label, val.ToString("F3")).write(width);
+            else
+                write(label, tip, width);
+        }
+
+        public static bool edit(this string label, ref float val, float min, float max)
+        {
+            label.sliderText(val, label, 90);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this icon ico, ref float val, float min, float max)
+        {
+            ico.write();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref float val, float min, float max)
+        {
+            label.sliderText(val, label, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref float val, float min, float max)
+        {
+            label.sliderText(val, tip, width);
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref float val)
+        {
             write(label, tip, width);
-    }
-
-    public static bool edit(this string label, ref float val, float min, float max)
-    {
-        label.sliderText(val, label, 90);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this icon ico, ref float val, float min, float max)
-    {
-        ico.write();
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, int width, ref float val, float min, float max)
-    {
-        label.sliderText(val, label, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref float val, float min, float max)
-    {
-        label.sliderText(val, tip, width);
-        return edit(ref val, min, max);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref float val)
-    {
-        write(label, tip, width);
-        return edit(ref val);
-    }
+            return edit(ref val);
+        }
 
         #endregion
 
         #region double
-    public static bool edit(ref double val)
-    {
 
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val);
-#endif
-            
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before);
-        if (string.Compare(before, newval) != 0)
+        public static bool edit(ref double val)
         {
-            double newValue;
-            if (double.TryParse(newval, out newValue))
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+    #endif
+            
+            checkLine();
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before);
+            if (string.Compare(before, newval) != 0)
             {
-                val = newValue;
+                double newValue;
+                if (double.TryParse(newval, out newValue))
+                {
+                    val = newValue;
+                    return change;
+                }
+            }
+            return false;
+        }
+
+        public static bool edit(this string label, ref double val)
+        {
+            label.write();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref double val)
+        {
+            label.write(width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref double val)
+        {
+            label.write(tip, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(ref double val, int width)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+    #endif
+            
+            checkLine();
+            string before = val.ToString();
+            string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+            if (string.Compare(before, newval) != 0) {
+
+                double newValue;
+                bool parsed = double.TryParse(newval, out newValue);
+                if (parsed)
+                    val = newValue;
+
                 return change;
             }
-        }
-        return false;
-    }
-
-    public static bool edit(this string label, ref double val)
-    {
-        label.write();
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, int width, ref double val)
-    {
-        label.write(width);
-        return edit(ref val);
-    }
-
-    public static bool edit(this string label, string tip, int width, ref double val)
-    {
-        label.write(tip, width);
-        return edit(ref val);
-    }
-
-    public static bool edit(ref double val, int width)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, width);
-#endif
+            return false;
             
-        checkLine();
-        string before = val.ToString();
-        string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-        if (string.Compare(before, newval) != 0) {
-
-            double newValue;
-            bool parsed = double.TryParse(newval, out newValue);
-            if (parsed)
-                val = newValue;
-
-            return change;
         }
-        return false;
-            
-    }
+        
         #endregion
 
         #region Enum
-    public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
-    {
-        write(text, tip, width);
-        return editEnum<T>(ref eval);
-    }
 
-    public static bool editEnum<T>(this string text, int width, ref T eval)
-    {
-        write(text, width);
-        return editEnum<T>(ref eval);
-    }
-
-    public static bool editEnum<T>(this string text, ref T eval)
-    {
-        write(text);
-        return editEnum<T>(ref eval);
-    }
-        
-    public static bool editEnum<T>(ref T eval, int width = -1) {
-        int val = Convert.ToInt32(eval);
-
-        if (selectEnum(ref val, typeof(T), width)) {
-            eval = (T)((object)val);
-            return change;
+        public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
+        {
+            write(text, tip, width);
+            return editEnum<T>(ref eval);
         }
 
-        return false;
-    }
+        public static bool editEnum<T>(this string text, int width, ref T eval)
+        {
+            write(text, width);
+            return editEnum<T>(ref eval);
+        }
+
+        public static bool editEnum<T>(this string text, ref T eval)
+        {
+            write(text);
+            return editEnum<T>(ref eval);
+        }
         
-    public static int editEnum<T>(T val)
-    {
-        int ival = Convert.ToInt32(val);
-        selectEnum(ref ival, typeof(T));
-        return ival;
-    }
+        public static bool editEnum<T>(ref T eval, int width = -1) {
+            int val = Convert.ToInt32(eval);
 
-    public static bool editEnum<T>(ref int current, Type type, int width = -1)
-            => selectEnum(ref current, typeof(T), width);
+            if (selectEnum(ref val, typeof(T), width)) {
+                eval = (T)((object)val);
+                return change;
+            }
 
-    public static bool editEnum<T>(this string text, string tip, int width, ref int eval)
-    {
-        write(text, tip, width);
-        return editEnum<T>(ref eval, typeof(T), -1);
-    }
-
-    public static bool editEnum<T>(this string text, int width, ref int eval)
-    {
-        write(text, width);
-        return editEnum<T>(ref eval, typeof(T), -1);
-    }
-
-    public static bool editEnum<T>(this string text, ref int eval)
-    {
-        write(text);
-        return editEnum<T>(ref eval, typeof(T), -1);
-    }
+            return false;
+        }
         
-    public static bool editEnum<T>(ref int eval) => editEnum<T>(ref eval, typeof(T));
+        public static int editEnum<T>(T val)
+        {
+            int ival = Convert.ToInt32(val);
+            selectEnum(ref ival, typeof(T));
+            return ival;
+        }
+
+        public static bool editEnum<T>(ref int current, Type type, int width = -1)
+                => selectEnum(ref current, typeof(T), width);
+
+        public static bool editEnum<T>(this string text, string tip, int width, ref int eval)
+        {
+            write(text, tip, width);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
+
+        public static bool editEnum<T>(this string text, int width, ref int eval)
+        {
+            write(text, width);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
+
+        public static bool editEnum<T>(this string text, ref int eval)
+        {
+            write(text);
+            return editEnum<T>(ref eval, typeof(T), -1);
+        }
+        
+        public static bool editEnum<T>(ref int eval) => editEnum<T>(ref eval, typeof(T));
         
         #endregion
 
         #region String
-    static string editedText;
-    static string editedHash = "";
-    public static bool editDelayed(ref string val)
-    {
-        if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editDelayed(ref val);
-#endif
-            
-        checkLine();
-
-        if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
+        static string editedText;
+        static string editedHash = "";
+        public static bool editDelayed(ref string val)
         {
-            GUILayout.TextField(val);
-            val = editedText;
+            if (LengthIsTooLong(ref val)) return false;
 
-            return change;
-        }
-
-        string tmp = val;
-        if (edit(ref tmp))
-        {
-            editedText = tmp;
-            editedHash = val.GetHashCode().ToString();
-        }
-
-        return false;
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editDelayed(ref val);
+    #endif
             
-    }
+            checkLine();
 
-    public static bool editDelayed(this string label, ref string val)
-    {
-        write(label, Msg.editDelayed_HitEnter.Get());
-        return editDelayed(ref val);
-    }
+            if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
+            {
+                GUILayout.TextField(val);
+                val = editedText;
 
-    public static bool editDelayed(ref string val, int width)
-    {
+                return change;
+            }
 
-        if (LengthIsTooLong(ref val)) return false;
+            string tmp = val;
+            if (edit(ref tmp))
+            {
+                editedText = tmp;
+                editedHash = val.GetHashCode().ToString();
+            }
 
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editDelayed(ref val, width);
-#endif
-            
-        checkLine();
-
-        if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
-        {
-            GUILayout.TextField(val);
-            val = editedText;
-            return change;
-        }
-
-        string tmp = val;
-        if (edit(ref tmp, width))
-        {
-            editedText = tmp;
-            editedHash = val.GetHashCode().ToString();
-        }
-
-        return false;
-            
-    }
-
-    public static bool editDelayed(this string label, ref string val, int width)
-    {
-        write(label, Msg.editDelayed_HitEnter.Get(), width);
-
-        return editDelayed(ref val);
-
-
-    }
-        
-    public static bool editDelayed(this string label, int width, ref string val)
-    {
-        write(label, width);
-        return editDelayed(ref val);
-    }
-
-    const int maxStringSize = 1000;
-
-    static bool LengthIsTooLong(ref string label)
-    {
-        if (label == null || label.Length < maxStringSize)
             return false;
-        else
-        {
-            if (icon.Delete.ClickUnfocus())
-                label = "";
-            else
-                write("String is too long {0}".F(label.Substring(0, 10)));
+            
         }
-        return change;
-    }
 
-    public static bool edit(ref string val) {
-        if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val);
-#endif
-            
-        checkLine();
-        string before = val;
-        string newval = GUILayout.TextField(before);
-        if (string.Compare(before, newval) != 0)
+        public static bool editDelayed(this string label, ref string val)
         {
-            val = newval;
-            return change;
+            write(label, Msg.editDelayed_HitEnter.Get());
+            return editDelayed(ref val);
         }
-        return false;
-            
-    }
 
-    public static bool edit(ref string val, int width)
-    {
-
-        if (LengthIsTooLong(ref val)) return false;
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.edit(ref val, width);
-#endif
-            
-        checkLine();
-        string before = val;
-        string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
-        if (string.Compare(before, newval) != 0)
+        public static bool editDelayed(ref string val, int width)
         {
-            val = newval;
-            return change;
+
+            if (LengthIsTooLong(ref val)) return false;
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editDelayed(ref val, width);
+    #endif
+            
+            checkLine();
+
+            if ((KeyCode.Return.IsDown() && (val.GetHashCode().ToString() == editedHash)))
+            {
+                GUILayout.TextField(val);
+                val = editedText;
+                return change;
+            }
+
+            string tmp = val;
+            if (edit(ref tmp, width))
+            {
+                editedText = tmp;
+                editedHash = val.GetHashCode().ToString();
+            }
+
+            return false;
+            
         }
-        return false;
-            
-    }
 
-    public static bool editBig(ref string val)  {
-
-        nl();
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-            return ef.editBig(ref val).nl();
-#endif
-            
-        checkLine();
-        string before = val;
-        string newval = GUILayout.TextArea(before);
-        if ((string.Compare(before, newval) != 0).nl())
+        public static bool editDelayed(this string label, ref string val, int width)
         {
-            val = newval;
-            return change;
-        }
-        return false;
-            
-    }
+            write(label, Msg.editDelayed_HitEnter.Get(), width);
 
-    public static bool editBig(this string name, ref string val) {
-        write(name);
-        return editBig(ref val);
-    }
+            return editDelayed(ref val);
+
+
+        }
         
-    public static bool edit(this string label, ref string val)
-    {
-        write(label);
-        return edit(ref val);
-    }
+        public static bool editDelayed(this string label, int width, ref string val)
+        {
+            write(label, width);
+            return editDelayed(ref val);
+        }
 
-    public static bool edit(this string label, int width, ref string val)
-    {
-        write(label, width);
-        return edit(ref val);
-    }
+        const int maxStringSize = 1000;
 
-    public static bool edit(this string label, string tip, int width, ref string val)
-    {
-        write(label, tip, width);
-        return edit(ref val);
-    }
+        static bool LengthIsTooLong(ref string label)
+        {
+            if (label == null || label.Length < maxStringSize)
+                return false;
+            else
+            {
+                if (icon.Delete.ClickUnfocus())
+                    label = "";
+                else
+                    write("String is too long {0}".F(label.Substring(0, 10)));
+            }
+            return change;
+        }
+
+        public static bool edit(ref string val) {
+            if (LengthIsTooLong(ref val)) return false;
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val);
+    #endif
+            
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextField(before);
+            if (string.Compare(before, newval) != 0)
+            {
+                val = newval;
+                return change;
+            }
+            return false;
+            
+        }
+
+        public static bool edit(ref string val, int width)
+        {
+
+            if (LengthIsTooLong(ref val)) return false;
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref val, width);
+    #endif
+            
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextField(before, GUILayout.MaxWidth(width));
+            if (string.Compare(before, newval) != 0)
+            {
+                val = newval;
+                return change;
+            }
+            return false;
+            
+        }
+
+        public static bool editBig(ref string val)  {
+
+            nl();
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.editBig(ref val).nl();
+    #endif
+            
+            checkLine();
+            string before = val;
+            string newval = GUILayout.TextArea(before);
+            if ((string.Compare(before, newval) != 0).nl())
+            {
+                val = newval;
+                return change;
+            }
+            return false;
+            
+        }
+
+        public static bool editBig(this string name, ref string val) {
+            write(name);
+            return editBig(ref val);
+        }
+        
+        public static bool edit(this string label, ref string val)
+        {
+            write(label);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref string val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, int width, ref string val)
+        {
+            write(label, tip, width);
+            return edit(ref val);
+        }
 
         #endregion
 
         #region Property
-    public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-        => edit_Property(label, null, null, -1, memberExpression, obj);
+
+        public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+            => edit_Property(label, null, null, -1, memberExpression, obj);
         
-    public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-    => edit_Property(label, null, tip, -1, memberExpression, obj);
+        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+        => edit_Property(label, null, tip, -1, memberExpression, obj);
         
-    public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
-        => edit_Property(null, tex, tip, -1, memberExpression, obj);
+        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+            => edit_Property(null, tex, tip, -1, memberExpression, obj);
         
-    public static bool edit_Property<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj) {
-        bool changes = false;
+        public static bool edit_Property<T>(this string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj) {
+            bool changes = false;
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
 
-        if (!paintingPlayAreaGUI) {
+            if (!paintingPlayAreaGUI) {
 
-            SerializedObject sobj = (!obj ? ef.serObj : GetSerObj(obj)); //new SerializedObject(obj));
+                SerializedObject sobj = (!obj ? ef.serObj : GetSerObj(obj)); //new SerializedObject(obj));
 
-            if (sobj != null)  {
+                if (sobj != null)  {
 
-                MemberInfo member = ((MemberExpression)memberExpression.Body).Member;
-                string name = member.Name;
+                    MemberInfo member = ((MemberExpression)memberExpression.Body).Member;
+                    string name = member.Name;
 
-                var cont = new GUIContent(label, image, tip);
+                    var cont = new GUIContent(label, image, tip);
 
-                SerializedProperty tps = sobj.FindProperty(name);
-                if (tps != null)
-                {
-                    EditorGUI.BeginChangeCheck();
-
-                    if (width < 1)
-                        EditorGUILayout.PropertyField(tps, cont, true);
-                    else
-                        EditorGUILayout.PropertyField(tps, cont, true, GUILayout.MaxWidth(width));
-
-                    if (EditorGUI.EndChangeCheck())
+                    SerializedProperty tps = sobj.FindProperty(name);
+                    if (tps != null)
                     {
-                        sobj.ApplyModifiedProperties();
-                        changes = change;
-                    }
+                        EditorGUI.BeginChangeCheck();
 
+                        if (width < 1)
+                            EditorGUILayout.PropertyField(tps, cont, true);
+                        else
+                            EditorGUILayout.PropertyField(tps, cont, true, GUILayout.MaxWidth(width));
+
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            sobj.ApplyModifiedProperties();
+                            changes = change;
+                        }
+
+                    }
                 }
+
+            }
+    #endif
+            return changes;
+        }
+
+        #if UNITY_EDITOR
+        static Dictionary<UnityEngine.Object, SerializedObject> SerDic = new Dictionary<UnityEngine.Object, SerializedObject>();
+
+        static SerializedObject GetSerObj(UnityEngine.Object obj)
+        {
+            SerializedObject so;
+
+            if (!SerDic.TryGetValue(obj, out so))
+            {
+                so = new SerializedObject(obj);
+                SerDic.Add(obj, so);
             }
 
+            return so;
+
         }
-#endif
-        return changes;
-    }
+        #endif
 
-#if UNITY_EDITOR
-    static Dictionary<UnityEngine.Object, SerializedObject> SerDic = new Dictionary<UnityEngine.Object, SerializedObject>();
-
-    static SerializedObject GetSerObj(UnityEngine.Object obj)
-    {
-        SerializedObject so;
-
-        if (!SerDic.TryGetValue(obj, out so))
-        {
-            so = new SerializedObject(obj);
-            SerDic.Add(obj, so);
-        }
-
-        return so;
-
-    }
-#endif
         #endregion
 
         #endregion
@@ -5077,157 +5069,220 @@ namespace PlayerAndEditorGUI {
 
         #region List MGMT Functions 
 
-    const int listLabelWidth = 105;
+        const int listLabelWidth = 105;
 
-    static Dictionary<IList, int> listInspectionIndexes = new Dictionary<IList, int>();
+        static Dictionary<IList, int> listInspectionIndexes = new Dictionary<IList, int>();
 
-    const int UpDownWidth = 120;
-    const int UpDownHeight = 30;
-    static int SectionSizeOptimal = 0;
-    static int ListSectionMax = 0;
-    static int listSectionStartIndex = 0;
-    static readonly CountlessInt ListSectionOptimal = new CountlessInt();
+        const int UpDownWidth = 120;
+        const int UpDownHeight = 30;
+        static int SectionSizeOptimal = 0;
+        static int ListSectionMax = 0;
+        static int listSectionStartIndex = 0;
+        static readonly CountlessInt ListSectionOptimal = new CountlessInt();
 
-    static void SetOptimalSectionFor(int Count)
-    {
-        const int listShowMax = 10;
+        static void SetOptimalSectionFor(int Count)
+        {
+            const int listShowMax = 10;
 
-        if (Count < listShowMax) {
-            SectionSizeOptimal = listShowMax;
-            return;
-        }
+            if (Count < listShowMax) {
+                SectionSizeOptimal = listShowMax;
+                return;
+            }
             
-        if (Count > listShowMax * 3)
-        {
-            SectionSizeOptimal = listShowMax;
-            return;
-        }
-
-        SectionSizeOptimal = ListSectionOptimal[Count];
-
-        if (SectionSizeOptimal == 0)
-        {
-            int bestdifference = 999;
-
-            for (int i = listShowMax - 2; i < listShowMax + 2; i++)
+            if (Count > listShowMax * 3)
             {
-                int difference = i - (Count % i);
-
-                if (difference < bestdifference)
-                {
-                    SectionSizeOptimal = i;
-                    bestdifference = difference;
-                    if (difference == 0)
-                        break;
-                }
-
+                SectionSizeOptimal = listShowMax;
+                return;
             }
 
+            SectionSizeOptimal = ListSectionOptimal[Count];
 
-            ListSectionOptimal[Count] = SectionSizeOptimal;
-        }
-
-    }
-
-    static IList addingNewOptionsInspected = null;
-    static string addingNewNameHolder = "Name";
-
-    static void listInstantiateNewName<T>()  {
-            Msg.New.Get().write(Msg.NameNewBeforeInstancing_1p.Get().F(typeof(T).ToPEGIstring_Type()) ,30, PEGI_Styles.ExitLabel);
-        edit(ref addingNewNameHolder);
-    }
-
-    static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, List_Data ld) where T : ScriptableObject
-    {
-        if (ld != null && !ld.allowCreate)
-            return false;
-
-        if (editing_List_Order != null && editing_List_Order == lst)
-            return false;
-
-        var indTypes = typeof(T).TryGetDerrivedClasses();
-
-        var tagTypes = typeof(T).TryGetTaggetClasses();
-
-        if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
-            return false;
-
-        bool changed = false;
-
-        // "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
-        listInstantiateNewName<T>();
-
-        if (addingNewNameHolder.Length > 1) {
-            if (indTypes == null  && tagTypes == null)  {
-                if (icon.Create.ClickUnfocus("Create new object").nl(ref changed))
-                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder);
-            }
-            else
+            if (SectionSizeOptimal == 0)
             {
-                bool selectingDerrived = lst == addingNewOptionsInspected;
+                int bestdifference = 999;
 
-                icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
-
-                if (selectingDerrived)
-                    addingNewOptionsInspected = lst;
-                else if (addingNewOptionsInspected == lst)
-                    addingNewOptionsInspected = null;
-
-                if (selectingDerrived)
+                for (int i = listShowMax - 2; i < listShowMax + 2; i++)
                 {
-                    if (indTypes != null)
-                    foreach (var t in indTypes) {
-                        write(t.ToPEGIstring_Type());
-                        if (icon.Create.ClickUnfocus().nl(ref changed))
-                            added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
+                    int difference = i - (Count % i);
+
+                    if (difference < bestdifference)
+                    {
+                        SectionSizeOptimal = i;
+                        bestdifference = difference;
+                        if (difference == 0)
+                            break;
                     }
 
-                    if (tagTypes != null)
+                }
+
+
+                ListSectionOptimal[Count] = SectionSizeOptimal;
+            }
+
+        }
+
+        static IList addingNewOptionsInspected = null;
+        static string addingNewNameHolder = "Name";
+
+        static void listInstantiateNewName<T>()  {
+                Msg.New.Get().write(Msg.NameNewBeforeInstancing_1p.Get().F(typeof(T).ToPEGIstring_Type()) ,30, PEGI_Styles.ExitLabel);
+            edit(ref addingNewNameHolder);
+        }
+
+        static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, List_Data ld) where T : ScriptableObject
+        {
+            if (ld != null && !ld.allowCreate)
+                return false;
+
+            if (editing_List_Order != null && editing_List_Order == lst)
+                return false;
+
+            var indTypes = typeof(T).TryGetDerrivedClasses();
+
+            var tagTypes = typeof(T).TryGetTaggetClasses();
+
+            if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
+                return false;
+
+            bool changed = false;
+
+            // "New {0} ".F(typeof(T).ToPEGIstring_Type()).edit(80, ref addingNewNameHolder);
+            listInstantiateNewName<T>();
+
+            if (addingNewNameHolder.Length > 1) {
+                if (indTypes == null  && tagTypes == null)  {
+                    if (icon.Create.ClickUnfocus("Create new object").nl(ref changed))
+                        added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder);
+                }
+                else
+                {
+                    bool selectingDerrived = lst == addingNewOptionsInspected;
+
+                    icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                    if (selectingDerrived)
+                        addingNewOptionsInspected = lst;
+                    else if (addingNewOptionsInspected == lst)
+                        addingNewOptionsInspected = null;
+
+                    if (selectingDerrived)
                     {
-                        var k = tagTypes.Keys;
+                        if (indTypes != null)
+                        foreach (var t in indTypes) {
+                            write(t.ToPEGIstring_Type());
+                            if (icon.Create.ClickUnfocus().nl(ref changed))
+                                added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
+                        }
 
-                        for (int i=0; i<k.Count; i++) {
+                        if (tagTypes != null)
+                        {
+                            var k = tagTypes.Keys;
 
-                            write(tagTypes.DisplayNames[i]);
-                            if (icon.Create.ClickUnfocus().nl(ref changed)) 
-                                added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+                            for (int i=0; i<k.Count; i++) {
 
+                                write(tagTypes.DisplayNames[i]);
+                                if (icon.Create.ClickUnfocus().nl(ref changed)) 
+                                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+
+                            }
                         }
                     }
                 }
             }
+            nl();
+
+            return changed;
+
         }
-        nl();
-
-        return changed;
-
-    }
         
-    static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, List_Data ld)
-    {
-        if (ld != null && !ld.allowCreate)
-            return false;
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, List_Data ld)
+        {
+            if (ld != null && !ld.allowCreate)
+                return false;
 
-        if (editing_List_Order != null && editing_List_Order == lst)
-            return false;
+            if (editing_List_Order != null && editing_List_Order == lst)
+                return false;
 
-        var intTypes = typeof(T).TryGetDerrivedClasses();
+            var intTypes = typeof(T).TryGetDerrivedClasses();
             
-        var tagTypes = typeof(T).TryGetTaggetClasses();
+            var tagTypes = typeof(T).TryGetTaggetClasses();
             
-        if (intTypes == null && tagTypes == null)
-            return false;
+            if (intTypes == null && tagTypes == null)
+                return false;
 
-        bool changed = false;
+            bool changed = false;
 
-        bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+            bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
-        if (hasName)
-            listInstantiateNewName<T>();
-        else
-            (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
+            if (hasName)
+                listInstantiateNewName<T>();
+            else
+                (intTypes == null ? "Create new {0}".F(typeof(T).ToPEGIstring_Type()) : "Create Derrived from {0}".F(typeof(T).ToPEGIstring_Type())).write();
 
-        if (!hasName || addingNewNameHolder.Length > 1) {
+            if (!hasName || addingNewNameHolder.Length > 1) {
+
+                    bool selectingDerrived = lst == addingNewOptionsInspected;
+
+                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                    if (selectingDerrived)
+                        addingNewOptionsInspected = lst;
+                    else if (addingNewOptionsInspected == lst)
+                        addingNewOptionsInspected = null;
+
+                    if (selectingDerrived)
+                    {
+                        if (intTypes != null)
+                        foreach (var t in intTypes)  {
+                            write(t.ToPEGIstring_Type());
+                            if (icon.Create.ClickUnfocus().nl(ref changed))  {
+                                added = (T)Activator.CreateInstance(t);
+                                lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                            }
+                        }
+
+                    if (tagTypes != null) {
+                        var k = tagTypes.Keys;
+
+                        for (int i = 0; i < k.Count; i++)
+                        {
+
+                            write(tagTypes.DisplayNames[i]);
+                            if (icon.Create.ClickUnfocus().nl(ref changed)) {
+                                added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet((k[i])));
+                                lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                            }
+
+                        }
+                    }
+
+                    }
+            }
+            else
+                "Add".write("Input a name for a new element", 40);
+            nl();
+
+            return changed;
+        }
+
+        static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types, List_Data ld) 
+        {
+            if (ld != null && !ld.allowCreate)
+                return false;
+
+            if (editing_List_Order != null && editing_List_Order == lst)
+                return false;
+
+            bool changed = false;
+
+            bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+
+            if (hasName)
+                listInstantiateNewName<T>();
+            else
+                "Create new {0}".F(typeof(T).ToPEGIstring_Type()).write();
+
+            if (!hasName || addingNewNameHolder.Length > 1) {
 
                 bool selectingDerrived = lst == addingNewOptionsInspected;
 
@@ -5240,206 +5295,105 @@ namespace PlayerAndEditorGUI {
 
                 if (selectingDerrived)
                 {
-                    if (intTypes != null)
-                    foreach (var t in intTypes)  {
-                        write(t.ToPEGIstring_Type());
-                        if (icon.Create.ClickUnfocus().nl(ref changed))  {
-                            added = (T)Activator.CreateInstance(t);
-                            lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+
+                    var k = types.Keys;
+                        for (int i=0; i<k.Count; i++) {
+
+                            write(types.DisplayNames[i]);
+                            if (icon.Create.ClickUnfocus().nl(ref changed)) {
+                                added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
+                                lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                            }
                         }
-                    }
-
-                if (tagTypes != null) {
-                    var k = tagTypes.Keys;
-
-                    for (int i = 0; i < k.Count; i++)
-                    {
-
-                        write(tagTypes.DisplayNames[i]);
-                        if (icon.Create.ClickUnfocus().nl(ref changed)) {
-                            added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet((k[i])));
-                            lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
-                        }
-
-                    }
                 }
-
-                }
-        }
-        else
-            "Add".write("Input a name for a new element", 40);
-        nl();
-
-        return changed;
-    }
-
-    static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types, List_Data ld) 
-    {
-        if (ld != null && !ld.allowCreate)
-            return false;
-
-        if (editing_List_Order != null && editing_List_Order == lst)
-            return false;
-
-        bool changed = false;
-
-        bool hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
-
-        if (hasName)
-            listInstantiateNewName<T>();
-        else
-            "Create new {0}".F(typeof(T).ToPEGIstring_Type()).write();
-
-        if (!hasName || addingNewNameHolder.Length > 1) {
-
-            bool selectingDerrived = lst == addingNewOptionsInspected;
-
-            icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
-
-            if (selectingDerrived)
-                addingNewOptionsInspected = lst;
-            else if (addingNewOptionsInspected == lst)
-                addingNewOptionsInspected = null;
-
-            if (selectingDerrived)
-            {
-
-                var k = types.Keys;
-                    for (int i=0; i<k.Count; i++) {
-
-                        write(types.DisplayNames[i]);
-                        if (icon.Create.ClickUnfocus().nl(ref changed)) {
-                            added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
-                            lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
-                        }
-                    }
             }
+            else
+                "Add".write("Input a name for a new element", 40);
+            nl();
+
+            return changed;
         }
-        else
-            "Add".write("Input a name for a new element", 40);
-        nl();
 
-        return changed;
-    }
+        static int inspectionIndex = -1;
 
-    static int inspectionIndex = -1;
+        public static int InspectedIndex => inspectionIndex;
 
-    public static int InspectedIndex => inspectionIndex;
-
-    static IEnumerable<int> InspectionIndexes<T>(this List<T> list, List_Data ld = null) {
+        static IEnumerable<int> InspectionIndexes<T>(this List<T> list, List_Data ld = null) {
 
 
-        var sd = ld == null? searchData : ld.searchData;
+            var sd = ld == null? searchData : ld.searchData;
 
 
-        #region Inspect Start
+            #region Inspect Start
 
-        bool searching;
-        string[] searchby;
-        sd.SearchString(list, out searching, out searchby);
+            bool searching;
+            string[] searchby;
+            sd.SearchString(list, out searching, out searchby);
   
-        listSectionStartIndex = 0;
+            listSectionStartIndex = 0;
 
-        ListSectionMax = list.Count;
+            ListSectionMax = list.Count;
 
-        SetOptimalSectionFor(ListSectionMax);
+            SetOptimalSectionFor(ListSectionMax);
 
-        if (ListSectionMax >= SectionSizeOptimal * 2) {
+            if (ListSectionMax >= SectionSizeOptimal * 2) {
 
-            if (ld != null)
-                listSectionStartIndex = ld.listSectionStartIndex;
-            else if (!listInspectionIndexes.TryGetValue(list, out listSectionStartIndex))
-                listInspectionIndexes.Add(list, 0);
+                if (ld != null)
+                    listSectionStartIndex = ld.listSectionStartIndex;
+                else if (!listInspectionIndexes.TryGetValue(list, out listSectionStartIndex))
+                    listInspectionIndexes.Add(list, 0);
 
-            if (ListSectionMax > SectionSizeOptimal)
-            {
-                bool changed = false;
-
-                while (listSectionStartIndex > 0 && listSectionStartIndex >= ListSectionMax) {
-                    changed = true;
-                    listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal);
-                }
-
-                nl();
-                if (listSectionStartIndex > 0)
+                if (ListSectionMax > SectionSizeOptimal)
                 {
-                    if (icon.Up.ClickUnfocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                    bool changed = false;
+
+                    while (listSectionStartIndex > 0 && listSectionStartIndex >= ListSectionMax) {
+                        changed = true;
+                        listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal);
+                    }
+
+                    nl();
+                    if (listSectionStartIndex > 0)
                     {
-                        listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal+1);
-                        if (listSectionStartIndex == 1)
-                            listSectionStartIndex = 0;
-                    }
-                }
-                else
-                    icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
-                nl();
-
-                if (changed)
-                {
-                    if (ld != null)
-                        ld.listSectionStartIndex = listSectionStartIndex;
-                    else 
-                        listInspectionIndexes[list] = listSectionStartIndex;
-                }
-            }
-            else line(Color.gray);
-
-
-            ListSectionMax = Mathf.Min(ListSectionMax, listSectionStartIndex + SectionSizeOptimal);
-        }
-        else if (list.Count > 0)
-            line(Color.gray);
-
-        nl();
-
-        #endregion
-
-        var cnt = list.Count;
-
-        if (!searching)
-        {
-
-            for (inspectionIndex = listSectionStartIndex; inspectionIndex < ListSectionMax; inspectionIndex++)
-            {
-                switch (inspectionIndex % 4)
-                {
-                    case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
-                    case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
-                }
-                yield return inspectionIndex;
-
-                RestoreBGcolor();
-
-            }
-        } else {
-
-            int sectionIndex = 0;
-                
-            int fcnt = sd.filteredListElements.Count;
-
-            var filtered = sd.filteredListElements;
-
-            while (sd.uncheckedElement <= cnt && sectionIndex < ListSectionMax) {
-
-                inspectionIndex = -1;
-                    
-                if (fcnt > listSectionStartIndex + sectionIndex)
-                    inspectionIndex = filtered[listSectionStartIndex + sectionIndex];
-                else {
-                    while (sd.uncheckedElement < cnt && inspectionIndex == -1) {
-                        if (list[sd.uncheckedElement].SearchMatch_Obj_Internal(searchby)) {
-                            inspectionIndex = sd.uncheckedElement;
-                            sd.filteredListElements.Add(inspectionIndex);
+                        if (icon.Up.ClickUnfocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                        {
+                            listSectionStartIndex = Mathf.Max(0, listSectionStartIndex - SectionSizeOptimal+1);
+                            if (listSectionStartIndex == 1)
+                                listSectionStartIndex = 0;
                         }
+                    }
+                    else
+                        icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
+                    nl();
 
-                        sd.uncheckedElement++;
+                    if (changed)
+                    {
+                        if (ld != null)
+                            ld.listSectionStartIndex = listSectionStartIndex;
+                        else 
+                            listInspectionIndexes[list] = listSectionStartIndex;
                     }
                 }
-                    
-                if (inspectionIndex != -1)
+                else line(Color.gray);
+
+
+                ListSectionMax = Mathf.Min(ListSectionMax, listSectionStartIndex + SectionSizeOptimal);
+            }
+            else if (list.Count > 0)
+                line(Color.gray);
+
+            nl();
+
+            #endregion
+
+            var cnt = list.Count;
+
+            if (!searching)
+            {
+
+                for (inspectionIndex = listSectionStartIndex; inspectionIndex < ListSectionMax; inspectionIndex++)
                 {
-            
-                    switch (sectionIndex % 4)
+                    switch (inspectionIndex % 4)
                     {
                         case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
                         case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
@@ -5448,1088 +5402,1135 @@ namespace PlayerAndEditorGUI {
 
                     RestoreBGcolor();
 
-                    sectionIndex++;
                 }
-                else break;
+            } else {
 
-            }
-
-        }
-
-
-        if (listSectionStartIndex > 0 ||  cnt > ListSectionMax)
-        {
-
-            nl();
-            if (cnt > ListSectionMax)
-            {
-                if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
-                    listSectionStartIndex += SectionSizeOptimal-1;
-                    listInspectionIndexes[list] = listSectionStartIndex;
-                }
-            }
-            else if (listSectionStartIndex > 0)
-                icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-        }
-        else if (list.Count > 0)
-            line(Color.gray);
-            
-    }
-
-    static string currentListLabel = "";
-    public static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
-                (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring_Type()  : currentListLabel);
-
-    static bool listLabel_Used(this bool val) {
-        currentListLabel = "";
-
-        return val;
-    }
-    public static T listLabel_Used<T>(this T val)
-    {
-        currentListLabel = "";
-
-        return val;
-    }
-
-    public static void write_ListLabel(this string label, IList lst = null)
-    {
-        int notInsp = -1;
-        label.write_Search_ListLabel(ref notInsp, lst);
-    }
-
-    public static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
-
-        bool editedName = false;
-
-        currentListLabel = label;
-
-        searchData.ToggleSearch(lst);
-
-        if (lst != null && inspected >= 0 && lst.Count > inspected) {
-
-            var el = lst[inspected];
-
-            el.Try_NameInspect(out editedName, label);
-
-            if (!editedName)
-                label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
-        }
-
-        if (!editedName && label.AddCount(lst, true).Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
-            inspected = -1;
-    }
-
-    public static void write_Search_ListLabel(this List_Data ld, IList lst) {
-
-        bool editedName = false;
-
-        currentListLabel = ld.label;
-
-        ld.searchData.ToggleSearch(lst);
-
-        if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
-
-            var el = lst[ld.inspected];
-
-            el.Try_NameInspect(out editedName, ld.label);
-
-            if (!editedName)
-                ld.label = "{0} {1}".F(ld.label, lst[ld.inspected].ToPEGIstring());
-        }
-
-        if (!editedName && ld.label.AddCount(lst, true).Click_Label(ld.label, -1, PEGI_Styles.ListLabel) && ld.inspected != -1)
-            ld.inspected = -1;
-    }
-
-    static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
-    {
-        bool changed = false;
-
-        if (index >= 0) {
-            if (array == null || index >= array.Length || icon.List.ClickUnfocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
-                index = -1;
-            else
-                changed |= array[index].Try_Nested_Inspect();
-        }
-
-        return changed;
-    }
-
-    static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index, List_Data ld = null)
-    {
-        bool changed = false;
-
-        if (icon.List.ClickUnfocus("{0}[{1}] of {2}".F(Msg.ReturnToList.Get(), list.Count, GetCurrentListLabel<T>(ld))).nl())
-            index = -1;
-        else
-            changed |= list[index].Try_Nested_Inspect();
-
-        return changed;
-    }
-
-    static IList editing_List_Order;
-
-    static bool listIsNull<T>(ref List<T> list) {
-        if (list == null) {
-            if ("Instantiate list".ClickUnfocus().nl())
-                list = new List<T>();
-            else
-                return change;
+                int sectionIndex = 0;
                 
-        }
+                int fcnt = sd.filteredListElements.Count;
 
-        return false;
-    }
+                var filtered = sd.filteredListElements;
 
-    static bool list_DropOption<T>(this List<T> list) where T : UnityEngine.Object
-    {
-        bool changed = false;
-#if UNITY_EDITOR
+                while (sd.uncheckedElement <= cnt && sectionIndex < ListSectionMax) {
 
-        if (ActiveEditorTracker.sharedTracker.isLocked == false && "Lock Inspector Window".ClickUnfocus())
-            ActiveEditorTracker.sharedTracker.isLocked = true;
+                    inspectionIndex = -1;
+                    
+                    if (fcnt > listSectionStartIndex + sectionIndex)
+                        inspectionIndex = filtered[listSectionStartIndex + sectionIndex];
+                    else {
+                        while (sd.uncheckedElement < cnt && inspectionIndex == -1) {
+                            if (list[sd.uncheckedElement].SearchMatch_Obj_Internal(searchby)) {
+                                inspectionIndex = sd.uncheckedElement;
+                                sd.filteredListElements.Add(inspectionIndex);
+                            }
 
-        if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnfocus("Unlock Inspector Window")) {
-            ActiveEditorTracker.sharedTracker.isLocked = false;
-
-            var mb = ef.serObj.targetObject as MonoBehaviour;
-            if (mb)
-                UnityHelperFunctions.FocusOn(mb.gameObject);
-            else
-                UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
-        }
-
-        foreach (var ret in ef.DropAreaGUI<T>())  {
-            list.Add(ret);
-            changed = true;
-        }
-#endif
-        return changed;
-    }
-
-    static Array editing_Array_Order;
-
-    public static CountlessBool selectedEls = new CountlessBool();
-
-    static List<int> copiedElements = new List<int>();
-
-    static bool move = false;
-
-    static void TryMoveCopiedElement<T>(this List<T> list)
-    {
-            
-        foreach (var e in copiedElements)
-            list.TryAdd(listCopyBuffer.TryGet(e));
-
-        for (int i = copiedElements.Count - 1; i >= 0; i--)
-            listCopyBuffer.RemoveAt(copiedElements[i]);
-
-        listCopyBuffer = null;
-    }
-
-    static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null) {
-
-        bool changed = false;
-
-        const int bttnWidth = 25;
-
-        if (array != editing_Array_Order) {
-            if (icon.Edit.ClickUnfocus("Modify list elements", 28))
-                editing_Array_Order = array;
-        }
-
-        else if (icon.Done.ClickUnfocus("Finish moving", 28).nl(ref changed))
-            editing_Array_Order = null;
-            
-
-        if (array == editing_Array_Order) {
-
-                var derr = typeof(T).TryGetDerrivedClasses();
-
-                for (int i = 0; i< array.Length; i++) {
-
-                if (datas == null || datas.allowReorder)
-                {
-
-                    if (i > 0)
-                    {
-                        if (icon.Up.ClickUnfocus("Move up", bttnWidth).changes(ref changed))
-                            CsharpFuncs.Swap(ref array, i, i - 1);
-                            
-                    }
-                    else
-                        icon.UpLast.write("Last", bttnWidth);
-
-                    if (i < array.Length - 1)
-                    {
-                        if (icon.Down.ClickUnfocus("Move down", bttnWidth).changes(ref changed))
-                            CsharpFuncs.Swap(ref array, i, i + 1);
-                            
-                    }
-                    else icon.DownLast.write(bttnWidth);
-                }
-
-                    var el = array[i];
-
-                var isNull = el.IsNullOrDestroyed_Obj();
-
-                if (datas == null || datas.allowDelete) {
-                    if (!isNull && typeof(T).IsUnityObject())
-                    {
-                        if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth).changes(ref changed))
-                            array[i] = default(T);
-                    }
-                    else
-                    {
-                        if (icon.Close.ClickUnfocus("Remove From Array", bttnWidth).changes(ref changed)) {
-                            CsharpFuncs.Remove(ref array, i);
-                            i--;
+                            sd.uncheckedElement++;
                         }
                     }
-                }
+                    
+                    if (inspectionIndex != -1)
+                    {
+            
+                        switch (sectionIndex % 4)
+                        {
+                            case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
+                            case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+                        }
+                        yield return inspectionIndex;
 
-                    if (!isNull && derr != null) {
-                        var ty = el.GetType();
-                        if (select(ref ty, derr, el.ToPEGIstring()))
-                        array[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        RestoreBGcolor();
+
+                        sectionIndex++;
                     }
+                    else break;
 
-                    if (!isNull)
-                        write(el.ToPEGIstring());
-                    else
-                        "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
-
-                    nl();
                 }
+
+            }
+
+
+            if (listSectionStartIndex > 0 ||  cnt > ListSectionMax)
+            {
+
+                nl();
+                if (cnt > ListSectionMax)
+                {
+                    if (icon.Down.ClickUnfocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
+                        listSectionStartIndex += SectionSizeOptimal-1;
+                        listInspectionIndexes[list] = listSectionStartIndex;
+                    }
+                }
+                else if (listSectionStartIndex > 0)
+                    icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+
+            }
+            else if (list.Count > 0)
+                line(Color.gray);
+            
         }
 
-        return changed;
-    }
-        
-    static bool edit_List_Order<T>(this List<T> list, List_Data meta = null) {
+        static string currentListLabel = "";
+        public static string GetCurrentListLabel<T>(List_Data ld = null) => ld != null ? ld.label :
+                    (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPEGIstring_Type()  : currentListLabel);
 
-        bool changed = false;
+        static bool listLabel_Used(this bool val) {
+            currentListLabel = "";
 
-        const int bttnWidth = 25;
-
-        var sd = meta == null ? searchData : meta.searchData;
-
-        if (list != editing_List_Order)
+            return val;
+        }
+        public static T listLabel_Used<T>(this T val)
         {
-            if (sd.filteredList!= list && icon.Edit.ClickUnfocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
-                editing_List_Order = list;
-        } else if (icon.Done.ClickUnfocus("Finish moving", 28).changes(ref changed))
-            editing_List_Order = null;
+            currentListLabel = "";
+
+            return val;
+        }
+
+        public static void write_Search_ListLabel(this string label, IList lst = null)
+        {
+            int notInsp = -1;
+            label.write_Search_ListLabel(ref notInsp, lst);
+        }
+
+        public static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
+
+            bool editedName = false;
+
+            currentListLabel = label;
+
+            searchData.ToggleSearch(lst);
+
+            if (lst != null && inspected >= 0 && lst.Count > inspected) {
+
+                var el = lst[inspected];
+
+                el.Try_NameInspect(out editedName, label);
+
+                if (!editedName)
+                    label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
+            }
+
+            if (!editedName && label.AddCount(lst, true).Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
+                inspected = -1;
+        }
+
+        public static void write_Search_ListLabel(this List_Data ld, IList lst) {
+
+            bool editedName = false;
+
+            currentListLabel = ld.label;
+
+            ld.searchData.ToggleSearch(lst);
+
+            if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
+
+                var el = lst[ld.inspected];
+
+                el.Try_NameInspect(out editedName, ld.label);
+
+                if (!editedName)
+                    ld.label = "{0} {1}".F(ld.label, lst[ld.inspected].ToPEGIstring());
+            }
+
+            if (!editedName && ld.label.AddCount(lst, true).Click_Label(ld.label, -1, PEGI_Styles.ListLabel) && ld.inspected != -1)
+                ld.inspected = -1;
+        }
+
+        static bool ExitOrDrawPEGI<T>(T[] array, ref int index, List_Data ld = null)
+        {
+            bool changed = false;
+
+            if (index >= 0) {
+                if (array == null || index >= array.Length || icon.List.ClickUnfocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
+                    index = -1;
+                else
+                    changed |= array[index].Try_Nested_Inspect();
+            }
+
+            return changed;
+        }
+
+        static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index, List_Data ld = null)
+        {
+            bool changed = false;
+
+            if (icon.List.ClickUnfocus("{0}[{1}] of {2}".F(Msg.ReturnToList.Get(), list.Count, GetCurrentListLabel<T>(ld))).nl())
+                index = -1;
+            else
+                changed |= list[index].Try_Nested_Inspect();
+
+            return changed;
+        }
+
+        static IList editing_List_Order;
+
+        static bool listIsNull<T>(ref List<T> list) {
+            if (list == null) {
+                if ("Instantiate list".ClickUnfocus().nl())
+                    list = new List<T>();
+                else
+                    return change;
+                
+            }
+
+            return false;
+        }
+
+        static bool list_DropOption<T>(this List<T> list) where T : UnityEngine.Object
+        {
+            bool changed = false;
+    #if UNITY_EDITOR
+
+            if (ActiveEditorTracker.sharedTracker.isLocked == false && "Lock Inspector Window".ClickUnfocus())
+                ActiveEditorTracker.sharedTracker.isLocked = true;
+
+            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnfocus("Unlock Inspector Window")) {
+                ActiveEditorTracker.sharedTracker.isLocked = false;
+
+                var mb = ef.serObj.targetObject as MonoBehaviour;
+                if (mb)
+                    UnityHelperFunctions.FocusOn(mb.gameObject);
+                else
+                    UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
+            }
+
+            foreach (var ret in ef.DropAreaGUI<T>())  {
+                list.Add(ret);
+                changed = true;
+            }
+    #endif
+            return changed;
+        }
+
+        static Array editing_Array_Order;
+
+        public static CountlessBool selectedEls = new CountlessBool();
+
+        static List<int> copiedElements = new List<int>();
+
+        static bool move = false;
+
+        static void TryMoveCopiedElement<T>(this List<T> list)
+        {
+            
+            foreach (var e in copiedElements)
+                list.TryAdd(listCopyBuffer.TryGet(e));
+
+            for (int i = copiedElements.Count - 1; i >= 0; i--)
+                listCopyBuffer.RemoveAt(copiedElements[i]);
+
+            listCopyBuffer = null;
+        }
+
+        static bool edit_Array_Order<T>(ref T[] array, List_Data datas = null) {
+
+            bool changed = false;
+
+            const int bttnWidth = 25;
+
+            if (array != editing_Array_Order) {
+                if (icon.Edit.ClickUnfocus("Modify list elements", 28))
+                    editing_Array_Order = array;
+            }
+
+            else if (icon.Done.ClickUnfocus("Finish moving", 28).nl(ref changed))
+                editing_Array_Order = null;
             
 
-        if (list == editing_List_Order) {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGUI)
-            {
-                nl();
-                changed |= ef.reorder_List(list, meta);
-            }
-            else
-#endif
-        #region Playtime UI reordering
-            {
-                var derr = typeof(T).TryGetDerrivedClasses();
+            if (array == editing_Array_Order) {
 
-                foreach (var i in list.InspectionIndexes(meta)) {
+                    var derr = typeof(T).TryGetDerrivedClasses();
 
-                    if (meta == null || meta.allowReorder)
+                    for (int i = 0; i< array.Length; i++) {
+
+                    if (datas == null || datas.allowReorder)
                     {
 
                         if (i > 0)
                         {
                             if (icon.Up.ClickUnfocus("Move up", bttnWidth).changes(ref changed))
-                                list.Swap(i - 1);
-                                
+                                CsharpFuncs.Swap(ref array, i, i - 1);
+                            
                         }
                         else
                             icon.UpLast.write("Last", bttnWidth);
 
-                        if (i < list.Count - 1) {
+                        if (i < array.Length - 1)
+                        {
                             if (icon.Down.ClickUnfocus("Move down", bttnWidth).changes(ref changed))
-                                list.Swap(i);
+                                CsharpFuncs.Swap(ref array, i, i + 1);
+                            
                         }
                         else icon.DownLast.write(bttnWidth);
                     }
 
-                    var el = list[i];
+                        var el = array[i];
 
                     var isNull = el.IsNullOrDestroyed_Obj();
 
-                    if (meta == null || meta.allowDelete)
-                    {
-
+                    if (datas == null || datas.allowDelete) {
                         if (!isNull && typeof(T).IsUnityObject())
                         {
-                            if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
-                                list[i] = default(T);
+                            if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth).changes(ref changed))
+                                array[i] = default(T);
                         }
                         else
                         {
-                            if (icon.Close.ClickUnfocus(Msg.RemoveFromList, bttnWidth).changes(ref changed))
-                            {
-                                list.RemoveAt(inspectionIndex);
-                                inspectionIndex--;
-                                ListSectionMax--;
+                            if (icon.Close.ClickUnfocus("Remove From Array", bttnWidth).changes(ref changed)) {
+                                CsharpFuncs.Remove(ref array, i);
+                                i--;
                             }
                         }
                     }
 
+                        if (!isNull && derr != null) {
+                            var ty = el.GetType();
+                            if (select(ref ty, derr, el.ToPEGIstring()))
+                            array[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        }
 
-                    if (!isNull && derr != null)
-                    {
-                        var ty = el.GetType();
-                        if (select(ref ty, derr, el.ToPEGIstring()))
-                            list[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        if (!isNull)
+                            write(el.ToPEGIstring());
+                        else
+                            "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
+
+                        nl();
                     }
+            }
 
-                    if (!isNull)
-                        write(el.ToPEGIstring());
-                    else
-                        "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
+            return changed;
+        }
+        
+        static bool edit_List_Order<T>(this List<T> list, List_Data meta = null) {
 
+            bool changed = false;
+
+            const int bttnWidth = 25;
+
+            var sd = meta == null ? searchData : meta.searchData;
+
+            if (list != editing_List_Order)
+            {
+                if (sd.filteredList!= list && icon.Edit.ClickUnfocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
+                    editing_List_Order = list;
+            } else if (icon.Done.ClickUnfocus("Finish moving", 28).changes(ref changed))
+                editing_List_Order = null;
+            
+
+            if (list == editing_List_Order) {
+    #if UNITY_EDITOR
+                if (!paintingPlayAreaGUI)
+                {
                     nl();
-                }
-
-            }
-
-        #endregion
-
-        #region Select
-            int selectedCount = 0;
-
-            if (meta == null) {
-                for (int i = 0; i < list.Count; i++)
-                    if (selectedEls[i]) selectedCount++;
-            }
-            else for (int i = 0; i < list.Count; i++)
-                    if (meta.GetIsSelected(i)) selectedCount++;
-
-            if (selectedCount > 0 && icon.DeSelectAll.Click("Deselect All"))
-                SetSelected(meta, list, false);
-
-            if (selectedCount == 0 && icon.SelectAll.Click("Select All"))
-                SetSelected(meta, list, true);
-
-
-        #endregion
-
-        #region Copy, Cut, Paste, Move 
-             
-            if (listCopyBuffer != null) {
-
-                if (icon.Close.ClickUnfocus("Clean buffer"))
-                    listCopyBuffer = null;
-
-                if (listCopyBuffer != list)
-                {
-
-                    if (typeof(T).IsUnityObject())
-                    {
-
-                        if (!move && icon.Paste.ClickUnfocus("Try Past References Of {0} to here".F(listCopyBuffer.ToPEGIstring())))
-                        {
-                            foreach (var e in copiedElements)
-                                list.TryAdd(listCopyBuffer.TryGet(e));
-                        }
-
-                        if (move && icon.Move.ClickUnfocus("Try Move References Of {0}".F(listCopyBuffer)))
-                            list.TryMoveCopiedElement();
-
-                    }
-                    else
-                    {
-
-                        if (!move && icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring())))
-                        {
-
-                            foreach (var e in copiedElements)
-                            {
-
-                                var istd = listCopyBuffer.TryGet(e) as ISTD;
-
-                                if (istd != null)
-                                    list.TryAdd(istd.Clone_ISTD());
-                            }
-                        }
-
-                        if (move && icon.Move.ClickUnfocus("Try Move {0}".F(listCopyBuffer)))
-                            list.TryMoveCopiedElement();
-                    }
-                }
-            }
-            else if (selectedCount > 0)
-            {
-                bool copyOrMove = false;
-
-                if (icon.Copy.ClickUnfocus("Copy List Elements"))
-                {
-                    move = false;
-                    copyOrMove = true;
-                }
-
-                if (icon.Cut.ClickUnfocus("Cut List Elements"))
-                {
-                    move = true;
-                    copyOrMove = true;
-                }
-
-                if (copyOrMove)
-                {
-                    listCopyBuffer = list;
-                    if (meta != null)
-                        copiedElements = meta.GetSelectedElements();
-                    else
-                        copiedElements = selectedEls.GetItAll();
-                }
-            }
-
-
-        #endregion
-
-        #region Clean & Delete
-
-            if (list != listCopyBuffer)
-            {
-
-                if ((meta == null || meta.allowDelete) && list.Count > 0)
-                {
-                    int nullOrDestroyedCount = 0;
-
-                    for (int i = 0; i < list.Count; i++)
-                        if (list[i].IsNullOrDestroyed_Obj())
-                            nullOrDestroyedCount++;
-
-                    if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements"))
-                    {
-                        for (int i = list.Count - 1; i >= 0; i--)
-                            if (list[i].IsNullOrDestroyed_Obj())
-                                list.RemoveAt(i);
-
-                        SetSelected(meta, list, false);
-                    }
-                }
-
-                if ((meta == null || meta.allowDelete) && list.Count > 0)
-                {
-                    if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
-                    {
-                        if (meta == null)
-                        {
-                            for (int i = list.Count - 1; i >= 0; i--)
-                                if (selectedEls[i]) list.RemoveAt(i);
-                        }
-                        else for (int i = list.Count - 1; i >= 0; i--)
-                                if (meta.GetIsSelected(i))
-                                    list.RemoveAt(i);
-
-                        SetSelected(meta, list, false);
-
-                    }
-                }
-            }
-        #endregion
-
-            if ((meta != null) && icon.Config.enter(ref meta.inspectListMeta))
-                meta.Nested_Inspect();
-
-        }
-
-        return changed;
-    }
-
-    static void SetSelected<T>(List_Data meta, List<T> list, bool val)
-    {
-        if (meta == null)
-        {
-            for (int i = 0; i < list.Count; i++)
-                selectedEls[i] = val;
-        }
-        else for (int i = 0; i < list.Count; i++)
-                meta.SetIsSelected(i, val);
-    }
-
-    static bool edit_List_Order_Obj<T>(this List<T> list, List_Data datas = null) where T : UnityEngine.Object {
-        var changed = list.edit_List_Order(datas);
-
-        if (list == editing_List_Order && datas != null) {
-
-            if (icon.Search.ClickUnfocus("Find objects by GUID"))
-                for (int i = 0; i < list.Count; i++)
-
-                    if (list[i] == null)
-                    {
-                        var dta = datas.elementDatas.TryGet(i);
-                        if (dta != null)
-                        {
-                            T tmp = null;
-                            if (dta.TryGetByGUID(ref tmp))
-                                list[i] = tmp;
-                        }
-                    }
-        }
-
-        return changed;
-    }
-
-    static IList listCopyBuffer = null;
-
-    public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, List_Data datas = null) {
-        bool changed = false;
-
-        var pl = el.TryGet_fromObj<IPEGI_ListInspect>();
-
-        if (pl != null)
-        {
-            if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || pegi.globChanged)
-                pl.SetToDirty_Obj();
-        } else {
-
-            if (el.IsNullOrDestroyed_Obj()) {
-                ElementData ed = datas?[index];
-                if (ed == null)
-                    "{0}: NULL {1}".F(index, typeof(T).ToPEGIstring_Type()).write();
-                else 
-                    ed.PEGI_inList<T>(ref el, index, ref edited);
-            }
-            else {
-                var uo = el as UnityEngine.Object;
-
-                IPEGI pg = el.TryGet_fromObj<IPEGI>();
-                if (pg != null)
-                    el = pg;
-
-                var need = el as INeedAttention;
-                string warningText = need?.NeedAttention();
-
-                if (warningText != null)
-                    AttentionColor.SetBgColor();
-
-                bool clickHighlightHandeled = false;
-
-                var iind = el as IGotIndex;
-
-                if (iind != null)
-                    iind.IndexForPEGI.ToString().write(20);
-
-                var named = el as IGotName;
-                if (named != null)
-                {
-                    var so = uo as ScriptableObject;
-                    var n = named.NameForPEGI;
-                    if (so)
-                    {
-                        if (editDelayed(ref n))
-                        {
-                            so.RenameAsset(n);
-                            named.NameForPEGI = n;
-                        }
-                    }
-                    else
-                        if (edit(ref n))
-                        named.NameForPEGI = n;
+                    changed |= ef.reorder_List(list, meta);
                 }
                 else
+    #endif
+            #region Playtime UI reordering
                 {
-                    if (uo == null && pg == null && datas == null)
-                        el.ToPEGIstring().write();
-                    else
-                    {
-                        Texture tex = null;
+                    var derr = typeof(T).TryGetDerrivedClasses();
 
-                        if (uo)
+                    foreach (var i in list.InspectionIndexes(meta)) {
+
+                        if (meta == null || meta.allowReorder)
                         {
-                            tex = uo as Texture;
-                            if (tex)
+
+                            if (i > 0)
                             {
-                                uo.ClickHighlight(tex);
-                                clickHighlightHandeled = true;
+                                if (icon.Up.ClickUnfocus("Move up", bttnWidth).changes(ref changed))
+                                    list.Swap(i - 1);
+                                
+                            }
+                            else
+                                icon.UpLast.write("Last", bttnWidth);
+
+                            if (i < list.Count - 1) {
+                                if (icon.Down.ClickUnfocus("Move down", bttnWidth).changes(ref changed))
+                                    list.Swap(i);
+                            }
+                            else icon.DownLast.write(bttnWidth);
+                        }
+
+                        var el = list[i];
+
+                        var isNull = el.IsNullOrDestroyed_Obj();
+
+                        if (meta == null || meta.allowDelete)
+                        {
+
+                            if (!isNull && typeof(T).IsUnityObject())
+                            {
+                                if (icon.Delete.ClickUnfocus(Msg.MakeElementNull, bttnWidth))
+                                    list[i] = default(T);
+                            }
+                            else
+                            {
+                                if (icon.Close.ClickUnfocus(Msg.RemoveFromList, bttnWidth).changes(ref changed))
+                                {
+                                    list.RemoveAt(inspectionIndex);
+                                    inspectionIndex--;
+                                    ListSectionMax--;
+                                }
                             }
                         }
-                        write(el.ToPEGIstring());
+
+
+                        if (!isNull && derr != null)
+                        {
+                            var ty = el.GetType();
+                            if (select(ref ty, derr, el.ToPEGIstring()))
+                                list[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                        }
+
+                        if (!isNull)
+                            write(el.ToPEGIstring());
+                        else
+                            "Empty {0}".F(typeof(T).ToPEGIstring_Type()).write();
+
+                        nl();
+                    }
+
+                }
+
+            #endregion
+
+            #region Select
+                int selectedCount = 0;
+
+                if (meta == null) {
+                    for (int i = 0; i < list.Count; i++)
+                        if (selectedEls[i]) selectedCount++;
+                }
+                else for (int i = 0; i < list.Count; i++)
+                        if (meta.GetIsSelected(i)) selectedCount++;
+
+                if (selectedCount > 0 && icon.DeSelectAll.Click("Deselect All"))
+                    SetSelected(meta, list, false);
+
+                if (selectedCount == 0 && icon.SelectAll.Click("Select All"))
+                    SetSelected(meta, list, true);
+
+
+            #endregion
+
+            #region Copy, Cut, Paste, Move 
+             
+                if (listCopyBuffer != null) {
+
+                    if (icon.Close.ClickUnfocus("Clean buffer"))
+                        listCopyBuffer = null;
+
+                    if (listCopyBuffer != list)
+                    {
+
+                        if (typeof(T).IsUnityObject())
+                        {
+
+                            if (!move && icon.Paste.ClickUnfocus("Try Past References Of {0} to here".F(listCopyBuffer.ToPEGIstring())))
+                            {
+                                foreach (var e in copiedElements)
+                                    list.TryAdd(listCopyBuffer.TryGet(e));
+                            }
+
+                            if (move && icon.Move.ClickUnfocus("Try Move References Of {0}".F(listCopyBuffer)))
+                                list.TryMoveCopiedElement();
+
+                        }
+                        else
+                        {
+
+                            if (!move && icon.Paste.ClickUnfocus("Try Add Deep Copy {0}".F(listCopyBuffer.ToPEGIstring())))
+                            {
+
+                                foreach (var e in copiedElements)
+                                {
+
+                                    var istd = listCopyBuffer.TryGet(e) as ISTD;
+
+                                    if (istd != null)
+                                        list.TryAdd(istd.Clone_ISTD());
+                                }
+                            }
+
+                            if (move && icon.Move.ClickUnfocus("Try Move {0}".F(listCopyBuffer)))
+                                list.TryMoveCopiedElement();
+                        }
                     }
                 }
-                    
-                if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
-                    edited = index;
-                        
-                if (!clickHighlightHandeled)
-                    uo.ClickHighlight();
+                else if (selectedCount > 0)
+                {
+                    bool copyOrMove = false;
+
+                    if (icon.Copy.ClickUnfocus("Copy List Elements"))
+                    {
+                        move = false;
+                        copyOrMove = true;
+                    }
+
+                    if (icon.Cut.ClickUnfocus("Cut List Elements"))
+                    {
+                        move = true;
+                        copyOrMove = true;
+                    }
+
+                    if (copyOrMove)
+                    {
+                        listCopyBuffer = list;
+                        if (meta != null)
+                            copiedElements = meta.GetSelectedElements();
+                        else
+                            copiedElements = selectedEls.GetItAll();
+                    }
+                }
+
+
+            #endregion
+
+            #region Clean & Delete
+
+                if (list != listCopyBuffer)
+                {
+
+                    if ((meta == null || meta.allowDelete) && list.Count > 0)
+                    {
+                        int nullOrDestroyedCount = 0;
+
+                        for (int i = 0; i < list.Count; i++)
+                            if (list[i].IsNullOrDestroyed_Obj())
+                                nullOrDestroyedCount++;
+
+                        if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnfocus("Clean null elements"))
+                        {
+                            for (int i = list.Count - 1; i >= 0; i--)
+                                if (list[i].IsNullOrDestroyed_Obj())
+                                    list.RemoveAt(i);
+
+                            SetSelected(meta, list, false);
+                        }
+                    }
+
+                    if ((meta == null || meta.allowDelete) && list.Count > 0)
+                    {
+                        if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
+                        {
+                            if (meta == null)
+                            {
+                                for (int i = list.Count - 1; i >= 0; i--)
+                                    if (selectedEls[i]) list.RemoveAt(i);
+                            }
+                            else for (int i = list.Count - 1; i >= 0; i--)
+                                    if (meta.GetIsSelected(i))
+                                        list.RemoveAt(i);
+
+                            SetSelected(meta, list, false);
+
+                        }
+                    }
+                }
+            #endregion
+
+                if ((meta != null) && icon.Config.enter(ref meta.inspectListMeta))
+                    meta.Nested_Inspect();
+
             }
-        }  
- 
-        RestoreBGcolor();
 
-        return changed;
-    }
-        
-    static bool isMonoType<T>(List<T> list, int i)
-    {
-        if ((typeof(MonoBehaviour)).IsAssignableFrom(typeof(T)))
-        {
-            GameObject mb = null;
-            if (edit(ref mb))
-            {
-                list[i] = mb.GetComponent<T>();
-                if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
-
-            }
-            return true;
-
+            return changed;
         }
-        return false;
-    }
 
-    static bool ListAddNewClick<T>(this List<T> list, ref T added, List_Data ld = null) {
-
-        if ((ld != null && !ld.allowCreate) || !typeof(T).IsNew())
-            return false;
-
-        if ((typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
-            return false;
-
-        if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
+        static void SetSelected<T>(List_Data meta, List<T> list, bool val)
         {
-            if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
+            if (meta == null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                    selectedEls[i] = val;
+            }
+            else for (int i = 0; i < list.Count; i++)
+                    meta.SetIsSelected(i, val);
+        }
+
+        static bool edit_List_Order_Obj<T>(this List<T> list, List_Data datas = null) where T : UnityEngine.Object {
+            var changed = list.edit_List_Order(datas);
+
+            if (list == editing_List_Order && datas != null) {
+
+                if (icon.Search.ClickUnfocus("Find objects by GUID"))
+                    for (int i = 0; i < list.Count; i++)
+
+                        if (list[i] == null)
+                        {
+                            var dta = datas.elementDatas.TryGet(i);
+                            if (dta != null)
+                            {
+                                T tmp = null;
+                                if (dta.TryGetByGUID(ref tmp))
+                                    list[i] = tmp;
+                            }
+                        }
+            }
+
+            return changed;
+        }
+
+        static IList listCopyBuffer = null;
+
+        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, List_Data datas = null) {
+            bool changed = false;
+
+            var pl = el.TryGet_fromObj<IPEGI_ListInspect>();
+
+            if (pl != null)
+            {
+                if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || pegi.globChanged)
+                    pl.SetToDirty_Obj();
+            } else {
+
+                if (el.IsNullOrDestroyed_Obj()) {
+                    ElementData ed = datas?[index];
+                    if (ed == null)
+                        "{0}: NULL {1}".F(index, typeof(T).ToPEGIstring_Type()).write();
+                    else 
+                        ed.PEGI_inList<T>(ref el, index, ref edited);
+                }
+                else {
+                    var uo = el as UnityEngine.Object;
+
+                    IPEGI pg = el.TryGet_fromObj<IPEGI>();
+                    if (pg != null)
+                        el = pg;
+
+                    var need = el as INeedAttention;
+                    string warningText = need?.NeedAttention();
+
+                    if (warningText != null)
+                        AttentionColor.SetBgColor();
+
+                    bool clickHighlightHandeled = false;
+
+                    var iind = el as IGotIndex;
+
+                    if (iind != null)
+                        iind.IndexForPEGI.ToString().write(20);
+
+                    var named = el as IGotName;
+                    if (named != null)
+                    {
+                        var so = uo as ScriptableObject;
+                        var n = named.NameForPEGI;
+                        if (so)
+                        {
+                            if (editDelayed(ref n))
+                            {
+                                so.RenameAsset(n);
+                                named.NameForPEGI = n;
+                            }
+                        }
+                        else
+                            if (edit(ref n))
+                            named.NameForPEGI = n;
+                    }
+                    else
+                    {
+                        if (uo == null && pg == null && datas == null)
+                            el.ToPEGIstring().write();
+                        else
+                        {
+                            Texture tex = null;
+
+                            if (uo)
+                            {
+                                tex = uo as Texture;
+                                if (tex)
+                                {
+                                    uo.ClickHighlight(tex);
+                                    clickHighlightHandeled = true;
+                                }
+                            }
+                            write(el.ToPEGIstring());
+                        }
+                    }
+                    
+                    if ((warningText == null && (datas == null ? icon.Enter : datas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnfocus(warningText)))
+                        edited = index;
+                        
+                    if (!clickHighlightHandeled)
+                        uo.ClickHighlight();
+                }
+            }  
+ 
+            RestoreBGcolor();
+
+            return changed;
+        }
+        
+        static bool isMonoType<T>(List<T> list, int i)
+        {
+            if ((typeof(MonoBehaviour)).IsAssignableFrom(typeof(T)))
+            {
+                GameObject mb = null;
+                if (edit(ref mb))
+                {
+                    list[i] = mb.GetComponent<T>();
+                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+
+                }
+                return true;
+
+            }
+            return false;
+        }
+
+        static bool ListAddNewClick<T>(this List<T> list, ref T added, List_Data ld = null) {
+
+                if (ld != null && !ld.allowCreate)
+                    return false;
+                    
+                      if (!typeof(T).IsNew())
+                        return list.ListAddEmptyClick(ld);
+
+            if ((typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
+                return false;
+
+            if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
+            {
+                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) // //typeof(MonoBehaviour)) || typeof(T).IsSubclassOf(typeof(ScriptableObject)))
+                {
+                    list.Add(default(T));
+                }
+                else
+                    added = list.AddWithUniqueNameAndIndex();
+
+                return change;
+            }
+
+            return false;
+        }
+
+        static bool ListAddEmptyClick<T>(this List<T> list, List_Data ld = null)
+        {
+
+            if (ld != null && !ld.allowCreate)
+                return false;
+
+            if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
+                return false;
+
+            if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
             {
                 list.Add(default(T));
+                return change;
             }
-            else
-                added = list.AddWithUniqueNameAndIndex();
-
-            return change;
-        }
-
-        return false;
-    }
-
-    static bool ListAddEmptyClick<T>(this List<T> list, List_Data ld = null)
-    {
-
-        if (ld != null && !ld.allowCreate)
             return false;
-
-        if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerrivedListAttribute>() != null || typeof(T).TryGetTaggetClasses() != null))
-            return false;
-
-        if (icon.Add.ClickUnfocus(Msg.AddNewListElement.Get()))
-        {
-            list.Add(default(T));
-            return change;
         }
-        return false;
-    }
 
         #endregion
 
         #region MonoBehaviour
-    public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
-    {
-        label.write_Search_ListLabel( ref inspected, list);
-        bool changed = false;
-        edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
-        return changed;
-    }
 
-    public static bool edit_List_MB<T>(this List_Data datas, ref List<T> list) where T : MonoBehaviour {
-        datas.write_Search_ListLabel(list);
-        bool changed = false;
-        edit_List_MB(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
-        return changed;
-    }
-
-    public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : MonoBehaviour
-    {
-    
-        T added = default(T);
-
-        if (listIsNull(ref list))
-            return added;
-
-        int before = inspected;
-
-        list.ClampIndexToCount(ref inspected, -1);
-
-        changed |= (inspected != before);
-
-        if (inspected == -1)
+        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
-            changed |= list.ListAddEmptyClick(datas);
+            label.write_Search_ListLabel( ref inspected, list);
+            bool changed = false;
+            edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
+            return changed;
+        }
 
-            if (datas != null && icon.Save.ClickUnfocus())
-                datas.SaveElementDataFrom(list);
+        public static bool edit_List_MB<T>(this List_Data datas, ref List<T> list) where T : MonoBehaviour {
+            datas.write_Search_ListLabel(list);
+            bool changed = false;
+            edit_List_MB(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+            return changed;
+        }
 
-            changed |= list.edit_List_Order_Obj(datas);
+        public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : MonoBehaviour
+        {
+    
+            T added = default(T);
 
-            if (list != editing_List_Order)
+            if (listIsNull(ref list))
+                return added;
+
+            int before = inspected;
+
+            list.ClampIndexToCount(ref inspected, -1);
+
+            changed |= (inspected != before);
+
+            if (inspected == -1)
             {
-                // list.InspectionStart();
-                foreach (var i in list.InspectionIndexes()) // (int i = ListSectionStartIndex; i < ListSectionMax; i++)
+                changed |= list.ListAddEmptyClick(datas);
+
+                if (datas != null && icon.Save.ClickUnfocus())
+                    datas.SaveElementDataFrom(list);
+
+                changed |= list.edit_List_Order_Obj(datas);
+
+                if (list != editing_List_Order)
                 {
-
-                    var el = list[i];
-                    if (!el)
+                    // list.InspectionStart();
+                    foreach (var i in list.InspectionIndexes()) // (int i = ListSectionStartIndex; i < ListSectionMax; i++)
                     {
-                        T obj = null;
 
-                        if (datas.TryInspect(ref obj, i))
+                        var el = list[i];
+                        if (!el)
                         {
-                            if (obj)
+                            T obj = null;
+
+                            if (datas.TryInspect(ref obj, i))
                             {
-                                list[i] = obj.GetComponent<T>();
-                                if (!list[i]) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+                                if (obj)
+                                {
+                                    list[i] = obj.GetComponent<T>();
+                                    if (!list[i]) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+                                }
                             }
                         }
+                        else
+                        {
+                            changed |= el.Name_ClickInspect_PEGI(list, i, ref inspected, datas);
+                            //el.clickHighlight();
+                        }
+                        newLine();
                     }
-                    else
-                    {
-                        changed |= el.Name_ClickInspect_PEGI(list, i, ref inspected, datas);
-                        //el.clickHighlight();
-                    }
-                    newLine();
+                    //list.InspectionEnd().nl();
                 }
-                //list.InspectionEnd().nl();
+                else
+                    list.list_DropOption();
+
             }
-            else
-                list.list_DropOption();
+            else changed |= list.ExitOrDrawPEGI(ref inspected);
 
+            newLine();
+
+            return added;
         }
-        else changed |= list.ExitOrDrawPEGI(ref inspected);
-
-        newLine();
-
-        return added;
-    }
+        
         #endregion
 
         #region SO
-    public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
-    {
-        label.write_Search_ListLabel(ref inspected, list);
 
-        return edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
-    }
+        public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
+        {
+            label.write_Search_ListLabel(ref inspected, list);
+
+            return edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
+        }
         
-    public static bool edit_List_SO<T>(ref List<T> list, ref int inspected) where T : ScriptableObject
-    {
-        bool changed = false;
+        public static bool edit_List_SO<T>(ref List<T> list, ref int inspected) where T : ScriptableObject
+        {
+            bool changed = false;
 
-        edit_List_SO<T>(ref list, ref inspected, ref changed);
+            edit_List_SO<T>(ref list, ref inspected, ref changed);
 
-        return changed;
-    }
+            return changed;
+        }
 
-    public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
-    {
-        label.write_Search_ListLabel(ref inspected, list);
+        public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
+        {
+            label.write_Search_ListLabel(ref inspected, list);
 
-        bool changed = false;
+            bool changed = false;
 
-        edit_List_SO<T>(ref list, ref inspected, ref changed).listLabel_Used();
+            edit_List_SO<T>(ref list, ref inspected, ref changed).listLabel_Used();
 
-        return changed;
-    }
+            return changed;
+        }
 
-    public static bool edit_List_SO<T>(this string label, ref List<T> list) where T : ScriptableObject
-    {
-        label.write_ListLabel(list);
+        public static bool edit_List_SO<T>(this string label, ref List<T> list) where T : ScriptableObject
+        {
+            label.write_Search_ListLabel(list);
 
-        bool changed = false;
+            bool changed = false;
 
-        int edited = -1;
+            int edited = -1;
 
-        edit_List_SO<T>(ref list, ref edited, ref changed).listLabel_Used();
+            edit_List_SO<T>(ref list, ref edited, ref changed).listLabel_Used();
 
-        return changed;
-    }
+            return changed;
+        }
 
-    public static bool edit_List_SO<T>(this List_Data datas, ref List<T> list) where T : ScriptableObject
-    {
-        write_Search_ListLabel(datas, list);
+        public static bool edit_List_SO<T>(this List_Data datas, ref List<T> list) where T : ScriptableObject
+        {
+            write_Search_ListLabel(datas, list);
 
-        bool changed = false;
+            bool changed = false;
 
-        edit_List_SO(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+            edit_List_SO(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
 
-        return changed;
-    }
+            return changed;
+        }
 
-    public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : ScriptableObject
-    {
-        if (listIsNull(ref list))
-            return null;
+        public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null) where T : ScriptableObject
+        {
+            if (listIsNull(ref list))
+                return null;
             
 
-        T added = default(T);
+            T added = default(T);
 
-        int before = inspected;
-        if (list.ClampIndexToCount(ref inspected, -1))
-        changed |= (inspected != before);
+            int before = inspected;
+            if (list.ClampIndexToCount(ref inspected, -1))
+            changed |= (inspected != before);
 
-        if (inspected == -1)
-        {
+            if (inspected == -1)
+            {
 
-            changed |= list.edit_List_Order_Obj(datas);
+                changed |= list.edit_List_Order_Obj(datas);
 
-            changed |= list.ListAddEmptyClick(datas);
+                changed |= list.ListAddEmptyClick(datas);
 
-            if (datas != null && icon.Save.ClickUnfocus())
-                datas.SaveElementDataFrom(list);
+                if (datas != null && icon.Save.ClickUnfocus())
+                    datas.SaveElementDataFrom(list);
 
-            if (list != editing_List_Order) {
-                foreach (var i in list.InspectionIndexes()) {
-                    var el = list[i];
-                    if (!el)
-                    {
-                        if (datas.TryInspect(ref el, i).changes(ref changed))
-                            list[i] = el;
-                            
-                    }
-                    else
-                    {
-
-                        changed |= el.Name_ClickInspect_PEGI<T>(list, i, ref inspected, datas);
-
-#if UNITY_EDITOR
-                        var path = AssetDatabase.GetAssetPath(el);
-
-                        if (!path.IsNullOrEmpty())
+                if (list != editing_List_Order) {
+                    foreach (var i in list.InspectionIndexes()) {
+                        var el = list[i];
+                        if (!el)
                         {
-                            if (icon.Copy.ClickUnfocus().changes(ref changed))
-                            {
-                                added = el.DuplicateScriptableObject();
-
-                                list.Insert(i + 1, added);
-
-                                var indx = added as IGotIndex;
-
-                                if (indx != null)
-                                {
-                                    int max = 0;
-
-                                    foreach (var eee in list)
-                                        if (eee) {
-                                            var eeind = eee as IGotIndex;
-                                            if (eeind != null)
-                                                max = Math.Max(max, eeind.IndexForPEGI + 1);
-                                        }
-
-                                    indx.IndexForPEGI = max;
-                                }
-
-                            }
+                            if (datas.TryInspect(ref el, i).changes(ref changed))
+                                list[i] = el;
+                            
                         }
-#endif
+                        else
+                        {
+
+                            changed |= el.Name_ClickInspect_PEGI<T>(list, i, ref inspected, datas);
+
+    #if UNITY_EDITOR
+                            var path = AssetDatabase.GetAssetPath(el);
+
+                            if (!path.IsNullOrEmpty())
+                            {
+                                if (icon.Copy.ClickUnfocus().changes(ref changed))
+                                {
+                                    added = el.DuplicateScriptableObject();
+
+                                    list.Insert(i + 1, added);
+
+                                    var indx = added as IGotIndex;
+
+                                    if (indx != null)
+                                    {
+                                        int max = 0;
+
+                                        foreach (var eee in list)
+                                            if (eee) {
+                                                var eeind = eee as IGotIndex;
+                                                if (eeind != null)
+                                                    max = Math.Max(max, eeind.IndexForPEGI + 1);
+                                            }
+
+                                        indx.IndexForPEGI = max;
+                                    }
+
+                                }
+                            }
+    #endif
+                        }
+
+                        newLine();
                     }
 
-                    newLine();
+                    if (typeof(T).TryGetDerrivedClasses() != null)
+                        changed |= list.PEGI_InstantiateOptions_SO(ref added, datas);
+
+                    nl();
+
                 }
-
-                if (typeof(T).TryGetDerrivedClasses() != null)
-                    changed |= list.PEGI_InstantiateOptions_SO(ref added, datas);
-
-                nl();
-
+                else list.list_DropOption();
             }
-            else list.list_DropOption();
-        }
-        else changed |= list.ExitOrDrawPEGI(ref inspected);
+            else changed |= list.ExitOrDrawPEGI(ref inspected);
 
-        newLine();
-        return added;
-    }
+            newLine();
+            return added;
+        }
+        
         #endregion
 
         #region Obj
 
-    public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
-    {
-        label.write_Search_ListLabel(ref inspected, list);
-        return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
-    }
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+        {
+            label.write_Search_ListLabel(ref inspected, list);
+            return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
+        }
 
-    public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
-        => edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
+        public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+            => edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
 
-    public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object {
-        label.write_ListLabel(list);
-        return list.edit_List_UObj(selectFrom).listLabel_Used();
-    }
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object {
+            label.write_Search_ListLabel(list);
+            return list.edit_List_UObj(selectFrom).listLabel_Used();
+        }
 
-    public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
-            int edited = -1;
-            return edit_or_select_List_UObj(ref list, selectFrom, ref edited, null);
-    }
+        public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
+                int edited = -1;
+                return edit_or_select_List_UObj(ref list, selectFrom, ref edited, null);
+        }
         
-    public static bool edit_List_UObj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
-    {
-        datas.write_Search_ListLabel(list);
-        return edit_or_select_List_UObj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
-    }
+        public static bool edit_List_UObj<T>(this List_Data datas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        {
+            datas.write_Search_ListLabel(list);
+            return edit_or_select_List_UObj(ref list, selectFrom, ref datas.inspected, datas).listLabel_Used();
+        }
 
-    public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
-    {
-        if (listIsNull(ref list))
-            return false;
+        public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, List_Data datas = null) where T : G where G : UnityEngine.Object
+        {
+            if (listIsNull(ref list))
+                return false;
             
-        bool changed = false;
+            bool changed = false;
 
-        int before = inspected;
-        if (list.ClampIndexToCount(ref inspected, -1))
-        changed |= (inspected != before);
+            int before = inspected;
+            if (list.ClampIndexToCount(ref inspected, -1))
+            changed |= (inspected != before);
 
-        if (inspected == -1) {
+            if (inspected == -1) {
 
-            if (datas != null && icon.Save.ClickUnfocus())
-                datas.SaveElementDataFrom(list);
+                if (datas != null && icon.Save.ClickUnfocus())
+                    datas.SaveElementDataFrom(list);
 
-            changed |= list.edit_List_Order(datas);
+                changed |= list.edit_List_Order(datas);
 
-            if (list != editing_List_Order)
-            {
-                changed |= list.ListAddEmptyClick(datas);
+                if (list != editing_List_Order)
+                {
+                    changed |= list.ListAddEmptyClick(datas);
 
-                foreach (var i in list.InspectionIndexes(datas))     {
-                    var el = list[i];
-                    if (!el)
-                    {
-                        if (!from.IsNullOrEmpty() && select_SameClass(ref el, from))
-                            list[i] = el;
+                    foreach (var i in list.InspectionIndexes(datas))     {
+                        var el = list[i];
+                        if (!el)
+                        {
+                            if (!from.IsNullOrEmpty() && select_SameClass(ref el, from))
+                                list[i] = el;
 
-                        if (datas.TryInspect(ref el, i))
-                            list[i] = el;
+                            if (datas.TryInspect(ref el, i))
+                                list[i] = el;
+                        }
+                        else
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, datas);
+
+                        newLine();
                     }
-                    else
-                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, datas);
-
-                    newLine();
                 }
+                else
+                    list.list_DropOption();
+
             }
-            else
-                list.list_DropOption();
+            else changed |= list.ExitOrDrawPEGI(ref inspected);
+            newLine();
+            return changed;
 
         }
-        else changed |= list.ExitOrDrawPEGI(ref inspected);
-        newLine();
-        return changed;
-
-    }
+        
         #endregion
 
         #region OfNew
-    public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
-    {
-        ld.write_Search_ListLabel(list);
-        return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
-    }
+
+        public static T edit<T>(this List_Data ld, ref List<T> list, ref bool changed)
+        {
+            ld.write_Search_ListLabel(list);
+            return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
+        }
         
-    public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) 
-    {
-        label.write_Search_ListLabel(ref inspected, list);
-        return edit_List(ref list, ref inspected).listLabel_Used();
-    }
-
-    public static bool edit_List<T>(ref List<T> list, ref int inspected) 
-    {
-        bool changes = false;
-        edit_List(ref list, ref inspected, ref changes);
-        return changes;
-    }
-
-    public static bool edit_List<T>(this string label, ref List<T> list) 
-    {
-        label.write_ListLabel(list);
-        return edit_List(ref list).listLabel_Used();
-    }
-
-    public static bool edit_List<T>(ref List<T> list) 
-    {
-        int edited = -1;
-        bool changes = false;
-        edit_List(ref list, ref edited, ref changes);
-        return changes;
-    }
-
-    public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
-    {
-        label.write_Search_ListLabel(ref inspected, list);
-        return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
-    }
-
-    public static bool edit_List<T>(this List_Data datas, ref List<T> list)  {
-
-        write_Search_ListLabel(datas, list);
-        bool changed = false;
-        edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
-        return changed;
-    }
-
-    public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) {
-
-        write_Search_ListLabel(datas, list);
-        return edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
-
-    }
-
-    public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null)  {
-
-        T added = default(T);
-
-        if (list == null) {
-            if ("Init list".ClickUnfocus())
-                list = new List<T>();
-            else 
-                return added;
+        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected) 
+        {
+            label.write_Search_ListLabel(ref inspected, list);
+            return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
-        int before = inspected;
-        if (inspected >= list.Count)
-            inspected = -1;
+        public static bool edit_List<T>(ref List<T> list, ref int inspected) 
+        {
+            bool changes = false;
+            edit_List(ref list, ref inspected, ref changes);
+            return changes;
+        }
 
-        changed |= (inspected != before);
+        public static bool edit_List<T>(this string label, ref List<T> list) 
+        {
+            label.write_Search_ListLabel(list);
+            return edit_List(ref list).listLabel_Used();
+        }
 
-        if (inspected == -1)  {
+        public static bool edit_List<T>(ref List<T> list) 
+        {
+            int edited = -1;
+            bool changes = false;
+            edit_List(ref list, ref edited, ref changes);
+            return changes;
+        }
 
-            changed |= list.edit_List_Order(datas);
+        public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
+        {
+            label.write_Search_ListLabel(ref inspected, list);
+            return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
+        }
 
-            if (list != editing_List_Order) {
-                    
-                    list.ListAddNewClick(ref added, datas).changes(ref changed);
+        public static bool edit_List<T>(this List_Data datas, ref List<T> list)  {
 
-                foreach (var i in list.InspectionIndexes())   {
+            write_Search_ListLabel(datas, list);
+            bool changed = false;
+            edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
+            return changed;
+        }
 
-                    var el = list[i];
-                    if (el.IsNullOrDestroyed_Obj()) {
-                        if (!isMonoType(list, i))
-                        {
-                            if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
-                                write("use edit_List_UObj");
-                            else
-                                write("is NUll");
-                        }
-                    }
-                    else
-                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, datas);
+        public static T edit_List<T>(this List_Data datas, ref List<T> list, ref bool changed) {
 
-                    newLine();
-                }
+            write_Search_ListLabel(datas, list);
+            return edit_List(ref list, ref datas.inspected, ref changed, datas).listLabel_Used();
 
-                changed |= list.PEGI_InstantiateOptions(ref added, datas);
+        }
 
-                nl();
+        public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, List_Data datas = null)  {
+
+            T added = default(T);
+
+            if (list == null) {
+                if ("Init list".ClickUnfocus())
+                    list = new List<T>();
+                else 
+                    return added;
             }
-        }
-        else changed |= list.ExitOrDrawPEGI(ref inspected);
 
-        newLine();
-        return added;
-    }
+            int before = inspected;
+            if (inspected >= list.Count)
+                inspected = -1;
+
+            changed |= (inspected != before);
+
+            if (inspected == -1)  {
+
+                changed |= list.edit_List_Order(datas);
+
+                if (list != editing_List_Order) {
+                    
+                        list.ListAddNewClick(ref added, datas).changes(ref changed);
+
+                    foreach (var i in list.InspectionIndexes())   {
+
+                        var el = list[i];
+                        if (el.IsNullOrDestroyed_Obj()) {
+                            if (!isMonoType(list, i))
+                            {
+                                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
+                                    write("use edit_List_UObj");
+                                else
+                                    write("is NUll");
+                            }
+                        }
+                        else
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, datas);
+
+                        newLine();
+                    }
+
+                    changed |= list.PEGI_InstantiateOptions(ref added, datas);
+
+                    nl();
+                }
+            }
+            else changed |= list.ExitOrDrawPEGI(ref inspected);
+
+            newLine();
+            return added;
+        }
 
         #region Tagged Types
 
@@ -6622,932 +6623,950 @@ namespace PlayerAndEditorGUI {
 
         #region SpecialLambdas
 
-    static IList listElementsRoles = null;
+        static IList listElementsRoles = null;
 
-    static Color lambda_Color(Color val)
-    {
-        edit(ref val);
-        return val;
-    }
+        static Color lambda_Color(Color val)
+        {
+            edit(ref val);
+            return val;
+        }
 
-    static Color32 lambda_Color(Color32 val)
-    {
-        edit(ref val);
-        return val;
-    }
+        static Color32 lambda_Color(Color32 val)
+        {
+            edit(ref val);
+            return val;
+        }
         
-    static int lambda_int(int val)
-    {
-        edit(ref val);
-        return val;
-    }
+        static int lambda_int(int val)
+        {
+            edit(ref val);
+            return val;
+        }
 
-    static string lambda_string_role(string val)
-    {
+        static string lambda_string_role(string val)
+        {
 
-        var role = listElementsRoles.TryGet(InspectedIndex);
-        if (role != null)
-            role.ToPEGIstring().edit(90, ref val);
-        else edit(ref val);
+            var role = listElementsRoles.TryGet(InspectedIndex);
+            if (role != null)
+                role.ToPEGIstring().edit(90, ref val);
+            else edit(ref val);
 
-        return val;
-    }
+            return val;
+        }
 
-    public static string lambda_string(string val)
-    {
-        edit(ref val);
-        return val;
-    }
+        public static string lambda_string(string val)
+        {
+            edit(ref val);
+            return val;
+        }
 
-    static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
-    {
+        static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
+        {
 
-        var role = listElementsRoles.TryGet(InspectedIndex);
-        if (!role.IsNullOrDestroyed_Obj())
-            role.ToPEGIstring().edit(90, ref val);
-        else edit(ref val);
+            var role = listElementsRoles.TryGet(InspectedIndex);
+            if (!role.IsNullOrDestroyed_Obj())
+                role.ToPEGIstring().edit(90, ref val);
+            else edit(ref val);
 
-        return val;
-    }
+            return val;
+        }
 
-    public static bool edit_List(this string label, ref List<int> list) =>
-        label.edit_List(ref list, lambda_int);
+        public static bool edit_List(this string label, ref List<int> list) =>
+            label.edit_List(ref list, lambda_int);
 
-    public static bool edit_List(this string label, ref List<Color> list) =>
-        label.edit_List(ref list, lambda_Color);
+        public static bool edit_List(this string label, ref List<Color> list) =>
+            label.edit_List(ref list, lambda_Color);
 
-    public static bool edit_List(this string label, ref List<Color32> list) =>
-        label.edit_List(ref list, lambda_Color);
+        public static bool edit_List(this string label, ref List<Color32> list) =>
+            label.edit_List(ref list, lambda_Color);
 
-    public static bool edit_List(this string label, ref List<string> list) =>
-        label.edit_List(ref list, lambda_string);
+        public static bool edit_List(this string label, ref List<string> list) =>
+            label.edit_List(ref list, lambda_string);
 
-    public static bool edit_List_WithRoles(this string label, ref List<string> list, IList roles)
-    {
-        listElementsRoles = roles;
-        return label.edit_List(ref list, lambda_string_role);
-    }
+        public static bool edit_List_WithRoles(this string label, ref List<string> list, IList roles)
+        {
+            listElementsRoles = roles;
+            return label.edit_List(ref list, lambda_string_role);
+        }
 
-    public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : UnityEngine.Object
-    {
-        label.write_ListLabel(list);
-        listElementsRoles = roles;
-        var ret = edit_List_UObj(ref list, lambda_Obj_role);
-        listElementsRoles = null;
-        return ret;
-    }
+        public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : UnityEngine.Object
+        {
+            label.write_Search_ListLabel(list);
+            listElementsRoles = roles;
+            var ret = edit_List_UObj(ref list, lambda_Obj_role);
+            listElementsRoles = null;
+            return ret;
+        }
 
         #endregion
-
-
-
-    public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
-    {
-        label.write_ListLabel(list);
-        return edit_List<T>(ref list, ref changed, lambda).listLabel_Used();
-    }
-
-    public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
-    {
-
-        T added = default(T);
-
-        if (listIsNull(ref list))
-            return added;
-
-        changed |= list.edit_List_Order();
-
-        if (list != editing_List_Order)
+        
+        public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
         {
-            changed |= list.ListAddNewClick(ref added);
+            label.write_Search_ListLabel(list);
+            return edit_List<T>(ref list, ref changed, lambda).listLabel_Used();
+        }
 
-            foreach (var i in list.InspectionIndexes())
+        public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
+        {
+
+            T added = default(T);
+
+            if (listIsNull(ref list))
+                return added;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order)
             {
-                var el = list[i];
-                var before = el;
-                el = lambda(el);
-                bool isNull = el.IsNullOrDestroyed_Obj();
-                if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).changes(ref changed))
-                    list[i] = el;
+                changed |= list.ListAddNewClick(ref added);
+
+                foreach (var i in list.InspectionIndexes())
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+                    bool isNull = el.IsNullOrDestroyed_Obj();
+                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).changes(ref changed))
+                        list[i] = el;
                     
+                    nl();
+                }
+
                 nl();
             }
 
-            nl();
+            newLine();
+            return added;
         }
 
-        newLine();
-        return added;
-    }
+        public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
+        {
+            label.write_Search_ListLabel(list);
+            return edit_List(ref list, lambda).listLabel_Used();
+        }
 
-    public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
-    {
-        label.write_ListLabel(list);
-        return edit_List(ref list, lambda).listLabel_Used();
-    }
+        public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
+        {
+            bool changed = false;
+            edit_List(ref list, lambda, ref changed);
+            return changed;
 
-    public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
-    {
-        bool changed = false;
-        edit_List(ref list, lambda, ref changed);
-        return changed;
+        }
 
-    }
-
-    public static T edit_List<T>(ref List<T> list, Func<T, T> lambda, ref bool changed) where T : new()
-    {
-        T added = default(T);
+        public static T edit_List<T>(ref List<T> list, Func<T, T> lambda, ref bool changed) where T : new()
+        {
+            T added = default(T);
    
-        if (listIsNull(ref list))
+            if (listIsNull(ref list))
+                return added;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order)
+            {
+
+                changed |= list.ListAddNewClick(ref added);
+
+                foreach (var i in list.InspectionIndexes())
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
+                    bool isNull = el.IsNullOrDestroyed_Obj();
+                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).changes(ref changed))
+                        list[i] = el;
+                    
+                    nl();
+                }
+
+                nl();
+            }
+
+            newLine();
             return added;
-
-        changed |= list.edit_List_Order();
-
-        if (list != editing_List_Order)
-        {
-
-            changed |= list.ListAddNewClick(ref added);
-
-            foreach (var i in list.InspectionIndexes())
-            {
-                var el = list[i];
-                var before = el;
-                el = lambda(el);
-                bool isNull = el.IsNullOrDestroyed_Obj();
-                if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).changes(ref changed))
-                    list[i] = el;
-                    
-                nl();
-            }
-
-            nl();
         }
 
-        newLine();
-        return added;
-    }
-
-    public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
-    {
-
-        bool changed = false;
-
-        if (listIsNull(ref list))
-            return changed;
-
-        changed |= list.edit_List_Order();
-
-        if (list != editing_List_Order)
+        public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
         {
 
-            changed |= list.ListAddEmptyClick();
+            bool changed = false;
 
-            foreach (var i in list.InspectionIndexes())
+            if (listIsNull(ref list))
+                return changed;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order)
             {
-                var el = list[i];
-                var before = el;
-                el = lambda(el);
+
+                changed |= list.ListAddEmptyClick();
+
+                foreach (var i in list.InspectionIndexes())
+                {
+                    var el = list[i];
+                    var before = el;
+                    el = lambda(el);
               
-                if (((el && !el.Equals(before)) || (!el && before)).changes(ref changed))
-                    list[i] = el;
+                    if (((el && !el.Equals(before)) || (!el && before)).changes(ref changed))
+                        list[i] = el;
                     
+                    nl();
+                }
+
                 nl();
             }
 
-            nl();
-        }
-
-        newLine();
-        return changed;
-    }
-
-    public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
-    {
-        name.write_ListLabel(list);
-        return edit_List(ref list, lambda).listLabel_Used();
-    }
-
-    public static bool edit_List(ref List<string> list, Func<string, string> lambda)
-    {
-        bool changed = false;
-        if (listIsNull(ref list))
+            newLine();
             return changed;
+        }
 
-        changed |= list.edit_List_Order();
+        public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
+        {
+            name.write_Search_ListLabel(list);
+            return edit_List(ref list, lambda).listLabel_Used();
+        }
 
-        if (list != editing_List_Order) {
-            if (icon.Add.ClickUnfocus().changes(ref changed))
-                list.Add("");
+        public static bool edit_List(ref List<string> list, Func<string, string> lambda)
+        {
+            bool changed = false;
+            if (listIsNull(ref list))
+                return changed;
+
+            changed |= list.edit_List_Order();
+
+            if (list != editing_List_Order) {
+                if (icon.Add.ClickUnfocus().changes(ref changed))
+                    list.Add("");
                   
-            foreach (var i in list.InspectionIndexes()) {
-                var el = list[i];
-                var before = el;
+                foreach (var i in list.InspectionIndexes()) {
+                    var el = list[i];
+                    var before = el;
 
-                el = lambda(el);
+                    el = lambda(el);
 
-                if ((!before.SameAs(el)).changes(ref changed))
-                    list[i] = el;
+                    if ((!before.SameAs(el)).changes(ref changed))
+                        list[i] = el;
+
+                    nl();
+                }
 
                 nl();
             }
 
-            nl();
+            newLine();
+            return changed;
         }
-
-        newLine();
-        return changed;
-    }
 
         #endregion
         
         #region NotNew
 
-    public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)
-    {
-        label.write_ListLabel(list);
-        return list.write_List(lambda).listLabel_Used();
-
-    }
-
-    public static bool write_List<T>(this List<T> list, Func<T, bool> lambda)
-    {
-        bool changed = false;
-
-        if (list == null)
+        public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)
         {
-            "Empty List".nl();
+            label.write_Search_ListLabel(list);
+            return list.write_List(lambda).listLabel_Used();
+
+        }
+
+        public static bool write_List<T>(this List<T> list, Func<T, bool> lambda)
+        {
+            bool changed = false;
+
+            if (list == null)
+            {
+                "Empty List".nl();
+                return changed;
+            }
+
+            //list.InspectionStart();
+            foreach (var i in list.InspectionIndexes())
+            { // (int i = ListSectionStartIndex; i < ListSectionMax; i++) {
+                changed |= lambda(list[i]);
+                nl();
+            }
+            //list.InspectionEnd();
+
+            nl();
+
             return changed;
         }
 
-        //list.InspectionStart();
-        foreach (var i in list.InspectionIndexes())
-        { // (int i = ListSectionStartIndex; i < ListSectionMax; i++) {
-            changed |= lambda(list[i]);
-            nl();
+        public static bool write_List<T>(this string label, List<T> list)
+        {
+            int edited = -1;
+            label.write_Search_ListLabel(list);
+            return list.write_List<T>(ref edited).listLabel_Used();
         }
-        //list.InspectionEnd();
 
-        nl();
-
-        return changed;
-    }
-
-    public static bool write_List<T>(this string label, List<T> list)
-    {
-        int edited = -1;
-        label.write_ListLabel(list);
-        return list.write_List<T>(ref edited).listLabel_Used();
-    }
-
-    public static bool write_List<T>(this string label, List<T> list, ref int inspected)
-    {
-        nl();
-        label.write_Search_ListLabel(ref inspected, list);
-
-        return list.write_List<T>(ref inspected).listLabel_Used();
-    }
-
-    public static bool write_List<T>(this List<T> list, ref int edited)
-    {
-        bool changed = false;
-
-        int before = edited;
-
-        list.ClampIndexToCount(ref edited, -1); 
-
-        changed |= (edited != before);
-
-        if (edited == -1)
+        public static bool write_List<T>(this string label, List<T> list, ref int inspected)
         {
             nl();
+            label.write_Search_ListLabel(ref inspected, list);
 
-            for (int i = 0; i < list.Count; i++) {
-
-                var el = list[i];
-                if (el == null)
-                    write("NULL");
-                else
-                    changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
-                    
-                newLine();
-            }
-
+            return list.write_List<T>(ref inspected).listLabel_Used();
         }
-        else
-            changed |= list.ExitOrDrawPEGI(ref edited);
+
+        public static bool write_List<T>(this List<T> list, ref int edited)
+        {
+            bool changed = false;
+
+            int before = edited;
+
+            list.ClampIndexToCount(ref edited, -1); 
+
+            changed |= (edited != before);
+
+            if (edited == -1)
+            {
+                nl();
+
+                for (int i = 0; i < list.Count; i++) {
+
+                    var el = list[i];
+                    if (el == null)
+                        write("NULL");
+                    else
+                        changed |= list[i].Name_ClickInspect_PEGI(list, i, ref edited);
+                    
+                    newLine();
+                }
+
+            }
+            else
+                changed |= list.ExitOrDrawPEGI(ref edited);
 
 
-        newLine();
-        return changed;
-    }
+            newLine();
+            return changed;
+        }
+        
         #endregion
 
         #endregion
 
         #region Dictionaries
         
-    public static bool editKey(ref Dictionary<int, string> dic, int key)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
+        public static bool editKey(ref Dictionary<int, string> dic, int key)
         {
-            return ef.editKey(ref dic, key);
-        }
-        else
-#endif
-        {
-            checkLine();
-            int pre = key;
-            if (editDelayed(ref key, 40))
-                return dic.TryChangeKey(pre, key);
 
-            return false;
-        }
-    }
-
-    public static bool edit(ref Dictionary<int, string> dic, int atKey)
-    {
-
-#if UNITY_EDITOR
-        if (!paintingPlayAreaGUI)
-        {
-            return ef.edit(ref dic, atKey);
-        }
-        else
-#endif
-        {
-            string before = dic[atKey];
-            if (editDelayed(ref before, 40))
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
             {
-                dic[atKey] = before;
+                return ef.editKey(ref dic, key);
+            }
+            else
+    #endif
+            {
+                checkLine();
+                int pre = key;
+                if (editDelayed(ref key, 40))
+                    return dic.TryChangeKey(pre, key);
+
                 return false;
             }
+        }
 
+        public static bool edit(ref Dictionary<int, string> dic, int atKey)
+        {
+
+    #if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+            {
+                return ef.edit(ref dic, atKey);
+            }
+            else
+    #endif
+            {
+                string before = dic[atKey];
+                if (editDelayed(ref before, 40))
+                {
+                    dic[atKey] = before;
+                    return false;
+                }
+
+                return false;
+            }
+        }
+        
+        static bool dicIsNull<G,T>(ref Dictionary<G,T> dic)
+        {
+            if (dic == null) {
+                if ("Instantiate list".ClickUnfocus().nl())
+                    dic = new Dictionary<G, T>();
+                else
+                    return true;
+            }
             return false;
         }
-    }
-        
-    static bool dicIsNull<G,T>(ref Dictionary<G,T> dic)
-    {
-        if (dic == null) {
-            if ("Instantiate list".ClickUnfocus().nl())
-                dic = new Dictionary<G, T>();
-            else
-                return true;
-        }
-        return false;
-    }
 
-    public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected)
-    {
-        label.write_Search_ListLabel(ref inspected, null);
-        return edit_Dictionary_Values(ref dic, ref inspected);
-    }
-
-    public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, ref int inspected, List_Data ld = null)
-    {
-        bool changed = false;
-
-        int before = inspected;
-        inspected = Mathf.Clamp(inspected, -1, dic.Count - 1);
-        changed |= (inspected != before);
-
-        if (inspected == -1)
+        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected)
         {
-            for (int i = 0; i < dic.Count; i++)
+            label.write_Search_ListLabel(ref inspected, null);
+            return edit_Dictionary_Values(ref dic, ref inspected);
+        }
+
+        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, ref int inspected, List_Data ld = null)
+        {
+            bool changed = false;
+
+            int before = inspected;
+            inspected = Mathf.Clamp(inspected, -1, dic.Count - 1);
+            changed |= (inspected != before);
+
+            if (inspected == -1)
             {
-                var item = dic.ElementAt(i);
-                var itemKey = item.Key;
-                if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnfocus(25).changes(ref changed))
+                for (int i = 0; i < dic.Count; i++)
                 {
-                    dic.Remove(itemKey);
-                    i--;
-                }
-                else
-                {
-
-                    var el = item.Value;
-
-                    var named = el as IGotName;
-                    if (named != null)
+                    var item = dic.ElementAt(i);
+                    var itemKey = item.Key;
+                    if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnfocus(25).changes(ref changed))
                     {
-                        var n = named.NameForPEGI;
-                        if (edit(ref n, 120))
-                            named.NameForPEGI = n;
+                        dic.Remove(itemKey);
+                        i--;
                     }
                     else
-                        write(el.ToPEGIstring(), 120);
+                    {
 
-                    if ((el is IPEGI) && icon.Enter.ClickUnfocus(Msg.InspectElement, 25))
-                        inspected = i;
+                        var el = item.Value;
+
+                        var named = el as IGotName;
+                        if (named != null)
+                        {
+                            var n = named.NameForPEGI;
+                            if (edit(ref n, 120))
+                                named.NameForPEGI = n;
+                        }
+                        else
+                            write(el.ToPEGIstring(), 120);
+
+                        if ((el is IPEGI) && icon.Enter.ClickUnfocus(Msg.InspectElement, 25))
+                            inspected = i;
+                    }
+                    newLine();
+                }
+            }
+            else
+            {
+                if (icon.Back.ClickUnfocus(25).nl().changes(ref changed))
+                    inspected = -1;
+                else
+                    changed |= dic.ElementAt(inspected).Value.Try_Nested_Inspect();
+            }
+
+            newLine();
+            return changed;
+        }
+
+        public static bool edit_Dictionary_Values(this string label, ref Dictionary<int, string> dic, List<string> roles)
+        {
+            write_Search_ListLabel(label, dic.ToList());
+            return edit_Dictionary_Values(ref dic, roles);
+        }
+
+        public static bool edit_Dictionary_Values(ref Dictionary<int, string> dic, List<string> roles) {
+            listElementsRoles = roles;
+            var ret = edit_Dictionary_Values(ref dic, lambda_string_role, false);
+            listElementsRoles = null;
+            return ret;
+        }
+
+        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, List_Data ld = null)
+        {
+            write_Search_ListLabel(label);
+            return edit_Dictionary_Values(ref dic, lambda, false, ld);
+        }
+
+        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,List_Data ld = null)
+        {
+            bool changed = false;
+
+            if (dicIsNull(ref dic))
+                return changed;
+
+            nl();
+            for (int i = 0; i < dic.Count; i++) {
+                var item = dic.ElementAt(i);
+                var itemKey = item.Key;
+
+                inspectionIndex = Convert.ToInt32(itemKey);
+
+                if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnfocus(25).changes(ref changed)) 
+                    dic.Remove(itemKey);
+                else {
+                    if (showKey)
+                        itemKey.ToPEGIstring().write(50);
+
+                    var el = item.Value;
+                    var before = el;
+                    el = lambda(el);
+
+                    if ((!before.Equals(el)).changes(ref changed))
+                        dic[itemKey] = el;
+                }
+                nl();
+            }
+
+            return changed;
+        }
+
+        public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
+        {
+            write_Search_ListLabel(label);
+            return edit_Dictionary(ref dic);
+        }
+
+        public static bool edit_Dictionary(ref Dictionary<int, string> dic) {
+
+            bool changed = false;
+
+            if (dicIsNull(ref dic))
+                return changed;
+
+            for (int i = 0; i < dic.Count; i++) {
+
+                var e = dic.ElementAt(i);
+                inspectionIndex = e.Key;
+
+                if (icon.Delete.ClickUnfocus(20))
+                    changed |= dic.Remove(e.Key);
+                else
+                {
+                    changed |= editKey(ref dic, e.Key);
+                    if (!changed)
+                        changed |= edit(ref dic, e.Key);
                 }
                 newLine();
             }
-        }
-        else
-        {
-            if (icon.Back.ClickUnfocus(25).nl().changes(ref changed))
-                inspected = -1;
-            else
-                changed |= dic.ElementAt(inspected).Value.Try_Nested_Inspect();
-        }
-
-        newLine();
-        return changed;
-    }
-
-    public static bool edit_Dictionary_Values(this string label, ref Dictionary<int, string> dic, List<string> roles)
-    {
-        write_ListLabel(label, dic.ToList());
-        return edit_Dictionary_Values(ref dic, roles);
-    }
-
-    public static bool edit_Dictionary_Values(ref Dictionary<int, string> dic, List<string> roles) {
-        listElementsRoles = roles;
-        var ret = edit_Dictionary_Values(ref dic, lambda_string_role, false);
-        listElementsRoles = null;
-        return ret;
-    }
-
-    public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, List_Data ld = null)
-    {
-        write_ListLabel(label);
-        return edit_Dictionary_Values(ref dic, lambda, false, ld);
-    }
-
-    public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,List_Data ld = null)
-    {
-        bool changed = false;
-
-        if (dicIsNull(ref dic))
-            return changed;
-
-        nl();
-        for (int i = 0; i < dic.Count; i++) {
-            var item = dic.ElementAt(i);
-            var itemKey = item.Key;
-
-            inspectionIndex = Convert.ToInt32(itemKey);
-
-            if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnfocus(25).changes(ref changed)) 
-                dic.Remove(itemKey);
-            else {
-                if (showKey)
-                    itemKey.ToPEGIstring().write(50);
-
-                var el = item.Value;
-                var before = el;
-                el = lambda(el);
-
-                if ((!before.Equals(el)).changes(ref changed))
-                    dic[itemKey] = el;
-            }
-            nl();
-        }
-
-        return changed;
-    }
-
-    public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
-    {
-        write_ListLabel(label);
-        return edit_Dictionary(ref dic);
-    }
-
-    public static bool edit_Dictionary(ref Dictionary<int, string> dic) {
-
-        bool changed = false;
-
-        if (dicIsNull(ref dic))
-            return changed;
-
-        for (int i = 0; i < dic.Count; i++) {
-
-            var e = dic.ElementAt(i);
-            inspectionIndex = e.Key;
-
-            if (icon.Delete.ClickUnfocus(20))
-                changed |= dic.Remove(e.Key);
-            else
-            {
-                changed |= editKey(ref dic, e.Key);
-                if (!changed)
-                    changed |= edit(ref dic, e.Key);
-            }
             newLine();
+
+            changed |= dic.newElement();
+
+            return changed;
         }
-        newLine();
 
-        changed |= dic.newElement();
-
-        return changed;
-    }
-
-    static string newEnumName = "UNNAMED";
-    static int newEnumKey = 1;
-    static bool newElement(this Dictionary<int, string> dic)
-    {
-        bool changed = false;
-        newLine();
-        "______New [Key, Value]".nl();
-        changed |= edit(ref newEnumKey, 50);
-        changed |= edit(ref newEnumName);
-        string dummy;
-        bool isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
-        bool isNewValue = !dic.ContainsValue(newEnumName);
-
-        if ((isNewIndex) && (isNewValue) && (icon.Add.ClickUnfocus("Add Element", 25).changes(ref changed)))
+        static string newEnumName = "UNNAMED";
+        static int newEnumKey = 1;
+        static bool newElement(this Dictionary<int, string> dic)
         {
-            dic.Add(newEnumKey, newEnumName);
-            newEnumKey = 1;
-            string ddm;
-            while (dic.TryGetValue(newEnumKey, out ddm))
-                newEnumKey++;
-            newEnumName = "UNNAMED";
+            bool changed = false;
+            newLine();
+            "______New [Key, Value]".nl();
+            changed |= edit(ref newEnumKey, 50);
+            changed |= edit(ref newEnumName);
+            string dummy;
+            bool isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
+            bool isNewValue = !dic.ContainsValue(newEnumName);
+
+            if ((isNewIndex) && (isNewValue) && (icon.Add.ClickUnfocus("Add Element", 25).changes(ref changed)))
+            {
+                dic.Add(newEnumKey, newEnumName);
+                newEnumKey = 1;
+                string ddm;
+                while (dic.TryGetValue(newEnumKey, out ddm))
+                    newEnumKey++;
+                newEnumName = "UNNAMED";
+            }
+
+            if (!isNewIndex)
+                "Index Takken by {0}".F(dummy).write();
+            else if (!isNewValue)
+                write("Value already assigned ");
+
+            newLine();
+
+            return changed;
         }
-
-        if (!isNewIndex)
-            "Index Takken by {0}".F(dummy).write();
-        else if (!isNewValue)
-            write("Value already assigned ");
-
-        newLine();
-
-        return changed;
-    }
  
         #endregion
 
         #region Arrays
 
-    public static bool edit_Array<T>(this string label, ref T[] array) 
-    {
-        int inspected = -1;
-        label.write_ListLabel(array);
-        return edit_Array(ref array, ref inspected).listLabel_Used();
-    }
+        public static bool edit_Array<T>(this string label, ref T[] array) 
+        {
+            int inspected = -1;
+            label.write_Search_ListLabel(array);
+            return edit_Array(ref array, ref inspected).listLabel_Used();
+        }
 
-    public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected)   {
-        label.write_Search_ListLabel(ref inspected, array);
-        return edit_Array(ref array, ref inspected).listLabel_Used();
-    }
+        public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected)   {
+            label.write_Search_ListLabel(ref inspected, array);
+            return edit_Array(ref array, ref inspected).listLabel_Used();
+        }
 
-    public static bool edit_Array<T>(ref T[] array, ref int inspected) 
-    {
-        bool changes = false;
-        edit_Array(ref array, ref inspected, ref changes);
-        return changes;
-    }
+        public static bool edit_Array<T>(ref T[] array, ref int inspected) 
+        {
+            bool changes = false;
+            edit_Array(ref array, ref inspected, ref changes);
+            return changes;
+        }
 
-    public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, List_Data datas = null)  {
+        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, List_Data datas = null)  {
 
 
-        T added = default(T);
+            T added = default(T);
 
-        if (array == null)  {
-            if ("init array".ClickUnfocus().nl())
-                array = new T[0];
-        } else {
+            if (array == null)  {
+                if ("init array".ClickUnfocus().nl())
+                    array = new T[0];
+            } else {
 
-            changed |= ExitOrDrawPEGI(array, ref inspected);
+                changed |= ExitOrDrawPEGI(array, ref inspected);
                  
-            if (inspected == -1) {
+                if (inspected == -1) {
 
-                if (!typeof(T).IsNew()) {
-                    if (icon.Add.ClickUnfocus("Add empty element"))
-                    CsharpFuncs.Expand(ref array, 1);
-                } else if (icon.Create.ClickUnfocus("Add New Instance"))
-                    CsharpFuncs.AddAndInit(ref array, 1);
+                    if (!typeof(T).IsNew()) {
+                        if (icon.Add.ClickUnfocus("Add empty element"))
+                        CsharpFuncs.Expand(ref array, 1);
+                    } else if (icon.Create.ClickUnfocus("Add New Instance"))
+                        CsharpFuncs.AddAndInit(ref array, 1);
                     
 
 
-                changed |= edit_Array_Order(ref array, datas).nl();
+                    changed |= edit_Array_Order(ref array, datas).nl();
 
-                if (array != editing_Array_Order)
-                for (int i = 0; i < array.Length; i++) 
-                    changed |= array[i].Name_ClickInspect_PEGI<T>(null, i, ref inspected, datas).nl();
+                    if (array != editing_Array_Order)
+                    for (int i = 0; i < array.Length; i++) 
+                        changed |= array[i].Name_ClickInspect_PEGI<T>(null, i, ref inspected, datas).nl();
+                }
             }
-        }
 
-        return added;
-    }
+            return added;
+        }
 
         #endregion
 
         #region Transform
-    static bool _editLocalSpace = false;
-    public static bool PEGI_CopyPaste(this Transform tf, ref bool editLocalSpace)
-    {
-        bool changed = false;
 
-        changed |= "Local".toggle(40, ref editLocalSpace);
+        static bool _editLocalSpace = false;
+        public static bool PEGI_CopyPaste(this Transform tf, ref bool editLocalSpace)
+        {
+            bool changed = false;
 
-        if (icon.Copy.ClickUnfocus("Copy Transform"))
-            STDExtensions.copyBufferValue = tf.Encode(editLocalSpace).ToString();
+            changed |= "Local".toggle(40, ref editLocalSpace);
+
+            if (icon.Copy.ClickUnfocus("Copy Transform"))
+                STDExtensions.copyBufferValue = tf.Encode(editLocalSpace).ToString();
  
-        if (STDExtensions.copyBufferValue != null && icon.Paste.ClickUnfocus("Paste Transform").changes(ref changed)) {
-            STDExtensions.copyBufferValue.DecodeInto(tf);
-            STDExtensions.copyBufferValue = null;
+            if (STDExtensions.copyBufferValue != null && icon.Paste.ClickUnfocus("Paste Transform").changes(ref changed)) {
+                STDExtensions.copyBufferValue.DecodeInto(tf);
+                STDExtensions.copyBufferValue = null;
+            }
+
+            nl();
+
+            return changed;
         }
-
-        nl();
-
-        return changed;
-    }
-    public static bool PEGI_CopyPaste(this Transform tf)
-    {
-
-        return tf.PEGI_CopyPaste(ref _editLocalSpace);
-    }
-
-    public static bool inspect(this Transform tf, bool editLocalSpace)
-    {
-        bool changed = false;
-
-        if (editLocalSpace)
+        public static bool PEGI_CopyPaste(this Transform tf)
         {
-            var v3 = tf.localPosition;
-            if ("Pos".edit(ref v3).nl())
-                tf.localPosition = v3;
 
-            var rot = tf.localRotation.eulerAngles;
-            if ("Rot".edit(ref rot).nl())
-                tf.localRotation = Quaternion.Euler(rot);
-
-            v3 = tf.localScale;
-            if ("Size".edit(ref v3).nl())
-                tf.localScale = v3;
+            return tf.PEGI_CopyPaste(ref _editLocalSpace);
         }
-        else
+
+        public static bool inspect(this Transform tf, bool editLocalSpace)
         {
-            var v3 = tf.position;
-            if ("Pos".edit(ref v3).nl())
-                tf.position = v3;
+            bool changed = false;
 
-            var rot = tf.rotation.eulerAngles;
-            if ("Rot".edit(ref rot).nl())
-                tf.rotation = Quaternion.Euler(rot);
+            if (editLocalSpace)
+            {
+                var v3 = tf.localPosition;
+                if ("Pos".edit(ref v3).nl())
+                    tf.localPosition = v3;
 
+                var rot = tf.localRotation.eulerAngles;
+                if ("Rot".edit(ref rot).nl())
+                    tf.localRotation = Quaternion.Euler(rot);
+
+                v3 = tf.localScale;
+                if ("Size".edit(ref v3).nl())
+                    tf.localScale = v3;
+            }
+            else
+            {
+                var v3 = tf.position;
+                if ("Pos".edit(ref v3).nl())
+                    tf.position = v3;
+
+                var rot = tf.rotation.eulerAngles;
+                if ("Rot".edit(ref rot).nl())
+                    tf.rotation = Quaternion.Euler(rot);
+
+            }
+            return changed;
         }
-        return changed;
-    }
-    public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
+        public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
 
         #endregion
 
         #region Inspect Name
-    static bool Try_NameInspect(this object obj, string label = "") {
-        bool could;
-        return obj.Try_NameInspect(out could, label);
-    }
-
-    static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "") {
-
-        bool gotLabel = !label.IsNullOrEmpty();
-
-        couldInspect = true;
-        var iname = obj as IGotName;
-        if (iname != null)
-            return iname.inspect_Name(label);
-
-        var uobj = obj.TryGetGameObject_Obj(); 
-
-        if (uobj)
-        {
-            var n = uobj.name;
-            if (gotLabel ? label.editDelayed(80, ref n) : editDelayed(ref n)) {
-                uobj.name = n;
-                uobj.RenameAsset(n);
-            }
+        static bool Try_NameInspect(this object obj, string label = "") {
+            bool could;
+            return obj.Try_NameInspect(out could, label);
         }
-        else
-            couldInspect = false;
+
+        static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "") {
+
+            bool gotLabel = !label.IsNullOrEmpty();
+
+            couldInspect = true;
+            var iname = obj as IGotName;
+            if (iname != null)
+                return iname.inspect_Name(label);
+
+            var uobj = obj.TryGetGameObject_Obj(); 
+
+            if (uobj)
+            {
+                var n = uobj.name;
+                if (gotLabel ? label.editDelayed(80, ref n) : editDelayed(ref n)) {
+                    uobj.name = n;
+                    uobj.RenameAsset(n);
+                }
+            }
+            else
+                couldInspect = false;
 
 
 
-        return false;
-    }
+            return false;
+        }
 
-    public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.ToPEGIstring());
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.ToPEGIstring());
 
-    public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
+        public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
 
-    public static bool inspect_Name(this IGotName obj, string label, string hint)
-    {
-        var n = obj.NameForPEGI;
-
-        bool gotLabel = !label.IsNullOrEmpty();
-
-
-        if (obj as UnityEngine.Object)
+        public static bool inspect_Name(this IGotName obj, string label, string hint)
         {
+            var n = obj.NameForPEGI;
 
-            if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
+            bool gotLabel = !label.IsNullOrEmpty();
+
+
+            if (obj as UnityEngine.Object)
+            {
+
+                if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
+                {
+                    obj.NameForPEGI = n;
+                    return change;
+                }
+            } else
+
+
+            if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
                 return change;
             }
-        } else
 
-
-        if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
-        {
-            obj.NameForPEGI = n;
-            return change;
+            return false;
         }
-
-        return false;
-    }
         #endregion
 
         #region Searching
 
-    public static bool SearchMatch (this IList list, string searchText) {
+        public static bool SearchMatch (this IList list, string searchText) {
 
-        foreach (var e in list)
-            if (e.SearchMatch_Obj(searchText))
-                return true;
-
-        return false;
-    }
-
-    public static bool SearchMatch_Obj (this object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText }, null);
-        
-    static bool SearchMatch_Obj_Internal(this object obj, string[] text, int[] indxs = null) {
-
-        if (obj.IsNullOrDestroyed_Obj())
-            return false;
-
-        var go = obj.TryGetGameObject_Obj();
-
-        if (go) {
-
-            if (go.TryGet<IPEGI_Searchable>().SearchMatch_Internal(text))
-                return true;
-
-            if (go.TryGet<IGotName>().SearchMatch_Internal(text))
-                return true;
-
-            if (go.TryGet<IGotDisplayName>().SearchMatch_Internal(text))
-                return true;
-
-            if (indxs != null && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
-                return true;
-
-        } else {
-
-            if ((obj.TryGet_fromObj<IPEGI_Searchable>()).SearchMatch_Internal(text))
-                return true;
-
-            if (obj.TryGet_fromObj<IGotName>().SearchMatch_Internal(text))
-                return true;
-
-            if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch_Internal(text))
-                return true;
-
-            if (indxs != null && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
-                return true;
-        }
-
-           
-
-        return false;
-    }
-
-    static bool SearchMatch_Internal(this IPEGI_Searchable psrchbl, string[] text)
-    {
-        if (psrchbl != null) {
-            foreach (var t in text)
-                if (!psrchbl.String_SearchMatch(t))
-                    return false;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    static bool SearchMatch_Internal(this IGotName psrchbl, string[] text)
-    {
-        if (psrchbl != null) {
-            foreach (var t in text)
-                if (!Regex.IsMatch( psrchbl.NameForPEGI, t, RegexOptions.IgnoreCase))
-                    return false;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    static bool SearchMatch_Internal(this IGotDisplayName psrchbl, string[] text)
-    {
-        if (psrchbl != null)
-        {
-            foreach (var t in text)
-                if (!Regex.IsMatch(psrchbl.NameForPEGIdisplay, t, RegexOptions.IgnoreCase))
-                    return false;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    static bool SearchMatch_Internal(this IGotIndex psrchbl, int[] indxs)
-    {
-        if (psrchbl != null)
-        {
-            foreach (var t in indxs)
-                if (psrchbl.IndexForPEGI == t)
+            foreach (var e in list)
+                if (e.SearchMatch_Obj(searchText))
                     return true;
 
             return false;
         }
 
-        return false;
-    }
-
-    static SearchData searchData = new SearchData();
-
-    static readonly char[] splitCharacters = { ' ', '.' };
+        public static bool SearchMatch_Obj (this object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText }, null);
         
-    public class SearchData: Abstract_STD, ICanBeDefault_STD {
-        public IList filteredList;
-        public string searchedText;
-        public int uncheckedElement = 0;
-        string[] searchBys;
-        public List<int> filteredListElements = new List<int>();
+        static bool SearchMatch_Obj_Internal(this object obj, string[] text, int[] indxs = null) {
 
-        public void ToggleSearch(IList ld)
-        {
+            if (obj.IsNullOrDestroyed_Obj())
+                return false;
 
-            if (ld == null)
-                return;
+            var go = obj.TryGetGameObject_Obj();
 
-            var active = ld == filteredList;
+            bool[] matched = new bool[text.Length];
 
-            bool changed = false;
+            if (go) {
 
-            if (active && icon.FoldedOut.Click("Hide Search ", 20).changes(ref changed))
-                active = false;
+                if (go.TryGet<IPEGI_Searchable>().SearchMatch_Internal(text, ref matched))
+                    return true;
 
-            if (ld!= null && !active && ld!=editing_List_Order && icon.Search.Click("Search ", 20).changes(ref changed)) 
-                active = true;
+                if (go.TryGet<IGotName>().SearchMatch_Internal(text, ref matched))
+                    return true;
 
+                if (go.TryGet<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
+                    return true;
 
-            if (changed)
-            {
-                if (active)
-                    filteredList = ld;
-                else
-                    filteredList = null;
+                if (!indxs.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
+                    return true;
+
+            } else {
+
+                if ((obj.TryGet_fromObj<IPEGI_Searchable>()).SearchMatch_Internal(text, ref matched))
+                    return true;
+
+                if (obj.TryGet_fromObj<IGotName>().SearchMatch_Internal(text, ref matched))
+                    return true;
+
+                if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
+                    return true;
+
+                if (!indxs.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
+                    return true;
             }
 
-        }
-            
-        public void SearchString(IList list, out bool searching, out string[] searchBy)
-        {
-            searching = false;
-               
-            if (list == filteredList) {
+           
 
-                nl();
-                if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
-                    filteredListElements.Clear();
-                    searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
-                    uncheckedElement = 0;
+            return false;
+        }
+
+        static bool SearchMatch_Internal(this IPEGI_Searchable psrchbl, string[] text, ref bool[] matched) {
+
+            if (psrchbl != null)  {
+
+                bool fullMatch = true;
+
+                for (int i = 0; i < text.Length; i++)
+                    if (!matched[i]) {
+                        if (!psrchbl.String_SearchMatch(text[i]))
+                            fullMatch = false;
+                        else
+                            matched[i] = true;
+                    }
+
+                return fullMatch;
+            }
+
+            return false;
+        }
+
+        static bool SearchMatch_Internal(this IGotName psrchbl, string[] text, ref bool[] matched)
+        {
+            if (psrchbl != null) {
+
+                bool fullMatch = true;
+                for (int i = 0; i < text.Length; i++)
+                    if (!matched[i])  {
+                        if (!text[i].IsSubstringOf(psrchbl.NameForPEGI))
+                            fullMatch = false;
+                        else
+                            matched[i] = true;
+                    }
+                return fullMatch;
+            }
+
+            return false;
+        }
+
+        static bool SearchMatch_Internal(this IGotDisplayName psrchbl, string[] text, ref bool[] matched)
+        {
+            if (psrchbl != null) {
+                bool fullMatch = true;
+                for (int i = 0; i < text.Length; i++)
+                    if (!matched[i]) {
+
+                        if (!text[i].IsSubstringOf(psrchbl.NameForPEGIdisplay))
+                            fullMatch = false;
+                        else
+                            matched[i] = true;
+                    }
+                return fullMatch;
+            }
+
+            return false;
+        }
+
+        static bool SearchMatch_Internal(this IGotIndex psrchbl, int[] indxs)
+        {
+            if (psrchbl != null)
+            {
+                foreach (var t in indxs)
+                    if (psrchbl.IndexForPEGI == t)
+                        return true;
+
+                return false;
+            }
+
+            return false;
+        }
+
+        static SearchData searchData = new SearchData();
+
+        static readonly char[] splitCharacters = { ' ', '.' };
+        
+        public class SearchData: Abstract_STD, ICanBeDefault_STD {
+            public IList filteredList;
+            public string searchedText;
+            public int uncheckedElement = 0;
+            string[] searchBys;
+            public List<int> filteredListElements = new List<int>();
+
+            public void ToggleSearch(IList ld)
+            {
+
+                if (ld == null)
+                    return;
+
+                var active = ld == filteredList;
+
+                bool changed = false;
+
+                if (active && icon.FoldedOut.Click("Hide Search {0}".F(ld), 20).changes(ref changed))
+                    active = false;
+
+                if (ld!= null && !active && ld!=editing_List_Order && icon.Search.Click("Search {0}".F(ld), 20).changes(ref changed)) 
+                    active = true;
+
+
+                if (changed)
+                {
+                    if (active)
+                        filteredList = ld;
+                    else
+                        filteredList = null;
                 }
 
-                searching = !searchBys.IsNullOrEmpty();
             }
-
-            searchBy = searchBys;
-        }
-
-        public override StdEncoder Encode() => new StdEncoder().Add_String("s", searchedText);
-
-        public override bool Decode(string tag, string data)
-        {
-            switch (tag)
+            
+            public void SearchString(IList list, out bool searching, out string[] searchBy)
             {
-                case "s": searchedText = data; 
-break;
-                default: return false;
+                searching = false;
+               
+                if (list == filteredList) {
+
+                    nl();
+                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
+                        filteredListElements.Clear();
+                        searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
+                        uncheckedElement = 0;
+                    }
+
+                    searching = !searchBys.IsNullOrEmpty();
+                }
+
+                searchBy = searchBys;
             }
-            return true;
+
+            public override StdEncoder Encode() => new StdEncoder().Add_String("s", searchedText);
+
+            public override bool Decode(string tag, string data)
+            {
+                switch (tag)
+                {
+                    case "s": searchedText = data; 
+    break;
+                    default: return false;
+                }
+                return true;
+            }
+
+            public override bool IsDefault => searchedText.IsNullOrEmpty();
+
         }
-
-        public override bool IsDefault => searchedText.IsNullOrEmpty();
-
-    }
 
         #endregion
 
         #region Shaders
 
-    public static bool toggle(this Material mat, string keyword)
+        public static bool toggle(this Material mat, string keyword)
     {
         bool val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
 
@@ -7564,11 +7583,9 @@ break;
 
         #endregion
 
-
-
 #endif
 
-        }
+    }
 
     #region Extensions
     public static class PEGI_Extensions
@@ -7676,7 +7693,7 @@ break;
             int tmp = -1;
             var changes = obj.PEGI_inList(null, 0, ref tmp);
 
-            if (changes)
+            if (pegi.globChanged || changes)
                 obj.SetToDirty_Obj();
 
             return changes;

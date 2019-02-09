@@ -636,7 +636,7 @@ namespace QuizCannersUtilities {
         {
             protected override string Name => base.Name;
 
-            public override Vector3 Value { get => _transform.position; set => _transform.position = value; }
+            public override Vector3 Value { get { return _transform.position; } set { _transform.position = value; } }
 
             public Transform_Position(Transform transform, float nspeed) : base(transform, nspeed) { }
         }

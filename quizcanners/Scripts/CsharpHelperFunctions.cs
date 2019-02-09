@@ -761,21 +761,26 @@ namespace QuizCannersUtilities
 
         public static bool SameAs(this string s, string other) =>
             ((s.IsNullOrEmpty() && other.IsNullOrEmpty())
-            || (String.Compare(s, other) == 0));
+            || string.Compare(s, other) == 0);
 
-        public static bool SearchCompare(this string search, string name)
+        public static bool IsSubstringOf(this string text, string biggerText, RegexOptions opt = RegexOptions.IgnoreCase) => Regex.IsMatch(biggerText, text, opt);
+
+        public static bool AreSubstringsOf(this string search, string name, RegexOptions opt = RegexOptions.IgnoreCase)
         {
-            if ((search.Length == 0) || Regex.IsMatch(name, search, RegexOptions.IgnoreCase)) return true;
+            if (search.Length == 0)
+                return true; 
 
-            if (search.Contains(" "))
-            {
+            if (search.Contains(" ")) {
+
                 string[] sgmnts = search.Split(' ');
+
                 for (int i = 0; i < sgmnts.Length; i++)
-                    if (!Regex.IsMatch(name, sgmnts[i], RegexOptions.IgnoreCase)) return false;
+                    if (!sgmnts[i].IsSubstringOf(name, opt))  return false;
 
                 return true;
             }
-            return false;
+
+            return search.IsSubstringOf(name);
         }
 
         public static string RemoveAssetsPart(this string s)

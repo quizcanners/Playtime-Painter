@@ -7,13 +7,11 @@ using UnityEngine.UI;
 [ExecuteInEditMode]
 public class PixelPerfcetUVmeshData : Image, IPEGI {
     
-    public float edgeSmoothness = 0.5f;
     public float roundingCourners = 0.5f;
     public bool feedPositionData = true;
-    public Camera _camera;
-    [NonSerialized]public Canvas _canvas;
 
-
+    bool IsOverlay => canvas.renderMode == RenderMode.ScreenSpaceOverlay || !canvas.worldCamera;
+    
     const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
 
 #if PEGI
@@ -21,6 +19,7 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
     {
         pegi.toggleDefaultInspector();
 
+        bool changed = false;
 
         if (material) {
             var tag = material.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
@@ -29,37 +28,32 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
                 "{0} doesn't have {1} tag".F(material.shader.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
             else
             {
-                if (!_canvas && "Check Canvas".Click()) {
-                    _canvas = GetComponentInParent<Canvas>();
-                    if (!_canvas)
-                        "No Canvas Found".showNotificationIn3D_Views();
-                }
 
-                bool needPosition = tag.SameAs("Position");
+                if (!canvas)
+                    "No Canvas".writeWarning();
 
-                if (_canvas) {
-                    if ((_canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
+                bool usesPosition = tag.SameAs("Position");
+
+                if (canvas) {
+                    if ((canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
                     {
                         "Material requires Canvas to pass Edges data trough Texcoord1 data channel".writeWarning();
                         if ("Fix Canvas Texcoord1".Click().nl())
-                            _canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+                            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
                     }
                     
-                    if (needPosition && ((_canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
-                    {
-                        "Material requires Canvas to pass Position Data trough Tangent channel".writeWarning();
+                    if (feedPositionData && ((canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0)) {
+                        "Material requires Canvas to pass Position Data trough Normal channel".writeWarning();
                         if ("Fix Canvas ".Click().nl())
-                            _canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+                            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                     }
                 }
 
-                if (needPosition && !feedPositionData)
-                    "Feed Position Data should be true".writeWarning();
+                if (!usesPosition && feedPositionData)
+                    "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".writeHint();
 
             }
         }
-
-       var changed = "Edges".edit(90, ref edgeSmoothness, 0, 1).nl();
 
         "Corners".edit(90, ref roundingCourners, 0, 0.75f).nl(ref changed);
 
@@ -81,8 +75,6 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
         if (pegi.edit(ref col).nl(ref changed))
             color = col;
 
-        "Camera (Optional)".edit(110, ref _camera).nl(ref changed);
-
         if (changed)
             SetVerticesDirty();
 
@@ -99,21 +91,24 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
 
         UIVertex vert = UIVertex.simpleVert;
         
-        vert.color = color;
-        vert.uv1 = new Vector2(edgeSmoothness, roundingCourners); //pos;
-        
+    
+
+        var pos = Vector2.zero;
+
         if (feedPositionData) {
-            var pos = RectTransformUtility.WorldToScreenPoint(Camera.main, rectTransform.position);
+            pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : canvas.worldCamera, rectTransform.position);
             pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
-
-            Vector2 scale = rectTransform.rect.size;
-            scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
-
-            float scaleToSided = scale.x - scale.y; // If x>0 - positive, else - negative
-
-            vert.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
         }
         
+        Vector2 scale = rectTransform.rect.size;
+        scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
+
+        float scaleToSided = scale.x - scale.y; // If x>0 - positive, else - negative
+
+        vert.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
+        vert.uv1 = new Vector2(scaleToSided, roundingCourners); // Replaced Edge smoothness with Scale
+        vert.color = color;
+
         vert.uv0 = new Vector2(0, 0);
         vert.position = new Vector2(corner1.x, corner1.y);
         vh.AddVert(vert);
@@ -133,15 +128,13 @@ public class PixelPerfcetUVmeshData : Image, IPEGI {
         vh.AddTriangle(0, 1, 2);
         vh.AddTriangle(2, 3, 0);
     }
-    
-    protected override void OnEnable() {
 
-        base.OnEnable();
+    Vector3 previousPos = Vector3.zero;
 
-#if UNITY_EDITOR
-        if (!_canvas)
-            _canvas = GetComponentInParent<Canvas>();
-#endif
+    void Update() {
+        if (feedPositionData && rectTransform.position != previousPos) {
+            previousPos = rectTransform.position;
+            SetAllDirty();
+        }
     }
-
 }
