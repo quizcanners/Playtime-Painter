@@ -73,7 +73,7 @@ namespace Playtime_Painter {
         }
 
 
-        public bool AllowEditing(PlaytimePainter targ) => targ && (!targ.LockTextureEditing || targ.IsEditingThisMesh);
+        public bool AllowEditing(PlaytimePainter target) => target && (Application.isPlaying || !target.IsUiGraphicPainter) && (!target.LockTextureEditing || target.IsEditingThisMesh);
         
         public bool OnEditorRayHit(RaycastHit hit, Ray ray) {
 

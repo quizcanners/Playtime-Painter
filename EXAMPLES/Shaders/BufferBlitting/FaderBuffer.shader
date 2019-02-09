@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Effects/FaderBuffer" {
+﻿Shader "Playtime Painter/Buffer Blit/FaderBuffer" {
 	Properties{
 		_Speed("FadeSpeed", Range(0.001,0.2)) = 0
 	}

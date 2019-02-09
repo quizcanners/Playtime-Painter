@@ -21,80 +21,17 @@ namespace Playtime_Painter {
     public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ISTD, IPEGI
     {
 
-        #region UI
-
-        static PlaytimePainter mouseOverUIPainter = null;
-        Vector2 UiUv;
-        [NonSerialized] Camera clickCamera;
-        
-        public void OnPointerDown(PointerEventData eventData) => mouseOverUIPainter = DataUpdate(eventData) ? this : mouseOverUIPainter;
-
-        public void OnPointerUp(PointerEventData eventData) => mouseOverUIPainter = null;
-
-        public void OnPointerExit(PointerEventData eventData) {
-            if (mouseOverUIPainter == this)
-                DataUpdate(eventData);
-        }
-
-        bool DataUpdate(PointerEventData eventData) {
-
-            if (DataUpdate(eventData.position, eventData.pressEventCamera))
-                clickCamera = eventData.pressEventCamera;
-            else
-                return false;
-
-            return true;
-        }
-
-        bool DataUpdate(Vector2 position, Camera cam)
-        {
-            Vector2 localCursor;
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(uiGraphic.rectTransform, position, cam, out localCursor))
-                return false;
-
-            UiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
-
-            return true;
-        }
-
-        private bool CastRayPlaytime_UI()
-        {
-
-            var rt = uiGraphic.rectTransform;
-
-            var id = ImgData;
-
-            if (id == null)
-                return false;
-
-            var uvClick = UiUv;
-
-            uvClick.Scale(id.tiling);
-            uvClick += id.offset;
-            stroke.unRepeatedUV = uvClick + id.offset;
-            stroke.uvTo = stroke.unRepeatedUV.To01Space();
-            PreviewShader_StrokePosition_Update();
-            return true;
-        }
-
-
-        #endregion
-
         #region StaticGetters
 
+        public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
+        
 #if PEGI
         public static pegi.CallDelegate pluginsComponentPEGI;
 #endif
 
         public static PainterBoolPlugin pluginsGizmoDraw;
 
-        public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
-
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
-
-        private static BrushConfig GlobalBrush => Cfg.brushConfig;
-
-        public BrushType GlobalBrushType => GlobalBrush.Type(ImgData.TargetIsTexture2D());
 
         private static PainterCamera TexMgmt => PainterCamera.Inst;
 
@@ -102,13 +39,16 @@ namespace Playtime_Painter {
 
         protected static GridNavigator Grid => GridNavigator.Inst();
 
+        private static BrushConfig GlobalBrush => Cfg.brushConfig;
+
+        public BrushType GlobalBrushType => GlobalBrush.Type(ImgData.TargetIsTexture2D());
+
         public string ToolName => PainterDataAndConfig.ToolName;
 
         private bool NeedsGrid => this.NeedsGrid();
 
         public Texture ToolIcon => icon.Painter.GetIcon();
-
-
+        
         #endregion
 
         #region Dependencies
@@ -132,8 +72,7 @@ namespace Playtime_Painter {
         }
 
         public Mesh Mesh { set { if (meshFilter) meshFilter.mesh = value; if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value; } }
-
-
+        
         public bool meshEditing = false;
 
         public int selectedMeshProfile = 0;
@@ -238,11 +177,9 @@ namespace Playtime_Painter {
 
         public PlaytimePainter Paint(StrokeVector stroke, BrushConfig brush) => brush.Paint(stroke, this);
 
-#if BUILD_WITH_PAINTER
+        #if BUILD_WITH_PAINTER
         private double _mouseBttnTime = 0;
-
         
-
         public void OnMouseOver() {
 
             if (pegi.MouseOverUI || (mouseOverUIPainter && mouseOverUIPainter!= this)) {
@@ -292,11 +229,9 @@ namespace Playtime_Painter {
                 currentlyPaintedObjectPainter = null;
  
         }
+        #endif
 
-
-#endif
-
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         public void OnMouseOver_SceneView(RaycastHit hit, Event e)
         {
 
@@ -342,7 +277,7 @@ namespace Playtime_Painter {
             stroke.mouseDwn = false;
 
         }
-#endif
+        #endif
 
         public bool CanPaint()
         {
@@ -500,38 +435,7 @@ namespace Playtime_Painter {
         }
 
         private bool CanPaintOnMouseDown(BrushConfig br) =>  ImgData.TargetIsTexture2D() || GlobalBrushType.StartPaintingTheMomentMouseIsDown;
-        
-     /*   static GraphicRaycaster m_Raycaster;
-        static PointerEventData m_PointerEventData;
-        static EventSystem m_EventSystem;
-        static RaycastResult uiRaycast;
-
-        public static PlaytimePainter RaycastUI() {
-
-            if (!m_Raycaster)
-                m_Raycaster = FindObjectOfType<GraphicRaycaster>();
-            if (!m_EventSystem)
-                m_EventSystem = FindObjectOfType<EventSystem>();
-
-            m_PointerEventData = new PointerEventData(m_EventSystem);
-            m_PointerEventData.position = Input.mousePosition;
-
-            var results = new List<RaycastResult>();
-
-            m_Raycaster.Raycast(m_PointerEventData, results);
-
-            foreach (var result in results) {
-                var pp = result.gameObject.GetComponent<PlaytimePainter>();
-                if (pp.uiGraphic) {
-                    uiRaycast = result;
-                    pp.OnMouseOver();
-                    return pp;
-                }
-            }
-
-            return null;
-        }*/
-
+  
         #endregion
 
         #region PreviewMGMT
@@ -545,7 +449,7 @@ namespace Playtime_Painter {
         {
             if (MatDta == null)
                 return;
-            if ((!IsCurrentTool) || (LockTextureEditing && !IsEditingThisMesh))
+            if (!IsCurrentTool || (LockTextureEditing && !IsEditingThisMesh))
                 SetOriginalShaderOnThis();
             else if (MatDta.usePreviewShader && IsOriginalShader)
                 SetPreviewShader();
@@ -2173,139 +2077,143 @@ namespace Playtime_Painter {
 
                     var id = ImgData;
 
-                    if (!LockTextureEditing)
+                    bool painterWorks = Application.isPlaying || !IsUiGraphicPainter;
+
+                    if (!LockTextureEditing && painterWorks)
                     {
 
-                        if (IsUiGraphicPainter && !Application.isPlaying)
+
+
+                        #region Undo/Redo & Recording
+                        id.Undo_redo_PEGI();
+
+                        if (id.showRecording && !id.recording)
                         {
-                            pegi.nl();
-                            "UI Element editing only works during Play in Game View for now.".writeWarning();
+
+                            pegi.newLine();
+
+                            if (playbackPainters.Count > 0)
+                            {
+                                "Playback In progress".nl();
+
+                                if (icon.Close.Click("Cancel All Playbacks", 20))
+                                    TexMgmt.CancelAllPlaybacks();
+
+                                if (StrokeVector.PausePlayback)
+                                {
+                                    if (icon.Play.Click("Continue Playback", 20))
+                                        StrokeVector.PausePlayback = false;
+                                }
+                                else if (icon.Pause.Click("Pause Playback", 20))
+                                    StrokeVector.PausePlayback = true;
+
+                            }
+                            else
+                            {
+                                var gotVectors = Cfg.recordingNames.Count > 0;
+
+                                Cfg.browsedRecord = Mathf.Max(0, Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
+
+                                if (gotVectors)
+                                {
+                                    pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
+                                    if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
+                                        PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
+
+
+                                    if (icon.Record.Click("Continue Recording", 18))
+                                    {
+                                        id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
+                                        id.ContinueRecording();
+                                        "Recording resumed".showNotificationIn3D_Views();
+                                    }
+
+                                    if (icon.Delete.Click("Delete", ref changed, 18))
+                                        Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
+
+                                }
+
+                                if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
+                                    (!gotVectors && "New Vector Recording".Click("Start New recording")))
+                                {
+                                    id.SaveName = "Unnamed";
+                                    id.StartRecording();
+                                    "Recording started".showNotificationIn3D_Views();
+                                }
+                            }
+
+                            pegi.newLine();
+                            pegi.space();
+                            pegi.newLine();
                         }
-                        else
+
+                        pegi.nl();
+
+                        var CPU = id.TargetIsTexture2D();
+
+                        var mat = Material;
+                        if (mat.IsProjected())
                         {
-                            #region Undo/Redo & Recording
-                            id.Undo_redo_PEGI();
 
-                            if (id.showRecording && !id.recording)
-                            {
+                            pegi.writeWarning("Projected UV Shader detected. Painting may not work properly");
+                            if ("Undo".Click(40).nl())
+                                mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
+                        }
 
-                                pegi.newLine();
+                        if (!CPU && id.texture2D && id.width != id.height)
+                            "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
 
-                                if (playbackPainters.Count > 0)
-                                {
-                                    "Playback In progress".nl();
+                        #endregion
 
-                                    if (icon.Close.Click("Cancel All Playbacks", 20))
-                                        TexMgmt.CancelAllPlaybacks();
+                        #region Brush
 
-                                    if (StrokeVector.PausePlayback)
-                                    {
-                                        if (icon.Play.Click("Continue Playback", 20))
-                                            StrokeVector.PausePlayback = false;
-                                    }
-                                    else if (icon.Pause.Click("Pause Playback", 20))
-                                        StrokeVector.PausePlayback = true;
-
-                                }
-                                else
-                                {
-                                    var gotVectors = Cfg.recordingNames.Count > 0;
-
-                                    Cfg.browsedRecord = Mathf.Max(0, Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
-
-                                    if (gotVectors)
-                                    {
-                                        pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
-                                        if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
-                                            PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
-
-
-                                        if (icon.Record.Click("Continue Recording", 18))
-                                        {
-                                            id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
-                                            id.ContinueRecording();
-                                            "Recording resumed".showNotificationIn3D_Views();
-                                        }
-
-                                        if (icon.Delete.Click("Delete", ref changed, 18))
-                                            Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
-
-                                    }
-
-                                    if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
-                                        (!gotVectors && "New Vector Recording".Click("Start New recording")))
-                                    {
-                                        id.SaveName = "Unnamed";
-                                        id.StartRecording();
-                                        "Recording started".showNotificationIn3D_Views();
-                                    }
-                                }
-
-                                pegi.newLine();
-                                pegi.space();
-                                pegi.newLine();
-                            }
-
+                        if (Application.isPlaying && !Camera.main)
+                        {
+                            "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
                             pegi.nl();
+                        }
 
-                            var CPU = id.TargetIsTexture2D();
+                        changed |= GlobalBrush.Inspect();
 
-                            var mat = Material;
-                            if (mat.IsProjected())
+                        var mode = GlobalBrush.BlitMode;
+                        var col = GlobalBrush.Color;
+
+                        if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
+                            GlobalBrush.Color = col;
+
+                        pegi.nl();
+
+                        if (!Cfg.moreOptions)
+                        {
+
+                            changed |= GlobalBrush.ColorSliders().nl();
+
+                            if (Cfg.showColorSchemes)
                             {
 
-                                pegi.writeWarning("Projected UV Shader detected. Painting may not work properly");
-                                if ("Undo".Click(40).nl())
-                                    mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
-                            }
+                                var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
 
-                            if (!CPU && id.texture2D && id.width != id.height)
-                                "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.".writeWarning();
-
-                            #endregion
-
-                            #region Brush
-
-                            if (Application.isPlaying && !Camera.main)
-                            {
-                                "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
-                                pegi.nl();
-                            }
-
-                            changed |= GlobalBrush.Inspect();
-
-                            var mode = GlobalBrush.BlitMode;
-                            var col = GlobalBrush.Color;
-
-                            if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
-                                GlobalBrush.Color = col;
-
-                            pegi.nl();
-
-                            if (!Cfg.moreOptions)
-                            {
-
-                                changed |= GlobalBrush.ColorSliders().nl();
+                                scheme?.PickerPEGI();
 
                                 if (Cfg.showColorSchemes)
-                                {
+                                    changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
 
-                                    var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
-
-                                    scheme?.PickerPEGI();
-
-                                    if (Cfg.showColorSchemes)
-                                        changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
-
-                                }
                             }
-
-                            #endregion
                         }
+
+                        #endregion
+
                     }
                     else
+                    {
                         if (!IsOriginalShader)
-                        this.PreviewShaderToggle_PEGI();
+                            this.PreviewShaderToggle_PEGI();
+
+                        if (!painterWorks) {
+                            pegi.nl();
+                            "UI Element editing only works in Game View during Play.".writeWarning();
+                        }
+                    }
 
                     id = ImgData;
 
@@ -2697,8 +2605,7 @@ namespace Playtime_Painter {
         }
         #endif
 
-#if UNITY_EDITOR
-
+        #if UNITY_EDITOR
         void OnDrawGizmosSelected()
         {
 
@@ -2716,7 +2623,7 @@ namespace Playtime_Painter {
                     gp(this);
 
         }
-#endif
+        #endif
 
         #endregion
 
@@ -2859,5 +2766,66 @@ namespace Playtime_Painter {
         }
 
         #endregion
+
+        #region UI Elements Painting
+
+        static PlaytimePainter mouseOverUIPainter = null;
+        Vector2 UiUv;
+        [NonSerialized] Camera clickCamera;
+
+        public void OnPointerDown(PointerEventData eventData) => mouseOverUIPainter = DataUpdate(eventData) ? this : mouseOverUIPainter;
+
+        public void OnPointerUp(PointerEventData eventData) => mouseOverUIPainter = null;
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (mouseOverUIPainter == this)
+                DataUpdate(eventData);
+        }
+
+        bool DataUpdate(PointerEventData eventData)
+        {
+
+            if (DataUpdate(eventData.position, eventData.pressEventCamera))
+                clickCamera = eventData.pressEventCamera;
+            else
+                return false;
+
+            return true;
+        }
+
+        bool DataUpdate(Vector2 position, Camera cam)
+        {
+            Vector2 localCursor;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(uiGraphic.rectTransform, position, cam, out localCursor))
+                return false;
+
+            UiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
+
+            return true;
+        }
+
+        private bool CastRayPlaytime_UI()
+        {
+
+            var rt = uiGraphic.rectTransform;
+
+            var id = ImgData;
+
+            if (id == null)
+                return false;
+
+            var uvClick = UiUv;
+
+            uvClick.Scale(id.tiling);
+            uvClick += id.offset;
+            stroke.unRepeatedUV = uvClick + id.offset;
+            stroke.uvTo = stroke.unRepeatedUV.To01Space();
+            PreviewShader_StrokePosition_Update();
+            return true;
+        }
+        
+        #endregion
+
     }
 }

@@ -3,6 +3,7 @@
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
+		_Edges("Sharpness", Range(0,10)) = 0.5
 	}
 
 	Category{
@@ -10,7 +11,7 @@
 		Tags{
 			"Queue" = "Geometry"
 			"IgnoreProjector" = "True"
-			"PixelPerfectUI" = "Position"
+			"PixelPerfectUI" = "Simple"
 		}
 
 		ColorMask RGB
@@ -42,6 +43,8 @@
 					float4 color: COLOR;
 				};
 
+				float _Edges;
+
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
@@ -51,9 +54,9 @@
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		abs(o.texcoord.z)*10;
+					o.texcoord.z =		_Edges;//abs(o.texcoord.z) * 10;
 					o.projPos.xy =		v.normal.xy;
-					o.projPos.zw =		max(0, float2(v.normal.z, -v.normal.z));
+					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
@@ -70,7 +73,7 @@
 				float4 frag(v2f i) : COLOR{
 
 					float4 _ProjTexPos =	i.projPos;
-					float _Edge =			i.texcoord.z;
+					//float _Edge =			i.texcoord.z;
 					float _Courners =		i.texcoord.w;
 					float deCourners =		i.precompute.w;
 
@@ -87,7 +90,7 @@
 
 					float4 col = i.color;
 
-					float button = pow(clipp, _Edge + 1);
+					float button = pow(clipp, _Edges + 1);
 
 					col.rgb *= min(1,button*1024) * (1-saturate((1 - clipp) * 10));
 					

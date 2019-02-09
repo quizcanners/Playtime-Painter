@@ -68,15 +68,13 @@
 
 					float2 duv = i.screenPos.xy / i.screenPos.w;
 
-					duv.y += duv.x * 0.1;
-
 					float4 noise = tex2Dlod(_Noise_Mask, float4(duv * 5 + _Time.y * 5, 0, 0));
 
 					duv += noise.xy * 0.05f;
 
 					float up = saturate((_Center - duv.y)*(1 + _CenterSharpness));
 
-					float center = saturate((0.5 - abs(_Center - duv.y))*_BG_CENTER_COL.a * 2);
+					float center = pow(saturate((0.5 - abs(_Center - duv.y))*_BG_CENTER_COL.a * 2), _CenterSharpness + 1);
 
 					center += center * (1 - center);
 
@@ -85,6 +83,11 @@
 					col = col * (1 - center) + _BG_CENTER_COL * _BG_CENTER_COL*center;
 
 					col.rgb = sqrt(col.rgb);
+
+
+					float3 mix = col.gbr + col.brg;
+
+					col.rgb += mix * mix*0.05;
 
 					return col;
 				}

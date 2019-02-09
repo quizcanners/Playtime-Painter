@@ -51,7 +51,7 @@
 					o.texcoord.zw = v.texcoord1.xy;
 					o.texcoord.z = 0;
 					o.projPos.xy = v.normal.xy;
-					o.projPos.zw = max(0, float2(v.normal.z, -v.normal.z));
+					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					return o;
 				}

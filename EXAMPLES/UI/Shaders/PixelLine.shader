@@ -47,7 +47,7 @@
 					o.color =			v.color;
 
 					o.projPos.xy =		v.normal.xy;
-					o.projPos.zw =		min(1, max(0, float2(v.normal.z, -v.normal.z))*2048);
+					o.projPos.zw =		min(1, max(0, float2(v.texcoord1.x, -v.texcoord1.x))*2048);
 								
 					float2 tc			= (v.texcoord.xy - 0.5)*o.projPos.zw;
 

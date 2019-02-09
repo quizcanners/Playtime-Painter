@@ -61,7 +61,7 @@
 					o.texcoord.z = _Edges; //abs(o.texcoord.z);
 
 					o.projPos.xy =		v.normal.xy; 
-					o.projPos.zw =		max(0, float2(v.normal.z, -v.normal.z));
+					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 			
 					o.precompute.w =	1/( 1.0001 - o.texcoord.w);
 					o.precompute.xy =	1/(1.0001 - o.projPos.zw);
