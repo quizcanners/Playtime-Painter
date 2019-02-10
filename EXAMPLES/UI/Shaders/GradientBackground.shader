@@ -70,7 +70,7 @@
 
 					float4 noise = tex2Dlod(_Noise_Mask, float4(duv * 5 + _Time.y * 5, 0, 0));
 
-					duv += noise.xy * 0.05f;
+					duv += (noise.xy-0.5) * 0.01;
 
 					float up = saturate((_Center - duv.y)*(1 + _CenterSharpness));
 
@@ -78,16 +78,23 @@
 
 					center += center * (1 - center);
 
+#ifdef UNITY_COLORSPACE_GAMMA
+
 					float4 col = _BG_GRAD_COL_1 * _BG_GRAD_COL_1 *(1 - up) + _BG_GRAD_COL_2 * _BG_GRAD_COL_2 *(up);
-
 					col = col * (1 - center) + _BG_CENTER_COL * _BG_CENTER_COL*center;
-
 					col.rgb = sqrt(col.rgb);
+#else
+					float4 col = _BG_GRAD_COL_1  *(1 - up) +  _BG_GRAD_COL_2 *(up);
+					col = col * (1 - center) +  _BG_CENTER_COL*center;
+					
+#endif
+
+				
 
 
-					float3 mix = col.gbr + col.brg;
+					//float3 mix = col.gbr + col.brg;
 
-					col.rgb += mix * mix*0.05;
+					//col.rgb += mix * mix*0.025;
 
 					return col;
 				}
