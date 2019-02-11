@@ -1,13 +1,15 @@
-﻿Shader "Playtime Painter/UI/Soft Shadow" {
+﻿Shader "Playtime Painter/UI/Rounded/Shadow" {
 	Properties{
-		_MainTex("Albedo (RGB)", 2D) = "black" {}
+		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
+		_Edges("Softness", Range(1,32)) = 2
 	}
 	Category{
 		Tags{
 			"Queue" = "Geometry"
 			"IgnoreProjector" = "True"
-			"PixelPerfectUI" = "Position"
+			"PixelPerfectUI" = "Simple"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGB
@@ -52,7 +54,7 @@
 
 					o.precompute.w = 1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
-					o.precompute.z = (1 + o.texcoord.z * 16);
+					o.precompute.z = (1 + o.texcoord.z);
 
 
 					o.offUV.xy = o.texcoord.xy - 0.5;
@@ -62,11 +64,11 @@
 				}
 
 				sampler2D _NoiseMask;
+				float _Edges;
 
 				float4 frag(v2f i) : COLOR{
 
 					float4 _ProjTexPos = i.projPos;
-					float _Edge = i.texcoord.z;
 					float _Courners = i.texcoord.w;
 					float deCourners = i.precompute.w;
 
@@ -85,7 +87,7 @@
 
 					float4 col = i.color;
 
-					col.a *= pow(clipp, _Edge + 1) *saturate((1 - clipp) * 10) * i.offUV.z;
+					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * i.offUV.z;
 
 					return col;
 				}

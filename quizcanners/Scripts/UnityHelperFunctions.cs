@@ -761,6 +761,20 @@ namespace QuizCannersUtilities {
 
         }
 
+        public static void CreateAsset<T>(this UnityEngine.Object obj, string subPath, string name, string extension)
+        {
+
+            var path = Path.Combine("Assets", subPath);
+
+            Directory.CreateDirectory(path);
+
+            path = Path.Combine(path, name + extension);
+
+            var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+
+            AssetDatabase.CreateAsset(obj, newPath);
+        }
+
         public static T CreateScriptableObjectSameFolder<T>(this ScriptableObject el) where T : ScriptableObject
         {
             T added = null;
@@ -863,36 +877,28 @@ namespace QuizCannersUtilities {
 
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
             AssetDatabase.CopyAsset(path + oldName + StuffSaver.FileType, path + newName + StuffSaver.FileType);
         }
-#endif
-        // The function below uses this function's name
-        public static T CreateAsset_SO_DONT_RENAME<T>(string path, string name) where T : ScriptableObject
-        {
-            return CreateAsset_SO<T, T>(path, name, null);
-        }
+        #endif
 
-        public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
-        {
-            var obj = typeof(UnityHelperFunctions)
-                .GetMethod("CreateAsset_SO_DONT_RENAME")
-                .MakeGenericMethod(t)
-                .Invoke(null, new object[] { path, name }) as T;
+        public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
+
+            var obj = CreateAsset_SO<T,T>(path, name, null);
 
             list.Add(obj);
 
             return obj;
         }
 
-        public static T CreateAsset_SO<T, G>(string path, string name, List<G> optionalList) where T : G where G : ScriptableObject
+        public static T CreateAsset_SO<T, G>(string path, string name, List<G> optionalList = null) where T : G where G : ScriptableObject
         {
             T asset = ScriptableObject.CreateInstance<T>();
 
-#if PEGI
+        #if PEGI
 
             var nm = asset as IGotName;
             if (nm != null)
@@ -918,8 +924,8 @@ namespace QuizCannersUtilities {
                 optionalList.Add(asset);
 
             }
-#endif
-#if UNITY_EDITOR
+            #endif
+            #if UNITY_EDITOR
 
             if (!path.Contains("Assets"))
                 path = "Assets" + path.AddPreSlashIfNotEmpty();
@@ -948,10 +954,7 @@ namespace QuizCannersUtilities {
             {
                 Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
             }
-#endif
-
-
-
+            #endif
             return asset;
         }
 

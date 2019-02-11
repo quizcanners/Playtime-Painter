@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/BumpedButton" {
+﻿Shader "Playtime Painter/UI/Rounded/BumpedButton" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Edge Sharpness", Range(0.1,1)) = 0.5
@@ -10,6 +10,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGBA
@@ -60,7 +61,7 @@
 
 					o.precompute.w = 1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
-					o.precompute.z = (1 + o.texcoord.z * 16);
+					o.precompute.z = (1 + o.texcoord.z *  (16 - _Edges * 15));
 
 
 					o.offUV.xy = (o.texcoord.xy - 0.5) * 2;
@@ -75,10 +76,7 @@
 					float _Courners = i.texcoord.w;
 					float deCourners = i.precompute.w;
 					float2 uv = abs(i.offUV);
-				
-					float _Blur = (1 - i.color.a);
-
-	
+					
 					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
 					uv = max(0, uv) * deCourners;
 					

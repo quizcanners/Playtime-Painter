@@ -457,6 +457,14 @@ namespace PlayerAndEditorGUI {
             return tmp != field;
         }
 
+        public static bool edit<T>(ref T field, int width) where T : UnityEngine.Object
+        {
+            checkLine();
+            T tmp = field;
+            field = (T)EditorGUILayout.ObjectField(field, typeof(T), true, GUILayout.MaxWidth(width));
+            return tmp != field;
+        }
+
         public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
         {
             checkLine();

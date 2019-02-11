@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/RoundedOutlineSingleColor"
+﻿Shader "Playtime Painter/UI/Rounded/Outline"
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
@@ -10,6 +10,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGB

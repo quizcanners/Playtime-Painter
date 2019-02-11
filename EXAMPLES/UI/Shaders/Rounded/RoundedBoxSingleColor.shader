@@ -1,17 +1,16 @@
-﻿Shader "Playtime Painter/UI/Soft Button with Shadow" {
-	
+﻿Shader "Playtime Painter/UI/Rounded/Box"
+{
 	Properties{
-		_MainTex("Albedo (RGB)", 2D) = "black" {}
-		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
-		_Edges("Sharpness", Range(0,10)) = 0.5
+		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		_Edges("Sharpness", Range(0,1)) = 0.5
 	}
-
 	Category{
-		
 		Tags{
-			"Queue" = "Geometry"
+			"Queue" = "Transparent+10"
 			"IgnoreProjector" = "True"
+			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGB
@@ -36,10 +35,9 @@
 				struct v2f {
 					float4 pos : SV_POSITION;
 					float4 texcoord : TEXCOORD0;
-					float4 precompute : TEXCOORD1;
-					float3 offUV : TEXCOORD3;
-					float4 projPos : TEXCOORD4;
-					float4 screenPos :	TEXCOORD5;
+					float4 projPos : TEXCOORD1;
+					float4 precompute : TEXCOORD2;
+					float2 offUV : TEXCOORD3;
 					float4 color: COLOR;
 				};
 
@@ -50,53 +48,42 @@
 					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos =				UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy =		v.texcoord.xy;
-					o.screenPos =		ComputeScreenPos(o.pos);
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		_Edges;//abs(o.texcoord.z) * 10;
+					o.texcoord.z =		3 - _Edges * 2;//abs(o.texcoord.z);
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
-					o.precompute.z =	(1 + o.texcoord.z * 16);
+					o.precompute.z =	(1 + o.texcoord.z *  (16 - _Edges * 15));
 
-					o.offUV.xy =		o.texcoord.xy - 0.5;
-					o.offUV.z =			saturate((o.color.a - 0.8) * 5);
 
+					o.offUV.xy =		(o.texcoord.xy - 0.5)*2;
+			
 					return o;
 				}
 
-				sampler2D _NoiseMask;
+			
 
 				float4 frag(v2f i) : COLOR{
 
 					float4 _ProjTexPos =	i.projPos;
-					//float _Edge =			i.texcoord.z;
 					float _Courners =		i.texcoord.w;
 					float deCourners =		i.precompute.w;
-
-					float4 noise = tex2Dlod(_NoiseMask, float4(i.texcoord.xy * 13.5 
-						+ float2(_SinTime.w, _CosTime.w)*32, 0, 0));
-
-					float2 uv = abs(i.offUV.xy + noise.xy*0.002) * 2;
+					float2 uv =				abs(i.offUV);
 
 					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
-
 					uv = max(0, uv) * deCourners;
 
 					float clipp = max(0, 1 - dot(uv,uv));
 
-					float4 col = i.color;
+					clipp = min(1, pow(clipp * i.precompute.z, i.texcoord.z));
 
-					float button = pow(clipp, _Edges + 1);
+					i.color.a *= clipp;
 
-					col.rgb *= min(1,button*1024) * (1-saturate((1 - clipp) * 10));
-					
-					col.a *= button;
-
-					return col;
+					return i.color;
 				}
 				ENDCG
 			}

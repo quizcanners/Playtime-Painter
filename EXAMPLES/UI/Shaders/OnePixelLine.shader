@@ -9,6 +9,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Position"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGB

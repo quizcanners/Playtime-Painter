@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using QuizCannersUtilities;
 using System.Text.RegularExpressions;
+using System.IO;
 
 #pragma warning disable IDE1006
 namespace PlayerAndEditorGUI {
@@ -936,10 +937,10 @@ namespace PlayerAndEditorGUI {
             return select(ref value, array);
         }
 
-        public static bool select<T>(this string text, int width, ref T value, List<T> array, bool showIndex = false)
+        public static bool select<T>(this string text, int width, ref T value, List<T> array, bool showIndex = false, bool stripSlashes = false)
         {
             write(text, width);
-            return select(ref value, array, showIndex);
+            return select(ref value, array, showIndex, stripSlashes);
         }
 
         public static bool select(this string text, ref string val, List<string> lst)
@@ -1350,9 +1351,12 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static string _compileName<T>(bool showIndex, int index, T obj)
+        static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
         {
             var st = obj.ToPEGIstring();
+            if (stripSlashes) 
+                st = st.SimplifyDirectory();
+            
             return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
         }
 
@@ -1487,7 +1491,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false)
+        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false)
         {
             checkLine();
 
@@ -1503,7 +1507,7 @@ namespace PlayerAndEditorGUI {
                 {
                     if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
                         jindx = lnms.Count;
-                    lnms.Add(_compileName(showIndex, j, tmp)); 
+                    lnms.Add(_compileName(showIndex, j, tmp, stripSlashes)); 
                     indxs.Add(j);
                 }
             }
@@ -2998,7 +3002,37 @@ namespace PlayerAndEditorGUI {
 
         #region Click
         public const int defaultButtonSize = 25;
+
+        public static bool ClickDuplicate(ref Material mat, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat");
         
+        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension) where T: UnityEngine.Object
+        {
+            var changed = false;
+
+            if (obj) {
+
+                #if UNITY_EDITOR
+                var path = AssetDatabase.GetAssetPath(obj);
+                if (icon.Copy.Click("{0} Duplicate".F(obj)).changes(ref changed)) {
+                    if (path.IsNullOrEmpty()) 
+                        obj.CreateAsset<T>(folder, "New {1}".F(obj.GetType().ToPEGIstring_Type()), extension);
+                    else
+                    {
+                        var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+                        AssetDatabase.CopyAsset(path, newPath);
+                        obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
+                    }
+                }
+                #else
+                 if (icon.Copy.Click("Create Instance of {0}".F(obj)))
+                    obj = GameObject.Instantiate(obj);
+
+                #endif
+            }
+
+            return changed;
+        }
+
         public static void Lock_UnlockWindowClick(GameObject go)
         {
 #if UNITY_EDITOR
@@ -3623,11 +3657,10 @@ namespace PlayerAndEditorGUI {
             write(text, tip, width);
             return toggle(ref val);
         }
-
-
+        
         public static bool toggleDefaultInspector() {
             #if UNITY_EDITOR
-                return "Default Inspector".toggleIcon(ref PEGI_Inspector_Base.drawDefaultInspector).nl();
+                return toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config,icon.Debug, "Toggle Between regular and PEGI inspector" ,20);
             #else
                 return false;
             #endif
@@ -3642,15 +3675,21 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(ref T field) where T : UnityEngine.Object
         {
 
-    #if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
-            {
                 return ef.edit(ref field);
-            }
-            else
-    #endif
-
+            #endif
                 return false;
+        }
+
+        public static bool edit<T>(ref T field, int width) where T : UnityEngine.Object
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGUI)
+                return ef.edit(ref field, width);
+#endif
+            return false;
         }
 
         public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
@@ -7395,6 +7434,9 @@ namespace PlayerAndEditorGUI {
                 if (go.TryGet<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
                     return true;
 
+                if (go.name.SearchMatch_Internal(text, ref matched))
+                    return true;
+
                 if (!indxs.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
                     return true;
 
@@ -7409,11 +7451,12 @@ namespace PlayerAndEditorGUI {
                 if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
                     return true;
 
+                if (obj.ToString().SearchMatch_Internal(text, ref matched))
+                    return true;
+
                 if (!indxs.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indxs))
                     return true;
             }
-
-           
 
             return false;
         }
@@ -7474,6 +7517,23 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        static bool SearchMatch_Internal(this string label, string[] text, ref bool[] matched)
+        {
+         
+            bool fullMatch = true;
+
+            for (int i = 0; i < text.Length; i++)
+                if (!matched[i]) {
+                    if (!text[i].IsSubstringOf(label))
+                        fullMatch = false;
+                    else
+                        matched[i] = true;
+                }
+
+            return fullMatch;
+            
+        }
+        
         static bool SearchMatch_Internal(this IGotIndex psrchbl, int[] indxs)
         {
             if (psrchbl != null)
@@ -7583,7 +7643,7 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-#endif
+        #endif
 
     }
 
@@ -7613,13 +7673,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        static string RemovePreDots(this string name)
-        {
-            int ind = Mathf.Max(name.LastIndexOf("."), name.LastIndexOf("+"));
-            return (ind == -1 || ind>name.Length-5) ? name : name.Substring(ind + 1);
-        }
-
-        public static string ToPEGIstring_Type(this Type type) => type.ToString().RemovePreDots();
+        public static string ToPEGIstring_Type(this Type type) => type.ToString().SimplifyTypeName();
            
         public static string ToPEGIstring_UObj<T>(this T obj) where T: UnityEngine.Object {
             if (obj == null)
@@ -7647,7 +7701,7 @@ namespace PlayerAndEditorGUI {
             if (obj.ToPEGIstringInterfacePart(out tmp))
                 return tmp;
 
-            return obj.ToString().RemovePreDots();
+            return obj.ToString().SimplifyTypeName();
         }
 
         public static string ToPEGIstring(this object obj) {
@@ -7664,10 +7718,11 @@ namespace PlayerAndEditorGUI {
             if (obj.ToPEGIstringInterfacePart(out tmp))
                 return tmp;
 
-            return obj.ToString().RemovePreDots();
+            return obj.ToString().SimplifyTypeName();
         }
 
 #if PEGI
+
         public static int focusInd;
         
         public static bool Nested_Inspect(this IPEGI pgi)
@@ -7817,7 +7872,7 @@ namespace PlayerAndEditorGUI {
 
 #endif
 
-            public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
+        public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
 #if PEGI
             if (lst != null)

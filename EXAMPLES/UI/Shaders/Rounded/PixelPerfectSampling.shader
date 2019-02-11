@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/PixelPerfectSampling_MeshData" {
+﻿Shader "Playtime Painter/UI/Rounded/PixelPerfect" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_OutlineGradient("Outline Gradient", 2D) = "black" {}
@@ -11,6 +11,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Position"
+			"SpriteRole" = "Tile"
 		}
 
 		ColorMask RGB

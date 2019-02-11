@@ -1,8 +1,8 @@
-﻿Shader "Playtime Painter/UI/ColorPicker_Contrast" {
+﻿Shader "Playtime Painter/UI/ColorPicker/HUE_Radial"
+{
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
-		[NoScaleOffset]_Circle("Circle", 2D) = "black" {}
-	
+		[NoScaleOffset]_Arrow("Arrow", 2D) = "black" {}
 	}
 
 	Category{
@@ -15,10 +15,10 @@
 		Cull Off
 
 		SubShader{
-
 			Pass{
 
 				CGPROGRAM
+
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma vertex vert
@@ -28,7 +28,8 @@
 				#pragma target 3.0
 
 				sampler2D _MainTex;
-				sampler2D _Circle;
+				sampler2D _Arrow;
+
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -44,31 +45,41 @@
 
 				float4 frag(v2f i) : COLOR{
 
+					const float PI2 = 3.14159 * 2;
+
+					float2 uv = i.texcoord - 0.5;
+
+					float angle = atan2(-uv.x, -uv.y) + 0.001;
+
+					angle = saturate(max(angle, PI2 - max(0, -angle) - max(0, angle * 999999)) / PI2);
+
 					float4 col = tex2D(_MainTex, i.texcoord);
 
-					col.rgb = HUEtoColor(_Picker_HUV);
+					col.rgb = HUEtoColor(angle);
 
-	
+					float2 arrowUV = 0;
+					 
+					float diff = abs(angle - _Picker_HUV);
 
-					col.rgb = i.texcoord.y + col.rgb*(1-i.texcoord.y);
+					arrowUV.x =  frac(min(diff, 1-diff ))*16;
 
-					col.rgb *= i.texcoord.x*i.texcoord.x;
+					arrowUV.y = length(uv)*8-3;
 
-					float2 dist = (i.texcoord - float2(_Picker_Brightness, _Picker_Contrast))*8;
+					float2 inside = saturate((abs(float2(arrowUV.x,arrowUV.y-0.5) * 2) - 1) * 32);
 
-					float ca = max(0, 1-max(0, abs(dist) - 0.5) * 32);
+					arrowUV.x += 0.5;
 
-				    float4 circle = tex2D(_Circle, dist+0.5);
+					float4 arrow = tex2D(_Arrow, arrowUV);
 
-					ca *=  circle.a;
+					arrow.a *= 1 - max(inside.x, inside.y);
 
-					//col.rgb += saturate(1 - length(dist));
+					//col.rgb += max(0, (1 - length((arrowUV - 0.5) * 2)));
 
-					col.rgb = col.rgb*(1 - ca) + circle.rgb*ca;
+					col.rgb = arrow.rgb * arrow.a + col.rgb * (1 - arrow.a);
 
 					return col;
 				}
-					ENDCG
+				ENDCG
 			}
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"

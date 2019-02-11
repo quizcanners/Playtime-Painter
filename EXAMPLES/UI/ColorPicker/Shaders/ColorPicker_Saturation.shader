@@ -1,7 +1,8 @@
-﻿Shader "Playtime Painter/UI/ColorPicker_HUE"{
+﻿Shader "Playtime Painter/UI/ColorPicker/Contrast" {
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
-		[NoScaleOffset]_Arrow("Arrow", 2D) = "black" {}
+		[NoScaleOffset]_Circle("Circle", 2D) = "black" {}
+	
 	}
 
 	Category{
@@ -10,24 +11,24 @@
 			"IgnoreProjector" = "True"
 		}
 
+		Blend SrcAlpha OneMinusSrcAlpha
 		Cull Off
+
 		SubShader{
 
 			Pass{
 
 				CGPROGRAM
-
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
-				//#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
 
 				sampler2D _MainTex;
-				sampler2D _Arrow;
+				sampler2D _Circle;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -42,33 +43,35 @@
 				}
 
 				float4 frag(v2f i) : COLOR{
-		
+
 					float4 col = tex2D(_MainTex, i.texcoord);
 
-					col.rgb = HUEtoColor(i.texcoord.x);
+					col.rgb = HUEtoColor(_Picker_HUV);
 
-					float2 arrowUV = i.texcoord;
-
-					arrowUV.x = (i.texcoord.x - _Picker_HUV) * 4;
-
-					float2 inside = saturate((abs(arrowUV * 2) - 1)*32);
-
-					arrowUV.x += 0.5;
-
-					float4 arrow = tex2D(_Arrow, arrowUV);
-
-					arrow.a *= 1- max(inside.x, inside.y);
 	
-					col = arrow * arrow.a + col * (1 - arrow.a);
+
+					col.rgb = i.texcoord.y + col.rgb*(1-i.texcoord.y);
+
+					col.rgb *= i.texcoord.x*i.texcoord.x;
+
+					float2 dist = (i.texcoord - float2(_Picker_Brightness, _Picker_Contrast))*8;
+
+					float ca = max(0, 1-max(0, abs(dist) - 0.5) * 32);
+
+				    float4 circle = tex2D(_Circle, dist+0.5);
+
+					ca *=  circle.a;
+
+					//col.rgb += saturate(1 - length(dist));
+
+					col.rgb = col.rgb*(1 - ca) + circle.rgb*ca;
 
 					return col;
 				}
-				ENDCG
-
+					ENDCG
 			}
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"
 	}
-
 }
 

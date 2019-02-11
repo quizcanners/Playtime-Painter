@@ -375,16 +375,14 @@ namespace QuizCannersUtilities
 
         }
 
-        public static bool TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true) {
+        public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true) {
 
             T toAdd;
 
-            if (!list.CanAdd(ref ass, out toAdd, onlyIfNew))
-                return false;
-            else
+            if (list.CanAdd(ref ass, out toAdd, onlyIfNew))
                 list.Add(toAdd);
 
-            return true;
+            return list;
 
         }
 
@@ -748,6 +746,19 @@ namespace QuizCannersUtilities
         #endregion
 
         #region String Editing
+
+        public static string SimplifyTypeName(this string name)
+        {
+            int ind = Mathf.Max(name.LastIndexOf("."), name.LastIndexOf("+"));
+            return (ind == -1 || ind > name.Length - 5) ? name : name.Substring(ind + 1);
+        }
+
+        public static string SimplifyDirectory(this string name)
+        {
+            int ind = name.LastIndexOf("/");
+            return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
+        }
+
         public static string ToStringShort(this Vector3 v)
         {
             StringBuilder sb = new StringBuilder();
