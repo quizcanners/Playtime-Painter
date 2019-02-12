@@ -66,18 +66,18 @@
 				sampler2D _NoiseMask;
 				float _Edges;
 
-				float4 frag(v2f i) : COLOR{
+				float4 frag(v2f o) : COLOR{
 
-					float4 _ProjTexPos = i.projPos;
-					float _Courners = i.texcoord.w;
-					float deCourners = i.precompute.w;
+					float4 _ProjTexPos =	o.projPos;
+					float _Courners =		o.texcoord.w;
+					float deCourners =		o.precompute.w;
 
-					float4 noise = tex2Dlod(_NoiseMask, float4(i.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w)*32, 0, 0));
+					float4 noise = tex2Dlod(_NoiseMask, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w)*32, 0, 0));
 
 
-					float2 uv = abs(i.offUV.xy + noise.xy*0.002) * 2;
+					float2 uv = abs(o.offUV.xy + noise.xy*0.002) * 2;
 
-					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
+					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy - _Courners;
 
 					uv = max(0, uv) * deCourners;
 
@@ -85,9 +85,9 @@
 
 					float clipp = max(0, 1 - dot(uv,uv));
 
-					float4 col = i.color;
+					float4 col = o.color;
 
-					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * i.offUV.z;
+					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * o.offUV.z;
 
 					return col;
 				}

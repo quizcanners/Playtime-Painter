@@ -3,6 +3,7 @@
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
+		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 	}
 	Category{
 		Tags{
@@ -28,8 +29,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
-				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
+				#pragma multi_compile ____  _UNLINKED 
 				#pragma target 3.0
 
 				struct v2f {
@@ -51,14 +52,13 @@
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		3 - _Edges * 2;//abs(o.texcoord.z);
+					o.texcoord.z =		4 - _Edges * 3;
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
-					o.precompute.z =	(1 + o.texcoord.z *  (16 - _Edges * 15));
-
+					o.precompute.z =	(1 + _Edges * 32);
 
 					o.offUV.xy =		(o.texcoord.xy - 0.5)*2;
 			
@@ -67,23 +67,32 @@
 
 			
 
-				float4 frag(v2f i) : COLOR{
+				float4 frag(v2f o) : COLOR{
 
-					float4 _ProjTexPos =	i.projPos;
-					float _Courners =		i.texcoord.w;
-					float deCourners =		i.precompute.w;
-					float2 uv =				abs(i.offUV);
+					float4 _ProjTexPos =	o.projPos;
+					float _Courners =		o.texcoord.w;
+					float deCourners =		o.precompute.w;
+					float2 uv =				abs(o.offUV);
 
-					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
-					uv = max(0, uv) * deCourners;
 
-					float clipp = max(0, 1 - dot(uv,uv));
+					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
-					clipp = min(1, pow(clipp * i.precompute.z, i.texcoord.z));
+					float2 forFade = uv;
 
-					i.color.a *= clipp;
+					uv = max(0, uv - _Courners) * deCourners;
 
-					return i.color;
+					#if _UNLINKED
+					forFade *= forFade;
+					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
+					#else 
+					float clipp = max(0, 1 - dot(uv, uv));
+					#endif
+
+					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
+
+					o.color.a *= clipp;
+
+					return o.color;
 				}
 				ENDCG
 			}

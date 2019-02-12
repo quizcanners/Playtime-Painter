@@ -1795,6 +1795,26 @@ namespace QuizCannersUtilities {
 
         #region Shaders
 
+        public static void ToggleShaderKeywords(this Material mat, bool value, string ifTrue, string iFalse)
+        {
+            if (mat)
+            {
+                mat.DisableKeyword(value ? iFalse : ifTrue);
+                mat.EnableKeyword(value ? ifTrue : iFalse);
+            }
+        }
+
+        public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
+        {
+            if (!keyword.IsNullOrEmpty() && mat)
+            {
+                if (isTrue)
+                    mat.EnableKeyword(keyword);
+                else
+                    mat.DisableKeyword(keyword);
+            }
+        }
+
         public static void ToggleShaderKeywords(bool value, string ifTrue, string iFalse)
         {
             Shader.DisableKeyword(value ? iFalse : ifTrue);
@@ -1803,8 +1823,7 @@ namespace QuizCannersUtilities {
 
         public static void SetShaderKeyword(string keyword, bool isTrue)
         {
-            if (!keyword.IsNullOrEmpty())
-            {
+            if (!keyword.IsNullOrEmpty()) {
                 if (isTrue)
                     Shader.EnableKeyword(keyword);
                 else

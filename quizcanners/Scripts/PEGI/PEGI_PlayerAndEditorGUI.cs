@@ -3556,10 +3556,10 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
                 return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width, style);
-#endif
+            #endif
             
                 checkLine();
                 bool before = val;
@@ -3660,7 +3660,8 @@ namespace PlayerAndEditorGUI {
         
         public static bool toggleDefaultInspector() {
             #if UNITY_EDITOR
-                return toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config,icon.Debug, "Toggle Between regular and PEGI inspector" ,20);
+               return toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config,icon.Debug, "Toggle Between regular and PEGI inspector" ,20).nl();
+   
             #else
                 return false;
             #endif

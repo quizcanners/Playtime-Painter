@@ -35,12 +35,12 @@ namespace Playtime_Painter.Examples
             } }
 
         [SerializeField] float[] roundedCourners = new float[1];
-
+        
         public float GetCourner(int index) => roundedCourners[index % roundedCourners.Length];
 
         public void SetCourner(int index, float value) => roundedCourners[index % roundedCourners.Length] = value;
 
-        public bool Linked
+        public bool LinkedCourners
         {
             get { return roundedCourners.Length == 1; }
 
@@ -49,6 +49,11 @@ namespace Playtime_Painter.Examples
                 int targetValue = value ? 1 : 4;
 
                 if (targetValue != roundedCourners.Length) {
+
+                    if (material)
+                        material.SetShaderKeyword(UNLINKED_VERTICES, targetValue>1);
+
+
 
                     var tmp = roundedCourners[0];
 
@@ -64,9 +69,9 @@ namespace Playtime_Painter.Examples
 
         bool IsOverlay => canvas ? (canvas.renderMode == RenderMode.ScreenSpaceOverlay || !canvas.worldCamera) : false;
 
-        const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
-        const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole";
-
+        public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
+        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole";
+        public const string UNLINKED_VERTICES = "_UNLINKED";
 
         #if PEGI
         public bool Inspect()
@@ -112,10 +117,15 @@ namespace Playtime_Painter.Examples
                 }
             }
 
-            bool linked = Linked;
+            bool linked = LinkedCourners;
 
+            "Material Is Unlinked: {0}".F(material.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
+
+            if (material && (linked == material.IsKeywordEnabled(UNLINKED_VERTICES)))
+                material.SetShaderKeyword(UNLINKED_VERTICES, !linked);
+                
             if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
-                Linked = linked;
+                LinkedCourners = linked;
 
             for (int i = 0; i < roundedCourners.Length; i++) {
                 var crn = roundedCourners[i];
@@ -124,14 +134,11 @@ namespace Playtime_Painter.Examples
                     roundedCourners[i] = crn;
             }
 
-       
-
             pegi.nl();
             var mat = material;
 
             if (material) {
-
-              
+                
                 if (!Application.isPlaying)
                 {
                     var path = material.GetAssetFolder();
@@ -229,7 +236,7 @@ namespace Playtime_Painter.Examples
             vert.position = new Vector2(corner2.x, corner1.y);
             vh.AddVert(vert);
 
-            if (Linked) {
+            if (LinkedCourners) {
                 //1  2
                 //0  3
                 vh.AddTriangle(0, 1, 2);

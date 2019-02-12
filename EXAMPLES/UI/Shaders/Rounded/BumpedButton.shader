@@ -3,7 +3,9 @@
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Edge Sharpness", Range(0.1,1)) = 0.5
 		_LightDirection("Light Direction Vector", Vector) = (0,0,0,0)
+		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 	}
+
 	Category{
 		Tags{
 			"Queue" = "Transparent"
@@ -27,10 +29,9 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma multi_compile_fog
-				#pragma multi_compile_fwdbase
+
 				#pragma multi_compile_instancing
-				#pragma target 3.0
+				#pragma multi_compile ____  _UNLINKED 		
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -69,43 +70,46 @@
 					return o;
 				}
 
+				float4 frag(v2f o) : COLOR{
 
-				float4 frag(v2f i) : COLOR{
+					float4 _ProjTexPos =	o.projPos;
+					float _Courners =		o.texcoord.w;
+					float deCourners =		o.precompute.w;
+					float2 uv =				abs(o.offUV);
+					
+					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
-					float4 _ProjTexPos = i.projPos;
-					float _Courners = i.texcoord.w;
-					float deCourners = i.precompute.w;
-					float2 uv = abs(i.offUV);
-					
-					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
-					uv = max(0, uv) * deCourners;
-					
+					float2 forFade = uv;
+
+					uv = max(0, uv - _Courners) * deCourners;
+
+					#if _UNLINKED
+					forFade *= forFade;
+					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
+					#else 
 					float clipp = max(0, 1 - dot(uv, uv));
+					#endif
 
-					clipp = min(1, pow(clipp * i.precompute.z, i.texcoord.z));
+					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
+					o.color.a *= clipp;
 
-					i.color.a *= clipp;
-
-
-					float2 dir = i.texcoord.xy - 0.5;
+					float2 dir = o.texcoord.xy - 0.5;
 					dir = dir / abs(dir);
 					dir *= uv.xy;
-
 
 					float noise = 0.5;
 
 					float3 norm = normalize(float3(dir.x, dir.y, noise));
 
-					float angle = max(0,dot(norm, i.lightProjection));
+					float angle = max(0,dot(norm, o.lightProjection));
 
-					i.color.rgb *= 0.5+ min(1, angle* angle*2 * noise)*0.5;
+					o.color.rgb *= 0.5+ min(1, angle* angle*2 * noise)*0.5;
 
-
-					return i.color;
+					return o.color;
 				}
 				ENDCG
 			}
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"
-		}
+	}
 }
