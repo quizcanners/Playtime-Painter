@@ -16,6 +16,7 @@ namespace PlayerAndEditorGUI {
     {
 
         #if UNITY_EDITOR
+        public static bool drawDefaultInspector;
         public MaterialEditor unityMaterialEditor;
         MaterialProperty[] _properties;
 
@@ -23,10 +24,23 @@ namespace PlayerAndEditorGUI {
         {
             unityMaterialEditor = materialEditor;
             _properties = properties;
+
+
             #if PEGI
-            ef.Inspect_Material(this);
+            if (!drawDefaultInspector) {
+                ef.Inspect_Material(this).RestoreBGColor();
+                return;
+            }
+
+            ef.editorType = ef.EditorType.Material;
+
+            pegi.toggleDefaultInspector();
             #endif
+
+            DrawDefaultInspector();
+
         }
+
         #endif
 
         public void DrawDefaultInspector()
@@ -49,19 +63,21 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Inspector_Base  : Editor
     {
-    public static bool drawDefaultInspector;
+        public static bool drawDefaultInspector;
 
         #if PEGI
         protected abstract bool Inspect(Editor editor);
+        protected abstract ef.EditorType EditorType { get;  }
         #endif
 
         public override void OnInspectorGUI() {
             #if PEGI
-            if (!drawDefaultInspector)
-            {
+            if (!drawDefaultInspector) {
                 Inspect(this).RestoreBGColor();
                 return;
             }
+            
+            ef.editorType = EditorType;
 
             pegi.toggleDefaultInspector();
             #endif
@@ -74,12 +90,16 @@ namespace PlayerAndEditorGUI {
 
      public abstract class PEGI_Inspector<T> : PEGI_Inspector_Base where T : MonoBehaviour {
 #if PEGI
+        protected override ef.EditorType EditorType => ef.EditorType.Mono;
+
         protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
 #endif
      }
 
     public abstract class PEGI_Inspector_SO<T> : PEGI_Inspector_Base where T : ScriptableObject {
 #if PEGI
+        protected override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
+
         protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);
 #endif
     }

@@ -3,7 +3,6 @@
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_OutlineGradient("Outline Gradient", 2D) = "black" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
-
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 	}
 
@@ -130,4 +129,5 @@
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"
 	}
+	CustomEditor "Playtime_Painter.Examples.PixelPerfectMaterialDrawer"
 }

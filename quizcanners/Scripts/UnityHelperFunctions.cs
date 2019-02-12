@@ -230,14 +230,14 @@ namespace QuizCannersUtilities {
                     go?.SetActive(to);
         }
 
-        public static GameObject GetFocused()
-        {
-#if UNITY_EDITOR
+        public static GameObject GetFocusedGameObject() {
+
+            #if UNITY_EDITOR
             UnityEngine.Object[] tmp = Selection.objects;
-            return (((tmp != null) && (tmp.Length > 0)) ? (GameObject)tmp[0] : null);
-#else 
+            return !tmp.IsNullOrEmpty()  ? (GameObject)tmp[0] : null;
+            #else 
             return null;
-#endif
+            #endif
 
         }
 
@@ -763,7 +763,7 @@ namespace QuizCannersUtilities {
 
         public static void CreateAsset<T>(this UnityEngine.Object obj, string subPath, string name, string extension)
         {
-
+            #if UNITY_ENGINE
             var path = Path.Combine("Assets", subPath);
 
             Directory.CreateDirectory(path);
@@ -773,6 +773,7 @@ namespace QuizCannersUtilities {
             var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
 
             AssetDatabase.CreateAsset(obj, newPath);
+            #endif
         }
 
         public static T CreateScriptableObjectSameFolder<T>(this ScriptableObject el) where T : ScriptableObject
@@ -877,13 +878,13 @@ namespace QuizCannersUtilities {
 
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             string path = "Assets" + assetFolder.AddPreSlashIfNotEmpty() + "/Resources" + insideAssetFolder.AddPreSlashIfNotEmpty() + "/";
             AssetDatabase.CopyAsset(path + oldName + StuffSaver.FileType, path + newName + StuffSaver.FileType);
         }
-        #endif
+#endif
 
         public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
 
@@ -898,7 +899,7 @@ namespace QuizCannersUtilities {
         {
             T asset = ScriptableObject.CreateInstance<T>();
 
-        #if PEGI
+#if PEGI
 
             var nm = asset as IGotName;
             if (nm != null)
@@ -924,8 +925,8 @@ namespace QuizCannersUtilities {
                 optionalList.Add(asset);
 
             }
-            #endif
-            #if UNITY_EDITOR
+#endif
+#if UNITY_EDITOR
 
             if (!path.Contains("Assets"))
                 path = "Assets" + path.AddPreSlashIfNotEmpty();
@@ -954,7 +955,7 @@ namespace QuizCannersUtilities {
             {
                 Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
             }
-            #endif
+#endif
             return asset;
         }
 
@@ -977,7 +978,7 @@ namespace QuizCannersUtilities {
             }
 #endif
         }
-        #endregion
+#endregion
 
         #region Input MGMT
         /// <summary>
@@ -1043,65 +1044,65 @@ namespace QuizCannersUtilities {
 
         #region Spin Around
 
-        public static Vector2 camOrbit = new Vector2();
-        public static Vector3 SpinningAround;
-        public static float OrbitDistance = 0;
-        public static bool OrbitingFocused;
-        public static float SpinStartTime = 0;
-        // Use this for initialization
-        public static void SpinAround(Vector3 pos, Transform cameraman)
-        {
-            if (Input.GetMouseButtonDown(2))
-            {
-                Quaternion before = cameraman.rotation;//cam.transform.rotation;
-                cameraman.transform.LookAt(pos);
-                Vector3 rot = cameraman.rotation.eulerAngles;
-                camOrbit.x = rot.y;
-                camOrbit.y = rot.x;
-                OrbitDistance = (pos - cameraman.position).magnitude;
-                SpinningAround = pos;
-                cameraman.rotation = before;
-                OrbitingFocused = false;
-                SpinStartTime = Time.time;
-            }
-
-            if (Input.GetMouseButtonUp(2))
-                OrbitDistance = 0;
-
-            if ((OrbitDistance != 0) && (Input.GetMouseButton(2)))
-            {
-
-                camOrbit.x += Input.GetAxis("Mouse X") * 5;
-                camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
-
-                if (camOrbit.y <= -360)
-                    camOrbit.y += 360;
-                if (camOrbit.y >= 360)
-                    camOrbit.y -= 360;
-                //y = Mathf.Clamp (y, min, max);
-
-
-
-
-                Quaternion rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
-                Vector3 campos = rot *
-                    (new Vector3(0.0f, 0.0f, -OrbitDistance)) +
-                    SpinningAround;
-
-                cameraman.position = campos;
-                if ((Time.time - SpinStartTime) > 0.2f)
+                public static Vector2 camOrbit = new Vector2();
+                public static Vector3 SpinningAround;
+                public static float OrbitDistance = 0;
+                public static bool OrbitingFocused;
+                public static float SpinStartTime = 0;
+                // Use this for initialization
+                public static void SpinAround(Vector3 pos, Transform cameraman)
                 {
-                    if (!OrbitingFocused)
+                    if (Input.GetMouseButtonDown(2))
                     {
-                        cameraman.transform.rotation = MyMath.Lerp_bySpeed(cameraman.rotation, rot, 300);
-                        if (Quaternion.Angle(cameraman.rotation, rot) < 1)
-                            OrbitingFocused = true;
+                        Quaternion before = cameraman.rotation;//cam.transform.rotation;
+                        cameraman.transform.LookAt(pos);
+                        Vector3 rot = cameraman.rotation.eulerAngles;
+                        camOrbit.x = rot.y;
+                        camOrbit.y = rot.x;
+                        OrbitDistance = (pos - cameraman.position).magnitude;
+                        SpinningAround = pos;
+                        cameraman.rotation = before;
+                        OrbitingFocused = false;
+                        SpinStartTime = Time.time;
                     }
-                    else cameraman.rotation = rot;
-                }
 
-            }
-        }
+                    if (Input.GetMouseButtonUp(2))
+                        OrbitDistance = 0;
+
+                    if ((OrbitDistance != 0) && (Input.GetMouseButton(2)))
+                    {
+
+                        camOrbit.x += Input.GetAxis("Mouse X") * 5;
+                        camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
+
+                        if (camOrbit.y <= -360)
+                            camOrbit.y += 360;
+                        if (camOrbit.y >= 360)
+                            camOrbit.y -= 360;
+                        //y = Mathf.Clamp (y, min, max);
+
+
+
+
+                        Quaternion rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
+                        Vector3 campos = rot *
+                            (new Vector3(0.0f, 0.0f, -OrbitDistance)) +
+                            SpinningAround;
+
+                        cameraman.position = campos;
+                        if ((Time.time - SpinStartTime) > 0.2f)
+                        {
+                            if (!OrbitingFocused)
+                            {
+                                cameraman.transform.rotation = MyMath.Lerp_bySpeed(cameraman.rotation, rot, 300);
+                                if (Quaternion.Angle(cameraman.rotation, rot) < 1)
+                                    OrbitingFocused = true;
+                            }
+                            else cameraman.rotation = rot;
+                        }
+
+                    }
+                }
 
         #endregion
 
@@ -1118,91 +1119,91 @@ namespace QuizCannersUtilities {
         public static string TagValue(this Material mat, string tag) => mat ? mat.GetTag(tag, false, null) : null;
         
         public static Material MaterialWhaever(this Renderer rendy) =>
-             !rendy ? null : (Application.isPlaying ? rendy.material : rendy.sharedMaterial);
+                !rendy ? null : (Application.isPlaying ? rendy.material : rendy.sharedMaterial);
         
-#if UNITY_EDITOR
-        public static List<string> GetFields(this Material m, MaterialProperty.PropType type)
-        {
-            List<string> fNames = new List<string>();
+        #if UNITY_EDITOR
+                public static List<string> GetFields(this Material m, MaterialProperty.PropType type)
+                {
+                    List<string> fNames = new List<string>();
 
-            if (!m) return fNames;
+                    if (!m) return fNames;
 
-            Material[] mat = new Material[1];
-            mat[0] = m;
-            MaterialProperty[] props = null;
+                    Material[] mat = new Material[1];
+                    mat[0] = m;
+                    MaterialProperty[] props = null;
 
-            try
-            {
-                props = MaterialEditor.GetMaterialProperties(mat);
-            }
-            catch
-            {
-                return fNames = new List<string>();
-            }
-
-            if (props != null)
-                foreach (MaterialProperty p in props)
-                    if (p.type == type)
-                        fNames.Add(p.name);
-
-            return fNames;
-        }
-#endif
-        public static List<string> GetFloatFields(this Material m)
-        {
-#if UNITY_EDITOR
-            var l = m.GetFields(MaterialProperty.PropType.Float);
-            l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
-            return l;
-#else
-            return new List<string>();
-#endif
-        }
-
-        public static List<string> MyGetTextureProperties(this Material m)
-        {
-            /*#if UNITY_2018_2_OR_NEWER
-                        if (!m) return new List<string>();
-                        else
-                        return new List<string>(m.GetTexturePropertyNames());
-            #else
-                        */
-#if UNITY_EDITOR
-            return m.GetFields(MaterialProperty.PropType.Texture);
-#else
-            return new List<string>();
-#endif
-            //#endif
-        }
-
-        public static List<string> GetColorProperties(this Material m)
-        {
-
-#if UNITY_EDITOR
-            return m.GetFields(MaterialProperty.PropType.Color);
-#else
-            return new List<string>();
-#endif
-
-        }
-
-        public static bool DisplayNameContains(this Material m, string propertyName, string tag)
-        {
-            /*
-#if UNITY_EDITOR
                     try
                     {
-                        var p = MaterialEditor.GetMaterialProperty(new Material[] { m }, propertyName);
-                        if (p!= null) 
-                            return p.displayName.Contains(tag);
-
-                    } catch (Exception ex) {
-                        Debug.Log("Materail "+m.name +" has no "+ propertyName+ " "+ex.ToString());
+                        props = MaterialEditor.GetMaterialProperties(mat);
                     }
-#endif
-            */
-            return propertyName.Contains(tag);
-        }
+                    catch
+                    {
+                        return fNames = new List<string>();
+                    }
+
+                    if (props != null)
+                        foreach (MaterialProperty p in props)
+                            if (p.type == type)
+                                fNames.Add(p.name);
+
+                    return fNames;
+                }
+        #endif
+                public static List<string> GetFloatFields(this Material m)
+                {
+        #if UNITY_EDITOR
+                    var l = m.GetFields(MaterialProperty.PropType.Float);
+                    l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
+                    return l;
+        #else
+                    return new List<string>();
+        #endif
+                }
+
+                public static List<string> MyGetTextureProperties(this Material m)
+                {
+                    /*#if UNITY_2018_2_OR_NEWER
+                                if (!m) return new List<string>();
+                                else
+                                return new List<string>(m.GetTexturePropertyNames());
+        #else
+                                */
+        #if UNITY_EDITOR
+                    return m.GetFields(MaterialProperty.PropType.Texture);
+        #else
+                    return new List<string>();
+        #endif
+                    //#endif
+                }
+
+                public static List<string> GetColorProperties(this Material m)
+                {
+
+        #if UNITY_EDITOR
+                    return m.GetFields(MaterialProperty.PropType.Color);
+        #else
+                    return new List<string>();
+        #endif
+
+                }
+
+                public static bool DisplayNameContains(this Material m, string propertyName, string tag)
+                {
+                    /*
+        #if UNITY_EDITOR
+                            try
+                            {
+                                var p = MaterialEditor.GetMaterialProperty(new Material[] { m }, propertyName);
+                                if (p!= null) 
+                                    return p.displayName.Contains(tag);
+
+                            } catch (Exception ex) {
+                                Debug.Log("Materail "+m.name +" has no "+ propertyName+ " "+ex.ToString());
+                            }
+        #endif
+                    */
+                    return propertyName.Contains(tag);
+                }
         #endregion
 
         #region Texture MGMT
@@ -1276,520 +1277,520 @@ namespace QuizCannersUtilities {
 
         #region Texture Import Settings
 
-        public static bool IsColorTexture(this Texture2D tex)
-        {
-#if UNITY_EDITOR
-            if (!tex) return true;
+                public static bool IsColorTexture(this Texture2D tex)
+                {
+        #if UNITY_EDITOR
+                    if (!tex) return true;
 
-            TextureImporter importer = tex.GetTextureImporter();
+                    TextureImporter importer = tex.GetTextureImporter();
 
-            if (importer != null)
-                return importer.sRGBTexture;
-#endif
-            return true;
-        }
+                    if (importer != null)
+                        return importer.sRGBTexture;
+        #endif
+                    return true;
+                }
 
-        public static Texture2D CopyImportSettingFrom(this Texture2D dest, Texture2D original)
-        {
-            #if UNITY_EDITOR
-            var dst = dest.GetTextureImporter();
-            var org = original.GetTextureImporter();
+                public static Texture2D CopyImportSettingFrom(this Texture2D dest, Texture2D original)
+                {
+        #if UNITY_EDITOR
+                    var dst = dest.GetTextureImporter();
+                    var org = original.GetTextureImporter();
 
-            if (!dst || !org) return dest;
+                    if (!dst || !org) return dest;
 
-            var maxSize = Mathf.Max(original.width, org.maxTextureSize);
+                    var maxSize = Mathf.Max(original.width, org.maxTextureSize);
 
-            var needReimport = (dst.wrapMode != org.wrapMode) ||
-                                (dst.sRGBTexture != org.sRGBTexture) ||
-                                (dst.textureType != org.textureType) ||
-                                (dst.alphaSource != org.alphaSource) ||
-                                (dst.maxTextureSize < maxSize) ||
-                                (dst.isReadable != org.isReadable) ||
-                                (dst.textureCompression != org.textureCompression) ||
-                                (dst.alphaIsTransparency != org.alphaIsTransparency);
+                    var needReimport = (dst.wrapMode != org.wrapMode) ||
+                                        (dst.sRGBTexture != org.sRGBTexture) ||
+                                        (dst.textureType != org.textureType) ||
+                                        (dst.alphaSource != org.alphaSource) ||
+                                        (dst.maxTextureSize < maxSize) ||
+                                        (dst.isReadable != org.isReadable) ||
+                                        (dst.textureCompression != org.textureCompression) ||
+                                        (dst.alphaIsTransparency != org.alphaIsTransparency);
 
-            if (!needReimport)
-            {
-                dst.wrapMode = org.wrapMode;
-                dst.sRGBTexture = org.sRGBTexture;
-                dst.textureType = org.textureType;
-                dst.alphaSource = org.alphaSource;
-                dst.alphaIsTransparency = org.alphaIsTransparency;
-                dst.maxTextureSize = maxSize;
-                dst.isReadable = org.isReadable;
-                dst.textureCompression = org.textureCompression;
-                dst.SaveAndReimport();
-            }
-            #endif
+                    if (!needReimport)
+                    {
+                        dst.wrapMode = org.wrapMode;
+                        dst.sRGBTexture = org.sRGBTexture;
+                        dst.textureType = org.textureType;
+                        dst.alphaSource = org.alphaSource;
+                        dst.alphaIsTransparency = org.alphaIsTransparency;
+                        dst.maxTextureSize = maxSize;
+                        dst.isReadable = org.isReadable;
+                        dst.textureCompression = org.textureCompression;
+                        dst.SaveAndReimport();
+                    }
+        #endif
 
-            return dest;
-        }
+                    return dest;
+                }
         
 
         #if UNITY_EDITOR
 
-        public static TextureImporter GetTextureImporter(this Texture2D tex) => AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+                public static TextureImporter GetTextureImporter(this Texture2D tex) => AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
         
-        public static bool HadNoMipmaps(this TextureImporter importer)
-        {
+                public static bool HadNoMipmaps(this TextureImporter importer)
+                {
 
-            var needsReimport = false;
+                    var needsReimport = false;
 
-            if (importer.mipmapEnabled == false)
-            {
-                importer.mipmapEnabled = true;
-                needsReimport = true;
-            }
+                    if (importer.mipmapEnabled == false)
+                    {
+                        importer.mipmapEnabled = true;
+                        needsReimport = true;
+                    }
 
-            return needsReimport;
+                    return needsReimport;
 
-        }
+                }
 
-        public static void Reimport_IfMarkedAsNOrmal(this Texture2D tex) {
-            if (!tex) return;
+                public static void Reimport_IfMarkedAsNOrmal(this Texture2D tex) {
+                    if (!tex) return;
 
-            var importer = tex.GetTextureImporter();
+                    var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasMarkedAsNormal()))
-                importer.SaveAndReimport();
-        }
+                    if ((importer != null) && (importer.WasMarkedAsNormal()))
+                        importer.SaveAndReimport();
+                }
 
-        public static bool WasMarkedAsNormal(this TextureImporter importer, bool convertToNormal = false)
-        {
+                public static bool WasMarkedAsNormal(this TextureImporter importer, bool convertToNormal = false)
+                {
 
-            var needsReimport = false;
+                    var needsReimport = false;
 
-            if ((importer.textureType == TextureImporterType.NormalMap) != convertToNormal)
-            {
-                importer.textureType = convertToNormal ? TextureImporterType.NormalMap : TextureImporterType.Default;
-                needsReimport = true;
-            }
+                    if ((importer.textureType == TextureImporterType.NormalMap) != convertToNormal)
+                    {
+                        importer.textureType = convertToNormal ? TextureImporterType.NormalMap : TextureImporterType.Default;
+                        needsReimport = true;
+                    }
 
-            return needsReimport;
+                    return needsReimport;
 
-        }
+                }
         
-        public static void Reimport_IfClamped(this Texture2D tex)
-        {
-            if (!tex) return;
+                public static void Reimport_IfClamped(this Texture2D tex)
+                {
+                    if (!tex) return;
 
-            var importer = tex.GetTextureImporter();
+                    var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasClamped()))
-                importer.SaveAndReimport();
-        }
-        public static bool WasClamped(this TextureImporter importer)
-        {
+                    if ((importer != null) && (importer.WasClamped()))
+                        importer.SaveAndReimport();
+                }
+                public static bool WasClamped(this TextureImporter importer)
+                {
 
-            var needsReimport = false;
-
-
-            if (importer.wrapMode != TextureWrapMode.Repeat)
-            {
-                importer.wrapMode = TextureWrapMode.Repeat;
-                needsReimport = true;
-            }
-
-            return needsReimport;
-
-        }
-
-        public static void Reimport_IfNotReadale(this Texture2D tex)
-        {
-            if (!tex) return;
-
-            var importer = tex.GetTextureImporter();
-
-            if (importer != null && importer.WasNotReadable())
-            {
-                importer.SaveAndReimport();
-                Debug.Log("Reimporting to make readable");
-            }
-        }
-        public static bool WasNotReadable(this TextureImporter importer)
-        {
-
-            var needsReimport = false;
+                    var needsReimport = false;
 
 
+                    if (importer.wrapMode != TextureWrapMode.Repeat)
+                    {
+                        importer.wrapMode = TextureWrapMode.Repeat;
+                        needsReimport = true;
+                    }
 
-            if (importer.isReadable == false)
-            {
-                importer.isReadable = true;
-                needsReimport = true;
-            }
+                    return needsReimport;
 
-            if (importer.textureType == TextureImporterType.Sprite)
-            {
-                importer.textureType = TextureImporterType.Default;
-                needsReimport = true;
-            }
+                }
 
-            if (importer.textureCompression != TextureImporterCompression.Uncompressed)
-            {
-                importer.textureCompression = TextureImporterCompression.Uncompressed;
-                needsReimport = true;
-            }
+                public static void Reimport_IfNotReadale(this Texture2D tex)
+                {
+                    if (!tex) return;
 
-            return needsReimport;
+                    var importer = tex.GetTextureImporter();
+
+                    if (importer != null && importer.WasNotReadable())
+                    {
+                        importer.SaveAndReimport();
+                        Debug.Log("Reimporting to make readable");
+                    }
+                }
+                public static bool WasNotReadable(this TextureImporter importer)
+                {
+
+                    var needsReimport = false;
 
 
-        }
 
-        public static void Reimport_SetIsColorTexture(this Texture2D tex, bool value)
-        {
-            if (!tex) return;
+                    if (importer.isReadable == false)
+                    {
+                        importer.isReadable = true;
+                        needsReimport = true;
+                    }
 
-            var importer = tex.GetTextureImporter();
+                    if (importer.textureType == TextureImporterType.Sprite)
+                    {
+                        importer.textureType = TextureImporterType.Default;
+                        needsReimport = true;
+                    }
 
-            if ((importer != null) && (importer.WasWrongIsColor(value)))
-                importer.SaveAndReimport();
-        }
-        public static bool WasWrongIsColor(this TextureImporter importer, bool isColor)
-        {
+                    if (importer.textureCompression != TextureImporterCompression.Uncompressed)
+                    {
+                        importer.textureCompression = TextureImporterCompression.Uncompressed;
+                        needsReimport = true;
+                    }
 
-            var needsReimport = false;
+                    return needsReimport;
 
-            if (importer.sRGBTexture != isColor)
-            {
-                importer.sRGBTexture = isColor;
-                needsReimport = true;
-            }
 
-            return needsReimport;
-        }
+                }
 
-        public static void Reimport_IfNotSingleChanel(this Texture2D tex)
-        {
-            if (!tex) return;
+                public static void Reimport_SetIsColorTexture(this Texture2D tex, bool value)
+                {
+                    if (!tex) return;
+
+                    var importer = tex.GetTextureImporter();
+
+                    if ((importer != null) && (importer.WasWrongIsColor(value)))
+                        importer.SaveAndReimport();
+                }
+                public static bool WasWrongIsColor(this TextureImporter importer, bool isColor)
+                {
+
+                    var needsReimport = false;
+
+                    if (importer.sRGBTexture != isColor)
+                    {
+                        importer.sRGBTexture = isColor;
+                        needsReimport = true;
+                    }
+
+                    return needsReimport;
+                }
+
+                public static void Reimport_IfNotSingleChanel(this Texture2D tex)
+                {
+                    if (!tex) return;
             
-            var importer = tex.GetTextureImporter();
+                    var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasNotSingleChanel()))
-                importer.SaveAndReimport();
+                    if ((importer != null) && (importer.WasNotSingleChanel()))
+                        importer.SaveAndReimport();
             
-        }
+                }
         
-        public static bool WasNotSingleChanel(this TextureImporter importer)
-        {
+                public static bool WasNotSingleChanel(this TextureImporter importer)
+                {
 
-            var needsReimport = false;
+                    var needsReimport = false;
 
 
-            if (importer.textureType != TextureImporterType.SingleChannel)
-            {
-                importer.textureType = TextureImporterType.SingleChannel;
-                needsReimport = true;
-            }
+                    if (importer.textureType != TextureImporterType.SingleChannel)
+                    {
+                        importer.textureType = TextureImporterType.SingleChannel;
+                        needsReimport = true;
+                    }
 
-            if (importer.alphaSource != TextureImporterAlphaSource.FromGrayScale)
-            {
-                importer.alphaSource = TextureImporterAlphaSource.FromGrayScale;
-                needsReimport = true;
-            }
+                    if (importer.alphaSource != TextureImporterAlphaSource.FromGrayScale)
+                    {
+                        importer.alphaSource = TextureImporterAlphaSource.FromGrayScale;
+                        needsReimport = true;
+                    }
 
-            if (importer.alphaIsTransparency == false)
-            {
-                importer.alphaIsTransparency = true;
-                needsReimport = true;
-            }
+                    if (importer.alphaIsTransparency == false)
+                    {
+                        importer.alphaIsTransparency = true;
+                        needsReimport = true;
+                    }
 
-            return needsReimport;
+                    return needsReimport;
 
-        }
+                }
 
-        public static void Reimport_IfAlphaIsNotTransparency(this Texture2D tex)
-        {
+                public static void Reimport_IfAlphaIsNotTransparency(this Texture2D tex)
+                {
 
-            if (!tex) return;
+                    if (!tex) return;
 
-            var importer = tex.GetTextureImporter();
+                    var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasAlphaNotTransparency()))
-                importer.SaveAndReimport();
+                    if ((importer != null) && (importer.WasAlphaNotTransparency()))
+                        importer.SaveAndReimport();
             
 
-        }
-        public static bool WasAlphaNotTransparency(this TextureImporter importer)
-        {
+                }
+                public static bool WasAlphaNotTransparency(this TextureImporter importer)
+                {
 
-            var needsReimport = false;
+                    var needsReimport = false;
 
-            if (importer.alphaIsTransparency == false)
-            {
-                importer.alphaIsTransparency = true;
-                needsReimport = true;
-            }
+                    if (importer.alphaIsTransparency == false)
+                    {
+                        importer.alphaIsTransparency = true;
+                        needsReimport = true;
+                    }
 
-            if (importer.textureCompression != TextureImporterCompression.Uncompressed)
-            {
-                importer.textureCompression = TextureImporterCompression.Uncompressed;
-                needsReimport = true;
-            }
+                    if (importer.textureCompression != TextureImporterCompression.Uncompressed)
+                    {
+                        importer.textureCompression = TextureImporterCompression.Uncompressed;
+                        needsReimport = true;
+                    }
 
-            if (importer.alphaSource != TextureImporterAlphaSource.FromInput)
-            {
-                importer.alphaSource = TextureImporterAlphaSource.FromInput;
-                needsReimport = true;
-            }
+                    if (importer.alphaSource != TextureImporterAlphaSource.FromInput)
+                    {
+                        importer.alphaSource = TextureImporterAlphaSource.FromInput;
+                        needsReimport = true;
+                    }
 
-            return needsReimport;
+                    return needsReimport;
 
-        }
+                }
 
-        public static void Reimport_IfWrongMaxSize(this Texture2D tex, int width)
-        {
-            if (!tex) return;
+                public static void Reimport_IfWrongMaxSize(this Texture2D tex, int width)
+                {
+                    if (!tex) return;
 
-            var importer = tex.GetTextureImporter();
+                    var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasWrongMaxSize(width)))
-                importer.SaveAndReimport();
+                    if ((importer != null) && (importer.WasWrongMaxSize(width)))
+                        importer.SaveAndReimport();
             
-        }
-        public static bool WasWrongMaxSize(this TextureImporter importer, int width)
-        {
+                }
+                public static bool WasWrongMaxSize(this TextureImporter importer, int width)
+                {
 
-            var needsReimport = false;
+                    var needsReimport = false;
 
-            if (importer.maxTextureSize < width)
-            {
-                importer.maxTextureSize = width;
-                needsReimport = true;
-            }
+                    if (importer.maxTextureSize < width)
+                    {
+                        importer.maxTextureSize = width;
+                        needsReimport = true;
+                    }
 
-            return needsReimport;
+                    return needsReimport;
 
-        }
+                }
 
 
-#endif
+        #endif
         #endregion
 
         #region Texture Saving
 
-        public static string GetPathWithout_Assets_Word(this Texture2D tex)
-        {
-#if UNITY_EDITOR
-            var path = AssetDatabase.GetAssetPath(tex);
-            return string.IsNullOrEmpty(path) ? null : path.Replace("Assets", "");
-#else
-            return null;
-#endif
-        }
+                public static string GetPathWithout_Assets_Word(this Texture2D tex)
+                {
+        #if UNITY_EDITOR
+                    var path = AssetDatabase.GetAssetPath(tex);
+                    return string.IsNullOrEmpty(path) ? null : path.Replace("Assets", "");
+        #else
+                    return null;
+        #endif
+                }
         
         #if UNITY_EDITOR
-        public static void SaveTexture(this Texture2D tex)
-        {
+                public static void SaveTexture(this Texture2D tex)
+                {
 
-            var bytes = tex.EncodeToPNG();
+                    var bytes = tex.EncodeToPNG();
 
-            var dest = AssetDatabase.GetAssetPath(tex).Replace("Assets", "");
+                    var dest = AssetDatabase.GetAssetPath(tex).Replace("Assets", "");
 
-            File.WriteAllBytes(Application.dataPath + dest, bytes);
+                    File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-            AssetDatabase.Refresh();
-        }
+                    AssetDatabase.Refresh();
+                }
 
-        public static string GetAssetPath(this Texture2D tex) => AssetDatabase.GetAssetPath(tex);
+                public static string GetAssetPath(this Texture2D tex) => AssetDatabase.GetAssetPath(tex);
         
-        public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
-        {
-            if (name == tex.name)
-                return tex.RewriteOriginalTexture();
+                public static Texture2D RewriteOriginalTexture_NewName(this Texture2D tex, string name)
+                {
+                    if (name == tex.name)
+                        return tex.RewriteOriginalTexture();
 
-            var bytes = tex.EncodeToPNG();
+                    var bytes = tex.EncodeToPNG();
 
-            var dest = tex.GetPathWithout_Assets_Word();
-            dest = dest.ReplaceLastOccurrence(tex.name, name);
-            if (string.IsNullOrEmpty(dest)) return tex;
+                    var dest = tex.GetPathWithout_Assets_Word();
+                    dest = dest.ReplaceLastOccurrence(tex.name, name);
+                    if (string.IsNullOrEmpty(dest)) return tex;
 
-            File.WriteAllBytes(Application.dataPath + dest, bytes);
+                    File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-            var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+                    var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            result.CopyImportSettingFrom(tex);
+                    result.CopyImportSettingFrom(tex);
 
-            AssetDatabase.DeleteAsset(tex.GetAssetPath());
+                    AssetDatabase.DeleteAsset(tex.GetAssetPath());
 
-            AssetDatabase.Refresh();
+                    AssetDatabase.Refresh();
             
-            return result;
-        }
+                    return result;
+                }
 
-        public static Texture2D RewriteOriginalTexture(this Texture2D tex) {
+                public static Texture2D RewriteOriginalTexture(this Texture2D tex) {
   
-            var dest = tex.GetPathWithout_Assets_Word();
-            if (dest.IsNullOrEmpty())
-                return tex;
+                    var dest = tex.GetPathWithout_Assets_Word();
+                    if (dest.IsNullOrEmpty())
+                        return tex;
 
-            var bytes = tex.EncodeToPNG();
+                    var bytes = tex.EncodeToPNG();
 
-            File.WriteAllBytes(Application.dataPath + dest, bytes);
+                    File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-            var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+                    var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            result.CopyImportSettingFrom(tex);
+                    result.CopyImportSettingFrom(tex);
 
-            return result;
-        }
+                    return result;
+                }
 
-        public static Texture2D SaveTextureAsAsset(this Texture2D tex, string folderName, ref string textureName, bool saveAsNew)
-        {
+                public static Texture2D SaveTextureAsAsset(this Texture2D tex, string folderName, ref string textureName, bool saveAsNew)
+                {
 
-            var bytes = tex.EncodeToPNG();
+                    var bytes = tex.EncodeToPNG();
 
-            var lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
-            var folderPath = Application.dataPath + lastPart;
-            Directory.CreateDirectory(folderPath);
+                    var lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
+                    var folderPath = Application.dataPath + lastPart;
+                    Directory.CreateDirectory(folderPath);
 
-            var fileName = textureName + ".png";
+                    var fileName = textureName + ".png";
 
-            var relativePath = "Assets" + lastPart + fileName;
+                    var relativePath = "Assets" + lastPart + fileName;
 
-            if (saveAsNew)
-                relativePath = AssetDatabase.GenerateUniqueAssetPath(relativePath);
+                    if (saveAsNew)
+                        relativePath = AssetDatabase.GenerateUniqueAssetPath(relativePath);
 
-            var fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + relativePath;
+                    var fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + relativePath;
 
-            File.WriteAllBytes(fullPath, bytes);
+                    File.WriteAllBytes(fullPath, bytes);
 
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
-            //AssetDatabase.Refresh(); 
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
+                    //AssetDatabase.Refresh(); 
 
-            Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+                    Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
-            textureName = result.name;
+                    textureName = result.name;
 
-            result.CopyImportSettingFrom(tex);
+                    result.CopyImportSettingFrom(tex);
 
-            return result;
-        }
+                    return result;
+                }
 
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) =>
-             CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
+                public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) =>
+                     CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
         
-        public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
+                public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
 
-            Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
+                    Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
 
-            diffuse.Reimport_IfNotReadale();
+                    diffuse.Reimport_IfNotReadale();
 
-            var pxls = diffuse.GetPixels(width, height);
-            pxls[0].a = 0.5f;
+                    var pxls = diffuse.GetPixels(width, height);
+                    pxls[0].a = 0.5f;
 
-            Result.SetPixels(pxls);
+                    Result.SetPixels(pxls);
 
-            byte[] bytes = Result.EncodeToPNG();
+                    byte[] bytes = Result.EncodeToPNG();
 
-            string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
+                    string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
 
-            var extension = dest.Substring(dest.LastIndexOf(".") + 1);
+                    var extension = dest.Substring(dest.LastIndexOf(".") + 1);
 
-            dest = dest.Substring(0, dest.Length - extension.Length) + "png";
+                    dest = dest.Substring(0, dest.Length - extension.Length) + "png";
 
-            dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
+                    dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
 
-            File.WriteAllBytes(Application.dataPath + dest, bytes);
+                    File.WriteAllBytes(Application.dataPath + dest, bytes);
 
-            AssetDatabase.Refresh();
+                    AssetDatabase.Refresh();
 
-            var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+                    var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
-            var imp = tex.GetTextureImporter();
-            bool needReimport = imp.WasNotReadable();
-            needReimport |= imp.WasClamped();
-            needReimport |= imp.WasWrongIsColor(diffuse.IsColorTexture());
-            if (needReimport)
-                imp.SaveAndReimport();
+                    var imp = tex.GetTextureImporter();
+                    bool needReimport = imp.WasNotReadable();
+                    needReimport |= imp.WasClamped();
+                    needReimport |= imp.WasWrongIsColor(diffuse.IsColorTexture());
+                    if (needReimport)
+                        imp.SaveAndReimport();
 
-            return tex;
+                    return tex;
 
-        }
+                }
         #endif
         #endregion
 
         #region Terrain Layers
-        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
-        {
+                public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
+                {
 
-            if (!terrain) return;
+                    if (!terrain) return;
 
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
+        #if UNITY_2018_3_OR_NEWER
+                    var l = terrain.terrainData.terrainLayers;
 
-            if (l.Length > index)
-                l[index].diffuseTexture = tex;
-#else
+                    if (l.Length > index)
+                        l[index].diffuseTexture = tex;
+        #else
 
-            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
+                    SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
 
-            if (newProtos.Length <= index)
-            {
-               CsharpFuncs.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
-            }
+                    if (newProtos.Length <= index)
+                    {
+                       CsharpFuncs.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+                    }
 
-            newProtos[index].texture = tex;
+                    newProtos[index].texture = tex;
 
        
-            terrain.terrainData.splatPrototypes = newProtos;
-#endif
+                    terrain.terrainData.splatPrototypes = newProtos;
+        #endif
 
 
 
-        }
+                }
 
-        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
-        {
+                public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
+                {
 
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
+        #if UNITY_2018_3_OR_NEWER
+                    var l = terrain.terrainData.terrainLayers;
 
-            if (l.Length > ind)
-            {
-                var sp = l[ind];
-                return sp != null ? l[ind].diffuseTexture : null;
-            }
-            else
-                return null;
-#else
+                    if (l.Length > ind)
+                    {
+                        var sp = l[ind];
+                        return sp != null ? l[ind].diffuseTexture : null;
+                    }
+                    else
+                        return null;
+        #else
 
-            SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
+                    SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
 
-            if (prots.Length <= ind) return null;
+                    if (prots.Length <= ind) return null;
 
 
-            return prots[ind].texture;
-#endif
-        }
+                    return prots[ind].texture;
+        #endif
+                }
 
-#if !UNITY_2018_3_OR_NEWER
-        public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
-        {
+        #if !UNITY_2018_3_OR_NEWER
+                public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
+                {
 
-            if (!terrain) return null;
+                    if (!terrain) return null;
 
-            SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
-            SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
-            for (int i = 0; i < oldProtos.Length; i++)
-            {
-                SplatPrototype oldProto = oldProtos[i];
-                SplatPrototype newProto = new SplatPrototype();
-                newProtos[i] = newProto;
+                    SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
+                    SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
+                    for (int i = 0; i < oldProtos.Length; i++)
+                    {
+                        SplatPrototype oldProto = oldProtos[i];
+                        SplatPrototype newProto = new SplatPrototype();
+                        newProtos[i] = newProto;
 
-                newProto.texture = oldProto.texture;
-                newProto.tileSize = oldProto.tileSize;
-                newProto.tileOffset = oldProto.tileOffset;
-                newProto.normalMap = oldProto.normalMap;
-            }
+                        newProto.texture = oldProto.texture;
+                        newProto.tileSize = oldProto.tileSize;
+                        newProto.tileOffset = oldProto.tileOffset;
+                        newProto.normalMap = oldProto.normalMap;
+                    }
 
-            return newProtos;
-        }
-#endif
+                    return newProtos;
+                }
+        #endif
         #endregion
         #endregion
 
@@ -1972,7 +1973,7 @@ namespace QuizCannersUtilities {
             _totalCount = 0;
         }
 
-        #region Inspector
+#region Inspector
 
         public string NameForPEGIdisplay => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)_avarage).ToString("0.00"),  (intervalLength != 1d) ? intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
 
@@ -1990,7 +1991,7 @@ namespace QuizCannersUtilities {
             return false;
         }
 #endif
-        #endregion
+#endregion
 
         public PerformanceTimer(string name = "Timer", float interval = 1f)
         {
@@ -2014,7 +2015,7 @@ namespace QuizCannersUtilities {
             message = msg;
 #if !UNITY_EDITOR
             disabled = (!logInBuild);
-#else 
+#else
             disabled = false;
 #endif
         }
@@ -2161,7 +2162,7 @@ namespace QuizCannersUtilities {
                 DisposeRequest();
             }
 
-            #region Inspector
+#region Inspector
 #if PEGI
             public bool PEGI_inList(IList list, int ind, ref int edited)
             {
@@ -2209,7 +2210,7 @@ namespace QuizCannersUtilities {
                 return false;
             }
 #endif
-            #endregion
+#endregion
         }
 
         public string GetURL(int ind) {
@@ -2245,7 +2246,7 @@ namespace QuizCannersUtilities {
             _loadedTextures.Clear();
         }
 
-        #region Inspector
+#region Inspector
 #if PEGI
         int inspected = -1;
         string tmp = "";
@@ -2261,22 +2262,26 @@ namespace QuizCannersUtilities {
             return changed;
         }
 #endif
-        #endregion
+#endregion
     }
 
     public static class ShaderProperty
     {
         
         
-        public abstract class BaseIndexHolder {
+        public abstract class BaseIndexHolder : IGotDisplayName {
             protected readonly int _ID;
+            string _name;
 
             protected BaseIndexHolder(string name) {
+                _name = name;
                 _ID = Shader.PropertyToID( name );
             }
+
+            public string NameForPEGIdisplay => _name;
         }
 
-
+        #region Float
         public class FloatValue : BaseIndexHolder
         {
             
@@ -2295,6 +2300,8 @@ namespace QuizCannersUtilities {
 
             public void SetGlobal(float value) => GlobalValue = value;
 
+            public float Get(Material mat) => mat.GetFloat(_ID);
+
             public float GlobalValue {
                 get { return  Shader.GetGlobalFloat(_ID); }
                 set { Shader.SetGlobalFloat(_ID, value); lastValue = value; }
@@ -2307,6 +2314,10 @@ namespace QuizCannersUtilities {
         
         public static void Set(this Material mat, FloatValue property) => property.SetOn(mat);
 
+        public static float Get(this Material mat, FloatValue property) => property.Get(mat);
+        #endregion
+
+        #region Color
         public class ColorValue : BaseIndexHolder
         {
 
@@ -2321,6 +2332,8 @@ namespace QuizCannersUtilities {
             public void SetOn(Material material) => material.SetColor(_ID, lastValue);
 
             public void SetGlobal(Color value) => GlobalValue = value;
+            
+            public Color Get(Material mat) => mat.GetColor(_ID);
 
             public Color GlobalValue {
                 get { return  Shader.GetGlobalColor(_ID); }
@@ -2330,11 +2343,14 @@ namespace QuizCannersUtilities {
             public ColorValue(string name) : base(name) { }
         }
 
+        public static Color Get(this Material mat, ColorValue property) => property.Get(mat);
+
         public static void Set(this Material mat, ColorValue property, Color value) => property.SetOn(mat, value);
         
         public static void Set(this Material mat, ColorValue property) => property.SetOn(mat);
-        
-        
+        #endregion
+
+        #region Vector
         public class VectorValue : BaseIndexHolder
         {
 
@@ -2350,6 +2366,8 @@ namespace QuizCannersUtilities {
 
             public void SetGlobal(Vector4 value) => GlobalValue = value;
 
+            public Vector4 Get(Material mat) => mat.GetVector(_ID);
+
             public Vector4 GlobalValue {
                 get { return  Shader.GetGlobalVector(_ID); }
                 set { Shader.SetGlobalVector(_ID, value); }
@@ -2358,11 +2376,14 @@ namespace QuizCannersUtilities {
             public VectorValue(string name) : base(name) { }
         }
 
+        public static Vector4 Get(this Material mat, VectorValue property) => property.Get(mat);
+        
         public static void Set(this Material mat, VectorValue property, Vector4 value) => property.SetOn(mat, value);
         
         public static void Set(this Material mat, VectorValue property) => property.SetOn(mat);
+        #endregion
 
-          
+        #region Texture
         public class TextureValue : BaseIndexHolder
         {
 
@@ -2417,6 +2438,7 @@ namespace QuizCannersUtilities {
         public static void SetOffset(this Material mat, TextureValue property, Vector2 value) => property.SetOffset(mat, value);
 
         public static void SetTiling(this Material mat, TextureValue property, Vector2 value) => property.SetTiling(mat, value);
+        #endregion
     } 
     
     

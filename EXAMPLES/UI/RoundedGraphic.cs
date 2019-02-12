@@ -72,6 +72,7 @@ namespace Playtime_Painter.Examples
         public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
         public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole";
         public const string UNLINKED_VERTICES = "_UNLINKED";
+        public const string EDGE_SOFTNESS_FLOAT = "_Edges";
 
         #if PEGI
         public bool Inspect()
@@ -312,6 +313,8 @@ namespace Playtime_Painter.Examples
     
     public static class RoundedUiExtensions
     {
+
+        #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         static void CreateRoundedUIElement() {
 
@@ -330,6 +333,7 @@ namespace Playtime_Painter.Examples
 
             rg.material = UnityEngine.Object.Instantiate(rg.material);
         }
+        #endif
 
         public static UIVertex Set(this UIVertex vert, float uvX, float uvY, Vector2 posX, Vector2 posY) {
             vert.uv0 = new Vector2(uvX, uvY);
@@ -339,6 +343,7 @@ namespace Playtime_Painter.Examples
 
 
     }
+
 
     #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]

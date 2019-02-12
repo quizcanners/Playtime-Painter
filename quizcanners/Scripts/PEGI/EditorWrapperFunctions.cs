@@ -24,9 +24,9 @@ namespace PlayerAndEditorGUI {
     public static class ef {
 
 
-        enum EditorType { Mono, ScriptableObject, Material, Unknown }
+        public enum EditorType { Mono, ScriptableObject, Material, Unknown }
 
-        static EditorType editorType = EditorType.Unknown;
+        public static EditorType editorType = EditorType.Unknown;
 
         static bool lineOpen = false;
         static int selectedFold = -1;
@@ -102,13 +102,24 @@ namespace PlayerAndEditorGUI {
 
             var mat = editor.unityMaterialEditor.target as Material;
 
+          
             start();
 
             var changed = editor.Inspect(mat);
 
             end(mat);
+            
 
             return changes;
+        }
+
+        public static bool toggleDefaultInspector()
+        {    
+            if (editorType == EditorType.Material)
+                return pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20).nl();
+
+            else
+                return pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20).nl();
         }
 
         static void start(SerializedObject so = null) {

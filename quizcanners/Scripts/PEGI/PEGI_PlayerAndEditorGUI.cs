@@ -98,7 +98,9 @@ namespace PlayerAndEditorGUI {
             set { if (value) mouseOverUI = Time.frameCount; }
         }
 
+
         #if PEGI
+
         #region Change Tracking 
         public static bool globChanged;
 
@@ -189,6 +191,8 @@ namespace PlayerAndEditorGUI {
         static bool lineOpen;
         
         static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
+
+        const int letterSizeInPixels = 7;
 
         #region GUI Colors
 
@@ -3658,14 +3662,13 @@ namespace PlayerAndEditorGUI {
             return toggle(ref val);
         }
         
-        public static bool toggleDefaultInspector() {
+        public static bool toggleDefaultInspector() =>
             #if UNITY_EDITOR
-               return toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config,icon.Debug, "Toggle Between regular and PEGI inspector" ,20).nl();
-   
+                 ef.toggleDefaultInspector(); 
             #else
-                return false;
+                false;
             #endif
-        }
+        
 
 #endregion
 
@@ -4559,10 +4562,10 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit(this string label, ref float val) {
-    #if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGUI)
                 return ef.edit(label, ref val);
-    #endif
+            #endif
                 write(label);
                 return edit(ref val);
         }
@@ -4682,7 +4685,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool edit(this string label, ref float val, float min, float max)
         {
-            label.sliderText(val, label, 90);
+            label.sliderText(val, label, label.Length*letterSizeInPixels);
             return edit(ref val, min, max);
         }
 
@@ -7626,24 +7629,101 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Shaders
+        
+        public static bool toggle(this Material mat, string keyword) {
+            bool val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
 
-        public static bool toggle(this Material mat, string keyword)
-    {
-        bool val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
-
-        if (!keyword.toggleIcon(ref val)) return false;
+            if (!keyword.toggleIcon(ref val)) return false;
             
-        if (val)
-            mat.EnableKeyword(keyword);
-        else
-            mat.DisableKeyword(keyword);
+            if (val)
+                mat.EnableKeyword(keyword);
+            else
+                mat.DisableKeyword(keyword);
 
-        return true;
+            return true;
+        }
 
-    }
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForPEGIdisplay;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val)) {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name, float min, float max)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForPEGIdisplay;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val, min, max)) {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+
+        public static bool edit(this Material mat, ShaderProperty.ColorValue property, string name = null)
+        {
+            var val = mat.Get(property);
+            
+            if (name.IsNullOrEmpty())
+                name = property.NameForPEGIdisplay;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.VectorValue property, string name = null)
+        {
+            var val = mat.Get(property);
+            
+            if (name.IsNullOrEmpty())
+                name = property.NameForPEGIdisplay;
+
+            if (name.edit(ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.TextureValue property, string name = null)
+        {
+            var val = mat.Get(property);
+            
+            if (name.IsNullOrEmpty())
+                name = property.NameForPEGIdisplay;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
 
         #endregion
-
+  
         #endif
 
     }
