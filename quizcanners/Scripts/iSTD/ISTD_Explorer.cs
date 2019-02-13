@@ -244,12 +244,12 @@ namespace QuizCannersUtilities
             if (std != null)
                 std_dta = std.Encode().ToString();
 
-            guid = (el as UnityEngine.Object).GetGUID(guid);
+            guid = (el as UnityEngine.Object).GetGuid(guid);
         }
         
         public bool TryGetByGUID<T>(ref T field) where T : UnityEngine.Object {
 
-            var obj = UnityHelperFunctions.GUIDtoAsset<T>(guid);
+            var obj = UnityHelperFunctions.GuidToAsset<T>(guid);
 
             field = null;
 

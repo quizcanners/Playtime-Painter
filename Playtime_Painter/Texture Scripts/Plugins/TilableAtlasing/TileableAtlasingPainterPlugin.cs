@@ -621,7 +621,7 @@ namespace Playtime_Painter {
             foreach (var f in fields)
                 changed |= f.Nested_Inspect();
 
-            changed |= "Mesh Profile".select(110, ref matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
+            changed |= "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count).select(140, ref matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
             {

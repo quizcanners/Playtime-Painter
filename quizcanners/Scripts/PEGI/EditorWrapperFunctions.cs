@@ -197,7 +197,7 @@ namespace PlayerAndEditorGUI {
             }
         }
         
-        private static bool IsFoldedOut { get { return pegi.isFoldedOut_or_Entered; } set { pegi.isFoldedOut_or_Entered = value; } }
+        private static bool IsFoldedOut { get { return pegi.isFoldedOutOrEntered; } set { pegi.isFoldedOutOrEntered = value; } }
 
         private static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut") {
 

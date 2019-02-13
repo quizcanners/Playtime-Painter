@@ -30,7 +30,7 @@ namespace Playtime_Painter
 
             bool changed = this.inspect_Name();
 
-            if (icon.Enter.BGColor(colors.TryGet(0).ToOpaque()).Click().RestoreBGColor())
+            if (icon.Enter.BgColor(colors.TryGet(0).ToOpaque()).Click().RestoreBGColor())
                 edited = ind;
 
             return changed;
@@ -60,7 +60,7 @@ namespace Playtime_Painter
 
         public void PickerPEGI() {
 
-            int rowLimit = pegi.paintingPlayAreaGUI ? 6 : (int)((Screen.width-55) / 32f);
+            int rowLimit = pegi.paintingPlayAreaGui ? 6 : (int)((Screen.width-55) / 32f);
 
             int rowCount = 0;
             for (int i = 0; i < colors.Count; i++) {
@@ -68,7 +68,7 @@ namespace Playtime_Painter
                 var col = colors[i];
 
                 if (lastPicked == i) {
-                    if (icon.Save.BGColor(col.ToOpaque()).Click("Save changes").RestoreBGColor())
+                    if (icon.Save.BgColor(col.ToOpaque()).Click("Save changes").RestoreBGColor())
                         colors[i] = GlobalBrush.Color;
                 }
                 else
@@ -87,7 +87,7 @@ namespace Playtime_Painter
 
             var curColor = GlobalBrush.Color;
 
-            if (icon.SaveAsNew.BGColor(curColor.ToOpaque()).Click().RestoreBGColor())
+            if (icon.SaveAsNew.BgColor(curColor.ToOpaque()).Click().RestoreBGColor())
                 colors.Add(curColor);
 
             pegi.nl();

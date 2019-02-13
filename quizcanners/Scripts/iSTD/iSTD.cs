@@ -506,7 +506,7 @@ namespace QuizCannersUtilities {
                 var data = std.Encode().ToString();
 
                 UnityHelperFunctions.SendEmail ( "somebody@gmail.com", subject, 
-                    "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNL, pegi.EnvironmentNL,
+                    "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNl, pegi.EnvironmentNl,
                     stdStart, data, stdEnd ) ) ;
 
             }

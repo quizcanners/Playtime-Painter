@@ -900,7 +900,7 @@ namespace QuizCannersUtilities
 
         public static void ToAssetByGUID<T>(this string data, ref T val) where T : UnityEngine.Object
         {
-            var ass = UnityHelperFunctions.GUIDtoAsset<T>(data);
+            var ass = UnityHelperFunctions.GuidToAsset<T>(data);
             if (ass)
                 val = ass;
         }

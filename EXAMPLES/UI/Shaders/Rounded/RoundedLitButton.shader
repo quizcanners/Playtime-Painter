@@ -1,6 +1,7 @@
 ﻿Shader "Playtime Painter/UI/Rounded/BumpedButton" {
 	Properties{
-		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		[PerRendererData][NoScaleOffset]_MainTex("Albedo (RGB)", 2D) = "gray" {}
+		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Edge Sharpness", Range(0.1,1)) = 0.5
 		_LightDirection("Light Direction Vector", Vector) = (0,0,0,0)
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
@@ -39,10 +40,11 @@
 					float3 lightProjection : TEXCOORD1;
 					float4 projPos : TEXCOORD2;
 					float4 precompute : TEXCOORD3;
-					float2 offUV : TEXCOORD4;
+					float4 offUV : TEXCOORD4;
 					float4 color: COLOR;
 				};
 
+				sampler2D _NoiseTex;
 				float _Edges;
 				float4 _LightDirection;
 
@@ -66,6 +68,7 @@
 
 
 					o.offUV.xy = (o.texcoord.xy - 0.5) * 2;
+					o.offUV.zw = float2((o.offUV.x + _SinTime.x + o.offUV.y*0.7) * 987.432, (o.offUV.y + _CosTime.x + o.offUV.x*0.23) * 123.456);
 
 					return o;
 				}
@@ -78,6 +81,8 @@
 					float2 uv =				abs(o.offUV);
 					
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
+
+					
 
 					float2 forFade = uv;
 
@@ -93,17 +98,21 @@
 					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
 					o.color.a *= clipp;
 
+
+					float4 noise = tex2Dlod(_NoiseTex, float4(o.offUV.zw, 0, 0));
+					
 					float2 dir = o.texcoord.xy - 0.5;
 					dir = dir / abs(dir);
 					dir *= uv.xy;
+					dir += (noise.xy-0.5)*0.1;
 
-					float noise = 0.5;
-
-					float3 norm = normalize(float3(dir.x, dir.y, noise));
+					float3 norm = normalize(float3(dir.x, dir.y, 0.5));
 
 					float angle = max(0,dot(norm, o.lightProjection));
 
-					o.color.rgb *= 0.5+ min(1, angle* angle*2 * noise)*0.5;
+					o.color.rgb *= 0.8+ min(1, angle)*0.3;
+
+					o.color.rgb += angle * angle*(0.2+noise.y*0.01);
 
 					return o.color;
 				}

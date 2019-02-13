@@ -17,11 +17,11 @@ namespace Playtime_Painter.Examples
     public class RoundedGraphic : Image, IPEGI
     {
 
-        static List<Shader> compatibleShaders;
+        private static List<Shader> _compatibleShaders;
 
-        List<Shader> CompatibleShaders { get {
-                if (compatibleShaders == null) {
-                    compatibleShaders = new List<Shader>()
+        public static List<Shader> CompatibleShaders { get {
+                if (_compatibleShaders == null) {
+                    _compatibleShaders = new List<Shader>()
                         .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
                         .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
                         .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
@@ -31,46 +31,44 @@ namespace Playtime_Painter.Examples
                         .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                         .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine"));
                 }
-                return compatibleShaders;
-            } }
+                return _compatibleShaders;
+            } 
+        }
 
-        [SerializeField] float[] roundedCourners = new float[1];
+        [SerializeField] private float[] roundedCorners = new float[1];
         
-        public float GetCourner(int index) => roundedCourners[index % roundedCourners.Length];
+        private float GetCorner(int index) => roundedCorners[index % roundedCorners.Length];
 
-        public void SetCourner(int index, float value) => roundedCourners[index % roundedCourners.Length] = value;
+        private void SetCorner(int index, float value) => roundedCorners[index % roundedCorners.Length] = value;
 
-        public bool LinkedCourners
+        public bool LinkedCorners
         {
-            get { return roundedCourners.Length == 1; }
+            get { return roundedCorners.Length == 1; }
 
             set
             {
-                int targetValue = value ? 1 : 4;
+                var targetValue = value ? 1 : 4;
 
-                if (targetValue != roundedCourners.Length) {
+                if (targetValue == roundedCorners.Length) return;
 
-                    if (material)
-                        material.SetShaderKeyword(UNLINKED_VERTICES, targetValue>1);
+                if (material)
+                    material.SetShaderKeyword(UNLINKED_VERTICES, targetValue>1);
 
+                var tmp = roundedCorners[0];
 
+                roundedCorners = new float[targetValue];
 
-                    var tmp = roundedCourners[0];
-
-                    roundedCourners = new float[targetValue];
-
-                    for (int i = 0; i < roundedCourners.Length; i++)
-                        roundedCourners[i] = tmp;
-                }
+                for (int i = 0; i < roundedCorners.Length; i++)
+                    roundedCorners[i] = tmp;
             }
         }
         
         public bool feedPositionData = true;
 
-        bool IsOverlay => canvas ? (canvas.renderMode == RenderMode.ScreenSpaceOverlay || !canvas.worldCamera) : false;
+        private bool IsOverlay => canvas ? (canvas.renderMode == RenderMode.ScreenSpaceOverlay || !canvas.worldCamera) : false;
 
         public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
-        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole";
+        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole"; // "Hide", "Tile"
         public const string UNLINKED_VERTICES = "_UNLINKED";
         public const string EDGE_SOFTNESS_FLOAT = "_Edges";
 
@@ -79,13 +77,15 @@ namespace Playtime_Painter.Examples
         {
             pegi.toggleDefaultInspector();
 
-            bool changed = false;
+            var changed = false;
+
+            var usesPosition = false;
 
             if (material)
             {
-                var tag = material.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
+                var pixPfTag = material.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
 
-                if (tag.IsNullOrEmpty())
+                if (pixPfTag.IsNullOrEmpty())
                     "{0} doesn't have {1} tag".F(material.shader.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
                 else
                 {
@@ -93,7 +93,7 @@ namespace Playtime_Painter.Examples
                     if (!canvas)
                         "No Canvas".writeWarning();
 
-                    bool usesPosition = tag.SameAs("Position");
+                    usesPosition = pixPfTag.SameAs("Position");
 
                     if (canvas)
                     {
@@ -111,14 +111,10 @@ namespace Playtime_Painter.Examples
                                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                         }
                     }
-
-                    if (!usesPosition && feedPositionData)
-                        "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".writeHint();
-
                 }
             }
 
-            bool linked = LinkedCourners;
+            var linked = LinkedCorners;
 
             "Material Is Unlinked: {0}".F(material.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
 
@@ -126,13 +122,13 @@ namespace Playtime_Painter.Examples
                 material.SetShaderKeyword(UNLINKED_VERTICES, !linked);
                 
             if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
-                LinkedCourners = linked;
+                LinkedCorners = linked;
 
-            for (int i = 0; i < roundedCourners.Length; i++) {
-                var crn = roundedCourners[i];
+            for (var i = 0; i < roundedCorners.Length; i++) {
+                var crn = roundedCorners[i];
 
                 if ("Corner{0}".F(linked ? "s" : (" " + i.ToString())).edit(90, ref crn, 0, 1f).nl(ref changed)) 
-                    roundedCourners[i] = crn;
+                    roundedCorners[i] = crn;
             }
 
             pegi.nl();
@@ -158,18 +154,31 @@ namespace Playtime_Painter.Examples
             if (material) {
                 var shader = material.shader;
 
-                if ("Shaders".select(60, ref shader, CompatibleShaders, false, true).nl(ref changed))
+                if ("Shaders".select(60, ref shader, CompatibleShaders, false, true).changes(ref changed))
                     material.shader = shader;
+
+                if (icon.Refresh.Click("Refresh compatible shaders list"))
+                    _compatibleShaders = null;
             }
 
-            "Position Data".toggleIcon(ref feedPositionData).nl(ref changed);
+            pegi.nl();
+
+            "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
+
+            if (!usesPosition && feedPositionData)
+            {
+                "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".write();
+                icon.Warning.write("Unnessessary data");
+            }
+            pegi.nl();
+
             var rt = raycastTarget;
             if ("Clickable".toggleIcon("Is Raycast Target",ref rt).nl(ref changed))
                 raycastTarget = rt;
             
-            string spriteTag = material ? material.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
+            var spriteTag = material ? material.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
 
-            bool noTag = spriteTag.IsNullOrEmpty();
+            var noTag = spriteTag.IsNullOrEmpty();
 
             if (noTag || !spriteTag.SameAs("Hide")) {
 
@@ -195,27 +204,32 @@ namespace Playtime_Painter.Examples
         protected override void OnPopulateMesh(VertexHelper vh)
         {
 
-            Vector2 corner1 = (Vector2.zero - rectTransform.pivot) * rectTransform.rect.size;
-            Vector2 corner2 = (Vector2.one - rectTransform.pivot) * rectTransform.rect.size;
+            var rt = rectTransform;
+            var piv = rt.pivot;
+            var size = rt.rect.size;
+            var corner1 = (Vector2.zero - piv) * size;
+            var corner2 = (Vector2.one - piv) * size;
 
             vh.Clear();
 
-            UIVertex vert = UIVertex.simpleVert;
+            var vert = UIVertex.simpleVert;
 
             var pos = Vector2.zero;
 
-            if (feedPositionData) {
-                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (canvas ? canvas.worldCamera : null) , rectTransform.position);
+            if (feedPositionData)
+            {
+                var mycanvas = canvas;
+                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (mycanvas ? mycanvas.worldCamera : null) , rt.position);
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
             }
 
-            Vector2 scale = rectTransform.rect.size;
+            var scale = rectTransform.rect.size;
             scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
 
-            float scaleToSided = scale.x - scale.y; // If x>0 - positive, else - negative
+            var scaleToSided = scale.x - scale.y; // If x>0 - positive, else - negative
 
             vert.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
-            vert.uv1 = new Vector2(scaleToSided, GetCourner(0));  // Replaced Edge smoothness with Scale
+            vert.uv1 = new Vector2(scaleToSided, GetCorner(0));  // Replaced Edge smoothness with Scale
             vert.color = color;
 
             vert.uv0 = new Vector2(0, 0);
@@ -223,21 +237,21 @@ namespace Playtime_Painter.Examples
             vh.AddVert(vert);
 
             vert.uv0 = new Vector2(0, 1);
-            vert.uv1.y =  GetCourner(1);
+            vert.uv1.y =  GetCorner(1);
             vert.position = new Vector2(corner1.x, corner2.y);
             vh.AddVert(vert);
 
             vert.uv0 = new Vector2(1, 1);
-            vert.uv1.y = GetCourner(2);
+            vert.uv1.y = GetCorner(2);
             vert.position = new Vector2(corner2.x, corner2.y);
             vh.AddVert(vert);
 
             vert.uv0 = new Vector2(1, 0);
-            vert.uv1.y = GetCourner(3);
+            vert.uv1.y = GetCorner(3);
             vert.position = new Vector2(corner2.x, corner1.y);
             vh.AddVert(vert);
 
-            if (LinkedCourners) {
+            if (LinkedCorners) {
                 //1  2
                 //0  3
                 vh.AddTriangle(0, 1, 2);
@@ -254,34 +268,34 @@ namespace Playtime_Painter.Examples
                 var cornMid = (corner1 + corner2) * 0.5f;
 
                 
-                vert.uv1.y = GetCourner(0);
+                vert.uv1.y = GetCorner(0);
                 vh.AddVert(vert.Set(0, 0.5f, corner1, cornMid)); //4
                 vh.AddVert(vert.Set(0.5f, 0, cornMid, corner1)); //5
                
-                vert.uv1.y = GetCourner(1);
+                vert.uv1.y = GetCorner(1);
                 vh.AddVert(vert.Set(0.5f, 1, cornMid, corner2)); //6
                 vh.AddVert(vert.Set(0, 0.5f, corner1, cornMid)); //7
 
-                vert.uv1.y = GetCourner(2);
+                vert.uv1.y = GetCorner(2);
                 vh.AddVert(vert.Set(1, 0.5f, corner2, cornMid)); //8
                 vh.AddVert(vert.Set(0.5f, 1, cornMid, corner2)); //9
 
-                vert.uv1.y = GetCourner(3);
+                vert.uv1.y = GetCorner(3);
                 vh.AddVert(vert.Set(0.5f, 0, cornMid, corner1)); //10
                 vh.AddVert(vert.Set(1, 0.5f, corner2, cornMid)); //11
 
 
 
-                vert.uv1.y = GetCourner(0);
+                vert.uv1.y = GetCorner(0);
                 vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //12
 
-                vert.uv1.y = GetCourner(1);
+                vert.uv1.y = GetCorner(1);
                 vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //13
 
-                vert.uv1.y = GetCourner(2);
+                vert.uv1.y = GetCorner(2);
                 vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //14
 
-                vert.uv1.y = GetCourner(3);
+                vert.uv1.y = GetCorner(3);
                 vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //15
 
 
@@ -301,7 +315,7 @@ namespace Playtime_Painter.Examples
 
         Vector3 previousPos = Vector3.zero;
 
-        void Update()
+        private void Update()
         {
             if (feedPositionData && rectTransform.position != previousPos)
             {
@@ -316,7 +330,7 @@ namespace Playtime_Painter.Examples
 
         #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
-        static void CreateRoundedUIElement() {
+        private static void CreateRoundedUiElement() {
 
             var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
 
@@ -347,7 +361,7 @@ namespace Playtime_Painter.Examples
 
     #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
-    public class PixelPerfcetUVmeshDataDrawer : PEGI_Inspector<RoundedGraphic> { }
+    public class PixelPerfectShaderDrawer : PEGI_Inspector<RoundedGraphic> { }
     #endif
 
 }

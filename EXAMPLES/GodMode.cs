@@ -165,7 +165,7 @@ namespace Playtime_Painter.Examples {
  
             "Rotate without RMB".toggleIcon(ref rotateWithotRMB).nl();
 
-            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNL);
+            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNl);
 
             return false;
         }

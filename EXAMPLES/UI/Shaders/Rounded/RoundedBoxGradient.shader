@@ -1,7 +1,8 @@
 ﻿Shader "Playtime Painter/UI/Rounded/Gradient"
 {
 	Properties{
-		_MainTex("Noise (RGB)", 2D) = "black" {}
+		[PerRendererData][NoScaleOffset]_MainTex("Noise (RGB)", 2D) = "gray" {}
+		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		_ColorC("Center", Color) = (1,1,1,1)
 		_ColorE("Edge", Color) = (1,1,1,1)
@@ -16,7 +17,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
-			"SpriteRole" = "Noise"
+			"SpriteRole" = "Hide"
 		}
 
 		ColorMask RGB
@@ -46,14 +47,14 @@
 					float4 texcoord : TEXCOORD0;
 					float4 projPos : TEXCOORD1;
 					float4 precompute : TEXCOORD2;
-					float2 offUV : TEXCOORD3;
+					float4 offUV : TEXCOORD3;
 					float4 color: COLOR;
 				};
 
 				float _Edges;
 				float4 _ColorC;
 				float4 _ColorE;
-				sampler2D _MainTex;
+				sampler2D _NoiseTex;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -72,6 +73,8 @@
 					o.precompute.z = (1 + _Edges*32);
 
 					o.offUV.xy = (o.texcoord.xy - 0.5) * 2;
+
+					o.offUV.zw = float2((o.offUV.x + _SinTime.x) * 987.432, (o.offUV.y + _CosTime.x) * 123.456);
 
 					return o;
 				}
@@ -101,14 +104,14 @@
 					float mid = forGrad.x;
 					#endif
 
-					float4 noise = tex2Dlod(_MainTex, float4((o.offUV.x + _SinTime.x) * 987.432, (o.offUV.y + _CosTime.x) * 123.456,0,0));
+					float4 noise = tex2Dlod(_NoiseTex, float4(o.offUV.zw,0,0));
 
 					#ifdef UNITY_COLORSPACE_GAMMA
 					_ColorC.rgb *= _ColorC.rgb;
 					_ColorE.rgb *= _ColorE.rgb;
 					#endif
 
-					noise.xy *= 0.01;
+					noise.xy = (noise.xy -0.5) * 0.01;
 
 					o.color.rgb = _ColorE.rgb * (mid+ noise.x) +_ColorC.rgb * (1-mid+ noise.y);
 

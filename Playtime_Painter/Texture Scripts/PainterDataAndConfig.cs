@@ -324,7 +324,7 @@ namespace Playtime_Painter
 
         #region Encode/Decode
 
-        public string STDdata = "";
+        [SerializeField] string STDdata = "";
         public string Config_STD
         {
             get { return STDdata; }
@@ -343,14 +343,18 @@ namespace Playtime_Painter
                     for (int i = 0; i < imgDatas.Count; i++)
                     {
                         var id = imgDatas[i];
-                        if (id == null || (!id.NeedsToBeSaved)) { imgDatas.RemoveAt(i); i--; }
+                        if (id == null || !id.NeedsToBeSaved) { imgDatas.RemoveAt(i); i--; }
                     }
 
                     for (int index = 0; index < matDatas.Count; index++)
                     {
                         var md = matDatas[index];
-                        if (md.material == null || !md.material.SavedAsAsset()) matDatas.Remove(md);
+                        if (!md.material || !md.material.SavedAsAsset()) {
+                            matDatas.Remove(md);
+                            index--;
+                        }
                     }
+                    
 
                     var cody = this.EncodeUnrecognized()
                         .Add("imgs", imgDatas, this)
@@ -361,11 +365,11 @@ namespace Playtime_Painter
                         .Add("Vpck", meshPackagingSolutions)
 
 #if PEGI
-                 .Add_IfNotNegative("iid", inspectedImgData)
-                      .Add_IfNotNegative("isfs", inspectedStuffs)
-                      .Add_IfNotNegative("im", inspectedMaterial)
-                      .Add_IfNotNegative("id", inspectedDecal)
-                      .Add_IfNotNegative("is", inspectedStuff)
+                        .Add_IfNotNegative("iid", inspectedImgData)
+                        .Add_IfNotNegative("isfs", inspectedStuffs)
+                        .Add_IfNotNegative("im", inspectedMaterial)
+                        .Add_IfNotNegative("id", inspectedDecal)
+                        .Add_IfNotNegative("is", inspectedStuff)
 #endif
               .Add_IfTrue("e", toolEnabled);
 
@@ -515,18 +519,20 @@ namespace Playtime_Painter
                 brushConfig = new BrushConfig();
 
             if (meshPackagingSolutions.IsNullOrEmpty())
+            {
+                Debug.Log("Recreating mash packaging solutions");
                 meshPackagingSolutions = new List<MeshPackagingProfile>
                 {
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Simple"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Bevel"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "AtlasedProjected"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.folderName, "Standard_Atlased")
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
                 };
-
+            }
             if (samplingMaskSize.x == 0)
                 samplingMaskSize = new MyIntVec2(4);
 
-            if (atlasFolderName == null || atlasFolderName.Length == 0)
+            if (atlasFolderName.IsNullOrEmpty())
             {
                 materialsFolderName = "Materials";
                 texturesFolderName = "Textures";
@@ -538,10 +544,9 @@ namespace Playtime_Painter
 
             CheckShaders();
 
-            var encody = new StdDecoder(meshToolsSTD);
-            foreach (var tag in encody)
-            {
-                var d = encody.GetData();
+            var decody = new StdDecoder(meshToolsSTD);
+            foreach (var tag in decody) {
+                var d = decody.GetData();
                 foreach (var m in MeshToolBase.AllTools)
                     if (m.ToString().SameAs(tag))
                     {
@@ -593,13 +598,14 @@ namespace Playtime_Painter
             #endif
         }
 
-        public void OnEnable()
+        public void ManagedOnEnable()
         {
-            Init();
+           
             Decode(STDdata);
+            Init();
         }
 
-        public void OnDisable()
+        public void ManagedOnDisable()
         {
             StopCamera();
 

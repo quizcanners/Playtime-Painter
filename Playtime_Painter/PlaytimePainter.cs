@@ -182,7 +182,7 @@ namespace Playtime_Painter {
         
         public void OnMouseOver() {
 
-            if (pegi.MouseOverUI || (mouseOverUIPainter && mouseOverUIPainter!= this)) {
+            if (pegi.MouseOverUi || (_mouseOverUIPainter && _mouseOverUIPainter!= this)) {
                 stroke.mouseDwn = false;
                 return;
             }
@@ -1560,9 +1560,7 @@ namespace Playtime_Painter {
             {
                 if (meshEditing) return true;
                 var i = ImgData; 
-                return i == null ? true : i.lockEditing || i.other;
-
-
+                return i == null ? true : (i.lockEditing || i.other);
             }
             set { var i = ImgData; if (i != null) i.lockEditing = value; }
         }
@@ -2079,10 +2077,8 @@ namespace Playtime_Painter {
 
                     bool painterWorks = Application.isPlaying || !IsUiGraphicPainter;
 
-                    if (!LockTextureEditing && painterWorks)
+                    if (!LockTextureEditing && painterWorks && !id.errorWhileReading)
                     {
-
-
 
                         #region Undo/Redo & Recording
                         id.Undo_redo_PEGI();
@@ -2178,7 +2174,7 @@ namespace Playtime_Painter {
                         var mode = GlobalBrush.BlitMode;
                         var col = GlobalBrush.Color;
 
-                        if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGUI && pegi.edit(ref col).changes(ref changed))
+                        if ((CPU || !mode.UsingSourceTexture) && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGui && pegi.edit(ref col).changes(ref changed))
                             GlobalBrush.Color = col;
 
                         pegi.nl();
@@ -2207,7 +2203,7 @@ namespace Playtime_Painter {
                     else
                     {
                         if (!IsOriginalShader)
-                            this.PreviewShaderToggle_PEGI();
+                            PreviewShaderToggle_PEGI();
 
                         if (!painterWorks) {
                             pegi.nl();
@@ -2365,22 +2361,30 @@ namespace Playtime_Painter {
                             if (id == null)
                                 nameHolder = gameObject.name + "_" + GetMaterialTexturePropertyName;
                         }
-                       
-                        if (id != null)
-                            UpdateTylingFromMaterial();
-                        
-                        if (id != null && pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(), "Lock/Unlock editing of {0} Texture.".F(id.ToPEGIstring()), 25))
-                        {
-                            CheckPreviewShader();
-                            if (LockTextureEditing)
-                                UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-                            #if UNITY_EDITOR
-                            if (id.lockEditing)
-                                UnityHelperFunctions.RestoreUnityTool();
-                            else
-                                UnityHelperFunctions.HideUnityTool();
-                            #endif
+                        if (id != null) {
+                            UpdateTylingFromMaterial();
+
+                            if (id.errorWhileReading) {
+
+                                icon.Warning.write("THere was error while reading texture. (ProBuilder's grid texture is not readable, some others may be to)");
+
+                                if (id.texture2D && icon.Refresh.Click("Retry reading the texture"))
+                                    id.From(id.texture2D, true);
+
+                            } else 
+                            if (pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(), "Lock/Unlock editing of {0} Texture.".F(id.ToPEGIstring()), 25)) {
+                                CheckPreviewShader();
+                                if (LockTextureEditing)
+                                    UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+                                #if UNITY_EDITOR
+                                if (id.lockEditing)
+                                    UnityHelperFunctions.RestoreUnityTool();
+                                else
+                                    UnityHelperFunctions.HideUnityTool();
+                                #endif
+                            }
                         }
                         
                         tex = GetTextureOnMaterial();
@@ -2470,11 +2474,9 @@ namespace Playtime_Painter {
 
                         #region Texture Saving/Loading
 
-                        if (!LockTextureEditing)
-                        {
+                        if (!LockTextureEditing) {
                             pegi.nl();
-                            if (!IsTerrainControlTexture)
-                            {
+                            if (!IsTerrainControlTexture) {
 
                                 id = ImgData;
 
@@ -2653,10 +2655,10 @@ namespace Playtime_Painter {
         public void Update()
         {
 
-            if (this == mouseOverUIPainter)
+            if (this == _mouseOverUIPainter)
             {
-                if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, clickCamera))
-                    mouseOverUIPainter = null;
+                if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
+                    _mouseOverUIPainter = null;
 
                 OnMouseOver();
             }
@@ -2695,7 +2697,6 @@ namespace Playtime_Painter {
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
-
 
             var id = ImgData;
 
@@ -2769,53 +2770,50 @@ namespace Playtime_Painter {
 
         #region UI Elements Painting
 
-        static PlaytimePainter mouseOverUIPainter = null;
-        Vector2 UiUv;
-        [NonSerialized] Camera clickCamera;
+        static PlaytimePainter _mouseOverUIPainter = null;
+        Vector2 _uiUv;
+        [NonSerialized]private Camera _clickCamera;
 
-        public void OnPointerDown(PointerEventData eventData) => mouseOverUIPainter = DataUpdate(eventData) ? this : mouseOverUIPainter;
+        public void OnPointerDown(PointerEventData eventData) => _mouseOverUIPainter = DataUpdate(eventData) ? this : _mouseOverUIPainter;
 
-        public void OnPointerUp(PointerEventData eventData) => mouseOverUIPainter = null;
+        public void OnPointerUp(PointerEventData eventData) => _mouseOverUIPainter = null;
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (mouseOverUIPainter == this)
+            if (_mouseOverUIPainter == this)
                 DataUpdate(eventData);
         }
 
-        bool DataUpdate(PointerEventData eventData)
+        private bool DataUpdate(PointerEventData eventData)
         {
 
             if (DataUpdate(eventData.position, eventData.pressEventCamera))
-                clickCamera = eventData.pressEventCamera;
+                _clickCamera = eventData.pressEventCamera;
             else
                 return false;
 
             return true;
         }
 
-        bool DataUpdate(Vector2 position, Camera cam)
+        private bool DataUpdate(Vector2 position, Camera cam)
         {
             Vector2 localCursor;
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(uiGraphic.rectTransform, position, cam, out localCursor))
                 return false;
 
-            UiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
+            _uiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
 
             return true;
         }
 
-        private bool CastRayPlaytime_UI()
-        {
-
-            var rt = uiGraphic.rectTransform;
-
+        private bool CastRayPlaytime_UI()  {
+            
             var id = ImgData;
 
             if (id == null)
                 return false;
 
-            var uvClick = UiUv;
+            var uvClick = _uiUv;
 
             uvClick.Scale(id.tiling);
             uvClick += id.offset;

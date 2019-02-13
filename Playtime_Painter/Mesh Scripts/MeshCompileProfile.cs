@@ -17,7 +17,7 @@ namespace Playtime_Painter
 
         public string name = "";
 
-        public const string folderName = "Mesh Profiles";
+        public const string FolderName = "Mesh Profiles";
 
         #region Inspect
         public string NameForPEGI { get { return name; } set { name = value;  } }
@@ -25,14 +25,15 @@ namespace Playtime_Painter
         #if PEGI
         public virtual bool Inspect()
         {
-
+            var changed = false;
+            
             "Profile Name: ".edit(80, ref name);
 
             #if UNITY_EDITOR
 
-            string path = PainterCamera.Data.meshesFolderName + "/" + folderName;
-            if (icon.Save.Click("Save To:" + path, 25).nl())
-            {
+            var path = PainterCamera.Data.meshesFolderName.AddPostSlashIfNone() + FolderName;
+            
+            if (icon.Save.Click("Save To:" + path, 25).nl()) {
                 this.SaveToAssets(path, name);
                 UnityHelperFunctions.RefreshAssetDatabase();
                 (name + " Saved to " + path).showNotificationIn3D_Views();
@@ -40,7 +41,7 @@ namespace Playtime_Painter
 
 
             UnityEngine.Object myType = null;
-            if (pegi.edit(ref myType).nl()) {
+            if (pegi.edit(ref myType).nl(ref changed)) {
                
                 var msol = new MeshPackagingProfile();
                 msol.Decode(StuffLoader.LoadTextAsset(myType));
@@ -48,12 +49,10 @@ namespace Playtime_Painter
                 PainterCamera.Data.meshPackagingSolutions.Add(msol);
                 PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
             }
-#endif
+            #endif
 
-
-            bool changed = false;
-            for (int i = 0; i < sln.Count; i++)
-                changed |= sln[i].Inspect().nl();
+            foreach (var s in sln) 
+                Inspect().nl(ref changed);
 
             return changed;
         }
@@ -74,10 +73,10 @@ namespace Playtime_Painter
 
             MeshSolutions.dataTypeFilter = null;
 
-            foreach (VertexContents vs in sln)
+            foreach (var vs in sln)
                 if (vs.enabled) vs.Pack();
 
-            foreach (VertexDataType vt in MeshSolutions.dataTypes)
+            foreach (var vt in MeshSolutions.dataTypes)
                 vt.Clear();
 
             return true;
@@ -89,10 +88,10 @@ namespace Playtime_Painter
 
             MeshSolutions.dataTypeFilter = dataType;
 
-            foreach (VertexContents vs in sln)
+            foreach (var vs in sln)
                 if (vs.enabled) vs.Pack();
 
-            foreach (VertexDataType vt in MeshSolutions.dataTypes)
+            foreach (var vt in MeshSolutions.dataTypes)
                 vt.Clear();
 
             return true;
@@ -101,7 +100,7 @@ namespace Playtime_Painter
         #region Encode & Decode
         public override StdEncoder Encode() 
         {
-            StdEncoder cody = new StdEncoder();
+            var cody = new StdEncoder();
 
             cody.Add_String("n", name);
             cody.Add_IfNotEmpty("sln", sln);
@@ -122,15 +121,16 @@ namespace Playtime_Painter
         }
         #endregion
 
-        public const string stdTag_vertSol = "vertSol";
+        public const string StdTagVertSol = "vertSol";
 
-        public MeshPackagingProfile()
-        {
-            var trgs = MeshSolutions.dataTargets;
+        public MeshPackagingProfile() {
+
+            name = "unNamed";
+            var targets = MeshSolutions.dataTargets;
             sln = new List<VertexContents>(); 
-            name = "unnamedd";
-            foreach (var t in trgs)
+            foreach (var t in targets)
                 sln.Add(new VertexContents(t));
+
         }
 
     }
@@ -277,17 +277,56 @@ namespace Playtime_Painter
     public class VertexContents : Abstract_STD, IPEGI
     {
         public int sameSizeDataIndex = -1;
-        public int targetIndex;
+        private int _targetIndex;
         public bool enabled;
         public static bool showHint;
         
-        public VertexDataType SameSizeValue { get { if (sameSizeDataIndex >= 0) return MeshSolutions.dataTypes[sameSizeDataIndex]; else return null; } }
-        public VertexDataTarget Target { get { return MeshSolutions.dataTargets[targetIndex]; } set { targetIndex = value.myIndex; } }
+        public VertexDataType SameSizeValue => (sameSizeDataIndex >= 0) ?  MeshSolutions.dataTypes[sameSizeDataIndex] : null;
+        public VertexDataTarget Target { get { return MeshSolutions.dataTargets[_targetIndex]; } set { _targetIndex = value.myIndex; } }
 
         public List<VertexDataValue> vals = new List<VertexDataValue>();
 
+        #region Encode & Decode
+        public override StdEncoder Encode()
+        {
+            var cody = new StdEncoder();
+
+            cody.Add_IfTrue("en", enabled)
+            .Add_IfNotZero("t", _targetIndex);
+
+            if (enabled)
+            {
+                if (sameSizeDataIndex == -1)
+                    cody.Add_IfNotEmpty("vals", vals);
+                else
+                    cody.Add_IfNotNegative("sameSize", sameSizeDataIndex);
+            }
+            return cody;
+        }
+
+        public override bool Decode(string tag, string data)
+        {
+            switch (tag)
+            {
+                case "en": enabled = data.ToBool(); break;
+                case "t": _targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
+                case "vals": data.Decode_List(out vals); sameSizeDataIndex = -1; break;
+                case "sameSize": sameSizeDataIndex = data.ToInt(); InitVals(); break;
+
+                default: return false;
+            }
+            return true;
+        }
+        
+        public override void Decode(string data) {
+            base.Decode(data);
+            InitVals();
+        }
+
+        #endregion
+
         #region Inspector
-        #if PEGI
+#if PEGI
         public virtual bool Inspect()
         {
             bool changed = false;
@@ -357,9 +396,8 @@ namespace Playtime_Painter
             ntrg.SetDefaults(this);
         }
 
-        void InitVals() {
-            vals = new List<VertexDataValue>();
-            for (int i = 0; i < Target.chanelsHas; i++)
+        private void InitVals() {
+            while (vals.Count < Target.chanelsHas)
                 vals.Add(new VertexDataValue());
         }
 
@@ -371,7 +409,7 @@ namespace Playtime_Painter
                 {
                     case 3: PackVector3(); break;
                     case 4: PackVector4(); break;
-                    default: Debug.Log("No packaging function for Vector" + Target.chanelsHas + " taget."); break;
+                    default: Debug.Log("No packaging function for Vector" + Target.chanelsHas + " target."); break;
                 }
             } catch (Exception ex)
             {
@@ -379,7 +417,7 @@ namespace Playtime_Painter
             }
         }
 
-        void PackVector3() {
+        private void PackVector3() {
 
             Vector3[] ar;
 
@@ -397,16 +435,18 @@ namespace Playtime_Painter
             {
                 ar = new Vector3[MeshSolutions.vcnt];
 
-                for (int i = 0; i < MeshSolutions.vcnt; i++)
+                for (var i = 0; i < MeshSolutions.vcnt; i++)
                     ar[i] = new Vector3();
 
-                for (int i = 0; i < 3; i++) {
+                for (var i = 0; i < 3; i++) {
                     var v = vals[i];
-                    float[] tmp = v.GetDataArray();
+                    var tmp = v.GetDataArray();
 
-                    if (tmp != null)
-                        for (int j = 0; j < MeshSolutions.vcnt; j++)
-                            ar[j][i] = tmp[j];
+                    if (tmp == null)
+                        continue;
+                    
+                    for (var j = 0; j < MeshSolutions.vcnt; j++)
+                        ar[j][i] = tmp[j];
 
                 }
             }
@@ -416,7 +456,7 @@ namespace Playtime_Painter
 
         }
 
-        void PackVector4()
+        private void PackVector4()
         {
 
             Vector4[] ar;
@@ -436,17 +476,18 @@ namespace Playtime_Painter
 
                 ar = new Vector4[MeshSolutions.vcnt];
 
-                for (int i = 0; i < MeshSolutions.vcnt; i++)
+                for (var i = 0; i < MeshSolutions.vcnt; i++)
                     ar[i] = new Vector4();
 
-                for (int i = 0; i < 4; i++)
+                for (var i = 0; i < 4; i++)
                 {
-                    VertexDataValue v = vals[i];
-                    float[] tmp = v.GetDataArray();
+                    var v = vals[i];
+                    var tmp = v.GetDataArray();
 
-                    if (tmp != null)
-                        for (int j = 0; j < MeshSolutions.vcnt; j++)
-                            ar[j][i] = tmp[j];
+                    if (tmp == null) continue;
+                    
+                    for (var j = 0; j < MeshSolutions.vcnt; j++)
+                        ar[j][i] = tmp[j];
 
                 }
             }
@@ -456,46 +497,6 @@ namespace Playtime_Painter
 
         }
 
-        #region Encode & Decode
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder();
-
-            cody.Add_IfTrue("en", enabled)
-            .Add_IfNotZero("t", targetIndex);
-
-            if (enabled) {
-                if (sameSizeDataIndex == -1)
-                    cody.Add_IfNotEmpty("vals", vals);
-                else
-                    cody.Add_IfNotNegative("sameSize", sameSizeDataIndex);
-            }
-            return cody;
-        }
-
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
-                case "en": enabled = data.ToBool();  break;
-                case "t": targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
-                case "vals": data.Decode_List(out vals); sameSizeDataIndex = -1; break;
-                case "sameSize": sameSizeDataIndex = data.ToInt(); InitVals(); break;
-
-                default: return false;
-            }
-            return true;
-        }
-
-
-        public override void Decode(string data)
-        {
-            base.Decode(data);
-
-            InitVals();
-            Target.SetDefaults(this);
-
-        }
-
-        #endregion
-
     }
     
     public static class MeshSolutions {
@@ -503,19 +504,19 @@ namespace Playtime_Painter
         #region Static
         public static Type dataTypeFilter;
 
-        public const string shaderPreferedPackagingSolution = "Solution";
+        private const string shaderPreferredPackagingSolution = "Solution";
 
         public static int GetMeshProfileByTag(this Material mat)
         {
             if (!mat)
                 return 0;
 
-            var name = mat.GetTag(shaderPreferedPackagingSolution, false, "Standard");
+            var name = mat.GetTag(shaderPreferredPackagingSolution, false, "Standard");
 
             var prf = PainterCamera.Data.meshPackagingSolutions;
 
-            for (int i = 0; i < prf.Count; i++)
-                if (string.Compare(prf[i].name, name) == 0) return i;
+            for (var i = 0; i < prf.Count; i++)
+                if (prf[i].name.SameAs(name)) return i;
 
             return 0;
         }
@@ -529,27 +530,28 @@ namespace Playtime_Painter
 
             set { _curMeshDra = value;
                 vcnt = value.vertsCount;
-                chanelMedium = new float[vcnt];
+                _chanelMedium = new float[vcnt];
             }
 
         }
 
         public static int vcnt = 0;
-        public static float[] chanelMedium = null;
+        private static float[] _chanelMedium = null;
         #endregion
 
-        public class VertexPosTrg : VertexDataTarget
+        private class VertexPosTrg : VertexDataTarget
         {
-            const int dataSize = 3;
+            private const int dataSize = 3;
 
             public override void Set(Vector3[] dta)
             {
                 CurMeshDta.mesh.vertices = dta;
-                if (CurMeshDta.tris != null) {
-                    CurMeshDta.mesh.subMeshCount = CurMeshDta.tris.Length;
-                    for (int sm = 0; sm < CurMeshDta.tris.Length; sm++)
-                        CurMeshDta.mesh.SetTriangles(CurMeshDta.tris[sm], sm, true);
-                }
+                if (CurMeshDta.tris == null) return;
+                
+                CurMeshDta.mesh.subMeshCount = CurMeshDta.tris.Length;
+                for (var sm = 0; sm < CurMeshDta.tris.Length; sm++)
+                    CurMeshDta.mesh.SetTriangles(CurMeshDta.tris[sm], sm, true);
+                
             }
 
             public override string NameForPEGIdisplay => "position";
@@ -568,44 +570,44 @@ namespace Playtime_Painter
 
         }
 
-        public class VertexUVTrg : VertexDataTarget
+        private class VertexUVTrg : VertexDataTarget
         {
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
-            int MyUVChanel() { return (myIndex - 1); }
+            private int MyUvChanel() => (myIndex - 1); 
 
             public override void Set(Vector4[] dta)
             {
 
-                VertexContents vs = GetMySolution();
+                var vs = GetMySolution();
                 
                 if ((vs.SameSizeValue != null) || (vs.vals[2].VertDataType != VertexNull.inst) || (vs.vals[3].VertDataType != VertexNull.inst))
-                    CurMeshDta.mesh.SetUVs(MyUVChanel(), new List<Vector4>(dta));
+                    CurMeshDta.mesh.SetUVs(MyUvChanel(), new List<Vector4>(dta));
                 else
                 {
-                    Vector2[] v2s = new Vector2[dta.Length];
+                    var v2S = new Vector2[dta.Length];
 
-                    for (int i = 0; i < dta.Length; i++)
+                    for (var i = 0; i < dta.Length; i++)
                     {
-                        Vector4 v4 = dta[i];
-                        v2s[i] = new Vector2(v4.x, v4.y);
+                        var v4 = dta[i];
+                        v2S[i] = new Vector2(v4.x, v4.y);
                     }
 
-                    switch (MyUVChanel())
+                    switch (MyUvChanel())
                     {
                         case 0:
-                            CurMeshDta.mesh.uv = v2s; break;
+                            CurMeshDta.mesh.uv = v2S; break;
                         case 1:
-                            CurMeshDta.mesh.uv2 = v2s; break;
+                            CurMeshDta.mesh.uv2 = v2S; break;
                         case 2:
-                            CurMeshDta.mesh.uv3 = v2s; break;
+                            CurMeshDta.mesh.uv3 = v2S; break;
                         case 3:
-                            CurMeshDta.mesh.uv3 = v2s; break;
+                            CurMeshDta.mesh.uv3 = v2S; break;
                     }
                 }
             }
 
-            public override string NameForPEGIdisplay => "UV" + MyUVChanel().ToString();
+            public override string NameForPEGIdisplay => "UV" + MyUvChanel().ToString();
             
             public override void SetDefaults(VertexContents to)
             {
@@ -615,7 +617,7 @@ namespace Playtime_Painter
 
                 to.enabled = true;
 
-                int ind = VertexUV.inst[0].myIndex;
+                var ind = VertexUV.inst[0].myIndex;
 
                 to.vals[0].typeIndex = ind;
                 to.vals[0].valueIndex = 0;
@@ -638,9 +640,9 @@ namespace Playtime_Painter
 
         }
 
-        public class VertexTangentTrg : VertexDataTarget
+        private class VertexTangentTrg : VertexDataTarget
         {
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
             public override void Set(Vector4[] dta)
             {
@@ -662,15 +664,12 @@ namespace Playtime_Painter
             }
         }
 
-        public class VertexNormalTrg : VertexDataTarget
+        private class VertexNormalTrg : VertexDataTarget
         {
-            const int dataSize = 3;
+            private const int dataSize = 3;
 
-            public override void Set(Vector3[] dta)
-            {
-                CurMeshDta.mesh.normals = dta;
-            }
-
+            public override void Set(Vector3[] dta) =>  CurMeshDta.mesh.normals = dta;
+            
             public override string NameForPEGIdisplay => "normal";
             
             public override void SetDefaults(VertexContents to)
@@ -686,14 +685,14 @@ namespace Playtime_Painter
             }
         }
 
-        public class VertexColorTrg : VertexDataTarget
+        private class VertexColorTrg : VertexDataTarget
         {
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
             public override void Set(Vector4[] dta)
             {
-                Color[] cols = new Color[dta.Length];
-                for (int i = 0; i < dta.Length; i++)
+                var cols = new Color[dta.Length];
+                for (var i = 0; i < dta.Length; i++)
                     cols[i] = dta[i];
 
                 CurMeshDta.mesh.colors = cols;
@@ -703,14 +702,13 @@ namespace Playtime_Painter
             
             public override string GetFieldName(int ind)
             {
-                switch (ind)
-                {
+                switch (ind) {
                     case 0: return "R";
                     case 1: return "G";
                     case 2: return "B";
                     case 3: return "A";
+                    default: return "Error";
                 }
-                return "Error";
             }
 
             public override void SetDefaults(VertexContents to)
@@ -718,7 +716,7 @@ namespace Playtime_Painter
                 base.SetDefaults(to);
                 to.enabled = true;
                 to.sameSizeDataIndex = VertexColor.inst.myIndex;
-                for (int i = 0; i < 4; i++)
+                for (var i = 0; i < 4; i++)
                     to.vals[i].typeIndex = VertexColor.inst.myIndex;
             }
 
@@ -728,7 +726,7 @@ namespace Playtime_Painter
             }
         }
 
-        public static VertexDataTarget[] dataTargets = {
+        public static readonly VertexDataTarget[] dataTargets = {
         new VertexPosTrg(0) , new VertexUVTrg(1) , new VertexUVTrg(2) , new VertexUVTrg(3),
         new VertexUVTrg(4),   new VertexNormalTrg(5), new VertexTangentTrg(6),  new VertexColorTrg(7)
 
@@ -740,84 +738,78 @@ namespace Playtime_Painter
         public class VertexPos : VertexDataType
         {
             public static VertexPos inst;
-            const int dataSize = 3;
+            private const int dataSize = 3;
 
-            Vector3[] vertices;
+            private Vector3[] _vertices;
 
             public override void GenerateIfNull()
             {
-                if (vertices == null)
-                    vertices = CurMeshDta._position;
+                if (_vertices == null)
+                    _vertices = CurMeshDta._position;
  
             }
 
             public override float[] GetValue(int no)
             {
-                Vector3[] vrts = vertices;
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = vrts[i][no];
+                var vrts = _vertices;
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = vrts[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
-            public override Vector3[] GetV3(VertexDataTarget trg)
-            {
-                return vertices;
-            }
+            public override Vector3[] GetV3(VertexDataTarget trg) => _vertices;
+            
 
             public override string NameForPEGIdisplay => "position";
             
-
             public VertexPos(int index) : base(dataSize, index)
             {
                 inst = this;
             }
 
-            public override void Clear()
-            {
-                vertices = null;
-            }
+            public override void Clear() => _vertices = null;
+            
 
         }
 
         public class VertexUV : VertexDataType
         {
-            static int uvEnum = 0;
-            int myUVindex;
-            public static VertexUV[] inst = new VertexUV[2];
+            private static int _uvEnum = 0;
+            private readonly int _myUvIndex;
+            public static readonly VertexUV[] inst = new VertexUV[2];
 
-            const int dataSize = 2;
+            private const int dataSize = 2;
 
             Vector2[] v2s;
 
             public override void GenerateIfNull() {
                 if (v2s == null)
-                    v2s =  (myUVindex == 0) ? CurMeshDta._uv : CurMeshDta._uv1;
+                    v2s =  (_myUvIndex == 0) ? CurMeshDta._uv : CurMeshDta._uv1;
             }
 
-            public override Vector2[] GetV2(VertexDataTarget trg) {
-                return v2s;
-            }
+            public override Vector2[] GetV2(VertexDataTarget trg) => v2s;
+            
 
             public override float[] GetValue(int no)  {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = v2s[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = v2s[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override void Clear() {
                 v2s = null;
             }
 
-            public override string NameForPEGIdisplay => "uv" + myUVindex.ToString();
+            public override string NameForPEGIdisplay => "uv" + _myUvIndex.ToString();
 
             public VertexUV(int index) : base(dataSize, index)
             {
 
-                myUVindex = uvEnum;
-                inst[myUVindex] = this;
-                uvEnum++;
+                _myUvIndex = _uvEnum;
+                inst[_myUvIndex] = this;
+                _uvEnum++;
             }
 
         }
@@ -825,7 +817,7 @@ namespace Playtime_Painter
         public class VertexTangent : VertexDataType
         {
             public static VertexTangent inst;
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
             Vector4[] v4s;
 
@@ -843,17 +835,14 @@ namespace Playtime_Painter
                 }
 
                 return v4s;
-
-                //Debug.Log("Manual tangent recalculation not implemented yet.");
-               // return null;
             }
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = v4s[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = v4s[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override void Clear() => v4s = null;
@@ -870,7 +859,7 @@ namespace Playtime_Painter
         public class VertexNormal : VertexDataType
         {
             public static VertexNormal inst;
-            const int dataSize = 3;
+            private const int dataSize = 3;
 
             Vector3[] v3norms;
 
@@ -881,10 +870,10 @@ namespace Playtime_Painter
             
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = v3norms[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = v3norms[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override Vector3[] GetV3(VertexDataTarget trg)
@@ -904,10 +893,10 @@ namespace Playtime_Painter
 
         }
 
-        public class VertexSharpNormal : VertexDataType
+        private class VertexSharpNormal : VertexDataType
         {
-            public static VertexSharpNormal inst;
-            const int dataSize = 3;
+            private static VertexSharpNormal inst;
+            private const int dataSize = 3;
 
             Vector3[] v3norms;
 
@@ -920,10 +909,10 @@ namespace Playtime_Painter
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = v3norms[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = v3norms[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override Vector3[] GetV3(VertexDataTarget trg) => v3norms;
@@ -946,27 +935,26 @@ namespace Playtime_Painter
 
             Vector4[] cols;
 
-            public override void GenerateIfNull() {
+            public override void GenerateIfNull()
+            {
+                if (cols != null) return;
                 
-                if (cols == null) {
-                    Color[] tmp = CurMeshDta._colors;
+                var tmp = CurMeshDta._colors;
 
-                    cols = new Vector4[vcnt];
+                cols = new Vector4[vcnt];
 
-                    for (int i = 0; i < vcnt; i++)
-                        cols[i] = tmp[i].ToVector4();
-
-                }
+                for (var i = 0; i < vcnt; i++)
+                    cols[i] = tmp[i].ToVector4();
             }
 
             public override Vector4[] GetV4(VertexDataTarget trg) => cols;
             
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = cols[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = cols[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "Color";
@@ -979,8 +967,8 @@ namespace Playtime_Painter
                     case 1: return "G";
                     case 2: return "B";
                     case 3: return "A";
+                    default: return "Error";
                 }
-                return "Error";
             }
 
             public VertexColor(int index) : base(dataSize, index)
@@ -994,8 +982,8 @@ namespace Playtime_Painter
 
         public class VertexIndex : VertexDataType
         {
-            public static VertexIndex inst;
-            const int dataSize = 1;
+            private static VertexIndex _inst;
+            private const int dataSize = 1;
 
             int[] inds;
 
@@ -1008,10 +996,10 @@ namespace Playtime_Painter
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = inds[i];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = inds[i];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
             
             public override string GetFieldName(int ind) => "index";
@@ -1020,7 +1008,7 @@ namespace Playtime_Painter
             
             public VertexIndex(int index) : base(dataSize, index)
             {
-                inst = this;
+                _inst = this;
             }
 
             public override void Clear() => inds = null;
@@ -1029,25 +1017,25 @@ namespace Playtime_Painter
 
         public class VertexShadow : VertexDataType
         {
-            public static VertexShadow inst;
-            const int dataSize = 4;
+            private static VertexShadow inst;
+            private const int dataSize = 4;
 
-            Vector4[] shads;
+            Vector4[] _shadows;
 
             public override void GenerateIfNull() {
-                if (shads == null)
-                        shads = CurMeshDta._shadowBake;
+                if (_shadows == null)
+                        _shadows = CurMeshDta._shadowBake;
 
             }
 
-            public override Vector4[] GetV4(VertexDataTarget trg) => shads;
+            public override Vector4[] GetV4(VertexDataTarget trg) => _shadows;
             
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = shads[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = _shadows[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string GetFieldName(int ind) => "light " + ind;
@@ -1059,14 +1047,14 @@ namespace Playtime_Painter
                 inst = this;
             }
 
-            public override void Clear() => shads = null;
+            public override void Clear() => _shadows = null;
             
         }
 
-        public class VertexAtlasedTextures : VertexDataType
+        private class VertexAtlasTextures : VertexDataType
         {
-            public static VertexAtlasedTextures inst;
-            const int dataSize = 4;
+            private static VertexAtlasTextures inst;
+            private const int dataSize = 4;
 
             Vector4[] textureNumbers;
 
@@ -1078,10 +1066,10 @@ namespace Playtime_Painter
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = textureNumbers[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = textureNumbers[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override Vector4[] GetV4(VertexDataTarget trg)
@@ -1097,7 +1085,7 @@ namespace Playtime_Painter
             
             public override string NameForPEGIdisplay => "Atlas Texture";
             
-            public VertexAtlasedTextures(int index) : base(dataSize, index)
+            public VertexAtlasTextures(int index) : base(dataSize, index)
             {
                 inst = this;
             }
@@ -1107,8 +1095,8 @@ namespace Playtime_Painter
         public class VertexNull : VertexDataType
         {
             public static VertexNull inst;
-            const int dataSize = 1;
-            public float[] zeroVal = null;
+            private const int dataSize = 1;
+            private float[] zeroVal = null;
 
             public override void GenerateIfNull() => zeroVal = new float[vcnt];
             
@@ -1131,26 +1119,26 @@ namespace Playtime_Painter
 
         public class VertexEdge : VertexDataType
         {
-            public static VertexEdge inst;
+            private static VertexEdge inst;
             const int dataSize = 4;
 
-            Vector4[] edges;
+            private Vector4[] _edges;
 
             public override void GenerateIfNull()
             {
-                if (edges == null)
-                    edges = CurMeshDta._edgeData;
+                if (_edges == null)
+                    _edges = CurMeshDta._edgeData;
             }
 
-            public override Vector4[] GetV4(VertexDataTarget trg) => edges;
+            public override Vector4[] GetV4(VertexDataTarget trg) => _edges;
             
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = edges[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = _edges[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "Edge";
@@ -1163,8 +1151,8 @@ namespace Playtime_Painter
                     case 1: return "y";
                     case 2: return "z";
                     case 3: return "Strength";
+                    default: return "Error";
                 }
-                return "Error";
             }
 
             public VertexEdge(int index) : base(dataSize, index)
@@ -1172,14 +1160,14 @@ namespace Playtime_Painter
                 inst = this;
             }
 
-            public override void Clear() => edges = null;
+            public override void Clear() => _edges = null;
             
         }
 
         public class VertexEdgeByWeight : VertexDataType
         {
-            public static VertexEdgeByWeight inst;
-            const int dataSize = 3;
+            private static VertexEdgeByWeight inst;
+            private const int dataSize = 3;
 
             Vector3[] edges;
 
@@ -1193,10 +1181,10 @@ namespace Playtime_Painter
             
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = edges[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = edges[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "Edge * weight";
@@ -1208,8 +1196,9 @@ namespace Playtime_Painter
                     case 0: return "x";
                     case 1: return "y";
                     case 2: return "z";
+                    default: return "Error";
                 }
-                return "Error";
+                
             }
 
             public VertexEdgeByWeight(int index) : base(dataSize, index)
@@ -1222,10 +1211,10 @@ namespace Playtime_Painter
             }
         }
 
-        public class EdgeNormal_0 : VertexDataType
+        private class EdgeNormal_0 : VertexDataType
         {
-            public static EdgeNormal_0 inst;
-            const int dataSize = 3;
+            private static EdgeNormal_0 inst;
+            private const int dataSize = 3;
 
             Vector3[] edges;
 
@@ -1237,17 +1226,15 @@ namespace Playtime_Painter
 
             }
 
-            public override Vector3[] GetV3(VertexDataTarget trg)
-            {
-                return edges;
-            }
+            public override Vector3[] GetV3(VertexDataTarget trg) => edges;
+            
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = edges[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = edges[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "LineNormal_0";
@@ -1260,23 +1247,22 @@ namespace Playtime_Painter
                     case 0: return "x";
                     case 1: return "y";
                     case 2: return "z";
+                    default: return "Error";
                 }
-                return "Error";
+                
             }
 
             public EdgeNormal_0(int index) : base(dataSize, index)
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                edges = null;
-            }
+            public override void Clear() => edges = null;
+            
         }
 
         public class EdgeNormal_1 : VertexDataType
         {
-            public static EdgeNormal_1 inst;
+            private static EdgeNormal_1 inst;
             const int dataSize = 3;
 
             Vector3[] edges;
@@ -1296,10 +1282,10 @@ namespace Playtime_Painter
 
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = edges[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = edges[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "LineNormal_1";
@@ -1312,46 +1298,42 @@ namespace Playtime_Painter
                     case 0: return "x";
                     case 1: return "y";
                     case 2: return "z";
+                    default: return "Error";
                 }
-                return "Error";
+                
             }
 
             public EdgeNormal_1(int index) : base(dataSize, index)
             {
                 inst = this;
             }
-            public override void Clear()
-            {
-                edges = null;
-            }
+            public override void Clear() => edges = null;
+            
         }
 
         public class EdgeNormal_2 : VertexDataType
         {
-            public static EdgeNormal_2 inst;
-            const int dataSize = 3;
+            private static EdgeNormal_2 inst;
+            private const int dataSize = 3;
 
-            Vector3[] edges;
+            private Vector3[] _edges;
 
             public override void GenerateIfNull()
             {
 
-                if (edges == null)
-                    edges = CurMeshDta._edgeNormal_2_OrSharp;
+                if (_edges == null)
+                    _edges = CurMeshDta._edgeNormal_2_OrSharp;
 
             }
 
-            public override Vector3[] GetV3(VertexDataTarget trg)
-            {
-                return edges;
-            }
-
+            public override Vector3[] GetV3(VertexDataTarget trg) => _edges;
+            
             public override float[] GetValue(int no)
             {
-                for (int i = 0; i < vcnt; i++)
-                    chanelMedium[i] = edges[i][no];
+                for (var i = 0; i < vcnt; i++)
+                    _chanelMedium[i] = _edges[i][no];
 
-                return chanelMedium;
+                return _chanelMedium;
             }
 
             public override string NameForPEGIdisplay => "LineNormal_2";
@@ -1364,8 +1346,9 @@ namespace Playtime_Painter
                     case 0: return "x";
                     case 1: return "y";
                     case 2: return "z";
+                    default:  return "Error";
                 }
-                return "Error";
+               
             }
 
             public EdgeNormal_2(int index) : base(dataSize, index)
@@ -1375,45 +1358,45 @@ namespace Playtime_Painter
 
             public override void Clear()
             {
-                edges = null;
+                _edges = null;
             }
         }
 
-        public static VertexDataType[] dataTypes = {
+        public static readonly VertexDataType[] dataTypes = {
 
             new VertexPos(0), new VertexUV(1), new VertexUV(2), new VertexNormal(3),
 
             new VertexTangent(4), new VertexSharpNormal(5), new VertexColor(6), new VertexIndex(7),
 
-            new VertexShadow(8), new VertexAtlasedTextures(9),  new VertexNull(10), new VertexEdge(11),
+            new VertexShadow(8), new VertexAtlasTextures(9),  new VertexNull(10), new VertexEdge(11),
 
             new EdgeNormal_0(12), new EdgeNormal_1(13), new EdgeNormal_2(14), new VertexEdgeByWeight(15)
 
         };
 
-        static string[] typesNames;
+        private static string[] _typesNames;
         
         public static string[] GetAllTypesNames()
         {
-            if (typesNames == null)
+            if (_typesNames.IsNullOrEmpty())
             {
-                typesNames = new string[dataTypes.Length];
+                _typesNames = new string[dataTypes.Length];
 
-                for (int i = 0; i < dataTypes.Length; i++)
-                    typesNames[i] = dataTypes[i].ToPEGIstring();
+                for (var i = 0; i < dataTypes.Length; i++)
+                    _typesNames[i] = dataTypes[i].ToPEGIstring();
             }
 
-            return typesNames;
+            return _typesNames;
         }
 
         public static List<VertexDataType> GetTypesBySize(int size)
         {
 
-            List<VertexDataType> tmp = new List<VertexDataType>();
+            var tmp = new List<VertexDataType>();
 
-            for (int i = 0; i < dataTypes.Length; i++)
-                if (dataTypes[i].chanelsNeed == size)
-                    tmp.Add(dataTypes[i]);
+            foreach (var d in dataTypes)
+                if (d.chanelsNeed == size)
+                    tmp.Add(d);
 
             return tmp;
         }

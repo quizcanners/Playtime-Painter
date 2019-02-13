@@ -74,14 +74,11 @@
 
 					float4 noise = tex2Dlod(_NoiseMask, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w)*32, 0, 0));
 
-
 					float2 uv = abs(o.offUV.xy + noise.xy*0.002) * 2;
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy - _Courners;
 
 					uv = max(0, uv) * deCourners;
-
-			
 
 					float clipp = max(0, 1 - dot(uv,uv));
 

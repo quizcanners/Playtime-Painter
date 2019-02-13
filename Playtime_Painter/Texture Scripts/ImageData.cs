@@ -42,6 +42,7 @@ namespace Playtime_Painter
         public bool pixelsDirty = false;
         public bool preserveTransparency = true;
         public bool alphaPreservePixelSet = false;
+        public bool errorWhileReading = false;
 
         public float repaintDelay = 0.016f;
         public int numberOfTexture2Dbackups = 10;
@@ -557,13 +558,25 @@ namespace Playtime_Painter
             return pix;
         }
 
-        public void PixelsFromTexture2D(Texture2D tex)
-        {
-            if (tex)
+        public void PixelsFromTexture2D(Texture2D tex, bool userClickedRetry = false) {
+
+            if (userClickedRetry || !errorWhileReading)
             {
-                Pixels = tex.GetPixels();
-                width = tex.width;
-                height = tex.height;
+                try
+                {
+                    if (tex)
+                    {
+                        Pixels = tex.GetPixels();
+                        width = tex.width;
+                        height = tex.height;
+                        errorWhileReading = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Reading of {0} failed: {1}".F(tex, ex.ToString()));
+                    errorWhileReading = true;
+                }
             }
         }
 
@@ -678,35 +691,28 @@ namespace Playtime_Painter
             RenderTexture_To_Texture2D();
         }
 
-        public void From(Texture2D texture)
-        {
+        public void From(Texture2D texture, bool userClickedRetry = false) {
 
             texture2D = texture;
             SaveName = texture.name;
 
-#if UNITY_EDITOR
-            if (texture != null)
-            {
-                var imp = texture.GetTextureImporter();
-                if (imp != null)
-                {
+            if (userClickedRetry || !errorWhileReading) {
 
-                    isATransparentLayer = imp.alphaIsTransparency;
+                #if UNITY_EDITOR
+                if (texture) {
 
-                    /*  var name =  AssetDatabase.GetAssetPath(texture);
-                      var extension = name.Substring(name.LastIndexOf(".") + 1);
+                    var imp = texture.GetTextureImporter();
+                    if (imp != null) {
 
-                      if (extension != "png") {
-                          ("Converting " + name + " to .png").showNotificationIn3D_Views();
-                          texture = texture.CreatePngSameDirectory(texture.name);
-                      }*/
+                        isATransparentLayer = imp.alphaIsTransparency;
 
-                    texture.Reimport_IfNotReadale();
+                        texture.Reimport_IfNotReadale();
+                    }
                 }
-            }
-#endif
+                #endif
 
-            PixelsFromTexture2D(texture2D);
+                PixelsFromTexture2D(texture2D, userClickedRetry);
+            }
         }
         
         void UseRenderTexture(RenderTexture rt)
@@ -736,11 +742,8 @@ namespace Playtime_Painter
             destination = TexTarget.Texture2D;
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(tex);
-            if (!string.IsNullOrEmpty(path))
-            {
+            if (!path.IsNullOrEmpty())
                 SaveName = tex.name;
-                // saved = true;
-            }
             else
 #endif
                 if (SaveName.IsNullOrEmpty())
@@ -806,54 +809,64 @@ namespace Playtime_Painter
 
             if ("Texture Processors".enter(ref inspectedStuff, 6).nl_ifFolded()) {
 
+
                 "<-Return".nl(PEGI_Styles.ListLabel);
 
-                if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).enter(ref inspectedProcess, 0).nl_ifFoldedOut())
+                if (errorWhileReading)
+                    "There was en error reading texture pixels, can't process it".writeWarning();
+                else
                 {
-                    "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+                    if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).enter(ref inspectedProcess, 0).nl_ifFoldedOut())
+                    {
+                        "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
 
-                    "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+                        "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
 
 
-                    if (newWidth != width || newHeight != height) {
+                        if (newWidth != width || newHeight != height)
+                        {
 
-                        bool rescale = false;
+                            bool rescale = false;
 
-                        if (newWidth <= width && newHeight <= height)
-                            rescale = "Downscale".Click();
-                        else if (newWidth >= width && newHeight >= height)
-                            rescale = "Upscale".Click();
-                        else
-                            rescale = "Rescale".Click();
+                            if (newWidth <= width && newHeight <= height)
+                                rescale = "Downscale".Click();
+                            else if (newWidth >= width && newHeight >= height)
+                                rescale = "Upscale".Click();
+                            else
+                                rescale = "Rescale".Click();
 
-                        if (rescale)
-                            Resize(newWidth, newHeight);
+                            if (rescale)
+                                Resize(newWidth, newHeight);
+                        }
+                        pegi.nl();
                     }
-                    pegi.nl();
-                }
 
-                if (inspectedProcess == -1)
-                {
-                    if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
-                        Resize(newWidth, newHeight);
+                    if (inspectedProcess == -1)
+                    {
+                        if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
+                            Resize(newWidth, newHeight);
 
-                    pegi.nl();
-                }
+                        pegi.nl();
+                    }
 
-                if ("Colorize ".enter(ref inspectedProcess, 1)) {
+                    if ("Colorize ".enter(ref inspectedProcess, 1))
+                    {
 
-                    "Clear Color".edit(80, ref clearColor).nl();
-                    if ("Clear Texture".Click().nl()) {
+                        "Clear Color".edit(80, ref clearColor).nl();
+                        if ("Clear Texture".Click().nl())
+                        {
+                            Colorize(clearColor);
+                            SetAndApply();
+                        }
+                    }
+
+                    if (inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl())
+                    {
                         Colorize(clearColor);
                         SetAndApply();
                     }
                 }
-                
-                if (inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl()) {
-                    Colorize(clearColor);
-                    SetAndApply();
-                }
-                
+
                 if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl()) {
                     pegi.write(TexMGMT.BigRT_pair[0], 200);
                     pegi.nl();

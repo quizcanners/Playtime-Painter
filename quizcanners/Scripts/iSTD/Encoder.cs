@@ -277,7 +277,7 @@ namespace QuizCannersUtilities
 
         public StdEncoder Add_GUID(string tag, UnityEngine.Object obj)
         {
-            var guid = obj.GetGUID();
+            var guid = obj.GetGuid();
             if (guid != null)
                 Add_String(tag, guid);
 

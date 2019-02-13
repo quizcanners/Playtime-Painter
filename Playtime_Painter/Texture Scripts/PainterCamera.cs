@@ -672,41 +672,41 @@ namespace Playtime_Painter {
             foreach (var p in _plugins)
                 if (p != null) p.Enable();
 
+            Data.ManagedOnEnable();
+
         }
 
         private void OnDisable() {
             PainterStuff.applicationIsQuitting = true;
-
-            if (Data)
-                Data.OnDisable();
-
+            
             downloadManager.Dispose();
 
             triedToFindCamera = false ;
-
-#if UNITY_EDITOR
+            
             BeforeClosing();
-#endif
 
             if (_plugins!= null)
                 foreach (var p in _plugins)
                     if (p != null) p.Disable();
 
-        }
+            if (Data)
+                Data.ManagedOnDisable();
 
-#if UNITY_EDITOR
+        }
+        
         void BeforeClosing()
         {
-
+            #if UNITY_EDITOR
             if (PlaytimePainter.previewHolderMaterial)
                 PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
 
             if (materialsUsingTendTex.Count > 0)
                 autodisabledBufferTarget = materialsUsingTendTex[0].painterTarget;
             EmptyBufferTarget();
+            #endif
 
         }
-
+#if UNITY_EDITOR
         public void OnSceneOpening(string path, OpenSceneMode mode)
         {
             // Debug.Log("On Scene Opening");
@@ -721,7 +721,7 @@ namespace Playtime_Painter {
             // Debug.Log("Before Scene saved");
 
         }
-#endif
+        #endif
 
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
 

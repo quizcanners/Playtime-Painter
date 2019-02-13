@@ -759,8 +759,8 @@ namespace Playtime_Painter
 
             if (Application.isPlaying)
                 UpdateInputPlaytime();
-
-            Grid.UpdatePositions();
+            
+            Grid?.UpdatePositions();
 
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
@@ -816,7 +816,7 @@ namespace Playtime_Painter
         public void UpdateInputPlaytime()
         {
             #if PEGI
-            if (pegi.MouseOverUI)
+            if (pegi.MouseOverUi)
                 return;
             #endif
 
