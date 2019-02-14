@@ -550,7 +550,7 @@ namespace QuizCannersUtilities {
 
             var layerSP = layers.GetArrayElementAtIndex(index);
             
-            if (layerSP.stringValue.IsNullOrEmpty() || layerSP.stringValue.SameAs(name)) {
+            if (layerSP.stringValue.IsNullOrEmpty() || !layerSP.stringValue.SameAs(name)) {
                 Debug.Log("Changing layer name.  " + layerSP.stringValue + " to " + name);
                 layerSP.stringValue = name;
             }
@@ -827,7 +827,7 @@ namespace QuizCannersUtilities {
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolder);
-            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + StuffSaver.FileType, Path.Combine(path, newName) + StuffSaver.FileType));
+            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + StuffSaver.FileType, Path.Combine(path, newName) + StuffSaver.FileType);
         }
         #endif
 

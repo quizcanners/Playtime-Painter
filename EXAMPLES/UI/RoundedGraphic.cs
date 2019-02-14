@@ -58,7 +58,7 @@ namespace Playtime_Painter.Examples
 
                 roundedCorners = new float[targetValue];
 
-                for (int i = 0; i < roundedCorners.Length; i++)
+                for (var i = 0; i < roundedCorners.Length; i++)
                     roundedCorners[i] = tmp;
             }
         }
@@ -77,38 +77,42 @@ namespace Playtime_Painter.Examples
         {
             pegi.toggleDefaultInspector();
 
+            var mat = material;
+
+            var can = canvas;
+            
+            var shad = mat.shader;
+            
             var changed = false;
 
             var usesPosition = false;
 
-            if (material)
+            if (mat)
             {
-                var pixPfTag = material.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
+                var pixPfTag = mat.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
 
                 if (pixPfTag.IsNullOrEmpty())
-                    "{0} doesn't have {1} tag".F(material.shader.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
+                    "{0} doesn't have {1} tag".F(shad.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
                 else
                 {
 
-                    if (!canvas)
-                        "No Canvas".writeWarning();
-
                     usesPosition = pixPfTag.SameAs("Position");
 
-                    if (canvas)
-                    {
-                        if ((canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
+                    if (!can)
+                        "No Canvas".writeWarning();
+                    else {
+                        if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
                         {
                             "Material requires Canvas to pass Edges data trough Texcoord1 data channel".writeWarning();
                             if ("Fix Canvas Texcoord1".Click().nl())
-                                canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+                                can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
                         }
 
-                        if (feedPositionData && ((canvas.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
+                        if (feedPositionData && ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
                         {
                             "Material requires Canvas to pass Position Data trough Normal channel".writeWarning();
                             if ("Fix Canvas ".Click().nl())
-                                canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+                                can.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                         }
                     }
                 }
@@ -116,10 +120,10 @@ namespace Playtime_Painter.Examples
 
             var linked = LinkedCorners;
 
-            "Material Is Unlinked: {0}".F(material.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
+            "Material Is Unlinked: {0}".F(mat.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
 
-            if (material && (linked == material.IsKeywordEnabled(UNLINKED_VERTICES)))
-                material.SetShaderKeyword(UNLINKED_VERTICES, !linked);
+            if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
+                mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
                 
             if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
                 LinkedCorners = linked;
@@ -132,30 +136,31 @@ namespace Playtime_Painter.Examples
             }
 
             pegi.nl();
-            var mat = material;
+            
+    
 
-            if (material) {
+            if (mat) {
                 
                 if (!Application.isPlaying)
                 {
-                    var path = material.GetAssetFolder();
+                    var path = mat.GetAssetFolder();
                     if (path.IsNullOrEmpty())
                         "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
                 }
 
-                var n = material.name;
+                var n = mat.name;
                 if ("Material".editDelayed(40, ref n))
-                    material.RenameAsset(n);
+                    mat.RenameAsset(n);
             }
 
             if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat).nl(ref changed))
                 material = mat;
             
-            if (material) {
-                var shader = material.shader;
+            if (mat) {
+                
 
-                if ("Shaders".select(60, ref shader, CompatibleShaders, false, true).changes(ref changed))
-                    material.shader = shader;
+                if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
+                    mat.shader = shad;
 
                 if (icon.Refresh.Click("Refresh compatible shaders list"))
                     _compatibleShaders = null;
@@ -176,7 +181,7 @@ namespace Playtime_Painter.Examples
             if ("Clickable".toggleIcon("Is Raycast Target",ref rt).nl(ref changed))
                 raycastTarget = rt;
             
-            var spriteTag = material ? material.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
+            var spriteTag = mat ? mat.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
 
             var noTag = spriteTag.IsNullOrEmpty();
 
@@ -206,9 +211,9 @@ namespace Playtime_Painter.Examples
 
             var rt = rectTransform;
             var piv = rt.pivot;
-            var size = rt.rect.size;
-            var corner1 = (Vector2.zero - piv) * size;
-            var corner2 = (Vector2.one - piv) * size;
+            var rectSize = rt.rect.size;
+            var corner1 = (Vector2.zero - piv) * rectSize;
+            var corner2 = (Vector2.one - piv) * rectSize;
 
             vh.Clear();
 
@@ -218,15 +223,14 @@ namespace Playtime_Painter.Examples
 
             if (feedPositionData)
             {
-                var mycanvas = canvas;
-                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (mycanvas ? mycanvas.worldCamera : null) , rt.position);
+                var myCanvas = canvas;
+                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null) , rt.position);
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
             }
 
-            var scale = rectTransform.rect.size;
-            scale = new Vector2(Mathf.Max(0, (scale.x - scale.y) / scale.x), Mathf.Max(0, (scale.y - scale.x) / scale.y));
+            rectSize = new Vector2(Mathf.Max(0, (rectSize.x - rectSize.y) / rectSize.x), Mathf.Max(0, (rectSize.y - rectSize.x) / rectSize.y));
 
-            var scaleToSided = scale.x - scale.y; // If x>0 - positive, else - negative
+            var scaleToSided = rectSize.x - rectSize.y; // If x>0 - positive, else - negative
 
             vert.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
             vert.uv1 = new Vector2(scaleToSided, GetCorner(0));  // Replaced Edge smoothness with Scale

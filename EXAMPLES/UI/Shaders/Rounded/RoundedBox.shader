@@ -65,8 +65,6 @@
 					return o;
 				}
 
-			
-
 				float4 frag(v2f o) : COLOR{
 
 					float4 _ProjTexPos =	o.projPos;

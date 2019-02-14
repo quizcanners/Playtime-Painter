@@ -17,10 +17,8 @@ public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material {
 
             var changed = pegi.toggleDefaultInspector();
 
-            mat.edit(softness, "Softness|", 0, 1).nl(ref changed);
-            mat.edit(softness, "Softnessssssssssssss|", 0, 1).nl(ref changed);
-            mat.edit(softness, "Softnessswqwewwwwwwwwwwwwwwwwwwwwwww|", 0, 1).nl(ref changed);
-
+            mat.edit(softness, "Softness", 0, 1).nl(ref changed);
+       
             mat.edit(outline).nl(ref changed);
 
             if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))

@@ -1603,7 +1603,7 @@ namespace PlayerAndEditorGUI {
                 return ef.select(ref no, tree);
         #endif
             
-            var inds;
+            List<int> inds;
             var objs = tree.GetAllObjs(out inds);
             var filtered = new List<string>();
             var tmpindex = -1;
@@ -2926,7 +2926,7 @@ namespace PlayerAndEditorGUI {
             var path = AssetDatabase.GetAssetPath(obj);
             if (icon.Copy.Click("{0} Duplicate".F(obj)).changes(ref changed)) {
                 if (path.IsNullOrEmpty()) 
-                    obj.CreateAsset<T>(folder, "New {1}".F(obj.GetType().ToPEGIstring_Type()), extension);
+                    obj.CreateAsset<T>(folder, "New {0}".F(obj.GetType().ToPEGIstring_Type()), extension);
                 else
                 {
                     var newPath = AssetDatabase.GenerateUniqueAssetPath(path);

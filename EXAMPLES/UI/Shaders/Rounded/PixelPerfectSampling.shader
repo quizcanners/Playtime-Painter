@@ -59,12 +59,13 @@
 					o.pos =				UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy =		v.texcoord.xy;
 					o.screenPos =		ComputeScreenPos(o.pos);
+					o.screenPos.xy *= _ScreenParams.xy;
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy; 
-					o.texcoord.z =		_Edges; //abs(o.texcoord.z);
+					o.texcoord.z =		_Edges; 
 
-					o.projPos.xy =		v.normal.xy; 
+					o.projPos.xy =		floor(v.normal.xy * _ScreenParams.xy);
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 			
 					o.precompute.w =	1/( 1.0001 - o.texcoord.w);
@@ -88,8 +89,7 @@
 					float deCourners =		o.precompute.w;
 					float2 uv =				abs(o.offUV) * 2;
 
-					float2 screenUV =		o.screenPos.xy / o.screenPos.w;
-					float2 inPix =			(screenUV - _ProjTexPos.xy)*_ScreenParams.xy;
+					float2 inPix =			o.screenPos.xy / o.screenPos.w - _ProjTexPos.xy;
 					float2 texUV =			inPix * _MainTex_TexelSize.xy + o.offUV.zw;
 
 					float4 col = tex2Dlod(_MainTex, float4(texUV + 0.5,0,0)); 
@@ -121,7 +121,6 @@
 
 					col.a *= clipp * o.color.a;
 
-
 					return col;
 				}
 			ENDCG
@@ -129,5 +128,5 @@
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"
 	}
-	CustomEditor "Playtime_Painter.Examples.PixelPerfectShaderDrawer"
+	CustomEditor "Playtime_Painter.Examples.PixelPerfectMaterialDrawer"
 }

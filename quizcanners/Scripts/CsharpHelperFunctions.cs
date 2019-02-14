@@ -106,6 +106,17 @@ namespace QuizCannersUtilities
 
         const string badFormat = "!Bad format: ";
 
+        public static string F(this string format, Type type)
+        {
+            try
+            {
+                return string.Format(format, type.ToPEGIstring_Type());
+            }
+            catch
+            {
+                return badFormat + format + " " + (type == null ? "null type" : type.ToString());
+            }
+        }
         public static string F(this string format, string obj)
         {
             try
