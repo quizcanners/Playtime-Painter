@@ -18,9 +18,9 @@ namespace Playtime_Painter
 
 
         #region Encode & Decode
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "gtuv": ProjectionUV = data.ToBool(); break;
                 case "offset": offset = data.ToVector2(); break;
@@ -41,7 +41,7 @@ namespace Playtime_Painter
         #endregion
 
         #region Inspect
-        public override string NameForPEGIdisplay => "vertex UV";
+        public override string NameForDisplayPEGI => "vertex UV";
 
         public override string Tooltip => ProjectionUV ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
 
@@ -157,28 +157,28 @@ namespace Playtime_Painter
 
         public override bool ShowLines => false;
 
-        public override void AssignText(MarkerWithText mrkr, MeshPoint vpoint)
+        public override void AssignText(MarkerWithText markers, MeshPoint point)
         {
             var pvrt = MeshMGMT.GetSelectedVert();
 
-            if ((vpoint.uvpoints.Count > 1) || (pvrt == vpoint))
+            if ((point.uvpoints.Count > 1) || (pvrt == point))
             {
 
                 Texture tex = MeshMGMT.target.meshRenderer.sharedMaterial.mainTexture;
 
-                if (pvrt == vpoint)
+                if (pvrt == point)
                 {
-                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
-                        (vpoint.SmoothNormal ? "s" : "")) : "";
+                    markers.textm.text = (point.uvpoints.Count > 1) ? ((point.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1).ToString() + "/" + point.uvpoints.Count.ToString() +
+                        (point.SmoothNormal ? "s" : "")) : "";
                     float tsize = !tex ? 128 : tex.width;
-                    mrkr.textm.text +=
+                    markers.textm.text +=
                      ("uv: " + (MeshMGMT.SelectedUV.EditedUV.x * tsize) + "," + (MeshMGMT.SelectedUV.EditedUV.y * tsize));
                 }
                 else
-                    mrkr.textm.text = vpoint.uvpoints.Count.ToString() +
-                        (vpoint.SmoothNormal ? "s" : "");
+                    markers.textm.text = point.uvpoints.Count.ToString() +
+                        (point.SmoothNormal ? "s" : "");
             }
-            else mrkr.textm.text = "";
+            else markers.textm.text = "";
         }
 
         public override bool MouseEventPointedVertex()
@@ -186,8 +186,8 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonDown(0))
             {
-                MeshMGMT.AssignSelected(PointedUV); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
-                lastCalculatedUV = PointedUV.EditedUV;
+                MeshMGMT.AssignSelected(PointedUv); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
+                lastCalculatedUV = PointedUv.EditedUV;
                 MeshMGMT.Dragging = true;
             }
 
@@ -263,9 +263,9 @@ namespace Playtime_Painter
         public override void ManageDragging()
         {
 
-            if (PointedTris != null && SelectedUV != null)
+            if (PointedTris != null && SelectedUv != null)
             {
-                Vector2 uv = SelectedUV.SharedEditedUV;
+                Vector2 uv = SelectedUv.SharedEditedUV;
                 Vector2 posUV = PointedTris.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
                 Vector2 newUV = uv * 2 - posUV;
                 bool isChanged = newUV != lastCalculatedUV;

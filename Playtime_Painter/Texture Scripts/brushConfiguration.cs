@@ -36,7 +36,7 @@ namespace Playtime_Painter {
         public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
         {
 
-            var id = painter.ImgData;
+            var id = painter.ImgMeta;
 
             bool rt = id.TargetIsRenderTexture();
 
@@ -93,10 +93,10 @@ namespace Playtime_Painter {
             return cody;
         }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
 
-            switch (tag)
+            switch (tg)
             {
                 case "typeGPU": inGPUtype = data.ToInt(); break;
                 case "typeCPU": inCPUtype = data.ToInt(); break;
@@ -157,7 +157,7 @@ namespace Playtime_Painter {
         public int inGPUtype;
         public int inCPUtype;
 
-        public BrushType Type(PlaytimePainter pntr) => Type(!pntr ? TargetIsTex2D : pntr.ImgData.TargetIsTexture2D());
+        public BrushType Type(PlaytimePainter pntr) => Type(!pntr ? TargetIsTex2D : pntr.ImgMeta.TargetIsTexture2D());
 
         public BrushType Type(bool CPU) => BrushType.AllTypes[_type(CPU)];
 
@@ -219,7 +219,7 @@ namespace Playtime_Painter {
             if (pntr)
                 foreach (var pl in TexMGMT.Plugins)
                 {
-                    isA3d = pl.IsA3Dbrush(pntr, this, ref overrideOther);
+                    isA3d = pl.IsA3DBrush(pntr, this, ref overrideOther);
                     if (overrideOther) break;
                 }
 
@@ -252,11 +252,11 @@ namespace Playtime_Painter {
 
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr) {
 
-            var imgData = pntr.ImgData;
+            var imgData = pntr.ImgMeta;
 
             if (imgData == null) {
                 pntr.InitIfNotInitialized();
-                imgData = pntr.ImgData;
+                imgData = pntr.ImgMeta;
                 if (imgData == null)
                     return pntr;
             }
@@ -300,7 +300,7 @@ namespace Playtime_Painter {
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter ? InspectedImageData.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
+        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
 #if PEGI
         public bool Mode_Type_PEGI()
         {
@@ -309,7 +309,7 @@ namespace Playtime_Painter {
             BrushType.AllTypes.ClampIndexToCount(ref inCPUtype);
             BrushType.AllTypes.ClampIndexToCount(ref inGPUtype);
             
-            bool CPU = p ? p.ImgData.TargetIsTexture2D() : TargetIsTex2D;
+            bool CPU = p ? p.ImgMeta.TargetIsTexture2D() : TargetIsTex2D;
 
             _inspectedBrush = this;
             bool changed = false;
@@ -386,7 +386,7 @@ namespace Playtime_Painter {
             pegi.newLine();
 
 
-            ImageData id = p.ImgData;
+            ImageMeta id = p.ImgMeta;
 
             bool changed = false;
             bool cpuBlit = id.destination == TexTarget.Texture2D;
@@ -439,7 +439,7 @@ namespace Playtime_Painter {
 
             if (p.terrain) {
 
-                if (p.ImgData != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
+                if (p.ImgMeta != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
                     pegi.writeWarning("Preview Shader is needed to see changes to terrain height.");
 
                 pegi.nl();
@@ -536,7 +536,7 @@ namespace Playtime_Painter {
             }
             else
             {
-                var id = painter.ImgData;
+                var id = painter.ImgMeta;
                 if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
                     ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
@@ -578,8 +578,8 @@ namespace Playtime_Painter {
         public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(BrushDynamic));
         public TaggedTypes_STD AllTypes => all;
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "t": testValue = data.ToInt(); break;
                 default: return false;
             }

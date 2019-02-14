@@ -37,7 +37,7 @@ namespace Playtime_Painter
             {
                 if (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE))
                 {
-                    var id = painter.ImgData;
+                    var id = painter.ImgMeta;
                     if (id != null) {
                         id.tiling = Vector2.one;
                         id.offset = Vector2.zero;
@@ -48,7 +48,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        public override bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter)
         {
             Texture tex = id.CurrentTexture();
             if (painter.terrain != null)

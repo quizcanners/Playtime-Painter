@@ -10,8 +10,8 @@ namespace QuizCannersUtilities
 
         #region Non-Instancible
 
-        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag = "b") 
-            => new StdDecoder(data).DecodeTagsFor(dec, unrec, tag);
+        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedSTD unrecognizedKeeper, string tag = "b") 
+            => new StdDecoder(data).DecodeTagsFor(dec, unrecognizedKeeper, tag);
         
         public static void Decode_Delegate(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
 
@@ -19,7 +19,7 @@ namespace QuizCannersUtilities
         {
 
             var cody = new StdDecoder(data);
-            bool local = false;
+            var local = false;
 
             foreach (var tag in cody)
             {
@@ -86,7 +86,7 @@ namespace QuizCannersUtilities
             return b;
         }
 
-        public static Matrix4x4 ToMatrix4x4(this string data)
+        public static Matrix4x4 ToMatrix4X4(this string data)
         {
             var cody = new StdDecoder(data);
             var m = new Matrix4x4();
@@ -117,7 +117,7 @@ namespace QuizCannersUtilities
                     case "32": m.m32 = d.ToFloat(); break;
                     case "33": m.m33 = d.ToFloat(); break;
 
-                    default: Debug.Log("Uncnown component: " + tag); break;
+                    default: Debug.Log("Unknown component: " + tag); break;
                 }
             }
             return m;
@@ -126,9 +126,9 @@ namespace QuizCannersUtilities
         public static Quaternion ToQuaternion(this string data)
         {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            Quaternion q = new Quaternion();
+            var q = new Quaternion();
 
             foreach (var tag in cody)
             {
@@ -139,7 +139,7 @@ namespace QuizCannersUtilities
                     case "y": q.y = d.ToFloat(); break;
                     case "z": q.z = d.ToFloat(); break;
                     case "w": q.w = d.ToFloat(); break;
-                    default: Debug.Log("Uncnown component: " + cody.GetType()); break;
+                    default: Debug.Log("Unknown component: " + cody.GetType()); break;
                 }
             }
             return q;
@@ -147,9 +147,9 @@ namespace QuizCannersUtilities
 
         public static Vector4 ToVector4(this string data) {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            Vector4 v4 = new Vector4();
+            var v4 = new Vector4();
 
             foreach (var tag in cody)
             {
@@ -159,7 +159,7 @@ namespace QuizCannersUtilities
                     case "y": v4.y = d.ToFloat(); break;
                     case "z": v4.z = d.ToFloat(); break;
                     case "w": v4.w = d.ToFloat(); break;
-                    default: Debug.Log("Uncnown component: " + tag); break;
+                    default: Debug.Log("Unknown component: " + tag); break;
                 }
             }
             return v4;
@@ -167,9 +167,9 @@ namespace QuizCannersUtilities
 
         public static Vector3 ToVector3(this string data) {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            Vector3 v3 = new Vector3();
+            var v3 = new Vector3();
 
             foreach (var tag in cody)
             {
@@ -186,9 +186,9 @@ namespace QuizCannersUtilities
 
         public static Vector2 ToVector2(this string data) {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            Vector2 v2 = new Vector3();
+            var v2 = new Vector3();
 
             foreach (var tag in cody)
             {
@@ -204,9 +204,9 @@ namespace QuizCannersUtilities
 
         public static Rect ToRect(this string data)
         {
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
-            Rect rect = new Rect();
+            var rect = new Rect();
 
             foreach (var tag in cody)
             {
@@ -220,17 +220,14 @@ namespace QuizCannersUtilities
             return rect;
         }
 
-        public static bool ToBool(this string data) {
-            return data == "y";
-        }
-
+        public static bool ToBool(this string data) => data == StdEncoder.IsTrueTag;
+        
         public static int ToInt(this string data) {
 
-            int variable = 0;
+            var variable = 0;
             int.TryParse(data, out variable);
 
             return variable;
-            //return Convert.ToInt32(data); //int.Parse(data);
 
         }
 
@@ -248,7 +245,7 @@ namespace QuizCannersUtilities
 
         public static LinearColor ToLinearColor(this string data)
         {
-            LinearColor lc = new LinearColor();
+            var lc = new LinearColor();
             lc.Decode(data);
             return lc;
         }
@@ -256,7 +253,7 @@ namespace QuizCannersUtilities
         public static Color ToColor(this string data)
         {
             var cody = new StdDecoder(data);
-            Color c = new Color();
+            var c = new Color();
             foreach (var tag in cody)
             {
                 var d = cody.GetData();
@@ -281,7 +278,7 @@ namespace QuizCannersUtilities
 
             l = new List<string>();
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData());
@@ -293,7 +290,7 @@ namespace QuizCannersUtilities
 
             l = new List<int>();
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToInt());
@@ -306,7 +303,7 @@ namespace QuizCannersUtilities
 
             l = new List<float>();
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToFloat());
@@ -320,7 +317,7 @@ namespace QuizCannersUtilities
 
             l = new List<uint>();
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToUInt());
@@ -334,7 +331,7 @@ namespace QuizCannersUtilities
 
             l = new List<Color>();
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToColor());
@@ -346,123 +343,115 @@ namespace QuizCannersUtilities
 
         #region InternalDecode
 
-        static T DecodeData<T>(this StdDecoder cody, TaggedTypes_STD tps, List_Data ld) where T : IGotClassTag
-            => Decode<T>(cody._currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
+        private static T DecodeData<T>(this StdDecoder cody, TaggedTypes_STD tps, ListMetaData ld) where T : IGotClassTag
+            => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
-        static T DecodeData<T>(this StdDecoder cody, TaggedTypes_STD tps) where T : IGotClassTag
-             => Decode<T>(cody._currentTag, cody.GetData(), tps);
+        private static T DecodeData<T>(this StdDecoder cody, TaggedTypes_STD tps) where T : IGotClassTag
+             => Decode<T>(cody.currentTag, cody.GetData(), tps);
         
-        static T DecodeData<T>(this StdDecoder cody, List<Type> tps, List_Data ld) where T : ISTD
-            => Decode<T>(cody._currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
+        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps, ListMetaData ld) where T : ISTD
+            => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
 
-        static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ISTD
-            => Decode<T>(cody._currentTag, cody.GetData(), tps);
+        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ISTD
+            => Decode<T>(cody.currentTag, cody.GetData(), tps);
 
-        static T Decode<T>(string tag, string data, TaggedTypes_STD tps, List_Data ld, int index) where T : IGotClassTag
+        private static T Decode<T>(string tag, string data, TaggedTypes_STD tps, ListMetaData ld, int index) where T : IGotClassTag
         {
 
-            T ret = default(T);
+            if (tag == StdEncoder.NullTag) return default(T);
+            
+            var type = tps.TaggedTypes.TryGet(tag);
+            
+            if (type != null)
+                return data.DecodeInto_Type<T>(type);
+            
+            ld.elementDatas[index].Unrecognized(tag, data);
 
-            if (tag != StdEncoder.nullTag)
-            {
-                var type = tps.TaggedTypes.TryGet(tag);
-                if (type != null)
-                    ret = data.DecodeInto_Type<T>(type);
-                else ld.elementDatas[index].Unrecognized(tag, data);
-
-            }
-
-            return ret;
+            return default(T);
         }
 
-        static T Decode<T>(string tag, string data, TaggedTypes_STD tps) where T : IGotClassTag
+        private static T Decode<T>(string tag, string data, TaggedTypes_STD tps) where T : IGotClassTag
         {
 
-            T ret = default(T);
-
-            if (tag != StdEncoder.nullTag)
-            {
-                var type = tps.TaggedTypes.TryGet(tag);
-                if (type != null)
-                    ret = data.DecodeInto_Type<T>(type);
-            }
-
-            return ret;
+            if (tag == StdEncoder.NullTag) return default(T);
+            
+            var type = tps.TaggedTypes.TryGet(tag);
+            
+            return (type == null) ? default(T) : data.DecodeInto_Type<T>(type);
         }
 
-        static T Decode<T>(string tag, string data, List<Type> tps, List_Data ld, int index) where T : ISTD
+        private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : ISTD
         {
 
-            T ret = default(T);
+            if (tag == StdEncoder.NullTag) return default(T);
+            
+            var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+            
+            if (type != null)
+                return data.DecodeInto_Type<T>(type);
+         
+            ld.elementDatas[index].Unrecognized(tag, data);
+            
 
-            if (tag != StdEncoder.nullTag)
-            {
-                var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
-                if (type != null)
-                    ret = data.DecodeInto_Type<T>(type);
-                else
-                    ld.elementDatas[index].Unrecognized(tag, data);
-            }
-
-            return ret;
+            return default(T);
         }
 
-        static T Decode<T>(string tag, string data, List<Type> tps) where T : ISTD
+        private static T Decode<T>(string tag, string data, List<Type> tps) where T : ISTD
         {
 
-            T ret = default(T);
 
-            if (tag != StdEncoder.nullTag)
-            {
-                var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
-                if (type != null)
-                    ret = data.DecodeInto_Type<T>(type);
-                else if (tag == StdDecoder.ListElementTag)
-                    ret = data.DecodeInto_Type<T>(tps[0]);
-            }
-
-            return ret;
+            if (tag == StdEncoder.NullTag) return default(T);
+            
+            var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+            
+            if (type != null)
+                return data.DecodeInto_Type<T>(type);
+            
+            return tag == StdDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default(T);
         }
         #endregion
 
         #region STD List
-        public static bool TryDecode_IntoList_Elements<T>(this string data, List<T> val) {
+        
+        public static bool TryDecode_IntoList_Elements<T>(this string data, List<T> val)
+        {
 
-            if (val != null) {
-                var cody = new StdDecoder(data);
+            if (val == null) return false;
+            
+            var cody = new StdDecoder(data);
 
-                int index = 0;
+            var index = 0;
 
-                foreach (var t in cody) {
+            foreach (var t in cody) {
 
-                    if (index >= val.Count)
-                        return true;
-      
-                    cody.GetData().TryDecodeInto(val[index]);
-                    index++;
-                }
-                return true;
+                if (index >= val.Count)
+                    return true;
+  
+                cody.GetData().TryDecodeInto(val[index]);
+                index++;
             }
-            return false;
+            
+            return true;
+            
         }
 
-        public static List<T> TryDecode_IntoList_Elements<T>(this string data, List<T> l, ref List_Data ld) where T : ISTD, new() {
+        public static List<T> TryDecode_IntoList_Elements<T>(this string data, List<T> l, ref ListMetaData ld) where T : ISTD, new() {
 
             if (ld == null)
-                ld = new List_Data();
+                ld = new ListMetaData();
 
             var overCody = new StdDecoder(data);
-            int index = 0;
+            var index = 0;
 
             foreach (var tag in overCody)  {
 
                 switch (tag) {
 
-                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
+                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
 
-                    case StdEncoder.listTag:
-                        StdDecoder cody = new StdDecoder(overCody.GetData());
+                    case StdEncoder.ListTag:
+                        var cody = new StdDecoder(overCody.GetData());
 
                         foreach (var t in cody) {
 
@@ -505,23 +494,23 @@ namespace QuizCannersUtilities
             return l;
         }
         
-        public static List<T> Decode_List<T>(this string data, out List<T> l, ref List_Data ld) where T : ISTD, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld) where T : ISTD, new() {
 
             if (ld == null)
-                ld = new List_Data();
+                ld = new ListMetaData();
             l = new List<T>();
 
-            List<Type> tps = typeof(T).TryGetDerrivedClasses();
+            var tps = typeof(T).TryGetDerivedClasses();
        
             var overCody = new StdDecoder(data);
             foreach (var tag in overCody) {
 
                 switch (tag) {
 
-                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
+                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
                         
-                    case StdEncoder.listTag:
-                        StdDecoder cody = new StdDecoder(overCody.GetData());
+                    case StdEncoder.ListTag:
+                        var cody = new StdDecoder(overCody.GetData());
                         if (tps != null)
                             foreach (var t in cody)
                                 l.Add(cody.DecodeData<T>(tps, ld)); 
@@ -529,12 +518,7 @@ namespace QuizCannersUtilities
                                 l.Add(cody.GetData().DecodeInto<T>());
                         break;
 
-                    default:
-                        if (tps != null)
-                            l.Add(overCody.DecodeData<T>(tps,ld)); 
-                        else
-                            l.Add(overCody.GetData().DecodeInto<T>());
-                        break;
+                    default: l.Add( (tps != null) ? overCody.DecodeData<T>(tps,ld) : overCody.GetData().DecodeInto<T>()); break;
                 }
             }
 
@@ -543,11 +527,11 @@ namespace QuizCannersUtilities
         
         public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ISTD, new() {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             l = new List<T>();
 
-            List<Type> tps = typeof(T).TryGetDerrivedClasses();
+            var tps = typeof(T).TryGetDerivedClasses();
 
             if (tps != null) 
                 foreach (var tag in cody)
@@ -560,17 +544,17 @@ namespace QuizCannersUtilities
         
         public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l) where T : ISTD {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             l = new List<T>();
 
-            List<Type> tps = typeof(T).TryGetDerrivedClasses();
+            var tps = typeof(T).TryGetDerivedClasses();
 
             if (tps != null)
                 foreach (var tag in cody)
                     l.Add(cody.DecodeData<T>(tps));
             else
-                Debug.LogError("{0} doesn't provide a list of derrived types to decode".F(typeof(T).ToString()));
+                Debug.LogError("{0} doesn't provide a list of derived types to decode".F(typeof(T).ToString()));
 
             return l;
         }
@@ -580,13 +564,13 @@ namespace QuizCannersUtilities
         public static T[] Decode_Array<T>(this string data, out T[] l) where T : ISTD, new()
         {
 
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             l = null;
 
-            List<T> tmpList = new List<T>();
+            var tmpList = new List<T>();
 
-            int ind = 0;
+            var ind = 0;
 
             foreach (var tag in cody)
             {
@@ -596,7 +580,7 @@ namespace QuizCannersUtilities
                     l = new T[d.ToInt()];
                 else
                 {
-                    bool isNull = tag == StdEncoder.nullTag;
+                    var isNull = tag == StdEncoder.NullTag;
 
                     var obj = isNull ? default(T) : d.DecodeInto<T>();
 
@@ -609,10 +593,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            if (l == null)
-                l = tmpList.ToArray();
-
-            return l;
+            return l ?? tmpList.ToArray();
         }
 
         public static Matrix4x4[] Decode_Array(this string data, out Matrix4x4[] l)
@@ -624,7 +605,7 @@ namespace QuizCannersUtilities
 
             var tmpList = new List<Matrix4x4>();
 
-            int ind = 0;
+            var ind = 0;
 
             foreach (var tag in cody)
             {
@@ -633,7 +614,7 @@ namespace QuizCannersUtilities
                 if (tag == "len")
                     l = new Matrix4x4[d.ToInt()];
                 else {
-                    var obj = d.ToMatrix4x4();
+                    var obj = d.ToMatrix4X4();
 
                     if (l != null)
                         l[ind] = obj;
@@ -644,17 +625,14 @@ namespace QuizCannersUtilities
                 }
             }
 
-            if (l == null)
-                l = tmpList.ToArray();
-
-            return l;
+            return l ?? tmpList.ToArray();
         }
         #endregion
 
         #region Abstract 
 
         public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypes_STD tps) where T : IGotClassTag {
-            StdDecoder cody = new StdDecoder(data);
+            var cody = new StdDecoder(data);
 
             l = new List<T>();
 
@@ -664,18 +642,18 @@ namespace QuizCannersUtilities
             return l;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l, ref List_Data ld, TaggedTypes_STD tps) where T : IGotClassTag
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld, TaggedTypes_STD tps) where T : IGotClassTag
         {
             l = new List<T>();
             if (ld == null)
-                ld = new List_Data();
+                ld = new ListMetaData();
 
             var overCody = new StdDecoder(data);
             foreach (var tag in overCody) {
                 switch (tag) {
-                    case StdEncoder.listMetaTag: ld.Decode(overCody.GetData()); break;
-                    case StdEncoder.listTag:
-                        StdDecoder cody = new StdDecoder(overCody.GetData());
+                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
+                    case StdEncoder.ListTag:
+                        var cody = new StdDecoder(overCody.GetData());
                             foreach (var t in cody) l.Add(cody.DecodeData<T>(tps, ld));   break;
                     default: l.Add(overCody.DecodeData<T>(tps, ld));
                     break;
@@ -713,14 +691,8 @@ namespace QuizCannersUtilities
 
         #region STD class
         public static ISTD DecodeTagsFor<T>(this string data, T val) where T : ISTD
-        {
-            if (val == null)
-                return val;
-
-            new StdDecoder(data).DecodeTagsFor(val);
-            return val;
-        }
-
+        => (val.IsNullOrDestroyed_Obj()) ? val : new StdDecoder(data).DecodeTagsFor(val);
+      
         public static T DecodeInto<T>(this string data, out T val) where T : ISTD, new()
         {
             val = data.DecodeInto<T>();
@@ -739,13 +711,11 @@ namespace QuizCannersUtilities
         
         public static bool Decode_ifNotNull(this ISTD istd, string data)
         {
-            if (istd != null)
-            {
-                istd.Decode(data);
-                return true;
-            }
-
-            return false;
+            if (istd == null) return false;
+            
+            istd.Decode(data);
+            return true;
+           
         }
 
         public static T TryDecodeInto<T>(this string data) where T : new()
@@ -757,33 +727,32 @@ namespace QuizCannersUtilities
 
         public static T DecodeInto_Type<T>(this string data, Type childType) where T : ISTD
         {
-            T val = (T)Activator.CreateInstance(childType);
+            var val = (T)Activator.CreateInstance(childType);
             val.Decode(data);
             return val;
         }
 
         public static T TryDecodeInto_Type<T>(this string data, Type childType)
         {
-            T val = (T)Activator.CreateInstance(childType);
-            var std = val as ISTD;
-            if (std != null)
-                std.Decode(data); //.DecodeTagsFor(std);
+            var val = (T)Activator.CreateInstance(childType);
+
+            (val as ISTD).Decode_ifNotNull(data);
 
             return val;
         }
 
         public static T TryDecodeInto<T>(this ISTD ovj, Type childType)
         {
-            T val = (T)Activator.CreateInstance(childType);
+            var val = (T)Activator.CreateInstance(childType);
 
-            if (ovj != null)
-            {
-                var std = val as ISTD;
+            if (ovj == null) return val;
+            
+            var std = val as ISTD;
 
-                if (std != null)
-                    std.Decode(ovj.Encode().ToString()); //.DecodeTagsFor(std);
-            }
-
+            if (std == null) return val;
+            
+            std.Decode(ovj.Encode().ToString()); 
+            
             return val;
         }
         #endregion
@@ -807,11 +776,13 @@ namespace QuizCannersUtilities
 
         public static bool TryDecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) {
             var std = val.TryGet_fromObj<ISTD>();
-            if (std != null) {
-                data.DecodeInto(std, referencesKeeper);
-                return true;
-            }
-            return false;
+           
+            if (std == null) return false;
+            
+            data.DecodeInto(std, referencesKeeper);
+            
+            return true;
+                
         }
 
         public static T DecodeInto<T>(this string data, out T val, ISTD_SerializeNestedReferences referencesKeeper)
@@ -833,21 +804,19 @@ namespace QuizCannersUtilities
 
         public static bool DecodeInto<T>(this string data, T val, ISTD_SerializeNestedReferences referencesKeeper) where T : ISTD
         {
-            if (val != null)  {
+            if (val == null) return false;  
 
-                var prevKeeper = Keeper;
-                Keeper = referencesKeeper;
+            var prevKeeper = Keeper;
+            Keeper = referencesKeeper;
 
-                val.Decode(data); 
+            val.Decode(data); 
 
-                Keeper = prevKeeper;
-                return true;
-            }
+            Keeper = prevKeeper;
+            return true;
 
-            return false;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, ref List_Data ld) where T : ISTD, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, ISTD_SerializeNestedReferences referencesKeeper, ref ListMetaData ld) where T : ISTD, new()
         {
             var prevKeeper = Keeper;
             Keeper = referencesKeeper;
@@ -873,13 +842,16 @@ namespace QuizCannersUtilities
 
         public static T Decode<T>(this string data, ref T val, ISTD_SerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
+           
+            if (referencesKeeper == null) return val;
+            
             var ind = data.ToInt();
-            if (referencesKeeper != null) {
-                T getting = referencesKeeper.GetISTDreferenced<T>(ind);
-                if (getting != null)
-                    val = getting; 
-            }
-
+            
+            var getting = referencesKeeper.GetReferenced<T>(ind);
+            
+            if (getting != null)
+                val = getting; 
+            
             return val;
         }
 
@@ -887,18 +859,19 @@ namespace QuizCannersUtilities
         {
             list = new List<T>();
 
-            if (referencesKeeper != null) {
+            if (referencesKeeper == null) return list;
 
-                List<int> indxs;
-                data.Decode_List(out indxs);
+            List<int> indxs;
+            
+            data.Decode_List(out indxs);
 
-                foreach (var i in indxs)
-                    list.Add(referencesKeeper.GetISTDreferenced<T>(i));
-            }
+            foreach (var i in indxs)
+                list.Add(referencesKeeper.GetReferenced<T>(i));
+            
             return list;
         }
 
-        public static void ToAssetByGUID<T>(this string data, ref T val) where T : UnityEngine.Object
+        public static void ToAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
         {
             var ass = UnityHelperFunctions.GuidToAsset<T>(data);
             if (ass)
@@ -908,62 +881,55 @@ namespace QuizCannersUtilities
 
     }
     
-
     public class StdDecoder   {
 
-        public static char Splitter => StdEncoder.splitter;
-        public static string NullTag => StdEncoder.nullTag;
-        public static string UnrecognizedTag => StdEncoder.unrecognizedTag;
-        public static string ListElementTag => StdEncoder.listElementTag;
-        public static string ListTag => StdEncoder.listTag;
-        public static string ListMetaTag => StdEncoder.listMetaTag;
+        public static string ListElementTag => StdEncoder.ListElementTag;
 
         public delegate bool DecodeDelegate(string tag, string data);
 
-        string data;
-        int position;
-        bool expectingGetData = false;
+        private readonly string _data;
+        private int _position;
+        private bool _expectingGetData;
 
         public StdDecoder(string dataStream)
         {
-            data = dataStream;
-            if (data == null)
-                data = "";
-            position = 0;
+            _data = dataStream ?? "";
+            
+            _position = 0;
         }
 
-        public void DecodeTagsFor (DecodeDelegate dec) {
+        public void DecodeTagsFor (DecodeDelegate decodeDelegate) {
             foreach (var tag in this)
-                dec(tag, GetData());
+                decodeDelegate(tag, GetData());
         }
         
-        public static List<string> baseClassChain = new List<string>();
-        public void DecodeTagsFor(DecodeDelegate dec, IKeepUnrecognizedSTD unrec, string tag) {
+        private static readonly List<string> BaseClassChain = new List<string>();
+        public void DecodeTagsFor(DecodeDelegate decodeDelegate, IKeepUnrecognizedSTD unrecognizedKeeper, string tag) {
 
-            baseClassChain.Add(tag);
+            BaseClassChain.Add(tag);
             try {
                 foreach (var t in this) {
                     var data = GetData();
 
-                    if (!dec(t, data)) {
-                        baseClassChain.Add(t);
-                        unrec.UnrecognizedSTD.Add(baseClassChain, data);
-                        baseClassChain.RemoveLast();
-                    }
+                    if (decodeDelegate(t, data)) continue;
+                    
+                    BaseClassChain.Add(t);
+                    unrecognizedKeeper.UnrecognizedSTD.Add(BaseClassChain, data);
+                    BaseClassChain.RemoveLast();
+                    
                 }
             }
             finally {
-                baseClassChain.RemoveLast();
+                BaseClassChain.RemoveLast();
             }
            
         }
 
         public T DecodeTagsFor<T>(T std) where T : ISTD {
 
-            var unrec = (std as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
+            var unrecognizedKeeper = (std as IKeepUnrecognizedSTD)?.UnrecognizedSTD;
 
-           // try {
-                if (unrec == null)
+                if (unrecognizedKeeper == null)
                     foreach (var tag in this)
                         std.Decode(tag, GetData());
                 else
@@ -971,80 +937,80 @@ namespace QuizCannersUtilities
                     {
                         var d = GetData();
                         if (!std.Decode(tag, d))
-                            unrec.Add(tag, d);
+                            unrecognizedKeeper.Add(tag, d);
                     }
-            /*} catch (Exception ex) {
-                Debug.Log("Couldn't decode {0} for {1} : {2}".F(data, std, ex.ToString()));
-            }*/
-            
+ 
             return std;
         }
 
-        string ToNextSplitter()
+        private string ToNextSplitter()
         {
-            int start = position;
-            while (data[position] != StdEncoder.splitter)
-                position++;
-            position++;
-            return data.Substring(start, position - start - 1);
+            var start = _position;
+            while (_data[_position] != StdEncoder.Splitter)
+                _position++;
+            
+            _position++;
+            
+            return _data.Substring(start, _position - start - 1);
         }
 
-        public bool GotData => position < data.Length; 
+        public bool GotData => _position < _data.Length; 
 
         public string GetTag()
         {
 
-            if (position >= data.Length)
+            if (_position >= _data.Length)
                 return null;
 
-            if (expectingGetData)
+            if (_expectingGetData)
             {
-
-                string hold = ToNextSplitter();
+                var hold = ToNextSplitter();
                 Debug.Log("Was expecting Get Data for " + hold);
                 return hold;
             }
-            expectingGetData = true;
+            
+            _expectingGetData = true;
 
-            _currentTag = ToNextSplitter();
+            currentTag = ToNextSplitter();
 
             currentTagIndex++;
 
-            return _currentTag;
+            return currentTag;
         }
 
         public string GetData()
         {
 
-            if (!expectingGetData)
+            if (!_expectingGetData)
                 Debug.Log("Was expecting Get Tag");
-            expectingGetData = false;
+            _expectingGetData = false;
 
-            int length = Int32.Parse(ToNextSplitter());
+            var length = int.Parse(ToNextSplitter());
 
-            string result = data.Substring(position, length);
-            position += length + 1; // skipping tagtag
+            var result = _data.Substring(_position, length);
+            
+            _position += length + 1; 
 
             return result;
         }
 
-        public string _currentTag;
+        public string currentTag;
 
-        public int currentTagIndex = 0;
+        public int currentTagIndex;
 
         public IEnumerator<string> GetEnumerator()
         {
             currentTagIndex = 0;
             while (NextTag())
-                yield return _currentTag;
+                yield return currentTag;
         }
 
-        bool NextTag()
+        private bool NextTag()
         {
-            if (expectingGetData)
+            if (_expectingGetData)
                 GetData();
+            
             return GetTag() != null;
         }
-
     }
 }

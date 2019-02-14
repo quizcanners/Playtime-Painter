@@ -62,10 +62,10 @@ namespace PlayerAndEditorGUI
         public static void Write(this Msg m) { m.Get().write(); }
         public static void Write(this Msg m, int width) { m.Get().write(width); }
         public static void Write(this Msg m, string tip, int width) { m.Get().write(tip, width); }
-        public static bool Click(this icon icon, Msg text) => icon.ClickUnfocus(text.Get(), pegi.defaultButtonSize);
-        public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnfocus(text.Get(), pegi.defaultButtonSize).changes(ref changed);
-        public static bool ClickUnfocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnfocus(icon.GetIcon(), text.Get(), size);
-        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnfocus(icon.GetIcon(), text.Get(), width, height);
+        public static bool Click(this icon icon, Msg text) => icon.ClickUnFocus(text.Get(), pegi.defaultButtonSize);
+        public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.Get(), pegi.defaultButtonSize).changes(ref changed);
+        public static bool ClickUnfocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), size);
+        public static bool ClickUnfocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), width, height);
 #endif
 
         public static string Get(this Msg s) {

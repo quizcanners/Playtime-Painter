@@ -8,7 +8,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public class MaterialData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName {
+    public class MaterialMeta : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName {
         
         #region Encode & Decode
         
@@ -23,9 +23,9 @@ namespace Playtime_Painter
             .Add_IfTrue("pv", usePreviewShader)
             .Add("tf", materials_TextureFields);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-           switch (tag)
+           switch (tg)
             {
                 case "mat": data.Decode_Reference(ref material); break;
                 case "texInd":  _selectedTexture = data.ToInt(); break;
@@ -42,18 +42,18 @@ namespace Playtime_Painter
         [NonSerialized]
         public PlaytimePainter painterTarget;
 
-        public void SetTextureOnLastTarget(ImageData id) {
+        public void SetTextureOnLastTarget(ImageMeta id) {
             if (painterTarget)
                 painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.CurrentTexture(), material);
         }
 
-        public MaterialData (Material mat)  {
+        public MaterialMeta (Material mat)  {
             material = mat;
         }
 
-        public MaterialData()  {   }
+        public MaterialMeta()  {   }
 
-        public string NameForPEGIdisplay => material == null ? "Error" : material.name;
+        public string NameForDisplayPEGI => material == null ? "Error" : material.name;
 
         #region Inspector
         #if PEGI

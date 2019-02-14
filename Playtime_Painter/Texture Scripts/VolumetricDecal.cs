@@ -33,7 +33,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        public string NameForPEGIdisplay => "{0} ({1})".F(decalName, type);
+        public string NameForDisplayPEGI => "{0} ({1})".F(decalName, type);
 
         #endif
         #endregion

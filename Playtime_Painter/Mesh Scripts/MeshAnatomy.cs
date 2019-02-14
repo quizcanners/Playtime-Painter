@@ -74,8 +74,8 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "i": finalIndex = data.ToInt(); EditedMesh.uvsByFinalIndex[finalIndex] = this; break;
                 case "uvi": uvIndex = data.ToInt(); break;
                 case "col": _color = data.ToColor(); break;
@@ -270,9 +270,9 @@ namespace Playtime_Painter
         public Vector3 deltaNormal;
 
         #region Encode & Decode
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "p": deltaPosition = data.ToVector3(); break;
                 case "t": deltaTangent = data.ToVector3(); break;
@@ -414,8 +414,8 @@ namespace Playtime_Painter
             return cody;
         }
        
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "u0":  shared_v2s.Add(new Vector2[2]); 
                             shared_v2s.Last()[0] = data.ToVector2(); break;
                 case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
@@ -500,8 +500,8 @@ namespace Playtime_Painter
         public void PixPerfect() {
             var trg = MeshManager.Inst.target;
 
-            if ((trg!= null) && (trg.ImgData!= null)){
-                var id = trg.ImgData;
+            if ((trg!= null) && (trg.ImgMeta!= null)){
+                var id = trg.ImgMeta;
                 var width = id.width*2;
                 var height = id.height*2;
 
@@ -544,7 +544,7 @@ namespace Playtime_Painter
         {
             float val = 1;
 
-            if (Cfg.MakeVericesUniqueOnEdgeColoring)
+            if (Cfg.makeVerticesUniqueOnEdgeColoring)
                EditedMesh.GiveLineUniqueVerticles_RefreshTrisListing(new LineData(this, other));
 
             foreach (Vertex u in uvpoints)
@@ -784,9 +784,9 @@ namespace Playtime_Painter
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
+        public override bool Decode(string tg, string data) {
 
-            switch (tag) {
+            switch (tg) {
                 case "tex": textureNo = data.ToVector4(); break;
                 case "f0": DominantCourner[0] = true; break;
                 case "f1": DominantCourner[1] = true; break;

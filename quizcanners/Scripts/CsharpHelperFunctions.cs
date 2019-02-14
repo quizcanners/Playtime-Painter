@@ -22,14 +22,14 @@ using UnityEditor;
 namespace QuizCannersUtilities
 {
 
-    public static class CsharpFuncs {
+    public static class CsharpUtils {
 
         public static string ThisMethodName() => ThisMethodName(1);
 
         public static string ThisMethodName(int up) => (new StackFrame(up))?.GetMethod()?.Name;
 
         #region Timer
-        static Stopwatch stopWatch = new Stopwatch();
+        static readonly Stopwatch StopWatch = new Stopwatch();
 
         public static int timerLastSection = 0;
 
@@ -38,13 +38,13 @@ namespace QuizCannersUtilities
         public static void TimerStart()
         {
             timerStartLabel = null;
-            stopWatch.Start();
+            StopWatch.Start();
         }
 
         public static void TimerStart(this string Label)
         {
             timerStartLabel = Label;
-            stopWatch.Start();
+            StopWatch.Start();
         }
 
         public static string TimerEnd(this string Label) => Label.TimerEnd(true);
@@ -57,9 +57,9 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
         {
-            stopWatch.Stop();
+            StopWatch.Stop();
 
-            long ticks = stopWatch.ElapsedTicks;
+            long ticks = StopWatch.ElapsedTicks;
 
             string timeText = "";
 
@@ -79,7 +79,7 @@ namespace QuizCannersUtilities
             if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
                 UnityEngine.Debug.Log(text);
 
-            stopWatch.Reset();
+            StopWatch.Reset();
 
             return text;
         }
@@ -94,9 +94,9 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
         {
-            stopWatch.Stop();
+            StopWatch.Stop();
             var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
-            stopWatch.Start();
+            StopWatch.Start();
             return txt;
         }
 
@@ -363,14 +363,14 @@ namespace QuizCannersUtilities
 
                 Type objType = obj.GetType();
 
-                var dl = typeof(T).TryGetDerrivedClasses();
+                var dl = typeof(T).TryGetDerivedClasses();
                 if (dl != null) {
                     if (!dl.Contains(objType))
                         return false;
 
                 } else {
 
-                    var tc = typeof(T).TryGetTaggetClasses();
+                    var tc = typeof(T).TryGetTaggedClasses();
 
                     if (tc != null && !tc.Types.Contains(objType))
                         return false;
@@ -426,7 +426,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public static T TryGet<T>(this List<T> list, List_Data meta) => list.TryGet(meta.inspected);
+        public static T TryGet<T>(this List<T> list, ListMetaData meta) => list.TryGet(meta.inspected);
 
         public static T TryGet<T>(this List<T> list, int index)
         {
@@ -582,6 +582,8 @@ namespace QuizCannersUtilities
         }
 
         public static bool IsNullOrEmpty(this IList list) => list == null || list.Count == 0;
+
+        public static List<T> NullIfEmpty<T>(this List<T> list) => (list == null || list.Count == 0) ? null : list;
 
         #endregion
 

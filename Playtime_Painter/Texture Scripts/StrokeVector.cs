@@ -85,9 +85,9 @@ namespace Playtime_Painter {
             return s;
         }
 
-        public override bool Decode(string tag, string data) {
+        public override bool Decode(string tg, string data) {
 
-            switch (tag) {
+            switch (tg) {
                 case "fU": Dwn(data.ToVector2());  break;
                 case "fP": Dwn(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
@@ -130,7 +130,7 @@ namespace Playtime_Painter {
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude);
         }
 
-        public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.orthoSize).ToVector3(10);
+        public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.OrthographicSize).ToVector3(10);
 
         public  Vector3 BrushWorldPosition => BrushWorldPositionFrom(uvTo);
         

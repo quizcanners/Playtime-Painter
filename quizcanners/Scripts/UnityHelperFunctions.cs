@@ -7,6 +7,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using JetBrains.Annotations;
 using UnityEngine.EventSystems;
@@ -130,7 +132,7 @@ namespace QuizCannersUtilities {
 
             var go = obj.TryGetGameObject_Obj();
 
-             return go ? go.TryGet<T>() : pgi;
+             return go ? go.TryGet<T>() : null;
         }
 
         public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
@@ -166,7 +168,7 @@ namespace QuizCannersUtilities {
             
             var col = graphic.color;
             
-            if (col.a == alpha) return false;
+            if (Math.Abs(col.a - alpha) < float.Epsilon) return false;
                 
             col.a = alpha;
             graphic.color = col;
@@ -238,7 +240,7 @@ namespace QuizCannersUtilities {
 
             #if UNITY_EDITOR
             var tmp = Selection.objects;
-            return !tmp.IsNullOrEmpty()  ? (GameObject)tmp[0] : null;
+            return !tmp.IsNullOrEmpty()  ? tmp[0].TryGetGameObject_Obj() : null;
             #else 
             return null;
             #endif
@@ -393,11 +395,11 @@ namespace QuizCannersUtilities {
 
         #region Unity Editor MGMT
 
-        public static bool MouseToPlane(this Plane _plane, out Vector3 hitPos)
+        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos)
         {
             var ray = EditorInputManager.GetScreenRay();
             float rayDistance;
-            if (_plane.Raycast(ray, out rayDistance))
+            if (plane.Raycast(ray, out rayDistance))
             {
                 hitPos = ray.GetPoint(rayDistance);
                 return true;
@@ -412,7 +414,7 @@ namespace QuizCannersUtilities {
         {
 
             #if UNITY_EDITOR
-            UnityEngine.Debug.Log(text);
+            Debug.Log(text);
             #endif
         }
 
@@ -525,7 +527,7 @@ namespace QuizCannersUtilities {
         public static void FocusOnGame()
         {
 
-            var assembly = typeof(UnityEditor.EditorWindow).Assembly;
+            var assembly = typeof(EditorWindow).Assembly;
             var type = assembly.GetType("UnityEditor.GameView");
             var gameview = EditorWindow.GetWindow(type);
             gameview.Focus();
@@ -548,11 +550,11 @@ namespace QuizCannersUtilities {
             }
 
 
-            var layerSP = layers.GetArrayElementAtIndex(index);
+            var layerSp = layers.GetArrayElementAtIndex(index);
             
-            if (layerSP.stringValue.IsNullOrEmpty() || !layerSP.stringValue.SameAs(name)) {
-                Debug.Log("Changing layer name.  " + layerSP.stringValue + " to " + name);
-                layerSP.stringValue = name;
+            if (layerSp.stringValue.IsNullOrEmpty() || !layerSp.stringValue.SameAs(name)) {
+                Debug.Log("Changing layer name.  " + layerSp.stringValue + " to " + name);
+                layerSp.stringValue = name;
             }
 
             tagManager.ApplyModifiedProperties();
@@ -562,11 +564,13 @@ namespace QuizCannersUtilities {
 
         #region Assets Management
 
-        public static void RefreshAssetDatabase() =>
-            #if UNITY_EDITOR
+        public static void RefreshAssetDatabase()
+        {
+        #if UNITY_EDITOR
             AssetDatabase.Refresh();
-            #endif
-        
+        #endif
+        }
+
 
         public static UnityEngine.Object GetPrefab(this UnityEngine.Object obj) =>
         
@@ -653,7 +657,7 @@ namespace QuizCannersUtilities {
 
             if (path.IsNullOrEmpty()) return "";
             
-            var ind = path.LastIndexOf("/");
+            var ind = path.LastIndexOf("/", StringComparison.Ordinal);
 
             if (ind > 0)
                 path = path.Substring(0, ind);
@@ -724,7 +728,7 @@ namespace QuizCannersUtilities {
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log(ex.ToString());
+                Debug.Log(ex.ToString());
             }
 
             #endif
@@ -745,7 +749,7 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static void CreateAsset<T>(this UnityEngine.Object obj, string subPath, string name, string extension)
+        public static void CreateAsset(this UnityEngine.Object obj, string subPath, string name, string extension)
         {
             #if UNITY_EDITOR
             var path = Path.Combine("Assets", subPath);
@@ -773,19 +777,21 @@ namespace QuizCannersUtilities {
             added = ScriptableObject.CreateInstance(el.GetType()) as T;
     
             var oldName = Path.GetFileName(path);
-    
+
+            if (oldName.IsNullOrEmpty()) return added;
+            
             path = path.Replace(oldName, "");
-            
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
-    
+
+            var assetPathAndName =
+                AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
+
             AssetDatabase.CreateAsset(added, assetPathAndName);
-            
+
             added.name = assetPathAndName.Substring(path.Length, assetPathAndName.Length - path.Length - 6);
-    
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            
-        #else
+#else
             added = ScriptableObject.CreateInstance(el.GetType()) as T;
         #endif
         
@@ -833,14 +839,14 @@ namespace QuizCannersUtilities {
 
         public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
 
-            var obj = CreateAsset_SO<T,T>(path, name, null);
+            var obj = CreateAsset_SO<T,T>(path, name);
 
             list.Add(obj);
 
             return obj;
         }
 
-        public static T CreateAsset_SO<T, G>(string path, string name, List<G> optionalList = null) where T : G where G : ScriptableObject
+        public static T CreateAsset_SO<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();
 
@@ -985,64 +991,57 @@ namespace QuizCannersUtilities {
 
         #region Spin Around
 
-                public static Vector2 camOrbit = new Vector2();
-                public static Vector3 SpinningAround;
-                public static float OrbitDistance = 0;
-                public static bool OrbitingFocused;
-                public static float SpinStartTime = 0;
+        private static Vector2 _camOrbit;
+        private static Vector3 _spinningAround;
+        private static float _orbitDistance = 0;
+        private static bool _orbitingFocused;
+
+        private static float _spinStartTime = 0;
                 // Use this for initialization
                 public static void SpinAround(Vector3 pos, Transform cameraman)
                 {
                     if (Input.GetMouseButtonDown(2))
                     {
-                        Quaternion before = cameraman.rotation;//cam.transform.rotation;
+                        var before = cameraman.rotation;//cam.transform.rotation;
                         cameraman.transform.LookAt(pos);
-                        Vector3 rot = cameraman.rotation.eulerAngles;
-                        camOrbit.x = rot.y;
-                        camOrbit.y = rot.x;
-                        OrbitDistance = (pos - cameraman.position).magnitude;
-                        SpinningAround = pos;
+                        var rotE = cameraman.rotation.eulerAngles;
+                        _camOrbit.x = rotE.y;
+                        _camOrbit.y = rotE.x;
+                        _orbitDistance = (pos - cameraman.position).magnitude;
+                        _spinningAround = pos;
                         cameraman.rotation = before;
-                        OrbitingFocused = false;
-                        SpinStartTime = Time.time;
+                        _orbitingFocused = false;
+                        _spinStartTime = Time.time;
                     }
 
                     if (Input.GetMouseButtonUp(2))
-                        OrbitDistance = 0;
+                        _orbitDistance = 0;
 
-                    if ((OrbitDistance != 0) && (Input.GetMouseButton(2)))
+                    if ((!(Math.Abs(_orbitDistance) > float.Epsilon)) || !Input.GetMouseButton(2)) return;
+                    
+                    _camOrbit.x += Input.GetAxis("Mouse X") * 5;
+                    _camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
+
+                    if (_camOrbit.y <= -360)
+                        _camOrbit.y += 360;
+                    if (_camOrbit.y >= 360)
+                        _camOrbit.y -= 360;
+
+                    var rot = Quaternion.Euler(_camOrbit.y, _camOrbit.x, 0);
+                    var campos = rot *
+                                 (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
+                                 _spinningAround;
+
+                    cameraman.position = campos;
+                    if ((Time.time - _spinStartTime) < 0.2f) return;
+                        
+                    if (!_orbitingFocused)
                     {
-
-                        camOrbit.x += Input.GetAxis("Mouse X") * 5;
-                        camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
-
-                        if (camOrbit.y <= -360)
-                            camOrbit.y += 360;
-                        if (camOrbit.y >= 360)
-                            camOrbit.y -= 360;
-                        //y = Mathf.Clamp (y, min, max);
-
-
-
-
-                        Quaternion rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
-                        Vector3 campos = rot *
-                            (new Vector3(0.0f, 0.0f, -OrbitDistance)) +
-                            SpinningAround;
-
-                        cameraman.position = campos;
-                        if ((Time.time - SpinStartTime) > 0.2f)
-                        {
-                            if (!OrbitingFocused)
-                            {
-                                cameraman.transform.rotation = MyMath.Lerp_bySpeed(cameraman.rotation, rot, 300);
-                                if (Quaternion.Angle(cameraman.rotation, rot) < 1)
-                                    OrbitingFocused = true;
-                            }
-                            else cameraman.rotation = rot;
-                        }
-
+                        cameraman.transform.rotation = cameraman.rotation.Lerp_bySpeed(rot, 300);
+                        if (Quaternion.Angle(cameraman.rotation, rot) < 1)
+                            _orbitingFocused = true;
                     }
+                    else cameraman.rotation = rot;
                 }
 
         #endregion
@@ -1059,19 +1058,19 @@ namespace QuizCannersUtilities {
 
         public static string TagValue(this Material mat, string tag) => mat ? mat.GetTag(tag, false, null) : null;
         
-        public static Material MaterialWhaever(this Renderer rendy) =>
-                !rendy ? null : (Application.isPlaying ? rendy.material : rendy.sharedMaterial);
+        public static Material MaterialWhatever(this Renderer renderer) =>
+                !renderer ? null : (Application.isPlaying ? renderer.material : renderer.sharedMaterial);
         
         #if UNITY_EDITOR
-                public static List<string> GetFields(this Material m, MaterialProperty.PropType type)
+        private static List<string> GetFields(this Material m, MaterialProperty.PropType type)
                 {
-                    List<string> fNames = new List<string>();
+                    var fNames = new List<string>();
 
                     if (!m) return fNames;
 
-                    Material[] mat = new Material[1];
+                    var mat = new Material[1];
                     mat[0] = m;
-                    MaterialProperty[] props = null;
+                    MaterialProperty[] props;
 
                     try
                     {
@@ -1082,10 +1081,8 @@ namespace QuizCannersUtilities {
                         return fNames = new List<string>();
                     }
 
-                    if (props != null)
-                        foreach (MaterialProperty p in props)
-                            if (p.type == type)
-                                fNames.Add(p.name);
+                    if (props == null) return fNames;
+                    fNames.AddRange(from p in props where p.type == type select p.name);
 
                     return fNames;
                 }
@@ -1154,18 +1151,18 @@ namespace QuizCannersUtilities {
             if ((tex.width == width) && (tex.height == height))
                 return tex.GetPixels();
 
-            Color[] dst = new Color[width * height];
+            var dst = new Color[width * height];
 
-            Color[] src = tex.GetPixels();
+            var src = tex.GetPixels();
 
-            float dX = (float)tex.width / (float)width;
-            float dY = (float)tex.height / (float)height;
+            var dX = (float)tex.width / (float)width;
+            var dY = (float)tex.height / (float)height;
 
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
-                int dstIndex = y * width;
-                int srcIndex = ((int)(y * dY)) * tex.width;
-                for (int x = 0; x < width; x++)
+                var dstIndex = y * width;
+                var srcIndex = ((int)(y * dY)) * tex.width;
+                for (var x = 0; x < width; x++)
                     dst[dstIndex + x] = src[srcIndex + (int)(x * dX)];
 
             }
@@ -1183,7 +1180,7 @@ namespace QuizCannersUtilities {
                 return;
             }
 
-            RenderTexture curRT = RenderTexture.active;
+            var curRT = RenderTexture.active;
 
             RenderTexture.active = rt;
 
@@ -1615,22 +1612,25 @@ namespace QuizCannersUtilities {
                 public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName) =>
                      CreatePngSameDirectory(diffuse, newName, diffuse.width, diffuse.height);
         
-                public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height) {
+                public static Texture2D CreatePngSameDirectory(this Texture2D diffuse, string newName, int width, int height)
+                {
 
-                    Texture2D Result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
+                    if (!diffuse) return null;
+                    
+                    var result = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
 
                     diffuse.Reimport_IfNotReadale();
 
-                    var pxls = diffuse.GetPixels(width, height);
-                    pxls[0].a = 0.5f;
+                    var pixels = diffuse.GetPixels(width, height);
+                    pixels[0].a = 0.5f;
 
-                    Result.SetPixels(pxls);
+                    result.SetPixels(pixels);
 
-                    byte[] bytes = Result.EncodeToPNG();
+                    var bytes = result.EncodeToPNG();
 
-                    string dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
+                    var dest = AssetDatabase.GetAssetPath(diffuse).Replace("Assets", "");
 
-                    var extension = dest.Substring(dest.LastIndexOf(".") + 1);
+                    var extension = dest.Substring(dest.LastIndexOf(".", StringComparison.Ordinal) + 1);
 
                     dest = dest.Substring(0, dest.Length - extension.Length) + "png";
 
@@ -1798,57 +1798,53 @@ namespace QuizCannersUtilities {
 
         public static void SetAlpha(this MeshFilter mf, float alpha)
         {
+            if (!mf) return;
 
-            if (mf)
-            {
+            var mesh = mf.mesh;
+            
+            var m = mesh;
 
-                var m = mf.mesh;
+            var cols = mesh.colors;
+            
+            if (cols.IsNullOrEmpty())
+                cols = new Color[m.vertexCount];
 
-                var cols = mf.mesh.colors;
-                if (cols.IsNullOrEmpty())
-                    cols = new Color[m.vertexCount];
+            for (var i = 0; i < m.vertexCount; i++)
+                cols[i].a = alpha;
 
-                for (int i = 0; i < m.vertexCount; i++)
-                    cols[i].a = alpha;
-
-                mf.mesh.colors = cols;
-
-            }
+            mf.mesh.colors = cols;
         }
         
-        public static int GetSubmeshNumber(this Mesh m, int triangleIndex)
+        public static int GetSubMeshNumber(this Mesh m, int triangleIndex)
         {
+            if (!m) return 0;
+            
+            if (m.subMeshCount == 1)
+                return 0;
 
-            if (m)
+            if (!m.isReadable)
             {
+                Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
+                return 0;
+            }
 
-                if (m.subMeshCount == 1)
-                    return 0;
-
-                if (!m.isReadable)
-                {
-                    Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
-                    return 0;
-                }
-
-                int[] hittedTriangle = new int[] {
+            var triangles = new int[] {
                 m.triangles[triangleIndex * 3],
                 m.triangles[triangleIndex * 3 + 1],
                 m.triangles[triangleIndex * 3 + 2] };
 
-                for (int i = 0; i < m.subMeshCount; i++)
-                {
+            for (var i = 0; i < m.subMeshCount; i++)
+            {
 
-                    if (i == m.subMeshCount - 1)
+                if (i == m.subMeshCount - 1)
+                    return i;
+
+                var subMeshTris = m.GetTriangles(i);
+                for (var j = 0; j < subMeshTris.Length; j += 3)
+                    if (subMeshTris[j] == triangles[0] &&
+                        subMeshTris[j + 1] == triangles[1] &&
+                        subMeshTris[j + 2] == triangles[2])
                         return i;
-
-                    int[] subMeshTris = m.GetTriangles(i);
-                    for (int j = 0; j < subMeshTris.Length; j += 3)
-                        if (subMeshTris[j] == hittedTriangle[0] &&
-                            subMeshTris[j + 1] == hittedTriangle[1] &&
-                            subMeshTris[j + 2] == hittedTriangle[2])
-                            return i;
-                }
             }
 
             return 0;
@@ -1866,57 +1862,57 @@ namespace QuizCannersUtilities {
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         private string _name;
-        float timer = 0;
-        double perIntervalCount = 0;
+        private float _timer = 0;
+        private double _perIntervalCount = 0;
         private double _max = 0;
         private double _min = float.PositiveInfinity;
-        private double _avarage = 0;
+        private double _average = 0;
         private double _totalCount = 0;
-        private float intervalLength = 1f;
+        private readonly float _intervalLength = 1f;
         
         public void Update(float add = 0)
         {
-            timer += Time.deltaTime;
-            if (add != 0)
+            _timer += Time.deltaTime;
+            if (Math.Abs(add) > float.Epsilon)
                 Add(add);
 
-            if (timer <= intervalLength) return;
+            if (_timer <= _intervalLength) return;
             
 
-            timer -= intervalLength;
+            _timer -= _intervalLength;
 
-            _max = Mathf.Max((float)perIntervalCount, (float)_max);
-            _min = Mathf.Min((float)perIntervalCount, (float)_min);
+            _max = Mathf.Max((float)_perIntervalCount, (float)_max);
+            _min = Mathf.Min((float)_perIntervalCount, (float)_min);
 
             _totalCount += 1;
 
             var portion = 1d / _totalCount;
-            _avarage = _avarage * (1d - portion) + perIntervalCount * portion;
+            _average = _average * (1d - portion) + _perIntervalCount * portion;
 
-            perIntervalCount = 0;
+            _perIntervalCount = 0;
             
 
         }
 
         public void Add(float result = 1)
         {
-            perIntervalCount += result;
+            _perIntervalCount += result;
 
         }
 
         public void ResetStats()
         {
-            timer = 0;
-            perIntervalCount = 0;
+            _timer = 0;
+            _perIntervalCount = 0;
             _max = 0;
             _min = float.PositiveInfinity;
-            _avarage = 0;
+            _average = 0;
             _totalCount = 0;
         }
 
 #region Inspector
 
-        public string NameForPEGIdisplay => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)_avarage).ToString("0.00"),  (intervalLength != 1d) ? intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
+        public string NameForDisplayPEGI => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)_average).ToString("0.00"),  (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
 
 #if PEGI
         public bool PEGI_inList(IList list, int ind, ref int edited)
@@ -1926,7 +1922,7 @@ namespace QuizCannersUtilities {
 
          //   "_name interval".edit(80, ref intervalLength);
 
-            NameForPEGIdisplay.write();
+            NameForDisplayPEGI.write();
 
           
             return false;
@@ -1937,7 +1933,7 @@ namespace QuizCannersUtilities {
         public PerformanceTimer(string name = "Timer", float interval = 1f)
         {
             _name = name;
-            intervalLength = interval;
+            _intervalLength = interval;
         }
     }
     
@@ -1949,13 +1945,13 @@ namespace QuizCannersUtilities {
         private int _calls;
         private readonly string message = "error";
 
-        public string NameForPEGIdisplay => message + (_disabled ? " Disabled" : " Enabled");
+        public string NameForDisplayPEGI => message + (_disabled ? " Disabled" : " Enabled");
 
         public ChillLogger(string msg, bool logInBuild = false)
         {
             message = msg;
 #if !UNITY_EDITOR
-            disabled = (!logInBuild);
+            _disabled = (!logInBuild);
 #else
             _disabled = false;
 #endif
@@ -2214,7 +2210,7 @@ namespace QuizCannersUtilities {
                 id = Shader.PropertyToID( name );
             }
 
-            public string NameForPEGIdisplay => _name;
+            public string NameForDisplayPEGI => _name;
         }
 
         #region Float

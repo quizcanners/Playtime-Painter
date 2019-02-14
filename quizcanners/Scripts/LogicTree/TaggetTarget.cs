@@ -26,8 +26,8 @@ namespace STD_Logic
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "g" : groupIndex = data.ToInt(); break;
                 case "t": triggerIndex = data.ToInt(); break;
                 case "v": targValue = data.ToInt(); break;
@@ -56,7 +56,7 @@ namespace STD_Logic
             bool changed = false;
            
             if (Trigger.inspected != Trigger) {
-                if (icon.Edit.ClickUnfocus(20))
+                if (icon.Edit.ClickUnFocus(20))
                     Trigger.inspected = Trigger;
 
                 string focusName = "Tt";

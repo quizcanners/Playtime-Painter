@@ -23,7 +23,7 @@ namespace Playtime_Painter {
             }
         }
         
-        public BlitMode SetKeyword(ImageData id) {
+        public BlitMode SetKeyword(ImageMeta id) {
 
             foreach (BlitMode bs in AllModes)
                 UnityHelperFunctions.SetShaderKeyword(bs.ShaderKeyword(id), false);
@@ -34,7 +34,7 @@ namespace Playtime_Painter {
 
         }
 
-        protected virtual string ShaderKeyword(ImageData id) => null;
+        protected virtual string ShaderKeyword(ImageMeta id) => null;
 
         public virtual List<string> ShaderKeywords => null;
 
@@ -78,7 +78,7 @@ namespace Playtime_Painter {
             */
         }
 
-        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id)
+        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id)
         {
             if (id.isATransparentLayer)
                 return Blit_Functions.AlphaBlitTransparent;
@@ -92,8 +92,8 @@ namespace Playtime_Painter {
         public virtual bool SupportedBySingleBuffer { get { return true; } }
         public virtual bool UsingSourceTexture { get { return false; } }
         public virtual bool ShowColorSliders { get { return true; } }
-        public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.br_Multishade;
-        public virtual Shader ShaderForSingleBuffer => TexMGMTdata.br_Blit;
+        public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
+        public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
 #if PEGI
 
         public virtual bool ShowInDropdown()
@@ -104,7 +104,7 @@ namespace Playtime_Painter {
             if (!PlaytimePainter.inspectedPainter)
                 return (CPU ? SupportedByTex2D : SupportedByRenderTexturePair);
 
-            ImageData id = InspectedImageData;
+            ImageMeta id = InspectedImageMeta;
 
             if (id == null)
                 return false;
@@ -119,7 +119,7 @@ namespace Playtime_Painter {
         public virtual bool PEGI()
         {
 
-            ImageData id = InspectedImageData;
+            ImageMeta id = InspectedImageMeta;
 
             bool cpuBlit = id == null ? InspectedBrush.TargetIsTex2D : id.destination == TexTarget.Texture2D;
             BrushType brushType = InspectedBrush.Type(cpuBlit);
@@ -176,7 +176,7 @@ namespace Playtime_Painter {
     {
         public override string ToString() { return "Alpha Blit"; }
 
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_NORMAL";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_NORMAL";
 
         public BlitModeAlphaBlit(int ind) : base(ind) { }
         public override bool SupportsTransparentLayer => true;
@@ -188,10 +188,10 @@ namespace Playtime_Painter {
         public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
 
         public override string ToString() => "Add";
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_ADD";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_ADD";
 
-        public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Add;
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.AddBlit;
+        public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.AddBlit;
 
         public BlitModeAdd(int ind) : base(ind)
         {
@@ -202,12 +202,12 @@ namespace Playtime_Painter {
     public class BlitModeSubtract : BlitMode
     {
         public override string ToString() { return "Subtract"; }
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_SUBTRACT";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_SUBTRACT";
 
         //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
 
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.SubtractBlit;
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
         public BlitModeSubtract(int ind) : base(ind) { }
 
@@ -216,12 +216,12 @@ namespace Playtime_Painter {
     public class BlitModeCopy : BlitMode
     {
         public override string ToString() => "Copy";
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_COPY";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_COPY";
         public override bool ShowColorSliders => false;
 
         public override bool SupportedByTex2D => false;
         public override bool UsingSourceTexture => true;
-        public override Shader ShaderForSingleBuffer => TexMGMTdata.br_Copy;
+        public override Shader ShaderForSingleBuffer => TexMGMTdata.brushCopy;
 
         public BlitModeCopy(int ind) : base(ind) { }
     }
@@ -231,7 +231,7 @@ namespace Playtime_Painter {
         public override string ToString() { return "Min"; }
         public override bool SupportedByRenderTexturePair { get { return false; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MinBlit;
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
     }
@@ -241,7 +241,7 @@ namespace Playtime_Painter {
         public override string ToString() { return "Max"; }
         public override bool SupportedByRenderTexturePair { get { return false; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageData id) => Blit_Functions.MaxBlit;
+        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }
@@ -249,12 +249,12 @@ namespace Playtime_Painter {
     public class BlitModeBlur : BlitMode
     {
         public override string ToString() => "Blur";
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_BLUR";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLUR";
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
         public override bool SupportedByTex2D => false;
 
-        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush;
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
 #if PEGI
         public override bool PEGI()
         {
@@ -275,7 +275,7 @@ namespace Playtime_Painter {
     {
         public BlitModeSamplingOffset(int ind) : base(ind) { }
 
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_SAMPLE_DISPLACE";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_SAMPLE_DISPLACE";
 
         public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
@@ -333,7 +333,7 @@ namespace Playtime_Painter {
                 currentPixel.Clamp(-Cfg.samplingMaskSize.Max, Cfg.samplingMaskSize.Max * 2);
             }
 
-            var id = InspectedImageData;
+            var id = InspectedImageMeta;
 
             if (id != null)
             {
@@ -341,7 +341,7 @@ namespace Playtime_Painter {
                 if ("Set Tiling Offset".Click(ref changed)) {
                     id.tiling = Vector2.one * 1.5f;
                     id.offset = -Vector2.one * 0.25f;
-                    InspectedPainter.UpdateTylingToMaterial();
+                    InspectedPainter.UpdateTilingToMaterial();
                 }
 
                 if (InspectedPainter != null && "Generate Default".Click().nl(ref changed))
@@ -432,7 +432,7 @@ namespace Playtime_Painter {
     public class BlitModeBloom : BlitMode
     {
         public override string ToString() => "Bloom";
-        protected override string ShaderKeyword(ImageData id) => "BRUSH_BLOOM";
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLOOM";
 
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
@@ -440,7 +440,7 @@ namespace Playtime_Painter {
 
         public BlitModeBloom(int ind) : base(ind) { }
 
-        public override Shader ShaderForDoubleBuffer => TexMGMTdata.br_BlurN_SmudgeBrush;
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
 #if PEGI
         public override bool PEGI()
         {

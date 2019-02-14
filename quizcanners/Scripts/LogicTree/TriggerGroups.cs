@@ -23,7 +23,7 @@ namespace STD_Logic
         {
             all = new UnnullableSTD<TriggerGroup>();
 
-            List<Type> triggerGroups = CsharpFuncs.GetAllChildTypesOf<TriggerGroup>();
+            List<Type> triggerGroups = CsharpUtils.GetAllChildTypesOf<TriggerGroup>();
 
             foreach (Type group in triggerGroups)
             {
@@ -112,8 +112,8 @@ namespace STD_Logic
             .Add_IfTrue("show", showInInspectorBrowser)
             .Add("last", lastUsedTrigger);
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "n": name = data; break;
                 case "ind": index = data.ToInt(); break;
                 case "t":
@@ -226,7 +226,7 @@ namespace STD_Logic
         public bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (icon.Enter.ClickUnfocus())
+            if (icon.Enter.ClickUnFocus())
                 edited = ind;
 
             if (icon.Email.Click("Send this Trigger Group to somebody via email."))
@@ -250,7 +250,7 @@ namespace STD_Logic
                 "Share:".write("Paste message full with numbers and lost of ' | ' symbols into the first line or drop file into second" ,50);
                 
                 string data;
-                if (this.Send_Recieve_PEGI("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups", out data)) {
+                if (this.SendRecievePegi("Trigger Group {0} [{1}]".F(name, index), "Trigger Groups", out data)) {
                     TriggerGroup tmp = new TriggerGroup();
                     tmp.Decode(data);
                     if (tmp.index == index) {
@@ -285,7 +285,7 @@ namespace STD_Logic
                 Trigger selectedTrig = arg?.Trigger;
 
                 if (selectedTrig == null || !Trigger.searchField.IsIncludedIn(selectedTrig.name)) {
-                    if (icon.Add.ClickUnfocus("CREATE [" + Trigger.searchField + "]").changes(ref changed)) 
+                    if (icon.Add.ClickUnFocus("CREATE [" + Trigger.searchField + "]").changes(ref changed)) 
                         Add(Trigger.searchField, arg);
                 }
             }
@@ -305,7 +305,7 @@ namespace STD_Logic
 
                 pegi.nl();
 
-                if (goodLength && icon.Replace.ClickUnfocus(
+                if (goodLength && icon.Replace.ClickUnFocus(
                     "Rename {0} if group {1} to {2}".F(selectedTrig.name, selectedTrig.Group.ToPEGIstring(), Trigger.searchField)
                     ).changes(ref changed)) selectedTrig.Using().name = Trigger.searchField;
                 

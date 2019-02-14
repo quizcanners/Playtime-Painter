@@ -134,9 +134,9 @@ namespace STD_Logic {
             .Add_IfNotNegative("insB", browsedBranch)
             .Add_IfNotNegative("ic", browsedCondition);
 
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "t": type = (ConditionBranchType)data.ToInt(); break;
                 case "tag": data.DecodeInto(out targ); break;

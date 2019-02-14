@@ -82,7 +82,7 @@ namespace STD_Logic
         
         public virtual bool IsBoolean => false;
 
-        public abstract string NameForPEGIdisplay { get;  }
+        public abstract string NameForDisplayPEGI { get;  }
 
         public virtual bool UsingEnum() {
             return false;
@@ -112,7 +112,7 @@ namespace STD_Logic
 
     public class Usage_Boolean : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "YesNo";
+        public override string NameForDisplayPEGI => "YesNo";
 
         #region Inspector
 #if PEGI
@@ -160,7 +160,7 @@ namespace STD_Logic
 
     public class Usage_Number : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "Number";
+        public override string NameForDisplayPEGI => "Number";
 
         public static readonly Dictionary<int,string> conditionUsages = new Dictionary<int, string> { 
             { ((int)ConditionType.Equals), "==" },
@@ -215,7 +215,7 @@ namespace STD_Logic
     public class Usage_StringEnum : TriggerUsage
     {
 
-        public override string NameForPEGIdisplay => "Enums";
+        public override string NameForDisplayPEGI => "Enums";
 
         #region Inspector
 #if PEGI
@@ -266,7 +266,7 @@ namespace STD_Logic
 
     public class Usage_GameTimeStemp : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "Game Time";
+        public override string NameForDisplayPEGI => "Game Time";
 
         public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.VirtualTimePassedAbove), "Game_Time passed > " },
@@ -314,7 +314,7 @@ namespace STD_Logic
 
     public class Usage_RealTimestemp : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "Real Time";
+        public override string NameForDisplayPEGI => "Real Time";
 
         public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.RealTimePassedAbove), "Real_Time passed > " },
@@ -363,7 +363,7 @@ namespace STD_Logic
 
     public class Usage_IntTag : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "TagGroup";
+        public override string NameForDisplayPEGI => "TagGroup";
 
         #region Inspector
         #if PEGI
@@ -422,7 +422,7 @@ namespace STD_Logic
 
     public class Usage_BoolTag : TriggerUsage {
 
-        public override string NameForPEGIdisplay => "Tag";
+        public override string NameForDisplayPEGI => "Tag";
 
         #region Inspector
         #if PEGI

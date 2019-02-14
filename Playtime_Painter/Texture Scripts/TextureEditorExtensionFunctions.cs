@@ -18,7 +18,7 @@ public static class TextureEditorExtensionFunctions  {
 
         public static void TeachingNotification(this string text)
         {
-            if (PainterCamera.Data && PainterCamera.Data.ShowTeachingNotifications)
+            if (PainterCamera.Data && PainterCamera.Data.showTeachingNotifications)
                 text.showNotificationIn3D_Views();
         }
 
@@ -98,42 +98,39 @@ public static class TextureEditorExtensionFunctions  {
 		return false;
 	}
 
-		public static float StrokeWidth (this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.orthoSize;
+		public static float StrokeWidth (this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.OrthographicSize;
 		
         public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.isLinearColorSpace && b.BlitMode.SupportedBySingleBuffer && b.Type(false).SupportedBySingleBuffer && b.PaintingRGB);
         
-        public static bool IsProjected(this Material mat) => !mat ? false :  mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
+        public static bool IsProjected(this Material mat) => mat && mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
         
-        public static bool NeedsGrid (this PlaytimePainter pntr) {
-            if (!pntr || !pntr.enabled) return false;
+        public static bool NeedsGrid (this PlaytimePainter painter) {
+            if (!painter || !painter.enabled) return false;
+
+            if (painter.meshEditing)
+                return PainterCamera.MeshManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
             
-            if (!pntr.meshEditing) {
-
-                if (!pntr.LockTextureEditing && !PainterCamera.Data.showConfig && PlaytimePainter.IsCurrentTool) {
-                    if (pntr.GlobalBrushType.NeedsGrid) return true;
-
-                    if (GridNavigator.pluginNeedsGrid_Delegates != null)
-                    foreach (PainterBoolPlugin p in GridNavigator.pluginNeedsGrid_Delegates.GetInvocationList())
-                        if (p(pntr)) return true;
-                }
+            if (painter.LockTextureEditing || PainterCamera.Data.showConfig || !PlaytimePainter.IsCurrentTool)
                 return false;
-            }
-            else return PainterCamera.meshManager.target == pntr && PainterCamera.Data.MeshTool.ShowGrid;
+                
+            if (painter.GlobalBrushType.NeedsGrid) return true;
+
+            return GridNavigator.pluginNeedsGrid_Delegates != null && GridNavigator.pluginNeedsGrid_Delegates.GetInvocationList().Cast<PainterBoolPlugin>().Any(p => p(painter));
         }
 
-        public static void RemoveEmpty(this Dictionary<string, List<ImageData>> dic)
+        public static void RemoveEmpty(this Dictionary<string, List<ImageMeta>> dic)
         {
-            foreach (KeyValuePair<string, List<ImageData>> l in dic)
+            foreach (KeyValuePair<string, List<ImageMeta>> l in dic)
                 l.Value.RemoveEmpty();
         }
         
-        public static void AddIfNew(this Dictionary<string, List<ImageData>> dic, string Property, ImageData texture)
+        public static void AddIfNew(this Dictionary<string, List<ImageMeta>> dic, string Property, ImageMeta texture)
         {
 
-            List<ImageData> mgmt;
+            List<ImageMeta> mgmt;
             if (!dic.TryGetValue(Property, out mgmt))
             {
-                mgmt = new List<ImageData>();
+                mgmt = new List<ImageMeta>();
                 dic.Add(Property, mgmt);
             }
 
@@ -142,31 +139,31 @@ public static class TextureEditorExtensionFunctions  {
 
         }
 
-        public static bool TargetIsTexture2D(this ImageData id) =>  id == null ? false :  id.destination == TexTarget.Texture2D;
+        public static bool TargetIsTexture2D(this ImageMeta id) =>  id == null ? false :  id.destination == TexTarget.Texture2D;
         
-        public static bool TargetIsRenderTexture(this ImageData id) => id == null ? false :  id.destination == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this ImageMeta id) => id == null ? false :  id.destination == TexTarget.RenderTexture;
         
-        public static bool TargetIsBigRenderTexture(this ImageData id)=> id == null ? false : (id.destination == TexTarget.RenderTexture) && (!id.renderTexture);
+        public static bool TargetIsBigRenderTexture(this ImageMeta id)=> id == null ? false : (id.destination == TexTarget.RenderTexture) && (!id.renderTexture);
         
-        public static ImageData GetImgDataIfExists(this Texture texture)
+        public static ImageMeta GetImgDataIfExists(this Texture texture)
         {
             if (!texture || !PainterCamera.Data)
                 return null;
 
-            if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgDataUsingRendTex != null)
-                return PainterCamera.Inst.imgDataUsingRendTex;
+            if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgMetaUsingRendTex != null)
+                return PainterCamera.Inst.imgMetaUsingRendTex;
 
-            ImageData rid = null;
+            ImageMeta rid = null;
 
-            var lst = PainterCamera.Data.imgDatas;
+            var lst = PainterCamera.Data.imgMetas;
 
             if (lst != null)
             for (int i = 0; i < lst.Count; i++) {
-                ImageData id = lst[i];
+                ImageMeta id = lst[i];
                 if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
                     rid = id;
                     if (i > 3) 
-                        PainterCamera.Data.imgDatas.Move(i, 0);
+                        PainterCamera.Data.imgMetas.Move(i, 0);
                     break;
                 }
             }
@@ -174,7 +171,7 @@ public static class TextureEditorExtensionFunctions  {
             return rid;
         }
         
-        public static ImageData GetImgData(this Texture texture)
+        public static ImageMeta GetImgData(this Texture texture)
         {
             if (!texture)
                 return null;
@@ -182,15 +179,15 @@ public static class TextureEditorExtensionFunctions  {
             var nid = texture.GetImgDataIfExists();
 
             if (nid == null)
-                nid = new ImageData().Init(texture);
+                nid = new ImageMeta().Init(texture);
             
             return nid;
         }
 
         public static bool IsBigRenderTexturePair(this Texture tex) =>
-             ((tex != null) && PainterCamera.GotBuffers && ((tex == PainterCamera.Inst.BigRT_pair[0])));
+             ((tex != null) && PainterCamera.GotBuffers && ((tex == PainterCamera.Inst.bigRtPair[0])));
         
-        public static bool ContainsDuplicant(this List<ImageData> texs, ImageData other)
+        public static bool ContainsDuplicant(this List<ImageMeta> texs, ImageMeta other)
         {
 
             if (other == null)
@@ -199,7 +196,7 @@ public static class TextureEditorExtensionFunctions  {
             for (int i = 0; i < texs.Count; i++)
                 if (texs[i] == null) { texs.RemoveAt(i); i--; }
 
-            foreach (ImageData t in texs)
+            foreach (ImageMeta t in texs)
                 if (t.Equals(other))
                     return true;
 
@@ -209,17 +206,17 @@ public static class TextureEditorExtensionFunctions  {
         public static Texture GetDestinationTexture(this Texture texture)
         {
 
-            ImageData id = texture.GetImgDataIfExists();
+            ImageMeta id = texture.GetImgDataIfExists();
             if (id != null)
                 return id.CurrentTexture();
 
             return texture;
         }
 
-        public static RenderTexture CurrentRenderTexture(this ImageData id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.BigRT_pair[0]);
+        public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.bigRtPair[0]);
         
 
-        public static Texture ExclusiveTexture(this ImageData id)
+        public static Texture ExclusiveTexture(this ImageMeta id)
         {
             if (id == null)
                 return null;
@@ -237,7 +234,7 @@ public static class TextureEditorExtensionFunctions  {
             return null;
         }
 
-        public static Texture CurrentTexture(this ImageData id)
+        public static Texture CurrentTexture(this ImageMeta id)
         {
             if (id == null)
                 return null;
@@ -250,8 +247,8 @@ public static class TextureEditorExtensionFunctions  {
                 case TexTarget.RenderTexture:
                     if (id.renderTexture != null)
                         return id.renderTexture;
-                    if (PainterCamera.Inst.imgDataUsingRendTex == id)
-                        return PainterCamera.Inst.BigRT_pair[0];
+                    if (PainterCamera.Inst.imgMetaUsingRendTex == id)
+                        return PainterCamera.Inst.bigRtPair[0];
                     id.destination = TexTarget.Texture2D;
                     return id.texture2D;
                 case TexTarget.Texture2D:
@@ -260,7 +257,7 @@ public static class TextureEditorExtensionFunctions  {
             return null;
         }
 
-        public static MaterialData GetMaterialData (this Material mat) {
+        public static MaterialMeta GetMaterialData (this Material mat) {
             return  PainterCamera.Data?.GetMaterialDataFor(mat);
         }
     }

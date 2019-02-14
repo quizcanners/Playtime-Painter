@@ -7,12 +7,12 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
     public class VertexShadowTool : MeshToolBase {
-        public override string NameForPEGIdisplay => "vertex Shadow";
+        public override string NameForDisplayPEGI => "vertex Shadow";
 
         public override bool MouseEventPointedVertex() {
            
             if ((EditorInputManager.GetMouseButton(0))) {
-                if (PointedUV.SameAsLastFrame)
+                if (PointedUv.SameAsLastFrame)
                     return true;
                 BrushConfig bcf = Cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);

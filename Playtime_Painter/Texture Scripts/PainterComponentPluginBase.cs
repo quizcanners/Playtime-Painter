@@ -49,7 +49,7 @@ namespace Playtime_Painter
 
         public virtual void OnUpdate(PlaytimePainter painter)  { }
 
-        public virtual bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter painter) => false;
+        public virtual bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter) => false;
         
         public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter) => false;
         
@@ -81,7 +81,7 @@ namespace Playtime_Painter
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder();
 
-        public override bool Decode(string tag, string data) => false;
+        public override bool Decode(string tg, string data) => false;
         #endregion
     }
 }

@@ -23,10 +23,10 @@ namespace Playtime_Painter {
         #region Painter Configurations
         public PlaytimePainter painterComponent;
         
-        ImageData GetCurrentImage() {
+        ImageMeta GetCurrentImage() {
 
             if (painterComponent) {
-                var img = painterComponent.ImgData;
+                var img = painterComponent.ImgMeta;
 
                 if (img != null)
                     return img;
@@ -59,7 +59,7 @@ namespace Playtime_Painter {
         }
 
         public void LoadFromURL(string url) =>
-                painterComponent?.loadingOrder.Add(PainterCamera.downloadManager.StartDownload(url), painterComponent.GetMaterialTexturePropertyName);
+                painterComponent?.loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(url), painterComponent.GetMaterialTexturePropertyName);
 
         public string urlName;
 

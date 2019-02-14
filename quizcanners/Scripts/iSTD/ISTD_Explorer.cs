@@ -10,7 +10,7 @@ using UnityEditor;
 namespace QuizCannersUtilities
 {
     #region List Data
-    public class List_Data : Abstract_STD, IPEGI {
+    public class ListMetaData : Abstract_STD, IPEGI {
 
         const string defaultFolderToSearch = "Assets/";
 
@@ -121,9 +121,9 @@ namespace QuizCannersUtilities
 
         #region Encode & Decode
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
@@ -160,14 +160,14 @@ namespace QuizCannersUtilities
 
 #endregion
 
-        public List_Data() {
+        public ListMetaData() {
             allowDelete = true;
             allowReorder = true;
             allowCreate = true;
             _keepTypeData = false;
         }
 
-        public List_Data(string nameMe, bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
+        public ListMetaData(string nameMe, bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
         {
             allowCreate = allowCreating;
             allowDelete = allowDeleting;
@@ -294,7 +294,7 @@ namespace QuizCannersUtilities
         public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
             bool changed = false;
 
-            var all = typeof(T).TryGetTaggetClasses();
+            var all = typeof(T).TryGetTaggedClasses();
 
             if (all == null) {
                 "No Types Holder".writeWarning();
@@ -374,8 +374,8 @@ namespace QuizCannersUtilities
 #endregion
 
 #region Encode & Decode
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "n": name = data; break;
                 case "std": std_dta = data; break;
                 case "guid": guid = data; break;
@@ -414,7 +414,7 @@ namespace QuizCannersUtilities
 
     public static class STDListDataExtensions {
 
-        public static ElementData TryGetElement(this List_Data ld, int ind) => ld?.elementDatas.TryGet(ind);
+        public static ElementData TryGetElement(this ListMetaData ld, int ind) => ld?.elementDatas.TryGet(ind);
 
     }
 
@@ -553,11 +553,11 @@ namespace QuizCannersUtilities
 
         }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
             if (tags == null)
                 tags = new List<Exploring_STD>();
-            tags.Add(new Exploring_STD(tag, data));
+            tags.Add(new Exploring_STD(tg, data));
             return true;
         }
 #endregion
@@ -630,11 +630,11 @@ namespace QuizCannersUtilities
 
             if (Std != null)
             {
-                if (icon.Load.ClickUnfocus("Decode Data into " + Std.ToPEGIstring())) {
+                if (icon.Load.ClickUnFocus("Decode Data into " + Std.ToPEGIstring())) {
                     dataExplorer.UpdateData();
                     Std.Decode(dataExplorer.data);
                 }
-                if (icon.Save.ClickUnfocus("Save data from " + Std.ToPEGIstring()))
+                if (icon.Save.ClickUnFocus("Save data from " + Std.ToPEGIstring()))
                     dataExplorer = new Exploring_STD(dataExplorer.tag, Std.Encode().ToString());
             }
 
@@ -710,7 +710,7 @@ namespace QuizCannersUtilities
                 if (selfSTD != null)
                 {
                     if (icon.Save.Click("Save itself (IKeepMySTD)"))
-                        selfSTD.Save_STDdata();
+                        selfSTD.SaveStdData();
                     var slfData = selfSTD.Config_STD;
                     if (slfData != null && slfData.Length > 0) {
 

@@ -61,8 +61,8 @@ namespace STD_Logic  {
         public int updateValue;
 
         #region Encode & Decode
-        public override bool Decode(string subtag, string data) {
-            switch (subtag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "ty": type = (ResultType)data.ToInt(); break;
                 case "val": updateValue = data.ToInt(); break;
                 case "ind": data.Decode_Delegate(DecodeIndex); break;
@@ -89,7 +89,7 @@ namespace STD_Logic  {
         
         #region Inspector
         #if PEGI
-        public override string NameForPEGIdisplay => base.NameForPEGIdisplay + type.GetText() + " " + 
+        public override string NameForDisplayPEGI => base.NameForDisplayPEGI + type.GetText() + " " + 
             (IsBoolean ? (updateValue != 0).ToString() : updateValue.ToString());
 
         public override bool PEGI_inList_Sub(IList list, int ind, ref int inspecte) {

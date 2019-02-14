@@ -35,9 +35,9 @@ namespace Playtime_Painter {
             .Add("iai", inAtlasIndex)
             .Add("ar", atlasRows);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag) {
+            switch (tg) {
                 case "pam": data.Decode_References(out preAtlasingMaterials); break;
                 case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
                 case "sm": preAtlasingSavedMesh = data; break;
@@ -61,7 +61,7 @@ namespace Playtime_Painter {
         public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
             UnityHelperFunctions.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
         
-        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
+        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
             if (pntr.IsAtlased()) {
 
                 Vector2 uvCoords = stroke.uvFrom;
@@ -182,7 +182,7 @@ namespace Playtime_Painter {
                 if ("Undo".Click(40).nl())
                    m.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
 
-                var id = p.ImgData;
+                var id = p.ImgMeta;
 
                 if (id.TargetIsRenderTexture())
                     pegi.writeOneTimeHint("Watch out, Render Texture Brush can change neighboring textures on the Atlas.", "rtOnAtlas");
@@ -231,8 +231,8 @@ namespace Playtime_Painter {
             .Add_Bool("e", enabled)
             .Add("c", col);
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "af": atlasedField = data; break;
                 case "of": originField = data.ToInt(); break;
                 case "acid": atlasCreatorId = data.ToInt(); break;
@@ -306,9 +306,9 @@ namespace Playtime_Painter {
             .Add("ot", originalTextures)
             .Add_Reference("am", AtlasedMaterial);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "n": name = data; break;
                 case "om": data.Decode_Reference(ref originalMaterial); break;
@@ -462,7 +462,7 @@ namespace Playtime_Painter {
                     Debug.Log("offsetting " + offset + " tyling " + tyling);
                 }
 
-                TriangleAtlasTool.Inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubmesh);
+                TriangleAtlasTool.Inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubMesh);
                 MeshManager.Inst.Redraw();
                 MeshManager.Inst.DisconnectMesh();
 
@@ -602,7 +602,7 @@ namespace Playtime_Painter {
                 {
                     if (mats.Length > 1)
                     {
-                        if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubmesh, mats).changes(ref changed))
+                        if ("Source Material:".select("Same as selecting a submesh, which will be converted", 90, ref painter.selectedSubMesh, mats).changes(ref changed))
                             OnChangeMaterial(painter);
                     }
                     else if (mats.Length > 0)
@@ -688,9 +688,9 @@ namespace Playtime_Painter {
             .Add("col", color)
             .Add_IfTrue("u", used);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "tex": data.Decode_Reference(ref texture); break;
                 case "col": color = data.ToColor(); break;
@@ -725,7 +725,7 @@ namespace Playtime_Painter {
         public Texture2D a_texture;
 
         public List<AtlasTextureField> textures;
-        List_Data texturesMeta = new List_Data("Textures", enterIcon: icon.Painter);
+        ListMetaData texturesMeta = new ListMetaData("Textures", enterIcon: icon.Painter);
 
         #region Encode & Decode
 
@@ -740,9 +740,9 @@ namespace Playtime_Painter {
             .Add("s", textureSize)
             .Add("as", AtlasSize);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag) {
+            switch (tg) {
                 case "tf": data.Decode_List(out targetFields); break;
                 case "af": data.Decode_List(out atlasFields); break;
                 case "sf": data.Decode_List(out srcFields); break;

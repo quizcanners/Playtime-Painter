@@ -40,7 +40,7 @@ namespace STD_Logic
         
         public override StdEncoder Encode() =>this.EncodeUnrecognized();
 
-        public override bool Decode(string tag, string data) => false;
+        public override bool Decode(string tg, string data) => false;
 
         public virtual void OnEnable()  =>  inst = this;
         
@@ -112,12 +112,12 @@ namespace STD_Logic
                             replaceRecieved.Nested_Inspect();
                         else
                         {
-                            if (icon.Done.ClickUnfocus())
+                            if (icon.Done.ClickUnFocus())
                             {
                                 TriggerGroup.all[replaceRecieved.IndexForPEGI] = replaceRecieved;
                                 replaceRecieved = null;
                             }
-                            if (icon.Close.ClickUnfocus())
+                            if (icon.Close.ClickUnFocus())
                                 replaceRecieved = null;
                         }
                     }
@@ -157,7 +157,7 @@ namespace STD_Logic
 
                 if (inspectedTriggerGroup == -1) {
                     "At Index: ".edit(60, ref tmpIndex);
-                    if (tmpIndex >= 0 && ExtensionsForGenericCountless.TryGet(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnfocus("Create New Group"))
+                    if (tmpIndex >= 0 && ExtensionsForGenericCountless.TryGet(TriggerGroup.all, tmpIndex) == null && icon.Add.ClickUnFocus("Create New Group"))
                     {
                         TriggerGroup.all[tmpIndex].NameForPEGI = "Group " + tmpIndex.ToString();//.GetIndex();
                         tmpIndex++;

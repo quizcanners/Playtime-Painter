@@ -26,8 +26,8 @@ namespace STD_Logic {
             .Add_IfNotDefault("tags", boolTags)
             .Add_IfNotDefault("enumTags", enumTags);
            
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "ints": data.DecodeInto(out ints); break;
                 case "bools": data.DecodeInto(out bools); break;
                 case "tags": data.DecodeInto(out boolTags); break;

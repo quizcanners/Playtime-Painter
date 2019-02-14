@@ -80,7 +80,7 @@ namespace Playtime_Painter.Examples
 
         public override StdEncoder Encode() =>this.EncodeUnrecognized();
 
-        public override bool Decode(string tag, string data) => false;
+        public override bool Decode(string tg, string data) => false;
         
     }
 }

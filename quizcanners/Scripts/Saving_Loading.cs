@@ -16,9 +16,9 @@ namespace QuizCannersUtilities
 {
     public static class StuffExplorer
     {
-        public static void OpenPersistantFolder() => OpenPath(Application.persistentDataPath);
+        public static void OpenPersistentFolder() => OpenPath(Application.persistentDataPath);
 
-        public static void OpenPersistantFolder(string folder) =>
+        public static void OpenPersistentFolder(string folder) =>
             OpenPath(Path.Combine(Application.persistentDataPath, folder));
 
         public static void OpenPath(string path)
@@ -33,7 +33,7 @@ namespace QuizCannersUtilities
 
     public static class StuffDeleter
     {
-        public static bool DeleteFile_PersistantFolder(string subPath, string fileName)
+        public static bool DeleteFile_PersistentFolder(string subPath, string fileName)
             => DeleteFile(Path.Combine(Application.persistentDataPath, subPath,
                 Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, StuffSaver.JsonFileType))));
 
@@ -166,7 +166,7 @@ namespace QuizCannersUtilities
             return null;
         }
 
-        public static string LoadFromPersistantPath(string subPath, string filename)
+        public static string LoadFromPersistentPath(string subPath, string filename)
         {
             var filePath = Path.Combine(Application.persistentDataPath, subPath,
                 "{0}{1}".F(filename, StuffSaver.JsonFileType));
@@ -174,7 +174,7 @@ namespace QuizCannersUtilities
             return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
         }
 
-        public static List<string> ListFileNamesFromPersistantFolder(string subPath)
+        public static List<string> ListFileNamesFromPersistentFolder(string subPath)
         {
             var lst = new List<string>(Directory.GetFiles(Path.Combine(Application.persistentDataPath, subPath)));
 
@@ -367,7 +367,7 @@ namespace QuizCannersUtilities
             Save_ToAssets_ByRelativePath(ResFolderPath.AddPostSlashIfNone() + "Resources" + InsideResPath.AddPreSlashIfNotEmpty(), filename,
                 data);
 
-        public static void SaveToPersistantPath(string subPath, string filename, string data)
+        public static void SaveToPersistentPath(string subPath, string filename, string data)
         {
             var filePath = Path.Combine(Application.persistentDataPath, subPath);
             Directory.CreateDirectory(filePath);

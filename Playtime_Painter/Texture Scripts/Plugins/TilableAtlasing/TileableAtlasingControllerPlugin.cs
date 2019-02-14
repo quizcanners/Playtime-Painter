@@ -35,9 +35,9 @@ namespace Playtime_Painter
             .Add("atl", atlases)
             .Add("am", atlasedMaterials);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "atl": data.Decode_List(out atlases); break;
                 case "am": data.Decode_List(out atlasedMaterials); break;
@@ -93,7 +93,7 @@ namespace Playtime_Painter
             #if PEGI
                 PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
             #endif
-            PlugIn_CPUblitMethod(PaintTexture2D);
+            PlugInCpuBlitMethod(PaintTexture2D);
             
 
         }
@@ -162,7 +162,7 @@ namespace Playtime_Painter
 #endif
         #endregion
 
-        public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageData image, BrushConfig bc, PlaytimePainter pntr) {
+        public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
             var pl = pntr.GetPlugin<TileableAtlasingPainterPlugin>();
             if (pl != null) return pl.PaintTexture2D(stroke, brushAlpha, image, bc, pntr);
             else return false;
@@ -172,7 +172,7 @@ namespace Playtime_Painter
     public class TriangleAtlasTool : MeshToolBase
     {
 
-        public override string NameForPEGIdisplay => "triangle Atlas Textures"; 
+        public override string NameForDisplayPEGI => "triangle Atlas Textures"; 
 
         public override bool ShowLines=> false;
 
@@ -269,7 +269,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButton(0))
             {
 
-                if (PointedUV.SameAsLastFrame)
+                if (PointedUv.SameAsLastFrame)
                     return true;
 
                 foreach (var uv in MeshMGMT.PointedUV.meshPoint.uvpoints )
@@ -320,9 +320,9 @@ namespace Playtime_Painter
             .Add("cat", curAtlasTexture)
             .Add("cac", curAtlasChanel);
    
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "cat": curAtlasTexture = data.ToInt(); break;
                 case "cac": curAtlasChanel = data.ToInt(); break;

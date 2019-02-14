@@ -115,8 +115,8 @@ namespace QuizCannersUtilities {
                 return cody;
             }
 
-            public override bool Decode(string tag, string data) {
-                switch (tag) {
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
                     case "ch": allowChangeParameters = data.ToBool(); break;
                     case "sp": speedLimit = data.ToFloat(); break;
                     case "lm": lerpMode = (LerpSpeedMode)data.ToInt(); break;
@@ -288,8 +288,8 @@ namespace QuizCannersUtilities {
                 return cody;
             }
 
-            public override bool Decode(string tag, string data) {
-                switch (tag) {
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     case "t": targetValue = data.ToVector2(); break;
                     default: return false;
@@ -337,9 +337,9 @@ namespace QuizCannersUtilities {
             public override StdEncoder Encode() => new StdEncoder()
                 .Add("b", base.Encode);
         
-            public override bool Decode(string tag, string data)
+            public override bool Decode(string tg, string data)
             {
-                switch (tag)
+                switch (tg)
                 {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     default: return false;
@@ -485,9 +485,9 @@ namespace QuizCannersUtilities {
                 return cody;
             }
 
-            public override bool Decode(string tag, string data)
+            public override bool Decode(string tg, string data)
             {
-                switch (tag)
+                switch (tg)
                 {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     case "s":
@@ -524,7 +524,7 @@ namespace QuizCannersUtilities {
             public Renderer rendy;
             protected string _name;
 
-            protected Material Material => material ? material : rendy.MaterialWhaever(); 
+            protected Material Material => material ? material : rendy.MaterialWhatever(); 
 
             protected override string Name => _name;
             public string NameForPEGI { get { return _name;  } set { _name = value;  } }
@@ -573,8 +573,8 @@ namespace QuizCannersUtilities {
                 .Add("b", base.Encode)
                 .Add("col", targetValue);
 
-            public override bool Decode(string tag, string data) {
-                switch (tag) {
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
                     case "b":   data.Decode_Delegate(base.Decode); break;
                     case "col": targetValue = data.ToColor(); break;
                     default: return false;
@@ -859,7 +859,7 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            public override Material Material => graphic?.MaterialWhaever();
+            public override Material Material => graphic?.MaterialWhatever();
         }
         #endregion
 
@@ -896,11 +896,11 @@ namespace QuizCannersUtilities {
 
             public override StdEncoder Encode() => new StdEncoder().Add("bb", base.Encode).Add_Bool("zero", setZeroOnStart);
 
-            public override bool Decode(string tag, string data) {
-                switch (tag) {
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
                     case "bb": data.Decode_Delegate(base.Decode); break;
                     case "zero": setZeroOnStart = data.ToBool(); break;
-                    default: return base.Decode(tag, data);
+                    default: return base.Decode(tg, data);
                 } 
                 return true;
             }

@@ -24,7 +24,7 @@ namespace Playtime_Painter.Examples
                 Paint();
         }
 
-        List<ImageData> texturesNeedUpdate = new List<ImageData>();
+        List<ImageMeta> texturesNeedUpdate = new List<ImageMeta>();
 
         void Paint() {
 
@@ -45,7 +45,7 @@ namespace Playtime_Painter.Examples
                         if (hit.collider.GetType() == typeof(MeshCollider))
                         {
 
-                            submesh = ((MeshCollider)hit.collider).sharedMesh.GetSubmeshNumber(hit.triangleIndex);
+                            submesh = ((MeshCollider)hit.collider).sharedMesh.GetSubMeshNumber(hit.triangleIndex);
 
                             if (recivers.Length > 1)
                             {

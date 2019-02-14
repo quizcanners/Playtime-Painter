@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -21,24 +19,24 @@ namespace Playtime_Painter {
         public TaggedTypes_STD AllTypes => all;
         #endregion
 
-        public virtual string NameForPEGIdisplay => ToString();
+        public virtual string NameForDisplayPEGI => ToString();
 
         #region Inspector
         #if PEGI
-        pegi.CallDelegate plugins_ComponentPEGI;
+        private pegi.CallDelegate _pluginsComponentPEGI;
         
-        protected pegi.CallDelegate PlugIn_PainterComponent { set
+        protected pegi.CallDelegate PlugInPainterComponent { set
             {
-                plugins_ComponentPEGI += value;
+                _pluginsComponentPEGI += value;
                 PlaytimePainter.pluginsComponentPEGI += value;
             }
         }
-        
-        pegi.CallDelegate VertexEdgePEGIdelegates;
+
+        private pegi.CallDelegate _vertexEdgePegiDelegates;
         protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d)
         {
-            VertexEdgePEGIdelegates += d;
-            VertexEdgeTool.PEGIdelegates += d;
+            _vertexEdgePegiDelegates += d;
+            VertexEdgeTool.pegiDelegates += d;
         }
         
 
@@ -48,38 +46,38 @@ namespace Playtime_Painter {
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
-        public override bool Decode(string tag, string data) => false;
+        public override bool Decode(string tg, string data) => false;
         #endregion
 
-        PainterBoolPlugin plugins_GizmoDraw;
+        private PainterBoolPlugin _pluginsGizmoDraw;
         protected void PlugIn_PainterGizmos(PainterBoolPlugin d)
         {
-            plugins_GizmoDraw += d;
+            _pluginsGizmoDraw += d;
             PlaytimePainter.pluginsGizmoDraw += d;
         }
 
-        Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
-        protected void PlugIn_CPUblitMethod(Blit_Functions.PaintTexture2DMethod d)
+        Blit_Functions.PaintTexture2DMethod _tex2DPaintPlugins;
+        protected void PlugInCpuBlitMethod(Blit_Functions.PaintTexture2DMethod d)
         {
-            tex2DPaintPlugins += d;
+            _tex2DPaintPlugins += d;
             BrushType.tex2DPaintPlugins += d;
         }
         
-        PainterBoolPlugin pluginNeedsGrid_Delegates;
+        PainterBoolPlugin _pluginNeedsGridDelegates;
         protected void PlugIn_NeedsGrid(PainterBoolPlugin d) {
-            pluginNeedsGrid_Delegates += d;
+            _pluginNeedsGridDelegates += d;
             GridNavigator.pluginNeedsGrid_Delegates += d;
         }
 
-        BrushConfig.BrushConfigPEGIplugin brushConfigPagies;
+        private BrushConfig.BrushConfigPEGIplugin _brushConfigPEGI;
         protected void PlugIn_BrushConfigPEGI(BrushConfig.BrushConfigPEGIplugin d) {
-            brushConfigPagies += d;
+            _brushConfigPEGI += d;
             BrushConfig.brushConfigPegies += d;
         }
         
-        MeshToolBase.meshToolPlugBool showVerticesPlugs;
-        protected void PlugIn_MeshToolShowVertex(MeshToolBase.meshToolPlugBool d) {
-            showVerticesPlugs += d;
+        MeshToolBase.MeshToolPlugBool _showVerticesPlugs;
+        protected void PlugIn_MeshToolShowVertex(MeshToolBase.MeshToolPlugBool d) {
+            _showVerticesPlugs += d;
             MeshToolBase.showVerticesPlugs += d;
         }
 
@@ -92,20 +90,21 @@ namespace Playtime_Painter {
         public virtual void Disable() {
 
 #if PEGI
-            PlaytimePainter.pluginsComponentPEGI -= plugins_ComponentPEGI;
-            VertexEdgeTool.PEGIdelegates -= VertexEdgePEGIdelegates;
+            PlaytimePainter.pluginsComponentPEGI -= _pluginsComponentPEGI;
+            
+            VertexEdgeTool.pegiDelegates -= _vertexEdgePegiDelegates;
 #endif
 
-            PlaytimePainter.pluginsGizmoDraw -= plugins_GizmoDraw;
-            BrushType.tex2DPaintPlugins -= tex2DPaintPlugins;
-            GridNavigator.pluginNeedsGrid_Delegates -= pluginNeedsGrid_Delegates;
-            BrushConfig.brushConfigPegies -= brushConfigPagies;
-            MeshToolBase.showVerticesPlugs -= showVerticesPlugs;
+            PlaytimePainter.pluginsGizmoDraw -= _pluginsGizmoDraw;
+            BrushType.tex2DPaintPlugins -= _tex2DPaintPlugins;
+            GridNavigator.pluginNeedsGrid_Delegates -= _pluginNeedsGridDelegates;
+            BrushConfig.brushConfigPegies -= _brushConfigPEGI;
+            MeshToolBase.showVerticesPlugs -= _showVerticesPlugs;
         }
 
-        public virtual bool IsA3Dbrush(PlaytimePainter pntr, BrushConfig bc, ref bool overrideOther) => false; 
+        public virtual bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false; 
 
-        public virtual bool PaintRenderTexture(StrokeVector stroke, ImageData image, BrushConfig bc, PlaytimePainter pntr)  =>  false;
+        public virtual bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)  =>  false;
         
         public virtual Shader GetPreviewShader(PlaytimePainter p) => null; 
 

@@ -70,7 +70,7 @@ namespace QuizCannersUtilities {
 
              //   Debug.Log("Getting all types of {0}".F(coreType));
 
-                List<Type> allTypes = CsharpFuncs.GetAllChildTypes(coreType);
+                List<Type> allTypes = CsharpUtils.GetAllChildTypes(coreType);
 
                 foreach (var t in allTypes) {
                     var att = t.TryGetClassAttribute<TaggedType>();
@@ -138,7 +138,7 @@ namespace QuizCannersUtilities {
 
     public static class AbstractTaggedSTDExtensions {
 
-        public static void TryChangeObjectType(this IList list, int index, Type type, List_Data ld = null) {
+        public static void TryChangeObjectType(this IList list, int index, Type type, ListMetaData ld = null) {
 
             var ed = ld.TryGetElement(index);
 

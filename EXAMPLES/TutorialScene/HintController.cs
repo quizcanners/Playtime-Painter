@@ -40,7 +40,7 @@ namespace Playtime_Painter.Examples
                 case HintStage.addTexture:
                     ntext = "Pill on the left has no texture. Select it with " + mb + " and click 'Create Texture' icon"; break;
                 case HintStage.renderTexture:
-                    int size = PainterCamera.renderTextureSize;
+                    int size = PainterCamera.RenderTextureSize;
                     ntext = "Change MODE to GPU blit. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n"; break;
             }
 
@@ -80,7 +80,7 @@ namespace Playtime_Painter.Examples
                 case HintStage.unlockTexture:
                     if (cube) {
                         var pntr = cube.GetComponent<PlaytimePainter>();
-                        if (pntr && pntr.ImgData != null && !pntr.ImgData.lockEditing)
+                        if (pntr && pntr.ImgMeta != null && !pntr.ImgMeta.lockEditing)
                             SetStage(HintStage.draw);
                     }
                     break;
@@ -92,9 +92,9 @@ namespace Playtime_Painter.Examples
                     if (picture.GetComponent<PlaytimePainter>() != null) { SetStage(HintStage.addTexture); }
                     break;
                 case HintStage.addTexture:
-                    if ((ShipPainter() != null) && (ShipPainter().ImgData != null)) SetStage(HintStage.renderTexture); break;
+                    if ((ShipPainter() != null) && (ShipPainter().ImgMeta != null)) SetStage(HintStage.renderTexture); break;
                 case HintStage.renderTexture:
-                    if ((ShipPainter() != null) && (ShipPainter().ImgData != null) && (ShipPainter().ImgData.TargetIsRenderTexture())) SetStage(HintStage.WellDone); break;
+                    if ((ShipPainter() != null) && (ShipPainter().ImgMeta != null) && (ShipPainter().ImgMeta.TargetIsRenderTexture())) SetStage(HintStage.WellDone); break;
             }
 
         }

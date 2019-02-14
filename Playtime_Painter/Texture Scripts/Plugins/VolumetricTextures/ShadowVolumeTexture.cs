@@ -378,7 +378,7 @@ namespace Playtime_Painter
             }
 
 #if UNITY_2018_1_OR_NEWER
-            if (ImageData != null && ImageData.texture2D) {
+            if (ImageMeta != null && ImageMeta.texture2D) {
 
                 if (!VolumeJobIsRunning)
                 {
@@ -408,7 +408,7 @@ namespace Playtime_Painter
                 }
 
             } else  {
-                if (ImageData == null)
+                if (ImageMeta == null)
                     "Image Data is Null".nl();
                 else
                     "Texture 2D is null".nl();

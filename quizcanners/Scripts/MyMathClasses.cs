@@ -615,10 +615,10 @@ namespace QuizCannersUtilities {
             .Add("b", b)
             .Add("a", a);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
 
-            switch (tag)
+            switch (tg)
             {
                 case "r": r = data.ToFloat(); break;
                 case "g": g = data.ToFloat(); break;

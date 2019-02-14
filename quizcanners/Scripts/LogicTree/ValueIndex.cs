@@ -25,7 +25,7 @@ namespace STD_Logic
         public void Decode(string data) => data.DecodeTagsFor(this);
 
         public abstract StdEncoder Encode();
-        public abstract bool Decode(string tag, string data);
+        public abstract bool Decode(string tg, string data);
 
         protected StdEncoder EncodeIndex() => new StdEncoder()
             .Add("gi", groupIndex)
@@ -87,7 +87,7 @@ namespace STD_Logic
             if (this != edited) {
                 changed = PEGI_inList_Sub(list, ind, ref inspected);
 
-                if (icon.Edit.ClickUnfocus())
+                if (icon.Edit.ClickUnFocus())
                     edited = this;
 
                 changed |= SearchAndAdd_Triggers_PEGI(ind);
@@ -182,7 +182,7 @@ namespace STD_Logic
                         if (t != current) {
                             Trigger.searchMatchesFound++;
 
-                            if (icon.Done.ClickUnfocus(20).changes(ref changed)) 
+                            if (icon.Done.ClickUnFocus(20).changes(ref changed)) 
                                 Trigger = t;
                             
                             t.ToPEGIstring().nl();
@@ -192,7 +192,7 @@ namespace STD_Logic
             return changed;
         }
 
-        public virtual string NameForPEGIdisplay => Trigger.ToPEGIstring();
+        public virtual string NameForDisplayPEGI => Trigger.ToPEGIstring();
 #endif
         #endregion
     }

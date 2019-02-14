@@ -29,16 +29,16 @@ namespace Playtime_Painter
             _inst = this;
         }
 
-        public override string NameForPEGIdisplay => "Combined Maps";
+        public override string NameForDisplayPEGI => "Combined Maps";
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("cm", forCombinedMaps)
             .Add("tps", texturePackagingSolutions);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "cm": data.Decode_List(out forCombinedMaps); break;
                 case "tps": data.Decode_List(out texturePackagingSolutions); break;
@@ -115,9 +115,9 @@ namespace Playtime_Painter
             .Add_String("n", name)
             .Add("sp", selectedProfile);
         
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "d": data.Decode_Reference(ref Diffuse); break;
                 case "h": data.Decode_Reference(ref HeightMap); break;
@@ -145,7 +145,7 @@ namespace Playtime_Painter
 
             bool changed = false;
 
-            var id = InspectedImageData;
+            var id = InspectedImageMeta;
 
             if (InspectedPainter && id != null)
             {
@@ -223,9 +223,9 @@ namespace Playtime_Painter
 
         public override string ToString() { return name; }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "ch": data.Decode_List(out channel); break;
                 case "c": isColor = data.ToBool(); break;
@@ -353,7 +353,7 @@ namespace Playtime_Painter
             TextureRole.Clear();
 
             int size;
-            var id = p?.ImgData;
+            var id = p?.ImgMeta;
             Color[] dst;
             Texture2D tex = null;
 
@@ -465,9 +465,9 @@ namespace Playtime_Painter
         public TextureRole Role { get { return TextureRole.All[sourceRole]; } set { sourceRole = value.index; } }
 
         #region Encode & Decode
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "s": sourceRole = data.ToInt(); break;
                 case "c": sourceChannel = data.ToInt(); break;
@@ -569,7 +569,7 @@ namespace Playtime_Painter
         public virtual List<string> Channels { get { return Chanals; } }
         public virtual Color DefaultColor { get { return IsColor ? Color.white : Color.grey; } }
 
-        public abstract string NameForPEGIdisplay { get; }
+        public abstract string NameForDisplayPEGI { get; }
         static readonly List<string> Chanals = new List<string> { "R", "G", "B", "A" };
 
         protected void ExtractPixels(Texture2D tex, int width, int height)
@@ -619,7 +619,7 @@ namespace Playtime_Painter
 
         }
 
-        public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
             if (_pixels == null)
                 ExtractPixels(set.Diffuse, 
@@ -629,7 +629,7 @@ namespace Playtime_Painter
             return _pixels;
         }
 
-        public virtual List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public virtual List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
             if (mipLevels == null)
             {
@@ -699,14 +699,14 @@ namespace Playtime_Painter
     public class TextureRole_Result : TextureRole
     {
         public static TextureRole_Result inst;
-        public override string NameForPEGIdisplay => "Result";
+        public override string NameForDisplayPEGI => "Result";
 
         public TextureRole_Result(int index) : base(index)
         {
             inst = this;
         }
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
 
             if (id != null)
@@ -727,9 +727,9 @@ namespace Playtime_Painter
 
         public override bool UsingColorSelector { get { return true; } }
 
-        public override string NameForPEGIdisplay => "Fill Color";
+        public override string NameForDisplayPEGI => "Fill Color";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
           
 
@@ -759,9 +759,9 @@ namespace Playtime_Painter
     {
         public override bool IsColor { get { return true; } }
 
-        public override string NameForPEGIdisplay => "Color";
+        public override string NameForDisplayPEGI => "Color";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id) {
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id) {
             if (_pixels == null)
                 ExtractPixels(set.Diffuse, id == null ? set.width : id.width, id == null ? set.height : id.height);
 
@@ -776,9 +776,9 @@ namespace Playtime_Painter
     public class TextureRole_Gloss : TextureRole
     {
 
-        public override string NameForPEGIdisplay => "Gloss";
+        public override string NameForDisplayPEGI => "Gloss";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
           
             if (_pixels == null)
@@ -877,9 +877,9 @@ namespace Playtime_Painter
         // public override bool sourceSingleChannel { get { return true; } }
         //  public override bool productSingleChannel { get { return true; } }
 
-        public override string NameForPEGIdisplay => "Reflectivity";
+        public override string NameForDisplayPEGI => "Reflectivity";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
          
             if (_pixels == null)
@@ -898,9 +898,9 @@ namespace Playtime_Painter
     public class TextureRole_Ambient : TextureRole
     {
 
-        public override string NameForPEGIdisplay => "Ambient";
+        public override string NameForDisplayPEGI => "Ambient";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
             int width = id == null ? set.width : id.width;
             int height = id == null ? set.height : id.height;
@@ -916,7 +916,7 @@ namespace Playtime_Painter
 
     public class TextureRole_Height : TextureRole
     {
-        public override string NameForPEGIdisplay => "Height";
+        public override string NameForDisplayPEGI => "Height";
         public override bool UsingBumpStrengthSlider(int channel) { return channel < 2; }
 
         // public override bool sourceSingleChannel { get { return true; } }
@@ -943,7 +943,7 @@ namespace Playtime_Painter
         {
         }
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
            
             if (_pixels == null)
@@ -999,7 +999,7 @@ namespace Playtime_Painter
 
     public class TextureRole_Normal : TextureRole
     {
-        public override string NameForPEGIdisplay => "Normal";
+        public override string NameForDisplayPEGI => "Normal";
 
         public override bool UsingBumpStrengthSlider(int channel) { return true; }
 
@@ -1026,7 +1026,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
         Texture2D tex;
 #endif
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageData id)
+        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
         {
           
             if (_pixels == null)

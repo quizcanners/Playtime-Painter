@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
@@ -12,8 +12,8 @@ namespace Playtime_Painter
     public class MeshToolBase : PainterStuff_STD, IPEGI, IGotDisplayName
     {
 
-        public delegate bool meshToolPlugBool(MeshToolBase tool, out bool val);
-        public static meshToolPlugBool showVerticesPlugs;
+        public delegate bool MeshToolPlugBool(MeshToolBase tool, out bool val);
+        public static MeshToolPlugBool showVerticesPlugs;
 
         protected static bool Dirty { get { return EditedMesh.Dirty; } set { EditedMesh.Dirty = value; } }
 
@@ -37,7 +37,7 @@ namespace Playtime_Painter
                 if (_allTools.IsNullOrEmpty() && !applicationIsQuitting) {
                     _allTools = new List<MeshToolBase>();
 
-                    var tps = CsharpFuncs.GetAllChildTypesOf<MeshToolBase>();
+                    var tps = CsharpUtils.GetAllChildTypesOf<MeshToolBase>();
 
                     foreach (var t in tps)
                         _allTools.Add((MeshToolBase)Activator.CreateInstance(t));
@@ -57,8 +57,8 @@ namespace Playtime_Painter
         protected LineData PointedLine => MeshMGMT.PointedLine;
         protected Triangle PointedTris => MeshMGMT.PointedTris;
         protected Triangle SelectedTris => MeshMGMT.SelectedTris;
-        protected Vertex PointedUV => MeshMGMT.PointedUV;
-        protected Vertex SelectedUV => MeshMGMT.SelectedUV;
+        protected Vertex PointedUv => MeshMGMT.PointedUV;
+        protected Vertex SelectedUv => MeshMGMT.SelectedUV;
         protected MeshPoint PointedVertex => MeshMGMT.PointedUV.meshPoint;
         protected EditableMesh FreshPreviewMesh
         {
@@ -79,14 +79,11 @@ namespace Playtime_Painter
         {
             get
             {
-                if (showVerticesPlugs != null)
-                {
-                    bool val;
-                    foreach (meshToolPlugBool p in showVerticesPlugs.GetInvocationList())
-                        if (p(this, out val))
-                            return val;
-                }
-                return ShowVerticesDefault;
+                if (showVerticesPlugs == null) return ShowVerticesDefault;
+
+                var val = false;
+                
+                return showVerticesPlugs.GetInvocationList().Cast<MeshToolPlugBool>().Any(p => p(this, out val)) ? val : ShowVerticesDefault;
             }
         }
 
@@ -94,7 +91,7 @@ namespace Playtime_Painter
         public virtual bool ShowTriangles => true;
         public virtual bool ShowGrid => false;
 
-        public virtual bool ShowSelectedVerticle => false;
+        public virtual bool ShowSelectedVertex => false;
         public virtual bool ShowSelectedLine => false;
         public virtual bool ShowSelectedTriangle => false;
 
@@ -106,7 +103,7 @@ namespace Playtime_Painter
 
         public virtual void OnGridChange() { }
 
-        public virtual void AssignText(MarkerWithText mrkr, MeshPoint vpoint) => mrkr.textm.text = "";
+        public virtual void AssignText(MarkerWithText markers, MeshPoint point) => markers.textm.text = "";
 
         public virtual bool MouseEventPointedVertex() => false;
 
@@ -129,13 +126,13 @@ namespace Playtime_Painter
         #region Encode & Decode
         public override StdEncoder Encode() => null;
 
-        public override bool Decode(string tag, string data) => false;
+        public override bool Decode(string tg, string data) => false;
         #endregion
 
         #region Inspector
         public virtual string Tooltip => "No tooltippp";
 
-        public virtual string NameForPEGIdisplay => " No Name ";
+        public virtual string NameForDisplayPEGI => " No Name ";
 
         public virtual bool Inspect() => false;
         #endregion
@@ -145,42 +142,33 @@ namespace Playtime_Painter
 
     public class VertexPositionTool : MeshToolBase
     {
-        public static VertexPositionTool inst;
 
-        public VertexPositionTool()
-        {
-            inst = this;
-        }
+        private bool _addToTrianglesAndLines;
 
-        public bool addToTrianglesAndLines = false;
-
-        List<MeshPoint> draggedVertices = new List<MeshPoint>();
-        Vector3 originalPosition;
+        private readonly List<MeshPoint> _draggedVertices = new List<MeshPoint>();
+        private Vector3 _originalPosition;
 
         public override bool ShowGrid => true;
 
-        public override void AssignText(MarkerWithText mrkr, MeshPoint vpoint)
+        public override void AssignText(MarkerWithText markers, MeshPoint point)
         {
 
-            var pvrt = MeshMGMT.GetSelectedVert();
+            var selected = MeshMGMT.GetSelectedVert();
 
-            if ((vpoint.uvpoints.Count > 1) || (pvrt == vpoint))
+            if (point.uvpoints.Count > 1 || selected == point)
             {
-
-                //Texture tex = meshMGMT.target.GetTextureOnMaterial();//meshRenderer.sharedMaterial.mainTexture;
-
-                if (pvrt == vpoint)
+                if (selected == point)
                 {
-                    mrkr.textm.text = (vpoint.uvpoints.Count > 1) ? ((vpoint.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1).ToString() + "/" + vpoint.uvpoints.Count.ToString() +
-                        (vpoint.SmoothNormal ? "s" : "")) : "";
+                    markers.textm.text = (point.uvpoints.Count > 1) ? ((point.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1) + "/" + point.uvpoints.Count +
+                        (point.SmoothNormal ? "s" : "")) : "";
 
 
                 }
                 else
-                    mrkr.textm.text = vpoint.uvpoints.Count.ToString() +
-                        (vpoint.SmoothNormal ? "s" : "");
+                    markers.textm.text = point.uvpoints.Count +
+                        (point.SmoothNormal ? "s" : "");
             }
-            else mrkr.textm.text = "";
+            else markers.textm.text = "";
         }
 
         public override Color VertColor => Color.white;
@@ -188,52 +176,53 @@ namespace Playtime_Painter
         #region Inspector
         public override string Tooltip =>
 
-                    "Alt - Raycast To Grid" + Environment.NewLine +
+                    "Alt - RayCast To Grid" + Environment.NewLine +
                     "LMB - Add Vertices/Make Triangles (Go Clockwise), Drag" + Environment.NewLine +
                     "Scroll - Change Plane" + Environment.NewLine +
-                    "U - make triengle unique." + Environment.NewLine +
+                    "U - make Triangle unique." + Environment.NewLine +
                     "M - merge with nearest while dragging ";
 
-        public override string NameForPEGIdisplay => "ADD & MOVE";
+        public override string NameForDisplayPEGI => "ADD & MOVE";
 
 #if PEGI
 
-        Vector3 offset;
+        private Vector3 _offset;
         public override bool Inspect()
         {
 
-            bool changed = false;
+            var changed = false;
 
-            MeshManager mgm = MeshMGMT;
+            var mgm = MeshMGMT;
 
-            PainterDataAndConfig sd = TexMGMTdata;
+            var sd = TexMGMTdata;
 
             if (mgm.MeshTool.ShowGrid)
             {
-                "Snap to grid:".toggleIcon(ref sd.SnapToGrid).nl();
+                "Snap to grid:".toggleIcon(ref sd.snapToGrid).nl(ref changed);
 
-                if (sd.SnapToGrid)
-                    "size:".edit(40, ref sd.SnapToGridSize);
+                if (sd.snapToGrid)
+                    "size:".edit(40, ref sd.gridSize).changes(ref changed);
             }
 
             pegi.nl();
 
-            "Pixel-Perfect".toggleIcon("New vertex will have UV coordinate rounded to half a pixel.", ref Cfg.pixelPerfectMeshEditing).nl();
+            "Pixel-Perfect".toggleIcon("New vertex will have UV coordinate rounded to half a pixel.", ref Cfg.pixelPerfectMeshEditing).nl(ref changed);
 
-            "Add into mesh".toggleIcon("Will split triangles and edges by inserting vertices", ref addToTrianglesAndLines).nl();
+            "Add into mesh".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
 
-            "Add Smooth:".toggle(70, ref Cfg.newVerticesSmooth);
-            if ("Sharp All".Click())
+            "Add Smooth:".toggle(70, ref Cfg.newVerticesSmooth).changes(ref changed);
+            if ("Sharp All".Click(ref changed))
             {
-                foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
+                foreach (var vr in MeshMGMT.editedMesh.meshPoints)
                     vr.SmoothNormal = false;
+                
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
             }
 
             if ("Smooth All".Click().nl())
             {
-                foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
+                foreach (var vr in MeshMGMT.editedMesh.meshPoints)
                     vr.SmoothNormal = true;
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
@@ -249,7 +238,7 @@ namespace Playtime_Painter
 
             if ("All unique".Click().nl())
             {
-                foreach (Triangle t in EditedMesh.triangles)
+                foreach (var t in EditedMesh.triangles)
                     mgm.editedMesh.GiveTriangleUniqueVerticles(t);
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesUnique = true;
@@ -257,17 +246,17 @@ namespace Playtime_Painter
 
             if ("Auto Bevel".Click())
                 SharpFacesTool.inst.AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".edit(60, ref Cfg.bevelDetectionSensetivity, 3, 30).nl();
+            "Sensitivity".edit(60, ref Cfg.bevelDetectionSensitivity, 3, 30).nl();
 
             if ("Offset".foldout())
             {
-                "center".edit(ref offset).nl();
+                "center".edit(ref _offset).nl();
                 if ("Modify".Click().nl())
                 {
                     foreach (var v in EditedMesh.meshPoints)
-                        v.localPos += offset;
+                        v.localPos += _offset;
 
-                    offset = -offset;
+                    _offset = -_offset;
 
                     Dirty = true;
 
@@ -279,7 +268,7 @@ namespace Playtime_Painter
                     foreach (var v in EditedMesh.meshPoints)
                         avr += v.localPos;
 
-                    offset = -avr / EditedMesh.meshPoints.Count;
+                    _offset = -avr / EditedMesh.meshPoints.Count;
                 }
 
             }
@@ -371,7 +360,7 @@ namespace Playtime_Painter
             }
 
             if (KeyCode.U.IsDown())
-                PointedTris.MakeTriangleVertUnique(PointedUV);
+                PointedTris.MakeTriangleVertUnique(PointedUv);
 
             /*  if (KeyCode.N.isDown())
               {
@@ -407,9 +396,9 @@ namespace Playtime_Painter
 
                 m.Dragging = true;
                 m.AssignSelected(m.PointedUV);
-                originalPosition = PointedUV.meshPoint.WorldPos;
-                draggedVertices.Clear();
-                draggedVertices.Add(PointedUV.meshPoint);
+                _originalPosition = PointedUv.meshPoint.WorldPos;
+                _draggedVertices.Clear();
+                _draggedVertices.Add(PointedUv.meshPoint);
 
 
             }
@@ -426,16 +415,16 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0))
             {
                 m.Dragging = true;
-                originalPosition = GridNavigator.collisionPos;
+                _originalPosition = GridNavigator.collisionPos;
                 GridNavigator.onGridPos = GridNavigator.collisionPos;
-                draggedVertices.Clear();
+                _draggedVertices.Clear();
                 foreach (var uv in PointedLine.pnts)
-                    draggedVertices.Add(uv.meshPoint);
+                    _draggedVertices.Add(uv.meshPoint);
             }
 
             if (EditorInputManager.GetMouseButtonUp(0))
             {
-                if (addToTrianglesAndLines && m.DragDelay > 0 && draggedVertices.Contains(PointedLine))
+                if (_addToTrianglesAndLines && m.DragDelay > 0 && _draggedVertices.Contains(PointedLine))
                     MeshMGMT.editedMesh.InsertIntoLine(MeshMGMT.PointedLine.pnts[0].meshPoint, MeshMGMT.PointedLine.pnts[1].meshPoint, MeshMGMT.collisionPosLocal);
             }
 
@@ -450,15 +439,15 @@ namespace Playtime_Painter
             {
 
                 m.Dragging = true;
-                originalPosition = GridNavigator.collisionPos;
+                _originalPosition = GridNavigator.collisionPos;
                 GridNavigator.onGridPos = GridNavigator.collisionPos;
-                draggedVertices.Clear();
+                _draggedVertices.Clear();
                 foreach (var uv in PointedTris.vertexes)
-                    draggedVertices.Add(uv.meshPoint);
+                    _draggedVertices.Add(uv.meshPoint);
 
             }
 
-            if (addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.DragDelay > 0 && draggedVertices.Contains(PointedTris))
+            if (_addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.DragDelay > 0 && _draggedVertices.Contains(PointedTris))
             {
                 if (Cfg.newVerticesUnique)
                     m.editedMesh.InsertIntoTriangleUniqueVerticles(m.PointedTris, m.collisionPosLocal);
@@ -502,17 +491,17 @@ namespace Playtime_Painter
                 if (canDrag && GridNavigator.Inst().AngGridToCamera(GridNavigator.onGridPos) < 82)
                 {
 
-                    Vector3 delta = GridNavigator.onGridPos - originalPosition;
+                    Vector3 delta = GridNavigator.onGridPos - _originalPosition;
 
                     if (delta.magnitude > 0)
                     {
 
                         m.TrisVerts = 0;
 
-                        foreach (var v in draggedVertices)
+                        foreach (var v in _draggedVertices)
                             v.WorldPos += delta;
 
-                        originalPosition = GridNavigator.onGridPos;
+                        _originalPosition = GridNavigator.onGridPos;
                     }
                 }
             }
@@ -521,13 +510,13 @@ namespace Playtime_Painter
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
-            .Add_Bool("inM", addToTrianglesAndLines);
+            .Add_Bool("inM", _addToTrianglesAndLines);
         
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
-                case "inM": addToTrianglesAndLines = data.ToBool(); break;
+                case "inM": _addToTrianglesAndLines = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -550,42 +539,37 @@ namespace Playtime_Painter
             inst = this;
         }
 
-        public bool SetTo = true;
+        private bool _setTo = true;
 
-        public override bool ShowVerticesDefault { get { return false; } }
+        public override bool ShowVerticesDefault => false;
 
         #region Inspector
-        public override string NameForPEGIdisplay => "Dominant Faces";
+        public override string NameForDisplayPEGI => "Dominant Faces";
 
-        public override string Tooltip
-        {
-            get
-            {
-                return "Paint the DOMINANCE on triangles" + Environment.NewLine +
+        public override string Tooltip =>
+                 "Paint the DOMINANCE on triangles" + Environment.NewLine +
                     "It will affect how normal vector will be calculated" + Environment.NewLine +
-                    "N - smooth verticle, detect edge" + Environment.NewLine +
+                    "N - smooth vertices, detect edge" + Environment.NewLine +
                     "N on triangle near vertex - replace smooth normal of this vertex with This triangle's normal" + Environment.NewLine +
-                    "N on line to ForceNormal on connected triangles. (Alt - unforce)"
+                    "N on line to ForceNormal on connected triangles. (Alt - unForce)"
                     ;
-            }
-        }
+            
+        
 #if PEGI
         public override bool Inspect()
         {
 
-            MeshManager m = MeshMGMT;
+            var m = MeshMGMT;
 
-            "Dominance True".toggle(ref SetTo).nl();
-
-            pegi.ClickToEditScript();
+            "Dominance True".toggle(ref _setTo).nl();
 
             if ("Auto Bevel".Click())
                 AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".edit(60, ref Cfg.bevelDetectionSensetivity, 3, 30).nl();
+            "Sensitivity".edit(60, ref Cfg.bevelDetectionSensitivity, 3, 30).nl();
 
             if ("Sharp All".Click())
             {
-                foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
+                foreach (var vr in MeshMGMT.editedMesh.meshPoints)
                     vr.SmoothNormal = false;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
@@ -593,7 +577,7 @@ namespace Playtime_Painter
 
             if ("Smooth All".Click().nl())
             {
-                foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
+                foreach (var vr in MeshMGMT.editedMesh.meshPoints)
                     vr.SmoothNormal = true;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
@@ -612,7 +596,7 @@ namespace Playtime_Painter
 
 
             if (EditorInputManager.GetMouseButton(0))
-                EditedMesh.Dirty |= PointedTris.SetSharpCorners(SetTo);
+                EditedMesh.Dirty |= PointedTris.SetSharpCorners(_setTo);
 
             return false;
         }
@@ -627,28 +611,27 @@ namespace Playtime_Painter
 
             foreach (var t in EditedMesh.triangles)
             {
-                Vector3[] v3s = new Vector3[3];
+                var v3S = new Vector3[3];
 
-                for (int i = 0; i < 3; i++)
-                    v3s[i] = t.vertexes[i].Pos;
+                for (var i = 0; i < 3; i++)
+                    v3S[i] = t.vertexes[i].Pos;
 
-                float[] dist = new float[3];
+                var dist = new float[3];
 
-                for (int i = 0; i < 3; i++)
-                    dist[i] = (v3s[(i + 1) % 3] - v3s[(i + 2) % 3]).magnitude;
+                for (var i = 0; i < 3; i++)
+                    dist[i] = (v3S[(i + 1) % 3] - v3S[(i + 2) % 3]).magnitude;
 
-                for (int i = 0; i < 3; i++)
+                for (var i = 0; i < 3; i++)
                 {
                     var a = (i + 1) % 3;
                     var b = (i + 2) % 3;
-                    if (dist[i] < dist[a] / Cfg.bevelDetectionSensetivity && dist[i] < dist[b] / Cfg.bevelDetectionSensetivity)
-                    {
-                        t.SetSharpCorners(false);
+                    if (!(dist[i] < dist[a] / Cfg.bevelDetectionSensitivity) ||
+                        !(dist[i] < dist[b] / Cfg.bevelDetectionSensitivity)) continue;
+                    
+                    t.SetSharpCorners(false);
 
-                        var other = (new LineData(t, t.vertexes[a], t.vertexes[b])).GetOtherTriangle();
-                        if (other != null)
-                            other.SetSharpCorners(false);
-                    }
+                    var other = (new LineData(t, t.vertexes[a], t.vertexes[b])).GetOtherTriangle();
+                    other?.SetSharpCorners(false);
                 }
             }
 
@@ -663,7 +646,7 @@ namespace Playtime_Painter
 
                 if (!EditorInputManager.Alt)
                 {
-                    int no = PointedTris.NumberOf(PointedTris.GetClosestTo(MeshMGMT.collisionPosLocal));
+                    var no = PointedTris.NumberOf(PointedTris.GetClosestTo(MeshMGMT.collisionPosLocal));
                     PointedTris.DominantCourner[no] = !PointedTris.DominantCourner[no];
 #if PEGI
                     (PointedTris.DominantCourner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
@@ -722,14 +705,13 @@ namespace Playtime_Painter
     #region Vertex Smoothing
     public class SmoothingTool : MeshToolBase
     {
+        private bool _mergeUnMerge;
 
-        public bool MergeUnmerge = false;
-
-        public static SmoothingTool inst;
+        private static SmoothingTool _inst;
         
         public SmoothingTool()
         {
-            inst = this;
+            _inst = this;
         }
 
         public override bool ShowVerticesDefault => true;
@@ -739,7 +721,7 @@ namespace Playtime_Painter
         #region Inspector
         public override string Tooltip => "Click to set vertex as smooth/sharp" + Environment.NewLine;
 
-        public override string NameForPEGIdisplay => "Vertex Smoothing";
+        public override string NameForDisplayPEGI => "Vertex Smoothing";
 
 #if PEGI
         public override bool Inspect()
@@ -748,8 +730,8 @@ namespace Playtime_Painter
             MeshManager m = MeshMGMT;
 
             pegi.write("OnClick:", 60);
-            if ((MergeUnmerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
-                MergeUnmerge = !MergeUnmerge;
+            if ((_mergeUnMerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
+                _mergeUnMerge = !_mergeUnMerge;
 
             if ("Sharp All".Click())
             {
@@ -795,7 +777,7 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButton(0))
             {
-                if (MergeUnmerge)
+                if (_mergeUnMerge)
                 {
                     if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedTris.SetAllVerticesShared();
@@ -813,7 +795,7 @@ namespace Playtime_Painter
         {
             if (EditorInputManager.GetMouseButton(0))
             {
-                if (MergeUnmerge)
+                if (_mergeUnMerge)
                 {
                     if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
@@ -831,7 +813,7 @@ namespace Playtime_Painter
         {
             if (EditorInputManager.GetMouseButton(0))
             {
-                if (MergeUnmerge)
+                if (_mergeUnMerge)
                 {
                     if (!EditorInputManager.Shift)
                         Dirty |= PointedLine.AllVerticesShared();
@@ -926,7 +908,7 @@ namespace Playtime_Painter
         #region Inspector
         public override string Tooltip => " 1234 on Line - apply RGBA for Border.";
 
-        public override string NameForPEGIdisplay => "vertex Color";
+        public override string NameForDisplayPEGI => "vertex Color";
 
 #if PEGI
         public override bool Inspect()
@@ -936,7 +918,7 @@ namespace Playtime_Painter
             if (("Paint All with Brush Color").Click().nl(ref changed))
                 MeshMGMT.editedMesh.PaintAll(Cfg.brushConfig.colorLinear);
 
-            "Make Vertices Unique On coloring".toggle(60, ref Cfg.MakeVericesUniqueOnEdgeColoring).nl(ref changed);
+            "Make Vertices Unique On coloring".toggle(60, ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
 
             var br = Cfg.brushConfig;
 
@@ -1050,58 +1032,49 @@ namespace Playtime_Painter
 
     #region Edges (Experimental tech)
     public class VertexEdgeTool : MeshToolBase {
+        private static bool _alsoDoColor;
+        private static bool _editingFlexibleEdge;
+        private static float _edgeValue = 1;
 
-        static bool AlsoDoColor = false;
-        static bool editingFlexibleEdge = false;
-        public static float edgeValue = 1;
-
-        public static float ShiftInvertedVelue => EditorInputManager.Shift ? 1f - edgeValue : edgeValue;
+        private static float ShiftInvertedValue => EditorInputManager.Shift ? 1f - _edgeValue : _edgeValue;
         
         public override bool ShowTriangles => false;
 
-        public override bool ShowVerticesDefault => !editingFlexibleEdge;
+        public override bool ShowVerticesDefault => !_editingFlexibleEdge;
 
         #region Inspector
         
-        public override string NameForPEGIdisplay => "vertex Edge";
+        public override string NameForDisplayPEGI => "vertex Edge";
         
         public override string Tooltip =>
              "Shift - invert edge value" + Environment.NewLine +
-             "This tool allows editing value if edge.w" + Environment.NewLine + "edge.xyz is used to store border information about the triendle. ANd the edge.w in Example shaders is used" +
+             "This tool allows editing value if edge.w" + Environment.NewLine + "edge.xyz is used to store border information about the triangle. ANd the edge.w in Example shaders is used" +
              "to mask texture color with vertex color. All vertices should be set as Unique for this to work." +
-             "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's eather 1 side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
+             "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
 
 #if PEGI
-        public static pegi.CallDelegate PEGIdelegates;
+        public static pegi.CallDelegate pegiDelegates;
 
         public override bool Inspect()
         {
             bool changed = false;
-            "Edge Strength: ".edit(ref edgeValue).nl(ref changed);
-            "Also do color".toggle(ref AlsoDoColor).nl(ref changed);
+            "Edge Strength: ".edit(ref _edgeValue).nl(ref changed);
+            "Also do color".toggle(ref _alsoDoColor).nl(ref changed);
 
-            if (AlsoDoColor)
-                changed |= GlobalBrush.ColorSliders().nl();
+            if (_alsoDoColor)
+               GlobalBrush.ColorSliders().nl(ref changed);
 
-            if (EditedMesh.submeshCount > 1 && "Apply To Lines between submeshes".Click().nl())
-                LinesBetweenSubmeshes();
+          
 
-            if (PEGIdelegates != null)
-                foreach (pegi.CallDelegate d in PEGIdelegates.GetInvocationList())
-                    changed |= d();
+            if (pegiDelegates != null) changed = pegiDelegates.GetInvocationList().Cast<pegi.CallDelegate>().Aggregate(changed, (current, d) => current | d());
 
-            "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Only Bevel shader doesn't have a Flexible edge.", ref editingFlexibleEdge);
+            "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Only Bevel shader doesn't have a Flexible edge.", ref _editingFlexibleEdge);
 
             return changed;
         }
 #endif
         #endregion
-
-        void LinesBetweenSubmeshes()
-        {
-
-        }
 
         public override bool MouseEventPointedVertex()
         {
@@ -1110,13 +1083,13 @@ namespace Playtime_Painter
             if ((EditorInputManager.GetMouseButton(0)))
             {
 #if PEGI
-                if (!PointedUV.meshPoint.AllPointsUnique())
+                if (!PointedUv.meshPoint.AllPointsUnique())
                     "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
 #endif
                 if (EditorInputManager.Control)
                 {
-                    edgeValue = MeshMGMT.PointedUV.meshPoint.edgeStrength;
-                    if (AlsoDoColor) GlobalBrush.Color = PointedUV._color;
+                    _edgeValue = MeshMGMT.PointedUV.meshPoint.edgeStrength;
+                    if (_alsoDoColor) GlobalBrush.Color = PointedUv._color;
 
                     // foreach (UVpoint uvi in m.pointedUV.vert.uvpoints)
                     //   bcf.mask.Transfer(ref uvi._color, cfg.brushConfig.colorLinear.ToGamma());
@@ -1124,14 +1097,14 @@ namespace Playtime_Painter
                 else
                 {
 
-                    if (PointedUV.SameAsLastFrame)
+                    if (PointedUv.SameAsLastFrame)
                         return true;
 
-                    MeshMGMT.PointedUV.meshPoint.edgeStrength = ShiftInvertedVelue;
-                    if (AlsoDoColor)
+                    MeshMGMT.PointedUV.meshPoint.edgeStrength = ShiftInvertedValue;
+                    if (_alsoDoColor)
                     {
                         var col = GlobalBrush.Color;
-                        foreach (Vertex uvi in PointedUV.meshPoint.uvpoints)
+                        foreach (Vertex uvi in PointedUv.meshPoint.uvpoints)
                             GlobalBrush.mask.Transfer(ref uvi._color, col);
                     }
                     MeshMGMT.editedMesh.Dirty = true;
@@ -1154,7 +1127,7 @@ namespace Playtime_Painter
                 var vrtB = PointedLine.pnts[1].meshPoint;
 
                 if (EditorInputManager.Control)
-                    edgeValue = (vrtA.edgeStrength + vrtB.edgeStrength) * 0.5f;
+                    _edgeValue = (vrtA.edgeStrength + vrtB.edgeStrength) * 0.5f;
                 else
                 {
                     if (PointedLine.SameAsLastFrame)
@@ -1196,12 +1169,12 @@ namespace Playtime_Painter
             var tris = ld.GetAllTriangles_USES_Tris_Listing();
 
             foreach (var t in tris)
-                t.edgeWeight[t.GetIndexOfNoOneIn(ld)] = ShiftInvertedVelue;// true;
+                t.edgeWeight[t.GetIndexOfNoOneIn(ld)] = ShiftInvertedValue;// true;
 
-            float edValA = ShiftInvertedVelue;
-            float edValB = ShiftInvertedVelue;
+            float edValA = ShiftInvertedValue;
+            float edValB = ShiftInvertedValue;
 
-            if (editingFlexibleEdge)
+            if (_editingFlexibleEdge)
             {
 
                 foreach (var uv in vrtA.uvpoints)
@@ -1226,7 +1199,7 @@ namespace Playtime_Painter
             vrtA.edgeStrength = edValA;
             vrtB.edgeStrength = edValB;
 
-            if (AlsoDoColor)
+            if (_alsoDoColor)
             {
                 var col = GlobalBrush.Color;
                 foreach (Vertex uvi in vrtA.uvpoints)
@@ -1240,22 +1213,22 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
-                case "v": edgeValue = data.ToFloat(); break;
-                case "doCol": AlsoDoColor = data.ToBool(); break;
-                case "fe": editingFlexibleEdge = data.ToBool(); break;
+                case "v": _edgeValue = data.ToFloat(); break;
+                case "doCol": _alsoDoColor = data.ToBool(); break;
+                case "fe": _editingFlexibleEdge = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
 
         public override StdEncoder Encode() => new StdEncoder()
-            .Add("v", edgeValue)
-            .Add_Bool("doCol", AlsoDoColor)
-            .Add_Bool("fe", editingFlexibleEdge);
+            .Add("v", _edgeValue)
+            .Add_Bool("doCol", _alsoDoColor)
+            .Add_Bool("fe", _editingFlexibleEdge);
         #endregion
 
     }
@@ -1264,7 +1237,7 @@ namespace Playtime_Painter
     #region Submesh
     public class TriangleSubmeshTool : MeshToolBase
     {
-        public int curSubmesh = 0;
+        private int _curSubMesh;
         
         public override bool ShowVerticesDefault => false;
 
@@ -1275,17 +1248,17 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
-                curSubmesh = (int)MeshMGMT.PointedTris.submeshIndex;
+                _curSubMesh = MeshMGMT.PointedTris.submeshIndex;
 #if PEGI
-                ("Submesh " + curSubmesh).showNotificationIn3D_Views();
+                ("SubMesh " + _curSubMesh).showNotificationIn3D_Views();
 #endif
             }
 
-            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.Control && (MeshMGMT.PointedTris.submeshIndex != curSubmesh))
+            if (EditorInputManager.GetMouseButton(0) && !EditorInputManager.Control && (MeshMGMT.PointedTris.submeshIndex != _curSubMesh))
             {
                 if (PointedTris.SameAsLastFrame)
                     return true;
-                MeshMGMT.PointedTris.submeshIndex = curSubmesh;
+                MeshMGMT.PointedTris.submeshIndex = _curSubMesh;
                 EditedMesh.submeshCount = Mathf.Max(MeshMGMT.PointedTris.submeshIndex + 1, EditedMesh.submeshCount);
                 EditedMesh.Dirty = true;
                 return true;
@@ -1296,18 +1269,18 @@ namespace Playtime_Painter
         #region Inspector
 
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set submesh";
-        public override string NameForPEGIdisplay => "triangle Submesh index";
+        public override string NameForDisplayPEGI => "triangle Submesh index";
 
 
 #if PEGI
-        bool showAuto = false;
+        private bool _showAuto;
         public override bool Inspect()
         {
-            ("Total Submeshes: " + EditedMesh.submeshCount).nl();
+            ("Total Sub Meshes: " + EditedMesh.submeshCount).nl();
 
-            "Submesh: ".edit(60, ref curSubmesh).nl();
+            "Sub Mesh: ".edit(60, ref _curSubMesh).nl();
 
-            if ("Auto".foldout(ref showAuto)) {
+            if ("Auto".foldout(ref _showAuto)) {
 
                 if ("Make all 0".Click().nl()) {
                     EditedMesh.AllSubmeshZero();
@@ -1324,16 +1297,16 @@ namespace Playtime_Painter
         public override StdEncoder Encode()
         {
             var cody = new StdEncoder();
-            if (curSubmesh != 0)
-                cody.Add("sm", curSubmesh);
+            if (_curSubMesh != 0)
+                cody.Add("sm", _curSubMesh);
             return cody;
         }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
-                case "sm": curSubmesh = data.ToInt(); break;
+                case "sm": _curSubMesh = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -1346,14 +1319,8 @@ namespace Playtime_Painter
 
     public class VertexGroupTool : MeshToolBase
     {
-        public override string NameForPEGIdisplay => "Vertex Group";
+        public override string NameForDisplayPEGI => "Vertex Group";
 
-
-        public override bool Inspect() {
-            var changed = false;
-            
-            return changed;
-        }
 
     }
 

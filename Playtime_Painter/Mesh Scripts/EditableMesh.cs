@@ -225,8 +225,8 @@ namespace Playtime_Painter {
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "vrt":  data.Decode_List(out meshPoints); break;
                 case "tri": data.Decode_List(out triangles); break;
                 case "n": meshName = data; break;

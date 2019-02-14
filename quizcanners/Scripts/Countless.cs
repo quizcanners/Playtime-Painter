@@ -23,7 +23,7 @@ namespace QuizCannersUtilities {
         protected void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
-                CsharpFuncs.Expand(ref fruitPool, 32);
+                CsharpUtils.Expand(ref fruitPool, 32);
 
             fruitPool[frPoolMax] = b.br[no];
             VariableBranch vb = fruitPool[frPoolMax];
@@ -38,7 +38,7 @@ namespace QuizCannersUtilities {
         {
             if ((brPoolMax + 1) >= branchPool.Length)
             {
-                CsharpFuncs.Expand(ref branchPool, 32);
+                CsharpUtils.Expand(ref branchPool, 32);
             }
             //Debug.Log("Deleting branch ");
             branchPool[brPoolMax] = b.br[no];
@@ -70,7 +70,7 @@ namespace QuizCannersUtilities {
         protected void DiscardCascade(VariableBranch b, int depth)
         {
             if ((brPoolMax + 1) >= branchPool.Length)
-                CsharpFuncs.Expand(ref branchPool, 32);
+                CsharpUtils.Expand(ref branchPool, 32);
             
             if (depth > 0) {
                 for (int i = 0; i < branchSize; i++)
@@ -177,7 +177,7 @@ namespace QuizCannersUtilities {
 
         public abstract StdEncoder Encode();
 
-        public abstract bool Decode(string subtag, string data);
+        public abstract bool Decode(string tg, string data);
 
         public void Decode(string data)
         {
@@ -190,9 +190,9 @@ namespace QuizCannersUtilities {
 
         List<int> inds;
 
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "inds": data.Decode_List(out inds); break;
                 case "vals":
@@ -438,9 +438,9 @@ namespace QuizCannersUtilities {
  
 
         #region Encode & Decode
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "inds":
                     List<int> inds; data.Decode_List(out inds);
@@ -1071,9 +1071,9 @@ public class Countless<T> : CountlessBase {
 
         #region Encode & Decode
         static List<int> tmpDecodeInds;
-        public override bool Decode(string tag, string data) {
+        public override bool Decode(string tg, string data) {
 
-            switch (tag) {
+            switch (tg) {
 
                 case "inds": data.Decode_List(out tmpDecodeInds); break;
                 case "vals": List<T> tmps; data.Decode_List(out tmps);
@@ -1093,7 +1093,7 @@ public class Countless<T> : CountlessBase {
                 case "del": allowDelete = data.ToBool(); break;
                 default: 
                     // Legacy method:
-            this[tag.ToInt()] = data.DecodeInto<T>(); break;
+            this[tg.ToInt()] = data.DecodeInto<T>(); break;
         }
             return true;
         }
@@ -1707,10 +1707,10 @@ public class Countless<T> : CountlessBase {
 
     public class UnnulSTDLists<T> : UnnullableLists<T>, ISTD where T : ISTD, IPEGI, new() {
 
-        public bool Decode(string tag, string data)
+        public bool Decode(string tg, string data)
         {
             List<T> el; 
-            int index = tag.ToInt();
+            int index = tg.ToInt();
             this[index] = data.Decode_List(out el);
             return true;
         }
@@ -1753,7 +1753,7 @@ public class Countless<T> : CountlessBase {
             
             if (inspected > -1) {
                 var e = Cstd[inspected];
-                if (e.IsDefaultOrNull() || icon.Back.ClickUnfocus())
+                if (e.IsDefaultOrNull() || icon.Back.ClickUnFocus())
                     inspected = -1;
                 else
                     changed |= e.Try_Nested_Inspect();

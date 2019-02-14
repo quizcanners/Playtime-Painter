@@ -16,7 +16,7 @@ namespace PlayerAndEditorGUI {
     public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
 
     [Serializable]
-    [DerrivedList(typeof(Sentance), typeof(ConditionalSentance))]
+    [DerivedList(typeof(Sentance), typeof(ConditionalSentance))]
     public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
@@ -78,8 +78,8 @@ namespace PlayerAndEditorGUI {
             .Add("txts", txts)
             .Add_IfTrue("na", needsReview);
 
-        public override bool Decode(string tag, string data){
-            switch (tag) {
+        public override bool Decode(string tg, string data){
+            switch (tg) {
                 case "txts": data.Decode_Dictionary(out txts); break;
                 case "na": needsReview = data.ToBool(); break;
                 default: return false;
@@ -167,9 +167,9 @@ namespace PlayerAndEditorGUI {
                 .Add("b", base.Encode)
                 .Add_IfNotDefault("cnd", condition);
          
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "b": data.Decode_Base(base.Decode, this); break;
                 case "cnd": condition.Decode(data); break;

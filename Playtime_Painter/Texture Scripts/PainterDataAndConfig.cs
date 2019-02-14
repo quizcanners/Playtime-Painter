@@ -20,19 +20,19 @@ namespace Playtime_Painter
         public static bool toolEnabled = false;
 
         #region Shaders
-        public Shader br_Blit = null;
-        public Shader br_Add = null;
-        public Shader br_Copy = null;
+        public Shader brushBlit = null;
+        public Shader brushAdd = null;
+        public Shader brushCopy = null;
         public Shader pixPerfectCopy = null;
-        public Shader brushRendy_bufferCopy = null;
-        public Shader Blit_Smoothed = null;
-        public Shader br_Multishade = null;
-        public Shader br_BlurN_SmudgeBrush = null;
-        public Shader br_ColorFill = null;
+        public Shader brushBufferCopy = null;
+        public Shader brushBlitSmoothed = null;
+        public Shader brushDoubleBuffer = null;
+        public Shader brushBlurAndSmudge = null;
+        public Shader brushColorFill = null;
 
-        public Shader mesh_Preview = null;
-        public Shader br_Preview = null;
-        public Shader TerrainPreview = null;
+        public Shader previewMesh = null;
+        public Shader previewBrush = null;
+        public Shader previewTerrain = null;
         #endregion
 
         #region Constants
@@ -42,30 +42,30 @@ namespace Playtime_Painter
 
 
         #region Preperties
-        public static ShaderProperty.VectorValue terrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
-        public static ShaderProperty.VectorValue terrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
-        public static ShaderProperty.VectorValue terrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
+        public static readonly ShaderProperty.VectorValue terrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
+        public static readonly ShaderProperty.VectorValue terrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
+        public static readonly ShaderProperty.VectorValue terrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
         public const string TERRAIN_HEIGHT_TEXTURE = "_mergeTerrainHeight";
-        public static ShaderProperty.TextureValue terrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
+        public static readonly ShaderProperty.TextureValue terrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
         public const string TERRAIN_CONTROL_TEXTURE = "_mergeControl";
-        public static ShaderProperty.TextureValue terrainControl = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
+        public static readonly ShaderProperty.TextureValue terrainControl = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
         public const string terrainTexture = "_mergeSplat_";
         public const string terrainNormalMap = "_mergeSplatN_";
         public const string TERRAIN_LIGHT_TEXTURE = "_TerrainColors";
-        public static ShaderProperty.TextureValue terrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
-        public static ShaderProperty.TextureValue previewTexture = new ShaderProperty.TextureValue("_PreviewTex");
+        public static readonly ShaderProperty.TextureValue terrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
+        public static readonly ShaderProperty.TextureValue previewTexture = new ShaderProperty.TextureValue("_PreviewTex");
 
-        public static ShaderProperty.VectorValue BRUSH_WORLD_POS_FROM = new ShaderProperty.VectorValue("_brushWorldPosFrom");
-        public static ShaderProperty.VectorValue BRUSH_WORLD_POS_TO = new ShaderProperty.VectorValue("_brushWorldPosTo");
-        public static ShaderProperty.VectorValue BRUSH_POINTED_UV = new ShaderProperty.VectorValue("_brushPointedUV");
-        public static ShaderProperty.VectorValue BRUSH_EDITED_UV_OFFSET = new ShaderProperty.VectorValue("_brushEditedUVoffset");
-        public static ShaderProperty.VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new ShaderProperty.VectorValue("_brushAtlasSectionAndRows");
-        public static ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_brushSamplingDisplacement");
-        public static ShaderProperty.TextureValue DESTINATION_BUFFER = new ShaderProperty.TextureValue("_DestBuffer");
-        public static ShaderProperty.TextureValue SOURCE_TEXTURE = new ShaderProperty.TextureValue("_SourceTexture");
+        public static readonly ShaderProperty.VectorValue BRUSH_WORLD_POS_FROM = new ShaderProperty.VectorValue("_brushWorldPosFrom");
+        public static readonly ShaderProperty.VectorValue BRUSH_WORLD_POS_TO = new ShaderProperty.VectorValue("_brushWorldPosTo");
+        public static readonly ShaderProperty.VectorValue BRUSH_POINTED_UV = new ShaderProperty.VectorValue("_brushPointedUV");
+        public static readonly ShaderProperty.VectorValue BRUSH_EDITED_UV_OFFSET = new ShaderProperty.VectorValue("_brushEditedUVoffset");
+        public static readonly ShaderProperty.VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new ShaderProperty.VectorValue("_brushAtlasSectionAndRows");
+        public static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_brushSamplingDisplacement");
+        public static readonly ShaderProperty.TextureValue DESTINATION_BUFFER = new ShaderProperty.TextureValue("_DestBuffer");
+        public static readonly ShaderProperty.TextureValue SOURCE_TEXTURE = new ShaderProperty.TextureValue("_SourceTexture");
         public const string ATLASED_TEXTURES = "_AtlasTextures";
-        public static ShaderProperty.FloatValue atlasedTexturesInARow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
-        public static ShaderProperty.FloatValue bufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
+        public static readonly ShaderProperty.FloatValue texturesInAtlasRow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
+        public static readonly ShaderProperty.FloatValue bufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
         #endregion
 
 
@@ -103,31 +103,28 @@ namespace Playtime_Painter
 
         public void RemoteUpdate()
         {
-            if (webCamTexture && webCamTexture.isPlaying)
-            {
-                cameraUnusedTime += Time.deltaTime;
+            if (!webCamTexture || !webCamTexture.isPlaying) return;
+            
+            cameraUnusedTime += Time.deltaTime;
 
-                if (cameraUnusedTime > 10f)
-                    webCamTexture.Stop();
-            }
-
+            if (cameraUnusedTime > 10f)
+                webCamTexture.Stop();
         }
 
         public void StopCamera()
         {
-            if (webCamTexture != null)
-            {
-                webCamTexture.Stop();
-                webCamTexture.DestroyWhatever();
-                webCamTexture = null;
-            }
+            if (webCamTexture == null) return;
+            
+            webCamTexture.Stop();
+            webCamTexture.DestroyWhatever();
+            webCamTexture = null;
+            
         }
 
         float cameraUnusedTime = 0f;
         public Texture GetWebCamTexture()
         {
             cameraUnusedTime = 0;
-
 
             if (webCamTexture == null && WebCamTexture.devices.Length > 0)
                 webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
@@ -143,55 +140,52 @@ namespace Playtime_Painter
 
         public List<string> playtimeSavedTextures = new List<string>();
         
-        public List<ImageData> imgDatas = new List<ImageData>();
+        public List<ImageMeta> imgMetas = new List<ImageMeta>();
 
-        public List<MaterialData> matDatas = new List<MaterialData>();
+        public List<MaterialMeta> matMetas = new List<MaterialMeta>();
 
-        public MaterialData GetMaterialDataFor(Material mat)
+        public MaterialMeta GetMaterialDataFor(Material mat)
         {
             if (!mat)
                 return null;
 
-            MaterialData data = null;
+            MaterialMeta meta = null;
 
-            for (int i = 0; i < matDatas.Count; i++)
+            for (var i = 0; i < matMetas.Count; i++)
             {
-                var md = matDatas[i];
+                var md = matMetas[i];
+                
                 if (md != null && md.material)
                 {
-                    if (md.material == mat)
-                    {
-                        data = md;
+                    if (md.material != mat) continue;
+                    
+                    meta = md;
 
-                        if (i > 3)
-                            matDatas.Move(i, 0);
+                    if (i > 3)
+                        matMetas.Move(i, 0);
 
-                        break;
-                    }
-
+                    break;
+                    
                 }
                 else
                 {
-                    matDatas.RemoveAt(i); i--;
+                    matMetas.RemoveAt(i); i--;
                 }
             }
 
-            if (data == null)
-            {
-                data = new MaterialData(mat);
-                matDatas.Add(data);
-            }
-
-
-
-            return data;
+            if (meta != null) return meta;
+            
+            meta = new MaterialMeta(mat);
+            matMetas.Add(meta);
+            
+            return meta;
         }
 
         public bool showRecentTextures = false;
 
         public bool showColorSchemes = false;
         [NonSerialized]
-        public Dictionary<string, List<ImageData>> recentTextures = new Dictionary<string, List<ImageData>>();
+        public readonly Dictionary<string, List<ImageMeta>> recentTextures = new Dictionary<string, List<ImageMeta>>();
 
         public List<Texture> sourceTextures = new List<Texture>();
 
@@ -211,23 +205,23 @@ namespace Playtime_Painter
 
         #endregion
 
-        public int _meshTool;
-        public MeshToolBase MeshTool { get { _meshTool = Mathf.Min(_meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[_meshTool]; } }
-        public float bevelDetectionSensetivity = 6;
-        public string meshToolsSTD = null;
+        public int meshTool;
+        public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
+        public float bevelDetectionSensitivity = 6;
+        public string meshToolsStd = null;
 
         #region User Settings
         public static int DamAnimRendtexSize = 128;
         public bool allowEditingInFinalBuild;
-        public bool MakeVericesUniqueOnEdgeColoring;
-        public int SnapToGridSize = 1;
-        public bool SnapToGrid = false;
+        public bool makeVerticesUniqueOnEdgeColoring;
+        public int gridSize = 1;
+        public bool snapToGrid = false;
         public bool newVerticesUnique = false;
         public bool newVerticesSmooth = true;
         public bool pixelPerfectMeshEditing = false;
         public bool useGridForBrush = false;
 
-        public bool useJobsForCPUpainting = true;
+        public bool useJobsForCpuPainting = true;
 
         public string materialsFolderName;
         public string texturesFolderName;
@@ -245,8 +239,8 @@ namespace Playtime_Painter
         public bool moreOptions = false;
         public bool allowExclusiveRenderTextures = false;
         public bool showConfig = false;
-        public bool ShowTeachingNotifications = false;
-        public bool DebugDisableSecondBufferUpdate;
+        public bool showTeachingNotifications = false;
+        public bool disableSecondBufferUpdateDebug;
         public MyIntVec2 samplingMaskSize;
         #endregion
 
@@ -264,19 +258,19 @@ namespace Playtime_Painter
 
         static string[] texSizes;
 
-        const int texSizesRange = 9;
-        const int minPowerOfSize = 2;
+        private const int texSizesRange = 9;
+        private const int minPowerOfSize = 2;
 
         public static string[] NewTextureSizeOptions
         {
             get
             {
-                if ((texSizes == null) || (texSizes.Length != texSizesRange))
-                {
-                    texSizes = new string[texSizesRange];
-                    for (int i = 0; i < texSizesRange; i++)
-                        texSizes[i] = Mathf.Pow(2, i + minPowerOfSize).ToString();
-                }
+                if (texSizes != null && texSizes.Length == texSizesRange) return texSizes;
+                
+                texSizes = new string[texSizesRange];
+                for (var i = 0; i < texSizesRange; i++)
+                    texSizes[i] = Mathf.Pow(2, i + minPowerOfSize).ToString();
+                
                 return texSizes;
             }
 
@@ -286,7 +280,7 @@ namespace Playtime_Painter
 
         public int SelectedHeightForNewTexture() => SizeIndexToSize(selectedHeightIndex);
 
-        public static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
+        private static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
         #endregion
 
         #region BrushStrokeRecordings
@@ -294,20 +288,20 @@ namespace Playtime_Painter
 
         public int browsedRecord;
 
-        public static Dictionary<string, string> recordings = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> Recordings = new Dictionary<string, string>();
 
-        public List<string> StrokeRecordingsFromFile(string filename)
+        public IEnumerable<string> StrokeRecordingsFromFile(string filename)
         {
             string data;
 
-            if (!recordings.TryGetValue(filename, out data))
+            if (!Recordings.TryGetValue(filename, out data))
             {
-                data = StuffLoader.LoadFromPersistantPath(vectorsFolderName, filename);
-                recordings.Add(filename, data);
+                data = StuffLoader.LoadFromPersistentPath(vectorsFolderName, filename);
+                Recordings.Add(filename, data);
             }
 
             var cody = new StdDecoder(data);
-            List<string> strokes = new List<string>();
+            var strokes = new List<string>();
             foreach (var tag in cody)
             {
                 var d = cody.GetData();
@@ -324,54 +318,59 @@ namespace Playtime_Painter
 
         #region Encode/Decode
 
-        [SerializeField] string STDdata = "";
+        [SerializeField] private string stdData = "";
         public string Config_STD
         {
-            get { return STDdata; }
-            set { STDdata = value; }
+            get { return stdData; }
+            set { stdData = value; }
         }
 
-        LoopLock encodeDecodeLock = new LoopLock();
+        private readonly LoopLock _encodeDecodeLock = new LoopLock();
 
         public override StdEncoder Encode()
         {
-            if (encodeDecodeLock.Unlocked)
+            if (_encodeDecodeLock.Unlocked)
             {
-                using (encodeDecodeLock.Lock())
+                using (_encodeDecodeLock.Lock())
                 {
 
-                    for (int i = 0; i < imgDatas.Count; i++)
+                    for (var i = 0; i < imgMetas.Count; i++)
                     {
-                        var id = imgDatas[i];
-                        if (id == null || !id.NeedsToBeSaved) { imgDatas.RemoveAt(i); i--; }
+                        var id = imgMetas[i];
+                        if (id != null && id.NeedsToBeSaved) continue;
+                        
+                        imgMetas.RemoveAt(i); 
+                        i--; 
+                    
                     }
 
-                    for (int index = 0; index < matDatas.Count; index++)
+                    for (var index = 0; index < matMetas.Count; index++)
                     {
-                        var md = matDatas[index];
-                        if (!md.material || !md.material.SavedAsAsset()) {
-                            matDatas.Remove(md);
-                            index--;
-                        }
+                        var md = matMetas[index];
+                        if (md.material && md.material.SavedAsAsset()) continue;
+                        
+                        matMetas.Remove(md);
+                        index--;
+                        
                     }
                     
 
                     var cody = this.EncodeUnrecognized()
-                        .Add("imgs", imgDatas, this)
+                        .Add("imgs", imgMetas, this)
                         .Add("sch", selectedColorScheme)
-                        .Add("mats", matDatas, this)
+                        .Add("mats", matMetas, this)
                         .Add("pals", colorSchemes)
                         .Add("cam", PainterCamera.Inst)
                         .Add("Vpck", meshPackagingSolutions)
 
 #if PEGI
-                        .Add_IfNotNegative("iid", inspectedImgData)
-                        .Add_IfNotNegative("isfs", inspectedStuffs)
-                        .Add_IfNotNegative("im", inspectedMaterial)
-                        .Add_IfNotNegative("id", inspectedDecal)
+                        .Add_IfNotNegative("iid", _inspectedImgData)
+                        .Add_IfNotNegative("isfs", _inspectedStuffs)
+                        .Add_IfNotNegative("im", _inspectedMaterial)
+                        .Add_IfNotNegative("id", _inspectedDecal)
                         .Add_IfNotNegative("is", inspectedStuff)
 #endif
-              .Add_IfTrue("e", toolEnabled);
+                        .Add_IfTrue("e", toolEnabled);
 
                     return cody;
                 }
@@ -381,21 +380,21 @@ namespace Playtime_Painter
             return null;
         }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
-                case "imgs": data.Decode_List(out imgDatas, this); break;
+                case "imgs": data.Decode_List(out imgMetas, this); break;
                 case "sch": selectedColorScheme = data.ToInt(); break;
-                case "mats": data.Decode_List(out matDatas, this); break;
+                case "mats": data.Decode_List(out matMetas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
-                case "cam": PainterCamera.Inst?.Decode(data); break;
+                case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 #if PEGI
-                case "iid": inspectedImgData = data.ToInt(); break;
-                case "isfs": inspectedStuffs = data.ToInt(); break;
-                case "im": inspectedMaterial = data.ToInt(); break;
-                case "id": inspectedDecal = data.ToInt(); break;
+                case "iid": _inspectedImgData = data.ToInt(); break;
+                case "isfs": _inspectedStuffs = data.ToInt(); break;
+                case "im": _inspectedMaterial = data.ToInt(); break;
+                case "id": _inspectedDecal = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
                 #endif
                 case "e": toolEnabled = data.ToBool(); break;
@@ -407,49 +406,46 @@ namespace Playtime_Painter
 
         #region Inspector
         #if PEGI
-           int inspectedImgData = -1;
-        int inspectedStuffs = -1;
-        int inspectedMaterial = -1;
-        int inspectedDecal = -1;
+           private int _inspectedImgData = -1;
+           private int _inspectedStuffs = -1;
+           private int _inspectedMaterial = -1;
+           private int _inspectedDecal = -1;
+           
         public bool DatasPEGI()
         {
-            bool changes = false;
+            var changes = false;
 
-            changes |= "Img datas".enter_List(ref imgDatas, ref inspectedImgData, ref inspectedStuffs, 0).nl();
+            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedStuffs, 0).nl(ref changes);
 
-            changes |= "Mat datas".enter_List(ref matDatas, ref inspectedMaterial, ref inspectedStuffs, 1).nl();
+            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedStuffs, 1).nl(ref changes);
 
-            changes |= "Source Textures".enter_List_UObj(ref sourceTextures, ref inspectedStuffs, 2).nl();
+            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedStuffs, 2).nl(ref changes);
 
-            changes |= "Masks".enter_List_UObj(ref masks, ref inspectedStuffs, 3).nl();
+            "Masks".enter_List_UObj(ref masks, ref _inspectedStuffs, 3).nl(ref changes);
 
-            changes |= "Decals".enter_List(ref decals, ref inspectedDecal, ref inspectedStuffs, 4).nl();
+            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedStuffs, 4).nl(ref changes);
 
-            if (inspectedStuffs == -1)
-            {
-                #if UNITY_EDITOR
-                if ("Refresh Shaders".Click_Label("Search for shaders again").nl())
-                    CheckShaders(true);
+            if (_inspectedStuffs != -1) return changes;
+            
+            #if UNITY_EDITOR
+            if ("Refresh Shaders".Click_Label("Search for shaders again").nl())
+                CheckShaders(true);
 
-             
-                "Using layer:".write(80);
-                myLayer = EditorGUILayout.LayerField(myLayer);
+            "Using layer:".write(80);
+            myLayer = EditorGUILayout.LayerField(myLayer);
 
-                pegi.nl();
-                "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref DebugDisableSecondBufferUpdate).nl();
-                #endif
-
-            }
-
+            pegi.nl();
+            "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
+            #endif
 
             return changes;
         }
 
         public override bool Inspect()
         {
-            bool changed = false; 
+            var changed = false; 
 
-            PainterCamera rtp = PainterCamera.Inst;
+            var rtp = PainterCamera.Inst;
 
             if ("Plugins".enter(ref inspectedStuff, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl())
                 rtp.SetToDirty();
@@ -457,14 +453,14 @@ namespace Playtime_Painter
             if ("Lists".enter (ref inspectedStuff, 11).nl())
                 changed |= DatasPEGI();
 
-            changed |= "Downloads".enter_Inspect(PainterCamera.downloadManager, ref inspectedStuff, 12).nl();
+            changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedStuff, 12).nl();
 
 
             if (inspectedStuff == -1) {
 
                 #if UNITY_EDITOR
 
-                bool gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
+                var gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
 
                     if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
                         UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
@@ -480,7 +476,7 @@ namespace Playtime_Painter
                         if (Painter && Painter.meshEditing == false)
                             "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
-                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref ShowTeachingNotifications).nl();
+                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
 
                         "Save Textures To".edit(110, ref texturesFolderName).nl();
 
@@ -501,11 +497,9 @@ namespace Playtime_Painter
                         PlaytimePainter.Open_Email();
 #endif
 
-              
-
             }
 
-            changed |= base.Inspect();
+            base.Inspect().nl(ref changed);
 
             return changed;
         }
@@ -544,9 +538,9 @@ namespace Playtime_Painter
 
             CheckShaders();
 
-            var decody = new StdDecoder(meshToolsSTD);
-            foreach (var tag in decody) {
-                var d = decody.GetData();
+            var decoder = new StdDecoder(meshToolsStd);
+            foreach (var tag in decoder) {
+                var d = decoder.GetData();
                 foreach (var m in MeshToolBase.AllTools)
                     if (m.ToString().SameAs(tag))
                     {
@@ -557,7 +551,7 @@ namespace Playtime_Painter
 
         }
 
-        void CheckShaders(bool forceReload = false)
+        private void CheckShaders(bool forceReload = false)
         {
             #if !UNITY_EDITOR
                 return;
@@ -565,30 +559,30 @@ namespace Playtime_Painter
 
             CheckShader(ref pixPerfectCopy,         "Playtime Painter/Buffer Blit/Pixel Perfect Copy",  forceReload);
 
-            CheckShader(ref Blit_Smoothed,          "Playtime Painter/Buffer Blit/Smooth",              forceReload);
+            CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",              forceReload);
 
-            CheckShader(ref brushRendy_bufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
+            CheckShader(ref brushBufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
 
-            CheckShader(ref br_Blit,                "Playtime Painter/Editor/Brush/Blit",               forceReload);
+            CheckShader(ref brushBlit,                "Playtime Painter/Editor/Brush/Blit",               forceReload);
 
-            CheckShader(ref br_Add,                 "Playtime Painter/Editor/Brush/Add",                forceReload);
+            CheckShader(ref brushAdd,                 "Playtime Painter/Editor/Brush/Add",                forceReload);
 
-            CheckShader(ref br_Copy,                "Playtime Painter/Editor/Brush/Copy",                forceReload);
+            CheckShader(ref brushCopy,                "Playtime Painter/Editor/Brush/Copy",               forceReload);
 
-            CheckShader(ref br_Multishade,          "Playtime Painter/Editor/Brush/DoubleBuffer",              forceReload);
+            CheckShader(ref brushDoubleBuffer,          "Playtime Painter/Editor/Brush/DoubleBuffer",       forceReload);
 
-            CheckShader(ref br_BlurN_SmudgeBrush,   "Playtime Painter/Editor/Brush/BlurN_Smudge",              forceReload);
+            CheckShader(ref brushBlurAndSmudge,   "Playtime Painter/Editor/Brush/BlurN_Smudge",       forceReload);
 
-            CheckShader(ref br_ColorFill,           "Playtime Painter/Buffer Blit/Color Fill",          forceReload);
+            CheckShader(ref brushColorFill,           "Playtime Painter/Buffer Blit/Color Fill",          forceReload);
 
-            CheckShader(ref br_Preview,             "Playtime Painter/Editor/Preview/Brush",                   forceReload);
+            CheckShader(ref previewBrush,             "Playtime Painter/Editor/Preview/Brush",            forceReload);
 
-            CheckShader(ref mesh_Preview,           "Playtime Painter/Editor/Preview/Mesh",                    forceReload);
+            CheckShader(ref previewMesh,           "Playtime Painter/Editor/Preview/Mesh",             forceReload);
 
-            CheckShader(ref TerrainPreview,         "Playtime Painter/Editor/Preview/Terrain",                 forceReload);
+            CheckShader(ref previewTerrain,         "Playtime Painter/Editor/Preview/Terrain",          forceReload);
         }
 
-        void CheckShader(ref Shader shade, string path, bool forceReload = false) {
+        private void CheckShader(ref Shader shade, string path, bool forceReload = false) {
 
             #if UNITY_EDITOR
 
@@ -600,8 +594,7 @@ namespace Playtime_Painter
 
         public void ManagedOnEnable()
         {
-           
-            Decode(STDdata);
+            Decode(stdData);
             Init();
         }
 
@@ -609,15 +602,10 @@ namespace Playtime_Painter
         {
             StopCamera();
 
-            StdEncoder cody = new StdEncoder();
             if (!PainterStuff.applicationIsQuitting)
-            {
-                cody.Add(StdDecoder.ListElementTag, MeshToolBase.AllTools);
-                meshToolsSTD = cody.ToString();
-            }
-
-            STDdata = Encode().ToString();
+                meshToolsStd = new StdEncoder().Add(StdDecoder.ListElementTag, MeshToolBase.AllTools).ToString();
+            
+            stdData = Encode().ToString();
         }
-
     }
 }

@@ -16,7 +16,7 @@ namespace Playtime_Painter
     public class MeshManager : PainterStuffKeepUnrecognized_STD
     {
 
-        public static MeshManager Inst => PainterCamera.meshManager;
+        public static MeshManager Inst => PainterCamera.MeshManager;
 
         public static Transform Transform => PainterCamera.Inst?.transform;
 
@@ -53,9 +53,9 @@ namespace Playtime_Painter
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfTrue("byUV", SelectingUVbyNumber);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "byUV": SelectingUVbyNumber = data.ToBool(); break;
                 default: return false;
@@ -925,7 +925,7 @@ namespace Playtime_Painter
 
             var previousTool = MeshTool;
 
-            if ("tool".select(70, ref Cfg._meshTool, MeshToolBase.AllTools).nl(ref changed)) {
+            if ("tool".select(70, ref Cfg.meshTool, MeshToolBase.AllTools).nl(ref changed)) {
                 Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();

@@ -28,8 +28,8 @@ namespace Playtime_Painter {
             .Add("s", buffers)
             .Add("sc", sections);
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "s": data.Decode_List(out buffers); break;
                 case "sc": data.Decode_List(out sections); break;
                 default: return false;
@@ -47,7 +47,7 @@ namespace Playtime_Painter {
 
         #region Inspector
         #if PEGI
-        public override string NameForPEGIdisplay => "Buffer Blitting";
+        public override string NameForDisplayPEGI => "Buffer Blitting";
 
         [SerializeField] int GUITextureSize = 128;
         int texIndex = 0;
@@ -152,7 +152,7 @@ namespace Playtime_Painter {
         {
             inst = this;
             #if PEGI
-            PlugIn_PainterComponent = Component_PEGI;
+            PlugInPainterComponent = Component_PEGI;
             #endif
         }
 
@@ -162,7 +162,7 @@ namespace Playtime_Painter {
 
     #region TextureBuffers
 
-    [DerrivedList(typeof(OnDemandRT)
+    [DerivedList(typeof(OnDemandRT)
         , typeof(OnDemandRTPair)
         , typeof(WebCamTextureBuffer)
         , typeof(CustomImageData)
@@ -184,7 +184,7 @@ namespace Playtime_Painter {
 
         protected static PainterDataAndConfig Data => PainterCamera.Data; 
 
-        public virtual string NameForPEGIdisplay => "Override This";
+        public virtual string NameForDisplayPEGI => "Override This";
 
         public virtual Texture TextureNext { get; }
 
@@ -242,7 +242,7 @@ namespace Playtime_Painter {
 
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = NameForPEGIdisplay.toggle(ref showOnGUI);
+            bool changed = NameForDisplayPEGI.toggle(ref showOnGUI);
 
             var asP = this as IPEGI;
             if (asP != null && icon.Enter.Click())
@@ -257,9 +257,9 @@ namespace Playtime_Painter {
         #region Encode & Decode
         public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGUI);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "show": showOnGUI = data.ToBool(); break;
                 default: return false;
@@ -272,7 +272,7 @@ namespace Playtime_Painter {
     public class CustomImageData : TextureBuffer  , IPEGI_ListInspect, IPEGI
     {
 
-        ImageData id;
+        ImageMeta id;
         Texture Texture => id.CurrentTexture();
 
         public override bool CanBeTarget => Texture && Texture.GetType() == typeof(RenderTexture);
@@ -283,13 +283,13 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay => "Custom: " + Texture.ToPEGIstring();
+        public override string NameForDisplayPEGI => "Custom: " + Texture.ToPEGIstring();
 
-        public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgDatas);
+        public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgMetas);
 
         public override bool Inspect()
         {
-            "Source".select(50, ref id, Data.imgDatas);
+            "Source".select(50, ref id, Data.imgMetas);
             Texture tmp = Texture;
             if ("Texture".edit(ref tmp).nl() && tmp)
                 id = tmp.GetImgData();
@@ -305,11 +305,11 @@ namespace Playtime_Painter {
             .Add_GUID("t", Texture)
             .Add_IfTrue("show", showOnGUI);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
-                case "t": Texture tmp = Texture; data.ToAssetByGUID(ref tmp); if (tmp) id = Texture.GetImgData(); break;
+                case "t": Texture tmp = Texture; data.ToAssetByGuid(ref tmp); if (tmp) id = Texture.GetImgData(); break;
                 case "show": showOnGUI = data.ToBool(); break;
                 default: return false;
             }
@@ -322,24 +322,24 @@ namespace Playtime_Painter {
     public class BigRTpair : TextureBuffer
     {
 
-        public override string NameForPEGIdisplay => "BIG RT pair";
+        public override string NameForDisplayPEGI => "BIG RT pair";
 
         public override void AfterRender()
         {
             TexMGMT.UpdateBufferTwo();
-            TexMGMT.bigRTversion++;
+            TexMGMT.bigRtVersion++;
         }
 
         public override int Version
         {
             get
             {
-                return TexMGMT.bigRTversion;
+                return TexMGMT.bigRtVersion;
             }
 
             set
             {
-                TexMGMT.bigRTversion = value;
+                TexMGMT.bigRtVersion = value;
             }
         }
 
@@ -349,12 +349,12 @@ namespace Playtime_Painter {
         {
             get
             {
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMGMT.BigRT_pair[1];
-                return TexMGMT.BigRT_pair[0];
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMGMT.bigRtPair[1];
+                return TexMGMT.bigRtPair[0];
             }
         }
 
-        public override Texture GetTextureDisplay => TexMGMT.BigRT_pair[0];
+        public override Texture GetTextureDisplay => TexMGMT.bigRtPair[0];
 
         public override bool CanBeTarget => true;
 
@@ -369,7 +369,7 @@ namespace Playtime_Painter {
         public bool linear;
         public RenderTextureReadWrite colorMode;
 
-        public override string NameForPEGIdisplay => "RT " + name;
+        public override string NameForDisplayPEGI => "RT " + name;
 
         public override bool CanBeTarget => true;
 
@@ -396,9 +396,9 @@ namespace Playtime_Painter {
             .Add("c", (int)colorMode)
             .Add_IfTrue("show", showOnGUI);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "w": width = data.ToInt(); break;
                 case "c": colorMode = (RenderTextureReadWrite)data.ToInt(); break;
@@ -427,7 +427,7 @@ namespace Playtime_Painter {
     {
         RenderTexture[] rts; // = new RenderTexture[2];
 
-        public override string NameForPEGIdisplay => "RT PAIR " + name;
+        public override string NameForDisplayPEGI => "RT PAIR " + name;
 
         public override bool CanBeTarget => true;
 
@@ -485,7 +485,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 
-        public override string NameForPEGIdisplay => "Web Cam Tex";
+        public override string NameForDisplayPEGI => "Web Cam Tex";
 
         #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited)
@@ -511,9 +511,9 @@ namespace Playtime_Painter {
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGUI);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "show": showOnGUI = data.ToBool(); break;
                 default: return false;
@@ -549,7 +549,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override string NameForPEGIdisplay => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
+        public override string NameForDisplayPEGI => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
         public override bool Inspect() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
 #endif
         #endregion
@@ -557,9 +557,9 @@ namespace Playtime_Painter {
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGUI);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "t": targetIndex = data.ToInt(); break;
                 case "show": showOnGUI = data.ToBool(); break;
@@ -579,7 +579,7 @@ namespace Playtime_Painter {
         Shader shader;
         Texture2D buffer;
 
-        public override string NameForPEGIdisplay => (name.IsNullOrEmpty() ? "Scaler" : name);
+        public override string NameForDisplayPEGI => (name.IsNullOrEmpty() ? "Scaler" : name);
 
         public override bool CanBeTarget => true;
 
@@ -662,15 +662,15 @@ namespace Playtime_Painter {
             .Add_IfTrue("show", showOnGUI)
             .Add_GUID("s", shader);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "n": name = data; break;
                 case "w": width = data.ToInt(); break;
                 case "l": linear = data.ToBool(); break;
                 case "show": showOnGUI = data.ToBool(); break;
-                case "s": data.ToAssetByGUID(ref shader); break;
+                case "s": data.ToAssetByGuid(ref shader); break;
                 default: return false;
             }
 
@@ -711,9 +711,9 @@ namespace Playtime_Painter {
             .Add("trg", targetBufferIndex)
             .Add_Bool("e", enabled);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag) {
+            switch (tg) {
                 case "m": data.Decode_Reference(ref material); break;
                 case "trg": targetBufferIndex = data.ToInt(); break;
                 case "e": enabled = data.ToBool(); break;
@@ -781,7 +781,7 @@ namespace Playtime_Painter {
         #region Inspector
 #if PEGI
 
-        public string NameForPEGIdisplay => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
+        public string NameForDisplayPEGI => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
 
 
         public bool PEGI_inList(IList list, int ind, ref int edited)

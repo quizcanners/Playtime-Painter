@@ -74,9 +74,9 @@ namespace STD_Logic
                 .Add_IfNotZero("u", usage)
                 .Add_IfNotEmpty("e", enm);
           
-        public override bool Decode(string tag, string data) {
+        public override bool Decode(string tg, string data) {
 
-            switch (tag) {
+            switch (tg) {
                 case "n": name = data; break;
                 case "u": usage = data.ToInt(); break;
                 case "e": data.Decode_Dictionary(out enm); break;
@@ -102,7 +102,7 @@ namespace STD_Logic
 
         public static bool Search_PEGI() => "Search".edit(60, ref searchField);
 
-        public override string NameForPEGIdisplay => name;
+        public override string NameForDisplayPEGI => name;
 
         public override bool PEGI_inList(IList list, int ind, ref int edited) {
 
@@ -130,7 +130,7 @@ namespace STD_Logic
             {
                 this.inspect_Name(Group.ToPEGIstring(), "g:{0}t:{1}".F(groupIndex,triggerIndex));
 
-                if (icon.Edit.ClickUnfocus())
+                if (icon.Edit.ClickUnFocus())
                     inspected = this;
             }
             return changed;

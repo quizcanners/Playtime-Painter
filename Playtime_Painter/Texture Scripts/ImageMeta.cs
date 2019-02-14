@@ -19,7 +19,7 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageData : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefault_STD
+    public class ImageMeta : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefault_STD
     {
 
         #region Values
@@ -164,9 +164,9 @@ namespace Playtime_Painter
             
         }
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "dst": destination = (TexTarget)data.ToInt(); break;
                 case "tex2D": data.Decode_Reference(ref texture2D); break;
@@ -241,7 +241,7 @@ namespace Playtime_Painter
 
             var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
 
-            StuffSaver.SaveToPersistantPath(Cfg.vectorsFolderName, SaveName, allStrokes);
+            StuffSaver.SaveToPersistentPath(Cfg.vectorsFolderName, SaveName, allStrokes);
 
             Cfg.recordingNames.Add(SaveName);
 
@@ -270,7 +270,7 @@ namespace Playtime_Painter
 
                 height = newHeight;
 
-                texture2D.CopyFrom(PainterCamera.Inst.GetDownscaledBigRT(width, height));
+                texture2D.CopyFrom(PainterCamera.Inst.GetDownscaledBigRt(width, height));
 
                 PixelsFromTexture2D(texture2D);
 
@@ -345,8 +345,8 @@ namespace Playtime_Painter
 
             RenderTexture rt = renderTexture;
 
-            if (!rt && TexMGMT.imgDataUsingRendTex == this)
-                rt = PainterCamera.Inst.GetDownscaledBigRT(width, height);
+            if (!rt && TexMGMT.imgMetaUsingRendTex == this)
+                rt = PainterCamera.Inst.GetDownscaledBigRt(width, height);
 
             if (!rt)
                 return;
@@ -420,7 +420,7 @@ namespace Playtime_Painter
 
         }
 
-        public void ChangeDestination(TexTarget changeTo, MaterialData mat, string parameter, PlaytimePainter painter)
+        public void ChangeDestination(TexTarget changeTo, MaterialMeta mat, string parameter, PlaytimePainter painter)
         {
 
             if (changeTo != destination) {
@@ -439,7 +439,7 @@ namespace Playtime_Painter
                     if (!renderTexture)
                         PainterCamera.Inst.EmptyBufferTarget();
                     else
-                        if (painter.inited) // To avoid Clear to black when exiting playmode
+                        if (painter.initialized) // To avoid Clear to black when exiting playmode
                         RenderTexture_To_Texture2D();
 
                 }
@@ -534,8 +534,8 @@ namespace Playtime_Painter
             RenderTexture curRT = RenderTexture.active;
 
             PainterCamera rtp = PainterCamera.Inst;
-            int size = PainterCamera.renderTextureSize / 4;
-            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRT(size, size);
+            int size = PainterCamera.RenderTextureSize / 4;
+            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRt(size, size);
 
             if (!sampler) sampler = new Texture2D(8, 8);
 
@@ -659,17 +659,17 @@ namespace Playtime_Painter
 
         #region Init
 
-        public ImageData Init(int renderTextureSize)
+        public ImageMeta Init(int renderTextureSize)
         {
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            TexMGMTdata.imgDatas.Insert(0, this);
+            TexMGMTdata.imgMetas.Insert(0, this);
             destination = TexTarget.RenderTexture;
             return this;
         }
 
-        public ImageData Init(Texture tex)
+        public ImageMeta Init(Texture tex)
         {
 
             if (tex.GetType() == typeof(Texture2D))
@@ -680,8 +680,8 @@ namespace Playtime_Painter
             else
                 other = tex;
 
-            if (!TexMGMTdata.imgDatas.Contains(this))
-                TexMGMTdata.imgDatas.Insert(0, this);
+            if (!TexMGMTdata.imgMetas.Contains(this))
+                TexMGMTdata.imgMetas.Insert(0, this);
             return this;
         }
         
@@ -793,9 +793,9 @@ namespace Playtime_Painter
                 "Save Name".edit(70, ref SaveName);
                 
                 if (icon.Folder.Click("Open Folder with textures").nl())
-                    StuffExplorer.OpenPersistantFolder(savedImagesFolder);
+                    StuffExplorer.OpenPersistentFolder(savedImagesFolder);
 
-                if ("Save Playtime".Click(string.Format("Will save to {0}/{1}", Application.persistentDataPath, SaveName)).nl())
+                if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, SaveName)).nl())
                     SaveInPlayer();
 
                 if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
@@ -868,9 +868,9 @@ namespace Playtime_Painter
                 }
 
                 if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl()) {
-                    pegi.write(TexMGMT.BigRT_pair[0], 200);
+                    pegi.write(TexMGMT.bigRtPair[0], 200);
                     pegi.nl();
-                    pegi.write(TexMGMT.BigRT_pair[1], 200);
+                    pegi.write(TexMGMT.bigRtPair[1], 200);
 
                     pegi.nl();
                 }
@@ -889,10 +889,9 @@ namespace Playtime_Painter
                 if (numberOfTexture2Dbackups > 50 || numberOfRenderTextureBackups > 50)
                     "Too big of a number will eat up lot of memory".writeWarning();
 
-                pegi.writeOneTimeHint("Creating more backups will eat more memory", "backupIsMem");
-                pegi.writeOneTimeHint("This are not connected to Unity's " +
-                "Undo/Redo because when you run out of backups you will by accident start undoing other stuff.", "noNativeUndo");
-                pegi.writeOneTimeHint("Use Z/X to undo/redo", "ZXundoRedo");
+              "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
+               "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other stuff.".writeOneTimeHint("noNativeUndo");
+               "Use Z/X to undo/redo".writeOneTimeHint("ZXundoRedo");
 
             }
 
@@ -909,21 +908,21 @@ namespace Playtime_Painter
 
         public bool ComponentDependent_PEGI(bool showToggles, PlaytimePainter painter)
         {
-            bool changed = false;
+            var changed = false;
 
             var property = painter.GetMaterialTexturePropertyName;
 
-            bool forceOpenUTransparentLayer = false;
+            var forceOpenUTransparentLayer = false;
 
-            bool hasTPtag = painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property);
+            var hasAlphaLayerTag = painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property);
 
-            if (!isATransparentLayer && hasTPtag)
+            if (!isATransparentLayer && hasAlphaLayerTag)
             {
                 "Material Field {0} is a Transparent Layer ".F(property).writeHint();
                 forceOpenUTransparentLayer = true;
             }
 
-            if (showToggles || (isATransparentLayer && !hasTPtag) || forceOpenUTransparentLayer)
+            if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
                 "Transparent Layer".toggleIcon(ref isATransparentLayer).nl(ref changed);
 
             if (showToggles) {
@@ -933,10 +932,10 @@ namespace Playtime_Painter
                     "Preserve Transparency".toggleIcon(ref preserveTransparency).nl(ref changed);
             }
 
-            bool forceOpenUV2 = false;
-            bool hasUV2tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
+            var forceOpenUv2 = false;
+            var hasUv2Tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
 
-            if (!useTexcoord2 && hasUV2tag) {
+            if (!useTexcoord2 && hasUv2Tag) {
 
                 if (!useTexcoord2_AutoAssigned)
                 {
@@ -945,10 +944,10 @@ namespace Playtime_Painter
                 }
                 else
                     "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).writeHint();
-                forceOpenUV2 = true;
+                forceOpenUv2 = true;
             }
 
-            if (showToggles || (useTexcoord2 && !hasUV2tag) || forceOpenUV2)
+            if (showToggles || (useTexcoord2 && !hasUv2Tag) || forceOpenUv2)
                 changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2).nl();
 
             return changed;
@@ -956,7 +955,7 @@ namespace Playtime_Painter
         
         public bool Undo_redo_PEGI()
         {
-            bool changed = false;
+            var changed = false;
 
             if (cache == null) cache = new UndoCache();
             if (recordedStrokes == null) recordedStrokes = new List<string>();
@@ -1015,20 +1014,21 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        float repaintTimer;
-        public void Update(bool mouseUp) {
+        private float _repaintTimer;
+        public void Update(bool mouseUp)
+        {
 
-            if (pixelsDirty) {
-                repaintTimer -= Application.isPlaying ? Time.deltaTime : 0.016f;
+            if (!pixelsDirty) return;
+            
+            _repaintTimer -= Application.isPlaying ? Time.deltaTime : 0.016f;
 
-                if (repaintTimer < 0 || mouseUp) {
-                    if (texture2D)
-                        SetAndApply(!GlobalBrush.DontRedoMipmaps);
+            if (_repaintTimer >= 0 && !mouseUp) return;
+            
+            if (texture2D)
+                SetAndApply(!GlobalBrush.DontRedoMipmaps);
 
-                    pixelsDirty = false;
-                    repaintTimer = repaintDelay;
-                }
-            }
+            pixelsDirty = false;
+            _repaintTimer = repaintDelay;
         }
     }
 

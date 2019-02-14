@@ -216,12 +216,12 @@ public class GridNavigator : PainterStuffMono {
 
         bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
-        SetEnabled(showGrid, cfg.SnapToGrid && showGrid);
+        SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
         if (!showGrid)
             return;
 
-        if (cfg.SnapToGridSize <= 0) cfg.SnapToGridSize = 1;
+        if (cfg.gridSize <= 0) cfg.gridSize = 1;
 
         switch (g_side)
         {
@@ -241,8 +241,8 @@ public class GridNavigator : PainterStuffMono {
             case Gridside.zy:   hit = MouseToPlane(zyPlane);           break;
         }
 
-        if (cfg.SnapToGrid)
-            hit = MyMath.RoundDiv(hit, cfg.SnapToGridSize);
+        if (cfg.snapToGrid)
+            hit = MyMath.RoundDiv(hit, cfg.gridSize);
 
         if (hit != Vector3.zero)  {
 
@@ -291,9 +291,9 @@ public class GridNavigator : PainterStuffMono {
         else dy = (transform.position.z);
 
         float scale = 8;
-        if (!cfg.SnapToGrid)
+        if (!cfg.snapToGrid)
             scale = Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8)));
-        else scale = cfg.SnapToGridSize;
+        else scale = cfg.gridSize;
 
         dx -= Mathf.Round(dx / scale) * scale;
         dy -= Mathf.Round(dy / scale) * scale;

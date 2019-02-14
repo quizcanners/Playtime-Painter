@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace Playtime_Painter
     public class RenderBrush : PainterStuffMono
     {
 
-        public MeshRenderer meshRendy;
+        public MeshRenderer meshRenderer;
         public MeshFilter meshFilter;
         [NonSerialized] public Mesh modifiedMesh;
         public Bounds modifiedBound;
@@ -36,7 +35,7 @@ namespace Playtime_Painter
                 changedSkinnedMeshRendy.localBounds = modifiedBound;
                 changedGameObject.layer = replacedLayer;
                 replacedTargetsMaterial = null;
-                meshRendy.enabled = true;
+                meshRenderer.enabled = true;
 
             }
             else
@@ -44,7 +43,7 @@ namespace Playtime_Painter
                 transform.parent = PainterCamera.Inst.transform;
                 modifiedMesh.bounds = modifiedBound;
 
-                meshRendy.materials = replacedBrushesMaterials;
+                meshRenderer.materials = replacedBrushesMaterials;
             }
 
             deformedBounds = false;
@@ -54,24 +53,24 @@ namespace Playtime_Painter
         public void UseMeshAsBrush(PlaytimePainter painter)
         {
 
-            GameObject go = painter.gameObject;
-            Transform camTransform = PainterCamera.Inst.transform;
+            var go = painter.gameObject;
+            var camTransform = PainterCamera.Inst.transform;
 
             var skinny = painter.skinnedMeshRenderer;
 
             if (skinny)
-                UseSkinMeshAsBrush(go, skinny, painter.selectedSubmesh);
+                UseSkinMeshAsBrush(go, skinny, painter.selectedSubMesh);
             else
-                UseMeshAsBrush(go, painter.GetMesh(), new List<int> { painter.selectedSubmesh });
+                UseMeshAsBrush(go, painter.GetMesh(), new List<int> { painter.selectedSubMesh });
         }
 
-        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int submesh)
+        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int subMesh)
         {
-            modifiedSubmesh = submesh;
+            modifiedSubmesh = subMesh;
 
-            meshRendy.enabled = false;
+            meshRenderer.enabled = false;
 
-            Transform camTransform = PainterCamera.Inst.transform;
+            var camTransform = PainterCamera.Inst.transform;
 
             changedSkinnedMeshRendy = skinny;
             changedGameObject = go;
@@ -84,7 +83,7 @@ namespace Playtime_Painter
 
             replacedTargetsMaterial = skinny.sharedMaterials[modifiedSubmesh];
             var lst = skinny.sharedMaterials;
-            lst[modifiedSubmesh] = meshRendy.sharedMaterial;
+            lst[modifiedSubmesh] = meshRenderer.sharedMaterial;
             skinny.sharedMaterials = lst;
 
             deformedBounds = true;
@@ -93,24 +92,26 @@ namespace Playtime_Painter
         public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
         {
 
-            Transform camTransform = TexMGMT.transform;
+            var camTransform = TexMGMT.transform;
 
-            Transform target = go.transform;
+            var target = go.transform;
 
-            transform.position = target.position;
-            transform.rotation = target.rotation;
-            transform.localScale = target.localScale;
+            var tf = transform;
+            
+            tf.position = target.position;
+            tf.rotation = target.rotation;
+            tf.localScale = target.localScale;
 
             modifiedMesh = mesh;
             meshFilter.sharedMesh = mesh;
 
             modifiedBound = modifiedMesh.bounds;
             modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
-            transform.parent = target.parent;
+            tf.parent = target.parent;
 
-            replacedBrushesMaterials = meshRendy.sharedMaterials;
+            replacedBrushesMaterials = meshRenderer.sharedMaterials;
 
-            int max = 0;
+            var max = 0;
 
             foreach (var e in selectedSubmeshes)
                 max = Mathf.Max(e, max);
@@ -119,8 +120,8 @@ namespace Playtime_Painter
             {
                 var mats = new Material[max + 1];
                 foreach (var e in selectedSubmeshes)
-                    mats[e] = meshRendy.sharedMaterial;
-                meshRendy.materials = mats;
+                    mats[e] = meshRenderer.sharedMaterial;
+                meshRenderer.materials = mats;
             }
 
             deformedBounds = true;
@@ -128,107 +129,103 @@ namespace Playtime_Painter
 
         public RenderBrush Set(Shader shade)
         {
-            meshRendy.sharedMaterial.shader = shade;
+            meshRenderer.sharedMaterial.shader = shade;
             return this;
         }
 
-        public RenderBrush Set(Texture tex)
-        {
-            meshRendy.sharedMaterial.SetTexture("_MainTex", tex);
-            return this;
-        }
+        public void Set(Texture tex) =>  meshRenderer.sharedMaterial.SetTexture("_MainTex", tex);
+        
 
-        public RenderBrush Set(Color col)
-        {
-            meshRendy.sharedMaterial.SetColor("_Color", col);
-            return this;
-        }
+        private void Set(Color col) => meshRenderer.sharedMaterial.SetColor("_Color", col);
+   
 
         public void FullScreenQuad()
         {
-            float size = PainterCamera.orthoSize * 2;
-            transform.localScale = new Vector3(size, size, 0);
-            transform.localPosition = Vector3.forward * 10;
-            transform.localRotation = Quaternion.identity;
-            meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
+            const float size = PainterCamera.OrthographicSize * 2;
+            var tf = transform;
+            tf.localScale = new Vector3(size, size, 0);
+            tf.localPosition = Vector3.forward * 10;
+            tf.localRotation = Quaternion.identity;
+            meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
         }
 
-        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
+        public void CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
 
-        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Material mat) => CopyBuffer(tex, onto, mat, null);
+        public void CopyBuffer(Texture tex, RenderTexture onto, Material mat) => CopyBuffer(tex, onto, mat, null);
 
-        public RenderBrush CopyBuffer(Texture tex, RenderTexture onto, Material material, Shader shade)
+        private void CopyBuffer(Texture tex, RenderTexture onto, Material material, Shader shade)
         {
+            if (!tex || !onto) return;
+            
+            const float size = PainterCamera.OrthographicSize * 2;
+            
+            var aspectRatio = tex.width / (float)tex.height;
 
-            if (tex != null && onto != null)
-            {
-
-                float size = PainterCamera.orthoSize * 2;
-                float aspectRatio = (float)tex.width / (float)tex.height;
-
-                float ar2 = (float)onto.width / (float)onto.height;
+            var ar2 = onto.width / (float)onto.height;
 
 
 #if UNITY_2018_1_OR_NEWER
-                if (tex.GetType() == typeof(RenderTexture))
-                    aspectRatio = ar2 / aspectRatio;
-                else
-                    aspectRatio = 1;
+            if (tex.GetType() == typeof(RenderTexture))
+                aspectRatio = ar2 / aspectRatio;
+            else
+                aspectRatio = 1;
 #else
                 aspectRatio = ar2 / aspectRatio;
 #endif
 
-                TexMGMT.theCamera.targetTexture = onto;
+            TexMGMT.theCamera.targetTexture = onto;
 
-                transform.localScale = new Vector3(size * aspectRatio, size, 0);
-                transform.localPosition = Vector3.forward * 10;
-                transform.localRotation = Quaternion.identity;
-                meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
+            var tf = transform;
+            
+            tf.localScale = new Vector3(size * aspectRatio, size, 0);
+            tf.localPosition = Vector3.forward * 10;
+            tf.localRotation = Quaternion.identity;
+            meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
 
-                PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
+            PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
 
-                if (material)
-                {
-                    var tmpMat = meshRendy.material;
-                    meshRendy.material = material;
-                    if (tex)
-                        Set(tex);
-                    TexMGMT.Render();
-                    meshRendy.material = tmpMat;
-                }
-                else
-                {
-
-                    if (shade == null)
-                        shade = TexMGMTdata.pixPerfectCopy;
-                    Set(shade);
+            if (material)
+            {
+                var tmpMat = meshRenderer.material;
+                meshRenderer.material = material;
+                if (tex)
                     Set(tex);
-                    TexMGMT.Render();
-                }
+                TexMGMT.Render();
+                meshRenderer.material = tmpMat;
+            }
+            else
+            {
 
-
-                if (aspectRatio != 1)
-                    PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1;
-
+                if (shade == null)
+                    shade = TexMGMTdata.pixPerfectCopy;
+                Set(shade);
+                Set(tex);
+                TexMGMT.Render();
             }
 
-            return this;
+
+            if (Math.Abs(aspectRatio - 1) > float.Epsilon)
+                PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1;
+
         }
 
         public void PrepareColorPaint(Color col)
         {
-            float size = PainterCamera.orthoSize * 2;
-            transform.localScale = new Vector3(size, size, 0);
-            transform.localPosition = Vector3.forward * 10;
-            transform.localRotation = Quaternion.identity;
-            meshFilter.mesh = PainterCamera.brushMeshGenerator.GetQuad();
-            Set(TexMGMTdata.br_ColorFill).Set(col);
+            const float size = PainterCamera.OrthographicSize * 2;
+
+            var tf = transform;
+            
+            tf.localScale = new Vector3(size, size, 0);
+            tf.localPosition = Vector3.forward * 10;
+            tf.localRotation = Quaternion.identity;
+            meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
+            Set(TexMGMTdata.brushColorFill).Set(col);
         }
         
         private void OnEnable()
         {
-            if (!meshRendy)
-                meshRendy = GetComponent<MeshRenderer>();
+            if (!meshRenderer)
+                meshRenderer = GetComponent<MeshRenderer>();
 
             if (!meshFilter)
                 meshFilter = GetComponent<MeshFilter>();
@@ -236,21 +233,16 @@ namespace Playtime_Painter
             PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1f;
         }
 
-        // Use this for initialization
-        void Awake()
+        private void Awake()
         {
-            if (meshRendy == null)
-                meshRendy = GetComponent<MeshRenderer>();
+            if (meshRenderer == null)
+                meshRenderer = GetComponent<MeshRenderer>();
 
             if (meshFilter == null)
                 meshFilter = GetComponent<MeshFilter>();
 
         }
 
-        // Update is called once per frame
-        void Update()
-        {
 
-        }
     }
 }

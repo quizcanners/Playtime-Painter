@@ -104,9 +104,9 @@ namespace Playtime_Painter
             .Add_String("n", PaletteName)
             .Add("cols", colors);
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "n": PaletteName = data; break;
                 case "cols": data.Decode_List(out colors); break;

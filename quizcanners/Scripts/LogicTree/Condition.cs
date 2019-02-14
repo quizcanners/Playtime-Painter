@@ -14,13 +14,13 @@ namespace STD_Logic
     
     public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
-    [DerrivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
+    [DerivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
     public class ConditionLogic : ValueIndex, ISTD , IPEGI_ListInspect  {
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
 
-        public override bool Decode(string subtag, string data) => true;
+        public override bool Decode(string tg, string data) => true;
         #endregion
 
         public virtual bool TryForceConditionValue(Values values, bool toTrue) => false;
@@ -67,9 +67,9 @@ namespace STD_Logic
             .Add_IfTrue("b", compareValue)
             .Add("ind", EncodeIndex());
 
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "b": compareValue = data.ToBool(); break;
                 case "ind": data.Decode_Delegate(DecodeIndex); break;
@@ -82,7 +82,7 @@ namespace STD_Logic
         #region Inspect
         #if PEGI
 
-        public override string NameForPEGIdisplay => "if {0} = {1}".F(base.NameForPEGIdisplay, compareValue);
+        public override string NameForDisplayPEGI => "if {0} = {1}".F(base.NameForDisplayPEGI, compareValue);
 
         #endif
         #endregion
@@ -114,9 +114,9 @@ namespace STD_Logic
             .Add_IfNotZero("ty", (int)type)
             .Add("ind", EncodeIndex);
 
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "v": compareValue = data.ToInt(); break;
                 case "ty": type = (ConditionType)data.ToInt(); break;
@@ -130,9 +130,9 @@ namespace STD_Logic
         #region Inspect
 #if PEGI
 
-        public override string NameForPEGIdisplay {
+        public override string NameForDisplayPEGI {
             get  {
-                var name = "If {0} {1} {2}".F(base.NameForPEGIdisplay, type.GetName(), compareValue);
+                var name = "If {0} {1} {2}".F(base.NameForDisplayPEGI, type.GetName(), compareValue);
                 return name;
             }
         }

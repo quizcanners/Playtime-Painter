@@ -46,7 +46,7 @@ namespace Playtime_Painter
         Blit_Functions.alphaMode_dlg _alphaMode;
         Blit_Functions.blitModeFunction _blitMode;
 
-        public void PrepareBlit(BrushConfig bc, ImageData id, float brushAlpha, StrokeVector stroke)
+        public void PrepareBlit(BrushConfig bc, ImageMeta id, float brushAlpha, StrokeVector stroke)
         {
 
             switch (blitJobBlitMode)
@@ -91,7 +91,7 @@ namespace Playtime_Painter
             csrc = bc.Color;
         }
 
-        public void PrepareVolumeBlit(BrushConfig bc, ImageData id, float alpha, StrokeVector stroke, VolumeTexture volume)
+        public void PrepareVolumeBlit(BrushConfig bc, ImageMeta id, float alpha, StrokeVector stroke, VolumeTexture volume)
         {
             PrepareBlit(bc, id, alpha, stroke);
             pos = (stroke.posFrom - volume.transform.position) / volume.size + 0.5f * Vector3.one;

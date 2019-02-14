@@ -17,13 +17,13 @@ namespace QuizCannersUtilities
 
         public string Config_STD { get { return stdData; } set { stdData = value; } }
 
-        void OnEnable() => this.Load_STDdata();
+        void OnEnable() => this.LoadStdData();
 
-        void OnDisable() => this.Save_STDdata();
+        void OnDisable() => this.SaveStdData();
 
-        public override bool Decode(string tag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "ld": references_Meta.Decode(data); break;
                 default: return false;

@@ -53,7 +53,7 @@ namespace Playtime_Painter.Examples {
         {
                 if (pntr.terrain && fieldName != null && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
                 {
-                    var id = pntr.ImgData;
+                    var id = pntr.ImgMeta;
                     if (id != null)
                     {
                         id.tiling = Vector2.one;
@@ -65,7 +65,7 @@ namespace Playtime_Painter.Examples {
             return false;
         }
 
-        public override bool SetTextureOnMaterial(string fieldName, ImageData id, PlaytimePainter pntr)
+        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter pntr)
         {
 
             Texture tex = id.CurrentTexture();

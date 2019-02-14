@@ -42,9 +42,9 @@ namespace STD_Logic
             .Add_IfNotNegative("is", inspectedStuff)
             .Add_IfNotNegative("br", inspectedBranch);
         
-        public override bool Decode(string subtag, string data)
+        public override bool Decode(string tg, string data)
         {
-            switch (subtag)
+            switch (tg)
             {
                 case "name": name = data; break;
                 case "cond": conditions.Decode(data); break;

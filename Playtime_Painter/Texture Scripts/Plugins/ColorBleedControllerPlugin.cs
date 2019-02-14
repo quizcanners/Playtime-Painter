@@ -33,8 +33,8 @@ namespace Playtime_Painter {
             return cody;
         }
 
-        public override bool Decode(string tag, string data) {
-            switch (tag) {
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
                 case "br": modifyBrightness = true; eyeBrightness = data.ToFloat(); break;
                 case "bl": colorBleed = true; colorBleeding = data.ToFloat(); break;
                 default: return false;
@@ -52,7 +52,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Inspector
-        public override string NameForPEGIdisplay => "Bleed & Brightness";
+        public override string NameForDisplayPEGI => "Bleed & Brightness";
 
 
 #if PEGI

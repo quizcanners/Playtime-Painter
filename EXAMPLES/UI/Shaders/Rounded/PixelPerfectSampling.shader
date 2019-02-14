@@ -107,9 +107,11 @@
 					float clipp = max(0, 1 - dot(uv, uv));
 					#endif
 
-					float4 outline = tex2Dlod(_OutlineGradient, float4(0, clipp,0,0));
+                    float uvy = clipp*(1+_Edges*8); 
 
-					outline.a *= min(1,(1 - clipp)*16);
+					float4 outline = tex2Dlod(_OutlineGradient, float4(0, uvy,0,0));
+
+					outline.a *= saturate((1 - uvy)*16);
 
 					clipp = min(1, pow(clipp * o.precompute.z, o.precompute2.x));
 
