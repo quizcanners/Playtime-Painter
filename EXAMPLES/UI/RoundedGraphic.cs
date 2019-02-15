@@ -1,6 +1,5 @@
 ﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using System;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
@@ -65,7 +64,14 @@ namespace Playtime_Painter.Examples
         
         public bool feedPositionData = true;
 
-        private bool IsOverlay => canvas ? (canvas.renderMode == RenderMode.ScreenSpaceOverlay || !canvas.worldCamera) : false;
+        private bool IsOverlay
+        {
+            get
+            {
+                var c = canvas;
+                return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
+            }
+        } 
 
         public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
         public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole"; // "Hide", "Tile"
@@ -168,7 +174,8 @@ namespace Playtime_Painter.Examples
 
             pegi.nl();
 
-            "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
+            if (usesPosition || feedPositionData)
+                "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
 
             if (!usesPosition && feedPositionData)
             {
@@ -202,6 +209,24 @@ namespace Playtime_Painter.Examples
             if (changed)
                 SetVerticesDirty();
 
+            
+            
+        /*  
+#if UNITY_EDITOR
+
+            if (PrefabUtility.IsPartOfAnyPrefab(this)) {
+
+                if (changed)
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+                
+                if (PrefabUtility.HasPrefabInstanceAnyOverrides( PrefabUtility.GetNearestPrefabInstanceRoot(this), false) &&
+                icon.Save.Click("Update Prefab")) 
+                    PrefabUtility.ApplyPrefabInstance(gameObject, InteractionMode.UserAction);
+            }
+#endif
+           */ 
+            
+            
             return changed;
         }
         #endif

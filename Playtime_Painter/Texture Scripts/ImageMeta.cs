@@ -9,10 +9,8 @@ using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.IO;
-#if UNITY_2018_1_OR_NEWER
 using Unity.Collections;
 using Unity.Jobs;
-#endif
 
 namespace Playtime_Painter
 {
@@ -144,6 +142,7 @@ namespace Playtime_Painter
             .Add_IfTrue("tc2Auto", useTexcoord2_AutoAssigned)
             .Add_IfNotBlack("clear", clearColor)
             .Add_IfNotEmpty("URL", URL)
+            .Add_IfNotNegative("is", inspectedStuff)
             .Add_IfFalse("alpha", preserveTransparency);
 
             if (enableUndoRedo)
@@ -188,6 +187,7 @@ namespace Playtime_Painter
                 case "clear": clearColor = data.ToColor(); break;
                 case "URL": URL = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
+                case "is": inspectedStuff = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -420,7 +420,7 @@ namespace Playtime_Painter
 
         }
 
-        public void ChangeDestination(TexTarget changeTo, MaterialMeta mat, string parameter, PlaytimePainter painter)
+        public void ChangeDestination(TexTarget changeTo, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
             if (changeTo != destination) {
@@ -759,7 +759,11 @@ namespace Playtime_Painter
 
             set { SaveName = value; }
         }
-        
+
+
+        int inspectedProcess = -1;
+        public int inspectedStuff = -1;
+
         #if PEGI
 
         bool LoadTexturePEGI(string path)
@@ -772,9 +776,6 @@ namespace Playtime_Painter
             return changed;
         }
 
-        int inspectedProcess = -1;
-        public int inspectedStuff = -1;
-     
         public override bool Inspect()
         {
 
@@ -895,7 +896,7 @@ namespace Playtime_Painter
 
             }
 
-            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl())
+            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl_ifFolded())
             {
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { PaletteName = "New Color Scheme" });
@@ -910,7 +911,7 @@ namespace Playtime_Painter
         {
             var changed = false;
 
-            var property = painter.GetMaterialTexturePropertyName;
+            var property = painter.GetMaterialTextureProperty;
 
             var forceOpenUTransparentLayer = false;
 
@@ -933,7 +934,7 @@ namespace Playtime_Painter
             }
 
             var forceOpenUv2 = false;
-            var hasUv2Tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUV2 + property);
+            var hasUv2Tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUv2 + property);
 
             if (!useTexcoord2 && hasUv2Tag) {
 

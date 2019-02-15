@@ -82,7 +82,7 @@ namespace Playtime_Painter.Examples
                                     var st = new StrokeVector(hit.point)
                                     {
                                         unRepeatedUV = hit.collider.GetType() == typeof(MeshCollider) ?
-                                        (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor() : reciver.meshUVoffset,
+                                        (reciver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor() : reciver.meshUvOffset,
                                         
 
                                     };

@@ -15,40 +15,36 @@ namespace Playtime_Painter
         const string tag = "TerSplat";
         public override string ClassTag => tag;
 
-        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.terrainTexture)))
-            {
-                int no = fieldName[0].CharToInt();
+            if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.terrainTexture))) return false;
+            var no = field.NameForDisplayPEGI[0].CharToInt();
 
 
 
 #if UNITY_2018_3_OR_NEWER
-                var l = painter.terrain.terrainData.terrainLayers;
+            var l = painter.terrain.terrainData.terrainLayers;
 
-                if (l.Length > no)
-                    tex = l[no].diffuseTexture;
+            if (l.Length > no)
+                tex = l[no].diffuseTexture;
 #else
 
                 tex = painter.terrain.terrainData.splatPrototypes[no].texture;
 #endif
-                return true;
-            }
-            return false;
+            return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest) {
-
-            if (painter.terrain != null)  {
-
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest) {
+            if (!painter.terrain) return;
+            
 #if UNITY_2018_3_OR_NEWER
-                var sp = painter.terrain.terrainData.terrainLayers;
+            var sp = painter.terrain.terrainData.terrainLayers;
 
-                for (int i = 0; i < sp.Length; i++) {
-                    var l = sp.TryGet(i);
-                    if (l != null)
-                        dest.Add(i + PainterDataAndConfig.terrainTexture + l.diffuseTexture.name);
-                }
+            for (var i = 0; i < sp.Length; i++) {
+                var l = sp.TryGet(i);
+                if (l != null)
+                    dest.Add(new ShaderProperty.TextureValue( i + PainterDataAndConfig.terrainTexture + l.diffuseTexture.name, PainterDataAndConfig.terrainTexture));
+            }
 
 #else
                 
@@ -59,35 +55,34 @@ namespace Playtime_Painter
                         dest.Add(i + PainterDataAndConfig.terrainTexture + sp[i].texture.name);
                 }
 #endif
-            }
 
         }
 
-        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter)
         {
+            if (!painter.terrain) return false;
 
-            if (painter.terrain != null)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.terrainTexture))
-                {
-                    int no = fieldName[0].CharToInt();
+            if (!fieldName.HasUsageTag(PainterDataAndConfig.terrainTexture)) return false;
+
+            var no = fieldName.NameForDisplayPEGI[0].CharToInt();
 
 
 
 #if UNITY_2018_3_OR_NEWER
-                    var ls = painter.terrain.terrainData.terrainLayers;
+            var ls = painter.terrain.terrainData.terrainLayers;
 
         
-                    if (ls.Length <= no) return true;
+            if (ls.Length <= no) return true;
 
-                    var l = ls.TryGet(no);
+            var l = ls.TryGet(no);
 
-                    float width = painter.terrain.terrainData.size.x / l.tileSize.x;
-                    float length = painter.terrain.terrainData.size.z / l.tileSize.y;
+            var terrainData = painter.terrain.terrainData;
+            var width = terrainData.size.x / l.tileSize.x;
+            var length = terrainData.size.z / l.tileSize.y;
 
-                    var id = painter.ImgMeta;
-                    id.tiling = new Vector2(width, length);
-                    id.offset = l.tileOffset;
+            var id = painter.ImgMeta;
+            id.tiling = new Vector2(width, length);
+            id.offset = l.tileOffset;
 
 #else
                     SplatPrototype[] splats = painter.terrain.terrainData.splatPrototypes;
@@ -106,43 +101,33 @@ namespace Playtime_Painter
 #endif
 
 
-                    return true;
-                }
-            }
-            return false;
+            return true;
         }
 
-        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
         {
-            Texture tex = id.CurrentTexture();
-            if (painter.terrain != null)
+            var tex = id.CurrentTexture();
+            if (!painter.terrain) return false;
+            if (!field.HasUsageTag(PainterDataAndConfig.terrainTexture)) return false;
+            var no = field.NameForDisplayPEGI[0].CharToInt();
+            painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
+            if (tex.GetType() != typeof(Texture2D))
+                Debug.Log("Can only use Texture2D for Splat Prototypes. If using regular terrain may not see changes.");
+            else
             {
-                if (fieldName.Contains(PainterDataAndConfig.terrainTexture))
-                {
-                    int no = fieldName[0].CharToInt();
-                    painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
-                    if (tex.GetType() != typeof(Texture2D))
-                        Debug.Log("Can only use Texture2D for Splat Prototypes. If using regular terrain may not see changes.");
-                    else
-                    {
 
 #if UNITY_EDITOR
-                        UnityEditor.TextureImporter timp = ((Texture2D)tex).GetTextureImporter();
-                        if (timp != null)
-                        {
-                            bool needReimport = timp.WasClamped();
-                            needReimport |= timp.HadNoMipmaps();
+                var texImporter = ((Texture2D)tex).GetTextureImporter();
+                if (texImporter == null) return true;
+                var needReimport = texImporter.WasClamped();
+                needReimport |= texImporter.HadNoMipmaps();
 
-                            if (needReimport)
-                                timp.SaveAndReimport();
-                        }
+                if (needReimport)
+                    texImporter.SaveAndReimport();
 #endif
 
-                    }
-                    return true;
-                }
             }
-            return false;
+            return true;
         }
     }
 

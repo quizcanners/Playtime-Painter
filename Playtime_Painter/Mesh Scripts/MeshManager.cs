@@ -139,7 +139,7 @@ namespace Playtime_Painter
                 target.SavedEditableMesh = editedMesh.Encode().ToString();
                 target = null;
             }
-            Grid.Deactivateverts();
+            Grid.DeactivateVertices();
             GridNavigator.Inst().SetEnabled(false, false);
             undoMoves.Clear();
             redoMoves.Clear();

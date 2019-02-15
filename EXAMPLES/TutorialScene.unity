@@ -565,6 +565,38 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 197.048, y: 232.009, z: -251.141}
+--- !u!84 &209465900
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Painter Buffer 0 _ 2048
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 2048
+  m_Height: 2048
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 11
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &231671508
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,6 +768,38 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c7ec0cf439a55fa47bb3d344c1d4616c, type: 3}
+--- !u!84 &287155579
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Painter Buffer 1 _ 2048
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 2048
+  m_Height: 2048
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 11
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1001 &293357181
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1228,12 +1292,12 @@ Terrain:
   m_DrawInstanced: 0
   m_DrawTreesAndFoliage: 1
   m_ReflectionProbeUsage: 1
-  m_MaterialType: 0
+  m_MaterialType: 3
   m_LegacySpecular:
     serializedVersion: 2
     rgba: 4286545791
   m_LegacyShininess: 0.078125
-  m_MaterialTemplate: {fileID: 0}
+  m_MaterialTemplate: {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_ScaleInLightmap: 0.0128
@@ -1268,6 +1332,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 0}
   skinnedMeshRenderer: {fileID: 0}
+  uiGraphic: {fileID: 0}
   terrain: {fileID: 505755633}
   terrainCollider: {fileID: 505755632}
   meshFilter: {fileID: 0}
@@ -1279,7 +1344,7 @@ MonoBehaviour:
   meshNameField: 
   savedMeshData: 
   meshDataSavedFor: {fileID: 0}
-  selectedSubmesh: 0
+  selectedSubMesh: 0
   nameHolder: Terrain
   selectedAtlasedMaterial: -1
   stroke:
@@ -1290,9 +1355,10 @@ MonoBehaviour:
     unRepeatedUV: {x: 0, y: 0}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
-    mouseDwn: 1
+    mouseDwn: 0
     firstStroke: 1
     mouseUp: 0
+  _tilingY: 13.333333
   playbackVectors: []
   forcedMeshCollider: 0
   autoSelectMaterialByNumberOfPointedSubMesh: 1
@@ -1319,51 +1385,60 @@ MonoBehaviour:
     reflectiveness: {fileID: 0}
     Product_colorWithAlpha: {fileID: 2800000, guid: 3bfad2a70a3556e4c8e347ac64073ec3,
       type: 3}
-    Product_combinedBump: {fileID: 0}
+    Product_combinedBump: {fileID: 2800000, guid: 2d35ddac88fdb3c43aebc3dac9bb2bbc,
+      type: 3}
     size: 1024
     normalStrength: 1
-  - productName: New ChannelSetsForDefaultMaps1
+  - productName: Grass
     colorTexture: {fileID: 0}
     height: {fileID: 0}
     normalMap: {fileID: 0}
     smooth: {fileID: 0}
     ambient: {fileID: 0}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 0}
-    Product_combinedBump: {fileID: 0}
+    Product_colorWithAlpha: {fileID: 2800000, guid: 6454a6051debd404394d701039883a53,
+      type: 3}
+    Product_combinedBump: {fileID: 2800000, guid: b3c0000cd6ab2854a8bad20b5b769c69,
+      type: 3}
     size: 1024
     normalStrength: 1
-  - productName: New ChannelSetsForDefaultMaps2
+  - productName: Sand
     colorTexture: {fileID: 0}
     height: {fileID: 0}
     normalMap: {fileID: 0}
     smooth: {fileID: 0}
     ambient: {fileID: 0}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 0}
-    Product_combinedBump: {fileID: 0}
+    Product_colorWithAlpha: {fileID: 2800000, guid: b435393d37601e84db1f10ed766d0206,
+      type: 3}
+    Product_combinedBump: {fileID: 2800000, guid: 96758c7770745d34bab608805f65ded2,
+      type: 3}
     size: 1024
     normalStrength: 1
-  - productName: New ChannelSetsForDefaultMaps3
+  - productName: Tiles
     colorTexture: {fileID: 0}
     height: {fileID: 0}
     normalMap: {fileID: 0}
     smooth: {fileID: 0}
     ambient: {fileID: 0}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 0}
-    Product_combinedBump: {fileID: 0}
+    Product_colorWithAlpha: {fileID: 2800000, guid: d0f92a4ed08135042b3f5c2a555f4076,
+      type: 3}
+    Product_combinedBump: {fileID: 2800000, guid: a6632d37497fb4b499db483ae96e6520,
+      type: 3}
     size: 1024
     normalStrength: 1
-  - productName: New ChannelSetsForDefaultMaps4
+  - productName: Cliff
     colorTexture: {fileID: 0}
     height: {fileID: 0}
     normalMap: {fileID: 0}
     smooth: {fileID: 0}
     ambient: {fileID: 0}
     reflectiveness: {fileID: 0}
-    Product_colorWithAlpha: {fileID: 0}
-    Product_combinedBump: {fileID: 0}
+    Product_colorWithAlpha: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa,
+      type: 3}
+    Product_combinedBump: {fileID: 2800000, guid: 43866032c9f85bd43bcafdf035f6b35a,
+      type: 3}
     size: 1024
     normalStrength: 1
   painter: {fileID: 505755635}
@@ -1790,7 +1865,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 1073741824
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 1924156620}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -1813,17 +1888,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 505755635}
+  focusedPainter: {fileID: 1815085832}
   isLinearColorSpace: 1
   theCamera: {fileID: 629810202}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
     type: 3}
-  brushRendy: {fileID: 1794627584}
+  brushRenderer: {fileID: 1794627584}
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  BigRT_pair:
-  - {fileID: 1474789696}
-  - {fileID: 1595433626}
-  bigRTversion: 0
+  bigRtPair:
+  - {fileID: 1299465563}
+  - {fileID: 1667473801}
+  bigRtVersion: 0
   secondBufferDebug: {fileID: 0}
   autodisabledBufferTarget: {fileID: 0}
   secondBufferUpdated: 0
@@ -2570,6 +2645,108 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 165.218, y: 344.042, z: -270.982}
+--- !u!1 &929842340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 929842343}
+  - component: {fileID: 929842342}
+  - component: {fileID: 929842341}
+  m_Layer: 0
+  m_Name: PainterCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 2800000, guid: 083eab9c631e2aa44bb4833c0a34199e, type: 3}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!20 &929842341
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929842340}
+  m_Enabled: 0
+  serializedVersion: 2
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_GateFitMode: 2
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 1
+  orthographic size: 128
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 1073741824
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 0
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!114 &929842342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929842340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d12a17cafa5c145a6a83e8c6f744ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
+  focusedPainter: {fileID: 0}
+  isLinearColorSpace: 1
+  theCamera: {fileID: 929842341}
+  brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
+    type: 3}
+  brushRenderer: {fileID: 1476183953}
+  defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  bigRtPair:
+  - {fileID: 209465900}
+  - {fileID: 287155579}
+  bigRtVersion: 0
+  secondBufferDebug: {fileID: 0}
+  autodisabledBufferTarget: {fileID: 0}
+  secondBufferUpdated: 0
+--- !u!4 &929842343
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929842340}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3000, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1476183956}
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &954350397
 Mesh:
   m_ObjectHideFlags: 0
@@ -2867,6 +3044,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 1144922680}
   skinnedMeshRenderer: {fileID: 0}
+  uiGraphic: {fileID: 0}
   terrain: {fileID: 0}
   terrainCollider: {fileID: 0}
   meshFilter: {fileID: 1144922682}
@@ -2877,7 +3055,7 @@ MonoBehaviour:
   meshNameField: 
   savedMeshData: 
   meshDataSavedFor: {fileID: 0}
-  selectedSubmesh: 0
+  selectedSubMesh: 0
   nameHolder: PixArt
   selectedAtlasedMaterial: -1
   stroke:
@@ -2891,6 +3069,7 @@ MonoBehaviour:
     mouseDwn: 1
     firstStroke: 1
     mouseUp: 0
+  _tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 0
   autoSelectMaterialByNumberOfPointedSubMesh: 1
@@ -3289,6 +3468,198 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1281475659}
   m_PrefabAsset: {fileID: 0}
+--- !u!84 &1299465563
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Painter Buffer 0 _ 2048
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 2048
+  m_Height: 2048
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 11
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_Dimension: 2
+  m_VolumeDepth: 1
+--- !u!43 &1347919724
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Quad
+  serializedVersion: 9
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 6
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 4
+    localAABB:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0.5, y: 0.5, z: 0}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000001000200020001000300
+  m_VertexData:
+    serializedVersion: 2
+    m_VertexCount: 4
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 80
+    _typelessdata: 000000bf0000003f00000000000000000000803f0000003f0000003f000000000000803f0000803f000000bf000000bf0000000000000000000000000000003f000000bf000000000000803f00000000
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0}
+  m_MeshUsageFlags: 0
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
+  m_MeshOptimized: 0
+  m_StreamData:
+    offset: 0
+    size: 0
+    path: 
 --- !u!1 &1379953032
 GameObject:
   m_ObjectHideFlags: 0
@@ -3622,38 +3993,102 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 210.67801, y: 156.915, z: -195.313}
---- !u!84 &1474789696
-RenderTexture:
+--- !u!1 &1476183952
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Painter Buffer 0 _ 2048
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 2048
-  m_Height: 2048
-  m_AntiAliasing: 1
-  m_DepthFormat: 0
-  m_ColorFormat: 11
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_Dimension: 2
-  m_VolumeDepth: 1
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1476183956}
+  - component: {fileID: 1476183954}
+  - component: {fileID: 1476183955}
+  - component: {fileID: 1476183953}
+  m_Layer: 30
+  m_Name: RenderCameraBrush
+  m_TagString: toolComponent
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1476183953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476183952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a4e34f1478688479020caf8c573659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshRenderer: {fileID: 1476183955}
+  meshFilter: {fileID: 1476183954}
+  modifiedBound:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 5, y: 1.110223e-16, z: 5}
+  deformedBounds: 0
+--- !u!33 &1476183954
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476183952}
+  m_Mesh: {fileID: 0}
+--- !u!23 &1476183955
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476183952}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 36be934dcfd18c34bb8b5f711f6d518a, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!4 &1476183956
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476183952}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 61.76468, y: -6.8944855, z: 10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 929842343}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1521846959
 GameObject:
   m_ObjectHideFlags: 0
@@ -3947,38 +4382,6 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 244.111, y: 392.356, z: -104.26099}
---- !u!84 &1595433626
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Painter Buffer 1 _ 2048
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 2048
-  m_Height: 2048
-  m_AntiAliasing: 1
-  m_DepthFormat: 0
-  m_ColorFormat: 11
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &1661648410
 GameObject:
   m_ObjectHideFlags: 0
@@ -4053,6 +4456,38 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1661648410}
   m_CullTransparentMesh: 0
+--- !u!84 &1667473801
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Painter Buffer 1 _ 2048
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 2048
+  m_Height: 2048
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 11
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1001 &1677456232
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4168,6 +4603,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 1689211759}
   skinnedMeshRenderer: {fileID: 0}
+  uiGraphic: {fileID: 0}
   terrain: {fileID: 0}
   terrainCollider: {fileID: 0}
   meshFilter: {fileID: 1689211760}
@@ -4178,7 +4614,7 @@ MonoBehaviour:
   meshNameField: 
   savedMeshData: 
   meshDataSavedFor: {fileID: 0}
-  selectedSubmesh: 0
+  selectedSubMesh: 0
   nameHolder: SmoothBox
   selectedAtlasedMaterial: -1
   stroke:
@@ -4192,6 +4628,7 @@ MonoBehaviour:
     mouseDwn: 1
     firstStroke: 1
     mouseUp: 0
+  _tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 1
   autoSelectMaterialByNumberOfPointedSubMesh: 1
@@ -4583,7 +5020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1794627584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4596,7 +5033,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52a4e34f1478688479020caf8c573659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshRendy: {fileID: 1794627586}
+  meshRenderer: {fileID: 1794627586}
   meshFilter: {fileID: 1794627585}
   modifiedBound:
     m_Center: {x: 0, y: 0, z: 0}
@@ -4609,7 +5046,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1794627583}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 1347919724}
 --- !u!23 &1794627586
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4654,9 +5091,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1794627583}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 61.76468, y: -6.8944855, z: 10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalScale: {x: 256, y: 256, z: 0}
   m_Children: []
   m_Father: {fileID: 629810204}
   m_RootOrder: 0
@@ -4710,6 +5147,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 1815085834}
   skinnedMeshRenderer: {fileID: 0}
+  uiGraphic: {fileID: 0}
   terrain: {fileID: 0}
   terrainCollider: {fileID: 0}
   meshFilter: {fileID: 1815085835}
@@ -4720,7 +5158,7 @@ MonoBehaviour:
   meshNameField: 
   savedMeshData: 
   meshDataSavedFor: {fileID: 0}
-  selectedSubmesh: 0
+  selectedSubMesh: 0
   nameHolder: Cube
   selectedAtlasedMaterial: -1
   stroke:
@@ -4734,6 +5172,7 @@ MonoBehaviour:
     mouseDwn: 0
     firstStroke: 0
     mouseUp: 0
+  _tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 1
   autoSelectMaterialByNumberOfPointedSubMesh: 1
@@ -4953,7 +5392,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 1281475661}
   cube: {fileID: 1815085830}
-  timer: -382.15887
+  timer: -76.15076
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5118,6 +5557,38 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 226.055, y: 162.04199, z: -534.335}
+--- !u!84 &1924156620
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 0
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!43 &1939594141
 Mesh:
   m_ObjectHideFlags: 0
@@ -5697,11 +6168,6 @@ PrefabInstance:
     - target: {fileID: 9034530559984695703, guid: 823dea88b5d9bb74293861cf0cd711a1,
         type: 3}
       propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 646239235471061161, guid: 823dea88b5d9bb74293861cf0cd711a1,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

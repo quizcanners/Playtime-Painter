@@ -446,9 +446,9 @@ namespace QuizCannersUtilities {
 
             public BASE_MaterialTextureTransition()
             {
-                transitionPropertyName = Shader.PropertyToID(CustomShaderParameters.transitionPortion);
+                transitionPropertyName = Shader.PropertyToID(CustomShaderParameters.TransitionPortion);
                 currentTexturePropertyName = Shader.PropertyToID(CustomShaderParameters.currentTexture);
-                nextTexturePropertyName = Shader.PropertyToID(CustomShaderParameters.nextTexture);
+                nextTexturePropertyName = Shader.PropertyToID(CustomShaderParameters.NextTexture);
             }
 
             #region Inspector
@@ -1003,20 +1003,20 @@ namespace QuizCannersUtilities {
     public static class CustomShaderParameters
     {
 
-        public const string imageProjectionPosition = "_imgProjPos";
-        public const string nextTexture = "_Next_MainTex";
+        public const string ImageProjectionPosition = "_imgProjPos";
+        public const string NextTexture = "_Next_MainTex";
         public const string currentTexture = "_MainTex_Current";
-        public const string transitionPortion = "_Transition";
+        public const string TransitionPortion = "_Transition";
 
 
 #if PEGI
         public static void Inspect()
         {
-            "Image projection position".write_ForCopy(imageProjectionPosition); pegi.nl();
+            "Image projection position".write_ForCopy(ImageProjectionPosition); pegi.nl();
 
-            "Next Texture".write_ForCopy(nextTexture); pegi.nl();
+            "Next Texture".write_ForCopy(NextTexture); pegi.nl();
 
-            "Transition portion".write_ForCopy(transitionPortion); pegi.nl();
+            "Transition portion".write_ForCopy(TransitionPortion); pegi.nl();
         }
 #endif
     }

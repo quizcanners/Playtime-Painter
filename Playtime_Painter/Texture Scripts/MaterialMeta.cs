@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -10,37 +9,36 @@ namespace Playtime_Painter
 
     public class MaterialMeta : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName {
         
+        public Material material;
+        public int selectedTexture;
+        public bool usePreviewShader;
+        public List<ShaderProperty.TextureValue> materialsTextureFields = new List<ShaderProperty.TextureValue>();
+
+        public ShaderProperty.TextureValue bufferParameterTarget; // which texture is currently using RenderTexture buffer
+        public PlaytimePainter painterTarget;
+        
         #region Encode & Decode
         
-        public Material material;
-        public int _selectedTexture = 0;
-        public bool usePreviewShader = false;
-        public List<string> materials_TextureFields = new List<string>();
-
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("mat", material)
-            .Add_IfNotZero("texInd", _selectedTexture)
+            .Add_IfNotZero("texInd", selectedTexture)
             .Add_IfTrue("pv", usePreviewShader)
-            .Add("tf", materials_TextureFields);
+            .Add("tfs", materialsTextureFields);
 
         public override bool Decode(string tg, string data)
         {
            switch (tg)
             {
                 case "mat": data.Decode_Reference(ref material); break;
-                case "texInd":  _selectedTexture = data.ToInt(); break;
+                case "texInd":  selectedTexture = data.ToInt(); break;
                 case "pv": usePreviewShader = data.ToBool(); break;
-                case "tf": data.Decode_List(out materials_TextureFields); break;
+                case "tfs": data.Decode_List(out materialsTextureFields); break;
                 default: return false;
             }
             return true;
         }
         #endregion
 
-        [NonSerialized]
-        public string bufferParameterTarget; // which texture is currently using RenderTexture buffer
-        [NonSerialized]
-        public PlaytimePainter painterTarget;
 
         public void SetTextureOnLastTarget(ImageMeta id) {
             if (painterTarget)
@@ -71,21 +69,15 @@ namespace Playtime_Painter
 
         public override bool Inspect() {
 
-            bool changed = false;
-
             "Material:".write_obj(60, material);
             pegi.nl();
 
             if (material)
-                ("Shader: " + material.shader.ToString()).nl();
+                ("Shader: " + material.shader).nl();
 
-            if (materials_TextureFields.Count > 0) {
-                "Textures: ".nl();
-                foreach (var f in materials_TextureFields)
-                    f.nl();
-            }
+            "Textures".edit_List(ref materialsTextureFields);
 
-            return changed;
+            return false;
         }
         
 

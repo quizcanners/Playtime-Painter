@@ -14,59 +14,88 @@ namespace Playtime_Painter
         const string tag = "TerCol";
         public override string ClassTag => tag;
 
-        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if ((painter.terrain != null) && (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)))
+            if (!painter.terrain || !field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            tex = painter.terrain.terrainData.alphamapTextures[field.NameForDisplayPEGI[0].CharToInt()];
+            return true;
+        }
+
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        {
+            if (!painter || !painter.terrain || !painter.terrain.terrainData) return;
+
+            var d = painter.terrain.terrainData.alphamapTextures;
+
+            for (var i = 0; i < d.Length; i++)
+                dest.Add(new ShaderProperty.TextureValue(i + "_" + d[i].name + PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE, PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE));
+        }
+
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
+        {
+            if (!painter.terrain) return false;
+            if (!fieldName.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            var id = painter.ImgMeta;
+            if (id == null) return true;
+            
+            id.tiling = Vector2.one;
+            id.offset = Vector2.zero;
+            
+            return true;
+        }
+
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
+        {
+            var tex = id.CurrentTexture();
+            if (!painter.terrain) return false;
+
+            if (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            
+            var no = field.NameForDisplayPEGI[0].CharToInt();
+
+            if (no == 0)
+                PainterDataAndConfig.TerrainControlMain.GlobalValue = tex;
+
+            painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
+
+            return true;
+        }
+
+
+        public override void OnUpdate(PlaytimePainter painter)
+        {
+            var t = painter.terrain;
+
+            if (!t) return;
+
+#if UNITY_2018_3_OR_NEWER
+            var sp = t.terrainData.terrainLayers;
+#else
+            SplatPrototype[] sp = t.terrainData.splatPrototypes;
+#endif
+
+            var td = painter.terrain.terrainData;
+            var tds = td.size;
+
+            if (sp.Length != 0 && sp[0] != null)
             {
-                tex = painter.terrain.terrainData.alphamapTextures[fieldName[0].CharToInt()];
-                return true;
+                var tilingX = tds.x / sp[0].tileSize.x;
+                var tilingZ = tds.z / sp[0].tileSize.y;
+                PainterDataAndConfig.TerrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
+
+                painter._tilingY = td.size.y / sp[0].tileSize.x;
             }
-            return false;
+
+            PainterDataAndConfig.TerrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);
+
+            painter.UpdateTerrainPosition();
+
+            var alphaMapTextures = td.alphamapTextures;
+            if (!alphaMapTextures.IsNullOrEmpty())
+                PainterDataAndConfig.TerrainControlMain.GlobalValue = alphaMapTextures[0].GetDestinationTexture();
+
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
-        {
-            if (painter && painter.terrain && painter.terrain.terrainData) 
-                for (int i = 0; i < painter.terrain.terrainData.alphamapTextures.Length; i++)
-                    dest.Add(i + "_" + PainterDataAndConfig.terrainControl);
-        }
-
-        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
-        {
-            if (painter.terrain != null)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE))
-                {
-                    var id = painter.ImgMeta;
-                    if (id != null) {
-                        id.tiling = Vector2.one;
-                        id.offset = Vector2.zero;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter)
-        {
-            Texture tex = id.CurrentTexture();
-            if (painter.terrain != null)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE))
-                {
-                    int no = fieldName[0].CharToInt();
-
-                    if (no == 0)
-                        PainterDataAndConfig.terrainControl.GlobalValue = tex;
-
-                    painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
-
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
 }

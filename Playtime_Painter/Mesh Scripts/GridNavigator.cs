@@ -16,29 +16,25 @@ public enum Gridside { xz, xy, zy }
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
     public static GridNavigator Inst()  {
-        if (!_inst)
+        if (_inst) return _inst;
+        if (!ApplicationIsQuitting)
         {
-            if (!ApplicationIsQuitting)
+            _inst = PainterCamera.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
+            if (_inst) return _inst;
+            try
             {
-                _inst = PainterCamera.Inst.GetComponentInChildren<GridNavigator>();//(GridNavigator)FindObjectOfType<GridNavigator>();
-                if (!_inst)
-                {
-                    try
-                    {
-                        _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
-                        _inst.transform.parent = PainterCamera.Inst.transform;
-                        _inst.name = "grid";
-                        _inst.gameObject.hideFlags = HideFlags.DontSave;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
-                    }
-                }
-
+                _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
+                _inst.transform.parent = PainterCamera.Inst.transform;
+                _inst.name = "grid";
+                _inst.gameObject.hideFlags = HideFlags.DontSave;
             }
-            else _inst = null;
-         }
+            catch (Exception ex)
+            {
+                Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
+            }
+
+        }
+        else _inst = null;
         return _inst;
     }
 
@@ -50,34 +46,41 @@ public class GridNavigator : PainterStuffMono {
     public MarkerWithText pointedVertex;
     public MarkerWithText selectedVertex;
 
-    static GridNavigator _inst;
-    
-    public static Plane xzPlane = new Plane(Vector3.up, 0);
-    public static Plane zyPlane = new Plane(Vector3.right, 0);
-    public static Plane xyPlane = new Plane(Vector3.forward, 0);
+    private static GridNavigator _inst;
 
-    public static Quaternion xgrid = Quaternion.Euler(new Vector3(0, 90, 0));
-    public static Quaternion zgrid = Quaternion.Euler(new Vector3(0, 0, 0));
-    public static Quaternion ygrid = Quaternion.Euler(new Vector3(90, 0, 0));
+    private static Plane _xzPlane = new Plane(Vector3.up, 0);
+    private static Plane _zyPlane = new Plane(Vector3.right, 0);
+    private static Plane _xyPlane = new Plane(Vector3.forward, 0);
+
+    private static readonly Quaternion XGrid = Quaternion.Euler(new Vector3(0, 90, 0));
+    private static readonly Quaternion ZGrid = Quaternion.Euler(new Vector3(0, 0, 0));
+    private static readonly Quaternion YGrid = Quaternion.Euler(new Vector3(90, 0, 0));
     
     public static Vector3 collisionPos;
  
     public static Vector3 onGridPos;
     [HideInInspector]
-    public Gridside g_side = Gridside.xz;
-    public float UVsnapToPixelPortion = 2;
+    public Gridside gSide = Gridside.xz;
+    public float uvSnapToPixelPortion = 2;
     public MeshRenderer dot;
     public MeshRenderer rendy;
 
-    ShaderProperty.VectorValue dotPosition_Property = new ShaderProperty.VectorValue("_GridDotPosition");
+    private readonly ShaderProperty.VectorValue _dotPositionProperty = new ShaderProperty.VectorValue("_GridDotPosition");
 
 
-    public void Deactivateverts() {
+    public void DeactivateVertices() {
 
-        for (int i = 0; i < MeshManager.Inst.vertsShowMax; i++) {
-            if (verts[i] == null)
-                Debug.Log("Got Nu  sdfdsll");
-            verts[i].go.SetActive(false);
+        for (var i = 0; i < MeshManager.Inst.vertsShowMax; i++)
+        {
+            var v = verts[i];
+            
+            if (v == null)
+                Debug.LogError("Got Null in vertices");
+            else
+            if (!v.go)
+                Debug.LogError("Game object in vertices is null");
+            else
+                v.go.SetActive(false);
         }
 
         pointedVertex.go.SetActive(false);
@@ -89,16 +92,16 @@ public class GridNavigator : PainterStuffMono {
             dot.EnabledUpdate(dotEn);
     }
 
-    float AngleClamp(Quaternion ang) {
-        float res = Quaternion.Angle(gameObject.TryGetCameraTransform().rotation, ang);
+    private float AngleClamp(Quaternion ang) {
+        var res = Quaternion.Angle(gameObject.TryGetCameraTransform().rotation, ang);
         if (res > 90)
             res = 180 - res;
         return res;
     }
 
-    public float AngGridToCamera(Vector3 hitpos)
+    public float AngGridToCamera(Vector3 hitPos)
     {
-        float ang = (Vector3.Angle(GetGridPerpendicularVector(), hitpos - gameObject.TryGetCameraTransform().position));
+        var ang = (Vector3.Angle(GetGridPerpendicularVector(), hitPos - gameObject.TryGetCameraTransform().position));
         if (ang > 90)
             ang = 180 - ang;
         return ang;
@@ -106,16 +109,13 @@ public class GridNavigator : PainterStuffMono {
 
     public static Vector3 MouseToPlane(Plane _plane)
     {
-        Ray ray = EditorInputManager.GetScreenRay();
+        var ray = EditorInputManager.GetScreenRay();
         float rayDistance;
-        if (_plane.Raycast(ray, out rayDistance))
-            return ray.GetPoint(rayDistance);
-        
-        else return Vector3.zero;
+        return _plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
     }
 
     public Vector3 PlaneToWorldVector(Vector2 v2) {
-        switch (g_side)
+        switch (gSide)
         {
             case Gridside.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
             case Gridside.xz: return new Vector3(v2.x, 0, v2.y); //
@@ -127,7 +127,7 @@ public class GridNavigator : PainterStuffMono {
 
     public Vector2 InPlaneVector(Vector3 f)
     {
-        switch (g_side)
+        switch (gSide)
         {
             case Gridside.xy: return new Vector2(f.x, f.y); //Mirror.z = 1; break;
             case Gridside.xz: return new Vector2(f.x, f.z); //
@@ -138,8 +138,8 @@ public class GridNavigator : PainterStuffMono {
 
     public Vector3 GetGridPerpendicularVector()
     {
-        Vector3 Mirror = new Vector3();
-        switch (g_side)
+        var Mirror = new Vector3();
+        switch (gSide)
         {
             case Gridside.xy: Mirror.z = 1; break;
             case Gridside.xz: Mirror.y = 1; break;
@@ -150,8 +150,8 @@ public class GridNavigator : PainterStuffMono {
 
     public Vector3 GetGridMaskVector()
     {
-        Vector3 Mirror = Vector3.one;
-        switch (g_side)
+        var Mirror = Vector3.one;
+        switch (gSide)
         {
             case Gridside.xy: Mirror.z = 0; break;
             case Gridside.xz: Mirror.y = 0; break;
@@ -162,8 +162,8 @@ public class GridNavigator : PainterStuffMono {
 
     public Vector3 ProjectToGrid(Vector3 src)
     {
-        Vector3 pos = onGridPos;
-        switch (g_side)
+        var pos = onGridPos;
+        switch (gSide)
         {
             case Gridside.xy:
                 return new Vector3(src.x, src.y, pos.z);
@@ -175,32 +175,32 @@ public class GridNavigator : PainterStuffMono {
         return Vector3.zero;
     }
 
-    public void ClosestAxis(bool horToo)
+    private void ClosestAxis(bool horToo)
     {
-        float ang = gameObject.TryGetCameraTransform().rotation.x;
+        var ang = gameObject.TryGetCameraTransform().rotation.x;
         if ((!horToo) || (ang < 35 || ang > 300))
         {
-            float x = AngleClamp(xgrid);
-            float z = AngleClamp(zgrid);
+            var x = AngleClamp(XGrid);
+            var z = AngleClamp(ZGrid);
 
-            if (x <= z) g_side = Gridside.zy;
-            else g_side = Gridside.xy;
+            gSide = x <= z ? Gridside.zy : Gridside.xy;
         }
-        else g_side = Gridside.xz;
+        else gSide = Gridside.xz;
 
     }
-    public void ScrollsProcess(float delta) {
-        var before = g_side;
+
+    private void ScrollsProcess(float delta) {
+        var before = gSide;
         if (delta > 0)   
-            switch (g_side) {
-                case Gridside.xy: g_side = Gridside.zy; break;
+            switch (gSide) {
+                case Gridside.xy: gSide = Gridside.zy; break;
                 case Gridside.xz: ClosestAxis(false); break;
-                case Gridside.zy: g_side = Gridside.xy; break;
+                case Gridside.zy: gSide = Gridside.xy; break;
             }
         else if (delta < 0)
-            g_side = Gridside.xz;
+            gSide = Gridside.xz;
 
-        if (before != g_side && MeshMGMT.target != null)
+        if (before != gSide && MeshMGMT.target)
             MeshMGMT.MeshTool.OnGridChange();
 
     }
@@ -208,13 +208,13 @@ public class GridNavigator : PainterStuffMono {
 
     public void UpdatePositions() {
 
-        MeshManager m = MeshMGMT;
+        var m = MeshMGMT;
         var cfg = TexMGMTdata;
 
         if (!cfg)
             return;
 
-        bool showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
+        var showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
         SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
@@ -223,22 +223,23 @@ public class GridNavigator : PainterStuffMono {
 
         if (cfg.gridSize <= 0) cfg.gridSize = 1;
 
-        switch (g_side)
+        switch (gSide)
         {
-            case Gridside.xy: rendy.transform.rotation = zgrid; break;
-            case Gridside.xz: rendy.transform.rotation = ygrid; break;
-            case Gridside.zy: rendy.transform.rotation = xgrid; break;
+            case Gridside.xy: rendy.transform.rotation = ZGrid; break;
+            case Gridside.xz: rendy.transform.rotation = YGrid; break;
+            case Gridside.zy: rendy.transform.rotation = XGrid; break;
         }
 
-        xzPlane.distance = -onGridPos.y;
-        xyPlane.distance = -onGridPos.z;
-        zyPlane.distance = -onGridPos.x;
+        _xzPlane.distance = -onGridPos.y;
+        _xyPlane.distance = -onGridPos.z;
+        _zyPlane.distance = -onGridPos.x;
 
-        Vector3 hit = Vector3.zero;
-        switch (g_side)    {
-            case Gridside.xy:   hit = MouseToPlane(xyPlane);           break;
-            case Gridside.xz:   hit = MouseToPlane(xzPlane);           break;
-            case Gridside.zy:   hit = MouseToPlane(zyPlane);           break;
+        var hit = Vector3.zero;
+        
+        switch (gSide)    {
+            case Gridside.xy:   hit = MouseToPlane(_xyPlane);           break;
+            case Gridside.xz:   hit = MouseToPlane(_xzPlane);           break;
+            case Gridside.zy:   hit = MouseToPlane(_zyPlane);           break;
         }
 
         if (cfg.snapToGrid)
@@ -246,7 +247,7 @@ public class GridNavigator : PainterStuffMono {
 
         if (hit != Vector3.zero)  {
 
-            switch (g_side)
+            switch (gSide)
             {
                 case Gridside.xy:
 
@@ -266,46 +267,58 @@ public class GridNavigator : PainterStuffMono {
             }
         }
 
-        transform.position = onGridPos+Vector3.one*0.01f;
+        var tf = transform;
+        var dotTf = dot.transform;
+        var rndTf = rendy.transform;
+        
+        tf.position = onGridPos+Vector3.one*0.01f;
 
-        dotPosition_Property.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
+        
+        var position = tf.position;
+        
+        _dotPositionProperty.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
 
-        dot.transform.rotation = gameObject.TryGetCameraTransform().rotation;
+        dotTf.rotation = gameObject.TryGetCameraTransform().rotation;
 
-        Transform cam = gameObject.TryGetCameraTransform();
+        var cam = gameObject.TryGetCameraTransform();
 
-        float dist = Mathf.Max(0.1f, (cam.position - transform.position).magnitude * 2);
+        var dist = Mathf.Max(0.1f, (cam.position - position).magnitude * 2);
 
-        dot.transform.localScale = Vector3.one * (dist / 64f);
-        rendy.transform.localScale = new Vector3(dist, dist, dist);
+        dotTf.localScale = Vector3.one * (dist / 64f);
+        rndTf.localScale = new Vector3(dist, dist, dist);
 
         float dx = 0;
         float dy = 0;
 
-        if (g_side != Gridside.zy)
-            dx = (transform.position.x);
-        else dx = (-transform.position.z);
+        if (gSide != Gridside.zy)
+            dx = (position.x);
+        else dx = (-position.z);
 
-        if (g_side != Gridside.xz)
-            dy = (transform.position.y);
-        else dy = (transform.position.z);
+        dy = gSide != Gridside.xz ? position.y : position.z;
 
         float scale = 8;
-        if (!cfg.snapToGrid)
-            scale = Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8)));
-        else scale = cfg.gridSize;
+        
+        scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8))) : cfg.gridSize;
 
         dx -= Mathf.Round(dx / scale) * scale;
         dy -= Mathf.Round(dy / scale) * scale;
-        rendy.sharedMaterial.SetFloat("_dx", dx / dist);
-        rendy.sharedMaterial.SetFloat("_dy", dy / dist);
-        rendy.sharedMaterial.SetFloat("_Size", dist / scale);
 
-        if (MeshMGMT.target != null)
+        var mat = rendy.sharedMaterial;
+        
+        mat.Set(_dxProp, dx / dist)
+            .Set(_dyProp, dy / dist)
+            .Set(_sizeProp, dist / scale);
+
+        if (MeshMGMT.target)
             MeshMGMT.UpdateLocalSpaceV3s(); 
 
     }
 
+    private readonly ShaderProperty.FloatValue _dxProp = new ShaderProperty.FloatValue("dx");
+    private readonly ShaderProperty.FloatValue _dyProp = new ShaderProperty.FloatValue("dy");
+    private readonly ShaderProperty.FloatValue _sizeProp = new ShaderProperty.FloatValue("_Size");
+    
+    
     private void Update() {
 
         if (!this.enabled)

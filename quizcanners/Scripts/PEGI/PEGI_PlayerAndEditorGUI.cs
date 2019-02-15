@@ -1797,10 +1797,10 @@ namespace PlayerAndEditorGUI {
 
         // ***************************** Select or edit
 
-        public static bool select_or_edit_ColorProperty(this string name, int width, ref string property, Material material)
+        public static bool select_or_edit_ColorPropertyName(this string name, int width, ref string property, Material material)
         {
             name.write(width);
-            return select_or_edit_TextureProperty(ref property, material);
+            return select_or_edit_TexturePropertyName(ref property, material);
         }
 
         public static bool select_or_edit_ColorProperty(ref string property, Material material)
@@ -1809,19 +1809,26 @@ namespace PlayerAndEditorGUI {
             return lst.Count == 0 ?  edit(ref property) : select(ref property, lst);
         }
 
-        public static bool select_or_edit_TextureProperty(this string name, int width, ref string property, Material material)
+        public static bool select_or_edit_TexturePropertyName(this string name, int width, ref string property, Material material)
         {
             name.write(width);
-            return select_or_edit_TextureProperty(ref property, material);
+            return select_or_edit_TexturePropertyName(ref property, material);
         }
 
-        public static bool select_or_edit_TextureProperty(ref string property, Material material)
+        public static bool select_or_edit_TexturePropertyName(ref string property, Material material)
         {
-            var lst = material.MyGetTextureProperties();
+            var lst = material.MyGetTexturePropertiesNames();
             return lst.Count == 0 ? edit(ref property) : select(ref property, lst);
 
         }
 
+        public static bool select_or_edit_TextureProperty(ref ShaderProperty.TextureValue property, Material material)
+        {
+            var lst = material.MyGetTextureProperties();
+            return select(ref property, lst);
+
+        }
+        
         public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         {
             if (list.IsNullOrEmpty())

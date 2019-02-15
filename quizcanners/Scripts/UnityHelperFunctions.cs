@@ -3,15 +3,10 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 using JetBrains.Annotations;
-using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
 
@@ -467,9 +462,10 @@ namespace QuizCannersUtilities {
         public static List<UnityEngine.Object> SetToDirty(this List<UnityEngine.Object> objs)
         {
 #if UNITY_EDITOR
-            if (!objs.IsNullOrEmpty())
-                foreach (var o in objs)
-                    o.SetToDirty();
+            if (objs.IsNullOrEmpty()) return objs;
+            
+            foreach (var o in objs)
+                o.SetToDirty();
 #endif
             return objs;
 
@@ -478,8 +474,13 @@ namespace QuizCannersUtilities {
         public static UnityEngine.Object SetToDirty(this UnityEngine.Object obj)
         {
             #if UNITY_EDITOR
-            if (obj)
-                EditorUtility.SetDirty(obj);
+            if (!obj) return obj;
+            
+            EditorUtility.SetDirty(obj);
+            
+            if (PrefabUtility.IsPartOfAnyPrefab(obj))
+                PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
+              
             #endif
             return obj;
         }
@@ -495,15 +496,15 @@ namespace QuizCannersUtilities {
 
         public static void FocusOn(UnityEngine.Object go)
         {
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
             var tmp = new UnityEngine.Object[1];
             tmp[0] = go;
             Selection.objects = tmp;
-#endif
+        #endif
         }
 
 #if UNITY_EDITOR
-        static Tool _previousEditorTool = Tool.None;
+        private static Tool _previousEditorTool = Tool.None;
 #endif
 
         public static void RestoreUnityTool() {
@@ -1048,14 +1049,8 @@ namespace QuizCannersUtilities {
 
         #region Textures
         #region Material MGMT
-        public static bool HasTag(this Material mat, string tag) {
-            if (mat) {
-                var got = mat.GetTag(tag, false, null);
-                return !got.IsNullOrEmpty(); 
-            }
-            return false;
-        }
-
+        public static bool HasTag(this Material mat, string tag) => mat && !mat.GetTag(tag, false, null).IsNullOrEmpty();
+        
         public static string TagValue(this Material mat, string tag) => mat ? mat.GetTag(tag, false, null) : null;
         
         public static Material MaterialWhatever(this Renderer renderer) =>
@@ -1087,32 +1082,42 @@ namespace QuizCannersUtilities {
                     return fNames;
                 }
         #endif
-                public static List<string> GetFloatFields(this Material m)
-                {
-        #if UNITY_EDITOR
-                    var l = m.GetFields(MaterialProperty.PropType.Float);
-                    l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
-                    return l;
-        #else
-                    return new List<string>();
-        #endif
-                }
+        public static List<string> GetFloatFields(this Material m)
+        {
+#if UNITY_EDITOR
+            var l = m.GetFields(MaterialProperty.PropType.Float);
+            l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
+            return l;
+#else
+            return new List<string>();
+#endif
+        }
 
-                public static List<string> MyGetTextureProperties(this Material m)
-                {
-                    /*#if UNITY_2018_2_OR_NEWER
-                                if (!m) return new List<string>();
-                                else
-                                return new List<string>(m.GetTexturePropertyNames());
-        #else
-                                */
+        public static List<string> MyGetTexturePropertiesNames(this Material m)
+        {
+#if UNITY_EDITOR
+            
+             return m.GetFields(MaterialProperty.PropType.Texture);
+       
+#else
+            return new List<string>();
+#endif
+        }
+        
+        public static List<ShaderProperty.TextureValue> MyGetTextureProperties(this Material m)
+        {
         #if UNITY_EDITOR
-                    return m.GetFields(MaterialProperty.PropType.Texture);
+            {
+                var lst = new List<ShaderProperty.TextureValue>();
+                foreach (var n in m.GetFields(MaterialProperty.PropType.Texture))
+                    lst.Add(new ShaderProperty.TextureValue(n));
+
+                return lst;
+            }
         #else
-                    return new List<string>();
+            return new List<ShaderProperty.TextureValue>();
         #endif
-                    //#endif
-                }
+        }
 
                 public static List<string> GetColorProperties(this Material m)
                 {
@@ -1125,23 +1130,8 @@ namespace QuizCannersUtilities {
 
                 }
 
-                public static bool DisplayNameContains(this Material m, string propertyName, string tag)
-                {
-                    /*
-        #if UNITY_EDITOR
-                            try
-                            {
-                                var p = MaterialEditor.GetMaterialProperty(new Material[] { m }, propertyName);
-                                if (p!= null) 
-                                    return p.displayName.Contains(tag);
-
-                            } catch (Exception ex) {
-                                Debug.Log("Materail "+m.name +" has no "+ propertyName+ " "+ex.ToString());
-                            }
-        #endif
-                    */
-                    return propertyName.Contains(tag);
-                }
+   
+                
         #endregion
 
         #region Texture MGMT
@@ -2201,34 +2191,86 @@ namespace QuizCannersUtilities {
     public static class ShaderProperty
     {
         
-        public abstract class BaseIndexHolder : IGotDisplayName {
-            protected readonly int id;
-            private readonly string _name;
+        public abstract class BaseIndexHolder : Abstract_STD, IGotDisplayName, IPEGI_ListInspect {
+            protected int id;
+            private string _name;
 
+
+            public override int GetHashCode() => id;
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                    return false;
+
+                var bi = obj as BaseIndexHolder;
+
+                return bi != null ? bi.id == id : _name.SameAs(obj.ToString());
+            }
+            private void UpdateIndex() =>  id = Shader.PropertyToID(_name);
+            
+            protected BaseIndexHolder() { }
             protected BaseIndexHolder(string name) {
                 _name = name;
-                id = Shader.PropertyToID( name );
+                UpdateIndex();
             }
 
             public string NameForDisplayPEGI => _name;
+
+            public override string ToString() => _name;
+            
+            
+            #if PEGI
+            public bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                "[{0}] {1}".F(id, _name).write();
+                if (icon.Refresh.Click("Update Index (Shouldn't be necessary)"))
+                    UpdateIndex();
+
+                return false;
+            }
+            #endif
+
+            public override StdEncoder Encode() => new StdEncoder().Add_String("n", _name);
+            
+            
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "n": _name = data; UpdateIndex(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
         }
 
+        public static bool Has<T>(this Material mat, T property) where T : BaseIndexHolder =>
+            mat.HasProperty(property.GetHashCode());
+        
+        
         #region Float
         public class FloatValue : BaseIndexHolder
         {
             
             public float lastValue = 0;
             
-            public void SetOn(Material material, float value)
+            public Material SetOn(Material material, float value)
             {
                 lastValue = value;
 
                 if (material)
                     material.SetFloat(id, value);
-                
-            } 
-            
-            public void SetOn(Material material) => material.SetFloat(id, lastValue);
+
+                return material;
+            }
+
+            public Material SetOn(Material material)
+            {
+                material.SetFloat(id, lastValue);
+                return material;
+            }
 
             public void SetGlobal(float value) => GlobalValue = value;
 
@@ -2240,11 +2282,13 @@ namespace QuizCannersUtilities {
             }
 
             public FloatValue(string name) : base(name) { }
+            
+            public FloatValue() { }
         }
 
-        public static void Set(this Material mat, FloatValue property, float value) => property.SetOn(mat, value);
+        public static Material Set(this Material mat, FloatValue property, float value) => property.SetOn(mat, value);
         
-        public static void Set(this Material mat, FloatValue property) => property.SetOn(mat);
+        public static Material Set(this Material mat, FloatValue property) => property.SetOn(mat);
 
         public static float Get(this Material mat, FloatValue property) => property.Get(mat);
         #endregion
@@ -2273,6 +2317,8 @@ namespace QuizCannersUtilities {
             }
 
             public ColorValue(string name) : base(name) { }
+            
+            public ColorValue() { }
         }
 
         public static Color Get(this Material mat, ColorValue property) => property.Get(mat);
@@ -2306,6 +2352,8 @@ namespace QuizCannersUtilities {
             }
 
             public VectorValue(string name) : base(name) { }
+            
+            public VectorValue()  { }
         }
 
         public static Vector4 Get(this Material mat, VectorValue property) => property.Get(mat);
@@ -2320,7 +2368,31 @@ namespace QuizCannersUtilities {
         {
 
             private Texture _lastValue = null;
+
+            private List<string> _usageTags = new List<string>();
             
+            public TextureValue AddUsageTag(string value) {
+                 if (!_usageTags.Contains(value)) _usageTags.Add(value);
+                return this;
+            }
+
+            public bool HasUsageTag(string tag) => _usageTags.Contains(tag);
+            
+
+            public override StdEncoder Encode() => new StdEncoder()
+                .Add("b", base.Encode())
+                .Add("tgs", _usageTags);
+
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "tgs":  data.Decode_List(out _usageTags); break;
+                    default: return false;
+                }
+                return true;
+            }
+
+
             public void SetOn(Material material, Texture value) {
                 _lastValue = value;
                 if (material)
@@ -2354,7 +2426,11 @@ namespace QuizCannersUtilities {
                      mat.SetTextureScale(id, value);
             }
 
+            public TextureValue(string name, string tag) : base(name) { AddUsageTag(tag);  }
+
             public TextureValue(string name) : base(name) { }
+            
+            public TextureValue()  { }
         }
 
         public static Texture Get(this Material mat, TextureValue property) => property.GetFrom(mat);

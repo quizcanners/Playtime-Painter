@@ -12,94 +12,79 @@ namespace Playtime_Painter.Examples {
         const string tag = "TerLight";
         public override string ClassTag => tag;
 
-        public MergingTerrainController mergingTerrain;
+        private MergingTerrainController mergingTerrain;
         public int testData;
 
-        public override bool BrushConfigPEGI()
+ 
+        void FindMergingTerrain(PlaytimePainter painter)
         {
-            bool changed = false;
-
-            if (changed)
-                UnityHelperFunctions.SetToDirty_Obj(this);
-
-            return changed;
+            if (!mergingTerrain && painter.terrain)
+                mergingTerrain = painter.GetComponent<MergingTerrainController>();
         }
 
-        void FindMergingTerrain(PlaytimePainter pntr)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!mergingTerrain && pntr.terrain)
-                mergingTerrain = pntr.GetComponent<MergingTerrainController>();
-        }
-
-        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter pntr)
-        {
-            if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
-            {
-                tex = mergingTerrain.lightTexture;
-                return true;
-            }
-            return false;
-        }
-
-        public override void GetNonMaterialTextureNames(PlaytimePainter pntr, ref List<string> dest)
-        {
-            FindMergingTerrain(pntr);
-
-            if (pntr.terrain && mergingTerrain )
-                dest.Add(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE);
-        }
-
-        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter pntr)
-        {
-                if (pntr.terrain && fieldName != null && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
-                {
-                    var id = pntr.ImgMeta;
-                    if (id != null)
-                    {
-                        id.tiling = Vector2.one;
-                        id.offset = Vector2.zero;
-                    }
-                    return true; 
-                }
+            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainLight)) return false;
             
-            return false;
+            tex = mergingTerrain.lightTexture;
+            return true;
         }
 
-        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter pntr)
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        {
+            FindMergingTerrain(painter);
+
+            if (painter.terrain && mergingTerrain )
+                dest.Add(PainterDataAndConfig.TerrainLight);
+        }
+
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
+        {
+            if (!painter.terrain || fieldName == null ||
+                !fieldName.Equals(PainterDataAndConfig.TerrainLight)) return false;
+            
+            var id = painter.ImgMeta;
+            if (id == null) return true;
+            id.tiling = Vector2.one;
+            id.offset = Vector2.zero;
+            return true;
+
+        }
+
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter)
         {
 
-            Texture tex = id.CurrentTexture();
-
-    
-                if (pntr.terrain && fieldName.Contains(PainterDataAndConfig.TERRAIN_LIGHT_TEXTURE))
-                {
-                    FindMergingTerrain(pntr);
-                    if (mergingTerrain  && id!= null)
-                        mergingTerrain.lightTexture = id.texture2D;
+            var tex = id.CurrentTexture();
+            
+            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainLight)) return false;
+            
+            FindMergingTerrain(painter);
+                if (mergingTerrain  && id!= null)
+                    mergingTerrain.lightTexture = id.texture2D;
 
 #if UNITY_EDITOR
-                    if (tex is Texture2D)
-                    {
-                        UnityEditor.TextureImporter timp = ((Texture2D)tex).GetTextureImporter();
-                        if (timp != null)
-                        {
-                            bool needReimport = timp.WasClamped();
-                            needReimport |= timp.HadNoMipmaps();
 
-                            if (needReimport)
-                                timp.SaveAndReimport();
-                        }
+            var t2D = tex as Texture2D;
+            
+            if (t2D)
+                {
+                    var importer = (t2D).GetTextureImporter();
+                    if (importer != null)
+                    {
+                        var needReimport = importer.WasClamped();
+                        needReimport |= importer.HadNoMipmaps();
+
+                        if (needReimport)
+                            importer.SaveAndReimport();
                     }
+                }
 #endif
 
-                    PainterDataAndConfig.terrainLight.GlobalValue = tex;
+                PainterDataAndConfig.TerrainLight.GlobalValue = tex;
 
 
 
-                    return true;
-                
-            }
-            return false;
+                return true;
         }
 
         public override void OnUpdate(PlaytimePainter painter)
@@ -107,13 +92,12 @@ namespace Playtime_Painter.Examples {
 
             FindMergingTerrain(painter);
 
-            if (mergingTerrain) {
+            if (!mergingTerrain) return;
+            
+            if (mergingTerrain.lightTexture)
+                PainterDataAndConfig.TerrainLight.GlobalValue = mergingTerrain.lightTexture.GetDestinationTexture();
 
-                if (mergingTerrain.lightTexture)
-                    PainterDataAndConfig.terrainLight.GlobalValue = mergingTerrain.lightTexture.GetDestinationTexture();
-
-                mergingTerrain.UpdateTextures();
-            }
+            mergingTerrain.UpdateTextures();
 
         }
 

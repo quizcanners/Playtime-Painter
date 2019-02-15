@@ -278,7 +278,7 @@ namespace Playtime_Painter {
             imgMetaUsingRendTex = null;
         }
 
-        public void ChangeBufferTarget(ImageMeta newTarget, MaterialMeta mat, string parameter, PlaytimePainter painter)
+        public void ChangeBufferTarget(ImageMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
             if (newTarget != imgMetaUsingRendTex)

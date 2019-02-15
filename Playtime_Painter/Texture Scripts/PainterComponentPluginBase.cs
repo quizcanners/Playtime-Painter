@@ -21,60 +21,53 @@ namespace Playtime_Painter
         [SerializeField]
         public PlaytimePainter parentPainter;
 
-        public static void UpdateList(PlaytimePainter pntr) {
+        public static void UpdateList(PlaytimePainter painter) {
 
-            for (int i = 0; i < pntr.plugins.Count; i++) {
-                var nt = pntr.plugins[i];
+            for (var i = 0; i < painter.plugins.Count; i++) {
+                var nt = painter.plugins[i];
 
-                if (nt == null) {
-                    pntr.plugins.RemoveAt(i);
-                    i--;
-                }
+                if (nt != null) continue;
+                painter.plugins.RemoveAt(i);
+                i--;
             }
 
-            for (int i = 0; i < pntr.plugins.Count; i++)
-                if (pntr.plugins[i] == null) { pntr.plugins.RemoveAt(i); i--; }
+            for (var i = 0; i < painter.plugins.Count; i++)
+                if (painter.plugins[i] == null) { painter.plugins.RemoveAt(i); i--; }
 
-            foreach (Type t in all) {
-                if (!pntr.plugins.ContainsInstanceType(t)) 
-                    pntr.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
-            }
+            foreach (var t in all) 
+                if (!painter.plugins.ContainsInstanceType(t)) 
+                    painter.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
+            
         }
 
-        public virtual bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter)
-        {
-            //Debug.Log("Get Texture on " + this.GetType() + "  not implemented");
-            return false;
-        }
-
+        public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) => false;
+        
+        
         public virtual void OnUpdate(PlaytimePainter painter)  { }
 
-        public virtual bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter) => false;
+        public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter) => false;
         
-        public virtual bool UpdateTylingToMaterial(string fieldName, PlaytimePainter painter) => false;
+        public virtual bool UpdateTilingToMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter) => false;
         
-        public virtual bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter) => false;
+        public virtual bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter) => false;
         
-        public virtual void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
+        public virtual void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
         {
-            //Debug.Log("Get Names on " + this.GetType() + "  not implemented");
         }
 
-        public virtual bool BrushConfigPEGI()
-        {
-            return false;
+        public virtual bool BrushConfigPEGI() => false;
 
-        }
+        
 
-        public virtual bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) { return false; }
+        public virtual bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual void BeforeGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void BeforeGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
 
-        public virtual void AfterGPUStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void AfterGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
 

@@ -59,7 +59,7 @@ namespace Playtime_Painter {
         }
 
         public void LoadFromURL(string url) =>
-                painterComponent?.loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(url), painterComponent.GetMaterialTexturePropertyName);
+                painterComponent?.loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(url), painterComponent.GetMaterialTextureProperty);
 
         public string urlName;
 

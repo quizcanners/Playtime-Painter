@@ -163,8 +163,8 @@ namespace Playtime_Painter {
 
         private int SelectedTexture
         {
-            get { var md = MatDta; return md == null ? 0 : md._selectedTexture; }
-            set { var md = MatDta; if (md != null) md._selectedTexture = value; }
+            get { var md = MatDta; return md == null ? 0 : md.selectedTexture; }
+            set { var md = MatDta; if (md != null) md.selectedTexture = value; }
         }
 
         #endregion
@@ -552,43 +552,44 @@ namespace Playtime_Painter {
 
             var id = ImgMeta;
 
-            var fieldName = GetMaterialTexturePropertyName;
+            var fieldName = GetMaterialTextureProperty;
             var mat = Material;
             if (!IsOriginalShader && !terrain)
             {
-                id.tiling = mat.GetTiling(PainterDataAndConfig.previewTexture);
-                id.offset = mat.GetOffset(PainterDataAndConfig.previewTexture);
+                id.tiling = mat.GetTiling(PainterDataAndConfig.PreviewTexture);
+                id.offset = mat.GetOffset(PainterDataAndConfig.PreviewTexture);
                 return;
             }
 
             foreach (var nt in plugins)
-                if (nt.UpdateTylingFromMaterial(fieldName, this))
+                if (nt.UpdateTilingFromMaterial(fieldName, this))
                     return;
 
             if (!mat || fieldName == null || id == null) return;
-            id.tiling = mat.GetTextureScale(fieldName);
-            id.offset = mat.GetTextureOffset(fieldName);
+            
+            id.tiling = mat.GetTiling(fieldName);
+            id.offset = mat.GetOffset(fieldName);
         }
 
         public void UpdateTilingToMaterial()
         {
             var id = ImgMeta;
-            var fieldName = GetMaterialTexturePropertyName;
+            var fieldName = GetMaterialTextureProperty;
             var mat = Material;
             if (!IsOriginalShader && !terrain)
             {
-                mat.SetTiling(PainterDataAndConfig.previewTexture, id.tiling);
-                mat.SetOffset(PainterDataAndConfig.previewTexture, id.offset);
+                mat.SetTiling(PainterDataAndConfig.PreviewTexture, id.tiling);
+                mat.SetOffset(PainterDataAndConfig.PreviewTexture, id.offset);
                 return;
             }
 
             foreach (var nt in plugins)
-                if (nt.UpdateTylingToMaterial(fieldName, this))
+                if (nt.UpdateTilingToMaterial(fieldName, this))
                     return;
 
             if (!mat || fieldName == null || id == null) return;
-            mat.SetTextureScale(fieldName, id.tiling);
-            mat.SetTextureOffset(fieldName, id.offset);
+            mat.SetTiling(fieldName, id.tiling);
+            mat.SetOffset(fieldName, id.offset);
         }
 
         private  void OnChangedTexture_OnMaterial()
@@ -599,7 +600,6 @@ namespace Playtime_Painter {
 
         public void ChangeTexture(ImageMeta id) => ChangeTexture(id.CurrentTexture());
         
-
         private  void ChangeTexture(Texture texture)
         {
 
@@ -627,7 +627,7 @@ namespace Playtime_Painter {
             }
             #endif
 
-            var field = GetMaterialTexturePropertyName;
+            var field = GetMaterialTextureProperty;
 
             if (!texture)
             {
@@ -640,7 +640,7 @@ namespace Playtime_Painter {
             if (id == null)
             {
                 id = new ImageMeta().Init(texture);
-                id.useTexcoord2 = Material.DisplayNameContains(field, PainterDataAndConfig.isUV2DisaplyNameTag);
+                id.useTexcoord2 = field.NameForDisplayPEGI.Contains(PainterDataAndConfig.isUV2DisaplyNameTag);
             }
 
             SetTextureOnMaterial(texture);
@@ -672,7 +672,7 @@ namespace Playtime_Painter {
             if (id.destination == dst)
                 return;
 
-            id.ChangeDestination(dst, GetMaterial(true).GetMaterialData(), GetMaterialTexturePropertyName, this);
+            id.ChangeDestination(dst, GetMaterial(true).GetMaterialData(), GetMaterialTextureProperty, this);
             CheckPreviewShader();
 
         }
@@ -693,9 +693,9 @@ namespace Playtime_Painter {
         private  void CreateTerrainHeightTexture(string newName)
         {
 
-            var field = GetMaterialTexturePropertyName;
+            var field = GetMaterialTextureProperty;
 
-            if (field != PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE)
+            if (!field.Equals(PainterDataAndConfig.TerrainHeight))
             {
                 Debug.Log("Terrain height is not currently selected.");
                 return;
@@ -829,40 +829,40 @@ namespace Playtime_Painter {
 
         public List<string> GetMaterialsNames() => GetMaterials().Select((mt, i) => mt ? mt.name : "Null material {0}".F(i)).ToList();
         
-        private List<string> GetMaterialTextureNames()
+        private List<ShaderProperty.TextureValue> GetMaterialTextureNames()
         {
 
             #if UNITY_EDITOR
 
             if (MatDta == null)
-                return new List<string>();
+                return new List<ShaderProperty.TextureValue>();
 
             if (!IsOriginalShader)
-                return MatDta.materials_TextureFields;
+                return MatDta.materialsTextureFields;
 
-            MatDta.materials_TextureFields.Clear();
+            MatDta.materialsTextureFields.Clear();
 
-            if (plugins!= null)
+            if (!plugins.IsNullOrEmpty())
             foreach (var nt in plugins)
-                nt.GetNonMaterialTextureNames(this, ref MatDta.materials_TextureFields);
+                nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
 
             if (!terrain)
-                MatDta.materials_TextureFields = Material.MyGetTextureProperties();
+                MatDta.materialsTextureFields = Material.MyGetTextureProperties();
             else
             {
                 var tmp = Material.MyGetTextureProperties();
 
                 foreach (var t in tmp)
-                    if ((!t.Contains("_Splat")) && (!t.Contains("_Normal")))
-                        MatDta.materials_TextureFields.Add(t);
+                    if ((!t.NameForDisplayPEGI.Contains("_Splat")) && (!t.NameForDisplayPEGI.Contains("_Normal")))
+                        MatDta.materialsTextureFields.Add(t);
                 
             }
 #endif
 
-            return MatDta.materials_TextureFields;
+            return MatDta.materialsTextureFields;
         }
 
-        public string GetMaterialTexturePropertyName => GetMaterialTextureNames().TryGet(SelectedTexture);
+        public ShaderProperty.TextureValue GetMaterialTextureProperty => GetMaterialTextureNames().TryGet(SelectedTexture);
 
         private Texture GetTextureOnMaterial()
         {
@@ -873,11 +873,11 @@ namespace Playtime_Painter {
                 if (!terrain)
                 {
                     var m = Material;
-                    return m ? Material.Get(PainterDataAndConfig.previewTexture) : null;
+                    return m ? Material.Get(PainterDataAndConfig.PreviewTexture) : null;
                 }
             }
 
-            var fieldName = GetMaterialTexturePropertyName;
+            var fieldName = GetMaterialTextureProperty;
 
             if (fieldName == null)
                 return null;
@@ -890,7 +890,7 @@ namespace Playtime_Painter {
                         return tex;
                 }
 
-            return Material.GetTexture(fieldName);
+            return Material.Get(fieldName);
         }
 
         private Material GetMaterial(bool original = false)
@@ -914,43 +914,41 @@ namespace Playtime_Painter {
             return result;
         }
 
-        private void RemoveTextureFromMaterial() => SetTextureOnMaterial(GetMaterialTexturePropertyName, null);
+        private void RemoveTextureFromMaterial() => SetTextureOnMaterial(GetMaterialTextureProperty, null);
 
-        public void SetTextureOnMaterial(ImageMeta id) => SetTextureOnMaterial(GetMaterialTexturePropertyName, id.CurrentTexture());
+        public void SetTextureOnMaterial(ImageMeta id) => SetTextureOnMaterial(GetMaterialTextureProperty, id.CurrentTexture());
 
-        public ImageMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTexturePropertyName, tex);
+        public ImageMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTextureProperty, tex);
 
-        private ImageMeta SetTextureOnMaterial(string fieldName, Texture tex)
+        private ImageMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex)
         {
-            var id = SetTextureOnMaterial(fieldName, tex, GetMaterial(true));
+            var id = SetTextureOnMaterial(property, tex, GetMaterial(true));
             CheckPreviewShader();
             return id;
         }
 
-        public ImageMeta SetTextureOnMaterial(string fieldName, Texture tex, Material mat)
+        public ImageMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex, Material mat)
         {
 
             var id = tex.GetImgData();
 
-            if (fieldName != null)
+            if (property != null)
             {
                 if (id != null)
-                    Cfg.recentTextures.AddIfNew(fieldName, id);
+                    Cfg.recentTextures.AddIfNew(property, id);
 
                 foreach (var nt in plugins)
-                    if (nt.SetTextureOnMaterial(fieldName, id, this))
+                    if (nt.SetTextureOnMaterial(property, id, this))
                         return id;
             }
 
-            if (mat) {
+            if (!mat) return id;
+            if (property != null)
+                mat.Set(property, id.CurrentTexture());
 
-                if (fieldName != null)
-                    mat.SetTexture(fieldName, id.CurrentTexture());
+            if (!IsOriginalShader && (!terrain))
+                SetTextureOnPreview(id.CurrentTexture());
 
-                if (!IsOriginalShader && (!terrain))
-                    SetTextureOnPreview(id.CurrentTexture());
-            }
-            
             return id;
         }
 
@@ -962,12 +960,12 @@ namespace Playtime_Painter {
             var mat = Material;
             var id = tex.GetImgData();
 
-            PainterDataAndConfig.previewTexture.SetOn(mat, id.CurrentTexture());
+            PainterDataAndConfig.PreviewTexture.SetOn(mat, id.CurrentTexture());
             
             if (id == null) return;
             
-            mat.SetOffset(PainterDataAndConfig.previewTexture, id.offset);
-            mat.SetTiling(PainterDataAndConfig.previewTexture, id.tiling);
+            mat.SetOffset(PainterDataAndConfig.PreviewTexture, id.offset);
+            mat.SetTiling(PainterDataAndConfig.PreviewTexture, id.tiling);
                
         }
 
@@ -1038,45 +1036,15 @@ namespace Playtime_Painter {
 
         #region Terrain_MGMT
 
-        private float _tilingY = 8;
+        public float _tilingY = 8;
 
-        public void UpdateShaderGlobals()
-        {
+        public void UpdateShaderGlobals() {
 
             foreach (var nt in plugins)
                 nt.OnUpdate(this);
-
-            if (!terrain) return;
-
-#if UNITY_2018_3_OR_NEWER
-            var sp = terrain.terrainData.terrainLayers;
-#else
-            SplatPrototype[] sp = terrain.terrainData.splatPrototypes;
-#endif
-
-            var td = terrain.terrainData;
-            var tds = td.size;
-            
-            if (sp.Length != 0 && sp[0] != null)
-            {
-                var tilingX = tds.x / sp[0].tileSize.x;
-                var tilingZ = tds.z / sp[0].tileSize.y;
-               PainterDataAndConfig.terrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
-
-                _tilingY = td.size.y / sp[0].tileSize.x;
-            }
-            
-         PainterDataAndConfig.terrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);
-
-            UpdateTerrainPosition();
-
-            var alphaMapTextures = td.alphamapTextures;
-            if (!alphaMapTextures.IsNullOrEmpty())
-                PainterDataAndConfig.terrainControl.GlobalValue = alphaMapTextures[0].GetDestinationTexture();
-
         }
 
-        private void UpdateTerrainPosition() => PainterDataAndConfig.terrainPosition.GlobalValue = transform.position.ToVector4(_tilingY);
+        public void UpdateTerrainPosition() => PainterDataAndConfig.TerrainPosition.GlobalValue = transform.position.ToVector4(_tilingY);
 
         private void Preview_To_UnityTerrain()
         {
@@ -1207,8 +1175,8 @@ namespace Playtime_Painter {
                 if (!terrain)
                     return false;
                 
-                var propName = GetMaterialTexturePropertyName;
-                return propName?.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE) ?? false;
+                var propName = GetMaterialTextureProperty;
+                return propName?.Equals(PainterDataAndConfig.TerrainHeight) ?? false;
             }
         }
 
@@ -1223,7 +1191,7 @@ namespace Playtime_Painter {
 
         }
 
-        public bool IsTerrainControlTexture => ImgMeta != null && terrain && GetMaterialTexturePropertyName.Contains(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE);
+        public bool IsTerrainControlTexture => ImgMeta != null && terrain && GetMaterialTextureProperty.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE);
 
         #endregion
 
@@ -1777,7 +1745,7 @@ namespace Playtime_Painter {
                 _selectedInPlaytime = this;
 #if PEGI
             if (_selectedInPlaytime == this)
-                WindowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTexturePropertyName));
+                WindowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 #endif
       
             #endif
@@ -1786,7 +1754,7 @@ namespace Playtime_Painter {
 
         public static PlaytimePainter inspectedPainter;
 
-        [NonSerialized] public readonly Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
+        [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
 
         private static PlaytimePainter _selectedInPlaytime;
 
@@ -2310,9 +2278,9 @@ namespace Playtime_Painter {
                             "URL".edit(40, ref _tmpUrl);
                             if (_tmpUrl.Length > 5 && icon.Download.Click())
                             {
-                                loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl), GetMaterialTexturePropertyName);
+                                loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl), GetMaterialTextureProperty);
                                 _tmpUrl = DefaultImageLoadUrl;
-                                "Loading for {0}".F(GetMaterialTexturePropertyName).showNotificationIn3D_Views();
+                                "Loading for {0}".F(GetMaterialTextureProperty).showNotificationIn3D_Views();
                             }
 
                             pegi.nl();
@@ -2332,7 +2300,7 @@ namespace Playtime_Painter {
                             CheckPreviewShader();
                             id = ImgMeta;
                             if (id == null)
-                                nameHolder = gameObject.name + "_" + GetMaterialTexturePropertyName;
+                                nameHolder = gameObject.name + "_" + GetMaterialTextureProperty;
                         }
 
                         if (id != null) {
@@ -2375,7 +2343,7 @@ namespace Playtime_Painter {
 
                             if (texNames.Count > SelectedTexture)
                             {
-                                var param = GetMaterialTexturePropertyName;
+                                var param = GetMaterialTextureProperty;
 
                                 if (icon.NewTexture.Click((id == null) ?
                                     "Create new texture2D for " + param : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale).nl(ref changed))
@@ -2389,7 +2357,7 @@ namespace Playtime_Painter {
                                 if (Cfg.showRecentTextures)
                                 {
                                    
-                                    var texName = GetMaterialTexturePropertyName;
+                                    var texName = GetMaterialTextureProperty;
 
                                     List<ImageMeta> recentTexs;
                                     if (texName != null && PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs)

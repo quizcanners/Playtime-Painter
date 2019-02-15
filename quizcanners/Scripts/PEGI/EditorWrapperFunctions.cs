@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEditor.SceneManagement;
 using QuizCannersUtilities;
 using UnityEditorInternal;
+using UnityEngine.SceneManagement;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -48,15 +49,39 @@ namespace PlayerAndEditorGUI {
             var o = (T)editor.target;
             var so = editor.serializedObject;
 
-            if (o.gameObject.IsPrefab())
+            var go = o.gameObject;
+            
+            if (go.IsPrefab())
                 return false;
 
             var pgi = o as IPEGI;
+            
             if (pgi != null)
             {
                 start(so);
+
+                var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
+                
+                if (isPrefab &&
+                    PrefabUtility.HasPrefabInstanceAnyOverrides( PrefabUtility.GetNearestPrefabInstanceRoot(o), false) &&
+                    icon.Save.Click("Update Prefab")) 
+                        PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
+                
                 var changed = pgi.Inspect();
-                end(o.gameObject);
+                
+                if (changed && isPrefab)
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(o);
+                
+                if (changes)
+                {
+                    if (!Application.isPlaying)
+                        EditorSceneManager.MarkSceneDirty(go ? SceneManager.GetActiveScene() : go.scene);
+
+                    EditorUtility.SetDirty(go);
+                }
+
+                newLine();
+                
                 return changed;
             }
             else editor.DrawDefaultInspector();
@@ -77,7 +102,7 @@ namespace PlayerAndEditorGUI {
             if (pgi != null)
             {
                 start(so);
-                bool changed = pgi.Inspect();
+                var changed = pgi.Inspect();
                 end(o);
                 return changed;
             }
@@ -103,14 +128,11 @@ namespace PlayerAndEditorGUI {
             return changes;
         }
 
-        public static bool toggleDefaultInspector()
-        {    
-            if (editorType == EditorType.Material)
-                return pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20).nl();
-
-            else
-                return pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20).nl();
-        }
+        public static bool toggleDefaultInspector() =>
+            editorType == EditorType.Material 
+                ? pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20).nl() 
+                : pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20).nl();
+            
 
         static void start(SerializedObject so = null) {
             _elementIndex = 0;
@@ -126,7 +148,7 @@ namespace PlayerAndEditorGUI {
             if (changes)
             {
                 if (!Application.isPlaying)
-                    EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                    EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 
                 EditorUtility.SetDirty(obj);
             }
@@ -134,29 +156,6 @@ namespace PlayerAndEditorGUI {
 
             return changes;
         }
-
-        static bool end(GameObject go)
-        {
-            if (changes)
-            {
-                if (!Application.isPlaying)
-                    EditorSceneManager.MarkSceneDirty(go ? EditorSceneManager.GetActiveScene() : go.scene);
-
-                EditorUtility.SetDirty(go);
-            }
-
-            newLine();
-            return changes;
-        }
-
-      /*  static bool end<T>(T obj) where T : UnityEngine.Object
-        {
-            if (changes)
-                EditorUtility.SetDirty(obj);
-
-            newLine();
-            return changes;
-        }*/
         
       private static bool change { get { pegi.globChanged = true; return true; } }
 

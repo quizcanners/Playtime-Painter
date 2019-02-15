@@ -182,7 +182,7 @@ namespace Playtime_Painter
             tf.localRotation = Quaternion.identity;
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
 
-            PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
+            PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
 
             if (material)
             {
@@ -205,7 +205,7 @@ namespace Playtime_Painter
 
 
             if (Math.Abs(aspectRatio - 1) > float.Epsilon)
-                PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1;
+                PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1;
 
         }
 
@@ -230,7 +230,7 @@ namespace Playtime_Painter
             if (!meshFilter)
                 meshFilter = GetComponent<MeshFilter>();
 
-            PainterDataAndConfig.bufferCopyAspectRatio.GlobalValue = 1f;
+            PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1f;
         }
 
         private void Awake()

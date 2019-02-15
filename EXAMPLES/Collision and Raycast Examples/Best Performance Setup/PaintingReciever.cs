@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 
 
 namespace Playtime_Painter.Examples {
@@ -22,8 +24,39 @@ namespace Playtime_Painter.Examples {
         [SerializeField]
         public int materialIndex;
         [SerializeField]
-        string textureField = "";
+        private string _textureField = "";
 
+        
+        private ShaderProperty.TextureValue textureProperty;
+
+        public String TexturePropertyName
+        {
+            set
+            {
+                _textureField = value;
+                textureProperty = new ShaderProperty.TextureValue(value);
+            }
+        }
+        
+        public ShaderProperty.TextureValue TextureID {
+
+
+            get
+            {
+                
+                if (textureProperty == null)
+                    textureProperty = new ShaderProperty.TextureValue(_textureField);
+                
+                return textureProperty;
+                
+              
+            }                    
+            
+        }
+        
+        
+        
+        
         public Mesh Mesh { get { return skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
         public Renderer Renderer { get { return meshRenderer ? meshRenderer : skinnedMeshRenderer; } }
         public Material Material { get {
@@ -42,18 +75,18 @@ namespace Playtime_Painter.Examples {
         }
         public Texture MatTex { get {
                 if (!Material) return null;
-                return Material.HasProperty(textureField) ? Material.GetTexture(textureField) : Material.mainTexture;
+                return Material.Has(TextureID) ? Material.Get(TextureID) : Material.mainTexture;
 
             } set {
-                if (Material.HasProperty(textureField))
-                    Material.SetTexture(textureField, value);
+                if (Material.Has(TextureID))
+                    Material.Set(TextureID, value);
                 else Material.mainTexture = value;   } }
         
         public Texture texture;
         public Texture originalTexture;
         public bool useTexcoord2;
-        public bool fromRTmanager;
-        public Vector2 meshUVoffset;
+        public bool fromRtManager;
+        public Vector2 meshUvOffset;
         public Material originalMaterial;
 
         private void OnEnable()  {
@@ -62,6 +95,7 @@ namespace Playtime_Painter.Examples {
 
             if (Application.isPlaying && (originalTexture) && (texture) && (texture.GetType() == typeof(RenderTexture)))
                 PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
+            
         }
 
         public Texture GetTexture() {
@@ -75,35 +109,33 @@ namespace Playtime_Painter.Examples {
                 return null;
             }
 
-            if (rtm) {
-                
-                originalMaterial = Material;
+            if (!rtm) return texture;
+            
+            originalMaterial = Material;
 
-                texture = rtm.GetRenderTexture();
+            texture = rtm.GetRenderTexture();
 
-                fromRTmanager = true;
+            fromRtManager = true;
              
-                Material = Instantiate(originalMaterial);
+            Material = Instantiate(originalMaterial);
 
-                var tex = originalTexture ? originalTexture : MatTex;
-                if (tex)
-                    PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
-                else
-                    PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
+            var tex = originalTexture ? originalTexture : MatTex;
+            if (tex)
+                PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
+            else
+                PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
 
-                MatTex = texture;
+            MatTex = texture;
 
-                texture.GetImgData().useTexcoord2 = useTexcoord2;
-
-            }
+            texture.GetImgData().useTexcoord2 = useTexcoord2;
 
             return texture;
         }
 
         public void Restore() {
             
-            if ((fromRTmanager) && (originalMaterial)) {
-                fromRTmanager = false;
+            if ((fromRtManager) && (originalMaterial)) {
+                fromRtManager = false;
                 Material = originalMaterial;
                 originalMaterial = null;
                 TexturesPool._inst.ReturnOne((RenderTexture)texture);
@@ -131,7 +163,7 @@ namespace Playtime_Painter.Examples {
 
         }
 
-        void Refresh()
+        private void Refresh()
         {
             if (!meshFilter)
                 meshFilter = GetComponent<MeshFilter>();
@@ -144,7 +176,7 @@ namespace Playtime_Painter.Examples {
         }
         
         private void OnDisable() {
-            if (fromRTmanager) Restore();
+            if (fromRtManager) Restore();
            
         }
 
@@ -157,17 +189,22 @@ namespace Playtime_Painter.Examples {
 
         public virtual bool Inspect() {
 
-            bool changes = false;
+            var changes = false;
 
             if (icon.Refresh.Click("Find stuff automatically"))
                 Refresh();
 
-            if ("Renderer Type:".editEnum(90, ref type).nl()) {
-                if ((type == RendererType.Skinned) && (!skinnedMeshRenderer))
-                    skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-                if ((type == RendererType.Regular) && (!meshFilter)) {
-                    meshFilter = GetComponent<MeshFilter>();
-                    meshRenderer = GetComponent<MeshRenderer>();
+            if ("Renderer Type:".editEnum(90, ref type).nl())
+            {
+                switch (type)
+                {
+                    case RendererType.Skinned when (!skinnedMeshRenderer):
+                        skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+                        break;
+                    case RendererType.Regular when (!meshFilter):
+                        meshFilter = GetComponent<MeshFilter>();
+                        meshRenderer = GetComponent<MeshRenderer>();
+                        break;
                 }
             }
 
@@ -189,9 +226,10 @@ namespace Playtime_Painter.Examples {
             
             if (Material) {
                 var lst = Material.MyGetTextureProperties();
-                if (lst.Count > 0) 
-                    "   Property".select(80, ref textureField, lst).nl();
-                else textureField = "";
+                var prop = TextureID;
+                if ("   Property".select(80, ref textureProperty, lst).nl())
+                    TexturePropertyName = textureProperty.NameForDisplayPEGI;
+
             }
             
             if (gameObject.isStatic && !originalMesh) {                
@@ -214,25 +252,33 @@ namespace Playtime_Painter.Examples {
             if (Material)
             {
 
-                if (!Material.HasProperty(textureField) && !Material.mainTexture )
+                if (!Material.Has(TextureID) && !Material.mainTexture )
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
                 {
+
+                   
+                    
                     if (texture)
                     {
-                        if (texture.GetType() == typeof(Texture2D))
+                        
+                        
+                        var t2D = texture as Texture2D;
+                        
+                        if (t2D)
                         {
                             icon.Done.write();
                             "CPU brush will work if object has MeshCollider".nl();
 
+                          
+                            
                             if (originalTexture) {
 
-                                if (originalTexture.GetType() == typeof(Texture2D)) {
+                                var ot2D = originalTexture as Texture2D;
+                                
+                                if (ot2D) {
 
-                                    var ot = (Texture2D)originalTexture;
-                                    var t = (Texture2D)texture;
-
-                                    if ((ot.width == t.width) && (ot.height == ot.height)) {
+                                    if ((ot2D.width == t2D.width) && (ot2D.height == t2D.height)) {
                                         if (("Undo Changes".Click()).nl())
                                             Restore();
                                     }
@@ -271,7 +317,7 @@ namespace Playtime_Painter.Examples {
                             else {
                                 icon.Done.write();
                                 "COMPONENT SET UP CORRECTLY".write();
-                                if (fromRTmanager && "Restore".Click())
+                                if (fromRtManager && "Restore".Click())
                                     Restore();
                                 pegi.nl();
                             }
@@ -299,15 +345,15 @@ namespace Playtime_Painter.Examples {
                 if (!texture || texture.GetType() == typeof(RenderTexture)) {
 
                     "Mesh UV Offset".edit("Some Meshes have UV coordinates with displacement for some reason. " +
-                        "If your object doesn't use a mesh collider to provide a UV offset, this will be used.", 80, ref meshUVoffset).nl();
+                        "If your object doesn't use a mesh collider to provide a UV offset, this will be used.", 80, ref meshUvOffset).nl();
                     if (Mesh && "Offset from Mesh".Click().nl())
                     {
-                        int firstVertInSubmeshIndex = Mesh.GetTriangles(materialIndex)[0];
-                        meshUVoffset = useTexcoord2 ? Mesh.uv2[firstVertInSubmeshIndex] : Mesh.uv[firstVertInSubmeshIndex];
+                        var firstVertInSubmeshIndex = Mesh.GetTriangles(materialIndex)[0];
+                        meshUvOffset = useTexcoord2 ? Mesh.uv2[firstVertInSubmeshIndex] : Mesh.uv[firstVertInSubmeshIndex];
 
-                        meshUVoffset = new Vector2((int)meshUVoffset.x, (int)meshUVoffset.y);
+                        meshUvOffset = new Vector2((int)meshUvOffset.x, (int)meshUvOffset.y);
 
-                        ("Mesh Offset is " + meshUVoffset.ToString()).showNotificationIn3D_Views();
+                        ("Mesh Offset is " + meshUvOffset.ToString()).showNotificationIn3D_Views();
                     }
                 }
             }

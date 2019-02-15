@@ -274,7 +274,7 @@ namespace Playtime_Painter {
                 var materialData = pntr.MatDta;
 
                 if (!imgData.renderTexture  && !TexMGMT.materialsUsingTendTex.Contains(materialData)) {
-                    TexMGMT.ChangeBufferTarget(imgData, materialData, pntr.GetMaterialTexturePropertyName, pntr);
+                    TexMGMT.ChangeBufferTarget(imgData, materialData, pntr.GetMaterialTextureProperty, pntr);
                     pntr.SetTextureOnMaterial(imgData);
                 }
 
@@ -472,7 +472,7 @@ namespace Playtime_Painter {
 
                 var mat = InspectedPainter.Material;
                 if (mat) {
-                    var tag = mat.GetTag(PainterDataAndConfig.vertexColorRole + m.ToString(), false, null);
+                    var tag = mat.GetTag(PainterDataAndConfig.VertexColorRole + m.ToString(), false, null);
                     if (!tag.IsNullOrEmpty()) {
 
                         if (maskVal)

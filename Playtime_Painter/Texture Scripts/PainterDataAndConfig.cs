@@ -39,21 +39,20 @@ namespace Playtime_Painter
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
         public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
-
-
+        
         #region Preperties
-        public static readonly ShaderProperty.VectorValue terrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
-        public static readonly ShaderProperty.VectorValue terrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
-        public static readonly ShaderProperty.VectorValue terrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
-        public const string TERRAIN_HEIGHT_TEXTURE = "_mergeTerrainHeight";
-        public static readonly ShaderProperty.TextureValue terrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
+        public static readonly ShaderProperty.VectorValue TerrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
+        public static readonly ShaderProperty.VectorValue TerrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
+        public static readonly ShaderProperty.VectorValue TerrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
+        private const string TERRAIN_HEIGHT_TEXTURE = "_mergeTerrainHeight";
+        public static readonly ShaderProperty.TextureValue TerrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
         public const string TERRAIN_CONTROL_TEXTURE = "_mergeControl";
-        public static readonly ShaderProperty.TextureValue terrainControl = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
+        public static readonly ShaderProperty.TextureValue TerrainControlMain = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
         public const string terrainTexture = "_mergeSplat_";
         public const string terrainNormalMap = "_mergeSplatN_";
-        public const string TERRAIN_LIGHT_TEXTURE = "_TerrainColors";
-        public static readonly ShaderProperty.TextureValue terrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
-        public static readonly ShaderProperty.TextureValue previewTexture = new ShaderProperty.TextureValue("_PreviewTex");
+        private const string TERRAIN_LIGHT_TEXTURE = "_TerrainColors";
+        public static readonly ShaderProperty.TextureValue TerrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
+        public static readonly ShaderProperty.TextureValue PreviewTexture = new ShaderProperty.TextureValue("_PreviewTex");
 
         public static readonly ShaderProperty.VectorValue BRUSH_WORLD_POS_FROM = new ShaderProperty.VectorValue("_brushWorldPosFrom");
         public static readonly ShaderProperty.VectorValue BRUSH_WORLD_POS_TO = new ShaderProperty.VectorValue("_brushWorldPosTo");
@@ -64,8 +63,8 @@ namespace Playtime_Painter
         public static readonly ShaderProperty.TextureValue DESTINATION_BUFFER = new ShaderProperty.TextureValue("_DestBuffer");
         public static readonly ShaderProperty.TextureValue SOURCE_TEXTURE = new ShaderProperty.TextureValue("_SourceTexture");
         public const string ATLASED_TEXTURES = "_AtlasTextures";
-        public static readonly ShaderProperty.FloatValue texturesInAtlasRow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
-        public static readonly ShaderProperty.FloatValue bufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
+        public static readonly ShaderProperty.FloatValue TexturesInAtlasRow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
+        public static readonly ShaderProperty.FloatValue BufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
         #endregion
 
 
@@ -93,8 +92,8 @@ namespace Playtime_Painter
 
 
         public const string TransparentLayerExpected = "TransparentLayerExpected";
-        public const string TextureSampledWithUV2 = "TextureSampledWithUV2";
-        public const string vertexColorRole = "VertexColorRole_";
+        public const string TextureSampledWithUv2 = "TextureSampledWithUV2";
+        public const string VertexColorRole = "VertexColorRole_";
       
         #endregion
 
@@ -185,7 +184,7 @@ namespace Playtime_Painter
 
         public bool showColorSchemes = false;
         [NonSerialized]
-        public readonly Dictionary<string, List<ImageMeta>> recentTextures = new Dictionary<string, List<ImageMeta>>();
+        public readonly Dictionary<ShaderProperty.TextureValue, List<ImageMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<ImageMeta>>();
 
         public List<Texture> sourceTextures = new List<Texture>();
 

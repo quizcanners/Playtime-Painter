@@ -120,8 +120,24 @@ public static class TextureEditorExtensionFunctions  {
 
         public static void RemoveEmpty(this Dictionary<string, List<ImageMeta>> dic)
         {
-            foreach (KeyValuePair<string, List<ImageMeta>> l in dic)
+            foreach (var l in dic)
                 l.Value.RemoveEmpty();
+        }
+        
+        public static void AddIfNew<T>(this Dictionary<T, List<ImageMeta>> dic, T property, ImageMeta texture) where T:ShaderProperty.BaseIndexHolder
+        {
+
+            List<ImageMeta> mgmt;
+            
+            if (!dic.TryGetValue(property, out mgmt))
+            {
+                mgmt = new List<ImageMeta>();
+                dic.Add(property, mgmt);
+            }
+
+            if (!mgmt.ContainsDuplicant(texture))
+                mgmt.Add(texture);
+
         }
         
         public static void AddIfNew(this Dictionary<string, List<ImageMeta>> dic, string Property, ImageMeta texture)
@@ -139,11 +155,11 @@ public static class TextureEditorExtensionFunctions  {
 
         }
 
-        public static bool TargetIsTexture2D(this ImageMeta id) =>  id == null ? false :  id.destination == TexTarget.Texture2D;
+        public static bool TargetIsTexture2D(this ImageMeta id) =>  id != null && id.destination == TexTarget.Texture2D;
         
-        public static bool TargetIsRenderTexture(this ImageMeta id) => id == null ? false :  id.destination == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this ImageMeta id) => id != null && id.destination == TexTarget.RenderTexture;
         
-        public static bool TargetIsBigRenderTexture(this ImageMeta id)=> id == null ? false : (id.destination == TexTarget.RenderTexture) && (!id.renderTexture);
+        public static bool TargetIsBigRenderTexture(this ImageMeta id)=> id != null && ((id.destination == TexTarget.RenderTexture) && (!id.renderTexture));
         
         public static ImageMeta GetImgDataIfExists(this Texture texture)
         {
@@ -157,15 +173,17 @@ public static class TextureEditorExtensionFunctions  {
 
             var lst = PainterCamera.Data.imgMetas;
 
-            if (lst != null)
-            for (int i = 0; i < lst.Count; i++) {
-                ImageMeta id = lst[i];
-                if ((texture == id.texture2D) || (texture == id.renderTexture) || (texture == id.other)) {
-                    rid = id;
-                    if (i > 3) 
-                        PainterCamera.Data.imgMetas.Move(i, 0);
-                    break;
-                }
+            if (lst == null) return rid;
+            for (var i = 0; i < lst.Count; i++) {
+                var id = lst[i];
+                if ((texture != id.texture2D) && (texture != id.renderTexture) && (texture != id.other)) continue;
+                
+                rid = id;
+                
+                if (i > 3) 
+                    PainterCamera.Data.imgMetas.Move(i, 0);
+                
+                break;
             }
 
             return rid;
@@ -176,41 +194,31 @@ public static class TextureEditorExtensionFunctions  {
             if (!texture)
                 return null;
 
-            var nid = texture.GetImgDataIfExists();
+            var nid = texture.GetImgDataIfExists() ?? new ImageMeta().Init(texture);
 
-            if (nid == null)
-                nid = new ImageMeta().Init(texture);
-            
             return nid;
         }
 
         public static bool IsBigRenderTexturePair(this Texture tex) =>
              ((tex != null) && PainterCamera.GotBuffers && ((tex == PainterCamera.Inst.bigRtPair[0])));
-        
-        public static bool ContainsDuplicant(this List<ImageMeta> texs, ImageMeta other)
+
+        private static bool ContainsDuplicant(this IList<ImageMeta> textures, ImageMeta other)
         {
 
             if (other == null)
                 return true;
 
-            for (int i = 0; i < texs.Count; i++)
-                if (texs[i] == null) { texs.RemoveAt(i); i--; }
+            for (var i = 0; i < textures.Count; i++)
+                if (textures[i] == null) { textures.RemoveAt(i); i--; }
 
-            foreach (ImageMeta t in texs)
-                if (t.Equals(other))
-                    return true;
-
-            return false;
+            return Enumerable.Contains(textures, other);
         }
 
         public static Texture GetDestinationTexture(this Texture texture)
         {
 
-            ImageMeta id = texture.GetImgDataIfExists();
-            if (id != null)
-                return id.CurrentTexture();
-
-            return texture;
+            var id = texture.GetImgDataIfExists();
+            return id != null ? id.CurrentTexture() : texture;
         }
 
         public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.bigRtPair[0]);

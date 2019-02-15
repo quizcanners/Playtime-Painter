@@ -7,19 +7,19 @@ using Playtime_Painter.Examples;
 namespace Playtime_Painter.Examples {
 
 public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material {
+    
+    private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 
-        static readonly ShaderProperty.FloatValue softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
-
-        static readonly ShaderProperty.TextureValue outline = new ShaderProperty.TextureValue("_OutlineGradient");
+    private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
 
         #if PEGI
         public override bool Inspect(Material mat) {
 
             var changed = pegi.toggleDefaultInspector();
 
-            mat.edit(softness, "Softness", 0, 1).nl(ref changed);
+            mat.edit(Softness, "Softness", 0, 1).nl(ref changed);
        
-            mat.edit(outline).nl(ref changed);
+            mat.edit(Outline).nl(ref changed);
 
             if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))
                 "UNLINKED VERTICES".nl();

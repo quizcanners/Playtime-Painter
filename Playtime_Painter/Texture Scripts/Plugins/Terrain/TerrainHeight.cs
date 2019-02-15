@@ -11,59 +11,45 @@ namespace Playtime_Painter {
         const string tag = "TerHeight";
         public override string ClassTag => tag;
 
-        public override bool GetTexture(string fieldName, ref Texture tex, PlaytimePainter painter) {
-            if ((painter.terrain) && (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))) {
-                tex = painter.terrainHeightTexture;
-                return true;
-            }
-            return false;
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) {
+            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            tex = painter.terrainHeightTexture;
+            return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<string> dest)
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
         {
             if (painter.terrain)
-                dest.Add(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE);
+                dest.Add(PainterDataAndConfig.TerrainHeight);
         }
 
-        public override bool UpdateTylingFromMaterial(string fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter)
         {
-            if (painter.terrain)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))
-                {
-                    var id = painter.ImgMeta;
-                    if (id != null) {
-                        id.tiling = Vector2.one;
-                        id.offset = Vector2.zero;
-                    }
-                    return true;
-                }
-            }
-            return false;
+            if (!painter.terrain) return false;
+            if (!fieldName.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            var id = painter.ImgMeta;
+            if (id == null) return true;
+            id.tiling = Vector2.one;
+            id.offset = Vector2.zero;
+            return true;
         }
 
-        public override bool SetTextureOnMaterial(string fieldName, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
         {
-           
-            if (painter.terrain)
-            {
-                if (fieldName.Contains(PainterDataAndConfig.TERRAIN_HEIGHT_TEXTURE))
-                {
-                    if (id != null && id.texture2D)
-                        painter.terrainHeightTexture = id.texture2D;
+            if (!painter.terrain) return false;
+            if (!field.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            if (id != null && id.texture2D)
+                painter.terrainHeightTexture = id.texture2D;
 
-                    Texture tex = id.CurrentTexture();
+            var tex = id.CurrentTexture();
 
-                    PainterDataAndConfig.terrainHeight.GlobalValue = tex;
-                    return true;
-                }
-            }
-            return false;
+            PainterDataAndConfig.TerrainHeight.GlobalValue = tex;
+            return true;
         }
 
         public override void OnUpdate(PlaytimePainter painter) {
             if (painter.terrainHeightTexture)
-                PainterDataAndConfig.terrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
+                PainterDataAndConfig.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
         }
 
     
