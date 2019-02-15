@@ -477,11 +477,14 @@ namespace QuizCannersUtilities {
             if (!obj) return obj;
             
             EditorUtility.SetDirty(obj);
-            
+
+
+#if UNITY_2018_3_OR_NEWER
             if (PrefabUtility.IsPartOfAnyPrefab(obj))
                 PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
-              
-            #endif
+#endif
+
+        #endif
             return obj;
         }
 
@@ -1646,36 +1649,36 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Terrain Layers
-                public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
-                {
+        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
+        {
 
-                    if (!terrain) return;
+            if (!terrain) return;
 
         #if UNITY_2018_3_OR_NEWER
-                    var l = terrain.terrainData.terrainLayers;
+            var l = terrain.terrainData.terrainLayers;
 
-                    if (l.Length > index)
-                        l[index].diffuseTexture = tex;
+            if (l.Length > index)
+                l[index].diffuseTexture = tex;
         #else
 
-                    SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
+            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
 
-                    if (newProtos.Length <= index)
-                    {
-                       CsharpFuncs.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
-                    }
+            if (newProtos.Length <= index)
+            {
+                CsharpUtils.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+            }
 
-                    newProtos[index].texture = tex;
+            newProtos[index].texture = tex;
 
        
-                    terrain.terrainData.splatPrototypes = newProtos;
+            terrain.terrainData.splatPrototypes = newProtos;
         #endif
 
 
 
-                }
+}
 
-                public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
+        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
                 {
 
         #if UNITY_2018_3_OR_NEWER
@@ -1851,7 +1854,7 @@ namespace QuizCannersUtilities {
 
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
-        private string _name;
+        private readonly string _name;
         private float _timer = 0;
         private double _perIntervalCount = 0;
         private double _max = 0;
@@ -1880,16 +1883,11 @@ namespace QuizCannersUtilities {
             _average = _average * (1d - portion) + _perIntervalCount * portion;
 
             _perIntervalCount = 0;
-            
 
         }
 
-        public void Add(float result = 1)
-        {
-            _perIntervalCount += result;
-
-        }
-
+        public void Add(float result = 1) => _perIntervalCount += result;
+        
         public void ResetStats()
         {
             _timer = 0;

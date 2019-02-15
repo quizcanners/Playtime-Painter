@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QuizCannersUtilities;
 using UnityEngine;
 
 namespace Playtime_Painter
@@ -11,39 +12,39 @@ namespace Playtime_Painter
 
         public MeshRenderer meshRenderer;
         public MeshFilter meshFilter;
-        [NonSerialized] public Mesh modifiedMesh;
+        [NonSerialized] private Mesh _modifiedMesh;
         public Bounds modifiedBound;
 
-        SkinnedMeshRenderer changedSkinnedMeshRendy;
-        GameObject changedGameObject;
-        Material replacedTargetsMaterial;
-        Material[] replacedBrushesMaterials;
-        int modifiedSubmesh;
-        int replacedLayer;
+        private SkinnedMeshRenderer _changedSkinnedMeshRenderer;
+        private GameObject _changedGameObject;
+        private Material _replacedTargetsMaterial;
+        private Material[] _replacedBrushesMaterials;
+        private int _modifiedSubMesh;
+        private int _replacedLayer;
         public bool deformedBounds;
 
         public void RestoreBounds()
         {
 
-            if (replacedTargetsMaterial)
+            if (_replacedTargetsMaterial)
             {
 
-                var lst = changedSkinnedMeshRendy.sharedMaterials;
-                lst[modifiedSubmesh] = replacedTargetsMaterial;
-                changedSkinnedMeshRendy.sharedMaterials = lst;
+                var lst = _changedSkinnedMeshRenderer.sharedMaterials;
+                lst[_modifiedSubMesh] = _replacedTargetsMaterial;
+                _changedSkinnedMeshRenderer.sharedMaterials = lst;
 
-                changedSkinnedMeshRendy.localBounds = modifiedBound;
-                changedGameObject.layer = replacedLayer;
-                replacedTargetsMaterial = null;
+                _changedSkinnedMeshRenderer.localBounds = modifiedBound;
+                _changedGameObject.layer = _replacedLayer;
+                _replacedTargetsMaterial = null;
                 meshRenderer.enabled = true;
 
             }
             else
             {
                 transform.parent = PainterCamera.Inst.transform;
-                modifiedMesh.bounds = modifiedBound;
+                _modifiedMesh.bounds = modifiedBound;
 
-                meshRenderer.materials = replacedBrushesMaterials;
+                meshRenderer.materials = _replacedBrushesMaterials;
             }
 
             deformedBounds = false;
@@ -54,7 +55,6 @@ namespace Playtime_Painter
         {
 
             var go = painter.gameObject;
-            var camTransform = PainterCamera.Inst.transform;
 
             var skinny = painter.skinnedMeshRenderer;
 
@@ -66,30 +66,33 @@ namespace Playtime_Painter
 
         public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int subMesh)
         {
-            modifiedSubmesh = subMesh;
+            _modifiedSubMesh = subMesh;
 
             meshRenderer.enabled = false;
 
             var camTransform = PainterCamera.Inst.transform;
 
-            changedSkinnedMeshRendy = skinny;
-            changedGameObject = go;
+            _changedSkinnedMeshRenderer = skinny;
+            _changedGameObject = go;
 
             modifiedBound = skinny.localBounds;
             skinny.localBounds = new Bounds(go.transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 15000f);
 
-            replacedLayer = go.layer;
+            _replacedLayer = go.layer;
             go.layer = gameObject.layer;
 
-            replacedTargetsMaterial = skinny.sharedMaterials[modifiedSubmesh];
+  
             var lst = skinny.sharedMaterials;
-            lst[modifiedSubmesh] = meshRenderer.sharedMaterial;
+            
+            _replacedTargetsMaterial = lst[_modifiedSubMesh];
+          
+            lst[_modifiedSubMesh] = meshRenderer.sharedMaterial;
             skinny.sharedMaterials = lst;
 
             deformedBounds = true;
         }
 
-        public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubmeshes)
+        public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubMeshes)
         {
 
             var camTransform = TexMGMT.transform;
@@ -102,24 +105,24 @@ namespace Playtime_Painter
             tf.rotation = target.rotation;
             tf.localScale = target.localScale;
 
-            modifiedMesh = mesh;
+            _modifiedMesh = mesh;
             meshFilter.sharedMesh = mesh;
 
-            modifiedBound = modifiedMesh.bounds;
-            modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
+            modifiedBound = _modifiedMesh.bounds;
+            _modifiedMesh.bounds = new Bounds(transform.InverseTransformPoint(camTransform.position + camTransform.forward * 100), Vector3.one * 500f);
             tf.parent = target.parent;
 
-            replacedBrushesMaterials = meshRenderer.sharedMaterials;
+            _replacedBrushesMaterials = meshRenderer.sharedMaterials;
 
             var max = 0;
 
-            foreach (var e in selectedSubmeshes)
+            foreach (var e in selectedSubMeshes)
                 max = Mathf.Max(e, max);
 
             if (max > 0)
             {
                 var mats = new Material[max + 1];
-                foreach (var e in selectedSubmeshes)
+                foreach (var e in selectedSubMeshes)
                     mats[e] = meshRenderer.sharedMaterial;
                 meshRenderer.materials = mats;
             }
@@ -133,10 +136,14 @@ namespace Playtime_Painter
             return this;
         }
 
-        public void Set(Texture tex) =>  meshRenderer.sharedMaterial.SetTexture("_MainTex", tex);
+        private readonly ShaderProperty.TextureValue _mainTex = new ShaderProperty.TextureValue("_MainTex");
+
+        private readonly ShaderProperty.ColorValue _colorVal = new ShaderProperty.ColorValue("_Color");
+        
+        public void Set(Texture tex) =>  meshRenderer.sharedMaterial.Set(_mainTex, tex);
         
 
-        private void Set(Color col) => meshRenderer.sharedMaterial.SetColor("_Color", col);
+        private void Set(Color col) => meshRenderer.sharedMaterial.Set(_colorVal, col);
    
 
         public void FullScreenQuad()

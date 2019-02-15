@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -41,9 +39,9 @@ namespace Playtime_Painter
             */
         }
 
-        protected Vector2 UvToPosition(Vector2 uv) { return (uv - Vector2.one * 0.5f) * PainterCamera.OrthographicSize * 2; }
+        protected static Vector2 UvToPosition(Vector2 uv) { return (uv - Vector2.one * 0.5f) * PainterCamera.OrthographicSize * 2; }
 
-        public Vector2 To01space(Vector2 from)
+        public Vector2 To01Space(Vector2 from)
         {
             from.x %= 1;
             from.y %= 1;
@@ -72,24 +70,24 @@ namespace Playtime_Painter
 
         protected virtual string ShaderKeyword(bool texcoord2) { return null; }
 
-        static int typesCount = 0;
-        public int index;
+        private static int _typesCount;
+        public readonly int index;
 
-        public BrushType()
+        protected BrushType()
         {
-            index = typesCount;
-            typesCount++;
+            index = _typesCount;
+            _typesCount++;
         }
 
-        public virtual bool SupportedByTex2D { get { return false; } }
-        public virtual bool SupportedByRenderTexturePair { get { return true; } }
-        public virtual bool SupportedBySingleBuffer { get { return true; } }
-        public virtual bool IsA3DBrush { get { return false; } }
-        public virtual bool IsPixelPerfect { get { return false; } }
-        public virtual bool IsUsingDecals { get { return false; } }
-        public virtual bool StartPaintingTheMomentMouseIsDown { get { return true; } }
-        public virtual bool SupportedForTerrain_RT { get { return true; } }
-        public virtual bool NeedsGrid { get { return false; } }
+        public virtual bool SupportedByTex2D => false;
+        public virtual bool SupportedByRenderTexturePair => true;
+        public virtual bool SupportedBySingleBuffer => true;
+        public virtual bool IsA3DBrush => false;
+        public virtual bool IsPixelPerfect => false;
+        public virtual bool IsUsingDecals => false;
+        public virtual bool StartPaintingTheMomentMouseIsDown => true;
+        public virtual bool SupportedForTerrainRt => true;
+        public virtual bool NeedsGrid => false;
 
         public abstract string NameForDisplayPEGI { get; }
 
@@ -100,7 +98,7 @@ namespace Playtime_Painter
             if (!PlaytimePainter.inspectedPainter)
                 return false;
 
-            ImageMeta id = InspectedImageMeta;
+            var id = InspectedImageMeta;
 
             if (id == null)
                 return false;
@@ -114,34 +112,36 @@ namespace Playtime_Painter
         public virtual bool Inspect()
         {
 
-            bool changed = false;
-  
+        
             if (BrushConfig.InspectedIsCPUbrush || !PainterCamera.Inst)
-                return changed;
+                return false;
 
+            var changed = false;
+
+            
             if (TexMGMTdata.masks.Count > 0)
             {
                 pegi.nl();
                 pegi.space();
                 pegi.nl();
 
-                changed |= "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true);
+               "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true).changes(ref changed);
 
                 if (InspectedBrush.useMask) {
 
-                    changed |= pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl();
+                    pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl(ref changed);
 
                     if (!InspectedBrush.randomMaskOffset)
-                        changed |= "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl();
+                        "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl(ref changed);
 
-                    changed |= "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl();
+                    "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl(ref changed);
 
           
                     if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl(ref changed))
                         InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
                     
 
-                    changed |= "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl();
+                    "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl(ref changed);
                     
                 }
 
@@ -155,69 +155,69 @@ namespace Playtime_Painter
         }
         #endif
         #endregion
-        public virtual void PaintToTexture2D(PlaytimePainter pntr, BrushConfig br, StrokeVector st) {
+        public virtual void PaintToTexture2D(PlaytimePainter painter, BrushConfig br, StrokeVector st) {
 
-            Vector2 delta_uv = st.uvTo - st.uvFrom;
+            var deltaUv = st.uvTo - st.uvFrom;
             
-            if (delta_uv.magnitude > (0.2f + st.avgBrushSpeed * 3)) delta_uv = Vector2.zero; // This is made to avoid glitch strokes on seams
-            else st.avgBrushSpeed = (st.avgBrushSpeed + delta_uv.magnitude) / 2;
+            if (deltaUv.magnitude > (0.2f + st.avgBrushSpeed * 3)) deltaUv = Vector2.zero; // This is made to avoid glitch strokes on seams
+            else st.avgBrushSpeed = (st.avgBrushSpeed + deltaUv.magnitude) / 2;
 
-            float alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
+            var alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
 
-            bool worldSpace = pntr.NeedsGrid();
+            var worldSpace = painter.NeedsGrid();
 
-            var id = pntr.ImgMeta;
+            var id = painter.ImgMeta;
 
-            float uvDist = (delta_uv.magnitude * id.width * 8 / br.Size(false));
-            float worldDist = st.Delta_WorldPos.magnitude;
+            var uvDist = (deltaUv.magnitude * id.width * 8 / br.Size(false));
+            var worldDist = st.DeltaWorldPos.magnitude;
 
             float steps = (int)Mathf.Max(1, worldSpace ? worldDist : uvDist);
 
-            delta_uv /= steps;
-            Vector3 deltaPos = st.Delta_WorldPos / steps;
+            deltaUv /= steps;
+            var deltaPos = st.DeltaWorldPos / steps;
 
-            st.uvFrom += delta_uv;
+            st.uvFrom += deltaUv;
             st.posFrom += deltaPos;
             
             Blit_Functions.PaintTexture2DMethod blitMethod = null;
 
-            if (blitMethod == null && tex2DPaintPlugins != null)
+            if (tex2DPaintPlugins != null)
                 foreach (Blit_Functions.PaintTexture2DMethod p in tex2DPaintPlugins.GetInvocationList())
-                    if (p(st, alpha, id, br, pntr)) {
+                    if (p(st, alpha, id, br, painter)) {
                         blitMethod = p;
                         break;
                     }
 
             if (blitMethod == null) {
                 blitMethod = Blit_Functions.Paint;
-                blitMethod(st, alpha, id, br, pntr);
+                blitMethod(st, alpha, id, br, painter);
             }
 
             for (float i = 1; i < steps; i++) {
-                st.uvFrom += delta_uv;
+                st.uvFrom += deltaUv;
                 st.posFrom += deltaPos;
-                blitMethod(st, alpha, id, br, pntr);
+                blitMethod(st, alpha, id, br, painter);
             }
 
-            pntr.AfterStroke(st);
+            painter.AfterStroke(st);
         }
 
-        public virtual void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public virtual void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            BeforeStroke(pntr, br, st);
+            BeforeStroke(painter, br, st);
 
             if (st.CrossedASeam())
                 st.uvFrom = st.uvTo;
 
-            ImageMeta id = pntr.ImgMeta;
+            ImageMeta id = painter.ImgMeta;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
 
             var rb = Rtbrush;
 
             rb.localScale = Vector3.one;
-            Vector2 direction = st.Delta_uv;
+            Vector2 direction = st.DeltaUv;
             float length = direction.magnitude;
             BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(id.width, false));
             rb.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
@@ -226,14 +226,14 @@ namespace Playtime_Painter
 
             TexMGMT.Render();
 
-            AfterStroke(pntr, br, st);
+            AfterStroke(painter, br, st);
         }
 
         protected static void AfterStroke(BrushConfig br)
         {
 
             if ((br.useMask) && (br.randomMaskOffset))
-                br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+                br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
         }
 
@@ -243,19 +243,19 @@ namespace Playtime_Painter
                 p.BeforeGPUStroke(pntr, br, st, this);
         }
 
-        public virtual void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            pntr.AfterStroke(st);
+            painter.AfterStroke(st);
 
-            if (!br.IsSingleBufferBrush() && !br.IsA3Dbrush(pntr))
+            if (!br.IsSingleBufferBrush() && !br.IsA3Dbrush(painter))
                 TexMGMT.UpdateBufferSegment();
 
-            if ((br.useMask) && (st.mouseUp) && (br.randomMaskOffset))
-                br.maskOffset = new Vector2(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+            if (br.useMask && st.mouseUp && br.randomMaskOffset)
+                br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
-            foreach (var p in pntr.plugins)
-                p.AfterGPUStroke(pntr, br, st, this);
+            foreach (var p in painter.plugins)
+                p.AfterGPUStroke(painter, br, st, this);
 
         }
 
@@ -275,21 +275,21 @@ namespace Playtime_Painter
 
         public override bool IsPixelPerfect => true; 
 
-        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
           
 
-           BeforeStroke(pntr, br, st);
+           BeforeStroke(painter, br, st);
 
              if (st.CrossedASeam())
                  st.uvFrom = st.uvTo;
 
              if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
 
-             ImageMeta id = pntr.ImgMeta;
+             ImageMeta id = painter.ImgMeta;
 
-             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
+             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
 
              Rtbrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -300,7 +300,7 @@ namespace Playtime_Painter
 
              TexMGMT.Render();
 
-             AfterStroke(pntr, br, st);
+             AfterStroke(painter, br, st);
         }
 
     }
@@ -356,62 +356,50 @@ namespace Playtime_Painter
         public override bool IsUsingDecals => true; 
 
         public override string NameForDisplayPEGI => "Decal";
-        
-        Vector2 previousUV;
 
-        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        private Vector2 _previousUv;
+
+        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            BeforeStroke(pntr, br, st);
+            BeforeStroke(painter, br, st);
 
-            ImageMeta id = pntr.ImgMeta;
+            var id = painter.ImgMeta;
 
-            if ((st.firstStroke) || (br.decalContinious))
+            if (st.firstStroke || br.decalContinious)
             {
 
                 if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection)
                 {
-                    Vector2 delta = st.uvTo - previousUV;
+                    var delta = st.uvTo - _previousUv;
 
-                    // if ((st.firstStroke) || (delta.magnitude*id.width > br.Size(false)*0.25f)) {
+                    var portion = Mathf.Clamp01(delta.magnitude * id.width * 4 / br.Size(false));
 
-                    float portion = Mathf.Clamp01(delta.magnitude * id.width * 4 / br.Size(false));
-
-                    float newAngle = Vector2.SignedAngle(Vector2.up, delta) + br.decalAngleModifier;
+                    var newAngle = Vector2.SignedAngle(Vector2.up, delta) + br.decalAngleModifier;
                     br.decalAngle = Mathf.LerpAngle(br.decalAngle, newAngle, portion);
 
-                    previousUV = st.uvTo;
-                    //}
-
+                    _previousUv = st.uvTo;
+   
                 }
 
                 if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
 
-                TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, pntr);
-                Transform tf = Rtbrush;
+                TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, painter);
+                var tf = Rtbrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetQuad();
 
                 st.uvTo = st.uvTo.To01Space();
 
-                Vector2 deltauv = st.Delta_uv;
+                var deltaUv = st.DeltaUv;
 
-                /* 
+                var uv = st.uvTo;
 
-                 int strokes = Mathf.Max(1, (br.decalContinious && (!st.firstStroke)) ? (int)(deltauv.magnitude*id.width/br.Size(false)) : 1);
-
-                 deltauv /=  strokes;
-
-                 for (int i = 0; i < strokes; i++) {
-                     st.uvFrom += deltauv;*/
-
-                Vector2 uv = st.uvTo;
-
-                if ((br.decalRotationMethod == DecalRotationMethod.StrokeDirection) && (!st.firstStroke))
+                if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection && !st.firstStroke)
                 {
-                    float length = Mathf.Max(deltauv.magnitude * 2 * id.width / br.Size(false), 1);
-                    Vector3 scale = tf.localScale;
+                    var length = Mathf.Max(deltaUv.magnitude * 2 * id.width / br.Size(false), 1);
+                    var scale = tf.localScale;
 
                     if ((Mathf.Abs(Mathf.Abs(br.decalAngleModifier) - 90)) < 40)
                         scale.x *= length;
@@ -419,63 +407,63 @@ namespace Playtime_Painter
                         scale.y *= length;
 
                     tf.localScale = scale;
-                    uv -= deltauv * ((length - 1) * 0.5f / length);
+                    uv -= deltaUv * ((length - 1) * 0.5f / length);
                 }
 
                 tf.localPosition = StrokeVector.BrushWorldPositionFrom(uv);
 
                 TexMGMT.Render();
 
-                AfterStroke(pntr, br, st);
+                AfterStroke(painter, br, st);
 
             }
             else
-                pntr.AfterStroke(st);
+                painter.AfterStroke(st);
         }
 
-        public override void AfterStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
-            base.AfterStroke(pntr, br, st);
+            base.AfterStroke(painter, br, st);
 
-            if (br.decalRotationMethod == DecalRotationMethod.Random)
-            {
-                br.decalAngle = UnityEngine.Random.Range(-90f, 450f);
-                TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); //pntr.Dec//Update_Brush_Parameters_For_Preview_Shader();
-            }
+            if (br.decalRotationMethod != DecalRotationMethod.Random) return;
+            
+            br.decalAngle = Random.Range(-90f, 450f);
+            TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); 
         }
 #if PEGI
         public override bool Inspect()
         {
 
-            bool changes = false;
+            var changes = false;
 
             changes |= pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).nl();
 
             var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
             if (decal == null)
-                pegi.write("Select valid decal; Assign to Painter Camera.");
-            pegi.newLine();
+                "Select valid decal; Assign to Painter Camera.".write();
+            pegi.nl();
 
-            "Continious".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContinious).nl();
+            "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContinious).nl();
 
             "Rotation".write("Rotation method", 60);
 
-            InspectedBrush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum<DecalRotationMethod>(InspectedBrush.decalRotationMethod); // "Random Angle", 90);
+            InspectedBrush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum(InspectedBrush.decalRotationMethod); 
             pegi.newLine();
-            if (InspectedBrush.decalRotationMethod == DecalRotationMethod.Set)
+            switch (InspectedBrush.decalRotationMethod)
             {
-                "Angle:".write("Decal rotation", 60);
-                changes |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
-            }
-            else if (InspectedBrush.decalRotationMethod == DecalRotationMethod.StrokeDirection)
-            {
-                "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80, ref InspectedBrush.decalAngleModifier, -180f, 180f);
+                case DecalRotationMethod.Set:
+                    "Angle:".write("Decal rotation", 60);
+                    changes |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
+                    break;
+                case DecalRotationMethod.StrokeDirection:
+                    "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80, ref InspectedBrush.decalAngleModifier, -180f, 180f);
+                    break;
             }
 
             pegi.newLine();
             if (!InspectedBrush.mask.GetFlag(BrushMask.A))
-                pegi.writeHint("! Alpha chanel is disabled. Decals may not render properly");
+                "! Alpha chanel is disabled. Decals may not render properly".writeHint();
 
             return changes;
 
@@ -494,144 +482,137 @@ namespace Playtime_Painter
         protected override string ShaderKeyword(bool texcoord2) => "BRUSH_2D"; 
 
         public override string NameForDisplayPEGI => "Lazy";
-        
 
-        public float LazySpeedDynamic = 1;
-        public float LazyAngleSmoothed = 1;
-        Vector2 previousDirectionLazy;
 
-        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        private float _lazySpeedDynamic = 1;
+        private float _lazyAngleSmoothed = 1;
+        public Vector2 previousDirectionLazy;
+
+        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            BeforeStroke(pntr, br, st);
-            //	Vector2 outb = new Vector2(Mathf.Floor(st.uvTo.x), Mathf.Floor(st.uvTo.y));
-            //	st.uvTo -= outb;
-            //	st.uvFrom -= outb;
+            BeforeStroke(painter, br, st);
+ 
 
-            Vector2 delta_uv = st.Delta_uv;//uv - st.uvFrom;//.Previous_uv;
-            float magn = delta_uv.magnitude;
+            var deltaUv = st.DeltaUv;//uv - st.uvFrom;//.Previous_uv;
+            var magnitude = deltaUv.magnitude;
 
-            var id = pntr.ImgMeta;
+            var id = painter.ImgMeta;
 
-            float width = br.Size(false) / ((float)id.width) * 4;
+            var width = br.Size(false) / id.width * 4;
             //const float followPortion = 0.5f;
             //float follow = width;
 
-            float trackPortion = (delta_uv.magnitude - width * 0.5f) * 0.25f;
+            var trackPortion = (deltaUv.magnitude - width * 0.5f) * 0.25f;
 
-            if ((trackPortion > 0) || (st.mouseUp))
+            if ((!(trackPortion > 0)) && (!st.mouseUp)) return;
+            
+            if (st.firstStroke)
             {
+                previousDirectionLazy = st.previousDelta = deltaUv;
+                _lazySpeedDynamic = deltaUv.magnitude;
+                _lazyAngleSmoothed = 0;
+                // Debug.Log("First stroke");
+            }
+
+            var angle = Mathf.Deg2Rad * Vector2.Angle(st.previousDelta, deltaUv);
+
+            var smooth = angle < Mathf.PI * 0.5f;
+
+            if (st.CrossedASeam() && (magnitude > previousDirectionLazy.magnitude * 8))
+            {
+                // Debug.Log("Crossed a seam");
+                st.mouseUp = true;
+                st.uvTo = st.uvFrom;// painter.Previous_uv;
+                deltaUv = Vector2.zero;
+                smooth = false;
+            }
+
+            previousDirectionLazy = deltaUv;
 
 
-                if (st.firstStroke)
+
+            if (!st.mouseUp)
+            {
+                if (smooth)
                 {
-                    previousDirectionLazy = st.previousDelta = delta_uv;
-                    LazySpeedDynamic = delta_uv.magnitude;
-                    LazyAngleSmoothed = 0;
-                    // Debug.Log("First stroke");
-                }
+                    var clockwise = Vector3.Cross(st.previousDelta, deltaUv).z > 0 ? 1f : -1f;
+                    var sin = Mathf.Sin(angle) * clockwise;
+                    float maxSinus = 8;
+                    _lazyAngleSmoothed = Mathf.Abs(_lazyAngleSmoothed) > Mathf.Abs(sin) ? sin : Mathf.Lerp(_lazyAngleSmoothed, sin, 0.2f);
+                    
+                    sin = _lazyAngleSmoothed;
 
-                float angle = Mathf.Deg2Rad * Vector2.Angle(st.previousDelta, delta_uv);
-
-                bool smooth = angle < Mathf.PI * 0.5f;
-
-                if ((st.CrossedASeam()) && (magn > previousDirectionLazy.magnitude * 8))
-                {
-                    // Debug.Log("Crossed a seam");
-                    st.mouseUp = true;
-                    st.uvTo = st.uvFrom;// painter.Previous_uv;
-                    delta_uv = Vector2.zero;
-                    smooth = false;
-                }
-
-                previousDirectionLazy = delta_uv;
-
-
-
-                if (!st.mouseUp)
-                {
-                    if (smooth)
+                    if ((sin * sin > maxSinus * maxSinus) || ((sin > 0) != (maxSinus > 0)))
                     {
-                        float clockwise = Vector3.Cross(st.previousDelta, delta_uv).z > 0 ? 1 : -1;
-                        float sin = Mathf.Sin(angle) * clockwise;
-                        float maxSinus = 8;
-                        if (Mathf.Abs(LazyAngleSmoothed) > Mathf.Abs(sin)) LazyAngleSmoothed = sin;
-                        else
-                            LazyAngleSmoothed = Mathf.Lerp(LazyAngleSmoothed, sin, 0.2f);
-                        sin = LazyAngleSmoothed;
 
-                        if ((sin * sin > maxSinus * maxSinus) || ((sin > 0) != (maxSinus > 0)))
-                        {
+                        var absSin = Mathf.Abs(sin);
+                        var absNSin = Mathf.Abs(maxSinus);
 
-                            float absSin = Mathf.Abs(sin);
-                            float absNSin = Mathf.Abs(maxSinus);
+                        if (absSin < absNSin) maxSinus = maxSinus * absSin / absNSin;
 
-                            if (absSin < absNSin) maxSinus = maxSinus * absSin / absNSin;
-
-                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(maxSinus * clockwise) * trackPortion;
-                            LazySpeedDynamic = trackPortion;
-                        }
-                        else
-                        {
-                            LazySpeedDynamic = Mathf.Min(delta_uv.magnitude * 0.5f, Mathf.Lerp(LazySpeedDynamic, delta_uv.magnitude * 0.5f, 0.001f));
-
-                            LazySpeedDynamic = Mathf.Max(trackPortion, LazySpeedDynamic);
-                            st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(sin) * LazySpeedDynamic;
-                        }
+                        st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(maxSinus * clockwise) * trackPortion;
+                        _lazySpeedDynamic = trackPortion;
                     }
                     else
                     {
-                        LazySpeedDynamic = delta_uv.magnitude;
-                        LazyAngleSmoothed = 0;
-                        st.uvTo = st.uvFrom + delta_uv.normalized * trackPortion;
+                        _lazySpeedDynamic = Mathf.Min(deltaUv.magnitude * 0.5f, Mathf.Lerp(_lazySpeedDynamic, deltaUv.magnitude * 0.5f, 0.001f));
+
+                        _lazySpeedDynamic = Mathf.Max(trackPortion, _lazySpeedDynamic);
+                        st.uvTo = st.uvFrom + st.previousDelta.normalized.Rotate_Radians(sin) * _lazySpeedDynamic;
                     }
                 }
-                PainterCamera r = TexMGMT;
-                //RenderTexturePainter.inst.RenderLazyBrush(painter.Previous_uv, uv, brush.speed * 0.05f, painter.curImgData, brush, painter.LmouseUP, smooth );
-                if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
-
-                float meshWidth = br.StrokeWidth(id.width, false); //.Size(false) / ((float)id.width) * 2 * rtp.orthoSize;
-
-                Transform tf = Rtbrush;
-
-                Vector2 direction = st.Delta_uv;//uvTo - uvFrom;
-
-                bool isTail = st.firstStroke;//(!previousTo.Equals(uvFrom));
-
-                if ((!isTail) && (!smooth))
+                else
                 {
-                    var st2 = new StrokeVector(st)
-                    {
-                        firstStroke = false
-                    };
-                    r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st2, pntr);
-
-                    Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
-                    BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
-                    tf.localScale = Vector3.one;
-                    tf.localRotation = Quaternion.identity;
-                    tf.localPosition = new Vector3(0, 0, 10);
-
-
-                    r.Render();//Render_UpdateSecondBufferIfUsing(id);
-                    st.uvFrom = junkPoint;
-                    isTail = true;
+                    _lazySpeedDynamic = deltaUv.magnitude;
+                    _lazyAngleSmoothed = 0;
+                    st.uvTo = st.uvFrom + deltaUv.normalized * trackPortion;
                 }
+            }
+            var r = TexMGMT;
+            
+            if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
 
-                r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, pntr);
+            var meshWidth = br.StrokeWidth(id.width, false); 
+            
+            var tf = Rtbrush;
 
-                BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
+            var direction = st.DeltaUv;
+
+            var isTail = st.firstStroke;
+
+            if (!isTail && !smooth)
+            {
+                var st2 = new StrokeVector(st)
+                {
+                    firstStroke = false
+                };
+                r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st2, painter);
+
+                Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
+                BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
                 tf.localScale = Vector3.one;
                 tf.localRotation = Quaternion.identity;
                 tf.localPosition = new Vector3(0, 0, 10);
 
-                st.previousDelta = direction;
 
                 r.Render();
-
-                AfterStroke(pntr, br, st);
-
+                st.uvFrom = junkPoint;
+                isTail = true;
             }
+
+            r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
+
+            BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
+            tf.localScale = Vector3.one;
+            tf.localRotation = Quaternion.identity;
+            tf.localPosition = new Vector3(0, 0, 10);
+
+            st.previousDelta = direction;
+
+            r.Render();
+
+            AfterStroke(painter, br, st);
         }
     }
 
@@ -645,7 +626,7 @@ namespace Playtime_Painter
         protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"; 
 
         public override bool IsA3DBrush => true; 
-        public override bool SupportedForTerrain_RT => false; 
+        public override bool SupportedForTerrainRt => false; 
         public override bool NeedsGrid => Cfg.useGridForBrush; 
 
         public override string NameForDisplayPEGI => "Sphere";
@@ -661,7 +642,7 @@ namespace Playtime_Painter
 
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, pntr);
 
-            Vector2 offset = id.offset - stroke.unRepeatedUV.Floor();
+            Vector2 offset = id.offset - stroke.unRepeatedUv.Floor();
 
             stroke.SetWorldPosInShader();
 
@@ -669,22 +650,22 @@ namespace Playtime_Painter
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
 
-        public override void PaintRenderTexture(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            ImageMeta id = pntr.ImgMeta;
+            ImageMeta id = painter.ImgMeta;
 
-            BeforeStroke(pntr, br, st);
+            BeforeStroke(painter, br, st);
 
-            PrepareSphereBrush(id, br, st, pntr);
+            PrepareSphereBrush(id, br, st, painter);
 
             if (!st.mouseDwn)
             {
-                TexMGMT.brushRenderer.UseMeshAsBrush(pntr);
+                TexMGMT.brushRenderer.UseMeshAsBrush(painter);
                 TexMGMT.Render();
             }
 
-            AfterStroke(pntr, br, st);
+            AfterStroke(painter, br, st);
 
 
         }
@@ -698,25 +679,25 @@ namespace Playtime_Painter
             AfterStroke(br);
         }
 
-        public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> submeshIndex)
+        public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex)
         {
             br.BlitMode.PrePaint(null, br, st);
 
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
-            TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, submeshIndex);
+            TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
             AfterStroke(br);
         }
 
-        public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> submeshIndex, int A_Textures_in_row)
+        public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex, int aTexturesInRow)
         {
 
             br.BlitMode.PrePaint(null, br, st);
 
-            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, A_Textures_in_row, 1);
+            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
-            TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, submeshIndex);
+            TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
             AfterStroke(br);
 

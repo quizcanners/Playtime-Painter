@@ -302,9 +302,9 @@ namespace Playtime_Painter
         {
             if (ImageMeta != null)
             {
-                ImageMeta.SaveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
-                if (ImageMeta.texture2D != null) ImageMeta.texture2D.name = ImageMeta.SaveName;
-                if (ImageMeta.renderTexture != null) ImageMeta.renderTexture.name = ImageMeta.SaveName;
+                ImageMeta.saveName = name + VolumePaintingPlugin.VolumeTextureTag + h_slices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
+                if (ImageMeta.texture2D != null) ImageMeta.texture2D.name = ImageMeta.saveName;
+                if (ImageMeta.renderTexture != null) ImageMeta.renderTexture.name = ImageMeta.saveName;
             }
         }
 

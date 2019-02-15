@@ -45,7 +45,7 @@ namespace Playtime_Painter {
             var img = GetCurrentImage();
 
             if (img != null) {
-                img.SaveName = "TextureFrom {0}".F(painterComponent.gameObject.name);
+                img.saveName = "TextureFrom {0}".F(painterComponent.gameObject.name);
                 nameOfSavedTexture = img.SaveInPlayer();
             }
         }

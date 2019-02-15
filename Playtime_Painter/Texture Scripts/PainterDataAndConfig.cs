@@ -1,9 +1,9 @@
 ﻿using QuizCannersUtilities;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
+using System.Globalization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,36 +11,35 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    [ExecuteInEditMode]
     public class PainterDataAndConfig : STD_ReferencesHolder, IKeepMySTD
     {
-        public static PlaytimePainter Painter { get { return PlaytimePainter.inspectedPainter; } }
+        private static PlaytimePainter Painter => PlaytimePainter.inspectedPainter;
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
-        public static bool toolEnabled = false;
+        public static bool toolEnabled;
 
         #region Shaders
-        public Shader brushBlit = null;
-        public Shader brushAdd = null;
-        public Shader brushCopy = null;
-        public Shader pixPerfectCopy = null;
-        public Shader brushBufferCopy = null;
-        public Shader brushBlitSmoothed = null;
-        public Shader brushDoubleBuffer = null;
-        public Shader brushBlurAndSmudge = null;
-        public Shader brushColorFill = null;
+        public Shader brushBlit;
+        public Shader brushAdd;
+        public Shader brushCopy;
+        public Shader pixPerfectCopy;
+        public Shader brushBufferCopy;
+        public Shader brushBlitSmoothed;
+        public Shader brushDoubleBuffer;
+        public Shader brushBlurAndSmudge;
+        public Shader brushColorFill;
 
-        public Shader previewMesh = null;
-        public Shader previewBrush = null;
-        public Shader previewTerrain = null;
+        public Shader previewMesh;
+        public Shader previewBrush;
+        public Shader previewTerrain;
         #endregion
 
         #region Constants
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
-        public const string enablePainterForBuild = "BUILD_WITH_PAINTER";
+        private const string EnablePainterForBuild = "BUILD_WITH_PAINTER";
         
-        #region Preperties
+        #region Material Preperties
         public static readonly ShaderProperty.VectorValue TerrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
         public static readonly ShaderProperty.VectorValue TerrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
         public static readonly ShaderProperty.VectorValue TerrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
@@ -48,8 +47,8 @@ namespace Playtime_Painter
         public static readonly ShaderProperty.TextureValue TerrainHeight = new ShaderProperty.TextureValue (TERRAIN_HEIGHT_TEXTURE);
         public const string TERRAIN_CONTROL_TEXTURE = "_mergeControl";
         public static readonly ShaderProperty.TextureValue TerrainControlMain = new ShaderProperty.TextureValue(TERRAIN_CONTROL_TEXTURE);
-        public const string terrainTexture = "_mergeSplat_";
-        public const string terrainNormalMap = "_mergeSplatN_";
+        public const string TERRAIN_SPLAT_DIFFUSE = "_mergeSplat_";
+        public const string TERRAIN_NORMAL_MAP = "_mergeSplatN_";
         private const string TERRAIN_LIGHT_TEXTURE = "_TerrainColors";
         public static readonly ShaderProperty.TextureValue TerrainLight = new ShaderProperty.TextureValue(TERRAIN_LIGHT_TEXTURE);
         public static readonly ShaderProperty.TextureValue PreviewTexture = new ShaderProperty.TextureValue("_PreviewTex");
@@ -68,7 +67,7 @@ namespace Playtime_Painter
         #endregion
 
 
-        #region Keywords
+        #region Material Keywords
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
         public const string UV_PROJECTED = "UV_PROJECTED";
@@ -104,9 +103,9 @@ namespace Playtime_Painter
         {
             if (!webCamTexture || !webCamTexture.isPlaying) return;
             
-            cameraUnusedTime += Time.deltaTime;
+            _cameraUnusedTime += Time.deltaTime;
 
-            if (cameraUnusedTime > 10f)
+            if (_cameraUnusedTime > 10f)
                 webCamTexture.Stop();
         }
 
@@ -120,10 +119,10 @@ namespace Playtime_Painter
             
         }
 
-        float cameraUnusedTime = 0f;
+        float _cameraUnusedTime;
         public Texture GetWebCamTexture()
         {
-            cameraUnusedTime = 0;
+            _cameraUnusedTime = 0;
 
             if (webCamTexture == null && WebCamTexture.devices.Length > 0)
                 webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
@@ -180,9 +179,9 @@ namespace Playtime_Painter
             return meta;
         }
 
-        public bool showRecentTextures = false;
+        public bool showRecentTextures;
 
-        public bool showColorSchemes = false;
+        public bool showColorSchemes;
         [NonSerialized]
         public readonly Dictionary<ShaderProperty.TextureValue, List<ImageMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<ImageMeta>>();
 
@@ -196,31 +195,31 @@ namespace Playtime_Painter
 
         public List<ColorScheme> colorSchemes = new List<ColorScheme>();
 
-        public int selectedColorScheme = 0;
+        public int selectedColorScheme;
 
         public int inspectedColorScheme = -1;
 
-        public bool showURLfield = false;
+        public bool showUrlField;
 
         #endregion
 
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;
-        public string meshToolsStd = null;
+        public string meshToolsStd;
 
         #region User Settings
-        public static int DamAnimRendtexSize = 128;
-        public bool allowEditingInFinalBuild;
+        public static int damAnimRendTexSize = 128;
+        //public bool allowEditingInFinalBuild;
         public bool makeVerticesUniqueOnEdgeColoring;
         public int gridSize = 1;
-        public bool snapToGrid = false;
-        public bool newVerticesUnique = false;
+        public bool snapToGrid;
+        public bool newVerticesUnique;
         public bool newVerticesSmooth = true;
-        public bool pixelPerfectMeshEditing = false;
-        public bool useGridForBrush = false;
+        public bool pixelPerfectMeshEditing;
+        public bool useGridForBrush;
 
-        public bool useJobsForCpuPainting = true;
+        //public bool useJobsForCpuPainting = true;
 
         public string materialsFolderName;
         public string texturesFolderName;
@@ -228,17 +227,17 @@ namespace Playtime_Painter
         public string vectorsFolderName;
         public string atlasFolderName;
 
-        public bool enablePainterUIonPlay = false;
+        public bool enablePainterUIonPlay;
         public BrushConfig brushConfig;
         public bool showColorSliders = true;
         public bool disableNonMeshColliderInPlayMode;
 
         public bool previewAlphaChanel;
 
-        public bool moreOptions = false;
-        public bool allowExclusiveRenderTextures = false;
-        public bool showConfig = false;
-        public bool showTeachingNotifications = false;
+        public bool moreOptions;
+        public bool allowExclusiveRenderTextures;
+        public bool showConfig;
+        public bool showTeachingNotifications;
         public bool disableSecondBufferUpdateDebug;
         public MyIntVec2 samplingMaskSize;
         #endregion
@@ -255,22 +254,22 @@ namespace Playtime_Painter
 
         public int selectedHeightIndex = 4;
 
-        static string[] texSizes;
+        private static string[] _texSizes;
 
-        private const int texSizesRange = 9;
-        private const int minPowerOfSize = 2;
+        private const int TexSizesRange = 9;
+        private const int MinPowerOfSize = 2;
 
         public static string[] NewTextureSizeOptions
         {
             get
             {
-                if (texSizes != null && texSizes.Length == texSizesRange) return texSizes;
+                if (_texSizes != null && _texSizes.Length == TexSizesRange) return _texSizes;
                 
-                texSizes = new string[texSizesRange];
-                for (var i = 0; i < texSizesRange; i++)
-                    texSizes[i] = Mathf.Pow(2, i + minPowerOfSize).ToString();
+                _texSizes = new string[TexSizesRange];
+                for (var i = 0; i < TexSizesRange; i++)
+                    _texSizes[i] = Mathf.Pow(2, i + MinPowerOfSize).ToString(CultureInfo.InvariantCulture);
                 
-                return texSizes;
+                return _texSizes;
             }
 
         }
@@ -279,7 +278,7 @@ namespace Playtime_Painter
 
         public int SelectedHeightForNewTexture() => SizeIndexToSize(selectedHeightIndex);
 
-        private static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + minPowerOfSize);
+        private static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + MinPowerOfSize);
         #endregion
 
         #region BrushStrokeRecordings
@@ -459,10 +458,10 @@ namespace Playtime_Painter
 
                 #if UNITY_EDITOR
 
-                var gotDefine = UnityHelperFunctions.GetDefine(enablePainterForBuild);
+                var gotDefine = UnityHelperFunctions.GetDefine(EnablePainterForBuild);
 
                     if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
-                        UnityHelperFunctions.SetDefine(enablePainterForBuild, gotDefine);
+                        UnityHelperFunctions.SetDefine(EnablePainterForBuild, gotDefine);
 
                 if (gotDefine)
                     "In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the painting shaders will be build with the player.".writeHint();

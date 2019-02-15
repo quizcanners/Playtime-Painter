@@ -25,8 +25,8 @@ namespace Playtime_Painter
     [CustomEditor(typeof(PainterBall))]
     public class PainterBallEditor : PEGI_Inspector<PainterBall> { }
 
-    [CustomEditor(typeof(PaintingReciever))]
-    public class PaintingRecieverEditor : PEGI_Inspector<PaintingReciever>  { }
+    [CustomEditor(typeof(PaintingReceiver))]
+    public class PaintingReceiverEditor : PEGI_Inspector<PaintingReceiver>  { }
 
     [CustomEditor(typeof(PaintWithoutComponent))]
     public class PaintWithoutComponentEditor : PEGI_Inspector<PaintWithoutComponent>  { }

@@ -438,7 +438,7 @@ namespace QuizCannersUtilities
             return this;
         }
         
-        public StdEncoder Add(string tag, IEnumerable<int> val) {
+        public StdEncoder Add(string tag, List<int> val) {
 
             var cody = new StdEncoder();
             
@@ -461,7 +461,7 @@ namespace QuizCannersUtilities
             
         }
 
-        public StdEncoder Add(string tag, IEnumerable<uint> val)
+        public StdEncoder Add(string tag, List<uint> val)
         {
 
             var cody = new StdEncoder();
@@ -471,7 +471,7 @@ namespace QuizCannersUtilities
             return Add(tag, cody);
         }
 
-        public StdEncoder Add(string tag, IEnumerable<Color> val)  {
+        public StdEncoder Add(string tag, List<Color> val)  {
 
             var cody = new StdEncoder();
             
@@ -482,7 +482,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public StdEncoder Add(string tag, IEnumerable<Matrix4x4> val)  {
+        public StdEncoder Add(string tag, List<Matrix4x4> val)  {
 
             var cody = new StdEncoder();
             

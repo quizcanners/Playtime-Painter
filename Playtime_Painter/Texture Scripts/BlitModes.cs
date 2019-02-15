@@ -399,7 +399,7 @@ namespace Playtime_Painter {
         public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
 
-            var v4 = new Vector4(st.unRepeatedUV.x, st.unRepeatedUV.y, Mathf.Floor(st.unRepeatedUV.x), Mathf.Floor(st.unRepeatedUV.y));
+            var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x), Mathf.Floor(st.unRepeatedUv.y));
 
             pointedUV_Untiled_Property.GlobalValue = v4;
 
@@ -411,7 +411,7 @@ namespace Playtime_Painter {
                     if (pntr)
                     {
                         pntr.SampleTexture(st.uvTo);
-                        FromColor(br, st.unRepeatedUV);
+                        FromColor(br, st.unRepeatedUv);
                     }
                 }
                 else

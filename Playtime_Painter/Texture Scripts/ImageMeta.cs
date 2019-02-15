@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Text;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -17,12 +18,12 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageMeta : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefault_STD
+    public class ImageMeta : PainterStuffKeepUnrecognized_STD, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefault_STD
     {
 
         #region Values
-        const float bytetocol = 1f / 255f;
-        public static Texture2D sampler;
+
+        private static Texture2D _sampler;
 
         public TexTarget destination;
         public RenderTexture renderTexture;
@@ -31,27 +32,27 @@ namespace Playtime_Painter
         public int width = 128;
         public int height = 128;
         public bool useTexcoord2;
-        public bool useTexcoord2_AutoAssigned = false;
+        private bool _useTexcoord2AutoAssigned;
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved => (texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset());
-        public bool showRecording = false;
+        public bool showRecording;
         public bool enableUndoRedo;
-        public bool pixelsDirty = false;
+        public bool pixelsDirty;
         public bool preserveTransparency = true;
-        public bool alphaPreservePixelSet = false;
-        public bool errorWhileReading = false;
+        private bool _alphaPreservePixelSet;
+        public bool errorWhileReading;
 
-        public float repaintDelay = 0.016f;
-        public int numberOfTexture2Dbackups = 10;
-        public int numberOfRenderTextureBackups = 10;
-        public bool backupManually = false;
+        private float _repaintDelay = 0.016f;
+        private int _numberOfTexture2DBackups = 10;
+        private int _numberOfRenderTextureBackups = 10;
+        public bool backupManually;
         public Vector2 tiling = Vector2.one;
         public Vector2 offset = Vector2.zero;
-        public string SaveName = "No Name";
-        public string URL = "";
-        public Color[] _pixels;
-        public Color clearColor = Color.black;
+        public string saveName = "No Name";
+        public string url = "";
+        private Color[] _pixels;
+        private Color _clearColor = Color.black;
 
         public Color[] Pixels
         {
@@ -65,40 +66,38 @@ namespace Playtime_Painter
 
         #region SAVE IN PLAYER
 
-        const string savedImagesFolder = "Saved Images";
+        const string SavedImagesFolder = "Saved Images";
 
         public string SaveInPlayer()
         {
-            if (texture2D != null)
-            {
-                if (destination == TexTarget.RenderTexture)
-                    RenderTexture_To_Texture2D();
+            if (texture2D == null) return "Save Failed";
+            
+            if (destination == TexTarget.RenderTexture)
+                RenderTexture_To_Texture2D();
 
-                var png = texture2D.EncodeToPNG();
+            var png = texture2D.EncodeToPNG();
 
-                string path = Path.Combine(Application.persistentDataPath, savedImagesFolder);
+            var path = Path.Combine(Application.persistentDataPath, SavedImagesFolder);
 
-                Directory.CreateDirectory(path);
+            Directory.CreateDirectory(path);
 
-                string fullPath = Path.Combine(path, "{0}.png".F(SaveName));
+            var fullPath = Path.Combine(path, "{0}.png".F(saveName));
 
-                System.IO.File.WriteAllBytes(fullPath, png);
+            File.WriteAllBytes(fullPath, png);
 
-                string msg = string.Format("Saved {0} to {1}", SaveName, fullPath);
+            var msg = $"Saved {saveName} to {fullPath}";
 
-                Cfg.playtimeSavedTextures.Add(fullPath);
+            Cfg.playtimeSavedTextures.Add(fullPath);
 #if PEGI
-                msg.showNotificationIn3D_Views();
+            msg.showNotificationIn3D_Views();
 #endif
-                Debug.Log(msg);
+            Debug.Log(msg);
 
-                return fullPath;
-            }
+            return fullPath;
 
-            return "Save Failed";
         }
 
-        public void LoadInPlayer() => LoadInPlayer(SaveName);
+        public void LoadInPlayer() => LoadInPlayer(saveName);
 
         public void LoadInPlayer(string path)
         {
@@ -135,19 +134,19 @@ namespace Playtime_Painter
             .Add_IfTrue("b", backupManually)
             .Add_IfNotOne("tl", tiling)
             .Add_IfNotZero("off", offset)
-            .Add_IfNotEmpty("sn", SaveName)
+            .Add_IfNotEmpty("sn", saveName)
             .Add_IfTrue("rec", showRecording)
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
-            .Add_IfTrue("tc2Auto", useTexcoord2_AutoAssigned)
-            .Add_IfNotBlack("clear", clearColor)
-            .Add_IfNotEmpty("URL", URL)
+            .Add_IfTrue("tc2Auto", _useTexcoord2AutoAssigned)
+            .Add_IfNotBlack("clear", _clearColor)
+            .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedStuff)
             .Add_IfFalse("alpha", preserveTransparency);
 
             if (enableUndoRedo)
-                cody.Add("2dUndo", numberOfTexture2Dbackups)
-                .Add("rtBackups", numberOfRenderTextureBackups);
+                cody.Add("2dUndo", _numberOfTexture2DBackups)
+                .Add("rtBackups", _numberOfRenderTextureBackups);
 
             return cody;
         }
@@ -174,18 +173,18 @@ namespace Playtime_Painter
                 case "h": height = data.ToInt(); break;
                 case "useUV2": useTexcoord2 = data.ToBool(); break;
                 case "Lock": lockEditing = data.ToBool(); break;
-                case "2dUndo": numberOfTexture2Dbackups = data.ToInt(); break;
-                case "rtBackups": numberOfRenderTextureBackups = data.ToInt(); break;
+                case "2dUndo": _numberOfTexture2DBackups = data.ToInt(); break;
+                case "rtBackups": _numberOfRenderTextureBackups = data.ToInt(); break;
                 case "b": backupManually = data.ToBool(); break;
                 case "tl": tiling = data.ToVector2(); break;
                 case "off": offset = data.ToVector2(); break;
-                case "sn": SaveName = data; break;
+                case "sn": saveName = data; break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
-                case "tc2Auto": useTexcoord2_AutoAssigned = data.ToBool(); break;
-                case "clear": clearColor = data.ToColor(); break;
-                case "URL": URL = data; break;
+                case "tc2Auto": _useTexcoord2AutoAssigned = data.ToBool(); break;
+                case "clear": _clearColor = data.ToColor(); break;
+                case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
                 default: return false;
@@ -206,11 +205,11 @@ namespace Playtime_Painter
             {
                 if (destination == TexTarget.RenderTexture)
                 {
-                    if (numberOfRenderTextureBackups > 0)
-                        cache.undo.backupRenderTexture(numberOfRenderTextureBackups, this);
+                    if (_numberOfRenderTextureBackups > 0)
+                        cache.undo.backupRenderTexture(_numberOfRenderTextureBackups, this);
                 }
-                else if (numberOfTexture2Dbackups > 0)
-                    cache.undo.backupTexture2D(numberOfRenderTextureBackups, this);
+                else if (_numberOfTexture2DBackups > 0)
+                    cache.undo.backupTexture2D(_numberOfRenderTextureBackups, this);
             }
 
             cache.redo.Clear();
@@ -220,20 +219,20 @@ namespace Playtime_Painter
 
         #region Recordings
         public List<string> recordedStrokes = new List<string>();
-        public List<string> recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
+        public List<string> recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
         public bool recording;
 
         public void StartRecording()
         {
             recordedStrokes = new List<string>();
-            recordedStrokes_forUndoRedo = new List<string>();
+            recordedStrokesForUndoRedo = new List<string>();
             recording = true;
         }
 
         public void ContinueRecording()
         {
             StartRecording();
-            recordedStrokes.AddRange(Cfg.StrokeRecordingsFromFile(SaveName));
+            recordedStrokes.AddRange(Cfg.StrokeRecordingsFromFile(saveName));
         }
 
         public void SaveRecording()
@@ -241,9 +240,9 @@ namespace Playtime_Painter
 
             var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
 
-            StuffSaver.SaveToPersistentPath(Cfg.vectorsFolderName, SaveName, allStrokes);
+            StuffSaver.SaveToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
 
-            Cfg.recordingNames.Add(SaveName);
+            Cfg.recordingNames.Add(saveName);
 
             recording = false;
 
@@ -304,7 +303,7 @@ namespace Playtime_Painter
             {
                 filterMode = filterMode,
 
-                name = SaveName
+                name = saveName
             };
 
             if (!global.IsNullOrEmpty())
@@ -451,13 +450,13 @@ namespace Playtime_Painter
 
         }
         
-        public void SetPixelsInRAM() => texture2D.SetPixels(_pixels);
+        public void SetPixelsInRam() => texture2D.SetPixels(_pixels);
         
         public void Apply_ToGPU(bool mipmaps = true) => texture2D.Apply(mipmaps, false);
 
         public void SetAndApply(bool mipmaps = true) {
             if (_pixels != null) {
-                SetPixelsInRAM();
+                SetPixelsInRam();
                 Apply_ToGPU(mipmaps);
             }
         }
@@ -466,7 +465,7 @@ namespace Playtime_Painter
         #region Pixels MGMT
 
         public void UnsetAlphaSavePixel() {
-            if (alphaPreservePixelSet)
+            if (_alphaPreservePixelSet)
             {
                 _pixels[0].a = 1;
                 SetAndApply();
@@ -474,12 +473,11 @@ namespace Playtime_Painter
         }
 
         public void SetAlphaSavePixel()  {
-
-            if (preserveTransparency && Pixels[0].a == 1) {
-                _pixels[0].a = 0.9f;
-                alphaPreservePixelSet = true;
-                SetPixel_InRAM(0, 0);
-            }
+            if (!preserveTransparency || !(Math.Abs(Pixels[0].a - 1) < float.Epsilon)) return;
+            
+            _pixels[0].a = 0.9f;
+            _alphaPreservePixelSet = true;
+            SetPixel_InRAM(0, 0);
 
         }
 
@@ -510,34 +508,34 @@ namespace Playtime_Painter
         public bool Colorize(Color col, bool creatingNewTexture = false)
         {
             // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
-            bool needsRecolorizingAfterSave = false;
+            var needsReColorizingAfterSave = false;
 
 #if UNITY_EDITOR
-            if (creatingNewTexture && col.a == 1)
+            if (creatingNewTexture && Math.Abs(col.a - 1) < float.Epsilon)
             {
-                needsRecolorizingAfterSave = true;
+                needsReColorizingAfterSave = true;
                 col.a = 0.5f;
             }
 #endif
 
-            for (int i = 0; i < Pixels.Length; i++)
+            for (var i = 0; i < Pixels.Length; i++)
                 _pixels[i] = col;
 
-            return needsRecolorizingAfterSave;
+            return needsReColorizingAfterSave;
         }
 
-        public Color SampleAT(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
+        public Color SampleAt(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
 
-        public Color SampleRenderTexture(Vector2 uv)
+        private Color SampleRenderTexture(Vector2 uv)
         {
 
-            RenderTexture curRT = RenderTexture.active;
+            var curRt = RenderTexture.active;
 
-            PainterCamera rtp = PainterCamera.Inst;
-            int size = PainterCamera.RenderTextureSize / 4;
+            var rtp = PainterCamera.Inst;
+            const int size = PainterCamera.RenderTextureSize / 4;
             RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRt(size, size);
 
-            if (!sampler) sampler = new Texture2D(8, 8);
+            if (!_sampler) _sampler = new Texture2D(8, 8);
 
             UVto01(ref uv);
 
@@ -546,11 +544,11 @@ namespace Playtime_Painter
 
             uv *= RenderTexture.active.width;
 
-            sampler.ReadPixels(new Rect(uv.x, uv.y, 1, 1), 0, 0);
+            _sampler.ReadPixels(new Rect(uv.x, uv.y, 1, 1), 0, 0);
 
-            RenderTexture.active = curRT;
+            RenderTexture.active = curRt;
 
-            var pix = sampler.GetPixel(0, 0);
+            var pix = _sampler.GetPixel(0, 0);
 
             if (PainterCamera.Inst.isLinearColorSpace)
                 pix = pix.linear;
@@ -590,7 +588,7 @@ namespace Playtime_Painter
             while (v.y < 0)
                 v.y += height;
 
-            return Pixels[((int)v.y) * width + (int)v.x];
+            return Pixels[v.y * width + v.x];
         }
 
         public int PixelNo(MyIntVec2 v)
@@ -672,8 +670,10 @@ namespace Playtime_Painter
         public ImageMeta Init(Texture tex)
         {
 
-            if (tex.GetType() == typeof(Texture2D))
-                UseTex2D((Texture2D)tex);
+            var t2D = tex as Texture2D;
+            
+            if (t2D)
+                UseTex2D(t2D);
             else
                  if (tex.GetType() == typeof(RenderTexture))
                 UseRenderTexture((RenderTexture)tex);
@@ -694,7 +694,7 @@ namespace Playtime_Painter
         public void From(Texture2D texture, bool userClickedRetry = false) {
 
             texture2D = texture;
-            SaveName = texture.name;
+            saveName = texture.name;
 
             if (userClickedRetry || !errorWhileReading) {
 
@@ -726,13 +726,13 @@ namespace Playtime_Painter
             string path = AssetDatabase.GetAssetPath(rt);
             if (!string.IsNullOrEmpty(path))
             {
-                SaveName = rt.name;
+                saveName = rt.name;
                 // saved = true;
             }
             else
 #endif
-               if (SaveName.IsNullOrEmpty())
-                SaveName = "New img";
+               if (saveName.IsNullOrEmpty())
+                saveName = "New img";
         }
 
         void UseTex2D(Texture2D tex)
@@ -743,11 +743,11 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(tex);
             if (!path.IsNullOrEmpty())
-                SaveName = tex.name;
+                saveName = tex.name;
             else
 #endif
-                if (SaveName.IsNullOrEmpty())
-                SaveName = "New img";
+                if (saveName.IsNullOrEmpty())
+                saveName = "New img";
         }
 
         #endregion
@@ -755,22 +755,22 @@ namespace Playtime_Painter
         #region Inspector
         public string NameForPEGI
         {
-            get { return SaveName; }
+            get { return saveName; }
 
-            set { SaveName = value; }
+            set { saveName = value; }
         }
 
 
-        int inspectedProcess = -1;
+        private int _inspectedProcess = -1;
         public int inspectedStuff = -1;
 
         #if PEGI
 
-        bool LoadTexturePEGI(string path)
+        private bool LoadTexturePEGI(string path)
         {
-            bool changed = false;
+            const bool changed = false;
 
-            if ("Load {0}".F(path.Substring(path.LastIndexOf("/"))).Click())
+            if ("Load {0}".F(path.Substring(path.LastIndexOf("/", StringComparison.Ordinal))).Click())
                 LoadInPlayer(path);
 
             return changed;
@@ -779,11 +779,11 @@ namespace Playtime_Painter
         public override bool Inspect()
         {
 
-            bool changed = false;
+            var changed = false;
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
             {
-                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref repaintDelay, 0.01f, 0.5f).nl();
+                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl();
                 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref GlobalBrush.DontRedoMipmaps).nl();
@@ -791,12 +791,12 @@ namespace Playtime_Painter
 
             if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
 
-                "Save Name".edit(70, ref SaveName);
+                "Save Name".edit(70, ref saveName);
                 
                 if (icon.Folder.Click("Open Folder with textures").nl())
-                    StuffExplorer.OpenPersistentFolder(savedImagesFolder);
+                    StuffExplorer.OpenPersistentFolder(SavedImagesFolder);
 
-                if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, SaveName)).nl())
+                if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
                     SaveInPlayer();
 
                 if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
@@ -817,7 +817,7 @@ namespace Playtime_Painter
                     "There was en error reading texture pixels, can't process it".writeWarning();
                 else
                 {
-                    if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).enter(ref inspectedProcess, 0).nl_ifFoldedOut())
+                    if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).enter(ref _inspectedProcess, 0).nl_ifFoldedOut())
                     {
                         "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
 
@@ -827,7 +827,7 @@ namespace Playtime_Painter
                         if (newWidth != width || newHeight != height)
                         {
 
-                            bool rescale = false;
+                            bool rescale;
 
                             if (newWidth <= width && newHeight <= height)
                                 rescale = "Downscale".Click();
@@ -842,7 +842,7 @@ namespace Playtime_Painter
                         pegi.nl();
                     }
 
-                    if (inspectedProcess == -1)
+                    if (_inspectedProcess == -1)
                     {
                         if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
                             Resize(newWidth, newHeight);
@@ -850,25 +850,25 @@ namespace Playtime_Painter
                         pegi.nl();
                     }
 
-                    if ("Colorize ".enter(ref inspectedProcess, 1))
+                    if ("Colorize ".enter(ref _inspectedProcess, 1))
                     {
 
-                        "Clear Color".edit(80, ref clearColor).nl();
+                        "Clear Color".edit(80, ref _clearColor).nl();
                         if ("Clear Texture".Click().nl())
                         {
-                            Colorize(clearColor);
+                            Colorize(_clearColor);
                             SetAndApply();
                         }
                     }
 
-                    if (inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl())
+                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(_clearColor)).nl())
                     {
-                        Colorize(clearColor);
+                        Colorize(_clearColor);
                         SetAndApply();
                     }
                 }
 
-                if ("Render Buffer Debug".enter(ref inspectedProcess, 3).nl()) {
+                if ("Render Buffer Debug".enter(ref _inspectedProcess, 3).nl()) {
                     pegi.write(TexMGMT.bigRtPair[0], 200);
                     pegi.nl();
                     pegi.write(TexMGMT.bigRtPair[1], 200);
@@ -882,12 +882,12 @@ namespace Playtime_Painter
             if ("Undo Redo".toggle_enter(ref enableUndoRedo, ref inspectedStuff, 2, ref changed).nl())
             {
                 
-                "UNDOs: Tex2D".edit(80, ref numberOfTexture2Dbackups).changes(ref changed);
-                "RendTex".edit(60, ref numberOfRenderTextureBackups).nl(ref changed);
+                "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups).changes(ref changed);
+                "RendTex".edit(60, ref _numberOfRenderTextureBackups).nl(ref changed);
 
                 "Backup manually".toggleIcon(ref backupManually).nl();
 
-                if (numberOfTexture2Dbackups > 50 || numberOfRenderTextureBackups > 50)
+                if (_numberOfTexture2DBackups > 50 || _numberOfRenderTextureBackups > 50)
                     "Too big of a number will eat up lot of memory".writeWarning();
 
               "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
@@ -938,10 +938,10 @@ namespace Playtime_Painter
 
             if (!useTexcoord2 && hasUv2Tag) {
 
-                if (!useTexcoord2_AutoAssigned)
+                if (!_useTexcoord2AutoAssigned)
                 {
                     useTexcoord2 = true;
-                    useTexcoord2_AutoAssigned = true;
+                    _useTexcoord2AutoAssigned = true;
                 }
                 else
                     "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).writeHint();
@@ -960,32 +960,32 @@ namespace Playtime_Painter
 
             if (cache == null) cache = new UndoCache();
             if (recordedStrokes == null) recordedStrokes = new List<string>();
-            if (recordedStrokes_forUndoRedo == null) recordedStrokes_forUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
+            if (recordedStrokesForUndoRedo == null) recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
 
             if (cache.undo.GotData) {
-                if (icon.Undo.Click("Press Z to undo (Scene View)",ref changed, 25))
+                if (icon.Undo.Click("Press Z to undo (Scene View)",ref changed))
                     cache.undo.ApplyTo(this);
             }
             else
-                icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)", 25);
+                icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)");
 
             if (cache.redo.GotData) {
-                if (icon.Redo.Click("X to Redo", ref changed ,25))
+                if (icon.Redo.Click("X to Redo", ref changed ))
                     cache.redo.ApplyTo(this);
             }
             else
-                icon.RedoDisabled.write("Nothing to Redo", 25);
+                icon.RedoDisabled.write("Nothing to Redo");
 
             pegi.nl();
 
 #if UNITY_EDITOR
             if (recording) {
                 ("Recording... " + recordedStrokes.Count + " vectors").nl();
-                "Will Save As ".edit(70, ref SaveName);
+                "Will Save As ".edit(70, ref saveName);
 
-                if (icon.Close.Click("Stop, don't save", 25))
+                if (icon.Close.Click("Stop, don't save"))
                     recording = false;
-                if (icon.Done.Click("Finish & Save", 25))
+                if (icon.Done.Click("Finish & Save"))
                     SaveRecording();
 
                 pegi.newLine();
@@ -1007,7 +1007,7 @@ namespace Playtime_Painter
 
         public string NeedAttention()
         {
-            if (numberOfTexture2Dbackups > 50)
+            if (_numberOfTexture2DBackups > 50)
                 return "Too many backups";
             return null;
         }
@@ -1029,7 +1029,7 @@ namespace Playtime_Painter
                 SetAndApply(!GlobalBrush.DontRedoMipmaps);
 
             pixelsDirty = false;
-            _repaintTimer = repaintDelay;
+            _repaintTimer = _repaintDelay;
         }
     }
 

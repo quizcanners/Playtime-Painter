@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Linq;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 
@@ -15,7 +14,7 @@ namespace Playtime_Painter {
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PainterCamera : PainterStuffMono, IPEGI, IKeepUnrecognizedSTD {
+    public class PainterCamera : PainterStuffMono {
 
         public static readonly BrushMeshGenerator BrushMeshGenerator = new BrushMeshGenerator();
 
@@ -24,9 +23,9 @@ namespace Playtime_Painter {
         public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
         
         #region Painter Data
-        [SerializeField] PainterDataAndConfig dataHolder;
+        [SerializeField] private PainterDataAndConfig dataHolder;
 
-        [NonSerialized] public bool triedToFindPainterData = false;
+        [NonSerialized] public bool triedToFindPainterData;
 
         public static PainterDataAndConfig Data  {
             get  {
@@ -50,7 +49,7 @@ namespace Playtime_Painter {
         #region Camera Singleton
         private static PainterCamera _inst;
 
-        static bool triedToFindCamera = false;
+        private static bool _triedToFindCamera;
 
         public static PainterCamera Inst {
             get
@@ -59,9 +58,9 @@ namespace Playtime_Painter {
 
                 _inst = null;
 
-                if (!triedToFindCamera) {
+                if (!_triedToFindCamera) {
                     _inst = FindObjectOfType<PainterCamera>();
-                    if (!_inst) triedToFindCamera = true;
+                    if (!_inst) _triedToFindCamera = true;
                 }
 
                 if (!PainterStuff.applicationIsQuitting) {
@@ -75,7 +74,7 @@ namespace Playtime_Painter {
                             _inst.RefreshPlugins();
                         #endif
 
-                        triedToFindCamera = false;
+                        _triedToFindCamera = false;
                     }
                 }
      
@@ -174,7 +173,7 @@ namespace Playtime_Painter {
         public const int RenderTextureSize = 2048;
         
         public RenderTexture[] bigRtPair;
-        public int bigRtVersion = 0;
+        public int bigRtVersion;
 
         public MeshRenderer secondBufferDebug;
 
@@ -351,7 +350,7 @@ namespace Playtime_Painter {
         public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
         {
 
-            if (hidePreview && _previewAlpha == 0)
+            if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
             MyMath.isLerping_bySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 0.1f);
@@ -389,15 +388,15 @@ namespace Playtime_Painter {
         ShaderProperty.VectorValue brushForm_Property = new ShaderProperty.VectorValue("_brushForm");
         ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
 
-        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageMeta id, PlaytimePainter pntr)
+        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageMeta id, PlaytimePainter painter)
         {
             float textureWidth = id.width;
-            bool RendTex = id.TargetIsRenderTexture();
+            var rendTex = id.TargetIsRenderTexture();
 
-            var brushType = brush.Type(!RendTex);
+            var brushType = brush.Type(!rendTex);
 
-            bool is3Dbrush = brush.IsA3Dbrush(pntr);
-            bool isDecal = RendTex && brushType.IsUsingDecals;
+            var is3DBrush = brush.IsA3Dbrush(painter);
+            var isDecal = rendTex && brushType.IsUsingDecals;
 
             brushColor_Property.GlobalValue = brush.Color;
 
@@ -409,12 +408,12 @@ namespace Playtime_Painter {
 
             if (isDecal) Shader_UpdateDecal(brush);
 
-            if (brush.useMask && RendTex)
+            if (brush.useMask && rendTex)
                 sourceMask_Property.GlobalValue = Data.masks.TryGet(brush.selectedSourceMask);
 
             maskDynamics_Property.GlobalValue = new Vector4(
                 brush.maskTiling,
-                RendTex ? brush.Hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
+                rendTex ? brush.Hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
                 (brush.flipMaskAlpha ? 0 : 1)
                 , 0);
 
@@ -422,8 +421,8 @@ namespace Playtime_Painter {
                 
             brushForm_Property.GlobalValue = new Vector4(
                 brushAlpha, // x - transparency
-                brush.Size(is3Dbrush), // y - scale for sphere
-                brush.Size(is3Dbrush) / textureWidth, // z - scale for uv space
+                brush.Size(is3DBrush), // y - scale for sphere
+                brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
                 brush.blurAmount); // w - blur amount
 
             brushType.SetKeyword(id.useTexcoord2);
@@ -435,7 +434,7 @@ namespace Playtime_Painter {
 
             brush.BlitMode.SetKeyword(id).SetGlobalShaderParameters();
 
-            if (RendTex && brush.BlitMode.UsingSourceTexture)
+            if (rendTex && brush.BlitMode.UsingSourceTexture)
                 sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
 
         }
@@ -561,7 +560,7 @@ namespace Playtime_Painter {
             bigRtVersion++;
         }
 
-        public bool secondBufferUpdated = false;
+        public bool secondBufferUpdated;
         public void UpdateBufferSegment()
         {
             if (!Data.disableSecondBufferUpdateDebug)
@@ -610,7 +609,7 @@ namespace Playtime_Painter {
 
             if (!defaultMaterial) Debug.Log("Default Material not found.");
 
-            isLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
+            isLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
             if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
@@ -618,11 +617,15 @@ namespace Playtime_Painter {
 
 
             if (!brushPrefab) {
-                GameObject go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
-                brushPrefab = go.GetComponent<RenderBrush>();
-                if (!brushPrefab)
-                    Debug.Log("Couldn't find brush prefab.");
-                
+                var go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
+                if (go)
+                {
+                    brushPrefab = go.GetComponent<RenderBrush>();
+                    if (!brushPrefab)
+                        Debug.Log("Couldn't find brush prefab.");
+                }
+                else
+                    Debug.LogError("Couldn't load brush Prefab");
             }
 
             if (Data)
@@ -636,7 +639,7 @@ namespace Playtime_Painter {
                 if (!brushRenderer)
                 {
                     brushRenderer = Instantiate(brushPrefab.gameObject).GetComponent<RenderBrush>();
-                    brushRenderer.transform.parent = this.transform;
+                    brushRenderer.transform.parent = transform;
                 }
             }
             if (Data)
@@ -684,7 +687,7 @@ namespace Playtime_Painter {
             
             DownloadManager.Dispose();
 
-            triedToFindCamera = false ;
+            _triedToFindCamera = false ;
             
             BeforeClosing();
 
@@ -735,7 +738,7 @@ namespace Playtime_Painter {
 
         public static GameObject refocusOnThis;
         #if UNITY_EDITOR
-        static int scipframes = 3;
+        private static int _scipframes = 3;
         #endif
       
 
@@ -761,7 +764,7 @@ namespace Playtime_Painter {
 
             List<PlaytimePainter> l = PlaytimePainter.PlaybackPainters;
 
-            if (l.Count > 0 && !StrokeVector.PausePlayback)
+            if (l.Count > 0 && !StrokeVector.pausePlayback)
             {
                 if (!l.Last())
                     l.RemoveLast(1);
@@ -771,16 +774,16 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (refocusOnThis) {
-                scipframes--;
-                if (scipframes == 0) {
+                _scipframes--;
+                if (_scipframes == 0) {
                     UnityHelperFunctions.FocusOn(refocusOnThis);
                     refocusOnThis = null;
-                    scipframes = 3;
+                    _scipframes = 3;
                 }
             }
 #endif
 
-            if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode) {
+            if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode && Camera.main) {
                 RaycastHit hit;
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
                 {
@@ -806,7 +809,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            bool needRefresh = false;
+            var needRefresh = false;
             if (!_plugins.IsNullOrEmpty())
                 foreach (var pl in _plugins)
                     if (pl != null)
@@ -823,7 +826,7 @@ namespace Playtime_Painter {
 
         #endif
 
-        public void CancelAllPlaybacks()
+        public static void CancelAllPlaybacks()
         {
             foreach (var p in PlaytimePainter.PlaybackPainters)
                 p.playbackVectors.Clear();

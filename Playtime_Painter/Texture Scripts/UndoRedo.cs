@@ -12,8 +12,8 @@ namespace Playtime_Painter
 
         protected virtual void SetB(ImageMeta from, int globalOrder) {
             order = globalOrder;
-            strokeRecord = from.recordedStrokes_forUndoRedo;
-            from.recordedStrokes_forUndoRedo = new List<string>();
+            strokeRecord = from.recordedStrokesForUndoRedo;
+            from.recordedStrokesForUndoRedo = new List<string>();
 
         }
     }
@@ -100,7 +100,7 @@ namespace Playtime_Painter
 
 			bool toRT = id.destination == TexTarget.RenderTexture;
 
-            int toClear = id.recordedStrokes_forUndoRedo.Count;
+            int toClear = id.recordedStrokesForUndoRedo.Count;
 
             if (toRT) 
                 otherDirection.backupRenderTexture(int.MaxValue, id);
@@ -116,7 +116,7 @@ namespace Playtime_Painter
             else 
                 id.recordedStrokes.RemoveLast(toClear);
             
-            id.recordedStrokes_forUndoRedo = backup.strokeRecord;
+            id.recordedStrokesForUndoRedo = backup.strokeRecord;
 
 			if (!fromRT) {
                 id.Pixels = pixBackup.pixels;
@@ -178,7 +178,7 @@ namespace Playtime_Painter
 				else 
                     tex2D.MoveFirstToLast ().Set (copyPix, id, order);
 
-                id.recordedStrokes_forUndoRedo = new List<string>();
+                id.recordedStrokesForUndoRedo = new List<string>();
 
 				order++;
 			}

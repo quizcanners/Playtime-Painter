@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using QuizCannersUtilities;
-using PlayerAndEditorGUI;
 
 namespace Playtime_Painter {
 
@@ -14,7 +11,7 @@ namespace Playtime_Painter {
 	    public Vector3 posFrom;
 	    public Vector2 uvTo;
 	    public Vector3 posTo;
-        public Vector2 unRepeatedUV;
+        public Vector2 unRepeatedUv;
         
         public Vector2 previousDelta;
 	    public float avgBrushSpeed;
@@ -23,11 +20,11 @@ namespace Playtime_Painter {
 	    public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
 	    public bool mouseUp;
 
-        public static bool PausePlayback;
+        public static bool pausePlayback;
 
 
-	    public Vector2 Delta_uv { get { return uvTo - uvFrom; } }
-	    public Vector3 Delta_WorldPos { get { return posTo - posFrom; } }
+	    public Vector2 DeltaUv => uvTo - uvFrom;
+        public Vector3 DeltaWorldPos => posTo - posFrom;
 
         public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) => brush.Paint(this, painter);
         
@@ -37,12 +34,12 @@ namespace Playtime_Painter {
             if (mouseDwn)
                 return false;
 
-            Vector2 newDelta = uvTo - uvFrom;
+            var newDelta = uvTo - uvFrom;
 
-            float prevMagn = previousDelta.magnitude;
+            var prevMagnitude = previousDelta.magnitude;
 
             return ((Vector2.Dot(previousDelta.normalized, newDelta.normalized) < 0)
-                        && (newDelta.magnitude > 0.1) && (newDelta.magnitude > prevMagn * 4))
+                        && (newDelta.magnitude > 0.1) && (newDelta.magnitude > prevMagnitude * 4))
                         || (newDelta.magnitude > 0.2f)  ;
 
             }
@@ -127,7 +124,7 @@ namespace Playtime_Painter {
         public void SetWorldPosInShader()
         {
            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = new Vector4(posFrom.x, posFrom.y, posFrom.z, 0);
-            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = new Vector4(posTo.x, posTo.y, posTo.z, Delta_WorldPos.magnitude);
+            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = new Vector4(posTo.x, posTo.y, posTo.z, DeltaWorldPos.magnitude);
         }
 
         public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.OrthographicSize).ToVector3(10);
@@ -170,7 +167,7 @@ namespace Playtime_Painter {
             uvTo = other.uvTo;
 
             posTo = other.posTo;
-            unRepeatedUV = other.unRepeatedUV;
+            unRepeatedUv = other.unRepeatedUv;
             
             previousDelta = other.previousDelta;
             avgBrushSpeed = other.avgBrushSpeed;

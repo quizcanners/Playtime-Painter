@@ -60,18 +60,27 @@ namespace PlayerAndEditorGUI {
             {
                 start(so);
 
+#if UNITY_2018_3_OR_NEWER
                 var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
                 
+
                 if (isPrefab &&
                     PrefabUtility.HasPrefabInstanceAnyOverrides( PrefabUtility.GetNearestPrefabInstanceRoot(o), false) &&
                     icon.Save.Click("Update Prefab")) 
                         PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
-                
+#endif
+
+
                 var changed = pgi.Inspect();
-                
+
+
+#if UNITY_2018_3_OR_NEWER
+
                 if (changed && isPrefab)
                     PrefabUtility.RecordPrefabInstancePropertyModifications(o);
-                
+
+#endif
+
                 if (changes)
                 {
                     if (!Application.isPlaying)

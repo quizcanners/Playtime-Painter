@@ -17,7 +17,7 @@ namespace Playtime_Painter
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.terrainTexture))) return false;
+            if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI[0].CharToInt();
 
 
@@ -43,7 +43,7 @@ namespace Playtime_Painter
             for (var i = 0; i < sp.Length; i++) {
                 var l = sp.TryGet(i);
                 if (l != null)
-                    dest.Add(new ShaderProperty.TextureValue( i + PainterDataAndConfig.terrainTexture + l.diffuseTexture.name, PainterDataAndConfig.terrainTexture));
+                    dest.Add(new ShaderProperty.TextureValue( i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
             }
 
 #else
@@ -62,7 +62,7 @@ namespace Playtime_Painter
         {
             if (!painter.terrain) return false;
 
-            if (!fieldName.HasUsageTag(PainterDataAndConfig.terrainTexture)) return false;
+            if (!fieldName.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE)) return false;
 
             var no = fieldName.NameForDisplayPEGI[0].CharToInt();
 
@@ -108,7 +108,7 @@ namespace Playtime_Painter
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
-            if (!field.HasUsageTag(PainterDataAndConfig.terrainTexture)) return false;
+            if (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE)) return false;
             var no = field.NameForDisplayPEGI[0].CharToInt();
             painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
             if (tex.GetType() != typeof(Texture2D))

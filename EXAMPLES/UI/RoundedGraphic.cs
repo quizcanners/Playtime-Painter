@@ -209,24 +209,6 @@ namespace Playtime_Painter.Examples
             if (changed)
                 SetVerticesDirty();
 
-            
-            
-        /*  
-#if UNITY_EDITOR
-
-            if (PrefabUtility.IsPartOfAnyPrefab(this)) {
-
-                if (changed)
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-                
-                if (PrefabUtility.HasPrefabInstanceAnyOverrides( PrefabUtility.GetNearestPrefabInstanceRoot(this), false) &&
-                icon.Save.Click("Update Prefab")) 
-                    PrefabUtility.ApplyPrefabInstance(gameObject, InteractionMode.UserAction);
-            }
-#endif
-           */ 
-            
-            
             return changed;
         }
         #endif
@@ -342,15 +324,15 @@ namespace Playtime_Painter.Examples
             }
         }
 
-        Vector3 previousPos = Vector3.zero;
+        Vector3 _previousPos = Vector3.zero;
 
         private void Update()
         {
-            if (feedPositionData && rectTransform.position != previousPos)
-            {
-                previousPos = rectTransform.position;
-                SetAllDirty();
-            }
+            if (!feedPositionData || rectTransform.position == _previousPos) return;
+            
+            _previousPos = rectTransform.position;
+            
+            SetAllDirty();
         }
     }
     
@@ -365,7 +347,7 @@ namespace Playtime_Painter.Examples
 
             var go = rg.gameObject;
 
-            var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+            var canvas = Object.FindObjectOfType<Canvas>();
 
             if (!canvas)
                 canvas = new GameObject("Canvas").AddComponent<Canvas>();
@@ -374,7 +356,7 @@ namespace Playtime_Painter.Examples
             Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
             Selection.activeObject = go;
 
-            rg.material = UnityEngine.Object.Instantiate(rg.material);
+            rg.material = Object.Instantiate(rg.material);
         }
         #endif
 

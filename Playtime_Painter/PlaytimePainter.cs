@@ -357,8 +357,8 @@ namespace Playtime_Painter {
 
             st.posTo = hit.point;
 
-            st.unRepeatedUV = OffsetAndTileUv(hit);
-            st.uvTo = st.unRepeatedUV.To01Space();
+            st.unRepeatedUv = OffsetAndTileUv(hit);
+            st.uvTo = st.unRepeatedUv.To01Space();
 
 
             PreviewShader_StrokePosition_Update();
@@ -419,7 +419,7 @@ namespace Playtime_Painter {
 
         public void SampleTexture(Vector2 uv)
         {
-            GlobalBrush.colorLinear.From(ImgMeta.SampleAT(uv), GlobalBrush.mask);
+            GlobalBrush.colorLinear.From(ImgMeta.SampleAt(uv), GlobalBrush.mask);
             Update_Brush_Parameters_For_Preview_Shader();
         }
 
@@ -714,8 +714,8 @@ namespace Playtime_Painter {
 
             id = ImgMeta;
 
-            id.SaveName = newName;
-            texture.name = id.SaveName;
+            id.saveName = newName;
+            texture.name = id.saveName;
             texture.Apply(true, false);
 
             SetTextureOnMaterial(texture);
@@ -747,7 +747,7 @@ namespace Playtime_Painter {
 
             var texture = new Texture2D(size, size, TextureFormat.ARGB32, true, !isColor);
 
-            if (gotRenderTextureData && (!id.texture2D || textureName.SameAs(id.SaveName)))
+            if (gotRenderTextureData && (!id.texture2D || textureName.SameAs(id.saveName)))
                 id.texture2D = texture;
 
             texture.wrapMode = TextureWrapMode.Repeat;
@@ -756,7 +756,7 @@ namespace Playtime_Painter {
 
             id = ImgMeta;
 
-            id.SaveName = textureName;
+            id.saveName = textureName;
             texture.name = textureName;
 
             var needsFullUpdate = false;
@@ -774,7 +774,7 @@ namespace Playtime_Painter {
             }
 
             if (needsFullUpdate)
-                id.SetPixelsInRAM();
+                id.SetPixelsInRam();
 
 #if UNITY_EDITOR
             SaveTextureAsAsset(true);
@@ -802,7 +802,7 @@ namespace Playtime_Painter {
 
             var nt = new ImageMeta().Init(size);
 
-            nt.SaveName = renderTextureName;
+            nt.saveName = renderTextureName;
 
             ChangeTexture(nt.renderTexture);
 
@@ -1120,13 +1120,11 @@ namespace Playtime_Painter {
             {
                 Debug.Log("Wrong size: {0} textureSize {1}".F(id.width, id.texture2D.width));
                 if (current)
-                {
-                    CreateTerrainHeightTexture(oid.SaveName);
-                    id = oid;
-                }
+                    CreateTerrainHeightTexture(oid.saveName);
                 else Debug.Log("Is not current");
 
                 return;
+                
             }
 
             terrainHeightTexture = id.texture2D;
@@ -1207,7 +1205,7 @@ namespace Playtime_Painter {
         {
             if (!PlaybackPainters.Contains(this))
                 PlaybackPainters.Add(this);
-            StrokeVector.PausePlayback = false;
+            StrokeVector.pausePlayback = false;
             playbackVectors.AddRange(Cfg.StrokeRecordingsFromFile(recordingName));
         }
 
@@ -1311,7 +1309,7 @@ namespace Playtime_Painter {
 
                 var data = Encode().ToString();
                 curImgData.recordedStrokes.Add(data);
-                curImgData.recordedStrokes_forUndoRedo.Add(data);
+                curImgData.recordedStrokesForUndoRedo.Add(data);
 
                 if (!stroke.mouseDwn)
                 {
@@ -1397,7 +1395,7 @@ namespace Playtime_Painter {
             AssetImporter.GetAtPath("Assets{0}".F(GenerateTextureSavePath())) as TextureImporter != null;
 
         private string GenerateTextureSavePath() =>
-             "/{0}{1}.png".F(Cfg.texturesFolderName.AddPostSlashIfNotEmpty(), ImgMeta.SaveName);
+             "/{0}{1}.png".F(Cfg.texturesFolderName.AddPostSlashIfNotEmpty(), ImgMeta.saveName);
 
         public string GenerateMeshSavePath() =>
              SharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameField) : "None";
@@ -1415,7 +1413,7 @@ namespace Playtime_Painter {
                 
                 Debug.Log("Old Texture had no Alpha channel, creating new");
 
-                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.SaveName, false);
+                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, false);
 
                 id.texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
 
@@ -1463,7 +1461,7 @@ namespace Playtime_Painter {
             var id = ImgMeta;
 
             if (OnBeforeSaveTexture(id)) {
-                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.SaveName, asNew);
+                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, asNew);
 
                 id.texture2D.Reimport_IfNotReadale();
             }
@@ -2036,15 +2034,15 @@ namespace Playtime_Painter {
                                 "Playback In progress".nl();
 
                                 if (icon.Close.Click("Cancel All Playbacks", 20))
-                                    TexMgmt.CancelAllPlaybacks();
+                                    PainterCamera.CancelAllPlaybacks();
 
-                                if (StrokeVector.PausePlayback)
+                                if (StrokeVector.pausePlayback)
                                 {
                                     if (icon.Play.Click("Continue Playback", 20))
-                                        StrokeVector.PausePlayback = false;
+                                        StrokeVector.pausePlayback = false;
                                 }
                                 else if (icon.Pause.Click("Pause Playback", 20))
-                                    StrokeVector.PausePlayback = true;
+                                    StrokeVector.pausePlayback = true;
 
                             }
                             else
@@ -2062,7 +2060,7 @@ namespace Playtime_Painter {
 
                                     if (icon.Record.Click("Continue Recording", 18))
                                     {
-                                        id.SaveName = Cfg.recordingNames[Cfg.browsedRecord];
+                                        id.saveName = Cfg.recordingNames[Cfg.browsedRecord];
                                         id.ContinueRecording();
                                         "Recording resumed".showNotificationIn3D_Views();
                                     }
@@ -2075,7 +2073,7 @@ namespace Playtime_Painter {
                                 if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
                                     (!gotVectors && "New Vector Recording".Click("Start New recording")))
                                 {
-                                    id.SaveName = "Unnamed";
+                                    id.saveName = "Unnamed";
                                     id.StartRecording();
                                     "Recording started".showNotificationIn3D_Views();
                                 }
@@ -2179,7 +2177,7 @@ namespace Playtime_Painter {
 
                             "Brush Dynamics".toggleVisibilityIcon("Will modify scale and other values based on movement.", ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
 
-                            "URL field".toggleVisibilityIcon("Option to load images by URL", ref Cfg.showURLfield, true).changes(ref changed);
+                            "URL field".toggleVisibilityIcon("Option to load images by URL", ref Cfg.showUrlField, true).changes(ref changed);
                         }
 
                         if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
@@ -2272,7 +2270,7 @@ namespace Playtime_Painter {
 
                         #region Texture Instantiation Options
 
-                        if (Cfg.showURLfield)
+                        if (Cfg.showUrlField)
                         {
 
                             "URL".edit(40, ref _tmpUrl);
@@ -2429,25 +2427,25 @@ namespace Playtime_Painter {
                                     if (orig != null && icon.Load.ClickUnFocus("Will reload " + orig))
                                     {
                                         ForceReimportMyTexture(orig);
-                                        id.SaveName = id.texture2D.name;
+                                        id.saveName = id.texture2D.name;
                                         if (terrain)
                                             UpdateShaderGlobals();
                                     }
                                 }
 
-                                pegi.edit(ref id.SaveName);
+                                pegi.edit(ref id.saveName);
 
                                 if (id.texture2D)
                                 {
 
-                                    if (!id.SaveName.SameAs(id.texture2D.name) && icon.Refresh.Click("Use current texture name ({0})".F(id.texture2D.name)))
-                                        id.SaveName = id.texture2D.name;
+                                    if (!id.saveName.SameAs(id.texture2D.name) && icon.Refresh.Click("Use current texture name ({0})".F(id.texture2D.name)))
+                                        id.saveName = id.texture2D.name;
 
                                     var destPath =              GenerateTextureSavePath();
                                     var existsAtDestination =   TextureExistsAtDestinationPath();
                                     var originalExists =        !orig.IsNullOrEmpty();
                                     var sameTarget =            originalExists && orig.Equals(destPath);
-                                    var sameTextureName =       originalExists && id.texture2D.name.Equals(id.SaveName);
+                                    var sameTextureName =       originalExists && id.texture2D.name.Equals(id.saveName);
 
 
                                     if (!existsAtDestination || sameTextureName)
@@ -2466,7 +2464,7 @@ namespace Playtime_Painter {
                                         SaveTextureAsAsset(false);
 
                                     if (!sameTarget && !sameTextureName && originalExists && !existsAtDestination && icon.Replace.Click("Will replace {0} with {1} ".F(orig, destPath)))
-                                        RewriteOriginalTexture_Rename(id.SaveName);
+                                        RewriteOriginalTexture_Rename(id.saveName);
 
                                     pegi.nl();
 
@@ -2626,8 +2624,8 @@ namespace Playtime_Painter {
                         var texMeta = SetTextureOnMaterial(l.Value, tex);
                         if (texMeta != null)
                         {
-                            texMeta.URL = PainterCamera.DownloadManager.GetURL(l.Key);
-                            texMeta.SaveName = "Loaded Texture {0}".F(l.Key);
+                            texMeta.url = PainterCamera.DownloadManager.GetURL(l.Key);
+                            texMeta.saveName = "Loaded Texture {0}".F(l.Key);
                         }
                     }
                     
@@ -2758,8 +2756,8 @@ namespace Playtime_Painter {
 
             uvClick.Scale(id.tiling);
             uvClick += id.offset;
-            stroke.unRepeatedUV = uvClick + id.offset;
-            stroke.uvTo = stroke.unRepeatedUV.To01Space();
+            stroke.unRepeatedUv = uvClick + id.offset;
+            stroke.uvTo = stroke.unRepeatedUv.To01Space();
             PreviewShader_StrokePosition_Update();
             return true;
         }

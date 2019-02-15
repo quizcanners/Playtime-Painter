@@ -1,28 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using System;
 
 namespace Playtime_Painter.Examples {
     
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour, IPEGI {
-
-        public static GodMode inst;
+        private static GodMode _inst;
         public float speed = 20;
         public float sensitivity = 5;
-        public static bool disableRotation = false;
-        public bool rotateWithotRMB;
-        public static string PrefSpeed = "GodSpeed";
-        public static string PrefSens = "GodSensitivity";
-        
+        private static readonly bool disableRotation = false;
+        public bool rotateWithoutRmb;
+        public static string prefSpeed = "GodSpeed";
+        private static readonly string PrefSens = "GodSensitivity";
 
-        bool Rotate() {
+
+        private bool Rotate() {
 
             #if !UNITY_IOS && !UNITY_ANDROID
-            return (rotateWithotRMB || Input.GetMouseButton(1));
+            return (rotateWithoutRmb || Input.GetMouseButton(1));
             #else
             return true;
 
@@ -31,99 +27,95 @@ namespace Playtime_Painter.Examples {
 
         private void OnEnable() {
 
-            inst = this;
+            _inst = this;
         }
 
-        private void Start()
-        {
-            inst = this;
-        }
-
-        // Update is called once per frame
-        protected float rotationY;
+        private float _rotationY;
 
         public virtual void Update()
         {
 
-            Vector3 add = Vector3.zero;
+            var add = Vector3.zero;
 
-            if (Input.GetKey(KeyCode.W)) add += transform.forward;
-            if (Input.GetKey(KeyCode.A)) add -= transform.right;
-            if (Input.GetKey(KeyCode.S)) add -= transform.forward;
-            if (Input.GetKey(KeyCode.D)) add += transform.right;
+            var tf = transform;
+            
+            if (Input.GetKey(KeyCode.W)) add += tf.forward;
+            if (Input.GetKey(KeyCode.A)) add -= tf.right;
+            if (Input.GetKey(KeyCode.S)) add -= tf.forward;
+            if (Input.GetKey(KeyCode.D)) add += tf.right;
             add.y = 0;
             if (Input.GetKey(KeyCode.Q)) add += Vector3.down;
             if (Input.GetKey(KeyCode.E)) add += Vector3.up;
 
 
-            transform.position += add * speed * Time.deltaTime * (Input.GetKey(KeyCode.LeftShift) ? 3f: 1f);
+            tf.position += add * speed * Time.deltaTime * (Input.GetKey(KeyCode.LeftShift) ? 3f: 1f);
 
-            if ((Application.isPlaying) && (!disableRotation))
+            if ((!Application.isPlaying) || (disableRotation)) return;
+            
+            if (rotateWithoutRmb || Input.GetMouseButton(1))
             {
-
-                if (rotateWithotRMB || Input.GetMouseButton(1))
-                {
-                    float rotationX = transform.localEulerAngles.y;
-                    rotationY = transform.localEulerAngles.x;
-
+                var eul = tf.localEulerAngles;
+                
+                var rotationX = eul.y;
+                _rotationY = eul.x;
 
 
-                    rotationX += Input.GetAxis("Mouse X") * sensitivity;
-                    rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
 
-                    if (rotationY < 120)
-                        rotationY = Mathf.Min(rotationY, 85);
-                    else
-                        rotationY = Mathf.Max(rotationY, 270);
+                rotationX += Input.GetAxis("Mouse X") * sensitivity;
+                _rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
+
+                _rotationY = _rotationY < 120 ? Mathf.Min(_rotationY, 85) : Mathf.Max(_rotationY, 270);
 
 
-                    transform.localEulerAngles = new Vector3(rotationY, rotationX, 0);
+                tf.localEulerAngles = new Vector3(_rotationY, rotationX, 0);
 
-                }
-
-
-                SpinAround();
             }
+
+
+            SpinAround();
         }
         
-        public Vector2 camOrbit = new Vector2();
-        public Vector3 SpinCenter;
-        protected float OrbitDistance = 0;
-        public bool OrbitingFocused;
-        public float SpinStartTime = 0;
+        public Vector2 camOrbit;
+        public Vector3 spinCenter;
+        private float _orbitDistance;
+        public bool orbitingFocused;
+        public float spinStartTime;
 
-        public void SpinAround()
+        private void SpinAround()
         {
 
-            Transform camTr = gameObject.TryGetCameraTransform();
-            if (Input.GetMouseButtonDown(2))
+            var camTr = gameObject.TryGetCameraTransform();
+
+            var cam = Camera.main;
+            
+            if (Input.GetMouseButtonDown(2) && cam)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                var ray = cam.ScreenPointToRay(Input.mousePosition);
+                
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit))
-                {
-                    SpinCenter = hit.point;
-                }
+                    spinCenter = hit.point;
                 else return;
                 
-                Quaternion before = camTr.transform.rotation;
-                camTr.transform.LookAt(SpinCenter);
-                Vector3 rot = camTr.transform.rotation.eulerAngles;
+                
+                
+                var before = camTr.rotation;
+                camTr.transform.LookAt(spinCenter);
+                var rot = camTr.rotation.eulerAngles;
                 camOrbit.x = rot.y;
                 camOrbit.y = rot.x;
-                OrbitDistance = (SpinCenter - camTr.transform.position).magnitude;
+                _orbitDistance = (spinCenter - camTr.position).magnitude;
 
-                camTr.transform.rotation = before;
-                OrbitingFocused = false;
-                SpinStartTime = Time.time;
+                camTr.rotation = before;
+                orbitingFocused = false;
+                spinStartTime = Time.time;
             }
 
             if (Input.GetMouseButtonUp(2))
-                OrbitDistance = 0;
+                _orbitDistance = 0;
 
-            if ((OrbitDistance > 0) && (Input.GetMouseButton(2)))
+            if ((!(_orbitDistance > 0)) || (!Input.GetMouseButton(2))) return;
             {
-
                 camOrbit.x += Input.GetAxis("Mouse X") * 5;
                 camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
 
@@ -132,20 +124,19 @@ namespace Playtime_Painter.Examples {
                 if (camOrbit.y >= 360)
                     camOrbit.y -= 360;
 
-                Quaternion rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
-                Vector3 campos = rot *
-                    (new Vector3(0.0f, 0.0f, -OrbitDistance)) +
-                    SpinCenter;
+                var rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
+                var campos = rot *
+                                 (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
+                                 spinCenter;
 
                 camTr.position = campos;
-                if (!OrbitingFocused)
+                if (!orbitingFocused)
                 {
-                    camTr.rotation = MyMath.Lerp_bySpeed(camTr.rotation, rot, 200);
+                    camTr.rotation = camTr.rotation.Lerp_bySpeed(rot, 200);
                     if (Quaternion.Angle(camTr.rotation, rot) < 1)
-                        OrbitingFocused = true;
+                        orbitingFocused = true;
                 }
                 else camTr.rotation = rot;
-   
             }
         }
 
@@ -163,7 +154,7 @@ namespace Playtime_Painter.Examples {
             if ("sensitivity:".edit(60, ref sensitivity).nl())
                 PlayerPrefs.SetFloat(PrefSens, sensitivity);
  
-            "Rotate without RMB".toggleIcon(ref rotateWithotRMB).nl();
+            "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl();
 
             "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNl);
 

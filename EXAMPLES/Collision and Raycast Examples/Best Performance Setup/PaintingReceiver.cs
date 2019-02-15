@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using UnityEditorInternal.Profiling.Memory.Experimental;
-
 
 namespace Playtime_Painter.Examples {
     
     [ExecuteInEditMode]
-    public class PaintingReciever : MonoBehaviour, IPEGI {
+    public class PaintingReceiver : MonoBehaviour, IPEGI {
 
         public enum RendererType {Regular, Skinned }
         
@@ -24,62 +19,65 @@ namespace Playtime_Painter.Examples {
         [SerializeField]
         public int materialIndex;
         [SerializeField]
-        private string _textureField = "";
+        private string textureField = "";
 
         
-        private ShaderProperty.TextureValue textureProperty;
+        private ShaderProperty.TextureValue _textureProperty;
 
-        public String TexturePropertyName
+        private string TexturePropertyName
         {
             set
             {
-                _textureField = value;
-                textureProperty = new ShaderProperty.TextureValue(value);
+                textureField = value;
+                _textureProperty = new ShaderProperty.TextureValue(value);
             }
         }
-        
-        public ShaderProperty.TextureValue TextureID {
+
+        private ShaderProperty.TextureValue TextureId {
 
 
             get
             {
                 
-                if (textureProperty == null)
-                    textureProperty = new ShaderProperty.TextureValue(_textureField);
+                if (_textureProperty == null)
+                    _textureProperty = new ShaderProperty.TextureValue(textureField);
                 
-                return textureProperty;
+                return _textureProperty;
                 
               
             }                    
             
         }
-        
-        
-        
-        
-        public Mesh Mesh { get { return skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : meshFilter?.sharedMesh; } }
-        public Renderer Renderer { get { return meshRenderer ? meshRenderer : skinnedMeshRenderer; } }
-        public Material Material { get {
-                if (!Renderer)
-                    return null;
-                if (materialIndex < Renderer.sharedMaterials.Length)
-                    return Renderer.sharedMaterials[materialIndex];
-                return null; }  set {
-                if (materialIndex < Renderer.sharedMaterials.Length)
-                {
-                    var mats = Renderer.sharedMaterials;
-                    mats[materialIndex] = value;
-                    Renderer.materials = mats;
-                }
+
+
+        private Mesh Mesh => skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : (meshFilter ? meshFilter.sharedMesh : null);
+        public Renderer Renderer => meshRenderer ? meshRenderer : skinnedMeshRenderer;
+
+        public Material Material { 
+            get
+            {
+                var rend = Renderer;
+                
+                return rend ? rend.sharedMaterials.TryGet(materialIndex) : null;
+            }
+            
+            
+            private set {
+                if (materialIndex >= Renderer.sharedMaterials.Length) return;
+                
+                var mats = Renderer.sharedMaterials;
+                mats[materialIndex] = value;
+                Renderer.materials = mats;
             }
         }
-        public Texture MatTex { get {
+
+        private Texture MatTex { get {
                 if (!Material) return null;
-                return Material.Has(TextureID) ? Material.Get(TextureID) : Material.mainTexture;
+                return Material.Has(TextureId) ? Material.Get(TextureId) : Material.mainTexture;
 
             } set {
-                if (Material.Has(TextureID))
-                    Material.Set(TextureID, value);
+                if (Material.Has(TextureId))
+                    Material.Set(TextureId, value);
                 else Material.mainTexture = value;   } }
         
         public Texture texture;
@@ -154,10 +152,11 @@ namespace Playtime_Painter.Examples {
                 Debug.Log("There was no original Texture assigned to edit.");
             }
 
-            if (texture.GetType() == typeof(Texture2D)) {
-                
-                ((Texture2D)texture).SetPixels(((Texture2D)originalTexture).GetPixels());
-                ((Texture2D)texture).Apply(true);
+            var t2D = texture as Texture2D;
+            
+            if (t2D) {
+                t2D.SetPixels(((Texture2D)originalTexture).GetPixels());
+                t2D.Apply(true);
             } else 
                 PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
 
@@ -182,7 +181,7 @@ namespace Playtime_Painter.Examples {
 
         #region Inspector
 
-        [SerializeField] bool showOptional = false;
+        [SerializeField] private bool showOptional;
         
         #if PEGI
 
@@ -226,9 +225,9 @@ namespace Playtime_Painter.Examples {
             
             if (Material) {
                 var lst = Material.MyGetTextureProperties();
-                var prop = TextureID;
-                if ("   Property".select(80, ref textureProperty, lst).nl())
-                    TexturePropertyName = textureProperty.NameForDisplayPEGI;
+
+                if ("   Property".select(80, ref _textureProperty, lst).nl())
+                    TexturePropertyName = _textureProperty.NameForDisplayPEGI;
 
             }
             
@@ -252,7 +251,7 @@ namespace Playtime_Painter.Examples {
             if (Material)
             {
 
-                if (!Material.Has(TextureID) && !Material.mainTexture )
+                if (!Material.Has(TextureId) && !Material.mainTexture )
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
                 {

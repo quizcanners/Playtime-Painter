@@ -16,8 +16,7 @@ namespace Playtime_Painter
 #if UNITY_2018_1_OR_NEWER
     public struct BlitJobs : IJob
     {
-
-        public NativeArray<Color> values;
+        private NativeArray<Color> _values;
         bool r;
         bool g;
         bool b;
@@ -27,29 +26,29 @@ namespace Playtime_Painter
         int y;
         int z;
 
-        float alpha;
+        private float _alpha;
 
-        float brAlpha;
-        float half;
-        bool smooth;
-        int width;
-        int height;
-        MyIntVec2 pixelNumber;
-        Color csrc;
+        private float _brAlpha;
+        private float _half;
+        private bool _smooth;
+        private int _width;
+        private int _height;
+        private MyIntVec2 _pixelNumber;
+        private Color _srcCol;
 
-        bool isVolumeBlit;
-        int slices;
-        int volHeight;
-        int texWidth;
-        Vector3 pos;
+        private bool _isVolumeBlit;
+        private int _slices;
+        private int _volHeight;
+        private int _texWidth;
+        private Vector3 _pos;
 
-        Blit_Functions.alphaMode_dlg _alphaMode;
-        Blit_Functions.blitModeFunction _blitMode;
+        private Blit_Functions.alphaMode_dlg _alphaMode;
+        private Blit_Functions.blitModeFunction _blitMode;
 
-        public void PrepareBlit(BrushConfig bc, ImageMeta id, float brushAlpha, StrokeVector stroke)
+        private void PrepareBlit(BrushConfig bc, ImageMeta id, float brushAlpha, StrokeVector stroke)
         {
 
-            switch (blitJobBlitMode)
+            switch (_blitJobBlitMode)
             {
                 case BlitJobBlitMode.Add: _blitMode = AddBlit; break;
                 case BlitJobBlitMode.Alpha:
@@ -64,55 +63,55 @@ namespace Playtime_Painter
                 default: _blitMode = AlphaBlitOpaque; break;
             }
 
-            if (smooth)
+            if (_smooth)
                 _alphaMode = CircleAlpha;
             else
                 _alphaMode = NoAlpha;
 
-            values = id.pixelsForJob;
-            pixelNumber = id.UvToPixelNumber(stroke.uvFrom);
+            _values = id.pixelsForJob;
+            _pixelNumber = id.UvToPixelNumber(stroke.uvFrom);
 
-            width = id.width;
-            height = id.height;
-            brAlpha = brushAlpha;
+            _width = id.width;
+            _height = id.height;
+            _brAlpha = brushAlpha;
 
-            half = (bc.Size(false)) / 2;
-            smooth = bc.Type(true) != BrushTypePixel.Inst;
+            _half = (bc.Size(false)) / 2;
+            _smooth = bc.Type(true) != BrushTypePixel.Inst;
 
-            blitJobBlitMode = bc.BlitMode.BlitJobFunction();
+            _blitJobBlitMode = bc.BlitMode.BlitJobFunction();
 
-            alpha = 1;
+            _alpha = 1;
 
             r = bc.mask.GetFlag(BrushMask.R);
             g = bc.mask.GetFlag(BrushMask.G);
             b = bc.mask.GetFlag(BrushMask.B);
             a = bc.mask.GetFlag(BrushMask.A);
 
-            csrc = bc.Color;
+            _srcCol = bc.Color;
         }
 
         public void PrepareVolumeBlit(BrushConfig bc, ImageMeta id, float alpha, StrokeVector stroke, VolumeTexture volume)
         {
             PrepareBlit(bc, id, alpha, stroke);
-            pos = (stroke.posFrom - volume.transform.position) / volume.size + 0.5f * Vector3.one;
-            isVolumeBlit = true;
-            slices = volume.h_slices;
-            volHeight = volume.Height;
-            texWidth = id.width;
+            _pos = (stroke.posFrom - volume.transform.position) / volume.size + 0.5f * Vector3.one;
+            _isVolumeBlit = true;
+            _slices = volume.h_slices;
+            _volHeight = volume.Height;
+            _texWidth = id.width;
         }
 
-        int PixelNo(MyIntVec2 v)
+        private int PixelNo(MyIntVec2 v)
         {
-            int x = v.x;
-            int y = v.y;
+            var x = v.x;
+            var y = v.y;
 
-            x %= width;
+            x %= _width;
             if (x < 0)
-                x += width;
-            y %= height;
+                x += _width;
+            y %= _height;
             if (y < 0)
-                y += height;
-            return y * width + x;
+                y += _height;
+            return y * _width + x;
         }
 
         public void Execute()
@@ -120,32 +119,32 @@ namespace Playtime_Painter
 
 
 
-            if (!isVolumeBlit)
+            if (!_isVolumeBlit)
             {
-                int ihalf = (int)(half - 0.5f);
-                if (smooth) ihalf += 1;
+                var iHalf = (int)(_half - 0.5f);
+                if (_smooth) iHalf += 1;
 
-                MyIntVec2 tmp = pixelNumber;
+                var tmp = _pixelNumber;
 
-                int fromx = tmp.x - ihalf;
+                var fromX = tmp.x - iHalf;
 
-                tmp.y -= ihalf;
+                tmp.y -= iHalf;
 
-                for (y = -ihalf; y < ihalf + 1; y++)
+                for (y = -iHalf; y < iHalf + 1; y++)
                 {
 
-                    tmp.x = fromx;
+                    tmp.x = fromX;
 
-                    for (x = -ihalf; x < ihalf + 1; x++)
+                    for (x = -iHalf; x < iHalf + 1; x++)
                     {
 
                         if (_alphaMode())
                         {
 
                             var ind = PixelNo(tmp);
-                            var col = values[ind];
+                            var col = _values[ind];
                             _blitMode(ref col);
-                            values[ind] = col;
+                            _values[ind] = col;
                         }
 
                         tmp.x += 1;
@@ -157,164 +156,144 @@ namespace Playtime_Painter
             }
             else
             {
+                if (_slices <= 1) return;
+                
+                var iHalf = (int)(_half - 0.5f);
 
-                if (slices > 1)
+                if (_smooth) iHalf += 1;
+
+                _alphaMode = SphereAlpha;
+
+                var sliceWidth = _texWidth / _slices;
+
+                var hw = sliceWidth / 2;
+
+                y = (int)_pos.y;
+                z = (int)(_pos.z + hw);
+                x = (int)(_pos.x + hw);
+
+                for (y = -iHalf; y < iHalf + 1; y++)
                 {
-                    int ihalf = (int)(half - 0.5f);
 
-                    if (smooth) ihalf += 1;
+                    var h = y + y;
 
-                    _alphaMode = SphereAlpha;
+                    if (h >= _volHeight) return;
 
-                    int sliceWidth = texWidth / slices;
+                    if (h < 0) continue;
+                    
+                    var hy = h / _slices;
+                    var hx = h % _slices;
+                    var hTexIndex = (hy * _texWidth + hx) * sliceWidth;
 
-                    int hw = sliceWidth / 2;
-
-                    y = (int)pos.y;
-                    z = (int)(pos.z + hw);
-                    x = (int)(pos.x + hw);
-
-                    for (y = -ihalf; y < ihalf + 1; y++)
+                    for (z = -iHalf; z < iHalf + 1; z++)
                     {
 
-                        int h = y + y;
+                        var trueZ = z + z;
 
-                        if (h >= volHeight) return;
+                        if (trueZ < 0 || trueZ >= sliceWidth) continue;
+                        
+                        var yTexIndex = hTexIndex + trueZ * _texWidth;
 
-                        if (h >= 0)
+                        for (x = -iHalf; x < iHalf + 1; x++)
                         {
+                            var trueX = x + x;
 
-                            int hy = h / slices;
-                            int hx = h % slices;
-                            int hTex_index = (hy * texWidth + hx) * sliceWidth;
+                            if (trueX < 0 || trueX >= sliceWidth) continue;
+                            var texIndex = yTexIndex + trueX;
 
-                            for (z = -ihalf; z < ihalf + 1; z++)
-                            {
-
-                                int trueZ = z + z;
-
-                                if (trueZ >= 0 && trueZ < sliceWidth)
-                                {
-
-                                    int yTex_index = hTex_index + trueZ * texWidth;
-
-                                    for (x = -ihalf; x < ihalf + 1; x++)
-                                    {
-                                        int trueX = x + x;
-
-                                        if (trueX >= 0 && trueX < sliceWidth)
-                                        {
-
-                                            int texIndex = yTex_index + trueX;
-
-                                            if (_alphaMode())
-                                            {
-
-                                                var col = values[texIndex];
-                                                _blitMode(ref col);
-                                                values[texIndex] = col;
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
+                            if (!_alphaMode()) continue;
+                            var col = _values[texIndex];
+                            _blitMode(ref col);
+                            _values[texIndex] = col;
                         }
                     }
-
-                    return;
                 }
-                return;
-
             }
         }
 
         #region AlphaModes
 
-        bool NoAlpha() => true;
+        private static bool NoAlpha() => true;
 
-        bool SphereAlpha()
+        private bool SphereAlpha()
         {
-            float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
-            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
-            return alpha > 0;
+            var dist = 1 + _half - Mathf.Sqrt(y * y + x * x + z * z);
+            _alpha = Mathf.Clamp01((dist) / _half) * _brAlpha;
+            return _alpha > 0;
         }
 
-        bool CircleAlpha()
+        private bool CircleAlpha()
         {
-            float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
-            alpha = Mathf.Clamp01((dist) / half) * brAlpha;
-            return alpha > 0;
+            var dist = 1 + _half - Mathf.Sqrt(y * y + x * x);
+            _alpha = Mathf.Clamp01((dist) / _half) * _brAlpha;
+            return _alpha > 0;
         }
 
         #endregion
 
         #region BlitModes
 
-        BlitJobBlitMode blitJobBlitMode;
+        BlitJobBlitMode _blitJobBlitMode;
 
 
-
-        void AlphaBlitOpaque(ref Color cdst)
+        private void AlphaBlitOpaque(ref Color colDst)
         {
-            float deAlpha = 1 - alpha;
+            var deAlpha = 1 - _alpha;
 
-            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
-            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
-            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
-            if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
+            if (r) colDst.r = Mathf.Sqrt(_alpha * _srcCol.r * _srcCol.r + colDst.r * colDst.r * deAlpha);
+            if (g) colDst.g = Mathf.Sqrt(_alpha * _srcCol.g * _srcCol.g + colDst.g * colDst.g * deAlpha);
+            if (b) colDst.b = Mathf.Sqrt(_alpha * _srcCol.b * _srcCol.b + colDst.b * colDst.b * deAlpha);
+            if (a) colDst.a = _alpha * _srcCol.a + colDst.a * deAlpha;
         }
 
-        void AlphaBlitTransparent(ref Color cdst)
+        private void AlphaBlitTransparent(ref Color colDst)
         {
 
-            float rgbAlpha = csrc.a * alpha;
+            var rgbAlpha = _srcCol.a * _alpha;
 
-            float divs = (cdst.a + rgbAlpha);
+            var divs = (colDst.a + rgbAlpha);
 
 
             rgbAlpha = divs > 0 ? Mathf.Clamp01(rgbAlpha / divs) : 0;
-            float deRGBAlpha = 1 - rgbAlpha;
+            
+            var deRgbAlpha = 1 - rgbAlpha;
 
-            //  float rgbAlpha = alpha / Mathf.Min(1, cdst.a + alpha);
-            //  float deAlpha = 1 - rgbAlpha;
-
-            if (r) cdst.r = Mathf.Sqrt(rgbAlpha * csrc.r * csrc.r + cdst.r * cdst.r * deRGBAlpha);
-            if (g) cdst.g = Mathf.Sqrt(rgbAlpha * csrc.g * csrc.g + cdst.g * cdst.g * deRGBAlpha);
-            if (b) cdst.b = Mathf.Sqrt(rgbAlpha * csrc.b * csrc.b + cdst.b * cdst.b * deRGBAlpha);
-            if (a) cdst.a = alpha * csrc.a + cdst.a * (1 - alpha);
+            if (r) colDst.r = Mathf.Sqrt(rgbAlpha * _srcCol.r * _srcCol.r + colDst.r * colDst.r * deRgbAlpha);
+            if (g) colDst.g = Mathf.Sqrt(rgbAlpha * _srcCol.g * _srcCol.g + colDst.g * colDst.g * deRgbAlpha);
+            if (b) colDst.b = Mathf.Sqrt(rgbAlpha * _srcCol.b * _srcCol.b + colDst.b * colDst.b * deRgbAlpha);
+            if (a) colDst.a = _alpha * _srcCol.a + colDst.a * (1 - _alpha);
         }
 
-        void AddBlit(ref Color cdst)
+        private void AddBlit(ref Color colDst)
         {
-            if (r) cdst.r = alpha * csrc.r + cdst.r;
-            if (g) cdst.g = alpha * csrc.g + cdst.g;
-            if (b) cdst.b = alpha * csrc.b + cdst.b;
-            if (a) cdst.a = alpha * csrc.a + cdst.a;
+            if (r) colDst.r = _alpha * _srcCol.r + colDst.r;
+            if (g) colDst.g = _alpha * _srcCol.g + colDst.g;
+            if (b) colDst.b = _alpha * _srcCol.b + colDst.b;
+            if (a) colDst.a = _alpha * _srcCol.a + colDst.a;
         }
 
-        void SubtractBlit(ref Color cdst)
+        private void SubtractBlit(ref Color colDst)
         {
-            if (r) cdst.r = Mathf.Max(0, -alpha * csrc.r + cdst.r);
-            if (g) cdst.g = Mathf.Max(0, -alpha * csrc.g + cdst.g);
-            if (b) cdst.b = Mathf.Max(0, -alpha * csrc.b + cdst.b);
-            if (a) cdst.a = Mathf.Max(0, -alpha * csrc.a + cdst.a);
+            if (r) colDst.r = Mathf.Max(0, -_alpha * _srcCol.r + colDst.r);
+            if (g) colDst.g = Mathf.Max(0, -_alpha * _srcCol.g + colDst.g);
+            if (b) colDst.b = Mathf.Max(0, -_alpha * _srcCol.b + colDst.b);
+            if (a) colDst.a = Mathf.Max(0, -_alpha * _srcCol.a + colDst.a);
         }
 
-        void MaxBlit(ref Color cdst)
+        private void MaxBlit(ref Color colDst)
         {
-            if (r) cdst.r += alpha * Mathf.Max(0, csrc.r - cdst.r);
-            if (g) cdst.g += alpha * Mathf.Max(0, csrc.g - cdst.g);
-            if (b) cdst.b += alpha * Mathf.Max(0, csrc.b - cdst.b);
-            if (a) cdst.a += alpha * Mathf.Max(0, csrc.a - cdst.a);
+            if (r) colDst.r += _alpha * Mathf.Max(0, _srcCol.r - colDst.r);
+            if (g) colDst.g += _alpha * Mathf.Max(0, _srcCol.g - colDst.g);
+            if (b) colDst.b += _alpha * Mathf.Max(0, _srcCol.b - colDst.b);
+            if (a) colDst.a += _alpha * Mathf.Max(0, _srcCol.a - colDst.a);
         }
 
-        void MinBlit(ref Color cdst)
+        private void MinBlit(ref Color colDst)
         {
-            if (r) cdst.r -= alpha * Mathf.Max(0, cdst.r - csrc.r);
-            if (g) cdst.g -= alpha * Mathf.Max(0, cdst.g - csrc.g);
-            if (b) cdst.b -= alpha * Mathf.Max(0, cdst.b - csrc.b);
-            if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
+            if (r) colDst.r -= _alpha * Mathf.Max(0, colDst.r - _srcCol.r);
+            if (g) colDst.g -= _alpha * Mathf.Max(0, colDst.g - _srcCol.g);
+            if (b) colDst.b -= _alpha * Mathf.Max(0, colDst.b - _srcCol.b);
+            if (a) colDst.a -= _alpha * Mathf.Max(0, colDst.a - _srcCol.a);
         }
 
 

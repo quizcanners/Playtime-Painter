@@ -67,11 +67,11 @@ namespace Playtime_Painter.Examples
                 {
                     ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
                     if (tmp.Product_combinedBump != null)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
+                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, tmp.Product_combinedBump.GetDestinationTexture());
 
                     if (tmp.Product_colorWithAlpha != null)
                     {
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
+                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
                         if (i < ls.Length && ls[i]!= null)
                             ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
                     }

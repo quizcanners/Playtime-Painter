@@ -91,7 +91,7 @@
 					#else 
 					float clipp = max(0, 1 - dot(uv, uv));
 					float uvy = saturate(clipp * (8 - _Courners * 7)*(0.5*(1 + _Edges)));
-					o.color.a *= saturate((1 - uvy) * 2) * min(clipp* _Edges * (1 - _Blur)*deCourners * 30, 1)*(2 - _Edges);
+					o.color.a *= min(1, saturate((1 - uvy) * 2) * min(clipp* _Edges * (1 - _Blur)*deCourners * 30, 1)*(2 - _Edges)*(3 - uvy));
 					#endif
 
 

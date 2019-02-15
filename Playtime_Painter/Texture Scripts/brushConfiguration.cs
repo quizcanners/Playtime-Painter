@@ -153,7 +153,7 @@ namespace Playtime_Painter {
         #region Modes & Types
         public int _bliTMode;
         public int _type(bool CPU) => CPU ? inCPUtype : inGPUtype;
-        public void TypeSet(bool CPU, BrushType t) { if (CPU) inCPUtype = t.index; else inGPUtype = t.index; }
+        public void TypeSet(bool cpu, BrushType t) { if (cpu) inCPUtype = t.index; else inGPUtype = t.index; }
         public int inGPUtype;
         public int inCPUtype;
 
@@ -286,7 +286,7 @@ namespace Playtime_Painter {
                         break;
                     }
 
-                if (!pntr.terrain || brushType.SupportedForTerrain_RT) {
+                if (!pntr.terrain || brushType.SupportedForTerrainRt) {
 
                     pntr.RecordingMgmt();
 
