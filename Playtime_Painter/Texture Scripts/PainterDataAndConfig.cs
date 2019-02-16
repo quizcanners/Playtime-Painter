@@ -13,7 +13,7 @@ namespace Playtime_Painter
 
     public class PainterDataAndConfig : STD_ReferencesHolder, IKeepMySTD
     {
-        private static PlaytimePainter Painter => PlaytimePainter.inspectedPainter;
+        private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
         public static bool toolEnabled;

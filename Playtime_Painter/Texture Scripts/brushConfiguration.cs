@@ -300,11 +300,11 @@ namespace Playtime_Painter {
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush => PlaytimePainter.inspectedPainter ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
+        public static bool InspectedIsCPUbrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
 #if PEGI
         public bool Mode_Type_PEGI()
         {
-            PlaytimePainter p = PlaytimePainter.inspectedPainter;
+            PlaytimePainter p = PlaytimePainter.inspected;
 
             BrushType.AllTypes.ClampIndexToCount(ref inCPUtype);
             BrushType.AllTypes.ClampIndexToCount(ref inGPUtype);
@@ -376,7 +376,7 @@ namespace Playtime_Painter {
 
         public virtual bool Inspect() {
 
-            PlaytimePainter p = PlaytimePainter.inspectedPainter;
+            PlaytimePainter p = PlaytimePainter.inspected;
 
             if (!p) { "No Painter Detected".nl(); return false; }
 
@@ -521,7 +521,7 @@ namespace Playtime_Painter {
                 return false;
             
             bool changed = false;
-            PlaytimePainter painter = PlaytimePainter.inspectedPainter;
+            PlaytimePainter painter = PlaytimePainter.inspected;
             bool slider = BlitMode.ShowColorSliders;
 
             if (painter && painter.IsTerrainHeightTexture) {

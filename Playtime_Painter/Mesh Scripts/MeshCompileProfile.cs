@@ -47,7 +47,7 @@ namespace Playtime_Painter
                 msol.Decode(StuffLoader.LoadTextAsset(myType));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(msol);
-                PlaytimePainter.inspectedPainter.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
+                PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
             }
             #endif
 

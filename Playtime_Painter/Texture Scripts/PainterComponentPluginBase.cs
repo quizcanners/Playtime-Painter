@@ -42,7 +42,6 @@ namespace Playtime_Painter
 
         public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) => false;
         
-        
         public virtual void OnUpdate(PlaytimePainter painter)  { }
 
         public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter) => false;
@@ -56,9 +55,7 @@ namespace Playtime_Painter
         }
 
         public virtual bool BrushConfigPEGI() => false;
-
         
-
         public virtual bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }

@@ -99,42 +99,21 @@ namespace Playtime_Painter {
         public bool isLinearColorSpace;
 
         #region Plugins
-        private List<PainterManagerPluginBase> _plugins;
+      
         private ListMetaData _pluginsMeta = new ListMetaData("Plugins", true, true, true, false, icon.Link);
 
         public IEnumerable<PainterManagerPluginBase> Plugins
         {
             get {
 
-                if (_plugins.IsNullOrEmpty())
-                    RefreshPlugins();
+                if (PainterManagerPluginBase.plugins == null)
+                    PainterManagerPluginBase.RefreshPlugins();
 
-                return _plugins;
+                return PainterManagerPluginBase.plugins;
             }
         }
 
-        private void RefreshPlugins()
-        {
 
-            if (_plugins == null)
-                _plugins = new List<PainterManagerPluginBase>();
-            else
-                for (var i = 0; i < _plugins.Count; i++)
-                    if (_plugins[i] == null) { _plugins.RemoveAt(i); i--; }
-
-            _pluginsMeta.inspected = -1;
-
-            foreach (var t in PainterManagerPluginBase.all) {
-                var contains = false;
-
-                foreach (var p in _plugins)
-                    if (p.GetType() == t) { contains = true; break; }
-
-                if (!contains)
-                    _plugins.Add((PainterManagerPluginBase)Activator.CreateInstance(t));
-
-            }
-        }
         #endregion
 
         public Camera theCamera;

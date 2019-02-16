@@ -67,7 +67,7 @@ namespace Playtime_Painter
         protected static Mesh BrushMesh { set { TexMGMT.brushRenderer.meshFilter.mesh = value; } }
         protected static BrushConfig InspectedBrush { get { return BrushConfig._inspectedBrush; } }
         protected static BrushConfig GlobalBrush { get { return TexMGMTdata.brushConfig; } }
-        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
+        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspected; } }
         protected static ImageMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip?.ImgMeta; } }
         protected static GridNavigator Grid { get { return GridNavigator.Inst(); } }
         protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }
@@ -90,7 +90,7 @@ namespace Playtime_Painter
         protected static Mesh BrushMesh { set { TexMGMT.brushRenderer.meshFilter.mesh = value; } }
         protected static BrushConfig InspectedBrush { get { return BrushConfig._inspectedBrush; } }
         protected static BrushConfig GlobalBrush { get { return TexMGMTdata.brushConfig; }  }
-        protected static PlaytimePainter InspectedPainter { get { return PlaytimePainter.inspectedPainter; } }
+        protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected; 
         protected static ImageMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.ImgMeta : null; } }
         protected static GridNavigator Grid { get { return GridNavigator.Inst(); } }
         protected static MeshManager MeshMGMT { get { return MeshManager.Inst; } }

@@ -23,7 +23,7 @@ namespace QuizCannersUtilities {
         protected void DiscardFruit(VariableBranch b, int no)
         {
             if ((frPoolMax + 1) >= fruitPool.Length)
-                CsharpUtils.Expand(ref fruitPool, 32);
+                fruitPool = fruitPool.ExpandBy(32);
 
             fruitPool[frPoolMax] = b.br[no];
             VariableBranch vb = fruitPool[frPoolMax];
@@ -38,7 +38,7 @@ namespace QuizCannersUtilities {
         {
             if ((brPoolMax + 1) >= branchPool.Length)
             {
-                CsharpUtils.Expand(ref branchPool, 32);
+                branchPool = branchPool.ExpandBy(32);
             }
             //Debug.Log("Deleting branch ");
             branchPool[brPoolMax] = b.br[no];
@@ -70,7 +70,7 @@ namespace QuizCannersUtilities {
         protected void DiscardCascade(VariableBranch b, int depth)
         {
             if ((brPoolMax + 1) >= branchPool.Length)
-                CsharpUtils.Expand(ref branchPool, 32);
+                branchPool = branchPool.ExpandBy(32);
             
             if (depth > 0) {
                 for (int i = 0; i < branchSize; i++)

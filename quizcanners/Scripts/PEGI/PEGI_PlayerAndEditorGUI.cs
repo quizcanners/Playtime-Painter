@@ -6976,7 +6976,7 @@ namespace PlayerAndEditorGUI {
 
                     if (!typeof(T).IsNew()) {
                         if (icon.Add.ClickUnFocus("Add empty element"))
-                        CsharpUtils.Expand(ref array, 1);
+                            array = array.ExpandBy(1);
                     } else if (icon.Create.ClickUnFocus("Add New Instance"))
                         CsharpUtils.AddAndInit(ref array, 1);
                     

@@ -26,10 +26,6 @@ namespace Playtime_Painter {
 
         public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
         
-#if PEGI
-        public static pegi.CallDelegate pluginsComponentPEGI;
-#endif
-
         public static PainterBoolPlugin pluginsGizmoDraw;
 
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
@@ -1750,7 +1746,7 @@ namespace Playtime_Painter {
 
         }
 
-        public static PlaytimePainter inspectedPainter;
+        public static PlaytimePainter inspected;
 
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
 
@@ -1767,7 +1763,7 @@ namespace Playtime_Painter {
 
         public bool Inspect()
         {
-            inspectedPainter = this;
+            inspected = this;
 
             TexMgmt.focusedPainter = this;
 
@@ -2133,7 +2129,7 @@ namespace Playtime_Painter {
                                 scheme?.PickerPEGI();
 
                                 if (Cfg.showColorSchemes)
-                                    changed |= "Scheme".select(40, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
+                                    changed |= "Scheme".select(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes).nl();
 
                             }
                         }
@@ -2500,7 +2496,7 @@ namespace Playtime_Painter {
             if (changed)
                 Update_Brush_Parameters_For_Preview_Shader();
             
-            inspectedPainter = null;
+            inspected = null;
             return changed;
         }
         

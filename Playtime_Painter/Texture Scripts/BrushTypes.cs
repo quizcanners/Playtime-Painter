@@ -95,7 +95,7 @@ namespace Playtime_Painter
 #if PEGI
         public virtual bool ShowInDropdown()
         {
-            if (!PlaytimePainter.inspectedPainter)
+            if (!PlaytimePainter.inspected)
                 return false;
 
             var id = InspectedImageMeta;

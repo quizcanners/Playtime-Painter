@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter.Examples {
+namespace Playtime_Painter {
 
     [TaggedType(tag)]
     public class TerrainLight : PainterComponentPluginBase {
@@ -14,10 +14,9 @@ namespace Playtime_Painter.Examples {
 
         private MergingTerrainController mergingTerrain;
         public int testData;
+        
+        void FindMergingTerrain(PlaytimePainter painter) {
 
- 
-        void FindMergingTerrain(PlaytimePainter painter)
-        {
             if (!mergingTerrain && painter.terrain)
                 mergingTerrain = painter.GetComponent<MergingTerrainController>();
         }
@@ -34,7 +33,7 @@ namespace Playtime_Painter.Examples {
         {
             FindMergingTerrain(painter);
 
-            if (painter.terrain && mergingTerrain )
+            if (painter.terrain && mergingTerrain)
                 dest.Add(PainterDataAndConfig.TerrainLight);
         }
 
@@ -99,6 +98,20 @@ namespace Playtime_Painter.Examples {
 
             mergingTerrain.UpdateTextures();
 
+        }
+
+        public override bool BrushConfigPEGI()
+        {
+            var changed = false;
+
+            var painter = PlaytimePainter.inspected;
+
+            FindMergingTerrain(painter);
+
+            if (mergingTerrain)
+               mergingTerrain.PluginInspectPart().nl(ref changed);
+
+            return changed;
         }
 
     }

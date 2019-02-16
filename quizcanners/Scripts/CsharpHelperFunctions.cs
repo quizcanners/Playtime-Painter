@@ -345,7 +345,7 @@ namespace QuizCannersUtilities
 
             if (obj == null || list == null)
                 return false;
-
+            
             if (!(obj is T)) {
 
                 GameObject go = null;
@@ -643,7 +643,7 @@ namespace QuizCannersUtilities
                 args = temp;
         }
 
-        public static void Expand<T>(ref T[] args, int add)
+        public static T[] ExpandBy<T>(this T[] args, int add)
         {
             T[] temp;
             if (args != null)
@@ -652,7 +652,7 @@ namespace QuizCannersUtilities
                 args.CopyTo(temp, 0);
             }
             else temp = new T[add];
-            args = temp;
+            return temp;
         }
 
         public static void Remove<T>(ref T[] args, int ind)

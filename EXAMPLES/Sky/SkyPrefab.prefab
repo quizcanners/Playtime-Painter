@@ -87,10 +87,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1420531630612390}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: 11500000, guid: 518b19cfd128e2149b54866f5e7dde8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   directional: {fileID: 0}
   _rendy: {fileID: 23034510534229432}
-  skyDynamics: 0.1
+  skyDynamics: 0.001

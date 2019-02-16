@@ -4,9 +4,7 @@ using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-#if UNITY_2018_1_OR_NEWER
 using Unity.Collections;
-#endif
 
 namespace Playtime_Painter
 {
@@ -27,11 +25,8 @@ namespace Playtime_Painter
 
         public int h_slices = 1;
         public float size = 1;
-#if UNITY_2018_1_OR_NEWER
+
         [NonSerialized] protected NativeArray<Color> unsortedVolume;
-#else
-        [NonSerialized] protected Color[] unsortedVolume;
-#endif
 
         [SerializeField] Texture2D image;
 
@@ -102,7 +97,6 @@ namespace Playtime_Painter
         {
             int volumeLength = Width * Width * Height;
 
-#if UNITY_2018_1_OR_NEWER
             if (!unsortedVolume.IsCreated || unsortedVolume.Length != volumeLength)
             {
                 if (unsortedVolume.IsCreated)
@@ -111,10 +105,7 @@ namespace Playtime_Painter
                 unsortedVolume = new NativeArray<Color>(volumeLength, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
                 return true;
             }
-#else
-            if (unsortedVolume == null || unsortedVolume.Length != volumeLength)
-                unsortedVolume = new Color[volumeLength];
-#endif
+
 
             return false;
         }
@@ -368,8 +359,6 @@ namespace Playtime_Painter
                 if (pmat != null && materials.Contains(pmat) && "Remove This Material".Click().nl())
                     materials.Remove(pmat);
             }
-
-
 
             if (materials.Count > 0 && ("Update Materials".Click().nl() || changed))
                 UpdateMaterials();

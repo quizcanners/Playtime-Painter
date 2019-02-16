@@ -9,12 +9,11 @@ using QuizCannersUtilities;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter.Examples
+namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class MergingTerrainController : MonoBehaviour, IPEGI
-    {
+    public class MergingTerrainController : MonoBehaviour, IPEGI {
 
         public List<ChannelSetsForDefaultMaps> mergeSubmasks;
         [HideInInspector]
@@ -42,38 +41,26 @@ namespace Playtime_Painter.Examples
 
             if (!terrain)
                 return;
-
-
-#if UNITY_2018_3_OR_NEWER
-            var ls = (terrain) ? terrain.terrainData.terrainLayers : null;
-
-            if (ls == null)
-            {
-                Debug.Log("Terrain layers are null");
-                return;
-            }
-
-            int copyProtsCount = ls.Length;
-
+            
             if (!mergeSubmasks.IsNullOrEmpty())
             {
+                var ls = terrain.terrainData.terrainLayers;
 
-                int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
+                int terrainLayersCount = ls!= null ? ls.Length : 0;
+                
+                for (int i = 0; i < mergeSubmasks.Count; i++) {
 
-                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4))
-                    max++;
+                    ChannelSetsForDefaultMaps mergeSubmask = mergeSubmasks[i];
 
-                for (int i = 0; i < Mathf.Min(mergeSubmasks.Count, ls.Length); i++)
-                {
-                    ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
-                    if (tmp.Product_combinedBump != null)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, tmp.Product_combinedBump.GetDestinationTexture());
+                    if (mergeSubmask.Product_combinedBump)
+                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, mergeSubmask.Product_combinedBump.GetDestinationTexture());
 
-                    if (tmp.Product_colorWithAlpha != null)
+                    if (mergeSubmask.Product_colorWithAlpha)
                     {
-                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
-                        if (i < ls.Length && ls[i]!= null)
-                            ls[i].diffuseTexture = tmp.Product_colorWithAlpha;
+                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, mergeSubmask.Product_colorWithAlpha.GetDestinationTexture());
+
+                        if (i < terrainLayersCount && ls[i]!= null)
+                            ls[i].diffuseTexture = mergeSubmask.Product_colorWithAlpha;
                     }
                 }
 
@@ -81,48 +68,7 @@ namespace Playtime_Painter.Examples
                     terrain.terrainData.terrainLayers = ls;
             }
 
-#else
-            SplatPrototype[] copyProts = (terrain) ? null : terrain.GetCopyOfSplashPrototypes();
 
-            int copyProtsCount = copyProts == null ? 0 : copyProts.Length;
-            
-            if (mergeSubmasks != null)
-            {
-
-                int max = Mathf.Min(copyProtsCount, mergeSubmasks.Count);
-
-                while ((mergeSubmasks.Count > max) && (mergeSubmasks[max].Product_colorWithAlpha != null) && (max < 4)) 
-                    max++;
-                
-
-                if (copyProtsCount < max) {
-                    int toAdd = max - copyProtsCount;
-
-                    if (copyProts == null)
-                        copyProts = new SplatPrototype[max];
-                    else
-                        CsharpFuncs.Expand(ref copyProts, toAdd);
-
-                    for (int i = max - toAdd; i < max; i++)
-                        copyProts[i] = new SplatPrototype();
-                }
-
-                for (int i = 0; i < mergeSubmasks.Count; i++)  {
-                    ChannelSetsForDefaultMaps tmp = mergeSubmasks[i];
-                    if (tmp.Product_combinedBump != null)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainNormalMap + i, tmp.Product_combinedBump.GetDestinationTexture());
-
-                    if (tmp.Product_colorWithAlpha != null) {
-                        Shader.SetGlobalTexture(PainterDataAndConfig.terrainTexture + i, tmp.Product_colorWithAlpha.GetDestinationTexture());
-                        if ((copyProts != null) && (copyProts.Length > i))
-                            copyProts[i].texture = tmp.Product_colorWithAlpha;
-                    }
-                }
-
-                if (terrain)
-                    terrain.terrainData.splatPrototypes = copyProts;
-            }
-#endif
 
 
         }
@@ -157,6 +103,53 @@ namespace Playtime_Painter.Examples
 
             return changed;
         }
+
+
+        public bool PluginInspectPart() {
+
+            var changed = false;
+
+            var painter = PlaytimePainter.inspected;
+
+            if (painter && painter.terrain)
+            {
+
+
+                var td = painter.terrain.terrainData;
+
+                if (td == null)
+                    "Terrain doesn't have terrain data".writeWarning();
+                else
+                {
+                    var layers = td.terrainLayers;
+                    if (layers == null)
+                        "Terrain layers are null".writeWarning();
+                    else
+                    {
+                        if (layers.Length< mergeSubmasks.Count) {
+
+                            icon.Warning.write();
+
+                            "Terrain has {0} layers while there are {1} Merge Submasks".F(layers.Length, mergeSubmasks.Count).write();
+                            if (icon.Create.Click("Add layer").nl()) {
+                                int index = layers.Length;
+                                layers = layers.ExpandBy(1);
+                                var l = new TerrainLayer();
+                                l.diffuseTexture = mergeSubmasks[index].Product_colorWithAlpha;
+                                layers[index] = l;
+                                td.terrainLayers = layers;
+                            }
+
+                        }
+                    }
+                }
+            }
+
+
+            return changed;
+        }
+
+
 #endif
         #endregion
 

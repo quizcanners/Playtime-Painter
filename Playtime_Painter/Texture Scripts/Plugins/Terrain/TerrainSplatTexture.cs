@@ -4,13 +4,10 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class TerrainSplatTexture : PainterComponentPluginBase
-    {
+    public class TerrainSplatTexture : PainterComponentPluginBase {
 
         const string tag = "TerSplat";
         public override string ClassTag => tag;
@@ -19,8 +16,6 @@ namespace Playtime_Painter
         {
             if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI[0].CharToInt();
-
-
 
 #if UNITY_2018_3_OR_NEWER
             var l = painter.terrain.terrainData.terrainLayers;
@@ -116,7 +111,7 @@ namespace Playtime_Painter
             else
             {
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
                 var texImporter = ((Texture2D)tex).GetTextureImporter();
                 if (texImporter == null) return true;
                 var needReimport = texImporter.WasClamped();
@@ -124,7 +119,7 @@ namespace Playtime_Painter
 
                 if (needReimport)
                     texImporter.SaveAndReimport();
-#endif
+            #endif
 
             }
             return true;

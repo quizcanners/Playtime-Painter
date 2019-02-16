@@ -166,7 +166,7 @@ namespace Playtime_Painter {
         #if PEGI
         public override bool BrushConfigPEGI()
         {
-            var p = PlaytimePainter.inspectedPainter;
+            var p = PlaytimePainter.inspected;
 
             if (!p.IsAtlased()) return false;
             
@@ -564,7 +564,7 @@ namespace Playtime_Painter {
             var changed = false;
 
 #if UNITY_EDITOR
-            var painter = PlaytimePainter.inspectedPainter;
+            var painter = PlaytimePainter.inspected;
             inspectedAtlas = this;
 
 

@@ -101,7 +101,7 @@ namespace Playtime_Painter {
 
             bool CPU = BrushConfig.InspectedIsCPUbrush;
 
-            if (!PlaytimePainter.inspectedPainter)
+            if (!PlaytimePainter.inspected)
                 return (CPU ? SupportedByTex2D : SupportedByRenderTexturePair);
 
             ImageMeta id = InspectedImageMeta;
@@ -138,9 +138,9 @@ namespace Playtime_Painter {
 
             if (InspectedBrush.IsA3Dbrush(InspectedPainter))
             {
-                Mesh m = PlaytimePainter.inspectedPainter.GetMesh();
+                Mesh m = PlaytimePainter.inspected.GetMesh();
 
-                float maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspectedPainter ? 1 : PlaytimePainter.inspectedPainter.transform.lossyScale.magnitude);
+                float maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected ? 1 : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
                 changed |= pegi.edit(ref InspectedBrush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
             }

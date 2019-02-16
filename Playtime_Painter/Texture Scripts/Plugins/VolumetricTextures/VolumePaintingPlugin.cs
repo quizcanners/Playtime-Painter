@@ -1,19 +1,17 @@
-﻿using System.Collections;
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-#if UNITY_2018_1_OR_NEWER
 using Unity.Jobs;
 using Unity.Collections;
-#endif
 using System;
 
 namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName  {
+    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName, IPainterManagerPlugin_ComponentPEGI  {
 
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
@@ -224,8 +222,9 @@ namespace Playtime_Painter
 
         private static bool Component_PEGI()
         {
-          
-            if (!InspectedPainter || InspectedPainter.ImgMeta != null) return false;
+            var id = InspectedPainter.ImgMeta;
+            
+            if (id == null) return false;
             
             var matProp = InspectedPainter.GetMaterialTextureProperty;
 
@@ -235,12 +234,12 @@ namespace Playtime_Painter
             
             "Volume Texture Expected".nl();
             var tmp = -1;
-
-            if ("Available:".select(60, ref tmp, VolumeTexture.all)) return false;
             
-            var vol = VolumeTexture.all[tmp];
+            if (!"Available:".select(60, ref tmp, VolumeTexture.all)) return false;
             
-            if (vol == null) return true;
+            var vol = VolumeTexture.all.TryGet(tmp);
+            
+            if (vol) return false;
             
             if (vol.MaterialPropertyName.SameAs(propName))
             {
