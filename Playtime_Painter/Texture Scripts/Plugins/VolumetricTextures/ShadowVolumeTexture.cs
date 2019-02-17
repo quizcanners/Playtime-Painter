@@ -13,8 +13,7 @@ using UnityEditor;
 
 namespace Playtime_Painter
 {
-
-    [Serializable]
+    
     [ExecuteInEditMode]
     public class ShadowVolumeTexture : VolumeTexture {
 
@@ -61,20 +60,21 @@ namespace Playtime_Painter
 
             if (lights == null)
                 lights = new MaterialLightManager();
-
+            /*
 #if UNITY_EDITOR
             EditorApplication.update -= UpdateRaycasts;
             if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += UpdateRaycasts;
-#endif
+#endif*/
 
         }
 
         public override void OnDisable()
         {
+            /*
 #if UNITY_EDITOR
             EditorApplication.update -= UpdateRaycasts;
-#endif
+#endif*/
             CompleteAndDisposeAll();
 
             base.OnDisable();

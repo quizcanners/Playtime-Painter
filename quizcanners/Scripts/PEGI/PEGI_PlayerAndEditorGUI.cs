@@ -90,12 +90,11 @@ namespace PlayerAndEditorGUI {
 
         private static int mouseOverUi = -1;
 
-        public static bool MouseOverUi {
+        public static bool MouseOverPlaytimePainterUI {
             get { return mouseOverUi >= Time.frameCount - 1; }
             set { if (value) mouseOverUi = Time.frameCount; }
         }
-
-
+        
         #if PEGI
 
         #region Change Tracking 
@@ -137,7 +136,8 @@ namespace PlayerAndEditorGUI {
 
                     "Tip:{0}".F(GUI.tooltip).nl();
 
-                    MouseOverUi = windowRect.Contains(Input.mousePosition);
+                    if (windowRect.Contains(Input.mousePosition))
+                        MouseOverPlaytimePainterUI = true;
 
                     GUI.DragWindow(new Rect(0, 0, 10000, 20));
                 }
@@ -189,7 +189,6 @@ namespace PlayerAndEditorGUI {
         
         private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
 
-        private const int letterSizeInPixels = 7;
 
         #region GUI Colors
 
@@ -600,6 +599,16 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region WRITE
+
+
+        private const int letterSizeInPixels = 7;
+
+        static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
+
+        static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
+
+        static int RemainingLength(int otherElements) => Screen.width - otherElements;
+
 
         #region Unity Object
         public static void write<T>(T field) where T : UnityEngine.Object {
@@ -5312,11 +5321,15 @@ namespace PlayerAndEditorGUI {
 
                 el.Try_NameInspect(out editedName, label);
 
-                if (!editedName)
-                    label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
-            }
+                // if (!editedName)
+                //   label = "{0} {1}".F(label, lst[inspected].ToPEGIstring());
 
-            if (!editedName && label.AddCount(lst, true).Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
+                label = editedName ? label + ":" : "{0}->{1}".F(label, lst[inspected].ToPEGIstring());
+
+            }
+            else label = label.AddCount(lst, true);
+
+            if (!editedName && label.Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
 
@@ -5333,12 +5346,12 @@ namespace PlayerAndEditorGUI {
                 var el = lst[ld.inspected];
 
                 el.Try_NameInspect(out editedName, ld.label);
+                
+                currentListLabel = editedName ? ld.label+":" : "{0}->{1}".F(ld.label, lst[ld.inspected].ToPEGIstring());
+                
+            } else currentListLabel = ld.label.AddCount(lst, true);
 
-                if (!editedName)
-                    ld.label = "{0} {1}".F(ld.label, lst[ld.inspected].ToPEGIstring());
-            }
-
-            if (!editedName && ld.label.AddCount(lst, true).Click_Label(ld.label, -1, PEGI_Styles.ListLabel) && ld.inspected != -1)
+            if (!editedName && currentListLabel.Click_Label(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
                 ld.inspected = -1;
         }
 

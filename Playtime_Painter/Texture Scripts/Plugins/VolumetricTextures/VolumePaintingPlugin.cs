@@ -218,7 +218,7 @@ namespace Playtime_Painter
             
             var inspectedProperty = InspectedPainter.GetMaterialTextureProperty.NameForDisplayPEGI;
             
-            if (!inspectedProperty.IsNullOrEmpty() && inspectedProperty.Contains(VolumeTextureTag)) return false;
+            if (inspectedProperty.IsNullOrEmpty() || !inspectedProperty.Contains(VolumeTextureTag)) return false;
             
             "Volume Texture Expected".nl();
 

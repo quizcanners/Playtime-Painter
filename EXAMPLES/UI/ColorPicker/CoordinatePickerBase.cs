@@ -65,7 +65,7 @@ namespace Playtime_Painter
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, position, cam, out localCursor))
                 return false;
 
-            pegi.MouseOverUi = true;
+            pegi.MouseOverPlaytimePainterUI = true;
 
             uvClick = (localCursor / rectTransform.rect.size) + Vector2.one * 0.5f;
 

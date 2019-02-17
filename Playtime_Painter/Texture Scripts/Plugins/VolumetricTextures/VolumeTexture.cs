@@ -186,19 +186,20 @@ namespace Playtime_Painter
             if (ImageMeta == null)
             {
 
-                if (TexturesPool._inst != null)
+                if (TexturesPool._inst)
                     ImageMeta = TexturesPool._inst.GetTexture2D().GetImgData();
-                else
-                {
+                else {
                     Debug.Log("No Texture for Volume");
                     return;
                 }
                 UpdateTextureName();
             }
 
-            Color[] pixels = ImageMeta.Pixels;
+            var im = ImageMeta;
 
-            int texSectorW = ImageMeta.width / h_slices;
+            var pixels = im.Pixels;
+
+            int texSectorW = im.width / h_slices;
             int w = Width;
 
             for (int hy = 0; hy < h_slices; hy++)
@@ -206,13 +207,13 @@ namespace Playtime_Painter
                 for (int hx = 0; hx < h_slices; hx++)
                 {
 
-                    int hTex_index = (hy * ImageMeta.width + hx) * texSectorW;
+                    int hTex_index = (hy * im.width + hx) * texSectorW;
 
                     int h = hy * h_slices + hx;
 
                     for (int y = 0; y < w; y++)
                     {
-                        int yTex_index = hTex_index + y * ImageMeta.width;
+                        int yTex_index = hTex_index + y * im.width;
 
                         int yVolIndex = h * w * w + y * w;
 
@@ -227,7 +228,7 @@ namespace Playtime_Painter
                 }
             }
 
-            ImageMeta.SetAndApply(false);
+            im.SetAndApply(false);
             UpdateTextureName();
         }
 
@@ -236,11 +237,11 @@ namespace Playtime_Painter
             pos /= size;
             int hw = Width / 2;
 
-            int y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
-            int z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
-            int x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
+            var y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
+            var z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
+            var x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
 
-            return ((y * Width + z) * Width + x);
+            return (y * Width + z) * Width + x;
         }
 
         public int PositionToPixelIndex(Vector3 pos)
@@ -248,9 +249,9 @@ namespace Playtime_Painter
             pos /= size;
             int hw = Width / 2;
 
-            int y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
-            int z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
-            int x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
+            var y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
+            var z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
+            var x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
 
             int hy = y / h_slices;
             int hx = y % h_slices;

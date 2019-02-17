@@ -126,7 +126,7 @@ namespace Playtime_Painter
                         "Terrain layers are null".writeWarning();
                     else
                     {
-                        if (layers.Length< mergeSubmasks.Count) {
+                       /* if (layers.Length< mergeSubmasks.Count) {
 
                             icon.Warning.write();
 
@@ -140,7 +140,7 @@ namespace Playtime_Painter
                                 td.terrainLayers = layers;
                             }
 
-                        }
+                        }*/
                     }
                 }
             }

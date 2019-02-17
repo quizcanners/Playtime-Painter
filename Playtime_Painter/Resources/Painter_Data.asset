@@ -64,6 +64,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: b435393d37601e84db1f10ed766d0206, type: 3}
   - {fileID: 2800000, guid: e0dcd6bc6bfb9a34ab4fab040b0fbb3c, type: 3}
   - {fileID: 2800000, guid: fc677faa1dbe03a4bb9d642ac9b2c96b, type: 3}
+  - {fileID: 0}
   explorer:
     states:
     - comment: 12/3/2018 7:06:18 PM
@@ -74,7 +75,7 @@ MonoBehaviour:
         dirty: 0
         inspectedTag: 3
     fileFolderHolder: STDEncodes
-  inspectedStuff: 10
+  inspectedStuff: -1
   inspectedReference: -1
   myLayer: 30
   brushBlit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
@@ -136,7 +137,7 @@ MonoBehaviour:
     randomMaskOffset: 0
     selectedDecal: 0
     maskTiling: 1
-    Hardness: 512
+    Hardness: 403.09836
     blurAmount: 1
     decalAngle: 327.78564
     decalRotationMethod: 0
@@ -145,22 +146,22 @@ MonoBehaviour:
     flipMaskAlpha: 0
     TargetIsTex2D: 0
     showBrushDynamics: 0
-    Brush3D_Radius: 0.403
-    Brush2D_Radius: 19.1
-    speed: 0.25
+    Brush3D_Radius: 11.5
+    Brush2D_Radius: 16.437592
+    speed: 19.81
     MB1ToLinkPositions: 0
     DontRedoMipmaps: 0
     colorLinear:
-      r: 0.188
-      g: 0.194
-      b: 0.278
-      a: 0.215
+      r: 0.86619717
+      g: 0
+      b: 0
+      a: 0.73239434
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
   moreOptions: 0
   allowExclusiveRenderTextures: 0
-  showConfig: 0
+  showConfig: 1
   showTeachingNotifications: 0
   disableSecondBufferUpdateDebug: 0
   samplingMaskSize:
@@ -174,7 +175,10 @@ MonoBehaviour:
   recordingNames:
   - Unnamed
   browsedRecord: 0
-  stdData: imgs|917|e|47|tex2D|2|10|w|3|256|h|3|256|sn|13|TerrainHeight||e|40|tex2D|1|1|w|4|2048|h|4|2048|sn|6|Volume||e|39|tex2D|1|9|w|2|16|h|2|16|sn|9|SmoothBox||e|37|tex2D|2|23|w|2|16|h|2|16|sn|6|pixArt||e|36|tex2D|1|0|w|3|256|h|3|256|sn|4|Cube||e|58|tex2D|2|50|w|4|2048|h|4|2048|sn|12|CombinedBump|trnsp|1|y||e|47|tex2D|2|15|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|89|tex2D|1|3|w|4|1024|h|4|1024|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Tiles_COLOR|trnsp|1|y||e|79|tex2D|2|48|w|4|1024|h|4|1024|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Sand_COLOR||e|79|tex2D|1|4|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Grass_COLOR||e|78|tex2D|1|6|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Dirt_COLOR||e|55|tex2D|1|8|w|3|512|h|3|512|sn|12|TerrainLight|trnsp|1|y||e|46|tex2D|2|47|w|3|512|h|3|512|sn|12|SplatAlpha
-    0||e|59|tex2D|2|49|w|3|512|h|3|512|sn|15|Foorprint Color|trnsp|1|y||e|38|tex2D|2|12|w|3|128|h|3|128|sn|5|noise|||sch|1|1|mats|1712|e|248|tf|64|e|8|_MainTex|e|5|_Bump|e|7|_Smudge|e|7|_BumpEx|e|11|_BumpDetail||mat|2|24|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|766|tf|164|e|15|0__mergeControl|e|19|_mergeTerrainHeight|e|23|0_mergeSplat_Dirt_COLOR|e|24|1_mergeSplat_Grass_COLOR|e|23|2_mergeSplat_Sand_COLOR|e|24|3_mergeSplat_Tiles_COLOR||mat|2|18|texInd|1|2|tfs|565|e|66|b|33|n|27|0_SplatAlpha
-    0_mergeControl||tgs|19|e|13|_mergeControl|||e|66|b|33|n|27|1_SplatAlpha 1_mergeControl||tgs|19|e|13|_mergeControl|||e|38|b|25|n|19|_mergeTerrainHeight||tgs|0|||e|33|b|20|n|14|_TerrainColors||tgs|0|||e|61|b|29|n|23|0_mergeSplat_Dirt_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|1_mergeSplat_Grass_COLOR||tgs|18|e|12|_mergeSplat_|||e|61|b|29|n|23|2_mergeSplat_Sand_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|3_mergeSplat_Tiles_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|4_mergeSplat_Cliff_COLOR||tgs|18|e|12|_mergeSplat_|||||e|153|tf|36|e|8|_MainTex|e|8|_BumpMap|e|5|_Refl||mat|2|19|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|266|tf|77|e|12|_MainTex_ATL|e|13|_BumpMapC_ATL|e|16|_BakedShadow_VOL|e|12|_Microdetail||mat|2|16|texInd|1|2|tfs|153|e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|35|b|22|n|16|_BakedShadow_VOL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0|||||e|105|tf|22|e|8|_MainTex|e|4|_Map||mat|2|17|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|69|tf|13|e|8|_MainTex||mat|2|20|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|58|tf|35|e|8|_MainTex|e|16|_OutlineGradient||mat|2|46|tfs|0||||pals|157|e|30|n|16|New
-    Color Scheme|cols|0|||e|114|n|15|New ColorScheme|cols|84|e|22|r|5|0.953|b|1|1|a|1|1||e|22|r|5|0.953|b|1|1|a|1|1||e|22|r|5|0.953|b|1|1|a|1|1|||||cam|153|mm|0||pl|139|_lstMeta|0||_lst|117|ColBleed|0||CmbndMpsCntrl|13|cm|0||tps|0|||MltBffr|11|s|0||sc|0|||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|7|ug|1|n|||||Vpck|1573|e|261|n|6|Simple|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||iid|1|0|isfs|1|0|is|2|10|e|1|y|
+  stdData: imgs|924|e|40|tex2D|1|1|w|4|2048|h|4|2048|sn|6|Volume||e|36|tex2D|1|0|w|3|256|h|3|256|sn|4|Cube||e|44|tex2D|2|23|w|2|16|h|2|16|sn|6|pixArt|is|1|0||e|39|tex2D|1|9|w|2|16|h|2|16|sn|9|SmoothBox||e|46|tex2D|2|47|w|3|512|h|3|512|sn|12|SplatAlpha
+    0||e|89|tex2D|1|3|w|4|1024|h|4|1024|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Tiles_COLOR|trnsp|1|y||e|79|tex2D|2|48|w|4|1024|h|4|1024|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Sand_COLOR||e|79|tex2D|1|4|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|11|Grass_COLOR||e|78|tex2D|1|6|w|4|2048|h|4|2048|tl|26|x|8|133.3333|y|8|133.3333||sn|10|Dirt_COLOR||e|55|tex2D|1|8|w|3|512|h|3|512|sn|12|TerrainLight|trnsp|1|y||e|47|tex2D|2|10|w|3|256|h|3|256|sn|13|TerrainHeight||e|58|tex2D|2|50|w|4|2048|h|4|2048|sn|12|CombinedBump|trnsp|1|y||e|47|tex2D|2|15|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|59|tex2D|2|49|w|3|512|h|3|512|sn|15|Foorprint
+    Color|trnsp|1|y||e|38|tex2D|2|12|w|3|128|h|3|128|sn|5|noise|||sch|1|1|mats|1568|e|266|tf|77|e|12|_MainTex_ATL|e|13|_BumpMapC_ATL|e|16|_BakedShadow_VOL|e|12|_Microdetail||mat|2|16|texInd|1|2|tfs|153|e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|35|b|22|n|16|_BakedShadow_VOL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0|||||e|105|tf|22|e|8|_MainTex|e|4|_Map||mat|2|17|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|248|tf|64|e|8|_MainTex|e|5|_Bump|e|7|_Smudge|e|7|_BumpEx|e|11|_BumpDetail||mat|2|24|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|160|tf|36|e|8|_MainTex|e|8|_BumpMap|e|5|_Refl||mat|2|19|pv|1|y|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|69|tf|13|e|8|_MainTex||mat|2|20|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|615|tf|164|e|15|0__mergeControl|e|19|_mergeTerrainHeight|e|23|0_mergeSplat_Dirt_COLOR|e|24|1_mergeSplat_Grass_COLOR|e|23|2_mergeSplat_Sand_COLOR|e|24|3_mergeSplat_Tiles_COLOR||mat|2|18|tfs|425|e|66|b|33|n|27|0_SplatAlpha
+    0_mergeControl||tgs|19|e|13|_mergeControl|||e|38|b|25|n|19|_mergeTerrainHeight||tgs|0|||e|33|b|20|n|14|_TerrainColors||tgs|0|||e|61|b|29|n|23|0_mergeSplat_Dirt_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|1_mergeSplat_Grass_COLOR||tgs|18|e|12|_mergeSplat_|||e|61|b|29|n|23|2_mergeSplat_Sand_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|3_mergeSplat_Tiles_COLOR||tgs|18|e|12|_mergeSplat_|||||e|58|tf|35|e|8|_MainTex|e|16|_OutlineGradient||mat|2|46|tfs|0||||pals|480|e|30|n|16|New
+    Color Scheme|cols|0|||e|437|n|15|New ColorScheme|cols|406|e|22|r|5|0.953|b|1|1|a|1|1||e|22|r|5|0.953|b|1|1|a|1|1||e|22|r|5|0.953|b|1|1|a|1|1||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215||e|40|r|5|0.471|g|5|0.478|b|5|0.564|a|5|0.215|||||cam|324|mm|0||pl|310|_lstMeta|9|insp|1|0||_lst|279|ColBleed|0||CmbndMpsCntrl|174|cm|159|e|73|tw|4|1024|th|4|1024|col|1|n|n|32|New
+    TextureSetForForCombinedMaps|sp|1|0||e|74|tw|4|1024|th|4|1024|col|1|n|n|33|New
+    TextureSetForForCombinedMaps1|sp|1|0|||tps|0|||MltBffr|11|s|0||sc|0|||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|7|ug|1|n|||||Vpck|1573|e|261|n|6|Simple|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|

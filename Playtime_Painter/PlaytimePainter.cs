@@ -177,10 +177,13 @@ namespace Playtime_Painter {
         
         public void OnMouseOver() {
 
-            if (pegi.MouseOverUi || (_mouseOverUiPainter && _mouseOverUiPainter!= this)) {
+            if ((pegi.MouseOverPlaytimePainterUI || (_mouseOverPaintableGraphicElement && _mouseOverPaintableGraphicElement!= this)) ||
+                (!IsUiGraphicPainter && EventSystem.current.IsPointerOverGameObject())) {
                 stroke.mouseDwn = false;
                 return;
             }
+
+           
 
             stroke.mouseUp = Input.GetMouseButtonUp(0);
             stroke.mouseDwn = Input.GetMouseButtonDown(0);
@@ -2354,12 +2357,11 @@ namespace Playtime_Painter {
                                     var texName = GetMaterialTextureProperty;
 
                                     List<ImageMeta> recentTexs;
-                                    if (texName != null && PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs)
-                                        && (recentTexs.Count > 0 || (id == null))) {
-
-                                        if ("Recent Textures:".select(100, ref id, recentTexs).nl(ref changed))
+                                    if (texName != null && PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs) && (recentTexs.Count>0) 
+                                        && (id == null || (recentTexs.Count > 1) || (id!= recentTexs[0].texture2D.GetImgDataIfExists())) 
+                                        && "Recent Textures:".select(100, ref id, recentTexs).nl(ref changed))
                                             ChangeTexture(id.ExclusiveTexture());
-                                    }
+                                    
                                 }
 
                                 if (id == null && Cfg.allowExclusiveRenderTextures && "Create Render Texture".Click(ref changed))
@@ -2596,10 +2598,10 @@ namespace Playtime_Painter {
         public void Update()
         {
 
-            if (this == _mouseOverUiPainter)
+            if (this == _mouseOverPaintableGraphicElement)
             {
                 if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
-                    _mouseOverUiPainter = null;
+                    _mouseOverPaintableGraphicElement = null;
 
                 OnMouseOver();
             }
@@ -2705,17 +2707,17 @@ namespace Playtime_Painter {
 
         #region UI Elements Painting
 
-        private static PlaytimePainter _mouseOverUiPainter;
+        private static PlaytimePainter _mouseOverPaintableGraphicElement;
         private Vector2 _uiUv;
         [NonSerialized]private Camera _clickCamera;
 
-        public void OnPointerDown(PointerEventData eventData) => _mouseOverUiPainter = DataUpdate(eventData) ? this : _mouseOverUiPainter;
+        public void OnPointerDown(PointerEventData eventData) => _mouseOverPaintableGraphicElement = DataUpdate(eventData) ? this : _mouseOverPaintableGraphicElement;
 
-        public void OnPointerUp(PointerEventData eventData) => _mouseOverUiPainter = null;
+        public void OnPointerUp(PointerEventData eventData) => _mouseOverPaintableGraphicElement = null;
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (_mouseOverUiPainter == this)
+            if (_mouseOverPaintableGraphicElement == this)
                 DataUpdate(eventData);
         }
 

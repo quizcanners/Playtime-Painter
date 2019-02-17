@@ -135,7 +135,7 @@ namespace PlayerAndEditorGUI
                         fontSize = 12,
                         clipping = TextClipping.Clip,
                         richText = true,
-                        wordWrap = false,
+                        wordWrap = true,
                         alignment = TextAnchor.MiddleCenter,
                         fontStyle = FontStyle.Bold, 
 
