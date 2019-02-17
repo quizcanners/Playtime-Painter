@@ -13,7 +13,7 @@ namespace Playtime_Painter {
 
     #region Manager
     [TaggedType(tag)]
-    public class MultiBufferProcessing : PainterManagerPluginBase, ISTD
+    public class MultiBufferProcessing : PainterManagerPluginBase, ISTD, IPainterManagerPlugin_ComponentPEGI
     {
         const string tag = "MltBffr";
         public override string ClassTag => tag;
@@ -127,7 +127,7 @@ namespace Playtime_Painter {
         [SerializeField] int editedBuffer = -1;
         [SerializeField] int editedSection = -1;
 
-        public bool Component_PEGI()
+        public bool ComponentInspector()
         {
             bool changed = false;
 
@@ -151,9 +151,6 @@ namespace Playtime_Painter {
         public override void Enable()
         {
             inst = this;
-            #if PEGI
-            PlugInPainterComponent = Component_PEGI;
-            #endif
         }
 
     }

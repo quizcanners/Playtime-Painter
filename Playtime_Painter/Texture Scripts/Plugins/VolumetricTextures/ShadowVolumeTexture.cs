@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-#if UNITY_2018_1_OR_NEWER
 using Unity.Jobs;
 using Unity.Collections;
-#endif
 using System;
 
 #if UNITY_EDITOR
@@ -35,16 +33,13 @@ namespace Playtime_Painter
         {
             base.Update();
             lights.UpdateLightOnMaterials(materials);
-#if UNITY_2018_1_OR_NEWER
             UpdateRaycasts();
-#endif
         }
 
-        public override bool DrawGizmosOnPainter(PlaytimePainter pntr)
-        {
+        public override bool DrawGizmosOnPainter(PlaytimePainter pntr) {
 
             for (int i = 0; i < 3; i++)
-                if (GlobalBrush.mask.GetFlag(i))
+                if (GlobalBrush.mask.HasFlag(i))
                 {
                     var l = lights.GetLight(i);
                     if (l)
@@ -57,8 +52,7 @@ namespace Playtime_Painter
                 }
             return true;
         }
-
-#if UNITY_2018_1_OR_NEWER
+        
         int rayJobChannel = 0;
 
         public override void OnEnable()
@@ -86,6 +80,7 @@ namespace Playtime_Painter
             base.OnDisable();
         }
 
+        #region Shadow Baking Jobs
         public struct JobToFillTheArray : IJob
         {
 
@@ -356,7 +351,7 @@ namespace Playtime_Painter
             if (rayStep == RaycastsStep.Nothing)
                 rayStep = RaycastsStep.Requested;
         }
-#endif
+        #endregion
 
         public override void UpdateMaterials()
         {
@@ -370,20 +365,20 @@ namespace Playtime_Painter
 
             bool changed = base.Inspect();
 
+            if (inspectedMaterial != -1)
+                return changed;
+
             changed |= lights.Nested_Inspect();
             
             if (changed && MaterialLightManager.probeChanged != -1)
-            {
                 lightSourceDirty[MaterialLightManager.probeChanged] = true;
-            }
-
-#if UNITY_2018_1_OR_NEWER
+            
             if (ImageMeta != null && ImageMeta.texture2D) {
 
                 if (!VolumeJobIsRunning)
                 {
 
-                    "Channel: ".edit(ref rayJobChannel, 0, 2).nl();
+                    "Channel: ".edit(ref rayJobChannel, 0, 2).nl(ref changed);
 
                     if ("Recalculate ".Click(ref changed))
                     {
@@ -413,15 +408,13 @@ namespace Playtime_Painter
                 else
                     "Texture 2D is null".nl();
             }
-#else
-            "Job based recalculation is only supported on new versions of Unity".writeHint();
-#endif
             if (changed)
                 UpdateMaterials();
 
             return changed;
             
         }
+
         #endif
         #endregion
     }

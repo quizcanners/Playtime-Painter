@@ -90,10 +90,10 @@ namespace Playtime_Painter {
 
             Blit_Functions.alpha = 1;
 
-            Blit_Functions.r = bc.mask.GetFlag(BrushMask.R);
-            Blit_Functions.g = bc.mask.GetFlag(BrushMask.G);
-            Blit_Functions.b = bc.mask.GetFlag(BrushMask.B);
-            Blit_Functions.a = bc.mask.GetFlag(BrushMask.A);
+            Blit_Functions.r = BrushExtensions.HasFlag(bc.mask, BrushMask.R);
+            Blit_Functions.g = BrushExtensions.HasFlag(bc.mask, BrushMask.G);
+            Blit_Functions.b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
+            Blit_Functions.a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
 
             Blit_Functions.csrc = bc.Color;
 

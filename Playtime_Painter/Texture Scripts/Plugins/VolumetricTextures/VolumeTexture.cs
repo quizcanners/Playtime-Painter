@@ -61,7 +61,6 @@ namespace Playtime_Painter
 
         public virtual void AddIfNew(PlaytimePainter p) => AddIfNew(p.Material);
 
-
         Vector3 LastCenterPosTMP;
         public virtual void RecalculateVolume()
         {
@@ -129,8 +128,7 @@ namespace Playtime_Painter
                 VolumeFromTexture();
         }
 
-
-
+        #region Volume Processing 
         public virtual void VolumeFromTexture()
         {
 
@@ -288,6 +286,7 @@ namespace Playtime_Painter
 
             return v3;
         }
+        #endregion
 
         public void UpdateTextureName()
         {
@@ -299,74 +298,84 @@ namespace Playtime_Painter
             }
         }
 
-#if PEGI
+        #region Inspect
+        #if PEGI
+        protected int inspectedMaterial = -1;
 
         public override bool Inspect()
         {
             bool changed = false;
 
-            string n = name;
-            if ("Name".editDelayed(30, ref n).nl(ref changed))
-                name = n;
-            
-
-            var texture = ImageMeta.CurrentTexture();
-
-            if (texture == null)
-                ImageMeta = null;
-
-            if ("Texture".edit(60, ref texture).nl(ref changed))
-                ImageMeta = texture?.GetImgData();
-            
-
-            changed |= "Volume Scale".edit(70, ref size).nl();
-            size = Mathf.Max(0.0001f, size);
-
-            if (ImageMeta == null)
+            if (inspectedMaterial == -1)
             {
 
-                if (TexturesPool._inst == null)
-                {
-                    pegi.nl();
-                    changed |= "Texture Width".edit(ref tmpWidth);
+                string n = name;
+                if ("Name".editDelayed(30, ref n).nl(ref changed))
+                    name = n;
 
-                    if ("Create Pool".Click().nl(ref changed))
+                var texture = ImageMeta.CurrentTexture();
+
+                if (texture == null)
+                    ImageMeta = null;
+
+                if ("Texture".edit(60, ref texture).nl(ref changed))
+                    ImageMeta = texture?.GetImgData();
+
+                changed |= "Volume Scale".edit(70, ref size).nl();
+                size = Mathf.Max(0.0001f, size);
+
+                if (ImageMeta == null)
+                {
+
+                    if (TexturesPool._inst == null)
                     {
-                        tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(tmpWidth, 128, 2048));
-                        TexturesPool.Inst.width = tmpWidth;
+                        pegi.nl();
+                        changed |= "Texture Width".edit(ref tmpWidth);
+
+                        if ("Create Pool".Click().nl(ref changed))
+                        {
+                            tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(tmpWidth, 128, 2048));
+                            TexturesPool.Inst.width = tmpWidth;
+                        }
                     }
-                }
-                else if ("Get From Pool".Click().nl(ref changed))
+                    else if ("Get From Pool".Click().nl(ref changed))
                         ImageMeta = TexturesPool._inst.GetTexture2D().GetImgData();
-                      
+
+
+                }
+                pegi.nl();
+
+                changed |= "Slices:".edit("How texture will be sliced for height", 80, ref h_slices, 1, 8).nl();
+
+                if (changed)
+                    UpdateTextureName();
+
+                int w = Width;
+                ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
+            }
+
+            "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
+
+            if (inspectedMaterial == -1)
+            {
+                if (InspectedPainter != null)
+                {
+                    var pmat = InspectedPainter.Material;
+                    if (pmat != null && materials.Contains(pmat) && "Remove This Material".Click().nl())
+                        materials.Remove(pmat);
+                }
+
                 
             }
-            pegi.nl();
 
-            changed |= "Slices:".edit("How texture will be sliced for height", 80, ref h_slices, 1, 8).nl();
-
-            if (changed)
-                UpdateTextureName();
-
-            int w = Width;
-            ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
-
-            "Materials".edit_List_UObj(ref materials);
-
-            if (InspectedPainter != null)
-            {
-                var pmat = InspectedPainter.Material;
-                if (pmat != null && materials.Contains(pmat) && "Remove This Material".Click().nl())
-                    materials.Remove(pmat);
-            }
-
-            if (materials.Count > 0 && ("Update Materials".Click().nl() || changed))
+            if (materials.Count > 0 && (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl())))
                 UpdateMaterials();
 
             return changed;
         }
 
-#endif
+        #endif
+        #endregion
 
         public virtual void UpdateMaterials()
         {

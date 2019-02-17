@@ -114,10 +114,10 @@ public static class Blit_Functions {
 
             alpha = 1;
 
-            r = bc.mask.GetFlag(BrushMask.R);
-            g = bc.mask.GetFlag(BrushMask.G);
-            b = bc.mask.GetFlag(BrushMask.B);
-            a = bc.mask.GetFlag(BrushMask.A);
+            r = BrushExtensions.HasFlag(bc.mask, BrushMask.R);
+            g = BrushExtensions.HasFlag(bc.mask, BrushMask.G);
+            b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
+            a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
 
             csrc = bc.Color;
 

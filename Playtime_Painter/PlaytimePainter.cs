@@ -491,7 +491,7 @@ namespace Playtime_Painter {
                 else
                 {
 
-                    foreach (var pl in TexMgmt.Plugins)
+                    foreach (var pl in PainterManagerPluginBase.brushPlugins)
                     {
                         var ps = pl.GetPreviewShader(this);
                         if (!ps) continue;
@@ -2485,9 +2485,9 @@ namespace Playtime_Painter {
                 #endregion
 
                 #region Plugins
-                if (pluginsComponentPEGI != null)
-                    foreach (pegi.CallDelegate p in pluginsComponentPEGI.GetInvocationList())
-                       p().nl(ref changed);
+               
+                foreach (var p in PainterManagerPluginBase.componentMGMTplugins)
+                    p.ComponentInspector().nl(ref changed);
                 #endregion
             }
 

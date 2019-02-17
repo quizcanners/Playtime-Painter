@@ -71,7 +71,7 @@ namespace Playtime_Painter {
                             var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                             _inst = Instantiate(go).GetComponent<PainterCamera>();
                             _inst.name = PainterDataAndConfig.PainterCameraName;
-                            _inst.RefreshPlugins();
+                            PainterManagerPluginBase.RefreshPlugins();
                         #endif
 
                         _triedToFindCamera = false;
@@ -132,12 +132,12 @@ namespace Playtime_Painter {
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
-            .Add_Abstract("pl", _plugins, _pluginsMeta);
+            .Add_Abstract("pl", PainterManagerPluginBase.plugins, _pluginsMeta);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg) {
-                case "pl": data.Decode_List(out _plugins, ref _pluginsMeta, PainterManagerPluginBase.all); break;
+                case "pl": data.Decode_List(out PainterManagerPluginBase.plugins, ref _pluginsMeta, PainterManagerPluginBase.all); break;
                 case "mm": MeshManager.Decode(data); break;
                 default: return false;
             }
@@ -380,10 +380,10 @@ namespace Playtime_Painter {
             brushColor_Property.GlobalValue = brush.Color;
 
             brushMask_Property.GlobalValue = new Vector4(
-                brush.mask.GetFlag(BrushMask.R) ? 1 : 0,
-                brush.mask.GetFlag(BrushMask.G) ? 1 : 0,
-                brush.mask.GetFlag(BrushMask.B) ? 1 : 0,
-                brush.mask.GetFlag(BrushMask.A) ? 1 : 0);
+                BrushExtensions.HasFlag(brush.mask, BrushMask.R) ? 1 : 0,
+                BrushExtensions.HasFlag(brush.mask, BrushMask.G) ? 1 : 0,
+                BrushExtensions.HasFlag(brush.mask, BrushMask.B) ? 1 : 0,
+                BrushExtensions.HasFlag(brush.mask, BrushMask.A) ? 1 : 0);
 
             if (isDecal) Shader_UpdateDecal(brush);
 
@@ -439,7 +439,7 @@ namespace Playtime_Painter {
 
             Shader shd = null;
             if (pntr)
-                foreach (var pl in Plugins) {
+                foreach (var pl in PainterManagerPluginBase.brushPlugins) {
                     Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
                     if (bs) {
                         shd = bs;
@@ -652,9 +652,9 @@ namespace Playtime_Painter {
 
             autodisabledBufferTarget = null;
 
-            RefreshPlugins();
+            PainterManagerPluginBase.RefreshPlugins();
 
-            foreach (var p in _plugins)
+            foreach (var p in PainterManagerPluginBase.plugins)
                 if (p != null) p.Enable();
 
             Data.ManagedOnEnable();
@@ -670,8 +670,8 @@ namespace Playtime_Painter {
             
             BeforeClosing();
 
-            if (_plugins!= null)
-                foreach (var p in _plugins)
+            if (PainterManagerPluginBase.plugins!= null)
+                foreach (var p in PainterManagerPluginBase.plugins)
                     if (p != null) p.Disable();
 
             if (Data)
@@ -789,8 +789,8 @@ namespace Playtime_Painter {
             }
 
             var needRefresh = false;
-            if (!_plugins.IsNullOrEmpty())
-                foreach (var pl in _plugins)
+            if (PainterManagerPluginBase.plugins!= null)
+                foreach (var pl in PainterManagerPluginBase.plugins)
                     if (pl != null)
                         pl.Update();
                     else needRefresh = true;
@@ -798,7 +798,7 @@ namespace Playtime_Painter {
             if (needRefresh)
             {
                 Debug.Log("Refreshing plugins");
-                RefreshPlugins();
+                PainterManagerPluginBase.RefreshPlugins();
             }
 
         }
@@ -856,16 +856,16 @@ namespace Playtime_Painter {
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {
 
-                changed |= _pluginsMeta.edit_List(ref _plugins, PainterManagerPluginBase.all);
+                changed |= _pluginsMeta.edit_List(ref PainterManagerPluginBase.plugins, PainterManagerPluginBase.all);
 
                 if (!_pluginsMeta.Inspecting)
                 {
 
                     if ("Find Plugins".Click())
-                        RefreshPlugins();
+                        PainterManagerPluginBase.RefreshPlugins();
 
                     if ("Delete Plugins".Click().nl())
-                        _plugins = null;
+                        PainterManagerPluginBase.plugins = null;
 
                 }
             }

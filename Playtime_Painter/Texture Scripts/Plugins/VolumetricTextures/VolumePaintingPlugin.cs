@@ -11,7 +11,9 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName, IPainterManagerPlugin_ComponentPEGI  {
+    public class VolumePaintingPlugin : PainterManagerPluginBase, IPEGI, IGotDisplayName,
+        IPainterManagerPlugin_ComponentPEGI, IPainterManagerPlugin_Brush
+    {
 
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
@@ -56,30 +58,18 @@ namespace Playtime_Painter
                 _preview = Shader.Find("Playtime Painter/Editor/Preview/Volume");
 
             if (_brush == null)
-                _brush = Shader.Find("Playtime Painter/Editor/Brush/Volume");
-#if PEGI
-            PlugInPainterComponent = Component_PEGI;
-
-            PlugIn_BrushConfigPEGI(BrushConfigPEGI);
-#endif
-            PlugIn_PainterGizmos(DrawGizmosOnPainter);
-
-            PlugIn_NeedsGrid(NeedsGrid);
-
-            PlugInCpuBlitMethod(PaintTexture2D);
-
+                _brush = Shader.Find("Playtime Painter/Editor/Brush/Volume");          
         }
         
-        public override Shader GetPreviewShader(PlaytimePainter p) => p.GetVolumeTexture() != null ? _preview : null;
+        public Shader GetPreviewShader(PlaytimePainter p) => p.GetVolumeTexture() != null ? _preview : null;
         
+        public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) => p.GetVolumeTexture() != null ? _brush : null;
 
-        public override Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) => p.GetVolumeTexture() != null ? _brush : null;
+        public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
+
+        public bool NeedsGrid(PlaytimePainter p) => _useGrid && p.GetVolumeTexture() != null;
         
-
-        private bool NeedsGrid(PlaytimePainter p) => _useGrid && p.GetVolumeTexture() != null;
-        
-
-        public override bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther)
+        public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther)
         {
             if (painter.GetVolumeTexture() == null) return false;
             overrideOther = true;
@@ -108,12 +98,12 @@ namespace Playtime_Painter
             return false;
         }*/
 
-        private static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
         {
 
             var volume = image.texture2D.GetVolumeTextureData();
 
-            if (volume == null) return false;
+            if (!volume) return false;
             
             if (volume.VolumeJobIsRunning)
                 return false;
@@ -180,7 +170,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
         {
             var vt = painter.GetVolumeTexture();
             if (vt == null) return false;
@@ -206,7 +196,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        private static bool DrawGizmosOnPainter(PlaytimePainter painter)
+        public bool DrawGizmosOnPainter(PlaytimePainter painter)
         {
             var volume = painter.ImgMeta.GetVolumeTextureData();
 
@@ -220,41 +210,43 @@ namespace Playtime_Painter
         #if PEGI
         public override string NameForDisplayPEGI => "Volume Painting";
 
-        private static bool Component_PEGI()
+        public bool ComponentInspector()
         {
             var id = InspectedPainter.ImgMeta;
             
             if (id == null) return false;
             
-            var matProp = InspectedPainter.GetMaterialTextureProperty;
-
-            var propName = matProp.NameForDisplayPEGI;
+            var inspectedProperty = InspectedPainter.GetMaterialTextureProperty.NameForDisplayPEGI;
             
-            if (propName.IsNullOrEmpty() || !propName.Contains(VolumeTextureTag)) return false;
+            if (!inspectedProperty.IsNullOrEmpty() && inspectedProperty.Contains(VolumeTextureTag)) return false;
             
             "Volume Texture Expected".nl();
+
             var tmp = -1;
-            
-            if (!"Available:".select(60, ref tmp, VolumeTexture.all)) return false;
-            
-            var vol = VolumeTexture.all.TryGet(tmp);
-            
-            if (vol) return false;
-            
-            if (vol.MaterialPropertyName.SameAs(propName))
+
+            if (!"Available:".select(60, ref tmp, VolumeTexture.all))
             {
-                if (vol.ImageMeta != null)
-                    vol.AddIfNew(InspectedPainter);
-                else
-                    "Volume Has No Texture".showNotificationIn3D_Views();
+                var vol = VolumeTexture.all.TryGet(tmp);
+
+                if (vol) {
+
+                    if (vol.MaterialPropertyName.SameAs(inspectedProperty)) {
+                        if (vol.ImageMeta != null)
+                            vol.AddIfNew(InspectedPainter);
+                        else
+                            "Volume Has No Texture".showNotificationIn3D_Views();
+                    }
+                    else { ("Volume is for " + vol.MaterialPropertyName + " not " + inspectedProperty).showNotificationIn3D_Views(); }
+                    return true;
+                }
             }
-            else { ("Volume is for " + vol.MaterialPropertyName + " not " + matProp).showNotificationIn3D_Views(); }
-            return true;
+
+            return false;
         }
 
         private bool _exploreVolumeData;
 
-        private bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
+        public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
         {
             var changed = false;
 

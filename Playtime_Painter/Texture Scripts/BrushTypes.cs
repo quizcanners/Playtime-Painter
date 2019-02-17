@@ -8,8 +8,6 @@ namespace Playtime_Painter
 
     public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI, IGotDisplayName {
 
-        public static Blit_Functions.PaintTexture2DMethod tex2DPaintPlugins;
-
         private static List<BrushType> _allTypes;
 
         public static List<BrushType> AllTypes { get { InitIfNull(); return _allTypes; } }
@@ -180,13 +178,12 @@ namespace Playtime_Painter
             st.posFrom += deltaPos;
             
             Blit_Functions.PaintTexture2DMethod blitMethod = null;
-
-            if (tex2DPaintPlugins != null)
-                foreach (Blit_Functions.PaintTexture2DMethod p in tex2DPaintPlugins.GetInvocationList())
-                    if (p(st, alpha, id, br, painter)) {
-                        blitMethod = p;
-                        break;
-                    }
+            
+            foreach (var p in PainterManagerPluginBase.brushPlugins)
+                if (p.PaintPixelsInRam(st, alpha, id, br, painter)) {
+                    blitMethod = p.PaintPixelsInRam;
+                    break;
+                }
 
             if (blitMethod == null) {
                 blitMethod = Blit_Functions.Paint;
@@ -462,7 +459,7 @@ namespace Playtime_Painter
             }
 
             pegi.newLine();
-            if (!InspectedBrush.mask.GetFlag(BrushMask.A))
+            if (!BrushExtensions.HasFlag(InspectedBrush.mask, BrushMask.A))
                 "! Alpha chanel is disabled. Decals may not render properly".writeHint();
 
             return changes;

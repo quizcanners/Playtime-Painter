@@ -16,7 +16,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase
+    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IVertexEdgePlugin, IPainterManagerPlugin_Brush
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
@@ -53,10 +53,7 @@ namespace Playtime_Painter
         protected int inspectedAtlas;
 
         #if PEGI
-        public static bool PutEdgesBetweenSubmeshes()
-        {
-
-
+        public bool VertexEdgePegi() {
             if (MeshMGMT.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.Inst.curAtlasChanel);
 
@@ -86,17 +83,8 @@ namespace Playtime_Painter
         }
 #endif
 
-        public override void Enable() {
-
-            inst = this;
-          
-            #if PEGI
-                PlugIn_VertexEdgePEGI(PutEdgesBetweenSubmeshes);
-            #endif
-            PlugInCpuBlitMethod(PaintTexture2D);
-            
-
-        }
+        public override void Enable() => inst = this;
+        
 
 #if PEGI
 
@@ -122,7 +110,6 @@ namespace Playtime_Painter
                     if (icon.Save.Click().nl())
                         InspectedPainter.SaveMesh();
                 }
-
 #endif
 
 
@@ -162,11 +149,24 @@ namespace Playtime_Painter
 #endif
         #endregion
 
-        public static bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
+        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
             var pl = pntr.GetPlugin<TileableAtlasingPainterPlugin>();
-            if (pl != null) return pl.PaintTexture2D(stroke, brushAlpha, image, bc, pntr);
-            else return false;
+            return pl == null ? false : pl.PaintTexture2D(stroke, brushAlpha, image, bc, pntr);
         }
+
+        public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
+
+        public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter) => false;
+
+        public bool NeedsGrid(PlaytimePainter p) => false;
+
+        public Shader GetPreviewShader(PlaytimePainter p) => null;
+
+        public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) => null;
+
+        public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
+
+        public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) => false;
     }
 
     public class TriangleAtlasTool : MeshToolBase

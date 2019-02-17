@@ -11,9 +11,9 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     public static class BrushExtensions {
-        public static bool GetFlag(this BrushMask mask, int flag) => (mask & (BrushMask)(Mathf.Pow(2, flag))) != 0;
+        public static bool HasFlag(this BrushMask mask, int flag) => (mask & (BrushMask)(Mathf.Pow(2, flag))) != 0;
 
-        public static bool GetFlag(this BrushMask mask, BrushMask flag) => (mask & flag) != 0;
+        public static bool HasFlag(this BrushMask mask, BrushMask flag) => (mask & flag) != 0;
     }
 
     public enum DecalRotationMethod { Set, Random, StrokeDirection }
@@ -217,7 +217,7 @@ namespace Playtime_Painter {
             bool isA3d = false;
 
             if (pntr)
-                foreach (var pl in TexMGMT.Plugins)
+                foreach (var pl in PainterManagerPluginBase.brushPlugins)
                 {
                     isA3d = pl.IsA3DBrush(pntr, this, ref overrideOther);
                     if (overrideOther) break;
@@ -246,9 +246,9 @@ namespace Playtime_Painter {
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
 
-        public bool PaintingAllChannels => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && mask.GetFlag(BrushMask.A);
+        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && BrushExtensions.HasFlag(mask, BrushMask.A);
 
-        public bool PaintingRGB => mask.GetFlag(BrushMask.R) && mask.GetFlag(BrushMask.G) && mask.GetFlag(BrushMask.B) && (!mask.GetFlag(BrushMask.A));
+        public bool PaintingRGB => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && (!BrushExtensions.HasFlag(mask, BrushMask.A));
 
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter pntr) {
 
@@ -280,7 +280,7 @@ namespace Playtime_Painter {
 
                 bool rendered = false;
 
-                foreach (var pl in TexMGMT.Plugins)
+                foreach (var pl in PainterManagerPluginBase.brushPlugins)
                     if (pl.PaintRenderTexture(stroke, imgData, this, pntr)) {
                         rendered = true;
                         break;
@@ -301,7 +301,7 @@ namespace Playtime_Painter {
         #region Inspector
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCPUbrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
-#if PEGI
+        #if PEGI
         public bool Mode_Type_PEGI()
         {
             PlaytimePainter p = PlaytimePainter.inspected;
@@ -378,21 +378,21 @@ namespace Playtime_Painter {
 
             PlaytimePainter p = PlaytimePainter.inspected;
 
-            if (!p) { "No Painter Detected".nl(); return false; }
+            if (!p) {
+                "No Painter Detected".nl();
+                return false;
+            }
 
-            if (p.skinnedMeshRenderer && "Update Collider from Skinned Mesh".Click())
+            pegi.nl();
+
+            if (p.skinnedMeshRenderer && "Update Collider from Skinned Mesh".Click().nl())
                 p.UpdateColliderForSkinnedMesh();
-
-            pegi.newLine();
-
-
+            
             ImageMeta id = p.ImgMeta;
 
             bool changed = false;
             bool cpuBlit = id.destination == TexTarget.Texture2D;
-
-            pegi.newLine();
-
+            
             changed |= p.PreviewShaderToggle_PEGI();
 
             if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
@@ -466,7 +466,7 @@ namespace Playtime_Painter {
                 icon = m.GetIcon();
 
             string letter = m.ToText();
-            bool maskVal = mask.GetFlag(m);
+            bool maskVal = BrushExtensions.HasFlag(mask, m);
 
             if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
@@ -486,7 +486,7 @@ namespace Playtime_Painter {
             if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
                 MaskToggle(m);
             
-            if (slider && mask.GetFlag(m))
+            if (slider && BrushExtensions.HasFlag(mask, m))
                 pegi.edit(ref chanel, 0, 1).nl(ref changed);
 
 
@@ -563,7 +563,7 @@ namespace Playtime_Painter {
             }
             return changed;
         }
-#endif
+        #endif
         #endregion
     }
     
