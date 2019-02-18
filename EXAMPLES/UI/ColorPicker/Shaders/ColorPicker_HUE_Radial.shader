@@ -3,6 +3,7 @@
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_Arrow("Arrow", 2D) = "black" {}
+		//	_SomeSlider("Reflectiveness or something", Range(0,1)) = 0
 	}
 
 	Category{
@@ -29,7 +30,7 @@
 
 				sampler2D _MainTex;
 				sampler2D _Arrow;
-
+			//	float _SomeSlider;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -45,11 +46,13 @@
 
 				float4 frag(v2f i) : COLOR{
 
+					const float PI = 3.14159;
+
 					const float PI2 = 3.14159 * 2;
 
 					float2 uv = i.texcoord - 0.5;
 
-					float angle = atan2(-uv.x, -uv.y) + 0.001;
+					float angle = atan2(uv.x, uv.y);
 
 					angle = saturate(max(angle, PI2 - max(0, -angle) - max(0, angle * 999999)) / PI2);
 
@@ -59,7 +62,7 @@
 
 					float2 arrowUV = 0;
 					 
-					float diff = abs(angle - _Picker_HUV);
+					float diff = abs(frac(angle + 1.75) - (1-_Picker_HUV)); 
 
 					arrowUV.x =  frac(min(diff, 1-diff ))*16;
 

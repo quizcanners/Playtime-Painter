@@ -1723,7 +1723,7 @@ namespace Playtime_Painter {
 #if UNITY_EDITOR
             UnityHelperFunctions.FocusOn(gameObject);
 #endif
-            _selectedInPlaytime = this;
+            selectedInPlaytime = this;
             Update_Brush_Parameters_For_Preview_Shader();
             InitIfNotInitialized();
         }
@@ -1738,10 +1738,10 @@ namespace Playtime_Painter {
 #if BUILD_WITH_PAINTER
             if (!Cfg || !Cfg.enablePainterUIonPlay) return;
             
-            if (!_selectedInPlaytime)
-                _selectedInPlaytime = this;
+            if (!selectedInPlaytime)
+                selectedInPlaytime = this;
 #if PEGI
-            if (_selectedInPlaytime == this)
+            if (selectedInPlaytime == this)
                 WindowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 #endif
       
@@ -1753,7 +1753,7 @@ namespace Playtime_Painter {
 
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
 
-        private static PlaytimePainter _selectedInPlaytime;
+        public static PlaytimePainter selectedInPlaytime;
 
         #if PEGI
         private static readonly pegi.WindowPositionData_PEGI_GUI WindowPosition = new pegi.WindowPositionData_PEGI_GUI();
@@ -2664,7 +2664,7 @@ namespace Playtime_Painter {
 
             if (id == null || IsOriginalShader) return;
             
-            TexMgmt.Shader_UpdateBrush(GlobalBrush, 1, id, this);
+            TexMgmt.Shader_UpdateBrushConfig(GlobalBrush, 1, id, this);
 
             foreach (var p in plugins)
                 p.Update_Brush_Parameters_For_Preview_Shader(this);

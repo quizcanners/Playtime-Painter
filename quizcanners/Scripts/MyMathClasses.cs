@@ -15,10 +15,8 @@ namespace QuizCannersUtilities {
             return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
         }
 
-        public static bool IsNaN(this float f)
-        {
-            return float.IsNaN(f);
-        }
+        public static bool IsNaN(this float f) => float.IsNaN(f);
+        
         #endregion
 
         #region Time
@@ -403,6 +401,8 @@ namespace QuizCannersUtilities {
 
         #region Transformations
 
+        public static Vector2 YX(this Vector2 vec) => new Vector2(vec.y, vec.x);
+        
         public static Vector2 Clamp01(this Vector2 v2) {
             v2.x = Mathf.Clamp01(v2.x);
             v2.y = Mathf.Clamp01(v2.y);

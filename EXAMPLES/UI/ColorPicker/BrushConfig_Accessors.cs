@@ -1,24 +1,38 @@
 ﻿using QuizCannersUtilities;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-namespace Playtime_Painter {
+namespace Playtime_Painter.Examples {
 
-    public class BrushConfig_AccessorsForCanvas : MonoBehaviour {
+    public class BrushConfig_Accessors : MonoBehaviour {
 
         #region Brush Configurations
         BrushConfig Brush => PainterCamera.Data.brushConfig;
 
-        public float Size2D { get { return Brush.Brush2D_Radius;  } set { Brush.Brush2D_Radius = value; } }
+        public List<Graphic> graphicToShowScale = new List<Graphic>();
 
-        public float Size3D { get { return Brush.Brush3D_Radius; } set { Brush.Brush3D_Radius = value; } }
+        public float Size2D { get { return Brush.Brush2D_Radius; } set { Brush.Brush2D_Radius = value; Brush.previewDirty = true; graphicToShowScale.TrySetLocalScale(0.6f + value / 256f); } }
 
-        public float alpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; } }
+        public float Size3D { get { return Brush.Brush3D_Radius; } set { Brush.Brush3D_Radius = value; Brush.previewDirty = true; } }
+
+        public float ColorAlpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; Brush.previewDirty = true; } }
+
+        public float Speed { get { return Brush.speed; } set { Brush.speed = value; Brush.previewDirty = true; } }
 
 
 
         #endregion
+
+        bool defaultSet = false;
+
+        private void Update()
+        {
+            if (!defaultSet && PainterCamera.Data){
+                Size2D = Size2D;
+                defaultSet = true;
+            }
+        }
 
         #region Painter Configurations
         public PlaytimePainter painterComponent;
@@ -66,9 +80,6 @@ namespace Playtime_Painter {
         public string UrlName { set { urlName = value; } }
 
         public void LoadMyURL() => LoadFromURL(urlName);
-
-        // To fix the error above, inside PlaytimePainter.cs replace loadingOrder line with:
-        // [NonSerialized] public Dictionary<int, string> loadingOrder = new Dictionary<int, string>();
 
         #endregion
     }

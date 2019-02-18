@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Smoke_VolumeLit
-  m_Shader: {fileID: 4800000, guid: e1620fc330d25c04aa054f70dd12de5e, type: 3}
+  m_Name: RoundedBox
+  m_Shader: {fileID: 4800000, guid: 28fd8f0dcb56caf44a65de559f658091, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,10 +19,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BakedShadow_VOL:
-        m_Texture: {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -44,14 +40,22 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: efc92d92a157c64408590a5074069911, type: 3}
-        m_Scale: {x: 0.1, y: 0.5}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseMask:
+        m_Texture: {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineGradient:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -64,6 +68,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _Edges: 3.09
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -74,17 +79,9 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Thickness: 20
     - _UVSec: 0
     - _ZWrite: 1
+    - unlinked: 0
     m_Colors:
-    - VOLUME_H_SLICES: {r: 8, g: 127, b: 0.003937008, a: 0.125}
-    - VOLUME_POSITION_N_SIZE: {r: 104.899994, g: 36.93, b: 137.7, a: 3.3333333}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - l0col: {r: 1, g: 0.92156863, b: 0.015686275, a: 0}
-    - l0pos: {r: 94.45, g: 46.94, b: 155.9, a: 0}
-    - l1col: {r: 1, g: 0.92156863, b: 0.015686275, a: 0}
-    - l1pos: {r: 112.439995, g: 39.241, b: 140.78, a: 0}
-    - l2col: {r: 23.06, g: 21.251371, b: 0.3617255, a: 0}
-    - l2pos: {r: 101.46695, g: 38.6, b: 130.69414, a: 0}

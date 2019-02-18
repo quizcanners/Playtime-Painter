@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
 
-namespace Playtime_Painter
+namespace Playtime_Painter.Examples
 {
 
     [ExecuteInEditMode]
@@ -15,7 +13,7 @@ namespace Playtime_Painter
         
         [NonSerialized] public bool mouseDown = false;
 
-        bool Down { get { return mouseDown; }
+        protected bool Down { get { return mouseDown; }
             set {
 
                 if (value) {

@@ -3,6 +3,7 @@
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Sharpness", Range(0.05,1)) = 0.5
+		_Thickness("Thinnesss", Range(0.1,1)) = 1
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 	}
 	Category{
@@ -43,6 +44,7 @@
 
 			
 				float _Edges;
+				float _Thickness;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -86,12 +88,13 @@
 					#if _UNLINKED
 					forFade *= forFade;
 					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
-					float uvy = saturate(clipp * 2 *(1 + _Edges));
+					float uvy = saturate(clipp * 2 * _Thickness *(1 + _Edges));
 					o.color.a *= saturate((1 - uvy) * 2) * min(clipp* _Edges * (1 - _Blur) * 15, 1)*(2 - _Edges);
 					#else 
-					float clipp = max(0, 1 - dot(uv, uv));
-					float uvy = saturate(clipp * (8 - _Courners * 7)*(0.5*(1 + _Edges)));
-					o.color.a *= min(1, saturate((1 - uvy) * 2) * min(clipp* _Edges * (1 - _Blur)*deCourners * 30, 1)*(2 - _Edges)*(3 - uvy));
+					float clipp = max(0, 1 - dot(uv, uv))* _Thickness;
+					float uvy = saturate(clipp * (8 - _Courners * 7)*((1 + _Edges)));
+					o.color.a *= min(1, saturate((1 - uvy) * 2) * //interior
+						min(clipp* _Edges  * (1 - _Blur)*deCourners * 30, 1)*(2 - _Edges)*(3 - uvy));
 					#endif
 
 

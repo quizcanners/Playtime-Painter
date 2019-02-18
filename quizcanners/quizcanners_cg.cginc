@@ -216,7 +216,7 @@ inline float2 DetectEdge(float4 edge){
 
 inline float3 HUEtoColor(float hue) {
 
-	float val = hue * 6;
+	float val = frac(hue+0.082) * 6;
 
 	float3 col;
 

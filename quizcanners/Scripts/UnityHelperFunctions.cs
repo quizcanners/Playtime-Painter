@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
 
@@ -86,6 +85,13 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Transformations 
+
+        public static void TrySetLocalScale<T>(this List<T> graphics, float size) where T: Graphic {
+
+            foreach (var g in graphics)
+                if (g) g.rectTransform.localScale = Vector3.one * size;
+
+        }
 
         public static Color ToOpaque(this Color col)
         {
@@ -195,6 +201,22 @@ namespace QuizCannersUtilities {
             foreach (var g in graphics)
                 g.TrySetColor_RGB(color);
         }
+
+        public static bool TrySetColor_RGBA(this Graphic graphic, Color color)
+        {
+            if (!graphic) return false;
+            graphic.color = color;
+            return true;
+        }
+
+        public static void TrySetColor_RGBA<T>(this List<T> graphics, Color color) where T : Graphic
+        {
+            if (graphics.IsNullOrEmpty()) return;
+
+            foreach (var g in graphics)
+                g.TrySetColor_RGBA(color);
+        }
+
 
         public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength)
         {

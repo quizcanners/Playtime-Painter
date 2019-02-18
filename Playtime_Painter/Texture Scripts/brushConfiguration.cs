@@ -187,6 +187,7 @@ namespace Playtime_Painter {
         public int selectedSourceTexture = 0;
         public int selectedSourceMask = 0;
         public bool useMask = false;
+        public bool previewDirty = false;
         [NonSerialized]
         public Vector2 maskOffset;
         public bool randomMaskOffset;

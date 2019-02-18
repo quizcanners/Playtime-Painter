@@ -3,6 +3,7 @@
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_Circle("Circle", 2D) = "black" {}
 		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
+		_SomeSlider("Reflectiveness or something", Range(0.23,0.27)) = 0
 	}
 
 	Category{
@@ -30,6 +31,7 @@
 				sampler2D _MainTex;
 				sampler2D _Circle;
 				sampler2D _NoiseMask;
+				float _SomeSlider;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -47,19 +49,28 @@
 
 					float4 col = tex2D(_MainTex, o.texcoord);
 
-					col.rgb = HUEtoColor(_Picker_HUV);
+					col.rgb = HUEtoColor(1-_Picker_HUV + 0.2463);
 
 					float4 noise = tex2Dlod(_NoiseMask, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 
-					float2 uv = o.texcoord.xy +(noise.xy - 0.5)*0.015;
+					float2 uv = saturate(o.texcoord.xy +(noise.xy - 0.5)*0.015);
+
+					//uv = (uv - 0.5)*2;
+					//uv = uv*abs(uv)*0.5+0.5;
+
+					uv = pow(uv,1.5);
 
 					col.rgb = uv.y + col.rgb*(1- uv.y);
 
 					col.rgb *= uv.x*uv.x;
 
-					float2 dist = (o.texcoord - float2(_Picker_Brightness, _Picker_Contrast))*8;
+					float2 dist = (o.texcoord - float2(_Picker_Brightness, 1-_Picker_Contrast))*8;
 
-					float ca = max(0, 1-max(0, abs(dist) - 0.5) * 32);
+					
+
+					float ca = max(0, 1-max(0, length(abs(dist)) - 0.5) * 32);
+
+					//return ca;
 
 				    float4 circle = tex2D(_Circle, dist+0.5);
 

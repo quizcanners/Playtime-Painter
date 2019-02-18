@@ -1,6 +1,6 @@
 ﻿Shader "Playtime Painter/UI/Rounded/BumpedButton" {
 	Properties{
-		[PerRendererData][NoScaleOffset]_MainTex("Albedo (RGB)", 2D) = "gray" {}
+		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "gray" {}
 		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Edge Sharpness", Range(0.1,1)) = 0.5
 		_LightDirection("Light Direction Vector", Vector) = (0,0,0,0)

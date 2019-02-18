@@ -367,8 +367,23 @@ namespace Playtime_Painter {
         ShaderProperty.VectorValue brushForm_Property = new ShaderProperty.VectorValue("_brushForm");
         ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
 
-        public void Shader_UpdateBrush(BrushConfig brush, float brushAlpha, ImageMeta id, PlaytimePainter painter)
+        public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
+
+            if (brush == null)
+                brush = GlobalBrush;
+
+            if (!painter)
+                painter = PlaytimePainter.selectedInPlaytime;
+            
+            if (id == null && painter)
+                id = painter.ImgMeta;
+            
+            brush.previewDirty = false;
+
+            if (id == null)
+                return;
+
             float textureWidth = id.width;
             var rendTex = id.TargetIsRenderTexture();
 
@@ -430,7 +445,7 @@ namespace Playtime_Painter {
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
-                Shader_UpdateBrush(bc, brushAlpha, id, pntr);
+                Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
 
             theCamera.targetTexture = id.CurrentRenderTexture();
 
@@ -725,6 +740,9 @@ namespace Playtime_Painter {
 
             if (!Data)
                 return;
+
+            if (GlobalBrush.previewDirty)
+                Shader_UpdateBrushConfig();
 
             PlaytimePainter uiPainter = null;
 

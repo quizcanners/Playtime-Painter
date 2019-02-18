@@ -43,5 +43,8 @@ namespace Playtime_Painter
     [CustomEditor(typeof(WaterController))]
     public class WaterEditor : PEGI_Inspector<WaterController> { }
 
+    [CustomEditor(typeof(ColorPickerHUV))]
+    public class ColorPickerHUVEditor : PEGI_Inspector<ColorPickerHUV> { }
+
 #endif
 }

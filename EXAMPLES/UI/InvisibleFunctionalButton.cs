@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -69,10 +67,10 @@ namespace QuizCannersUtilities
 
                     if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
                         OnClick.Invoke();
-                    else Debug.Log("Too much displacement: {0} -> {1} : {2}:{3} > {4}".F(mouseDownPosition, eventData.position
-                        , diff, diff.magnitude, maxMousePositionPixOffsetForClick));
+                   // else Debug.Log("Too much displacement: {0} -> {1} : {2}:{3} > {4}".F(mouseDownPosition, eventData.position
+                     //   , diff, diff.magnitude, maxMousePositionPixOffsetForClick));
                 }
-                else Debug.LogError("Click to slow");
+               // else Debug.LogError("Click to slow");
             }
 
             mouseDown = false;
