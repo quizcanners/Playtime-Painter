@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 
 namespace STD_Logic
 {
-    public class LogicMGMT : ComponentSTD   {
+    public class LogicMGMT : ComponentStd   {
 
         public static LogicMGMT inst;
 
@@ -111,7 +111,7 @@ namespace STD_Logic
                     {
 
                         var tmp = "";
-                        if ("Paste Messaged STD data".edit(140, ref tmp) || STDExtensions.LoadOnDrop(out tmp)) {
+                        if ("Paste Messaged STD data".edit(140, ref tmp) || StdExtensions.LoadOnDrop(out tmp)) {
 
                             var group = new TriggerGroup();
                             group.DecodeFromExternal(tmp);

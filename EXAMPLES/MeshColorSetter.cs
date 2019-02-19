@@ -10,8 +10,8 @@ namespace Playtime_Painter.Examples
     {
 
         public MeshFilter filter;
-        [NonSerialized] Mesh meshCopy;
-        [SerializeField] Mesh originalMesh;
+        [NonSerialized] private Mesh _meshCopy;
+        [SerializeField] private Mesh originalMesh;
 
         private void OnEnable()
         {
@@ -26,75 +26,70 @@ namespace Playtime_Painter.Examples
                 filter.sharedMesh = originalMesh;
                 this.SetToDirty();
             }
-            meshCopy.DestroyWhatever_UObj();
+            _meshCopy.DestroyWhatever_UObj();
         }
 
-        float previousAlpha = -1;
-        Color previousColor = Color.gray;
+        private float _previousAlpha = -1;
+        private Color _previousColor = Color.gray;
         [Range(0, 1)]
-        public float colorAlpha = 0;
+        public float colorAlpha;
 
-        public bool changeColor = false;
+        public bool changeColor;
         public Color color = Color.white;
 
 
 
         // Update is called once per frame
-        void LateUpdate()
+        private void LateUpdate()
         {
-
-            if (filter && (colorAlpha != previousAlpha || (changeColor && color != previousColor)))
+            if (!filter || (colorAlpha == _previousAlpha && (!changeColor || color == _previousColor))) return;
+            
+            if (!_meshCopy)
             {
-                if (!meshCopy)
+                if (!filter.sharedMesh)
+                    filter.sharedMesh = originalMesh;
+                else
+                    originalMesh = filter.sharedMesh;
+
+                if (originalMesh)
                 {
-                    if (!filter.sharedMesh)
-                        filter.sharedMesh = originalMesh;
-                    else
-                        originalMesh = filter.sharedMesh;
-
-                    if (originalMesh)
-                    {
-                        meshCopy = Instantiate(originalMesh);
-                        filter.mesh = meshCopy;
-                    }
-                }
-
-                if (meshCopy)
-                {
-
-
-                    var verts = meshCopy.vertexCount;
-
-                    var cols = meshCopy.colors;
-
-                    if (cols.IsNullOrEmpty())
-                    {
-                        cols = new Color[verts];
-
-                        for (int i = 0; i < verts; i++)
-                            cols[i] = Color.white;
-
-
-                    }
-
-                    if (changeColor)
-                    {
-                        color.a = colorAlpha;
-
-                        for (int i = 0; i < verts; i++)
-                            cols[i] = color;
-
-                        previousColor = color;
-
-                    }
-                    else for (int i = 0; i < verts; i++)
-                            cols[i].a = colorAlpha;
-
-                    meshCopy.colors = cols;
-
-                    previousAlpha = colorAlpha;
+                    _meshCopy = Instantiate(originalMesh);
+                    filter.mesh = _meshCopy;
                 }
             }
+
+            if (!_meshCopy) return;
+            
+            var verticesCount = _meshCopy.vertexCount;
+
+            var cols = _meshCopy.colors;
+
+            if (cols.IsNullOrEmpty())
+            {
+                cols = new Color[verticesCount];
+
+                for (var i = 0; i < verticesCount; i++)
+                    cols[i] = Color.white;
+
+
+            }
+
+            if (changeColor)
+            {
+                color.a = colorAlpha;
+
+                for (var i = 0; i < verticesCount; i++)
+                    cols[i] = color;
+
+                _previousColor = color;
+
+            }
+            else for (var i = 0; i < verticesCount; i++)
+                cols[i].a = colorAlpha;
+
+            _meshCopy.colors = cols;
+
+            _previousAlpha = colorAlpha;
         }
     }
 }

@@ -281,7 +281,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : ISTD
+        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : IStd
             , new()
         {
             List<int> indexes;
@@ -1078,7 +1078,7 @@ namespace PlayerAndEditorGUI {
         private static IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
-        private static TaggedTypes_STD _currentTaggedTypes;
+        private static TaggedTypesStd _currentTaggedTypes;
         private static ListMetaData _listMetaData;
 
         private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.selectedEls[ind];
@@ -1189,7 +1189,7 @@ namespace PlayerAndEditorGUI {
                             el = Activator.CreateInstance(ty);
                             _currentReorderedList[index] = el;
 
-                            var std = el as ISTD;
+                            var std = el as IStd;
 
                             if (std != null) 
                                  std.Decode(ed.SetRecognized().stdDta);

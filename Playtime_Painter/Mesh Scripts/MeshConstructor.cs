@@ -356,7 +356,7 @@ namespace Playtime_Painter {
                             position[uvi] = lp;
                     }
 
-                    edMesh.avarageSize = totalSize / edMesh.meshPoints.Count;
+                    edMesh.averageSize = totalSize / edMesh.meshPoints.Count;
                 }
                 
                 return position;
@@ -408,7 +408,7 @@ namespace Playtime_Painter {
                 sharpNormals[i] = Vector3.zero;
             }
 
-            float scaleNormalizer = 1f / (edMesh.avarageSize + 0.001f);
+            float scaleNormalizer = 1f / (edMesh.averageSize + 0.001f);
 
             foreach (var tri in edMesh.triangles)
             {
@@ -484,18 +484,18 @@ namespace Playtime_Painter {
 
             vertsCount = edMesh.AssignIndexes();
 
-            if (edMesh.submeshCount > 1) {
+            if (edMesh.subMeshCount > 1) {
 
                 int maxSubmesh = 0;
 
                 foreach (var t in edMesh.triangles)
                     maxSubmesh = Mathf.Max(maxSubmesh, t.submeshIndex);
 
-                edMesh.submeshCount = maxSubmesh + 1;
+                edMesh.subMeshCount = maxSubmesh + 1;
             }
 
-            tris = new List<int>[edMesh.submeshCount];
-            for (int i = 0; i < edMesh.submeshCount; i++)
+            tris = new List<int>[edMesh.subMeshCount];
+            for (int i = 0; i < edMesh.subMeshCount; i++)
                 tris[i] = new List<int>();
 
             foreach (var tri in edMesh.triangles) {

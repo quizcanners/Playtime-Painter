@@ -1,23 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 
-
 using PlayerAndEditorGUI;
-using System.Linq;
 using System.Text;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace QuizCannersUtilities
 {
@@ -26,55 +19,55 @@ namespace QuizCannersUtilities
 
         public static string ThisMethodName() => ThisMethodName(1);
 
-        public static string ThisMethodName(int up) => (new StackFrame(up))?.GetMethod()?.Name;
+        public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Timer
         static readonly Stopwatch StopWatch = new Stopwatch();
 
-        public static int timerLastSection = 0;
+        private static int _timerLastSection;
 
-        static string timerStartLabel = null;
+        static string _timerStartLabel;
 
         public static void TimerStart()
         {
-            timerStartLabel = null;
+            _timerStartLabel = null;
             StopWatch.Start();
         }
 
         public static void TimerStart(this string Label)
         {
-            timerStartLabel = Label;
+            _timerStartLabel = Label;
             StopWatch.Start();
         }
 
-        public static string TimerEnd(this string Label) => Label.TimerEnd(true);
+        public static string TimerEnd(this string label) => label.TimerEnd(true);
 
-        public static string TimerEnd(this string Label, bool logIt) => TimerEnd(Label, logIt, logIt);
+        public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, logIt);
 
-        public static string TimerEnd(this string Label, bool logIt, int treshold) => TimerEnd(Label, logIt, logIt, treshold);
+        public static string TimerEnd(this string label, bool logIt, int treshold) => TimerEnd(label, logIt, logIt, treshold);
 
-        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer) => TimerEnd(Label, logInEditor, logInPlayer, 0);
+        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
 
-        public static string TimerEnd(this string Label, bool logInEditor, bool logInPlayer, int logTrashold)
+        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, int logTrashold)
         {
             StopWatch.Stop();
 
-            long ticks = StopWatch.ElapsedTicks;
+            var ticks = StopWatch.ElapsedTicks;
 
-            string timeText = "";
+            string timeText;
 
-            timerLastSection = (int)ticks;
+            _timerLastSection = (int)ticks;
 
             if (ticks < 10000)
-                timeText = ticks.ToString() + " ticks";
-            else timeText = (ticks / 10000).ToString() + " ms " + (ticks % 10000) + " ticks";
+                timeText = ticks + " ticks";
+            else timeText = (ticks / 10000) + " ms " + (ticks % 10000) + " ticks";
 
-            string text = "";
-            if (timerStartLabel != null)
-                text += timerStartLabel + "->";
-            text += Label + ": " + timeText;
+            var text = "";
+            if (_timerStartLabel != null)
+                text += _timerStartLabel + "->";
+            text += label + ": " + timeText;
 
-            timerStartLabel = null;
+            _timerStartLabel = null;
 
             if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
                 UnityEngine.Debug.Log(text);
@@ -104,7 +97,7 @@ namespace QuizCannersUtilities
 
         #region TextOperations
 
-        const string badFormat = "!Bad format: ";
+        const string BadFormat = "!Bad format: ";
 
         public static string F(this string format, Type type)
         {
@@ -114,7 +107,7 @@ namespace QuizCannersUtilities
             }
             catch
             {
-                return badFormat + format + " " + (type == null ? "null type" : type.ToString());
+                return BadFormat + format + " " + (type == null ? "null type" : type.ToString());
             }
         }
         public static string F(this string format, string obj)
@@ -125,7 +118,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format + " "+obj;
+                return BadFormat + format + " "+obj;
             }
         }
         public static string F(this string format, object obj1)
@@ -136,7 +129,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format + " " + obj1.ToPEGIstring();
+                return BadFormat + format + " " + obj1.ToPEGIstring();
             }
         }
         public static string F(this string format, string obj1, string obj2)
@@ -147,7 +140,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format + " " + obj1 + " " + obj2;
+                return BadFormat + format + " " + obj1 + " " + obj2;
             }
         }
         public static string F(this string format, object obj1, object obj2)
@@ -158,7 +151,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return BadFormat + format;
             }
         }
         public static string F(this string format, string obj1, string obj2, string obj3)
@@ -169,7 +162,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return BadFormat + format;
             }
         }
         public static string F(this string format, object obj1, object obj2, object obj3)
@@ -180,7 +173,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return BadFormat + format;
             }
         }
         public static string F(this string format, params object[] objs)
@@ -191,7 +184,7 @@ namespace QuizCannersUtilities
             }
             catch 
             {
-                return badFormat + format;
+                return BadFormat + format;
             }
         }
 
@@ -219,9 +212,9 @@ namespace QuizCannersUtilities
             var named = el as IGotName;
             if (named == null) return;
 
-            string tmpName = named.NameForPEGI;
-            bool duplicate = true;
-            int counter = 0;
+            var tmpName = named.NameForPEGI;
+            var duplicate = true;
+            var counter = 0;
 
             while (duplicate)
             {
@@ -230,13 +223,13 @@ namespace QuizCannersUtilities
                 foreach (var e in list)
                 {
                     var other = e as IGotName;
-                    if ((other != null) && (!e.Equals(el)) && (String.Compare(tmpName, other.NameForPEGI) == 0))
-                    {
-                        duplicate = true;
-                        counter++;
-                        tmpName = named.NameForPEGI + counter.ToString();
-                        break;
-                    }
+                    if ((other == null) || (e.Equals(el)) || (String.Compare(tmpName, other.NameForPEGI) != 0))
+                        continue;
+                    
+                    duplicate = true;
+                    counter++;
+                    tmpName = named.NameForPEGI + counter;
+                    break;
                 }
             }
 
@@ -348,7 +341,7 @@ namespace QuizCannersUtilities
             
             if (!(obj is T)) {
 
-                GameObject go = null;
+                GameObject go;
 
                 if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
                     go = (obj as MonoBehaviour)?.gameObject;
@@ -359,31 +352,24 @@ namespace QuizCannersUtilities
             }
             else conv = (T)obj;
 
-            if (!conv.Equals(default(T))) {
+            if (conv == null || conv.Equals(default(T))) return false;
+            
+            var objType = obj.GetType();
 
-                Type objType = obj.GetType();
-
-                var dl = typeof(T).TryGetDerivedClasses();
-                if (dl != null) {
-                    if (!dl.Contains(objType))
-                        return false;
-
-                } else {
-
-                    var tc = typeof(T).TryGetTaggedClasses();
-
-                    if (tc != null && !tc.Types.Contains(objType))
-                        return false;
-                }
-
-                if (onlyIfNew && list.Contains(conv))
+            var dl = typeof(T).TryGetDerivedClasses();
+            if (dl != null) {
+                if (!dl.Contains(objType))
                     return false;
 
-                return true;
+            } else {
+
+                var tc = typeof(T).TryGetTaggedClasses();
+
+                if (tc != null && !tc.Types.Contains(objType))
+                    return false;
             }
 
-            return false;
-
+            return !onlyIfNew || !list.Contains(conv);
         }
 
         public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true) {
@@ -477,18 +463,16 @@ namespace QuizCannersUtilities
 
 #if PEGI
             var ind = el as IGotIndex;
-            if (ind != null)
-            {
-                int MaxIndex = ind.IndexForPEGI;
-                foreach (var o in list)
-                    if (!el.Equals(o))
-                    {
-                        var oind = o as IGotIndex;
-                        if (oind != null)
-                            MaxIndex = Mathf.Max(MaxIndex, oind.IndexForPEGI + 1);
-                    }
-                ind.IndexForPEGI = MaxIndex;
-            }
+            if (ind == null) return;
+            var maxIndex = ind.IndexForPEGI;
+            foreach (var o in list)
+                if (!el.Equals(o))
+                {
+                    var oInd = o as IGotIndex;
+                    if (oInd != null)
+                        maxIndex = Mathf.Max(maxIndex, oInd.IndexForPEGI + 1);
+                }
+            ind.IndexForPEGI = maxIndex;
 #endif
         }
 
@@ -633,12 +617,12 @@ namespace QuizCannersUtilities
             }
         }
         
-        public static void Resize<T>(ref T[] args, int To)
+        public static void Resize<T>(ref T[] args, int to)
         {
             T[] temp;
-            temp = new T[To];
+            temp = new T[to];
             if (args != null)
-                Array.Copy(args, 0, temp, 0, Mathf.Min(To, args.Length));
+                Array.Copy(args, 0, temp, 0, Mathf.Min(to, args.Length));
             else
                 args = temp;
         }
@@ -755,20 +739,20 @@ namespace QuizCannersUtilities
             return false;
         }
 
-        public static bool IsNullOrEmpty<T, G>(this Dictionary<T, G> dic) => dic == null || dic.Count == 0;
+        public static bool IsNullOrEmpty<T, TG>(this Dictionary<T, TG> dic) => dic == null || dic.Count == 0;
         #endregion
 
         #region String Editing
 
         public static string SimplifyTypeName(this string name)
         {
-            int ind = Mathf.Max(name.LastIndexOf("."), name.LastIndexOf("+"));
+            var ind = Mathf.Max(name.LastIndexOf(".", StringComparison.Ordinal), name.LastIndexOf("+", StringComparison.Ordinal));
             return (ind == -1 || ind > name.Length - 5) ? name : name.Substring(ind + 1);
         }
 
         public static string SimplifyDirectory(this string name)
         {
-            int ind = name.LastIndexOf("/");
+            var ind = name.LastIndexOf("/", StringComparison.Ordinal);
             return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
         }
 
@@ -785,40 +769,34 @@ namespace QuizCannersUtilities
 
         public static bool SameAs(this string s, string other) =>
             ((s.IsNullOrEmpty() && other.IsNullOrEmpty())
-            || string.Compare(s, other) == 0);
+            || s.Equals(other));
 
         public static bool IsSubstringOf(this string text, string biggerText, RegexOptions opt = RegexOptions.IgnoreCase) => Regex.IsMatch(biggerText, text, opt);
 
         public static bool AreSubstringsOf(this string search, string name, RegexOptions opt = RegexOptions.IgnoreCase)
         {
             if (search.Length == 0)
-                return true; 
-
-            if (search.Contains(" ")) {
-
-                string[] sgmnts = search.Split(' ');
-
-                for (int i = 0; i < sgmnts.Length; i++)
-                    if (!sgmnts[i].IsSubstringOf(name, opt))  return false;
-
                 return true;
-            }
 
-            return search.IsSubstringOf(name);
+            if (!search.Contains(" ")) return search.IsSubstringOf(name);
+            
+            var segments = search.Split(' ');
+
+            return segments.All(t => t.IsSubstringOf(name, opt));
+
         }
 
         public static string RemoveAssetsPart(this string s)
         {
-            var ind = s.IndexOf("Assets");
+            var ind = s.IndexOf("Assets", StringComparison.Ordinal);
+            
             if (ind == 0 || ind == 1) return s.Substring(6 + ind);
-            if (ind > 1) return s.Substring(0, ind);
-            return s;
+            
+            return ind > 1 ? s.Substring(0, ind) : s;
         }
 
-        public static string AddPreSlashIfNotEmpty(this string s)
-        {
-            return (s.Length == 0 || (s[0] == '/')) ? s : "/" + s;
-        }
+  /*      public static string AddPreSlashIfNotEmpty(this string s) => (s.Length == 0 || (s[0] == '/')) ? s : "/" + s;
+        
 
         public static string AddPostSlashIfNotEmpty(this string s)
         {
@@ -833,7 +811,7 @@ namespace QuizCannersUtilities
         public static string AddPostSlashIfNone(this string s)
         {
             return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s + "/" : s;
-        }
+        }*/
         
         public static string RemoveFirst(this string name, int index) =>
             name.Substring(index, name.Length - index);

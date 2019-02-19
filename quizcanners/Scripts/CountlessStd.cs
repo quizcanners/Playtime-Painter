@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace QuizCannersUtilities
 {
-    public class CountlessStd<T> : StdCountlessBase where T : ISTD , new() {
+    public class CountlessStd<T> : StdCountlessBase where T : IStd , new() {
         
         protected T[] objs = new T[0];
         private int _firstFreeObj;
@@ -324,7 +324,7 @@ namespace QuizCannersUtilities
     }
     
     
-    public class UnNullableStd<T> : CountlessStd<T> where T : ISTD, new()  {
+    public class UnNullableStd<T> : CountlessStd<T> where T : IStd, new()  {
         
         public static int indexOfCurrentlyCreatedUnnulable;
 
@@ -401,7 +401,7 @@ namespace QuizCannersUtilities
 
     
     
-    public class UnNullableStdLists<T> : UnNullableLists<T>, ISTD where T : ISTD, IPEGI, new() {
+    public class UnNullableStdLists<T> : UnNullableLists<T>, IStd where T : IStd, IPEGI, new() {
 
         public bool Decode(string tg, string data)
         {

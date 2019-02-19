@@ -11,7 +11,7 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    public class PainterDataAndConfig : STD_ReferencesHolder, IKeepMySTD
+    public class PainterDataAndConfig : StdReferencesHolder, IKeepMyStd
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
@@ -317,7 +317,7 @@ namespace Playtime_Painter
         #region Encode/Decode
 
         [SerializeField] private string stdData = "";
-        public string Config_STD
+        public string ConfigStd
         {
             get { return stdData; }
             set { stdData = value; }

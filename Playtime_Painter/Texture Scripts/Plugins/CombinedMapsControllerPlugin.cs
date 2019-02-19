@@ -292,7 +292,7 @@ namespace Playtime_Painter
             for (int c = 0; c < 4; c++)
             {
                 var ch = channel[c];
-                changed |= ((ColorChanel)c).getIcon().toggle(ref ch.enabled);
+                changed |= ((ColorChanel)c).GetIcon().toggle(ref ch.enabled);
 
                 if (ch.enabled)
                 {
@@ -455,7 +455,7 @@ namespace Playtime_Painter
     }
 
     [Serializable]
-    public class TextureChannel : Abstract_STD, IPEGI
+    public class TextureChannel : AbstractStd, IPEGI
     {
         public bool enabled;
         public bool flip = false;

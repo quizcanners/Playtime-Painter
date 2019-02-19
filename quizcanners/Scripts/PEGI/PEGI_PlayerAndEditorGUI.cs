@@ -1166,14 +1166,14 @@ namespace PlayerAndEditorGUI {
             if (typeof(T).TryGetTaggedClasses().Select(ref type).nl()) {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
-                STDExtensions.TryCopy_Std_AndOtherData(previous, obj);
+                StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
                 return change;
             }
 
             return false;
         }
 
-        public static bool selectTypeTag(this TaggedTypes_STD types, ref string tag) => select(ref tag, types.Keys);
+        public static bool selectTypeTag(this TaggedTypesStd types, ref string tag) => select(ref tag, types.Keys);
 
         public static bool select(ref int no, List<string> from)
         {
@@ -1601,7 +1601,7 @@ namespace PlayerAndEditorGUI {
 
         }
       
-        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : ISTD, new()
+        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : IStd, new()
         {
 
         #if UNITY_EDITOR
@@ -2861,7 +2861,7 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types, ref bool changed) {
+        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesStd types, ref bool changed) {
             if (meta.enter_Search_HeaderPart(ref list, ref enteredOne, thisOne))
                return meta.edit_List(ref list, types, ref changed);
             return default(T);
@@ -5072,7 +5072,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypes_STD types, ListMetaData ld) 
+        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypesStd types, ListMetaData ld) 
         {
             if (ld != null && !ld.allowCreate)
                 return false;
@@ -5493,7 +5493,7 @@ namespace PlayerAndEditorGUI {
                         if (!isNull && derr != null) {
                             var ty = el.GetType();
                             if (select(ref ty, derr, el.ToPEGIstring()))
-                            array[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                            array[i] = (el as IStd).TryDecodeInto<T>(ty);
                         }
 
                         if (!isNull)
@@ -5586,7 +5586,7 @@ namespace PlayerAndEditorGUI {
                         {
                             var ty = el.GetType();
                             if (select(ref ty, derr, el.ToPEGIstring()))
-                                list[i] = (el as ISTD).TryDecodeInto<T>(ty);
+                                list[i] = (el as IStd).TryDecodeInto<T>(ty);
                         }
 
                         if (!isNull)
@@ -5652,10 +5652,10 @@ namespace PlayerAndEditorGUI {
                                 foreach (var e in _copiedElements)
                                 {
 
-                                    var istd = listCopyBuffer.TryGet(e) as ISTD;
+                                    var istd = listCopyBuffer.TryGet(e) as IStd;
 
                                     if (istd != null)
-                                        list.TryAdd(istd.Clone_ISTD());
+                                        list.TryAdd(istd.CloneStd());
                                 }
                             }
 
@@ -5765,7 +5765,7 @@ namespace PlayerAndEditorGUI {
                     if (dta == null) continue;
                     
                     T tmp = null;
-                    if (dta.TryGetByGUID(ref tmp))
+                    if (dta.TryGetByGuid(ref tmp))
                         list[i] = tmp;
                     
                 }
@@ -5852,7 +5852,7 @@ namespace PlayerAndEditorGUI {
                         }
                     }
                     
-                    if ((warningText == null && (metaDatas == null ? icon.Enter : metaDatas.icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
+                    if ((warningText == null && (metaDatas == null ? icon.Enter : metaDatas.Icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                         edited = index;
                         
                     if (!clickHighlightHandeled)
@@ -5864,8 +5864,8 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-        
-        static bool isMonoType<T>(IList<T> list, int i)
+
+        private static bool isMonoType<T>(IList<T> list, int i)
         {
             if (!(typeof(MonoBehaviour)).IsAssignableFrom(typeof(T))) return false;
             
@@ -5926,7 +5926,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
         {
             label.write_Search_ListLabel( ref inspected, list);
-            bool changed = false;
+            var changed = false;
             edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
             return changed;
         }
@@ -5941,12 +5941,14 @@ namespace PlayerAndEditorGUI {
         public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData metaDatas = null) where T : MonoBehaviour
         {
     
-            T added = default(T);
+      
 
             if (listIsNull(ref list))
-                return added;
+                return null;
 
-            int before = inspected;
+            T added = default;
+            
+            var before = inspected;
 
             list.ClampIndexToCount(ref inspected, -1);
 
@@ -6025,7 +6027,7 @@ namespace PlayerAndEditorGUI {
         {
             label.write_Search_ListLabel(ref inspected, list);
 
-            bool changed = false;
+            var changed = false;
 
             edit_List_SO<T>(ref list, ref inspected, ref changed).listLabel_Used();
 
@@ -6036,27 +6038,27 @@ namespace PlayerAndEditorGUI {
         {
             label.write_Search_ListLabel(list);
 
-            bool changed = false;
+            var changed = false;
 
-            int edited = -1;
+            var edited = -1;
 
             edit_List_SO<T>(ref list, ref edited, ref changed).listLabel_Used();
 
             return changed;
         }
 
-        public static bool edit_List_SO<T>(this ListMetaData metaDatas, ref List<T> list) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this ListMetaData listMeta, ref List<T> list) where T : ScriptableObject
         {
-            write_Search_ListLabel(metaDatas, list);
+            write_Search_ListLabel(listMeta, list);
 
-            bool changed = false;
+            var changed = false;
 
-            edit_List_SO(ref list, ref metaDatas.inspected, ref changed, metaDatas).listLabel_Used();
+            edit_List_SO(ref list, ref listMeta.inspected, ref changed, listMeta).listLabel_Used();
 
             return changed;
         }
 
-        public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData metaDatas = null) where T : ScriptableObject
+        public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null) where T : ScriptableObject
         {
             if (listIsNull(ref list))
                 return null;
@@ -6070,29 +6072,29 @@ namespace PlayerAndEditorGUI {
             if (inspected == -1)
             {
 
-                changed |= list.edit_List_Order_Obj(metaDatas);
+                changed |= list.edit_List_Order_Obj(listMeta);
 
-                changed |= list.ListAddEmptyClick(metaDatas);
+                changed |= list.ListAddEmptyClick(listMeta);
 
-                if (metaDatas != null && icon.Save.ClickUnFocus())
-                    metaDatas.SaveElementDataFrom(list);
+                if (listMeta != null && icon.Save.ClickUnFocus())
+                    listMeta.SaveElementDataFrom(list);
 
                 if (list != editing_List_Order) {
                     foreach (var i in list.InspectionIndexes()) {
                         var el = list[i];
                         if (!el)
                         {
-                            if (metaDatas.TryInspect(ref el, i).nl(ref changed))
+                            if (listMeta.TryInspect(ref el, i).nl(ref changed))
                                 list[i] = el;
                             
                         }
                         else
-                            changed |= el.Name_ClickInspect_PEGI<T>(list, i, ref inspected, metaDatas).nl(ref changed);
+                            changed |= el.Name_ClickInspect_PEGI<T>(list, i, ref inspected, listMeta).nl(ref changed);
 
                     }
 
                     if (typeof(T).TryGetDerivedClasses() != null)
-                        changed |= list.PEGI_InstantiateOptions_SO(ref added, metaDatas);
+                        changed |= list.PEGI_InstantiateOptions_SO(ref added, listMeta);
 
                     nl();
 
@@ -6124,50 +6126,50 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object{
-                int edited = -1;
-                return edit_or_select_List_UObj(ref list, selectFrom, ref edited, null);
+                var edited = -1;
+                return edit_or_select_List_UObj(ref list, selectFrom, ref edited);
         }
         
-        public static bool edit_List_UObj<T>(this ListMetaData metaDatas, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this ListMetaData listMeta, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            metaDatas.write_Search_ListLabel(list);
-            return edit_or_select_List_UObj(ref list, selectFrom, ref metaDatas.inspected, metaDatas).listLabel_Used();
+            listMeta.write_Search_ListLabel(list);
+            return edit_or_select_List_UObj(ref list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData metaDatas = null) where T : G where G : UnityEngine.Object
+        public static bool edit_or_select_List_UObj<T,G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : UnityEngine.Object
         {
             if (listIsNull(ref list))
                 return false;
             
-            bool changed = false;
+            var changed = false;
 
-            int before = inspected;
+            var before = inspected;
             if (list.ClampIndexToCount(ref inspected, -1))
             changed |= (inspected != before);
 
             if (inspected == -1) {
 
-                if (metaDatas != null && icon.Save.ClickUnFocus())
-                    metaDatas.SaveElementDataFrom(list);
+                if (listMeta != null && icon.Save.ClickUnFocus())
+                    listMeta.SaveElementDataFrom(list);
 
-                changed |= list.edit_List_Order(metaDatas);
+                changed |= list.edit_List_Order(listMeta);
 
                 if (list != editing_List_Order)
                 {
-                    changed |= list.ListAddEmptyClick(metaDatas);
+                    changed |= list.ListAddEmptyClick(listMeta);
 
-                    foreach (var i in list.InspectionIndexes(metaDatas))     {
+                    foreach (var i in list.InspectionIndexes(listMeta))     {
                         var el = list[i];
                         if (!el)
                         {
                             if (!from.IsNullOrEmpty() && select_SameClass(ref el, from))
                                 list[i] = el;
 
-                            if (metaDatas.TryInspect(ref el, i))
+                            if (listMeta.TryInspect(ref el, i))
                                 list[i] = el;
                         }
                         else
-                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, metaDatas);
+                            changed |= list[i].Name_ClickInspect_PEGI(list, i, ref inspected, listMeta);
 
                         newLine();
                     }
@@ -6296,13 +6298,13 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-    public static T edit_List<T>(this ListMetaData metaDatas, ref List<T> list, TaggedTypes_STD types, ref bool changed)
+    public static T edit_List<T>(this ListMetaData metaDatas, ref List<T> list, TaggedTypesStd types, ref bool changed)
     {
         write_Search_ListLabel(metaDatas, list);
         return edit_List(ref list, ref metaDatas.inspected, types, ref changed, metaDatas).listLabel_Used();
     }
 
-    public static bool edit_List<T>(this ListMetaData metaDatas, ref List<T> list, TaggedTypes_STD types) {
+    public static bool edit_List<T>(this ListMetaData metaDatas, ref List<T> list, TaggedTypesStd types) {
         bool changed = false;
         write_Search_ListLabel(metaDatas, list);
         edit_List(ref list, ref metaDatas.inspected, types, ref changed, metaDatas).listLabel_Used();
@@ -6319,12 +6321,12 @@ namespace PlayerAndEditorGUI {
         return edit_List(ref list, ref ld.inspected, types, ref changed, ld).listLabel_Used();
     }*/
 
-    public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed) {
+    public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesStd types, ref bool changed) {
         label.write_Search_ListLabel(ref inspected, list);
         return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
     }
         
-    public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypes_STD types, ref bool changed, ListMetaData metaDatas = null) {
+    public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesStd types, ref bool changed, ListMetaData metaDatas = null) {
 
         T added = default(T);
 
@@ -6353,11 +6355,11 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     if (el == null) {
 
-                        if (!isMonoType<T>(list, i)) {
-                            if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)))
-                                write("use edit_List_UObj");
-                            else
-                                write("is NUll");
+                        if (!isMonoType(list, i))
+                        {
+                            write(typeof(T).IsSubclassOf(typeof(UnityEngine.Object))
+                                ? "use edit_List_UObj"
+                                : "is NUll");
                         }
                     }
                     else
@@ -6385,7 +6387,7 @@ namespace PlayerAndEditorGUI {
 
         #region SpecialLambdas
 
-        static IList listElementsRoles = null;
+        static IList listElementsRoles;
 
         static Color lambda_Color(Color val)
         {
@@ -6422,7 +6424,7 @@ namespace PlayerAndEditorGUI {
             return val;
         }
 
-        static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
+        private static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
         {
 
             var role = listElementsRoles.TryGet(InspectedIndex);
@@ -6465,7 +6467,7 @@ namespace PlayerAndEditorGUI {
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
         {
             label.write_Search_ListLabel(list);
-            return edit_List<T>(ref list, ref changed, lambda).listLabel_Used();
+            return edit_List(ref list, ref changed, lambda).listLabel_Used();
         }
 
         public static T edit_List<T>(ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
@@ -7007,11 +7009,11 @@ namespace PlayerAndEditorGUI {
             changed |= "Local".toggle(40, ref editLocalSpace);
 
             if (icon.Copy.ClickUnFocus("Copy Transform"))
-                STDExtensions.copyBufferValue = tf.Encode(editLocalSpace).ToString();
+                StdExtensions.copyBufferValue = tf.Encode(editLocalSpace).ToString();
  
-            if (STDExtensions.copyBufferValue != null && icon.Paste.ClickUnFocus("Paste Transform").changes(ref changed)) {
-                STDExtensions.copyBufferValue.DecodeInto(tf);
-                STDExtensions.copyBufferValue = null;
+            if (StdExtensions.copyBufferValue != null && icon.Paste.ClickUnFocus("Paste Transform").changes(ref changed)) {
+                StdExtensions.copyBufferValue.DecodeInto(tf);
+                StdExtensions.copyBufferValue = null;
             }
 
             nl();
@@ -7275,7 +7277,7 @@ namespace PlayerAndEditorGUI {
 
         static readonly char[] splitCharacters = { ' ', '.' };
         
-        public class SearchData: Abstract_STD, ICanBeDefault_STD {
+        public class SearchData: AbstractStd, ICanBeDefaultStd {
             public IList filteredList;
             public string searchedText;
             public int uncheckedElement = 0;

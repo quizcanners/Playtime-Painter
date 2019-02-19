@@ -568,16 +568,16 @@ namespace Playtime_Painter {
         #endregion
     }
     
-    public class BrushDynamicAttribute : Abstract_WithTaggedTypes  {
-        public override TaggedTypes_STD TaggedTypes => BrushDynamic.all;
+    public class BrushDynamicAttribute : AbstractWithTaggedTypes  {
+        public override TaggedTypesStd TaggedTypes => BrushDynamic.all;
     }
 
     [BrushDynamic]
-    public abstract class BrushDynamic : Abstract_STD, IPEGI, IGotClassTag {
+    public abstract class BrushDynamic : AbstractStd, IPEGI, IGotClassTag {
         public abstract string ClassTag { get; }
 
-        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(BrushDynamic));
-        public TaggedTypes_STD AllTypes => all;
+        public static TaggedTypesStd all = new TaggedTypesStd(typeof(BrushDynamic));
+        public TaggedTypesStd AllTypes => all;
 
         public override bool Decode(string tg, string data) {
             switch (tg) {

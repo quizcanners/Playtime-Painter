@@ -22,7 +22,7 @@
 				#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
 				#pragma multi_compile  ___ UV_ATLASED
 				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
-				#pragma multi_compile ____ TARGET_TRANSPARENT_LAYER
+				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -79,9 +79,6 @@
 
 	
 				float4 frag(v2f i) : COLOR{
-
-
-					//	return 1;
 
 					float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 

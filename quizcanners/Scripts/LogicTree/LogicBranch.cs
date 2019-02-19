@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace STD_Logic
 {
 
-    public class LogicBranch<T> : AbstractKeepUnrecognized_STD  , IGotName , IPEGI, IAmConditional, ICanBeDefault_STD, IPEGI_Searchable  where T: ISTD, new() {
+    public class LogicBranch<T> : AbstractKeepUnrecognizedStd  , IGotName , IPEGI, IAmConditional, ICanBeDefaultStd, IPEGI_Searchable  where T: IStd, new() {
 
         public string name = "no name";
 

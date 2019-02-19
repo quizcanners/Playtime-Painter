@@ -211,7 +211,7 @@ namespace Playtime_Painter {
         }
     }
     
-    public class FieldAtlas : AbstractKeepUnrecognized_STD, IPEGI
+    public class FieldAtlas : AbstractKeepUnrecognizedStd, IPEGI
     {
         static PainterCamera TexMGMT => PainterCamera.Inst; 
 
@@ -287,7 +287,7 @@ namespace Playtime_Painter {
         #endregion
     }
     
-    public class MaterialAtlases : AbstractKeepUnrecognized_STD, IGotName, IPEGI {
+    public class MaterialAtlases : AbstractKeepUnrecognizedStd, IGotName, IPEGI {
 
         public string name;
 
@@ -649,7 +649,7 @@ namespace Playtime_Painter {
         #endregion
     }
     
-    public class AtlasTextureField: AbstractKeepUnrecognized_STD, IPEGI_ListInspect
+    public class AtlasTextureField: AbstractKeepUnrecognizedStd, IPEGI_ListInspect
     {
         public Texture2D texture;
         public Color color = Color.black;
@@ -701,7 +701,7 @@ namespace Playtime_Painter {
 
     }
     
-    public class AtlasTextureCreator : AbstractKeepUnrecognized_STD, IGotName, IPEGI
+    public class AtlasTextureCreator : AbstractKeepUnrecognizedStd, IGotName, IPEGI
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
 
@@ -939,12 +939,12 @@ namespace Playtime_Painter {
 
             var bytes = aTexture.EncodeToPNG();
 
-            var lastPart = Cfg.texturesFolderName.AddPreSlashIfNotEmpty() + Cfg.atlasFolderName.AddPreSlashIfNotEmpty() + "/";
-            var fullPath = Application.dataPath + lastPart;
+            var lastPart = Path.Combine(Cfg.texturesFolderName, Cfg.atlasFolderName);
+            var fullPath = Path.Combine(Application.dataPath, lastPart);
             Directory.CreateDirectory(fullPath);
 
             var fileName = NameForPEGI + ".png";
-            var relativePath = "Assets" + lastPart + fileName;
+            var relativePath = Path.Combine("Assets", lastPart, fileName);
             fullPath += fileName;
 
             File.WriteAllBytes(fullPath, bytes);

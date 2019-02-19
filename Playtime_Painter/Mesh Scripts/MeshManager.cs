@@ -68,14 +68,14 @@ namespace Playtime_Painter
         int currentUV = 0;
         bool SelectingUVbyNumber = false;
 
-        public Vertex SelectedUV { get { return editedMesh.selectedUV; } set { editedMesh.selectedUV = value; } }
+        public Vertex SelectedUV { get { return editedMesh.selectedUv; } set { editedMesh.selectedUv = value; } }
         public LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
         public Triangle SelectedTris { get { return editedMesh.selectedTris; } set { editedMesh.selectedTris = value; } }
-        public Vertex PointedUV { get { return editedMesh.pointedUV; } set { editedMesh.pointedUV = value; } }
+        public Vertex PointedUV { get { return editedMesh.pointedUv; } set { editedMesh.pointedUv = value; } }
         public LineData PointedLine { get { return editedMesh.pointedLine; } set { editedMesh.pointedLine = value; } }
         public Triangle PointedTris { get { return editedMesh.pointedTris; } set { editedMesh.pointedTris = value; } }
-        Vertex[] TrisSet { get { return editedMesh.TrisSet; } set { editedMesh.TrisSet = value; } }
-        public int TrisVerts { get { return editedMesh.trisVerts; } set { editedMesh.trisVerts = value; } }
+        Vertex[] TrisSet { get { return editedMesh.trisSet; } set { editedMesh.trisSet = value; } }
+        public int TriVertices { get { return editedMesh.triVertices; } set { editedMesh.triVertices = value; } }
 
         [NonSerialized]
         public int vertsShowMax = 8;
@@ -161,13 +161,13 @@ namespace Playtime_Painter
 
                 MeshConstructor mc = new MeshConstructor(editedMesh, target.MeshProfile, target.SharedMesh);
 
-                if (!editedMesh.dirty_Normals && EditedMesh.Dirty)
+                if (!editedMesh.dirtyNormals && EditedMesh.Dirty)
                 {
 
-                    if (EditedMesh.dirty_Position)
+                    if (EditedMesh.dirtyPosition)
                         mc.UpdateMesh<MeshSolutions.VertexPos>();
 
-                    if (editedMesh.dirty_Color)
+                    if (editedMesh.dirtyColor)
                         mc.UpdateMesh<MeshSolutions.VertexColor>();
 
                 }
@@ -217,22 +217,22 @@ namespace Playtime_Painter
         public void AddToTrisSet(Vertex nuv)
         {
 
-            TrisSet[TrisVerts] = nuv;
-            TrisVerts++;
+            TrisSet[TriVertices] = nuv;
+            TriVertices++;
 
-            if (TrisVerts == 3)
+            if (TriVertices == 3)
                 foreach (Triangle t in editedMesh.triangles)
                     if (t.IsSamePoints(TrisSet))
                     {
                         t.Set(TrisSet);
                         editedMesh.Dirty = true;
-                        TrisVerts = 0;
+                        TriVertices = 0;
                         return;
                     }
                 
             
 
-            if (TrisVerts >= 3)
+            if (TriVertices >= 3)
             {
                 Triangle td = new Triangle(TrisSet);
                 editedMesh.triangles.Add(td);
@@ -244,7 +244,7 @@ namespace Playtime_Painter
                     MakeTriangleVertUnique(td, TrisSet[2]);
                 }
 
-                TrisVerts = 0;
+                TriVertices = 0;
                 editedMesh.Dirty = true;
             }
         }
@@ -322,7 +322,7 @@ namespace Playtime_Painter
             editedMesh.meshPoints.Remove(vert);
 
 
-            TrisVerts = 0;
+            TriVertices = 0;
 
             NullPoinedSelected();
 
@@ -353,7 +353,7 @@ namespace Playtime_Painter
             trs[0].Replace(trs[0].GetByVert(a), nol1);
             trs[1].Replace(trs[1].GetByVert(b), nol0);
 
-            TrisVerts = 0;
+            TriVertices = 0;
         }
 
         public void DeleteLine(LineData ld)
@@ -363,7 +363,7 @@ namespace Playtime_Painter
             editedMesh.RemoveLine(ld);
 
             if (IsInTrisSet(ld.pnts[0]) || IsInTrisSet(ld.pnts[1]))
-                TrisVerts = 0;
+                TriVertices = 0;
 
         }
 
@@ -390,7 +390,7 @@ namespace Playtime_Painter
             }
 
             if (IsInTrisSet(uv))
-                TrisVerts = 0;
+                TriVertices = 0;
 
 
             vrt.uvpoints.Remove(uv);
@@ -420,14 +420,14 @@ namespace Playtime_Painter
         public bool IsInTrisSet(MeshPoint vert)
         { // Only one Unique coordinate per triangle
 
-            for (int i = 0; i < TrisVerts; i++)
+            for (int i = 0; i < TriVertices; i++)
                 if (TrisSet[i].meshPoint == vert) return true;
             return false;
         }
 
         public bool IsInTrisSet(Vertex uv)
         { // Only one Unique coordinate per triangle
-            for (int i = 0; i < TrisVerts; i++)
+            for (int i = 0; i < TriVertices; i++)
                 if (TrisSet[i] == uv) return true;
             return false;
         }
@@ -888,7 +888,7 @@ namespace Playtime_Painter
             }
 
             previouslyEdited = null;
-            TrisVerts = 0;
+            TriVertices = 0;
             EditedUV = EditedUV;
 
         }
@@ -965,23 +965,23 @@ namespace Playtime_Painter
 
                     if (!selectedPainters.IsNullOrEmpty()) {
 
-                        if (editedMesh.UV2distributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.UV2distributeRow).nl(ref changed))
-                            editedMesh.UV2distributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
+                        if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
+                            editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
                         else
                         {
-                            if (editedMesh.UV2distributeCurrent > 0)
+                            if (editedMesh.uv2DistributeCurrent > 0)
                             {
-                                ("All added meshes will be distributed in " + editedMesh.UV2distributeRow + " by " + editedMesh.UV2distributeRow + " grid. By cancelling this added" +
+                                ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
                                     "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
                                 if ("Cancel Distribution".Click().nl())
-                                    editedMesh.UV2distributeRow = 0;
+                                    editedMesh.uv2DistributeRow = 0;
                             }
                             else {
-                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.UV2distributeRow, 2, 16).nl(ref changed);
-                                "Start from".edit(ref editedMesh.UV2distributeCurrent).nl(ref changed);
+                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
+                                "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
                             }
 
-                            "Using {0} out of {1} spots".F(editedMesh.UV2distributeCurrent + selectedPainters.Count + 1, editedMesh.UV2distributeRow * editedMesh.UV2distributeRow).nl();
+                            "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + selectedPainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
                           
                         }
 

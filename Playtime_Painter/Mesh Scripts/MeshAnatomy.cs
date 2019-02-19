@@ -53,7 +53,7 @@ namespace Playtime_Painter
         public Vertex MyLastCopy;
         public MeshPoint meshPoint;
 
-        public bool SameAsLastFrame => this == EditedMesh.LastFramePointedUV; 
+        public bool SameAsLastFrame => this == EditedMesh.lastFramePointedUv; 
 
         public Vector3 Pos => meshPoint.localPos; 
         
@@ -349,7 +349,7 @@ namespace Playtime_Painter
             CleanEmptyIndexes();
         }
 
-        public bool SameAsLastFrame => this == EditedMesh.LastFramePointedUV.meshPoint; 
+        public bool SameAsLastFrame => this == EditedMesh.lastFramePointedUv.meshPoint; 
 
         public bool SetSmoothNormal(bool to)
         {
@@ -757,7 +757,7 @@ namespace Playtime_Painter
             return sharpNormal * Vector3.Cross(p0 - p1, p0 - p2).magnitude;
         }
 
-        public bool SameAsLastFrame => this == EditedMesh.LastFramePointedTris;
+        public bool SameAsLastFrame => this == EditedMesh.lastFramePointedTris;
 
         public float Area => Vector3.Cross(vertexes[0].Pos - vertexes[1].Pos, vertexes[0].Pos - vertexes[2].Pos).magnitude * 0.5f;
 
@@ -1224,7 +1224,7 @@ namespace Playtime_Painter
 
         public float WorldSpaceLength => (this[0].WorldPos - this[1].WorldPos).magnitude; 
 
-        public bool SameAsLastFrame => Equals(EditedMesh.LastFramePointedLine); 
+        public bool SameAsLastFrame => Equals(EditedMesh.lastFramePointedLine); 
 
         public bool Includes(Vertex uv) => ((uv == pnts[0]) || (uv == pnts[1]));
         

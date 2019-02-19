@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -11,7 +12,7 @@ using UnityEditor;
 namespace Playtime_Painter
 {
     
-    public class MeshPackagingProfile : Abstract_STD, IPEGI, IGotName
+    public class MeshPackagingProfile : AbstractStd, IPEGI, IGotName
     {
         public List<VertexContents> sln = new List<VertexContents>();
 
@@ -31,7 +32,7 @@ namespace Playtime_Painter
 
             #if UNITY_EDITOR
 
-            var path = PainterCamera.Data.meshesFolderName.AddPostSlashIfNone() + FolderName;
+            var path = Path.Combine(PainterCamera.Data.meshesFolderName, FolderName);
             
             if (icon.Save.Click("Save To:" + path, 25).nl()) {
                 this.SaveToAssets(path, name);
@@ -43,10 +44,10 @@ namespace Playtime_Painter
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType).nl(ref changed)) {
                
-                var msol = new MeshPackagingProfile();
-                msol.Decode(StuffLoader.LoadTextAsset(myType));
+                var mSol = new MeshPackagingProfile();
+                mSol.Decode(StuffLoader.LoadTextAsset(myType));
 
-                PainterCamera.Data.meshPackagingSolutions.Add(msol);
+                PainterCamera.Data.meshPackagingSolutions.Add(mSol);
                 PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
             }
             #endif
@@ -242,7 +243,7 @@ namespace Playtime_Painter
 
     }
 
-    public class VertexDataValue : Abstract_STD {
+    public class VertexDataValue : AbstractStd {
 
         public int typeIndex = 0;
         public int valueIndex = 0;
@@ -274,7 +275,7 @@ namespace Playtime_Painter
     }
     #endregion
 
-    public class VertexContents : Abstract_STD, IPEGI
+    public class VertexContents : AbstractStd, IPEGI
     {
         public int sameSizeDataIndex = -1;
         private int _targetIndex;

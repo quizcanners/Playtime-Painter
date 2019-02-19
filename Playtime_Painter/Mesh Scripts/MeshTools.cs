@@ -450,7 +450,7 @@ namespace Playtime_Painter
             if (_addToTrianglesAndLines && EditorInputManager.GetMouseButtonUp(0) && m.DragDelay > 0 && _draggedVertices.Contains(PointedTris))
             {
                 if (Cfg.newVerticesUnique)
-                    m.editedMesh.InsertIntoTriangleUniqueVerticles(m.PointedTris, m.collisionPosLocal);
+                    m.editedMesh.InsertIntoTriangleUniqueVertices(m.PointedTris, m.collisionPosLocal);
                 else
                     m.editedMesh.InsertIntoTriangle(m.PointedTris, m.collisionPosLocal);
             }
@@ -475,8 +475,8 @@ namespace Playtime_Painter
                 m.Dragging = false;
 
                 if (beforeCouldDrag)
-                    EditedMesh.dirty_Position = true;
-                else if (m.TrisVerts < 3 && m.SelectedUV != null && !m.IsInTrisSet(m.SelectedUV.meshPoint))
+                    EditedMesh.dirtyPosition = true;
+                else if (m.TriVertices < 3 && m.SelectedUV != null && !m.IsInTrisSet(m.SelectedUV.meshPoint))
                     m.AddToTrisSet(m.SelectedUV);
 
             }
@@ -496,7 +496,7 @@ namespace Playtime_Painter
                     if (delta.magnitude > 0)
                     {
 
-                        m.TrisVerts = 0;
+                        m.TriVertices = 0;
 
                         foreach (var v in _draggedVertices)
                             v.WorldPos += delta;
@@ -954,7 +954,7 @@ namespace Playtime_Painter
                     foreach (Vertex uvi in m.PointedUV.meshPoint.uvpoints)
                         bcf.mask.Transfer(ref uvi._color, Cfg.brushConfig.Color);
 
-                m.editedMesh.dirty_Color = true;
+                m.editedMesh.dirtyColor = true;
             }
 
             return false;
@@ -976,7 +976,7 @@ namespace Playtime_Painter
 
                 a.meshPoint.SetColorOnLine(c, bcf.mask, b.meshPoint);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
                 b.meshPoint.SetColorOnLine(c, bcf.mask, a.meshPoint);
-                MeshMGMT.editedMesh.dirty_Color = true;
+                MeshMGMT.editedMesh.dirtyColor = true;
                 return true;
             }
             return false;
@@ -1000,7 +1000,7 @@ namespace Playtime_Painter
 
                 //  a.vert.SetColorOnLine(c, bcf.mask, b.vert);//setColor(glob.colorSampler.color, glob.colorSampler.mask);
                 // b.vert.SetColorOnLine(c, bcf.mask, a.vert);
-                MeshMGMT.editedMesh.dirty_Color = true;
+                MeshMGMT.editedMesh.dirtyColor = true;
                 return true;
             }
             return false;
@@ -1254,7 +1254,7 @@ namespace Playtime_Painter
                 if (PointedTris.SameAsLastFrame)
                     return true;
                 MeshMGMT.PointedTris.submeshIndex = _curSubMesh;
-                EditedMesh.submeshCount = Mathf.Max(MeshMGMT.PointedTris.submeshIndex + 1, EditedMesh.submeshCount);
+                EditedMesh.subMeshCount = Mathf.Max(MeshMGMT.PointedTris.submeshIndex + 1, EditedMesh.subMeshCount);
                 EditedMesh.Dirty = true;
                 return true;
             }
@@ -1271,7 +1271,7 @@ namespace Playtime_Painter
         private bool _showAuto;
         public override bool Inspect()
         {
-            ("Total Sub Meshes: " + EditedMesh.submeshCount).nl();
+            ("Total Sub Meshes: " + EditedMesh.subMeshCount).nl();
 
             "Sub Mesh: ".edit(60, ref _curSubMesh).nl();
 

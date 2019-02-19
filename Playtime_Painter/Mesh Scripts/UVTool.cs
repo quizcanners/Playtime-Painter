@@ -274,9 +274,9 @@ namespace Playtime_Painter
                 if (isChanged && !EditorInputManager.GetMouseButtonUp(0))
                 {
                     var prMesh = FreshPreviewMesh;
-                    if (prMesh.selectedUV != null)
+                    if (prMesh.selectedUv != null)
                     {
-                        prMesh.selectedUV.SharedEditedUV = lastCalculatedUV;
+                        prMesh.selectedUv.SharedEditedUV = lastCalculatedUV;
                         MeshMGMT.target.SharedMesh = new MeshConstructor(prMesh, MeshMGMT.target.MeshProfile, MeshMGMT.target.SharedMesh).Construct();
                     }
                 }

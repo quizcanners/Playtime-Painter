@@ -9,7 +9,7 @@ using QuizCannersUtilities;
 namespace STD_Logic
 {
 
-    public sealed class TriggerGroup : AbstractKeepUnrecognized_STD, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
+    public sealed class TriggerGroup : AbstractKeepUnrecognizedStd, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
 
         public static UnNullableStd<TriggerGroup> all = new UnNullableStd<TriggerGroup>();
        
@@ -202,7 +202,7 @@ namespace STD_Logic
                 "Share:".write("Paste message full with numbers and lost of ' | ' symbols into the first line or drop file into second" ,50);
                 
                 string data;
-                if (this.SendRecievePegi("Trigger Group {0} [{1}]".F(_name, _index), "Trigger Groups", out data)) {
+                if (this.SendReceivePegi("Trigger Group {0} [{1}]".F(_name, _index), "Trigger Groups", out data)) {
                     var tmp = new TriggerGroup();
                     tmp.Decode(data);
                     if (tmp._index == _index) {

@@ -1,7 +1,4 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Linq;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -12,27 +9,27 @@ namespace STD_Logic
     // Trigger usage is only used for PEGI. Logic engine will not need this to process triggers
 
     public abstract class TriggerUsage : IGotDisplayName  {
+        
+        private static readonly List<string> Names = new List<string>();
+
         private static readonly List<TriggerUsage> Usages = new List<TriggerUsage>();
 
         public static TriggerUsage Get(int ind) {
             return Usages[ind];
         }
 
-        private static readonly List<string> Names = new List<string>();
 
         #region Inspector
         #if PEGI
         public static bool SelectUsage(ref int ind) => pegi.select(ref ind, Usages, 45);
-        
-        public bool Inspect(ValueIndex arg) => Inspect(arg.Trigger);
-        
+
         public virtual void Inspect(ConditionLogic c) { }
 
         public abstract bool Inspect(Result r);
 
-        public virtual bool Select(ref ResultType r, Dictionary<int, string> resultUsages) {
-            bool changed = false;
-            int t = (int)r;
+        protected virtual bool Select(ref ResultType r, Dictionary<int, string> resultUsages) {
+            var changed = false;
+            var t = (int)r;
 
             if (!resultUsages.ContainsKey(t)) {
                 if (icon.Warning.Click("Is " + r.ToString() + ". Click to FIX ", ref changed))
@@ -45,11 +42,11 @@ namespace STD_Logic
             }
             return changed;
         }
-        
-        public virtual bool Select(ref ConditionType c, Dictionary<int, string> conditionUsages)
+
+        protected virtual bool Select(ref ConditionType c, Dictionary<int, string> conditionUsages)
         {
-            bool changed = false;
-            int t = (int)c;
+            var changed = false;
+            var t = (int)c;
 
             if (!conditionUsages.ContainsKey(t))
             {
@@ -64,8 +61,8 @@ namespace STD_Logic
         }
         
         public virtual bool Inspect(Trigger t) {
-            bool changed = false;
-            string before = t.name;
+            var changed = false;
+            var before = t.name;
             if (pegi.editDelayed(ref before, 150 - (HasMoreTriggerOptions ? 30 : 0)).changes(ref changed)) {
                 Trigger.searchField = before;
                 t.name = before;
@@ -90,8 +87,8 @@ namespace STD_Logic
         public static readonly Usage_Boolean Boolean = new Usage_Boolean(0);
         public static readonly Usage_Number Number = new Usage_Number(1);
         public static readonly Usage_StringEnum Enumeration = new Usage_StringEnum(2);
-        public static readonly Usage_GameTimeStemp Timestamp = new Usage_GameTimeStemp(3);
-        public static readonly Usage_RealTimestemp RealTime = new Usage_RealTimestemp(4);
+        public static readonly UsageGameTimeStamp Timestamp = new UsageGameTimeStamp(3);
+        public static readonly UsageRealTimeStamp RealTime = new UsageRealTimeStamp(4);
         //  public static Usage_BoolTag boolTag = new Usage_BoolTag(5);
         //  public static Usage_IntTag intTag = new Usage_IntTag(6);
      //   public static Usage_Pointer pointer = new Usage_Pointer(7);
@@ -101,10 +98,10 @@ namespace STD_Logic
         protected TriggerUsage(int ind) {
             index = ind;
 
-            while (Names.Count <= ind) Names.Add("");
+            while(Names.Count <= ind) Names.Add("");
             while(Usages.Count <= ind) Usages.Add(null);
 
-            Names[ind] = ToString();
+            Names[ind] = ind.ToString();
             Usages[ind]= this;
         }
     }
@@ -126,26 +123,23 @@ namespace STD_Logic
         }
         
         public override bool Inspect(Result r) {
-
-            if (!r.IsBoolean)
+            if (r.IsBoolean) return pegi.toggleIcon(ref r.updateValue);
+            
+            if (icon.Warning.Click("Wrong Type:" + r.type.ToString() + ". Change To Bool"))
             {
-                if (icon.Warning.Click("Wrong Type:" + r.type.ToString() + ". Change To Bool"))
-                {
-                    r.type = ResultType.SetBool;
-                    return true;
-                }
-                return false;
+                r.type = ResultType.SetBool;
+                return true;
             }
+            return false;
 
-            return pegi.toggleIcon(ref r.updateValue);
         }
 
         public override bool Inspect(Trigger t)
         {
             var vals = Values.global;
             
-            bool changed = base.Inspect(t);
-            changed |= vals.booleans.Toogle(t); 
+            var changed = base.Inspect(t);
+            vals.booleans.Toogle(t).changes(ref changed); 
 
             return changed;
         }
@@ -161,14 +155,14 @@ namespace STD_Logic
 
         public override string NameForDisplayPEGI => "Number";
 
-        public static readonly Dictionary<int,string> conditionUsages = new Dictionary<int, string> { 
+        public static readonly Dictionary<int,string> ConditionUsages = new Dictionary<int, string> { 
             { ((int)ConditionType.Equals), "==" },
             { ((int)ConditionType.Above), ">" },
             { ((int)ConditionType.Below), "<" },
             { ((int)ConditionType.NotEquals), "!=" },
         };
 
-        public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
+        public static readonly Dictionary<int, string> ResultUsages = new Dictionary<int, string> {
             {(int)ResultType.Set, ResultType.Set.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
@@ -184,23 +178,23 @@ namespace STD_Logic
                 icon.Warning.write("Condition is not a number");
             else
             {
-                Select(ref num.type, conditionUsages);
+                Select(ref num.type, ConditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
         }
 
         public override bool Inspect(Result r) {
-            bool changed = false;
+            var changed = false;
 
-            changed |= Select(ref r.type, resultUsages);
+            changed |= Select(ref r.type, ResultUsages);
 
             changed |= pegi.edit(ref r.updateValue, 40);
             return changed;
         }
 
         public override bool Inspect(Trigger t) {
-            bool changed = base.Inspect(t);
+            var changed = base.Inspect(t);
             changed |= Values.global.ints.Edit(t);
 
             return changed;
@@ -225,7 +219,7 @@ namespace STD_Logic
 
             if (num != null)
             {
-                Select(ref num.type, Usage_Number.conditionUsages);
+                Select(ref num.type, Usage_Number.ConditionUsages);
 
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
@@ -236,7 +230,7 @@ namespace STD_Logic
         public override bool Inspect(Result r) {
             bool changed = false;
 
-            changed |= Select(ref r.type, Usage_Number.resultUsages);
+            changed |= Select(ref r.type, Usage_Number.ResultUsages);
             
             pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
@@ -263,11 +257,11 @@ namespace STD_Logic
         public Usage_StringEnum(int index) : base(index) { }
     }
 
-    public class Usage_GameTimeStemp : TriggerUsage {
+    public class UsageGameTimeStamp : TriggerUsage {
 
         public override string NameForDisplayPEGI => "Game Time";
 
-        public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
+        private static readonly Dictionary<int, string> ConditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.VirtualTimePassedAbove), "Game_Time passed > " },
             { ((int)ConditionType.VirtualTimePassedBelow), "Game_Time passed < " },
         };
@@ -282,7 +276,7 @@ namespace STD_Logic
                 icon.Warning.write("Condition is not a number", 90); //.write();
             else
             {
-                Select(ref num.type, conditionUsages);
+                Select(ref num.type, ConditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
@@ -291,7 +285,7 @@ namespace STD_Logic
         public override bool Inspect(Result r) {
             bool changed = false;
             
-            changed |= Select(ref r.type , resultUsages);
+            changed |= Select(ref r.type , ResultUsages);
 
             if (r.type!= ResultType.SetTimeGame)
                 changed |= pegi.edit(ref r.updateValue);
@@ -300,22 +294,22 @@ namespace STD_Logic
         }
         #endif
         #endregion
-        
-        public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
+
+        private static readonly Dictionary<int, string> ResultUsages = new Dictionary<int, string> {
             {(int)ResultType.SetTimeGame, ResultType.SetTimeGame.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
             {(int)ResultType.Set, ResultType.Set.GetText()},
         };
 
-        public Usage_GameTimeStemp(int index) : base(index) { }
+        public UsageGameTimeStamp(int index) : base(index) { }
     }
 
-    public class Usage_RealTimestemp : TriggerUsage {
+    public class UsageRealTimeStamp : TriggerUsage {
 
         public override string NameForDisplayPEGI => "Real Time";
 
-        public static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
+        private static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.RealTimePassedAbove), "Real_Time passed > " },
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
@@ -349,7 +343,7 @@ namespace STD_Logic
 #endif
         #endregion
 
-        public static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
+        private static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
             {(int)ResultType.SetTimeReal, ResultType.SetTimeReal.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},
@@ -357,7 +351,7 @@ namespace STD_Logic
 
       
 
-        public Usage_RealTimestemp(int index) : base(index) { }
+        public UsageRealTimeStamp(int index) : base(index) { }
     }
 
     /*

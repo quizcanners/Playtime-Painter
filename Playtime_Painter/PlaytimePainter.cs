@@ -19,15 +19,13 @@ namespace Playtime_Painter {
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ISTD, IPEGI
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IStd, IPEGI
     {
 
         #region StaticGetters
 
         public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
         
-        public static PainterBoolPlugin pluginsGizmoDraw;
-
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
 
         private static PainterCamera TexMgmt => PainterCamera.Inst;
@@ -1035,7 +1033,7 @@ namespace Playtime_Painter {
 
         #region Terrain_MGMT
 
-        public float _tilingY = 8;
+        public float tilingY = 8;
 
         public void UpdateShaderGlobals() {
 
@@ -1043,7 +1041,7 @@ namespace Playtime_Painter {
                 nt.OnUpdate(this);
         }
 
-        public void UpdateTerrainPosition() => PainterDataAndConfig.TerrainPosition.GlobalValue = transform.position.ToVector4(_tilingY);
+        public void UpdateTerrainPosition() => PainterDataAndConfig.TerrainPosition.GlobalValue = transform.position.ToVector4(tilingY);
 
         private void Preview_To_UnityTerrain()
         {
@@ -1391,13 +1389,13 @@ namespace Playtime_Painter {
         }
 
         private bool TextureExistsAtDestinationPath() =>
-            AssetImporter.GetAtPath("Assets{0}".F(GenerateTextureSavePath())) as TextureImporter != null;
+            AssetImporter.GetAtPath(Path.Combine("Assets",GenerateTextureSavePath())) as TextureImporter != null;
 
         private string GenerateTextureSavePath() =>
-             "/{0}{1}.png".F(Cfg.texturesFolderName.AddPostSlashIfNotEmpty(), ImgMeta.saveName);
+            Path.Combine(Cfg.texturesFolderName, ImgMeta.saveName + ".png");
 
         public string GenerateMeshSavePath() =>
-             SharedMesh ? "/{0}/{1}.asset".F(Cfg.meshesFolderName, meshNameField) : "None";
+             SharedMesh ? Path.Combine(Cfg.meshesFolderName, meshNameField, ".asset") : "None";
 
         private bool OnBeforeSaveTexture(ImageMeta id)
         {
@@ -1472,8 +1470,7 @@ namespace Playtime_Painter {
             var m = this.GetMesh();
             var path = AssetDatabase.GetAssetPath(m);
 
-            var lastPart = "/{0}/".F(Cfg.meshesFolderName);
-            var folderPath = Application.dataPath + lastPart;
+            var folderPath = Path.Combine(Application.dataPath, Cfg.meshesFolderName);
             Directory.CreateDirectory(folderPath);
 
             try {
@@ -1487,7 +1484,7 @@ namespace Playtime_Painter {
                 else
                     sm.name = meshNameField;
 
-                AssetDatabase.CreateAsset(sm, "Assets{0}".F(GenerateMeshSavePath()));
+                AssetDatabase.CreateAsset(sm, Path.Combine("Assets",GenerateMeshSavePath()));
 
                 AssetDatabase.SaveAssets();
             }
@@ -2557,10 +2554,9 @@ namespace Playtime_Painter {
             if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
 
-            if (pluginsGizmoDraw == null) return;
-            
-            foreach (PainterBoolPlugin gp in pluginsGizmoDraw.GetInvocationList())
-                gp(this);
+
+            foreach (var p in PainterManagerPluginBase.gizmoPlugins)
+                p.PlugIn_PainterGizmos(this);
 
         }
         #endif

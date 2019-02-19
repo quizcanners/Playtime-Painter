@@ -7,9 +7,9 @@ using System;
 namespace Playtime_Painter {
 
 
-    public class PainterManagerPluginAttribute : Abstract_WithTaggedTypes
+    public class PainterManagerPluginAttribute : AbstractWithTaggedTypes
     {
-        public override TaggedTypes_STD TaggedTypes => PainterManagerPluginBase.all;
+        public override TaggedTypesStd TaggedTypes => PainterManagerPluginBase.all;
     }
     
     public interface IPainterManagerPlugin_ComponentPEGI
@@ -118,8 +118,8 @@ namespace Playtime_Painter {
         
 #region Abstract Serialized
         public abstract string ClassTag { get; } 
-        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterManagerPluginBase));
-        public TaggedTypes_STD AllTypes => all;
+        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterManagerPluginBase));
+        public TaggedTypesStd AllTypes => all;
 #endregion
 
 #region Encode & Decode

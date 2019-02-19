@@ -83,7 +83,7 @@ namespace Playtime_Painter
                 var tilingZ = tds.z / sp[0].tileSize.y;
                 PainterDataAndConfig.TerrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
 
-                painter._tilingY = td.size.y / sp[0].tileSize.x;
+                painter.tilingY = td.size.y / sp[0].tileSize.x;
             }
 
             PainterDataAndConfig.TerrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);

@@ -5,17 +5,17 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter
 {
-    public class PainterPluginAttribute : Abstract_WithTaggedTypes {
-        public override TaggedTypes_STD TaggedTypes => PainterComponentPluginBase.all;
+    public class PainterPluginAttribute : AbstractWithTaggedTypes {
+        public override TaggedTypesStd TaggedTypes => PainterComponentPluginBase.all;
     }
     
     [PainterPlugin]
-    public class PainterComponentPluginBase : Abstract_STD, IGotClassTag {
+    public class PainterComponentPluginBase : AbstractStd, IGotClassTag {
 
         #region Abstract Serialized
         public virtual string ClassTag => "Override me";
-        public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterComponentPluginBase));
-        public TaggedTypes_STD AllTypes => all;
+        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterComponentPluginBase));
+        public TaggedTypesStd AllTypes => all;
         #endregion
 
         [SerializeField]

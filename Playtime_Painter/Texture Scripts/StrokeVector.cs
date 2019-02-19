@@ -5,7 +5,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [Serializable]
-    public class StrokeVector : Abstract_STD {
+    public class StrokeVector : AbstractStd {
 
 	    public Vector2 uvFrom;
 	    public Vector3 posFrom;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
+using System.Globalization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,20 +11,20 @@ using UnityEditor;
 namespace QuizCannersUtilities
 {
     #region List Data
-    public class ListMetaData : Abstract_STD, IPEGI {
-
-        const string defaultFolderToSearch = "Assets/";
+    public class ListMetaData : AbstractStd, IPEGI {
+        
+        private const string DefaultFolderToSearch = "Assets/";
 
         public string label = "list";
-        public string folderToSearch = defaultFolderToSearch;
+        private string folderToSearch = DefaultFolderToSearch;
         public int inspected = -1;
-        public int listSectionStartIndex = 0;
+        public int listSectionStartIndex;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
-        public bool _keepTypeData;
+        public bool keepTypeData;
         public bool allowDelete;
         public bool allowReorder;
-        public bool allowCreate;
-        public icon icon;
+        public readonly bool allowCreate;
+        private readonly icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
         public UnNullableStd<ElementData> elementDatas = new UnNullableStd<ElementData>();
       
@@ -51,62 +52,60 @@ namespace QuizCannersUtilities
         #region Inspector
         #if PEGI
 
-        public pegi.SearchData searchData = new pegi.SearchData();
+        public readonly pegi.SearchData searchData = new pegi.SearchData();
 
         public void SaveElementDataFrom<T>(List<T> list)
         {
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
                 SaveElementDataFrom(list, i);
         }
 
-        public void SaveElementDataFrom<T>(List<T> list, int i)
+        private void SaveElementDataFrom<T>(List<T> list, int i)
         {
             var el = list[i];
             if (el != null)
                 elementDatas[i].Save(el);
         }
 
-        bool enterElementDatas = false;
+        private bool _enterElementDatas;
         public bool inspectListMeta = false;
 
         public bool Inspect() {
 
             pegi.nl();
-            if (!enterElementDatas) {
+            if (!_enterElementDatas) {
                 "Show 'Explore Encoding' Button".toggleIcon(ref ElementData.enableEnterInspectEncoding).nl();
                 "List Label".edit(70, ref label).nl();
-                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData).nl();
+                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref keepTypeData).nl();
                 "Allow Delete".toggleIcon(ref allowDelete).nl();
                 "Allow Reorder".toggleIcon(ref allowReorder).nl();
             }
 
-            if ("Elements".enter(ref enterElementDatas).nl())
+            if ("Elements".enter(ref _enterElementDatas).nl())
                 elementDatas.Inspect();
 
             return false;
         }
 
         public bool Inspect<T>(List<T> list) where T : UnityEngine.Object {
-            bool changed = false;
+            var changed = false;
 #if UNITY_EDITOR
 
             "{0} Folder".F(label).edit(90, ref folderToSearch);
-            if (icon.Search.Click("Populate {0} with objects from folder".F(label))) {
+            if (icon.Search.Click("Populate {0} with objects from folder".F(label), ref changed)) {
                 if (folderToSearch.Length > 0)
                 {
-                    var scrObjs = AssetDatabase.FindAssets("t:Object", new string[] { folderToSearch });
+                    var scrObjs = AssetDatabase.FindAssets("t:Object", new[] { folderToSearch });
                     foreach (var o in scrObjs)
                     {
                         var ass = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(o));
-                        if (ass)
-                        {
-                            if (list.TryAdd_UObj_ifNew(ass)) continue;
-                        }
+                        if (!ass) continue;
+                        list.TryAdd_UObj_ifNew(ass);
                     }
                 }
             }
 
-            if (list.Count > 0 && list[0] != null && icon.Refresh.Click("Use location of the first element in the list"))
+            if (list.Count > 0 && list[0] != null && icon.Refresh.Click("Use location of the first element in the list", ref changed))
                 folderToSearch = AssetDatabase.GetAssetPath(list[0]);
 
 #endif
@@ -124,7 +123,7 @@ namespace QuizCannersUtilities
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
-                case "ktd": _keepTypeData = data.ToBool(); break;
+                case "ktd": keepTypeData = data.ToBool(); break;
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
@@ -146,7 +145,7 @@ namespace QuizCannersUtilities
                 #endif
                 ;
             
-            if (!folderToSearch.SameAs(defaultFolderToSearch))
+            if (!folderToSearch.SameAs(DefaultFolderToSearch))
                 cody.Add_String("fld", folderToSearch);
 
             cody.Add_IfNotDefault("ed", elementDatas);
@@ -160,7 +159,7 @@ namespace QuizCannersUtilities
             allowDelete = true;
             allowReorder = true;
             allowCreate = true;
-            _keepTypeData = false;
+            keepTypeData = false;
         }
 
         public ListMetaData(string nameMe, bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
@@ -169,32 +168,32 @@ namespace QuizCannersUtilities
             allowDelete = allowDeleting;
             allowReorder = allowReordering;
             label = nameMe;
-            _keepTypeData = keepTypeData;
+            this.keepTypeData = keepTypeData;
             icon = enterIcon;
         }
     }
 
-    public class ElementData : Abstract_STD, IPEGI, IGotName {
-        public string name;
-        public string componentType;
+    public class ElementData : AbstractStd, IPEGI, IGotName {
+        private string name;
+        private string componentType;
         public string stdDta;
-        public string guid;
+        private string _guid;
         public bool unrecognized;
         public string unrecognizedUnderTag;
         public bool selected;
 
-        public override bool IsDefault => (unrecognized || !guid.IsNullOrEmpty() || perTypeConfig.Count>0 );
+        public override bool IsDefault => (unrecognized || !_guid.IsNullOrEmpty() || _perTypeConfig.Count>0 );
 
         public static bool enableEnterInspectEncoding;
 
-        public Dictionary<string, string> perTypeConfig = new Dictionary<string, string>();
+        private Dictionary<string, string> _perTypeConfig = new Dictionary<string, string>();
 
         public ElementData SetRecognized() {
-            if (unrecognized) {
-                unrecognized = false;
-                unrecognizedUnderTag = null;
-                stdDta = null;
-            }
+            if (!unrecognized) return this;
+            
+            unrecognized = false;
+            unrecognizedUnderTag = null;
+            stdDta = null;
             return this;
         }
 
@@ -204,27 +203,27 @@ namespace QuizCannersUtilities
             stdDta = data;
         }
         
-        public void ChangeType(ref object obj, Type newType, TaggedTypes_STD taggedTypes, bool keepTypeConfig = false)
+        public void ChangeType(ref object obj, Type newType, TaggedTypesStd taggedTypes, bool keepTypeConfig = false)
         {
             var previous = obj;
 
             var tObj = obj as IGotClassTag;
 
             if (keepTypeConfig && tObj != null)
-                perTypeConfig[tObj.ClassTag] = tObj.Encode().ToString();
+                _perTypeConfig[tObj.ClassTag] = tObj.Encode().ToString();
 
             obj = Activator.CreateInstance(newType);
 
-            var std = obj as ISTD;
+            var std = obj as IStd;
 
             if (std != null)
             {
                 string data;
-                if (perTypeConfig.TryGetValue(taggedTypes.Tag(newType), out data))
+                if (_perTypeConfig.TryGetValue(taggedTypes.Tag(newType), out data))
                     std.Decode(data);
             }
 
-            STDExtensions.TryCopy_Std_AndOtherData(previous, obj);
+            StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
 
         }
 
@@ -236,38 +235,36 @@ namespace QuizCannersUtilities
             if (cmp != null)
                 componentType = cmp.GetType().ToPEGIstring_Type();
 
-            var std = el as ISTD;
+            var std = el as IStd;
             if (std != null)
                 stdDta = std.Encode().ToString();
 
-            guid = (el as UnityEngine.Object).GetGuid(guid);
+            _guid = (el as UnityEngine.Object).GetGuid(_guid);
         }
         
-        public bool TryGetByGUID<T>(ref T field) where T : UnityEngine.Object {
+        public bool TryGetByGuid<T>(ref T field) where T : UnityEngine.Object {
 
-            var obj = UnityHelperFunctions.GuidToAsset<T>(guid);
+            var obj = UnityHelperFunctions.GuidToAsset<T>(_guid);
 
             field = null;
 
-            if (obj)
-            {
-                field = obj;
+            if (!obj) return false;
+            
+            field = obj;
 
-                if (componentType != null && componentType.Length > 0)
-                {
-                    var go = obj as GameObject;
-                    if (go)
-                    {
-                        var getScripts = go.GetComponent(componentType) as T;
-                        if (getScripts)
-                            field = getScripts;
-                    }
-                }
+            if (componentType.IsNullOrEmpty()) return true;
+            
+            var go = obj as GameObject;
 
-                return true;
-            }
+            if (!go) return true;
+            
+            var getScripts = go.GetComponent(componentType) as T;
+            
+            if (getScripts)
+                field = getScripts;
 
-            return false;
+            return true;
+
         }
         
 #region Inspector
@@ -276,19 +273,18 @@ namespace QuizCannersUtilities
 
         public bool Inspect()
         {
-            bool changed = false;
-
+        
             if (unrecognized)
                 "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
 
-            if (perTypeConfig.Count > 0)
-                "Per type config".edit_Dictionary_Values(ref perTypeConfig, pegi.lambda_string).nl();
+            if (_perTypeConfig.Count > 0)
+                "Per type config".edit_Dictionary_Values(ref _perTypeConfig, pegi.lambda_string).nl();
 
-            return changed;
+            return false;
         }
 
         public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
-            bool changed = false;
+            var changed = false;
 
             var all = typeof(T).TryGetTaggedClasses();
 
@@ -301,7 +297,7 @@ namespace QuizCannersUtilities
 
             var type = obj?.GetType();
 
-            if (all.Select(ref type).nl()) {
+            if (all.Select(ref type).nl(ref changed)) {
 
                 ChangeType(ref obj, type, all, keepTypeConfig);
 
@@ -324,7 +320,7 @@ namespace QuizCannersUtilities
 
         public bool PEGI_inList<T>(ref object obj, int ind, ref int edited) {
 
-            bool changed = false;
+            var changed = false;
 
             if (typeof(T).IsUnityObject()) {
 
@@ -353,12 +349,12 @@ namespace QuizCannersUtilities
             if (unrecognized)
                 unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
 
-            bool changed = name.edit(100, ref field);
+            var changed = name.edit(100, ref field);
 
 #if UNITY_EDITOR
-            if (guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
+            if (_guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
-                if (!TryGetByGUID(ref field))
+                if (!TryGetByGuid(ref field))
                     (typeof(T).ToString() + " Not found ").showNotificationIn3D_Views();
                 else changed = true;
             }
@@ -374,11 +370,11 @@ namespace QuizCannersUtilities
             switch (tg) {
                 case "n": name = data; break;
                 case "std": stdDta = data; break;
-                case "guid": guid = data; break;
+                case "guid": _guid = data; break;
                 case "t": componentType = data; break;
                 case "ur": unrecognized = data.ToBool(); break;
                 case "tag": unrecognizedUnderTag = data; break;
-                case "perType": data.Decode_Dictionary(out perTypeConfig); break;
+                case "perType": data.Decode_Dictionary(out _perTypeConfig); break;
                 case "sel": selected = data.ToBool(); break;
                 default: return false;
             }
@@ -390,12 +386,12 @@ namespace QuizCannersUtilities
                 .Add_IfNotEmpty("n", name)
                 .Add_IfNotEmpty("std", stdDta);
 
-            if (!guid.IsNullOrEmpty()) {
-                cody.Add_IfNotEmpty("guid", guid)
+            if (!_guid.IsNullOrEmpty()) {
+                cody.Add_IfNotEmpty("guid", _guid)
                     .Add_IfNotEmpty("t", componentType);
             }
 
-            cody.Add_IfNotEmpty("perType", perTypeConfig)
+            cody.Add_IfNotEmpty("perType", _perTypeConfig)
                 .Add_IfTrue("sel", selected);
 
             if (unrecognized) {
@@ -408,7 +404,7 @@ namespace QuizCannersUtilities
 #endregion
     }
 
-    public static class STDListDataExtensions {
+    public static class StdListDataExtensions {
 
         public static ElementData TryGetElement(this ListMetaData ld, int ind) => ld?.elementDatas.TryGet(ind);
 
@@ -418,9 +414,8 @@ namespace QuizCannersUtilities
 
 #region Saved STD
 [Serializable]
-    public class Exploring_STD : Abstract_STD, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
+    public class ExploringStd : AbstractStd, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
     {
-        ISTD Std { get { return ISTD_ExplorerData.inspectedSTD; } }
 
         public string tag;
         public string data;
@@ -428,30 +423,29 @@ namespace QuizCannersUtilities
 
         public void UpdateData()
         {
-            if (tags != null)
-                foreach (var t in tags)
+            if (_tags != null)
+                foreach (var t in _tags)
                     t.UpdateData();
 
             dirty = false;
-            if (tags != null)
+            if (_tags != null)
                 data = Encode().ToString();
         }
 
         public int inspectedTag = -1;
-        [NonSerialized]
-        public List<Exploring_STD> tags;
+        [NonSerialized] private List<ExploringStd> _tags;
 
-        public Exploring_STD() { tag = ""; data = ""; }
+        public ExploringStd() { tag = ""; data = ""; }
 
-        public Exploring_STD(string ntag, string ndata) {
-            tag = ntag;
-            data = ndata;
+        public ExploringStd(string nTag, string nData) {
+            tag = nTag;
+            data = nData;
         }
 
 #region Inspector
 #if PEGI
 
-        public int CountForInspector => tags.IsNullOrEmpty() ? data.Length : tags.CountForInspector();
+        public int CountForInspector => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
         
         public string NameForPEGI  {
             get  {  return tag; }
@@ -460,11 +454,11 @@ namespace QuizCannersUtilities
         
         public bool Inspect()
         {
-            if (tags == null && data.Contains("|"))
+            if (_tags == null && data.Contains("|"))
                 Decode(data);//.DecodeTagsFor(this);
 
-            if (tags != null)
-                tag.edit_List(ref tags, ref inspectedTag).changes(ref dirty);
+            if (_tags != null)
+                tag.edit_List(ref _tags, ref inspectedTag).changes(ref dirty);
 
             if (inspectedTag == -1)
             {
@@ -485,7 +479,7 @@ namespace QuizCannersUtilities
 
                     if (icon.Load.Click("Load from data String").nl())
                     {
-                        tags = null;
+                        _tags = null;
                         Decode(data);//.DecodeTagsFor(this);
                         dirty = false;
                     }
@@ -520,14 +514,14 @@ namespace QuizCannersUtilities
 
             if (icon.Copy.Click("Copy " + tag + " data to buffer."))
             {
-                STDExtensions.copyBufferValue = data;
-                STDExtensions.copyBufferTag = tag;
+                StdExtensions.copyBufferValue = data;
+                StdExtensions.copyBufferTag = tag;
             }
 
-            if (STDExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + STDExtensions.copyBufferTag + " Data").nl())
+            if (StdExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + StdExtensions.copyBufferTag + " Data").nl())
             {
                 dirty = true;
-                data = STDExtensions.copyBufferValue;
+                data = StdExtensions.copyBufferValue;
             }
 
             return dirty | changed;
@@ -541,9 +535,10 @@ namespace QuizCannersUtilities
         {
             var cody = new StdEncoder();
 
-            if (tags != null)
-                foreach (var t in tags)
-                    cody.Add_String(t.tag, t.data);
+            if (_tags == null) return cody;
+            
+            foreach (var t in _tags)
+                cody.Add_String(t.tag, t.data);
 
             return cody;
 
@@ -551,9 +546,9 @@ namespace QuizCannersUtilities
 
         public override bool Decode(string tg, string data)
         {
-            if (tags == null)
-                tags = new List<Exploring_STD>();
-            tags.Add(new Exploring_STD(tg, data));
+            if (_tags == null)
+                _tags = new List<ExploringStd>();
+            _tags.Add(new ExploringStd(tg, data));
             return true;
         }
 #endregion
@@ -561,18 +556,17 @@ namespace QuizCannersUtilities
     }
 
     [Serializable]
-    public class SavedISTD : IPEGI, IGotName, IPEGI_ListInspect, IGotCount {
-
-        ISTD Std => ISTD_ExplorerData.inspectedSTD;
+    public class SavedIstd : IPEGI, IGotName, IPEGI_ListInspect, IGotCount {
+        private static IStd Std => StdExplorerData.inspectedStd;
 
         public string comment;
-        public Exploring_STD dataExplorer = new Exploring_STD("", "");
+        public ExploringStd dataExplorer = new ExploringStd("", "");
 
 #region Inspector
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
 #if PEGI
-        public static ISTD_ExplorerData Mgmt => ISTD_ExplorerData.inspected;
+        public static StdExplorerData Mgmt => StdExplorerData.inspected;
 
         public int CountForInspector => dataExplorer.CountForInspector;
 
@@ -584,7 +578,7 @@ namespace QuizCannersUtilities
             if (dataExplorer.inspectedTag == -1)
             {
                 this.inspect_Name();
-                if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets"))
+                if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                 {
                     StuffSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                     UnityHelperFunctions.RefreshAssetDatabase();
@@ -597,41 +591,39 @@ namespace QuizCannersUtilities
                     if (dataExplorer.tag.Length == 0)
                         dataExplorer.tag = Std.ToPEGIstring() + " config";
 
-                    "Save To:".edit(50, ref Mgmt.fileFolderHolder);
+                    "Save To:".edit(50, ref Mgmt.fileFolderHolder).changes(ref changed);
 
-                    var uobj = Std as UnityEngine.Object;
+                    var uObj = Std as UnityEngine.Object;
 
-                    if (uobj && icon.Done.Click("Use the same directory as current object."))
-                        Mgmt.fileFolderHolder = uobj.GetAssetFolder();
+                    if (uObj && icon.Done.Click("Use the same directory as current object.", ref changed))
+                        Mgmt.fileFolderHolder = uObj.GetAssetFolder();
 
-                    uobj.ClickHighlight();
-
-                    pegi.nl();
+                    uObj.ClickHighlight().nl(ref changed);
                 }
 
 
-                "Comment:".editBig(ref comment).nl();
+                "Comment:".editBig(ref comment).nl(ref changed);
             }
 
-            dataExplorer.Nested_Inspect();
+            dataExplorer.Nested_Inspect().changes(ref changed);
 
             return changed;
         }
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = false;
+            var changed = false;
 
-            CountForInspector.ToString().edit(60, ref dataExplorer.tag);
+            CountForInspector.ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
 
             if (Std != null)
             {
-                if (icon.Load.ClickUnFocus("Decode Data into " + Std.ToPEGIstring())) {
+                if (icon.Load.ClickUnFocus("Decode Data into " + Std.ToPEGIstring()).changes(ref changed)) {
                     dataExplorer.UpdateData();
                     Std.Decode(dataExplorer.data);
                 }
-                if (icon.Save.ClickUnFocus("Save data from " + Std.ToPEGIstring()))
-                    dataExplorer = new Exploring_STD(dataExplorer.tag, Std.Encode().ToString());
+                if (icon.Save.ClickUnFocus("Save data from " + Std.ToPEGIstring()).changes(ref changed))
+                    dataExplorer = new ExploringStd(dataExplorer.tag, Std.Encode().ToString());
             }
 
             if (icon.Enter.Click(comment))
@@ -644,49 +636,49 @@ namespace QuizCannersUtilities
     }
 
     [Serializable]
-    public class ISTD_ExplorerData : IGotCount
+    public class StdExplorerData : IGotCount
     {
-        public List<SavedISTD> states = new List<SavedISTD>();
-        [NonSerialized]
-        public int inspectedState = -1;
+        public List<SavedIstd> states = new List<SavedIstd>();
+        [NonSerialized] private int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
-        public static ISTD inspectedSTD;
+        public static IStd inspectedStd;
 
 #region Inspector
 #if PEGI
         public int CountForInspector => states.Count;
         
-        public static bool PEGI_Static(ISTD target)
+        public static bool PEGI_Static(IStd target)
         {
-            inspectedSTD = target;
+            inspectedStd = target;
 
-            bool changed = false;
-            pegi.write("Load File:", 90);
-            target.LoadOnDrop().nl();
+            var changed = false;
+            
+            "Load File:".write(90);
+            target.LoadOnDrop().nl(ref changed);
 
-            if (icon.Copy.Click("Copy Component Data"))
-                STDExtensions.copyBufferValue = target.Encode().ToString();
+            if (icon.Copy.Click("Copy Component Data").nl())
+                StdExtensions.copyBufferValue = target.Encode().ToString();
 
             pegi.nl();
 
             return changed;
         }
 
-        public static ISTD_ExplorerData inspected;
+        public static StdExplorerData inspected;
 
-        public bool Inspect(ISTD target)
+        public bool Inspect(IStd target)
         {
-            bool changed = false;
-            inspectedSTD = target;
+            var changed = false;
+            inspectedStd = target;
             inspected = this;
 
-            var aded = "Saved CFGs:".edit_List(ref states, ref inspectedState, ref changed);
+            var added = "Saved CFGs:".edit_List(ref states, ref inspectedState, ref changed);
 
-            if (aded != null && target != null)
+            if (added != null && target != null)
             {
-                aded.dataExplorer.data = target.Encode().ToString();
-                aded.NameForPEGI = target.ToPEGIstring();
-                aded.comment = DateTime.Now.ToString();
+                added.dataExplorer.data = target.Encode().ToString();
+                added.NameForPEGI = target.ToPEGIstring();
+                added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
             }
 
             if (inspectedState == -1)
@@ -694,28 +686,28 @@ namespace QuizCannersUtilities
                 UnityEngine.Object myType = null;
                 if ("From File:".edit(65, ref myType))
                 {
-                    aded = new SavedISTD();
-                    aded.dataExplorer.data = StuffLoader.LoadTextAsset(myType);
-                    aded.NameForPEGI = myType.name;
-                    aded.comment = DateTime.Now.ToString();
-                    states.Add(aded);
+                    added = new SavedIstd();
+                    added.dataExplorer.data = StuffLoader.LoadTextAsset(myType);
+                    added.NameForPEGI = myType.name;
+                    added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+                    states.Add(added);
                 }
 
-                var selfSTD = target as IKeepMySTD;
+                var selfStd = target as IKeepMyStd;
 
-                if (selfSTD != null)
+                if (selfStd != null)
                 {
                     if (icon.Save.Click("Save itself (IKeepMySTD)"))
-                        selfSTD.SaveStdData();
-                    var slfData = selfSTD.Config_STD;
-                    if (slfData != null && slfData.Length > 0) {
+                        selfStd.SaveStdData();
+                    var slfData = selfStd.ConfigStd;
+                    if (!string.IsNullOrEmpty(slfData)) {
 
                         if (icon.Load.Click("Use IKeepMySTD data to create new CFG")) {
-                            var ss = new SavedISTD();
+                            var ss = new SavedIstd();
                             states.Add(ss);
                             ss.dataExplorer.data = slfData;
                             ss.NameForPEGI = "from Keep my STD";
-                            ss.comment = DateTime.Now.ToString();
+                            ss.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                         }
 
                       if (icon.Refresh.Click("Load from itself (IKeepMySTD)"))
@@ -725,7 +717,7 @@ namespace QuizCannersUtilities
                 pegi.nl();
             }
 
-            inspectedSTD = null;
+            inspectedStd = null;
 
             return changed;
         }

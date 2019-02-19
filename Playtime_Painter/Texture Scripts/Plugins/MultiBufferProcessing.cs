@@ -13,7 +13,7 @@ namespace Playtime_Painter {
 
     #region Manager
     [TaggedType(tag)]
-    public class MultiBufferProcessing : PainterManagerPluginBase, ISTD, IPainterManagerPlugin_ComponentPEGI
+    public class MultiBufferProcessing : PainterManagerPluginBase, IStd, IPainterManagerPlugin_ComponentPEGI
     {
         const string tag = "MltBffr";
         public override string ClassTag => tag;
@@ -167,7 +167,7 @@ namespace Playtime_Painter {
         , typeof(BigRTpair)
         , typeof(Downscaler)
         )]
-    public class TextureBuffer : AbstractKeepUnrecognized_STD, IPEGI_ListInspect, IGotDisplayName {
+    public class TextureBuffer : AbstractKeepUnrecognizedStd, IPEGI_ListInspect, IGotDisplayName {
 
         int _version = 0;
 

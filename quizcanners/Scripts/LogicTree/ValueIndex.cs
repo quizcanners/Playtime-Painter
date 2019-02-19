@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : ISTD, IGotDisplayName {
+    public abstract class ValueIndex : IStd, IGotDisplayName {
 
         public int groupIndex;
         public int triggerIndex;

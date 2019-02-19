@@ -17,7 +17,7 @@ namespace PlayerAndEditorGUI {
 
     [Serializable]
     [DerivedList(typeof(Sentance), typeof(ConditionalSentance))]
-    public class Sentance : AbstractKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public class Sentance : AbstractKeepUnrecognizedStd, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
 

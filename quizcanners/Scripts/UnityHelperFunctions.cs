@@ -907,7 +907,7 @@ namespace QuizCannersUtilities {
             #if UNITY_EDITOR
 
             if (!path.Contains("Assets"))
-                path = "Assets" + path.AddPreSlashIfNotEmpty();
+                path = Path.Combine("Assets", path);
 
             var fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
             try
@@ -920,7 +920,7 @@ namespace QuizCannersUtilities {
                 return null;
             }
 
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("{0}{1}.asset".F(path.AddPostSlashIfNone(), name));
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name+ ".asset"));
 
             try
             {
@@ -1597,13 +1597,13 @@ namespace QuizCannersUtilities {
 
                     var bytes = tex.EncodeToPNG();
 
-                    var lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
-                    var folderPath = Application.dataPath + lastPart;
+                   // var lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
+                    var folderPath = Path.Combine(Application.dataPath, folderName);
                     Directory.CreateDirectory(folderPath);
 
                     var fileName = textureName + ".png";
 
-                    var relativePath = "Assets" + lastPart + fileName;
+                    var relativePath = Path.Combine("Assets", folderName, fileName);
 
                     if (saveAsNew)
                         relativePath = AssetDatabase.GenerateUniqueAssetPath(relativePath);
@@ -1615,7 +1615,7 @@ namespace QuizCannersUtilities {
                     AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
                     //AssetDatabase.Refresh(); 
 
-                    Texture2D result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+                    var result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
                     textureName = result.name;
 
@@ -2211,7 +2211,7 @@ namespace QuizCannersUtilities {
     public static class ShaderProperty
     {
         
-        public abstract class BaseIndexHolder : Abstract_STD, IGotDisplayName, IPEGI_ListInspect {
+        public abstract class BaseIndexHolder : AbstractStd, IGotDisplayName, IPEGI_ListInspect {
             protected int id;
             private string _name;
 

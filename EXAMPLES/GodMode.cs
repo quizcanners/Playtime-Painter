@@ -6,14 +6,11 @@ namespace Playtime_Painter.Examples {
     
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour, IPEGI {
-        private static GodMode _inst;
+
         public float speed = 20;
         public float sensitivity = 5;
         private static readonly bool disableRotation = false;
         public bool rotateWithoutRmb;
-        public static string prefSpeed = "GodSpeed";
-        private static readonly string PrefSens = "GodSensitivity";
-
 
         private bool Rotate() {
 
@@ -21,13 +18,7 @@ namespace Playtime_Painter.Examples {
             return (rotateWithoutRmb || Input.GetMouseButton(1));
             #else
             return true;
-
             #endif
-        }
-
-        private void OnEnable() {
-
-            _inst = this;
         }
 
         private float _rotationY;
@@ -148,12 +139,11 @@ namespace Playtime_Painter.Examples {
 #if PEGI
         public bool Inspect()
         {
-            
+       
             "Speed:".edit("Speed of movement", 50, ref speed).nl();
+
+            "sensitivity:".edit(60, ref sensitivity).nl();
   
-            if ("sensitivity:".edit(60, ref sensitivity).nl())
-                PlayerPrefs.SetFloat(PrefSens, sensitivity);
- 
             "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl();
 
             "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNl);

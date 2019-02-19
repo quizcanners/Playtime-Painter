@@ -162,7 +162,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class StdCountlessBase : CountlessBase, ICanBeDefault_STD
+    public abstract class StdCountlessBase : CountlessBase, ICanBeDefaultStd
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -1272,7 +1272,7 @@ public class Countless<T> : CountlessBase {
 
         #region Inspector
 #if PEGI
-        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessStd<T> where T: ISTD, IPEGI, new() {
+        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessStd<T> where T: IStd, IPEGI, new() {
 
             var changed = false;
             
@@ -1401,7 +1401,7 @@ public class Countless<T> : CountlessBase {
             return tg == null ? default(T) : tg[index];
         }
 */
-        public static T TryGet<T>(this UnNullableStd<T> unn, int index) where T : ISTD, new() => unn != null ? unn.GetIfExists(index) : default(T);
+        public static T TryGet<T>(this UnNullableStd<T> unn, int index) where T : IStd, new() => unn != null ? unn.GetIfExists(index) : default(T);
         
 
     }

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PlayerAndEditorGUI;
 using UnityEngine;
 
@@ -13,15 +10,15 @@ namespace QuizCannersUtilities {
         void Copy_NonStdData_From_PreviousInstance(object previous);
     }
 
-    public interface IGotClassTag : ISTD {
+    public interface IGotClassTag : IStd {
         string ClassTag { get; }
-        TaggedTypes_STD AllTypes { get; }
+        TaggedTypesStd AllTypes { get; }
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public abstract class Abstract_WithTaggedTypes : Attribute
+    public abstract class AbstractWithTaggedTypes : Attribute
     {
-        public abstract TaggedTypes_STD TaggedTypes { get; }
+        public abstract TaggedTypesStd TaggedTypes { get; }
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -32,60 +29,57 @@ namespace QuizCannersUtilities {
 
         public string displayName;
 
-        public TaggedType(string ntag, string ndisplayName = null) {
-            tag = ntag;
-            displayName = ndisplayName ?? tag;
+        public TaggedType(string nTag, string nDisplayName = null) {
+            tag = nTag;
+            displayName = nDisplayName ?? tag;
         }
     }
 
-    public class TaggedTypes_STD
+    public class TaggedTypesStd
     {
-        readonly Type coreType;
+        private readonly Type _coreType;
 
-        public TaggedTypes_STD(Type type)
+        public TaggedTypesStd(Type type)
         {
-            coreType = type;
+            _coreType = type;
         }
 
-        List<string> keys = null;
+        private List<string> _keys;
 
-        List<Type> types = null;
+        private List<Type> _types;
 
-        List<string> displayNames = null;
+        private List<string> _displayNames;
 
-        Dictionary<string, Type> dictionary = null;
+        private Dictionary<string, Type> _dictionary;
 
-        TaggedTypes_STD RefreshNodeTypesList() {
+        private TaggedTypesStd RefreshNodeTypesList() {
+            if (_keys != null) return this;
+            
+            _dictionary = new Dictionary<string, Type>();
 
-            if (keys == null)
-            {
+            _keys = new List<string>();
 
-                dictionary = new Dictionary<string, Type>();
+            _types = new List<Type>();
 
-                keys = new List<string>();
+            _displayNames = new List<string>();
 
-                types = new List<Type>();
+            //   Debug.Log("Getting all types of {0}".F(coreType));
 
-                displayNames = new List<string>();
+            var allTypes = _coreType.GetAllChildTypes();
 
-             //   Debug.Log("Getting all types of {0}".F(coreType));
+            foreach (var t in allTypes) {
+                var att = t.TryGetClassAttribute<TaggedType>();
 
-                List<Type> allTypes = CsharpUtils.GetAllChildTypes(coreType);
-
-                foreach (var t in allTypes) {
-                    var att = t.TryGetClassAttribute<TaggedType>();
-
-                    if (att != null) {
-                        if (dictionary.ContainsKey(att.tag)) 
-                            Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName, dictionary[att.tag].ToString(), att.tag));
-                        else
-                        {
-                            dictionary.Add(att.tag, t);
-                            displayNames.Add(att.displayName);
-                            keys.Add(att.tag);
-                            types.Add(t);
-                        }
-                    }
+                if (att == null) continue;
+                
+                if (_dictionary.ContainsKey(att.tag)) 
+                    Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName, _dictionary[att.tag].ToString(), att.tag));
+                else
+                {
+                    _dictionary.Add(att.tag, t);
+                    _displayNames.Add(att.displayName);
+                    _keys.Add(att.tag);
+                    _types.Add(t);
                 }
             }
 
@@ -93,13 +87,13 @@ namespace QuizCannersUtilities {
         }
 
         public Dictionary<string, Type> TaggedTypes =>
-            RefreshNodeTypesList().dictionary;
+            RefreshNodeTypesList()._dictionary;
 
         public List<string> Keys =>
-                RefreshNodeTypesList().keys;
+                RefreshNodeTypesList()._keys;
 
         public List<Type> Types =>
-                RefreshNodeTypesList().types;
+                RefreshNodeTypesList()._types;
 
         public IEnumerator<Type> GetEnumerator()
         {
@@ -108,13 +102,13 @@ namespace QuizCannersUtilities {
         }
 
         public List<string> DisplayNames =>
-                RefreshNodeTypesList().displayNames;
+                RefreshNodeTypesList()._displayNames;
 
         public string Tag (Type type) {
 
                 int ind = Types.IndexOf(type);
                 if (ind >= 0)
-                    return keys[ind];
+                    return _keys[ind];
             
             return null;
         }
@@ -122,10 +116,10 @@ namespace QuizCannersUtilities {
 #if PEGI
         public bool Select(ref Type type) {
 
-            int ind = type != null ? Types.IndexOf(type) : -1;
+            var ind = type != null ? Types.IndexOf(type) : -1;
             if (pegi.select(ref ind, DisplayNames)) {
 
-                type = types[ind];
+                type = _types[ind];
 
                 return true;
             }
@@ -136,11 +130,11 @@ namespace QuizCannersUtilities {
     }
 
 
-    public static class AbstractTaggedSTDExtensions {
+    public static class AbstractTaggedStdExtensions {
 
         public static void TryChangeObjectType(this IList list, int index, Type type, ListMetaData ld = null) {
 
-            var ed = ld.TryGetElement(index);
+          
 
             var previous = list.TryGet(index);
 
@@ -148,13 +142,15 @@ namespace QuizCannersUtilities {
 
             var iTag = el as IGotClassTag;
 
-            var std = (el as ISTD);
+            var std = (el as IStd);
 
-            if (ld._keepTypeData && iTag != null && ed != null)
-                ed.ChangeType(ref el, type, iTag.GetTaggedTypes_Safe(), ld._keepTypeData);
+            var ed = ld.TryGetElement(index);
+            
+            if (ed != null && ld.keepTypeData && iTag != null)
+                ed.ChangeType(ref el, type, iTag.GetTaggedTypes_Safe(), ld.keepTypeData);
             else  {
                 el = std.TryDecodeInto<object>(type);
-                STDExtensions.TryCopy_Std_AndOtherData(previous, el);
+                StdExtensions.TryCopy_Std_AndOtherData(previous, el);
             }
 
             list[index] = el;
@@ -162,19 +158,20 @@ namespace QuizCannersUtilities {
         }
 
 
-        public static void Replace_IfDifferent<T>(this TaggedTypes_STD std, ref T obj, Type newType) {
+        public static void Replace_IfDifferent<T>(this TaggedTypesStd std, ref T obj, Type newType) {
             if (obj.GetType() != newType)
                 obj = (T)Activator.CreateInstance(newType);
         }
         
         public static T TryGetByTag <T>(this List<T> lst, string tag) where T: IGotClassTag {
-
-            if (lst != null && tag != null && tag.Length > 0) {
-                foreach (var e in lst) {
-                    if (e != null && e.ClassTag.SameAs(tag))
-                        return e;
-                }
+            
+            if (lst == null || tag == null || tag.Length <= 0) return default(T);
+            
+            foreach (var e in lst) {
+                if (e != null && e.ClassTag.SameAs(tag))
+                    return e;
             }
+            
             return default(T);
 
         }

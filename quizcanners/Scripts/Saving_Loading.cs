@@ -1,15 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
 using PlayerAndEditorGUI;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
-using System.Diagnostics;
 #if UNITY_EDITOR
 using UnityEditor;
-
 #endif
 
 namespace QuizCannersUtilities
@@ -70,7 +66,7 @@ namespace QuizCannersUtilities
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log(fullPath + " not loaded " + ex.ToString());
+                Debug.Log(fullPath + " not loaded " + ex);
             }
 
             return data;
@@ -81,9 +77,9 @@ namespace QuizCannersUtilities
         {
 #if UNITY_EDITOR
 
-            var resourceName = insideResourceFolder.AddPreSlashIfNotEmpty() + "/" + name;
-            var path = Application.dataPath + resourceFolderLocation.AddPreSlashIfNotEmpty() + "/Resources" +
-                       resourceName + StuffSaver.FileType;
+            var resourceName = Path.Combine(insideResourceFolder, name);
+            var path = Path.Combine(Application.dataPath, resourceFolderLocation, "Resources",
+                       resourceName + StuffSaver.FileType);
 
             if (!File.Exists(path)) return null;
 
@@ -94,7 +90,7 @@ namespace QuizCannersUtilities
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
+                Debug.Log(path + "is Busted !" + ex);
             }
 
 
@@ -144,10 +140,10 @@ namespace QuizCannersUtilities
 #endif
         }
 
-        public static string LoadStoryFromAssets(string Folder, string name)
+        public static string LoadStoryFromAssets(string folder, string name)
         {
 #if UNITY_EDITOR
-            var path = Application.dataPath + Folder.AddPreSlashIfNotEmpty() + "/" + name + StuffSaver.FileType;
+            var path = Path.Combine(Application.dataPath, folder, name + StuffSaver.FileType);
 
             if (!File.Exists(path)) return null;
 
@@ -158,7 +154,7 @@ namespace QuizCannersUtilities
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
+                Debug.Log(path + "is Busted !" + ex);
             }
 
 #endif
@@ -189,7 +185,7 @@ namespace QuizCannersUtilities
             return lst;
         }
 
-        public static bool LoadResource<T>(string pathNdName, ref T Arrangement)
+        public static bool LoadResource<T>(string pathNdName, ref T arrangement)
         {
 #if UNITY_EDITOR
             var path = Application.dataPath + "/Resources/" + pathNdName + StuffSaver.FileType;
@@ -199,18 +195,18 @@ namespace QuizCannersUtilities
                 try
                 {
                     using (var file = File.Open(path, FileMode.Open))
-                        Arrangement = (T) Formatter.Deserialize(file);
+                        arrangement = (T) Formatter.Deserialize(file);
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log(path + "is Busted !" + ex.ToString());
+                    Debug.Log(path + "is Busted !" + ex);
                     return false;
                 }
 
                 return true;
             }
 
-            UnityEngine.Debug.Log(path + " not found");
+            Debug.Log(path + " not found");
             return false;
 #else
         {
@@ -220,23 +216,25 @@ namespace QuizCannersUtilities
                 if (asset != null) {
                    
                     using (var ms = new MemoryStream(asset.bytes)) 
-                        Arrangement = (T)Formatter.Deserialize(ms);
+                        arrangement = (T)Formatter.Deserialize(ms);
                     
                     return true;
                 }
-                else
-                    return false;
+                
+                return false;
                 
             } finally{
              Resources.UnloadAsset(asset);
             }
         }
 #endif
+
+           
         }
 
         public static bool LoadFrom<T>(string path, string name, ref T dta)
         {
-            var fullPath = path.AddPostSlashIfNone() + name + StuffSaver.FileType;
+            var fullPath = Path.Combine(path, name + StuffSaver.FileType);
             
             if (!File.Exists(fullPath)) return false;
             
@@ -250,7 +248,7 @@ namespace QuizCannersUtilities
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log(path + " not loaded " + ex.ToString());
+                Debug.Log(path + " not loaded " + ex);
 
                 return false;
             }
@@ -277,26 +275,27 @@ namespace QuizCannersUtilities
     {
         ResourceRequest _rqst;
 
-        public bool TryUnpackAsset(ref T Arrangement)
+        public bool TryUnpackAsset(ref T arrangement)
         {
-            if (_rqst.isDone) {
-                
-                var asset = _rqst.asset as TextAsset;
+            if (!_rqst.isDone) return false;
+            
+            var asset = _rqst.asset as TextAsset;
 
-                try
-                {
-                    using (var ms = new MemoryStream(asset.bytes))
-                        Arrangement = (T) ((new BinaryFormatter()).Deserialize(ms));
-                }
-                finally
-                {
-                    Resources.UnloadAsset(asset);
-                }
-
+            if (asset == null)
                 return true;
+                
+            try
+            {
+                using (var ms = new MemoryStream(asset.bytes))
+                    arrangement = (T) ((new BinaryFormatter()).Deserialize(ms));
             }
-            else
-                return false;
+            finally
+            {
+                Resources.UnloadAsset(asset);
+            }
+
+            return true;
+
         }
 
         public bool RequestLoad(string pathNdName)
@@ -322,7 +321,7 @@ namespace QuizCannersUtilities
             File.WriteAllText(Path.Combine(Application.streamingAssetsPath, fileName + JsonFileType), JsonUtility.ToJson(dta));
         }
 
-        public static void SaveStreamingAsset<G>(string folderName, string fileName, G dta)
+        public static void SaveStreamingAsset<TG>(string folderName, string fileName, TG dta)
         {
             if (dta == null) return;
             var path = Path.Combine(Application.streamingAssetsPath, folderName);
@@ -331,19 +330,19 @@ namespace QuizCannersUtilities
             File.WriteAllText(filePath, JsonUtility.ToJson(dta));
         }
 
-        public static void Save<G>(string fullPath, string fileName, G dta)
+        public static void Save<TG>(string fullPath, string fileName, TG dta)
         {
             if (dta == null) return;
             
             Directory.CreateDirectory(fullPath);
 
-            using (var file = File.Create(fullPath.AddPostSlashIfNone() + fileName + FileType))
+            using (var file = File.Create(Path.Combine(fullPath, fileName + FileType)))
                 Formatter.Serialize(file, dta);
             
         }
 
-        public static void Save_ToAssets_ByRelativePath(string Path, string filename, string data) =>
-            Save_ByFullPath(Application.dataPath + Path.RemoveAssetsPart().AddPreSlashIfNotEmpty().AddPostSlashIfNone(),
+        public static void Save_ToAssets_ByRelativePath(string path, string filename, string data) =>
+            Save_ByFullPath(Path.Combine(Application.dataPath, path.RemoveAssetsPart()),
                 filename, data);
 
         public static void Save_ByFullPath(string fullDirectoryPath, string filename, string data)
@@ -363,9 +362,8 @@ namespace QuizCannersUtilities
 
         }
 
-        public static void SaveToResources(string ResFolderPath, string InsideResPath, string filename, string data) =>
-            Save_ToAssets_ByRelativePath(ResFolderPath.AddPostSlashIfNone() + "Resources" + InsideResPath.AddPreSlashIfNotEmpty(), filename,
-                data);
+        public static void SaveToResources(string resFolderPath, string insideResPath, string filename, string data) =>
+            Save_ToAssets_ByRelativePath(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
 
         public static void SaveToPersistentPath(string subPath, string filename, string data)
         {

@@ -8,7 +8,7 @@ using QuizCannersUtilities;
 namespace STD_Logic {
 
 
-    public class Values : AbstractKeepUnrecognized_STD, IPEGI, IGotCount
+    public class Values : AbstractKeepUnrecognizedStd, IPEGI, IGotCount
     {
 
         public static Values global = new Values();

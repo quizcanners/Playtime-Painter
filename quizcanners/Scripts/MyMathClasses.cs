@@ -43,9 +43,9 @@ namespace QuizCannersUtilities {
             return new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
         }
         
-        public static float ClampZeroTo(this float value, float Max)
+        public static float ClampZeroTo(this float value, float max)
         {
-            value = Mathf.Max(0, Mathf.Min(value, Max - 1));
+            value = Mathf.Max(0, Mathf.Min(value, max - 1));
             return value;
         }
 
@@ -98,17 +98,14 @@ namespace QuizCannersUtilities {
         public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
         {
 
-            var nportion = speed.SpeedToPortion(dist);
-            if (nportion < portion)
-            {
-                portion = nportion;
-                return true;
-            }
+            var nPortion = speed.SpeedToPortion(dist);
+            if (!(nPortion < portion)) 
+                return (1 - portion) < float.Epsilon && dist > 0;
+            
+            portion = nPortion;
+            
+            return true;
 
-            if (portion == 1 && dist > 0)
-                return true;
-
-            return false;
         }
         
         public static bool isLerping_bySpeed(ref float from, float to, float speed)
@@ -577,7 +574,7 @@ namespace QuizCannersUtilities {
     }
     
     [Serializable]
-    public class LinearColor : Abstract_STD
+    public class LinearColor : AbstractStd
     {
         public float r, g, b, a;
 

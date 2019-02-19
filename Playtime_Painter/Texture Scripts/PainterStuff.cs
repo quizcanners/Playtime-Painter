@@ -10,17 +10,17 @@ namespace Playtime_Painter
 
     public delegate bool PainterBoolPlugin(PlaytimePainter p);
 
-    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, IKeepUnrecognizedSTD, IPEGI
+    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuff_STD, IKeepUnrecognizedStd, IPEGI
     {
-        UnrecognizedTags_List uTags = new UnrecognizedTags_List();
-        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+        UnrecognizedTagsList uTags = new UnrecognizedTagsList();
+        public UnrecognizedTagsList UnrecognizedStd => uTags;
 
         #if PEGI
         public virtual bool Inspect() => uTags.Nested_Inspect();
         #endif
     }
     
-    public abstract class PainterStuff_STD : PainterStuff, ISTD  
+    public abstract class PainterStuff_STD : PainterStuff, IStd  
     {
         public abstract StdEncoder Encode();
 
@@ -49,11 +49,11 @@ namespace Playtime_Painter
     }
     */
 
-    public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedSTD, IPEGI
+    public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedStd, IPEGI
     {
 
-        protected UnrecognizedTags_List uTags = new UnrecognizedTags_List();
-        public UnrecognizedTags_List UnrecognizedSTD => uTags;
+        protected UnrecognizedTagsList uTags = new UnrecognizedTagsList();
+        public UnrecognizedTagsList UnrecognizedStd => uTags;
 
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
 

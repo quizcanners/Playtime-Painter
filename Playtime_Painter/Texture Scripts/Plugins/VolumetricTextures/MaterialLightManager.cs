@@ -48,7 +48,7 @@ namespace Playtime_Painter {
 
                 if (ind < 0)
                 {
-                    pegi.write(((ColorChanel)c).getIcon());
+                    pegi.write(((ColorChanel)c).GetIcon());
                     if (icon.Add.Click().nl())
                     {
                         probes[c] = 0;

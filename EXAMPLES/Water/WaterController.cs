@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter.Examples
 {
     [ExecuteInEditMode]
-    public class WaterController : ComponentSTD
+    public class WaterController : ComponentStd
     {
         private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
         private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_foamParams");
