@@ -10,7 +10,7 @@ using UnityEngine;
 namespace QuizCannersUtilities {
 
     public interface ICanChangeClass {
-        void Copy_NonSTDdata_From_PreviousInstance(object previous);
+        void Copy_NonStdData_From_PreviousInstance(object previous);
     }
 
     public interface IGotClassTag : ISTD {

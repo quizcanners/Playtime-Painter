@@ -100,6 +100,7 @@ namespace Playtime_Painter {
 
         }
 
+#if PEGI
         public override bool BrushConfigPEGI()
         {
             var changed = false;
@@ -113,7 +114,7 @@ namespace Playtime_Painter {
 
             return changed;
         }
-
+#endif
     }
 
 }

@@ -422,7 +422,7 @@ namespace Playtime_Painter
             }
         }
 
-        public virtual bool DrawGizmosOnPainter(PlaytimePainter pntr) { return false; }
+        public virtual bool DrawGizmosOnPainter(PlaytimePainter painter) { return false; }
 
     }
 }

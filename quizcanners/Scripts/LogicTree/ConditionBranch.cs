@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 
@@ -9,83 +8,79 @@ namespace STD_Logic {
 
     public class ConditionBranch : AbstractKeepUnrecognized_STD, IPEGI, 
         IAmConditional, ICanBeDefault_STD, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName {
+        private enum ConditionBranchType { Or, And }
 
-        public enum ConditionBranchType { OR, AND }
+        private List<ConditionLogic> _conditions = new List<ConditionLogic>();
+        private List<ConditionBranch> _branches = new List<ConditionBranch>();
 
-        public List<ConditionLogic> conditions = new List<ConditionLogic>();
-        public List<ConditionBranch> branches = new List<ConditionBranch>();
+        private string _name = "";
 
-        string name = "";
-
-        public ConditionBranchType type = ConditionBranchType.AND;
-        public TaggedTarget targ;
-
-        Values TargetValues => targ.TryGetValues(Values.global);
+        private ConditionBranchType _type = ConditionBranchType.And;
 
         public int CountForInspector => CountRecursive();
-        
-        public int CountRecursive() {
-            int count = conditions.Count;
 
-            foreach (var b in branches)
+        private int CountRecursive() {
+            var count = _conditions.Count;
+
+            foreach (var b in _branches)
                 count += b.CountRecursive();
 
             return count; 
         }
         
         #region Inspector
-        int browsedBranch = -1;
-        int browsedCondition = -1;
+
+        private int _browsedBranch = -1;
+        private int _browsedCondition = -1;
 
         #if PEGI
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForPEGI { get { return _name; } set { _name = value; } }
 
-        LoopLock searchLoopLock = new LoopLock();
+        private readonly LoopLock _searchLoopLock = new LoopLock();
 
         public bool String_SearchMatch(string searchString) {
+            if (!_searchLoopLock.Unlocked) return false;
+            
+            using (_searchLoopLock.Lock())
+            {
+                foreach (var c in _conditions)
+                    if (c.SearchMatch_Obj(searchString))
+                        return true;
 
-            if (searchLoopLock.Unlocked)
-                using (searchLoopLock.Lock())
-                {
-                    foreach (var c in conditions)
-                        if (c.SearchMatch_Obj(searchString))
-                            return true;
-
-                    foreach (var b in branches)
-                        if (b.SearchMatch_Obj(searchString))
-                            return true;
-                }
+                foreach (var b in _branches)
+                    if (b.SearchMatch_Obj(searchString))
+                        return true;
+            }
 
             return false;
         }
         
         public override bool Inspect()
         {
-            if (!name.IsNullOrEmpty())
-                name.nl(PEGI_Styles.EnterLabel);
+            if (!_name.IsNullOrEmpty())
+                _name.nl(PEGI_Styles.ListLabel);
 
             var before = ConditionLogic.inspectedTarget;
 
-            ConditionLogic.inspectedTarget = TargetValues;
+            ConditionLogic.inspectedTarget = Values.global;
             
-            bool changed = false;
+            var changed = false;
 
-            if (browsedBranch == -1)
+            if (_browsedBranch == -1)
             {
-                if (pegi.Click(type.ToString(),
-                    (type == ConditionBranchType.AND ? "All conditions and sub branches should be true" : "At least one condition OR sub branch should be true")))
-                    type = (type == ConditionBranchType.AND ? ConditionBranchType.OR : ConditionBranchType.AND);
+                if (_type.ToString().Click((_type == ConditionBranchType.And ? "All conditions and sub branches should be true" : "At least one condition OR sub branch should be true")))
+                    _type = (_type == ConditionBranchType.And ? ConditionBranchType.Or : ConditionBranchType.And);
 
                 (CheckConditions(ConditionLogic.inspectedTarget) ? icon.Active : icon.InActive).nl();
 
-                var newC = "Conditions".edit_List(ref conditions, ref browsedCondition, ref changed);
+                var newC = "Conditions".edit_List(ref _conditions, ref _browsedCondition, ref changed);
                 if (newC != null)
                     newC.TriggerIndexes = TriggerGroup.TryGetLastUsedTrigger();
             }
 
             pegi.line(Color.black);
 
-            changed |= "Sub Branches".edit_List(ref branches, ref browsedBranch);
+            changed |= "Sub Branches".edit_List(ref _branches, ref _browsedBranch);
 
 
             ConditionLogic.inspectedTarget = before;
@@ -95,27 +90,33 @@ namespace STD_Logic {
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
+          
             var changed = false;
-
-            if ((IsTrue ? icon.Active : icon.InActive).Click() && !TryForceTo(!IsTrue))
+            
+            if ((IsTrue ? icon.Active : icon.InActive).Click() && !TryForceTo(Values.global, !IsTrue))
                 Debug.Log("No Conditions to force to {0}".F(!IsTrue));
 
             var cnt = CountForInspector;
 
-            if (cnt == 0)
-                "{0} Unconditional".F(name).write();
-            else if (cnt == 1)
+            switch (cnt)
             {
-
-                if (conditions.Count == 1)
-                    "{0} If {1}".F(name, conditions[0].ToPEGIstring()).write();
-                else "{0} Got subbranch".F(name).write();
-
+                case 0:
+                    "{0}: Unconditional".F(_name).write();
+                    break;
+                case 1 when _conditions.Count == 1:
+                    "{0}: {1}".F(_name, _conditions[0].ToPEGIstring()).write();
+                    break;
+                default:
+                    if (_branches.Count>0)
+                        "{0}: {1} conditions; {2} branches".F(_name, cnt, _branches.Count).write();
+                    else 
+                        "{0}: {1} conditions".F(_name, cnt).write();
+                    break;
             }
-            else
-                "{0} {1} conditions".F(name, cnt).write();
 
-            if (icon.Enter.Click())
+            
+            
+            if (icon.Enter.Click(ref changed))
                 edited = ind;
 
             return changed;
@@ -124,79 +125,73 @@ namespace STD_Logic {
         #endregion
         
         #region Encode & Decode
-        public override bool IsDefault => (conditions.Count == 0 && branches.Count == 0);
+        public override bool IsDefault => (_conditions.Count == 0 && _branches.Count == 0);
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add_IfNotEmpty("wb", branches)
-            .Add_IfNotEmpty("v", conditions)
-            .Add("t", (int)type)
-            .Add("tag", targ)
-            .Add_IfNotNegative("insB", browsedBranch)
-            .Add_IfNotNegative("ic", browsedCondition);
+            .Add_IfNotEmpty("wb",         _branches)
+            .Add_IfNotEmpty("v",          _conditions)
+            .Add("t",                     (int)_type)
+            .Add_IfNotNegative("insB",    _browsedBranch)
+            .Add_IfNotNegative("ic",      _browsedCondition);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "t": type = (ConditionBranchType)data.ToInt(); break;
-                case "tag": data.DecodeInto(out targ); break;
-                case "wb": data.Decode_List(out branches); break;
-                case "v": data.Decode_List(out conditions); break;
-                case "insB": browsedBranch = data.ToInt(); break;
-                case "ic": browsedCondition = data.ToInt(); break;
-                default: return false;
+                case "t":     _type = (ConditionBranchType)data.ToInt(); break;
+                case "wb":    data.Decode_List(out _branches); break;
+                case "v":     data.Decode_List(out _conditions); break;
+                case "insB":  _browsedBranch = data.ToInt(); break;
+                case "ic":    _browsedCondition = data.ToInt(); break;
+                default:      return false;
             }
             return true;
         }
         #endregion
 
-        public bool IsTrue => CheckConditions(TargetValues);
+        public bool IsTrue => CheckConditions(Values.global);
         
-        public bool CheckConditions(Values vals) {
-            vals = targ.TryGetValues(vals);
+        public bool CheckConditions(Values values)
+        {
 
-            switch (type)
+            switch (_type)
             {
-                case ConditionBranchType.AND:
-                    foreach (var c in conditions)
-                        if (c.TestFor(vals) == false) return false;
-                    foreach (var b in branches)
-                        if (b.CheckConditions(vals) == false) return false;
+                case ConditionBranchType.And:
+                    foreach (var c in _conditions)
+                        if (c.TestFor(values) ) return false;
+                    foreach (var b in _branches)
+                        if (!b.CheckConditions(values) ) return false;
                     return true;
-                case ConditionBranchType.OR:
-                    foreach (var c in conditions)
-                        if (c.TestFor(vals) == true)
+                case ConditionBranchType.Or:
+                    foreach (var c in _conditions)
+                        if (c.TestFor(values))
                             return true;
-                    foreach (var b in branches)
-                        if (b.CheckConditions(vals) == true) return true;
-                    return ((conditions.Count == 0) && (branches.Count == 0));
+                    foreach (var b in _branches)
+                        if (b.CheckConditions(values)) return true;
+                    return ((_conditions.Count == 0) && (_branches.Count == 0));
             }
             return true;
         }
 
-        public bool TryForceTo(bool toTrue) => TryForceTo(TargetValues, toTrue);
-        
-        public bool TryForceTo(Values vals, bool toTrue)  {
+        public bool TryForceTo(Values values, bool toTrue)  {
 
-            vals = targ.TryGetValues(vals);
-
-            if ((toTrue && type == ConditionBranchType.AND) || (!toTrue && type == ConditionBranchType.OR)) {
-                bool anyApplied = false;
-                foreach (var c in conditions)
-                    anyApplied |= c.TryForceConditionValue(vals, toTrue);
-                foreach (var b in branches)
-                    anyApplied |= b.TryForceTo(vals, toTrue);
+            if ((toTrue && _type == ConditionBranchType.And) || (!toTrue && _type == ConditionBranchType.Or)) {
+                var anyApplied = false;
+                foreach (var c in _conditions)
+                    anyApplied |= c.TryForceConditionValue(values, toTrue);
+                foreach (var b in _branches)
+                    anyApplied |= b.TryForceTo(values, toTrue);
 
                 return toTrue || anyApplied;
 
             } else {
 
-                foreach (var c in conditions)
-                    if (c.TryForceConditionValue(vals, toTrue))
+                foreach (var c in _conditions)
+                    if (c.TryForceConditionValue(values, toTrue))
                         return true;
                 
-                foreach (var b in branches)
-                    if (b.TryForceTo(vals, toTrue))
+                foreach (var b in _branches)
+                    if (b.TryForceTo(values, toTrue))
                         return true;
 
                 return toTrue; 
@@ -209,7 +204,7 @@ namespace STD_Logic {
 
         public ConditionBranch(string usage)
         {
-            name = usage;
+            _name = usage;
         }
     }
 }

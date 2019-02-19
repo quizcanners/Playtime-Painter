@@ -12,18 +12,17 @@ namespace STD_Logic
     // Trigger usage is only used for PEGI. Logic engine will not need this to process triggers
 
     public abstract class TriggerUsage : IGotDisplayName  {
-        
-        protected static List<TriggerUsage> usgs = new List<TriggerUsage>();
+        private static readonly List<TriggerUsage> Usages = new List<TriggerUsage>();
 
         public static TriggerUsage Get(int ind) {
-            return usgs[ind];
+            return Usages[ind];
         }
 
-        public static List<string> names = new List<string>();
+        private static readonly List<string> Names = new List<string>();
 
         #region Inspector
         #if PEGI
-        public static bool SelectUsage(ref int ind) => pegi.select(ref ind, usgs, 45);
+        public static bool SelectUsage(ref int ind) => pegi.select(ref ind, Usages, 45);
         
         public bool Inspect(ValueIndex arg) => Inspect(arg.Trigger);
         
@@ -88,25 +87,25 @@ namespace STD_Logic
             return false;
         }
 
-        public static Usage_Boolean boolean = new Usage_Boolean(0);
-        public static Usage_Number number = new Usage_Number(1);
-        public static Usage_StringEnum enumer = new Usage_StringEnum(2);
-        public static Usage_BoolTag boolTag = new Usage_BoolTag(3);
-        public static Usage_IntTag intTag = new Usage_IntTag(4);
-        public static Usage_GameTimeStemp timestamp = new Usage_GameTimeStemp(5);
-        public static Usage_RealTimestemp realTime = new Usage_RealTimestemp(6);
+        public static readonly Usage_Boolean Boolean = new Usage_Boolean(0);
+        public static readonly Usage_Number Number = new Usage_Number(1);
+        public static readonly Usage_StringEnum Enumeration = new Usage_StringEnum(2);
+        public static readonly Usage_GameTimeStemp Timestamp = new Usage_GameTimeStemp(3);
+        public static readonly Usage_RealTimestemp RealTime = new Usage_RealTimestemp(4);
+        //  public static Usage_BoolTag boolTag = new Usage_BoolTag(5);
+        //  public static Usage_IntTag intTag = new Usage_IntTag(6);
      //   public static Usage_Pointer pointer = new Usage_Pointer(7);
 
-        public int index;
+        public readonly int index;
 
-        public TriggerUsage(int ind) {
+        protected TriggerUsage(int ind) {
             index = ind;
 
-            while (names.Count <= ind) names.Add("");
-            while(usgs.Count <= ind) usgs.Add(null);
+            while (Names.Count <= ind) Names.Add("");
+            while(Usages.Count <= ind) Usages.Add(null);
 
-            names[ind] = ToString();
-            usgs[ind]= this;
+            Names[ind] = ToString();
+            Usages[ind]= this;
         }
     }
 
@@ -146,7 +145,7 @@ namespace STD_Logic
             var vals = Values.global;
             
             bool changed = base.Inspect(t);
-            changed |= vals.bools.Toogle(t); 
+            changed |= vals.booleans.Toogle(t); 
 
             return changed;
         }
@@ -361,6 +360,7 @@ namespace STD_Logic
         public Usage_RealTimestemp(int index) : base(index) { }
     }
 
+    /*
     public class Usage_IntTag : TriggerUsage {
 
         public override string NameForDisplayPEGI => "TagGroup";
@@ -455,7 +455,7 @@ namespace STD_Logic
         public Usage_BoolTag(int index) : base(index) { }
     }
 
-    
+    */
 
 
 }

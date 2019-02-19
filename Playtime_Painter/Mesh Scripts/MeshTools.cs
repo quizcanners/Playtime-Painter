@@ -1053,8 +1053,7 @@ namespace Playtime_Painter
              "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
 
-#if PEGI
-        public static pegi.CallDelegate pegiDelegates;
+        #if PEGI
 
         public override bool Inspect()
         {
@@ -1064,16 +1063,12 @@ namespace Playtime_Painter
 
             if (_alsoDoColor)
                GlobalBrush.ColorSliders().nl(ref changed);
-
-          
-
-            if (pegiDelegates != null) changed = pegiDelegates.GetInvocationList().Cast<pegi.CallDelegate>().Aggregate(changed, (current, d) => current | d());
-
+            
             "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Only Bevel shader doesn't have a Flexible edge.", ref _editingFlexibleEdge);
 
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         public override bool MouseEventPointedVertex()

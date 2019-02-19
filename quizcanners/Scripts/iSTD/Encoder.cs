@@ -331,14 +331,14 @@ namespace QuizCannersUtilities
                 {
                     el = ld.elementDatas[index];
                     el.unrecognized = true;
-                    el.std_dta = val.Encode().ToString();
+                    el.stdDta = val.Encode().ToString();
                     Add_String(UnrecognizedTag, " ");
                 }
             }
             else
             {
                 if (el != null && el.unrecognized)
-                    Add_String(el.unrecognizedUnderTag, el.std_dta);
+                    Add_String(el.unrecognizedUnderTag, el.stdDta);
                 else
                     Add_String(NullTag, "");
             }
@@ -351,7 +351,7 @@ namespace QuizCannersUtilities
             var el = ld.elementDatas.GetIfExists(index);
 
             if (val == null)  return (el != null && el.unrecognized) 
-                ? Add_String(el.unrecognizedUnderTag, el.std_dta)
+                ? Add_String(el.unrecognizedUnderTag, el.stdDta)
                 : Add_String(NullTag, "");
             
             

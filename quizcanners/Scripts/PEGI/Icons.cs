@@ -19,7 +19,7 @@ namespace PlayerAndEditorGUI
         NewMaterial, NewTexture, Next, On, Off,
         Lock, Unlock, List, Link, UnLinked,
         GPU, CPU, Round,
-        Search, Script, Square,  SaveAsNew, StateMachine, State, Show, SelectAll,
+        Search, Script, Square,  SaveAsNew, StateMachine, State, Show, SelectAll, Share, Question,
         Painter, PreviewShader, OriginalShader, Undo, Redo, 
         UndoDisabled, RedoDisabled, Play, Record, Replace,  True, 
         Load, Pause, Mesh, Move, Red, Green, Blue,  InActive, 

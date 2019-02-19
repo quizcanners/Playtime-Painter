@@ -9,13 +9,13 @@ namespace STD_Logic
 {
 
     public interface IAmConditional {
-        bool CheckConditions(Values vals);
+        bool CheckConditions(Values values);
     }
     
     public enum ConditionType {Above, Below, Equals, RealTimePassedAbove, RealTimePassedBelow, VirtualTimePassedAbove, VirtualTimePassedBelow, NotEquals }
 
     [DerivedList(typeof(ConditionLogicBool), typeof(ConditionLogicInt), typeof(TestOnceCondition))]
-    public class ConditionLogic : ValueIndex, ISTD , IPEGI_ListInspect  {
+    public class ConditionLogic : ValueIndex, IPEGI_ListInspect  {
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
@@ -31,7 +31,7 @@ namespace STD_Logic
         
         public override bool IsBoolean => false;
 
-        public override bool SearchTriggerSameType => false;
+        protected override bool SearchTriggerSameType => false;
         
         #region Inspector
         #if PEGI
@@ -42,7 +42,7 @@ namespace STD_Logic
         {
             var changed = FocusedField_PEGI(ind, "Cond");
 
-            Trigger._usage.Inspect(this);
+            Trigger.Usage.Inspect(this);
 
             return changed;
         }
@@ -82,7 +82,7 @@ namespace STD_Logic
         #region Inspect
         #if PEGI
 
-        public override string NameForDisplayPEGI => "if {0} = {1}".F(base.NameForDisplayPEGI, compareValue);
+        public override string NameForDisplayPEGI => "if {0}{1}".F(compareValue ? "" : "NOT ",base.NameForDisplayPEGI);
 
         #endif
         #endregion
@@ -94,7 +94,7 @@ namespace STD_Logic
             return true;
         }
 
-        public override bool SearchTriggerSameType => true;
+        protected override bool SearchTriggerSameType => true;
 
         public override bool TestFor(Values values) => GetBool(values) == compareValue;
 
@@ -140,7 +140,7 @@ namespace STD_Logic
 #endif
         #endregion
 
-        public override bool SearchTriggerSameType => true;
+        protected override bool SearchTriggerSameType => true;
 
         public override bool TryForceConditionValue(Values value,bool toTrue) {
 
@@ -235,7 +235,7 @@ namespace STD_Logic
         {
             bool changed = FocusedField_PEGI(ind, "Cond");
 
-            Trigger._usage.Inspect(this);
+            Trigger.Usage.Inspect(this);
 
             changed |= SearchAndAdd_Triggers_PEGI(0);
 

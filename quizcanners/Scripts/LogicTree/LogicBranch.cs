@@ -30,7 +30,7 @@ namespace STD_Logic
             return lst;
         }
 
-        public bool CheckConditions(Values vals) => conditions.CheckConditions(Values.global);
+        public bool CheckConditions(Values values) => conditions.CheckConditions(Values.global);
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()

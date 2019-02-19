@@ -95,6 +95,7 @@ namespace Playtime_Painter.Examples {
             return true;
         }
 
+#if PEGI
         public bool Inspect()
         {
             var changed = false;
@@ -107,5 +108,6 @@ namespace Playtime_Painter.Examples {
 
             return changed;
         }
+#endif
     }
 }

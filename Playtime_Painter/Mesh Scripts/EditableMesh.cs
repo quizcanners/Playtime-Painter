@@ -42,7 +42,7 @@ namespace Playtime_Painter {
 
         public List<string> shapes;
 
-        public Unnullable<Countless<float>> blendWeights = new Unnullable<Countless<float>>();
+        public UnNullable<Countless<float>> blendWeights = new UnNullable<Countless<float>>();
 
         public Matrix4x4[] bindPoses;
 
@@ -255,7 +255,7 @@ namespace Playtime_Painter {
 
         List<MeshPoint> sortVertsClose = new List<MeshPoint>();
         List<MeshPoint> sortVertsFar = new List<MeshPoint>();
-        public CountlessSTD<Vertex> uvsByFinalIndex = new CountlessSTD<Vertex>();
+        public CountlessStd<Vertex> uvsByFinalIndex = new CountlessStd<Vertex>();
 
 
         public Vertex selectedUV;

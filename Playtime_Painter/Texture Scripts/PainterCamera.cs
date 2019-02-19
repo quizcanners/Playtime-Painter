@@ -340,9 +340,9 @@ namespace Playtime_Painter {
             _prevPosPreview = st.posTo;
         }
 
-        ShaderProperty.TextureValue decal_HeightProperty = new ShaderProperty.TextureValue("_VolDecalHeight");
-        ShaderProperty.TextureValue decal_OverlayProperty = new ShaderProperty.TextureValue("_VolDecalOverlay");
-        ShaderProperty.VectorValue decal_ParametersProperty = new ShaderProperty.VectorValue("_DecalParameters");
+        ShaderProperty.TextureValue decal_HeightProperty =      new ShaderProperty.TextureValue("_VolDecalHeight");
+        ShaderProperty.TextureValue decal_OverlayProperty =     new ShaderProperty.TextureValue("_VolDecalOverlay");
+        ShaderProperty.VectorValue decal_ParametersProperty =   new ShaderProperty.VectorValue("_DecalParameters");
 
         public void Shader_UpdateDecal(BrushConfig brush)
         {
@@ -359,13 +359,13 @@ namespace Playtime_Painter {
 
         }
 
-        ShaderProperty.VectorValue brushColor_Property = new ShaderProperty.VectorValue("_brushColor");
-        ShaderProperty.VectorValue brushMask_Property = new ShaderProperty.VectorValue("_brushMask");
-        ShaderProperty.TextureValue sourceMask_Property = new ShaderProperty.TextureValue("_SourceMask");
-        ShaderProperty.VectorValue maskDynamics_Property = new ShaderProperty.VectorValue("_maskDynamics");
-        ShaderProperty.VectorValue maskOffset_Property = new ShaderProperty.VectorValue("_maskOffset");
-        ShaderProperty.VectorValue brushForm_Property = new ShaderProperty.VectorValue("_brushForm");
-        ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
+        ShaderProperty.VectorValue brushColor_Property =        new ShaderProperty.VectorValue("_brushColor");
+        ShaderProperty.VectorValue brushMask_Property =         new ShaderProperty.VectorValue("_brushMask");
+        ShaderProperty.TextureValue sourceMask_Property =       new ShaderProperty.TextureValue("_SourceMask");
+        ShaderProperty.VectorValue maskDynamics_Property =      new ShaderProperty.VectorValue("_maskDynamics");
+        ShaderProperty.VectorValue maskOffset_Property =        new ShaderProperty.VectorValue("_maskOffset");
+        ShaderProperty.VectorValue brushForm_Property =         new ShaderProperty.VectorValue("_brushForm");
+        ShaderProperty.TextureValue sourceTexture_Property =    new ShaderProperty.TextureValue("_SourceTexture");
 
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {

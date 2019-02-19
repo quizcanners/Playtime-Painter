@@ -1,18 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Diagnostics;
-using System.Linq.Expressions;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -23,19 +10,19 @@ namespace STD_Logic
 
         public static LogicMGMT inst;
 
-        bool waiting;
-        float timeToWait = -1;
-        public static int currentLogicVersion = 0;
+        private bool _waiting;
+        private float _timeToWait = -1;
+        public static int currentLogicVersion;
         public static void AddLogicVersion() => currentLogicVersion++;
-        
-        public static int RealTimeOnStartUp = 0;
+
+        private static int _realTimeOnStartUp;
 
         public static int RealTimeNow()
         {
-            if (RealTimeOnStartUp == 0)
-                RealTimeOnStartUp = (int)((DateTime.Now.Ticks - 733000 * TimeSpan.TicksPerDay) / TimeSpan.TicksPerSecond);
+            if (_realTimeOnStartUp == 0)
+                _realTimeOnStartUp = (int)((DateTime.Now.Ticks - 733000 * TimeSpan.TicksPerDay) / TimeSpan.TicksPerSecond);
 
-            return RealTimeOnStartUp + (int)Time.realtimeSinceStartup;
+            return _realTimeOnStartUp + (int)Time.realtimeSinceStartup;
         }
         
         public override StdEncoder Encode() =>this.EncodeUnrecognized();
@@ -47,21 +34,20 @@ namespace STD_Logic
         public void AddTimeListener(float seconds)
         {
             seconds += 0.5f;
-            if (!waiting) timeToWait = seconds;
-            else timeToWait = Mathf.Min(timeToWait, seconds);
-            waiting = true;
+            _timeToWait = !_waiting ? seconds : Mathf.Min(_timeToWait, seconds);
+            _waiting = true;
         }
 
-        public virtual void DerivedUpdate() { }
+        protected virtual void DerivedUpdate() { }
 
         public void Update()
         {
-            if (waiting)
+            if (_waiting)
             {
-                timeToWait -= Time.deltaTime;
-                if (timeToWait < 0)
+                _timeToWait -= Time.deltaTime;
+                if (_timeToWait < 0)
                 {
-                    waiting = false;
+                    _waiting = false;
                     AddLogicVersion();
                 }
             }
@@ -87,8 +73,8 @@ namespace STD_Logic
 
         [SerializeField] protected int inspectedTriggerGroup = -1;
         [SerializeField] protected int tmpIndex = -1;
-        [NonSerialized] TriggerGroup replaceRecieved = null;
-        [NonSerialized] bool inspectReplacementOption = false;
+        [NonSerialized] private TriggerGroup _replaceReceived;
+        [NonSerialized] private bool _inspectReplacementOption;
         public override bool Inspect()
         {
             var changed = false;
@@ -103,28 +89,28 @@ namespace STD_Logic
 
                     #region Paste Options
 
-                    if (replaceRecieved != null) {
+                    if (_replaceReceived != null) {
 
-                        var current = TriggerGroup.all.GetIfExists(replaceRecieved.IndexForPEGI);
-                        string hint = (current != null) ? "{0} [ Old: {1} => New: {2} triggers ] ".F(replaceRecieved.NameForPEGI, current.Count, replaceRecieved.Count) : replaceRecieved.NameForPEGI;
+                        var current = TriggerGroup.all.GetIfExists(_replaceReceived.IndexForPEGI);
+                        var hint = (current != null) ? "{0} [ Old: {1} => New: {2} triggers ] ".F(_replaceReceived.NameForPEGI, current.Count, _replaceReceived.Count) : _replaceReceived.NameForPEGI;
                         
-                        if (hint.enter(ref inspectReplacementOption))
-                            replaceRecieved.Nested_Inspect();
+                        if (hint.enter(ref _inspectReplacementOption))
+                            _replaceReceived.Nested_Inspect();
                         else
                         {
                             if (icon.Done.ClickUnFocus())
                             {
-                                TriggerGroup.all[replaceRecieved.IndexForPEGI] = replaceRecieved;
-                                replaceRecieved = null;
+                                TriggerGroup.all[_replaceReceived.IndexForPEGI] = _replaceReceived;
+                                _replaceReceived = null;
                             }
                             if (icon.Close.ClickUnFocus())
-                                replaceRecieved = null;
+                                _replaceReceived = null;
                         }
                     }
                     else
                     {
 
-                        string tmp = "";
+                        var tmp = "";
                         if ("Paste Messaged STD data".edit(140, ref tmp) || STDExtensions.LoadOnDrop(out tmp)) {
 
                             var group = new TriggerGroup();
@@ -135,9 +121,9 @@ namespace STD_Logic
                             if (current == null)
                                 TriggerGroup.all[group.IndexForPEGI] = group;
                             else {
-                                replaceRecieved = group;
-                                if (!replaceRecieved.NameForPEGI.SameAs(current.NameForPEGI))
-                                    replaceRecieved.NameForPEGI += " replaces {0}".F(current.NameForPEGI);
+                                _replaceReceived = group;
+                                if (!_replaceReceived.NameForPEGI.SameAs(current.NameForPEGI))
+                                    _replaceReceived.NameForPEGI += " replaces {0}".F(current.NameForPEGI);
                             }
                         }
 
@@ -153,7 +139,7 @@ namespace STD_Logic
                 "Trigger Groups".write(PEGI_Styles.ListLabel); 
                 pegi.nl();
 
-                changed |= TriggerGroup.all.Inspect<UnnullableSTD<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
+                changed |= TriggerGroup.all.Inspect<UnNullableStd<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
 
                 if (inspectedTriggerGroup == -1) {
                     "At Index: ".edit(60, ref tmpIndex);

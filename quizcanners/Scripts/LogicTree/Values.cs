@@ -13,25 +13,25 @@ namespace STD_Logic {
 
         public static Values global = new Values();
 
-        public UnnullableSTD<CountlessBool> bools = new UnnullableSTD<CountlessBool>();
-        public UnnullableSTD<CountlessInt> ints = new UnnullableSTD<CountlessInt>();
-        UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
-        UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
+        public UnNullableStd<CountlessBool> booleans = new UnNullableStd<CountlessBool>();
+        public UnNullableStd<CountlessInt> ints = new UnNullableStd<CountlessInt>();
+  //      UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
+  //      UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
 
         #region Encode & Decode
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotDefault("ints", ints)
-            .Add_IfNotDefault("bools", bools)
-            .Add_IfNotDefault("tags", boolTags)
-            .Add_IfNotDefault("enumTags", enumTags);
+            .Add_IfNotDefault("bools", booleans);
+          //  .Add_IfNotDefault("tags", boolTags)
+          //  .Add_IfNotDefault("enumTags", enumTags);
            
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "ints": data.DecodeInto(out ints); break;
-                case "bools": data.DecodeInto(out bools); break;
-                case "tags": data.DecodeInto(out boolTags); break;
-                case "enumTags": data.DecodeInto(out enumTags); break;
+                case "bools": data.DecodeInto(out booleans); break;
+            //    case "tags": data.DecodeInto(out boolTags); break;
+             //   case "enumTags": data.DecodeInto(out enumTags); break;
                 default: return false;
             }
             return true;
@@ -39,10 +39,10 @@ namespace STD_Logic {
 
         public override void Decode(string data) {
 
-            bools = new UnnullableSTD<CountlessBool>();
-            ints = new UnnullableSTD<CountlessInt>();
-            enumTags = new UnnullableSTD<CountlessInt>();
-            boolTags = new UnnullableSTD<CountlessBool>();
+            booleans = new UnNullableStd<CountlessBool>();
+            ints = new UnNullableStd<CountlessInt>();
+           // enumTags = new UnnullableSTD<CountlessInt>();
+          //  boolTags = new UnnullableSTD<CountlessBool>();
 
             base.Decode(data);
         }
@@ -50,19 +50,20 @@ namespace STD_Logic {
         #endregion
 
         #region Get/Set
-        public bool GetTagBool(ValueIndex ind) => boolTags.Get(ind);
+    //    public bool GetTagBool(ValueIndex ind) => boolTags.Get(ind);
 
-        public int GetTagEnum(ValueIndex ind) => enumTags.Get(ind);
+   //     public int GetTagEnum(ValueIndex ind) => enumTags.Get(ind);
 
-        public void SetTagBool(ValueIndex ind, bool value) => SetTagBool(ind.groupIndex, ind.triggerIndex, value);
+       // public void SetTagBool(ValueIndex ind, bool value) => SetTagBool(ind.groupIndex, ind.triggerIndex, value);
 
-        public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.IndexForPEGI , tagIndex, value);
+     //   public void SetTagBool(TriggerGroup gr, int tagIndex, bool value) => SetTagBool(gr.IndexForPEGI , tagIndex, value);
 
+ /*
         public void SetTagBool(int groupIndex, int tagIndex, bool value) {
 
             boolTags[groupIndex][tagIndex] = value;
 
-            TriggerGroup s = TriggerGroup.all[groupIndex];
+            var s = TriggerGroup.all[groupIndex];
 
             if (s.taggedBool[tagIndex].Contains(this))
             {
@@ -75,12 +76,12 @@ namespace STD_Logic {
             else if (value)
                 s.taggedBool[tagIndex].Add(this);
         }
+*/
+      //  public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.IndexForPEGI, tagIndex, value);
 
-        public void SetTagEnum(TriggerGroup gr, int tagIndex, int value) => SetTagEnum(gr.IndexForPEGI, tagIndex, value);
+      //  public void SetTagEnum(ValueIndex ind, int value) => SetTagEnum(ind.groupIndex, ind.triggerIndex, value);
 
-        public void SetTagEnum(ValueIndex ind, int value) => SetTagEnum(ind.groupIndex, ind.triggerIndex, value);
-
-        public void SetTagEnum(int groupIndex, int tagIndex, int value) {
+      /*  public void SetTagEnum(int groupIndex, int tagIndex, int value) {
 
             enumTags[groupIndex][tagIndex] = value;
 
@@ -95,18 +96,18 @@ namespace STD_Logic {
             }
             else if (value != 0)
                 s.taggedInts[tagIndex][value].Add(this);
-        }
+        }*/
         #endregion
 
         public void Clear()
         {
             ints.Clear();
-            bools.Clear();
-            RemoveAllTags();
+            booleans.Clear();
+        //   RemoveAllTags();
           
         }
 
-        public void RemoveAllTags() {
+     /*   public void RemoveAllTags() {
             List<int> groupInds;
             List<CountlessBool> lsts = boolTags.GetAllObjs(out groupInds);
             //Stories.all.GetAllObjs(out inds);
@@ -124,28 +125,25 @@ namespace STD_Logic {
 
             enumTags.Clear();
             boolTags.Clear(); // = new UnnullableSTD<CountlessBool>();
-        }
+        }*/
 
         #region Inspector
 
-        public int CountForInspector => bools.CountForInspector + ints.CountForInspector + enumTags.CountForInspector + boolTags.CountForInspector; 
+        public int CountForInspector => booleans.CountForInspector + ints.CountForInspector;// + enumTags.CountForInspector + boolTags.CountForInspector; 
 
 #if PEGI
-
-        public static Values inspected;
 
 
         public override bool Inspect() {
             
-            bool changed = false;
+            var changed = false;
 
-            inspected = this;
 
-            if (icon.Next.Click("Add 1 to logic version (to update all the logics)").nl())
+            if (icon.Next.Click("Add 1 to logic version (will cause conditions to be reevaluated)").nl())
                     LogicMGMT.AddLogicVersion();
 
-            foreach (var bGr in bools) {
-                var group = TriggerGroup.all[bools.currentEnumerationIndex];
+            foreach (var bGr in booleans) {
+                var group = TriggerGroup.all[booleans.currentEnumerationIndex];
                 foreach (var b in bGr)
                     group[b].Inspect_AsInList().nl(ref changed);
             }
@@ -157,7 +155,6 @@ namespace STD_Logic {
                 
             }
 
-            inspected = null;
 
             return changed;
         }

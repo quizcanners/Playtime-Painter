@@ -281,7 +281,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref int no, CountlessSTD<T> tree) where T : ISTD
+        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : ISTD
             , new()
         {
             List<int> indexes;
@@ -1192,7 +1192,7 @@ namespace PlayerAndEditorGUI {
                             var std = el as ISTD;
 
                             if (std != null) 
-                                 std.Decode(ed.SetRecognized().std_dta);
+                                 std.Decode(ed.SetRecognized().stdDta);
                             
                         }
                     }

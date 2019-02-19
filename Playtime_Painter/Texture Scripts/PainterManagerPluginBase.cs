@@ -11,11 +11,17 @@ namespace Playtime_Painter {
     {
         public override TaggedTypes_STD TaggedTypes => PainterManagerPluginBase.all;
     }
-
-
+    
     public interface IPainterManagerPlugin_ComponentPEGI
     {
+        #if PEGI
         bool ComponentInspector();
+        #endif
+    }
+
+    public interface IPainterManagerPlugin_Gizmis
+    {
+        void PlugIn_PainterGizmos(PlaytimePainter painter);
     }
 
     public interface IPainterManagerPlugin_Brush
@@ -34,26 +40,24 @@ namespace Playtime_Painter {
 
         Shader GetBrushShaderSingleBuffer(PlaytimePainter p);
 
+        #if PEGI
         bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br);
+        #endif
     }
-
-    public interface IPainterManagerPlugin_Gizmis {
-        void PlugIn_PainterGizmos(PlaytimePainter painter);
-    }
-
-  
 
     public interface IPainterManagerPlugin_MeshToolShowVertex
     {
         void PlugIn_MeshToolShowVertex();
     }
 
-    public interface IVertexEdgePlugin
+    public interface IMeshToolPlugin
     {
-        bool VertexEdgePegi();
+        #if PEGI
+        bool MeshToolInspection(MeshToolBase currentTool);
+        #endif
     }
 
-            [PainterManagerPlugin]
+    [PainterManagerPlugin]
     public abstract class PainterManagerPluginBase : PainterStuffKeepUnrecognized_STD, IGotDisplayName, IGotClassTag {
 
         public static List<PainterManagerPluginBase> plugins;
@@ -66,7 +70,7 @@ namespace Playtime_Painter {
 
         public static List<IPainterManagerPlugin_MeshToolShowVertex> meshToolPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
 
-        public static List<IVertexEdgePlugin> vertexEdgePlugins = new List<IVertexEdgePlugin>();
+        public static List<IMeshToolPlugin> vertexEdgePlugins = new List<IMeshToolPlugin>();
 
         public static void RefreshPlugins() {
 
@@ -108,36 +112,23 @@ namespace Playtime_Painter {
 
                 meshToolPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
 
-                vertexEdgePlugins.TryAdd(t as IVertexEdgePlugin);
+                vertexEdgePlugins.TryAdd(t as IMeshToolPlugin);
             }
         }
-
-
-        #region Abstract Serialized
+        
+#region Abstract Serialized
         public abstract string ClassTag { get; } 
         public static TaggedTypes_STD all = new TaggedTypes_STD(typeof(PainterManagerPluginBase));
         public TaggedTypes_STD AllTypes => all;
-        #endregion
+#endregion
 
-        public virtual string NameForDisplayPEGI => ToString();
-
-        #region Inspector
-        #if PEGI
-   
-        private pegi.CallDelegate _vertexEdgePegiDelegates;
-        protected void PlugIn_VertexEdgePEGI(pegi.CallDelegate d)
-        {
-            _vertexEdgePegiDelegates += d;
-            VertexEdgeTool.pegiDelegates += d;
-        }
-        #endif
-        #endregion
-
-        #region Encode & Decode
+#region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
         #endregion
+
+        public virtual string NameForDisplayPEGI => this.ToString();
         
         public virtual void Update() { }
 

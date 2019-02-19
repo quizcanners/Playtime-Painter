@@ -1,9 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -44,13 +40,13 @@ namespace STD_Logic
 
         #endregion
 
-        public int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
+        protected int GetInt(Values st) => st.ints[groupIndex][triggerIndex];
 
         public void SetInt(Values st, int value) => st.ints[groupIndex][triggerIndex] = value;
 
-        public bool GetBool(Values st) => st.bools[groupIndex][triggerIndex];
+        protected bool GetBool(Values st) => st.booleans[groupIndex][triggerIndex];
 
-        public void SetBool(Values st, bool value) => st.bools[groupIndex][triggerIndex] = value;
+        public void SetBool(Values st, bool value) => st.booleans[groupIndex][triggerIndex] = value;
 
         public Trigger Trigger {
             get { return Group[triggerIndex]; }
@@ -60,7 +56,7 @@ namespace STD_Logic
         
         public abstract bool IsBoolean { get; }
 
-        public virtual bool SearchTriggerSameType => false;
+        protected virtual bool SearchTriggerSameType => false;
         
         #region Inspector
         #if PEGI
@@ -206,15 +202,15 @@ namespace STD_Logic
             return index;
         }
 
-        public static bool Get(this UnnullableSTD<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
-        public static void Set(this UnnullableSTD<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+        public static bool Get(this UnNullableStd<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnNullableStd<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 
-        public static int Get(this UnnullableSTD<CountlessInt> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
-        public static void Set(this UnnullableSTD<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+        public static int Get(this UnNullableStd<CountlessInt> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnNullableStd<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 
 
 #if PEGI
-        public static bool Toogle(this UnnullableSTD<CountlessBool> uc, ValueIndex ind)
+        public static bool Toogle(this UnNullableStd<CountlessBool> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
             if (pegi.toggleIcon(ref tmp))
@@ -225,7 +221,7 @@ namespace STD_Logic
             return false;
         }
 
-        public static bool Edit(this UnnullableSTD<CountlessInt> uc, ValueIndex ind)
+        public static bool Edit(this UnNullableStd<CountlessInt> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
             if (pegi.edit(ref tmp))
@@ -236,7 +232,7 @@ namespace STD_Logic
             return false;
         }
 
-        public static bool Select(this UnnullableSTD<CountlessInt> uc, Trigger t)
+        public static bool Select(this UnNullableStd<CountlessInt> uc, Trigger t)
         {
             var tmp = uc.Get(t);
             if (pegi.select(ref tmp, t.enm))

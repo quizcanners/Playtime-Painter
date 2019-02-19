@@ -25,7 +25,7 @@ namespace QuizCannersUtilities
         public bool allowCreate;
         public icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
-        public UnnullableSTD<ElementData> elementDatas = new UnnullableSTD<ElementData>();
+        public UnNullableStd<ElementData> elementDatas = new UnNullableStd<ElementData>();
       
 
         public List<int> GetSelectedElements() {
@@ -37,9 +37,7 @@ namespace QuizCannersUtilities
 
         public bool GetIsSelected(int ind) {
             var el = elementDatas.GetIfExists(ind);
-            if (el != null)
-                return el.selected;
-            return false;
+            return el != null && el.selected;
         }
 
         public void SetIsSelected(int ind, bool value)
@@ -48,9 +46,7 @@ namespace QuizCannersUtilities
             if (el != null)
                 el.selected = value;
         }
-        public ElementData this[int i] {
-            get { return elementDatas.TryGet(i); }
-        }
+        public ElementData this[int i] => elementDatas.TryGet(i);
 
         #region Inspector
         #if PEGI
@@ -77,7 +73,7 @@ namespace QuizCannersUtilities
 
             pegi.nl();
             if (!enterElementDatas) {
-                "Show 'Explore Encoding' Button".toggleIcon(ref ElementData.EnableEnterInspectEncoding).nl();
+                "Show 'Explore Encoding' Button".toggleIcon(ref ElementData.enableEnterInspectEncoding).nl();
                 "List Label".edit(70, ref label).nl();
                 "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref _keepTypeData).nl();
                 "Allow Delete".toggleIcon(ref allowDelete).nl();
@@ -181,15 +177,15 @@ namespace QuizCannersUtilities
     public class ElementData : Abstract_STD, IPEGI, IGotName {
         public string name;
         public string componentType;
-        public string std_dta;
+        public string stdDta;
         public string guid;
-        public bool unrecognized = false;
+        public bool unrecognized;
         public string unrecognizedUnderTag;
         public bool selected;
 
         public override bool IsDefault => (unrecognized || !guid.IsNullOrEmpty() || perTypeConfig.Count>0 );
 
-        public static bool EnableEnterInspectEncoding = false;
+        public static bool enableEnterInspectEncoding;
 
         public Dictionary<string, string> perTypeConfig = new Dictionary<string, string>();
 
@@ -197,7 +193,7 @@ namespace QuizCannersUtilities
             if (unrecognized) {
                 unrecognized = false;
                 unrecognizedUnderTag = null;
-                std_dta = null;
+                stdDta = null;
             }
             return this;
         }
@@ -205,17 +201,17 @@ namespace QuizCannersUtilities
         public void Unrecognized(string tag, string data) {
             unrecognized = true;
             unrecognizedUnderTag = tag;
-            std_dta = data;
+            stdDta = data;
         }
         
         public void ChangeType(ref object obj, Type newType, TaggedTypes_STD taggedTypes, bool keepTypeConfig = false)
         {
             var previous = obj;
 
-            var tobj = obj as IGotClassTag;
+            var tObj = obj as IGotClassTag;
 
-            if (keepTypeConfig && tobj != null)
-                perTypeConfig[tobj.ClassTag] = tobj.Encode().ToString();
+            if (keepTypeConfig && tObj != null)
+                perTypeConfig[tObj.ClassTag] = tObj.Encode().ToString();
 
             obj = Activator.CreateInstance(newType);
 
@@ -242,7 +238,7 @@ namespace QuizCannersUtilities
 
             var std = el as ISTD;
             if (std != null)
-                std_dta = std.Encode().ToString();
+                stdDta = std.Encode().ToString();
 
             guid = (el as UnityEngine.Object).GetGuid(guid);
         }
@@ -377,7 +373,7 @@ namespace QuizCannersUtilities
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "n": name = data; break;
-                case "std": std_dta = data; break;
+                case "std": stdDta = data; break;
                 case "guid": guid = data; break;
                 case "t": componentType = data; break;
                 case "ur": unrecognized = data.ToBool(); break;
@@ -392,7 +388,7 @@ namespace QuizCannersUtilities
         public override StdEncoder Encode() {
             var cody = new StdEncoder()
                 .Add_IfNotEmpty("n", name)
-                .Add_IfNotEmpty("std", std_dta);
+                .Add_IfNotEmpty("std", stdDta);
 
             if (!guid.IsNullOrEmpty()) {
                 cody.Add_IfNotEmpty("guid", guid)

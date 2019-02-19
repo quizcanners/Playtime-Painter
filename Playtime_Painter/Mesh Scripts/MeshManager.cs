@@ -902,15 +902,15 @@ namespace Playtime_Painter
         bool inspectMesh = false;
         bool showTooltip;
         bool showCopyOptions;
-        public bool PEGI()  {
+        public override bool Inspect()  {
 
             bool changed = false;
             EditableMesh.inspected = editedMesh;
 
             pegi.newLine();
             
-                if (editedMesh != null && "Mesh ".foldout(ref inspectMesh).nl())
-                    changed |= editedMesh.Nested_Inspect().nl();
+            if (editedMesh != null && "Mesh ".foldout(ref inspectMesh).nl())
+                changed |= editedMesh.Nested_Inspect().nl();
 
             pegi.space();
             pegi.nl();
@@ -943,13 +943,16 @@ namespace Playtime_Painter
             
             if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
                 target.SaveMesh();
-       
-            
 #endif
             
             pegi.nl();
 
-            MeshTool.Inspect().nl(ref changed);
+            var mt = MeshTool;
+
+            mt.Inspect().nl(ref changed);
+
+            foreach (var p in PainterManagerPluginBase.vertexEdgePlugins)
+                p.MeshToolInspection(mt).nl(ref changed);
 
             if ("Hint".foldout(ref showTooltip).nl())
                 MeshTool.Tooltip.writeHint();

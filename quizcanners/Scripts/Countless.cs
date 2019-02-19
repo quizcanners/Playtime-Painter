@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using System.Linq;
 using PlayerAndEditorGUI;
 
 
@@ -13,78 +13,76 @@ namespace QuizCannersUtilities {
     }
     
     public abstract class CountlessBase : IPEGI, IGotCount {
-
-        protected static VariableBranch[] branchPool = new VariableBranch[32];
-        protected static VariableBranch[] fruitPool = new VariableBranch[32];
-        protected static int brPoolMax = 0;
-        protected static int frPoolMax = 0;
-        protected static int branchSize = 8;
+        private static VariableBranch[] _branchPool = new VariableBranch[32];
+        private static VariableBranch[] _fruitPool = new VariableBranch[32];
+        private static int _brPoolMax;
+        private static int _frPoolMax;
+        protected static readonly int BranchSize = 8;
 
         protected void DiscardFruit(VariableBranch b, int no)
         {
-            if ((frPoolMax + 1) >= fruitPool.Length)
-                fruitPool = fruitPool.ExpandBy(32);
+            if ((_frPoolMax + 1) >= _fruitPool.Length)
+                _fruitPool = _fruitPool.ExpandBy(32);
 
-            fruitPool[frPoolMax] = b.br[no];
-            VariableBranch vb = fruitPool[frPoolMax];
+            _fruitPool[_frPoolMax] = b.br[no];
+            var vb = _fruitPool[_frPoolMax];
             vb.value = 0;
             b.br[no] = null;
             b.value--;
-            frPoolMax++;
+            _frPoolMax++;
             count--;
         }
 
         protected static void DiscardBranch(VariableBranch b, int no)
         {
-            if ((brPoolMax + 1) >= branchPool.Length)
+            if ((_brPoolMax + 1) >= _branchPool.Length)
             {
-                branchPool = branchPool.ExpandBy(32);
+                _branchPool = _branchPool.ExpandBy(32);
             }
             //Debug.Log("Deleting branch ");
-            branchPool[brPoolMax] = b.br[no];
-            VariableBranch vb = branchPool[brPoolMax];
+            _branchPool[_brPoolMax] = b.br[no];
+            VariableBranch vb = _branchPool[_brPoolMax];
             if (vb.value != 0)
-                Debug.Log("Value is " + vb.value + " on delition ");
+                Debug.Log("Value is " + vb.value + " on delete ");
             //vb.value = 0;
             b.value--;
             b.br[no] = null;
-            brPoolMax++;
+            _brPoolMax++;
         }
         protected void TryReduceDepth()
         {
             while ((br.value < 2) && (br.br[0] != null) && (depth > 0))
             {
                 // if (br.value < 1) Debug.Log("Reducing depth on branch with " + br.value);
-                branchPool[brPoolMax] = br;
-                brPoolMax++;
-                VariableBranch tmp = br.br[0];
+                _branchPool[_brPoolMax] = br;
+                _brPoolMax++;
+                var tmp = br.br[0];
                 br.br[0] = null;
                 br.value = 0;
                 br = tmp;
                 depth--;
-                Max /= branchSize;
+                max /= BranchSize;
 
                 // Debug.Log("Reducing depth to " + depth + " new Range: " + Max);
             }
         }
-        protected void DiscardCascade(VariableBranch b, int depth)
+
+        private void DiscardCascade(VariableBranch b, int depth)
         {
-            if ((brPoolMax + 1) >= branchPool.Length)
-                branchPool = branchPool.ExpandBy(32);
+            if ((_brPoolMax + 1) >= _branchPool.Length)
+                _branchPool = _branchPool.ExpandBy(32);
             
             if (depth > 0) {
-                for (int i = 0; i < branchSize; i++)
+                for (var i = 0; i < BranchSize; i++)
                 {
-                    if (b.br[i] != null)
-                    {
-                        DiscardCascade(b.br[i], depth - 1);
-                        DiscardBranch(b, i);
-                    }
+                    if (b.br[i] == null) continue;
+                    DiscardCascade(b.br[i], depth - 1);
+                    DiscardBranch(b, i);
                 }
             }
             else
             {
-                for (int i = 0; i < 8; i++)
+                for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
                         DiscardFruit(b, i);
             }
@@ -92,33 +90,33 @@ namespace QuizCannersUtilities {
         }
         protected static VariableBranch GetNewBranch()
         {
-            if (brPoolMax == 0)
+            if (_brPoolMax == 0)
             {
-                VariableBranch vb = new VariableBranch() {
-                    br = new VariableBranch[branchSize]
+                var vb = new VariableBranch() {
+                    br = new VariableBranch[BranchSize]
             };
                 //Debug.Log("Creating new branch ");
                 return vb;
             }
-            brPoolMax--;
+            _brPoolMax--;
             //Debug.Log("Returning existing branch");
-            return branchPool[brPoolMax];
+            return _branchPool[_brPoolMax];
         }
      
 
         protected VariableBranch GetNewFruit()
         {
 
-            if (frPoolMax == 0)
+            if (_frPoolMax == 0)
             {
-                VariableBranch vb = new VariableBranch();
+                var vb = new VariableBranch();
                 //   Debug.Log("Creating new fruit ");
                 return vb;
             }
-            frPoolMax--;
+            _frPoolMax--;
             count++;
             // Debug.Log("Returning existing fruit");
-            return fruitPool[frPoolMax];
+            return _fruitPool[_frPoolMax];
         }
 
         public virtual void Clear()
@@ -128,7 +126,7 @@ namespace QuizCannersUtilities {
 
         protected int firstFree;
         protected int depth;
-        protected int Max;
+        protected int max;
         protected int count;
         protected VariableBranch[] path;
         protected int[] pathInd;
@@ -155,17 +153,16 @@ namespace QuizCannersUtilities {
         #endregion
 
 
-
-        public CountlessBase() {
-            Max = branchSize;
+        protected CountlessBase() {
+            max = BranchSize;
             br = GetNewBranch();
         }
 
-        public delegate void VariableTreeFunk(ref int dst, int ind, int val);
+      //  public delegate void VariableTreeFunk(ref int dst, int ind, int val);
     }
 
 
-    public abstract class STDCountlessBase : CountlessBase, ICanBeDefault_STD
+    public abstract class StdCountlessBase : CountlessBase, ICanBeDefault_STD
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -186,7 +183,7 @@ namespace QuizCannersUtilities {
         }
     }
 
-    public class CountlessInt : STDCountlessBase {
+    public class CountlessInt : StdCountlessBase {
 
         List<int> inds;
 
@@ -211,14 +208,14 @@ namespace QuizCannersUtilities {
 
         public override StdEncoder Encode()
         {
-            StdEncoder cody = new StdEncoder();
+            var cody = new StdEncoder();
 
-            List<int> vals;
+            List<int> values;
 
-            GetItAll(out inds, out vals);
+            GetItAll(out inds, out values);
 
             cody.Add("inds", inds);
-            cody.Add("vals", vals);
+            cody.Add("vals", values);
             cody.Add("last", lastFreeIndex);
 
 
@@ -231,14 +228,15 @@ namespace QuizCannersUtilities {
         {
             inds = new List<int>();
             vals = new List<int>();
-            GetItAllCascadeInt(ref inds, ref vals, br, depth, 0, Max);
+            GetItAllCascadeInt(ref inds, ref vals, br, depth, 0, max);
         }
-        void GetItAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
+
+        private void GetItAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
-            int step = range / branchSize;
+            var step = range / BranchSize;
             if (dp > 0)
             {
-                for (int i = 0; i < branchSize; i++)
+                for (var i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
                         GetItAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
 
@@ -247,10 +245,10 @@ namespace QuizCannersUtilities {
             else
             {
 
-                if (range != branchSize)
+                if (range != BranchSize)
                     Debug.Log("Error in range: " + range);
 
-                for (int i = 0; i < 8; i++)
+                for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
                     {
                         inds.Add(start + i);
@@ -267,19 +265,19 @@ namespace QuizCannersUtilities {
             set { Set(index, value); }
         }
 
-        int Get(int ind)
+        private int Get(int ind)
         {
-            if (ind >= Max || ind<0)
+            if (ind >= max || ind<0)
                 return 0;
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return 0;
@@ -288,46 +286,43 @@ namespace QuizCannersUtilities {
                 vb = vb.br[no];
             }
 
-            if (vb.br[ind] == null)
-                return 0;
-
-            return vb.br[ind].value;
+            return vb.br[ind] == null ? 0 : vb.br[ind].value;
         }
 
-        void Set(int ind, int val)
+        private void Set(int ind, int val)
         {
 
             //Debug.Log("Setting "+ind+" to "+val);
 
-            if (ind >= Max)
+            if (ind >= max)
             {
                 if (val == 0)
                     return;
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
+                    max *= BranchSize;
+                    var newBranch = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
-                    newbr.br[0] = br;
-                    newbr.value++;
-                    br = newbr;
+                    newBranch.br[0] = br;
+                    newBranch.value++;
+                    br = newBranch;
                 }
                 path = new VariableBranch[depth];
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             if (val != 0)
             {
                 while (d > 0)
                 {
 
-                    subSize /= branchSize;
-                    int no = ind / subSize;
+                    subSize /= BranchSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
@@ -347,8 +342,8 @@ namespace QuizCannersUtilities {
             {
                 while (d > 0)
                 {
-                    subSize /= branchSize;
-                    int no = ind / subSize;
+                    subSize /= BranchSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) return;
                     d--;
@@ -379,13 +374,13 @@ namespace QuizCannersUtilities {
         public void Add(int ind, int val)
         {
 
-            if (ind >= Max)
+            if (ind >= max)
             {
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
+                    max *= BranchSize;
+                    var newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -394,15 +389,15 @@ namespace QuizCannersUtilities {
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
@@ -423,7 +418,7 @@ namespace QuizCannersUtilities {
             List<int> indx;
             List<int> vals;
              GetItAll(out indx, out vals);
-            for (int i = 0; i < vals.Count; i++)  {
+            for (var i = 0; i < vals.Count; i++)  {
                 currentEnumerationIndex = indx[i];
                 yield return vals[i];
             }
@@ -432,7 +427,7 @@ namespace QuizCannersUtilities {
         public int currentEnumerationIndex;
     }
 
-    public class CountlessBool : STDCountlessBase
+    public class CountlessBool : StdCountlessBase
     {
 
  
@@ -461,39 +456,39 @@ namespace QuizCannersUtilities {
 
         public List<int> GetItAll()
         {
-            List<int> inds = new List<int>();
-            GetItAllCascadeBool(ref inds, br, depth, 0, Max);
+            var inds = new List<int>();
+            GetItAllCascadeBool(ref inds, br, depth, 0, max);
             return inds;
         }
 
-        void GetItAllCascadeBool(ref List<int> inds, VariableBranch b, int dp, int start, int range)
+        private void GetItAllCascadeBool(ref List<int> inds, VariableBranch b, int dp, int start, int range)
         {
 
-            int step = range / branchSize;
+            var step = range / BranchSize;
             if (dp > 0)
             {
-                for (int i = 0; i < branchSize; i++)
+                for (var i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
                         GetItAllCascadeBool(ref inds, b.br[i], dp - 1, start + step * i, step);
             }
             else
             {
 
-                if (range != branchSize)
+                if (range != BranchSize)
                     Debug.Log("Error in range: " + range);
 
-                for (int i = 0; i < 8; i++)
-                    if (b.br[i] != null)
-                    {
-                        int value = b.br[i].value;
+                for (var i = 0; i < 8; i++)
+                {
+                    var branch = b.br[i];
+                    
+                    if (branch == null) continue;
+                    
+                    var value = branch.value;
 
-                        for (int j = 0; j < 32; j++)
-                            if ((value & (int)(0x00000001 << j)) != 0)
-                                //{
-                                inds.Add((start + i) * 32 + j);
-                        //  vals.Add(1);
-                        // }
-                    }
+                    for (var j = 0; j < 32; j++)
+                        if ((value & 0x00000001 << j) != 0)
+                            inds.Add((start + i) * 32 + j);
+                }
             }
         }
 
@@ -503,28 +498,25 @@ namespace QuizCannersUtilities {
             set { Set(index, value); }
         }
 
-        bool Get(int ind)
+        private bool Get(int ind)
         {
 
-            //#if UNITY_EDITOR
             if (ind < 0)
                 return false;
-            //Debug.LogError("Sending " + ind + " as index to Variable Tree, that is a nono");
-            //#endif
 
-            int bitNo = ind % 32;
+            var bitNo = ind % 32;
             ind /= 32;
-            if (ind >= Max)
+            if (ind >= max)
                 return false;
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return false;
@@ -535,26 +527,26 @@ namespace QuizCannersUtilities {
             if (vb.br[ind] == null)
                 return false;
 
-            VariableBranch fvb = vb.br[ind];
+            var fvb = vb.br[ind];
 
-            return ((fvb.value & (int)(0x00000001 << bitNo)) != 0);
-            //return Get(ind) > 0;
+            return ((fvb.value & 0x00000001 << bitNo) != 0);
+
         }
 
-        void Set(int ind, bool val)
+        private void Set(int ind, bool val)
         {
-            int bitNo = ind % 32;
+            var bitNo = ind % 32;
             ind /= 32;
 
-            if (ind >= Max)
+            if (ind >= max)
             {
                 if (!val)
                     return;
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
+                    max *= BranchSize;
+                    var newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -563,15 +555,15 @@ namespace QuizCannersUtilities {
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
@@ -586,13 +578,13 @@ namespace QuizCannersUtilities {
                 vb.value += 1;
             }
 
-            VariableBranch fvb = vb.br[ind];
+            var fvb = vb.br[ind];
+            
             if (val)
-                fvb.value |= (int)(0x00000001 << bitNo);
+                fvb.value |= 0x00000001 << bitNo;
             else
-                fvb.value &= (int)(~(0x00000001 << bitNo));
-            //vb.br[ind].value = val;
-
+                fvb.value &= ~(0x00000001 << bitNo);
+           
             if (fvb.value == 0)
                 DiscardFruit(vb, ind);
 
@@ -613,16 +605,16 @@ namespace QuizCannersUtilities {
 
 
 
-            int bitNo = ind % 32;
+            var bitNo = ind % 32;
             ind /= 32;
 
-            if (ind >= Max)
+            if (ind >= max)
             {
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
+                    max *= BranchSize;
+                    var newbr = GetNewBranch();
                     newbr.br[0] = br;
                     newbr.value++;
                     br = newbr;
@@ -631,16 +623,16 @@ namespace QuizCannersUtilities {
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
 
             while (d > 0)
             {
 
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                 d--;
@@ -656,22 +648,19 @@ namespace QuizCannersUtilities {
                 vb.value += 1;
             }
 
-            VariableBranch fvb = vb.br[ind];
-            // bitFunk(ref fvb.value, bitNo, val);
-            fvb.value ^= (int)(0x00000001 << bitNo);
-            //vb.br[ind].value = val;
+            var fvb = vb.br[ind];
+            
+            fvb.value ^= 0x00000001 << bitNo;
 
-            bool rslt = (((fvb.value & (int)(0x00000001 << bitNo)) != 0) ? true : false);
+            var result = ((fvb.value & 0x00000001 << bitNo) != 0);
 
             if (fvb.value == 0)
                 DiscardFruit(vb, ind);
 
-
-
             while (d < depth)
             {
                 if (vb.value > 0)
-                    return rslt;
+                    return result;
                 vb = path[d];
                 DiscardBranch(vb, pathInd[d]);
                 d++;
@@ -679,7 +668,7 @@ namespace QuizCannersUtilities {
 
             TryReduceDepth();
 
-            return rslt;
+            return result;
         }
 
         public IEnumerator<int> GetEnumerator()
@@ -696,9 +685,9 @@ namespace QuizCannersUtilities {
 public class Countless<T> : CountlessBase {
         
         protected T[] objs = new T[0];
-        int firstFreeObj = 0;
+        private int _firstFreeObj;
 
-        public void Expand(ref T[] args, int add)  {
+        private static void Expand(ref T[] args, int add)  {
             T[] temp;
             if (args != null)
             {
@@ -727,14 +716,14 @@ public class Countless<T> : CountlessBase {
         protected virtual void Set(int ind, T obj)
         {
             
-            if (ind >= Max)
+            if (ind >= max)
             {
                 if (obj.IsDefaultOrNull())
                     return;
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
+                    max *= BranchSize;
                     VariableBranch newbr = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
                     newbr.br[0] = br;
@@ -747,13 +736,13 @@ public class Countless<T> : CountlessBase {
 
             int d = depth;
             VariableBranch vb = br;
-            int subSize = Max;
+            int subSize = max;
 
             if (!obj.IsDefaultOrNull())
             {
                 while (d > 0)
                 {
-                    subSize /= branchSize;
+                    subSize /= BranchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
@@ -767,12 +756,12 @@ public class Countless<T> : CountlessBase {
                     vb.value += 1;
 
                     int cnt = objs.Length;
-                    while ((firstFreeObj < cnt) && (!objs[firstFreeObj].IsDefaultOrNull())) firstFreeObj++;
-                    if (firstFreeObj >= cnt)
-                        Expand(ref objs, branchSize);
+                    while ((_firstFreeObj < cnt) && (!objs[_firstFreeObj].IsDefaultOrNull())) _firstFreeObj++;
+                    if (_firstFreeObj >= cnt)
+                        Expand(ref objs, BranchSize);
 
-                    objs[firstFreeObj] = obj;
-                    vb.br[ind].value = firstFreeObj;
+                    objs[_firstFreeObj] = obj;
+                    vb.br[ind].value = _firstFreeObj;
                 }
                 else
                     objs[vb.br[ind].value] = obj;
@@ -782,7 +771,7 @@ public class Countless<T> : CountlessBase {
             {
                 while (d > 0)
                 {
-                    subSize /= branchSize;
+                    subSize /= BranchSize;
                     int no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) return;
@@ -802,7 +791,7 @@ public class Countless<T> : CountlessBase {
                 //    Debug.Log("ar is zero");
 
                 objs[ar] = default(T);
-                firstFreeObj = Mathf.Min(firstFreeObj, ar);
+                _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
 
                 DiscardFruit(vb, ind);
 
@@ -822,16 +811,16 @@ public class Countless<T> : CountlessBase {
 
         protected virtual T Get(int ind)
         {
-            if (ind >= Max || ind<0)
+            if (ind >= max || ind<0)
                 return default(T);
 
             int d = depth;
             VariableBranch vb = br;
-            int subSize = Max;
+            int subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
+                subSize /= BranchSize;
                 int no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
@@ -872,15 +861,15 @@ public class Countless<T> : CountlessBase {
         {
             inds = new List<int>();
             vals = new List<int>();
-            GetAllCascadeInt(ref inds, ref vals, br, depth, 0, Max);
+            GetAllCascadeInt(ref inds, ref vals, br, depth, 0, max);
         }
 
         void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
-            int step = range / branchSize;
+            int step = range / BranchSize;
             if (dp > 0)
             {
-                for (int i = 0; i < branchSize; i++)
+                for (int i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
                         GetAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
 
@@ -889,7 +878,7 @@ public class Countless<T> : CountlessBase {
             else
             {
 
-                if (range != branchSize)
+                if (range != BranchSize)
                     Debug.Log("Error in range: " + range);
 
                 for (int i = 0; i < 8; i++)
@@ -907,7 +896,7 @@ public class Countless<T> : CountlessBase {
         {
             base.Clear();
             objs = new T[0];
-            firstFreeObj = 0;
+            _firstFreeObj = 0;
         }
 
         public virtual bool NotEmpty => objs.Length > 0;
@@ -937,19 +926,19 @@ public class Countless<T> : CountlessBase {
             set { Set(i.IndexForPEGI, value); }
         }
 
-        int edited = -1;
+        private int _edited = -1;
 
         public override bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            if (edited == -1)
+            if (_edited == -1)
             {
 
                 List<int> indxs;
                 var allElements = GetAllObjs(out indxs);
 
-                for (int i = 0; i < allElements.Count; i++)
+                for (var i = 0; i < allElements.Count; i++)
                 {
                     var ind = indxs[i];
                     var el = allElements[i];
@@ -957,16 +946,16 @@ public class Countless<T> : CountlessBase {
                     if (icon.Delete.Click())
                         this[ind] = default(T);
                     else
-                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited);
+                        el.Name_ClickInspect_PEGI<T>(null, ind, ref _edited);
                 }
 
             }
             else
             {
-                if (icon.List.Click("Back to elements window"))
-                    edited = -1;
+                if (icon.List.Click("Back to elements window", ref changed))
+                    _edited = -1;
                 else
-                    this[edited].Try_Nested_Inspect();
+                    this[_edited].Try_Nested_Inspect();
             }
             return changed;
         }
@@ -977,47 +966,46 @@ public class Countless<T> : CountlessBase {
     }
 
     // Unnulable classes will create new instances
-    public class Unnullable<T> : Countless<T> where T : new()
+    public class UnNullable<T> : Countless<T> where T : new()
     {
+        private static int indexOfCurrentlyCreatedUnNullable;
 
-        public static int IndexOfCurrentlyCreatedUnnulable;
-
-        T Create(int ind)
+        private T Create(int ind)
         {
-            IndexOfCurrentlyCreatedUnnulable = ind;
-            T tmp = new T();
+            indexOfCurrentlyCreatedUnNullable = ind;
+            var tmp = new T();
             Set(ind, tmp);
             return tmp;
         }
 
         public int AddNew()
         {
-            IndexOfCurrentlyCreatedUnnulable = -1;
+            indexOfCurrentlyCreatedUnNullable = -1;
 
-            while (IndexOfCurrentlyCreatedUnnulable == -1)
+            while (indexOfCurrentlyCreatedUnNullable == -1)
             {
                 Get(firstFree);
                 firstFree++;
             }
 
-            return IndexOfCurrentlyCreatedUnnulable;
+            return indexOfCurrentlyCreatedUnNullable;
         }
 
         protected override T Get(int ind)
         {
-            int originalIndex = ind;
+            var originalIndex = ind;
 
-            if (ind >= Max)
+            if (ind >= max)
                 return Create(originalIndex);
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return Create(originalIndex);
@@ -1025,27 +1013,24 @@ public class Countless<T> : CountlessBase {
                 vb = vb.br[no];
             }
 
-            if (vb.br[ind] == null)
-                return Create(originalIndex);
-
-            return objs[vb.br[ind].value];
+            return vb.br[ind] == null ? Create(originalIndex) : objs[vb.br[ind].value];
         }
 
         public override T GetIfExists(int ind)
         {
             // int originalIndex = ind;
 
-            if (ind >= Max)
+            if (ind >= max)
                 return default(T);
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return default(T);
@@ -1053,429 +1038,17 @@ public class Countless<T> : CountlessBase {
                 vb = vb.br[no];
             }
 
-            if (vb.br[ind] == null)
-                return default(T);
-
-            return objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
         }
 
-    }
-
-    public class CountlessSTD<T> : STDCountlessBase where T : ISTD , new() {
-        
-        protected T[] objs = new T[0];
-        int firstFreeObj = 0;
-
-        public bool allowAdd;
-        public bool allowDelete;
-
-        #region Encode & Decode
-        static List<int> tmpDecodeInds;
-        public override bool Decode(string tg, string data) {
-
-            switch (tg) {
-
-                case "inds": data.Decode_List(out tmpDecodeInds); break;
-                case "vals": List<T> tmps; data.Decode_List(out tmps);
-                    for (int i = 0; i < tmps.Count; i++) {
-                        var tmp = tmps[i];
-                        if (!tmp.Equals(default(T)))
-                            this[tmpDecodeInds[i]] = tmp;
-                            
-                        
-                    }
-                    count = tmps.Count;
-                    tmpDecodeInds = null;
-                    break;
-                case "brws": edited = data.ToInt(); break;
-                case "last": lastFreeIndex = data.ToInt(); break;
-                case "add": allowAdd = data.ToBool(); break;
-                case "del": allowDelete = data.ToBool(); break;
-                default: 
-                    // Legacy method:
-            this[tg.ToInt()] = data.DecodeInto<T>(); break;
-        }
-            return true;
-        }
-
-        public override StdEncoder Encode()
-        {
-          
-            List<int> inds;
-            List<T> vals = GetAllObjs(out inds);
-
-            var cody = new StdEncoder()
-                .Add("inds", inds)
-                .Add("vals", vals)
-                .Add_IfNotNegative("brws", edited)
-                .Add("last", lastFreeIndex)
-                 .Add_Bool("add", allowAdd)
-                 .Add_Bool("del", allowDelete);
-
-            return cody;
-        }
-        #endregion
-
-        public void Expand(ref T[] args, int add) {
-            T[] temp;
-            if (args != null)
-            {
-                temp = new T[args.Length + add];
-                args.CopyTo(temp, 0);
-            }
-            else temp = new T[add];
-            args = temp;
-
-        }
-
-        public T this[int index]
-        {
-            get { return Get(index); }
-            set { Set(index, value); }
-        }
-
-        protected void Set(int ind, T obj)
-        {
-            if (ind >= Max)
-            {
-                if (obj == null)
-                    return;
-                while (ind >= Max)
-                {
-                    depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
-                    newbr.br[0] = br;
-                    newbr.value++;
-                    br = newbr;
-                }
-                path = new VariableBranch[depth];
-                pathInd = new int[depth];
-            }
-
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
-
-            if (obj != null)
-            {
-                while (d > 0)
-                {
-                    subSize /= branchSize;
-                    int no = ind / subSize;
-                    ind -= no * subSize;
-                    if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
-                    d--;
-                    vb = vb.br[no];
-                }
-
-                if (vb.br[ind] == null) {
-                    vb.br[ind] = GetNewFruit();
-                    vb.value += 1;
-
-                    int cnt = objs.Length;
-                    while ((firstFreeObj < cnt) && (objs[firstFreeObj] != null)) firstFreeObj++;
-                    if (firstFreeObj >= cnt)
-                        Expand(ref objs, branchSize);
-
-                    objs[firstFreeObj] = obj;
-                    vb.br[ind].value = firstFreeObj;
-                }
-                else
-                    objs[vb.br[ind].value] = obj;
-
-            }
-            else
-            {
-                while (d > 0)
-                {
-                    subSize /= branchSize;
-                    int no = ind / subSize;
-                    ind -= no * subSize;
-                    if (vb.br[no] == null) return;
-                    d--;
-                    path[d] = vb;
-                    pathInd[d] = no;
-                    vb = vb.br[no];
-                }
-
-                if (vb.br[ind] == null)
-                    return;
-
-
-                int ar = vb.br[ind].value;
-
-                //  if (ar == 0)
-                //    Debug.Log("ar is zero");
-
-                objs[ar] = default(T);
-                firstFreeObj = Mathf.Min(firstFreeObj, ar);
-
-                DiscardFruit(vb, ind);
-
-                while (d < depth)
-                {
-                    if (vb.value > 0)
-                        return;
-                    vb = path[d];
-                    DiscardBranch(vb, pathInd[d]);
-                    d++;
-                }
-
-                TryReduceDepth();
-
-            }
-        }
-
-        public List<T> GetAllObjsNoOrder()
-        {
-            List<T> tmp = new List<T>();
-            for (int i = 0; i < objs.Length; i++)
-                if (objs[i] != null)
-                    tmp.Add(objs[i]);
-
-            return tmp;
-        }
-
-        public List<T> GetAllObjs(out List<int> inds)
-        {
-            List<T> objects = new List<T>();
-            List<int> vals;
-            GetAllOrdered(out inds, out vals);
-
-            foreach (int i in vals)
-                objects.Add(objs[i]);
-
-            return objects;
-        }
-
-        void GetAllOrdered(out List<int> inds, out List<int> vals)
-        {
-            inds = new List<int>();
-            vals = new List<int>();
-            GetAllCascadeInt(ref inds, ref vals, br, depth, 0, Max);
-        }
-
-        void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
-        {
-            int step = range / branchSize;
-            if (dp > 0)
-            {
-                for (int i = 0; i < branchSize; i++)
-                    if (b.br[i] != null)
-                        GetAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
-
-
-            }
-            else
-            {
-
-                if (range != branchSize)
-                    Debug.Log("Error in range: " + range);
-
-                for (int i = 0; i < 8; i++)
-                    if (b.br[i] != null)
-                    {
-                        inds.Add(start + i);
-                        vals.Add(b.br[i].value);
-                    }
-            }
-
-
-        }
-
-        protected virtual T Get(int ind)
-        {
-            if (ind >= Max || ind<0)
-                return default(T);
-
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
-
-            while (d > 0)
-            {
-                subSize /= branchSize;
-                int no = ind / subSize;
-                ind -= no * subSize;
-                if (vb.br[no] == null)
-                    return default(T);
-                d--;
-                vb = vb.br[no];
-            }
-
-            if (vb.br[ind] == null)
-                return default(T);
-
-            return objs[vb.br[ind].value];
-        }
-
-        public override void Clear()
-        {
-            base.Clear();
-            objs = new T[0];
-            firstFreeObj = 0;
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            List<int> indx;
-            var all = GetAllObjs(out indx);
-            for (int i = 0; i < all.Count; i++) {
-
-                var e = all[i];
-
-                if (!e.IsDefaultOrNull())
-                {
-                    currentEnumerationIndex = indx[i];
-                    yield return e;
-                }
-            }
-        }
-
-        public int currentEnumerationIndex;
-
-        int edited = -1;
-
-        public virtual T GetIfExists(int ind) => Get(ind);
-
-
-#if PEGI
-        public override bool Inspect()
-        {
-            bool changed = false;
-
-            if (edited == -1)  {
-
-                List<int> indxs;
-                var allElements = GetAllObjs(out indxs);
-
-                if (allowAdd && icon.Add.Click("Add "+typeof(T).ToPEGIstring_Type())) {
-                    while (!this.GetIfExists(lastFreeIndex).IsDefaultOrNull())
-                        lastFreeIndex++;
-
-                    this[lastFreeIndex] = new T();
-                }
-
-                pegi.nl();
-
-                for (int i = 0; i < allElements.Count; i++)  {
-                    var ind = indxs[i];
-                    var el = allElements[i];
-
-                    if (allowDelete && icon.Delete.Click("Clear element without shifting the rest"))
-                        this[ind] = default(T);
-                    else
-                    {
-                        "{0}".F(ind).write(20);
-                        el.Name_ClickInspect_PEGI<T>(null, ind, ref edited);
-                    }
-
-                    pegi.nl();
-
-                }
-
-            } else
-            {
-                if (icon.List.Click("Back to elements window"))
-                    edited = -1;
-                else
-                    this[edited].Try_Nested_Inspect();
-            }
-            return changed;
-        }
-#endif
-    }
-
-    // Unnulable classes will create new instances
-    public class UnnullableSTD<T> : CountlessSTD<T> where T : ISTD, new()  {
-
-        public static int IndexOfCurrentlyCreatedUnnulable;
-
-        T Create(int ind) {
-            IndexOfCurrentlyCreatedUnnulable = ind;
-            T tmp = new T();
-            Set(ind, tmp);
-            return tmp;
-        }
-
-        public int AddNew()
-        {
-            IndexOfCurrentlyCreatedUnnulable = -1;
-
-            while (IndexOfCurrentlyCreatedUnnulable == -1)
-            {
-                Get(firstFree);
-                firstFree++;
-            }
-
-            return IndexOfCurrentlyCreatedUnnulable;
-        }
-
-        protected override T Get(int ind)  {
-            int originalIndex = ind;
-
-            if (ind >= Max)
-                return Create(originalIndex);
-
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
-
-            while (d > 0)
-            {
-                subSize /= branchSize;
-                int no = ind / subSize;
-                ind -= no * subSize;
-                if (vb.br[no] == null)
-                    return Create(originalIndex);
-                d--;
-                vb = vb.br[no];
-            }
-
-            if (vb.br[ind] == null)
-                return Create(originalIndex);
-
-            return objs[vb.br[ind].value];
-        }
-
-        public override T GetIfExists(int ind)
-        {
-            // int originalIndex = ind;
-
-            if (ind >= Max)
-                return default(T);
-
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
-
-            while (d > 0)
-            {
-                subSize /= branchSize;
-                int no = ind / subSize;
-                ind -= no * subSize;
-                if (vb.br[no] == null)
-                    return default(T);
-                d--;
-                vb = vb.br[no];
-            }
-
-            if (vb.br[ind] == null)
-                return default(T);
-
-            return objs[vb.br[ind].value];
-        }
-        
     }
 
     // List trees
-    public class UnnullableLists<T> : CountlessBase, IEnumerable {
+    public class UnNullableLists<T> : CountlessBase, IEnumerable {
+        private List<T>[] _objs = new List<T>[0];
+        private int _firstFreeObj;
 
-        List<T>[] objs = new List<T>[0];
-        int firstFreeObj = 0;
-
-        public void Expand(ref List<T>[] args, int add) // no instantiating
+        private static void Expand(ref List<T>[] args, int add) // no instantiating
         {
             List<T>[] temp;
             if (args != null)
@@ -1495,36 +1068,36 @@ public class Countless<T> : CountlessBase {
             set { Set(index, value); }
         }
 
-        void Set(int ind, List<T> obj)
+        private void Set(int ind, List<T> obj)
         {
-            if (ind >= Max)
+            if (ind >= max)
             {
                 if (obj == null)
                     return;
-                while (ind >= Max)
+                while (ind >= max)
                 {
                     depth++;
-                    Max *= branchSize;
-                    VariableBranch newbr = GetNewBranch();
+                    max *= BranchSize;
+                    var newBranch = GetNewBranch();
                     //newbr.br = new VariableBranch[branchSize];
-                    newbr.br[0] = br;
-                    newbr.value++;
-                    br = newbr;
+                    newBranch.br[0] = br;
+                    newBranch.value++;
+                    br = newBranch;
                 }
                 path = new VariableBranch[depth];
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             if (obj != null)
             {
                 while (d > 0)
                 {
-                    subSize /= branchSize;
-                    int no = ind / subSize;
+                    subSize /= BranchSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
@@ -1536,24 +1109,24 @@ public class Countless<T> : CountlessBase {
                     vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 
-                    int cnt = objs.Length;
-                    while ((firstFreeObj < cnt) && (objs[firstFreeObj] != null)) firstFreeObj++;
-                    if (firstFreeObj >= cnt)
-                        Expand(ref objs, branchSize);
+                    var cnt = _objs.Length;
+                    while ((_firstFreeObj < cnt) && (_objs[_firstFreeObj] != null)) _firstFreeObj++;
+                    if (_firstFreeObj >= cnt)
+                        Expand(ref _objs, BranchSize);
 
-                    objs[firstFreeObj] = obj;
-                    vb.br[ind].value = firstFreeObj;
+                    _objs[_firstFreeObj] = obj;
+                    vb.br[ind].value = _firstFreeObj;
                 }
                 else
-                    objs[vb.br[ind].value] = obj;
+                    _objs[vb.br[ind].value] = obj;
 
             }
             else
             {
                 while (d > 0)
                 {
-                    subSize /= branchSize;
-                    int no = ind / subSize;
+                    subSize /= BranchSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) return;
                     d--;
@@ -1566,13 +1139,10 @@ public class Countless<T> : CountlessBase {
                     return;
 
 
-                int ar = vb.br[ind].value;
+                var ar = vb.br[ind].value;
 
-                //  if (ar == 0)
-                //    Debug.Log("ar is zero");
-
-                objs[ar] = default(List<T>);
-                firstFreeObj = Mathf.Min(firstFreeObj, ar);
+                _objs[ar] = default(List<T>);
+                _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
 
                 DiscardFruit(vb, ind);
 
@@ -1590,41 +1160,34 @@ public class Countless<T> : CountlessBase {
             }
         }
 
-        public List<List<T>> GetAllObjsNoOrder()
-        {
-            List<List<T>> tmp = new List<List<T>>();
-            for (int i = 0; i < objs.Length; i++)
-                if (objs[i] != null)
-                    tmp.Add(objs[i]);
+        public List<List<T>> GetAllObjsNoOrder() => _objs.Where(t => t != null).ToList();
 
-            return tmp;
-        }
 
         public List<List<T>> GetAllObjs(out List<int> inds)
         {
-            List<List<T>> objects = new List<List<T>>();
+            var objects = new List<List<T>>();
             List<int> vals;
             GetAllOrdered(out inds, out vals);
 
-            foreach (int i in vals)
-                objects.Add(objs[i]);
+            foreach (var i in vals)
+                objects.Add(_objs[i]);
 
             return objects;
         }
 
-        void GetAllOrdered(out List<int> inds, out List<int> vals)
+        public void GetAllOrdered(out List<int> inds, out List<int> vals)
         {
             inds = new List<int>();
             vals = new List<int>();
-            GetAllCascadeInt(ref inds, ref vals, br, depth, 0, Max);
+            GetAllCascadeInt(ref inds, ref vals, br, depth, 0, max);
         }
 
-        void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
+        private static void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
-            int step = range / branchSize;
+            var step = range / BranchSize;
             if (dp > 0)
             {
-                for (int i = 0; i < branchSize; i++)
+                for (var i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
                         GetAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
 
@@ -1633,10 +1196,10 @@ public class Countless<T> : CountlessBase {
             else
             {
 
-                if (range != branchSize)
+                if (range != BranchSize)
                     Debug.Log("Error in range: " + range);
 
-                for (int i = 0; i < 8; i++)
+                for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
                     {
                         inds.Add(start + i);
@@ -1647,7 +1210,7 @@ public class Countless<T> : CountlessBase {
 
         }
 
-        List<T> Create(int ind)
+        private List<T> Create(int ind)
         {
             if (ind < 0)
             {
@@ -1659,24 +1222,24 @@ public class Countless<T> : CountlessBase {
             return tmp;
         }
 
-        List<T> Get(int ind)
+        private List<T> Get(int ind)
         {
             if (ind < 0)
                 return null;
 
-            int originalIndex = ind;
+            var originalIndex = ind;
 
-            if (ind >= Max)
+            if (ind >= max)
                 return Create(originalIndex);//default(List<T>);
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = Max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
-                subSize /= branchSize;
-                int no = ind / subSize;
+                subSize /= BranchSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return Create(originalIndex);
@@ -1684,58 +1247,20 @@ public class Countless<T> : CountlessBase {
                 vb = vb.br[no];
             }
 
-            if (vb.br[ind] == null)
-                return Create(originalIndex);
-
-            return objs[vb.br[ind].value];
+            return vb.br[ind] == null ? Create(originalIndex) : _objs[vb.br[ind].value];
         }
 
         public override void Clear()
         {
             base.Clear();
-            objs = new List<T>[0];
-            firstFreeObj = 0;
+            _objs = new List<T>[0];
+            _firstFreeObj = 0;
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            foreach (var e in objs)
-                if (!e.IsDefaultOrNull())
-                    yield return e;
-        }
+        public IEnumerator GetEnumerator() => _objs.Where(e => !e.IsDefaultOrNull()).GetEnumerator();
+        
     }
 
-    public class UnnulSTDLists<T> : UnnullableLists<T>, ISTD where T : ISTD, IPEGI, new() {
-
-        public bool Decode(string tg, string data)
-        {
-            List<T> el; 
-            int index = tg.ToInt();
-            this[index] = data.Decode_List(out el);
-            return true;
-        }
-
-        public void Decode(string data) {
-            Clear();
-            data.DecodeTagsFor(this);
-         }
-        public StdEncoder Encode()
-        {
-            StdEncoder cody = new StdEncoder();
-
-            List<int> inds;
-            List<List<T>> vals = GetAllObjs(out inds);
-
-            for (int i = 0; i < inds.Count; i++)
-                cody.Add_IfNotEmpty(inds[i].ToString(), vals[i]);
-
-            return cody;
-        }
-
-     //   public const string storyTag = "TreeObj";
-      //  public override string getDefaultTagName() { return storyTag; }
-    }
-    
     public class VariableBranch
     {
         public int value;
@@ -1747,28 +1272,28 @@ public class Countless<T> : CountlessBase {
 
         #region Inspector
 #if PEGI
-        public static bool Inspect<G, T>(this G Cstd, ref int inspected) where G : CountlessSTD<T> where T: ISTD, IPEGI, new() {
+        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessStd<T> where T: ISTD, IPEGI, new() {
 
-            bool changed = false;
+            var changed = false;
             
             if (inspected > -1) {
-                var e = Cstd[inspected];
+                var e = countless[inspected];
                 if (e.IsDefaultOrNull() || icon.Back.ClickUnFocus())
                     inspected = -1;
                 else
                     changed |= e.Try_Nested_Inspect();
             }
 
-            int deleted = -1;
+            var deleted = -1;
 
             if (inspected == -1)
-                foreach (var e in Cstd) {
-                    if (icon.Delete.Click()) deleted = Cstd.currentEnumerationIndex;
-                    "{0}: ".F(Cstd.currentEnumerationIndex).write(35);
-                    changed |= e.Name_ClickInspect_PEGI<T>(null, Cstd.currentEnumerationIndex, ref inspected).nl();
+                foreach (var e in countless) {
+                    if (icon.Delete.Click()) deleted = countless.currentEnumerationIndex;
+                    "{0}: ".F(countless.currentEnumerationIndex).write(35);
+                    changed |= e.Name_ClickInspect_PEGI<T>(null, countless.currentEnumerationIndex, ref inspected).nl();
                 }
             if (deleted != -1)
-                Cstd[deleted] = default(T);
+                countless[deleted] = default(T);
             
             pegi.newLine();
             return changed;
@@ -1858,35 +1383,26 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        public static int Get(this UnnullableSTD<CountlessInt> unn, int group, int index)
+        /*
+        public static int Get(this UnNullableStd<CountlessInt> unn, int group, int index)
         {
             var tg = TryGet(unn, group);
-            if (tg == null)
-                return 0;
-            return tg[index];
+            return tg?[index] ?? 0;
         }
 
-        public static bool Get(this UnnullableSTD<CountlessBool> unn, int group, int index) {
+        public static bool Get(this UnNullableStd<CountlessBool> unn, int group, int index) {
             var tg = TryGet(unn, group);
-            if (tg == null)
-                return false;
-            return tg[index];
+            return tg != null && tg[index];
         }
 
-        public static T Get<T>(this UnnullableSTD<CountlessSTD<T>> unn, int group, int index) where T: ISTD, new()
+        public static T Get<T>(this UnNullableStd<CountlessStd<T>> unn, int group, int index) where T: ISTD, new()
         {
             var tg = TryGet(unn, group);
-            if (tg == null)
-                return default(T);
-            return tg[index];
+            return tg == null ? default(T) : tg[index];
         }
-
-        public static T TryGet<T>(this UnnullableSTD<T> unn, int index) where T : ISTD, new()
-        {
-            if (unn != null)
-                return unn.GetIfExists(index);
-            return default(T);
-        }
+*/
+        public static T TryGet<T>(this UnNullableStd<T> unn, int index) where T : ISTD, new() => unn != null ? unn.GetIfExists(index) : default(T);
+        
 
     }
 

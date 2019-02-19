@@ -1999,7 +1999,7 @@ namespace Playtime_Painter {
                                 MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                             }
 
-                            MeshMgmt.PEGI().nl();
+                            MeshMgmt.Inspect().nl();
                         }
                     }
                     pegi.newLine();

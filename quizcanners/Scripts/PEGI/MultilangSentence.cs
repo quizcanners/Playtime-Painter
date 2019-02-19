@@ -143,7 +143,7 @@ namespace PlayerAndEditorGUI {
 
         ConditionBranch condition = new ConditionBranch();
 
-        public bool CheckConditions(Values vals) => condition.CheckConditions(vals);
+        public bool CheckConditions(Values values) => condition.CheckConditions(values);
 
         #region Inspector
 #if PEGI

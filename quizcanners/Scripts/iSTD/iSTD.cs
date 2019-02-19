@@ -246,7 +246,7 @@ namespace QuizCannersUtilities {
 
             var changed = false;
 
-            if (!icon.Config.enter(ref inspectedStuff, 0)) return false;
+            if (!icon.Debug.enter(ref inspectedStuff, 0)) return false;
             
             if (icon.Refresh.Click("Reset Inspector"))
                 ResetInspector();
@@ -590,7 +590,7 @@ namespace QuizCannersUtilities {
 
             var ch = into as ICanChangeClass;
             if (ch != null && !from.IsNullOrDestroyed_Obj())
-                ch.Copy_NonSTDdata_From_PreviousInstance(from);
+                ch.Copy_NonStdData_From_PreviousInstance(from);
 
             
         }

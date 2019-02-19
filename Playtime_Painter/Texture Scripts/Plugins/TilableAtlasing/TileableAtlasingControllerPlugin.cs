@@ -16,7 +16,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IVertexEdgePlugin, IPainterManagerPlugin_Brush
+    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IMeshToolPlugin, IPainterManagerPlugin_Brush
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
@@ -53,8 +53,9 @@ namespace Playtime_Painter
         protected int inspectedAtlas;
 
         #if PEGI
-        public bool VertexEdgePegi() {
-            if (MeshMGMT.target.IsAtlased()) {
+        public bool MeshToolInspection(MeshToolBase currentTool) {
+
+            if (currentTool is VertexEdgeTool && MeshMGMT.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.Inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())

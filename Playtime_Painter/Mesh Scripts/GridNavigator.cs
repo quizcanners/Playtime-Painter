@@ -1,12 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using Playtime_Painter;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
@@ -15,6 +8,7 @@ public enum Gridside { xz, xy, zy }
 
 [ExecuteInEditMode]
 public class GridNavigator : PainterStuffMono {
+
     public static GridNavigator Inst()  {
         if (_inst) return _inst;
         if (!ApplicationIsQuitting)
@@ -314,10 +308,9 @@ public class GridNavigator : PainterStuffMono {
 
     }
 
-    private readonly ShaderProperty.FloatValue _dxProp = new ShaderProperty.FloatValue("dx");
-    private readonly ShaderProperty.FloatValue _dyProp = new ShaderProperty.FloatValue("dy");
-    private readonly ShaderProperty.FloatValue _sizeProp = new ShaderProperty.FloatValue("_Size");
-    
+    private readonly ShaderProperty.FloatValue _dxProp      = new ShaderProperty.FloatValue("_dx");
+    private readonly ShaderProperty.FloatValue _dyProp      = new ShaderProperty.FloatValue("_dy");
+    private readonly ShaderProperty.FloatValue _sizeProp    = new ShaderProperty.FloatValue("_Size");
     
     private void Update() {
 
