@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter {
 
-    public class EditableMesh : PainterStuff_STD, IPEGI {
+    public class EditableMesh : PainterStuffStd, IPEGI {
 
         public string meshName = "unnamed";
 

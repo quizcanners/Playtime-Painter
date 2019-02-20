@@ -14,7 +14,7 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter{
 
-public static class TextureEditorExtensionFunctions  {
+    public static class TextureEditorExtensionFunctions  {
 
         public static void TeachingNotification(this string text)
         {
@@ -56,39 +56,39 @@ public static class TextureEditorExtensionFunctions  {
             }
         }
 
-    public static void Transfer(this BrushMask bm, ref Color col, Color c)
-    {
-        if ((bm & BrushMask.R) != 0)
-            col.r = c.r;
-        if ((bm & BrushMask.G) != 0)
-            col.g =  c.g;
-        if ((bm & BrushMask.B) != 0)
-            col.b =  c.b;
-        if ((bm & BrushMask.A) != 0)
-            col.a =  c.a;
-    }
-
-    public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
-    {
-        if ((bm & BrushMask.R) != 0)
-            col.x = c.r;
-        if ((bm & BrushMask.G) != 0)
-            col.y = c.g;
-        if ((bm & BrushMask.B) != 0)
-            col.z = c.b;
-        if ((bm & BrushMask.A) != 0)
-            col.w = c.a;
-    }
-
-    public static Mesh GetMesh(this PlaytimePainter p) {
-        if (!p) return null;
-
-        if (p.skinnedMeshRenderer)
-                return p.colliderForSkinnedMesh;
-
-        return p.SharedMesh;
-        
-    }
+        public static void Transfer(this BrushMask bm, ref Color col, Color c)
+        {
+            if ((bm & BrushMask.R) != 0)
+                col.r = c.r;
+            if ((bm & BrushMask.G) != 0)
+                col.g =  c.g;
+            if ((bm & BrushMask.B) != 0)
+                col.b =  c.b;
+            if ((bm & BrushMask.A) != 0)
+                col.a =  c.a;
+        }
+    
+        public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
+        {
+            if ((bm & BrushMask.R) != 0)
+                col.x = c.r;
+            if ((bm & BrushMask.G) != 0)
+                col.y = c.g;
+            if ((bm & BrushMask.B) != 0)
+                col.z = c.b;
+            if ((bm & BrushMask.A) != 0)
+                col.w = c.a;
+        }
+    
+        public static Mesh GetMesh(this PlaytimePainter p) {
+            if (!p) return null;
+    
+            if (p.skinnedMeshRenderer)
+                    return p.colliderForSkinnedMesh;
+    
+            return p.SharedMesh;
+            
+        }
 
         public static bool ContainsInstanceType(this List<PainterComponentPluginBase> collection, Type type){
 
@@ -112,18 +112,10 @@ public static class TextureEditorExtensionFunctions  {
             
             if (painter.LockTextureEditing || PainterCamera.Data.showConfig || !PlaytimePainter.IsCurrentTool)
                 return false;
-                
-            if (painter.GlobalBrushType.NeedsGrid) return true;
 
-            return GridNavigator.pluginNeedsGrid_Delegates != null && GridNavigator.pluginNeedsGrid_Delegates.GetInvocationList().Cast<PainterBoolPlugin>().Any(p => p(painter));
+            return painter.GlobalBrushType.NeedsGrid; 
         }
 
-        public static void RemoveEmpty(this Dictionary<string, List<ImageMeta>> dic)
-        {
-            foreach (var l in dic)
-                l.Value.RemoveEmpty();
-        }
-        
         public static void AddIfNew<T>(this Dictionary<T, List<ImageMeta>> dic, T property, ImageMeta texture) where T:ShaderProperty.BaseIndexHolder
         {
 
@@ -140,27 +132,10 @@ public static class TextureEditorExtensionFunctions  {
 
         }
         
-        public static void AddIfNew(this Dictionary<string, List<ImageMeta>> dic, string Property, ImageMeta texture)
-        {
-
-            List<ImageMeta> mgmt;
-            if (!dic.TryGetValue(Property, out mgmt))
-            {
-                mgmt = new List<ImageMeta>();
-                dic.Add(Property, mgmt);
-            }
-
-            if (!mgmt.ContainsDuplicant(texture))
-                mgmt.Add(texture);
-
-        }
-
         public static bool TargetIsTexture2D(this ImageMeta id) =>  id != null && id.destination == TexTarget.Texture2D;
         
         public static bool TargetIsRenderTexture(this ImageMeta id) => id != null && id.destination == TexTarget.RenderTexture;
-        
-        public static bool TargetIsBigRenderTexture(this ImageMeta id)=> id != null && ((id.destination == TexTarget.RenderTexture) && (!id.renderTexture));
-        
+
         public static ImageMeta GetImgDataIfExists(this Texture texture)
         {
             if (!texture || !PainterCamera.Data)
@@ -223,7 +198,6 @@ public static class TextureEditorExtensionFunctions  {
 
         public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.bigRtPair[0]);
         
-
         public static Texture ExclusiveTexture(this ImageMeta id)
         {
             if (id == null)

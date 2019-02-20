@@ -11,20 +11,25 @@ namespace Playtime_Painter {
     {
         public override TaggedTypesStd TaggedTypes => PainterManagerPluginBase.all;
     }
-    
-    public interface IPainterManagerPlugin_ComponentPEGI
+
+    public interface IPainterManagerPluginOnGUI
+    {
+        void OnGUI();
+    }
+
+    public interface IPainterManagerPluginComponentPEGI
     {
         #if PEGI
         bool ComponentInspector();
         #endif
     }
 
-    public interface IPainterManagerPlugin_Gizmis
+    public interface IPainterManagerPluginGizmis
     {
-        void PlugIn_PainterGizmos(PlaytimePainter painter);
+        bool PlugIn_PainterGizmos(PlaytimePainter painter);
     }
 
-    public interface IPainterManagerPlugin_Brush
+    public interface IPainterManagerPluginBrush
     {
         bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther);
 
@@ -62,15 +67,17 @@ namespace Playtime_Painter {
 
         public static List<PainterManagerPluginBase> plugins;
 
-        public static List<IPainterManagerPlugin_ComponentPEGI> componentMGMTplugins = new List<IPainterManagerPlugin_ComponentPEGI>();
+        public static readonly List<IPainterManagerPluginComponentPEGI> ComponentMgmtPlugins = new List<IPainterManagerPluginComponentPEGI>();
 
-        public static List<IPainterManagerPlugin_Brush> brushPlugins = new List<IPainterManagerPlugin_Brush>();
+        public static readonly List<IPainterManagerPluginBrush> BrushPlugins = new List<IPainterManagerPluginBrush>();
 
-        public static List<IPainterManagerPlugin_Gizmis> gizmoPlugins = new List<IPainterManagerPlugin_Gizmis>();
+        public static readonly List<IPainterManagerPluginGizmis> GizmoPlugins = new List<IPainterManagerPluginGizmis>();
 
-        public static List<IPainterManagerPlugin_MeshToolShowVertex> meshToolPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
+        public static readonly List<IPainterManagerPlugin_MeshToolShowVertex> MeshToolPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
 
-        public static List<IMeshToolPlugin> vertexEdgePlugins = new List<IMeshToolPlugin>();
+        public static readonly List<IMeshToolPlugin> VertexEdgePlugins = new List<IMeshToolPlugin>();
+
+        public static readonly List<IPainterManagerPluginOnGUI> GUIplugins = new List<IPainterManagerPluginOnGUI>();
 
         public static void RefreshPlugins() {
 
@@ -96,23 +103,26 @@ namespace Playtime_Painter {
 
             }
 
-            componentMGMTplugins.Clear();
-            brushPlugins.Clear();
-            gizmoPlugins.Clear();
-            meshToolPlugins.Clear();
-            vertexEdgePlugins.Clear();
+            ComponentMgmtPlugins.Clear();
+            BrushPlugins.Clear();
+            GizmoPlugins.Clear();
+            MeshToolPlugins.Clear();
+            VertexEdgePlugins.Clear();
+            GUIplugins.Clear();
 
             foreach (var t in plugins) {
 
-                componentMGMTplugins.TryAdd(t as IPainterManagerPlugin_ComponentPEGI);
+                ComponentMgmtPlugins.TryAdd(t as IPainterManagerPluginComponentPEGI);
 
-                brushPlugins.TryAdd(t as IPainterManagerPlugin_Brush);
+                BrushPlugins.TryAdd(t as IPainterManagerPluginBrush);
 
-                gizmoPlugins.TryAdd(t as IPainterManagerPlugin_Gizmis);
+                GizmoPlugins.TryAdd(t as IPainterManagerPluginGizmis);
 
-                meshToolPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
+                MeshToolPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
 
-                vertexEdgePlugins.TryAdd(t as IMeshToolPlugin);
+                VertexEdgePlugins.TryAdd(t as IMeshToolPlugin);
+
+                GUIplugins.TryAdd(t as IPainterManagerPluginOnGUI);
             }
         }
         

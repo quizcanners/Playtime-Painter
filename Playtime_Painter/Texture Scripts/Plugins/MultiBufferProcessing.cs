@@ -1,47 +1,48 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using UnityEngine;
-using System;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 using System.Linq;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Playtime_Painter {
 
     #region Manager
     [TaggedType(tag)]
-    public class MultiBufferProcessing : PainterManagerPluginBase, IStd, IPainterManagerPlugin_ComponentPEGI
+    public class MultiBufferProcessing : PainterManagerPluginBase, IPainterManagerPluginComponentPEGI, IPainterManagerPluginOnGUI
     {
         const string tag = "MltBffr";
         public override string ClassTag => tag;
 
         public static MultiBufferProcessing inst;
 
-        public List<RenderSection> sections = new List<RenderSection>();
-        public List<TextureBuffer> buffers = new List<TextureBuffer>();
+        public static List<RenderSection> sections = new List<RenderSection>();
+        public static List<TextureBuffer> buffers = new List<TextureBuffer>();
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("s", buffers)
-            .Add("sc", sections);
+            .Add("sc", sections)
+            .Add_Bool("gui", _showOnGui);
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "s": data.Decode_List(out buffers); break;
                 case "sc": data.Decode_List(out sections); break;
+                case "gui": _showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
         #endregion
 
-        bool pauseBuffers = false;
+        private bool _pauseBuffers;
+
+        private bool _showOnGui;
 
         public override void Update() {
-            if (!pauseBuffers)
+            if (!_pauseBuffers)
                 sections.ForEach(s => s.Update());
         }
 
@@ -49,32 +50,32 @@ namespace Playtime_Painter {
         #if PEGI
         public override string NameForDisplayPEGI => "Buffer Blitting";
 
-        [SerializeField] int GUITextureSize = 128;
-        int texIndex = 0;
+        int _guiTextureSize = 128;
+        private int _texIndex;
         
-        void OnGUI()
-        {
+        public void OnGUI()  {
 
-            if (pauseBuffers)
+            if (_pauseBuffers || !_showOnGui)
                 return;
 
-            texIndex = 0;
+            _texIndex = 0;
 
             const int textGap = 30;
-            int fullSize = textGap + GUITextureSize;
+            var fullSize = textGap + _guiTextureSize;
 
-            int inColumn = Screen.height / fullSize;
+            var inColumn = Screen.height / fullSize;
 
             foreach (var b in buffers)
-                if (b != null && b.showOnGUI)
+                if (b != null && b.showOnGui)
                 {
 
                     var sct = sections.Where(s => s.TargetRenderTexture != null && s.TargetRenderTexture == b);
-                    RenderSection section = sct.Count() > 0 ? sct.First() : null;
+                    var count = sct.Count();
+                    var section = count > 0 ? sct.First() : null;
 
                     var tex = b.GetTextureDisplay;
 
-                    Rect pos = new Rect((texIndex / inColumn) * GUITextureSize, (texIndex % inColumn) * fullSize - textGap, GUITextureSize, GUITextureSize);
+                    var pos = new Rect((_texIndex / inColumn) * _guiTextureSize, (_texIndex % inColumn) * fullSize - textGap, _guiTextureSize, _guiTextureSize);
                     GUI.Label(pos, b.ToPEGIstring());
                     pos.y += textGap;
 
@@ -86,7 +87,7 @@ namespace Playtime_Painter {
                             GUI.DrawTexture(pos, tex);
                     }
 
-                    texIndex++;
+                    _texIndex++;
 
                     pos.width = 25;
                     pos.height = 25;
@@ -99,48 +100,49 @@ namespace Playtime_Painter {
 
         public override bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            if ((pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL"))
+            if ((_pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL"))
             {
-                pauseBuffers = !pauseBuffers;
-                if (pauseBuffers)
+                _pauseBuffers = !_pauseBuffers;
+                if (_pauseBuffers)
                     foreach (var b in buffers)
                         b.Stop();
             }
 
 
-            if (editedSection == -1 && editedBuffer == -1)
-                "Size: ".edit(40, ref GUITextureSize, 128, 512).nl();
+            if (_editedSection == -1 && _editedBuffer == -1)
+            {
+                "Show on GUI".toggleIcon(ref _showOnGui).nl(ref changed);
+                "Size: ".edit(40, ref _guiTextureSize, 128, 512).nl(ref changed);
+            }
 
-            if (editedBuffer == -1)
-                "Sections".edit_List(ref sections, ref editedSection);
+            if (_editedBuffer == -1)
+                "Sections".edit_List(ref sections, ref _editedSection).changes(ref changed);
             else
-                editedSection = -1;
+                _editedSection = -1;
 
-            if (editedSection == -1)
-                "Buffers".edit_List(ref buffers, ref editedBuffer);
+            if (_editedSection == -1)
+                "Buffers".edit_List(ref buffers, ref _editedBuffer).changes(ref changed);
 
             return changed;
         }
 
-        [SerializeField] int editedBuffer = -1;
-        [SerializeField] int editedSection = -1;
+        private int _editedBuffer = -1;
+        private int _editedSection = -1;
 
         public bool ComponentInspector()
         {
-            bool changed = false;
+            var changed = false;
 
-            if (buffers.Count > 0)
-            {
-                if ((pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL"))
-                    pauseBuffers = !pauseBuffers;
+            if (buffers.Count <= 0) return changed;
+            
+            if ((_pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL"))
+                _pauseBuffers = !_pauseBuffers;
 
-                int cur = -1;
-                if ("Buffers".select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl(ref changed))
-                    InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay);
-
-            }
+            var cur = -1;
+            if ("Buffers".@select(60, ref cur, buffers, (x) => x.CanBeAssignedToPainter).nl(ref changed))
+                InspectedPainter.SetTextureOnMaterial(buffers.TryGet(cur).GetTextureDisplay);
 
             return changed;
         }
@@ -160,20 +162,20 @@ namespace Playtime_Painter {
     #region TextureBuffers
 
     [DerivedList(typeof(OnDemandRT)
-        , typeof(OnDemandRTPair)
+        , typeof(OnDemandRtPair)
         , typeof(WebCamTextureBuffer)
         , typeof(CustomImageData)
         , typeof(SectionTarget)
-        , typeof(BigRTpair)
-        , typeof(Downscaler)
+        , typeof(BigRtPair)
+        , typeof(DownScalar)
         )]
     public class TextureBuffer : AbstractKeepUnrecognizedStd, IPEGI_ListInspect, IGotDisplayName {
-
-        int _version = 0;
+        
+        private int _version = 0;
 
         public virtual int Version { get { return _version; } set { _version = value; } }
 
-        public bool showOnGUI = false;
+        public bool showOnGui;
 
         protected static MultiBufferProcessing Mgmt => MultiBufferProcessing.inst; 
 
@@ -204,24 +206,22 @@ namespace Playtime_Painter {
             var trg = GetTargetTextureNext;
             var src = sourceBuffer?.TextureNext;
 
-            if (trg)
-            {
-                if (src)
-                   PainterDataAndConfig.SOURCE_TEXTURE.GlobalValue = src;
+            if (!trg) return false;
+            
+            if (src)
+                PainterDataAndConfig.SOURCE_TEXTURE.GlobalValue = src;
 
-                if (material)
-                    Graphics.Blit(src, trg, material);
-                else
-                    PainterCamera.Inst.Render(src, trg, shader);
-                AfterRender();
+            if (material)
+                Graphics.Blit(src, trg, material);
+            else
+                PainterCamera.Inst.Render(src, trg, shader);
+            AfterRender();
 
-                Version++;
+            Version++;
 
-                return true;
-            }
+            return true;
 
 
-            return false;
         }
 
         public virtual void Stop() { }
@@ -230,16 +230,16 @@ namespace Playtime_Painter {
         #if PEGI
         public override bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            "Show On GUI".toggle(ref showOnGUI).nl();
+            "Show On GUI".toggle(ref showOnGui).nl(ref changed);
 
             return changed;
         }
 
         public virtual bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            bool changed = NameForDisplayPEGI.toggle(ref showOnGUI);
+            var changed = NameForDisplayPEGI.toggle(ref showOnGui);
 
             var asP = this as IPEGI;
             if (asP != null && icon.Enter.Click())
@@ -252,13 +252,13 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGUI);
+        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "show": showOnGUI = data.ToBool(); break;
+                case "show": showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -266,11 +266,11 @@ namespace Playtime_Painter {
         #endregion
     }
 
-    public class CustomImageData : TextureBuffer  , IPEGI_ListInspect, IPEGI
+    public class CustomImageData : TextureBuffer, IPEGI
     {
 
         ImageMeta id;
-        Texture Texture => id.CurrentTexture();
+        private Texture Texture => id.CurrentTexture();
 
         public override bool CanBeTarget => Texture && Texture.GetType() == typeof(RenderTexture);
 
@@ -287,7 +287,7 @@ namespace Playtime_Painter {
         public override bool Inspect()
         {
             "Source".select(50, ref id, Data.imgMetas);
-            Texture tmp = Texture;
+            var tmp = Texture;
             if ("Texture".edit(ref tmp).nl() && tmp)
                 id = tmp.GetImgData();
 
@@ -300,14 +300,14 @@ namespace Playtime_Painter {
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
             .Add_GUID("t", Texture)
-            .Add_IfTrue("show", showOnGUI);
+            .Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "t": Texture tmp = Texture; data.ToAssetByGuid(ref tmp); if (tmp) id = Texture.GetImgData(); break;
-                case "show": showOnGUI = data.ToBool(); break;
+                case "t": var tmp = Texture; data.TryReplaceAssetByGuid(ref tmp); if (tmp) id = Texture.GetImgData(); break;
+                case "show": showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -316,7 +316,7 @@ namespace Playtime_Painter {
 
     }
 
-    public class BigRTpair : TextureBuffer
+    public class BigRtPair : TextureBuffer
     {
 
         public override string NameForDisplayPEGI => "BIG RT pair";
@@ -360,11 +360,11 @@ namespace Playtime_Painter {
 
     public class OnDemandRT : TextureBuffer, IPEGI
     {
-        RenderTexture rt;
-        public int width = 512;
-        public string name;
+        private RenderTexture _rt;
+        protected int width = 512;
+        protected string name;
         public bool linear;
-        public RenderTextureReadWrite colorMode;
+        protected RenderTextureReadWrite colorMode;
 
         public override string NameForDisplayPEGI => "RT " + name;
 
@@ -374,16 +374,16 @@ namespace Playtime_Painter {
         {
             get
             {
-                rt = GetRenderTexture;
-                return rt;
+                _rt = GetRenderTexture;
+                return _rt;
             }
         }
         public override bool CanBeAssignedToPainter => true;
 
         protected override RenderTexture GetRenderTexture {
             get {
-                if (!rt) rt = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
-                return rt;
+                if (!_rt) _rt = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+                return _rt;
             }
         }
 
@@ -391,7 +391,7 @@ namespace Playtime_Painter {
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
             .Add("w", width)
             .Add("c", (int)colorMode)
-            .Add_IfTrue("show", showOnGUI);
+            .Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
@@ -399,7 +399,7 @@ namespace Playtime_Painter {
             {
                 case "w": width = data.ToInt(); break;
                 case "c": colorMode = (RenderTextureReadWrite)data.ToInt(); break;
-                case "show": showOnGUI = data.ToBool(); break;
+                case "show": showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -420,29 +420,29 @@ namespace Playtime_Painter {
         #endregion
     }
 
-    public class OnDemandRTPair : OnDemandRT
+    public class OnDemandRtPair : OnDemandRT
     {
-        RenderTexture[] rts; // = new RenderTexture[2];
+        private RenderTexture[] _rts; // = new RenderTexture[2];
 
         public override string NameForDisplayPEGI => "RT PAIR " + name;
 
         public override bool CanBeTarget => true;
 
-        public override Texture GetTextureDisplay => rts[0];
+        public override Texture GetTextureDisplay => _rts[0];
 
         protected override RenderTexture GetRenderTexture
         {
             get
             {
-                if (rts == null)
+                if (_rts == null)
                 {
-                    rts = new RenderTexture[2];
-                    rts[0] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
-                    rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+                    _rts = new RenderTexture[2];
+                    _rts[0] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
+                    _rts[1] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGBFloat, colorMode);
                 }
 
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = rts[1];
-                return rts[0];
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = _rts[1];
+                return _rts[0];
             }
         }
 
@@ -450,16 +450,16 @@ namespace Playtime_Painter {
 
         public override void AfterRender()
         {
-            var tmp = rts[0];
-            rts[0] = rts[1];
-            rts[1] = tmp;
+            var tmp = _rts[0];
+            _rts[0] = _rts[1];
+            _rts[1] = tmp;
         }
 
         public override bool CanBeAssignedToPainter => true;
         
     }
 
-    public class WebCamTextureBuffer : TextureBuffer, IPEGI_ListInspect {
+    public class WebCamTextureBuffer : TextureBuffer {
         
         public override bool IsReady
         {
@@ -506,13 +506,13 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGUI);
+        public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "show": showOnGUI = data.ToBool(); break;
+                case "show": showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -523,8 +523,8 @@ namespace Playtime_Painter {
     public class SectionTarget : TextureBuffer
     {
         int targetIndex;
-        
-        TextureBuffer Target => Mgmt.sections.TryGet(targetIndex)?.TargetRenderTexture; 
+
+        private TextureBuffer Target => MultiBufferProcessing.sections.TryGet(targetIndex)?.TargetRenderTexture; 
 
         public override void AfterRender() => Target?.AfterRender();
         
@@ -537,8 +537,7 @@ namespace Playtime_Painter {
             get
             {
                 var t = Target;
-                return (t != null) ?
-                    t.CanBeTarget : false;
+                return t?.CanBeTarget ?? false;
             }
         }
 
@@ -546,20 +545,20 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override string NameForDisplayPEGI => "Other: " + Mgmt.sections.TryGet(targetIndex).ToPEGIstring();
-        public override bool Inspect() => "Source".select(50, ref targetIndex, Mgmt.sections).nl();
+        public override string NameForDisplayPEGI => "Other: " + MultiBufferProcessing.sections.TryGet(targetIndex).ToPEGIstring();
+        public override bool Inspect() => "Source".select(50, ref targetIndex, MultiBufferProcessing.sections).nl();
 #endif
         #endregion
         
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGUI);
+        public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
                 case "t": targetIndex = data.ToInt(); break;
-                case "show": showOnGUI = data.ToBool(); break;
+                case "show": showOnGui = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -567,31 +566,31 @@ namespace Playtime_Painter {
         #endregion
     }
 
-    public class Downscaler : TextureBuffer, IPEGI
+    public class DownScalar : TextureBuffer, IPEGI
     {
-        string name;
-        int width = 64;
-        int lastReadVersion = -1;
-        bool linear;
-        Shader shader;
-        Texture2D buffer;
+        private string _name;
+        private int _width = 64;
+        private int _lastReadVersion = -1;
+        private bool _linear;
+        private Shader _shader;
+        private Texture2D _buffer;
 
-        public override string NameForDisplayPEGI => (name.IsNullOrEmpty() ? "Scaler" : name);
+        public override string NameForDisplayPEGI => (_name.IsNullOrEmpty() ? "Scalar" : _name);
 
         public override bool CanBeTarget => true;
 
         public override bool CanBeAssignedToPainter => true;
 
-        ~Downscaler()
+        ~DownScalar()
         {
-            buffer.DestroyWhatever();
+            _buffer.DestroyWhatever();
         }
 
-        void InitIfNull()
+        private void InitIfNull()
         {
-            if (!buffer)
+            if (!_buffer)
             {
-                buffer = new Texture2D(width, width, TextureFormat.ARGB32, false, linear)
+                _buffer = new Texture2D(_width, _width, TextureFormat.ARGB32, false, _linear)
 #if UNITY_EDITOR
                 { alphaIsTransparency = true }
 #endif
@@ -603,32 +602,30 @@ namespace Playtime_Painter {
         {
             var other = sourceBuffer;
 
-            if (other != null && lastReadVersion != other.Version)
-            {
-                var tex = other.TextureNext;
-                if (tex) {
+            if (other == null || _lastReadVersion == other.Version) return false;
+            
+            var tex = other.TextureNext;
 
-                    InitIfNull();
+            if (!tex) return false;
+            
+            InitIfNull();
 
-                    buffer.CopyFrom(TexMGMT.Downscale_ToBuffer(tex, width, width, material, shader));
-                    lastReadVersion = other.Version;
+            _buffer.CopyFrom(TexMGMT.Downscale_ToBuffer(tex, _width, _width, material, shader));
+            _lastReadVersion = other.Version;
 
-                    var px = buffer.GetPixels();
+            var px = _buffer.GetPixels();
 
-                    buffer.SetPixels(px);
+            _buffer.SetPixels(px);
 
-                    buffer.Apply();
+            _buffer.Apply();
 
-                    Version++;
+            Version++;
 
-                    return true;
-                }
-            }
+            return true;
 
-            return false;
         }
 
-        public override Texture TextureNext => buffer;
+        public override Texture TextureNext => _buffer;
 
         #region Inspector
         #if PEGI
@@ -636,13 +633,13 @@ namespace Playtime_Painter {
 
             var changed = base.Inspect();
 
-            "Name".edit(ref name).nl();
+            "Name".edit(ref _name).nl();
 
-            if ("Result Width".edit(ref width).nl() || "Not Color".toggle(ref linear).nl()) {
-                width = Mathf.Clamp(width, 8, 512);
-                width = Mathf.ClosestPowerOfTwo(width);
+            if ("Result Width".edit(ref _width).nl() || "Not Color".toggle(ref _linear).nl()) {
+                _width = Mathf.Clamp(_width, 8, 512);
+                _width = Mathf.ClosestPowerOfTwo(_width);
 
-                buffer.DestroyWhatever();
+                _buffer.DestroyWhatever();
                 InitIfNull();
             }
 
@@ -653,21 +650,21 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
         public override StdEncoder Encode() =>this.EncodeUnrecognized()
-            .Add_IfNotEmpty("n", name)
-            .Add_IfNotEpsilon("w", width)
-            .Add_IfTrue("l", linear)
-            .Add_IfTrue("show", showOnGUI)
-            .Add_GUID("s", shader);
+            .Add_IfNotEmpty("n", _name)
+            .Add_IfNotEpsilon("w", _width)
+            .Add_IfTrue("l", _linear)
+            .Add_IfTrue("show", showOnGui)
+            .Add_GUID("s", _shader);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "n": name = data; break;
-                case "w": width = data.ToInt(); break;
-                case "l": linear = data.ToBool(); break;
-                case "show": showOnGUI = data.ToBool(); break;
-                case "s": data.ToAssetByGuid(ref shader); break;
+                case "n": _name = data; break;
+                case "w": _width = data.ToInt(); break;
+                case "l": _linear = data.ToBool(); break;
+                case "show": showOnGui = data.ToBool(); break;
+                case "s": data.TryReplaceAssetByGuid(ref _shader); break;
                 default: return false;
             }
 
@@ -682,38 +679,37 @@ namespace Playtime_Painter {
     
     public class RenderSection : PainterStuffKeepUnrecognized_STD , IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
-        enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
+        private enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 
-        [SerializeField] Material material = null;
-        [SerializeField] Shader shader = null;
-        [SerializeField] public Material previewMaterial;
+        private Material _material;
+        private Shader _shader;
+        public Material previewMaterial;
 
-        [SerializeField] int targetBufferIndex = -1;
-        [SerializeField] int sourceBufferIndex = -1;
-        [SerializeField] float delayTime = 0.01f;
-        public TextureBuffer TargetRenderTexture => Mgmt.buffers.TryGet(targetBufferIndex);
-        public TextureBuffer SourceBuffer => Mgmt.buffers.TryGet(sourceBufferIndex);
-        MultiBufferProcessing Mgmt { get { return MultiBufferProcessing.inst; } }
+        private int _targetBufferIndex = -1;
+        private int _sourceBufferIndex = -1;
+        private float _delayTime = 0.01f;
+        public TextureBuffer TargetRenderTexture => MultiBufferProcessing.buffers.TryGet(_targetBufferIndex);
+        private TextureBuffer SourceBuffer => MultiBufferProcessing.buffers.TryGet(_sourceBufferIndex);
 
-        int Version { get { return TargetRenderTexture != null ? TargetRenderTexture.Version : 0; } }
+        private int Version => TargetRenderTexture?.Version ?? 0;
 
-        [SerializeField] BlitTrigger trigger = BlitTrigger.Manual;
-        [SerializeField] bool enabled = true;
-        [SerializeField] RenderSection triggerSection = null;
+        private BlitTrigger _trigger = BlitTrigger.Manual;
+        private bool _enabled = true;
+        private RenderSection _triggerSection;
 
         #region Encode & Decode
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add_Reference("m", material)
-            .Add("trg", targetBufferIndex)
-            .Add_Bool("e", enabled);
+            .Add_Reference("m", _material)
+            .Add("trg", _targetBufferIndex)
+            .Add_Bool("e", _enabled);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg) {
-                case "m": data.Decode_Reference(ref material); break;
-                case "trg": targetBufferIndex = data.ToInt(); break;
-                case "e": enabled = data.ToBool(); break;
+                case "m": data.Decode_Reference(ref _material); break;
+                case "trg": _targetBufferIndex = data.ToInt(); break;
+                case "e": _enabled = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -721,57 +717,55 @@ namespace Playtime_Painter {
 
         #endregion
 
-        int dependentVersion = 0;
-        float timer = 0;
+        private int _dependentVersion;
+        private float _timer;
         
-        public bool Blit() => TargetRenderTexture != null ? TargetRenderTexture.BlitMethod(SourceBuffer, material, shader) : false;
+        public bool Blit() => TargetRenderTexture?.BlitMethod(SourceBuffer, _material, _shader) ?? false;
 
         public void Update()
         {
-
-            if (enabled)
+            if (!_enabled) return;
+            
+            switch (_trigger)
             {
-                switch (trigger)
-                {
-                    case BlitTrigger.PerFrame:
-                        Blit(); break;
-                    case BlitTrigger.WhenOtherSectionUpdated:
-                        if (triggerSection != null && triggerSection.Version > dependentVersion)
-                        {
-                            dependentVersion = triggerSection.Version;
-                            Blit();
-                        }
-                        break;
+                case BlitTrigger.PerFrame:
+                    Blit(); break;
+                case BlitTrigger.WhenOtherSectionUpdated:
+                    if (_triggerSection != null && _triggerSection.Version > _dependentVersion)
+                    {
+                        _dependentVersion = _triggerSection.Version;
+                        Blit();
+                    }
+                    break;
 
-                    case BlitTrigger.DelayAndUpdated:
-                        timer -= Time.deltaTime;
-                        if (timer < 0 && SourceBuffer != null && SourceBuffer.Version > dependentVersion)
-                        {
-                            dependentVersion = SourceBuffer.Version;
-                            timer = delayTime;
-                            Blit();
-                        }
-                        break;
+                case BlitTrigger.DelayAndUpdated:
+                    _timer -= Time.deltaTime;
+                    if (_timer < 0 && SourceBuffer != null && SourceBuffer.Version > _dependentVersion)
+                    {
+                        _dependentVersion = SourceBuffer.Version;
+                        _timer = _delayTime;
+                        Blit();
+                    }
+                    break;
 
-                    case BlitTrigger.WhenSourceReady:
-                        if (SourceBuffer != null && SourceBuffer.IsReady)
-                        {
-                            dependentVersion = SourceBuffer.Version;
-                            Blit();
-                        }
-                        break;
+                case BlitTrigger.WhenSourceReady:
+                    if (SourceBuffer != null && SourceBuffer.IsReady)
+                    {
+                        _dependentVersion = SourceBuffer.Version;
+                        Blit();
+                    }
+                    break;
 
-                    case BlitTrigger.Delay:
-                        timer -= Time.deltaTime;
-                        if (timer < 0)
-                        {
-                            timer = delayTime;
-                            Blit();
-                        }
-                        break;
+                case BlitTrigger.Delay:
+                    _timer -= Time.deltaTime;
+                    if (_timer < 0)
+                    {
+                        _timer = _delayTime;
+                        Blit();
+                    }
+                    break;
 
 
-                }
             }
         }
 
@@ -785,10 +779,10 @@ namespace Playtime_Painter {
         {
             this.ToPEGIstring().write();
 
-            if (trigger != BlitTrigger.Manual)
-                pegi.toggle(ref enabled);
+            if (_trigger != BlitTrigger.Manual)
+                pegi.toggle(ref _enabled);
 
-            if (TargetRenderTexture != null && trigger == BlitTrigger.Manual && icon.Refresh.Click())
+            if (TargetRenderTexture != null && _trigger == BlitTrigger.Manual && icon.Refresh.Click())
                 Blit();
 
             if (icon.StateMachine.Click())
@@ -799,41 +793,41 @@ namespace Playtime_Painter {
 
         public override bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            "Update Type".editEnum(70, ref trigger);
+            "Update Type".editEnum(70, ref _trigger).changes(ref changed);
 
-            if ((trigger != BlitTrigger.PerFrame || !enabled) && "Blit".Click())
+            if ((_trigger != BlitTrigger.PerFrame || !_enabled) && "Blit".Click(ref changed))
                 Blit();
 
-            if (trigger != BlitTrigger.Manual)
-                pegi.toggle(ref enabled, icon.Pause, icon.Play);
+            if (_trigger != BlitTrigger.Manual)
+                pegi.toggle(ref _enabled, icon.Pause, icon.Play).changes(ref changed);
 
             pegi.nl();
 
-            "From ".select(ref sourceBufferIndex, Mgmt.buffers).nl();
+            "From ".select(ref _sourceBufferIndex, MultiBufferProcessing.buffers).nl(ref changed);
 
-            "To ".select(ref targetBufferIndex, Mgmt.buffers, e => e.CanBeTarget).nl();
+            "To ".select(ref _targetBufferIndex, MultiBufferProcessing.buffers, e => e.CanBeTarget).nl(ref changed);
 
-            if (material || !shader)
-                "Blit Material".edit(100, ref material).nl();
+            if (_material || !_shader)
+                "Blit Material".edit(100, ref _material).nl(ref changed);
 
-            if (!material)
-                "Shader".edit(60, ref shader).nl();
+            if (!_material)
+                "Shader".edit(60, ref _shader).nl(ref changed);
 
             if (TargetRenderTexture != null)
-                "Preview Material".edit(100, ref previewMaterial);
+                "Preview Material".edit(100, ref previewMaterial).changes(ref changed);
 
             pegi.nl();
 
-            switch (trigger)
+            switch (_trigger)
             {
                 case BlitTrigger.WhenOtherSectionUpdated:
-                    "After: ".select(50, ref triggerSection, Mgmt.sections);
+                    "After: ".select(50, ref _triggerSection, MultiBufferProcessing.sections);
                     break;
                 case BlitTrigger.DelayAndUpdated:
                 case BlitTrigger.Delay:
-                    "Delay:".edit(ref delayTime).nl(); break;
+                    "Delay:".edit(ref _delayTime).nl(); break;
             }
 
             pegi.nl();

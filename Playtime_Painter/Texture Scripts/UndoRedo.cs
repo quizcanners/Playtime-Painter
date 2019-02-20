@@ -10,7 +10,7 @@ namespace Playtime_Painter
         public int order;
         public List<string> strokeRecord;
 
-        protected virtual void SetB(ImageMeta from, int globalOrder) {
+        protected void SetB(ImageMeta from, int globalOrder) {
             order = globalOrder;
             strokeRecord = from.recordedStrokesForUndoRedo;
             from.recordedStrokesForUndoRedo = new List<string>();
@@ -64,52 +64,52 @@ namespace Playtime_Painter
 
 	
 	public class BackupsLineup {
-		public static PainterCamera rtp { get { return PainterCamera.Inst; } }
-        public bool isUndo;
-		public int order = 0;
+		private static PainterCamera Rtp => PainterCamera.Inst;
+		public readonly bool isUndo;
+		private int _order;
 
-		public List<Texture2DBackup> tex2D = new List<Texture2DBackup>();
-		public List<RenderTextureBackup> rtex = new List<RenderTextureBackup>();	
+		public readonly List<Texture2DBackup> tex2D = new List<Texture2DBackup>();
+		public readonly List<RenderTextureBackup> rTex = new List<RenderTextureBackup>();	
 
 		public BackupsLineup otherDirection;
 
-		public string CurrentStep = "";
+		public string currentStep = "";
 
-		public bool GotData => (tex2D.Count > 0) || (rtex.Count>0);
+		public bool GotData => (tex2D.Count > 0) || (rTex.Count>0);
 		
 		public void Clear(){
-			foreach (RenderTextureBackup r in rtex)
+			foreach (var r in rTex)
 				r.DestroyRtex ();
 		
 			tex2D.Clear ();
-			rtex.Clear ();
+			rTex.Clear ();
 		}
 
-		public void ClearRtexUpto(int maxTextures){
-			int toclear = rtex.Count - maxTextures;
+		private void ClearRenderTexturesTill(int maxTextures){
+			var toClear = rTex.Count - maxTextures;
 
-			for (int i = 0; i < toclear; i++)
-				rtex [i].DestroyRtex ();
+			for (var i = 0; i < toClear; i++)
+				rTex [i].DestroyRtex ();
 
-			rtex.SetMaximumLength (maxTextures);
+			rTex.SetMaximumLength (maxTextures);
 		}
 
 		public void ApplyTo (ImageMeta id) {
 
-			bool fromRT = (tex2D.Count == 0) || ((rtex.Count > 0) && (tex2D [tex2D.Count - 1].order < rtex [rtex.Count - 1].order));
+			var fromRt = (tex2D.Count == 0) || ((rTex.Count > 0) && (tex2D [tex2D.Count - 1].order < rTex [rTex.Count - 1].order));
 
-			bool toRT = id.destination == TexTarget.RenderTexture;
+			var toRt = id.destination == TexTarget.RenderTexture;
 
-            int toClear = id.recordedStrokesForUndoRedo.Count;
+            var toClear = id.recordedStrokesForUndoRedo.Count;
 
-            if (toRT) 
-                otherDirection.backupRenderTexture(int.MaxValue, id);
+            if (toRt) 
+                otherDirection.BackupRenderTexture(int.MaxValue, id);
              else 
-                otherDirection.backupTexture2D(int.MaxValue, id);
+                otherDirection.BackupTexture2D(int.MaxValue, id);
             
-            RenderTextureBackup rtBackup = fromRT ? takeRenderTexture () : null;
-            Texture2DBackup pixBackup = fromRT ? null : takeTexture2D ();
-            TextureBackup backup = fromRT ? rtBackup : (TextureBackup)pixBackup;
+            var rtBackup = fromRt ? TakeRenderTexture () : null;
+            var pixBackup = fromRt ? null : TakeTexture2D ();
+            var backup = fromRt ? rtBackup : (TextureBackup)pixBackup;
             
             if (!isUndo)
                 id.recordedStrokes.AddRange(backup.strokeRecord);
@@ -118,22 +118,22 @@ namespace Playtime_Painter
             
             id.recordedStrokesForUndoRedo = backup.strokeRecord;
 
-			if (!fromRT) {
+			if (!fromRt) {
                 id.Pixels = pixBackup.pixels;
 				id.SetAndApply();
 			}
 
-			if (toRT) {
-				if (fromRT) 
-					rtp.Render (rtBackup.rt, id);
+			if (toRt) {
+				if (fromRt) 
+					Rtp.Render (rtBackup.rt, id);
 				else 
-					rtp.Render (id.texture2D, id);
+					Rtp.Render (id.texture2D, id);
 				
-			} else if (fromRT) {
+			} else if (fromRt) {
 					id.texture2D.CopyFrom (rtBackup.rt);
                     id.PixelsFromTexture2D (id.texture2D);
 
-                bool converted = false;
+                var converted = false;
 
                 if ((PainterCamera.Inst.isLinearColorSpace) && !rtBackup.exclusive) {
                     converted = true;
@@ -146,60 +146,56 @@ namespace Playtime_Painter
                     id.texture2D.Apply(true);
             } 
 
-			if (fromRT)
+			if (fromRt)
 				rtBackup.DestroyRtex ();
 
 		}
 
-		Texture2DBackup takeTexture2D (){
-			int index = tex2D.Count - 1;
-			Texture2DBackup pixels = tex2D [index];
+		private Texture2DBackup TakeTexture2D (){
+			var index = tex2D.Count - 1;
+			var pixels = tex2D [index];
 			tex2D.RemoveAt (index);
 			return pixels;
 		}
 
-		RenderTextureBackup takeRenderTexture (){
-			int index = rtex.Count - 1;
-			RenderTextureBackup rt = rtex [index];
-			rtex.RemoveAt (index);
+		private RenderTextureBackup TakeRenderTexture (){
+			var index = rTex.Count - 1;
+			var rt = rTex [index];
+			rTex.RemoveAt (index);
 			return rt;
 		}
 
-        public void backupTexture2D (int maxTextures, ImageMeta id){
+        public void BackupTexture2D (int maxTextures, ImageMeta id){
 
 			tex2D.SetMaximumLength (maxTextures);
 
-			if (maxTextures > 0) {
-				
-				Color[] copyPix = (Color[])id.Pixels.Clone ();
+			if (maxTextures <= 0) return;
+			
+			var copyPix = (Color[])id.Pixels.Clone ();
 
-				if (tex2D.Count < maxTextures)
-                    tex2D.Add (new Texture2DBackup (copyPix, id, order));
-				else 
-                    tex2D.MoveFirstToLast ().Set (copyPix, id, order);
+			if (tex2D.Count < maxTextures)
+				tex2D.Add (new Texture2DBackup (copyPix, id, _order));
+			else 
+				tex2D.MoveFirstToLast ().Set (copyPix, id, _order);
 
-                id.recordedStrokesForUndoRedo = new List<string>();
+			id.recordedStrokesForUndoRedo = new List<string>();
 
-				order++;
-			}
+			_order++;
 
-		}
+        }
 
-		public void backupRenderTexture (int maxTextures, ImageMeta from){
+		public void BackupRenderTexture (int maxTextures, ImageMeta from){
 
-			ClearRtexUpto (maxTextures);
+			ClearRenderTexturesTill (maxTextures);
 
-			if (maxTextures > 0) {
-				
-				if (rtex.Count < maxTextures)
-                    rtex.Add (new RenderTextureBackup (from, order));
-				else 
-                    rtex.MoveFirstToLast ().Set (from, order);
+			if (maxTextures <= 0) return;
+			
+			if (rTex.Count < maxTextures)
+				rTex.Add (new RenderTextureBackup (@from, _order));
+			else 
+				rTex.MoveFirstToLast ().Set (@from, _order);
 
-
-
-				order++;
-			}
+			_order++;
 
 		}
 
@@ -212,8 +208,8 @@ namespace Playtime_Painter
 
 	public class UndoCache {
 
-		public BackupsLineup undo;
-		public BackupsLineup redo;
+		public readonly BackupsLineup undo;
+		public readonly BackupsLineup redo;
 
 		public UndoCache (){
 			undo = new BackupsLineup(true);

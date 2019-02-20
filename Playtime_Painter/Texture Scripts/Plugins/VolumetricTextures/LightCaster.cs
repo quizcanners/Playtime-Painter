@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -10,8 +8,8 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class LightCaster : MonoBehaviour, IPEGI , IGotIndex, IGotName {
 
-        public static Countless<LightCaster> allProbes = new Countless<LightCaster>();
-        public static int FreeIndex = 0;
+        public static readonly Countless<LightCaster> AllProbes = new Countless<LightCaster>();
+        private static int freeIndex;
         
         public Color ecol = Color.yellow;
         public float brightness = 1;
@@ -22,12 +20,12 @@ namespace Playtime_Painter
         public string NameForPEGI { get { return gameObject.name; } set { gameObject.name = value; } }
 
         private void OnEnable() {
-            if (allProbes[index]) {
-                while (allProbes[FreeIndex]) FreeIndex++;
-                index = FreeIndex;
+            if (AllProbes[index]) {
+                while (AllProbes[freeIndex]) freeIndex++;
+                index = freeIndex;
             }
 
-            allProbes[index] = this;
+            AllProbes[index] = this;
         }
 
         void OnDrawGizmosSelected()
@@ -37,27 +35,27 @@ namespace Playtime_Painter
         }
 
         private void OnDisable() {
-            if (allProbes[index] == this)
-                allProbes[index] = null;
+            if (AllProbes[index] == this)
+                AllProbes[index] = null;
         }
 
-        void ChangeIndexTo (int newIndex) {
-            if (allProbes[index] == this)
-                allProbes[index] = null;
+        private void ChangeIndexTo (int newIndex) {
+            if (AllProbes[index] == this)
+                AllProbes[index] = null;
             index = newIndex;
 
-            if (allProbes[index])
+            if (AllProbes[index])
                 Debug.Log("More then one probe is sharing index {0}".F(index));
 
-            allProbes[index] = this;
+            AllProbes[index] = this;
         }
 
         #if PEGI
         public bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            int tmp = index;
+            var tmp = index;
             if ("Index".edit(ref tmp).nl(ref changed)) 
                 ChangeIndexTo(tmp);
             

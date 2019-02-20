@@ -1,11 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using QuizCannersUtilities;
-#if UNITY_2018_1_OR_NEWER
 using Unity.Jobs;
 using Unity.Collections;
-#endif
 
 namespace Playtime_Painter
 {
@@ -13,7 +9,6 @@ namespace Playtime_Painter
 
     public enum BlitJobBlitMode { Alpha, Add, Subtract, Max, Min }
 
-#if UNITY_2018_1_OR_NEWER
     public struct BlitJobs : IJob
     {
         private NativeArray<Color> _values;
@@ -42,8 +37,8 @@ namespace Playtime_Painter
         private int _texWidth;
         private Vector3 _pos;
 
-        private Blit_Functions.alphaMode_dlg _alphaMode;
-        private Blit_Functions.blitModeFunction _blitMode;
+        private BlitFunctions.AlphaModeDlg _alphaMode;
+        private BlitFunctions.BlitModeFunction _blitMode;
 
         private void PrepareBlit(BrushConfig bc, ImageMeta id, float brushAlpha, StrokeVector stroke)
         {
@@ -95,7 +90,7 @@ namespace Playtime_Painter
             PrepareBlit(bc, id, alpha, stroke);
             _pos = (stroke.posFrom - volume.transform.position) / volume.size + 0.5f * Vector3.one;
             _isVolumeBlit = true;
-            _slices = volume.h_slices;
+            _slices = volume.hSlices;
             _volHeight = volume.Height;
             _texWidth = id.width;
         }
@@ -233,7 +228,7 @@ namespace Playtime_Painter
 
         #region BlitModes
 
-        BlitJobBlitMode _blitJobBlitMode;
+        private BlitJobBlitMode _blitJobBlitMode;
 
 
         private void AlphaBlitOpaque(ref Color colDst)
@@ -300,6 +295,6 @@ namespace Playtime_Painter
         #endregion
 
     }
-#endif
+
 
 }

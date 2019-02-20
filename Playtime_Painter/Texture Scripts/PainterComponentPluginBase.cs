@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
     public class PainterPluginAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesStd TaggedTypes => PainterComponentPluginBase.all;
+        public override TaggedTypesStd TaggedTypes => PainterComponentPluginBase.All;
     }
     
     [PainterPlugin]
@@ -14,12 +14,9 @@ namespace Playtime_Painter
 
         #region Abstract Serialized
         public virtual string ClassTag => "Override me";
-        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterComponentPluginBase));
-        public TaggedTypesStd AllTypes => all;
+        public static readonly TaggedTypesStd All = new TaggedTypesStd(typeof(PainterComponentPluginBase));
+        public TaggedTypesStd AllTypes => All;
         #endregion
-
-        [SerializeField]
-        public PlaytimePainter parentPainter;
 
         public static void UpdateList(PlaytimePainter painter) {
 
@@ -34,7 +31,7 @@ namespace Playtime_Painter
             for (var i = 0; i < painter.plugins.Count; i++)
                 if (painter.plugins[i] == null) { painter.plugins.RemoveAt(i); i--; }
 
-            foreach (var t in all) 
+            foreach (var t in All) 
                 if (!painter.plugins.ContainsInstanceType(t)) 
                     painter.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
             
@@ -56,15 +53,15 @@ namespace Playtime_Painter
 
         public virtual bool BrushConfigPEGI() => false;
         
-        public virtual bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
+        public virtual bool OffsetAndTileUv(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual void BeforeGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
 
-        public virtual void AfterGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
 

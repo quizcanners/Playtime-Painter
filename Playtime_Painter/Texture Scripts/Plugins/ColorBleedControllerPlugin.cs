@@ -11,32 +11,32 @@ namespace Playtime_Painter {
         const string tag = "ColBleed";
         public override string ClassTag => tag;
 
-        public float eyeBrightness = 1f;
-        public float colorBleeding = 0f;
-        public bool modifyBrightness = false;
-        public bool colorBleed = false;
+        private float _eyeBrightness = 1f;
+        private float _colorBleeding;
+        private bool _modifyBrightness;
+        private bool _colorBleed;
 
-        ShaderProperty.VectorValue light_Property = new ShaderProperty.VectorValue("_lightControl");
+        private readonly ShaderProperty.VectorValue _lightProperty = new ShaderProperty.VectorValue("_lightControl");
 
-        public void UpdateShader() => light_Property.GlobalValue = new Vector4(colorBleeding, 0, 0, eyeBrightness);
+        private void UpdateShader() => _lightProperty.GlobalValue = new Vector4(_colorBleeding, 0, 0, _eyeBrightness);
         
         #region Encode & Decode
 
         public override StdEncoder Encode()
         {
             var cody = this.EncodeUnrecognized();
-            if (modifyBrightness)
-                cody.Add("br", eyeBrightness);
-            if (colorBleed)
-                cody.Add("bl", colorBleeding);
+            if (_modifyBrightness)
+                cody.Add("br", _eyeBrightness);
+            if (_colorBleed)
+                cody.Add("bl", _colorBleeding);
 
             return cody;
         }
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
-                case "br": modifyBrightness = true; eyeBrightness = data.ToFloat(); break;
-                case "bl": colorBleed = true; colorBleeding = data.ToFloat(); break;
+                case "br": _modifyBrightness = true; _eyeBrightness = data.ToFloat(); break;
+                case "bl": _colorBleed = true; _colorBleeding = data.ToFloat(); break;
                 default: return false;
             }
             return true;
@@ -56,29 +56,31 @@ namespace Playtime_Painter {
 
 
 #if PEGI
-        bool showHint;
+        private bool _showHint;
         public override bool Inspect() {
-            bool changed = false;
+            var changed = false;
 
-            changed |= "Enable".toggleIcon(ref colorBleed, true);
+            "Enable".toggleIcon(ref _colorBleed, true).changes(ref changed);
 
-            if (colorBleed)
-                changed |= pegi.edit(ref colorBleeding, 0.0001f, 0.3f).nl();
+            if (_colorBleed)
+                pegi.edit(ref _colorBleeding, 0.0001f, 0.3f).nl(ref changed);
             else
-                colorBleeding = 0;
+                _colorBleeding = 0;
+            
             pegi.nl();
 
-            changed |= "Brightness".toggleIcon(ref modifyBrightness, true);
+            "Brightness".toggleIcon(ref _modifyBrightness, true).changes(ref changed);
 
-            if (modifyBrightness)
-                changed |= pegi.edit(ref eyeBrightness, 0.0001f, 8f);
+            if (_modifyBrightness)
+                pegi.edit(ref _eyeBrightness, 0.0001f, 8f).changes(ref changed);
             else
-                eyeBrightness = 1;
+                _eyeBrightness = 1;
 
             pegi.nl();
             
         
-            bool fog = RenderSettings.fog;
+            var fog = RenderSettings.fog;
+            
             if ("Fog".toggleIcon(ref fog, true)) 
                 RenderSettings.fog = fog;
             
@@ -91,15 +93,15 @@ namespace Playtime_Painter {
                     "Exponential Squared is recommended".writeHint();
                 if ("Mode".editEnum(ref mode).nl().nl())
                     RenderSettings.fogMode = mode;
-                float density = RenderSettings.fogDensity;
+                var density = RenderSettings.fogDensity;
                 if ("Density".edit(60, ref density, 0f, 0.05f).nl())
                     RenderSettings.fogDensity = density;
             }
 
-            pegi.toggle(ref showHint, icon.Close, icon.Hint, "Show hint", 35).nl();
+            pegi.toggle(ref _showHint, icon.Close, icon.Hint, "Show hint", 35).nl();
 
-            if (showHint)
-                "This is not a postrocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.".writeHint();
+            if (_showHint)
+                "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.".writeHint();
 
 
 

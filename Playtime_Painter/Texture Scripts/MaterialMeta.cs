@@ -39,7 +39,6 @@ namespace Playtime_Painter
         }
         #endregion
 
-
         public void SetTextureOnLastTarget(ImageMeta id) {
             if (painterTarget)
                 painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.CurrentTexture(), material);
@@ -67,15 +66,17 @@ namespace Playtime_Painter
         }
 
 
-        public override bool Inspect() {
-
+        public override bool Inspect()
+        {
+            var changed = false;
+            
             "Material:".write_obj(60, material);
             pegi.nl();
 
             if (material)
                 ("Shader: " + material.shader).nl();
 
-            "Textures".edit_List(ref materialsTextureFields);
+            "Textures".edit_List(ref materialsTextureFields).changes(ref changed);
 
             return false;
         }

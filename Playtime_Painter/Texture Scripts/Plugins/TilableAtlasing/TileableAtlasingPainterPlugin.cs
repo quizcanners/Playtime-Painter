@@ -72,30 +72,30 @@ namespace Playtime_Painter {
             sectorSize = image.width / atlasRows;
             atlasSector.From(AtlasedSection * sectorSize);
 
-            Blit_Functions.brAlpha = brushAlpha;
+            BlitFunctions.brAlpha = brushAlpha;
 
-            Blit_Functions.half = (bc.Size(false)) / 2;
-            var ihalf = Mathf.FloorToInt(Blit_Functions.half - 0.5f);
+            BlitFunctions.half = (bc.Size(false)) / 2;
+            var ihalf = Mathf.FloorToInt(BlitFunctions.half - 0.5f);
 
             var smooth = bc.Type(true) != BrushTypePixel.Inst;
 
             if (smooth)
-                Blit_Functions._alphaMode = Blit_Functions.circleAlpha;
+                BlitFunctions.alphaMode = BlitFunctions.CircleAlpha;
             else
-                Blit_Functions._alphaMode = Blit_Functions.noAlpha;
+                BlitFunctions.alphaMode = BlitFunctions.NoAlpha;
 
-            Blit_Functions._blitMode = bc.BlitMode.BlitFunctionTex2D(image);
+            BlitFunctions.blitMode = bc.BlitMode.BlitFunctionTex2D(image);
 
             if (smooth) ihalf += 1;
 
-            Blit_Functions.alpha = 1;
+            BlitFunctions.alpha = 1;
 
-            Blit_Functions.r = BrushExtensions.HasFlag(bc.mask, BrushMask.R);
-            Blit_Functions.g = BrushExtensions.HasFlag(bc.mask, BrushMask.G);
-            Blit_Functions.b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
-            Blit_Functions.a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
+            BlitFunctions.r = BrushExtensions.HasFlag(bc.mask, BrushMask.R);
+            BlitFunctions.g = BrushExtensions.HasFlag(bc.mask, BrushMask.G);
+            BlitFunctions.b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
+            BlitFunctions.a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
 
-            Blit_Functions.csrc = bc.Color;
+            BlitFunctions.cSrc = bc.Color;
 
             var tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
@@ -106,15 +106,15 @@ namespace Playtime_Painter {
 
             var pixels = image.Pixels;
 
-            for (Blit_Functions.y = -ihalf; Blit_Functions.y < ihalf + 1; Blit_Functions.y++)
+            for (BlitFunctions.y = -ihalf; BlitFunctions.y < ihalf + 1; BlitFunctions.y++)
             {
 
                 tmp.x = fromX;
 
-                for (Blit_Functions.x = -ihalf; Blit_Functions.x < ihalf + 1; Blit_Functions.x++)
+                for (BlitFunctions.x = -ihalf; BlitFunctions.x < ihalf + 1; BlitFunctions.x++)
                 {
 
-                    if (Blit_Functions._alphaMode())
+                    if (BlitFunctions.alphaMode())
                     {
                         var sx = tmp.x - atlasSector.x;
                         var sy = tmp.y - atlasSector.y;
@@ -126,7 +126,7 @@ namespace Playtime_Painter {
                         if (sy < 0)
                             sy += sectorSize;
 
-                        Blit_Functions._blitMode(ref pixels[((atlasSector.y + sy)) * image.width + (atlasSector.x + sx)]);
+                        BlitFunctions.blitMode(ref pixels[((atlasSector.y + sy)) * image.width + (atlasSector.x + sx)]);
                     }
 
                     tmp.x += 1;
@@ -138,7 +138,7 @@ namespace Playtime_Painter {
 
         }
         
-        public override bool OffsetAndTileUV(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
+        public override bool OffsetAndTileUv(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
         {
             if (!p.IsAtlased()) return false;
             
@@ -197,16 +197,16 @@ namespace Playtime_Painter {
         #endif
         #endregion
 
-        public override void BeforeGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type)
+        public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type)
         {
-            if (!br.IsA3Dbrush(painter) || !painter.IsAtlased()) return;
+            if (!br.IsA3dBrush(painter) || !painter.IsAtlased()) return;
             
             var ats = GetAtlasedSection();
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGPUStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
-            if (br.IsA3Dbrush(painter) && painter.IsAtlased())
+        public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+            if (br.IsA3dBrush(painter) && painter.IsAtlased())
                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
     }

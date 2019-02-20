@@ -261,7 +261,7 @@ namespace QuizCannersUtilities
 
         public static bool LoadStreamingAssets<T>(string fileName, ref T dta)
         {
-            var filePath = Application.streamingAssetsPath + "/" + fileName + ".json";
+            var filePath = Path.Combine(Application.streamingAssetsPath, fileName + ".json");
 
             if (!File.Exists(filePath)) return false;
             

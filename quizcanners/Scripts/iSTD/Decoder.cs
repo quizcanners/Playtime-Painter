@@ -861,17 +861,17 @@ namespace QuizCannersUtilities
 
             if (referencesKeeper == null) return list;
 
-            List<int> indxs;
+            List<int> indexes;
             
-            data.Decode_List(out indxs);
+            data.Decode_List(out indexes);
 
-            foreach (var i in indxs)
+            foreach (var i in indexes)
                 list.Add(referencesKeeper.GetReferenced<T>(i));
             
             return list;
         }
 
-        public static void ToAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
+        public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
         {
             var ass = UnityHelperFunctions.GuidToAsset<T>(data);
             if (ass)

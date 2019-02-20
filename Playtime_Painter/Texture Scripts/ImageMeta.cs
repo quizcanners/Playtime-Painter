@@ -206,10 +206,10 @@ namespace Playtime_Painter
                 if (destination == TexTarget.RenderTexture)
                 {
                     if (_numberOfRenderTextureBackups > 0)
-                        cache.undo.backupRenderTexture(_numberOfRenderTextureBackups, this);
+                        cache.undo.BackupRenderTexture(_numberOfRenderTextureBackups, this);
                 }
                 else if (_numberOfTexture2DBackups > 0)
-                    cache.undo.backupTexture2D(_numberOfRenderTextureBackups, this);
+                    cache.undo.BackupTexture2D(_numberOfRenderTextureBackups, this);
             }
 
             cache.redo.Clear();
@@ -786,7 +786,7 @@ namespace Playtime_Painter
                 changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl();
                 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref GlobalBrush.DontRedoMipmaps).nl();
+                    ref GlobalBrush.dontRedoMipmaps).nl();
             }
 
             if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
@@ -899,7 +899,7 @@ namespace Playtime_Painter
             if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl_ifFolded())
             {
                 if (Cfg.colorSchemes.Count == 0)
-                    Cfg.colorSchemes.Add(new ColorScheme() { PaletteName = "New Color Scheme" });
+                    Cfg.colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });
 
                 changed |= pegi.edit_List(ref Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
             }
@@ -1026,7 +1026,7 @@ namespace Playtime_Painter
             if (_repaintTimer >= 0 && !mouseUp) return;
             
             if (texture2D)
-                SetAndApply(!GlobalBrush.DontRedoMipmaps);
+                SetAndApply(!GlobalBrush.dontRedoMipmaps);
 
             pixelsDirty = false;
             _repaintTimer = _repaintDelay;

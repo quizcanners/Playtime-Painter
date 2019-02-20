@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using PlayerAndEditorGUI;
-using System.Text;
 
 namespace QuizCannersUtilities
 {
@@ -22,11 +21,10 @@ namespace QuizCannersUtilities
         public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Timer
-        static readonly Stopwatch StopWatch = new Stopwatch();
 
-        private static int _timerLastSection;
+        private static readonly Stopwatch StopWatch = new Stopwatch();
 
-        static string _timerStartLabel;
+        private static string _timerStartLabel;
 
         public static void TimerStart()
         {
@@ -44,19 +42,17 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, logIt);
 
-        public static string TimerEnd(this string label, bool logIt, int treshold) => TimerEnd(label, logIt, logIt, treshold);
+        public static string TimerEnd(this string label, bool logIt, int threshold) => TimerEnd(label, logIt, logIt, threshold);
 
         public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
 
-        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, int logTrashold)
+        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, int logThreshold)
         {
             StopWatch.Stop();
 
             var ticks = StopWatch.ElapsedTicks;
 
             string timeText;
-
-            _timerLastSection = (int)ticks;
 
             if (ticks < 10000)
                 timeText = ticks + " ticks";
@@ -69,7 +65,7 @@ namespace QuizCannersUtilities
 
             _timerStartLabel = null;
 
-            if ((ticks > logTrashold) && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
+            if (ticks > logThreshold && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
                 UnityEngine.Debug.Log(text);
 
             StopWatch.Reset();
@@ -81,14 +77,14 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logTreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logTreshold);
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logThreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logThreshold);
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer) => labelForEndedSection.TimerEnd_Restart(logInEditor, logInPlayer, 0);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logTreshold)
+        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logThreshold)
         {
             StopWatch.Stop();
-            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logTreshold);
+            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
             StopWatch.Start();
             return txt;
         }
@@ -97,7 +93,7 @@ namespace QuizCannersUtilities
 
         #region TextOperations
 
-        const string BadFormat = "!Bad format: ";
+        private const string BadFormat = "!Bad format: ";
 
         public static string F(this string format, Type type)
         {
@@ -194,16 +190,12 @@ namespace QuizCannersUtilities
 
         public static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
         {
-            T attr = null;
+   
+            if (!type.IsClass) return null;
+            
+            var attrs = type.GetCustomAttributes(typeof(T), inherit);
+            return (attrs.Length > 0) ? (T) attrs[0] : null;
 
-            if (type.IsClass)
-            {
-                var attrs = type.GetCustomAttributes(typeof(T), inherit);
-                if (attrs.Length > 0)
-                    attr = (T)attrs[0];
-            }
-
-            return attr;
         }
 
         static void AssignUniqueNameIn<T>(this T el, List<T> list)
@@ -223,7 +215,7 @@ namespace QuizCannersUtilities
                 foreach (var e in list)
                 {
                     var other = e as IGotName;
-                    if ((other == null) || (e.Equals(el)) || (String.Compare(tmpName, other.NameForPEGI) != 0))
+                    if ((other == null) || (e.Equals(el)) || (!tmpName.Equals(other.NameForPEGI)))
                         continue;
                     
                     duplicate = true;
@@ -756,17 +748,6 @@ namespace QuizCannersUtilities
             return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
         }
 
-        public static string ToStringShort(this Vector3 v)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            if (v.x != 0) sb.Append("x:" + ((int)v.x));
-            if (v.y != 0) sb.Append(" y:" + ((int)v.y));
-            if (v.z != 0) sb.Append(" z:" + ((int)v.z));
-
-            return sb.ToString();
-        }
-
         public static bool SameAs(this string s, string other) =>
             ((s.IsNullOrEmpty() && other.IsNullOrEmpty())
             || s.Equals(other));
@@ -794,24 +775,6 @@ namespace QuizCannersUtilities
             
             return ind > 1 ? s.Substring(0, ind) : s;
         }
-
-  /*      public static string AddPreSlashIfNotEmpty(this string s) => (s.Length == 0 || (s[0] == '/')) ? s : "/" + s;
-        
-
-        public static string AddPostSlashIfNotEmpty(this string s)
-        {
-            return (s.Length == 0 || (s[s.Length - 1] == '/')) ? s : s + "/";
-        }
-
-        public static string AddPreSlashIfNone(this string s)
-        {
-            return (s.Length == 0 || (s[0] != '/')) ? "/" + s : s;
-        }
-
-        public static string AddPostSlashIfNone(this string s)
-        {
-            return (s.Length == 0 || (s[s.Length - 1] != '/')) ? s + "/" : s;
-        }*/
         
         public static string RemoveFirst(this string name, int index) =>
             name.Substring(index, name.Length - index);
@@ -821,21 +784,19 @@ namespace QuizCannersUtilities
         
         public static int FindMostSimilarFrom(this string s, string[] t)
         {
-            int mostSimilar = -1;
-            int distance = 999;
-            for (int i = 0; i < t.Length; i++)
+            var mostSimilar = -1;
+            var distance = 999;
+            for (var i = 0; i < t.Length; i++)
             {
-                int newdist = s.LevenshteinDistance(t[i]);
-                if (newdist < distance)
-                {
-                    mostSimilar = i;
-                    distance = newdist;
-                }
+                var newDistance = s.LevenshteinDistance(t[i]);
+                if (newDistance >= distance) continue;
+                mostSimilar = i;
+                distance = newDistance;
             }
             return mostSimilar;
         }
 
-        public static int LevenshteinDistance(this string s, string t)
+        private static int LevenshteinDistance(this string s, string t)
         {
 
             if ((s == null) || (t == null))
@@ -844,12 +805,12 @@ namespace QuizCannersUtilities
                 return 999;
             }
 
-            if (s.CompareTo(t) == 0)
+            if (s.Equals(t))
                 return 0;
 
-            int n = s.Length;
-            int m = t.Length;
-            int[,] d = new int[n + 1, m + 1];
+            var n = s.Length;
+            var m = t.Length;
+            var d = new int[n + 1, m + 1];
 
             // Step 1
             if (n == 0)
@@ -861,14 +822,14 @@ namespace QuizCannersUtilities
             
 
             // Step 2
-            for (int i = 0; i <= n; d[i, 0] = i++){ }
+            for (var i = 0; i <= n; d[i, 0] = i++){ }
 
-            for (int j = 0; j <= m; d[0, j] = j++) { }
+            for (var j = 0; j <= m; d[0, j] = j++) { }
 
             // Step 3
-            for (int i = 1; i <= n; i++)  
-                for (int j = 1; j <= m; j++) {
-                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+            for (var i = 1; i <= n; i++)  
+                for (var j = 1; j <= m; j++) {
+                    var cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
                     
                     d[i, j] = Math.Min(
                         Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
@@ -884,20 +845,14 @@ namespace QuizCannersUtilities
         
         public static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         
-        public static float RoundTo(this float val, int percision)
-        {
-            return (float)Math.Round(val, percision);
-        }
-
-        public static float RoundTo6Dec(this float val)
-        {
-            return Mathf.Round(val * 1000000f) * 0.000001f;// 10000f;
-        }
-
+        public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
+        
+        public static float RoundTo6Dec(this float val) => Mathf.Round(val * 1000000f) * 0.000001f;
+        
         public static void RemoveEmpty<T>(this List<T> list)
         {
 
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
                 if (list[i].IsDefaultOrNull())
                 {
                     list.RemoveAt(i);
@@ -905,86 +860,64 @@ namespace QuizCannersUtilities
                 }
         }
         
-        public static void SetMaximumLength<T>(this List<T> list, int Length)
+        public static void SetMaximumLength<T>(this List<T> list, int length)
         {
-            while (list.Count > Length)
+            while (list.Count > length)
                 list.RemoveAt(0);
         }
 
         public static T MoveFirstToLast<T>(this List<T> list)
         {
-            T item = list[0];
+            var item = list[0];
             list.RemoveAt(0);
             list.Add(item);
             return item;
         }
 
-        public static string ReplaceLastOccurrence(this string Source, string Find, string Replace)
+        public static string ReplaceLastOccurrence(this string source, string find, string replace)
         {
-            int place = Source.LastIndexOf(Find);
+            var place = source.LastIndexOf(find, StringComparison.Ordinal);
 
             if (place == -1)
-                return Source;
+                return source;
 
-            string result = Source.Remove(place, Find.Length).Insert(place, Replace);
+            var result = source.Remove(place, find.Length).Insert(place, replace);
             return result;
         }
 
         public static int ToIntFromTextSafe(this string text, int defaultReturn)
         {
             int res;
-            if (Int32.TryParse(text, out res))
-                return res;
-            else
-                return defaultReturn;
+            return int.TryParse(text, out res) ? res : defaultReturn;
         }
 
-        public static int CharToInt(this char c)
-        {
-
-            return (int)(c - '0');
-        }
+        public static int CharToInt(this char c) => c - '0';
+        
 
         #region Type MGMT
-        public static string GetMemberName<T>(Expression<Func<T>> memberExpression)
-        {
-            MemberExpression expressionBody = (MemberExpression)memberExpression.Body;
-            return expressionBody.Member.Name;
-        }
+        public static string GetMemberName<T>(Expression<Func<T>> memberExpression) => ((MemberExpression)memberExpression.Body).Member.Name;
+        
+        public static List<Type> GetAllChildTypesOf<T>() => GetAllChildTypes(typeof(T));
 
-        public static List<Type> GetAllChildTypesOf<T>() =>
-            GetAllChildTypes(typeof(T));
-
-        public static List<Type> GetAllChildTypes(this Type type)
-        {
-            List<Type> types = new List<Type>();
-            foreach (Type t in Assembly.GetAssembly(type).GetTypes())
-            {
-                if (t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type))
-                {
-                    types.Add(t);
-                }
-            }
-            return types;
-        }
+        public static List<Type> GetAllChildTypes(this Type type) => Assembly.GetAssembly(type).GetTypes().Where(t => t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type)).ToList();
+        
 
         public static List<List<Type>> GetAllChildTypesOf(List<Type> baseTypes)
         {
-            List<List<Type>> types = new List<List<Type>>();
-            for (int i = 0; i < baseTypes.Count; i++)
+            var types = new List<List<Type>>();
+            for (var i = 0; i < baseTypes.Count; i++)
                 types[i] = new List<Type>();
 
-            foreach (Type type in Assembly.GetAssembly(baseTypes[0]).GetTypes())
+            foreach (var type in Assembly.GetAssembly(baseTypes[0]).GetTypes())
             {
-                if (type.IsClass && !type.IsAbstract)
-                {
-                    for (int i = 0; i < baseTypes.Count; i++)
-                        if (type.IsSubclassOf(baseTypes[i]) && (type != baseTypes[i]))
-                        {
-                            types[i].Add(type);
-                            break;
-                        }
-                }
+                if (!type.IsClass || type.IsAbstract) continue;
+                
+                for (var i = 0; i < baseTypes.Count; i++)
+                    if (type.IsSubclassOf(baseTypes[i]) && (type != baseTypes[i]))
+                    {
+                        types[i].Add(type);
+                        break;
+                    }
             }
             return types;
         }
@@ -997,33 +930,33 @@ namespace QuizCannersUtilities
 
 #if PEGI
 
-        List<Step> steps = new List<Step>();
-        Step previous = null;
+        private readonly List<Step> _steps = new List<Step>();
+        private Step _previous;
 
         #region Inspector
 
-        static CallsTracker inspected;
-        int inspectedStep = -1;
+        private static CallsTracker _inspected;
+        private int _inspectedStep = -1;
         public bool Inspect()
         {
             var changed = false;
 
             if (icon.Delete.Click("Delete All", ref changed))
-                steps.Clear();
+                _steps.Clear();
 
-            inspected = this;
-            "Steps".write_List(steps, ref inspectedStep);
+            _inspected = this;
+            "Steps".write_List(_steps, ref _inspectedStep);
 
             return changed;
         }
 
         #endregion
 
-        class Step : IPEGI_ListInspect
+        private class Step : IPEGI_ListInspect
         {
-            public string tag;
-            public int count = 0;
-            public List<int> followedBy = new List<int>();
+            public readonly string tag;
+            private int count = 0;
+            public readonly List<int> followedBy = new List<int>();
 
             public int FollowedBy
             {
@@ -1040,9 +973,9 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public Step(string tagg)
+            public Step(string nTag)
             {
-                tag = tagg;
+                tag = nTag;
             }
 
             public void Track()
@@ -1054,7 +987,7 @@ namespace QuizCannersUtilities
             {
                 "{0}: [{1}] => {2}".F(tag, count,
                      (followedBy.Count > 0) ?
-                    CallsTracker.inspected.steps[followedBy[0]].tag + (followedBy.Count > 1 ? followedBy.Count.ToString() : "") : "").write();
+                    CallsTracker._inspected._steps[followedBy[0]].tag + (followedBy.Count > 1 ? followedBy.Count.ToString() : "") : "").write();
 
                 if (icon.Refresh.Click())
                     count = 0;
@@ -1071,33 +1004,28 @@ namespace QuizCannersUtilities
 
             Step exp = null;
 
-            if (previous != null)
+            if (_previous != null)
             {
-                for (int i = 0; i < previous.followedBy.Count; i++)
+                for (var i = 0; i < _previous.followedBy.Count; i++)
                 {
-                    var e = previous.followedBy[i];
-                    var tmp = steps.TryGet(e);
-                    if (exp != null && exp.tag.SameAs(tag))
-                    {
-                        exp = tmp;
-                        previous.FollowedBy = i;
-                        break;
-                    }
+                    var e = _previous.followedBy[i];
+                    var tmp = _steps.TryGet(e);
+                    if (exp == null || !exp.tag.SameAs(tag)) continue;
+                    exp = tmp;
+                    _previous.FollowedBy = i;
+                    break;
                 }
             }
 
-            if (exp == null)
-            {
-                if (previous != null)
-                    previous.FollowedBy = steps.Count;
+            if (_previous != null)
+                _previous.FollowedBy = _steps.Count;
 
-                exp = new Step(tag);
-                steps.Add(exp);
-            }
+            exp = new Step(tag);
+            _steps.Add(exp);
 
             exp.Track();
 
-            previous = exp;
+            _previous = exp;
 #endif
         }
 
@@ -1106,25 +1034,26 @@ namespace QuizCannersUtilities
 
     public class LoopLock
     {
-        volatile bool llock;
+        private volatile bool _lLock;
 
-        bool loopErrorLogged = false;
+        private bool _loopErrorLogged;
 
         public SkipLock Lock()
         {
-            if (llock)
+            if (_lLock)
                 UnityEngine.Debug.LogError("Should check it is Unlocked before calling a Lock");
 
             return new SkipLock(this);
         }
 
-        public bool Unlocked => !llock;
+        public bool Unlocked => !_lLock;
         
-        public void Run(Action action) {
-            if (Unlocked) {
-                using (Lock()) {
-                    action();
-                }
+        public void Run(Action action)
+        {
+            if (!Unlocked) return;
+            
+            using (Lock()) {
+                action();
             }
         }
 
@@ -1132,25 +1061,24 @@ namespace QuizCannersUtilities
         {
             public void Dispose()
             {
-                creator.llock = false;
+                creator._lLock = false;
             }
 
-            public volatile LoopLock creator;
+            private volatile LoopLock creator;
 
             public SkipLock(LoopLock make)
             {
                 creator = make;
-                make.llock = true;
+                make._lLock = true;
             }
         }
 
         public void LogErrorOnce(string msg = "Infinite Loop Detected")
         {
-            if (!loopErrorLogged)
-            {
-                UnityEngine.Debug.LogError(msg);
-                loopErrorLogged = true;
-            }
+            if (_loopErrorLogged) return;
+            
+            UnityEngine.Debug.LogError(msg);
+            _loopErrorLogged = true;
         }
 
     }

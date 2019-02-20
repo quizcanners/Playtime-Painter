@@ -1274,24 +1274,23 @@ namespace PlayerAndEditorGUI {
 
             if (count == 0)
                 return edit(ref val);
-            else
+            
+            if (indexes == -1)
             {
-                if (indexes == -1)
-                {
-                    namesList.Add("[{0}]".F(val.ToPEGIstring()));
-                    indexes = namesList.Count - 1;
-                }
-
-                var tmp = indexes;
-
-                if (select(ref tmp, namesList.ToArray()) && (tmp < count))
-                {
-                    indexes = tmp;
-                    return change;
-                }
-
-                return false;
+                namesList.Add("[{0}]".F(val.ToPEGIstring()));
+                indexes = namesList.Count - 1;
             }
+
+            var tmp = indexes;
+
+            if (select(ref tmp, namesList.ToArray()) && (tmp < count))
+            {
+                indexes = tmp;
+                return change;
+            }
+
+            return false;
+            
         }
 
         private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
@@ -1300,8 +1299,9 @@ namespace PlayerAndEditorGUI {
 
             if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
             {
-                namesList.Add("[{0}]".F(val.ToPEGIstring()));
                 indexes = namesList.Count - 1;
+                namesList.Add("[{0}]".F(val.ToPEGIstring()));
+               
             }
 
             var tmp = indexes;

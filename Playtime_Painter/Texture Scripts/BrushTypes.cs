@@ -12,7 +12,7 @@ namespace Playtime_Painter
 
         public static List<BrushType> AllTypes { get { InitIfNull(); return _allTypes; } }
 
-        public static void InitIfNull()
+        protected static void InitIfNull()
         {
             if (_allTypes != null) return;
 
@@ -177,16 +177,16 @@ namespace Playtime_Painter
             st.uvFrom += deltaUv;
             st.posFrom += deltaPos;
             
-            Blit_Functions.PaintTexture2DMethod blitMethod = null;
+            BlitFunctions.PaintTexture2DMethod blitMethod = null;
             
-            foreach (var p in PainterManagerPluginBase.brushPlugins)
+            foreach (var p in PainterManagerPluginBase.BrushPlugins)
                 if (p.PaintPixelsInRam(st, alpha, id, br, painter)) {
                     blitMethod = p.PaintPixelsInRam;
                     break;
                 }
 
             if (blitMethod == null) {
-                blitMethod = Blit_Functions.Paint;
+                blitMethod = BlitFunctions.Paint;
                 blitMethod(st, alpha, id, br, painter);
             }
 
@@ -211,7 +211,7 @@ namespace Playtime_Painter
 
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
 
-            var rb = Rtbrush;
+            var rb = RtBrush;
 
             rb.localScale = Vector3.one;
             Vector2 direction = st.DeltaUv;
@@ -237,7 +237,7 @@ namespace Playtime_Painter
         public virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
         {
             foreach (var p in pntr.plugins)
-                p.BeforeGPUStroke(pntr, br, st, this);
+                p.BeforeGpuStroke(pntr, br, st, this);
         }
 
         public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -245,14 +245,14 @@ namespace Playtime_Painter
 
             painter.AfterStroke(st);
 
-            if (!br.IsSingleBufferBrush() && !br.IsA3Dbrush(painter))
+            if (!br.IsSingleBufferBrush() && !br.IsA3dBrush(painter))
                 TexMGMT.UpdateBufferSegment();
 
             if (br.useMask && st.mouseUp && br.randomMaskOffset)
                 br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
             foreach (var p in painter.plugins)
-                p.AfterGPUStroke(painter, br, st, this);
+                p.AfterGpuStroke(painter, br, st, this);
 
         }
 
@@ -288,12 +288,12 @@ namespace Playtime_Painter
 
              TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
 
-             Rtbrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
+             RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
              BrushMesh = PainterCamera.BrushMeshGenerator.GetQuad();
-             Rtbrush.localRotation = Quaternion.identity;
+             RtBrush.localRotation = Quaternion.identity;
 
-             Rtbrush.localPosition = st.BrushWorldPosition;
+             RtBrush.localPosition = st.BrushWorldPosition;
 
              TexMGMT.Render();
 
@@ -327,12 +327,12 @@ namespace Playtime_Painter
 
             float width = br.StrokeWidth(id.width, false);
 
-            Rtbrush.localScale = Vector3.one;
+            RtBrush.localScale = Vector3.one;
 
             BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(0, width);
-            Rtbrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
+            RtBrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
 
-            Rtbrush.localPosition = StrokeVector.BrushWorldPositionFrom(uv);
+            RtBrush.localPosition = StrokeVector.BrushWorldPositionFrom(uv);
 
             TexMGMT.Render();
 
@@ -363,7 +363,7 @@ namespace Playtime_Painter
 
             var id = painter.ImgMeta;
 
-            if (st.firstStroke || br.decalContinious)
+            if (st.firstStroke || br.decalContentious)
             {
 
                 if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection)
@@ -382,7 +382,7 @@ namespace Playtime_Painter
                 if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
 
                 TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, painter);
-                var tf = Rtbrush;
+                var tf = RtBrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetQuad();
@@ -441,7 +441,7 @@ namespace Playtime_Painter
                 "Select valid decal; Assign to Painter Camera.".write();
             pegi.nl();
 
-            "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContinious).nl();
+            "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContentious).nl();
 
             "Rotation".write("Rotation method", 60);
 
@@ -572,7 +572,7 @@ namespace Playtime_Painter
 
             var meshWidth = br.StrokeWidth(id.width, false); 
             
-            var tf = Rtbrush;
+            var tf = RtBrush;
 
             var direction = st.DeltaUv;
 

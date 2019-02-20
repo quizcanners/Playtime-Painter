@@ -100,7 +100,7 @@ namespace Playtime_Painter.Examples {
             if (texture)
                 return texture;
 
-            var rtm = TexturesPool._inst;
+            var rtm = TexturesPool.inst;
 
             if (!Material) {
                 Debug.Log("No Material ");
@@ -136,7 +136,7 @@ namespace Playtime_Painter.Examples {
                 fromRtManager = false;
                 Material = originalMaterial;
                 originalMaterial = null;
-                TexturesPool._inst.ReturnOne((RenderTexture)texture);
+                TexturesPool.inst.ReturnOne((RenderTexture)texture);
                 texture = null;
                 return;
             }
@@ -308,7 +308,7 @@ namespace Playtime_Painter.Examples {
                     }
                     else
                     {
-                        var rtm = TexturesPool._inst;
+                        var rtm = TexturesPool.inst;
 
                         if (rtm) {
                             "Render Texture Pool will be used to get texture".nl();

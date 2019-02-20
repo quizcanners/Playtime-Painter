@@ -53,7 +53,7 @@ namespace Playtime_Painter.Examples
 
          
 
-            if (brush.IsA3Dbrush(pCont.painter)) {
+            if (brush.IsA3dBrush(pCont.painter)) {
                 StrokeVector v = pCont.vector;
                 v.posTo = transform.position;
                 if (v.mouseDwn) v.posFrom = v.posTo;

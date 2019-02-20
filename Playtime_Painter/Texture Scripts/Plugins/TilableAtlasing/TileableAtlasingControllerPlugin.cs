@@ -16,7 +16,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IMeshToolPlugin, IPainterManagerPlugin_Brush
+    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IMeshToolPlugin, IPainterManagerPluginBrush
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
@@ -177,12 +177,12 @@ namespace Playtime_Painter
 
         public override bool ShowLines=> false;
 
-        public override bool ShowVerticesDefault => true;
+        public override bool ShowVertices => true;
 
-        static TriangleAtlasTool _inst;
+        private static TriangleAtlasTool _inst;
 
-        public int curAtlasTexture = 0;
-        public int curAtlasChanel = 0;
+        private int _curAtlasTexture;
+        public int curAtlasChanel;
         public bool atlasEdgeAsChanel2 = true;
 
         public static TriangleAtlasTool Inst {
@@ -216,7 +216,7 @@ namespace Playtime_Painter
                     "But who am I to tell you what to do, I'm just a computer, a humble" +
                     " servant of a human race ... for now").writeWarning();
 
-            "Atlas Texture: ".edit(ref curAtlasTexture).nl();
+            "Atlas Texture: ".edit(ref _curAtlasTexture).nl();
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
             if (MeshMGMT.SelectedTris != null)
@@ -233,12 +233,12 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButton(0))
             {
                 if (EditorInputManager.Control)
-                    curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
-                else if (PointedTris.textureNo[curAtlasChanel] != curAtlasTexture)
+                    _curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
+                else if (PointedTris.textureNo[curAtlasChanel] != _curAtlasTexture)
                 {
                     if (PointedTris.SameAsLastFrame)
                         return true;
-                    PointedTris.textureNo[curAtlasChanel] = curAtlasTexture;
+                    PointedTris.textureNo[curAtlasChanel] = _curAtlasTexture;
                     MeshMGMT.editedMesh.Dirty = true;
                     return true;
                 }
@@ -255,9 +255,9 @@ namespace Playtime_Painter
                     return true;
 
                 foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
-                    if (t.textureNo[curAtlasChanel] != curAtlasTexture)
+                    if (t.textureNo[curAtlasChanel] != _curAtlasTexture)
                     {
-                        t.textureNo[curAtlasChanel] = curAtlasTexture;
+                        t.textureNo[curAtlasChanel] = _curAtlasTexture;
                         MeshMGMT.editedMesh.Dirty = true;
                     }
                 return true;
@@ -275,8 +275,8 @@ namespace Playtime_Painter
 
                 foreach (var uv in MeshMGMT.PointedUV.meshPoint.uvpoints )
                     foreach (var t in uv.tris)
-                    if (t.textureNo[curAtlasChanel] != curAtlasTexture) {
-                        t.textureNo[curAtlasChanel] = curAtlasTexture;
+                    if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
+                        t.textureNo[curAtlasChanel] = _curAtlasTexture;
                         MeshMGMT.editedMesh.Dirty = true;
                     }
                 return true;
@@ -309,7 +309,7 @@ namespace Playtime_Painter
 
             if (keyDown != -1)
             {
-                curAtlasTexture = keyDown;
+                _curAtlasTexture = keyDown;
                 MeshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
                 MeshMGMT.editedMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
@@ -318,14 +318,14 @@ namespace Playtime_Painter
 
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
-            .Add("cat", curAtlasTexture)
+            .Add("cat", _curAtlasTexture)
             .Add("cac", curAtlasChanel);
    
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "cat": curAtlasTexture = data.ToInt(); break;
+                case "cat": _curAtlasTexture = data.ToInt(); break;
                 case "cac": curAtlasChanel = data.ToInt(); break;
                 default: return false;
             }

@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 
 namespace Playtime_Painter
 {
     
     public class MeshPackagingProfile : AbstractStd, IPEGI, IGotName
     {
-        public List<VertexContents> sln = new List<VertexContents>();
+        public List<VertexContents> sln;
 
-        public string name = "";
+        public string name;
 
         public const string FolderName = "Mesh Profiles";
 
@@ -31,7 +28,6 @@ namespace Playtime_Painter
             "Profile Name: ".edit(80, ref name);
 
             #if UNITY_EDITOR
-
             var path = Path.Combine(PainterCamera.Data.meshesFolderName, FolderName);
             
             if (icon.Save.Click("Save To:" + path, 25).nl()) {
@@ -53,7 +49,7 @@ namespace Playtime_Painter
             #endif
 
             foreach (var s in sln) 
-                Inspect().nl(ref changed);
+                s.Inspect().nl(ref changed);
 
             return changed;
         }

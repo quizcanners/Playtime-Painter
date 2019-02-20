@@ -331,7 +331,7 @@ namespace Playtime_Painter
         }
         #endregion
 
-        public override void UpdateMaterials()
+        protected override void UpdateMaterials()
         {
             base.UpdateMaterials();
             lights.UpdateLightOnMaterials(materials);

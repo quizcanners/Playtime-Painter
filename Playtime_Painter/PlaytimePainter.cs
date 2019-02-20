@@ -372,7 +372,7 @@ namespace Playtime_Painter {
             var uv = id.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
 
             foreach (var p in plugins)
-                if (p.OffsetAndTileUV(hit, this, ref uv))
+                if (p.OffsetAndTileUv(hit, this, ref uv))
                     return uv;
 
             uv.Scale(id.tiling);
@@ -492,7 +492,7 @@ namespace Playtime_Painter {
                 else
                 {
 
-                    foreach (var pl in PainterManagerPluginBase.brushPlugins)
+                    foreach (var pl in PainterManagerPluginBase.BrushPlugins)
                     {
                         var ps = pl.GetPreviewShader(this);
                         if (!ps) continue;
@@ -1245,7 +1245,7 @@ namespace Playtime_Painter {
 
             var canRecord = stroke.mouseDwn || stroke.mouseUp;
 
-            var worldSpace = GlobalBrush.IsA3Dbrush(this);
+            var worldSpace = GlobalBrush.IsA3dBrush(this);
 
             if (!canRecord)
             {
@@ -1334,7 +1334,7 @@ namespace Playtime_Painter {
                 .Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
             }
 
-            encoder.Add("s", stroke.Encode(id.TargetIsRenderTexture() && GlobalBrush.IsA3Dbrush(this)));
+            encoder.Add("s", stroke.Encode(id.TargetIsRenderTexture() && GlobalBrush.IsA3dBrush(this)));
 
             return encoder;
         }
@@ -1348,7 +1348,7 @@ namespace Playtime_Painter {
                 case "brush":
                     var id = ImgMeta;
                     GlobalBrush.Decode(data);
-                    GlobalBrush.Brush2D_Radius *= id?.width ?? 256; break;
+                    GlobalBrush.brush2DRadius *= id?.width ?? 256; break;
                 case "s":
                     stroke.Decode(data);
                     GlobalBrush.Paint(stroke, this);
@@ -1732,6 +1732,9 @@ namespace Playtime_Painter {
         public void OnGUI()
         {
 
+            foreach (var p in PainterManagerPluginBase.GUIplugins)
+                p.OnGUI();
+
 #if BUILD_WITH_PAINTER
             if (!Cfg || !Cfg.enablePainterUIonPlay) return;
             
@@ -1765,6 +1768,15 @@ namespace Playtime_Painter {
         {
             inspected = this;
 
+            if (!TexMgmt)
+            {
+                if ("Find camera".Click())
+                    PainterStuff.applicationIsQuitting = false;
+                
+                if (!TexMgmt)
+                    return false;
+            }
+            
             TexMgmt.focusedPainter = this;
 
             if (gameObject.IsPrefab())
@@ -2223,7 +2235,7 @@ namespace Playtime_Painter {
                         if (id.enableUndoRedo && id.backupManually && "Backup for UNDO".Click())
                             id.Backup();
 
-                        if (GlobalBrush.DontRedoMipmaps && "Redo Mipmaps".Click().nl())
+                        if (GlobalBrush.dontRedoMipmaps && "Redo Mipmaps".Click().nl())
                             id.SetAndApply();
                     }
 
@@ -2485,7 +2497,7 @@ namespace Playtime_Painter {
 
                 #region Plugins
                
-                foreach (var p in PainterManagerPluginBase.componentMGMTplugins)
+                foreach (var p in PainterManagerPluginBase.ComponentMgmtPlugins)
                     p.ComponentInspector().nl(ref changed);
                 #endregion
             }
@@ -2551,11 +2563,11 @@ namespace Playtime_Painter {
                     MeshManager.Inst.DRAW_Lines(true);
             }
 
-            if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool && GlobalBrush.IsA3Dbrush(this) && !Cfg.showConfig)
+            if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool && GlobalBrush.IsA3dBrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
 
 
-            foreach (var p in PainterManagerPluginBase.gizmoPlugins)
+            foreach (var p in PainterManagerPluginBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
 
         }

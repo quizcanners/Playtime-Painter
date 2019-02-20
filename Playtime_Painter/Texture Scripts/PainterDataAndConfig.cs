@@ -119,7 +119,7 @@ namespace Playtime_Painter
             
         }
 
-        float _cameraUnusedTime;
+        private float _cameraUnusedTime;
         public Texture GetWebCamTexture()
         {
             _cameraUnusedTime = 0;
@@ -408,8 +408,8 @@ namespace Playtime_Painter
            private int _inspectedStuffs = -1;
            private int _inspectedMaterial = -1;
            private int _inspectedDecal = -1;
-           
-        public bool DatasPEGI()
+
+           private bool InspectData()
         {
             var changes = false;
 
@@ -449,7 +449,7 @@ namespace Playtime_Painter
                 rtp.SetToDirty();
 
             if ("Lists".enter (ref inspectedStuff, 11).nl())
-                changed |= DatasPEGI();
+                changed |= InspectData();
 
             changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedStuff, 12).nl();
 
@@ -458,10 +458,10 @@ namespace Playtime_Painter
 
                 #if UNITY_EDITOR
 
-                var gotDefine = UnityHelperFunctions.GetDefine(EnablePainterForBuild);
+                var gotDefine = EnablePainterForBuild.GetDefine();
 
                     if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
-                        UnityHelperFunctions.SetDefine(EnablePainterForBuild, gotDefine);
+                        EnablePainterForBuild.SetDefine(gotDefine);
 
                 if (gotDefine)
                     "In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the painting shaders will be build with the player.".writeHint();
@@ -505,7 +505,7 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        public void Init() {
+        private void Init() {
 
             if (brushConfig == null)
                 brushConfig = new BrushConfig();
@@ -580,7 +580,7 @@ namespace Playtime_Painter
             CheckShader(ref previewTerrain,         "Playtime Painter/Editor/Preview/Terrain",          forceReload);
         }
 
-        private void CheckShader(ref Shader shade, string path, bool forceReload = false) {
+        private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
 
             #if UNITY_EDITOR
 

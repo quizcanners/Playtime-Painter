@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
 
 namespace Playtime_Painter {
 
-    [TaggedType(tag)]
+    [TaggedType(Tag)]
     public class TerrainHeight : PainterComponentPluginBase
     {
-        const string tag = "TerHeight";
-        public override string ClassTag => tag;
+        private const string Tag = "TerHeight";
+        public override string ClassTag => Tag;
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) {
             if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainHeight)) return false;
@@ -51,8 +50,5 @@ namespace Playtime_Painter {
             if (painter.terrainHeightTexture)
                 PainterDataAndConfig.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
         }
-
-    
     }
-
 }

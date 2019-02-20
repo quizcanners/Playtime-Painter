@@ -1,19 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter{
 
 
 
-public static class Blit_Functions {
+public static class BlitFunctions {
 
-        public delegate void blitModeFunction(ref Color dst);
-        public delegate bool PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr);
+        public delegate void BlitModeFunction(ref Color dst);
+        public delegate bool PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
 
 
-        public delegate bool alphaMode_dlg();
+        public delegate bool AlphaModeDlg();
 
         public static bool r;
         public static bool g;
@@ -27,90 +25,93 @@ public static class Blit_Functions {
         public static float half;
         public static float brAlpha;
 
-        public static alphaMode_dlg _alphaMode;
-        public static blitModeFunction _blitMode;
+        public static AlphaModeDlg alphaMode;
+        public static BlitModeFunction blitMode;
         
-        public static Color csrc;
+        public static Color cSrc;
 
-        public static bool noAlpha() { return true; }
+        public static bool NoAlpha() => true; 
 
         public static bool SphereAlpha() {
-            float dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
+            var dist = 1 + half - Mathf.Sqrt(y * y + x * x + z * z);
             alpha = Mathf.Clamp01((dist) / half) * brAlpha;
             return alpha > 0;
         }
 
-        public static bool circleAlpha() {
-            float dist = 1 + half - Mathf.Sqrt(y * y + x * x);
+        public static bool CircleAlpha() {
+            var dist = 1 + half - Mathf.Sqrt(y * y + x * x);
             alpha = Mathf.Clamp01((dist) / half) * brAlpha;
             return alpha > 0;
         }
 
-		public static void AlphaBlitOpaque(ref Color cdst) {
-            float deAlpha = 1 - alpha;
+		public static void AlphaBlitOpaque(ref Color cDst) {
+            var deAlpha = 1 - alpha;
 
-            if (r) cdst.r = Mathf.Sqrt(alpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
-            if (g) cdst.g = Mathf.Sqrt(alpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
-            if (b) cdst.b = Mathf.Sqrt(alpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
-            if (a) cdst.a = alpha * csrc.a + cdst.a * deAlpha;
+            if (r) cDst.r = Mathf.Sqrt(alpha * cSrc.r * cSrc.r + cDst.r * cDst.r * deAlpha);
+            if (g) cDst.g = Mathf.Sqrt(alpha * cSrc.g * cSrc.g + cDst.g * cDst.g * deAlpha);
+            if (b) cDst.b = Mathf.Sqrt(alpha * cSrc.b * cSrc.b + cDst.b * cDst.b * deAlpha);
+            if (a) cDst.a = alpha * cSrc.a + cDst.a * deAlpha;
         }
 
-        public static void AlphaBlitTransparent(ref Color cdst)
+        public static void AlphaBlitTransparent(ref Color cDst)
         {
-            float rgbAlpha = csrc.a * alpha;
+            var rgbAlpha = cSrc.a * alpha;
 
-            float divs = (cdst.a + rgbAlpha);
+            var divs = (cDst.a + rgbAlpha);
 
 
             rgbAlpha = divs > 0 ? Mathf.Clamp01(rgbAlpha / divs) : 0; 
-            float deAlpha = 1 - rgbAlpha;
+            
+            var deAlpha = 1 - rgbAlpha;
 
-            if (r) cdst.r = Mathf.Sqrt(rgbAlpha * csrc.r * csrc.r + cdst.r * cdst.r * deAlpha);
-            if (g) cdst.g = Mathf.Sqrt(rgbAlpha * csrc.g * csrc.g + cdst.g * cdst.g * deAlpha);
-            if (b) cdst.b = Mathf.Sqrt(rgbAlpha * csrc.b * csrc.b + cdst.b * cdst.b * deAlpha);
-            if (a) cdst.a = alpha * csrc.a + cdst.a * (1- alpha);
+            if (r) cDst.r = Mathf.Sqrt(rgbAlpha * cSrc.r * cSrc.r + cDst.r * cDst.r * deAlpha);
+            if (g) cDst.g = Mathf.Sqrt(rgbAlpha * cSrc.g * cSrc.g + cDst.g * cDst.g * deAlpha);
+            if (b) cDst.b = Mathf.Sqrt(rgbAlpha * cSrc.b * cSrc.b + cDst.b * cDst.b * deAlpha);
+            if (a) cDst.a = alpha * cSrc.a + cDst.a * (1- alpha);
         }
 
 
-        public static void AddBlit(ref Color cdst) {
-            if (r) cdst.r = alpha * csrc.r + cdst.r;
-            if (g) cdst.g = alpha * csrc.g + cdst.g;
-            if (b) cdst.b = alpha * csrc.b + cdst.b;
-            if (a) cdst.a = alpha * csrc.a + cdst.a;
+        public static void AddBlit(ref Color cDst) {
+            if (r) cDst.r = alpha * cSrc.r + cDst.r;
+            if (g) cDst.g = alpha * cSrc.g + cDst.g;
+            if (b) cDst.b = alpha * cSrc.b + cDst.b;
+            if (a) cDst.a = alpha * cSrc.a + cDst.a;
         }
 
-        public static void SubtractBlit(ref Color cdst) {
-            if (r) cdst.r = Mathf.Max(0, -alpha * csrc.r + cdst.r);
-            if (g) cdst.g = Mathf.Max(0, -alpha * csrc.g + cdst.g);
-            if (b) cdst.b = Mathf.Max(0, -alpha * csrc.b + cdst.b);
-            if (a) cdst.a = Mathf.Max(0, -alpha * csrc.a + cdst.a);
+        public static void SubtractBlit(ref Color cDst) {
+            if (r) cDst.r = Mathf.Max(0, -alpha * cSrc.r + cDst.r);
+            if (g) cDst.g = Mathf.Max(0, -alpha * cSrc.g + cDst.g);
+            if (b) cDst.b = Mathf.Max(0, -alpha * cSrc.b + cDst.b);
+            if (a) cDst.a = Mathf.Max(0, -alpha * cSrc.a + cDst.a);
         }
 
-		public static void MaxBlit(ref Color cdst)
+		public static void MaxBlit(ref Color cDst)
     {
-        if (r) cdst.r += alpha * Mathf.Max(0, csrc.r - cdst.r);
-        if (g) cdst.g += alpha * Mathf.Max(0, csrc.g - cdst.g);
-        if (b) cdst.b += alpha * Mathf.Max(0, csrc.b - cdst.b);
-        if (a) cdst.a += alpha * Mathf.Max(0, csrc.a - cdst.a);
+        if (r) cDst.r += alpha * Mathf.Max(0, cSrc.r - cDst.r);
+        if (g) cDst.g += alpha * Mathf.Max(0, cSrc.g - cDst.g);
+        if (b) cDst.b += alpha * Mathf.Max(0, cSrc.b - cDst.b);
+        if (a) cDst.a += alpha * Mathf.Max(0, cSrc.a - cDst.a);
     }
 
-		public static void MinBlit(ref Color cdst)
+		public static void MinBlit(ref Color cDst)
     {
-        if (r) cdst.r -= alpha * Mathf.Max(0, cdst.r - csrc.r);
-        if (g) cdst.g -= alpha * Mathf.Max(0, cdst.g - csrc.g);
-        if (b) cdst.b -= alpha * Mathf.Max(0, cdst.b - csrc.b);
-        if (a) cdst.a -= alpha * Mathf.Max(0, cdst.a - csrc.a);
+        if (r) cDst.r -= alpha * Mathf.Max(0, cDst.r - cSrc.r);
+        if (g) cDst.g -= alpha * Mathf.Max(0, cDst.g - cSrc.g);
+        if (b) cDst.b -= alpha * Mathf.Max(0, cDst.b - cSrc.b);
+        if (a) cDst.a -= alpha * Mathf.Max(0, cDst.a - cSrc.a);
     }
         
-        public static void PrepareCPUBlit (this BrushConfig bc, ImageMeta id) {
+        public static void PrepareCpuBlit (this BrushConfig bc, ImageMeta id) {
             half = (bc.Size(false)) / 2;
-            bool smooth = bc.Type(true) != BrushTypePixel.Inst;
+            
+            var smooth = bc.Type(true) != BrushTypePixel.Inst;
+            
             if (smooth)
-                _alphaMode = circleAlpha;
+                alphaMode = CircleAlpha;
             else
-                _alphaMode = noAlpha;
+                alphaMode = NoAlpha;
 
-            _blitMode = bc.BlitMode.BlitFunctionTex2D(id);
+            blitMode = bc.BlitMode.BlitFunctionTex2D(id);
 
             alpha = 1;
 
@@ -119,58 +120,50 @@ public static class Blit_Functions {
             b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
             a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
 
-            csrc = bc.Color;
+            cSrc = bc.Color;
 
         }
 
         public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr) {
-            ImageMeta id = texture.GetImgData();
+            var id = texture.GetImgData();
 
             id.offset = offset;
             id.tiling = tiling;
-
-            if (id == null)
-            {
-#if UNITY_EDITOR
-                Debug.Log("No texture data");
-#endif
-                return;
-            }
 
             Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
         }
 
         public static bool Paint(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
 
-        Vector2 uvCoords = stroke.uvFrom;
+        var uvCoords = stroke.uvFrom;
 
         brAlpha = brushAlpha;
 
-        bc.PrepareCPUBlit(image);
+        bc.PrepareCpuBlit(image);
 
-            if (image == null || image.Pixels == null)
+            if (image?.Pixels == null)
                 return false;
 
-        int ihalf = (int)(half-0.5f);
-        bool smooth = bc.Type(true) != BrushTypePixel.Inst;
-        if (smooth) ihalf += 1;
+        var iHalf = (int)(half-0.5f);
+        var smooth = bc.Type(true) != BrushTypePixel.Inst;
+        if (smooth) iHalf += 1;
         
-        MyIntVec2 tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+        var tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
 
-		int fromx = tmp.x - ihalf;
+		var fromX = tmp.x - iHalf;
 
-		tmp.y -= ihalf;
+		tmp.y -= iHalf;
 
             var pixels = image.Pixels;
 
-        for (y = -ihalf; y < ihalf + 1; y++) {
+        for (y = -iHalf; y < iHalf + 1; y++) {
            
-				tmp.x = fromx;
+				tmp.x = fromX;
 
-            for (x = -ihalf; x < ihalf + 1; x++) {
+            for (x = -iHalf; x < iHalf + 1; x++) {
                
-                if (_alphaMode())
-						_blitMode(ref pixels[image.PixelNo(tmp)]);
+                if (alphaMode())
+						blitMode(ref pixels[image.PixelNo(tmp)]);
                 
 					tmp.x += 1;
             }

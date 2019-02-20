@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.SceneManagement;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,14 +15,14 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class MergingTerrainController : MonoBehaviour, IPEGI {
 
-        public List<ChannelSetsForDefaultMaps> mergeSubmasks;
+        [FormerlySerializedAs("mergeSubmasks")] public List<ChannelSetsForDefaultMaps> mergeSubMasks;
         [HideInInspector]
         public PlaytimePainter painter;
         [HideInInspector]
         public Terrain terrain;
         public Texture2D lightTexture;
 
-        void OnEnable()
+        private void OnEnable()
         {
 
             if (!painter)
@@ -41,32 +41,30 @@ namespace Playtime_Painter
 
             if (!terrain)
                 return;
+
+            if (mergeSubMasks.IsNullOrEmpty()) return;
             
-            if (!mergeSubmasks.IsNullOrEmpty())
-            {
-                var ls = terrain.terrainData.terrainLayers;
+            var ls = terrain.terrainData.terrainLayers;
 
-                int terrainLayersCount = ls!= null ? ls.Length : 0;
+            var terrainLayersCount = ls?.Length ?? 0;
                 
-                for (int i = 0; i < mergeSubmasks.Count; i++) {
+            for (var i = 0; i < mergeSubMasks.Count; i++) {
 
-                    ChannelSetsForDefaultMaps mergeSubmask = mergeSubmasks[i];
+                var mergeSubMask = mergeSubMasks[i];
 
-                    if (mergeSubmask.Product_combinedBump)
-                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, mergeSubmask.Product_combinedBump.GetDestinationTexture());
+                if (mergeSubMask.Product_combinedBump)
+                    Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, mergeSubMask.Product_combinedBump.GetDestinationTexture());
 
-                    if (mergeSubmask.Product_colorWithAlpha)
-                    {
-                        Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, mergeSubmask.Product_colorWithAlpha.GetDestinationTexture());
+                if (!mergeSubMask.Product_colorWithAlpha) continue;
+                
+                Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, mergeSubMask.Product_colorWithAlpha.GetDestinationTexture());
 
-                        if (i < terrainLayersCount && ls[i]!= null)
-                            ls[i].diffuseTexture = mergeSubmask.Product_colorWithAlpha;
-                    }
-                }
-
-                if (terrain)
-                    terrain.terrainData.terrainLayers = ls;
+                if (ls != null && (i < terrainLayersCount && ls[i]!= null))
+                    ls[i].diffuseTexture = mergeSubMask.Product_colorWithAlpha;
             }
+
+            if (terrain)
+                terrain.terrainData.terrainLayers = ls;
 
 
 
@@ -78,71 +76,50 @@ namespace Playtime_Painter
         int inspectedElement = -1;
         public bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
-            if ("Merge Submasks".edit_List(ref mergeSubmasks, ref inspectedElement).nl(ref changed)) {
+            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed)) {
                 UpdateTextures();
                 painter.UpdateShaderGlobals();
             }
 
-            if (inspectedElement == -1) {
+            if (inspectedElement != -1) return changed;
+            
+            if (painter)
+                if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
+                    painter.SetToDirty();
 
-                if (painter)
-                    if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
-                        painter.SetToDirty();
-
-                changed |= "Light Texture ".edit(70, ref lightTexture).nl();
+            changed |= "Light Texture ".edit(70, ref lightTexture).nl();
 
 
-                if (changed || "Update".Click())
-                {
-                    UpdateTextures();
-                    painter.UpdateShaderGlobals();
-                }
+            if (changed || "Update".Click())
+            {
+                UpdateTextures();
+                painter.UpdateShaderGlobals();
             }
 
             return changed;
         }
 
 
-        public bool PluginInspectPart() {
+        public static bool PluginInspectPart() {
 
-            var changed = false;
+            const bool changed = false;
 
-            var painter = PlaytimePainter.inspected;
+            var ptr = PlaytimePainter.inspected;
 
-            if (painter && painter.terrain)
+            if (!ptr || !ptr.terrain) return changed;
+            
+            var td = ptr.terrain.terrainData;
+
+            if (td == null)
+                "Terrain doesn't have terrain data".writeWarning();
+            else
             {
-
-
-                var td = painter.terrain.terrainData;
-
-                if (td == null)
-                    "Terrain doesn't have terrain data".writeWarning();
-                else
-                {
-                    var layers = td.terrainLayers;
-                    if (layers == null)
-                        "Terrain layers are null".writeWarning();
-                    else
-                    {
-                       /* if (layers.Length< mergeSubmasks.Count) {
-
-                            icon.Warning.write();
-
-                            "Terrain has {0} layers while there are {1} Merge Submasks".F(layers.Length, mergeSubmasks.Count).write();
-                            if (icon.Create.Click("Add layer").nl()) {
-                                int index = layers.Length;
-                                layers = layers.ExpandBy(1);
-                                var l = new TerrainLayer();
-                                l.diffuseTexture = mergeSubmasks[index].Product_colorWithAlpha;
-                                layers[index] = l;
-                                td.terrainLayers = layers;
-                            }
-
-                        }*/
-                    }
-                }
+                var layers = td.terrainLayers;
+                if (layers == null)
+                    "Terrain layers are null".writeWarning();
+              
             }
 
 
@@ -169,11 +146,11 @@ namespace Playtime_Painter
             public int size = 1024;
             public float normalStrength = 1;
 
-            void RegenerateMasks()
+            private void RegenerateMasks()
             {
 
 #if UNITY_EDITOR
-                Product_combinedBump = NormalMapFrom(normalStrength, 0.1f, height, normalMap, ambient, productName, Product_combinedBump);
+                Product_combinedBump = NormalMapFrom(normalStrength, height, normalMap, ambient, productName, Product_combinedBump);
                 if (colorTexture != null)
                     Product_colorWithAlpha = GlossToAlpha(smooth, colorTexture, productName);
 #endif
@@ -242,26 +219,26 @@ namespace Playtime_Painter
 
 #if UNITY_EDITOR
 
-        static Color[] srcBmp;
-        static Color[] srcSm;
-        static Color[] srcAmbient;
-        static Color[] dst;
+        private static Color[] _srcBmp;
+        private static Color[] _srcSm;
+        private static Color[] _srcAmbient;
+        private static Color[] _dst;
 
-        static int width;
-        static int height;
+        private static int _width;
+        private static int _height;
 
-        static int IndexFrom(int x, int y)
+        private static int IndexFrom(int x, int y)
         {
 
-            x %= width;
-            if (x < 0) x += width;
-            y %= height;
-            if (y < 0) y += height;
+            x %= _width;
+            if (x < 0) x += _width;
+            y %= _height;
+            if (y < 0) y += _height;
 
-            return y * width + x;
+            return y * _width + x;
         }
 
-        static Texture2D NormalMapFrom(float strength, float diagonalPixelsCoef, Texture2D bump, Texture2D normalReady, Texture2D ambient, string name, Texture2D Result)
+        private static Texture2D NormalMapFrom(float strength, Texture2D bump, Texture2D normalReady, Texture2D ambient, string name, Texture2D Result)
         {
 
             if (!bump)
@@ -270,19 +247,11 @@ namespace Playtime_Painter
                 return null;
             }
 
-            float xLeft;
-            float xRight;
-            float yUp;
-            float yDown;
+            _width = bump.width;
+            _height = bump.height;
 
-            float yDelta;
-            float xDelta;
-
-            width = bump.width;
-            height = bump.height;
-
-            TextureImporter importer = bump.GetTextureImporter();
-            bool needReimport = importer.WasNotReadable();
+            var importer = bump.GetTextureImporter();
+            var needReimport = importer.WasNotReadable();
             needReimport |= importer.WasNotSingleChanel();
             if (needReimport) importer.SaveAndReimport();
 
@@ -303,10 +272,10 @@ namespace Playtime_Painter
 
             try
             {
-                srcBmp = (normalReady != null) ? normalReady.GetPixels(width, height) : bump.GetPixels();
-                srcSm = bump.GetPixels(width, height);
-                srcAmbient = ambient.GetPixels(width, height);
-                dst = new Color[height * width];
+                _srcBmp = (normalReady != null) ? normalReady.GetPixels(_width, _height) : bump.GetPixels();
+                _srcSm = bump.GetPixels(_width, _height);
+                _srcAmbient = ambient.GetPixels(_width, _height);
+                _dst = new Color[_height * _width];
             }
             catch (UnityException e)
             {
@@ -315,47 +284,47 @@ namespace Playtime_Painter
             }
 
 
-            for (int by = 0; by < height; by++)
+            for (var by = 0; by < _height; by++)
             {
-                for (int bx = 0; bx < width; bx++)
+                for (var bx = 0; bx < _width; bx++)
                 {
 
-                    int dstIndex = IndexFrom(bx, by);
+                    var dstIndex = IndexFrom(bx, by);
 
                     if (normalReady)
                     {
-                        dst[dstIndex].r = (srcBmp[dstIndex].r - 0.5f) * strength + 0.5f;
-                        dst[dstIndex].g = (srcBmp[dstIndex].g - 0.5f) * strength + 0.5f;
+                        _dst[dstIndex].r = (_srcBmp[dstIndex].r - 0.5f) * strength + 0.5f;
+                        _dst[dstIndex].g = (_srcBmp[dstIndex].g - 0.5f) * strength + 0.5f;
 
                     }
                     else
                     {
 
-                        xLeft = srcBmp[IndexFrom(bx - 1, by)].a;
-                        xRight = srcBmp[IndexFrom(bx + 1, by)].a;
-                        yUp = srcBmp[IndexFrom(bx, by - 1)].a;
-                        yDown = srcBmp[IndexFrom(bx, by + 1)].a;
+                        var xLeft = _srcBmp[IndexFrom(bx - 1, @by)].a;
+                        var xRight = _srcBmp[IndexFrom(bx + 1, @by)].a;
+                        var yUp = _srcBmp[IndexFrom(bx, @by - 1)].a;
+                        var yDown = _srcBmp[IndexFrom(bx, @by + 1)].a;
 
-                        xDelta = (-xRight + xLeft) * strength;
+                        var xDelta = (-xRight + xLeft) * strength;
 
-                        yDelta = (-yDown + yUp) * strength;
+                        var yDelta = (-yDown + yUp) * strength;
 
-                        dst[dstIndex].r = xDelta * Mathf.Abs(xDelta)
+                        _dst[dstIndex].r = xDelta * Mathf.Abs(xDelta)
                             + 0.5f;
-                        dst[dstIndex].g = yDelta * Mathf.Abs(yDelta)
+                        _dst[dstIndex].g = yDelta * Mathf.Abs(yDelta)
                             + 0.5f;
                     }
 
-                    dst[dstIndex].b = srcSm[dstIndex].a;
-                    dst[dstIndex].a = srcAmbient[dstIndex].a;
+                    _dst[dstIndex].b = _srcSm[dstIndex].a;
+                    _dst[dstIndex].a = _srcAmbient[dstIndex].a;
                 }
             }
 
 
-            if ((!Result) || (Result.width != width) || (Result.height != height))
+            if ((!Result) || (Result.width != _width) || (Result.height != _height))
                 Result = bump.CreatePngSameDirectory(name + "_MASKnMAPS");
 
-            TextureImporter resImp = Result.GetTextureImporter();
+            var resImp = Result.GetTextureImporter();
             needReimport = resImp.WasClamped();
             needReimport |= resImp.WasWrongIsColor(false);
             needReimport |= resImp.WasNotReadable();
@@ -365,14 +334,14 @@ namespace Playtime_Painter
             if (needReimport)
                 resImp.SaveAndReimport();
 
-            Result.SetPixels(dst);
+            Result.SetPixels(_dst);
             Result.Apply();
             Result.SaveTexture();
 
             return Result;
         }
 
-        static Texture2D GlossToAlpha(Texture2D gloss, Texture2D diffuse, string newName)
+        private static Texture2D GlossToAlpha(Texture2D gloss, Texture2D diffuse, string newName)
         {
 
             if (!gloss)
@@ -381,8 +350,8 @@ namespace Playtime_Painter
                 return null;
             }
 
-            TextureImporter ti = gloss.GetTextureImporter();
-            bool needReimport = ti.WasNotSingleChanel();
+            var ti = gloss.GetTextureImporter();
+            var needReimport = ti.WasNotSingleChanel();
             needReimport |= ti.WasNotReadable();
             if (needReimport) ti.SaveAndReimport();
 
@@ -392,9 +361,9 @@ namespace Playtime_Painter
             needReimport |= ti.WasNotReadable();
             if (needReimport) ti.SaveAndReimport();
 
-            Texture2D product = diffuse.CreatePngSameDirectory(newName + "_COLOR");
+            var product = diffuse.CreatePngSameDirectory(newName + "_COLOR");
 
-            TextureImporter importer = product.GetTextureImporter();
+            var importer = product.GetTextureImporter();
             needReimport = importer.WasNotReadable();
             needReimport |= importer.WasClamped();
             needReimport |= importer.HadNoMipmaps();
@@ -402,14 +371,14 @@ namespace Playtime_Painter
                 importer.SaveAndReimport();
 
 
-            width = gloss.width;
-            height = gloss.height;
+            _width = gloss.width;
+            _height = gloss.height;
             Color[] dstColor;
 
             try
             {
                 dstColor = diffuse.GetPixels();
-                srcBmp = gloss.GetPixels(diffuse.width, diffuse.height);
+                _srcBmp = gloss.GetPixels(diffuse.width, diffuse.height);
             }
             catch (UnityException e)
             {
@@ -418,15 +387,13 @@ namespace Playtime_Painter
             }
 
 
-            int dstIndex;
-            for (int by = 0; by < height; by++)
+            for (var by = 0; by < _height; by++)
             {
-                for (int bx = 0; bx < width; bx++)
+                for (var bx = 0; bx < _width; bx++)
                 {
-                    dstIndex = IndexFrom(bx, by);
-                    Color col;
-                    col = dstColor[dstIndex];
-                    col.a = srcBmp[dstIndex].a;
+                    var dstIndex = IndexFrom(bx, @by);
+                    var col = dstColor[dstIndex];
+                    col.a = _srcBmp[dstIndex].a;
                     dstColor[dstIndex] = col;
                 }
             }

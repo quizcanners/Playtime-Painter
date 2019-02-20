@@ -49,8 +49,6 @@ namespace Playtime_Painter {
         #region Camera Singleton
         private static PainterCamera _inst;
 
-        private static bool _triedToFindCamera;
-
         public static PainterCamera Inst {
             get
             {
@@ -58,11 +56,8 @@ namespace Playtime_Painter {
 
                 _inst = null;
 
-                if (!_triedToFindCamera) {
-                    _inst = FindObjectOfType<PainterCamera>();
-                    if (!_inst) _triedToFindCamera = true;
-                }
-
+                _inst = FindObjectOfType<PainterCamera>();
+              
                 if (!PainterStuff.applicationIsQuitting) {
 
                     if (!_inst) {
@@ -74,7 +69,6 @@ namespace Playtime_Painter {
                             PainterManagerPluginBase.RefreshPlugins();
                         #endif
 
-                        _triedToFindCamera = false;
                     }
                 }
      
@@ -288,7 +282,7 @@ namespace Playtime_Painter {
         public void UpdateBuffersState()
         {
 
-            var cfg = TexMGMTdata;
+            var cfg = TexMgmtData;
 
             if (!cfg)
                 return;
@@ -389,7 +383,7 @@ namespace Playtime_Painter {
 
             var brushType = brush.Type(!rendTex);
 
-            var is3DBrush = brush.IsA3Dbrush(painter);
+            var is3DBrush = brush.IsA3dBrush(painter);
             var isDecal = rendTex && brushType.IsUsingDecals;
 
             brushColor_Property.GlobalValue = brush.Color;
@@ -454,7 +448,7 @@ namespace Playtime_Painter {
 
             Shader shd = null;
             if (pntr)
-                foreach (var pl in PainterManagerPluginBase.brushPlugins) {
+                foreach (var pl in PainterManagerPluginBase.BrushPlugins) {
                     Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
                     if (bs) {
                         shd = bs;
@@ -681,20 +675,19 @@ namespace Playtime_Painter {
             
             DownloadManager.Dispose();
 
-            _triedToFindCamera = false ;
-            
             BeforeClosing();
 
             if (PainterManagerPluginBase.plugins!= null)
                 foreach (var p in PainterManagerPluginBase.plugins)
-                    if (p != null) p.Disable();
+                    p?.Disable();
+                
 
             if (Data)
                 Data.ManagedOnDisable();
 
         }
-        
-        void BeforeClosing()
+
+        private void BeforeClosing()
         {
             #if UNITY_EDITOR
             if (PlaytimePainter.previewHolderMaterial)
@@ -800,7 +793,7 @@ namespace Playtime_Painter {
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
                     else
                     {
-                        TexMGMTdata.brushConfig.Paint(p.stroke, p);
+                        TexMgmtData.brushConfig.Paint(p.stroke, p);
                         p.Update();
                     }
                 }
@@ -854,7 +847,7 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-            (((bigRtPair == null) || (bigRtPair.Length == 0)) ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "inited")).nl();
+            ((bigRtPair.IsNullOrEmpty()) ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
 
             if (!theCamera) {
                 "no camera".nl();
@@ -869,7 +862,7 @@ namespace Playtime_Painter {
 
         public bool PluginsInspect() {
 
-            bool changed = false;
+            var changed = false;
 
             if (!PainterStuff.IsNowPlaytimeAndDisabled)
             {

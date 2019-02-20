@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter {
@@ -17,22 +15,17 @@ namespace Playtime_Painter {
             if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI[0].CharToInt();
 
-#if UNITY_2018_3_OR_NEWER
             var l = painter.terrain.terrainData.terrainLayers;
 
             if (l.Length > no)
                 tex = l[no].diffuseTexture;
-#else
-
-                tex = painter.terrain.terrainData.splatPrototypes[no].texture;
-#endif
+            
             return true;
         }
 
         public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest) {
             if (!painter.terrain) return;
-            
-#if UNITY_2018_3_OR_NEWER
+
             var sp = painter.terrain.terrainData.terrainLayers;
 
             for (var i = 0; i < sp.Length; i++) {
@@ -40,16 +33,6 @@ namespace Playtime_Painter {
                 if (l != null)
                     dest.Add(new ShaderProperty.TextureValue( i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
             }
-
-#else
-                
-                SplatPrototype[] sp = painter.terrain.terrainData.splatPrototypes;
-                for (int i = 0; i < sp.Length; i++)
-                {
-                    if (sp[i].texture != null)
-                        dest.Add(i + PainterDataAndConfig.terrainTexture + sp[i].texture.name);
-                }
-#endif
 
         }
 
@@ -61,9 +44,6 @@ namespace Playtime_Painter {
 
             var no = fieldName.NameForDisplayPEGI[0].CharToInt();
 
-
-
-#if UNITY_2018_3_OR_NEWER
             var ls = painter.terrain.terrainData.terrainLayers;
 
         
@@ -78,23 +58,6 @@ namespace Playtime_Painter {
             var id = painter.ImgMeta;
             id.tiling = new Vector2(width, length);
             id.offset = l.tileOffset;
-
-#else
-                    SplatPrototype[] splats = painter.terrain.terrainData.splatPrototypes;
-
-                    if (splats.Length <= no) return true; 
-
-                    SplatPrototype sp = painter.terrain.terrainData.splatPrototypes[no];
-
-                        float width = painter.terrain.terrainData.size.x / sp.tileSize.x;
-                    float length = painter.terrain.terrainData.size.z / sp.tileSize.y;
-
-                    var id = painter.ImgData;
-                    id.tiling = new Vector2(width, length);
-                    id.offset = sp.tileOffset;
-
-#endif
-
 
             return true;
         }

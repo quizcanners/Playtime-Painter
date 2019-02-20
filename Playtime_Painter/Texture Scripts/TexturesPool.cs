@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
@@ -12,60 +10,49 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class TexturesPool : PainterStuffMono  {
 
-        public static TexturesPool _inst;
+        public static TexturesPool inst;
         public static TexturesPool Inst { get {
-                if (_inst == null && !ApplicationIsQuitting)
+                if (inst == null && !ApplicationIsQuitting)
                     new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool";
-                return _inst; } }
+                return inst; } }
 
         public int width = 256;
 
-        [NonSerialized]
-        public List<RenderTexture> rtList = new List<RenderTexture>();
-        [NonSerialized]
-        public List<Texture2D> t2dList = new List<Texture2D>();
+        [NonSerialized] private readonly List<RenderTexture> _rtList = new List<RenderTexture>();
+        [NonSerialized] private readonly List<Texture2D> _t2DList = new List<Texture2D>();
 
         public Texture2D GetTexture2D()
         {
-            if (t2dList.Count > 0)
-                return t2dList.RemoveLast();
-            else
-            {
-                var rt = new Texture2D(width, width, TextureFormat.ARGB32, false) {
-                    wrapMode = TextureWrapMode.Repeat,
-                    name = "Tex2D_fromPool"
+            if (_t2DList.Count > 0)
+                return _t2DList.RemoveLast();
+            
+            return new Texture2D(width, width, TextureFormat.ARGB32, false) {
+                wrapMode = TextureWrapMode.Repeat,
+                name = "Tex2D_fromPool"
             };
-                return rt;
-
-            }
+            
         }
 
         public RenderTexture GetRenderTexture() {
-            if (rtList.Count > 0)
-                return rtList.RemoveLast();
-            else {
-                var rt = new RenderTexture(width, width, 0) {
+            if (_rtList.Count > 0)
+                return _rtList.RemoveLast();
+            
+           return new RenderTexture(width, width, 0) {
                 wrapMode = TextureWrapMode.Repeat,
                 useMipMap = false,
                 name = "RenderTexture_fromPool"
             };
-                return rt;
-            }
+            
         }
 
         public void ReturnOne(RenderTexture rt)
         {
-            rtList.Add(rt);
+            _rtList.Add(rt);
         }
 
-        public void ReturnOne(Texture2D tex)
+        private void OnEnable()
         {
-            t2dList.Add(tex);
-        }
-
-        void OnEnable()
-        {
-            _inst = this;
+            inst = this;
             width = Mathf.ClosestPowerOfTwo(width);
         }
     }

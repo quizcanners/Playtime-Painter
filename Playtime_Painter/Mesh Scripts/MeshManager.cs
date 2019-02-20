@@ -284,10 +284,6 @@ namespace Playtime_Painter
                 GridNavigator.onGridPos = SelectedUV.meshPoint.WorldPos;
                 Grid.UpdatePositions();
             }
-
-
-            if (UVnavigator._inst)
-                UVnavigator._inst.CenterOnUV(SelectedUV.EditedUV);
         }
 
         public bool DeleteVertHEAL(MeshPoint vert)
@@ -295,60 +291,51 @@ namespace Playtime_Painter
 
 
 
-            Triangle[] trs = new Triangle[3];
+            var trs = new Triangle[3];
 
-            int cnt = 0;
+            var cnt = 0;
 
-            for (int i = 0; i < editedMesh.triangles.Count; i++)
+            foreach (var t in editedMesh.triangles)
             {
-                if (editedMesh.triangles[i].Includes(vert))
-                {
-                    if (cnt == 3) return false;
-                    trs[cnt] = editedMesh.triangles[i];
-                    cnt++;
-                }
+                if (!t.Includes(vert)) continue;
+                if (cnt == 3) return false;
+                trs[cnt] = t;
+                cnt++;
             }
 
             if (cnt != 3) return false;
 
-
-            trs[0].MergeAround(trs[1], vert); //Consume(trs[1]);
+            trs[0].MergeAround(trs[1], vert); 
             editedMesh.triangles.Remove(trs[1]);
             editedMesh.triangles.Remove(trs[2]);
 
-            // if ((selectedLine != null) && (selectedLine.includes(vert))) selectedLine = null;
-            //if ((selectedUV != null) && (selectedUV.vert == vert)) selectedUV = null;
-
             editedMesh.meshPoints.Remove(vert);
-
 
             TriVertices = 0;
 
-            NullPoinedSelected();
+            NullPointedSelected();
 
             return true;
         }
 
         public void SwapLine(MeshPoint a, MeshPoint b)
         {
-            NullPoinedSelected();
+            NullPointedSelected();
 
-            Triangle[] trs = new Triangle[2];
-            int cnt = 0;
-            for (int i = 0; i < editedMesh.triangles.Count; i++)
+            var trs = new Triangle[2];
+            var cnt = 0;
+            foreach (var tmp in editedMesh.triangles)
             {
-                Triangle tmp = editedMesh.triangles[i];
-                if (tmp.Includes(a, b))
-                {
-                    if (cnt == 2) return;
-                    trs[cnt] = tmp;
-                    cnt++;
-                }
+                if (!tmp.Includes(a, b)) continue;
+                
+                if (cnt == 2) return;
+                trs[cnt] = tmp;
+                cnt++;
             }
             if (cnt != 2) return;
 
-            Vertex nol0 = trs[0].GetNotOneOf(a, b);
-            Vertex nol1 = trs[1].GetNotOneOf(a, b);
+            var nol0 = trs[0].GetNotOneOf(a, b);
+            var nol1 = trs[1].GetNotOneOf(a, b);
 
             trs[0].Replace(trs[0].GetByVert(a), nol1);
             trs[1].Replace(trs[1].GetByVert(b), nol0);
@@ -358,7 +345,7 @@ namespace Playtime_Painter
 
         public void DeleteLine(LineData ld)
         {
-            NullPoinedSelected();
+            NullPointedSelected();
 
             editedMesh.RemoveLine(ld);
 
@@ -369,9 +356,9 @@ namespace Playtime_Painter
 
         public void DeleteUv(Vertex uv)
         {
-            MeshPoint vrt = uv.meshPoint;
+            var vrt = uv.meshPoint;
 
-            NullPoinedSelected();
+            NullPointedSelected();
             /*  if (pointedUV == uv) pointedUV = null;
               if (selectedUV == uv) selectedUV = null;
               if ((selectedTris != null) && selectedTris.includes(uv.vert)) selectedTris = null;
@@ -380,13 +367,12 @@ namespace Playtime_Painter
               if ((pointedLine != null) && (pointedLine.includes(uv))) pointedLine = null;
               */
 
-            for (int i = 0; i < editedMesh.triangles.Count; i++)
+            for (var i = 0; i < editedMesh.triangles.Count; i++)
             {
-                if (editedMesh.triangles[i].Includes(uv))
-                {
-                    editedMesh.triangles.RemoveAt(i);
-                    i--;
-                }
+                if (!editedMesh.triangles[i].Includes(uv)) continue;
+                
+                editedMesh.triangles.RemoveAt(i);
+                i--;
             }
 
             if (IsInTrisSet(uv))
@@ -407,7 +393,7 @@ namespace Playtime_Painter
             editedMesh.Dirty = true;
         }
 
-        public void NullPoinedSelected()
+        private void NullPointedSelected()
         {
             PointedUV = null;
             PointedLine = null;
@@ -418,23 +404,22 @@ namespace Playtime_Painter
         }
 
         public bool IsInTrisSet(MeshPoint vert)
-        { // Only one Unique coordinate per triangle
-
-            for (int i = 0; i < TriVertices; i++)
+        { 
+            for (var i = 0; i < TriVertices; i++)
                 if (TrisSet[i].meshPoint == vert) return true;
             return false;
         }
 
-        public bool IsInTrisSet(Vertex uv)
-        { // Only one Unique coordinate per triangle
-            for (int i = 0; i < TriVertices; i++)
+        private bool IsInTrisSet(Vertex uv)
+        { 
+            for (var i = 0; i < TriVertices; i++)
                 if (TrisSet[i] == uv) return true;
             return false;
         }
 
         public MeshPoint AddPoint(Vector3 pos)
         {
-            MeshPoint hold = new MeshPoint(pos);
+            var hold = new MeshPoint(pos);
             new Vertex(hold);
             editedMesh.meshPoints.Add(hold);
             
@@ -668,7 +653,7 @@ namespace Playtime_Painter
             if (!Grid)
                 return;
 
-            if (!Grid.verts[0].go)
+            if (!Grid.vertices[0].go)
                 InitVertsIfNUll();
 
             UpdateLocalSpaceV3s();
@@ -681,13 +666,13 @@ namespace Playtime_Painter
             Grid.pointedVertex.go.SetActiveTo(false);
 
             for (int i = 0; i < vertsShowMax; i++)
-                Grid.verts[i].go.SetActiveTo(false);
+                Grid.vertices[i].go.SetActiveTo(false);
 
             if (MeshTool.ShowVertices)
                 for (int i = 0; i < vertsShowMax; i++)
                     if (editedMesh.meshPoints.Count > i)
                     {
-                        MarkerWithText mrkr = Grid.verts[i];
+                        MarkerWithText mrkr = Grid.vertices[i];
                         MeshPoint vpoint = editedMesh.meshPoints[i];
 
                         Vector3 worldPos = vpoint.WorldPos;
@@ -858,14 +843,14 @@ namespace Playtime_Painter
             if (!Grid.vertPrefab)
                 Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
 
-            if ((Grid.verts == null) || (Grid.verts.Length == 0) || (!Grid.verts[0].go))
+            if ((Grid.vertices == null) || (Grid.vertices.Length == 0) || (!Grid.vertices[0].go))
             {
-                Grid.verts = new MarkerWithText[vertsShowMax];
+                Grid.vertices = new MarkerWithText[vertsShowMax];
 
                 for (int i = 0; i < vertsShowMax; i++)
                 {
                     MarkerWithText v = new MarkerWithText();
-                    Grid.verts[i] = v;
+                    Grid.vertices[i] = v;
                     v.go = GameObject.Instantiate(Grid.vertPrefab);
                     v.go.transform.parent = Grid.transform;
                     v.Init();
@@ -951,7 +936,7 @@ namespace Playtime_Painter
 
             mt.Inspect().nl(ref changed);
 
-            foreach (var p in PainterManagerPluginBase.vertexEdgePlugins)
+            foreach (var p in PainterManagerPluginBase.VertexEdgePlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
 
             if ("Hint".foldout(ref showTooltip).nl())

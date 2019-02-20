@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter
@@ -27,8 +26,7 @@ namespace Playtime_Painter
 
             var d = painter.terrain.terrainData.alphamapTextures;
 
-            for (var i = 0; i < d.Length; i++)
-                dest.Add(new ShaderProperty.TextureValue(i + "_" + d[i].name + PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE, PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE));
+            dest.AddRange(d.Select((t, i) => new ShaderProperty.TextureValue(i + "_" + t.name + PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE, PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)));
         }
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)

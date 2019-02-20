@@ -106,7 +106,7 @@ namespace Playtime_Painter.Examples
                         if (hit.collider.GetType() != typeof(MeshCollider))
                             Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
-                        Blit_Functions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush, null);
+                        BlitFunctions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush, null);
                         var id = receiver.texture.GetImgData();
                         _texturesNeedUpdate.AddIfNew(id);
 

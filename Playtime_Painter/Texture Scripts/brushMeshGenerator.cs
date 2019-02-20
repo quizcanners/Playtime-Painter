@@ -285,7 +285,7 @@ namespace Playtime_Painter
             {
                 _mesh = new Mesh();
 
-                GetLongMesh(size, width);
+                GetLongMesh(Size, Width);
 
                 _uv[0] = new Vector2(0, 1);
                 _uv[1] = new Vector2(1, 1);
@@ -322,8 +322,8 @@ namespace Playtime_Painter
         #endregion
 
         private bool _rebuild;
-        private readonly float width = 1;
-        private readonly float size = 1;
+        private const float Width = 1;
+        private const float Size = 1;
         public Vector3 pos1;
         public Vector3 pos2;
     }

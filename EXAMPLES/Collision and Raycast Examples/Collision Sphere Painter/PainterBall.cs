@@ -101,11 +101,11 @@ namespace Playtime_Painter.Examples {
 
         private void Update() {
 
-            brush.Brush3D_Radius = transform.lossyScale.x*0.7f;
+            brush.brush3DRadius = transform.lossyScale.x*0.7f;
 
 			foreach (PaintingCollision col in paintingOn){
 				PlaytimePainter p = col.painter;
-				if (brush.IsA3Dbrush(p)) {
+				if (brush.IsA3dBrush(p)) {
                     StrokeVector v = col.vector;
                     v.posTo = transform.position;
                     brush.Paint(v, p);
@@ -144,7 +144,7 @@ namespace Playtime_Painter.Examples {
             pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
           
             if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI().nl())) {
-                if ((brush.TargetIsTex2D) || (!brush.IsA3Dbrush(null))) {
+                if ((brush.TargetIsTex2D) || (!brush.IsA3dBrush(null))) {
                     brush.TargetIsTex2D = false;
                     brush.TypeSet(false,  BrushTypeSphere.Inst);
 

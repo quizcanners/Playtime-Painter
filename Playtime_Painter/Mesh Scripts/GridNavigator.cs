@@ -32,11 +32,11 @@ public class GridNavigator : PainterStuffMono {
         return _inst;
     }
 
-    public static PainterBoolPlugin pluginNeedsGrid_Delegates;
+ //   public static PainterBoolPlugin pluginNeedsGrid_Delegates;
 
     public Material vertexPointMaterial;
     public GameObject vertPrefab;
-    public MarkerWithText[] verts;
+    public MarkerWithText[] vertices;
     public MarkerWithText pointedVertex;
     public MarkerWithText selectedVertex;
 
@@ -55,7 +55,6 @@ public class GridNavigator : PainterStuffMono {
     public static Vector3 onGridPos;
     [HideInInspector]
     public Gridside gSide = Gridside.xz;
-    public float uvSnapToPixelPortion = 2;
     public MeshRenderer dot;
     public MeshRenderer rendy;
 
@@ -66,7 +65,7 @@ public class GridNavigator : PainterStuffMono {
 
         for (var i = 0; i < MeshManager.Inst.vertsShowMax; i++)
         {
-            var v = verts[i];
+            var v = vertices[i];
             
             if (v == null)
                 Debug.LogError("Got Null in vertices");
@@ -101,11 +100,11 @@ public class GridNavigator : PainterStuffMono {
         return ang;
     }
 
-    public static Vector3 MouseToPlane(Plane _plane)
+    private static Vector3 MouseToPlane(Plane plane)
     {
         var ray = EditorInputManager.GetScreenRay();
         float rayDistance;
-        return _plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
+        return plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
     }
 
     public Vector3 PlaneToWorldVector(Vector2 v2) {
@@ -203,7 +202,7 @@ public class GridNavigator : PainterStuffMono {
     public void UpdatePositions() {
 
         var m = MeshMGMT;
-        var cfg = TexMGMTdata;
+        var cfg = TexMgmtData;
 
         if (!cfg)
             return;
@@ -320,7 +319,7 @@ public class GridNavigator : PainterStuffMono {
         if (Application.isPlaying) 
             ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
 
-        if (!MeshMGMT.target && TexMGMTdata)
+        if (!MeshMGMT.target && TexMgmtData)
             UpdatePositions();
         
     }

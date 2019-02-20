@@ -263,7 +263,7 @@ namespace Playtime_Painter
         
     }
 
-    public class BlendFrame : PainterStuff_STD
+    public class BlendFrame : PainterStuffStd
     {
         public Vector3 deltaPosition;
         public Vector3 deltaTangent;

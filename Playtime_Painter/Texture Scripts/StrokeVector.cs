@@ -46,7 +46,7 @@ namespace Playtime_Painter {
 
         public override StdEncoder Encode() {
 
-            StdEncoder s = new StdEncoder();
+            var s = new StdEncoder();
 
             if (mouseDwn) s.Add("fU", uvFrom, 4);
             if (mouseDwn) s.Add("fP", posFrom, 4);
@@ -62,7 +62,7 @@ namespace Playtime_Painter {
         
         public StdEncoder Encode(bool worldSpace) {
 
-            StdEncoder s = new StdEncoder();
+            var s = new StdEncoder();
 
             if (mouseDwn) {
                 if (worldSpace)
@@ -96,25 +96,18 @@ namespace Playtime_Painter {
 
         }
 
-        public void Dwn( Vector3 pos) {
+        private void Dwn( Vector3 pos) {
 
             Dwn();
             posFrom = pos;
         }
 
-        public void Dwn(Vector2 uv) {
+        private void Dwn(Vector2 uv) {
             Dwn();
             uvFrom  = uv;
         }
 
-        public void Dwn(Vector2 uv, Vector3 pos) {
-
-            Dwn();
-            uvFrom = uv;
-            posFrom = pos;
-        }
-
-        void Dwn() {
+        private void Dwn() {
             firstStroke = true;
             mouseDwn = true;
             mouseUp = false;

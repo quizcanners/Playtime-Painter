@@ -12,9 +12,9 @@ namespace Playtime_Painter.Examples {
 
         public List<Graphic> graphicToShowScale = new List<Graphic>();
 
-        public float Size2D { get { return Brush.Brush2D_Radius; } set { Brush.Brush2D_Radius = value; Brush.previewDirty = true; graphicToShowScale.TrySetLocalScale(0.6f + value / 256f); } }
+        public float Size2D { get { return Brush.brush2DRadius; } set { Brush.brush2DRadius = value; Brush.previewDirty = true; graphicToShowScale.TrySetLocalScale(0.6f + value / 256f); } }
 
-        public float Size3D { get { return Brush.Brush3D_Radius; } set { Brush.Brush3D_Radius = value; Brush.previewDirty = true; } }
+        public float Size3D { get { return Brush.brush3DRadius; } set { Brush.brush3DRadius = value; Brush.previewDirty = true; } }
 
         public float ColorAlpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; Brush.previewDirty = true; } }
 

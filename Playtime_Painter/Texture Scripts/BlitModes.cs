@@ -78,11 +78,11 @@ namespace Playtime_Painter {
             */
         }
 
-        public virtual Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id)
+        public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id)
         {
             if (id.isATransparentLayer)
-                return Blit_Functions.AlphaBlitTransparent;
-            return Blit_Functions.AlphaBlitOpaque;
+                return BlitFunctions.AlphaBlitTransparent;
+            return BlitFunctions.AlphaBlitOpaque;
         }
 
         public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
@@ -136,23 +136,23 @@ namespace Playtime_Painter {
 
             pegi.write("Scale:", 40);
 
-            if (InspectedBrush.IsA3Dbrush(InspectedPainter))
+            if (InspectedBrush.IsA3dBrush(InspectedPainter))
             {
                 Mesh m = PlaytimePainter.inspected.GetMesh();
 
                 float maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected ? 1 : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
-                changed |= pegi.edit(ref InspectedBrush.Brush3D_Radius, 0.001f * maxScale, maxScale * 0.5f);
+                changed |= pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
             }
             else
             {
                 if (!brushType.IsPixelPerfect)
-                    changed |= pegi.edit(ref InspectedBrush.Brush2D_Radius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : (id != null ? id.width * 0.5f : 256));
+                    changed |= pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : (id != null ? id.width * 0.5f : 256));
                 else
                 {
-                    int val = (int)InspectedBrush.Brush2D_Radius;
+                    int val = (int)InspectedBrush.brush2DRadius;
                     changed |= pegi.edit(ref val, (int)(cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : (id != null ? id.width * 0.5f : 256)));
-                    InspectedBrush.Brush2D_Radius = val;
+                    InspectedBrush.brush2DRadius = val;
                 }
             }
 
@@ -191,7 +191,7 @@ namespace Playtime_Painter {
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_ADD";
 
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.AddBlit;
+        public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
 
         public BlitModeAdd(int ind) : base(ind)
         {
@@ -207,7 +207,7 @@ namespace Playtime_Painter {
         //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
 
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.SubtractBlit;
+        public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
         public BlitModeSubtract(int ind) : base(ind) { }
 
@@ -231,7 +231,7 @@ namespace Playtime_Painter {
         public override string ToString() { return "Min"; }
         public override bool SupportedByRenderTexturePair { get { return false; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.MinBlit;
+        public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
     }
@@ -241,7 +241,7 @@ namespace Playtime_Painter {
         public override string ToString() { return "Max"; }
         public override bool SupportedByRenderTexturePair { get { return false; } }
         public override bool SupportedBySingleBuffer { get { return false; } }
-        public override Blit_Functions.blitModeFunction BlitFunctionTex2D(ImageMeta id) => Blit_Functions.MaxBlit;
+        public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }

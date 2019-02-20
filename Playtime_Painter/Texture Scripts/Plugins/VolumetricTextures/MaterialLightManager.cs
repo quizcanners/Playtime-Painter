@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -12,17 +11,19 @@ namespace Playtime_Painter {
         public int[] probes;
         public float[] bounceCoefficient = new float[3];
 
-        public LightCaster GetLight (int number) => LightCaster.allProbes[probes[number]];
+        public LightCaster GetLight (int number) => LightCaster.AllProbes[probes[number]];
         
         public MaterialLightManager() {
             
             if (probes == null) 
                 probes = new int[3];
-            if (bounceCoefficient == null) {
-                bounceCoefficient = new float[3];
-                for (int i = 0; i < 3; i++)
-                    bounceCoefficient[i] = 0.3f;
-            }
+            
+            if (bounceCoefficient != null) return;
+            
+            bounceCoefficient = new float[3];
+            
+            for (var i = 0; i < 3; i++)
+                bounceCoefficient[i] = 0.3f;
 
         }
 #if PEGI
@@ -32,7 +33,7 @@ namespace Playtime_Painter {
 
         public virtual bool Inspect() {
 
-            bool changed = false;
+            var changed = false;
 
             probeChanged = -1;
 
@@ -42,14 +43,14 @@ namespace Playtime_Painter {
                 bounceCoefficient = new float[3];
 
 
-            for (int c = 0; c < 3; c++) {
+            for (var c = 0; c < 3; c++) {
 
-                int ind = probes[c];
+                var ind = probes[c];
 
                 if (ind < 0)
                 {
                     pegi.write(((ColorChanel)c).GetIcon());
-                    if (icon.Add.Click().nl())
+                    if (icon.Add.Click().nl(ref changed))
                     {
                         probes[c] = 0;
                         probeChanged = c;
@@ -59,19 +60,18 @@ namespace Playtime_Painter {
                 else
                 {
                     
-                    var prb = LightCaster.allProbes[ind];
+                    var prb = LightCaster.AllProbes[ind];
 
                     if (!prb)
-                        pegi.write("Probe " + ind, 50);
+                        ("Probe " + ind).write(50);
                     else
-                    {
                         if (icon.Delete.Click(ref changed)) {
                             probes[c] = -1;
                             probeChanged = c;
                         }
-                    }
+                    
                         
-                    if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.allProbes.GetAllObjsNoOrder()).nl(ref changed)) {
+                    if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.AllProbes.GetAllObjsNoOrder()).nl(ref changed)) {
                         probes[c] = ind;
                         probeChanged = c;
                     }
@@ -90,31 +90,31 @@ namespace Playtime_Painter {
 
         public void UpdateLightOnMaterials(List<Material> materials)
         {
+            if (materials.Count <= 0) return;
+            
+            for (var c = 0; c < 3; c++)
+            {
 
-            if (materials.Count > 0)
-                for (int c = 0; c < 3; c++)
+                var col = Color.black;
+                var pos = Vector3.zero;
+
+                var l = GetLight(c);
+
+                if (l)
                 {
-
-                    Color col = Color.black;
-                    Vector3 pos = Vector3.zero;
-
-                    var l = GetLight(c);
-
-                    if (l)
-                    {
-                        col = l.ecol * l.brightness;
-                        pos = l.transform.position;
-                    }
-
-                    col.a = bounceCoefficient[c];
-
-                    foreach (var m in materials)
-                        if (m)
-                        {
-                            m.SetVector("l" + c + "col", col.ToVector4());
-                            m.SetVector("l" + c + "pos", pos);
-                        }
+                    col = l.ecol * l.brightness;
+                    pos = l.transform.position;
                 }
+
+                col.a = bounceCoefficient[c];
+
+                foreach (var m in materials)
+                    if (m)
+                    {
+                        m.SetVector("l" + c + "col", col.ToVector4());
+                        m.SetVector("l" + c + "pos", pos);
+                    }
+            }
         }
     }
 }

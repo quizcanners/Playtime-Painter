@@ -11,26 +11,25 @@ namespace Playtime_Painter
     
     public class ColorScheme : AbstractStd, IPEGI, IGotName, IPEGI_ListInspect
     {
+        private static PainterDataAndConfig Cfg => PainterCamera.Data;
+        private static BrushConfig GlobalBrush => Cfg.brushConfig;
 
-        protected static PainterDataAndConfig Cfg => PainterCamera.Data;
-        protected static BrushConfig GlobalBrush => Cfg.brushConfig;
-
-        public int lastPicked = -1;
-        public string PaletteName;
-        public List<Color> colors = new List<Color>();
+        private int _lastPicked = -1;
+        public string paletteName;
+        private List<Color> _colors = new List<Color>();
 
 
         #region Inspector
 #if PEGI
 
-        public string NameForPEGI { get { return PaletteName; } set { PaletteName = value; } }
+        public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
 
-            bool changed = this.inspect_Name();
+            var changed = this.inspect_Name();
 
-            if (icon.Enter.BgColor(colors.TryGet(0).ToOpaque()).Click().RestoreBGColor())
+            if (icon.Enter.BgColor(_colors.TryGet(0).ToOpaque()).Click().RestoreBGColor())
                 edited = ind;
 
             return changed;
@@ -51,29 +50,29 @@ namespace Playtime_Painter
         }
 
         public bool Inspect() {
-            bool changed = false;
+            var changed = false;
 
-            changed |= PaletteName.edit_List(ref colors, EditColor);
+            changed |= paletteName.edit_List(ref _colors, EditColor);
 
             return changed;
         }
 
         public void PickerPEGI() {
 
-            int rowLimit = pegi.paintingPlayAreaGui ? 6 : (int)((Screen.width-55) / 32f);
+            var rowLimit = pegi.paintingPlayAreaGui ? 6 : (int)((Screen.width-55) / 32f);
 
-            int rowCount = 0;
-            for (int i = 0; i < colors.Count; i++) {
+            var rowCount = 0;
+            for (var i = 0; i < _colors.Count; i++) {
 
-                var col = colors[i];
+                var col = _colors[i];
 
-                if (lastPicked == i) {
+                if (_lastPicked == i) {
                     if (icon.Save.BgColor(col.ToOpaque()).Click("Save changes").RestoreBGColor())
-                        colors[i] = GlobalBrush.Color;
+                        _colors[i] = GlobalBrush.Color;
                 }
                 else
                 if (col.ToOpaque().Click()) {
-                    lastPicked = i;
+                    _lastPicked = i;
                     GlobalBrush.Color = col;
                 }
 
@@ -88,7 +87,7 @@ namespace Playtime_Painter
             var curColor = GlobalBrush.Color;
 
             if (icon.SaveAsNew.BgColor(curColor.ToOpaque()).Click().RestoreBGColor())
-                colors.Add(curColor);
+                _colors.Add(curColor);
 
             pegi.nl();
 
@@ -101,15 +100,15 @@ namespace Playtime_Painter
         #region Encode/Decode
 
         public override StdEncoder Encode() => new StdEncoder()
-            .Add_String("n", PaletteName)
-            .Add("cols", colors);
+            .Add_String("n", paletteName)
+            .Add("cols", _colors);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "n": PaletteName = data; break;
-                case "cols": data.Decode_List(out colors); break;
+                case "n": paletteName = data; break;
+                case "cols": data.Decode_List(out _colors); break;
                 default: return false;
             }
             return true;

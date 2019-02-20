@@ -1597,7 +1597,7 @@ namespace QuizCannersUtilities {
 
                     var bytes = tex.EncodeToPNG();
 
-                   // var lastPart = folderName.AddPreSlashIfNotEmpty() + "/";
+
                     var folderPath = Path.Combine(Application.dataPath, folderName);
                     Directory.CreateDirectory(folderPath);
 
@@ -1613,8 +1613,7 @@ namespace QuizCannersUtilities {
                     File.WriteAllBytes(fullPath, bytes);
 
                     AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
-                    //AssetDatabase.Refresh(); 
-
+               
                     var result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
                     textureName = result.name;

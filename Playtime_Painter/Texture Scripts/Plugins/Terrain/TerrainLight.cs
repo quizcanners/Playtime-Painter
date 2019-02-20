@@ -110,7 +110,7 @@ namespace Playtime_Painter {
             FindMergingTerrain(painter);
 
             if (mergingTerrain)
-               mergingTerrain.PluginInspectPart().nl(ref changed);
+               MergingTerrainController.PluginInspectPart().nl(ref changed);
 
             return changed;
         }
