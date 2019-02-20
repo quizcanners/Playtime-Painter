@@ -43,8 +43,6 @@ namespace Playtime_Painter.Examples {
                     _textureProperty = new ShaderProperty.TextureValue(textureField);
                 
                 return _textureProperty;
-                
-              
             }                    
             
         }
@@ -180,13 +178,20 @@ namespace Playtime_Painter.Examples {
         }
 
         #region Inspector
-
-        [SerializeField] private bool showOptional;
+        private bool _showHint;
+        [SerializeField] private bool _showOptional;
         
         #if PEGI
 
-
         public virtual bool Inspect() {
+
+            if (icon.Question.enter("Documentation", ref _showHint).nl())
+            {
+                "Works with PaintWithoutComponent script. This lets you configure how painting will be received".writeHint();
+
+                return false;
+            }
+
 
             var changes = false;
 
@@ -220,7 +225,7 @@ namespace Playtime_Painter.Examples {
 
             var r = Renderer;
 
-            if ((r && (r.sharedMaterials.Length > 1)) || materialIndex != 0) 
+            if ((r && r.sharedMaterials.Length > 1) || materialIndex != 0) 
                 "   Material".select(80, ref materialIndex, r.sharedMaterials).nl();
             
             if (Material) {
@@ -228,7 +233,6 @@ namespace Playtime_Painter.Examples {
 
                 if ("   Property".select(80, ref _textureProperty, lst).nl())
                     TexturePropertyName = _textureProperty.NameForDisplayPEGI;
-
             }
             
             if (gameObject.isStatic && !originalMesh) {                
@@ -332,7 +336,7 @@ namespace Playtime_Painter.Examples {
             }
             else "No material found".nl();
 
-            if ("Advanced".foldout(ref showOptional).nl()) {
+            if ("Advanced".foldout(ref _showOptional).nl()) {
 
                 if (texture || !MatTex)
                     "Start Texture:".edit("Copy of this texture will be modified.", 110, ref originalTexture).nl(ref changes);

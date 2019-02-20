@@ -63,7 +63,7 @@ public class GridNavigator : PainterStuffMono {
 
     public void DeactivateVertices() {
 
-        for (var i = 0; i < MeshManager.Inst.vertsShowMax; i++)
+        for (var i = 0; i < MeshManager.Inst.verticesShowMax; i++)
         {
             var v = vertices[i];
             
@@ -131,31 +131,35 @@ public class GridNavigator : PainterStuffMono {
 
     public Vector3 GetGridPerpendicularVector()
     {
-        var Mirror = new Vector3();
+        var mirror = Vector3.zero;
+
         switch (gSide)
         {
-            case Gridside.xy: Mirror.z = 1; break;
-            case Gridside.xz: Mirror.y = 1; break;
-            case Gridside.zy: Mirror.x = 1; break;
+            case Gridside.xy: mirror.z = 1; break;
+            case Gridside.xz: mirror.y = 1; break;
+            case Gridside.zy: mirror.x = 1; break;
         }
-        return Mirror;
+        return mirror;
     }
 
     public Vector3 GetGridMaskVector()
     {
-        var Mirror = Vector3.one;
+        var mirror = Vector3.one;
+
         switch (gSide)
         {
-            case Gridside.xy: Mirror.z = 0; break;
-            case Gridside.xz: Mirror.y = 0; break;
-            case Gridside.zy: Mirror.x = 0; break;
+            case Gridside.xy: mirror.z = 0; break;
+            case Gridside.xz: mirror.y = 0; break;
+            case Gridside.zy: mirror.x = 0; break;
         }
-        return Mirror;
+
+        return mirror;
     }
 
     public Vector3 ProjectToGrid(Vector3 src)
     {
         var pos = onGridPos;
+
         switch (gSide)
         {
             case Gridside.xy:
@@ -171,7 +175,7 @@ public class GridNavigator : PainterStuffMono {
     private void ClosestAxis(bool horToo)
     {
         var ang = gameObject.TryGetCameraTransform().rotation.x;
-        if ((!horToo) || (ang < 35 || ang > 300))
+        if (!horToo || (ang < 35 || ang > 300))
         {
             var x = AngleClamp(XGrid);
             var z = AngleClamp(ZGrid);
@@ -280,8 +284,8 @@ public class GridNavigator : PainterStuffMono {
         dotTf.localScale = Vector3.one * (dist / 64f);
         rndTf.localScale = new Vector3(dist, dist, dist);
 
-        float dx = 0;
-        float dy = 0;
+        float dx;
+        float dy;
 
         if (gSide != Gridside.zy)
             dx = (position.x);
@@ -289,9 +293,7 @@ public class GridNavigator : PainterStuffMono {
 
         dy = gSide != Gridside.xz ? position.y : position.z;
 
-        float scale = 8;
-        
-        scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8))) : cfg.gridSize;
+        float scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8))) : cfg.gridSize;
 
         dx -= Mathf.Round(dx / scale) * scale;
         dy -= Mathf.Round(dy / scale) * scale;
@@ -303,7 +305,7 @@ public class GridNavigator : PainterStuffMono {
             .Set(_sizeProp, dist / scale);
 
         if (MeshMGMT.target)
-            MeshMGMT.UpdateLocalSpaceV3s(); 
+            MeshMGMT.UpdateLocalSpaceV3S(); 
 
     }
 
@@ -313,7 +315,7 @@ public class GridNavigator : PainterStuffMono {
     
     private void Update() {
 
-        if (!this.enabled)
+        if (!enabled)
             return;
 
         if (Application.isPlaying) 

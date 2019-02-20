@@ -55,7 +55,7 @@ namespace Playtime_Painter {
                 if (colors == null) {
                     colors = new Color[vertsCount];
                     foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             colors[uvi] = uvi._color;
                 }
                 return colors;
@@ -67,7 +67,7 @@ namespace Playtime_Painter {
                 if (shadowBake == null) {
                     shadowBake = new Vector4[vertsCount];
                     foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             shadowBake[uvi] = vp.shadowBake;
                 }
                 return shadowBake;
@@ -78,7 +78,7 @@ namespace Playtime_Painter {
                 if (uvs == null) {
                     uvs = new Vector2[vertsCount];
                     foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             uvs[uvi] = uvi.GetUV(0);
                 }
                 return uvs;
@@ -90,7 +90,7 @@ namespace Playtime_Painter {
                 if (uvs1 == null) {
                     uvs1 = new Vector2[vertsCount];
                     foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             uvs1[uvi] = uvi.GetUV(1);
                 }
                 return uvs1;
@@ -352,7 +352,7 @@ namespace Playtime_Painter {
                     foreach (var vp in edMesh.meshPoints) {
                         totalSize += vp.localPos.magnitude;
                         var lp = vp.localPos;
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             position[uvi] = lp;
                     }
 
@@ -372,7 +372,7 @@ namespace Playtime_Painter {
                     originalIndex = new int[vertsCount];
 
                     foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.uvpoints)
+                        foreach (var uvi in vp.vertices)
                             originalIndex[uvi] = vp.index;
 
                 }
@@ -398,7 +398,7 @@ namespace Playtime_Painter {
 
             foreach (var vp in edMesh.meshPoints)
             {
-                vp.NormalIsSet = false;
+                vp.normalIsSet = false;
                 vp.normal = Vector3.zero;
             }
 
@@ -431,12 +431,12 @@ namespace Playtime_Painter {
                         normals[mDIndex] = tri.sharpNormal;
                         NormalForced[mDIndex] = true;
 
-                        if (vertPnt.NormalIsSet)
+                        if (vertPnt.normalIsSet)
                             vertPnt.normal += tri.sharpNormal;
                         else
                             vertPnt.normal = tri.sharpNormal;
 
-                        vertPnt.NormalIsSet = true;
+                        vertPnt.normalIsSet = true;
 
                     }
                     else
@@ -444,7 +444,7 @@ namespace Playtime_Painter {
                         if (!NormalForced[mDIndex])
                             normals[mDIndex] = tri.sharpNormal;
 
-                        if (!vertPnt.NormalIsSet)
+                        if (!vertPnt.normalIsSet)
                             vertPnt.normal += tri.sharpNormal;
 
                     }
@@ -459,10 +459,10 @@ namespace Playtime_Painter {
 
 
             foreach (var vp in edMesh.meshPoints)
-                if (vp.SmoothNormal)
+                if (vp.smoothNormal)
                 {
                     vp.normal = vp.normal.normalized;
-                    foreach (Vertex uv in vp.uvpoints)
+                    foreach (Vertex uv in vp.vertices)
                         normals[uv] = vp.normal;
 
                 }
@@ -480,7 +480,7 @@ namespace Playtime_Painter {
             if (edMesh.triangles.IsNullOrEmpty())
                 return;
 
-            edMesh.RefresVerticleTrisList();
+            edMesh.RefreshVertexTriangleList();
 
             vertsCount = edMesh.AssignIndexes();
 

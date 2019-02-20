@@ -39,15 +39,6 @@ namespace Playtime_Painter
 
         protected static Vector2 UvToPosition(Vector2 uv) { return (uv - Vector2.one * 0.5f) * PainterCamera.OrthographicSize * 2; }
 
-        public Vector2 To01Space(Vector2 from)
-        {
-            from.x %= 1;
-            from.y %= 1;
-            if (from.x < 0) from.x += 1;
-            if (from.y < 0) from.y += 1;
-            return from;
-        }
-
         public void SetKeyword(bool texcoord2)
         {
 
@@ -66,7 +57,7 @@ namespace Playtime_Painter
 
         }
 
-        protected virtual string ShaderKeyword(bool texcoord2) { return null; }
+        protected virtual string ShaderKeyword(bool texcoord2) => null; 
 
         private static int _typesCount;
         public readonly int index;
@@ -90,10 +81,15 @@ namespace Playtime_Painter
         public abstract string NameForDisplayPEGI { get; }
 
         #region Inspect
-#if PEGI
+        #if PEGI
         public virtual bool ShowInDropdown()
         {
-            if (!PlaytimePainter.inspected)
+            var p = PlaytimePainter.inspected;
+
+            if (!p)
+                return false;
+
+            if (!SupportedForTerrainRt && p.terrain)
                 return false;
 
             var id = InspectedImageMeta;
@@ -101,7 +97,9 @@ namespace Playtime_Painter
             if (id == null)
                 return false;
 
-            return (id.destination == TexTarget.Texture2D && SupportedByTex2D) ||
+            return 
+                
+                (id.destination == TexTarget.Texture2D && SupportedByTex2D) ||
                 (id.destination == TexTarget.RenderTexture &&
                 ((SupportedByRenderTexturePair && !id.renderTexture)
                 || (SupportedBySingleBuffer && id.renderTexture)));
@@ -153,6 +151,7 @@ namespace Playtime_Painter
         }
         #endif
         #endregion
+
         public virtual void PaintToTexture2D(PlaytimePainter painter, BrushConfig br, StrokeVector st) {
 
             var deltaUv = st.uvTo - st.uvFrom;
@@ -234,10 +233,10 @@ namespace Playtime_Painter
 
         }
 
-        public virtual void BeforeStroke(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public virtual void BeforeStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
-            foreach (var p in pntr.plugins)
-                p.BeforeGpuStroke(pntr, br, st, this);
+            foreach (var p in painter.plugins)
+                p.BeforeGpuStroke(painter, br, st, this);
         }
 
         public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -345,10 +344,16 @@ namespace Playtime_Painter
 
     public class BrushTypeDecal : BrushType {
 
-        static BrushTypeDecal _inst;
+        private static BrushTypeDecal _inst;
+
         public BrushTypeDecal() { _inst = this; }
+
         public static BrushTypeDecal Inst { get { InitIfNull(); return _inst; } }
-        public override bool SupportedBySingleBuffer => false; 
+
+        public override bool SupportedBySingleBuffer => false;
+
+        public override bool SupportedForTerrainRt => false;
+
         protected override string ShaderKeyword(bool texcoord) => "BRUSH_DECAL"; 
         public override bool IsUsingDecals => true; 
 
@@ -470,8 +475,7 @@ namespace Playtime_Painter
     }
 
     public class BrushTypeLazy : BrushType {
-
-        static BrushTypeLazy _inst;
+        private static BrushTypeLazy _inst;
         public BrushTypeLazy() { _inst = this; }
         public static BrushTypeLazy Inst { get { InitIfNull(); return _inst; } }
 

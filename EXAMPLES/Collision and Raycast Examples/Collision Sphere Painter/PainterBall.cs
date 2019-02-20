@@ -1,26 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 
 namespace Playtime_Painter.Examples { 
 
-
-    public class PaintingCollision {
-		public StrokeVector vector;
-		public PlaytimePainter painter;
-
-		public PaintingCollision (PlaytimePainter p){
-			painter = p;
-			vector = new StrokeVector ();
-		}
-	}
-
     [ExecuteInEditMode]
-    public class PainterBall : MonoBehaviour  , IPEGI
-
-    {
-
+    public class PainterBall : MonoBehaviour  , IPEGI {
+        
         public MeshRenderer rendy;
         public Rigidbody rigid;
         public SphereCollider _collider;
@@ -28,46 +15,28 @@ namespace Playtime_Painter.Examples {
 		public List<PaintingCollision> paintingOn = new List<PaintingCollision>();
         public BrushConfig brush = new BrushConfig();
 
-        PaintingCollision TryAddPainterFrom( GameObject go) {
-            PlaytimePainter target = go.GetComponent<PlaytimePainter>();
+        private void TryGetPainterFrom(GameObject go) {
 
-            if (target && !target.LockTextureEditing)   {
-                PaintingCollision col = new PaintingCollision(target);
-                paintingOn.Add(col);
-                col.vector.posFrom = transform.position;
-                col.vector.firstStroke = true;
-                target.UpdateOrSetTexTarget(TexTarget.RenderTexture);
+            var target = go.GetComponent<PlaytimePainter>();
 
-                return col;
-            }
+            if (!target || target.LockTextureEditing) return;
 
-            return null;
+            var col = new PaintingCollision(target);
+            paintingOn.Add(col);
+            col.vector.posFrom = transform.position;
+            col.vector.firstStroke = true;
+            target.UpdateOrSetTexTarget(TexTarget.RenderTexture);
+
+            return;
         }
 
-        public void OnCollisionEnter(Collision collision) {
-            //var pcol = 
-                TryAddPainterFrom(collision.gameObject);
-          /*  if (pcol != null) {
-
-                    var cp = collision.contacts[0];
-                    RaycastHit hit;
-                    Ray ray = new Ray(cp.point - cp.normal * 0.05f, cp.normal);
-                    if (cp.otherCollider.Raycast(ray, out hit, 0.1f))
-                        pcol.vector.uvFrom = hit.textureCoord;
-                    
-                
-            }*/
-
-        }
+        public void OnCollisionEnter(Collision collision) => TryGetPainterFrom(collision.gameObject);
         
-        public void OnTriggerEnter(Collider collider) {
-            TryAddPainterFrom(collider.gameObject);
+        public void OnTriggerEnter(Collider collider) => TryGetPainterFrom(collider.gameObject);
          
-        }
-        
-        void TryRemove(GameObject go)
+        private void TryRemove(GameObject go)
         {
-            foreach (PaintingCollision p in paintingOn)
+            foreach (var p in paintingOn)
                 if (p.painter.gameObject == go)
                 {
                     paintingOn.Remove(p);
@@ -75,23 +44,19 @@ namespace Playtime_Painter.Examples {
                 }
         }
 
-        public void OnTriggerExit(Collider collider) {
-
-            TryRemove(collider.gameObject);
-
-        }
-
-        public void OnCollisionExit(Collision collision)
-        {
-            TryRemove(collision.gameObject);
-        }
-
+        public void OnTriggerExit(Collider exitedCollider) => TryRemove(exitedCollider.gameObject);
+        
+        public void OnCollisionExit(Collision exitedCollider) => TryRemove(exitedCollider.gameObject);
+        
         public void OnEnable()  {
             brush.TypeSet(false, BrushTypeSphere.Inst);
+
             if (!rendy) 
                 rendy = GetComponent<MeshRenderer>();
+
             if (!rigid)
                 rigid = GetComponent<Rigidbody>();
+
             if (!_collider)
                 _collider = GetComponent<SphereCollider>();
 
@@ -103,60 +68,89 @@ namespace Playtime_Painter.Examples {
 
             brush.brush3DRadius = transform.lossyScale.x*0.7f;
 
-			foreach (PaintingCollision col in paintingOn){
-				PlaytimePainter p = col.painter;
-				if (brush.IsA3dBrush(p)) {
-                    StrokeVector v = col.vector;
-                    v.posTo = transform.position;
-                    brush.Paint(v, p);
-                  
-				}
+			foreach (var col in paintingOn){
+				var p = col.painter;
+
+                if (!brush.IsA3dBrush(p)) continue;
+
+                var v = col.vector;
+                v.posTo = transform.position;
+                brush.Paint(v, p);
 
             }
         }
 
 #if PEGI
-        public bool Inspect() {
-            ("Painting on " + paintingOn.Count + " objects").nl();
 
-            if ((_collider.isTrigger) && ("Make phisical".Click().nl()))
+        private bool _showInfo;
+
+        public bool Inspect()
+        {
+
+            var changed = false;
+
+            if (icon.Question.enter("Documentation", ref _showInfo))
             {
-                _collider.isTrigger = false;
-                rigid.isKinematic = false;
-                rigid.useGravity = true;
+                ("When colliding with other object will try to use sphere brush to paint on them." +
+                 "Targets need to have PlaytimePainter component").writeHint();
             }
-
-            if ((!_collider.isTrigger) && ("Make Trigger".Click().nl()))
+            else
             {
-                _collider.isTrigger = true;
-                rigid.isKinematic = true;
-                rigid.useGravity = false;
-            }
 
+                if (Application.isPlaying)
+                    "Painting on {0} objects".F(paintingOn.Count).nl();
 
-
-            float size = transform.localScale.x;
-            if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl())
-                transform.localScale = Vector3.one * size;
-
-          
-
-            pegi.writeOneTimeHint("Painter ball made for World Space Brushes only", "PaintBall_brushHint");
-          
-            if  ((brush.Targets_PEGI().nl()) || (brush.Mode_Type_PEGI().nl())) {
-                if ((brush.TargetIsTex2D) || (!brush.IsA3dBrush(null))) {
-                    brush.TargetIsTex2D = false;
-                    brush.TypeSet(false,  BrushTypeSphere.Inst);
-
-                    pegi.resetOneTimeHint("PaintBall_brushHint");
+                if (_collider.isTrigger && "Set as Rigid Collider object".Click().nl(ref changed))
+                {
+                    _collider.isTrigger = false;
+                    rigid.isKinematic = false;
+                    rigid.useGravity = true;
                 }
+
+                if (!_collider.isTrigger && "Set as Trigger".Click().nl(ref changed))
+                {
+                    _collider.isTrigger = true;
+                    rigid.isKinematic = true;
+                    rigid.useGravity = false;
+                }
+
+                var size = transform.localScale.x;
+
+                if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl(ref changed))
+                    transform.localScale = Vector3.one * size;
+
+                "Painter ball made for World Space Brushes only".writeOneTimeHint("PaintBall_brushHint");
+
+                if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
+                {
+                    if (brush.TargetIsTex2D || !brush.IsA3dBrush(null))
+                    {
+                        brush.TargetIsTex2D = false;
+                        brush.TypeSet(false, BrushTypeSphere.Inst);
+
+                        "PaintBall_brushHint".resetOneTimeHint();
+                    }
+                }
+
+                if (brush.ColorSliders())
+                    rendy.sharedMaterial.color = brush.Color;
             }
 
-            if (brush.ColorSliders()) 
-                rendy.sharedMaterial.color = brush.Color;
 
             return false;
         }
 #endif
+    }
+
+    public class PaintingCollision
+    {
+        public StrokeVector vector;
+        public PlaytimePainter painter;
+
+        public PaintingCollision(PlaytimePainter p)
+        {
+            painter = p;
+            vector = new StrokeVector();
+        }
     }
 }

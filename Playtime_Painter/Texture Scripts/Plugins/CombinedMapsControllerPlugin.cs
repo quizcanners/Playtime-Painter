@@ -5,10 +5,6 @@ using System;
 using System.IO;
 using QuizCannersUtilities;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace Playtime_Painter
 {
 
@@ -17,32 +13,30 @@ namespace Playtime_Painter
     {
         private const string Tag = "CmbndMpsCntrl";
         public override string ClassTag => Tag;
-
-
+        
         public static CombinedMapsControllerPlugin _inst;
 
-        private List<TextureSetForForCombinedMaps> _forCombinedMaps = new List<TextureSetForForCombinedMaps>();
+        private List<TextureSetForCombinedMaps> _textureSets = new List<TextureSetForCombinedMaps>();
         public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
 
-        public override void Enable()
-        {
+        public override void Enable() {
             _inst = this;
         }
 
-        public override string NameForDisplayPEGI => "Combined Maps";
+        public override string NameForDisplayPEGI => "Combined Maps [{0}]".F(_textureSets.Count);
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add("cm", _forCombinedMaps)
+            .Add("cm", _textureSets)
             .Add("tps", texturePackagingSolutions);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "cm": data.Decode_List(out _forCombinedMaps); break;
+                case "cm": data.Decode_List(out _textureSets); break;
                 case "tps": data.Decode_List(out texturePackagingSolutions); break;
-            default: return false;
+                default: return false;
             }
             return true;
         }
@@ -53,24 +47,22 @@ namespace Playtime_Painter
         #if PEGI
 
         private int _browsedTextureSet = -1;
-        public override bool Inspect() => "Surfaces".edit_List(ref _forCombinedMaps, ref _browsedTextureSet);
+        public override bool Inspect() => "Surfaces".edit_List(ref _textureSets, ref _browsedTextureSet);
         #endif
         #endregion
     }
 
-
-    [Serializable]
-    public class TextureSetForForCombinedMaps : PainterStuffKeepUnrecognized_STD, IGotName {
+    public class TextureSetForCombinedMaps : PainterStuffKeepUnrecognized_STD, IGotName {
 
         protected static CombinedMapsControllerPlugin Ctrl => CombinedMapsControllerPlugin._inst;
 
-        public Texture2D Diffuse;
-        public Texture2D HeightMap;
-        public Texture2D NormalMap;
-        public Texture2D Gloss;
-        public Texture2D Reflectivity;
-        public Texture2D Ambient;
-        public Texture2D LastProduct;
+        public Texture2D diffuse;
+        public Texture2D heightMap;
+        public Texture2D normalMap;
+        public Texture2D gloss;
+        public Texture2D reflectivity;
+        public Texture2D ambient;
+        public Texture2D lastProduct;
 
         public int width = 1024;
         public int height = 1024;
@@ -81,19 +73,19 @@ namespace Playtime_Painter
 
         public TexturePackagingProfile Profile => Ctrl.texturePackagingSolutions[selectedProfile];
 
-        public Texture2D GetTexture()
+        public Texture2D GetAnyTexture()
         {
-            if (Diffuse) return Diffuse;
-            if (HeightMap) return HeightMap;
-            if (NormalMap) return NormalMap;
-            if (Gloss) return Gloss;
-            if (Reflectivity) return Reflectivity;
-            if (Ambient) return Ambient;
-            if (LastProduct) return LastProduct;
+            if (diffuse) return diffuse;
+            if (heightMap) return heightMap;
+            if (normalMap) return normalMap;
+            if (gloss) return gloss;
+            if (reflectivity) return reflectivity;
+            if (ambient) return ambient;
+            if (lastProduct) return lastProduct;
             return null;
         }
 
-        public TextureSetForForCombinedMaps()
+        public TextureSetForCombinedMaps()
         {
             name = "Unnamed";
         }
@@ -102,13 +94,13 @@ namespace Playtime_Painter
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add_Reference("d", Diffuse)
-            .Add_Reference("h", HeightMap)
-            .Add_Reference("bump", NormalMap)
-            .Add_Reference("g", Gloss)
-            .Add_Reference("r", Reflectivity)
-            .Add_Reference("ao", Ambient)
-            .Add_Reference("lp", LastProduct)
+            .Add_Reference("d", diffuse)
+            .Add_Reference("h", heightMap)
+            .Add_Reference("bump", normalMap)
+            .Add_Reference("g", gloss)
+            .Add_Reference("r", reflectivity)
+            .Add_Reference("ao", ambient)
+            .Add_Reference("lp", lastProduct)
             .Add("tw", width)
             .Add("th", height)
             .Add_Bool("col", isColor)
@@ -119,13 +111,13 @@ namespace Playtime_Painter
         {
             switch (tg)
             {
-                case "d": data.Decode_Reference(ref Diffuse); break;
-                case "h": data.Decode_Reference(ref HeightMap); break;
-                case "bump": data.Decode_Reference(ref NormalMap); break;
-                case "g": data.Decode_Reference(ref Gloss); break;
-                case "r":  data.Decode_Reference(ref Reflectivity); break;
-                case "ao": data.Decode_Reference(ref Ambient); break;
-                case "lp": data.Decode_Reference(ref LastProduct); break;
+                case "d": data.Decode_Reference(ref diffuse); break;
+                case "h": data.Decode_Reference(ref heightMap); break;
+                case "bump": data.Decode_Reference(ref normalMap); break;
+                case "g": data.Decode_Reference(ref gloss); break;
+                case "r":  data.Decode_Reference(ref reflectivity); break;
+                case "ao": data.Decode_Reference(ref ambient); break;
+                case "lp": data.Decode_Reference(ref lastProduct); break;
                 case "tw":  width = data.ToInt(); break;
                 case "th": height = data.ToInt(); break;
                 case "col": isColor = data.ToBool(); break;
@@ -139,35 +131,31 @@ namespace Playtime_Painter
 
         #region Inspect
 #if PEGI
-        public override bool Inspect()
-        {
-
+        public override bool Inspect() {
 
             var changed = false;
 
             var id = InspectedImageMeta;
 
-            if (InspectedPainter && id != null)
-            {
+            if (InspectedPainter && id != null) {
                 "Editing:".write(40);
                 pegi.write(id.texture2D);
                 pegi.nl();
             }
 
-            "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref Diffuse).nl(ref changed);
+            "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref diffuse).nl(ref changed);
             "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
-                "or height based terrain blending.", 70, ref HeightMap).nl(ref changed);
-            "Normal".edit("Noramal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
-                "generated from Height", 70, ref NormalMap).nl(ref changed);
-            "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref Gloss).nl(ref changed);
-            "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref Reflectivity).nl(ref changed);
+                "or height based terrain blending.", 70, ref heightMap).nl(ref changed);
+            "Normal".edit("Normal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
+                "generated from Height", 70, ref normalMap).nl(ref changed);
+            "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref gloss).nl(ref changed);
+            "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref reflectivity).nl(ref changed);
             "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
-                "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref Ambient).nl(ref changed);
-            "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref LastProduct).nl(ref changed);
+            "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref ambient).nl(ref changed);
+            "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref lastProduct).nl(ref changed);
 
-            if (!InspectedPainter)
-            {
-                var firstTex = GetTexture();
+            if (!InspectedPainter) {
+                var firstTex = GetAnyTexture();
                 "width:".edit(ref width).nl(ref changed);
                 "height".edit(ref height).nl(ref changed);
                 if (firstTex && "Match Source".Click().nl(ref changed))
@@ -178,18 +166,16 @@ namespace Playtime_Painter
 
                 "is Color".toggle(ref isColor).nl(ref changed);
             }
-
-
+            
             pegi.select(ref selectedProfile, Ctrl.texturePackagingSolutions);
 
-            if (icon.Add.Click("New Texture Packaging Profile", 25).nl())
-            {
+            if (icon.Add.Click("New Texture Packaging Profile").nl()) {
                 Ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
                 selectedProfile = Ctrl.texturePackagingSolutions.Count - 1;
             }
 
             if ((selectedProfile < Ctrl.texturePackagingSolutions.Count))
-                changed |= Ctrl.texturePackagingSolutions[selectedProfile].PEGI(this).nl();
+                Ctrl.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed);
 
             return changed;
         }
@@ -207,14 +193,14 @@ namespace Playtime_Painter
         public float bumpStrength = 0.1f;
         public float bumpNoiseInGlossFraction = 0.1f;
         private List<TextureChannel> _channel;
-        private string name;
+        private string _name;
         public LinearColor fillColor;
         private bool _glossNoiseFromBump;
         public bool glossNoiseFromHeight;
 
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForPEGI { get { return _name; } set { _name = value; } }
 
-        public override string ToString() { return name; }
+        public override string ToString() { return _name; }
 
         public override bool Decode(string tg, string data)
         {
@@ -222,7 +208,7 @@ namespace Playtime_Painter
             {
                 case "ch": data.Decode_List(out _channel); break;
                 case "c": _isColor = data.ToBool(); break;
-                case "n": name = data; break;
+                case "n": _name = data; break;
                 case "b": bumpStrength = data.ToFloat(); break;
                 case "fc": fillColor = data.ToLinearColor(); break;
                 default: return false;
@@ -236,7 +222,7 @@ namespace Playtime_Painter
 
             .Add_IfNotEmpty("ch", _channel)
             .Add_Bool("c", _isColor)
-            .Add_String("n", name)
+            .Add_String("n", _name)
             .Add("b", bumpStrength)
             .Add("fc", fillColor);
 
@@ -247,23 +233,23 @@ namespace Playtime_Painter
 
 
 #if PEGI
-        public virtual bool Inspect() => PEGI(null);
+        public virtual bool Inspect() => Inspect(null);
 
-        public bool PEGI(TextureSetForForCombinedMaps sets)
+        public bool Inspect(TextureSetForCombinedMaps sets)
         {
             var p = InspectedPainter;
 
             pegi.nl();
 
-            var changed = "Name".edit(80, ref name);
+            var changed = "Name".edit(80, ref _name);
 
             var path = Path.Combine(PainterCamera.Data.texturesFolderName, FolderName);
 
-            if (icon.Save.Click("Will save to " + path, 25).nl())
+            if (icon.Save.Click("Will save to " + path).nl())
             {
-                this.SaveToAssets(path, name);
+                this.SaveToAssets(path, _name);
                 UnityHelperFunctions.RefreshAssetDatabase();
-                (name + " was saved to " + path).showNotificationIn3D_Views();
+                (_name + " was saved to " + path).showNotificationIn3D_Views();
             }
             pegi.nl();
 
@@ -298,13 +284,13 @@ namespace Playtime_Painter
             if (usingGlossMap)
             {
 
-                if ((sets == null || sets.HeightMap) &&
+                if ((sets == null || sets.heightMap) &&
                  "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
                     _glossNoiseFromBump = false;
 
 
 
-                if ((sets == null || sets.NormalMap)
+                if ((sets == null || sets.normalMap)
                     && "Gloss Mip -= Normal Noise".toggle(ref _glossNoiseFromBump).nl(ref changed))
                     glossNoiseFromHeight = false;
 
@@ -329,8 +315,8 @@ namespace Playtime_Painter
 
 #endif
 
-        void Combine(TextureSetForForCombinedMaps set, PlaytimePainter p)
-        {
+        private void Combine(TextureSetForCombinedMaps set, PlaytimePainter p) {
+
             TextureRole.Clear();
 
             int size;
@@ -398,18 +384,18 @@ namespace Playtime_Painter
             if (id != null)
             {
                 id.SetAndApply(false);
-                set.LastProduct = tex;
+                set.lastProduct = tex;
             }
             else
             {
                 tex.SetPixels(dst);
                 tex.Apply(false, false);
-                set.LastProduct = tex;
+                set.lastProduct = tex;
 
 #if UNITY_EDITOR
-                set.LastProduct = tex.SaveTextureAsAsset(TexMGMTdata.texturesFolderName, ref set.name, false);
+                set.lastProduct = tex.SaveTextureAsAsset(TexMGMTdata.texturesFolderName, ref set.name, false);
 
-                var importer = set.LastProduct.GetTextureImporter();
+                var importer = set.lastProduct.GetTextureImporter();
 
                 var needReimport = importer.WasNotReadable();
                 needReimport |= importer.WasWrongIsColor(_isColor);
@@ -428,7 +414,7 @@ namespace Playtime_Painter
             for (var i = 0; i < 4; i++)
                 _channel.Add(new TextureChannel());
 
-            name = "unnamed";
+            _name = "unnamed";
         }
     }
 
@@ -477,7 +463,7 @@ namespace Playtime_Painter
 
                 pegi.select(ref _sourceRole, rls).changes(ref changed);
 
-                rls[_sourceRole].PEGI(ref sourceChannel, this).changes(ref changed);
+                rls[_sourceRole].Inspect(ref sourceChannel, this).changes(ref changed);
             }
             pegi.newLine();
 
@@ -558,7 +544,7 @@ namespace Playtime_Painter
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("Pixel extraction from " + tex.name + " failed " + ex.ToString());
+                    Debug.Log("Pixel extraction from {0} failed".F(tex.name, ex));
                     tex = null;
                 }
             }
@@ -574,17 +560,17 @@ namespace Playtime_Painter
 
         }
 
-        public virtual Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public virtual Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (pixels == null)
-                ExtractPixels(set.Diffuse, 
+                ExtractPixels(set.diffuse, 
                     id?.width ?? set.width,
                     id?.height ?? set.height);
 
             return pixels;
         }
 
-        public List<Color[]> GetMipPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public List<Color[]> GetMipPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (mipLevels != null) return mipLevels;
             
@@ -592,13 +578,10 @@ namespace Playtime_Painter
             var height = id?.height ?? set.height;
 
             mipLevels = new List<Color[]>();
-
-
-
+            
             var w = width;
             var h = height;
-
-
+            
             while (w > 1 && h > 1)
             {
                 w /= 2;
@@ -610,8 +593,7 @@ namespace Playtime_Painter
                 var dy = height / h;
 
                 float pixelsPerSector = dx * dy;
-
-
+                
                 for (var y = 0; y < h; y++)
                 for (var x = 0; x < w; x++)
                 {
@@ -628,8 +610,7 @@ namespace Playtime_Painter
 
                     dest[y * w + x] = col;
                 }
-
-
+                
                 mipLevels.Add(dest);
 
             }
@@ -638,7 +619,7 @@ namespace Playtime_Painter
 
 #if PEGI
 
-        public bool PEGI(ref int selectedChannel, TextureChannel tc)
+        public bool Inspect(ref int selectedChannel, TextureChannel tc)
         {
             var changed = ".".select(10, ref selectedChannel, Channels).nl();
 
@@ -659,14 +640,14 @@ namespace Playtime_Painter
             _inst = this;
         }
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
 
             if (id != null)
                 return id.Pixels;
 
             if (pixels == null)
-                ExtractPixels(set.LastProduct, set.width, set.height);
+                ExtractPixels(set.lastProduct, set.width, set.height);
 
             return pixels;
 
@@ -682,7 +663,7 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Fill Color";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (pixels != null) return pixels;
             
@@ -711,9 +692,9 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Color";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id) {
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id) {
             if (pixels == null)
-                ExtractPixels(set.Diffuse, id?.width ?? set.width, id?.height ?? set.height);
+                ExtractPixels(set.diffuse, id?.width ?? set.width, id?.height ?? set.height);
 
             return pixels;
         }
@@ -728,17 +709,17 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Gloss";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (pixels != null) return pixels;
             
             var width = id?.width ?? set.width;
             var height = id?.height ?? set.height;
 
-            ExtractPixels(set.Gloss ? set.Gloss : set.Reflectivity, width, height);
+            ExtractPixels(set.gloss ? set.gloss : set.reflectivity, width, height);
 
-            if (set.Profile.glossNoiseFromHeight && set.HeightMap)
-                GlossMipmapsFromHeightNoise(set.HeightMap, width, height, set.Profile.bumpNoiseInGlossFraction);
+            if (set.Profile.glossNoiseFromHeight && set.heightMap)
+                GlossMipmapsFromHeightNoise(set.heightMap, width, height, set.Profile.bumpNoiseInGlossFraction);
 
             return pixels;
         }
@@ -827,13 +808,13 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Reflectivity";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (pixels != null) return pixels;
             
             var width = id?.width ?? set.width;
             var height = id?.height ?? set.height;
-            ExtractPixels(set.Reflectivity ? set.Reflectivity : set.Gloss, width, height);
+            ExtractPixels(set.reflectivity ? set.reflectivity : set.gloss, width, height);
             return pixels;
         }
         public TextureRoleReflectivity(int index) : base(index)
@@ -846,12 +827,12 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Ambient";
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             var width = id?.width ?? set.width;
             var height = id?.height ?? set.height;
             if (pixels == null)
-                ExtractPixels(set.Ambient ? set.Ambient : set.HeightMap, width, height);
+                ExtractPixels(set.ambient ? set.ambient : set.heightMap, width, height);
 
             return pixels;
         }
@@ -889,14 +870,14 @@ namespace Playtime_Painter
         {
         }
 
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
             if (pixels != null) return pixels;
             
             _width = id?.width ?? set.width;
             _height = id?.height ?? set.height;
 
-            ExtractPixels(set.HeightMap ? set.HeightMap : set.Ambient, _width, _height);
+            ExtractPixels(set.heightMap ? set.heightMap : set.ambient, _width, _height);
 
             float xLeft;
             float xRight;
@@ -970,17 +951,17 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
         Texture2D tex;
 #endif
-        public override Color[] GetPixels(TextureSetForForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
           
             if (pixels == null)
             {
                 var width = id?.width ?? set.width;
                 var height = id?.height ?? set.height;
-                ExtractPixels(set.NormalMap, width, height);
+                ExtractPixels(set.normalMap, width, height);
             }
 #if UNITY_EDITOR
-            tex = set.NormalMap;
+            tex = set.normalMap;
 #endif
             return pixels;
         }

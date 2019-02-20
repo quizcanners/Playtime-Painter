@@ -102,15 +102,13 @@ namespace Playtime_Painter {
         {
             var changed = false;
 
-            if ((_pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL"))
-            {
+            if ((_pauseBuffers ? icon.Play : icon.Pause).Click("Stop/Start ALL")) {
                 _pauseBuffers = !_pauseBuffers;
                 if (_pauseBuffers)
                     foreach (var b in buffers)
                         b.Stop();
             }
-
-
+            
             if (_editedSection == -1 && _editedBuffer == -1)
             {
                 "Show on GUI".toggleIcon(ref _showOnGui).nl(ref changed);
@@ -169,9 +167,10 @@ namespace Playtime_Painter {
         , typeof(BigRtPair)
         , typeof(DownScalar)
         )]
+
     public class TextureBuffer : AbstractKeepUnrecognizedStd, IPEGI_ListInspect, IGotDisplayName {
         
-        private int _version = 0;
+        private int _version;
 
         public virtual int Version { get { return _version; } set { _version = value; } }
 
@@ -179,13 +178,13 @@ namespace Playtime_Painter {
 
         protected static MultiBufferProcessing Mgmt => MultiBufferProcessing.inst; 
 
-        protected static PainterCamera TexMGMT => PainterCamera.Inst; 
+        protected static PainterCamera TexMgmt => PainterCamera.Inst; 
 
         protected static PainterDataAndConfig Data => PainterCamera.Data; 
 
         public virtual string NameForDisplayPEGI => "Override This";
 
-        public virtual Texture TextureNext { get; }
+        public virtual Texture TextureNext { get; } = null;
 
         public virtual Texture GetTextureDisplay => TextureNext;
 
@@ -323,20 +322,20 @@ namespace Playtime_Painter {
 
         public override void AfterRender()
         {
-            TexMGMT.UpdateBufferTwo();
-            TexMGMT.bigRtVersion++;
+            TexMgmt.UpdateBufferTwo();
+            TexMgmt.bigRtVersion++;
         }
 
         public override int Version
         {
             get
             {
-                return TexMGMT.bigRtVersion;
+                return TexMgmt.bigRtVersion;
             }
 
             set
             {
-                TexMGMT.bigRtVersion = value;
+                TexMgmt.bigRtVersion = value;
             }
         }
 
@@ -346,12 +345,12 @@ namespace Playtime_Painter {
         {
             get
             {
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMGMT.bigRtPair[1];
-                return TexMGMT.bigRtPair[0];
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMgmt.bigRtPair[1];
+                return TexMgmt.bigRtPair[0];
             }
         }
 
-        public override Texture GetTextureDisplay => TexMGMT.bigRtPair[0];
+        public override Texture GetTextureDisplay => TexMgmt.bigRtPair[0];
 
         public override bool CanBeTarget => true;
 
@@ -465,7 +464,7 @@ namespace Playtime_Painter {
         {
             get
             {
-                var cam = TexMGMT ? Data.webCamTexture : null;
+                var cam = TexMgmt ? Data.webCamTexture : null;
 
                 return Mgmt != null
                     && (cam || !cam.isPlaying || cam.didUpdateThisFrame);
@@ -490,7 +489,7 @@ namespace Playtime_Painter {
 
             "WebCam".write(60);
 
-            var cam = TexMGMT ? Data.webCamTexture : null;
+            var cam = TexMgmt ? Data.webCamTexture : null;
 
             if (cam && cam.isPlaying && icon.Pause.Click("Stop Camera"))
                 Data.StopCamera();
@@ -610,7 +609,7 @@ namespace Playtime_Painter {
             
             InitIfNull();
 
-            _buffer.CopyFrom(TexMGMT.Downscale_ToBuffer(tex, _width, _width, material, shader));
+            _buffer.CopyFrom(TexMgmt.Downscale_ToBuffer(tex, _width, _width, material, shader));
             _lastReadVersion = other.Version;
 
             var px = _buffer.GetPixels();

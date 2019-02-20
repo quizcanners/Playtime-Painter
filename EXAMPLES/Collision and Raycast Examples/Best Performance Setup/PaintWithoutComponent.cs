@@ -4,9 +4,6 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-
-// For Painting On MObjects which don't have Painter Component
-
 namespace Playtime_Painter.Examples
 {
 
@@ -34,8 +31,7 @@ namespace Playtime_Painter.Examples
                 if (Physics.Raycast(new Ray(transform.position, transform.forward + transform.right * Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
 
                     var receivers = hit.transform.GetComponentsInParent<PaintingReceiver>();
-
-                    //Debug.Log("Hit");
+                    
                     if (receivers.Length <= 0) continue;
                     
                     int subMesh;
@@ -138,8 +134,7 @@ namespace Playtime_Painter.Examples
             var ray = new Ray(pos, f);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
-            {
+            if (Physics.Raycast(ray, out hit)) {
 
                 var painter = hit.transform.GetComponentInParent<PlaytimePainter>();
 
@@ -159,28 +154,35 @@ namespace Playtime_Painter.Examples
         {
             var changed = false;
 
-            "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
-            "Spread:".edit(50, ref spread, 0f , 1f).nl(ref changed);
+            if (icon.Question.enter("Documentation", ref _hint).nl()) {
 
-            if ("Fire!".Click().nl())
-                Paint();
-
-            if ("HINT".foldout(ref _hint).nl()) {
-                "I can paint on Painting Receivers with:".nl();
+                "I can paint on objects with PaintingReceiver script and:".nl();
                 "Mesh Collider + any Texture".nl();
                 "Skinned Mesh + any Collider + Render Texture".nl();
-                "Also its better to use textures without mipmaps".nl();
+                "Also its better to use textures without mipMaps".nl();
                 "Render Texture Painting will fail if material has tiling or offset".nl();
                 "Editing will be symmetrical if mesh is symmetrical".nl();
                 "Brush type should be Sphere".nl();
+
+                ("I was going to make only one component painting method at first, but later it became clear that it's best to have this set up on both: receiving and shooting ends." +
+                 "This doesn't need PlaytimePainter component but still needs Painting Receiver script").writeHint();
+
+            } else {
+
+                "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
+                "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);
+
+                if ("Fire!".Click().nl())
+                    Paint();
+
+                brush.Targets_PEGI().nl(ref changed);
+                brush.Mode_Type_PEGI().nl(ref changed);
+                brush.ColorSliders().nl(ref changed);
+
+                if (!brush.PaintingRGB)
+                    "Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).".writeHint();
             }
 
-            brush.Targets_PEGI().nl(ref changed);
-            brush.Mode_Type_PEGI().nl(ref changed);
-            brush.ColorSliders().nl(ref changed);
-
-            if (brush.PaintingRGB == false)
-                "Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).".writeHint();
             return changed;
         }
 #endif

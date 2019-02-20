@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter.Examples
@@ -11,52 +9,53 @@ namespace Playtime_Painter.Examples
     {
 
         public Light directional;
-        public MeshRenderer _rendy;
+        public MeshRenderer skeRenderer;
 
-        void FindComponents()
+        private void FindComponents()
         {
-            if (!_rendy)
-                _rendy = GetComponent<MeshRenderer>();
+            if (!skeRenderer)
+                skeRenderer = GetComponent<MeshRenderer>();
 
-            if (!directional)
-            {
-                Light[] ls = FindObjectsOfType<Light>();
-                for (int i = 0; i < ls.Length; i++)
-                    if (ls[i].type == LightType.Directional)
-                    {
-                        directional = ls[i];
-                        i = ls.Length;
-                    }
-            }
+            if (directional) return;
+
+            var ls = FindObjectsOfType<Light>();
+
+            for (var i = 0; i < ls.Length; i++)
+                if (ls[i].type == LightType.Directional)
+                {
+                    directional = ls[i];
+                    i = ls.Length;
+                }
         }
 
         private void OnEnable()
         {
             FindComponents();
-            _rendy.enabled = Application.isPlaying;
+            skeRenderer.enabled = Application.isPlaying;
         }
 
         public float skyDynamics = 0.1f;
 
-        ShaderProperty.VectorValue sunDirection_Property = new ShaderProperty.VectorValue("_SunDirection");
-        ShaderProperty.ColorValue directionalColor_Property = new ShaderProperty.ColorValue("_Directional");
-        ShaderProperty.VectorValue offset_Property = new ShaderProperty.VectorValue("_Off");
+        private readonly ShaderProperty.VectorValue _sunDirectionProperty = new ShaderProperty.VectorValue("_SunDirection");
+        private readonly ShaderProperty.ColorValue _directionalColorProperty = new ShaderProperty.ColorValue("_Directional");
+        private readonly ShaderProperty.VectorValue _offsetProperty = new ShaderProperty.VectorValue("_Off");
 
         public virtual void Update() {
 
             if (directional != null) {
-                Vector3 v3 = directional.transform.rotation * Vector3.back;
-                sunDirection_Property.GlobalValue = new Vector4(v3.x, v3.y, v3.z);
-                directionalColor_Property.GlobalValue = directional.color;
+                var v3 = directional.transform.rotation * Vector3.back;
+                _sunDirectionProperty.GlobalValue = new Vector4(v3.x, v3.y, v3.z);
+                _directionalColorProperty.GlobalValue = directional.color;
             }
-            Camera c = Camera.main;
-            if (c != null)
-            {
-                Vector3 pos = c.transform.position * skyDynamics;
-                offset_Property.GlobalValue = new Vector4(pos.x, pos.z, 0f, 0f);
-            }
+
+            var c = Camera.main;
+            if (!c) return;
+
+            var pos = c.transform.position * skyDynamics;
+
+            _offsetProperty.GlobalValue = new Vector4(pos.x, pos.z, 0f, 0f);
         }
 
-        void LateUpdate() => transform.rotation = Quaternion.identity;
+        private void LateUpdate() => transform.rotation = Quaternion.identity;
     }
 }

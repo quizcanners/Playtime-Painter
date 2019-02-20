@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 
 namespace Playtime_Painter.Examples
 {
@@ -10,24 +10,26 @@ namespace Playtime_Painter.Examples
     {
 
         public BrushConfig brush = new BrushConfig();
-        List<PaintingCollision> paintingOn = new List<PaintingCollision>();
+        readonly List<PaintingCollision> _paintingOn = new List<PaintingCollision>();
 
-        PaintingCollision GetFor (GameObject go) {
+        private PaintingCollision GetPainterFrom (GameObject go) {
   
-            foreach (var col in paintingOn)
+            foreach (var col in _paintingOn)
                 if (col.painter.gameObject == go) return col;
 
-            PlaytimePainter pp = go.GetComponent<PlaytimePainter>();
+            var pp = go.GetComponent<PlaytimePainter>();
+
             if (!pp) return null;
 
-            PaintingCollision ncol = new PaintingCollision(pp);
-            paintingOn.Add(ncol);
+            var nCol = new PaintingCollision(pp);
 
-            return ncol;
+            _paintingOn.Add(nCol);
+
+            return nCol;
         }
 
         private void OnCollisionExit(Collision collision) {
-            PaintingCollision p = GetFor(collision.gameObject);
+            var p = GetPainterFrom(collision.gameObject);
             if (p == null) return;
             p.vector.mouseUp = true;
             Paint(collision, p);
@@ -35,63 +37,75 @@ namespace Playtime_Painter.Examples
 
         private void OnCollisionEnter(Collision collision) {
 
-            PaintingCollision p = GetFor(collision.gameObject);
+            var p = GetPainterFrom(collision.gameObject);
             if (p == null) return;
             p.vector.mouseDwn = true;
             Paint(collision, p);
         }
 
-        void OnCollisionStay(Collision collision) {
-            PaintingCollision p = GetFor(collision.gameObject);
+        private void OnCollisionStay(Collision collision) {
+            var p = GetPainterFrom(collision.gameObject);
             if (p == null) return;
             Paint(collision, p);
         }
 
-        void Paint (Collision collision, PaintingCollision pCont)
+        private void Paint (Collision collision, PaintingCollision pCont)
         {
-          
-
-         
-
             if (brush.IsA3dBrush(pCont.painter)) {
-                StrokeVector v = pCont.vector;
+                var v = pCont.vector;
                 v.posTo = transform.position;
                 if (v.mouseDwn) v.posFrom = v.posTo;
                 brush.Paint(v, pCont.painter);
             } else {
+                if (collision.contacts.Length <= 0) return;
 
-                if (collision.contacts.Length > 0) {
-                    var cp = collision.contacts[0];
+                var cp = collision.contacts[0];
+                
+                RaycastHit hit;
 
-                   
+                var ray = new Ray(cp.point+ cp.normal*0.1f, -cp.normal);
 
-                    RaycastHit hit;
-                    Ray ray = new Ray(cp.point+ cp.normal*0.1f, -cp.normal);
+                if (!collision.collider.Raycast(ray, out hit, 2f)) return;
 
-                    if (collision.collider.Raycast(ray, out hit, 2f)) {
+                var v = pCont.vector;
 
-                        StrokeVector v = pCont.vector;
+                v.uvTo = hit.textureCoord;
+                if (v.mouseDwn) v.uvFrom = v.uvTo;
 
-                        v.uvTo = hit.textureCoord;
-                        if (v.mouseDwn) v.uvFrom = v.uvTo;
+                brush.Paint(pCont.vector, pCont.painter.SetTexTarget(brush));
+            }
+        }
 
-                       brush.Paint(pCont.vector, pCont.painter.SetTexTarget(brush));
-                    }
-                }
+        #region Inspector
+#if PEGI
+
+        private bool _showInfo;
+
+
+        public bool Inspect()
+        {
+            var changed = false;
+
+            if (icon.Question.enter("Documentation", ref _showInfo))
+            {
+                ("During collision will try to cast ray in the direction of that collision. " +
+                 "If target has Playtime Painter Component this script will try to paint on it.").writeHint();
+            }
+            else
+            {
+
+                if (Application.isPlaying)
+                    "Painting on {0} objects".F(_paintingOn.Count).nl();
+
+                brush.Targets_PEGI().nl(ref changed);
+                brush.Mode_Type_PEGI().nl(ref changed);
+                brush.ColorSliders().nl(ref changed);
             }
 
-        }
 
-#if PEGI
-        public bool Inspect() {
-            bool changed = false;
-            ("Painting on " + paintingOn.Count + " objects").nl();
-
-            changed |= brush.Targets_PEGI().nl();
-            changed |= brush.Mode_Type_PEGI().nl();
-            changed |= brush.ColorSliders();
             return changed;
         }
-#endif
+        #endif
+        #endregion
     }
 }

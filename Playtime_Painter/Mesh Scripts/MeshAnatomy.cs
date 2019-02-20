@@ -60,7 +60,7 @@ namespace Playtime_Painter
         void AddToList(MeshPoint nPoint)
         {
             meshPoint = nPoint;
-            nPoint.uvpoints.Add(this);
+            nPoint.vertices.Add(this);
         }
 
         #region Encode & Decode
@@ -113,88 +113,84 @@ namespace Playtime_Painter
             meshPoint = MeshPoint.currentlyDecoded;
         }
 
-        public Vertex(Vertex other)
-        {
+        public Vertex(Vertex other) {
             _color = other._color;
             AddToList(other.meshPoint);
             uvIndex = other.uvIndex;
-            
         }
 
-        public Vertex(MeshPoint nvert)
+        public Vertex(MeshPoint newVertex)
         {
-            AddToList(nvert);
+            AddToList(newVertex);
 
-            if (meshPoint.shared_v2s.Count == 0)
-                SetUVindexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
+            if (meshPoint.sharedV2S.Count == 0)
+                SetUvIndexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
             else
                 uvIndex = 0;
         }
 
-        public Vertex(MeshPoint nvert, Vector2 uv_0)
+        public Vertex(MeshPoint newVertex, Vector2 uv0)
         {
-            AddToList(nvert);
+            AddToList(newVertex);
           
-            SetUVindexBy(uv_0, Vector2.zero);
+            SetUvIndexBy(uv0, Vector2.zero);
         }
 
-        public Vertex(MeshPoint nvert, Vector2 uv_0, Vector2 uv_1)
+        public Vertex(MeshPoint newVertex, Vector2 uv0, Vector2 uv1)
         {
-            AddToList(nvert);
-            SetUVindexBy(uv_0, uv_1);
+            AddToList(newVertex);
+            SetUvIndexBy(uv0, uv1);
         }
 
-        public Vertex(MeshPoint nvert, Vertex other)
+        public Vertex(MeshPoint newVertex, Vertex other)
         {
             _color = other._color;
-            AddToList(nvert);
-            SetUVindexBy(other.GetUV(0), other.GetUV(1));
+            AddToList(newVertex);
+            SetUvIndexBy(other.GetUV(0), other.GetUV(1));
         }
 
-        public Vertex(MeshPoint nvert, string data) {
-            AddToList(nvert);
+        public Vertex(MeshPoint newVertex, string data) {
+            AddToList(newVertex);
             Decode(data);
         }
 
         public void AssignToNewVertex(MeshPoint vp) {
-            Vector2[] myUV = meshPoint.shared_v2s[uvIndex];
-            meshPoint.uvpoints.Remove(this);
+            Vector2[] myUV = meshPoint.sharedV2S[uvIndex];
+            meshPoint.vertices.Remove(this);
             meshPoint = vp;
-            meshPoint.uvpoints.Add(this);
-            SetUVindexBy(myUV);
+            meshPoint.vertices.Add(this);
+            SetUvIndexBy(myUV);
         }
 
         public Vector2 EditedUV {
-            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV]; }
-            set { SetUVindexBy(value); }
+            get { return meshPoint.sharedV2S[uvIndex][MeshMGMT.EditedUV]; }
+            set { SetUvIndexBy(value); }
         }
 
         public Vector2 SharedEditedUV {
-            get { return meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV]; }
-            set { meshPoint.shared_v2s[uvIndex][MeshMGMT.EditedUV] = value; }
+            get { return meshPoint.sharedV2S[uvIndex][MeshMGMT.EditedUV]; }
+            set { meshPoint.sharedV2S[uvIndex][MeshMGMT.EditedUV] = value; }
         }
 
-        public Vector2 GetUV(int ind) => meshPoint.shared_v2s[uvIndex][ind];
+        public Vector2 GetUV(int ind) => meshPoint.sharedV2S[uvIndex][ind];
         
-        public bool SameUV(Vector2 uv, Vector2 uv1)
-        {
-            return (((uv - GetUV(0)).magnitude < 0.0000001f) && ((uv1 - GetUV(1)).magnitude < 0.0000001f));
-        }
+        public bool SameUV(Vector2 uv, Vector2 uv1) => (uv - GetUV(0)).magnitude < 0.0000001f && (uv1 - GetUV(1)).magnitude < 0.0000001f;
+        
 
-        public void SetUVindexBy(Vector2[] uvs) =>  uvIndex = meshPoint.GetIndexFor(uvs[0], uvs[1]);
+        public void SetUvIndexBy(Vector2[] uvs) =>  uvIndex = meshPoint.GetIndexFor(uvs[0], uvs[1]);
         
-        public void SetUVindexBy(Vector2 uv_0, Vector2 uv_1) => uvIndex = meshPoint.GetIndexFor(uv_0, uv_1);
+        public void SetUvIndexBy(Vector2 uv0, Vector2 uv1) => uvIndex = meshPoint.GetIndexFor(uv0, uv1);
         
-        public void SetUVindexBy(Vector2 uv_edited) {
-            var uv_0 = MeshMGMT.EditedUV == 0 ? uv_edited : GetUV(0);
-            var uv_1 = MeshMGMT.EditedUV == 1 ? uv_edited : GetUV(1);
+        public void SetUvIndexBy(Vector2 uvEdited) {
+            var uv0 = MeshMGMT.EditedUV == 0 ? uvEdited : GetUV(0);
+            var uv1 = MeshMGMT.EditedUV == 1 ? uvEdited : GetUV(1);
 
-            uvIndex = meshPoint.GetIndexFor(uv_0, uv_1);
+            uvIndex = meshPoint.GetIndexFor(uv0, uv1);
         }
 
         public bool ConnectedTo(MeshPoint other)
         {
-            foreach (Triangle t in tris)
+            foreach (var t in tris)
                 if (t.Includes(other))
                     return true;
 
@@ -203,7 +199,7 @@ namespace Playtime_Painter
 
         public bool ConnectedTo(Vertex other)
         {
-            foreach (Triangle t in tris)
+            foreach (var t in tris)
                 if (t.Includes(other))
                     return true;
 
@@ -212,25 +208,25 @@ namespace Playtime_Painter
 
         public void SetColor_OppositeTo(ColorChanel chan)
         {
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
-                ColorChanel c = (ColorChanel)i;
+                var c = (ColorChanel)i;
                 c.SetChanel(ref _color, c == chan ? 0 : 1);
             }
         }
 
         public void FlipChanel(ColorChanel chan)
         {
-            float val = _color.GetChanel(chan);
+            var val = _color.GetChanel(chan);
             val = (val > 0.9f) ? 0 : 1;
             chan.SetChanel(ref _color, val);
         }
 
-        ColorChanel GetZeroChanelIfOne(ref int count)
+        private ColorChanel GetZeroChanelIfOne(ref int count)
         {
             count = 0;
-            ColorChanel ch = ColorChanel.A;
-            for (int i = 0; i < 3; i++)
+            var ch = ColorChanel.A;
+            for (var i = 0; i < 3; i++)
                 if (_color.GetChanel((ColorChanel)i) > 0.9f)
                     count++;
                 else ch = (ColorChanel)i;
@@ -240,22 +236,19 @@ namespace Playtime_Painter
 
         public ColorChanel GetZeroChanel_AifNotOne()
         {
-            int count = 0;
+            var count = 0;
 
-            ColorChanel ch = GetZeroChanelIfOne(ref count);
+            var ch = GetZeroChanelIfOne(ref count);
 
             if (count == 2)
                 return ch;
-            else
-            {
-                foreach (Vertex u in meshPoint.uvpoints) if (u != this)
-                    {
-                        ch = GetZeroChanelIfOne(ref count);
-                        if (count == 2) return ch;
-                    }
-            }
-
-
+            
+            foreach (var u in meshPoint.vertices)
+                if (u != this){
+                    ch = GetZeroChanelIfOne(ref count);
+                    if (count == 2) return ch;
+                }
+            
             return ColorChanel.A;
         }
 
@@ -313,36 +306,37 @@ namespace Playtime_Painter
         // TEMPORATY DATA / NEEDS MANUAL UPDATE:
         public Vector3 normal;
         public int index;
-        public bool NormalIsSet;
+        public bool normalIsSet;
         public float distanceToPointed;
         public Vector3 distanceToPointedV3;
         public static MeshPoint currentlyDecoded;
 
         // Data to save:
-        public List<Vector2[]> shared_v2s = new List<Vector2[]>();
-        public List<Vertex> uvpoints;
+        public List<Vector2[]> sharedV2S = new List<Vector2[]>();
+        public List<Vertex> vertices;
         public Vector3 localPos;
-        public bool SmoothNormal;
+        public bool smoothNormal;
         public Vector4 shadowBake;
         public Countless<Vector3> anim;
         public BoneWeight boneWeight;
         public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
-        //public int submeshIndex;
         public float edgeStrength;
-        public int vertexGroup = 0;
+        public int vertexGroup;
 
         public void RunDebug()
         {
 
-            for (int i=0; i<uvpoints.Count; i++) {
-                var up = uvpoints[i];
-                if (up.tris.Count == 0) {
-                    uvpoints.RemoveAt(i);
-                    i--;
-                }
+            for (var i=0; i<vertices.Count; i++) {
+                var up = vertices[i];
+
+                if (up.tris.Count != 0) continue;
+
+                vertices.RemoveAt(i);
+
+                i--;
             }
 
-            foreach (var v in uvpoints)
+            foreach (var v in vertices)
                 v.RunDebug();
 
 
@@ -353,9 +347,9 @@ namespace Playtime_Painter
 
         public bool SetSmoothNormal(bool to)
         {
-            if (to == SmoothNormal)
+            if (to == smoothNormal)
                 return false;
-            SmoothNormal = to;
+            smoothNormal = to;
             return true;
         }
 
@@ -379,7 +373,7 @@ namespace Playtime_Painter
         private Vector3 GetNormal() {
             normal = Vector3.zero;
             
-            foreach (var u in uvpoints)
+            foreach (var u in vertices)
                 foreach (var t in u.tris) 
                 normal += t.GetNormal();
             
@@ -392,16 +386,16 @@ namespace Playtime_Painter
         public override StdEncoder Encode() {
             var cody = new StdEncoder();
 
-            foreach (var lst in shared_v2s) {
+            foreach (var lst in sharedV2S) {
                 cody.Add("u0", lst[0]);
                 cody.Add("u1", lst[1]);
             }
             
-            cody.Add_IfNotEmpty("uvs", uvpoints)
+            cody.Add_IfNotEmpty("uvs", vertices)
 
             .Add("pos", localPos)
 
-            .Add_IfTrue("smth", SmoothNormal)
+            .Add_IfTrue("smth", smoothNormal)
 
             .Add_IfNotZero("shad", shadowBake)
 
@@ -416,12 +410,12 @@ namespace Playtime_Painter
        
         public override bool Decode(string tg, string data) {
             switch (tg) {
-                case "u0":  shared_v2s.Add(new Vector2[2]); 
-                            shared_v2s.Last()[0] = data.ToVector2(); break;
-                case "u1":  shared_v2s.Last()[1] = data.ToVector2(); break;
-                case "uvs": currentlyDecoded = this;  data.Decode_List(out uvpoints); break;
+                case "u0":  sharedV2S.Add(new Vector2[2]); 
+                            sharedV2S.Last()[0] = data.ToVector2(); break;
+                case "u1":  sharedV2S.Last()[1] = data.ToVector2(); break;
+                case "uvs": currentlyDecoded = this;  data.Decode_List(out vertices); break;
                 case "pos": localPos = data.ToVector3(); break;
-                case "smth": SmoothNormal = data.ToBool(); break;
+                case "smth": smoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
                 case "bw": boneWeight = data.ToBoneWeight(); break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
@@ -434,10 +428,10 @@ namespace Playtime_Painter
         #endregion
 
         public int GetIndexFor(Vector2 uv_0, Vector2 uv_1) {
-            var cnt = shared_v2s.Count;
+            var cnt = sharedV2S.Count;
             
             for (var i = 0; i < cnt; i++) {
-                var v2 = shared_v2s[i];
+                var v2 = sharedV2S[i];
                 if (v2[0] == uv_0 && v2[1] == uv_1)
                     return i;
             }
@@ -446,7 +440,7 @@ namespace Playtime_Painter
             tmp[0] = uv_0;
             tmp[1] = uv_1;
 
-            shared_v2s.Add(tmp);
+            sharedV2S.Add(tmp);
 
 
             return cnt;
@@ -454,12 +448,12 @@ namespace Playtime_Painter
 
         public void CleanEmptyIndexes() {
 
-            int cnt = shared_v2s.Count;
+            int cnt = sharedV2S.Count;
 
             bool[] used = new bool[cnt];
             int[] newIndexes = new int[cnt];
 
-            foreach (var u in uvpoints)
+            foreach (var u in vertices)
                 used[u.uvIndex] = true;
             
             int currentInd = 0;
@@ -473,9 +467,9 @@ namespace Playtime_Painter
             if (currentInd < cnt) {
 
                 for (int i = cnt - 1; i >= 0; i--)
-                    if (!used[i]) shared_v2s.RemoveAt(i);
+                    if (!used[i]) sharedV2S.RemoveAt(i);
 
-                foreach (var u in uvpoints) u.uvIndex = newIndexes[u.uvIndex];
+                foreach (var u in vertices) u.uvIndex = newIndexes[u.uvIndex];
             }
         }
 
@@ -505,7 +499,7 @@ namespace Playtime_Painter
                 var width = id.width*2;
                 var height = id.height*2;
 
-                foreach (var v2a in shared_v2s)
+                foreach (var v2a in sharedV2S)
                     for(int i=0; i<2; i++) {
 
                         var x = v2a[i].x;
@@ -523,19 +517,19 @@ namespace Playtime_Painter
         void Reboot(Vector3 npos) {
             localPos = npos;
             anim = new Countless<Vector3>();
-            uvpoints = new List<Vertex>();
+            vertices = new List<Vertex>();
 
-            SmoothNormal = Cfg.newVerticesSmooth;
+            smoothNormal = Cfg.newVerticesSmooth;
         }
 
         public void ClearColor(BrushMask bm) {
-            foreach (Vertex uvi in uvpoints)
+            foreach (Vertex uvi in vertices)
                 bm.Transfer(ref uvi._color, Color.black);
         }
 
         void SetChanel(ColorChanel chan, MeshPoint other, float val)
         {
-            foreach (Vertex u in uvpoints)
+            foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
                     chan.SetChanel(ref u._color, val);
         }
@@ -545,9 +539,9 @@ namespace Playtime_Painter
             float val = 1;
 
             if (Cfg.makeVerticesUniqueOnEdgeColoring)
-               EditedMesh.GiveLineUniqueVerticles_RefreshTrisListing(new LineData(this, other));
+               EditedMesh.GiveLineUniqueVerticesRefreshTriangleListing(new LineData(this, other));
 
-            foreach (Vertex u in uvpoints)
+            foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
                     val *= u._color.GetChanel(chan) * u.GetConnectedUVinVert(other)._color.GetChanel(chan);
 
@@ -566,7 +560,7 @@ namespace Playtime_Painter
 
         public void SetColorOnLine(Color col, BrushMask bm, MeshPoint other)
         {
-            foreach (Vertex u in uvpoints)
+            foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
                     bm.Transfer(ref u._color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
 
@@ -574,7 +568,7 @@ namespace Playtime_Painter
 
         public void RemoveBorderFromLine(MeshPoint other)
         {
-            foreach (Vertex u in uvpoints)
+            foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
                     for (int i = 0; i < 4; i++)
                     {
@@ -598,12 +592,12 @@ namespace Playtime_Painter
 
         public void MergeWith (MeshPoint other) {
 
-            for (int i = 0; i < other.uvpoints.Count; i++) {
-                Vertex buv = other.uvpoints[i];
+            for (int i = 0; i < other.vertices.Count; i++) {
+                Vertex buv = other.vertices[i];
                 Vector2[] uvs = new Vector2[] { buv.GetUV(0), buv.GetUV(1) };
-                uvpoints.Add(buv);
+                vertices.Add(buv);
                 buv.meshPoint = this;
-                buv.SetUVindexBy(uvs);
+                buv.SetUvIndexBy(uvs);
             }
 
             EditedMesh.meshPoints.Remove(other);
@@ -635,7 +629,7 @@ namespace Playtime_Painter
         {
             List<Triangle> Alltris = new List<Triangle>();
 
-            foreach (Vertex uvi in uvpoints)
+            foreach (Vertex uvi in vertices)
                 foreach (Triangle tri in uvi.tris)
                     //if (!Alltris.Contains(tri))
                         Alltris.Add(tri);
@@ -644,7 +638,7 @@ namespace Playtime_Painter
         }
 
         public bool AllPointsUnique() {
-            return (Triangles().Count <= uvpoints.Count);
+            return (Triangles().Count <= vertices.Count);
         }
 
         public List<LineData> GetAllLines_USES_Tris_Listing()
@@ -652,7 +646,7 @@ namespace Playtime_Painter
             List<LineData> Alllines = new List<LineData>();
 
 
-            foreach (Vertex uvi in uvpoints)
+            foreach (Vertex uvi in vertices)
             {
                 foreach (Triangle tri in uvi.tris)
                 {
@@ -684,18 +678,18 @@ namespace Playtime_Painter
 
         public Triangle GetTriangleFromLine(MeshPoint other)
         {
-            for (int i = 0; i < uvpoints.Count; i++)
+            for (int i = 0; i < vertices.Count; i++)
             {
-                for (int g = 0; g < uvpoints[i].tris.Count; g++)
-                    if (uvpoints[i].tris[g].Includes(other)) return uvpoints[i].tris[g];
+                for (int g = 0; g < vertices[i].tris.Count; g++)
+                    if (vertices[i].tris[g].Includes(other)) return vertices[i].tris[g];
             }
             return null;
         }
 
         public List<Triangle> GetTrianglesFromLine(MeshPoint other) {
             List<Triangle> lst = new List<Triangle>();
-            for (int i = 0; i < uvpoints.Count; i++) {
-                foreach (var t in uvpoints[i].tris) 
+            for (int i = 0; i < vertices.Count; i++) {
+                foreach (var t in vertices[i].tris) 
                     if (t.Includes(other)) lst.Add(t);
             }
             return lst;
@@ -703,11 +697,11 @@ namespace Playtime_Painter
 
         public bool SetAllUVsShared()
         {
-            if (uvpoints.Count == 1)
+            if (vertices.Count == 1)
                 return false;
 
-            while (uvpoints.Count > 1)
-                if (!EditedMesh.MoveTris(uvpoints[1], uvpoints[0])) {
+            while (vertices.Count > 1)
+                if (!EditedMesh.MoveTriangle(vertices[1], vertices[0])) {
                     break;
                 }
 
@@ -757,7 +751,7 @@ namespace Playtime_Painter
             return sharpNormal * Vector3.Cross(p0 - p1, p0 - p2).magnitude;
         }
 
-        public bool SameAsLastFrame => this == EditedMesh.lastFramePointedTris;
+        public bool SameAsLastFrame => this == EditedMesh.lastFramePointedTriangle;
 
         public float Area => Vector3.Cross(vertexes[0].Pos - vertexes[1].Pos, vertexes[0].Pos - vertexes[2].Pos).magnitude * 0.5f;
 
@@ -837,10 +831,10 @@ namespace Playtime_Painter
         public bool SetSmoothVertices (bool to) {
             bool changed = false;
             for (int i = 0; i < 3; i++)
-                if (this[i].SmoothNormal != to)
+                if (this[i].smoothNormal != to)
                 {
                     changed = true;
-                    this[i].SmoothNormal = to;
+                    this[i].smoothNormal = to;
                 }
             return changed;
         }
@@ -1236,8 +1230,8 @@ namespace Playtime_Painter
         public LineData(MeshPoint a, MeshPoint b)
         {
             triangle = a.GetTriangleFromLine(b);
-            pnts[0] = a.uvpoints[0];
-            pnts[1] = b.uvpoints[0];
+            pnts[0] = a.vertices[0];
+            pnts[1] = b.vertices[0];
             trianglesCount = 0;
         }
 
@@ -1260,7 +1254,7 @@ namespace Playtime_Painter
 
         public Triangle GetOtherTriangle() {
             foreach (Vertex uv0 in pnts)
-                foreach (Vertex uv in uv0.meshPoint.uvpoints)
+                foreach (Vertex uv in uv0.meshPoint.vertices)
                     foreach (Triangle tri in uv.tris)
                         if (tri != triangle && tri.Includes(pnts[0].meshPoint) && tri.Includes(pnts[1].meshPoint))
                             return tri;
@@ -1276,7 +1270,7 @@ namespace Playtime_Painter
 
             foreach (Vertex uv0 in pnts)
             {
-                foreach (Vertex uv in uv0.meshPoint.uvpoints)
+                foreach (Vertex uv in uv0.meshPoint.vertices)
                 {
                     foreach (Triangle tri in uv.tris)
                     {

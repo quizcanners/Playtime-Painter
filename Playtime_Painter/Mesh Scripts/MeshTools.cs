@@ -55,8 +55,8 @@ namespace Playtime_Painter
         }
         
         protected static LineData PointedLine => MeshMGMT.PointedLine;
-        protected static Triangle PointedTris => MeshMGMT.PointedTris;
-        protected Triangle SelectedTris => MeshMGMT.SelectedTris;
+        protected static Triangle PointedTris => MeshMGMT.PointedTriangle;
+        protected Triangle SelectedTris => MeshMGMT.SelectedTriangle;
         protected static Vertex PointedUv => MeshMGMT.PointedUV;
         protected static Vertex SelectedUv => MeshMGMT.SelectedUV;
         protected static MeshPoint PointedVertex => MeshMGMT.PointedUV.meshPoint;
@@ -83,7 +83,7 @@ namespace Playtime_Painter
         public virtual bool ShowSelectedLine => false;
         public virtual bool ShowSelectedTriangle => false;
 
-        public virtual Color VertColor => Color.gray;
+        public virtual Color VertexColor => Color.gray;
 
         public virtual void OnSelectTool() { }
 
@@ -143,26 +143,26 @@ namespace Playtime_Painter
 
             var selected = MeshMGMT.GetSelectedVert();
 
-            if (point.uvpoints.Count > 1 || selected == point)
+            if (point.vertices.Count > 1 || selected == point)
             {
                 if (selected == point)
                 {
-                    markers.textm.text = (point.uvpoints.Count > 1) ? (
-                        Path.Combine((point.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1).ToString(), point.uvpoints.Count +
-                        (point.SmoothNormal ? "s" : ""))
+                    markers.textm.text = (point.vertices.Count > 1) ? (
+                        Path.Combine((point.vertices.IndexOf(MeshMGMT.SelectedUV) + 1).ToString(), point.vertices.Count +
+                        (point.smoothNormal ? "s" : ""))
                         
                         ) : "";
 
 
                 }
                 else
-                    markers.textm.text = point.uvpoints.Count +
-                        (point.SmoothNormal ? "s" : "");
+                    markers.textm.text = point.vertices.Count +
+                        (point.smoothNormal ? "s" : "");
             }
             else markers.textm.text = "";
         }
 
-        public override Color VertColor => Color.white;
+        public override Color VertexColor => Color.white;
 
         #region Inspector
         public override string Tooltip =>
@@ -205,7 +205,7 @@ namespace Playtime_Painter
             if ("Sharp All".Click(ref changed))
             {
                 foreach (var vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = false;
+                    vr.smoothNormal = false;
                 
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
@@ -214,7 +214,7 @@ namespace Playtime_Painter
             if ("Smooth All".Click().nl())
             {
                 foreach (var vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = true;
+                    vr.smoothNormal = true;
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
             }
@@ -230,7 +230,7 @@ namespace Playtime_Painter
             if ("All unique".Click().nl())
             {
                 foreach (var t in EditedMesh.triangles)
-                    mgm.editedMesh.GiveTriangleUniqueVerticles(t);
+                    mgm.editedMesh.GiveTriangleUniqueVertices(t);
                 mgm.editedMesh.Dirty = true;
                 Cfg.newVerticesUnique = true;
             }
@@ -320,14 +320,14 @@ namespace Playtime_Painter
                 //Debug.Log("Deleting");
                 if (!EditorInputManager.Control)
                 {
-                    if (m.PointedUV.meshPoint.uvpoints.Count == 1)
+                    if (m.PointedUV.meshPoint.vertices.Count == 1)
                     {
-                        if (!m.DeleteVertHEAL(MeshMGMT.PointedUV.meshPoint))
+                        if (!m.DeleteVertexHeal(MeshMGMT.PointedUV.meshPoint))
                             m.DeleteUv(MeshMGMT.PointedUV);
                     }
                     else
-                        while (m.PointedUV.meshPoint.uvpoints.Count > 1)
-                            m.editedMesh.MoveTris(m.PointedUV.meshPoint.uvpoints[1], m.PointedUV.meshPoint.uvpoints[0]);
+                        while (m.PointedUV.meshPoint.vertices.Count > 1)
+                            m.editedMesh.MoveTriangle(m.PointedUV.meshPoint.vertices[1], m.PointedUV.meshPoint.vertices[0]);
 
 
                 }
@@ -343,7 +343,7 @@ namespace Playtime_Painter
             {
                 MeshMGMT.editedMesh.triangles.Remove(PointedTris);
                 foreach (var uv in PointedTris.vertexes)
-                    if (uv.meshPoint.uvpoints.Count == 1 && uv.tris.Count == 1)
+                    if (uv.meshPoint.vertices.Count == 1 && uv.tris.Count == 1)
                         EditedMesh.meshPoints.Remove(uv.meshPoint);
 
                 MeshMGMT.editedMesh.Dirty = true;
@@ -358,14 +358,14 @@ namespace Playtime_Painter
 
                   if (!EditorInputManager.getAltKey())
                   {
-                      int no = pointedTris.NumberOf(pointedTris.GetClosestTo(meshMGMT.collisionPosLocal));
-                      pointedTris.SharpCorner[no] = !pointedTris.SharpCorner[no];
+                      int no = pointedTriangle.NumberOf(pointedTriangle.GetClosestTo(meshMGMT.collisionPosLocal));
+                      pointedTriangle.SharpCorner[no] = !pointedTriangle.SharpCorner[no];
 
-                      (pointedTris.SharpCorner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
+                      (pointedTriangle.SharpCorner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                   }
                   else
                   {
-                      pointedTris.InvertNormal();
+                      pointedTriangle.InvertNormal();
                       "Inverting Normals".TeachingNotification();
                   }
 
@@ -442,9 +442,9 @@ namespace Playtime_Painter
                 !_draggedVertices.Contains(PointedTris)) return false;
             
             if (Cfg.newVerticesUnique)
-                m.editedMesh.InsertIntoTriangleUniqueVertices(m.PointedTris, m.collisionPosLocal);
+                m.editedMesh.InsertIntoTriangleUniqueVertices(m.PointedTriangle, m.collisionPosLocal);
             else
-                m.editedMesh.InsertIntoTriangle(m.PointedTris, m.collisionPosLocal);
+                m.editedMesh.InsertIntoTriangle(m.PointedTriangle, m.collisionPosLocal);
 
             return false;
         }
@@ -476,7 +476,7 @@ namespace Playtime_Painter
                
                 var canDrag = m.DragDelay <= 0;
 
-                if (beforeCouldDrag != canDrag && EditorInputManager.Alt && m.SelectedUV.meshPoint.uvpoints.Count > 1)
+                if (beforeCouldDrag != canDrag && EditorInputManager.Alt && m.SelectedUV.meshPoint.vertices.Count > 1)
                     m.DisconnectDragged();
 
                 if (!canDrag || !(GridNavigator.Inst().AngGridToCamera(GridNavigator.onGridPos) < 82)) return;
@@ -557,7 +557,7 @@ namespace Playtime_Painter
             if ("Sharp All".Click())
             {
                 foreach (var vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = false;
+                    vr.smoothNormal = false;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
             }
@@ -565,7 +565,7 @@ namespace Playtime_Painter
             if ("Smooth All".Click().nl())
             {
                 foreach (var vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = true;
+                    vr.smoothNormal = true;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
             }
@@ -589,7 +589,7 @@ namespace Playtime_Painter
         {
 
             foreach (var vr in MeshMGMT.editedMesh.meshPoints)
-                vr.SmoothNormal = true;
+                vr.smoothNormal = true;
 
             foreach (var t in EditedMesh.triangles) t.SetSharpCorners(true);
 
@@ -673,7 +673,7 @@ namespace Playtime_Painter
             {
                 var m = MeshMGMT;
 
-                m.PointedUV.meshPoint.SmoothNormal = !m.PointedUV.meshPoint.SmoothNormal;
+                m.PointedUV.meshPoint.smoothNormal = !m.PointedUV.meshPoint.smoothNormal;
                 m.editedMesh.Dirty = true;
 #if PEGI
                 "N - on Vertex - smooth Normal".TeachingNotification();
@@ -720,7 +720,7 @@ namespace Playtime_Painter
             if ("Sharp All".Click())
             {
                 foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = false;
+                    vr.smoothNormal = false;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
             }
@@ -728,7 +728,7 @@ namespace Playtime_Painter
             if ("Smooth All".Click().nl())
             {
                 foreach (MeshPoint vr in MeshMGMT.editedMesh.meshPoints)
-                    vr.SmoothNormal = true;
+                    vr.smoothNormal = true;
                 m.editedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
             }
@@ -744,7 +744,7 @@ namespace Playtime_Painter
             if ("All unique".Click().nl())
             {
                 foreach (Triangle t in EditedMesh.triangles)
-                    m.editedMesh.Dirty |= m.editedMesh.GiveTriangleUniqueVerticles(t);
+                    m.editedMesh.Dirty |= m.editedMesh.GiveTriangleUniqueVertices(t);
                 Cfg.newVerticesUnique = true;
             }
 
@@ -766,7 +766,7 @@ namespace Playtime_Painter
                     if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedTris.SetAllVerticesShared();
                     else
-                        EditedMesh.Dirty |= EditedMesh.GiveTriangleUniqueVerticles(PointedTris);
+                        EditedMesh.Dirty |= EditedMesh.GiveTriangleUniqueVertices(PointedTris);
                 }
                 else
                     EditedMesh.Dirty |= PointedTris.SetSmoothVertices(!EditorInputManager.Shift);
@@ -784,7 +784,7 @@ namespace Playtime_Painter
                     if (EditorInputManager.Shift)
                         EditedMesh.Dirty |= PointedVertex.SetAllUVsShared(); // .SetAllVerticesShared();
                     else
-                        EditedMesh.Dirty |= PointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVerticles(pointedTris);
+                        EditedMesh.Dirty |= PointedVertex.AllPointsUnique(); //editedMesh.GiveTriangleUniqueVertices(pointedTriangle);
                 }
                 else
                     EditedMesh.Dirty |= PointedVertex.SetSmoothNormal(!EditorInputManager.Shift);
@@ -887,7 +887,7 @@ namespace Playtime_Painter
     {
         public static VertexColorTool inst;
 
-        public override Color VertColor => Color.white;
+        public override Color VertexColor => Color.white;
 
         #region Inspector
         public override string Tooltip => " 1234 on Line - apply RGBA for Border.";
@@ -935,7 +935,7 @@ namespace Playtime_Painter
                     bcf.mask.Transfer(ref m.PointedUV._color, bcf.Color);
 
                 else
-                    foreach (Vertex uvi in m.PointedUV.meshPoint.uvpoints)
+                    foreach (Vertex uvi in m.PointedUV.meshPoint.vertices)
                         bcf.mask.Transfer(ref uvi._color, Cfg.brushConfig.Color);
 
                 m.editedMesh.dirtyColor = true;
@@ -976,7 +976,7 @@ namespace Playtime_Painter
             var c = bcf.Color;
 
             foreach (var u in PointedTris.vertexes)
-            foreach (var vuv in u.meshPoint.uvpoints)
+            foreach (var vuv in u.meshPoint.vertices)
                 bcf.mask.Transfer(ref vuv._color, c);
 
             MeshMGMT.editedMesh.dirtyColor = true;
@@ -1072,7 +1072,7 @@ namespace Playtime_Painter
                 if (_alsoDoColor)
                 {
                     var col = GlobalBrush.Color;
-                    foreach (var uvi in PointedUv.meshPoint.uvpoints)
+                    foreach (var uvi in PointedUv.meshPoint.vertices)
                         GlobalBrush.mask.Transfer(ref uvi._color, col);
                 }
                 MeshMGMT.editedMesh.Dirty = true;
@@ -1121,7 +1121,7 @@ namespace Playtime_Painter
             if (_editingFlexibleEdge)
             {
 
-                foreach (var uv in vrtA.uvpoints)
+                foreach (var uv in vrtA.vertices)
                     foreach (var t in uv.tris)
                     {
                         var opposite = t.NumberOf(uv);
@@ -1130,7 +1130,7 @@ namespace Playtime_Painter
                                 edValA = Mathf.Max(edValA, t.edgeWeight[i]);
                     }
 
-                foreach (var uv in vrtB.uvpoints)
+                foreach (var uv in vrtB.vertices)
                     foreach (var t in uv.tris)
                     {
                         var opposite = t.NumberOf(uv);
@@ -1146,9 +1146,9 @@ namespace Playtime_Painter
             if (_alsoDoColor)
             {
                 var col = GlobalBrush.Color;
-                foreach (var uvi in vrtA.uvpoints)
+                foreach (var uvi in vrtA.vertices)
                     GlobalBrush.mask.Transfer(ref uvi._color, col);
-                foreach (var uvi in vrtB.uvpoints)
+                foreach (var uvi in vrtB.vertices)
                     GlobalBrush.mask.Transfer(ref uvi._color, col);
             }
 
@@ -1192,20 +1192,20 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
-                _curSubMesh = MeshMGMT.PointedTris.submeshIndex;
+                _curSubMesh = MeshMGMT.PointedTriangle.submeshIndex;
 #if PEGI
                 ("SubMesh " + _curSubMesh).showNotificationIn3D_Views();
 #endif
             }
 
             if (!EditorInputManager.GetMouseButton(0) || EditorInputManager.Control ||
-                (MeshMGMT.PointedTris.submeshIndex == _curSubMesh)) return false;
+                (MeshMGMT.PointedTriangle.submeshIndex == _curSubMesh)) return false;
             
             if (PointedTris.SameAsLastFrame)
                 return true;
             
-            MeshMGMT.PointedTris.submeshIndex = _curSubMesh;
-            EditedMesh.subMeshCount = Mathf.Max(MeshMGMT.PointedTris.submeshIndex + 1, EditedMesh.subMeshCount);
+            MeshMGMT.PointedTriangle.submeshIndex = _curSubMesh;
+            EditedMesh.subMeshCount = Mathf.Max(MeshMGMT.PointedTriangle.submeshIndex + 1, EditedMesh.subMeshCount);
             EditedMesh.Dirty = true;
             
             return true;

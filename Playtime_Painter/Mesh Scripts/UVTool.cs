@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -10,9 +8,9 @@ namespace Playtime_Painter
     public class VertexUVTool : MeshToolBase
     {
 
-        public static VertexUVTool _inst;
+        public static VertexUVTool inst;
 
-        public bool ProjectionUV = false;
+        public bool projectionUv;
         public Vector2 tiling = Vector2.one;
         public Vector2 offset;
 
@@ -22,7 +20,7 @@ namespace Playtime_Painter
         {
             switch (tg)
             {
-                case "gtuv": ProjectionUV = data.ToBool(); break;
+                case "gtuv": projectionUv = data.ToBool(); break;
                 case "offset": offset = data.ToVector2(); break;
                 case "tile": tiling = data.ToVector2(); break;
                 default: return false;
@@ -33,7 +31,7 @@ namespace Playtime_Painter
         public override StdEncoder Encode()
         {
             var cody = new StdEncoder();
-            cody.Add_Bool("gtuv", ProjectionUV);
+            cody.Add_Bool("gtuv", projectionUv);
             cody.Add("offset", offset);
             cody.Add("tile", tiling);
             return cody;
@@ -43,7 +41,7 @@ namespace Playtime_Painter
         #region Inspect
         public override string NameForDisplayPEGI => "vertex UV";
 
-        public override string Tooltip => ProjectionUV ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
+        public override string Tooltip => projectionUv ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
 
         #if PEGI
         public override bool Inspect() {
@@ -55,13 +53,13 @@ namespace Playtime_Painter
             if (("UV Set: " + mm.EditedUV + " (Click to switch)").Click().nl())
                 mm.EditedUV = mm.EditedUV == 1 ? 0 : 1; // 1 - mm.editedUV;
 
-            if (!ProjectionUV && "Projection UV Start".Click().nl())
+            if (!projectionUv && "Projection UV Start".Click().nl())
             {
-                ProjectionUV = true;
+                projectionUv = true;
                 UpdatePreview();
             }
 
-            if (ProjectionUV) {
+            if (projectionUv) {
 
                 if ("tiling".edit(ref tiling).nl(ref changed))
                     UpdatePreview();
@@ -70,7 +68,7 @@ namespace Playtime_Painter
                     UpdatePreview();
 
                 if ("Projection UV Stop".Click().nl(ref changed)) {
-                    ProjectionUV = false;
+                    projectionUv = false;
                     EditedMesh.Dirty = true;
                 }
 
@@ -84,33 +82,32 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        void UpdatePreview()
+        private void UpdatePreview()
         {
+            if (!projectionUv) return;
 
-            if (ProjectionUV)
+            var m = MeshMGMT;
+
+            if (!m.target || (m.editedMesh.meshPoints == null) || (m.editedMesh.meshPoints.Count < 1)) return;
+
+            var prMesh = FreshPreviewMesh;
+
+            var trgPos = m.target.transform.position;
+
+            foreach (var v in prMesh.meshPoints)
             {
-                var m = MeshMGMT;
-                if (!m.target || (m.editedMesh.meshPoints == null) || (m.editedMesh.meshPoints.Count < 1)) return;
-
-                var prMesh = FreshPreviewMesh;
-
-                Vector3 trgPos = m.target.transform.position;
-                foreach (MeshPoint v in prMesh.meshPoints)
-                {
-                    var pUV = PosToUV((v.WorldPos - trgPos));
-                    foreach (Vertex uv in v.uvpoints)
-                        uv.SharedEditedUV = pUV;
-                }
-
-                m.target.SharedMesh = new MeshConstructor(prMesh, m.target.MeshProfile, m.target.SharedMesh).Construct();
-
+                var pUv = PosToUv((v.WorldPos - trgPos));
+                foreach (var uv in v.vertices)
+                    uv.SharedEditedUV = pUv;
             }
+
+            m.target.SharedMesh = new MeshConstructor(prMesh, m.target.MeshProfile, m.target.SharedMesh).Construct();
         }
 
-        public Vector2 PosToUV(Vector3 diff)
+        public Vector2 PosToUv(Vector3 diff)
         {
 
-            Vector2 uv = new Vector2();
+            var uv = new Vector2();
 
             switch (GridNavigator.Inst().gSide)
             {
@@ -143,17 +140,17 @@ namespace Playtime_Painter
             foreach (var v in EditedMesh.meshPoints)
                 v.CleanEmptyIndexes();
 
-            if (ProjectionUV)
+            if (projectionUv)
                 MeshMGMT.Redraw();
         }
 
         public override void OnGridChange() => UpdatePreview();
 
-        public override Color VertColor => Color.magenta;
+        public override Color VertexColor => Color.magenta;
 
-        public override bool ShowGrid => ProjectionUV;
+        public override bool ShowGrid => projectionUv;
 
-        public override bool ShowVertices => !ProjectionUV && !MeshMGMT.Dragging;
+        public override bool ShowVertices => !projectionUv && !MeshMGMT.Dragging;
 
         public override bool ShowLines => false;
 
@@ -161,21 +158,21 @@ namespace Playtime_Painter
         {
             var vrt = MeshMGMT.GetSelectedVert();
 
-            if ((point.uvpoints.Count > 1) || (vrt == point))
+            if (point.vertices.Count > 1 || vrt == point)
             {
 
                 var tex = MeshMGMT.target.meshRenderer.sharedMaterial.mainTexture;
 
                 if (vrt == point)
                 {
-                    var text = (point.uvpoints.Count > 1) ? ((point.uvpoints.IndexOf(MeshMGMT.SelectedUV) + 1) + "/" + point.uvpoints.Count + (point.SmoothNormal ? "s" : "")) : "";
+                    var text = (point.vertices.Count > 1) ? ((point.vertices.IndexOf(MeshMGMT.SelectedUV) + 1) + "/" + point.vertices.Count + (point.smoothNormal ? "s" : "")) : "";
                     float tSize = !tex ? 128 : tex.width;
                     text += ("uv: " + (MeshMGMT.SelectedUV.EditedUV.x * tSize) + "," + (MeshMGMT.SelectedUV.EditedUV.y * tSize));
                     markers.textm.text = text;
                 }
                 else
-                    markers.textm.text = point.uvpoints.Count +
-                        (point.SmoothNormal ? "s" : "");
+                    markers.textm.text = point.vertices.Count +
+                        (point.smoothNormal ? "s" : "");
             }
             else markers.textm.text = "";
         }
@@ -186,7 +183,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(0))
             {
                 MeshMGMT.AssignSelected(PointedUv); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
-                lastCalculatedUV = PointedUv.EditedUV;
+                _lastCalculatedUv = PointedUv.EditedUV;
                 MeshMGMT.Dragging = true;
             }
 
@@ -226,8 +223,8 @@ namespace Playtime_Painter
             MeshMGMT.AssignSelected(
                 Vector3.Distance(MeshMGMT.collisionPosLocal, a.Pos) <
                 Vector3.Distance(MeshMGMT.collisionPosLocal, b.Pos)
-                    ? EditedMesh.GetUVpointAFromLine(a.meshPoint, b.meshPoint)
-                    : EditedMesh.GetUVpointAFromLine(b.meshPoint, a.meshPoint));
+                    ? EditedMesh.GetUvPointAFromLine(a.meshPoint, b.meshPoint)
+                    : EditedMesh.GetUvPointAFromLine(b.meshPoint, a.meshPoint));
 
             return false;
 
@@ -237,41 +234,42 @@ namespace Playtime_Painter
         {
             if (!EditorInputManager.GetMouseButton(0)) return false;
 
-            if (!ProjectionUV) return false;
+            if (!projectionUv) return false;
             
             if (PointedTris.SameAsLastFrame)
                 return true;
 
-            if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.meshPoints[0].uvpoints[0];
+            if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.meshPoints[0].vertices[0];
 
             var trgPos = MeshMGMT.target.transform.position;
         
             for (var i = 0; i < 3; i++)
-                PointedTris.vertexes[i].EditedUV = PosToUV(PointedTris.vertexes[i].meshPoint.WorldPos - trgPos);
+                PointedTris.vertexes[i].EditedUV = PosToUv(PointedTris.vertexes[i].meshPoint.WorldPos - trgPos);
 
             EditedMesh.Dirty = true;
 
             return true;
         }
 
-        Vector2 lastCalculatedUV;
+        private Vector2 _lastCalculatedUv;
+
         public override void ManageDragging()
         {
 
             if (PointedTris != null && SelectedUv != null)
             {
                 var uv = SelectedUv.SharedEditedUV;
-                var posUV = PointedTris.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
-                var newUV = uv * 2 - posUV;
-                var isChanged = newUV != lastCalculatedUV;
-                lastCalculatedUV = newUV;
+                var posUv = PointedTris.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
+                var newUv = uv * 2 - posUv;
+                var isChanged = newUv != _lastCalculatedUv;
+                _lastCalculatedUv = newUv;
 
                 if (isChanged && !EditorInputManager.GetMouseButtonUp(0))
                 {
                     var prMesh = FreshPreviewMesh;
                     if (prMesh.selectedUv != null)
                     {
-                        prMesh.selectedUv.SharedEditedUV = lastCalculatedUV;
+                        prMesh.selectedUv.SharedEditedUV = _lastCalculatedUv;
                         MeshMGMT.target.SharedMesh = new MeshConstructor(prMesh, MeshMGMT.target.MeshProfile, MeshMGMT.target.SharedMesh).Construct();
                     }
                 }
@@ -280,7 +278,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonUp(0))
             {
 
-                MeshMGMT.SelectedUV.SharedEditedUV = lastCalculatedUV;
+                MeshMGMT.SelectedUV.SharedEditedUV = _lastCalculatedUv;
                 EditedMesh.Dirty = true;
                 MeshMGMT.Dragging = false;
             }
@@ -309,7 +307,7 @@ namespace Playtime_Painter
 
         public VertexUVTool()
         {
-            _inst = this;
+            inst = this;
         }
 
     }

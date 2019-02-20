@@ -158,7 +158,7 @@ namespace Playtime_Painter {
         public int inGpuType;
         public int inCpuType;
 
-        public BrushType Type(PlaytimePainter painter) => Type(!painter ? TargetIsTex2D : painter.ImgMeta.TargetIsTexture2D());
+        public BrushType Type(PlaytimePainter painter) => Type(painter ? painter.ImgMeta.TargetIsTexture2D() : TargetIsTex2D);
 
         public BrushType Type(bool cpu) => BrushType.AllTypes[_type(cpu)];
 
@@ -210,24 +210,24 @@ namespace Playtime_Painter {
 
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
-
+        
         public virtual bool IsA3dBrush(PlaytimePainter painter)
         {
             var overrideOther = false;
 
-            var isA3d = false;
+            var isA3D = false;
 
             if (painter)
                 foreach (var pl in PainterManagerPluginBase.BrushPlugins)
                 {
-                    isA3d = pl.IsA3DBrush(painter, this, ref overrideOther);
+                    isA3D = pl.IsA3DBrush(painter, this, ref overrideOther);
                     if (overrideOther) break;
                 }
 
             if (!overrideOther)
-                isA3d = Type(painter).IsA3DBrush;
+                isA3D = Type(painter).IsA3DBrush;
 
-            return isA3d;
+            return isA3D;
         }
 
         public float speed = 10;

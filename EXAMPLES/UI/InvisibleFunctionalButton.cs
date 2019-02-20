@@ -4,15 +4,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 
-namespace QuizCannersUtilities
+namespace Playtime_Painter.Examples
 {
 
-
-
-    public class InvisibleFunctionalButton : Graphic,
-        IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI
-    {
+    public class InvisibleFunctionalButton : Graphic, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
 
         public UnityEvent OnClick;
 
@@ -26,77 +23,59 @@ namespace QuizCannersUtilities
 
         protected override void OnPopulateMesh(VertexHelper vh) => vh.Clear();
 
-        [NonSerialized] bool mouseDown = false;
-        [NonSerialized] float mouseDownTime = 0;
-        [NonSerialized] Vector2 mouseDownPosition;
+        [NonSerialized] private bool _mouseDown;
+        [NonSerialized] private float _mouseDownTime;
+        [NonSerialized] private Vector2 _mouseDownPosition;
 
         public float maxHoldForClick = 0.3f;
         public float maxMousePositionPixOffsetForClick = 20f;
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            mouseDownPosition = Input.mousePosition;
-            mouseDown = true;
-            mouseDownTime = Time.time;
+            _mouseDownPosition = Input.mousePosition;
+            _mouseDown = true;
+            _mouseDownTime = Time.time;
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
+        public void OnPointerEnter(PointerEventData eventData) { }
 
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-
-            //   if (mouseDown)
-            //    Debug.LogError("Mouse Exited");
-
-            mouseDown = false;
-        }
+        public void OnPointerExit(PointerEventData eventData) =>_mouseDown = false;
+        
 
         public void OnPointerUp(PointerEventData eventData)
         {
 
-            if (mouseDown)
+            if (_mouseDown && Time.time - _mouseDownTime < maxHoldForClick)
             {
 
-                if (Time.time - mouseDownTime < maxHoldForClick)
-                {
+                var diff = _mouseDownPosition - Input.mousePosition.ToVector2();
 
-                    var diff = mouseDownPosition - Input.mousePosition.ToVector2();
-
-                    if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
-                        OnClick.Invoke();
-                   // else Debug.Log("Too much displacement: {0} -> {1} : {2}:{3} > {4}".F(mouseDownPosition, eventData.position
-                     //   , diff, diff.magnitude, maxMousePositionPixOffsetForClick));
-                }
-               // else Debug.LogError("Click to slow");
+                if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
+                    OnClick.Invoke();
             }
-
-            mouseDown = false;
+            
+            _mouseDown = false;
         }
 
-        bool targetDirty;
+        private bool _targetDirty;
 
-        void LateUpdate()
+        private void LateUpdate()
         {
+            if (!clickVisualFeedTarget || (!_targetDirty && !_mouseDown)) return;
 
-            if (clickVisualFeedTarget && (targetDirty || mouseDown))
-            {
+            if ((Time.time - _mouseDownTime) > maxHoldForClick || ((Input.mousePosition.ToVector2() - _mouseDownPosition).magnitude > maxMousePositionPixOffsetForClick))
+                _mouseDown = false;
 
-                if ((Time.time - mouseDownTime) > maxHoldForClick
-                   || ((Input.mousePosition.ToVector2() - mouseDownPosition).magnitude > maxMousePositionPixOffsetForClick))
-                    mouseDown = false;
-
-                float a = clickVisualFeedTarget.color.a;
-
-                float target = mouseDown ? 0.75f : 1;
+            if (transition == ClickableElementTransition.Fade) {
+                var a = clickVisualFeedTarget.color.a;
+                
+                var target = _mouseDown ? 0.75f : 1;
 
                 a = MyMath.Lerp_bySpeed(a, target, 5);
 
                 clickVisualFeedTarget.TrySetAlpha(a);
 
-                targetDirty = (a != 1);
+                _targetDirty = (Math.Abs(a - 1) > float.Epsilon);
             }
 
         }
@@ -107,7 +86,7 @@ namespace QuizCannersUtilities
         {
             var changed = false;
 
-            if (mouseDown)
+            if (_mouseDown)
                 icon.Active.write("Is pressed");
 
             "Max Click Duration".edit("How much time can pass between Mouse Button Down and Up events", 90, ref maxHoldForClick).nl(ref changed);
@@ -120,8 +99,8 @@ namespace QuizCannersUtilities
             if (clickVisualFeedTarget)
                 "On Mouse Down".editEnum(60, ref transition).nl(ref changed);
 
-            if (mouseDownPosition.magnitude > 0)
-                "Last mouse down position: {0}".F(mouseDownPosition).nl();
+            if (_mouseDownPosition.magnitude > 0)
+                "Last mouse down position: {0}".F(_mouseDownPosition).nl();
 
             return changed;
         }

@@ -9,12 +9,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Playtime_Painter.Examples
-{
+namespace Playtime_Painter.Examples {
 
     [ExecuteInEditMode]
-    public class RoundedGraphic : Image, IPEGI
-    {
+    public class RoundedGraphic : Image, IPEGI {
 
         private static List<Shader> _compatibleShaders;
 
@@ -34,31 +32,31 @@ namespace Playtime_Painter.Examples
             } 
         }
 
-        [SerializeField] private float[] roundedCorners = new float[1];
+        [SerializeField] private float[] _roundedCorners = new float[1];
         
-        private float GetCorner(int index) => roundedCorners[index % roundedCorners.Length];
+        private float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
-        private void SetCorner(int index, float value) => roundedCorners[index % roundedCorners.Length] = value;
+        private void SetCorner(int index, float value) => _roundedCorners[index % _roundedCorners.Length] = value;
 
         public bool LinkedCorners
         {
-            get { return roundedCorners.Length == 1; }
+            get { return _roundedCorners.Length == 1; }
 
             set
             {
                 var targetValue = value ? 1 : 4;
 
-                if (targetValue == roundedCorners.Length) return;
+                if (targetValue == _roundedCorners.Length) return;
 
                 if (material)
                     material.SetShaderKeyword(UNLINKED_VERTICES, targetValue>1);
 
-                var tmp = roundedCorners[0];
+                var tmp = _roundedCorners[0];
 
-                roundedCorners = new float[targetValue];
+                _roundedCorners = new float[targetValue];
 
-                for (var i = 0; i < roundedCorners.Length; i++)
-                    roundedCorners[i] = tmp;
+                for (var i = 0; i < _roundedCorners.Length; i++)
+                    _roundedCorners[i] = tmp;
             }
         }
         
@@ -109,8 +107,8 @@ namespace Playtime_Painter.Examples
                     else {
                         if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
                         {
-                            "Material requires Canvas to pass Edges data trough Texcoord1 data channel".writeWarning();
-                            if ("Fix Canvas Texcoord1".Click().nl())
+                            "Material requires Canvas to pass Edges data trough TexCoord1 data channel".writeWarning();
+                            if ("Fix Canvas TexCoord1".Click().nl())
                                 can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
                         }
 
@@ -134,11 +132,11 @@ namespace Playtime_Painter.Examples
             if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
                 LinkedCorners = linked;
 
-            for (var i = 0; i < roundedCorners.Length; i++) {
-                var crn = roundedCorners[i];
+            for (var i = 0; i < _roundedCorners.Length; i++) {
+                var crn = _roundedCorners[i];
 
                 if ("Corner{0}".F(linked ? "s" : (" " + i.ToString())).edit(90, ref crn, 0, 1f).nl(ref changed)) 
-                    roundedCorners[i] = crn;
+                    _roundedCorners[i] = crn;
             }
 
             pegi.nl();
@@ -185,7 +183,7 @@ namespace Playtime_Painter.Examples
             pegi.nl();
 
             var rt = raycastTarget;
-            if ("Clickable".toggleIcon("Is Raycast Target",ref rt).nl(ref changed))
+            if ("Clickable".toggleIcon("Is RayCast Target",ref rt).nl(ref changed))
                 raycastTarget = rt;
             
             var spriteTag = mat ? mat.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
@@ -224,7 +222,7 @@ namespace Playtime_Painter.Examples
 
             vh.Clear();
 
-            var vert = UIVertex.simpleVert;
+            var vertex = UIVertex.simpleVert;
 
             var pos = Vector2.zero;
 
@@ -239,28 +237,28 @@ namespace Playtime_Painter.Examples
 
             var scaleToSided = rectSize.x - rectSize.y; // If x>0 - positive, else - negative
 
-            vert.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
-            vert.uv1 = new Vector2(scaleToSided, GetCorner(0));  // Replaced Edge smoothness with Scale
-            vert.color = color;
+            vertex.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
+            vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));  // Replaced Edge smoothness with Scale
+            vertex.color = color;
 
-            vert.uv0 = new Vector2(0, 0);
-            vert.position = new Vector2(corner1.x, corner1.y);
-            vh.AddVert(vert);
+            vertex.uv0 = new Vector2(0, 0);
+            vertex.position = new Vector2(corner1.x, corner1.y);
+            vh.AddVert(vertex);
 
-            vert.uv0 = new Vector2(0, 1);
-            vert.uv1.y =  GetCorner(1);
-            vert.position = new Vector2(corner1.x, corner2.y);
-            vh.AddVert(vert);
+            vertex.uv0 = new Vector2(0, 1);
+            vertex.uv1.y =  GetCorner(1);
+            vertex.position = new Vector2(corner1.x, corner2.y);
+            vh.AddVert(vertex);
 
-            vert.uv0 = new Vector2(1, 1);
-            vert.uv1.y = GetCorner(2);
-            vert.position = new Vector2(corner2.x, corner2.y);
-            vh.AddVert(vert);
+            vertex.uv0 = new Vector2(1, 1);
+            vertex.uv1.y = GetCorner(2);
+            vertex.position = new Vector2(corner2.x, corner2.y);
+            vh.AddVert(vertex);
 
-            vert.uv0 = new Vector2(1, 0);
-            vert.uv1.y = GetCorner(3);
-            vert.position = new Vector2(corner2.x, corner1.y);
-            vh.AddVert(vert);
+            vertex.uv0 = new Vector2(1, 0);
+            vertex.uv1.y = GetCorner(3);
+            vertex.position = new Vector2(corner2.x, corner1.y);
+            vh.AddVert(vertex);
 
             if (LinkedCorners) {
                 //1  2
@@ -272,45 +270,37 @@ namespace Playtime_Painter.Examples
                 //7  13  14   8
                 //4  12  15   11
                 //0    5,10   3
-
-
-              
-
-                var cornMid = (corner1 + corner2) * 0.5f;
-
                 
-                vert.uv1.y = GetCorner(0);
-                vh.AddVert(vert.Set(0, 0.5f, corner1, cornMid)); //4
-                vh.AddVert(vert.Set(0.5f, 0, cornMid, corner1)); //5
+                var cornMid = (corner1 + corner2) * 0.5f;
+                
+                vertex.uv1.y = GetCorner(0);
+                vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //4
+                vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //5
                
-                vert.uv1.y = GetCorner(1);
-                vh.AddVert(vert.Set(0.5f, 1, cornMid, corner2)); //6
-                vh.AddVert(vert.Set(0, 0.5f, corner1, cornMid)); //7
+                vertex.uv1.y = GetCorner(1);
+                vh.AddVert(vertex.Set(0.5f, 1, cornMid, corner2)); //6
+                vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //7
 
-                vert.uv1.y = GetCorner(2);
-                vh.AddVert(vert.Set(1, 0.5f, corner2, cornMid)); //8
-                vh.AddVert(vert.Set(0.5f, 1, cornMid, corner2)); //9
+                vertex.uv1.y = GetCorner(2);
+                vh.AddVert(vertex.Set(1, 0.5f, corner2, cornMid)); //8
+                vh.AddVert(vertex.Set(0.5f, 1, cornMid, corner2)); //9
 
-                vert.uv1.y = GetCorner(3);
-                vh.AddVert(vert.Set(0.5f, 0, cornMid, corner1)); //10
-                vh.AddVert(vert.Set(1, 0.5f, corner2, cornMid)); //11
+                vertex.uv1.y = GetCorner(3);
+                vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //10
+                vh.AddVert(vertex.Set(1, 0.5f, corner2, cornMid)); //11
+                
+                vertex.uv1.y = GetCorner(0);
+                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //12
 
+                vertex.uv1.y = GetCorner(1);
+                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //13
 
+                vertex.uv1.y = GetCorner(2);
+                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //14
 
-                vert.uv1.y = GetCorner(0);
-                vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //12
-
-                vert.uv1.y = GetCorner(1);
-                vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //13
-
-                vert.uv1.y = GetCorner(2);
-                vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //14
-
-                vert.uv1.y = GetCorner(3);
-                vh.AddVert(vert.Set(0.5f, 0.5f, cornMid, cornMid)); //15
-
-
-
+                vertex.uv1.y = GetCorner(3);
+                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //15
+                
                 vh.AddTriangle(0, 4, 5);
                 vh.AddTriangle(1, 6, 7);
                 vh.AddTriangle(2, 8, 9);
@@ -360,15 +350,14 @@ namespace Playtime_Painter.Examples
         }
         #endif
 
-        public static UIVertex Set(this UIVertex vert, float uvX, float uvY, Vector2 posX, Vector2 posY) {
-            vert.uv0 = new Vector2(uvX, uvY);
-            vert.position = new Vector2(posX.x, posY.y);
-            return vert;
+        public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY) {
+            vertex.uv0 = new Vector2(uvX, uvY);
+            vertex.position = new Vector2(posX.x, posY.y);
+            return vertex;
         }
 
 
     }
-
 
     #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]

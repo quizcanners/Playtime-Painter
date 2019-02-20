@@ -219,8 +219,8 @@ namespace Playtime_Painter
             "Atlas Texture: ".edit(ref _curAtlasTexture).nl();
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
-            if (MeshMGMT.SelectedTris != null)
-                ("Selected tris uses Atlas Texture " + MeshMGMT.SelectedTris.textureNo[0]).nl();
+            if (MeshMGMT.SelectedTriangle != null)
+                ("Selected tris uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
             
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
             return false;
@@ -233,7 +233,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButton(0))
             {
                 if (EditorInputManager.Control)
-                    _curAtlasTexture = (int)MeshMGMT.PointedTris.textureNo[curAtlasChanel];
+                    _curAtlasTexture = (int)MeshMGMT.PointedTriangle.textureNo[curAtlasChanel];
                 else if (PointedTris.textureNo[curAtlasChanel] != _curAtlasTexture)
                 {
                     if (PointedTris.SameAsLastFrame)
@@ -273,7 +273,7 @@ namespace Playtime_Painter
                 if (PointedUv.SameAsLastFrame)
                     return true;
 
-                foreach (var uv in MeshMGMT.PointedUV.meshPoint.uvpoints )
+                foreach (var uv in MeshMGMT.PointedUV.meshPoint.vertices )
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
@@ -310,7 +310,7 @@ namespace Playtime_Painter
             if (keyDown != -1)
             {
                 _curAtlasTexture = keyDown;
-                MeshMGMT.PointedTris.textureNo[curAtlasChanel] = keyDown;
+                MeshMGMT.PointedTriangle.textureNo[curAtlasChanel] = keyDown;
                 MeshMGMT.editedMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
