@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using QuizCannersUtilities;
+using UnityEditor.Experimental.UIElements.GraphView;
 using UnityEditorInternal;
 using UnityEngine.SceneManagement;
 
@@ -60,38 +61,40 @@ namespace PlayerAndEditorGUI {
             {
                 start(so);
 
-#if UNITY_2018_3_OR_NEWER
-                var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
-                
+                if (!pegi.PopUpService.ShowingPopup())
+                {
 
-                if (isPrefab &&
-                    PrefabUtility.HasPrefabInstanceAnyOverrides( PrefabUtility.GetNearestPrefabInstanceRoot(o), false) &&
-                    icon.Save.Click("Update Prefab")) 
+                    #if UNITY_2018_3_OR_NEWER
+                    var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
+
+                    if (isPrefab &&
+                        PrefabUtility.HasPrefabInstanceAnyOverrides(PrefabUtility.GetNearestPrefabInstanceRoot(o),
+                            false) &&
+                        icon.Save.Click("Update Prefab"))
                         PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
-#endif
-
-
-                var changed = pgi.Inspect();
-
-
-#if UNITY_2018_3_OR_NEWER
-
-                if (changed && isPrefab)
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(o);
-
-#endif
+                    #endif
+                    
+                    pgi.Inspect();
+                    
+                    #if UNITY_2018_3_OR_NEWER
+                    if (changes && isPrefab)
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(o);
+                    #endif
+                }
 
                 if (changes)
                 {
-                    if (!Application.isPlaying)
+                    if (!Application.isPlaying) 
                         EditorSceneManager.MarkSceneDirty(go ? SceneManager.GetActiveScene() : go.scene);
+                    
+                    EditorUtility.SetDirty(o);
 
                     EditorUtility.SetDirty(go);
                 }
 
                 newLine();
                 
-                return changed;
+                return changes;
             }
             else editor.DrawDefaultInspector();
 
@@ -111,7 +114,7 @@ namespace PlayerAndEditorGUI {
             if (pgi != null)
             {
                 start(so);
-                var changed = pgi.Inspect();
+                var changed = !pegi.PopUpService.ShowingPopup() && pgi.Inspect();
                 end(o);
                 return changed;
             }
@@ -130,11 +133,11 @@ namespace PlayerAndEditorGUI {
 
             start();
 
-            editor.Inspect(mat);
+            var changed = !pegi.PopUpService.ShowingPopup() && editor.Inspect(mat);
 
             end(mat);
             
-            return changes;
+            return changes || changed;
         }
 
         public static bool toggleDefaultInspector() =>
@@ -863,14 +866,6 @@ namespace PlayerAndEditorGUI {
             return (before != val);
         }
 
-        public static bool toggle(ref bool val, string text)
-        {
-            checkLine();
-            var before = val;
-            val = EditorGUILayout.Toggle(text, val);
-            return (before != val) ? change : false;
-        }
-
         public static bool toggle(ref bool val, string text, string tip)
         {
             checkLine();
@@ -878,65 +873,61 @@ namespace PlayerAndEditorGUI {
             var before = val;
             val = EditorGUILayout.Toggle(new GUIContent{ text = text,  tooltip = tip }, val);
             
-            return (before != val) ? change : false;
+            return (before != val) && change;
         }
         
-        public static bool Click(string txt, int width)
+        public static bool Click(string label)
         {
             checkLine();
-            return GUILayout.Button(txt, GUILayout.MaxWidth(width)) ? change : false;
-        }
-
-        public static bool Click(string txt)
-        {
-            checkLine();
-            return GUILayout.Button(txt) ? change : false;
-        }
-
-        public static bool Click(string txt, string tip)
-        {
-            checkLine();
-            return GUILayout.Button(new GUIContent { text = txt, tooltip = tip}) ? change : false;
+            return GUILayout.Button(label) && change;
         }
         
-        public static bool Click(string txt, string tip, GUIStyle style)
+        public static bool Click(string label, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button( new GUIContent {  text = txt, tooltip = tip}, style) ? change : false;
+            return GUILayout.Button(label, style) && change;
         }
 
-        public static bool Click(string txt, string tip, int width, GUIStyle style)
+        public static bool Click(GUIContent content)
         {
             checkLine();
-
-            return GUILayout.Button(new GUIContent {  text = txt, tooltip = tip}, style, GUILayout.MaxWidth(width)) ? change : false;
+            return GUILayout.Button(content) && change;
         }
 
-
-        public static bool Click(string txt, string tip, int width)
+        public static bool Click(GUIContent content, GUIStyle style)
         {
             checkLine();
+            return GUILayout.Button(content, style) && change;
+        }
+        
+        public static bool Click(string label, string tip) => Click(new GUIContent {text = label, tooltip = tip});
 
-            return GUILayout.Button(new GUIContent {  text = txt, tooltip = tip}, GUILayout.MaxWidth(width)) ? change : false;
+        public static bool Click(string label, string tip, GUIStyle style) => Click(new GUIContent { text = label, tooltip = tip},style);
+
+        public static bool Click(string label, string tip, int width, GUIStyle style)
+        {
+            checkLine();
+            return GUILayout.Button(new GUIContent { text = label, tooltip = tip }, style, GUILayout.MaxWidth(width)) && change;
         }
 
-        public static bool Click(Texture img, int width, GUIStyle style = null)   {
+        public static bool Click(Texture image, int width, GUIStyle style = null)   {
             if (style == null)
                 style = PEGI_Styles.ImageButton;
+
             checkLine();
-            return GUILayout.Button(img, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) ? change : false;
+            return GUILayout.Button(image, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) && change;
         }
 
-        public static bool Click(Texture img, string tip, int width, GUIStyle style = null) => Click(img, tip, width, width, style);
+        public static bool Click(Texture image, string tip, int width, GUIStyle style = null) => Click(image, tip, width, width, style);
 
-        public static bool Click(Texture img, string tip, int width, int height, GUIStyle style = null)
+        public static bool Click(Texture image, string tip, int width, int height, GUIStyle style = null)
         {
             if (style == null)
                 style = PEGI_Styles.ImageButton;
 
             checkLine();
 
-            return GUILayout.Button(new GUIContent {   image = img, tooltip = tip}, style, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Dirty(); 
+            return GUILayout.Button(new GUIContent { image = image, tooltip = tip}, style, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Dirty(); 
         }
 
         public static void write<T>(T field) where T : UnityEngine.Object
@@ -976,22 +967,22 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.LabelField(text, EditorStyles.miniLabel, GUILayout.MaxWidth(width));
         }
 
-        public static void write(string text, string tip)
+        public static void write(GUIContent cnt)
         {
-
             checkLine();
-
-            EditorGUILayout.LabelField(new GUIContent { text = text, tooltip = tip}, PEGI_Styles.WrappingText);
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText);
         }
 
-        public static void write(string text, string tip, int width)
+        public static void write(GUIContent cnt, int width)
         {
-
             checkLine();
-
-            EditorGUILayout.LabelField(new GUIContent { text = text, tooltip = tip}, PEGI_Styles.WrappingText, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText, GUILayout.MaxWidth(width));
         }
 
+        public static void write(string text, string tip) => write(new GUIContent { text = text, tooltip = tip});
+        
+        public static void write(string text, string tip, int width) => write(new GUIContent { text = text, tooltip = tip}, width);
+        
         public static void write(string text) => write(text, PEGI_Styles.WrappingText);
 
         public static void write(string text, GUIStyle style )  {

@@ -90,16 +90,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c95047d63a6b1f4bad7f434792c7c61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nestedReferences: []
   explorer:
     states: []
-    inspectedState: -1
     fileFolderHolder: STDEncodes
-    SaveToFileOptions: 0
   inspectedStuff: -1
-  foamMask: {fileID: 2800000, guid: 1ea64e5ec9f4cda40b2e9b078a3c95b8, type: 3}
-  foamParameters: {x: 0.6666667, y: 0.40000004, z: 0, w: 5.33}
-  thickness: 66
-  noise: 8.7
-  upscale: 22.4
-  wetAreaHeight: 5.33
+  nestedReferences: []
+  foamMask: {fileID: 0}
+  foamParameters: {x: 12.084504, y: 7.250703, z: 23, w: 3.68}
+  thickness: 64
+  noise: 7.1
+  upscale: 18.6
+  wetAreaHeight: 3.68

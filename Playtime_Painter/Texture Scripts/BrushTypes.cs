@@ -80,6 +80,8 @@ namespace Playtime_Painter
 
         public abstract string NameForDisplayPEGI { get; }
 
+        public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
+
         #region Inspect
         #if PEGI
         public virtual bool ShowInDropdown()
@@ -87,8 +89,8 @@ namespace Playtime_Painter
             var p = PlaytimePainter.inspected;
 
             if (!p)
-                return false;
-
+                return true;
+            
             if (!SupportedForTerrainRt && p.terrain)
                 return false;
 
@@ -109,7 +111,7 @@ namespace Playtime_Painter
         {
 
         
-            if (BrushConfig.InspectedIsCPUbrush || !PainterCamera.Inst)
+            if (BrushConfig.InspectedIsCpuBrush || !PainterCamera.Inst)
                 return false;
 
             var changed = false;
@@ -244,7 +246,7 @@ namespace Playtime_Painter
 
             painter.AfterStroke(st);
 
-            if (!br.IsSingleBufferBrush() && !br.IsA3dBrush(painter))
+            if (!br.IsSingleBufferBrush() && !br.IsA3DBrush(painter))
                 TexMGMT.UpdateBufferSegment();
 
             if (br.useMask && st.mouseUp && br.randomMaskOffset)

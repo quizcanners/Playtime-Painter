@@ -51,7 +51,7 @@ namespace Playtime_Painter.Examples
 
         private void Paint (Collision collision, PaintingCollision pCont)
         {
-            if (brush.IsA3dBrush(pCont.painter)) {
+            if (brush.IsA3DBrush(pCont.painter)) {
                 var v = pCont.vector;
                 v.posTo = transform.position;
                 if (v.mouseDwn) v.posFrom = v.posTo;
@@ -79,30 +79,21 @@ namespace Playtime_Painter.Examples
         #region Inspector
 #if PEGI
 
-        private bool _showInfo;
-
 
         public bool Inspect()
         {
             var changed = false;
+            
+            ("During collision will try to cast ray in the direction of that collision. " +
+             "If target has Playtime Painter Component this script will try to paint on it.").fullWindowDocumentationClick("How to use this?",15);
+           
+            if (Application.isPlaying)
+                "Painting on {0} objects".F(_paintingOn.Count).nl();
 
-            if (icon.Question.enter("Documentation", ref _showInfo))
-            {
-                ("During collision will try to cast ray in the direction of that collision. " +
-                 "If target has Playtime Painter Component this script will try to paint on it.").writeHint();
-            }
-            else
-            {
-
-                if (Application.isPlaying)
-                    "Painting on {0} objects".F(_paintingOn.Count).nl();
-
-                brush.Targets_PEGI().nl(ref changed);
-                brush.Mode_Type_PEGI().nl(ref changed);
-                brush.ColorSliders().nl(ref changed);
-            }
-
-
+            brush.Targets_PEGI().nl(ref changed);
+            brush.Mode_Type_PEGI().nl(ref changed);
+            brush.ColorSliders().nl(ref changed);
+            
             return changed;
         }
         #endif

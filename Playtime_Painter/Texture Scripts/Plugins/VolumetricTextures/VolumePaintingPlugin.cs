@@ -251,7 +251,7 @@ namespace Playtime_Painter
                 pegi.nl();
 
                 if (!cpuBlit)
-                   "Hardness:".edit("Makes edges more rough.", 70, ref br.Hardness, 1f, 512f).nl(ref changed);
+                   "Hardness:".edit("Makes edges more rough.", 70, ref br.hardness, 1f, 512f).nl(ref changed);
 
                 "Speed".edit(40, ref br.speed, 0.01f, 20).nl(ref changed);
 

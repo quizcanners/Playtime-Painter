@@ -541,23 +541,6 @@ namespace QuizCannersUtilities
 
             return l;
         }
-        
-        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l) where T : IStd {
-
-            var cody = new StdDecoder(data);
-
-            l = new List<T>();
-
-            var tps = typeof(T).TryGetDerivedClasses();
-
-            if (tps != null)
-                foreach (var tag in cody)
-                    l.Add(cody.DecodeData<T>(tps));
-            else
-                Debug.LogError("{0} doesn't provide a list of derived types to decode".F(typeof(T).ToString()));
-
-            return l;
-        }
         #endregion
 
         #region Arrays
@@ -630,6 +613,20 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Abstract 
+
+        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l) where T : IGotClassTag
+        {
+            var cody = new StdDecoder(data);
+
+            l = new List<T>();
+
+            var tps = typeof(T).TryGetTaggedClasses();
+
+            foreach (var tag in cody)
+                l.Add(cody.DecodeData<T>(tps));
+
+            return l;
+        }
 
         public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypesStd tps) where T : IGotClassTag {
             var cody = new StdDecoder(data);

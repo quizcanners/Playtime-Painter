@@ -60,8 +60,10 @@ namespace Playtime_Painter.Examples {
             if (!_collider)
                 _collider = GetComponent<SphereCollider>();
 
-            rendy.sharedMaterial.color = brush.Color;
-            brush.TargetIsTex2D = false;
+            if (rendy)
+                rendy.sharedMaterial.color = brush.Color;
+
+            brush.targetIsTex2D = false;
         }
 
         private void Update() {
@@ -71,7 +73,7 @@ namespace Playtime_Painter.Examples {
 			foreach (var col in paintingOn){
 				var p = col.painter;
 
-                if (!brush.IsA3dBrush(p)) continue;
+                if (!brush.IsA3DBrush(p)) continue;
 
                 var v = col.vector;
                 v.posTo = transform.position;
@@ -89,13 +91,10 @@ namespace Playtime_Painter.Examples {
 
             var changed = false;
 
-            if (icon.Question.enter("Documentation", ref _showInfo))
-            {
+          
                 ("When colliding with other object will try to use sphere brush to paint on them." +
-                 "Targets need to have PlaytimePainter component").writeHint();
-            }
-            else
-            {
+                 "Targets need to have PlaytimePainter component").fullWindowDocumentationClick("What to do");
+         
 
                 if (Application.isPlaying)
                     "Painting on {0} objects".F(paintingOn.Count).nl();
@@ -123,9 +122,9 @@ namespace Playtime_Painter.Examples {
 
                 if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
                 {
-                    if (brush.TargetIsTex2D || !brush.IsA3dBrush(null))
+                    if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
                     {
-                        brush.TargetIsTex2D = false;
+                        brush.targetIsTex2D = false;
                         brush.TypeSet(false, BrushTypeSphere.Inst);
 
                         "PaintBall_brushHint".resetOneTimeHint();
@@ -134,7 +133,7 @@ namespace Playtime_Painter.Examples {
 
                 if (brush.ColorSliders())
                     rendy.sharedMaterial.color = brush.Color;
-            }
+            
 
 
             return false;

@@ -11,6 +11,8 @@ using System.Linq;
 
 using System.Linq.Expressions;
 using QuizCannersUtilities;
+using Object = UnityEngine.Object;
+
 // ReSharper disable InconsistentNaming
 
 #pragma warning disable IDE1006
@@ -97,21 +99,6 @@ namespace PlayerAndEditorGUI {
         
         #if PEGI
 
-        #region Change Tracking 
-        public static bool globChanged;
-
-        private static bool change { get { globChanged = true; return true; } }
-
-        private static bool Dirty(this bool val) { globChanged |= val; return val; }
-        
-        public static bool changes(this bool value, ref bool changed)
-        {
-            changed |= value;
-            return value;
-        }
-        
-        #endregion
-
         #region Other Stuff
         public delegate bool CallDelegate();
 
@@ -130,7 +117,8 @@ namespace PlayerAndEditorGUI {
                     _lineOpen = false;
                     PEGI_Extensions.focusInd = 0;
 
-                    function();
+                    if (!PopUpService.ShowingPopup())
+                        function();
 
                     nl();
 
@@ -189,6 +177,7 @@ namespace PlayerAndEditorGUI {
         
         private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
 
+        
 
         #region GUI Colors
 
@@ -448,6 +437,83 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
+        #region Full Inspector Window Pop UP
+
+        public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = defaultButtonSize)
+        {
+
+            if (icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor())
+            {
+                PopUpService.popUpText = text;
+                PopUpService.NewGotItText();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static class PopUpService
+        {
+
+            public static string popUpText = "";
+
+            private static List<string> gotItTexts = new List<string>()
+            {
+                "Got it!",
+                "I understand",
+                "Clear as day",
+                "Roger that",
+                "OK",
+                "Without a shadow of a doubt",
+                "Couldn't be more clear",
+                "Totally got it",
+                "Well said",
+                "Perfect explanation",
+                "Thanks",
+                "Take me back",
+                "Reading Done"
+            };
+
+            public static void NewGotItText() => understoodPopUpText = gotItTexts.GetRandom();
+
+            private static string understoodPopUpText = "Got it";
+
+            public static bool ShowingPopup()
+            {
+                if (!popUpText.IsNullOrEmpty())
+                {
+
+                    popUpText.write(PEGI_Styles.OverflowText);
+                    nl();
+
+                    if (understoodPopUpText.Click(15))
+                        popUpText = null;
+
+                    return true;
+                }
+
+                return false;
+            }
+
+        }
+
+        #endregion
+
+        #region Changes 
+        public static bool globChanged;
+
+        private static bool change { get { globChanged = true; return true; } }
+
+        private static bool Dirty(this bool val) { globChanged |= val; return val; }
+
+        public static bool changes(this bool value, ref bool changed)
+        {
+            changed |= value;
+            return value;
+        }
+
+        #endregion
+        
         #region New Line
 
         public static void newLine()
@@ -1192,7 +1258,7 @@ namespace PlayerAndEditorGUI {
                 if (from.Count>1)
                 newLine();
                 for (var i = 0; i < from.Count; i++) 
-                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus(100).nl()) {
+                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl()) {
                         no = i;
                         foldIn();
                         return change;
@@ -1240,7 +1306,7 @@ namespace PlayerAndEditorGUI {
             
         }
 
-        public static bool select(ref int no, string[] from, int width, bool showIndex = false)
+      /*  public static bool select(ref int no, string[] from, int width, bool showIndex = false)
         {
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
@@ -1266,7 +1332,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
             
-        }
+        }*/
 
         private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
         {
@@ -1277,8 +1343,9 @@ namespace PlayerAndEditorGUI {
             
             if (indexes == -1)
             {
+                indexes = namesList.Count;
                 namesList.Add("[{0}]".F(val.ToPEGIstring()));
-                indexes = namesList.Count - 1;
+              
             }
 
             var tmp = indexes;
@@ -1299,7 +1366,7 @@ namespace PlayerAndEditorGUI {
 
             if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
             {
-                indexes = namesList.Count - 1;
+                indexes = namesList.Count;
                 namesList.Add("[{0}]".F(val.ToPEGIstring()));
                
             }
@@ -1457,27 +1524,27 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var currentIndex = -1;
 
-            for (var j = 0; j < lst.Count; j++)
+            for (var i = 0; i < lst.Count; i++)
             {
-                var tmp = lst[j];
+                var tmp = lst[i];
                 if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
                 
-                if ((!val.IsDefaultOrNull()) && tmp.Equals(val))
-                    jindx = lnms.Count;
+                if (!val.IsDefaultOrNull() && tmp.Equals(val))
+                    currentIndex = names.Count;
                 
-                lnms.Add(_compileName(showIndex, j, tmp, stripSlashes)); 
-                indxs.Add(j);
+                names.Add(_compileName(showIndex, i, tmp, stripSlashes)); 
+                indexes.Add(i);
                 
             }
 
-            if (selectFinal(val, ref jindx, lnms))
+            if (selectFinal(val, ref currentIndex, names))
             {
-                val = lst[indxs[jindx]];
+                val = lst[indexes[currentIndex]];
                 return change;
             }
 
@@ -2546,7 +2613,7 @@ namespace PlayerAndEditorGUI {
             return ret;
         }
 
-        private static bool enter_Search_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
+        private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
         {
             if (listIsNull(ref list))
             {
@@ -2554,9 +2621,6 @@ namespace PlayerAndEditorGUI {
                     entered = false;
                 return false;
             }
-
-            if (entered)
-                searchData.ToggleSearch(list);
 
             var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
@@ -2852,7 +2916,7 @@ namespace PlayerAndEditorGUI {
 
             var changed = false;
             
-            if (enter_Search_ListIcon(label, ref list,ref inspectedElement, ref entered))// if (label.AddCount(list).enter(ref entered))
+            if (enter_ListIcon(label, ref list,ref inspectedElement, ref entered))// if (label.AddCount(list).enter(ref entered))
                 label.edit_List(ref list, ref inspectedElement).nl(ref changed);
 
             return changed;
@@ -2919,9 +2983,11 @@ namespace PlayerAndEditorGUI {
         #region Click
         public const int defaultButtonSize = 25;
 
-        public static bool ClickDuplicate(ref Material mat, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat");
-        
-        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension) where T: UnityEngine.Object
+        private const int maxWidthForPlaytimeButtonText = 100;
+
+        public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat", newName);
+
+        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T: UnityEngine.Object
         {
            
             if (!obj) return false; 
@@ -2930,12 +2996,22 @@ namespace PlayerAndEditorGUI {
             
         #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(obj);
-            if (icon.Copy.Click("{0} Duplicate".F(obj)).changes(ref changed)) {
-                if (path.IsNullOrEmpty()) 
-                    obj.CreateAsset(folder, "New {0}".F(obj.GetType().ToPEGIstring_Type()), extension);
+            if (icon.Copy.Click("{0} Duplicate at {1}".F(obj, path)).changes(ref changed)) {
+                if (path.IsNullOrEmpty())
+                {
+                    obj = Object.Instantiate(obj);
+                    if (!newName.IsNullOrEmpty())
+                        obj.name = newName;
+
+                    obj.SaveAsset(folder, extension, true);
+                }
                 else
                 {
-                    var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+                    var newPath =
+                        AssetDatabase.GenerateUniqueAssetPath(newName.IsNullOrEmpty()
+                            ? path
+                            : path.Replace(obj.name, newName)); 
+
                     AssetDatabase.CopyAsset(path, newPath);
                     obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
                 }
@@ -2967,7 +3043,7 @@ namespace PlayerAndEditorGUI {
         #endif
         }
         
-        public static bool Click_Label(this string label, string hint = "Clickable Text", int width = -1, GUIStyle style = null)
+        public static bool Click_Label(this string label, string hint = "ClickAble Text", int width = -1, GUIStyle style = null)
         {
             SetBgColor(Color.clear);
 
@@ -2982,18 +3058,6 @@ namespace PlayerAndEditorGUI {
             checkLine();
             var cont = new GUIContent() { text = label, tooltip = hint };
             return (width ==-1 ? GUILayout.Button(cont, style) : GUILayout.Button(cont, style, GUILayout.MaxWidth(width))).Dirty_Unfocus().PreviousBgColor();
-        }
-
-        public static bool ClickUnFocus(this string text, int width)
-        {
-
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.Click(text, width).Unfocus();
-        #endif
-
-            checkLine();
-            return GUILayout.Button(text, GUILayout.MaxWidth(width)).Dirty_Unfocus();
         }
 
         public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
@@ -3028,52 +3092,59 @@ namespace PlayerAndEditorGUI {
                 return ef.Click(text).Unfocus();
         #endif
             checkLine();
-            return GUILayout.Button(text).Dirty_Unfocus();
+            return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty_Unfocus();
         }
 
-        public static bool Click(this string text, int width)
+        public static bool Click(this string label, int fontSize) => new GUIContent() { text = label }.Click(PEGI_Styles.ScalableText(fontSize));
+
+        public static bool Click(this string label, string hint, int fontSize) => new GUIContent() { text = label, tooltip = hint}.Click(PEGI_Styles.ScalableText(fontSize));
+        
+        public static bool Click(this string label, GUIStyle style) => new GUIContent() {text = label}.Click(style); 
+        
+        public static bool Click(this GUIContent content, GUIStyle style)
         {
-        #if UNITY_EDITOR
+
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(text, width);
-        #endif
+                return ef.Click(content, style);
+            #endif
             checkLine();
-            return GUILayout.Button(text, GUILayout.MaxWidth(width)).Dirty();
+            return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
 
         public static bool Click(this string text)
         {
-        #if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.Click(text);
-        #endif
+            #endif
             checkLine();
-            return GUILayout.Button(text).Dirty();
+            return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
         public static bool Click(this string text, string tip, ref bool changed) => text.Click(tip).changes(ref changed);
         
         public static bool Click(this string text, string tip)
         {
-        #if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.Click(text, tip);
-        #endif
+            #endif
             checkLine();
-            return GUILayout.Button(new GUIContent() { text = text, tooltip = tip }).Dirty();
+            return GUILayout.Button(new GUIContent() { text = text, tooltip = tip }, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
-        public static bool Click(this string text, string tip, int width)
+      /*public static bool Click(this string text, string tip, int width)
         {
-        #if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.Click(text, tip, width);
-        #endif
+            #endif
             checkLine();
             return GUILayout.Button(new GUIContent() { text = text, tooltip = tip }, GUILayout.MaxWidth(width)).Dirty();
-        }
+        }*/
 
         private static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
 
@@ -3193,10 +3264,10 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        public static bool ClickHighlight(this UnityEngine.Object obj, int width = defaultButtonSize) =>
+        public static bool ClickHighlight(this Object obj, int width = defaultButtonSize) =>
            obj.ClickHighlight(icon.Search.GetIcon(), width);
 
-        public static bool ClickHighlight(this UnityEngine.Object obj, Texture tex, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Object obj, Texture tex, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             if (obj && tex.Click(Msg.HighlightElement.Get()))
@@ -3209,7 +3280,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool ClickHighlight(this UnityEngine.Object obj, icon icon, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Object obj, icon icon, int width = defaultButtonSize)
         {
         #if UNITY_EDITOR
             if (obj && icon.Click(Msg.HighlightElement.Get()))
@@ -3222,7 +3293,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool ClickHighlight(this UnityEngine.Object obj, string hint, icon icon = icon.Enter, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Object obj, string hint, icon icon = icon.Enter, int width = defaultButtonSize)
         {
         #if UNITY_EDITOR
             if (obj && icon.Click(hint)) {

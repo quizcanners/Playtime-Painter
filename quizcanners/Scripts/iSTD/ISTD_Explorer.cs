@@ -100,7 +100,7 @@ namespace QuizCannersUtilities
                     {
                         var ass = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(o));
                         if (!ass) continue;
-                        list.TryAdd_UObj_ifNew(ass);
+                        list.TryAddUObjIfNew(ass);
                     }
                 }
             }

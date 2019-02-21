@@ -383,7 +383,7 @@ namespace Playtime_Painter {
 
             var brushType = brush.Type(!rendTex);
 
-            var is3DBrush = brush.IsA3dBrush(painter);
+            var is3DBrush = brush.IsA3DBrush(painter);
             var isDecal = rendTex && brushType.IsUsingDecals;
 
             brushColor_Property.GlobalValue = brush.Color;
@@ -401,7 +401,7 @@ namespace Playtime_Painter {
 
             maskDynamics_Property.GlobalValue = new Vector4(
                 brush.maskTiling,
-                rendTex ? brush.Hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
+                rendTex ? brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
                 (brush.flipMaskAlpha ? 0 : 1)
                 , 0);
 

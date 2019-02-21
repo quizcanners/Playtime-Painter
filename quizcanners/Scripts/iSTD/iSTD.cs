@@ -666,10 +666,18 @@ namespace QuizCannersUtilities {
         public static void SaveStdData(this IKeepMyStd s) {
             if (s != null)
                 s.ConfigStd = s.Encode().ToString();
+            
         }
 
-        public static void LoadStdData(this IKeepMyStd s) => s?.Decode(s.ConfigStd);
-        
+        public static bool LoadStdData(this IKeepMyStd s)
+        {
+            if (s == null)
+                return false;
+
+            s.Decode(s.ConfigStd);
+
+            return true;
+        }
 
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:IStd, new() {
 			if (s == null)

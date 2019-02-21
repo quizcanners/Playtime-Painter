@@ -178,8 +178,9 @@ namespace Playtime_Painter {
                     atlasRows = m.GetInt(PainterDataAndConfig.ATLASED_TEXTURES);
             }
 
-            ("Atlased Texture " + atlasRows + "*" + atlasRows).write("Shader has _ATLASED define");
-            if ("Undo".Click(40).nl(ref changed ))
+            "Atlased Texture {0}*{0}".F(atlasRows).write("Shader has _ATLASED define");
+
+            if ("Undo".Click().nl(ref changed ))
                 m.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
 
             var id = p.ImgMeta;
@@ -199,14 +200,14 @@ namespace Playtime_Painter {
 
         public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type)
         {
-            if (!br.IsA3dBrush(painter) || !painter.IsAtlased()) return;
+            if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
             
             var ats = GetAtlasedSection();
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
         public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
-            if (br.IsA3dBrush(painter) && painter.IsAtlased())
+            if (br.IsA3DBrush(painter) && painter.IsAtlased())
                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
     }

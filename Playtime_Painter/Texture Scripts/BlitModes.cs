@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter {
 
-    public abstract class BlitMode : PainterStuff, IEditorDropdown {
+    public abstract class BlitMode : PainterStuff, IEditorDropdown, IGotDisplayName {
 
         private static List<BlitMode> _allModes;
 
@@ -25,7 +23,7 @@ namespace Playtime_Painter {
         
         public BlitMode SetKeyword(ImageMeta id) {
 
-            foreach (BlitMode bs in AllModes)
+            foreach (var bs in AllModes)
                 UnityHelperFunctions.SetShaderKeyword(bs.ShaderKeyword(id), false);
 
             UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), true);
@@ -53,7 +51,7 @@ namespace Playtime_Painter {
         {
             _allModes = new List<BlitMode>
             {
-                new BlitModeAlphaBlit(0),
+                new BlitModeAlpha(0),
                 new BlitModeAdd(1),
                 new BlitModeSubtract(2),
                 new BlitModeCopy(3),
@@ -87,24 +85,27 @@ namespace Playtime_Painter {
 
         public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
-        public virtual bool SupportedByTex2D { get { return true; } }
-        public virtual bool SupportedByRenderTexturePair { get { return true; } }
-        public virtual bool SupportedBySingleBuffer { get { return true; } }
-        public virtual bool UsingSourceTexture { get { return false; } }
-        public virtual bool ShowColorSliders { get { return true; } }
+        public virtual bool SupportedByTex2D => true;
+        public virtual bool SupportedByRenderTexturePair => true;
+        public virtual bool SupportedBySingleBuffer => true;
+        public virtual bool UsingSourceTexture => false;
+        public virtual bool ShowColorSliders => true;
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
-#if PEGI
+
+        public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
+
+        #if PEGI
 
         public virtual bool ShowInDropdown()
         {
 
-            bool CPU = BrushConfig.InspectedIsCPUbrush;
+            var cpu = BrushConfig.InspectedIsCpuBrush;
 
             if (!PlaytimePainter.inspected)
-                return (CPU ? SupportedByTex2D : SupportedByRenderTexturePair);
+                return (cpu ? SupportedByTex2D : SupportedByRenderTexturePair);
 
-            ImageMeta id = InspectedImageMeta;
+            var id = InspectedImageMeta;
 
             if (id == null)
                 return false;
@@ -114,44 +115,43 @@ namespace Playtime_Painter {
                     ((SupportedByRenderTexturePair && (!id.renderTexture))
                         || (SupportedBySingleBuffer && (id.renderTexture))));
         }
-
-
+        
         public virtual bool PEGI()
         {
 
-            ImageMeta id = InspectedImageMeta;
+            var id = InspectedImageMeta;
 
-            bool cpuBlit = id == null ? InspectedBrush.TargetIsTex2D : id.destination == TexTarget.Texture2D;
-            BrushType brushType = InspectedBrush.Type(cpuBlit);
-            bool usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
+            var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
+            var brushType = InspectedBrush.Type(cpuBlit);
+            var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
 
-            bool changed = false;
+            var changed = false;
 
-            pegi.newLine();
+            pegi.nl();
 
             if (!cpuBlit)
-                changed |= "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.Hardness, 1f, 512f).nl();
+                "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 512f).nl(ref changed);
 
-            changed |= (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20).nl();
+            (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20).nl(ref changed);
 
-            pegi.write("Scale:", 40);
+            "Scale:".write(40);
 
-            if (InspectedBrush.IsA3dBrush(InspectedPainter))
+            if (InspectedBrush.IsA3DBrush(InspectedPainter))
             {
-                Mesh m = PlaytimePainter.inspected.GetMesh();
+                var m = PlaytimePainter.inspected.GetMesh();
 
-                float maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected ? 1 : PlaytimePainter.inspected.transform.lossyScale.magnitude);
+                var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected ? 1 : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
-                changed |= pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
+                pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).changes(ref changed);
             }
             else
             {
                 if (!brushType.IsPixelPerfect)
-                    changed |= pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : (id != null ? id.width * 0.5f : 256));
+                    changed |= pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : id?.width * 0.5f ?? 256);
                 else
                 {
-                    int val = (int)InspectedBrush.brush2DRadius;
-                    changed |= pegi.edit(ref val, (int)(cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : (id != null ? id.width * 0.5f : 256)));
+                    var val = (int)InspectedBrush.brush2DRadius;
+                    pegi.edit(ref val, (int)(cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
                     InspectedBrush.brush2DRadius = val;
                 }
             }
@@ -166,19 +166,21 @@ namespace Playtime_Painter {
             return changed;
         }
 #endif
-        public virtual void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
-        {
-
-            return;
-        }
+        public virtual void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st) { }
+        public abstract string NameForDisplayPEGI { get; }
     }
-    public class BlitModeAlphaBlit : BlitMode
+    public class BlitModeAlpha : BlitMode
     {
-        public override string ToString() { return "Alpha Blit"; }
+        public override string NameForDisplayPEGI => "Alpha Blit"; 
 
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_NORMAL";
 
-        public BlitModeAlphaBlit(int ind) : base(ind) { }
+        public override string ToolTip =>
+            "If you don't know which one to choose, choose Alpha Blit. It will replace existing color with the color you are painting. " +
+            "Keep in mind, if you are painting on texture with transparency (has areas you can see trough), also toggle Transparent Blit mode. " +
+            "Otherwise you'll see some weird outlines.";
+
+        public BlitModeAlpha(int ind) : base(ind) { }
         public override bool SupportsTransparentLayer => true;
     }
 
@@ -187,8 +189,10 @@ namespace Playtime_Painter {
         static BlitModeAdd _inst;
         public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
 
-        public override string ToString() => "Add";
+        public override string NameForDisplayPEGI => "Add";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_ADD";
+
+
 
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
@@ -201,11 +205,10 @@ namespace Playtime_Painter {
 
     public class BlitModeSubtract : BlitMode
     {
-        public override string ToString() { return "Subtract"; }
+        public override string NameForDisplayPEGI => "Subtract"; 
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_SUBTRACT";
-
-        //public override Shader shaderForSingleBuffer { get { return meshMGMT.br_Add; } }
-        public override bool SupportedBySingleBuffer { get { return false; } }
+        
+        public override bool SupportedBySingleBuffer => false;
 
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
@@ -215,7 +218,7 @@ namespace Playtime_Painter {
 
     public class BlitModeCopy : BlitMode
     {
-        public override string ToString() => "Copy";
+        public override string NameForDisplayPEGI => "Copy";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_COPY";
         public override bool ShowColorSliders => false;
 
@@ -228,9 +231,9 @@ namespace Playtime_Painter {
 
     public class BlitModeMin : BlitMode
     {
-        public override string ToString() { return "Min"; }
-        public override bool SupportedByRenderTexturePair { get { return false; } }
-        public override bool SupportedBySingleBuffer { get { return false; } }
+        public override string NameForDisplayPEGI => "Min"; 
+        public override bool SupportedByRenderTexturePair => false;
+        public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
         public BlitModeMin(int ind) : base(ind) { }
@@ -238,9 +241,9 @@ namespace Playtime_Painter {
 
     public class BlitModeMax : BlitMode
     {
-        public override string ToString() { return "Max"; }
-        public override bool SupportedByRenderTexturePair { get { return false; } }
-        public override bool SupportedBySingleBuffer { get { return false; } }
+        public override string NameForDisplayPEGI => "Max"; 
+        public override bool SupportedByRenderTexturePair => false;
+        public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
@@ -248,7 +251,7 @@ namespace Playtime_Painter {
 
     public class BlitModeBlur : BlitMode
     {
-        public override string ToString() => "Blur";
+        public override string NameForDisplayPEGI => "Blur";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLUR";
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
@@ -258,12 +261,9 @@ namespace Playtime_Painter {
 #if PEGI
         public override bool PEGI()
         {
-
-            bool brushChanged_RT = base.PEGI();
-            pegi.newLine();
-            brushChanged_RT |= "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f);
-            pegi.newLine();
-            return brushChanged_RT;
+            var changed = base.PEGI().nl();
+            "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+            return changed;
         }
 #endif
 
@@ -291,11 +291,11 @@ namespace Playtime_Painter {
             Shader.DisableKeyword("PREVIEW_RGB");
         }
 
-        public override bool SupportedByTex2D { get { return true; } }
+        public override bool SupportedByTex2D => true;
 
-        public override string ToString() { return "Pixel Reshape"; }
+        public override string NameForDisplayPEGI => "Pixel Reshape"; 
 
-        public void FromUV(Vector2 uv)
+        public void FromUv(Vector2 uv)
         {
             currentPixel.x = (int)Mathf.Floor(uv.x * Cfg.samplingMaskSize.x);
             currentPixel.y = (int)Mathf.Floor(uv.y * Cfg.samplingMaskSize.y);
@@ -394,44 +394,41 @@ namespace Playtime_Painter {
 #endif
         #endregion
 
-        ShaderProperty.VectorValue pointedUV_Untiled_Property = new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
+        readonly ShaderProperty.VectorValue _pointedUvUntiledProperty = new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
 
-        public override void PrePaint(PlaytimePainter pntr, BrushConfig br, StrokeVector st)
+        public override void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
             var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x), Mathf.Floor(st.unRepeatedUv.y));
 
-            pointedUV_Untiled_Property.GlobalValue = v4;
+            _pointedUvUntiledProperty.GlobalValue = v4;
 
-            if (st.firstStroke)
+            if (!st.firstStroke) return;
+
+            if (method == (ColorSetMethod.MDownColor))
             {
-
-                if (method == (ColorSetMethod.MDownColor))
+                if (painter)
                 {
-                    if (pntr)
-                    {
-                        pntr.SampleTexture(st.uvTo);
-                        FromColor(br, st.unRepeatedUv);
-                    }
+                    painter.SampleTexture(st.uvTo);
+                    FromColor(br, st.unRepeatedUv);
                 }
-                else
-                if (method == (ColorSetMethod.MDownPosition))
-                    FromUV(st.uvTo);
-
-                PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
-                    ((float)currentPixel.x + 0.5f) / ((float)Cfg.samplingMaskSize.x),
-
-                    ((float)currentPixel.y + 0.5f) / ((float)Cfg.samplingMaskSize.y),
-
-                    Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y);
-
             }
+            else
+            if (method == (ColorSetMethod.MDownPosition))
+                FromUv(st.uvTo);
+
+            PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
+                (currentPixel.x + 0.5f) / Cfg.samplingMaskSize.x,
+
+                (currentPixel.y + 0.5f) / Cfg.samplingMaskSize.y,
+
+                Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y);
         }
     }
 
     public class BlitModeBloom : BlitMode
     {
-        public override string ToString() => "Bloom";
+        public override string NameForDisplayPEGI => "Bloom";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLOOM";
 
         public override bool ShowColorSliders => false;
@@ -445,8 +442,8 @@ namespace Playtime_Painter {
         public override bool PEGI()
         {
 
-            bool changed = base.PEGI().nl();
-            changed |= "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl();
+            var changed = base.PEGI().nl();
+            "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
 #endif

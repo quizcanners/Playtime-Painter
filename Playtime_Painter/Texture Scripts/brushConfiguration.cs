@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,10 +19,6 @@ namespace Playtime_Painter {
     [Serializable]
     public class BrushConfig : PainterStuffStd, IPEGI {
 
-       // public delegate bool BrushConfigPEGIplugin(ref bool overrideBlitModePEGI, BrushConfig br);
-
-     //   private static BrushConfigPEGIplugin brushConfigPegies;
-
         #region Encode Decode
         public override StdEncoder Encode() {
 
@@ -44,7 +38,7 @@ namespace Playtime_Painter {
             BlitMode mode = BlitMode;
             BrushType type = Type(!rt);
 
-            bool worldSpace = rt && IsA3dBrush(painter);
+            bool worldSpace = rt && IsA3DBrush(painter);
 
             StdEncoder cody = new StdEncoder()
 
@@ -57,7 +51,7 @@ namespace Playtime_Painter {
 
 
             cody.Add_Bool("useMask", useMask)
-            .Add("mode", bliTMode);
+            .Add("mode", blitMode);
 
             if (useMask)
                 cody.Add("mask", (int)mask);
@@ -88,7 +82,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            cody.Add("hard", Hardness)
+            cody.Add("hard", hardness)
             .Add("speed", speed);
 
             return cody;
@@ -108,7 +102,7 @@ namespace Playtime_Painter {
 
                 case "mask": mask = (BrushMask)data.ToInt(); break;
 
-                case "mode": bliTMode = data.ToInt(); break;
+                case "mode": blitMode = data.ToInt(); break;
 
                 case "bc": colorLinear.Decode(data); break;
 
@@ -123,7 +117,7 @@ namespace Playtime_Painter {
                 case "maskTil": maskTiling = data.ToFloat(); break;
                 case "maskFlip": flipMaskAlpha = data.ToBool(); break;
 
-                case "hard": Hardness = data.ToFloat(); break;
+                case "hard": hardness = data.ToFloat(); break;
                 case "speed": speed = data.ToFloat(); break;
                 case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
 
@@ -152,17 +146,17 @@ namespace Playtime_Painter {
         #endregion
 
         #region Modes & Types
-        public int bliTMode;
+        public int blitMode;
         private int _type(bool cpu) => cpu ? inCpuType : inGpuType;
         public void TypeSet(bool cpu, BrushType t) { if (cpu) inCpuType = t.index; else inGpuType = t.index; }
         public int inGpuType;
         public int inCpuType;
 
-        public BrushType Type(PlaytimePainter painter) => Type(painter ? painter.ImgMeta.TargetIsTexture2D() : TargetIsTex2D);
+        public BrushType Type(PlaytimePainter painter) => Type(painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D);
 
         public BrushType Type(bool cpu) => BrushType.AllTypes[_type(cpu)];
 
-        public BlitMode BlitMode { get { return BlitMode.AllModes[bliTMode]; } set { bliTMode = value.index; } }
+        public BlitMode BlitMode { get { return BlitMode.AllModes[blitMode]; } set { blitMode = value.index; } }
 
         #endregion
 
@@ -194,14 +188,14 @@ namespace Playtime_Painter {
 
         public int selectedDecal;
         public float maskTiling = 1;
-        public float Hardness = 256;
+        public float hardness = 256;
         public float blurAmount = 1;
         public float decalAngle;
         public DecalRotationMethod decalRotationMethod;
         public bool decalContentious;
         public float decalAngleModifier;
         public bool flipMaskAlpha;
-        public bool TargetIsTex2D;
+        public bool targetIsTex2D;
         public bool showBrushDynamics;
 
         public ElementData brushDynamicsConfigs = new ElementData();
@@ -211,7 +205,7 @@ namespace Playtime_Painter {
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
         
-        public virtual bool IsA3dBrush(PlaytimePainter painter)
+        public virtual bool IsA3DBrush(PlaytimePainter painter)
         {
             var overrideOther = false;
 
@@ -232,7 +226,7 @@ namespace Playtime_Painter {
 
         public float speed = 10;
         public bool mb1ToLinkPositions;
-        public bool dontRedoMipmaps;
+        public bool dontRedoMipMaps;
 
         public LinearColor colorLinear;
 
@@ -301,7 +295,7 @@ namespace Playtime_Painter {
 
         #region Inspector
         public static BrushConfig _inspectedBrush;
-        public static bool InspectedIsCPUbrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.TargetIsTex2D;
+        public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
         #if PEGI
         public bool Mode_Type_PEGI()
         {
@@ -315,19 +309,23 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            Msg.BlitMode.Write("How final color will be calculated", 80);
+            Msg.BlitMode.Write("How final color will be calculated", 70);
 
-            pegi.select(ref bliTMode, BlitMode.AllModes).nl(ref changed);
+            pegi.select(ref blitMode, BlitMode.AllModes).changes(ref changed);
+
+            BlitMode?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
 
             pegi.space();
             pegi.newLine();
-
             
-            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : TargetIsTex2D;
+            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
             
             if (!cpu) {
                 Msg.BrushType.Write(80);
-                changed |= pegi.select(ref inGpuType, BrushType.AllTypes);
+                pegi.select(ref inGpuType, BrushType.AllTypes).changes(ref changed);
+
+                Type(p)?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
+
             }
 
             var overrideBlitModePegi = false;
@@ -356,18 +354,18 @@ namespace Playtime_Painter {
         {
             bool changed = false;
 
-            if ((TargetIsTex2D ? icon.CPU : icon.GPU).Click(
-                TargetIsTex2D ? "Render Texture Config" : "Texture2D Config", ref changed ,45))
+            if ((targetIsTex2D ? icon.CPU : icon.GPU).Click(
+                targetIsTex2D ? "Render Texture Config" : "Texture2D Config", ref changed ,45))
             {
-                TargetIsTex2D = !TargetIsTex2D;
-                SetSupportedFor(TargetIsTex2D, true);
+                targetIsTex2D = !targetIsTex2D;
+                SetSupportedFor(targetIsTex2D, true);
             }
 
-            bool smooth = Type(TargetIsTex2D) != BrushTypePixel.Inst;
+            bool smooth = Type(targetIsTex2D) != BrushTypePixel.Inst;
 
-            if ((TargetIsTex2D) && 
+            if ((targetIsTex2D) && 
                 pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
-                TypeSet(TargetIsTex2D, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                TypeSet(targetIsTex2D, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
             
 
             return changed;

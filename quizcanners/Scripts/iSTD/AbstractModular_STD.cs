@@ -130,6 +130,28 @@ namespace QuizCannersUtilities {
     }
 
 
+    #region Example
+    /* Implementation Template
+    public class MYCLASSAttribute : AbstractWithTaggedTypes {
+        public override TaggedTypesStd TaggedTypes => MYCLASSBase.all;
+    }
+
+    [MYCLASS]
+    public abstract class MYCLASSBase : AbstractKeepUnrecognizedStd, IGotClassTag {
+        public static TaggedTypesStd all = new TaggedTypesStd(typeof(MYCLASSBase));
+        public TaggedTypesStd AllTypes => all;
+        public abstract string ClassTag { get; }
+    }
+
+    [TaggedType(Tag)]
+    public class MYCLASSimplementationA : MYCLASSBase
+    {
+        private const string Tag = "SomeClassA";
+        public override string ClassTag => Tag;
+    }
+    */
+    #endregion
+
     public static class AbstractTaggedStdExtensions {
 
         public static void TryChangeObjectType(this IList list, int index, Type type, ListMetaData ld = null) {
@@ -156,8 +178,7 @@ namespace QuizCannersUtilities {
             list[index] = el;
 
         }
-
-
+        
         public static void Replace_IfDifferent<T>(this TaggedTypesStd std, ref T obj, Type newType) {
             if (obj.GetType() != newType)
                 obj = (T)Activator.CreateInstance(newType);

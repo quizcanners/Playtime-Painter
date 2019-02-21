@@ -786,7 +786,7 @@ namespace Playtime_Painter
                 changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl();
                 
                 changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref GlobalBrush.dontRedoMipmaps).nl();
+                    ref GlobalBrush.dontRedoMipMaps).nl();
             }
 
             if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
@@ -1026,7 +1026,7 @@ namespace Playtime_Painter
             if (_repaintTimer >= 0 && !mouseUp) return;
             
             if (texture2D)
-                SetAndApply(!GlobalBrush.dontRedoMipmaps);
+                SetAndApply(!GlobalBrush.dontRedoMipMaps);
 
             pixelsDirty = false;
             _repaintTimer = _repaintDelay;

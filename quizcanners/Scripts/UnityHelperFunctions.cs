@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using System;
@@ -8,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -18,17 +16,18 @@ namespace QuizCannersUtilities {
     public static class UnityHelperFunctions {
 
         #region External Communications
+
         public static void SendEmail(string to) => Application.OpenURL("mailto:{0}".F(to));
 
         public static void SendEmail(string email, string subject, string body) =>
         Application.OpenURL("mailto:{0}?subject={1}&body={2}".F(email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
         static string MyEscapeUrl(this string url) =>
-#if UNITY_2018_1_OR_NEWER
+            #if UNITY_2018_1_OR_NEWER
             UnityWebRequest
-#else
+            #else
             WWW
-#endif
+            #endif
             .EscapeURL(url).Replace("+", "%20");
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
@@ -596,8 +595,7 @@ namespace QuizCannersUtilities {
             AssetDatabase.Refresh();
         #endif
         }
-
-
+        
         public static UnityEngine.Object GetPrefab(this UnityEngine.Object obj) =>
         
             #if UNITY_EDITOR
@@ -659,11 +657,11 @@ namespace QuizCannersUtilities {
             folderName = Path.Combine("Assets",folderName); //.AddPreSlashIfNotEmpty());
             var name = obj.name;
             var fullpath =
-        #if UNITY_EDITOR
-             AssetDatabase.GenerateUniqueAssetPath(Path.Combine(folderName, name) + extension);
-        #else
-             Path.Combine(folderName,  name) + extension;
-        #endif
+            #if UNITY_EDITOR
+            AssetDatabase.GenerateUniqueAssetPath(Path.Combine(folderName, name) + extension);
+            #else
+            Path.Combine(folderName,  name) + extension;
+            #endif
             name = fullpath.Substring(folderName.Length);
             name = name.Substring(0, name.Length - extension.Length);
             obj.name = name;
@@ -775,21 +773,6 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static void CreateAsset(this UnityEngine.Object obj, string subPath, string name, string extension)
-        {
-            #if UNITY_EDITOR
-            var path = Path.Combine("Assets", subPath);
-
-            Directory.CreateDirectory(path);
-
-            path = Path.Combine(path, name + extension);
-
-            var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
-
-            AssetDatabase.CreateAsset(obj, newPath);
-            #endif
-        }
-
         public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
         {
             T added = null;
@@ -822,35 +805,6 @@ namespace QuizCannersUtilities {
         #endif
         
             return added;
-        }
-
-        public static bool TryAdd_UObj_ifNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
-        {
-            if (!ass)
-                return false;
-
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-            {
-                var go = ass as GameObject;
-                if (!go) return false;
-                
-                var cmp = go.GetComponent<T>();
-
-                if (!cmp || list.Contains(cmp)) return false;
-                
-                list.Add(cmp);
-                return true;
-            }
-
-            if (ass.GetType() != typeof(T) && !ass.GetType().IsSubclassOf(typeof(T))) return false;
-            
-            var cst = ass as T;
-            
-            if (list.Contains(cst)) return false;
-            
-            list.Add(cst);
-              
-            return true;
         }
 
         public static T CreateAsset_SO<T>(this List<T> objs, string path, string name) where T : ScriptableObject => CreateAsset_SO<T, T>(path, name, objs);
@@ -951,7 +905,22 @@ namespace QuizCannersUtilities {
             }
         #endif
         }
-#endregion
+
+        public static void SaveAsset(this UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
+        {
+            #if UNITY_EDITOR
+            var fullPath = Path.Combine(Application.dataPath, folder);
+            Directory.CreateDirectory(fullPath);
+
+            AssetDatabase.CreateAsset(obj, obj.SetUniqueObjectName(folder, extension));
+
+            if (refreshAfter)
+                AssetDatabase.Refresh();
+
+            #endif
+        }
+
+        #endregion
 
         #region Input MGMT
         /// <summary>

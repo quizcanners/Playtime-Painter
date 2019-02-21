@@ -29,7 +29,7 @@ namespace Playtime_Painter.Examples
                 return;
             } 
 
-            if (painter.skinnedMeshRenderer && !brush.IsA3dBrush(painter)) {   
+            if (painter.skinnedMeshRenderer && !brush.IsA3DBrush(painter)) {   
 
                 painter.UpdateColliderForSkinnedMesh();
 
@@ -92,32 +92,28 @@ namespace Playtime_Painter.Examples
 
 #if PEGI
 
-
-        private bool _showInfo;
+        
         public bool Inspect()
         {
             var changed = false;
 
-            if (icon.Question.foldout("Documentation", ref _showInfo).changes(ref changed))
-            {
-                ("Will cast a ray in transform.forward direction when Left Mouse Button is pressed. " +
-                 "Target objects need to have PlaytimePainter component attached. Then this brush will be applied " +
-                 "on texture (if not locked) selected on target PlaytimePainter component" +
-                 "This Component has it's own brush configuration. Can be replaced with PainterCamera.Data.brushConfig " +
-                 "to use global brush.").writeHint();
-            }
-            else
-            {
+      
+            ("Will cast a ray in transform.forward direction when Left Mouse Button is pressed. " +
+             "Target objects need to have PlaytimePainter component attached. Then this brush will be applied " +
+             "on texture (if not locked) selected on target PlaytimePainter component" +
+             "This Component has it's own brush configuration. Can be replaced with PainterCamera.Data.brushConfig " +
+             "to use global brush.").fullWindowDocumentationClick("What is this for?", 15);
+        
 
-                if ("Paint!".Click().nl())
-                    Paint();
+            if ("Paint!".Click().nl())
+                Paint();
 
-                "Last ray Cast result: {0}".F(lastShotResult).nl();
+            "Last ray Cast result: {0}".F(lastShotResult).nl();
 
-                brush.Targets_PEGI().nl(ref changed);
-                brush.Mode_Type_PEGI().nl(ref changed);
-                brush.ColorSliders().nl(ref changed);
-            }
+            brush.Targets_PEGI().nl(ref changed);
+            brush.Mode_Type_PEGI().nl(ref changed);
+            brush.ColorSliders().nl(ref changed);
+            
 
             return changed;
         }

@@ -1,4 +1,6 @@
-﻿using PlayerAndEditorGUI;
+﻿using System;
+using System.Collections;
+using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
 
@@ -7,36 +9,32 @@ using UnityEditor;
 #endif
 
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
-namespace Playtime_Painter.Examples {
+namespace Playtime_Painter.Examples
+{
 
     [ExecuteInEditMode]
-    public class RoundedGraphic : Image, IPEGI {
+    public class RoundedGraphic : Image, IKeepMyStd, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
 
-        private static List<Shader> _compatibleShaders;
+        #region Shader MGMT
 
-        public static List<Shader> CompatibleShaders { get {
-                if (_compatibleShaders == null) {
-                    _compatibleShaders = new List<Shader>()
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine"));
-                }
-                return _compatibleShaders;
-            } 
-        }
-
+        public bool feedPositionData = true;
+        
         [SerializeField] private float[] _roundedCorners = new float[1];
         
         private float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
         private void SetCorner(int index, float value) => _roundedCorners[index % _roundedCorners.Length] = value;
+
+        private void SetCorners(float value)
+        {
+            for (int i=0; i< _roundedCorners.Length; i++)
+                _roundedCorners[i] = value;
+        }
 
         public bool LinkedCorners
         {
@@ -59,157 +57,6 @@ namespace Playtime_Painter.Examples {
                     _roundedCorners[i] = tmp;
             }
         }
-        
-        public bool feedPositionData = true;
-
-        private bool IsOverlay
-        {
-            get
-            {
-                var c = canvas;
-                return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
-            }
-        } 
-
-        public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
-        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole"; // "Hide", "Tile"
-        public const string UNLINKED_VERTICES = "_UNLINKED";
-        public const string EDGE_SOFTNESS_FLOAT = "_Edges";
-
-        #if PEGI
-        public bool Inspect()
-        {
-            pegi.toggleDefaultInspector();
-
-            var mat = material;
-
-            var can = canvas;
-            
-            var shad = mat.shader;
-            
-            var changed = false;
-
-            var usesPosition = false;
-
-            if (mat)
-            {
-                var pixPfTag = mat.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
-
-                if (pixPfTag.IsNullOrEmpty())
-                    "{0} doesn't have {1} tag".F(shad.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
-                else
-                {
-
-                    usesPosition = pixPfTag.SameAs("Position");
-
-                    if (!can)
-                        "No Canvas".writeWarning();
-                    else {
-                        if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
-                        {
-                            "Material requires Canvas to pass Edges data trough TexCoord1 data channel".writeWarning();
-                            if ("Fix Canvas TexCoord1".Click().nl())
-                                can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
-                        }
-
-                        if (feedPositionData && ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
-                        {
-                            "Material requires Canvas to pass Position Data trough Normal channel".writeWarning();
-                            if ("Fix Canvas ".Click().nl())
-                                can.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
-                        }
-                    }
-                }
-            }
-
-            var linked = LinkedCorners;
-
-            "Material Is Unlinked: {0}".F(mat.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
-
-            if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
-                mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
-                
-            if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
-                LinkedCorners = linked;
-
-            for (var i = 0; i < _roundedCorners.Length; i++) {
-                var crn = _roundedCorners[i];
-
-                if ("Corner{0}".F(linked ? "s" : (" " + i.ToString())).edit(90, ref crn, 0, 1f).nl(ref changed)) 
-                    _roundedCorners[i] = crn;
-            }
-
-            pegi.nl();
-            
-    
-
-            if (mat) {
-                
-                if (!Application.isPlaying)
-                {
-                    var path = mat.GetAssetFolder();
-                    if (path.IsNullOrEmpty())
-                        "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
-                }
-
-                var n = mat.name;
-                if ("Material".editDelayed(40, ref n))
-                    mat.RenameAsset(n);
-            }
-
-            if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat).nl(ref changed))
-                material = mat;
-            
-            if (mat) {
-                
-
-                if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
-                    mat.shader = shad;
-
-                if (icon.Refresh.Click("Refresh compatible shaders list"))
-                    _compatibleShaders = null;
-            }
-
-            pegi.nl();
-
-            if (usesPosition || feedPositionData)
-                "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
-
-            if (!usesPosition && feedPositionData)
-            {
-                "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".write();
-                icon.Warning.write("Unnessessary data");
-            }
-            pegi.nl();
-
-            var rt = raycastTarget;
-            if ("Clickable".toggleIcon("Is RayCast Target",ref rt).nl(ref changed))
-                raycastTarget = rt;
-            
-            var spriteTag = mat ? mat.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
-
-            var noTag = spriteTag.IsNullOrEmpty();
-
-            if (noTag || !spriteTag.SameAs("Hide")) {
-
-                if (noTag)
-                    spriteTag = "Sprite";
-
-                var sp = sprite;
-                if (spriteTag.edit(90, ref sp).nl(ref changed))
-                    sprite = sp;
-            }
-
-            var col = color;
-            if (pegi.edit(ref col).nl(ref changed))
-                color = col;
-
-            if (changed)
-                SetVerticesDirty();
-
-            return changed;
-        }
-        #endif
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -229,7 +76,7 @@ namespace Playtime_Painter.Examples {
             if (feedPositionData)
             {
                 var myCanvas = canvas;
-                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null) , rt.position);
+                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null), rt.position);
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
             }
 
@@ -246,7 +93,7 @@ namespace Playtime_Painter.Examples {
             vh.AddVert(vertex);
 
             vertex.uv0 = new Vector2(0, 1);
-            vertex.uv1.y =  GetCorner(1);
+            vertex.uv1.y = GetCorner(1);
             vertex.position = new Vector2(corner1.x, corner2.y);
             vh.AddVert(vertex);
 
@@ -260,23 +107,26 @@ namespace Playtime_Painter.Examples {
             vertex.position = new Vector2(corner2.x, corner1.y);
             vh.AddVert(vertex);
 
-            if (LinkedCorners) {
+            if (LinkedCorners)
+            {
                 //1  2
                 //0  3
                 vh.AddTriangle(0, 1, 2);
                 vh.AddTriangle(2, 3, 0);
-            } else {
+            }
+            else
+            {
                 //1    6,9    2
                 //7  13  14   8
                 //4  12  15   11
                 //0    5,10   3
-                
+
                 var cornMid = (corner1 + corner2) * 0.5f;
-                
+
                 vertex.uv1.y = GetCorner(0);
                 vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //4
                 vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //5
-               
+
                 vertex.uv1.y = GetCorner(1);
                 vh.AddVert(vertex.Set(0.5f, 1, cornMid, corner2)); //6
                 vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //7
@@ -288,7 +138,7 @@ namespace Playtime_Painter.Examples {
                 vertex.uv1.y = GetCorner(3);
                 vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //10
                 vh.AddVert(vertex.Set(1, 0.5f, corner2, cornMid)); //11
-                
+
                 vertex.uv1.y = GetCorner(0);
                 vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //12
 
@@ -300,7 +150,7 @@ namespace Playtime_Painter.Examples {
 
                 vertex.uv1.y = GetCorner(3);
                 vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //15
-                
+
                 vh.AddTriangle(0, 4, 5);
                 vh.AddTriangle(1, 6, 7);
                 vh.AddTriangle(2, 8, 9);
@@ -313,22 +163,421 @@ namespace Playtime_Painter.Examples {
 
             }
         }
-
-        Vector3 _previousPos = Vector3.zero;
-
-        private void Update()
+        
+        private bool IsOverlay
         {
-            if (!feedPositionData || rectTransform.position == _previousPos) return;
-            
-            _previousPos = rectTransform.position;
-            
-            SetAllDirty();
+            get
+            {
+                var c = canvas;
+                return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
+            }
         }
+
+        public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
+        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole"; // "Hide", "Tile"
+        public const string UNLINKED_VERTICES = "_UNLINKED";
+        public const string EDGE_SOFTNESS_FLOAT = "_Edges";
+        
+        #endregion
+
+        #region Inspector
+        #if PEGI
+
+        private static List<Shader> _compatibleShaders;
+
+        public static List<Shader> CompatibleShaders
+        {
+            get
+            {
+                if (_compatibleShaders == null)
+                {
+                    _compatibleShaders = new List<Shader>()
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine"));
+                }
+                return _compatibleShaders;
+            }
+        }
+
+        [SerializeField] private bool _showModules;
+        [SerializeField] private int _inspectedModule;
+        public bool Inspect()
+        {
+            
+
+            pegi.toggleDefaultInspector();
+
+            var mat = material;
+
+            var can = canvas;
+            
+            var shad = mat.shader;
+            
+            var changed = false;
+
+            var usesPosition = false;
+
+            if (!_showModules)
+            {
+
+                if (mat)
+                {
+                    var pixPfTag = mat.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
+
+                    if (pixPfTag.IsNullOrEmpty())
+                        "{0} doesn't have {1} tag".F(shad.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
+                    else
+                    {
+
+                        usesPosition = pixPfTag.SameAs("Position");
+
+                        if (!can)
+                            "No Canvas".writeWarning();
+                        else
+                        {
+                            if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
+                            {
+
+                                "Material requires Canvas to pass Edges data trough TexCoord1 data channel"
+                                    .writeWarning();
+                                if ("Fix Canvas TexCoord1".Click().nl())
+                                    can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+                            }
+
+                            if (feedPositionData &&
+                                ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
+                            {
+                                "Material requires Canvas to pass Position Data trough Normal channel".writeWarning();
+                                if ("Fix Canvas ".Click().nl())
+                                    can.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+                            }
+                        }
+                    }
+                }
+
+                var linked = LinkedCorners;
+
+                "Material Is Unlinked: {0}".F(mat.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
+
+                if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
+                    mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
+
+                if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
+                    LinkedCorners = linked;
+
+                for (var i = 0; i < _roundedCorners.Length; i++)
+                {
+                    var crn = _roundedCorners[i];
+
+                    if ("Corner{0}".F(linked ? "s" : (" " + i.ToString())).edit(90, ref crn, 0, 1f).nl(ref changed))
+                        _roundedCorners[i] = crn;
+                }
+
+                pegi.nl();
+                
+                if (mat)
+                {
+
+                    if (!Application.isPlaying)
+                    {
+                        var path = mat.GetAssetFolder();
+                        if (path.IsNullOrEmpty())
+                            "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
+                    }
+
+                    var n = mat.name;
+                    if ("Material".editDelayed(40, ref n))
+                        mat.RenameAsset(n);
+                }
+
+                if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed))
+                    material = mat;
+
+                if (mat)
+                {
+
+                    if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
+                        mat.shader = shad;
+
+                    if (icon.Refresh.Click("Refresh compatible shaders list"))
+                        _compatibleShaders = null;
+                }
+
+                pegi.nl();
+
+                if (usesPosition || feedPositionData)
+                    "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
+
+                if (!usesPosition && feedPositionData)
+                {
+                    "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".write();
+                    icon.Warning.write("Unnessessary data");
+                }
+
+                pegi.nl();
+
+                var rt = raycastTarget;
+                if ("Clickable".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
+                    raycastTarget = rt;
+
+                if (rt)
+                    "On Click".edit_Property(() => OnClick, this).nl(ref changed);
+
+                var spriteTag = mat ? mat.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
+
+                var noTag = spriteTag.IsNullOrEmpty();
+
+                if (noTag || !spriteTag.SameAs("Hide"))
+                {
+
+                    if (noTag)
+                        spriteTag = "Sprite";
+
+                    var sp = sprite;
+                    if (spriteTag.edit(90, ref sp).nl(ref changed))
+                        sprite = sp;
+                }
+
+                var col = color;
+                if (pegi.edit(ref col).nl(ref changed))
+                    color = col;
+            }
+            
+            if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
+                this.SaveStdData();
+            
+            if (changed)
+                SetVerticesDirty();
+            
+            return changed;
+        }
+        #endif
+        #endregion
+
+        #region Modules
+        
+        private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
+        
+        [SerializeField] private string _modulesStd = "";
+
+        public string ConfigStd
+        {
+            get { return _modulesStd;  }
+            set { _modulesStd = value; }
+        }
+
+        protected override void OnEnable() {
+            base.OnEnable();
+            this.LoadStdData();
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            if (!Application.isPlaying)
+                this.SaveStdData();
+        }
+        
+        public StdEncoder Encode() => new StdEncoder()
+            .Add_Abstract("mdls", _modules);
+
+        public void Decode(string data) => data.DecodeTagsFor(this);
+
+        public bool Decode(string tg, string data) {
+
+            switch (tg) {
+                case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        #region Mouse Press
+
+        public UnityEvent OnClick;
+
+        public float maxHoldForClick = 0.3f;
+        public float maxMousePositionPixOffsetForClick = 20f;
+
+
+        [NonSerialized] private bool _mouseDown;
+        [NonSerialized] private float _mouseDownTime;
+        [NonSerialized] private Vector2 _mouseDownPosition;
+        [NonSerialized] private bool _mouseOver;
+
+        public void OnPointerEnter(PointerEventData eventData) => _mouseOver = true;
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _mouseDown = false;
+            _mouseOver = false;
+        } 
+
+        public void OnPointerDown(PointerEventData eventData) {
+            _mouseDownPosition = Input.mousePosition;
+            _mouseDown = true;
+            _mouseDownTime = Time.time;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+
+            if (_mouseDown && Time.time - _mouseDownTime < maxHoldForClick) {
+
+                var diff = _mouseDownPosition - Input.mousePosition.ToVector2();
+
+                if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
+                    OnClick.Invoke();
+            }
+
+            _mouseDown = false;
+        }
+
+        #endregion
+        
+        private Vector3 _previousPos = Vector3.zero;
+        
+        private void Update() {
+
+            var needsUpdate = false;
+
+            foreach (var m in _modules)
+                needsUpdate |= m.Update(this);
+
+            if (feedPositionData && rectTransform.position != _previousPos)  {
+                needsUpdate = true;
+                _previousPos = rectTransform.position;
+            }
+
+            if (needsUpdate)
+                SetAllDirty();
+        }
+        
+        #region Rounded Button Modules
+
+        [TaggedType(Tag)]
+        public class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
+
+            private const string Tag = "corners";
+
+            public override string ClassTag => Tag;
+
+            public float valueWhenOver = 0.5f;
+
+            public float valueWhenOff = 0.5f;
+
+            private readonly LinkedLerp.FloatValue _roundedCorners = new LinkedLerp.FloatValue();
+
+            public override bool Update(RoundedGraphic target){
+
+                _roundedCorners.targetValue = target._mouseOver ? valueWhenOver : valueWhenOff;
+
+                var ld = new LerpData();
+
+                _roundedCorners.Portion(ld);
+                _roundedCorners.Lerp(ld);
+
+                if (_roundedCorners.Value != target.GetCorner(0)) {
+                    target.SetCorners(_roundedCorners.Value);
+                    return true;
+                }
+
+                return false;
+            }
+
+            #region Inspect
+
+            public bool PEGI_inList(IList list, int ind, ref int edited) {
+                
+                "Normal".edit(50, ref valueWhenOff, 0, 1);
+
+                "On Hover".edit(50, ref valueWhenOver, 0, 1).nl();
+                
+                if (icon.Enter.Click())
+                    edited = ind;
+
+                return false;
+            }
+
+            public override bool Inspect()
+            {
+                var changed = base.Inspect();
+
+                _roundedCorners.Nested_Inspect().nl(ref changed);
+
+                return changed;
+            }
+
+            #endregion
+
+            #region Encode & Decode
+
+            public override bool Decode(string tg, string data)
+            {
+
+                switch (tg)
+                {
+                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "crn": _roundedCorners.Decode(data); break;
+                    case "hov": valueWhenOver = data.ToFloat();  break;
+                    case "nrm": valueWhenOff = data.ToFloat(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            public override StdEncoder Encode() => this.EncodeUnrecognized()
+                    .Add("b", base.Encode())
+                    .Add("crn", _roundedCorners)
+                    .Add("hov", valueWhenOver)
+                    .Add("nrm", valueWhenOff);
+            #endregion
+
+           
+        }
+        
+        public class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
+        {
+            public override TaggedTypesStd TaggedTypes => RoundedButtonModuleBase.all;
+        }
+
+        [RoundedButtonModule]
+        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedStd, IGotClassTag
+        {
+            public static TaggedTypesStd all = new TaggedTypesStd(typeof(RoundedButtonModuleBase));
+            public TaggedTypesStd AllTypes => all;
+            public abstract string ClassTag { get; }
+
+            public virtual bool Update(RoundedGraphic target) => false;
+
+            #region Inspect
+
+            public override bool Inspect()
+            {
+                return false;
+            }
+
+            #endregion
+
+            #region Encode & Decode
+            public override StdEncoder Encode() => this.EncodeUnrecognized();
+
+            public override bool Decode(string tg, string data) => false;
+            #endregion
+        }
+        
+        #endregion
     }
     
-    public static class RoundedUiExtensions
-    {
-
+    public static class RoundedUiExtensions  {
         #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement() {
@@ -355,8 +604,6 @@ namespace Playtime_Painter.Examples {
             vertex.position = new Vector2(posX.x, posY.y);
             return vertex;
         }
-
-
     }
 
     #if UNITY_EDITOR

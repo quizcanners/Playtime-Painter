@@ -255,7 +255,36 @@ namespace QuizCannersUtilities
         #endregion
 
         #region List Management
+        
+        public static bool TryAddUObjIfNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
+        {
+            if (!ass)
+                return false;
 
+            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+            {
+                var go = ass as GameObject;
+                if (!go) return false;
+
+                var cmp = go.GetComponent<T>();
+
+                if (!cmp || list.Contains(cmp)) return false;
+
+                list.Add(cmp);
+                return true;
+            }
+
+            if (ass.GetType() != typeof(T) && !ass.GetType().IsSubclassOf(typeof(T))) return false;
+
+            var cst = ass as T;
+
+            if (list.Contains(cst)) return false;
+
+            list.Add(cst);
+
+            return true;
+        }
+        
         public static T TryTake<T>(this List<T> list, int index) {
 
             if (list.IsNullOrEmpty() || list.Count<= index)
