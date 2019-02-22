@@ -1,7 +1,6 @@
 ﻿Shader "Playtime Painter/UI/Rounded/Shadow" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
-		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
 		_Edges("Softness", Range(1,32)) = 2
 	}
 	Category{
@@ -27,6 +26,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
@@ -63,7 +63,7 @@
 					return o;
 				}
 
-				sampler2D _NoiseMask;
+				sampler2D _Global_Noise_Lookup;
 				float _Edges;
 
 				float4 frag(v2f o) : COLOR{
@@ -72,9 +72,17 @@
 					float _Courners =		o.texcoord.w;
 					float deCourners =		o.precompute.w;
 
-					float4 noise = tex2Dlod(_NoiseMask, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w)*32, 0, 0));
 
-					float2 uv = abs(o.offUV.xy + (noise.xy - 0.5)*0.015) * 2;
+					#if USE_NOISE_TEXTURE
+
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+
+					o.offUV.xy += (noise.xy - 0.5)*0.005;
+
+					#endif
+
+					
+					float2 uv = abs(o.offUV.xy) * 2;
 					
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy - _Courners;
 
@@ -85,6 +93,8 @@
 					float4 col = o.color;
 
 					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * o.offUV.z;
+
+
 
 					return col;
 				}

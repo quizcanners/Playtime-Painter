@@ -102,7 +102,7 @@ namespace PlayerAndEditorGUI {
         public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (this.Click_Enter_Attention(icon.Hint, curlang.ToPEGIstring()))
+            if (this.Click_Enter_Attention(icon.Hint, curlang.ToPegiString()))
                 edited = ind;
             return changed;
         }
@@ -122,7 +122,7 @@ namespace PlayerAndEditorGUI {
                 "Translations".edit_Dictionary_Values(ref txts, LanguageCodes);
 
                 LanguageSelector_PEGI();
-                if (!Contains() && icon.Add.Click("Add {0}".F(curlang.ToPEGIstring())))
+                if (!Contains() && icon.Add.Click("Add {0}".F(curlang.ToPegiString())))
                     NameForPEGI = this[curlang];
 
                 pegi.nl();
@@ -149,7 +149,7 @@ namespace PlayerAndEditorGUI {
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
-            if (this.Click_Enter_Attention(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPEGIstring()))
+            if (this.Click_Enter_Attention(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPegiString()))
                 edited = ind;
             return changed;
         }

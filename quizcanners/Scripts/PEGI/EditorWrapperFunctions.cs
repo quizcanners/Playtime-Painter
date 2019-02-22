@@ -267,7 +267,7 @@ namespace PlayerAndEditorGUI {
                 
                 if (no == j)
                     current = listIndexes.Count;
-                listNames.Add("{0}: {1}".F(j,lst[j].ToPEGIstring()));
+                listNames.Add("{0}: {1}".F(j,lst[j].ToPegiString()));
                 listIndexes.Add(j);
 
             }
@@ -296,7 +296,7 @@ namespace PlayerAndEditorGUI {
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add("{0}: {1}".F(i, objs[i].ToPEGIstring()));
+                filtered.Add("{0}: {1}".F(i, objs[i].ToPegiString()));
             }
 
             if (select(ref current, filtered.ToArray()))
@@ -318,7 +318,7 @@ namespace PlayerAndEditorGUI {
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add(objs[i].ToPEGIstring());
+                filtered.Add(objs[i].ToPegiString());
             }
 
             if (select(ref current, filtered.ToArray()))
@@ -440,7 +440,7 @@ namespace PlayerAndEditorGUI {
             for (var i = 0; i < others.Count; i++)
             {
                 var el = others[i];
-                names[i] = el.ToPEGIstring_Type();
+                names[i] = el.ToPegiStringType();
                 if (el != null && el == current)
                     ind = i;
             }
@@ -1110,7 +1110,7 @@ namespace PlayerAndEditorGUI {
             return EditorGUI.EndChangeCheck();
         }
         
-        private static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(_currentReorderedList.Count.ToString(), _currentReorderedType.ToPEGIstring_Type()));
+        private static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(_currentReorderedList.Count.ToString(), _currentReorderedType.ToPegiStringType()));
 
         private static void DrawElement(Rect rect, int index, bool active, bool focused) {
             
@@ -1133,7 +1133,7 @@ namespace PlayerAndEditorGUI {
 
                     var cont = new GUIContent {
                         tooltip = ty.ToString(),
-                        text = el.ToPEGIstring()
+                        text = el.ToPegiString()
                     };
 
                     var uo = el as UnityEngine.Object;
@@ -1153,7 +1153,7 @@ namespace PlayerAndEditorGUI {
                 else
                 {
                     rect.width = 200;
-                    EditorGUI.LabelField(rect, el.ToPEGIstring());
+                    EditorGUI.LabelField(rect, el.ToPegiString());
                 }
             }
             else
@@ -1189,7 +1189,7 @@ namespace PlayerAndEditorGUI {
                     }
                     
                 } else 
-                EditorGUI.LabelField(rect, "Empty {0}".F(_currentReorderedType.ToPEGIstring_Type()));
+                EditorGUI.LabelField(rect, "Empty {0}".F(_currentReorderedType.ToPegiStringType()));
             }
         }
         

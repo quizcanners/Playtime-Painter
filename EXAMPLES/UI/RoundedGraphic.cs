@@ -493,7 +493,7 @@ namespace Playtime_Painter.Examples
             }
 
             #region Inspect
-
+#if PEGI
             public bool PEGI_inList(IList list, int ind, ref int edited) {
                 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
@@ -514,10 +514,10 @@ namespace Playtime_Painter.Examples
 
                 return changed;
             }
+#endif
+#endregion
 
-            #endregion
-
-            #region Encode & Decode
+#region Encode & Decode
 
             public override bool Decode(string tg, string data)
             {
@@ -539,7 +539,7 @@ namespace Playtime_Painter.Examples
                     .Add("crn", _roundedCorners)
                     .Add("hov", valueWhenOver)
                     .Add("nrm", valueWhenOff);
-            #endregion
+#endregion
 
            
         }
@@ -558,27 +558,27 @@ namespace Playtime_Painter.Examples
 
             public virtual bool Update(RoundedGraphic target) => false;
 
-            #region Inspect
-
+#region Inspect
+#if PEGI
             public override bool Inspect()
             {
                 return false;
             }
+#endif
+#endregion
 
-            #endregion
-
-            #region Encode & Decode
+#region Encode & Decode
             public override StdEncoder Encode() => this.EncodeUnrecognized();
 
             public override bool Decode(string tg, string data) => false;
-            #endregion
+#endregion
         }
         
-        #endregion
+#endregion
     }
     
     public static class RoundedUiExtensions  {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement() {
 
@@ -597,7 +597,7 @@ namespace Playtime_Painter.Examples
 
             rg.material = Object.Instantiate(rg.material);
         }
-        #endif
+#endif
 
         public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY) {
             vertex.uv0 = new Vector2(uvX, uvY);
@@ -606,9 +606,9 @@ namespace Playtime_Painter.Examples
         }
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector<RoundedGraphic> { }
-    #endif
+#endif
 
 }

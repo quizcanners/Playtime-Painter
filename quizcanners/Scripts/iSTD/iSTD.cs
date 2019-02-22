@@ -394,7 +394,7 @@ namespace QuizCannersUtilities {
 
             pegi.toggleDefaultInspector().nl();
             
-            "{0} Debug ".F(this.ToPEGIstring()).nl();
+            "{0} Debug ".F(this.ToPegiString()).nl();
 
             if (("STD Saves: " + explorer.states.Count).enter(ref _inspectedDebugStuff, 0).nl_ifNotEntered())
                 explorer.Inspect(this);
@@ -508,7 +508,7 @@ namespace QuizCannersUtilities {
             
             var changed = false;
             
-            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(std.ToPEGIstring())).changes(ref changed))
+            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(std.ToPegiString())).changes(ref changed))
                 _toCopy = std;
 
             if (_toCopy == null) return changed;

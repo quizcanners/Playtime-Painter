@@ -99,7 +99,7 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, type.ToPEGIstring_Type());
+                return string.Format(format, type.ToPegiStringType());
             }
             catch
             {
@@ -121,11 +121,11 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPEGIstring());
+                return string.Format(format, obj1.ToPegiString());
             }
             catch 
             {
-                return BadFormat + format + " " + obj1.ToPEGIstring();
+                return BadFormat + format + " " + obj1.ToPegiString();
             }
         }
         public static string F(this string format, string obj1, string obj2)
@@ -143,7 +143,7 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring());
+                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString());
             }
             catch 
             {
@@ -165,7 +165,7 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPEGIstring(), obj2.ToPEGIstring(), obj3.ToPEGIstring());
+                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString(), obj3.ToPegiString());
             }
             catch 
             {
@@ -501,7 +501,7 @@ namespace QuizCannersUtilities
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) => list.AddWithUniqueNameAndIndex("New "
 #if PEGI
-            + typeof(T).ToPEGIstring_Type()
+            + typeof(T).ToPegiStringType()
 #endif
             );
 

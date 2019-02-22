@@ -57,7 +57,7 @@ namespace Playtime_Painter
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            this.ToPEGIstring().write_obj(90, material);
+            this.ToPegiString().write_obj(90, material);
             if (icon.Enter.Click())
                 edited = ind;
             material.ClickHighlight();

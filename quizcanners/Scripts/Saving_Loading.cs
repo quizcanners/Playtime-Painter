@@ -4,8 +4,12 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
+
+using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;
+#else 
+using System.Diagnostics;
 #endif
 
 namespace QuizCannersUtilities

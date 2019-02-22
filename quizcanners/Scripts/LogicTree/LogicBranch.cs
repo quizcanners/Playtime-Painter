@@ -38,9 +38,9 @@ namespace STD_Logic
             .Add("cond", conditions)
             .Add_IfNotEmpty("sub", subBranches)
             .Add_IfNotEmpty("el", elements)
-            .Add_IfNotNegative("ie", inspectedElement)
+            .Add_IfNotNegative("ie", _inspectedElement)
             .Add_IfNotNegative("is", inspectedStuff)
-            .Add_IfNotNegative("br", inspectedBranch);
+            .Add_IfNotNegative("br", _inspectedBranch);
         
         public override bool Decode(string tg, string data)
         {
@@ -50,9 +50,9 @@ namespace STD_Logic
                 case "cond": conditions.Decode(data); break;
                 case "sub": data.Decode_List(out subBranches); break;
                 case "el": data.Decode_List(out elements); break;
-                case "ie": inspectedElement = data.ToInt(); break;
+                case "ie": _inspectedElement = data.ToInt(); break;
                 case "is": inspectedStuff = data.ToInt(); break;
-                case "br": inspectedBranch = data.ToInt(); break;
+                case "br": _inspectedBranch = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -61,7 +61,7 @@ namespace STD_Logic
 
         #region Inspector
 
-        public virtual string NameForElements => typeof(T).ToPEGIstring_Type();
+        public virtual string NameForElements => typeof(T).ToPegiStringType();
 
         public string NameForPEGI
         {
@@ -70,13 +70,13 @@ namespace STD_Logic
         }
 
         public override void ResetInspector() {
-            inspectedElement = -1;
-            inspectedBranch = -1;
+            _inspectedElement = -1;
+            _inspectedBranch = -1;
             base.ResetInspector();
         }
 
-        int inspectedElement = -1;
-        int inspectedBranch = -1;
+        private int _inspectedElement = -1;
+        private int _inspectedBranch = -1;
 
 #if PEGI
 
@@ -108,7 +108,7 @@ namespace STD_Logic
         static LogicBranch<T> parent;
 
         public override bool Inspect() {
-            bool changed = false;
+            var changed = false;
          
             pegi.nl();
 
@@ -117,9 +117,9 @@ namespace STD_Logic
             
             parent = this;
 
-            changed |= NameForElements.enter_List(ref elements, ref inspectedElement, ref inspectedStuff, 2).nl();
+            NameForElements.enter_List(ref elements, ref _inspectedElement, ref inspectedStuff, 2).nl(ref changed);
             
-            changed |= "Sub Branches".enter_List(ref subBranches, ref inspectedBranch, ref inspectedStuff, 3).nl();
+            "Sub Branches".enter_List(ref subBranches, ref _inspectedBranch, ref inspectedStuff, 3).nl(ref changed);
 
             parent = null;
             return changed;

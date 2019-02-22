@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 namespace STD_Logic {
 
     public class ConditionBranch : AbstractKeepUnrecognizedStd, IPEGI, 
-        IAmConditional, ICanBeDefaultStd, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName {
+        IAmConditional, ICanBeDefaultStd, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName, INeedAttention {
         private enum ConditionBranchType { Or, And }
 
         private List<ConditionLogic> _conditions = new List<ConditionLogic>();
@@ -27,13 +27,23 @@ namespace STD_Logic {
 
             return count; 
         }
-        
+
         #region Inspector
+
 
         private int _browsedBranch = -1;
         private int _browsedCondition = -1;
 
         #if PEGI
+        
+        public string NeedAttention() {
+
+            if (_branches.NeedsAttention() || _conditions.NeedsAttention())
+                return pegi.LastNeedAttentionMessage;
+
+            return null;
+        }
+        
         public string NameForPEGI { get { return _name; } set { _name = value; } }
 
         private readonly LoopLock _searchLoopLock = new LoopLock();
@@ -93,7 +103,7 @@ namespace STD_Logic {
           
             var changed = false;
             
-            if ((IsTrue ? icon.Active : icon.InActive).Click() && !TryForceTo(Values.global, !IsTrue))
+            if ((IsTrue ? icon.Active : icon.InActive).Click(ref changed) && !TryForceTo(Values.global, !IsTrue))
                 Debug.Log("No Conditions to force to {0}".F(!IsTrue));
 
             var cnt = CountForInspector;
@@ -103,8 +113,10 @@ namespace STD_Logic {
                 case 0:
                     "{0}: Unconditional".F(_name).write();
                     break;
-                case 1 when _conditions.Count == 1:
-                    "{0}: {1}".F(_name, _conditions[0].ToPEGIstring()).write();
+                case 1:
+                    if (_conditions.Count == 1)
+                        "{0}: {1}".F(_name, _conditions[0].ToPegiString()).write();
+                    else goto default;
                     break;
                 default:
                     if (_branches.Count>0)
@@ -116,9 +128,9 @@ namespace STD_Logic {
 
             
             
-            if (icon.Enter.Click(ref changed))
+            if (this.Click_Enter_Attention(icon.Condition, "Explore Condition branch", false))
                 edited = ind;
-
+            
             return changed;
         }
         #endif
@@ -151,16 +163,14 @@ namespace STD_Logic {
 
         public bool IsTrue => CheckConditions(Values.global);
         
-        public bool CheckConditions(Values values)
-        {
+        public bool CheckConditions(Values values) {
 
-            switch (_type)
-            {
+            switch (_type) {
                 case ConditionBranchType.And:
                     foreach (var c in _conditions)
-                        if (c.TestFor(values) ) return false;
+                        if (!c.TestFor(values)) return false;
                     foreach (var b in _branches)
-                        if (!b.CheckConditions(values) ) return false;
+                        if (!b.CheckConditions(values)) return false;
                     return true;
                 case ConditionBranchType.Or:
                     foreach (var c in _conditions)
@@ -168,7 +178,7 @@ namespace STD_Logic {
                             return true;
                     foreach (var b in _branches)
                         if (b.CheckConditions(values)) return true;
-                    return ((_conditions.Count == 0) && (_branches.Count == 0));
+                    return (_conditions.Count == 0 && _branches.Count == 0);
             }
             return true;
         }
@@ -206,6 +216,7 @@ namespace STD_Logic {
         {
             _name = usage;
         }
+
     }
 }
 

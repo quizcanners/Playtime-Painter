@@ -285,7 +285,7 @@ namespace QuizCannersUtilities
                 List<int> indexes;
                 var allElements = GetAllObjs(out indexes);
 
-                if (_allowAdd && icon.Add.Click("Add "+typeof(T).ToPEGIstring_Type(), ref changed)) {
+                if (_allowAdd && icon.Add.Click("Add "+typeof(T).ToPegiStringType(), ref changed)) {
                     while (!GetIfExists(lastFreeIndex).IsDefaultOrNull())
                         lastFreeIndex++;
 

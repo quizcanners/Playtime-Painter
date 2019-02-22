@@ -16,7 +16,7 @@ namespace QuizCannersUtilities {
     public static class UnityHelperFunctions {
 
         #region External Communications
-
+        
         public static void SendEmail(string to) => Application.OpenURL("mailto:{0}".F(to));
 
         public static void SendEmail(string email, string subject, string body) =>

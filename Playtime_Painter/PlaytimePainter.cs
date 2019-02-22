@@ -1560,14 +1560,17 @@ namespace Playtime_Painter {
             PainterStuff.applicationIsQuitting = false;
         }
 
+#if PEGI
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord() => Application.OpenURL("https://discord.gg/rF7yXq3");
+        public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
+        
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
+        public static void Open_Email() => UnityHelperFunctions.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
+            "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
+#endif
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
         public static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => UnityHelperFunctions.SendEmail("quizcanners@gmail.com", "About your Playtime Painter",
-            "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 
 #endif
 
@@ -1724,8 +1727,7 @@ namespace Playtime_Painter {
         public void OnGUI()
         {
 
-            foreach (var p in PainterManagerPluginBase.GUIplugins)
-                p.OnGUI();
+         
 
 #if BUILD_WITH_PAINTER
             if (!Cfg || !Cfg.enablePainterUIonPlay) return;
@@ -1734,7 +1736,13 @@ namespace Playtime_Painter {
                 selectedInPlaytime = this;
 #if PEGI
             if (selectedInPlaytime == this)
+            {
                 WindowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
+
+                foreach (var p in PainterManagerPluginBase.GUIplugins)
+                    p.OnGUI();
+
+            }
 #endif
       
             #endif
@@ -1926,13 +1934,9 @@ namespace Playtime_Painter {
                             {
 
                                 if (this != mg.target)
-                                {
                                     if (SavedEditableMesh != null)
-                                        "Got saved mesh data".nl();
-                                    else
-                                        "No saved data found".nl();
-                                }
-
+                                        "Component has saved mesh data.".nl();
+                                
                                 "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
 
                                 if (mg.target != this)
@@ -1952,17 +1956,16 @@ namespace Playtime_Painter {
 
                                         pegi.newLine();
 
-                                        if ("Edit Copy".Click())
+                                        if ("Copy & Edit".Click())
                                             mg.EditMesh(this, true);
 
-                                        if ("New Mesh".Click())
-                                        {
+                                        if ("New Mesh".Click()) {
                                             Mesh = new Mesh();
                                             SavedEditableMesh = null;
                                             mg.EditMesh(this, false);
                                         }
 
-                                        if (icon.Edit.ClickUnFocus("Edit Mesh").nl())
+                                        if ("Edit this (Risky)".Click().nl())
                                             mg.EditMesh(this, false);
                                     }
                                 }
@@ -2369,7 +2372,7 @@ namespace Playtime_Painter {
 
                                 }
                                 else if (pegi.toggle(ref id.lockEditing, icon.Lock.GetIcon(), icon.Unlock.GetIcon(),
-                                    "Lock/Unlock editing of {0} Texture.".F(id.ToPEGIstring()), 25))
+                                    "Lock/Unlock editing of {0} Texture.".F(id.ToPegiString()), 25))
                                 {
                                     CheckPreviewShader();
                                     if (LockTextureEditing)
@@ -2631,19 +2634,23 @@ namespace Playtime_Painter {
         private void OnDrawGizmosSelected()
         {
 
-            if (meshEditing)
+            if (TexMgmt && this == TexMgmt.focusedPainter)
             {
-                if (!Application.isPlaying)
-                    MeshManager.Inst.DRAW_Lines(true);
+
+                if (meshEditing)
+                {
+                    if (!Application.isPlaying)
+                        MeshManager.Inst.DRAW_Lines(true);
+                }
+
+                if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
+                    GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
+                    Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
+
+
+                foreach (var p in PainterManagerPluginBase.GizmoPlugins)
+                    p.PlugIn_PainterGizmos(this);
             }
-
-            if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool && GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
-                Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
-
-
-            foreach (var p in PainterManagerPluginBase.GizmoPlugins)
-                p.PlugIn_PainterGizmos(this);
-
         }
         #endif
 
@@ -2680,8 +2687,10 @@ namespace Playtime_Painter {
         public void Update()
         {
 
-            if (this == _mouseOverPaintableGraphicElement)
-            {
+            if (!TexMgmt || this != TexMgmt.focusedPainter || !IsCurrentTool)
+                return;
+
+            if (this == _mouseOverPaintableGraphicElement) {
                 if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
                     _mouseOverPaintableGraphicElement = null;
 

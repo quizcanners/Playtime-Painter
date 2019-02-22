@@ -47,13 +47,12 @@ namespace Playtime_Painter {
         }
 
         #region Inspector
-        #if PEGI
-        public override string NameForDisplayPEGI => "Buffer Blitting";
 
         int _guiTextureSize = 128;
         private int _texIndex;
-        
-        public void OnGUI()  {
+
+        public void OnGUI()
+        {
 
             if (_pauseBuffers || !_showOnGui)
                 return;
@@ -76,7 +75,7 @@ namespace Playtime_Painter {
                     var tex = b.GetTextureDisplay;
 
                     var pos = new Rect((_texIndex / inColumn) * _guiTextureSize, (_texIndex % inColumn) * fullSize - textGap, _guiTextureSize, _guiTextureSize);
-                    GUI.Label(pos, b.ToPEGIstring());
+                    GUI.Label(pos, b.ToPegiString());
                     pos.y += textGap;
 
                     if (tex)
@@ -97,6 +96,12 @@ namespace Playtime_Painter {
                 }
 
         }
+
+
+#if PEGI
+        public override string NameForDisplayPEGI => "Buffer Blitting";
+
+    
 
         public override bool Inspect()
         {
@@ -145,7 +150,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        #endif
+#endif
         #endregion
 
         public override void Enable()
@@ -279,7 +284,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override string NameForDisplayPEGI => "Custom: " + Texture.ToPEGIstring();
+        public override string NameForDisplayPEGI => "Custom: " + Texture.ToPegiString();
 
         public override bool PEGI_inList(IList list, int ind, ref int edited) => "Source".select(50, ref id, Data.imgMetas);
 
@@ -544,7 +549,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override string NameForDisplayPEGI => "Other: " + MultiBufferProcessing.sections.TryGet(targetIndex).ToPEGIstring();
+        public override string NameForDisplayPEGI => "Other: " + MultiBufferProcessing.sections.TryGet(targetIndex).ToPegiString();
         public override bool Inspect() => "Source".select(50, ref targetIndex, MultiBufferProcessing.sections).nl();
 #endif
         #endregion
@@ -771,12 +776,12 @@ namespace Playtime_Painter {
         #region Inspector
 #if PEGI
 
-        public string NameForDisplayPEGI => SourceBuffer.ToPEGIstring() + "-> " + TargetRenderTexture.ToPEGIstring();//(material ? material.name : "No Material");
+        public string NameForDisplayPEGI => SourceBuffer.ToPegiString() + "-> " + TargetRenderTexture.ToPegiString();//(material ? material.name : "No Material");
 
 
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
-            this.ToPEGIstring().write();
+            this.ToPegiString().write();
 
             if (_trigger != BlitTrigger.Manual)
                 pegi.toggle(ref _enabled);

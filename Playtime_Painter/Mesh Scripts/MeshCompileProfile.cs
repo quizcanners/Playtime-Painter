@@ -328,7 +328,7 @@ namespace Playtime_Painter
         {
             bool changed = false;
 
-            (Target.ToPEGIstring() + ":").toggle(80, ref enabled);
+            (Target.ToPegiString() + ":").toggle(80, ref enabled);
 
             if (enabled)
             {
@@ -337,7 +337,7 @@ namespace Playtime_Painter
                 string[] nms = new string[tps.Count + 1];
 
                 for (int i = 0; i < tps.Count; i++)
-                    nms[i] = tps[i].ToPEGIstring();
+                    nms[i] = tps[i].ToPegiString();
 
                 nms[tps.Count] = "Other";
 
@@ -410,7 +410,7 @@ namespace Playtime_Painter
                 }
             } catch (Exception ex)
             {
-                Debug.LogError("Exception in {0}  :  {1}".F(Target.ToPEGIstring(), ex.ToString()));
+                Debug.LogError("Exception in {0}  :  {1}".F(Target.ToPegiString(), ex.ToString()));
             }
         }
 
@@ -1380,7 +1380,7 @@ namespace Playtime_Painter
                 _typesNames = new string[dataTypes.Length];
 
                 for (var i = 0; i < dataTypes.Length; i++)
-                    _typesNames[i] = dataTypes[i].ToPEGIstring();
+                    _typesNames[i] = dataTypes[i].ToPegiString();
             }
 
             return _typesNames;

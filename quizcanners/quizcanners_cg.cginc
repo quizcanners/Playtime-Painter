@@ -10,6 +10,8 @@ float _Picker_Brightness;
 float _Picker_Contrast;
 float _Picker_HUV;
 
+sampler2D _Global_Noise_Lookup;
+
 float4 _lightControl;
 sampler2D _mergeTerrainHeight;
 float4 _mergeTerrainHeight_TexelSize;

@@ -229,11 +229,11 @@ namespace QuizCannersUtilities
 
         public void Save<T>(T el)
         {
-            name = el.ToPEGIstring();
+            name = el.ToPegiString();
 
             var cmp = el as Component;
             if (cmp != null)
-                componentType = cmp.GetType().ToPEGIstring_Type();
+                componentType = cmp.GetType().ToPegiStringType();
 
             var std = el as IStd;
             if (std != null)
@@ -589,7 +589,7 @@ namespace QuizCannersUtilities
                 if (Std != null)
                 {
                     if (dataExplorer.tag.Length == 0)
-                        dataExplorer.tag = Std.ToPEGIstring() + " config";
+                        dataExplorer.tag = Std.ToPegiString() + " config";
 
                     "Save To:".edit(50, ref Mgmt.fileFolderHolder).changes(ref changed);
 
@@ -618,11 +618,11 @@ namespace QuizCannersUtilities
 
             if (Std != null)
             {
-                if (icon.Load.ClickUnFocus("Decode Data into " + Std.ToPEGIstring()).changes(ref changed)) {
+                if (icon.Load.ClickUnFocus("Decode Data into " + Std.ToPegiString()).changes(ref changed)) {
                     dataExplorer.UpdateData();
                     Std.Decode(dataExplorer.data);
                 }
-                if (icon.Save.ClickUnFocus("Save data from " + Std.ToPEGIstring()).changes(ref changed))
+                if (icon.Save.ClickUnFocus("Save data from " + Std.ToPegiString()).changes(ref changed))
                     dataExplorer = new ExploringStd(dataExplorer.tag, Std.Encode().ToString());
             }
 
@@ -677,7 +677,7 @@ namespace QuizCannersUtilities
             if (added != null && target != null)
             {
                 added.dataExplorer.data = target.Encode().ToString();
-                added.NameForPEGI = target.ToPEGIstring();
+                added.NameForPEGI = target.ToPegiString();
                 added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
             }
 

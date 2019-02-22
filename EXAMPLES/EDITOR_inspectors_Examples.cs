@@ -10,6 +10,9 @@ namespace Playtime_Painter
 #if PEGI && UNITY_EDITOR
     using UnityEditor;
 
+    [CustomEditor(typeof(NoiseTextureMGMT))]
+    public class NoiseTextureMGMTDrawer : PEGI_Inspector<NoiseTextureMGMT> { }
+
     [CustomEditor(typeof(GodMode))]
     public class GodModeDrawer : PEGI_Inspector<GodMode> {}
     

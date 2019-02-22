@@ -60,14 +60,19 @@ namespace Playtime_Painter {
               
                 if (!PainterStuff.applicationIsQuitting) {
 
-                    if (!_inst) {
-                        
-                        #if UNITY_EDITOR
+                    if (!_inst)
+                    {
+
+                       /* var go = new GameObject(PainterDataAndConfig.PainterCameraName);
+                        _inst = go.AddComponent<PainterCamera>();
+                        PainterManagerPluginBase.RefreshPlugins();
+                        */
+                        //#if UNITY_EDITOR
                             var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                             _inst = Instantiate(go).GetComponent<PainterCamera>();
                             _inst.name = PainterDataAndConfig.PainterCameraName;
                             PainterManagerPluginBase.RefreshPlugins();
-                        #endif
+                        //#endif
 
                     }
                 }
@@ -637,6 +642,9 @@ namespace Playtime_Painter {
 
 
             transform.position = Vector3.up * 3000;
+            transform.localScale = Vector3.one;
+            transform.rotation = Quaternion.identity;
+
             if (!theCamera)
             {
                 theCamera = GetComponent<Camera>();
@@ -648,6 +656,14 @@ namespace Playtime_Painter {
             theCamera.orthographicSize = OrthographicSize;
             theCamera.clearFlags = CameraClearFlags.Nothing;
             theCamera.enabled = Application.isPlaying;
+            theCamera.allowHDR = true;
+            theCamera.allowMSAA = false;
+            theCamera.allowDynamicResolution = false;
+            theCamera.depth = 0;
+            theCamera.renderingPath = RenderingPath.Forward;
+            theCamera.nearClipPlane = 0.1f;
+            theCamera.farClipPlane = 1000f;
+            theCamera.rect = Rect.MinMaxRect(0,0,1,1);
 
 #if UNITY_EDITOR
             EditorApplication.update -= CombinedUpdate;
@@ -738,9 +754,6 @@ namespace Playtime_Painter {
                 Shader_UpdateBrushConfig();
 
             PlaytimePainter uiPainter = null;
-
-           // if (Application.isPlaying)
-             //   uiPainter = PlaytimePainter.RaycastUI();
 
             MeshManager.EditingUpdate();
 
@@ -850,9 +863,14 @@ namespace Playtime_Painter {
             ((bigRtPair.IsNullOrEmpty()) ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
 
             if (!theCamera) {
-                "no camera".nl();
+                "no camera".writeWarning();
+                pegi.nl();
                 return false;
             }
+            
+            
+
+            
             
             if (Data)
                 Data.Nested_Inspect().nl();

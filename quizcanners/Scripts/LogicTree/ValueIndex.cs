@@ -166,7 +166,7 @@ namespace STD_Logic
 
             int searchMax = 20;
 
-            current.ToPEGIstring().write();
+            current.ToPegiString().write();
 
             if (icon.Done.Click().nl(ref changed))
                 pegi.FocusControl("none");
@@ -181,14 +181,14 @@ namespace STD_Logic
                             if (icon.Done.ClickUnFocus(20).changes(ref changed)) 
                                 Trigger = t;
                             
-                            t.ToPEGIstring().nl();
+                            t.ToPegiString().nl();
                         }
 
             }
             return changed;
         }
 
-        public virtual string NameForDisplayPEGI => Trigger.ToPEGIstring();
+        public virtual string NameForDisplayPEGI => Trigger.ToPegiString();
 #endif
         #endregion
     }

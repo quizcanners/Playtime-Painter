@@ -2,8 +2,7 @@
 	
 	Properties{
 		[PerRendererData] _MainTex("Albedo (RGB)", 2D) = "black" {}
-		_NoiseMask("NoiseMask (RGB)", 2D) = "gray" {}
-		_Edges("Sharpness", Range(0,10)) = 0.5
+		_Edges("Softness", Range(0,10)) = 0.5
 	}
 
 	Category{
@@ -30,6 +29,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
@@ -69,7 +69,7 @@
 					return o;
 				}
 
-				sampler2D _NoiseMask;
+				sampler2D _Global_Noise_Lookup;
 
 				float4 frag(v2f i) : COLOR{
 
@@ -77,8 +77,11 @@
 					float _Courners =		i.texcoord.w;
 					float deCourners =		i.precompute.w;
 
-					float4 noise = tex2Dlod(_NoiseMask, float4(i.texcoord.xy * 13.5 
+#if USE_NOISE_TEXTURE
+
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(i.texcoord.xy * 13.5
 						+ float2(_SinTime.w, _CosTime.w)*32, 0, 0));
+#endif
 
 					float2 uv = abs(i.offUV.xy);
 
@@ -92,9 +95,17 @@
 
 					float button = pow(clipp, _Edges + 1);
 
-					col.rgb *= min(1,button*1024) * saturate((1-(1 - clipp) * 10)*10);
+					float inner = min(1, button * 1024) * saturate((1 - (1 - clipp) * 10) * 10);
+
+					col.rgb *= inner;
 					
-					col.a *= button*(1+0.25*noise.x*(1-button));
+					float mtp = 0.25*(1 - button);
+
+#if USE_NOISE_TEXTURE
+					mtp *= 1+noise.x-0.5 + noise.y*(1-button);
+#endif
+
+					col.a = inner + (1- inner)* button* (1+mtp);
 
 					return col;
 				}
