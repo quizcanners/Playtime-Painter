@@ -426,7 +426,7 @@ namespace Playtime_Painter
             if (_inspectedStuffs != -1) return changes;
             
             #if UNITY_EDITOR
-            if ("Refresh Shaders".Click_Label("Search for shaders again").nl())
+            if ("Refresh Shaders".ClickLabel("Search for shaders again").nl())
                 CheckShaders(true);
 
             "Using layer:".write(80);

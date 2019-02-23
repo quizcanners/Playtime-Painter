@@ -527,7 +527,7 @@ namespace QuizCannersUtilities {
                 std.EmailData(name, "Use this {0}".F(name));
 
             data = "";
-            if (pegi.edit(ref data).Unfocus()) {
+            if (pegi.edit(ref data).UnFocus()) {
                 data = ClearFromExternal(data);
                 return true;
             }

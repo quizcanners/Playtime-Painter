@@ -43,44 +43,52 @@ namespace PlayerAndEditorGUI {
 
     public interface INeedAttention
     {
-#if PEGI
+    #if PEGI
         string NeedAttention();
-#endif
+    #endif
     }
 
     public interface IGotName
     {
-#if PEGI
+    #if PEGI
         string NameForPEGI { get; set; }
-#endif
+    #endif
     }
 
     public interface IGotDisplayName
     {
-#if PEGI
+    #if PEGI
         string NameForDisplayPEGI { get; }
-#endif
+    #endif
     }
 
     public interface IGotIndex
     {
-#if PEGI
+    #if PEGI
         int IndexForPEGI { get; set; }
-#endif
+    #endif
     }
 
     public interface IGotCount
     {
-#if PEGI
+    #if PEGI
         int CountForInspector { get; }
-#endif
+    #endif
     }
 
     public interface IEditorDropdown
     {
-#if PEGI
+    #if PEGI
         bool ShowInDropdown();
-#endif
+    #endif
+    }
+
+    public interface IPegiReleaseGuiManager {
+        #if PEGI
+        void Inspect();
+        void Write(string label);
+        bool Click(string label);
+        #endif
     }
 
 
@@ -96,10 +104,37 @@ namespace PlayerAndEditorGUI {
             get { return mouseOverUi >= Time.frameCount - 1; }
             set { if (value) mouseOverUi = Time.frameCount; }
         }
-        
+
         #if PEGI
 
-        #region Other Stuff
+        #region UI Modes
+
+        private enum PegiPaintingMode { EditorInspector, PlayAreaGui, Release }
+
+        private static PegiPaintingMode currentMode = PegiPaintingMode.EditorInspector;
+
+        public static bool paintingReleaseGUI => currentMode == PegiPaintingMode.Release;
+
+        public static bool paintingPlayAreaGui
+        {
+            get { return currentMode == PegiPaintingMode.PlayAreaGui; }
+            private set { currentMode = value ? PegiPaintingMode.PlayAreaGui : PegiPaintingMode.EditorInspector; }
+        }
+
+        #endregion
+
+        #region Release GUI
+
+        private static IPegiReleaseGuiManager currentReleaseManager;
+
+        public static void ReleaseInspect(IPegiReleaseGuiManager manager) {
+            currentMode = PegiPaintingMode.Release;
+            currentReleaseManager = manager;
+        }
+
+        #endregion
+
+        #region Play Area GUI
         public delegate bool CallDelegate();
 
         public class WindowPositionData_PEGI_GUI
@@ -107,11 +142,13 @@ namespace PlayerAndEditorGUI {
             private WindowFunction function;
             public Rect windowRect;
 
-            private void DrawFunction(int windowID) {
+            private void DrawFunction(int windowID)
+            {
 
                 paintingPlayAreaGui = true;
 
-                try {
+                try
+                {
                     globChanged = false;
                     _elementIndex = 0;
                     _lineOpen = false;
@@ -131,7 +168,7 @@ namespace PlayerAndEditorGUI {
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogError(ex);
+                    Debug.LogError(ex);
                 }
 
                 paintingPlayAreaGui = false;
@@ -141,14 +178,15 @@ namespace PlayerAndEditorGUI {
 
             public void Render(WindowFunction doWindow, string c_windowName)
             {
-                windowRect.x = Mathf.Clamp( windowRect.x, 0, Screen.width - 10);
-                windowRect.y = Mathf.Clamp( windowRect.y, 0, Screen.height - 10);
-                
+                windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
+                windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
+
                 function = doWindow;
                 windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName);
             }
 
-            public void Collapse() {
+            public void Collapse()
+            {
                 windowRect.width = 10;
                 windowRect.height = 10;
                 windowRect.x = 10;
@@ -162,6 +200,9 @@ namespace PlayerAndEditorGUI {
         }
 
         public delegate bool WindowFunction();
+        #endregion
+
+        #region Other Stuff
         
         private static int _elementIndex;
 
@@ -171,14 +212,11 @@ namespace PlayerAndEditorGUI {
         
         private static int selectedFold = -1;
         public static int tabIndex; // will be reset on every NewLine;
-        public static bool paintingPlayAreaGui { get; private set; }
-
+        
         private static bool _lineOpen;
         
         private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
-
         
-
         #region GUI Colors
 
         private static bool _guiColorReplaced;
@@ -293,18 +331,6 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        public static bool DrawDefaultInspector()
-        {
-            nl();
-
-            #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                    return ef.DefaultInspector();
-            #endif
-
-            return false;
-        }
-
         private static void checkLine()
         {
             #if UNITY_EDITOR
@@ -319,14 +345,14 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static bool Unfocus(this bool anyChanges)
+        public static bool UnFocus(this bool anyChanges)
         {
             if (anyChanges)
                 FocusControl("_");
             return anyChanges;
         }
 
-        private static bool Dirty_Unfocus(this bool anyChanges) {
+        private static bool DirtyUnFocus(this bool anyChanges) {
             if (anyChanges)
                 FocusControl("_");
             return anyChanges.Dirty();
@@ -437,7 +463,7 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region Full Inspector Window Pop UP
+        #region Pop UP Services
 
         public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = 20)
         {
@@ -461,7 +487,7 @@ namespace PlayerAndEditorGUI {
 
             public static string popUpText = "";
 
-            private static List<string> gotItTexts = new List<string>()
+            private static readonly List<string> gotItTexts = new List<string>()
             {
                 "Got it!",
                 "I understand",
@@ -494,7 +520,7 @@ namespace PlayerAndEditorGUI {
                     if (understoodPopUpText.Click(15).nl())
                         popUpText = null;
 
-                    "Didn't get the answer you need?".nl();
+                    "Didn't get the answer you need?".write();
                     if (icon.Discord.Click())
                         Application.OpenURL(DiscordServer);
                     if (icon.Email.Click())
@@ -677,8 +703,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region WRITE
-
-
+        
         private const int letterSizeInPixels = 7;
 
         static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
@@ -2491,7 +2516,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || !state) &&
-                txt.Click_Label(txt, -1, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
+                txt.ClickLabel(txt, -1, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
                 state = !state;
 
             isFoldedOutOrEntered = state;
@@ -2516,7 +2541,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || outside) &&
-                txt.Click_Label(txt, -1, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
+                txt.ClickLabel(txt, -1, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
                 enteredOne = outside ? thisOne : -1;
             
 
@@ -3058,7 +3083,7 @@ namespace PlayerAndEditorGUI {
         #endif
         }
         
-        public static bool Click_Label(this string label, string hint = "ClickAble Text", int width = -1, GUIStyle style = null)
+        public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, GUIStyle style = null)
         {
             SetBgColor(Color.clear);
 
@@ -3067,12 +3092,12 @@ namespace PlayerAndEditorGUI {
 
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return (width == -1 ? ef.Click(label, hint, style) : ef.Click(label, hint, width, style)).Unfocus().RestoreBGColor();
+                return (width == -1 ? ef.Click(label, hint, style) : ef.Click(label, hint, width, style)).UnFocus().RestoreBGColor();
         #endif
             
             checkLine();
             var cont = new GUIContent() { text = label, tooltip = hint };
-            return (width ==-1 ? GUILayout.Button(cont, style) : GUILayout.Button(cont, style, GUILayout.MaxWidth(width))).Dirty_Unfocus().PreviousBgColor();
+            return (width ==-1 ? GUILayout.Button(cont, style) : GUILayout.Button(cont, style, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
         }
 
         public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
@@ -3080,34 +3105,34 @@ namespace PlayerAndEditorGUI {
 
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(tex, width).Unfocus();
+                return ef.Click(tex, width).UnFocus();
         #endif
 
             checkLine();
-            return GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)).Dirty_Unfocus();
+            return GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)).DirtyUnFocus();
         }
 
         public static bool ClickUnFocus(this Texture tex, string tip, int width = defaultButtonSize) =>
         #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.Click(tex, tip, width).Unfocus() :
+            !paintingPlayAreaGui ? ef.Click(tex, tip, width).UnFocus() :
         #endif
-             Click(tex, tip, width).Unfocus();
+             Click(tex, tip, width).UnFocus();
         
         public static bool ClickUnFocus(this Texture tex, string tip, int width, int height) =>
         #if UNITY_EDITOR
-              !paintingPlayAreaGui ? ef.Click(tex, tip, width, height).Unfocus() :
+              !paintingPlayAreaGui ? ef.Click(tex, tip, width, height).UnFocus() :
         #endif
-            Click(tex, tip, width, height).Unfocus();
+            Click(tex, tip, width, height).UnFocus();
         
         public static bool ClickUnFocus(this string text)
         {
 
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(text).Unfocus();
+                return ef.Click(text).UnFocus();
         #endif
             checkLine();
-            return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty_Unfocus();
+            return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
         }
 
         public static bool Click(this string label, int fontSize) => new GUIContent() { text = label }.Click(PEGI_Styles.ScalableText(fontSize));
@@ -3496,7 +3521,7 @@ namespace PlayerAndEditorGUI {
 
             var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBgColor();
             if ((!val || !hideTextWhenTrue) && 
-                 label.Click_Label(hint,-1, PEGI_Styles.ToggleLabel(val))) {
+                 label.ClickLabel(hint,-1, PEGI_Styles.ToggleLabel(val))) {
                 ret = true;
                 val = !val;
             }
@@ -3508,7 +3533,7 @@ namespace PlayerAndEditorGUI {
         {
             var ret = toggle(ref val, icon.True.BgColor(Color.clear), icon.False, label, DefaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBgColor();
 
-            if ((!val || !hideTextWhenTrue) && label.Click_Label(label, -1, PEGI_Styles.ToggleLabel(val)))
+            if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, -1, PEGI_Styles.ToggleLabel(val)))
             {
                 ret = true;
                 val = !val;
@@ -4962,15 +4987,15 @@ namespace PlayerAndEditorGUI {
 
         #region List MGMT Functions 
 
-        const int listLabelWidth = 105;
+        private const int listLabelWidth = 105;
 
         private static readonly Dictionary<IList, int> ListInspectionIndexes = new Dictionary<IList, int>();
 
         private const int UpDownWidth = 120;
         private const int UpDownHeight = 30;
-        private static int _sectionSizeOptimal = 0;
-        private static int _listSectionMax = 0;
-        private static int _listSectionStartIndex = 0;
+        private static int _sectionSizeOptimal;
+        private static int _listSectionMax;
+        private static int _listSectionStartIndex;
         private static readonly CountlessInt ListSectionOptimal = new CountlessInt();
 
         private static void SetOptimalSectionFor(int count)
@@ -5014,7 +5039,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        private static IList addingNewOptionsInspected = null;
+        private static IList addingNewOptionsInspected;
         static string addingNewNameHolder = "Name";
 
         private static void listInstantiateNewName<T>()  {
@@ -5392,7 +5417,7 @@ namespace PlayerAndEditorGUI {
                 label = "{0}->{1}".F(label, lst[inspected].ToPegiString());
             else label = label.AddCount(lst, true);
 
-            if (label.Click_Label(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
+            if (label.ClickLabel(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
 
@@ -5415,7 +5440,7 @@ namespace PlayerAndEditorGUI {
                 
             } else currentListLabel = ld.label.AddCount(lst, true);
 
-            if (!editedName && currentListLabel.Click_Label(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
+            if (!editedName && currentListLabel.ClickLabel(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
                 ld.inspected = -1;
         }
 
@@ -5589,7 +5614,7 @@ namespace PlayerAndEditorGUI {
 
             if (list != editing_List_Order)
             {
-                if (sd.filteredList != list && icon.Edit.ClickUnFocus("Change Order", 28))  //"Edit".Click_Label("Change Order", 35))//
+                if (sd.filteredList != list && icon.Edit.ClickUnFocus("Change Order", 28))  //"Edit".ClickLabel("Change Order", 35))//
                     editing_List_Order = list;
             } else if (icon.Done.ClickUnFocus("Finish moving", 28).changes(ref changed))
                 editing_List_Order = null;
@@ -5811,7 +5836,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static void SetSelected<T>(ListMetaData meta, List<T> list, bool val)
+        private static void SetSelected<T>(ListMetaData meta, List<T> list, bool val)
         {
             if (meta == null)
             {
@@ -5822,16 +5847,16 @@ namespace PlayerAndEditorGUI {
                     meta.SetIsSelected(i, val);
         }
 
-        static bool edit_List_Order_Obj<T>(this List<T> list, ListMetaData metaDatas = null) where T : UnityEngine.Object {
-            var changed = list.edit_List_Order(metaDatas);
+        private static bool edit_List_Order_Obj<T>(this List<T> list, ListMetaData listMeta = null) where T : UnityEngine.Object {
+            var changed = list.edit_List_Order(listMeta);
 
-            if (list != editing_List_Order || metaDatas == null) return changed;
+            if (list != editing_List_Order || listMeta == null) return changed;
 
             if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
             
             for (var i = 0; i < list.Count; i++)
                 if (list[i] == null) {
-                    var dta = metaDatas.elementDatas.TryGet(i);
+                    var dta = listMeta.elementDatas.TryGet(i);
                     if (dta == null) continue;
                     
                     T tmp = null;
@@ -5844,28 +5869,28 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static IList listCopyBuffer = null;
+        static IList listCopyBuffer;
 
-        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, ListMetaData metaDatas = null) {
+        public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, ListMetaData listMeta = null) {
             var changed = false;
 
             var pl = el.TryGet_fromObj<IPEGI_ListInspect>();
 
             if (pl != null)
             {
-                if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || pegi.globChanged)
+                if (pl.PEGI_inList(list, index, ref edited).changes(ref changed) || globChanged)
                     pl.SetToDirty_Obj();
             } else {
 
                 if (el.IsNullOrDestroyed_Obj()) {
-                    var ed = metaDatas?[index];
+                    var ed = listMeta?[index];
                     if (ed == null)
                         "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
                     else 
                         ed.PEGI_inList<T>(ref el, index, ref edited);
                 }
                 else {
-                    var uo = el as UnityEngine.Object;
+                    var uo = el as Object;
 
                     var pg = el.TryGet_fromObj<IPEGI>();
                     if (pg != null)
@@ -5877,7 +5902,7 @@ namespace PlayerAndEditorGUI {
                     if (warningText != null)
                         AttentionColor.SetBgColor();
 
-                    var clickHighlightHandeled = false;
+                    var clickHighlightHandled = false;
 
                     var iind = el as IGotIndex;
 
@@ -5903,11 +5928,14 @@ namespace PlayerAndEditorGUI {
                     }
                     else
                     {
-                        if (uo == null && pg == null && metaDatas == null)
-                            el.ToPegiString().write();
+                        if (!uo && pg == null && listMeta == null)
+                        {
+                            if (el.ToPegiString().ClickLabel("Click to Inspect"))
+                                edited = index;
+                        }
                         else
                         {
-                            Texture tex = null;
+                            Texture tex;
 
                             if (uo)
                             {
@@ -5915,17 +5943,19 @@ namespace PlayerAndEditorGUI {
                                 if (tex)
                                 {
                                     uo.ClickHighlight(tex);
-                                    clickHighlightHandeled = true;
+                                    clickHighlightHandled = true;
                                 }
                             }
-                            write(el.ToPegiString());
+
+                            if (el.ToPegiString().ClickLabel())
+                                edited = index;
                         }
                     }
                     
-                    if ((warningText == null && (metaDatas == null ? icon.Enter : metaDatas.Icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
+                    if ((warningText == null && (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                         edited = index;
                         
-                    if (!clickHighlightHandeled)
+                    if (!clickHighlightHandled)
                         uo.ClickHighlight();
                 }
             }  
@@ -5948,7 +5978,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        static bool ListAddNewClick<T>(this List<T> list, ref T added, ListMetaData ld = null) {
+        private static bool ListAddNewClick<T>(this List<T> list, ref T added, ListMetaData ld = null) {
 
             if (ld != null && !ld.allowCreate)
                 return false;
@@ -5972,7 +6002,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        static bool ListAddEmptyClick<T>(this List<T> list, ListMetaData ld = null)
+        private static bool ListAddEmptyClick<T>(this List<T> list, ListMetaData ld = null)
         {
 
             if (ld != null && !ld.allowCreate)

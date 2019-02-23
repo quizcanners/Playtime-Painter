@@ -128,29 +128,28 @@ namespace QuizCannersUtilities {
             #endregion
 
             public void Lerp(LerpData ld, bool canTeleport = false) {
-                if (Enabled) {
+                if (!Enabled) return;
 
-                    float p;
+                float p;
 
-                    switch (lerpMode) {
-                        case LerpSpeedMode.LerpDisabled: p = 0; break;
-                        case LerpSpeedMode.UnlinkedSpeed: p = 1;
-                            if (Application.isPlaying)
-                                Portion(ref p);
+                switch (lerpMode) {
+                    case LerpSpeedMode.LerpDisabled: p = 0; break;
+                    case LerpSpeedMode.UnlinkedSpeed: p = 1;
+                        if (Application.isPlaying)
+                            Portion(ref p);
 
-                            if (canTeleport)
-                                p = Mathf.Max(p, ld.teleportPortion);
+                        if (canTeleport)
+                            p = Mathf.Max(p, ld.teleportPortion);
 
-                            break;
-                        default: p = ld.Portion(canTeleport); break;
-                    }
-
-                    Lerp_Internal(p);
-                    defaultSet = true;
-                }
+                        break;
+                    default: p = ld.Portion(canTeleport); break;
                 }
 
-            public abstract bool Lerp_Internal(float linkedPortion);
+                LerpInternal(p);
+                defaultSet = true;
+            }
+
+            public abstract bool LerpInternal(float linkedPortion);
 
             public virtual void Portion(LerpData ld) {
                 if (UsingLinkedThreshold && Portion(ref ld.linkedPortion))
@@ -173,16 +172,23 @@ namespace QuizCannersUtilities {
        
                 if (!allowChangeParameters)
                     Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters).changes(ref changed);
-                else {
-
+                else
+                {
                     if (Application.isPlaying)
                         (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
 
-                    if (lerpMode == LerpSpeedMode.SpeedTreshold)
-                        (Name + " Thld").edit(170, ref speedLimit).changes(ref changed);
-                    else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
-                        (Name + " Speed").edit(170, ref speedLimit).changes(ref changed);
-                    else (Name + " Mode").editEnum(120, ref lerpMode).changes(ref changed);
+                    switch (lerpMode)
+                    {
+                        case LerpSpeedMode.SpeedTreshold:
+                            (Name + " Thld").edit(170, ref speedLimit).changes(ref changed);
+                            break;
+                        case LerpSpeedMode.UnlinkedSpeed:
+                            (Name + " Speed").edit(170, ref speedLimit).changes(ref changed);
+                            break;
+                        default:
+                            (Name + " Mode").editEnum(120, ref lerpMode).changes(ref changed);
+                            break;
+                    }
                 }
 
                 if (icon.Enter.Click())
@@ -195,15 +201,14 @@ namespace QuizCannersUtilities {
 
                 var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters).nl();
 
-                if (allowChangeParameters) {
-                    
-                    "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
-                    if (lerpMode == LerpSpeedMode.SpeedTreshold || lerpMode == LerpSpeedMode.UnlinkedSpeed)
-                        "Lerp Speed for {0}".F(Name).edit(150, ref speedLimit).nl(ref changed);
+                if (!allowChangeParameters) return changed;
 
-                    if (EaseInOutImplemented)
-                        "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
-                }
+                "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
+                if (lerpMode == LerpSpeedMode.SpeedTreshold || lerpMode == LerpSpeedMode.UnlinkedSpeed)
+                    "Lerp Speed for {0}".F(Name).edit(150, ref speedLimit).nl(ref changed);
+
+                if (EaseInOutImplemented)
+                    "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
 
                 return changed;
             }
@@ -224,7 +229,7 @@ namespace QuizCannersUtilities {
             
             public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
 
-            public override bool Lerp_Internal(float linkedPortion)
+            public override bool LerpInternal(float linkedPortion)
             {
                 if (CurrentValue != targetValue || !defaultSet) 
                     CurrentValue = Vector2.Lerp(CurrentValue, targetValue, linkedPortion);
@@ -311,7 +316,7 @@ namespace QuizCannersUtilities {
 
             protected virtual bool CanLerp => true;
 
-            public override bool Lerp_Internal(float linkedPortion) {
+            public override bool LerpInternal(float linkedPortion) {
                 if (CanLerp && (!defaultSet || Value != TargetValue)) 
                     Value = Mathf.Lerp(Value, TargetValue, linkedPortion);
                 else return false;
@@ -529,7 +534,7 @@ namespace QuizCannersUtilities {
             protected override string Name => _name;
             public string NameForPEGI { get { return _name;  } set { _name = value;  } }
 
-            public override sealed bool Lerp_Internal(float linkedPortion) {
+            public override sealed bool LerpInternal(float linkedPortion) {
                 if (Lerp_SubInternal(linkedPortion))
                     Set();
                 else
@@ -559,7 +564,7 @@ namespace QuizCannersUtilities {
             public override bool Portion(ref float linkedPortion) =>
               speedLimit.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref linkedPortion);
 
-            public sealed override bool Lerp_Internal(float linkedPortion) {
+            public sealed override bool LerpInternal(float linkedPortion) {
                 if (Enabled && (targetValue != Value || !defaultSet)) 
                     Value = Color.Lerp(Value, targetValue, linkedPortion);
                 else return false;
@@ -623,45 +628,45 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Transform
-        public class Transform_LocalScale : Transform_LocalPosition
+        public class TransformLocalScale : TransformLocalPosition
         {
-            protected override string Name => base.Name;
+            protected override string Name => "Local Scale";
 
-            public override Vector3 Value { get { return _transform.localScale; } set { _transform.localScale = value; } }
+            public override Vector3 Value { get { return transform.localScale; } set { transform.localScale = value; } }
 
-            public Transform_LocalScale(Transform transform, float nspeed) : base(transform, nspeed) { }
+            public TransformLocalScale(Transform transform, float nspeed) : base(transform, nspeed) { }
         }
 
-        public class Transform_Position : Transform_LocalPosition
+        public class TransformPosition : TransformLocalPosition
         {
-            protected override string Name => base.Name;
+            protected override string Name => "Position";
 
-            public override Vector3 Value { get { return _transform.position; } set { _transform.position = value; } }
+            public override Vector3 Value { get { return transform.position; } set { transform.position = value; } }
 
-            public Transform_Position(Transform transform, float nspeed) : base(transform, nspeed) { }
+            public TransformPosition(Transform transform, float nspeed) : base(transform, nspeed) { }
         }
 
-        public class Transform_LocalPosition : BaseAnyValue
+        public class TransformLocalPosition : BaseAnyValue
         {
             protected override string Name => "Local Position";
-            public Transform _transform;
+            public Transform transform;
             public Vector3 targetValue;
 
-            public override bool Enabled => base.Enabled && _transform; 
+            public override bool Enabled => base.Enabled && transform; 
 
             public virtual Vector3 Value
             {
-                get { return _transform.localPosition; }
-                set { _transform.localPosition = value; }
+                get { return transform.localPosition; }
+                set { transform.localPosition = value; }
             }
 
-            public Transform_LocalPosition(Transform transform, float nspeed)
+            public TransformLocalPosition(Transform transform, float nspeed)
             {
-                _transform = transform;
+                this.transform = transform;
                 speedLimit = nspeed;
             }
 
-            public override bool Lerp_Internal(float portion) {
+            public override bool LerpInternal(float portion) {
                 if (Enabled && Value != targetValue)
                     Value = Vector3.Lerp(Value, targetValue, portion);
                 else return false;
@@ -676,7 +681,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Rect Transform
-        public class RectangleTransform_AnchoredPositionValue : BaseVector2Lerp, IPEGI
+        public class RectangleTransformAnchoredPositionValue : BaseVector2Lerp, IPEGI
         {
             public RectTransform rectTransform;
 
@@ -694,14 +699,14 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            public RectangleTransform_AnchoredPositionValue(RectTransform rect, float nspeed)
+            public RectangleTransformAnchoredPositionValue(RectTransform rect, float nspeed)
             {
                 rectTransform = rect;
                 speedLimit = nspeed;
             }
         }
 
-        public class RectangleTransform_WidthHeight : RectangleTransform_AnchoredPositionValue
+        public class RectangleTransformWidthHeight : RectangleTransformAnchoredPositionValue
         {
 
             protected override string Name => "Width Height";
@@ -715,7 +720,7 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            public RectangleTransform_WidthHeight(RectTransform rect, float speed) : base(rect, speed)
+            public RectangleTransformWidthHeight(RectTransform rect, float speed) : base(rect, speed)
             { }
         }
         #endregion
