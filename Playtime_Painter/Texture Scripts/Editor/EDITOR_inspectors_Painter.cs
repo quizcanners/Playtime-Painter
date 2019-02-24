@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
+
 #if UNITY_EDITOR  && PEGI
 using UnityEditor;
 

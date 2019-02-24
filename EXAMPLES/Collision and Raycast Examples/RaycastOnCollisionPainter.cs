@@ -85,7 +85,7 @@ namespace Playtime_Painter.Examples
             var changed = false;
             
             ("During collision will try to cast ray in the direction of that collision. " +
-             "If target has Playtime Painter Component this script will try to paint on it.").fullWindowDocumentationClick("How to use this?",15);
+             "If target has Playtime Painter Component this script will try to paint on it.").fullWindowDocumentationClick("How to use this?");
            
             if (Application.isPlaying)
                 "Painting on {0} objects".F(_paintingOn.Count).nl();

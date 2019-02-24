@@ -149,40 +149,43 @@ namespace Playtime_Painter.Examples
         }
 #endif
 #if PEGI
-        private bool _hint;
+
+        bool Documentation()
+        {
+            "I can paint on objects with PaintingReceiver script and:".nl();
+            "Mesh Collider + any Texture".nl();
+            "Skinned Mesh + any Collider + Render Texture".nl();
+            "Also its better to use textures without mipMaps".nl();
+            "Render Texture Painting will fail if material has tiling or offset".nl();
+            "Editing will be symmetrical if mesh is symmetrical".nl();
+            "Brush type should be Sphere".nl();
+
+            ("I was going to make only one component painting method at first, but later it became clear that it's best to have this set up on both: receiving and shooting ends." +
+             "This doesn't need PlaytimePainter component but still needs Painting Receiver script").writeHint();
+
+            return false;
+        }
+
+        
         public bool Inspect()
         {
             var changed = false;
 
-            if (icon.Question.enter("Documentation", ref _hint).nl()) {
+            pegi.fullWindowDocumentationClick(Documentation);
 
-                "I can paint on objects with PaintingReceiver script and:".nl();
-                "Mesh Collider + any Texture".nl();
-                "Skinned Mesh + any Collider + Render Texture".nl();
-                "Also its better to use textures without mipMaps".nl();
-                "Render Texture Painting will fail if material has tiling or offset".nl();
-                "Editing will be symmetrical if mesh is symmetrical".nl();
-                "Brush type should be Sphere".nl();
+            "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
+            "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);
 
-                ("I was going to make only one component painting method at first, but later it became clear that it's best to have this set up on both: receiving and shooting ends." +
-                 "This doesn't need PlaytimePainter component but still needs Painting Receiver script").writeHint();
+            if ("Fire!".Click().nl())
+                Paint();
 
-            } else {
+            brush.Targets_PEGI().nl(ref changed);
+            brush.Mode_Type_PEGI().nl(ref changed);
+            brush.ColorSliders().nl(ref changed);
 
-                "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
-                "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);
-
-                if ("Fire!".Click().nl())
-                    Paint();
-
-                brush.Targets_PEGI().nl(ref changed);
-                brush.Mode_Type_PEGI().nl(ref changed);
-                brush.ColorSliders().nl(ref changed);
-
-                if (!brush.PaintingRGB)
-                    "Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).".writeHint();
-            }
-
+            if (!brush.PaintingRGB)
+                "Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).".writeHint();
+            
             return changed;
         }
 #endif

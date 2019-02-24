@@ -755,7 +755,7 @@ namespace Playtime_Painter {
 
             PlaytimePainter uiPainter = null;
 
-            MeshManager.EditingUpdate();
+            MeshManager.CombinedUpdate();
 
 #if UNITY_2018_1_OR_NEWER
             foreach( var j in blitJobsActive) 

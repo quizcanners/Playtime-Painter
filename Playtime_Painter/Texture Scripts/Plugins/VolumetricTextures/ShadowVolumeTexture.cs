@@ -353,12 +353,11 @@ namespace Playtime_Painter
             
             if (ImageMeta != null && ImageMeta.texture2D) {
 
-                if (!VolumeJobIsRunning)
-                {
+                if (!VolumeJobIsRunning) {
 
-                    "Channel: ".edit(ref _rayJobChannel, 0, 2).nl(ref changed);
+                    "Channel: ".edit(ref _rayJobChannel, 0, 2).changes(ref changed);
 
-                    if ("Recalculate ".Click(ref changed))
+                    if (icon.Refresh.Click("Recalculate ", ref changed).nl())
                     {
                         VolumeFromTexture();
                         lightSourceDirty[_rayJobChannel] = true;

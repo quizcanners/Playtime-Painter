@@ -241,8 +241,7 @@ namespace Playtime_Painter
             TriVertices = 0;
             editedMesh.Dirty = true;
         }
-
-
+        
         public void DisconnectDragged()
         {
             Debug.Log("Disconnecting dragged");
@@ -794,12 +793,6 @@ namespace Playtime_Painter
 
             RAYCAST_SELECT_MOUSEedit();
             PROCESS_KEYS();
-        }
-
-        public void EditingUpdate()
-        {
-            if ((!Application.isPlaying))
-                CombinedUpdate();
         }
 
         public MeshPoint GetPointedVert()

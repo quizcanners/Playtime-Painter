@@ -68,7 +68,7 @@ namespace Playtime_Painter.Examples {
 
         private void Update() {
 
-            brush.brush3DRadius = transform.lossyScale.x*0.7f;
+            brush.brush3DRadius = transform.lossyScale.x*1.4f;
 
 			foreach (var col in paintingOn){
 				var p = col.painter;

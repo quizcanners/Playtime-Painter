@@ -178,21 +178,14 @@ namespace Playtime_Painter.Examples {
         }
 
         #region Inspector
-        private bool _showHint;
         [SerializeField] private bool _showOptional;
         
         #if PEGI
 
         public virtual bool Inspect() {
-
-            if (icon.Question.enter("Documentation", ref _showHint).nl())
-            {
-                "Works with PaintWithoutComponent script. This lets you configure how painting will be received".writeHint();
-
-                return false;
-            }
-
-
+            
+            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClick();
+            
             var changes = false;
 
             if (icon.Refresh.Click("Find stuff automatically"))

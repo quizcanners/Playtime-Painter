@@ -32,11 +32,11 @@ namespace Playtime_Painter.Examples {
         {
             var changed = false;
 
-            ("This component will set noise texture as a global parameter. Using texture is faster then generating noise in shader." +
-             "Alternatively it can generate a texture on start.").fullWindowDocumentationClick();
+            ("This component will set noise texture as a global parameter. Using texture is faster then generating noise in shader.").fullWindowDocumentationClick();
 
             "Noise Texture".edit(90, ref prerenderedNoiseTexture).nl(ref changed);
 
+            if (prerenderedNoiseTexture)
             SHADER_NOISE_TEXTURE.toggleIcon(ref enableNoise).nl(ref changed);
 
             if (changed)

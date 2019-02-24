@@ -20,7 +20,6 @@ namespace Playtime_Painter {
             if (!PlaytimePainter.IsCurrentTool)
                 return;
             
-        
             if (e.isMouse)
             {
 
@@ -49,13 +48,13 @@ namespace Playtime_Painter {
             {
 
                 RaycastHit hit;
-                var ishit = Physics.Raycast(rayGUI, out hit);
+                var isHit = Physics.Raycast(rayGUI, out hit);
 
-                PlaytimePainter pp = ishit ? hit.transform.GetComponent<PlaytimePainter>() : null;
+                PlaytimePainter pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
                 bool refocus = OnEditorRayHit(hit, rayGUI);
 
-                if (L_mouseDwn && e.button == 0 && refocus && ishit)
+                if (L_mouseDwn && e.button == 0 && refocus && isHit)
                 {
 
                     if (pp && pp == painter && AllowEditing(painter))
@@ -116,7 +115,7 @@ namespace Playtime_Painter {
                         st.mouseUp = L_mouseUp;
                         st.mouseDwn = L_mouseDwn;
 
-                        pointedPainter.OnMouseOver_SceneView(hit, e);
+                        pointedPainter.OnMouseOverSceneView(hit, e);
                     }
 
                 }

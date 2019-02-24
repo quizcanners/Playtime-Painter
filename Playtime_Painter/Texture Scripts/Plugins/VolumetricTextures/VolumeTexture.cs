@@ -62,7 +62,6 @@ namespace Playtime_Painter
             var center = transform.position;
             LastCenterPosTMP = center;
             var w = Width;
-            // int volumeLength = w * w * Height;
 
             CheckVolume();
 
@@ -75,12 +74,12 @@ namespace Playtime_Painter
                 pos.y = center.y + h * size;
                 for (var y = 0; y < w; y++)
                 {
-                    pos.z = center.z + ((float)(y - hw)) * size;
+                    pos.z = center.z + (y - hw) * size;
                     var index = (h * Width + y) * Width;
 
                     for (var x = 0; x < w; x++)
                     {
-                        pos.x = center.x + ((float)(x - hw)) * size;
+                        pos.x = center.x + (x - hw) * size;
                         unsortedVolume[index + x] = GetColorFor(pos);
                     }
                 }
@@ -294,16 +293,34 @@ namespace Playtime_Painter
         #if PEGI
         protected int inspectedMaterial = -1;
 
+        bool VolumeDocumentation()
+        {
+            "Volumes are 2D Textures that are used as".writeBig();
+            " 3D Textures ".ClickLink("https://docs.unity3d.com/Manual/class-Texture3D.html").nl();
+               ("But 3D Textures are not supported on most mobile devices. That is why this trick with Texture2D is used " +
+                " The texture is sampled using World Space Position. Currently I implemented it to use only one volume per scene." +
+                " It will use global shader parameters to set all the values. This makes it easier to manage." +
+                " But there is no reason why many volumes can't be used in a scene.").writeBig();
+
+
+
+            return false;
+        }
+
+
         public override bool Inspect()
         {
             var changed = false;
 
-            if (inspectedMaterial == -1)
-            {
+
+            pegi.fullWindowDocumentationClick(VolumeDocumentation);
+
+
+            if (inspectedMaterial == -1) {
 
                 var n = name;
                 
-                if ("Name".editDelayed(30, ref n).nl(ref changed))
+                if ("Name".editDelayed(50, ref n).nl(ref changed))
                     name = n;
 
                 var texture = ImageMeta.CurrentTexture();

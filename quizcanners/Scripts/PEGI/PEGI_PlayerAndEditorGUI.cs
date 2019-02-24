@@ -135,7 +135,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Play Area GUI
-        public delegate bool CallDelegate();
+        public delegate bool InspectionDelegate();
 
         public class WindowPositionData_PEGI_GUI
         {
@@ -465,10 +465,26 @@ namespace PlayerAndEditorGUI {
 
         #region Pop UP Services
 
+        static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
+            icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
+        
+
+        public static bool fullWindowDocumentationClick(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
+        {
+            if (fullWindowDocumentationClick(toolTip, buttonSize))
+            {
+                PopUpService.inspectDocumentationDelegate = function;
+                PopUpService.NewGotItText();
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = 20)
         {
 
-            if (icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor())
+            if (fullWindowDocumentationClick(toolTip, buttonSize))
             {
                 PopUpService.popUpText = text;
                 PopUpService.NewGotItText();
@@ -486,6 +502,10 @@ namespace PlayerAndEditorGUI {
             public const string SupportEmail = "quizcanners@gmail.com";
 
             public static string popUpText = "";
+
+
+            public static InspectionDelegate inspectDocumentationDelegate;
+
 
             private static readonly List<string> gotItTexts = new List<string>()
             {
@@ -509,24 +529,35 @@ namespace PlayerAndEditorGUI {
 
             private static string understoodPopUpText = "Got it";
 
-            public static bool ShowingPopup()
+            static void Confirm()
             {
-                if (!popUpText.IsNullOrEmpty())
-                {
+                nl();
 
-                    popUpText.write(PEGI_Styles.OverflowText);
-                    nl();
+                if (understoodPopUpText.Click(15).nl()) {
+                    popUpText = null;
+                    inspectDocumentationDelegate = null;
+                }
 
-                    if (understoodPopUpText.Click(15).nl())
-                        popUpText = null;
+                "Didn't get the answer you need?".write();
+                if (icon.Discord.Click())
+                    Application.OpenURL(DiscordServer);
+                if (icon.Email.Click())
+                    UnityHelperFunctions.SendEmail(SupportEmail, "About this hint",
+                        "The tooltip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
 
-                    "Didn't get the answer you need?".write();
-                    if (icon.Discord.Click())
-                        Application.OpenURL(DiscordServer);
-                    if (icon.Email.Click())
-                        UnityHelperFunctions.SendEmail(SupportEmail, "About this hint",
-                            "The tooltip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
+            }
 
+            public static bool ShowingPopup() {
+
+                if (!popUpText.IsNullOrEmpty()) {
+                    popUpText.writeBig();
+                    Confirm();
+                    return true;
+                }
+
+                if (inspectDocumentationDelegate != null)  {
+                    inspectDocumentationDelegate();
+                    Confirm();
                     return true;
                 }
 
@@ -925,7 +956,12 @@ namespace PlayerAndEditorGUI {
             GUILayout.Label(new GUIContent() { text = text, tooltip = tip }, GUILayout.MaxWidth(width));
 
         }
-        
+
+        public static void writeBig(this string text)
+        {
+            text.write(PEGI_Styles.OverflowText);
+            pegi.nl();
+        }
         public static bool write_ForCopy(string val) => edit(ref val);
         public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
         public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
@@ -3024,6 +3060,20 @@ namespace PlayerAndEditorGUI {
         public const int defaultButtonSize = 25;
 
         private const int maxWidthForPlaytimeButtonText = 100;
+
+        public static bool ClickLink(this string label, string link, string tip = null) {
+
+            if (tip == null)
+                tip = "Go To: {0}".F(link);
+
+            if (label.Click(tip, 12))
+            {
+                Application.OpenURL(link);
+                return true;
+            }
+
+            return false;
+        }
 
         public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat", newName);
 

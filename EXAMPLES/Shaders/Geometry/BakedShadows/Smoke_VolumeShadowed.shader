@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Volumes/Baked Shadows/Smoke Effect" {
+﻿Shader "Playtime Painter/Geometry/Baked Shadows/Volume Smoke Effect" {
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}
@@ -14,134 +14,146 @@
 		l2col("Point light 2 Color", Vector) = (0,0,0,0)
 
 	}
-		Category {
+	Category {
+
 		Tags {
 			"Queue" = "AlphaTest"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 		}
 
-			Cull Off
-			ZWrite Off
-			Blend SrcAlpha OneMinusSrcAlpha
+		Cull Off
+		ZWrite Off
+		Blend SrcAlpha OneMinusSrcAlpha
 
 		SubShader {
-		Pass {
+			Pass {
 
-		CGPROGRAM
-#pragma vertex vert
-#pragma fragment frag
-#pragma multi_compile_fog
-#pragma multi_compile_fwdbase
-#pragma target 3.0
-#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
+				CGPROGRAM
+				#pragma vertex vert
+				#pragma fragment frag
+				#pragma multi_compile_fog
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
+				#pragma target 3.0
+				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
-	uniform sampler2D _MainTex;
-	uniform sampler2D _BakedShadow_VOL;
+				uniform sampler2D _MainTex;
+				uniform sampler2D _BakedShadow_VOL;
 
-	float4 l0pos;
-	float4 l0col;
-	float4 l1pos;
-	float4 l1col;
-	float4 l2pos;
-	float4 l2col;
+				float4 l0pos;
+				float4 l0col;
+				float4 l1pos;
+				float4 l1col;
+				float4 l2pos;
+				float4 l2col;
 
-	float _Thickness;
+				float _Thickness;
+				float4  _MainTex_ST;
+				float4 _BakedShadows_VOL_TexelSize;
+				float4 VOLUME_H_SLICES;
+				float4 VOLUME_POSITION_N_SIZE;
 
-	float4  _MainTex_ST;
-	float4 _BakedShadows_VOL_TexelSize;
-	float4 VOLUME_H_SLICES;
-	float4 VOLUME_POSITION_N_SIZE;
+				struct v2f {
+					float4 pos : SV_POSITION;
+					float3 worldPos : TEXCOORD0;
+					float3 normal : TEXCOORD1;
+					float2 texcoord : TEXCOORD2;
+					SHADOW_COORDS(3)
+					float3 viewDir: TEXCOORD4;
+					UNITY_FOG_COORDS(5)
+				};
 
-	struct v2f {
-		float4 pos : SV_POSITION;
-		float3 worldPos : TEXCOORD0;
-		float3 normal : TEXCOORD1;
-		float2 texcoord : TEXCOORD2;
-		SHADOW_COORDS(3)
-		float3 viewDir: TEXCOORD4;
-		UNITY_FOG_COORDS(5)
-	};
+				v2f vert(appdata_full v) {
+					v2f o;
 
-	v2f vert(appdata_full v) {
-		v2f o;
+					o.normal.xyz = UnityObjectToWorldNormal(v.normal);
+					o.pos = UnityObjectToClipPos(v.vertex);
+					o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+					o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
-		o.normal.xyz = UnityObjectToWorldNormal(v.normal);
-		o.pos = UnityObjectToClipPos(v.vertex);
-		o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-		o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
+					o.texcoord = v.texcoord.xy;
 
-		o.texcoord = v.texcoord.xy;
+					UNITY_TRANSFER_FOG(o, o.pos);
+					TRANSFER_SHADOW(o);
 
-		UNITY_TRANSFER_FOG(o, o.pos);
-		TRANSFER_SHADOW(o);
+					return o;
+				}
 
-		return o;
-	}
+				float4 frag(v2f i) : COLOR{
 
-	float4 frag(v2f i) : COLOR{
+					float2 off = i.texcoord - 0.5;
+					off *= off;
 
-		float2 off = i.texcoord - 0.5;
-		off *= off;
+					i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-		i.viewDir.xyz = normalize(i.viewDir.xyz);
+					float distance = (10 - max(0,10 - length(_WorldSpaceCameraPos - i.worldPos)))*0.1;
 
-		float distance = (10 - max(0,10 - length(_WorldSpaceCameraPos - i.worldPos)))*0.1;
+					float alpha = max(0, (1 - (off.x + off.y) * 4)*abs(dot(i.viewDir.xyz, i.normal.xyz)))*distance;
 
-		float alpha = max(0, (1 - (off.x + off.y) * 4)*abs(dot(i.viewDir.xyz, i.normal.xyz)))*distance;
+					float2 tc = TRANSFORM_TEX(i.texcoord, _MainTex);
+					float4 col = tex2D(_MainTex, tc + _Time.x*0.035) * tex2D(_MainTex, tc*2.5 - _Time.x*0.02f);
 
-		float2 tc = TRANSFORM_TEX(i.texcoord, _MainTex);
-		float4 col = tex2D(_MainTex, tc);
+					#if USE_NOISE_TEXTURE
 
-		col.a *= alpha;
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(i.texcoord.xy * 13.5
+						+ float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 
-		float ambientBlock = col.a;
+					col *= (0.8 + noise * 0.2);
 
-		float3 normal = -i.viewDir.xyz;
+					#endif
 
-		float3 thickness = normal * _Thickness * ambientBlock;
 
-		float4 bake = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, thickness);
 
-		float4 bake2 = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
+					col.a *= alpha;
 
-		float4 directBake = (saturate((bake - 0.5) * 2) + saturate((bake2 - 0.5) * 2))*(ambientBlock);
+					col.a *= col.a;
 
-		bake = (bake + bake2) * 0.5;
+					float ambientBlock = col.a;
 
-		float3 scatter = 0;
-		float3 directLight = 0;
+					float3 normal = -i.viewDir.xyz;
 
-		// Point Lights
+					float3 thickness = normal * _Thickness * ambientBlock;
 
-		PointLightTransparent(scatter, directLight, i.worldPos.xyz - l0pos.xyz,
-			 i.viewDir.xyz, ambientBlock, bake.r, directBake.r, l0col);
+					float4 bake = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, thickness);
 
-		PointLightTransparent(scatter, directLight, i.worldPos.xyz - l1pos.xyz,
-			 i.viewDir.xyz, ambientBlock, bake.g, directBake.g, l1col);
+					float4 bake2 = 1 - SampleVolume(_BakedShadow_VOL, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, -thickness);
 
-		PointLightTransparent(scatter, directLight, i.worldPos.xyz - l2pos.xyz,
-			 i.viewDir.xyz, ambientBlock, bake.b, directBake.b, l2col);
+					float4 directBake = (saturate((bake - 0.5) * 2) + saturate((bake2 - 0.5) * 2))*(ambientBlock);
 
-		scatter *= (1 - bake.a);
+					bake = (bake + bake2) * 0.5;
 
-		DirectionalLightTransparent(scatter, directLight, directBake.a,	normal, i.viewDir, ambientBlock, bake.a);
+					float3 scatter = 0;
+					float3 directLight = 0;
 
-		col.rgb *= (directLight + scatter);
+					// Point Lights
 
-		BleedAndBrightness(col, 1);
+					PointLightTransparent(scatter, directLight, i.worldPos.xyz - l0pos.xyz,
+						 i.viewDir.xyz, ambientBlock, bake.r, directBake.r, l0col);
 
-		UNITY_APPLY_FOG(i.fogCoord, col);
+					PointLightTransparent(scatter, directLight, i.worldPos.xyz - l1pos.xyz,
+						 i.viewDir.xyz, ambientBlock, bake.g, directBake.g, l1col);
 
-		return col;
+					PointLightTransparent(scatter, directLight, i.worldPos.xyz - l2pos.xyz,
+						 i.viewDir.xyz, ambientBlock, bake.b, directBake.b, l2col);
 
-	}
-		ENDCG
+					scatter *= (1 - bake.a);
 
-	}
-	}
-	Fallback "Legacy Shaders/Transparent/VertexLit"
+					DirectionalLightTransparent(scatter, directLight, directBake.a,	normal, i.viewDir, ambientBlock, bake.a);
+
+					col.rgb *= (directLight + scatter);
+
+					BleedAndBrightness(col, 1);
+
+					UNITY_APPLY_FOG(i.fogCoord, col);
+
+					return col;
+
+				}
+				ENDCG
+
+			}
 		}
-
+		Fallback "Legacy Shaders/Transparent/VertexLit"
+	}
 }
 

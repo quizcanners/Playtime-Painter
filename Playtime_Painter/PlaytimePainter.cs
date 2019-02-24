@@ -181,20 +181,19 @@ namespace Playtime_Painter {
                 return;
             }
 
-           
-
             stroke.mouseUp = Input.GetMouseButtonUp(0);
             stroke.mouseDwn = Input.GetMouseButtonDown(0);
             var mouseButton = Input.GetMouseButton(0);
 
             if (Input.GetMouseButtonDown(1))
                 _mouseButtonTime = Time.time;
-            if (Input.GetMouseButtonUp(1) && ((Time.time - _mouseButtonTime) < 0.2f))
-                FocusOnThisObject();
 
             if (!CanPaint())
                 return;
 
+            if (Input.GetMouseButtonUp(1) && ((Time.time - _mouseButtonTime) < 0.2f))
+                FocusOnThisObject();
+            
             CheckPreviewShader();
 
             var mousePos = Input.mousePosition;
@@ -228,7 +227,7 @@ namespace Playtime_Painter {
         #endif
 
         #if UNITY_EDITOR
-        public void OnMouseOver_SceneView(RaycastHit hit, Event e)
+        public void OnMouseOverSceneView(RaycastHit hit, Event e)
         {
 
             if (!CanPaint())
@@ -286,6 +285,9 @@ namespace Playtime_Painter {
                 return false;
 
             if (IsTerrainHeightTexture && IsOriginalShader)
+                return false;
+
+            if (MeshMgmt.target)
                 return false;
 
             if (stroke.mouseDwn || stroke.mouseUp)
@@ -2773,13 +2775,10 @@ namespace Playtime_Painter {
 
         public int GetAnimationUVy() => 0;
         
-
         public bool AnimatedVertices() => false;
         
-
         public int GetVertexAnimationNumber() => 0;
         
-
         public bool TryLoadMesh(string data)
         {
             if (data.IsNullOrEmpty()) return false;
