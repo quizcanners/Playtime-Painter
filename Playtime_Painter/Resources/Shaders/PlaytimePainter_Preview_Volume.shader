@@ -37,7 +37,7 @@
 
 				struct v2f {
 					float4 pos : POSITION;
-					float4 texcoord : TEXCOORD0;
+					float2 texcoord : TEXCOORD0;
 					float3 worldPos : TEXCOORD1;
 				};
 
@@ -45,8 +45,8 @@
 					v2f o;
 					o.pos = UnityObjectToClipPos(v.vertex);
 
-					v.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
-					o.texcoord = previewTexcoord(v.texcoord.xy);
+					o.texcoord = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
+					
 					o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
 					return o;
@@ -56,7 +56,7 @@
 							float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
 					#if BRUSH_COPY
-					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0, 0, 0));//tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
+					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0, 0, 0));
 					#endif
 
 					float4 col = 0;
@@ -66,7 +66,7 @@
 
 					col = SampleVolume(_PreviewTex, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0,0,0));
 
-					alpha *= saturate(positionToAlpha(i.worldPos));//prepareAlphaSmoothPreview(i.texcoord);
+					alpha *= saturate(positionToAlpha(i.worldPos));
 
 					float differentColor = min(0.5, (abs(col.g - _brushColor.g) + abs(col.r - _brushColor.r) + abs(col.b - _brushColor.b)) * 8);
 

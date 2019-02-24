@@ -96,7 +96,6 @@ namespace Playtime_Painter {
         public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
 
         #if PEGI
-
         public virtual bool ShowInDropdown()
         {
 
@@ -165,9 +164,12 @@ namespace Playtime_Painter {
 
             return changed;
         }
-#endif
+        #endif
+
         public virtual void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st) { }
+
         public abstract string NameForDisplayPEGI { get; }
+
     }
     public class BlitModeAlpha : BlitMode
     {

@@ -95,13 +95,15 @@ namespace Playtime_Painter
         {
             bool changed = false;
 
-            if (InspectedPainter.IsAtlased())
+            var p = InspectedPainter;
+
+            if (p.IsAtlased())
             {
 
                 "***** Selected Material Atlased *****".nl();
 #if UNITY_EDITOR
 
-                var m = InspectedPainter.GetMesh();
+                var m = p.GetMesh();
                 if (m && AssetDatabase.GetAssetPath(m).Length == 0)
                 {
                     "Atlased Mesh is not saved".nl();
@@ -109,39 +111,40 @@ namespace Playtime_Painter
                     if ("Mesh Name".edit(80, ref n))
                         m.name = n;
                     if (icon.Save.Click().nl())
-                        InspectedPainter.SaveMesh();
+                        p.SaveMesh();
                 }
 #endif
 
 
-                var atlPlug = InspectedPainter.GetPlugin<TileableAtlasingPainterPlugin>();
+                var atlPlug = p.GetPlugin<TileableAtlasingPainterPlugin>();
 
                 if ("Undo Atlasing".Click())
                 {
-                    InspectedPainter.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
+                    p.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
 
                     if (atlPlug.preAtlasingMesh)
-                        InspectedPainter.Mesh = atlPlug.preAtlasingMesh;
-                    InspectedPainter.SavedEditableMesh = atlPlug.preAtlasingSavedMesh;
+                        p.Mesh = atlPlug.preAtlasingMesh;
+                    p.SavedEditableMesh = atlPlug.preAtlasingSavedMesh;
 
                     atlPlug.preAtlasingMaterials = null;
                     atlPlug.preAtlasingMesh = null;
-                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
+                    p.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
                 }
 
                 if ("Not Atlased".Click().nl())
                 {
                     atlPlug.preAtlasingMaterials = null;
-                    InspectedPainter.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
+                    p.meshRenderer.sharedMaterial.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
                 }
 
                 pegi.newLine();
 
             }
 
-            changed |= "Atlased Materials".enter_List(ref atlasedMaterials, ref InspectedPainter.selectedAtlasedMaterial, ref InspectedStuff, 0).nl();
+            if (p)
+                "Atlased Materials".enter_List(ref atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedStuff, 0).nl(ref changed);
 
-            changed |= "Atlases".enter_List(ref atlases, ref inspectedAtlas, ref InspectedStuff, 1).nl();
+            "Atlases".enter_List(ref atlases, ref inspectedAtlas, ref InspectedStuff, 1).nl(ref changed);
 
             return changed;
 

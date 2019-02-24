@@ -2588,6 +2588,9 @@ namespace PlayerAndEditorGUI {
 
         private static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected)
         {
+
+            if (inspected != -1 || list.Count == 0) return false;
+
             int tmp;
             icon ico;
             string msg;
@@ -2598,14 +2601,14 @@ namespace PlayerAndEditorGUI {
                 msg = LastNeedAttentionMessage;
             }
             else {
-                tmp = Mathf.Max(0, inspected);
+                tmp = 0;
                 ico = icon.Next;
-                msg = "Inspect element {0}".F(tmp);
+                msg = "->";
             }
 
             var el = list.TryGet(tmp) as IPEGI;
 
-            if (el != null && ico.Click(msg)) {
+            if (el != null && ico.Click(msg + el.ToPegiString())) {
                 inspected = tmp;
                 isFoldedOutOrEntered = true;
                 return change;
@@ -3185,9 +3188,9 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
         }
 
-        public static bool Click(this string label, int fontSize) => new GUIContent() { text = label }.Click(PEGI_Styles.ScalableText(fontSize));
+        public static bool Click(this string label, int fontSize) => new GUIContent() { text = label }.Click(PEGI_Styles.ScalableBlueText(fontSize));
 
-        public static bool Click(this string label, string hint, int fontSize) => new GUIContent() { text = label, tooltip = hint}.Click(PEGI_Styles.ScalableText(fontSize));
+        public static bool Click(this string label, string hint, int fontSize) => new GUIContent() { text = label, tooltip = hint}.Click(PEGI_Styles.ScalableBlueText(fontSize));
         
         public static bool Click(this string label, GUIStyle style) => new GUIContent() {text = label}.Click(style); 
         
@@ -6502,9 +6505,8 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     if (el == null) {
 
-                        if (!isMonoType(list, i))
-                        {
-                            write(typeof(T).IsSubclassOf(typeof(UnityEngine.Object))
+                        if (!isMonoType(list, i)) {
+                            write(typeof(T).IsSubclassOf(typeof(Object))
                                 ? "use edit_List_UObj"
                                 : "is NUll");
                         }

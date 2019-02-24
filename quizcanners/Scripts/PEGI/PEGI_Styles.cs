@@ -25,11 +25,11 @@ namespace PlayerAndEditorGUI
                 wordWrap = false,
                 fontStyle = FontStyle.Bold,
                 contentOffset = new Vector2(0, 4),
-                normal = {textColor = new Color32(40, 40, 255, 255)},
+                normal = {textColor = new Color32(40, 40, 40, 255)},
             });
 
         static GUIStyle _scalableText;
-        public static GUIStyle ScalableText(int fontSize = 11)
+        public static GUIStyle ScalableBlueText(int fontSize = 11)
         {
           
                 if (_scalableText == null)

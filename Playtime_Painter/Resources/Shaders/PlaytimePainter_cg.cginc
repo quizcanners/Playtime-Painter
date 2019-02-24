@@ -80,12 +80,8 @@ inline float checkersFromWorldPosition(float3 worldPos, float distance){
 	
 }
 
-inline float4 previewTexcoord (float2 texcoord){
-	float4 tmp;
-	tmp.xy = texcoord.xy;
-	tmp.zw = (_brushPointedUV.xy - floor(_brushPointedUV.xy) - tmp.xy + floor(tmp.xy))/_brushForm.z;
-	//tmp.zw -= floor(tmp.zw);
-	return tmp;
+inline float2 previewTexcoord (float2 uv){
+	return (_brushPointedUV.xy - floor(_brushPointedUV.xy) - uv.xy + floor(uv.xy)) / _brushForm.z;
 }
 
 inline float4 brushTexcoord (float2 texcoord, float4 vertex){
@@ -152,14 +148,38 @@ inline float alphaFromUV (float4 texcoord){
 	return 1 - a*(4);
 }
 
-inline float prepareAlphaSquare(float4 texcoord) {
-	float mask = getMaskedAlpha(texcoord.xy);
+inline float prepareAlphaSquare(float2 texcoord) {
+	/*float mask = getMaskedAlpha(texcoord.xy);
 
 	clip(1 - texcoord.z*texcoord.z);
 	clip(1 - texcoord.w*texcoord.w);
 
 
-	return calculateAlpha(1, mask);
+	return calculateAlpha(1, mask);*/
+
+
+	float4 tc = float4(texcoord.xy, 0, 0);
+
+	float2 perfTex = (floor(tc.xy*_DestBuffer_TexelSize.z) + 0.5) * _DestBuffer_TexelSize.x;
+	float2 off = (tc.xy - perfTex);
+
+	float n = 4;
+
+	float2 offset = saturate((abs(off) * _DestBuffer_TexelSize.z)*(n * 2 + 2) - n);
+
+	off = off * offset;
+
+	tc.xy = perfTex + off;
+
+	tc.zw = previewTexcoord(tc.xy);
+
+	off = tc.zw * tc.zw;
+	float a = max(off.x, off.y);
+
+	a =  1 - a * (4);
+
+	return calculateAlpha(1, saturate(a * 128));
+
 }
 
 inline float prepareAlphaSquarePreview(float4 texcoord) {
@@ -167,7 +187,7 @@ inline float prepareAlphaSquarePreview(float4 texcoord) {
 	float2 off = texcoord.zw * texcoord.zw;
 	float a = max(off.x, off.y);
 
-	a = max(0, 1 - a * (4));
+	a = 1 - a * (4);
 
 	return saturate(a * 128);
 }

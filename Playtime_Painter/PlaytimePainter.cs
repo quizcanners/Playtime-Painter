@@ -1230,7 +1230,6 @@ namespace Playtime_Painter {
 
             if (!curImgData.recording) return;
             
-
             if (stroke.mouseDwn)
             {
                 _prevDir = Vector2.zero;
@@ -1779,10 +1778,7 @@ namespace Playtime_Painter {
 
             if (!TexMgmt)
                 canInspect = false;
-            else
-            {
-                if (!Cfg)
-                {
+            else if (!Cfg) {
                     "No Config Detected".nl();
                     if (icon.Refresh.Click().changes(ref changed)) {
                         PainterStuff.applicationIsQuitting = false;
@@ -1791,8 +1787,8 @@ namespace Playtime_Painter {
                     }
 
                     canInspect = false;
-                }
             }
+            
 
             if (canInspect && gameObject.IsPrefab()) {
                 "Inspecting a prefab.".nl();
@@ -1826,19 +1822,16 @@ namespace Playtime_Painter {
                 canInspect = false;
 
             }
-
-
-            if (canInspect)
-            {
+            
+            if (canInspect) {
 
                 TexMgmt.focusedPainter = this;
                 
                 if (
-#if UNITY_EDITOR
+                    #if UNITY_EDITOR
                     (IsCurrentTool && terrain && !Application.isPlaying &&
                      UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
-#endif
-
+                    #endif
                     icon.On.Click("Click to Disable Tool"))
                 {
                     PainterDataAndConfig.toolEnabled = false;
@@ -1901,8 +1894,13 @@ namespace Playtime_Painter {
 
                     pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
 
-                    "This Component allows you to paint on this object=>renderer=>material=>texture. Also edit the mesh."
-                        .fullWindowDocumentationClick("What is this component?", 15);
+                    ("This Component allows you to paint on this object's renderer's material's texture. Also edit the mesh." +
+                        "All configurations are located within this inspector. It uses my custom inspection wrapper." +
+                        " When inspecting element of any list, on the left from list's header " +
+                        "will be a button to exit the list, and on the right - to return to the list view" +
+                        " It may be counter intuitive at first. " +
+                        "But it saves time once you get used to it. If you are working with only one element in a list you don't have to look for it every time.")
+                        .fullWindowDocumentationClick("What is this component?");
                 }
 
                 #endregion

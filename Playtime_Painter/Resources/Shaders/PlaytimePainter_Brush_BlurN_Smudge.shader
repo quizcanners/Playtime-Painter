@@ -82,23 +82,74 @@
 					float2 d = _DestBuffer_TexelSize.xy*_brushForm.w;
 
 					#if UNITY_COLORSPACE_GAMMA
-					_brushColor = pow(tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0)), GAMMA_TO_LINEAR);
+
+
+
+					/*_brushColor = pow(tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0)), GAMMA_TO_LINEAR);
 	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x + d.x*1.5, uv.y + d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
 	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x - d.x*0.5, uv.y + d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
 	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x - d.x*1.5, uv.y - d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
 	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x + d.x*0.5, uv.y - d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
 
 					_brushColor *= 0.2;
-	  				_brushColor = pow(_brushColor, LINEAR_TO_GAMMA);
+	  				_brushColor = pow(_brushColor, LINEAR_TO_GAMMA);*/
+
+
+					#define GRABPIXELX(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)), GAMMA_TO_LINEAR) * weight
+
+					#define GRABPIXELY(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)), GAMMA_TO_LINEAR) * weight
 
 					#else 
 
-					_brushColor = tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0))
+					#define GRABPIXELX(weight,kernel) tex2Dlod( _DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)) * weight
+
+					#define GRABPIXELY(weight,kernel) tex2Dlod( _DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)) * weight
+
+					#endif
+
+					float4 sum = 0;
+
+					float xker = 0.0001*_brushForm.w;
+
+				
+					sum += GRABPIXELX(0.05, -4.0);
+					sum += GRABPIXELX(0.09, -3.0);
+					sum += GRABPIXELX(0.12, -2.0);
+					sum += GRABPIXELX(0.15, -1.0);
+					sum += GRABPIXELX(0.18, 0.0);
+					sum += GRABPIXELX(0.15, +1.0);
+					sum += GRABPIXELX(0.12, +2.0);
+					sum += GRABPIXELX(0.09, +3.0);
+					sum += GRABPIXELX(0.05, +4.0);
+
+					float yker = 0.0001*_brushForm.w;
+
+				
+					sum += GRABPIXELY(0.05, -4.0);
+					sum += GRABPIXELY(0.09, -3.0);
+					sum += GRABPIXELY(0.12, -2.0);
+					sum += GRABPIXELY(0.15, -1.0);
+					sum += GRABPIXELY(0.18, 0.0);
+					sum += GRABPIXELY(0.15, +1.0);
+					sum += GRABPIXELY(0.12, +2.0);
+					sum += GRABPIXELY(0.09, +3.0);
+					sum += GRABPIXELY(0.05, +4.0);
+
+					sum *= 0.5;
+
+				
+
+					/*_brushColor = tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0))
 								+ tex2Dlod(_DestBuffer, float4(uv.x+d.x*1.5, uv.y+d.y*0.5, 0, 0))
 								+ tex2Dlod(_DestBuffer, float4(uv.x-d.x*0.5, uv.y+d.y*1.5, 0, 0))
 								+ tex2Dlod(_DestBuffer, float4(uv.x-d.x*1.5, uv.y-d.y*0.5, 0, 0))
-								+ tex2Dlod(_DestBuffer, float4(uv.x+d.x*0.5, uv.y-d.y*1.5, 0, 0));
-					_brushColor *= 0.2;
+								+ tex2Dlod(_DestBuffer, float4(uv.x+d.x*0.5, uv.y-d.y*1.5, 0, 0));*/
+					//_brushColor *= 0.2;
+
+					#if UNITY_COLORSPACE_GAMMA
+					_brushColor = pow(sum, LINEAR_TO_GAMMA);
+					#else
+					_brushColor = sum;
 					#endif
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2

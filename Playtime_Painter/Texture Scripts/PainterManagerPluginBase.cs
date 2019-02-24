@@ -126,19 +126,19 @@ namespace Playtime_Painter {
             }
         }
         
-#region Abstract Serialized
+        #region Abstract Serialized
         public abstract string ClassTag { get; } 
         public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterManagerPluginBase));
         public TaggedTypesStd AllTypes => all;
-#endregion
+        #endregion
 
-#region Encode & Decode
+        #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
         #endregion
 
-        public virtual string NameForDisplayPEGI => this.ToString();
+        public virtual string NameForDisplayPEGI => ToString();
         
         public virtual void Update() { }
 

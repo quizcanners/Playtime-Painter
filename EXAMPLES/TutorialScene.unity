@@ -112,6 +112,38 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!84 &122583934
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 0
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &136433662
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,7 +555,7 @@ Transform:
   m_GameObject: {fileID: 282319041}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.409363, y: 33.2, z: 14.089623}
-  m_LocalScale: {x: 128, y: 128, z: 128}
+  m_LocalScale: {x: 256, y: 256, z: 256}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 14
@@ -1033,7 +1065,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 479929388}
-  m_Mesh: {fileID: 954350397}
+  m_Mesh: {fileID: 615539677}
 --- !u!23 &479929391
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1078,12 +1110,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 479929388}
-  m_LocalRotation: {x: 0.017306276, y: 0.9575625, z: -0.06893375, w: -0.2793254}
-  m_LocalPosition: {x: 9.902, y: -2927.96, z: 10.292}
-  m_LocalScale: {x: 2, y: 1.9999995, z: 2.0000005}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalScale: {x: 256, y: 256, z: 0}
   m_Children: []
   m_Father: {fileID: 2003499432}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505755631
 GameObject:
@@ -1198,9 +1230,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.56520545, y: 0.37867302}
     posFrom: {x: 126.1109, y: 34.029152, z: -100.95398}
-    uvTo: {x: 0.2921788, y: 0.6041224}
-    posTo: {x: -419.94238, y: 48.57006, z: 349.94476}
-    unRepeatedUv: {x: 0.2921788, y: 0.6041224}
+    uvTo: {x: 0.5632251, y: 0.5129403}
+    posTo: {x: 122.150085, y: 59.75732, z: 167.5805}
+    unRepeatedUv: {x: 0.5632251, y: 0.5129403}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0.00016152911
     mouseDwn: 0
@@ -1552,6 +1584,166 @@ Transform:
   m_Father: {fileID: 185773082}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 143.028, y: -690.578, z: -445.115}
+--- !u!43 &615539677
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Quad
+  serializedVersion: 9
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 6
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 4
+    localAABB:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0.5, y: 0.5, z: 0}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000001000200020001000300
+  m_VertexData:
+    serializedVersion: 2
+    m_VertexCount: 4
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 80
+    _typelessdata: 000000bf0000003f00000000000000000000803f0000003f0000003f000000000000803f0000803f000000bf000000bf0000000000000000000000000000003f000000bf000000000000803f00000000
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0}
+  m_MeshUsageFlags: 0
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
+  m_MeshOptimized: 0
+  m_StreamData:
+    offset: 0
+    size: 0
+    path: 
 --- !u!1001 &658964010
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2611,15 +2803,15 @@ MonoBehaviour:
     flipMaskAlpha: 0
     targetIsTex2D: 0
     showBrushDynamics: 0
-    brush3DRadius: 0.728
+    brush3DRadius: 0.518
     brush2DRadius: 16
     speed: 20
     mb1ToLinkPositions: 0
     dontRedoMipMaps: 0
     colorLinear:
-      r: 1
+      r: 0.009443807
       g: 1
-      b: 1
+      b: 0
       a: 1
 --- !u!23 &1101090575
 MeshRenderer:
@@ -2687,8 +2879,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101090572}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.32, y: 73.628006, z: 10.937}
-  m_LocalScale: {x: 0.52, y: 0.52, z: 0.52}
+  m_LocalPosition: {x: 9.32, y: 73.6, z: 10.937}
+  m_LocalScale: {x: 0.37, y: 0.37, z: 0.37}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -2745,9 +2937,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0, y: 0}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.93761414, y: 0.000910252}
-    posTo: {x: 17.20551, y: 69.88492, z: 10.549861}
-    unRepeatedUv: {x: 0.93761414, y: 0.000910252}
+    uvTo: {x: 0.57743925, y: 0.0740948}
+    posTo: {x: 17.60672, y: 70.04685, z: 9.144828}
+    unRepeatedUv: {x: 0.57743925, y: 0.0740948}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
     mouseDwn: 0
@@ -3010,9 +3202,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.5329957, y: 0.12635899}
     posFrom: {x: 109.772995, y: 37.980064, z: 160.97636}
-    uvTo: {x: 0.23947334, y: 0.5878868}
-    posTo: {x: 62.553932, y: 57.46369, z: 112.51352}
-    unRepeatedUv: {x: 0.23947334, y: -0.4121132}
+    uvTo: {x: 0.010967255, y: 0.36138058}
+    posTo: {x: 83.08709, y: 57.46369, z: 162.93867}
+    unRepeatedUv: {x: 0.010967255, y: -0.6386194}
     previousDelta: {x: 0.11837578, y: -0.20670795}
     avgBrushSpeed: 6.7611086e-19
     mouseDwn: 0
@@ -3727,9 +3919,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0, y: 0}
     posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.02370876, y: 0.49282885}
-    posTo: {x: -11.74761, y: 71.207756, z: 10.844418}
-    unRepeatedUv: {x: 0.02370876, y: 0.49282885}
+    uvTo: {x: 0.69146985, y: 0.041953053}
+    posTo: {x: -13.181497, y: 72.1487, z: 12.713094}
+    unRepeatedUv: {x: 0.69146985, y: 0.041953053}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
     mouseDwn: 0
@@ -3938,15 +4130,15 @@ MonoBehaviour:
   nameHolder: PlaytimeMeshEditTest
   selectedAtlasedMaterial: -1
   stroke:
-    uvFrom: {x: 0, y: 0}
-    posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.9646313, y: 0.10184122}
-    posTo: {x: 55.05238, y: 83.295616, z: 151.93513}
-    unRepeatedUv: {x: 0.9646313, y: 0.10184122}
+    uvFrom: {x: 0.3991975, y: 0.48648098}
+    posFrom: {x: 53.587822, y: 87.67601, z: 149.86607}
+    uvTo: {x: 0.0008830293, y: 0.26728252}
+    posTo: {x: 57.499165, y: 86.36479, z: 150.4269}
+    unRepeatedUv: {x: 0.0008830293, y: 0.26728252}
     previousDelta: {x: 0, y: 0}
     avgBrushSpeed: 0
     mouseDwn: 0
-    firstStroke: 1
+    firstStroke: 0
     mouseUp: 0
   tilingY: 8
   playbackVectors: []
@@ -4188,9 +4380,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.6814059, y: 0.15667123}
     posFrom: {x: 9.8336525, y: 72.91989, z: 9.384115}
-    uvTo: {x: 0.09358706, y: 0.9679375}
-    posTo: {x: 8.674148, y: 72.90231, z: 9.757826}
-    unRepeatedUv: {x: 0.09358706, y: 0.9679375}
+    uvTo: {x: 0.60754514, y: 0.49425083}
+    posTo: {x: 8.943132, y: 72.07396, z: 10.646704}
+    unRepeatedUv: {x: 0.60754514, y: 0.49425083}
     previousDelta: {x: 0.00254488, y: 0.0017701238}
     avgBrushSpeed: 0.000000011366076
     mouseDwn: 0
@@ -4416,7 +4608,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -13.495088
+  timer: -117.53519
   style:
     m_Name: Hint Style
     m_Normal:
@@ -4823,7 +5015,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 1073741824
   m_RenderingPath: 1
-  m_TargetTexture: {fileID: 1991794634}
+  m_TargetTexture: {fileID: 122583934}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -4856,7 +5048,7 @@ MonoBehaviour:
   bigRtPair:
   - {fileID: 1991794634}
   - {fileID: 678359617}
-  bigRtVersion: 4768
+  bigRtVersion: 6297
   secondBufferDebug: {fileID: 0}
   autodisabledBufferTarget: {fileID: 0}
   secondBufferUpdated: 0

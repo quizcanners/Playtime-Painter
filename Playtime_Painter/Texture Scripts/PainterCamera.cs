@@ -328,12 +328,13 @@ namespace Playtime_Painter {
         public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
         {
 
+            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
             MyMath.isLerping_bySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 0.1f);
-
-            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+            
             PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
             _prevPosPreview = st.posTo;
@@ -500,6 +501,10 @@ namespace Playtime_Painter {
 
         public void Render()
         {
+
+            //if (!secondBufferUpdated)
+                //Debug.Log("Second buffer dirty");//  UpdateBufferTwo();
+
             transform.rotation = Quaternion.identity;
             cameraPosition_Property.GlobalValue = transform.position.ToVector4();
 
@@ -545,8 +550,7 @@ namespace Playtime_Painter {
                 secondBufferUpdated = false;
         }
 
-        public void UpdateBufferTwo()
-        {
+        public void UpdateBufferTwo() {
             brushRenderer.Set(Data.pixPerfectCopy);
             Graphics.Blit(bigRtPair[0], bigRtPair[1]);
             secondBufferUpdated = true;

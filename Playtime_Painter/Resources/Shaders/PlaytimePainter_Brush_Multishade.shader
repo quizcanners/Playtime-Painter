@@ -99,7 +99,7 @@
 					#endif
 
 					#if BRUSH_SQUARE
-						float alpha = prepareAlphaSquare(i.texcoord);
+						float alpha = prepareAlphaSquare(i.texcoord.xy);
 					#endif
 
 					#if BRUSH_DECAL

@@ -230,13 +230,18 @@ namespace Playtime_Painter
         protected static void AfterStroke(BrushConfig br)
         {
 
-            if ((br.useMask) && (br.randomMaskOffset))
+            if (br.useMask && br.randomMaskOffset)
                 br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
         }
 
-        public virtual void BeforeStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
-        {
+        public void BeforeStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st) {
+
+            var cam = TexMGMT;
+
+            if (!cam.secondBufferUpdated)
+                cam.UpdateBufferTwo();
+
             foreach (var p in painter.plugins)
                 p.BeforeGpuStroke(painter, br, st, this);
         }
@@ -275,8 +280,6 @@ namespace Playtime_Painter
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
-
-          
 
            BeforeStroke(painter, br, st);
 
@@ -318,12 +321,14 @@ namespace Playtime_Painter
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
 
-            if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
+            if (TexMGMT.bigRtPair == null)
+                TexMGMT.UpdateBuffersState();
 
             var id = rt.GetImgData();
             var stroke = new StrokeVector(uv) {
                 firstStroke = false
             };
+
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);
 
             float width = br.StrokeWidth(id.width, false);
@@ -338,8 +343,6 @@ namespace Playtime_Painter
             TexMGMT.Render();
 
             AfterStroke(br);
-
-
 
         }
     }
@@ -434,7 +437,7 @@ namespace Playtime_Painter
             br.decalAngle = Random.Range(-90f, 450f);
             TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); 
         }
-#if PEGI
+        #if PEGI
         public override bool Inspect()
         {
 
@@ -472,7 +475,7 @@ namespace Playtime_Painter
             return changes;
 
         }
-#endif
+        #endif
 
     }
 
@@ -485,8 +488,7 @@ namespace Playtime_Painter
         protected override string ShaderKeyword(bool texcoord2) => "BRUSH_2D"; 
 
         public override string NameForDisplayPEGI => "Lazy";
-
-
+        
         private float _lazySpeedDynamic = 1;
         private float _lazyAngleSmoothed = 1;
         public Vector2 previousDirectionLazy;
@@ -496,19 +498,16 @@ namespace Playtime_Painter
 
             BeforeStroke(painter, br, st);
  
-
             var deltaUv = st.DeltaUv;//uv - st.uvFrom;//.Previous_uv;
             var magnitude = deltaUv.magnitude;
 
             var id = painter.ImgMeta;
 
             var width = br.Size(false) / id.width * 4;
-            //const float followPortion = 0.5f;
-            //float follow = width;
 
             var trackPortion = (deltaUv.magnitude - width * 0.5f) * 0.25f;
 
-            if ((!(trackPortion > 0)) && (!st.mouseUp)) return;
+            if (!(trackPortion > 0) && !st.mouseUp) return;
             
             if (st.firstStroke)
             {
@@ -532,9 +531,7 @@ namespace Playtime_Painter
             }
 
             previousDirectionLazy = deltaUv;
-
-
-
+            
             if (!st.mouseUp)
             {
                 if (smooth)
@@ -548,7 +545,6 @@ namespace Playtime_Painter
 
                     if ((sin * sin > maxSinus * maxSinus) || ((sin > 0) != (maxSinus > 0)))
                     {
-
                         var absSin = Mathf.Abs(sin);
                         var absNSin = Mathf.Abs(maxSinus);
 
@@ -619,22 +615,24 @@ namespace Playtime_Painter
         }
     }
 
-    public class BrushTypeSphere : BrushType
-    {
+    public class BrushTypeSphere : BrushType {
 
         static BrushTypeSphere _inst;
+
         public BrushTypeSphere() { _inst = this; }
+
         public static BrushTypeSphere Inst { get { InitIfNull(); return _inst; } }
 
         protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"; 
 
         public override bool IsA3DBrush => true; 
+
         public override bool SupportedForTerrainRt => false; 
+
         public override bool NeedsGrid => Cfg.useGridForBrush; 
 
         public override string NameForDisplayPEGI => "Sphere";
         
-
         static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter pntr)
         {
             if (TexMGMT.bigRtPair.IsNullOrEmpty())
@@ -669,8 +667,6 @@ namespace Playtime_Painter
             }
 
             AfterStroke(painter, br, st);
-
-
         }
 
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex)
@@ -685,7 +681,6 @@ namespace Playtime_Painter
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex)
         {
             br.BlitMode.PrePaint(null, br, st);
-
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
@@ -706,6 +701,7 @@ namespace Playtime_Painter
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
+      
         #region Inspector
         #if PEGI
         public override bool Inspect()

@@ -36,7 +36,7 @@
 	
 				struct v2f {
 				float4 pos : POSITION;
-				float4 texcoord : TEXCOORD0;  
+				float2 texcoord : TEXCOORD0;  
 				float3 worldPos : TEXCOORD1;
 
 				#if UV_ATLASED
@@ -60,8 +60,7 @@
 						v.texcoord.xy = v.texcoord2.xy;
 					#endif
 
-					v.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
-					o.texcoord = previewTexcoord (v.texcoord.xy);
+					o.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
 					o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
 					#if UV_ATLASED
@@ -95,9 +94,12 @@
 					float4 col = 0;
 					float alpha = 1;
 
+					float4 tc = float4(i.texcoord.xy, 0,0);
+
+
 					#if BRUSH_SQUARE
-						float2 perfTex = (floor(i.texcoord.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
-						float2 off = (i.texcoord.xy - perfTex);
+						float2 perfTex = (floor(tc.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
+						float2 off = (tc.xy - perfTex);
 
 						float n = max(4,30 - dist); 
 
@@ -105,18 +107,17 @@
 
 						off = off * offset;
 
-						i.texcoord.xy = perfTex  + off;
+						tc.xy = perfTex  + off;
 
-						col = tex2Dlod(_PreviewTex, float4(i.texcoord.xy,0,0));
-						float2 off2 = i.texcoord.zw*i.texcoord.zw;
+						tc.zw = previewTexcoord(tc.xy);
 
-						float fromCenter = sqrt(off2.x+off2.y);
-						float gridCircleSize =_brushForm.x;
+						col = tex2Dlod(_PreviewTex, float4(tc.xy,0,0));
 
+						float2 off2 = tc.zw*tc.zw;
 
-						fromCenter =(gridCircleSize - fromCenter)/(gridCircleSize);
-
-						float lod = getLOD(i.texcoord.xy, _PreviewTex_TexelSize);
+						float fromCenter = 0.5*sqrt(off2.x+off2.y);
+					
+						float lod = getLOD(tc.xy, _PreviewTex_TexelSize);
 
 						float border = (1-saturate(fromCenter)) * max(offset.x, offset.y) * max(0, 1- lod*16);
 
@@ -124,32 +125,36 @@
 
 						_brushPointedUV.xy = (floor (_brushPointedUV.xy*_PreviewTex_TexelSize.z)+ 0.5) * _PreviewTex_TexelSize.x;
 
+					#else
+					
+						tc.zw = previewTexcoord(i.texcoord.xy);
+
 					#endif
 
-					i.texcoord = previewTexcoord (i.texcoord.xy);
-
+			
 					#if  !BRUSH_SQUARE 	
 						alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist); 
 
-						col =  tex2Dlod(_PreviewTex, float4(i.texcoord.xy, 0, 0));
+						col =  tex2Dlod(_PreviewTex, float4(tc.xy, 0, 0));
 					#endif
 
 					#if BRUSH_3D  || BRUSH_3D_TEXCOORD2
-						alpha *= prepareAlphaSpherePreview (i.texcoord.xy, i.worldPos);
+						alpha *= prepareAlphaSpherePreview (tc.xy, i.worldPos);
 					#endif
 
 					#if BRUSH_2D || BRUSH_SQUARE
+
 						#if (!BRUSH_SQUARE)
-							alpha *= prepareAlphaSmoothPreview (i.texcoord);
+							alpha *= prepareAlphaSmoothPreview (tc);
 							float differentColor = min(0.5, (abs(col.g-_brushColor.g)+abs(col.r-_brushColor.r)+abs(col.b-_brushColor.b))*8);
 							_brushColor = _brushColor*(differentColor+0.5);
 						#else
-							alpha *= prepareAlphaSquarePreview(i.texcoord);
+							alpha *= prepareAlphaSquarePreview(tc);
 						#endif
 					#endif
 
 					#if BRUSH_DECAL
-						float2 decalUV = (i.texcoord.xy - _brushPointedUV.xy)*256/_brushForm.y;
+						float2 decalUV = (tc.xy - _brushPointedUV.xy)*256/_brushForm.y;
 
 	 					float sinX = sin ( _DecalParameters.x );
 						float cosX = cos ( _DecalParameters.x );
@@ -172,8 +177,8 @@
 					#endif
 
 					#if PREVIEW_SAMPLING_DISPLACEMENT
-						float resX = (i.texcoord.x + (col.r - 0.5) * 2);
-						float resY = (i.texcoord.y + (col.g - 0.5) * 2);
+						float resX = (tc.x + (col.r - 0.5) * 2);
+						float resY = (tc.y + (col.g - 0.5) * 2);
 
 						float edge = abs(0.5-((resX*_brushSamplingDisplacement.z) % 1)) + abs(0.5 - (resY*_brushSamplingDisplacement.w) % 1);
 
@@ -189,18 +194,18 @@
 					#if BRUSH_NORMAL || BRUSH_COPY 
 
 					#if TARGET_TRANSPARENT_LAYER
-						col = AlphaBlitTransparentPreview(alpha, _brushColor, i.texcoord.xy, col);
+						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
 					#else
-						col = AlphaBlitOpaquePreview(alpha, _brushColor, i.texcoord.xy, col);
+						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
 					#endif
 					#endif
 
 					#if BRUSH_ADD
-						col =  addWithDestBufferPreview (alpha*0.4, _brushColor,  i.texcoord.xy, col);
+						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
 					#endif
     
 					#if BRUSH_SUBTRACT
-						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor,  i.texcoord.xy, col);
+						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
 					#endif
 
 					

@@ -424,11 +424,13 @@ namespace Playtime_Painter
             "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedStuffs, 4).nl(ref changes);
 
             if (_inspectedStuffs != -1) return changes;
-            
-            #if UNITY_EDITOR
-            if ("Refresh Shaders".ClickLabel("Search for shaders again").nl())
-                CheckShaders(true);
 
+            #if UNITY_EDITOR
+            if ("Refresh Brush Shaders".Click(14).nl())
+            {
+                CheckShaders(true);
+                "Shaders Refreshed".showNotificationIn3D_Views();
+            }
             "Using layer:".write(80);
             myLayer = EditorGUILayout.LayerField(myLayer);
 
