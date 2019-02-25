@@ -6,14 +6,14 @@ If something looks like a bug or just feels unintuitive, feel free to use one of
 
 HOW TO USE:
 Attach PlaytimePainter Component to the GameObject you want to edit. Component's interface contains all the Texture editing
-and mesh editing functionality. More in Online Documentation.
+and mesh editing functionality. There is an Online Documentation but most of it is being moved into Component inspector (the '?' icon next to a thing).
 
 IMPORTANT TO KNOW:
 Component more often prioratizes time-saving over being cautious. For example, it will automatically set "Is readable" 
 for texture currently selected for editing and will create a .PNG RGBA copy of it to edit if current version is of a wrong format.
 I created it for a very specific goal: to try stuff out as fast as possible. It's easy to edit things, but as a result, it's possible
-to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback.
-Also it's best not to move folders around. Some dependencies are location sensitive (Shader include files, they need to be referenced directly).
+to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback. 
+Also it's best not to move folders around. Some dependencies are location sensitive (Shader .cginclude files need to be referenced directly for example).
 
 
 Hope you will enjoy the Asset, and please join a Discord channel (link below). 

@@ -116,7 +116,7 @@ namespace Playtime_Painter{
             return painter.GlobalBrushType.NeedsGrid; 
         }
 
-        public static void AddIfNew<T>(this Dictionary<T, List<ImageMeta>> dic, T property, ImageMeta texture) where T:ShaderProperty.BaseIndexHolder
+        public static void AddIfNew<T>(this Dictionary<T, List<ImageMeta>> dic, T property, ImageMeta texture) where T:ShaderProperty.BaseShaderPropertyIndex
         {
 
             List<ImageMeta> mgmt;

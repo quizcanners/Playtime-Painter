@@ -49,6 +49,7 @@ namespace PlayerAndEditorGUI {
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
+            pegi.inspectedTerget = editor.target;
 
             var go = o.gameObject;
             
@@ -59,6 +60,8 @@ namespace PlayerAndEditorGUI {
             
             if (pgi != null)
             {
+              
+
                 start(so);
 
                 if (!pegi.PopUpService.ShowingPopup())
@@ -73,7 +76,8 @@ namespace PlayerAndEditorGUI {
                         icon.Save.Click("Update Prefab"))
                         PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
                     #endif
-                    
+
+                   
                     pgi.Inspect();
                     
                     #if UNITY_2018_3_OR_NEWER
@@ -96,7 +100,8 @@ namespace PlayerAndEditorGUI {
                 
                 return changes;
             }
-            else editor.DrawDefaultInspector();
+
+            editor.DrawDefaultInspector();
 
             return false;
         }
@@ -109,11 +114,13 @@ namespace PlayerAndEditorGUI {
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
+            pegi.inspectedTerget = editor.target;
 
             var pgi = o as IPEGI;
             if (pgi != null)
             {
                 start(so);
+              
                 var changed = !pegi.PopUpService.ShowingPopup() && pgi.Inspect();
                 end(o);
                 return changed;
@@ -128,6 +135,8 @@ namespace PlayerAndEditorGUI {
             _materialEditor = editor;
 
             editorType = EditorType.Material;
+
+            pegi.inspectedTerget = editor.unityMaterialEditor.target;
 
             var mat = editor.unityMaterialEditor.target as Material;
 

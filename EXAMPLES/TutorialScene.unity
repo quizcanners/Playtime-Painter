@@ -1115,7 +1115,7 @@ Transform:
   m_LocalScale: {x: 256, y: 256, z: 0}
   m_Children: []
   m_Father: {fileID: 2003499432}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505755631
 GameObject:
@@ -4608,7 +4608,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -117.53519
+  timer: -2.4114623
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5038,7 +5038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1742197219}
+  focusedPainter: {fileID: 1144922679}
   isLinearColorSpace: 1
   theCamera: {fileID: 2003499430}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,

@@ -748,11 +748,11 @@ namespace QuizCannersUtilities {
             }
             
             public override bool Portion(ref float linkedPortion) =>
-                speedLimit.SpeedToMinPortion(property.lastValue - targetValue, ref linkedPortion);
+                speedLimit.SpeedToMinPortion(Value - targetValue, ref linkedPortion);
 
             protected override bool Lerp_SubInternal(float portion) {
-                if (Enabled && (property.lastValue != targetValue || !defaultSet)) {
-                    property.lastValue = Mathf.Lerp(property.lastValue, targetValue, portion);
+                if (Enabled && (Value != targetValue || !defaultSet)) {
+                    property.lastValue = Mathf.Lerp(Value, targetValue, portion);
                     return true;
                 }
                 return false;
@@ -791,26 +791,26 @@ namespace QuizCannersUtilities {
                 if (mat)
                     mat.Set(property);
                 else
-                    property.GlobalValue = property.lastValue;
+                    property.GlobalValue = Value;
             }
 
             public MaterialColor(string nname, Color startingValue, float startingSpeed = 1, Material m = null, Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
                 property = new ShaderProperty.ColorValue(nname);
 
-                property.lastValue = startingValue;
+                Value = startingValue;
             }
 
             protected override bool Lerp_SubInternal(float portion) {
-                if (property.lastValue != targetValue || !defaultSet)  {
-                    property.lastValue = Color.Lerp(property.lastValue, targetValue, portion);
+                if (Value != targetValue || !defaultSet)  {
+                    property.lastValue = Color.Lerp(Value, targetValue, portion);
                     return true;
                 }
                 return false;
             }
 
             public override bool Portion(ref float portion) =>
-                speedLimit.SpeedToMinPortion(property.lastValue.DistanceRGBA(targetValue), ref portion);
+                speedLimit.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref portion);
 
         }
         

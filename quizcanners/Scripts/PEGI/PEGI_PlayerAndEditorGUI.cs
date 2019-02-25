@@ -174,10 +174,12 @@ namespace PlayerAndEditorGUI {
                 paintingPlayAreaGui = false;
             }
 
-            public void Render(IPEGI p) => Render(p.Inspect, p.ToPegiString());
+            public void Render(IPEGI p) => Render(p, p.Inspect, p.ToPegiString());
 
-            public void Render(WindowFunction doWindow, string c_windowName)
-            {
+            public void Render(IPEGI target, WindowFunction doWindow, string c_windowName) {
+
+                inspectedTerget = target;
+
                 windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
                 windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
 
@@ -203,7 +205,9 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Other Stuff
-        
+
+        public static object inspectedTerget;
+
         private static int _elementIndex;
 
         public static bool isFoldedOutOrEntered;
@@ -465,16 +469,15 @@ namespace PlayerAndEditorGUI {
 
         #region Pop UP Services
 
-        static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
+        private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
             icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
         
-
         public static bool fullWindowDocumentationClick(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
         {
             if (fullWindowDocumentationClick(toolTip, buttonSize))
             {
                 PopUpService.inspectDocumentationDelegate = function;
-                PopUpService.NewGotItText();
+                PopUpService.InitiatePopUp();
                 return true;
             }
 
@@ -487,7 +490,7 @@ namespace PlayerAndEditorGUI {
             if (fullWindowDocumentationClick(toolTip, buttonSize))
             {
                 PopUpService.popUpText = text;
-                PopUpService.NewGotItText();
+                PopUpService.InitiatePopUp();
                 return true;
             }
 
@@ -502,11 +505,13 @@ namespace PlayerAndEditorGUI {
             public const string SupportEmail = "quizcanners@gmail.com";
 
             public static string popUpText = "";
+            
+            private static object popUpTarget;
 
+            private static string understoodPopUpText = "Got it";
 
             public static InspectionDelegate inspectDocumentationDelegate;
-
-
+            
             private static readonly List<string> gotItTexts = new List<string>()
             {
                 "Got it!",
@@ -524,12 +529,14 @@ namespace PlayerAndEditorGUI {
                 "Reading Done",
                 "Thanks"
             };
+            
+            public static void InitiatePopUp()
+            {
+                popUpTarget = inspectedTerget;
+                understoodPopUpText = gotItTexts.GetRandom();
+            }
 
-            public static void NewGotItText() => understoodPopUpText = gotItTexts.GetRandom();
-
-            private static string understoodPopUpText = "Got it";
-
-            static void Confirm()
+            private static void Confirm()
             {
                 nl();
 
@@ -548,6 +555,9 @@ namespace PlayerAndEditorGUI {
             }
 
             public static bool ShowingPopup() {
+
+                if (popUpTarget == null || popUpTarget != inspectedTerget)
+                    return false;
 
                 if (!popUpText.IsNullOrEmpty()) {
                     popUpText.writeBig();

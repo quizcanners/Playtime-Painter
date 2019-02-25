@@ -616,10 +616,20 @@ namespace Playtime_Painter
             return y * width + x;
         }
 
-        public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(uv.x * width, uv.y * height);
+        public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(Mathf.Round(uv.x * width), Mathf.Round(uv.y * height));
+
+        public MyIntVec2 UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
+        {
+            uv *= new Vector2(width, height);
+            var result = UvToPixelNumber(uv);
+            
+            pixelOffset = new Vector2(uv.x - result.x, uv.y - result.y);
+
+            return result;
+        }
 
         #endregion
-        
+
         #region BlitJobs
 #if UNITY_2018_1_OR_NEWER
         public NativeArray<Color> pixelsForJob;

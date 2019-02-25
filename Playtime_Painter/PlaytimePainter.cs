@@ -1738,7 +1738,7 @@ namespace Playtime_Painter {
 #if PEGI
             if (selectedInPlaytime == this)
             {
-                WindowPosition.Render(Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
+                WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
                 foreach (var p in PainterManagerPluginBase.GUIplugins)
                     p.OnGUI();
@@ -1894,13 +1894,14 @@ namespace Playtime_Painter {
 
                     pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
 
-                    ("This Component allows you to paint on this object's renderer's material's texture. Also edit the mesh." +
-                        "All configurations are located within this inspector. It uses my custom inspection wrapper." +
-                        " When inspecting element of any list, on the left from list's header " +
-                        "will be a button to exit the list, and on the right - to return to the list view" +
-                        " It may be counter intuitive at first. " +
-                        "But it saves time once you get used to it. If you are working with only one element in a list you don't have to look for it every time.")
-                        .fullWindowDocumentationClick("What is this component?");
+                    ("This Component allows you to paint on this object's renderer's material's texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
+                      "All functions & configurations are accessible from within this inspector. It uses my custom wrapper on EditorGUI so making it is easy and fast. " +
+                      "Almost every class has it's own Inspect() function. I designed it to be user friendly (in terms of usage and programming) " +
+                      "One thing may be confusing though: {0} When inspecting element of any list, on the left from list's header " +
+                      "will be a button to exit the list, and on the right - to return to the list view " +
+                      "It may be counter intuitive at first. " +
+                      "But it saves time once you get used to it. If you are working with only one element in a list you don't have to look for it every time when you come back.").F(pegi.EnvironmentNl)
+                      .fullWindowDocumentationClick("What is this component?");
                 }
 
                 #endregion
@@ -2690,12 +2691,14 @@ namespace Playtime_Painter {
             if (!TexMgmt || this != TexMgmt.focusedPainter || !IsCurrentTool)
                 return;
 
+            #if BUILD_WITH_PAINTER
             if (this == _mouseOverPaintableGraphicElement) {
                 if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
                     _mouseOverPaintableGraphicElement = null;
 
                 OnMouseOver();
             }
+            #endif
 
             #region URL Loading
             if (loadingOrder.Count > 0)
