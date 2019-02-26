@@ -34,26 +34,30 @@ namespace Playtime_Painter.Examples
             FindComponents();
             skeRenderer.enabled = Application.isPlaying;
         }
-
+        
         public float skyDynamics = 0.1f;
 
         private readonly ShaderProperty.VectorValue _sunDirectionProperty = new ShaderProperty.VectorValue("_SunDirection");
         private readonly ShaderProperty.ColorValue _directionalColorProperty = new ShaderProperty.ColorValue("_Directional");
         private readonly ShaderProperty.VectorValue _offsetProperty = new ShaderProperty.VectorValue("_Off");
 
-        [NonSerialized] private Camera _mainCam;
+        [SerializeField] private Camera _mainCam;
 
         private Camera MainCam
         {
             get
             {
+
+                if (!_mainCam)
+                    _mainCam = GetComponentInParent<Camera>();
+
                 if (!_mainCam)
                     _mainCam = Camera.main;
+                
                 return _mainCam;
             }
         }
-
-
+        
         public virtual void Update() {
 
             if (directional != null) {
@@ -61,7 +65,6 @@ namespace Playtime_Painter.Examples
                 _sunDirectionProperty.GlobalValue = new Vector4(v3.x, v3.y, v3.z);
                 _directionalColorProperty.GlobalValue = directional.color;
             }
-            
             
             if (!MainCam) return;
 

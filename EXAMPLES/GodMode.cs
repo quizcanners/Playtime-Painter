@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine.Experimental.UIElements;
 
 namespace Playtime_Painter.Examples {
     
@@ -10,7 +12,7 @@ namespace Playtime_Painter.Examples {
 
         public float speed = 20;
         public float sensitivity = 5;
-        private static readonly bool disableRotation = false;
+        private bool _disableRotation = false;
         public bool rotateWithoutRmb;
 
         private bool Rotate() {
@@ -42,7 +44,7 @@ namespace Playtime_Painter.Examples {
 
             tf.position += add * speed * Time.deltaTime * (Input.GetKey(KeyCode.LeftShift) ? 3f: 1f);
 
-            if ((!Application.isPlaying) || (disableRotation)) return;
+            if (!Application.isPlaying || _disableRotation) return;
             
             if (rotateWithoutRmb || Input.GetMouseButton(1))
             {
@@ -51,18 +53,14 @@ namespace Playtime_Painter.Examples {
                 var rotationX = eul.y;
                 _rotationY = eul.x;
 
-
-
                 rotationX += Input.GetAxis("Mouse X") * sensitivity;
                 _rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
 
                 _rotationY = _rotationY < 120 ? Mathf.Min(_rotationY, 85) : Mathf.Max(_rotationY, 270);
 
-
                 tf.localEulerAngles = new Vector3(_rotationY, rotationX, 0);
 
             }
-
 
             SpinAround();
         }
@@ -73,18 +71,16 @@ namespace Playtime_Painter.Examples {
         public bool orbitingFocused;
         public float spinStartTime;
 
-        [NonSerialized] private Camera _mainCam;
-
+        [SerializeField] private Camera _mainCam;
+        
         private Camera MainCam {
-            get
-            {
+            get {
                 if (!_mainCam)
                     _mainCam = Camera.main;
                 return _mainCam;
             }
         }
-
-
+        
         private void SpinAround()
         {
 
@@ -140,22 +136,32 @@ namespace Playtime_Painter.Examples {
             }
         }
 
-        public virtual void DistantUpdate()
-        {
-        }
-
 #region Inspector
 #if PEGI
         public bool Inspect()
         {
-       
-            "Speed:".edit("Speed of movement", 50, ref speed).nl();
 
-            "sensitivity:".edit(60, ref sensitivity).nl();
-  
-            "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl();
+            var changed = false;
 
-            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} RMB - look around {0} MMB - Orbit Collider".F(pegi.EnvironmentNl);
+            if (!_mainCam)  {
+                "Main Camera".select(ref _mainCam).nl();
+                "Camera is missing, spin around will not work".writeWarning();
+            }
+             
+            "Speed:".edit("Speed of movement", ref speed).nl();
+
+            "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
+
+            "Disable Rotation".toggleIcon( ref _disableRotation).nl(ref changed);
+
+            if (!_disableRotation)
+                "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl(ref changed);
+
+            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(pegi.EnvironmentNl,
+                _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate"));
+
+            if (MainCam)
+                "Main Camera".edit(ref _mainCam).nl(ref changed);
 
             return false;
         }

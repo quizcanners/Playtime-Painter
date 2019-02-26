@@ -408,10 +408,9 @@ namespace Playtime_Painter
            private int _inspectedMaterial = -1;
            private int _inspectedDecal = -1;
 
-           private bool InspectData()
-        {
+        private bool InspectData() {
             var changes = false;
-
+            
             "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedStuffs, 0).nl(ref changes);
 
             "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedStuffs, 1).nl(ref changes);
@@ -425,8 +424,7 @@ namespace Playtime_Painter
             if (_inspectedStuffs != -1) return changes;
 
             #if UNITY_EDITOR
-            if ("Refresh Brush Shaders".Click(14).nl())
-            {
+            if ("Refresh Brush Shaders".Click(14).nl()) {
                 CheckShaders(true);
                 "Shaders Refreshed".showNotificationIn3D_Views();
             }
@@ -446,14 +444,17 @@ namespace Playtime_Painter
 
             var rtp = PainterCamera.Inst;
 
-            if ("Plugins".enter(ref inspectedStuff, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl())
-                rtp.SetToDirty();
+            if (!PainterStuff.IsPlaytimeNowDisabled) {
+                if ("Plugins".enter(ref inspectedStuff, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+                    rtp.SetToDirty();
 
-            if ("Lists".enter (ref inspectedStuff, 11).nl())
-                changed |= InspectData();
+                if ("Lists".enter(ref inspectedStuff, 11).nl(ref changed))
+                    changed |= InspectData();
 
-            changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedStuff, 12).nl();
-
+                changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedStuff, 12).nl(ref changed);
+            }
+            else
+                inspectedStuff = -1;
 
             if (inspectedStuff == -1) {
 
@@ -465,35 +466,36 @@ namespace Playtime_Painter
                         EnablePainterForBuild.SetDefine(gotDefine);
 
                 if (gotDefine)
-                    "In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the painting shaders will be build with the player.".writeHint();
+                    ("In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the " +
+                        "painting shaders will be build with the player. Ignore if you already done this.").writeHint();
 
-                    if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
-                        MeshManager.Inst.DisconnectMesh();
+                if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
+                    MeshManager.Inst.DisconnectMesh();
 
-                    if (!PainterStuff.IsNowPlaytimeAndDisabled) {
+                if (!PainterStuff.IsPlaytimeNowDisabled) {
 
-                        if (Painter && Painter.meshEditing == false)
-                            "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
+                    if (Painter && Painter.meshEditing == false)
+                        "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
 
-                        "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
+                    "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
 
-                        "Save Textures To".edit(110, ref texturesFolderName).nl();
+                    "Save Textures To".edit(110, ref texturesFolderName).nl();
 
-                        "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
+                    "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
 
-                        "Save Materials To".edit(110, ref materialsFolderName).nl();
+                    "Save Materials To".edit(110, ref materialsFolderName).nl();
 
-                        "Save Meshes To".edit(110, ref meshesFolderName).nl();
-                    }
+                    "Save Meshes To".edit(110, ref meshesFolderName).nl();
+                }
 
-                    if (icon.Discord.Click("Join Discord", 64))
-                        PlaytimePainter.Open_Discord();
+                if (icon.Discord.Click("Join Discord", 64))
+                    PlaytimePainter.Open_Discord();
 
-                    if (icon.Docs.Click("Open Asset Documentation", 64))
-                        PlaytimePainter.OpenWWW_Documentation();
+                if (icon.Docs.Click("Open Asset Documentation", 64))
+                    PlaytimePainter.OpenWWW_Documentation();
 
-                    if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
-                        PlaytimePainter.Open_Email();
+                if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
+                    PlaytimePainter.Open_Email();
 #endif
 
             }

@@ -10,9 +10,9 @@ namespace Playtime_Painter {
     [CustomEditor(typeof(PlaytimePainter))]
     public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter> {
         
-        public void GridUpdate(SceneView sceneview)
+        public void GridUpdate(SceneView sceneView)
         {
-            Event e = Event.current;
+            var e = Event.current;
 
             if (e.isMouse || e.type == EventType.ScrollWheel)
                 EditorInputManager.FeedMouseEvent(e);
@@ -25,19 +25,19 @@ namespace Playtime_Painter {
 
                 if (e.button == 0)
                 {
-                    L_mouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
-                    L_mouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
+                    lMouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
+                    lMouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
                 }
                 
                 mousePosition = Event.current.mousePosition;
 
-                bool offScreen = (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
+                var offScreen = (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
                     || mousePosition.x > Camera.current.pixelWidth ||
                        mousePosition.y > Camera.current.pixelHeight));
 
                 if (!offScreen) {
-                    rayGUI = HandleUtility.GUIPointToWorldRay(mousePosition);
-                    EditorInputManager.raySceneView = rayGUI;
+                    rayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
+                    EditorInputManager.raySceneView = rayGui;
                 }
 
             }
@@ -48,13 +48,13 @@ namespace Playtime_Painter {
             {
 
                 RaycastHit hit;
-                var isHit = Physics.Raycast(rayGUI, out hit);
+                var isHit = Physics.Raycast(rayGui, out hit);
 
-                PlaytimePainter pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
+                var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                bool refocus = OnEditorRayHit(hit, rayGUI);
+                var refocus = OnEditorRayHit(hit, rayGui);
 
-                if (L_mouseDwn && e.button == 0 && refocus && isHit)
+                if (lMouseDwn && e.button == 0 && refocus && isHit)
                 {
 
                     if (pp && pp == painter && AllowEditing(painter))
@@ -68,29 +68,29 @@ namespace Playtime_Painter {
             }
 
             if (painter && painter.textureWasChanged)
-                painter.Update();
+                painter.ManualUpdate();
         }
 
 
-        public bool AllowEditing(PlaytimePainter target) => target && (Application.isPlaying || !target.IsUiGraphicPainter) && (!target.LockTextureEditing || target.IsEditingThisMesh);
+        public bool AllowEditing(PlaytimePainter targetPainter) => targetPainter && (Application.isPlaying || !targetPainter.IsUiGraphicPainter) && (!targetPainter.LockTextureEditing || targetPainter.IsEditingThisMesh);
         
         public bool OnEditorRayHit(RaycastHit hit, Ray ray) {
 
-            Transform tf = hit.transform;
-            PlaytimePainter pointedPainter = tf?.GetComponent<PlaytimePainter>();
-            Event e = Event.current;
+            var tf = hit.transform;
+            var pointedPainter = tf?.GetComponent<PlaytimePainter>();
+            var e = Event.current;
 
-            bool allowRefocusing = true;
+            var allowRefocusing = true;
 
             if (painter)
             {
                 if (painter.meshEditing)
                 {
 
-                    PlaytimePainter edited = MeshManager.Inst.target;
+                    var edited = MeshManager.Inst.target;
                     
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
-                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && L_mouseDwn && e.button == 0) {
+                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0) {
                         MeshManager.Inst.EditMesh(pointedPainter, false);
                         allowRefocusing = true;
                     }
@@ -105,23 +105,22 @@ namespace Playtime_Painter {
                 }
                 else
                 {
-                    if (L_mouseDwn) PlaytimePainter.currentlyPaintedObjectPainter = null;
+                    if (lMouseDwn) PlaytimePainter.currentlyPaintedObjectPainter = null;
 
                     if (painter.NeedsGrid()) { pointedPainter = painter; allowRefocusing = false; }
                     
                     if (pointedPainter)
                     {
-                        StrokeVector st = pointedPainter.stroke;
-                        st.mouseUp = L_mouseUp;
-                        st.mouseDwn = L_mouseDwn;
+                        var st = pointedPainter.stroke;
+                        st.mouseUp = lMouseUp;
+                        st.mouseDwn = lMouseDwn;
 
                         pointedPainter.OnMouseOverSceneView(hit, e);
                     }
-
                 }
             }
 
-            if (L_mouseUp)
+            if (lMouseUp)
                 PlaytimePainter.currentlyPaintedObjectPainter = null;
 
             if ((e.button == 1 || e.button == 2) && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
@@ -135,11 +134,12 @@ namespace Playtime_Painter {
             
             GridNavigator.Inst().FeedEvent(e);
 
-            if (painter) {
-                painter.FeedEvents(e);
-                if (painter.meshEditing)
-                    MeshManager.Inst.UpdateInputEditorTime(e,  L_mouseUp, L_mouseDwn);
-            }
+            if (!painter) return;
+
+            painter.FeedEvents(e);
+
+            if (painter.meshEditing)
+                MeshManager.Inst.UpdateInputEditorTime(e,  lMouseUp, lMouseDwn);
         }
 
         public virtual void OnSceneGUI()
@@ -167,11 +167,11 @@ namespace Playtime_Painter {
 
         public virtual void OnEnable() =>  navigating = true;
         
-        public static bool L_mouseDwn;
-        public static bool L_mouseUp;
+        public static bool lMouseDwn;
+        public static bool lMouseUp;
         
         public Vector2 mousePosition;
-        public Ray rayGUI = new Ray();
+        public Ray rayGui;
 
         public override void OnInspectorGUI()
         {

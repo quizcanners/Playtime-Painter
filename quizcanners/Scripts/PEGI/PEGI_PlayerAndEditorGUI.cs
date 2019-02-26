@@ -745,13 +745,13 @@ namespace PlayerAndEditorGUI {
 
         #region WRITE
         
-        private const int letterSizeInPixels = 7;
+        private const int letterSizeInPixels = 8;
 
-        static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
+        private static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
 
-        static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
+        private static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
 
-        static int RemainingLength(int otherElements) => Screen.width - otherElements;
+        private static int RemainingLength(int otherElements) => Screen.width - otherElements;
 
 
         #region Unity Object
@@ -939,7 +939,7 @@ namespace PlayerAndEditorGUI {
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
-                ef.write(text, tip);
+                ef.write(text, tip, text.ApproximateLength());
                 return;
             }
         #endif
@@ -1052,6 +1052,36 @@ namespace PlayerAndEditorGUI {
         }
 
         #region Extended Select
+
+        private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
+
+        static List<Object> FindObjects<T>() where T: Object {
+            var objects = new List<Object>(Object.FindObjectsOfType<T>());
+
+            objectsInScene[typeof(T)] = objects;
+
+            return objects;
+        }
+
+        public static bool select<T>(this string label, ref T obj) where T : Object {
+
+            List<Object> objects;
+
+            if (!objectsInScene.TryGetValue(typeof(T), out objects))
+                objects = FindObjects<T>();
+
+            Object o = obj;
+
+            var changed = false;
+
+            if (label.select(label.ApproximateLength(), ref o, objects).changes(ref changed))
+                obj = o as T;
+
+            if (icon.Refresh.Click("Refresh List"))
+                FindObjects<T>();
+
+            return changed;
+        }
 
         public static bool select(this string text, int width, ref int value, string[] array)
         {
@@ -3749,9 +3779,8 @@ namespace PlayerAndEditorGUI {
         public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
         {
     #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-            {
-                write(label);
+            if (!paintingPlayAreaGui)  {
+                label.write(label.ApproximateLength());
                 return edit(ref field);
             }
 
@@ -4656,6 +4685,11 @@ namespace PlayerAndEditorGUI {
         public static bool edit(this string label, string tip, int width, ref float val)
         {
             write(label, tip, width);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, string tip, ref float val) {
+            write(label, tip);
             return edit(ref val);
         }
 

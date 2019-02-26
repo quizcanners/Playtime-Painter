@@ -254,12 +254,12 @@ namespace Playtime_Painter {
             if ((currentlyPaintedObjectPainter == this))
             {
 
-                if ((!stroke.mouseDwn) || CanPaintOnMouseDown())
+                if (!stroke.mouseDwn || CanPaintOnMouseDown())
                 {
 
                     GlobalBrush.Paint(stroke, this);
 
-                    Update();
+                    ManualUpdate();
                 }
                 else
                     RecordingMgmt();
@@ -1765,13 +1765,13 @@ namespace Playtime_Painter {
         public bool Inspect()
         {
             inspected = this;
-            var changed = false;
+           
+             var changed = false;
 
             if (!TexMgmt && "Find camera".Click())
                     PainterStuff.applicationIsQuitting = false;
 
             var canInspect = true;
-
 
             if (!TexMgmt)
                 canInspect = false;
@@ -1848,7 +1848,7 @@ namespace Playtime_Painter {
 
                 #region Top Buttons
 
-                if (!PainterStuff.IsNowPlaytimeAndDisabled)
+                if (!PainterStuff.IsPlaytimeNowDisabled)
                 {
 
                     if ((MeshManager.target) && (MeshManager.target != this))
@@ -1899,16 +1899,17 @@ namespace Playtime_Painter {
 
                 #endregion
 
-                if (Cfg.showConfig || PainterStuff.IsNowPlaytimeAndDisabled) {
+                if (Cfg.showConfig || PainterStuff.IsPlaytimeNowDisabled) {
 
                     pegi.newLine();
+                    
+                    if (!PainterStuff.IsPlaytimeNowDisabled && (Cfg.inspectedStuff == -1 || inspectPainterCamera) &&
+                            "Painter Camera".enter(ref inspectPainterCamera).nl(ref changed))
+                                TexMgmt.DependenciesInspect(true).changes(ref changed);
 
-                    if (Cfg.inspectedStuff == -1 || inspectPainterCamera)
-                        if ("Painter Camera".enter(ref inspectPainterCamera).nl(ref changed))
-                            TexMgmt.DependenciesInspect(true).changes(ref changed);
-
-                    if (!inspectPainterCamera || Cfg.inspectedStuff != -1)
-                        Cfg.Nested_Inspect();
+                        if (!inspectPainterCamera || Cfg.inspectedStuff != -1)
+                            Cfg.Nested_Inspect();
+                    
                 }
                 else
                 {
@@ -2036,7 +2037,7 @@ namespace Playtime_Painter {
 
                             TexMgmt.DependenciesInspect().changes(ref changed);
                             
-                            #region Undo/Redo & Recording
+                    #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
 
@@ -2117,9 +2118,9 @@ namespace Playtime_Painter {
                                 "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality."
                                     .writeWarning();
 
-                            #endregion
+                    #endregion
 
-                            #region Brush
+                    #region Brush
                             
                             GlobalBrush.Inspect().changes(ref changed);
 
@@ -2151,7 +2152,7 @@ namespace Playtime_Painter {
                                 }
                             }
 
-                            #endregion
+                    #endregion
 
                         }
                         else
@@ -2168,7 +2169,7 @@ namespace Playtime_Painter {
 
                         id = ImgMeta;
 
-                        #region Fancy Options
+                    #region Fancy Options
 
                         pegi.nl();
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
@@ -2271,13 +2272,13 @@ namespace Playtime_Painter {
                                 id.SetAndApply();
                         }
 
-                        #endregion
+                    #endregion
 
-                        #region Save Load Options
+                    #region Save Load Options
 
-                        if (!PainterStuff.IsNowPlaytimeAndDisabled && HasMaterialSource && !Cfg.showConfig)
+                        if (!PainterStuff.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
                         {
-                            #region Material Clonning Options
+                    #region Material Clonning Options
 
                             pegi.nl();
 
@@ -2307,9 +2308,9 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.nl();
 
-                            #endregion
+                    #endregion
 
-                            #region Texture Instantiation Options
+                    #region Texture Instantiation Options
 
                             if (Cfg.showUrlField)
                             {
@@ -2468,9 +2469,9 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.newLine();
 
-                            #endregion
+                    #endregion
 
-                            #region Texture Saving/Loading
+                    #region Texture Saving/Loading
 
                             if (!LockTextureEditing)
                             {
@@ -2480,7 +2481,7 @@ namespace Playtime_Painter {
 
                                     id = ImgMeta;
 
-                                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                                     string orig = null;
                                     if (id.texture2D)
                                     {
@@ -2533,7 +2534,7 @@ namespace Playtime_Painter {
                                         pegi.nl();
 
                                     }
-                                    #endif
+#endif
                                 }
                                 pegi.nl();
                             }
@@ -2542,10 +2543,10 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.nl();
 
-                            #endregion
+                    #endregion
                         }
 
-                        #endregion
+                    #endregion
                     }
 
                     pegi.nl();
@@ -2629,10 +2630,8 @@ namespace Playtime_Painter {
         #region UPDATES  
 
         public bool textureWasChanged;
-
-
-
-#if UNITY_EDITOR
+        
+        #if UNITY_EDITOR
         public void FeedEvents(Event e)
         {
             var id = ImgMeta;
@@ -2650,16 +2649,11 @@ namespace Playtime_Painter {
             }
 
         }
-#endif
+        #endif
 
-#if UNITY_EDITOR || BUILD_WITH_PAINTER
-
-        public void Update()
-        {
-
-            if (!TexMgmt || this != TexMgmt.focusedPainter || !IsCurrentTool)
-                return;
-
+        #if UNITY_EDITOR || BUILD_WITH_PAINTER
+        public void ManualUpdate() {
+            
             #if BUILD_WITH_PAINTER
             if (this == _mouseOverPaintableGraphicElement) {
                 if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
@@ -2699,17 +2693,18 @@ namespace Playtime_Painter {
             }
             #endregion
 
-            if (IsEditingThisMesh && Application.isPlaying)
+            if (Application.isPlaying && IsEditingThisMesh)
                 MeshManager.Inst.DRAW_Lines(false);
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
 
+          
             var id = ImgMeta;
-
             id?.Update(stroke.mouseUp);
+            
         }
-#endif
+        #endif
 
         private void PreviewShader_StrokePosition_Update()
         {

@@ -783,7 +783,7 @@ namespace Playtime_Painter {
 
         public static GameObject refocusOnThis;
         #if UNITY_EDITOR
-        private static int _scipframes = 3;
+        private static int _scipFrames = 3;
         #endif
       
 
@@ -791,6 +791,9 @@ namespace Playtime_Painter {
 
             if (!Data)
                 return;
+
+            if (!PainterStuff.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
+                focusedPainter.ManualUpdate();
 
             if (GlobalBrush.previewDirty)
                 Shader_UpdateBrushConfig();
@@ -807,7 +810,7 @@ namespace Playtime_Painter {
 
             Data.RemoteUpdate();
 
-            List<PlaytimePainter> l = PlaytimePainter.PlaybackPainters;
+            var l = PlaytimePainter.PlaybackPainters;
 
             if (l.Count > 0 && !StrokeVector.pausePlayback)
             {
@@ -819,11 +822,11 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (refocusOnThis) {
-                _scipframes--;
-                if (_scipframes == 0) {
+                _scipFrames--;
+                if (_scipFrames == 0) {
                     UnityHelperFunctions.FocusOn(refocusOnThis);
                     refocusOnThis = null;
-                    _scipframes = 3;
+                    _scipFrames = 3;
                 }
             }
 #endif
@@ -837,19 +840,16 @@ namespace Playtime_Painter {
                 }
             }
 
-            if (!uiPainter || !uiPainter.CanPaint())
-            {
+            if (!uiPainter || !uiPainter.CanPaint()) {
 
                 var p = PlaytimePainter.currentlyPaintedObjectPainter;
 
-                if (p && !Application.isPlaying)
-                {
+                if (p && !Application.isPlaying){
                     if (p.ImgMeta == null)
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
-                    else
-                    {
+                    else {
                         TexMgmtData.brushConfig.Paint(p.stroke, p);
-                        p.Update();
+                        p.ManualUpdate();
                     }
                 }
             }
@@ -861,8 +861,7 @@ namespace Playtime_Painter {
                         pl.Update();
                     else needRefresh = true;
 
-            if (needRefresh)
-            {
+            if (needRefresh) {
                 Debug.Log("Refreshing plugins");
                 PainterManagerPluginBase.RefreshPlugins();
             }
@@ -940,15 +939,24 @@ namespace Playtime_Painter {
                 pegi.nl();
             }
 
-            if (showAll || !MainCamera)
-            {
+#if BUILD_WITH_PAINTER 
+            if (showAll || !MainCamera) {
                 pegi.nl();
+
                 var cam = MainCamera;
-                if ("Main Camera".edit(60, ref cam).changes(ref changed))
+
+                if (!cam)
+                    icon.Warning.write("No Main Camera found. Playtime Painting will not be possible");
+
+                var cams = new List<Camera>(FindObjectsOfType<Camera>());
+
+                if (painterCamera && cams.Contains(painterCamera))
+                    cams.Remove(painterCamera);
+
+                if ("Main Camera".select(60, ref cam, cams).changes(ref changed))
                     MainCamera = cam;
                 
-                if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed))
-                {
+                if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed)) {
                     MainCamera = Camera.main;
                     if (!MainCamera)
                         "No camera is tagged as main".showNotificationIn3D_Views();
@@ -956,8 +964,8 @@ namespace Playtime_Painter {
 
                 pegi.nl();
             }
-            
-            
+#endif
+
             return changed;
         }
 
@@ -965,7 +973,7 @@ namespace Playtime_Painter {
 
             var changed = false;
 
-            if (!PainterStuff.IsNowPlaytimeAndDisabled)
+            if (!PainterStuff.IsPlaytimeNowDisabled)
             {
 
                 changed |= _pluginsMeta.edit_List(ref PainterManagerPluginBase.plugins, PainterManagerPluginBase.all);

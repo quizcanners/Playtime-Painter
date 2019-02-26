@@ -65,12 +65,12 @@ namespace Playtime_Painter
         protected static EditableMesh EditedMesh => MeshManager.Inst.editedMesh;
         public static bool applicationIsQuitting;
 
-        public static bool IsNowPlaytimeAndDisabled { get
+        public static bool IsPlaytimeNowDisabled { get
             {
-#if !BUILD_WITH_PAINTER
+            #if !BUILD_WITH_PAINTER
                 if (Application.isPlaying)
                     return true;
-#endif
+            #endif
                 return false;
             }
         }
