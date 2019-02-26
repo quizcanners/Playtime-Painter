@@ -17,6 +17,8 @@ namespace Playtime_Painter
 
         public static Transform Transform => PainterCamera.Inst?.transform;
 
+        private static Transform CameraTransform => Transform.gameObject.TryGetCameraTransform();
+
         public MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
         private static int _editedUv;
@@ -111,7 +113,7 @@ namespace Playtime_Painter
 
             painter.meshNameField = editedMesh.meshName;
 
-            InitVertsIfNUll();
+            InitVerticesIfNull();
 
             SelectedLine = null;
             SelectedTriangle = null;
@@ -193,8 +195,8 @@ namespace Playtime_Painter
 
         }
 
-        [NonSerialized]
-        bool _dragging;
+        [NonSerialized] private bool _dragging;
+
         public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) DragDelay = 0.4f; } }
 
         #region Vertex Operations
@@ -433,14 +435,15 @@ namespace Playtime_Painter
         #endregion
 
         #region Tool MGMT
-        bool ProcessLinesOnTriangle(Triangle t)
+
+        private bool ProcessLinesOnTriangle(Triangle t)
         {
             t.wasProcessed = true;
-            const float percision = 0.05f;
+            const float precision = 0.05f;
 
-            float acc = (target.transform.InverseTransformPoint(Transform.gameObject.TryGetCameraTransform().position) - collisionPosLocal).magnitude;
+            var acc = (target.transform.InverseTransformPoint(CameraTransform.position) - collisionPosLocal).magnitude;
 
-            acc *= percision;
+            acc *= precision;
 
             if (MyMath.IsPointOnLine(t.vertexes[0].meshPoint.distanceToPointed, t.vertexes[1].meshPoint.distanceToPointed, Vector3.Distance(t.vertexes[0].Pos, t.vertexes[1].Pos), acc))
             {
@@ -502,49 +505,49 @@ namespace Playtime_Painter
 
         bool Raycast_VertexIsPointed()
         {
-            RaycastHit hit;
             PointedUV = null;
-            bool VertexIsPointed = false;
-            if (editedMesh.meshPoints.Count > 0)
+            if (editedMesh.meshPoints.Count <= 0) return false;
+            var alt = EditorInputManager.Alt;
+
+            if (alt)
+                GridNavigator.collisionPos = GridNavigator.onGridPos;
+
+
+            RaycastHit hit;
+            var vertexIsPointed = false;
+
+            if (Physics.Raycast(EditorInputManager.GetScreenRay(TexMGMT.MainCamera), out hit))
             {
-                bool alt = EditorInputManager.Alt;
 
-                if (alt)
-                    GridNavigator.collisionPos = GridNavigator.onGridPos;
+                vertexIsPointed = (hit.transform.tag == "VertexEd");
 
-                if (Physics.Raycast(EditorInputManager.GetScreenRay(), out hit))
+                if (!alt)
                 {
 
-                    VertexIsPointed = (hit.transform.tag == "VertexEd");
-
-                    if (!alt)
+                    if (vertexIsPointed)
                     {
+                        GridNavigator.collisionPos = hit.transform.position;
+                        UpdateLocalSpaceV3S();
+                        editedMesh.SortAround(collisionPosLocal, true);
 
-                        if (VertexIsPointed)
-                        {
-                            GridNavigator.collisionPos = hit.transform.position;
-                            UpdateLocalSpaceV3S();
-                            editedMesh.SortAround(collisionPosLocal, true);
-
-                        }
-                        else
-                        {
-                            GridNavigator.collisionPos = hit.point;
-                            UpdateLocalSpaceV3S();
-                            editedMesh.SortAround(collisionPosLocal, true);
-                            GetPointedTRIANGLESorLINE();
-                        }
+                    }
+                    else
+                    {
+                        GridNavigator.collisionPos = hit.point;
+                        UpdateLocalSpaceV3S();
+                        editedMesh.SortAround(collisionPosLocal, true);
+                        GetPointedTRIANGLESorLINE();
                     }
                 }
-
-
-
-                UpdateLocalSpaceV3S();
             }
-            return VertexIsPointed;
+
+
+
+            UpdateLocalSpaceV3S();
+            return vertexIsPointed;
         }
 
-        void ProcessPointOnALine(Vertex a, Vertex b, Triangle t)
+        private void ProcessPointOnALine(Vertex a, Vertex b, Triangle t)
         {
 
             if (EditorInputManager.GetMouseButtonDown(1))
@@ -557,7 +560,7 @@ namespace Playtime_Painter
 
         }
 
-        void PROCESS_KEYS()
+        private void PROCESS_KEYS()
         {
 
             MeshToolBase t = MeshTool;
@@ -572,7 +575,7 @@ namespace Playtime_Painter
                 t.KeysEventPointedTriangle();
         }
 
-        void RAYCAST_SELECT_MOUSEedit()
+        private void RAYCAST_SELECT_MOUSEedit()
         {
 
             PointedTriangle = null;
@@ -633,85 +636,75 @@ namespace Playtime_Painter
             }
         }
 
-        void SORT_AND_UPDATE_UI()
+        private void SORT_AND_UPDATE_UI()
         {
 
             if (!Grid)
                 return;
 
             if (!Grid.vertices[0].go)
-                InitVertsIfNUll();
+                InitVerticesIfNull();
 
             UpdateLocalSpaceV3S();
 
             editedMesh.SortAround(collisionPosLocal, false);
 
-            float scaling = 16;
+            const float scaling = 16;
 
             Grid.selectedVertex.go.SetActiveTo(false);
             Grid.pointedVertex.go.SetActiveTo(false);
 
-            for (int i = 0; i < verticesShowMax; i++)
+            for (var i = 0; i < verticesShowMax; i++)
                 Grid.vertices[i].go.SetActiveTo(false);
 
-            if (MeshTool.ShowVertices)
-                for (int i = 0; i < verticesShowMax; i++)
-                    if (editedMesh.meshPoints.Count > i)
-                    {
-                        MarkerWithText mrkr = Grid.vertices[i];
-                        MeshPoint vpoint = editedMesh.meshPoints[i];
+            if (!MeshTool.ShowVertices) return;
 
-                        Vector3 worldPos = vpoint.WorldPos;
-                        float tmpScale;
-                        tmpScale = Vector3.Distance(worldPos,
-                            Transform.gameObject.TryGetCameraTransform().position) / scaling;
+            var camTf = CameraTransform;
 
-                        if (GetPointedVert() == vpoint)
-                        {
-                            mrkr = Grid.pointedVertex; tmpScale *= 2;
-                        }
-                        else if (GetSelectedVert() == editedMesh.meshPoints[i])
-                        {
-                            mrkr = Grid.selectedVertex;
-                            tmpScale *= 1.5f;
-                        }
+            for (var i = 0; i < verticesShowMax; i++)
+            {
+                RaycastHit hit;
 
-                        mrkr.go.SetActiveTo(true);
-                        mrkr.go.transform.position = worldPos;
-                        mrkr.go.transform.rotation = Transform.gameObject.TryGetCameraTransform().rotation;
-                        mrkr.go.transform.localScale = new Vector3((IsInTrisSet(vpoint) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
+                if (editedMesh.meshPoints.Count <= i) continue;
 
-                        Ray tmpRay = new Ray();
-                        RaycastHit hit;
-                        tmpRay.origin = Transform.gameObject.TryGetCameraTransform().position;
-                        tmpRay.direction = mrkr.go.transform.position - tmpRay.origin;
+                var mark = Grid.vertices[i];
+                var point = editedMesh.meshPoints[i];
 
-                        if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!MeshEditorIgnore.Contains(hit.transform.tag)))
-                            mrkr.go.SetActiveTo(false);
+                var worldPos = point.WorldPos;
+                var tmpScale = Vector3.Distance(worldPos, camTf.position) / scaling;
 
-                        if (SameTrisAsPointed(vpoint))
-                            mrkr.textm.color = Color.white;
-                        else
-                            mrkr.textm.color = Color.gray;
+                if (GetPointedVertex() == point)
+                {
+                    mark = Grid.pointedVertex; tmpScale *= 2;
+                }
+                else if (GetSelectedVertex() == editedMesh.meshPoints[i])
+                {
+                    mark = Grid.selectedVertex;
+                    tmpScale *= 1.5f;
+                }
 
+                mark.go.SetActiveTo(true);
+                mark.go.transform.position = worldPos;
+                mark.go.transform.rotation = camTf.rotation;
+                mark.go.transform.localScale = new Vector3((IsInTrisSet(point) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
 
-                        MeshTool.AssignText(mrkr, vpoint);
+                var tmpRay = new Ray();
 
-                    }
+                tmpRay.origin = camTf.position;
+                tmpRay.direction = mark.go.transform.position - tmpRay.origin;
+
+                if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!meshEditorIgnore.Contains(hit.transform.tag)))
+                    mark.go.SetActiveTo(false);
+
+                mark.textm.color = SameTriangleAsPointed(point) ? Color.white : Color.gray;
 
 
+                MeshTool.AssignText(mark, point);
+            }
         }
         #endregion
 
-        public static List<string> MeshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
-
-        public static bool MesherCanEditWithTag(string tag)
-        {
-            foreach (string x in MeshEditorIgnore)
-                if (tag.Contains(x))
-                    return false;
-            return true;
-        }
+        public static List<string> meshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
         
         public void CombinedUpdate()
         {
@@ -746,8 +739,8 @@ namespace Playtime_Painter
                 previewMesh = null;
             }
 
-            if (justLoaded >= 0)
-                justLoaded--;
+            if (_justLoaded >= 0)
+                _justLoaded--;
 
         }
 
@@ -755,7 +748,7 @@ namespace Playtime_Painter
         public void UpdateInputEditorTime(Event e, bool up, bool dwn)
         {
 
-            if (!target || justLoaded > 0)
+            if (!target || _justLoaded > 0)
                 return;
 
             if (e.type == EventType.KeyDown) {
@@ -795,17 +788,18 @@ namespace Playtime_Painter
             PROCESS_KEYS();
         }
 
-        public MeshPoint GetPointedVert()
+        public MeshPoint GetPointedVertex()
         {
             if (PointedUV != null) return PointedUV.meshPoint;
             return null;
         }
-        public MeshPoint GetSelectedVert()
+        public MeshPoint GetSelectedVertex()
         {
             if (SelectedUV != null) return SelectedUV.meshPoint;
             return null;
         }
-        bool SameTrisAsPointed(MeshPoint uvi)
+
+        private bool SameTriangleAsPointed(MeshPoint uvi)
         {
             if (PointedUV == null) return false;
             foreach (Triangle t in editedMesh.triangles)
@@ -814,8 +808,8 @@ namespace Playtime_Painter
             }
             return false;
         }
-        
-        void InitVertsIfNUll()
+
+        private void InitVerticesIfNull()
         {
             if (!Grid)
                 return;
@@ -843,13 +837,13 @@ namespace Playtime_Painter
 
         public void OnEnable()
         {
-            InitVertsIfNUll();
+            InitVerticesIfNull();
 
             if ((previouslyEdited != null) && (!target))
             {
                 DisconnectMesh();
                 EditMesh(previouslyEdited, false);
-                justLoaded = 5;
+                _justLoaded = 5;
             }
 
             previouslyEdited = null;
@@ -857,8 +851,8 @@ namespace Playtime_Painter
             EditedUV = EditedUV;
 
         }
-        
-        int justLoaded;
+
+        private int _justLoaded;
 
         #region Inspector
 #if PEGI
@@ -1126,7 +1120,7 @@ namespace Playtime_Painter
                 for (int i = 0; i < Mathf.Min(verticesShowMax, editedMesh.meshPoints.Count); i++)
                 {
                     MeshPoint vp = editedMesh.meshPoints[i];
-                    if (SameTrisAsPointed(vp))
+                    if (SameTriangleAsPointed(vp))
                         Line(vp, PointedUV.meshPoint, Color.yellow);
                 }
             }

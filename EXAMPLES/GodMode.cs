@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -72,23 +73,31 @@ namespace Playtime_Painter.Examples {
         public bool orbitingFocused;
         public float spinStartTime;
 
+        [NonSerialized] private Camera _mainCam;
+
+        private Camera MainCam {
+            get
+            {
+                if (!_mainCam)
+                    _mainCam = Camera.main;
+                return _mainCam;
+            }
+        }
+
+
         private void SpinAround()
         {
 
-            var camTr = gameObject.TryGetCameraTransform();
-
-            var cam = Camera.main;
+            var camTr = gameObject.TryGetCameraTransform(MainCam);
             
-            if (Input.GetMouseButtonDown(2) && cam)
+            if (Input.GetMouseButtonDown(2) && _mainCam)
             {
-                var ray = cam.ScreenPointToRay(Input.mousePosition);
+                var ray = MainCam.ScreenPointToRay(Input.mousePosition);
                 
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit))
                     spinCenter = hit.point;
                 else return;
-                
-                
                 
                 var before = camTr.rotation;
                 camTr.transform.LookAt(spinCenter);

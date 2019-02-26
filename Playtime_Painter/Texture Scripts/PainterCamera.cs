@@ -115,12 +115,51 @@ namespace Playtime_Painter {
 
         #endregion
 
-        public Camera theCamera;
+        #region Painting Layer
+        private void UpdateCullingMask() {
 
+            var l = Data ? Data.myLayer : 30;
+
+            if (_mainCamera)
+                _mainCamera.cullingMask &= ~(1 << l);
+
+            if (painterCamera)
+                painterCamera.cullingMask = 1 << l;
+
+            UnityHelperFunctions.RenamingLayer(l, "Playtime Painter's Layer");
+
+            brushRenderer.gameObject.layer = l;
+        }
+        
+        [SerializeField] private Camera _mainCamera;
+
+        public Camera MainCamera {
+            get { return _mainCamera; }
+            set {
+                if (value && painterCamera && value == painterCamera) {
+                    "Can't use Painter Camera as Main Camera".showNotificationIn3D_Views();
+                    return;
+                }
+
+                _mainCamera = value;
+
+                UpdateCullingMask();
+            }
+        }
+        
+        [SerializeField] private Camera painterCamera;
+
+        public RenderTexture TargetTexture
+        {
+            get { return painterCamera.targetTexture; }
+            set { painterCamera.targetTexture = value; }
+        }
+        
         public RenderBrush brushPrefab;
         public const float OrthographicSize = 128; 
 
         public RenderBrush brushRenderer;
+        #endregion
 
         public Material defaultMaterial;
 
@@ -291,9 +330,7 @@ namespace Playtime_Painter {
 
             if (!cfg)
                 return;
-
-            theCamera.cullingMask = 1 << cfg.myLayer;
-
+            
             if (!GotBuffers)
             {
                 bigRtPair = new RenderTexture[2];
@@ -314,11 +351,9 @@ namespace Playtime_Painter {
                     cmp.DestroyWhatever_Component();
             }
 
-            var cam = Camera.main;
-            
-            if (cam)
-                cam.cullingMask &= ~(1 << Data.myLayer);
         }
+
+     
 
         public static bool GotBuffers => Inst && Inst.bigRtPair != null && _inst.bigRtPair.Length > 0 && _inst.bigRtPair[0];
         #endregion
@@ -437,9 +472,9 @@ namespace Playtime_Painter {
         {
             if (bigRtPair == null) UpdateBuffersState();
 
-            bool isDoubleBuffer = !id.renderTexture;
+            var isDoubleBuffer = !id.renderTexture;
 
-            bool useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
+            var useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
 
             if (!useSingle && !secondBufferUpdated)
                 UpdateBufferTwo();
@@ -447,7 +482,7 @@ namespace Playtime_Painter {
             if (stroke.firstStroke)
                 Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
 
-            theCamera.targetTexture = id.CurrentRenderTexture();
+            TargetTexture = id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = bigRtPair[1];
@@ -509,7 +544,7 @@ namespace Playtime_Painter {
             cameraPosition_Property.GlobalValue = transform.position.ToVector4();
 
             brushRenderer.gameObject.SetActive(true);
-            theCamera.Render();
+            painterCamera.Render();
             brushRenderer.gameObject.SetActive(false);
 
             secondBufferUpdated = false;
@@ -539,7 +574,7 @@ namespace Playtime_Painter {
 
         public void Render(Color col, RenderTexture to)
         {
-            theCamera.targetTexture = to;
+            TargetTexture = to;
             brushRenderer.PrepareColorPaint(col);
             Render();
             AfterRenderBlit(to);
@@ -563,7 +598,7 @@ namespace Playtime_Painter {
             if (!Data.disableSecondBufferUpdateDebug)
             {
                 brushRenderer.Set(bigRtPair[0]);
-                theCamera.targetTexture = bigRtPair[1];
+                TargetTexture = bigRtPair[1];
                 brushRenderer.Set(Data.brushBufferCopy);
                 Render();
                 secondBufferUpdated = true;
@@ -575,6 +610,9 @@ namespace Playtime_Painter {
         #region Component MGMT
         private void OnEnable() {
 
+            if (!MainCamera)
+                MainCamera = Camera.main;
+
             PainterStuff.applicationIsQuitting = false;
 
             Inst = this;
@@ -584,16 +622,17 @@ namespace Playtime_Painter {
 
             MeshManager.OnEnable();
 
-            if (!theCamera)
-                theCamera = GetComponent<Camera>();
+            if (!painterCamera)
+                painterCamera = GetComponent<Camera>();
 
-            if (Data && theCamera)
-                theCamera.cullingMask = 1 << Data.myLayer;
-#if BUILD_WITH_PAINTER
+            UpdateCullingMask();
+            
+            #if BUILD_WITH_PAINTER
             if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
                     PainterDataAndConfig.toolEnabled = true;
-#endif
-#if UNITY_EDITOR
+            #endif
+
+            #if UNITY_EDITOR
 
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;
             EditorSceneManager.sceneSaving += BeforeSceneSaved;
@@ -625,10 +664,9 @@ namespace Playtime_Painter {
                     Debug.LogError("Couldn't load brush Prefab");
             }
 
-            if (Data)
-                UnityHelperFunctions.RenamingLayer(Data.myLayer, "Painter Layer");
+           
 
-#endif
+            #endif
 
             if (!brushRenderer)
             {
@@ -639,8 +677,7 @@ namespace Playtime_Painter {
                     brushRenderer.transform.parent = transform;
                 }
             }
-            if (Data)
-                brushRenderer.gameObject.layer = Data.myLayer;
+         
 
 #if BUILD_WITH_PAINTER || UNITY_EDITOR
 
@@ -649,25 +686,25 @@ namespace Playtime_Painter {
             transform.localScale = Vector3.one;
             transform.rotation = Quaternion.identity;
 
-            if (!theCamera)
+            if (!painterCamera)
             {
-                theCamera = GetComponent<Camera>();
-                if (!theCamera)
-                    theCamera = gameObject.AddComponent<Camera>();
+                painterCamera = GetComponent<Camera>();
+                if (!painterCamera)
+                    painterCamera = gameObject.AddComponent<Camera>();
             }
 
-            theCamera.orthographic = true;
-            theCamera.orthographicSize = OrthographicSize;
-            theCamera.clearFlags = CameraClearFlags.Nothing;
-            theCamera.enabled = Application.isPlaying;
-            theCamera.allowHDR = true;
-            theCamera.allowMSAA = false;
-            theCamera.allowDynamicResolution = false;
-            theCamera.depth = 0;
-            theCamera.renderingPath = RenderingPath.Forward;
-            theCamera.nearClipPlane = 0.1f;
-            theCamera.farClipPlane = 1000f;
-            theCamera.rect = Rect.MinMaxRect(0,0,1,1);
+            painterCamera.orthographic = true;
+            painterCamera.orthographicSize = OrthographicSize;
+            painterCamera.clearFlags = CameraClearFlags.Nothing;
+            painterCamera.enabled = Application.isPlaying;
+            painterCamera.allowHDR = true;
+            painterCamera.allowMSAA = false;
+            painterCamera.allowDynamicResolution = false;
+            painterCamera.depth = 0;
+            painterCamera.renderingPath = RenderingPath.Forward;
+            painterCamera.nearClipPlane = 0.1f;
+            painterCamera.farClipPlane = 1000f;
+            painterCamera.rect = Rect.MinMaxRect(0,0,1,1);
 
 #if UNITY_EDITOR
             EditorApplication.update -= CombinedUpdate;
@@ -684,9 +721,10 @@ namespace Playtime_Painter {
             PainterManagerPluginBase.RefreshPlugins();
 
             foreach (var p in PainterManagerPluginBase.plugins)
-                if (p != null) p.Enable();
-
-            Data.ManagedOnEnable();
+                p?.Enable();
+            
+            if (Data)
+                Data.ManagedOnEnable();
 
         }
 
@@ -790,9 +828,9 @@ namespace Playtime_Painter {
             }
 #endif
 
-            if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode && Camera.main) {
+            if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode && MainCamera) {
                 RaycastHit hit;
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+                if (Physics.Raycast(MainCamera.ScreenPointToRay(Input.mousePosition), out hit))
                 {
                     var c = hit.collider;
                     if (c.GetType() != typeof(MeshCollider) && PlaytimePainter.CanEditWithTag(c.tag)) c.enabled = false;
@@ -846,40 +884,81 @@ namespace Playtime_Painter {
         #region Inspector
         #if PEGI
 
-        public override bool Inspect() {
+        public override bool Inspect()
+        {
+            var changed =  DependenciesInspect(true);
 
-            "Active Jobs: {0}".F(blitJobsActive.Count).nl();
+            if (Data)
+                Data.Nested_Inspect().nl(ref changed);
+
+
+            return changed;
+        }
+
+        public bool DependenciesInspect(bool showAll = false)
+        {
+            var changed = false;
+
+            if (showAll)
+                "Active Jobs: {0}".F(blitJobsActive.Count).nl();
 
             #if UNITY_EDITOR
-            if (!Data) {
-                "No data Holder detected".edit(ref dataHolder);
-                if ("Create".Click().nl())
-                {
-                    AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<PainterDataAndConfig>(), "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
-                    AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
+            if (!Data)
+            {
+                pegi.nl();
+                "No data Holder".edit(60, ref dataHolder).nl(ref changed);
+
+                if (icon.Refresh.Click("Try to find it")) {
+                    PainterStuff.applicationIsQuitting = false;
+                    triedToFindPainterData = false;
+                }
+
+                if ("Create".Click().nl()) {
+                    
+                    PainterStuff.applicationIsQuitting = false;
+                    triedToFindPainterData = false;
+
+                    if (!Data) {
+                        dataHolder = ScriptableObject.CreateInstance<PainterDataAndConfig>();
+
+                        AssetDatabase.CreateAsset(dataHolder,
+                            "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
+                        AssetDatabase.SaveAssets();
+                        AssetDatabase.Refresh();
+                    }
                 }
             }
             #endif
 
-            pegi.nl();
+            if (showAll || bigRtPair.IsNullOrEmpty())
+                (bigRtPair.IsNullOrEmpty() ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
 
-            ((bigRtPair.IsNullOrEmpty()) ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
-
-            if (!theCamera) {
-                "no camera".writeWarning();
+            if (!painterCamera)
+            {
                 pegi.nl();
-                return false;
+                "no painter camera".writeWarning();
+                pegi.nl();
+            }
+
+            if (showAll || !MainCamera)
+            {
+                pegi.nl();
+                var cam = MainCamera;
+                if ("Main Camera".edit(60, ref cam).changes(ref changed))
+                    MainCamera = cam;
+                
+                if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed))
+                {
+                    MainCamera = Camera.main;
+                    if (!MainCamera)
+                        "No camera is tagged as main".showNotificationIn3D_Views();
+                }
+
+                pegi.nl();
             }
             
             
-
-            
-            
-            if (Data)
-                Data.Nested_Inspect().nl();
-            
-            return false;
+            return changed;
         }
 
         public bool PluginsInspect() {

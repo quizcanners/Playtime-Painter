@@ -306,10 +306,9 @@ namespace Playtime_Painter {
 
         private readonly ChillLogger _logger = new ChillLogger("");
 
-        private bool CastRayPlaytime(StrokeVector st, Vector3 mousePos)
-        {
+        private bool CastRayPlaytime(StrokeVector st, Vector3 mousePos) {
 
-            var cam = Camera.main;
+            var cam = TexMgmt.MainCamera; 
             
             if (!cam)
             {
@@ -324,9 +323,7 @@ namespace Playtime_Painter {
             }
             
             RaycastHit hit;
-            return Physics.Raycast(cam.ScreenPointToRay(mousePos), out hit, float.MaxValue)
-                ? ProcessHit(hit, st)
-                : false;
+            return Physics.Raycast(cam.ScreenPointToRay(mousePos), out hit, float.MaxValue) && ProcessHit(hit, st);
         }
 
         private void ProcessGridDrag()
@@ -1728,14 +1725,12 @@ namespace Playtime_Painter {
         public void OnGUI()
         {
 
-         
-
-#if BUILD_WITH_PAINTER
+            #if BUILD_WITH_PAINTER
             if (!Cfg || !Cfg.enablePainterUIonPlay) return;
             
             if (!selectedInPlaytime)
                 selectedInPlaytime = this;
-#if PEGI
+            #if PEGI
             if (selectedInPlaytime == this)
             {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
@@ -1744,7 +1739,7 @@ namespace Playtime_Painter {
                     p.OnGUI();
 
             }
-#endif
+            #endif
       
             #endif
 
@@ -1765,6 +1760,8 @@ namespace Playtime_Painter {
 
         private static int _inspectedFancyStuff = -1;
 
+        private static bool inspectPainterCamera;
+
         public bool Inspect()
         {
             inspected = this;
@@ -1773,20 +1770,16 @@ namespace Playtime_Painter {
             if (!TexMgmt && "Find camera".Click())
                     PainterStuff.applicationIsQuitting = false;
 
-            bool canInspect = true;
+            var canInspect = true;
 
 
             if (!TexMgmt)
                 canInspect = false;
             else if (!Cfg) {
-                    "No Config Detected".nl();
-                    if (icon.Refresh.Click().changes(ref changed)) {
-                        PainterStuff.applicationIsQuitting = false;
-                        if (PainterCamera.Inst)
-                            PainterCamera.Inst.triedToFindPainterData = false;
-                    }
-
-                    canInspect = false;
+                
+                TexMgmt.DependenciesInspect().changes(ref changed);
+                
+                canInspect = false;
             }
             
 
@@ -1906,33 +1899,33 @@ namespace Playtime_Painter {
 
                 #endregion
 
-                if (Cfg.showConfig || PainterStuff.IsNowPlaytimeAndDisabled)
-                {
+                if (Cfg.showConfig || PainterStuff.IsNowPlaytimeAndDisabled) {
+
                     pegi.newLine();
-                    Cfg.Nested_Inspect();
+
+                    if (Cfg.inspectedStuff == -1 || inspectPainterCamera)
+                        if ("Painter Camera".enter(ref inspectPainterCamera).nl(ref changed))
+                            TexMgmt.DependenciesInspect(true).changes(ref changed);
+
+                    if (!inspectPainterCamera || Cfg.inspectedStuff != -1)
+                        Cfg.Nested_Inspect();
                 }
                 else
                 {
-
                     #region Mesh Editing
 
-                    if (meshEditing)
-                    {
+                    if (meshEditing) {
 
-                        if (terrain)
-                        {
+                        if (terrain) {
                             pegi.nl();
                             "Mesh Editor can't edit Terrain mesh".writeHint();
 
-                        }
-                        else
-                        {
+                        } else {
 
                             var mg = MeshMgmt;
                             mg.Undo_redo_PEGI().nl(ref changed);
 
-                            if (SharedMesh)
-                            {
+                            if (SharedMesh) {
 
                                 if (this != mg.target)
                                     if (SavedEditableMesh != null)
@@ -1940,8 +1933,7 @@ namespace Playtime_Painter {
                                 
                                 "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
 
-                                if (mg.target != this)
-                                {
+                                if (mg.target != this) {
 
                                     var ent = gameObject.GetComponent($"pb_Entity");
                                     var obj = gameObject.GetComponent($"pb_Object");
@@ -1949,8 +1941,7 @@ namespace Playtime_Painter {
                                     if (ent || obj)
                                         "PRO builder detected. Strip it using Actions in the Tools->ProBuilder menu."
                                             .writeHint();
-                                    else
-                                    {
+                                    else {
                                         if (Application.isPlaying)
                                             "Playtime Changes will be reverted once you try to edit the mesh again."
                                                 .writeWarning();
@@ -2043,6 +2034,8 @@ namespace Playtime_Painter {
                         if (!LockTextureEditing && painterWorks && !id.errorWhileReading)
                         {
 
+                            TexMgmt.DependenciesInspect().changes(ref changed);
+                            
                             #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
@@ -2127,13 +2120,7 @@ namespace Playtime_Painter {
                             #endregion
 
                             #region Brush
-
-                            if (Application.isPlaying && !Camera.main)
-                            {
-                                "No Camera tagged as 'Main' detected. Tag one to enable raycasts".writeWarning();
-                                pegi.nl();
-                            }
-
+                            
                             GlobalBrush.Inspect().changes(ref changed);
 
                             var mode = GlobalBrush.BlitMode;
@@ -2468,7 +2455,7 @@ namespace Playtime_Painter {
                                     }
                                 }
                                 else
-                                    "No Material's Texture selected".nl();
+                                    icon.Warning.nl("No Texture property selected");
 
                                 pegi.nl();
 
@@ -2493,7 +2480,7 @@ namespace Playtime_Painter {
 
                                     id = ImgMeta;
 
-#if UNITY_EDITOR
+                                    #if UNITY_EDITOR
                                     string orig = null;
                                     if (id.texture2D)
                                     {
@@ -2521,14 +2508,13 @@ namespace Playtime_Painter {
                                         var originalExists = !orig.IsNullOrEmpty();
                                         var sameTarget = originalExists && orig.Equals(destPath);
                                         var sameTextureName = originalExists && id.texture2D.name.Equals(id.saveName);
-
-
+                                        
                                         if (!existsAtDestination || sameTextureName)
                                         {
                                             if ((sameTextureName ? icon.Save : icon.SaveAsNew).Click(sameTextureName
                                                 ? "Will Update " + orig
-                                                : "Will save as " + destPath))
-                                            {
+                                                : "Will save as " + destPath)) {
+
                                                 if (sameTextureName)
                                                     RewriteOriginalTexture();
                                                 else
@@ -2537,7 +2523,7 @@ namespace Playtime_Painter {
                                                 OnChangedTexture_OnMaterial();
                                             }
                                         }
-                                        else if (existsAtDestination && icon.Save.Click("Will replace " + destPath))
+                                        else if (existsAtDestination && icon.Save.Click("Will replace {0}".F(destPath)))
                                             SaveTextureAsAsset(false);
 
                                         if (!sameTarget && !sameTextureName && originalExists && !existsAtDestination &&
@@ -2547,15 +2533,12 @@ namespace Playtime_Painter {
                                         pegi.nl();
 
                                     }
-#endif
-
+                                    #endif
                                 }
-
                                 pegi.nl();
                             }
 
                             pegi.nl();
-
                             pegi.space();
                             pegi.nl();
 
@@ -2563,26 +2546,19 @@ namespace Playtime_Painter {
                         }
 
                         #endregion
-
                     }
 
                     pegi.nl();
-
                     #endregion
-
-                    #region Plugins
-
+                    
                     foreach (var p in PainterManagerPluginBase.ComponentMgmtPlugins)
                         p.ComponentInspector().nl(ref changed);
-
-                    #endregion
                 }
 
                 pegi.newLine();
 
                 if (changed)
                     Update_Brush_Parameters_For_Preview_Shader();
-
             }
 
             inspected = null;
@@ -2634,24 +2610,17 @@ namespace Playtime_Painter {
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
+            if (!TexMgmt || this != TexMgmt.focusedPainter) return;
 
-            if (TexMgmt && this == TexMgmt.focusedPainter)
-            {
-
-                if (meshEditing)
-                {
-                    if (!Application.isPlaying)
-                        MeshManager.Inst.DRAW_Lines(true);
-                }
-
-                if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
-                    GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
-                    Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
-
-
-                foreach (var p in PainterManagerPluginBase.GizmoPlugins)
-                    p.PlugIn_PainterGizmos(this);
-            }
+            if (meshEditing && !Application.isPlaying)
+                    MeshManager.Inst.DRAW_Lines(true);
+            
+            if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
+                GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
+                Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
+            
+            foreach (var p in PainterManagerPluginBase.GizmoPlugins)
+                p.PlugIn_PainterGizmos(this);
         }
         #endif
 

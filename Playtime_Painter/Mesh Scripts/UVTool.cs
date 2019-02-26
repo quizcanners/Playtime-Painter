@@ -156,7 +156,7 @@ namespace Playtime_Painter
 
         public override void AssignText(MarkerWithText markers, MeshPoint point)
         {
-            var vrt = MeshMGMT.GetSelectedVert();
+            var vrt = MeshMGMT.GetSelectedVertex();
 
             if (point.vertices.Count > 1 || vrt == point)
             {

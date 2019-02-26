@@ -11,16 +11,18 @@ namespace Playtime_Painter
     
     [ExecuteInEditMode]
     public class ShadowVolumeTexture : VolumeTexture {
+
         private enum RayCastStep { Nothing, Requested, RayCasting, FillingTheColor }
 
         public MaterialLightManager lights;
-        public override string MaterialPropertyName => "_BakedShadow" + VolumePaintingPlugin.VolumeTextureTag;
+
+        protected override string PropertyName => "BakedShadow";
 
         public override bool VolumeJobIsRunning => _rayStep != RayCastStep.Nothing || base.VolumeJobIsRunning;
 
         [NonSerialized] private RayCastStep _rayStep = RayCastStep.Nothing;
 
-        public bool[] lightSourceDirty = new bool[3];
+        public bool[] lightSourceDirty = new bool[MaterialLightManager.maxLights];
 
         public override void Update()
         {
@@ -31,7 +33,7 @@ namespace Playtime_Painter
 
         public override bool DrawGizmosOnPainter(PlaytimePainter painter) {
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < MaterialLightManager.maxLights; i++)
                 if (GlobalBrush.mask.HasFlag(i))
                 {
                     var l = lights.GetLight(i);
@@ -331,21 +333,39 @@ namespace Playtime_Painter
         }
         #endregion
 
-        protected override void UpdateMaterials()
-        {
+        protected override void UpdateMaterials() {
+
             base.UpdateMaterials();
+
             lights.UpdateLightOnMaterials(materials);
+
+            if (IsCurrentGlobalVolume)
+                lights.UpdateLightsGlobal();
         }
 
         #region Inspector
         #if PEGI
+        protected override bool VolumeDocumentation() {
+            base.VolumeDocumentation();
+
+            ("For now only one Shadow volume is active at a time. It will set it's texture, position and lights as global shader parameters " +
+             "R and G channels of the volume will hold shadow information about two light sources. B channel will hold sun/moon shadow information. " +
+             "A channel will hold validity of the rayCast (Will be lover if value is approximated. ANd higher if it is more reliable.)" +
+             "This is arbitrary for now to simplify management of shadow volumes. But this limitations are easy to overcome if needed.")
+                .writeBig();
+
+            return false;
+        }
+
         public override bool Inspect()  {
 
+      
             var changed = base.Inspect();
 
             if (inspectedMaterial != -1)
                 return changed;
 
+       
             changed |= lights.Nested_Inspect();
             
             if (changed && MaterialLightManager.probeChanged != -1)
@@ -367,7 +387,7 @@ namespace Playtime_Painter
                     if ("All".Click().nl(ref changed))
                     {
                         VolumeFromTexture();
-                        for (var i = 0; i < 3; i++)
+                        for (var i = 0; i < MaterialLightManager.maxLights; i++)
                             lightSourceDirty[i] = true;
                     }
                 }

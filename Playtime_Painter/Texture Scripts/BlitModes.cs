@@ -115,7 +115,7 @@ namespace Playtime_Painter {
                         || (SupportedBySingleBuffer && (id.renderTexture))));
         }
         
-        public virtual bool PEGI()
+        public virtual bool Inspect()
         {
 
             var id = InspectedImageMeta;
@@ -146,12 +146,13 @@ namespace Playtime_Painter {
             else
             {
                 if (!brushType.IsPixelPerfect)
-                    changed |= pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : id?.width * 0.5f ?? 256);
+                    pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
                 else
                 {
                     var val = (int)InspectedBrush.brush2DRadius;
                     pegi.edit(ref val, (int)(cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
                     InspectedBrush.brush2DRadius = val;
+                    
                 }
             }
 
@@ -261,9 +262,9 @@ namespace Playtime_Painter {
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
-            var changed = base.PEGI().nl();
+            var changed = base.Inspect().nl();
             "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
@@ -313,9 +314,9 @@ namespace Playtime_Painter {
 
         #region Inspector
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
-            bool changed = base.PEGI();
+            bool changed = base.Inspect();
 
             if (!InspectedPainter)
                 return changed;
@@ -441,10 +442,10 @@ namespace Playtime_Painter {
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
 #if PEGI
-        public override bool PEGI()
+        public override bool Inspect()
         {
 
-            var changed = base.PEGI().nl();
+            var changed = base.Inspect().nl();
             "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }

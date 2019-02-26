@@ -28,7 +28,6 @@ namespace PlayerAndEditorGUI
 
     public static class Icons_MGMT
     {
-        private static readonly List<Texture2D> Backgrounds = new List<Texture2D>();
 
         private static List<Texture2D> _managementIcons;
         
@@ -72,8 +71,7 @@ namespace PlayerAndEditorGUI
 
         private static int _loads;
         private static int _bgLoads;
-
-                
+       
         #region Color Icons
         private static List<Texture2D> _painterIcons;
 
@@ -136,7 +134,5 @@ namespace PlayerAndEditorGUI
         }
         #endregion
 
-        
-        
     }
 }

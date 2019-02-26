@@ -3202,9 +3202,9 @@ MonoBehaviour:
   stroke:
     uvFrom: {x: 0.5329957, y: 0.12635899}
     posFrom: {x: 109.772995, y: 37.980064, z: 160.97636}
-    uvTo: {x: 0.010967255, y: 0.36138058}
-    posTo: {x: 83.08709, y: 57.46369, z: 162.93867}
-    unRepeatedUv: {x: 0.010967255, y: -0.6386194}
+    uvTo: {x: 0.8695873, y: 0.19455463}
+    posTo: {x: 73.19068, y: 44.382183, z: 148.0835}
+    unRepeatedUv: {x: -0.1304127, y: 0.19455463}
     previousDelta: {x: 0.11837578, y: -0.20670795}
     avgBrushSpeed: 6.7611086e-19
     mouseDwn: 0
@@ -4608,7 +4608,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -2.4114623
+  timer: -45.491493
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5038,9 +5038,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
-  focusedPainter: {fileID: 1144922679}
+  focusedPainter: {fileID: 1328500180}
   isLinearColorSpace: 1
-  theCamera: {fileID: 2003499430}
+  _mainCamera: {fileID: 2020219815}
+  painterCamera: {fileID: 2003499430}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
     type: 3}
   brushRenderer: {fileID: 479929389}
@@ -5148,7 +5149,7 @@ GameObject:
   - component: {fileID: 2020219813}
   m_Layer: 0
   m_Name: Main Camera
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7202,6 +7203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a6e714595ace5e4fb823d6d9e5e13d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  setForGlobal: 1
   volumeIsProcessed: 0
   hSlices: 8
   size: 0.3
@@ -7211,11 +7213,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: e727ebe55467a3f41bae778220ab6351, type: 2}
   lights:
     probes: 000000000100000002000000
-    bounceCoefficient:
-    - 0
-    - 0
-    - 0
-    browsedNode: -1
   lightSourceDirty: 000000
 --- !u!114 &114811405726825066
 MonoBehaviour:

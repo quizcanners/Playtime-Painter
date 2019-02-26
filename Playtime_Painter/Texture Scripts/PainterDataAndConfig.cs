@@ -15,7 +15,7 @@ namespace Playtime_Painter
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
-
+        
         public static bool toolEnabled;
 
         #region Shaders
@@ -40,6 +40,9 @@ namespace Playtime_Painter
         private const string EnablePainterForBuild = "BUILD_WITH_PAINTER";
         
         #region Material Preperties
+
+        public const string GlobalPropertyPrefix = "g_";
+
         public static readonly ShaderProperty.VectorValue TerrainPosition = new ShaderProperty.VectorValue("_mergeTeraPosition");
         public static readonly ShaderProperty.VectorValue TerrainTiling = new ShaderProperty.VectorValue("_mergeTerrainTiling");
         public static readonly ShaderProperty.VectorValue TerrainScale = new ShaderProperty.VectorValue("_mergeTerrainScale");
@@ -124,7 +127,7 @@ namespace Playtime_Painter
         {
             _cameraUnusedTime = 0;
 
-            if (webCamTexture == null && WebCamTexture.devices.Length > 0)
+            if (!webCamTexture && WebCamTexture.devices.Length > 0)
                 webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
 
             if (webCamTexture && !webCamTexture.isPlaying)
@@ -209,8 +212,6 @@ namespace Playtime_Painter
         public string meshToolsStd;
 
         #region User Settings
-        public static int damAnimRendTexSize = 128;
-        //public bool allowEditingInFinalBuild;
         public bool makeVerticesUniqueOnEdgeColoring;
         public int gridSize = 1;
         public bool snapToGrid;
@@ -219,13 +220,11 @@ namespace Playtime_Painter
         public bool pixelPerfectMeshEditing;
         public bool useGridForBrush;
 
-        //public bool useJobsForCpuPainting = true;
-
-        public string materialsFolderName;
-        public string texturesFolderName;
-        public string meshesFolderName;
-        public string vectorsFolderName;
-        public string atlasFolderName;
+        public string materialsFolderName = "Materials";
+        public string texturesFolderName = "Textures";
+        public string meshesFolderName = "Models";
+        public string vectorsFolderName = "Vectors";
+        public string atlasFolderName = "Textures/Atlases";
 
         public bool enablePainterUIonPlay;
         public BrushConfig brushConfig;
@@ -525,17 +524,7 @@ namespace Playtime_Painter
             }
             if (samplingMaskSize.x == 0)
                 samplingMaskSize = new MyIntVec2(4);
-
-            if (atlasFolderName.IsNullOrEmpty())
-            {
-                materialsFolderName = "Materials";
-                texturesFolderName = "Textures";
-                vectorsFolderName = "Vectors";
-                meshesFolderName = "Models";
-                atlasFolderName = "ATLASES";
-                recordingNames = new List<string>();
-            }
-
+            
             CheckShaders();
 
             var decoder = new StdDecoder(meshToolsStd);

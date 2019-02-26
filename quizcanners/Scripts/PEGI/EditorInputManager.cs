@@ -5,15 +5,17 @@ namespace PlayerAndEditorGUI
     public static class EditorInputManager
     {
         public static Ray raySceneView = new Ray();
-        public static Ray GetScreenRay()
+        public static Ray GetScreenRay(Camera cam = null)
         {
-            if (Application.isPlaying)
-                return (Camera.main != null) ? Camera.main.ScreenPointToRay(Input.mousePosition) : raySceneView;
-            else
-                return raySceneView;
+            if (!cam)
+                cam = Camera.main;
+
+            return Application.isPlaying ?
+                 cam ? cam.ScreenPointToRay(Input.mousePosition) : raySceneView 
+                 : raySceneView;
         }
-        public enum MB_state_Editor { nothing, up, down, dragging }
-        public static MB_state_Editor[] mouseBttnState = new MB_state_Editor[3];
+        public enum MB_state_Editor { Nothing, Up, Down, Dragging }
+        public static MB_state_Editor[] mouseButtonState = new MB_state_Editor[3];
 
         public static bool Control => Application.isPlaying ?
                      (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
@@ -43,7 +45,7 @@ namespace PlayerAndEditorGUI
             if (Application.isPlaying)
                 return Input.GetMouseButtonUp(no);
             else
-                return (mouseBttnState[no] == MB_state_Editor.up);
+                return (mouseButtonState[no] == MB_state_Editor.Up);
         }
 
         public static bool GetMouseButtonDown(int no)
@@ -51,7 +53,7 @@ namespace PlayerAndEditorGUI
             if (Application.isPlaying)
                 return Input.GetMouseButtonDown(no);
             else
-                return (mouseBttnState[no] == MB_state_Editor.down);
+                return (mouseButtonState[no] == MB_state_Editor.Down);
         }
 
         public static bool GetMouseButton(int no)
@@ -59,23 +61,23 @@ namespace PlayerAndEditorGUI
             if (Application.isPlaying)
                 return Input.GetMouseButton(no);
             else
-                return ((mouseBttnState[no] == MB_state_Editor.dragging) || (mouseBttnState[no] == MB_state_Editor.down));
+                return ((mouseButtonState[no] == MB_state_Editor.Dragging) || (mouseButtonState[no] == MB_state_Editor.Down));
         }
 
         public static void FeedMouseEvent(Event e)
         {
-            int mb = e.button;
+            var mb = e.button;
 
             if (e.type == EventType.MouseLeaveWindow || e.type == EventType.MouseEnterWindow) {
                 for (int i = 0; i < 3; i++)
-                    mouseBttnState[i] = MB_state_Editor.nothing;
+                    mouseButtonState[i] = MB_state_Editor.Nothing;
             } 
              else 
             if (mb < 3) switch (e.type) {
-                    case EventType.MouseDown: mouseBttnState[mb] = MB_state_Editor.down; break;
-                    case EventType.MouseDrag: mouseBttnState[mb] = MB_state_Editor.dragging; break;
-                    case EventType.MouseUp: mouseBttnState[mb] = MB_state_Editor.up; break;
-                    case EventType.MouseMove: mouseBttnState[mb] = MB_state_Editor.nothing; break;
+                    case EventType.MouseDown: mouseButtonState[mb] = MB_state_Editor.Down; break;
+                    case EventType.MouseDrag: mouseButtonState[mb] = MB_state_Editor.Dragging; break;
+                    case EventType.MouseUp: mouseButtonState[mb] = MB_state_Editor.Up; break;
+                    case EventType.MouseMove: mouseButtonState[mb] = MB_state_Editor.Nothing; break;
             }
         }
 

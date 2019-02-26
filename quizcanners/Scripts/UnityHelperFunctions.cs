@@ -304,23 +304,27 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static Transform TryGetCameraTransform(this GameObject go)
+        public static Transform TryGetCameraTransform(this GameObject go, Camera cam = null)
         {
-            Camera c = null;
+
             if (Application.isPlaying)
-                c = Camera.main;
+            {
+                if (!cam)
+                    cam = Camera.main;
+            }
+               
             #if UNITY_EDITOR
             else
                 if (SceneView.lastActiveSceneView != null)
-                    c = SceneView.lastActiveSceneView.camera;
+                    cam = SceneView.lastActiveSceneView.camera;
             #endif
 
-            if (c)
-                return c.transform;
+            if (cam)
+                return cam.transform;
 
-            c = UnityEngine.Object.FindObjectOfType<Camera>();
+            cam = UnityEngine.Object.FindObjectOfType<Camera>();
             
-            return c ? c.transform : go.transform;
+            return cam ? cam.transform : go.transform;
         }
 
         public static void SetLayerRecursively(GameObject go, int layerNumber)
@@ -411,9 +415,9 @@ namespace QuizCannersUtilities {
 
         #region Unity Editor MGMT
 
-        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos)
+        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
         {
-            var ray = EditorInputManager.GetScreenRay();
+            var ray = EditorInputManager.GetScreenRay(cam);
             float rayDistance;
             if (plane.Raycast(ray, out rayDistance))
             {
@@ -554,8 +558,8 @@ namespace QuizCannersUtilities {
 
             var assembly = typeof(EditorWindow).Assembly;
             var type = assembly.GetType("UnityEditor.GameView");
-            var gameview = EditorWindow.GetWindow(type);
-            gameview.Focus();
+            var gameView = EditorWindow.GetWindow(type);
+            gameView.Focus();
 
 
         }
@@ -573,8 +577,7 @@ namespace QuizCannersUtilities {
                 Debug.LogWarning("Layers is null: " + (layers == null));
                 return;
             }
-
-
+            
             var layerSp = layers.GetArrayElementAtIndex(index);
             
             if (layerSp.stringValue.IsNullOrEmpty() || !layerSp.stringValue.SameAs(name)) {
@@ -1719,16 +1722,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Shaders
-
-        public static void ToggleShaderKeywords(this Material mat, bool value, string ifTrue, string iFalse)
-        {
-            if (mat)
-            {
-                mat.DisableKeyword(value ? iFalse : ifTrue);
-                mat.EnableKeyword(value ? ifTrue : iFalse);
-            }
-        }
-
+        
         public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
         {
             if (!keyword.IsNullOrEmpty() && mat)
@@ -1748,16 +1742,15 @@ namespace QuizCannersUtilities {
 
         public static void SetShaderKeyword(string keyword, bool isTrue)
         {
-            if (!keyword.IsNullOrEmpty()) {
-                if (isTrue)
-                    Shader.EnableKeyword(keyword);
-                else
-                    Shader.DisableKeyword(keyword);
-            }
+            if (keyword.IsNullOrEmpty()) return;
+
+            if (isTrue)
+                Shader.EnableKeyword(keyword);
+            else
+                Shader.DisableKeyword(keyword);
         }
 
         public static bool GetKeyword(this Material mat, string keyword) => Array.IndexOf(mat.shaderKeywords, keyword) != -1;
-        
 
         #endregion
 
@@ -1845,12 +1838,12 @@ namespace QuizCannersUtilities {
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         private readonly string _name;
-        private float _timer = 0;
-        private double _perIntervalCount = 0;
-        private double _max = 0;
+        private float _timer;
+        private double _perIntervalCount;
+        private double _max;
         private double _min = float.PositiveInfinity;
-        private double _average = 0;
-        private double _totalCount = 0;
+        private double _average;
+        private double _totalCount;
         private readonly float _intervalLength = 1f;
         
         public void Update(float add = 0)
@@ -1888,11 +1881,11 @@ namespace QuizCannersUtilities {
             _totalCount = 0;
         }
 
-#region Inspector
+        #region Inspector
 
-        public string NameForDisplayPEGI => "Avg: {0}/{1}sec [{2} - {3}] ({4}) ".F(((float)_average).ToString("0.00"),  (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
+        public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,((float)_average).ToString("0.00"),  (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
 
-#if PEGI
+        #if PEGI
         public bool PEGI_inList(IList list, int ind, ref int edited)
         {
             if (icon.Refresh.Click("Reset Stats"))
@@ -1905,10 +1898,10 @@ namespace QuizCannersUtilities {
           
             return false;
         }
-#endif
-#endregion
+        #endif
+        #endregion
 
-        public PerformanceTimer(string name = "Timer", float interval = 1f)
+        public PerformanceTimer(string name = "Speed", float interval = 1f)
         {
             _name = name;
             _intervalLength = interval;

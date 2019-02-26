@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter.Examples
@@ -40,6 +41,19 @@ namespace Playtime_Painter.Examples
         private readonly ShaderProperty.ColorValue _directionalColorProperty = new ShaderProperty.ColorValue("_Directional");
         private readonly ShaderProperty.VectorValue _offsetProperty = new ShaderProperty.VectorValue("_Off");
 
+        [NonSerialized] private Camera _mainCam;
+
+        private Camera MainCam
+        {
+            get
+            {
+                if (!_mainCam)
+                    _mainCam = Camera.main;
+                return _mainCam;
+            }
+        }
+
+
         public virtual void Update() {
 
             if (directional != null) {
@@ -47,11 +61,11 @@ namespace Playtime_Painter.Examples
                 _sunDirectionProperty.GlobalValue = new Vector4(v3.x, v3.y, v3.z);
                 _directionalColorProperty.GlobalValue = directional.color;
             }
+            
+            
+            if (!MainCam) return;
 
-            var c = Camera.main;
-            if (!c) return;
-
-            var pos = c.transform.position * skyDynamics;
+            var pos = _mainCam.transform.position * skyDynamics;
 
             _offsetProperty.GlobalValue = new Vector4(pos.x, pos.z, 0f, 0f);
         }

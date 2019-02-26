@@ -343,7 +343,7 @@ namespace Playtime_Painter {
             changed |= Type(cpu).Inspect().nl();
 
             if (!overrideBlitModePegi)
-                changed |= BlitMode.PEGI();
+                changed |= BlitMode.Inspect();
 
             _inspectedBrush = null;
 
@@ -385,10 +385,10 @@ namespace Playtime_Painter {
             if (p.skinnedMeshRenderer && "Update Collider from Skinned Mesh".Click().nl())
                 p.UpdateColliderForSkinnedMesh();
             
-            ImageMeta id = p.ImgMeta;
+            var id = p.ImgMeta;
 
-            bool changed = false;
-            bool cpuBlit = id.destination == TexTarget.Texture2D;
+            var changed = false;
+            var cpuBlit = id.destination == TexTarget.Texture2D;
             
             changed |= p.PreviewShaderToggle_PEGI();
 
@@ -404,7 +404,7 @@ namespace Playtime_Painter {
 
 
             if (cpuBlit) {
-                bool smooth = _type(cpuBlit) != BrushTypePixel.Inst.index;
+                var smooth = _type(cpuBlit) != BrushTypePixel.Inst.index;
 
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
                     TypeSet(cpuBlit, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
@@ -415,9 +415,7 @@ namespace Playtime_Painter {
             if (showBrushDynamics)
             {
                 if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs, true).nl(ref changed))
-
-                if (brushDynamic != null)
-                    brushDynamic.Nested_Inspect().nl();
+                    brushDynamic?.Nested_Inspect().nl();
             }
             else
                 brushDynamic.AllTypes.Replace_IfDifferent(ref brushDynamic, typeof(BrushDynamic_None));
@@ -437,7 +435,7 @@ namespace Playtime_Painter {
             if (p.terrain) {
 
                 if (p.ImgMeta != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
-                    pegi.writeWarning("Preview Shader is needed to see changes to terrain height.");
+                    "Preview Shader is needed to see changes to terrain height.".writeWarning();
 
                 pegi.nl();
 
@@ -512,7 +510,7 @@ namespace Playtime_Painter {
             return changed;
         }
 
-        bool ColorSliders_PlaytimePainter() {
+        private bool ColorSliders_PlaytimePainter() {
 
             if (!Cfg.showColorSliders)
                 return false;

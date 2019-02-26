@@ -6,29 +6,47 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
     
     [System.Serializable]
-    public class MaterialLightManager : PainterStuff, IPEGI {
+    public class MaterialLightManager : PainterStuff, IPEGI
+    {
+        public const int maxLights = 2;
 
         public int[] probes;
-        public float[] bounceCoefficient = new float[3];
 
         public LightCaster GetLight (int number) => LightCaster.AllProbes[probes[number]];
-        
+
+        private static List<ShaderProperty.VectorValue> _positionProperties;
+
+        private static List<ShaderProperty.VectorValue> _colorVectorProperties;
+
+
+        private static List<ShaderProperty.VectorValue> _positionPropertiesGlobal;
+
+        private static List<ShaderProperty.VectorValue> _colorVectorPropertiesGlobal;
+
+
         public MaterialLightManager() {
-            
+
+            if (_positionProperties.IsNullOrEmpty())
+            {
+                _positionProperties = new List<ShaderProperty.VectorValue>();
+                _colorVectorProperties = new List<ShaderProperty.VectorValue>();
+                _positionPropertiesGlobal = new List<ShaderProperty.VectorValue>();
+                _colorVectorPropertiesGlobal = new List<ShaderProperty.VectorValue>();
+
+                for (var c = 0; c < maxLights; c++) {
+                    _positionProperties.Add(new ShaderProperty.VectorValue("l{0}pos".F(c)));
+                    _colorVectorProperties.Add(new ShaderProperty.VectorValue("l{0}col".F(c)));
+
+                    _positionPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}pos".F(PainterDataAndConfig.GlobalPropertyPrefix, c)));
+                    _colorVectorPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}col".F(PainterDataAndConfig.GlobalPropertyPrefix, c)));
+                }
+            }
+
             if (probes == null) 
-                probes = new int[3];
-            
-            if (bounceCoefficient != null) return;
-            
-            bounceCoefficient = new float[3];
-            
-            for (var i = 0; i < 3; i++)
-                bounceCoefficient[i] = 0.3f;
-
+                probes = new int[maxLights];
         }
-#if PEGI
-        public int browsedNode = -1;
 
+        #if PEGI
         public static int probeChanged = -1;
 
         public virtual bool Inspect() {
@@ -38,12 +56,9 @@ namespace Playtime_Painter {
             probeChanged = -1;
 
             if (probes == null)
-                probes = new int[3];
-            if (bounceCoefficient == null)
-                bounceCoefficient = new float[3];
-
-
-            for (var c = 0; c < 3; c++) {
+                probes = new int[maxLights];
+            
+            for (var c = 0; c < maxLights; c++) {
 
                 var ind = probes[c];
 
@@ -70,7 +85,6 @@ namespace Playtime_Painter {
                             probeChanged = c;
                         }
                     
-                        
                     if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.AllProbes.GetAllObjsNoOrder()).nl(ref changed)) {
                         probes[c] = ind;
                         probeChanged = c;
@@ -78,7 +92,6 @@ namespace Playtime_Painter {
                         
                 }
                     
-                "Bounce Coefficient".edit(ref bounceCoefficient[c]).nl(ref changed);
             }
                 pegi.space();
                 pegi.newLine();
@@ -88,31 +101,50 @@ namespace Playtime_Painter {
 
 #endif
 
-        public void UpdateLightOnMaterials(List<Material> materials)
-        {
-            if (materials.Count <= 0) return;
-            
-            for (var c = 0; c < 3; c++)
-            {
+        public void UpdateLightsGlobal() {
+
+            for (var c = 0; c < maxLights; c++)  {
 
                 var col = Color.black;
                 var pos = Vector3.zero;
 
                 var l = GetLight(c);
 
-                if (l)
-                {
+                if (l) {
                     col = l.ecol * l.brightness;
                     pos = l.transform.position;
                 }
 
-                col.a = bounceCoefficient[c];
+                col.a = 0;
+
+                _colorVectorPropertiesGlobal[c].SetGlobal(col.ToVector4());
+                _positionPropertiesGlobal[c].SetGlobal(pos);
+                    
+            }
+        }
+
+        public void UpdateLightOnMaterials(List<Material> materials)
+        {
+            if (materials.Count <= 0) return;
+            
+            for (var c = 0; c < maxLights; c++) {
+
+                var col = Color.black;
+                var pos = Vector3.zero;
+
+                var l = GetLight(c);
+
+                if (l) {
+                    col = l.ecol * l.brightness;
+                    pos = l.transform.position;
+                }
+
+                col.a = 0;
 
                 foreach (var m in materials)
-                    if (m)
-                    {
-                        m.SetVector("l" + c + "col", col.ToVector4());
-                        m.SetVector("l" + c + "pos", pos);
+                    if (m) {
+                        m.Set(_colorVectorProperties[c], col.ToVector4());
+                        m.Set(_positionProperties[c], pos);
                     }
             }
         }

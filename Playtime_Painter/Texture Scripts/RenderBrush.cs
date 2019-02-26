@@ -180,7 +180,7 @@ namespace Playtime_Painter
                 aspectRatio = ar2 / aspectRatio;
 #endif
 
-            TexMGMT.theCamera.targetTexture = onto;
+            TexMGMT.TargetTexture = onto;
 
             var tf = transform;
             

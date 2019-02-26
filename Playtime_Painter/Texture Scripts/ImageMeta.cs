@@ -621,9 +621,9 @@ namespace Playtime_Painter
         public MyIntVec2 UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
         {
             uv *= new Vector2(width, height);
-            var result = UvToPixelNumber(uv);
-            
-            pixelOffset = new Vector2(uv.x - result.x, uv.y - result.y);
+            var result = new MyIntVec2(Mathf.Round(uv.x), Mathf.Round(uv.y));
+
+            pixelOffset = new Vector2(uv.x - result.x - 0.5f, uv.y - result.y - 0.5f);
 
             return result;
         }

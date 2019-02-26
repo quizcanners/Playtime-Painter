@@ -3,22 +3,13 @@
 		_MainTex_ATL ("Albedo (RGB) (Atlas)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map (_ATL)", Float) = 0
 		[NoScaleOffset]_BumpMapC_ATL ("Combined Map ()", 2D) = "grey" {}
-		[NoScaleOffset]_BakedShadow_VOL("Baked Shadow Volume (RGB)", 2D) = "grey" {}
+	
 		_Microdetail("Microdetail (RG-bump B:Rough A:AO)", 2D) = "white" {}
 		[Toggle(VERT_SHADOW)] _vertShad("Has Vertex Shadows", Float) = 0
 
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 
-		VOLUME_H_SLICES("Baked Shadow Slices", Vector) = (0,0,0,0)
-		VOLUME_POSITION_N_SIZE("Baked Shadow Position & Size", Vector) = (0,0,0,0)
-			
-		l0pos("Point light 0 world scene position", Vector) = (0,0,0,0)
-		l0col("Point light 0 Color", Vector) = (0,0,0,0)
-		l1pos("Point light 1 world scene position", Vector) = (0,0,0,0)
-		l1col("Point light 1 Color", Vector) = (0,0,0,0)
-		l2pos("Point light 2 world scene position", Vector) = (0,0,0,0)
-		l2col("Point light 2 Color", Vector) = (0,0,0,0)
 	}
 
 	Category{
@@ -27,6 +18,7 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
+			"RayTrace" = "Opaque"
 			"VertexColorRole_A" = "Second Atlas Texture"
 			"VertexColorRole_B" = "Additional Wetness"
 		}
@@ -48,7 +40,7 @@
 
 				uniform sampler2D _MainTex_ATL;
 				uniform sampler2D _BumpMapC_ATL;
-				uniform sampler2D _BakedShadow_VOL;
+				uniform sampler2D g_BakedShadow_VOL;
 				uniform sampler2D _Microdetail;
 				float4 _MainTex_ATL_ST;
 				float4 _Microdetail_ST;
@@ -56,16 +48,10 @@
 				float _Glossiness;
 				float _AtlasTextures;
 
-				float4 l0pos;
-				float4 l0col;
-				float4 l1pos;
-				float4 l1col;
-				float4 l2pos;
-				float4 l2col;
+			
 				float4 _MainTex_ATL_TexelSize;
-				float4 _BakedShadows_VOL_TexelSize;
-				float4 VOLUME_H_SLICES;
-				float4 VOLUME_POSITION_N_SIZE;
+				float4 g_BakedShadows_VOL_TexelSize;
+
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -222,7 +208,7 @@
 			
 					// Point Lights:
 			
-					float4 bake = SampleVolume(_BakedShadow_VOL, i.worldPos,  VOLUME_POSITION_N_SIZE,  VOLUME_H_SLICES, i.normal);
+					float4 bake = SampleVolume(g_BakedShadow_VOL, i.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, i.normal);
 
 					#if VERT_SHADOW
 					bake = max(bake, i.vertShad);
@@ -242,14 +228,14 @@
 
 					// Point Lights
 
-					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l0pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.r, directBake.r, l0col, power);
+					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - g_l0pos.xyz,
+						i.normal, i.viewDir.xyz, ambientBlock, bake.r, directBake.r, g_l0col, power);
 
-					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l1pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.g, directBake.g, l1col, power);
+					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - g_l1pos.xyz,
+						i.normal, i.viewDir.xyz, ambientBlock, bake.g, directBake.g, g_l1col, power);
 
-					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - l2pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.b, directBake.b, l2col, power);
+					PointLight(scatter, glossLight, directLight, i.worldPos.xyz - g_l2pos.xyz,
+						i.normal, i.viewDir.xyz, ambientBlock, bake.b, directBake.b, g_l2col, power);
 
 					glossLight *= 0.1;
 					scatter *= (1 - bake.a);

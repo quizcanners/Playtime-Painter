@@ -20,6 +20,11 @@ namespace Playtime_Painter
 
         public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
         public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE");
+
+        public static ShaderProperty.VectorValue VOLUME_H_SLICES_Global = new ShaderProperty.VectorValue( PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_H_SLICES");
+        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_Global = new ShaderProperty.VectorValue(PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_POSITION_N_SIZE");
+
+
         public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
         public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
         public const string VolumeTextureTag = "_VOL";
@@ -154,7 +159,7 @@ namespace Playtime_Painter
             if (vt == null) return false;
             BrushTypeSphere.Inst.BeforeStroke(painter, bc, stroke);
 
-            VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosNsize4Shader;
+            VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
@@ -184,9 +189,9 @@ namespace Playtime_Painter
             
             if (id == null) return false;
             
-            var inspectedProperty = InspectedPainter.GetMaterialTextureProperty.NameForDisplayPEGI;
+            var inspectedProperty = InspectedPainter.GetMaterialTextureProperty;
             
-            if (inspectedProperty.IsNullOrEmpty() || !inspectedProperty.Contains(VolumeTextureTag)) return false;
+            if (inspectedProperty == null || !inspectedProperty.NameForDisplayPEGI.Contains(VolumeTextureTag)) return false;
             
             "Volume Texture Expected".nl();
 
@@ -198,7 +203,7 @@ namespace Playtime_Painter
 
                 if (!vol) return false;
                 
-                if (vol.MaterialPropertyName.SameAs(inspectedProperty)) {
+                if (vol.MaterialPropertyName.Equals(inspectedProperty)) {
                     if (vol.ImageMeta != null)
                         vol.AddIfNew(InspectedPainter);
                     else
@@ -320,23 +325,23 @@ namespace Playtime_Painter
 
         public static void SetVolumeTexture(this Material material, string name, VolumeTexture vt)
         {
-            VolumePaintingPlugin.VOLUME_POSITION_N_SIZE.SetOn(material, vt.PosNsize4Shader);
+            VolumePaintingPlugin.VOLUME_POSITION_N_SIZE.SetOn(material, vt.PosSize4Shader);
             VolumePaintingPlugin.VOLUME_H_SLICES.SetOn(material, vt.Slices4Shader);
             material.SetTexture(name, vt.ImageMeta.CurrentTexture());
         }
 
-        public static void SetVolumeTexture(this IEnumerable<Material> materials, string name, VolumeTexture vt)
+        public static void SetVolumeTexture(this IEnumerable<Material> materials, ShaderProperty.TextureValue name, VolumeTexture vt)
         {
             if (vt == null || vt.ImageMeta == null) return;
 
-            var pnS = vt.PosNsize4Shader;
+            var pnS = vt.PosSize4Shader;
             var vhS = vt.Slices4Shader;
 
             foreach (var m in materials) if (m != null)
                 {
                     m.Set(VolumePaintingPlugin.VOLUME_POSITION_N_SIZE, pnS);
                     m.Set(VolumePaintingPlugin.VOLUME_H_SLICES, vhS);
-                    m.SetTexture(name, vt.ImageMeta.CurrentTexture());
+                    m.Set(name, vt.ImageMeta.CurrentTexture());
                 }
         }
 

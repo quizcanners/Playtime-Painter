@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,8 +13,9 @@ using QuizCannersUtilities;
 using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
-
+#pragma warning disable 1692
 #pragma warning disable IDE1006
+
 namespace PlayerAndEditorGUI {
 
     #region interfaces & Attributes
@@ -7859,14 +7859,10 @@ namespace PlayerAndEditorGUI {
                 foreach (var w in lst)
                     w.ShowNotification(new GUIContent(text));
 
-            }
-         
-
-            
+            }  
 #endif
         }
     }
     #endregion
 
 }
-#pragma warning restore IDE1006

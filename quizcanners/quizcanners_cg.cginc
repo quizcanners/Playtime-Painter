@@ -10,6 +10,19 @@ float _Picker_Brightness;
 float _Picker_Contrast;
 float _Picker_HUV;
 
+
+float4 g_VOLUME_H_SLICES;
+float4 g_VOLUME_POSITION_N_SIZE;
+
+float4 g_l0pos;
+float4 g_l0col;
+float4 g_l1pos;
+float4 g_l1col;
+float4 g_l2pos;
+float4 g_l2col;
+
+
+
 sampler2D _Global_Noise_Lookup;
 
 float4 _lightControl;
@@ -742,7 +755,7 @@ float3 vec, float3 normal, float3 viewDir, float ambientBlock, float bake, float
 	float NdotH = max(0.01, (dot(normal, halfDirection)));
 	float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
 
-	scatter += distApprox * bake * lcol.a;
+	scatter += distApprox * bake;
 	glossLight += lcol.rgb*normTerm*direct;
 	directLight += distApprox * direct;
 
@@ -766,7 +779,7 @@ inline void PointLightTransparent(inout float3 scatter, inout float3 directLight
 	//float NdotH = max(0.01, (dot(normal, halfDirection)));
 	//float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
 
-	scatter += distApprox * bake * lcol.a;
+	scatter += distApprox * bake;
 	//glossLight += lcol.rgb*normTerm*direct;
 	directLight += (distApprox  + lcol.rgb*power) * direct;
 
@@ -791,6 +804,7 @@ inline void DirectionalLight(inout float3 scatter, inout float3 glossLight, inou
 	shadow = saturate(shadow * 2 - ambientBlock);
 
 	float direct = max(0, dot(_WorldSpaceLightPos0, normal));
+	
 	direct = direct * shadow; // Multiply by shadow
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);

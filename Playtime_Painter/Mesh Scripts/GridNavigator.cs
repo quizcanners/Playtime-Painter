@@ -32,8 +32,8 @@ public class GridNavigator : PainterStuffMono {
         return _inst;
     }
 
- //   public static PainterBoolPlugin pluginNeedsGrid_Delegates;
-
+    private Transform Camera => gameObject.TryGetCameraTransform(TexMGMT.MainCamera);
+    
     public Material vertexPointMaterial;
     public GameObject vertPrefab;
     public MarkerWithText[] vertices;
@@ -86,7 +86,7 @@ public class GridNavigator : PainterStuffMono {
     }
 
     private float AngleClamp(Quaternion ang) {
-        var res = Quaternion.Angle(gameObject.TryGetCameraTransform().rotation, ang);
+        var res = Quaternion.Angle(Camera.rotation, ang);
         if (res > 90)
             res = 180 - res;
         return res;
@@ -94,7 +94,7 @@ public class GridNavigator : PainterStuffMono {
 
     public float AngGridToCamera(Vector3 hitPos)
     {
-        var ang = (Vector3.Angle(GetGridPerpendicularVector(), hitPos - gameObject.TryGetCameraTransform().position));
+        var ang = (Vector3.Angle(GetGridPerpendicularVector(), hitPos - Camera.position));
         if (ang > 90)
             ang = 180 - ang;
         return ang;
@@ -102,7 +102,7 @@ public class GridNavigator : PainterStuffMono {
 
     private static Vector3 MouseToPlane(Plane plane)
     {
-        var ray = EditorInputManager.GetScreenRay();
+        var ray = EditorInputManager.GetScreenRay(TexMGMT.MainCamera);
         float rayDistance;
         return plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
     }
@@ -174,7 +174,7 @@ public class GridNavigator : PainterStuffMono {
 
     private void ClosestAxis(bool horToo)
     {
-        var ang = gameObject.TryGetCameraTransform().rotation.x;
+        var ang = Camera.rotation.x;
         if (!horToo || (ang < 35 || ang > 300))
         {
             var x = AngleClamp(XGrid);
@@ -269,32 +269,26 @@ public class GridNavigator : PainterStuffMono {
         var rndTf = rendy.transform;
         
         tf.position = onGridPos+Vector3.one*0.01f;
-
         
         var position = tf.position;
         
         _dotPositionProperty.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
 
-        dotTf.rotation = gameObject.TryGetCameraTransform().rotation;
+        dotTf.rotation = Camera.rotation;
 
-        var cam = gameObject.TryGetCameraTransform();
+        var cam = Camera;
 
         var dist = Mathf.Max(0.1f, (cam.position - position).magnitude * 2);
 
         dotTf.localScale = Vector3.one * (dist / 64f);
         rndTf.localScale = new Vector3(dist, dist, dist);
 
-        float dx;
-        float dy;
-
-        if (gSide != Gridside.zy)
-            dx = (position.x);
-        else dx = (-position.z);
-
-        dy = gSide != Gridside.xz ? position.y : position.z;
-
         float scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int)(dist / 8))) : cfg.gridSize;
+        
+        var dx = gSide != Gridside.zy ? position.x : -position.z;
 
+        var dy = gSide != Gridside.xz ? position.y : position.z;
+        
         dx -= Mathf.Round(dx / scale) * scale;
         dy -= Mathf.Round(dy / scale) * scale;
 
@@ -306,7 +300,6 @@ public class GridNavigator : PainterStuffMono {
 
         if (MeshMGMT.target)
             MeshMGMT.UpdateLocalSpaceV3S(); 
-
     }
 
     private readonly ShaderProperty.FloatValue _dxProp      = new ShaderProperty.FloatValue("_dx");
@@ -326,10 +319,8 @@ public class GridNavigator : PainterStuffMono {
         
     }
 
-    private void OnEnable() {
-        _inst = this;
-    }
-   
+    private void OnEnable() =>_inst = this;
+    
     public void FeedEvent(Event e) {
 
         if (!rendy || !rendy.enabled)
@@ -346,9 +337,9 @@ public class GridNavigator : PainterStuffMono {
 
         if (EditorInputManager.GetMouseButtonDown(2)) {
             RaycastHit hit;
-            if (Physics.Raycast(EditorInputManager.GetScreenRay(), out hit))
+            if (Physics.Raycast(EditorInputManager.GetScreenRay(TexMGMT.MainCamera), out hit))
                 onGridPos = hit.point;
-           }
+        }
     }
     
 }

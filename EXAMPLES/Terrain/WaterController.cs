@@ -16,12 +16,12 @@ namespace Playtime_Painter.Examples
         private void OnEnable()
         {
             SetFoamDynamics();
-            Shader.EnableKeyword("WATER_FOAM");
+            Shader.EnableKeyword(PainterDataAndConfig.WATER_FOAM);
         }
 
         private void OnDisable()
         {
-            Shader.DisableKeyword("WATER_FOAM");
+            Shader.DisableKeyword(PainterDataAndConfig.WATER_FOAM);
         }
 
         public Texture foamMask;

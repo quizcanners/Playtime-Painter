@@ -6,15 +6,19 @@ using QuizCannersUtilities;
 using Unity.Collections;
 using UnityEngine.Serialization;
 
-namespace Playtime_Painter
-{
-
-
+namespace Playtime_Painter {
+    
     [ExecuteInEditMode]
     [Serializable]
     public class VolumeTexture : PainterStuffMono, IGotName
     {
 
+        [SerializeField] private bool setForGlobal;
+
+        private static VolumeTexture _currentlyActiveGlobalVolume;
+
+        protected bool IsCurrentGlobalVolume => setForGlobal && this == _currentlyActiveGlobalVolume;
+        
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
         public virtual bool VolumeJobIsRunning => volumeIsProcessed;
@@ -36,17 +40,21 @@ namespace Playtime_Painter
             set { image = value?.texture2D; }
         }
 
-        public virtual string MaterialPropertyName => "_DefaultVolume {0}".F(VolumePaintingPlugin.VolumeTextureTag);
+        protected virtual string PropertyName => "DefaultVolume";
 
+        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyName + VolumePaintingPlugin.VolumeTextureTag);
+
+        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyName + VolumePaintingPlugin.VolumeTextureTag);
+        
         public List<Material> materials;
 
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         public int Height => hSlices * hSlices;
 
-        public int Width => ((ImageMeta == null ? (TexturesPool.inst == null ? _tmpWidth : TexturesPool.inst.width) : ImageMeta.width)) / hSlices;
+        public int Width => (ImageMeta?.width ?? (TexturesPool.inst == null ? _tmpWidth : TexturesPool.inst.width)) / hSlices;
 
-        public Vector4 PosNsize4Shader => transform.position.ToVector4(1f / size);
+        public Vector4 PosSize4Shader => transform.position.ToVector4(1f / size);
 
         public Vector4 Slices4Shader { get { float w = (ImageMeta.width - hSlices * 2) / hSlices; return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
 
@@ -293,7 +301,7 @@ namespace Playtime_Painter
         #if PEGI
         protected int inspectedMaterial = -1;
 
-        bool VolumeDocumentation()
+        protected virtual bool VolumeDocumentation()
         {
             "Volumes are 2D Textures that are used as".writeBig();
             " 3D Textures ".ClickLink("https://docs.unity3d.com/Manual/class-Texture3D.html").nl();
@@ -306,18 +314,17 @@ namespace Playtime_Painter
 
             return false;
         }
-
-
+        
         public override bool Inspect()
         {
             var changed = false;
-
-
+            
             pegi.fullWindowDocumentationClick(VolumeDocumentation);
-
-
+            
             if (inspectedMaterial == -1) {
 
+                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl(ref changed);
+                
                 var n = name;
                 
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
@@ -370,7 +377,7 @@ namespace Playtime_Painter
                     var pMat = InspectedPainter.Material;
                     if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl(ref changed))
                         materials.Remove(pMat);
-                }
+            }
             
 
             if (materials.Count > 0 && (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed))))
@@ -382,11 +389,29 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        protected virtual void UpdateMaterials() =>
-            materials.SetVolumeTexture(MaterialPropertyName, this);
+        protected virtual void UpdateMaterials()
+        {
 
+            var id = ImageMeta;
+
+            if (id == null) return;
+
+            materials.SetVolumeTexture(MaterialPropertyName, this);
+            
+            if (setForGlobal)  {
+                if (!_currentlyActiveGlobalVolume)
+                    _currentlyActiveGlobalVolume = this;
+                else if (_currentlyActiveGlobalVolume == this)
+                {
+                    VolumePaintingPlugin.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
+                    VolumePaintingPlugin.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
+                    MaterialPropertyNameGlobal.SetGlobal(ImageMeta.CurrentTexture());
+                }
+            }
+        }
 
         private Vector3 _previousWorldPosition = Vector3.zero;
+
         public virtual void Update()
         {
             if (_previousWorldPosition == transform.position) return;

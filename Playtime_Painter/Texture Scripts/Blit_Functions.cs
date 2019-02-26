@@ -150,8 +150,6 @@ namespace Playtime_Painter {
 
             bc.PrepareCpuBlit(image);
 
-            half -= 0.5f;
-
             var iHalf = (int)(half);
 
             Vector2 offset;
@@ -165,10 +163,12 @@ namespace Playtime_Painter {
                 offset = Vector2.zero;
             }
 
-            var halfFromX = Mathf.RoundToInt(-iHalf + offset.x);
-            var halfFromY = Mathf.RoundToInt(-iHalf + offset.y);
-            var halfToX = Mathf.RoundToInt(iHalf + offset.x);
-            var halfToY = Mathf.RoundToInt(iHalf + offset.y);
+            var hf = half - 0.5f;
+
+            var halfFromX = Mathf.RoundToInt(-hf + offset.x);
+            var halfFromY = Mathf.RoundToInt(-hf + offset.y);
+            var halfToX = Mathf.RoundToInt(hf + offset.x);
+            var halfToY = Mathf.RoundToInt(hf + offset.y);
 
             var fromX = tmp.x + halfFromX;
 
@@ -176,11 +176,11 @@ namespace Playtime_Painter {
 
             var pixels = image.Pixels;
 
-            for (y = halfFromY; y < halfToY + 1; y++) {
+            for (y = halfFromY; y <= halfToY; y++) {
 
                 tmp.x = fromX;
 
-                for (x = halfFromX; x < halfToX + 1; x++) {
+                for (x = halfFromX; x <= halfToX ; x++) {
 
                     if (alphaMode())
                         blitMode(ref pixels[image.PixelNo(tmp)]);
