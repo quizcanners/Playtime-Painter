@@ -1385,7 +1385,7 @@ namespace Playtime_Painter {
             Path.Combine(Cfg.texturesFolderName, ImgMeta.saveName + ".png");
 
         public string GenerateMeshSavePath() =>
-             SharedMesh ? Path.Combine(Cfg.meshesFolderName, meshNameField, ".asset") : "None";
+             SharedMesh ? Path.Combine(Cfg.meshesFolderName, meshNameField+ ".asset") : "None";
 
         private bool OnBeforeSaveTexture(ImageMeta id)
         {
@@ -1473,6 +1473,8 @@ namespace Playtime_Painter {
                     meshNameField = sm.name;
                 else
                     sm.name = meshNameField;
+
+                Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
 
                 AssetDatabase.CreateAsset(sm, Path.Combine("Assets",GenerateMeshSavePath()));
 

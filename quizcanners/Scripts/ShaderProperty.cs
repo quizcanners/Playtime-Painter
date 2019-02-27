@@ -198,6 +198,29 @@ namespace QuizCannersUtilities {
 
         #endregion
 
+        #region Matrix
+        public class MatrixValue : ShaderPropertyIndexGeneric<Matrix4x4>
+        {
+
+            public override void SetOn(Material material) => material.SetMatrix(id, lastValue);
+
+            public override void SetOn(MaterialPropertyBlock block) => block.SetMatrix(id, lastValue);
+
+            public override Matrix4x4 Get(Material mat) => mat.GetMatrix(id);
+
+            public override Matrix4x4 GlobalValue
+            {
+                get { return Shader.GetGlobalMatrix(id); }
+                set { Shader.SetGlobalMatrix(id, value); }
+            }
+
+            public MatrixValue(string name) : base(name) { }
+
+            public MatrixValue() { }
+        }
+
+        #endregion
+
         #region Texture
         public class TextureValue : ShaderPropertyIndexGeneric<Texture>  {
 
@@ -265,7 +288,6 @@ namespace QuizCannersUtilities {
             #endregion
         }
         
-
         public static Vector2 GetOffset(this Material mat, TextureValue property) => property.GetOffset(mat);
 
         public static Vector2 GetTiling(this Material mat, TextureValue property) => property.GetTiling(mat);

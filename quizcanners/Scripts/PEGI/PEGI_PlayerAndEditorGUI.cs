@@ -514,11 +514,9 @@ namespace PlayerAndEditorGUI {
             
             private static readonly List<string> gotItTexts = new List<string>()
             {
-                "Got it!",
                 "I understand",
                 "Clear as day",
                 "Roger that",
-                "OK",
                 "Without a shadow of a doubt",
                 "Couldn't be more clear",
                 "Totally got it",
@@ -527,13 +525,58 @@ namespace PlayerAndEditorGUI {
                 "Thanks",
                 "Take me back",
                 "Reading Done",
-                "Thanks"
+                "Thanks",
+                "Affirmative",
+                "Comprehended",
+                "Grasped",
+                "I have learned something",
+                "Acknowledged",
+                "I see",
+                "I get it",
+                "I take it as read",
+                "Point taken",
+                "I infer",
+                "Clear message",
+                "This was useful",
+                "A comprehensive explanation",
+                "I have my answer",
+                "How do I close this?",
+                "Now I want to know something else",
+                "Can I close this Pop Up now?",
+                "I would like to see previous screen please",
+                "This is what I wanted to know",
+                "Now I can continue",
+
+                
             };
-            
-            public static void InitiatePopUp()
+
+            private static readonly List<string> gotItTextsWeird = new List<string>()
             {
+                "Nice, this is easier then opening a documentation",
+                "So convenient, thanks!",
+                "Cool, no need to browse Documentation!",
+                "Wish getting answers were always this easy",
+                "It is nice to have tooltips like this",
+                "I wonder how many texts are here",
+                "Did someone had nothing to do to write this texts?",
+                "This texts are random every time, aren't they?",
+                "Why not make this just OK button"
+            };
+
+            private static int textsShown;
+
+            public static void InitiatePopUp() {
+
                 popUpTarget = inspectedTerget;
-                understoodPopUpText = gotItTexts.GetRandom();
+
+                switch (textsShown) {
+                    case 0: understoodPopUpText = "OK";  break;
+                    case 1: understoodPopUpText = "Got it!"; break;
+                    case 40: understoodPopUpText = "By clicking I confirm to selling my kidney"; break;
+                    default: understoodPopUpText = (textsShown < 20 ? gotItTexts : gotItTextsWeird).GetRandom();  break;
+                }
+
+                textsShown++;
             }
 
             private static void Confirm()
