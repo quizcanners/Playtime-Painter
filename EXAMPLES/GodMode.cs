@@ -128,7 +128,7 @@ namespace Playtime_Painter.Examples {
                 camTr.position = campos;
                 if (!orbitingFocused)
                 {
-                    camTr.rotation = camTr.rotation.Lerp_bySpeed(rot, 200);
+                    camTr.rotation = camTr.rotation.LerpBySpeed(rot, 200);
                     if (Quaternion.Angle(camTr.rotation, rot) < 1)
                         orbitingFocused = true;
                 }

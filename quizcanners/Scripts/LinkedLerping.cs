@@ -562,7 +562,7 @@ namespace QuizCannersUtilities {
             public abstract Color Value { get; set; }
 
             public override bool Portion(ref float linkedPortion) =>
-              speedLimit.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref linkedPortion);
+              speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref linkedPortion);
 
             public sealed override bool LerpInternal(float linkedPortion) {
                 if (Enabled && (targetValue != Value || !defaultSet)) 
@@ -810,7 +810,7 @@ namespace QuizCannersUtilities {
             }
 
             public override bool Portion(ref float portion) =>
-                speedLimit.SpeedToMinPortion(Value.DistanceRGBA(targetValue), ref portion);
+                speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref portion);
 
         }
         

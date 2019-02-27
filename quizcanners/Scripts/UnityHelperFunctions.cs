@@ -1035,7 +1035,7 @@ namespace QuizCannersUtilities {
                         
                     if (!_orbitingFocused)
                     {
-                        cameraman.transform.rotation = cameraman.rotation.Lerp_bySpeed(rot, 300);
+                        cameraman.transform.rotation = cameraman.rotation.LerpBySpeed(rot, 300);
                         if (Quaternion.Angle(cameraman.rotation, rot) < 1)
                             _orbitingFocused = true;
                     }
