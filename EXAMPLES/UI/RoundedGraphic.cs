@@ -209,7 +209,6 @@ namespace Playtime_Painter.Examples
         [SerializeField] private int _inspectedModule;
         public bool Inspect()
         {
-            
 
             pegi.toggleDefaultInspector();
 
@@ -292,7 +291,7 @@ namespace Playtime_Painter.Examples
                     }
 
                     var n = mat.name;
-                    if ("Material".editDelayed(40, ref n))
+                    if ("Material".editDelayed(80, ref n))
                         mat.RenameAsset(n);
                 }
 

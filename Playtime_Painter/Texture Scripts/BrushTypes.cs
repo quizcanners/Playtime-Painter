@@ -443,7 +443,7 @@ namespace Playtime_Painter
 
             var changes = false;
 
-            changes |= pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).nl();
+            pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).nl(ref changes);
 
             var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
@@ -455,8 +455,8 @@ namespace Playtime_Painter
 
             "Rotation".write("Rotation method", 60);
 
-            InspectedBrush.decalRotationMethod = (DecalRotationMethod)pegi.editEnum(InspectedBrush.decalRotationMethod); 
-            pegi.newLine();
+            pegi.editEnum(ref InspectedBrush.decalRotationMethod).nl(ref changes); 
+
             switch (InspectedBrush.decalRotationMethod)
             {
                 case DecalRotationMethod.Set:

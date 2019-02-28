@@ -91,50 +91,47 @@ namespace Playtime_Painter.Examples {
 
             var changed = false;
 
-          
-                ("When colliding with other object will try to use sphere brush to paint on them." +
-                 "Targets need to have PlaytimePainter component").fullWindowDocumentationClick("What to do");
-         
+            ("When colliding with other object will try to use sphere brush to paint on them." +
+             "Targets need to have PlaytimePainter component").fullWindowDocumentationClick("What to do");
+     
 
-                if (Application.isPlaying)
-                    "Painting on {0} objects".F(paintingOn.Count).nl();
+            if (Application.isPlaying)
+                "Painting on {0} objects".F(paintingOn.Count).nl();
 
-                if (_collider.isTrigger && "Set as Rigid Collider object".Click().nl(ref changed))
+            if (_collider.isTrigger && "Set as Rigid Collider object".Click().nl(ref changed))
+            {
+                _collider.isTrigger = false;
+                rigid.isKinematic = false;
+                rigid.useGravity = true;
+            }
+
+            if (!_collider.isTrigger && "Set as Trigger".Click().nl(ref changed))
+            {
+                _collider.isTrigger = true;
+                rigid.isKinematic = true;
+                rigid.useGravity = false;
+            }
+
+            var size = transform.localScale.x;
+
+            if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl(ref changed))
+                transform.localScale = Vector3.one * size;
+
+            "Painter ball made for World Space Brushes only".writeOneTimeHint("PaintBall_brushHint");
+
+            if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
+            {
+                if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
                 {
-                    _collider.isTrigger = false;
-                    rigid.isKinematic = false;
-                    rigid.useGravity = true;
+                    brush.targetIsTex2D = false;
+                    brush.TypeSet(false, BrushTypeSphere.Inst);
+
+                    "PaintBall_brushHint".resetOneTimeHint();
                 }
+            }
 
-                if (!_collider.isTrigger && "Set as Trigger".Click().nl(ref changed))
-                {
-                    _collider.isTrigger = true;
-                    rigid.isKinematic = true;
-                    rigid.useGravity = false;
-                }
-
-                var size = transform.localScale.x;
-
-                if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl(ref changed))
-                    transform.localScale = Vector3.one * size;
-
-                "Painter ball made for World Space Brushes only".writeOneTimeHint("PaintBall_brushHint");
-
-                if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
-                {
-                    if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
-                    {
-                        brush.targetIsTex2D = false;
-                        brush.TypeSet(false, BrushTypeSphere.Inst);
-
-                        "PaintBall_brushHint".resetOneTimeHint();
-                    }
-                }
-
-                if (brush.ColorSliders())
-                    rendy.sharedMaterial.color = brush.Color;
-            
-
+            if (brush.ColorSliders())
+                rendy.sharedMaterial.color = brush.Color;
 
             return false;
         }

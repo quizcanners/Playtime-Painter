@@ -46,29 +46,24 @@
 				o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				o.color = v.color;
-				o.shadowCoords = mul(c_ShadowMatrix, o.worldPos); //mul(c_ShadowMatrix, float4(o.worldPos, 1.0));
-
-
-				// All good above this line
-
-				float4 mvp = mul(c_ShadowMatrix, mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0)));
-
-
-
-
-
-
+				o.shadowCoords = mul(c_ShadowMatrix, o.worldPos); 
 				return o;
 			}
 
 			float4 frag(v2f o) : COLOR{
 
-				if (o.shadowCoords.w < 0)
-				return 0;
+				if (o.shadowCoords.w < 0) return 0;
+
+				float camAspectRatio = c_CamParams.x;
+				float camFOVDegrees = c_CamParams.y;
+				float near = c_CamParams.z;
+				float far = c_CamParams.w;
 
 				o.shadowCoords.xy /= o.shadowCoords.w;
 
-				float2 uv = o.shadowCoords.xy;
+				float2 viewPosXY = o.shadowCoords.xy * camFOVDegrees;
+
+				viewPosXY.x *= camAspectRatio;
 
 				o.shadowCoords.xy = (o.shadowCoords.xy+1) * 0.5;
 
@@ -77,16 +72,9 @@
 
 				float tex = tex2D(c_ShadowTex, o.shadowCoords);
 
-
-
-				float camAspectRatio = c_CamParams.x;
-				float camFOVDegrees = c_CamParams.y;
-				float near = c_CamParams.z; 
-				float far = c_CamParams.w; 
-
 				float3 vec = o.worldPos - c_ShadowCamPos.xyz;
 
-				float trueDist =  length(vec);
+				float trueDist = length(vec);
 				
 				float True01Range = trueDist / far;
 
@@ -98,23 +86,11 @@
 
 				float dist = 1.0 / (c_ZBufferParameters.x * (1 - tex) + c_ZBufferParameters.y); // Is a 01 depth
 
-				float2 viewPosXY = uv.xy;
-				
-
-
-				const float deg2rad = 0.0174533;
-
-				float viewHeight = dist * tan(camFOVDegrees * 0.5 * deg2rad);
-
-				viewPosXY.y *=  viewHeight;
-
-				viewPosXY.x *=  viewHeight * camAspectRatio;
+				viewPosXY *= dist;
 
 				dist = length(float3(viewPosXY.xy, dist)); 
 
-				tex = 1 - abs(True01Range-dist)*100;
-
-				return tex;
+				return  1 - abs(True01Range - dist) * 100;
 
 		
 			}

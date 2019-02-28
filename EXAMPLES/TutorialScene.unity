@@ -726,7 +726,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 346078610}
   m_LocalRotation: {x: -0.049011916, y: -0.9750129, z: -0.0010470668, w: -0.2166717}
-  m_LocalPosition: {x: -32.99, y: 11.43, z: 23.81}
+  m_LocalPosition: {x: -29.6, y: 10.6, z: 23.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -4429,7 +4429,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -51.896374
+  timer: -18.434992
   style:
     m_Name: Hint Style
     m_Normal:
